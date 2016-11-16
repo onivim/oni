@@ -63,6 +63,10 @@ class WindowContext implements IWindowContext {
         return this._fontHeightInPixels
     }
 
+    public get fontWidthInPixels(): number {
+        return this._fontWidthInPixels
+    }
+
     public get lineToPositionMap(): string {
         return this._lineMapping
     }

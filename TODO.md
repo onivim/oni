@@ -5,10 +5,6 @@ https://github.com/rhysd/neovim-component/blob/6d3efd8e2ed4fec67ccfa2c8b047aa171
 
 - Error scenario
     - Display mapping
-        - Fix event handling, so that the OverlayManager activeWindowDimensionsChanged gets called on:
-            - new split
-        - Create overlay to follow UI around
-        - Overlay needs to listen to buffer event to know which buffer is active
         - Component to show error
 
     - Split UI into layers

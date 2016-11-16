@@ -47,6 +47,7 @@ export class ErrorOverlay implements IOverlay {
         renderErrorMarkers({
             errors: this._errors[this._currentFileName],
             fontHeight: this._lastWindowContext.fontHeightInPixels,
+            fontWidth: this._lastWindowContext.fontWidthInPixels,
             lineToPositionMap: this._lastWindowContext.lineToPositionMap
         }, this._element)
     }
