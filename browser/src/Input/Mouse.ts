@@ -1,6 +1,6 @@
 import { EventEmitter } from "events"
 
-import { Screen } from "./Screen"
+import { Screen } from "./../Screen"
 
 interface ScreenPoint {
     line: number
