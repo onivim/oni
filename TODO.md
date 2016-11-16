@@ -1,4 +1,9 @@
 - fuzzy matching for items
+- set up uglification / minification for 'production' builds
+    - production webpack config
+
+- Performance
+    - Optimistic typing
 
 - Good reference implementation of mouse: 
 https://github.com/rhysd/neovim-component/blob/6d3efd8e2ed4fec67ccfa2c8b047aa1711c2f01d/src/neovim/screen-drag.ts
@@ -28,12 +33,6 @@ https://github.com/rhysd/neovim-component/blob/6d3efd8e2ed4fec67ccfa2c8b047aa171
     - Minimap
     - Scrollbar
 
-- How to map display line to buffer line?
-    - line('w0') and line('w$')? (:help line)
-    - Can start at top and scroll through with 'j'
-    - Can use 'winline()' to see the display line
-        - Iterate from 'w0' to 'w$' to build up mapping
-
 - Type signature help
 - Scroll bar
     - Minimap
@@ -55,7 +54,6 @@ https://github.com/rhysd/neovim-component/blob/6d3efd8e2ed4fec67ccfa2c8b047aa171
     - Webview pane?
 - Performance
     - DOM Renderer
-- Error highlighting
 - Enhanced syntax highlighting
 
 - <C-P> further work
