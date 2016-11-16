@@ -11,6 +11,7 @@ export interface ErrorsProps {
     fontHeight: number
     fontWidth: number
     columnOffset: number
+    currentScreenLine: number
 }
 
 const padding = 8
@@ -23,7 +24,13 @@ export class Errors extends React.Component<ErrorsProps, void> {
             if(this.props.lineToPositionMap[e.lineNumber]) {
                 const screenLine = this.props.lineToPositionMap[e.lineNumber]
                 const yPos = (screenLine - 1) * this.props.fontHeight - (padding / 2)
-                return <ErrorMarker y={yPos} height={this.props.fontHeight} text={e.text} />
+
+                const isActive = screenLine === this.props.currentScreenLine
+
+                return <ErrorMarker isActive={isActive} 
+                        y={yPos} 
+                        height={this.props.fontHeight} 
+                        text={e.text} />
             } else {
                 return null
             }
@@ -56,6 +63,7 @@ export interface ErrorMarkerProps {
     y: number
     height: number
     text: string
+    isActive: boolean
 }
 
 export class ErrorMarker extends React.Component<ErrorMarkerProps, void> {
@@ -68,15 +76,17 @@ export class ErrorMarker extends React.Component<ErrorMarkerProps, void> {
             height: (padding + this.props.height).toString() + "px"
         }
 
-        return <div style={positionDivStyles} className="error-marker">
+        let className = this.props.isActive ? "error-marker active" : "error-marker"
+
+        return <div style={positionDivStyles} className={className}>
                      <div className="error">
                         <div className="text">
                             {this.props.text}
                         </div>
-                        <div className="icon-container">
-                            <Icon name="exclamation-circle" />
-                        </div>
                      </div>
+                    <div className="icon-container">
+                        <Icon name="exclamation-circle" />
+                    </div>
                 </div>
     }
 }
