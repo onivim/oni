@@ -7,6 +7,7 @@
     "oni": "./cli/neotron"
   },
   "scripts": {
+    "postinstall": "cd vim/vimfiles/bundle/oni-typescript && npm install",
     "build": "npm run build:browser && npm run build:plugin_api && npm run build:plugins",
     "build:browser": "webpack --config browser/webpack.config.js",
     "build:plugin_api": "cd plugin_api && tsc",
