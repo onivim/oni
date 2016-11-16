@@ -52,39 +52,39 @@ The goal of this project is to give an editor that gives the best of both worlds
 ## Roadmap
 
 - 0.1
-    [x] Initial repo
-    [x] OS X / Windows support
-    [x] TypeScript language support
+    -[x] Initial repo
+    -[x] OS X / Windows support
+    -[x] TypeScript language support
 - 0.2
-    [] Mouse support
-        [] Buffer scroll bars
-    [] Extensibility models
-        [] Language service
-            [] Autocompletion (TypeScript, Javascript)
-            [] QuickInfo (TypeScript, JavaScript)
-            [] Goto Definition (TypeScript, JavaScript)
-            [] Errors
-    [] Services
-        [] QuickOpen - Modern CTRL-P replacement
-    [] Installation via NPM
+    -[] Mouse support
+        -[] Buffer scroll bars
+    -[] Extensibility models
+        -[] Language service
+            -[] Autocompletion (TypeScript, Javascript)
+            -[] QuickInfo (TypeScript, JavaScript)
+            -[] Goto Definition (TypeScript, JavaScript)
+            -[] Errors
+    -[] Services
+        -[] QuickOpen - Modern CTRL-P replacement
+    -[] Installation via NPM
 - 0.3
-    [] Proper keymap support
-    [] Configuration loading
-    [] Git overlays
-    [] QuickOpen Improvements
-        [] Non-git strategy
-        [] Fuzzy Matching
-        [] Scrollbar
-    [] AutoCompletion
-        [] Fuzzy Matching
-        [] Scrollbar
+    -[] Proper keymap support
+    -[] Configuration loading
+    -[] Git overlays
+    -[] QuickOpen Improvements
+        -[] Non-git strategy
+        -[] Fuzzy Matching
+        -[] Scrollbar
+    -[] AutoCompletion
+        -[] Fuzzy Matching
+        -[] Scrollbar
 
 - Future
-    [] Icon
-    [] Scrollbar minimap (a-la sublime)
-    [] Enhanced VimTutor
-    [] Debugger support
-    [] Snippet support
+    -[] Icon
+    -[] Scrollbar minimap (a-la sublime)
+    -[] Enhanced VimTutor
+    -[] Debugger support
+    -[] Snippet support
     [] Project templates
     [] Package Manager
 
