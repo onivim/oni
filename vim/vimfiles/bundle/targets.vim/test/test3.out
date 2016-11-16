@@ -1,0 +1,38 @@
+A
+a (A) c
+
+B (B) b
+a (C) C
+
+D (D) c
+
+a (E) E
+
+a ( b
+F (F) c
+d ) e
+
+a ( b
+c (G) G
+d ) e
+
+a ( b ) H (H) d
+
+a (I) c
+I " this must be the last pair test
+
+J
+a 'J' c
+
+K 'K' b
+a 'L' L
+
+a 'M' c
+d ' e
+
+a ' b
+c 'N' e
+
+a 'O' c
+O " this must be the last quote test
+

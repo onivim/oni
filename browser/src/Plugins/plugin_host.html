@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Plugin host</title>
+  </head>
+  <body>
+  </body>
+
+  <script>
+    const path = require("path");
+    require("electron").ipcRenderer.on("init", (evt, message) => {
+
+        // Load oni api path
+        const oniApiPath = path.join(__dirname, "..", "..", "..", "lib", "plugin_api", "Oni.js");
+        const OniClass = require(oniApiPath).Oni;
+        global.Oni = new OniClass();
+
+        // Load plugin module
+        const moduleToLoad = message.pathToModule;
+        require(moduleToLoad);
+    });
+  </script>
+</html>
+

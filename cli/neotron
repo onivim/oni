@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+var path = require('path')
+var spawn = require('child_process').spawn
+const os = require("os");
+
+// TODO: Other platforms
+const isMac = os.platform() === "darwin";
+const electronBinFile = isMac ? "electron" : "electron.cmd"
+var electronPath = path.join(__dirname, "..", "node_modules", ".bin", electronBinFile)
+var args = process.argv.slice(2);
+args.unshift(path.resolve(path.join(__dirname, "..", "main.js")))
+
+var child = spawn(electronPath, args)
+child.stdout.pipe(process.stdout)
+process.stdin.pipe(child.stdin)
+
+child.on("exit", (code) => process.exit(code));

@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "outDir": "./../lib/browser",
+        "sourceMap": true,
+        "module": "commonjs",
+        "target": "es6",
+        "jsx": "react"
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}

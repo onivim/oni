@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+
+    <title>ONI</title>
+    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0px;
+            margin: 0px;
+            overflow: hidden;
+        }
+        body {
+            font-family: Consolas, Monaco, 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        script {
+            display: none;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="neovim-container"></div>
+    <canvas id="test-canvas" style="width: 100%; height: 100%;"></canvas>
+    <div id="overlay-ui"></div>
+      <script>
+        var path = "dist/browser/bundle.js"
+        if(process.env.NODE_ENV === "development") {
+            path = "http://localhost:8191/bundle.js";
+        }
+        var scriptTag = document.createElement("script");
+        scriptTag.src = path
+        document.body.appendChild(scriptTag);
+      </script>
+  </body>
+</html>

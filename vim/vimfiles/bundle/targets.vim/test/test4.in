@@ -1,0 +1,6 @@
+a ( b ( x ) c ) d
+a { b { x } c } d
+a [ b [ x ] c ] d
+a < b < x > c > d
+a <a> b <b> x </b> c </a> d
+

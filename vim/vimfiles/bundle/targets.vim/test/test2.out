@@ -1,0 +1,20 @@
+// comment 1
+function f() {
+        foo
+    }
+
+// comment 2
+function f() {
+    }
+
+// comment 3
+int a = 5;
+foo;
+
+// comment 4
+string x = `foo`;
+
+// comment 5
+function f() {
+    foo
+}

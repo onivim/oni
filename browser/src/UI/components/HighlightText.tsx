@@ -1,0 +1,41 @@
+import * as React from "react"
+
+export interface HighlightTextProps {
+    highlightClassName: string;
+    highlightText: string;
+    text: string;
+    className: string;
+}
+
+export class HighlightText extends React.Component<HighlightTextProps, void> {
+
+    public render(): JSX.Element {
+
+        const childNodes = []
+
+        const letterCountDictionary = createLetterCountDictionary(this.props.highlightText)
+
+        this.props.text.split("").forEach((c: string) => {
+
+            const currentVal = letterCountDictionary[c]
+            letterCountDictionary[c] = currentVal - 1
+
+            if(currentVal > 0) {
+                childNodes.push(<span className={this.props.highlightClassName}>{c}</span>)
+            } else {
+                childNodes.push(<span>{c}</span>)
+            }
+        })
+
+        return <span className={this.props.className}>{childNodes}</span>
+    }
+}
+
+export function createLetterCountDictionary(text: string): any {
+    const array: string[] =  text.split("");
+    return array.reduce((previousValue: any, currentValue: string) => {
+        let cur = previousValue[currentValue] || 0
+        previousValue[currentValue] = cur + 1
+        return previousValue;
+    }, {})
+}

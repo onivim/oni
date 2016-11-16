@@ -1,0 +1,24 @@
+@import (reference) "./common.less";
+
+.quickinfo {
+    background-color: @background-color;
+    border: 1px solid gray;
+    padding: 4px;
+    box-shadow: 4px 4px rgba(0, 0, 0, 0.2);
+    color: @text-color;
+    max-width: 500px;
+
+    .title {
+        width: 100%;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        margin: 4px;
+    }
+
+    .documentation {
+        margin: 4px;
+        color: @text-color-highlight;
+        font-size: @font-size-small;
+    }
+}

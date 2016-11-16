@@ -1,0 +1,69 @@
+@import (reference) "./common.less";
+
+.menu-background {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu {
+    margin-top: 16px;
+    background-color: @background-color;
+    color: @text-color;
+
+    border: 1px solid rgb(60, 60, 60);
+    padding: 8px;
+
+    box-shadow: 4px 4px rgba(0, 0, 0, 0.2);
+    width: 600px;
+    max-height: 400px;
+
+    input {
+        color: @text-color;
+        background-color: rgb(60, 60, 60);
+        border: 1px solid rgb(80, 80, 80);
+        font-size: 14px;
+        box-sizing: border-box;
+        width: 100%;
+        padding: 4px;
+    }
+
+    .items {
+
+        .item {
+            padding: 4px;
+            margin-top: 4px;
+
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+
+            &.selected {
+                background-color: @background-color-highlight;
+            }
+
+            .label {
+                margin: 4px;
+
+                .highlight {
+                    color: @text-color-highlight;
+                    font-weight: bold;
+                    font-style: italic;
+                }
+            }
+
+            .detail {
+                font-size: @font-size-small;
+                color: @text-color-detail;
+                flex: 1 1 auto;
+            }
+        }
+    }
+
+}

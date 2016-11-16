@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "outDir": "../lib/browser",
+        "sourceMap": true,
+        "module": "commonjs",
+        "typeRoots": ["../node_modules/@types"],
+        "target": "es6",
+        "jsx": "react"
+    },
+    "files": [
+        "./../definitions/Oni.d.ts"
+    ],
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "test",
+        "node_modules"
+    ]
+}

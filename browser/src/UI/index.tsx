@@ -1,0 +1,142 @@
+import { EventEmitter } from "events"
+import * as React from "react"
+import * as ReactDOM from "react-dom"
+
+import { createStore } from "redux"
+import { Provider } from "react-redux"
+
+import * as State from "./State"
+import {RootComponentContainer } from "./RootComponent"
+
+import * as Actions from "./Actions"
+import * as ActionCreators from "./ActionCreators"
+import { reducer } from "./Reducer"
+
+export const events = new EventEmitter()
+
+let state: State.State = {
+    cursorPixelX: 10,
+    cursorPixelY: 10,
+    fontPixelWidth: 10,
+    fontPixelHeight: 10,
+    autoCompletion: null,
+    quickInfo: null,
+    popupMenu: null
+}
+
+const CompletionItemSelectedEvent = "completion-item-selected"
+
+export function setBackgroundColor(backgroundColor: string): void {
+    document.body.style.backgroundColor = backgroundColor
+}
+
+export function setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number): void {
+    store.dispatch(ActionCreators.setCursorPosition(cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight))
+}
+
+export function showPopupMenu(id: string, options: Oni.Menu.MenuOption[]): void {
+    store.dispatch(ActionCreators.showMenu(id, options))
+}
+
+export function hidePopupMenu(): void {
+    store.dispatch(ActionCreators.hideMenu())
+}
+
+export function isPopupMenuOpen(): boolean {
+    const popupMenu = store.getState().popupMenu
+    return !!popupMenu
+}
+
+export function nextPopupMenuItem(): void {
+    store.dispatch(ActionCreators.nextMenu())
+}
+
+export function previousPopupMenuItem(): void {
+    store.dispatch(ActionCreators.previousMenu())
+}
+
+export function selectPopupMenuItem(): void {
+    const selectedIndex = store.getState().popupMenu.selectedIndex
+    const selectedOption = store.getState().popupMenu.filteredOptions[selectedIndex]
+
+    events.emit("menu-item-selected", selectedOption)
+
+    hidePopupMenu()
+}
+
+export function showQuickInfo(title: string, description: string): void {
+    store.dispatch(ActionCreators.showQuickInfo(title, description))
+}
+
+export function hideQuickInfo(): void {
+    store.dispatch(ActionCreators.hideQuickInfo())
+}
+
+export function areCompletionsVisible(): boolean {
+    const autoCompletion = store.getState().autoCompletion
+    const entryCount = (autoCompletion && autoCompletion.entries) ? autoCompletion.entries.length : 0
+
+    if (entryCount === 0)
+        return false
+
+    if (entryCount > 1)
+        return true
+
+    // In the case of a single entry, should not be visible if the base is equal to the selected item
+    return autoCompletion.base !== getSelectedCompletion()
+}
+
+export function getSelectedCompletion(): string {
+    const autoCompletion = store.getState().autoCompletion
+    return autoCompletion.entries[autoCompletion.selectedIndex].label
+}
+
+export function showCompletions(result: Oni.Plugin.CompletionResult): void {
+    store.dispatch(ActionCreators.showAutoCompletion(result.base, result.completions))
+
+    // TODO: Figure out why this isn't working
+    if (result.completions.length > 0) {
+        emitCompletionItemSelectedEvent()
+    }
+}
+
+export function setDetailedCompletionEntry(detailedEntry: Oni.Plugin.CompletionInfo): void {
+    store.dispatch(ActionCreators.setAutoCompletionDetails(detailedEntry))
+}
+
+export function hideCompletions(): void {
+    store.dispatch(ActionCreators.hideAutoCompletion())
+}
+
+export function nextCompletion(): void {
+    store.dispatch(ActionCreators.nextAutoCompletion())
+
+    emitCompletionItemSelectedEvent()
+}
+
+export function previousCompletion(): void {
+    store.dispatch(ActionCreators.previousAutoCompletion())
+
+    emitCompletionItemSelectedEvent()
+}
+
+function emitCompletionItemSelectedEvent(): void {
+    const autoCompletion = store.getState().autoCompletion
+    const entry = autoCompletion.entries[autoCompletion.selectedIndex]
+
+    events.emit(CompletionItemSelectedEvent, entry)
+}
+
+const store = createStore(reducer, state)
+
+export function init(): void {
+    render(state)
+}
+
+function render(state: State.State): void {
+    const element = document.getElementById("overlay-ui")
+    ReactDOM.render(
+        <Provider store={store}>
+            <RootComponentContainer />
+        </Provider>, element)
+}

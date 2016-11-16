@@ -1,0 +1,36 @@
+@import (reference) "./common.less";
+
+.error-marker {
+    position: absolute;
+    width: 200px;
+    background-color: rgb(60, 60, 60);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.5;
+
+    .error {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        height: 100%;
+
+        .text {
+            flex: 1 1 auto;
+            font-size: 10px;
+            color: rgb(200, 200, 200);
+            text-overflow: ellipsis;
+            overflow: hidden;
+            text-align: center;
+        }
+    }
+
+    .icon-container {
+        background-color: rgb(80, 80, 80);
+
+        .fa {
+            color: red;
+            padding: 6px;
+        }
+    }
+}
+

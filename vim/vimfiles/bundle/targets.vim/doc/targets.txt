@@ -1,0 +1,752 @@
+*targets.txt*	Provide additional text objects
+
+Author:  Christian Wellenbrock <christian.wellenbrock@gmail.com>
+License: MIT license
+
+                           ____
+                           \___\_.::::::::::.____
+                           /___/ '::::::::::'
+
+
+
+==============================================================================
+INTRODUCTION                                            *targets-introduction*
+
+Targets.vim adds various |text-objects| to give you more targets to operate
+on. It expands on the idea of simple commands like `di'` (delete inside the
+single quotes around the cursor) to give you more opportunities to craft
+powerful commands that can be repeated reliably. Another major goal is to
+handle all corner cases correctly.
+
+==============================================================================
+EXAMPLES                                                    *targets-examples*
+
+The following examples are displayed as three lines each. The top line denotes
+cursor positions from where the presented command works. The middle line shows
+the contents of the example line that we're working on. The last line shows
+the part of the line that the command will operate on.
+
+To change the text in the next pair of parentheses, use the `cin)` command
+
+    .....................
+    This is example text (with a pair of parentheses) ~
+                          └───────── cin) ─────────┘
+
+To delete the item in a comma separated list under the cursor, use `da,`
+
+                                  .........
+    Shopping list: oranges, apples, bananas, tomatoes ~
+                                  └─ da, ─┘
+
+Notice how the selection includes exactly one of the surrounding commas to
+leave a proper comma separated list behind.
+
+==============================================================================
+OVERVIEW                                                    *targets-overview*
+
+We distinguish between three kinds of text objects that behave slightly
+differently:
+
+    Pair text objects           |targets-pair-text-objects|
+    Quote text objects          |targets-quote-text-objects|
+    Separator text objects      |targets-separator-text-objects|
+    Argument text objects       |targets-argument-text-objects|
+
+==============================================================================
+PAIR TEXT OBJECTS                                  *targets-pair-text-objects*
+
+These text objects are similar to the built in text objects such as |i)|.
+Supported trigger characters:
+
+    ( ) b     (work on parentheses)
+    { } B     (work on curly braces)
+    [ ]       (work on square brackets)
+    < >       (work on angle brackets)
+        t     (work on tags)
+
+We borrowed the aliases `r` and `a` from the |surround| plugin by Tim Pope.
+The following examples will use parentheses, but they all work for each listed
+trigger character accordingly.
+
+Pair text objects work over multiple lines.
+
+i( i) ib i[ i] it                    *it_t* *i(_t* *i)_t* *ib_t* *i[_t* *i]_t*
+i{ i} iB i< i>                              *i{_t* *i}_t* *iB_t* *i<_t* *i>_t*
+    Select inside of pair characters. This overrides Vim's default text object
+    to allow seeking for the next pair in the current line to the right or
+    left when the cursor is not inside a pair. This behavior is similar to
+    Vim's seeking behavior of `di'` when not inside of quotes, but it works
+    both ways. See |targets-pair-seek|. Accepts a [count] to select multiple
+    blocks.
+
+              ............
+        a ( b ( cccccccc ) d ) e ~
+           │   └── i) ──┘   │
+           └───── 2i) ──────┘
+
+a( a) ab a[ a] at                    *at_t* *a(_t* *a)_t* *ab_t* *a[_t* *a]_t*
+a{ a} aB a< a>                              *a{_t* *a}_t* *aB_t* *a<_t* *a>_t*
+    Select a pair. Overrides Vim's default text object to allow seeking.
+    Supports |targets-pair-seek|. Accepts [count].
+
+              ............
+        a ( b ( cccccccc ) d ) e ~
+          │   └─── a) ───┘   │
+          └────── 2a) ───────┘
+
+I( I) Ib I[ I] It                                *It* *I(* *I)* *Ib* *I[* *I]*
+I{ I} IB I< I>                                        *I{* *I}* *IB* *I<* *I>*
+    Select contents of pair characters. Like inside of parentheses, but
+    exclude whitespace at both ends. Useful for changing contents while
+    preserving spacing. Supports |targets-pair-seek|. Accepts [count].
+
+              ............
+        a ( b ( cccccccc ) d ) e ~
+            │   └─ I) ─┘   │
+            └──── 2I) ─────┘
+
+A( A) Ab A[ A] At                                *At* *A(* *A)* *Ab* *A[* *A]*
+A{ A} AB A< A>                                        *A{* *A}* *AB* *A<* *A>*
+    Select around pair characters. Like a pair, but include whitespace at one
+    side of the pair. Prefers to select trailing whitespace, falls back to
+    select leading whitespace. Supports |targets-pair-seek|. Accepts [count].
+
+              ............
+        a ( b ( cccccccc ) d ) e ~
+          │   └─── A) ────┘   │
+          └────── 2A) ────────┘
+
+------------------------------------------------------------------------------
+NEXT AND LAST PAIR                                    *targets-next-last-pair*
+
+Work directly on distant pairs without moving there separately.
+
+in( in) inb in[ in] int                    *int* *in(* *in)* *inb* *in[* *in]*
+in{ in} inB in< in>                              *in{* *in}* *inB* *in<* *in>*
+an( an) anb an[ an] ant                    *ant* *an(* *an)* *anb* *an[* *an]*
+an{ an} anB an< an>                              *an{* *an}* *anB* *an<* *an>*
+In( In) Inb In[ In] Int                    *Int* *In(* *In)* *Inb* *In[* *In]*
+In{ In} InB In< In>                              *In{* *In}* *InB* *In<* *In>*
+An( An) Anb An[ An] Ant                    *Ant* *An(* *An)* *Anb* *An[* *An]*
+An{ An} AnB An< An>                              *An{* *An}* *AnB* *An<* *An>*
+il( il) ilb il[ il] ilt                    *ilt* *il(* *il)* *ilb* *il[* *il]*
+il{ il} ilB il< il>                              *il{* *il}* *ilB* *il<* *il>*
+al( al) alb al[ al] alt                    *alt* *al(* *al)* *alb* *al[* *al]*
+al{ al} alB al< al>                              *al{* *al}* *alB* *al<* *al>*
+Il( Il) Ilb Il[ Il] Ilt                    *Ilt* *Il(* *Il)* *Ilb* *Il[* *Il]*
+Il{ Il} IlB Il< Il>                              *Il{* *Il}* *IlB* *Il<* *Il>*
+Al( Al) Alb Al[ Al] Alt                    *Alt* *Al(* *Al)* *Alb* *Al[* *Al]*
+Al{ Al} AlB Al< Al>                              *Al{* *Al}* *AlB* *Al<* *Al>*
+    All the above pair text objects can be shifted to the next pair by
+    including the letter `n`. The command `in)` selects inside of the next
+    pair. Use the letter `l` instead to work on the previous (last) pair. Uses
+    a [count] to skip multiple pairs. Skipping works over multiple lines.
+
+                                                        *targets-pair-charts*
+The following charts summarizes all pair mappings for a list of pairs and
+nested pairs:
+
+                               ..........
+    a ( bbbbbbbb ) ( ccccccc ) ( dddddd ) ( eeeeeee ) ( ffffffff ) g ~
+      ││└ 2Il) ┘│││││└ Il) ┘│││││└ I) ┘│││││└ In) ┘│││││└ 2In) ┘│││
+      │└─ 2il) ─┘│││└─ il) ─┘│││└─ i) ─┘│││└─ in) ─┘│││└─ 2in) ─┘││
+      ├── 2al) ──┘│├── al) ──┘│├── a) ──┘│├── an) ──┘│├── 2an) ──┘│
+      └── 2Al) ───┘└── Al) ───┘└── A) ───┘└── An) ───┘└── 2An) ───┘
+
+                               ..........
+    a ( b ( cccccccc ) d ) ( e ( ffffff ) g ) ( h ( iiiiiiii ) j ) k ~
+      │││ ││└ 2Il) ┘││││││││││ ││└ I) ┘││││││││││ ││└ 2In) ┘│││││││
+      │││ │└─ 2il) ─┘│││││││││ │└─ i) ─┘│││││││││ │└─ 2in) ─┘││││││
+      │││ ├── 2al) ──┘││││││││ ├── a) ──┘││││││││ ├── 2an) ──┘│││││
+      │││ └── 2Al) ───┘│││││││ └── A) ───┘│││││││ └── 2An) ───┘││││
+      ││└───── Il) ────┘│││││└─── 2I) ────┘│││││└───── In) ────┘│││
+      │└────── il) ─────┘│││└──── 2i) ─────┘│││└────── in) ─────┘││
+      ├─────── al) ──────┘│├───── 2a) ──────┘│├─────── an) ──────┘│
+      └─────── Al) ───────┘└───── 2A) ───────┘└─────── An) ───────┘
+
+------------------------------------------------------------------------------
+PAIR SEEK                                                  *targets-pair-seek*
+
+If any of the normal pair commands (not containing `n` or `l`) is executed
+when the cursor is not positioned inside a pair, it seeks for pairs before or
+after the cursor by searching for the appropriate delimiter on the current
+line. This is similar to using the explicit version containing `n` or `l`, but
+in only seeks on the current line.
+
+==============================================================================
+QUOTE TEXT OBJECTS                                *targets-quote-text-objects*
+
+These text objects are similar to the built in text objects such as |i'|.
+Supported trigger characters:
+
+    '         (work on single quotes)
+    "         (work on double quotes)
+    `         (work on back ticks)
+
+The following examples will use single quotes, but they all work for each
+listed quoting character accordingly.
+
+Quote text objects work over multiple lines.
+
+When the cursor is positioned on a quotation mark, the quote text objects
+count the numbers of quotation marks from the beginning of the line to choose
+the properly quoted text to the left or right of the cursor.
+
+i' i" i`                                              *i`_t* *i'_t* *iquote_t*
+    Select inside quote. This overrides Vim's default text object to allow
+    seeking in both directions. See |targets-quote-seek|.
+
+          ............
+        a ' bbbbbbbb ' c ' d ~
+           └── i' ──┘
+
+a' a" a`                                              *a`_t* *a'_t* *aquote_t*
+    Select a quote. This overrides Vim's default text object to support
+    |targets-quote-seek|. Unlike Vim's quote text objects, this incudes no
+    surrounding whitespace.
+
+          ............
+        a ' bbbbbbbb ' c ' d ~
+          └─── a' ───┘
+
+I' I" I`                                                    *I`* *I'* *Iquote*
+    Select contents of a quote. Like inside quote, but exclude whitespace at
+    both ends. Useful for changing contents while preserving spacing. Supports
+    |targets-quote-seek|.
+
+          ............
+        a ' bbbbbbbb ' c ' d ~
+            └─ I' ─┘
+
+A' A" A`                                                    *A`* *A'* *Aquote*
+    Select around a quote. Like a quote, but include whitespace in one
+    direction. Prefers to select trailing whitespace, falls back to select
+    leading whitespace.  Supports |targets-quote-seek|.
+
+          ............
+        a ' bbbbbbbb ' c ' d ~
+          └─── A' ────┘
+
+------------------------------------------------------------------------------
+NEXT AND LAST QUOTE                                  *targets-next-last-quote*
+
+Work directly on distant quotes without moving there separately.
+
+in' in" in` il' il" il`            *in`* *in'* *inquote* *il`* *il'* *ilquote*
+an' an" an` al' al" al`            *an`* *an'* *anquote* *al`* *al'* *alquote*
+In' In" In` Il' Il" Il`            *In`* *In'* *Inquote* *Il`* *Il'* *Ilquote*
+iN' iN" iN` iL' iL" iL`            *iN`* *iN'* *iNquote* *iL`* *iL'* *iLquote*
+aN' aN" aN` aL' aL" aL`            *aN`* *aN'* *aNquote* *aL`* *aL'* *aLquote*
+IN' IN" IN` IL' IL" IL`            *IN`* *IN'* *INquote* *IL`* *IL'* *ILquote*
+    All the above pair text objects can be shifted to the next quote by
+    including the letter `n`. The command `in'` selects inside of the next
+    single quotes. Use the letter `l` instead to work on the previous (last)
+    quote. Uses a [count] to skip multiple quotation characters.
+
+    Use uppercase `N` and `L` to jump from within one quote into the next
+    proper quote, instead of into the pseudo quote in between. (Using `N`
+    instead of `n` is actually just doubling the count to achieve this.)
+
+                                                         *targets-quote-chart*
+The following chart summarizes all quote mappings:
+
+                          ..........
+    a ' bbbbbbb ' ccccccc ' dddddd ' eeeeeee ' fffffff ' g ~
+      ││└ IL' ┘│││└ Il' ┘│││└ I' ┘│││└ In' ┘│││└ IN' ┘│ │
+      │└─ iL' ─┘│├─ il' ─┘│├─ i' ─┘│├─ in' ─┘│├─ iN' ─┘ │
+      └── aL' ──┼┘        └┼─ a' ──┼┘        └┼─ aN' ───┘
+                └── al' ───┘       └── an' ───┘
+
+------------------------------------------------------------------------------
+QUOTE SEEK                                                *targets-quote-seek*
+
+If any of the normal quote commands (not containing `n`, `l`, `N` or `L`) is
+executed when the cursor is not positioned inside a quote, it seeks for quotes
+before or after the cursor by searching for the appropriate delimiter on the
+current line. Similar to using the explicit version containing `n` or `l`.
+
+==============================================================================
+SEPARATOR TEXT OBJECTS                        *targets-separator-text-objects*
+
+These text objects are based on single separator characters like the comma in
+one of our |targets-examples|. The text between two instances of the separator
+character can be operated on with these targets.
+
+Supported separators:
+
+    , . ; : + - = ~ _ * # / | \ & $ ~
+
+The following examples will use commas, but they all work for each listed
+separator character accordingly.
+
+Separator text objects work over multiple lines.
+
+i, i. i; i: i+ i- i= i~             *i,* *i.* *i;* *i:* *i+* *i-* *i=* *i~*
+i_ i/ i| i\ i& i$ i# i*             *i_* *i/* *i|* *i\* *i&* *i$* *i#* *istar*
+    Select inside separators. Supports |targets-separator-seek|.
+
+              ...........
+        a , b , cccccccc , d , e ~
+               └── i, ──┘
+
+a, a. a; a: a+ a- a= a~             *a,* *a.* *a;* *a:* *a+* *a-* *a=* *a~*
+a_ a/ a| a\ a& a$ a# a*             *a_* *a/* *a|* *a\* *ar* *a$* *a#* *astar*
+    Select an item in a list separated by the separator character. This
+    includes the leading separator, but excludes the trailing one. This leaves
+    a proper list separated by the separator character after deletion. See
+    |targets-examples|. Supports |targets-separator-seek|.
+
+              ...........
+        a , b , cccccccc , d , e ~
+              └─── a, ──┘
+
+I, I. I; I: I+ I- I= I~             *I,* *I.* *I;* *I:* *I+* *I-* *I=* *I~*
+I_ I/ I| I\ I& I$ I# I*             *I_* *I/* *I|* *I\* *I&* *I$* *I#* *Istar*
+    Select contents between separators. Like inside separators, but exclude
+    whitespace at both ends. Useful for changing contents while preserving
+    spacing. Supports |targets-separator-seek|.
+
+              ...........
+        a , b , cccccccc , d , e ~
+                └─ I, ─┘
+
+A, A. A; A: A+ A- A= A~             *A,* *A.* *A;* *A:* *A+* *A-* *A=* *A~*
+A_ A/ A| A\ A& A$ A# A*             *A_* *A/* *A|* *A\* *A&* *A$* *A#* *Astar*
+    Select around a pair of separators. This includes both separators and a
+    surrounding whitespace, similar to `a'` and `A(`. Supports
+    |targets-separator-seek|.
+
+              ...........
+        a , b , cccccccc , d , e ~
+              └─── A, ────┘
+
+------------------------------------------------------------------------------
+NEXT AND LAST SEPARATOR                          *targets-next-last-separator*
+
+Work directly on distant separators without moving there separately.
+
+                            *in,* *in.* *in;* *in:* *in+* *in-* *in=* *in~*
+                            *an,* *an.* *an;* *an:* *an+* *an-* *an=* *an~*
+                            *In,* *In.* *In;* *In:* *In+* *In-* *In=* *In~*
+                            *An,* *An.* *An;* *An:* *An+* *An-* *An=* *An~*
+                            *il,* *il.* *il;* *il:* *il+* *il-* *il=* *il~*
+                            *al,* *al.* *al;* *al:* *al+* *al-* *al=* *al~*
+                            *Il,* *Il.* *Il;* *Il:* *Il+* *Il-* *Il=* *Il~*
+                            *Al,* *Al.* *Al;* *Al:* *Al+* *Al-* *Al=* *Al~*
+                            *iN,* *iN.* *iN;* *iN:* *iN+* *iN-* *iN=* *iN~*
+                            *aN,* *aN.* *aN;* *aN:* *aN+* *aN-* *aN=* *aN~*
+                            *IN,* *IN.* *IN;* *IN:* *IN+* *IN-* *IN=* *IN~*
+                            *AN,* *AN.* *AN;* *AN:* *AN+* *AN-* *AN=* *AN~*
+                            *iL,* *iL.* *iL;* *iL:* *iL+* *iL-* *iL=* *iL~*
+                            *aL,* *aL.* *aL;* *aL:* *aL+* *aL-* *aL=* *aL~*
+                            *IL,* *IL.* *IL;* *IL:* *IL+* *IL-* *IL=* *IL~*
+                            *AL,* *AL.* *AL;* *AL:* *AL+* *AL-* *AL=* *AL~*
+
+                            *in_* *in/* *in|* *in\* *in&* *in$* *in#* *instar*
+                            *an_* *an/* *an|* *an\* *an&* *an$* *an#* *anstar*
+                            *In_* *In/* *In|* *In\* *In&* *In$* *In#* *Instar*
+                            *An_* *An/* *An|* *An\* *An&* *An$* *An#* *Anstar*
+                            *il_* *il/* *il|* *il\* *il&* *il$* *il#* *ilstar*
+                            *al_* *al/* *al|* *al\* *al&* *al$* *al#* *alstar*
+                            *Il_* *Il/* *Il|* *Il\* *Il&* *Il$* *Il#* *Ilstar*
+                            *Al_* *Al/* *Al|* *Al\* *Al&* *Al$* *Al#* *Alstar*
+                            *iN_* *iN/* *iN|* *iN\* *iN&* *iN$* *iN#* *iNstar*
+                            *aN_* *aN/* *aN|* *aN\* *aN&* *aN$* *aN#* *aNstar*
+                            *IN_* *IN/* *IN|* *IN\* *IN&* *IN$* *IN#* *INstar*
+                            *AN_* *AN/* *AN|* *AN\* *AN&* *AN$* *AN#* *ANstar*
+                            *iL_* *iL/* *iL|* *iL\* *iL&* *iL$* *iL#* *iLstar*
+                            *aL_* *aL/* *aL|* *aL\* *aL&* *aL$* *aL#* *aLstar*
+                            *IL_* *IL/* *IL|* *IL\* *IL&* *IL$* *IL#* *ILstar*
+                            *AL_* *AL/* *AL|* *AL\* *AL&* *AL$* *AL#* *ALstar*
+
+in, in. in; in: in+ in- in= in~ in_ in/ in| in\ in& in$ in# in*
+an, an. an; an: an+ an- an= an~ an_ an/ an| an\ an& an$ an# an*
+In, In. In; In: In+ In- In= In~ In_ In/ In| In\ In& In$ In# In*
+An, An. An; An: An+ An- An= An~ An_ An/ An| An\ An& An$ An# An*
+il, il. il; il: il+ il- il= il~ il_ il/ il| il\ il& il$ il# il*
+al, al. al; al: al+ al- al= al~ al_ al/ al| al\ al& al$ al# al*
+Il, Il. Il; Il: Il+ Il- Il= Il~ Il_ Il/ Il| Il\ Il& Il$ Il# Il*
+Al, Al. Al; Al: Al+ Al- Al= Al~ Al_ Al/ Al| Al\ Al& Al$ Al# Al*
+iN, iN. iN; iN: iN+ iN- iN= iN~ iN_ iN/ iN| iN\ iN& iN$ iN# iN*
+aN, aN. aN; aN: aN+ aN- aN= aN~ aN_ aN/ aN| aN\ aN& aN$ aN# aN*
+IN, IN. IN; IN: IN+ IN- IN= IN~ IN_ IN/ IN| IN\ IN& IN$ IN# IN*
+AN, AN. AN; AN: AN+ AN- AN= AN~ AN_ AN/ AN| AN\ AN& AN$ AN# AN*
+iL, iL. iL; iL: iL+ iL- iL= iL~ iL_ iL/ iL| iL\ iL& iL$ iL# iL*
+aL, aL. aL; aL: aL+ aL- aL= aL~ aL_ aL/ aL| aL\ aL& aL$ aL# aL*
+IL, IL. IL; IL: IL+ IL- IL= IL~ IL_ IL/ IL| IL\ IL& IL$ IL# IL*
+AL, AL. AL; AL: AL+ AL- AL= AL~ AL_ AL/ AL| AL\ AL& AL$ AL# AL*
+
+    All the above separator text objects can be shifted to the next separator
+    by including the letter `n`. The command `in,` selects inside of the next
+    commas. Use the letter `l` instead to work on the previous (last)
+    separators. Uses a [count] to skip multiple separator characters.
+
+    Use uppercase `N` and `L` to jump from within one pair of separators into
+    the next distinct pair, instead of into the adjacent one. (Using `N`
+    instead of `n` is actually just doubling the count to achieve this.)
+
+                                                     *targets-separator-chart*
+The following chart summarizes all separator mappings:
+
+                          .........
+    a , bbbbbbb , ccccccc , dddddd , eeeeeee , fffffff , g ~
+      ││└ IL, ┘│││└ Il, ┘│││└ I, ┘│││└ In, ┘│││└ IN, ┘│ │
+      │└─ iL, ─┤│├─ il, ─┤│├─ i, ─┤│├─ in, ─┤│├─ iN, ─┤ │
+      ├── aL, ─┘├┼─ al, ─┘├┼─ a, ─┘├┼─ an, ─┘├┼─ aN, ─┘ │
+      └── AL, ──┼┘        └┼─ A, ──┼┘        └┼─ AN, ───┘
+                └─  Al,  ──┘       └─  An,  ──┘
+
+------------------------------------------------------------------------------
+SEPARATOR SEEK                                        *targets-separator-seek*
+
+Like |targets-quote-seek|. If any of the normal separator commands (not
+containing `n` or `l`) is executed when the cursor is not positioned inside a
+pair of separators, it seeks for the separator before or after the cursor.
+This is similar to using the explicit version containing `n` or `l`.
+
+==============================================================================
+ARGUMENT TEXT OBJECTS                          *targets-argument-text-objects*
+
+These text objects are similar to separator text objects, but are specialized
+for arguments surrounded by braces and commas. They also take matching braces
+into account to capture only valid arguments.
+
+Argument text objects work over multiple lines.
+
+ia                                                                        *ia*
+    Select inside argument. Supports |targets-argument-seek|. Accepts a
+    [count] to select bigger nested arguments.
+
+              ...........
+        a , b ( cccccccc , d ) e ~
+               └── ia ──┘
+
+aa                                                                        *aa*
+    Select an argument in a list of arguments. This includes a separator if
+    present, but excludes surrounding braces. This leaves a proper of
+    arguments after deletion. Supports |targets-argument-seek|. Accepts a
+    [count] to select bigger nested arguments.
+
+              ...........
+        a , b ( cccccccc , d ) e ~
+                └─── aa ──┘
+
+Ia                                                                        *Ia*
+    Select contents of an argument. Like inside argument, but exclude
+    whitespace at both ends. Useful for changing contents while preserving
+    spacing. Supports |targets-argument-seek|. Accepts a [count] to select
+    bigger nested arguments.
+
+              ...........
+        a , b ( cccccccc , d ) e ~
+                └─ Ia ─┘
+
+Aa                                                                        *Aa*
+    Select around an argument. This includes both delimiters and a surrounding
+    whitespace, similar to `a'` and `A(`. Supports |targets-argument-seek|.
+    Accepts a [count] to select bigger nested arguments.
+
+              ...........
+        a , b ( cccccccc , d ) e ~
+              └─── Aa ────┘
+
+------------------------------------------------------------------------------
+NEXT AND LAST ARGUMENT                            *targets-next-last-argument*
+
+Work directly on distant arguments without moving there separately.
+
+ina ana Ina Ana                                        *ina* *ana* *Ina* *Ana*
+ila ala Ila Ala                                        *ila* *ala* *Ila* *Ala*
+
+    All the above argument text objects can be shifted to the next argument
+    by including the letter `n`. The command `ina` selects inside of the next
+    argument. Use the letter `l` instead to work on the previous (last)
+    argument. Uses a [count] to skip multiple argument characters. The order
+    is determined by the nearest surrounding argument delimiter.
+
+                                                     *targets-argument-chart*
+The following chart summarizes all argument mappings:
+
+                             .........
+    a ( bbbbbb , ccccccc , d ( eeeeee , fffffff ) , gggggg ) h ~
+      ││├2Ila┘│││└─Ila─┘││││ ││├─Ia─┘│││└─Ina─┘│││││└2Ina┘│ │
+      │└┼2ila─┘│├──ila──┤│││ │└┼─ia──┘│├──ina──┤│││├─2ina─┤ │
+      │ └2ala──┼┤       ││││ │ └─aa───┼┤       │││├┼─2ana─┘ │
+      └──2Ala──┼┘       ││││ └───Aa───┼┘       │││└┼─2Ana───┘
+               ├───ala──┘│││          ├───ana──┘││ │
+               └───Ala───┼┤│          └───Ana───┼┤ │
+                         ││└─────2Ia────────────┘│ │
+                         │└──────2ia─────────────┤ │
+                         ├───────2aa─────────────┘ │
+                         └───────2Aa───────────────┘
+
+------------------------------------------------------------------------------
+ARGUMENT SEEK                                          *targets-argument-seek*
+
+Like |targets-separator-seek|. If any of the normal argument commands (not
+containing `n` or `l`) is executed when the cursor is not positioned inside an
+argument, it seeks for the argument before or after the cursor. This is
+similar to using the explicit version containing `n` or `l`.
+
+
+==============================================================================
+SETTINGS                                                    *targets-settings*
+
+Put these variables into your vimrc to customize the mappings described above.
+The provided examples also indicate the default values.
+
+Available options: ~
+
+    |g:targets_aiAI|
+    |g:targets_nlNL|
+    |g:targets_pairs|
+    |g:targets_quotes|
+    |g:targets_separators|
+    |g:targets_tagTrigger|
+    |g:targets_argTrigger|
+    |g:targets_argOpening|
+    |g:targets_argClosing|
+    |g:targets_argSeparator|
+    |g:targets_seekRanges|
+    |g:targets_jumpRanges|
+
+------------------------------------------------------------------------------
+                                                              *g:targets_aiAI*
+Default:
+    let g:targets_aiAI = 'aiAI' ~
+
+Controls the normal mode operator mode maps that get created for In Pair (i),
+A Pair (a), Inside Pair (I), and Around Pair (A). Required to be a 4 character
+long list. Use a space to deactivate a mode.
+
+                                                              *g:targets_nlNL*
+Default:
+    let g:targets_nlNL = 'nlNL' ~
+
+Controls the keys used in maps for seeking next and last text objects. For
+example, if you don't wish to use the N and L seeks, and instead wish for 'n'
+to always search for the next object and `N` to search for the last, you could
+set:
+
+    let g:targets_nlNL = 'nN  ' ~
+
+Note that two extra spaces are still required on the end, indicating you wish
+to disable the default functionality of N and L. Required to be a 4 character
+long list.
+
+                                                             *g:targets_pairs*
+Default:
+    let g:targets_pairs = '()b {}B [] <>' ~
+
+Defines the space separated list of pair objects you wish to use, along with
+optional one letter aliases for them.
+
+                                                            *g:targets_quotes*
+Default:
+    let g:targets_quotes = '" '' `' ~
+
+Defines the space separated list of quoting objects you wish to use. Note that
+you have to escape the single quote by doubling it. Quote objects can
+optionally be followed by a single one letter alias. For example, to set `d`
+as an alias for double quotes, allowing such commands as `cid` to be
+equivalent to `ci"`, you could define:
+
+    let g:targets_quotes = '"d '' `' ~
+
+
+                                                        *g:targets_separators*
+Default:
+    let g:targets_separators = ', . ; : + - = ~ _ * # / | \ & $' ~
+
+Defines the space separated list of separator objects you wish to use. Like
+quote objects, separator objects can optionally be followed by a single one
+letter alias. To set `c` as an alias for comma, allowing such commands as
+`dic` to be equivalent to `di,`, you could define:
+
+    let g:targets_separators = ',c . ; : + - = ~ _ * # / | \ & $' ~
+
+                                                        *g:targets_tagTrigger*
+Default:
+    let g:targets_tagTrigger = 't' ~
+
+Defines the key you need to press to operate on tag text objects.
+
+
+                                                        *g:targets_argTrigger*
+Default:
+    let g:targets_argTrigger = 'a' ~
+
+Defines the key you need to press to operate on arguments. To use `,` as
+argument trigger, allowing commands as `da,` to act like `daa`, use this:
+
+    let g:targets_argTrigger = ',' ~
+
+                                                        *g:targets_argOpening*
+                                                        *g:targets_argClosing*
+
+Default:
+    let g:targets_argOpening = '[([]' ~
+    let g:targets_argClosing = '[])]' ~
+
+Defines regular expressions that match the beginning and closing delimiter of
+an argument list respectively. If you also want to find arguments delimited by
+curly braces, try this:
+
+    let g:targets_argOpening = '[({[]' ~
+    let g:targets_argClosing = '[]})]' ~
+
+                                                      *g:targets_argSeparator*
+
+Default:
+    let g:targets_argSeparator = ',' ~
+
+Defines a regular expression matching separators in an argument list. If you
+also want to find arguments separatode by semicolon, use this:
+
+    let g:targets_argSeparator = '[,;]' ~
+
+                                                        *g:targets_seekRanges*
+
+Default:
+    let g:targets_seekRanges = 'cr cb cB lc ac Ac lr rr ll lb ar ab lB Ar aB Ab AB rb al rB Al bb aa bB Aa BB AA' ~
+
+Defines a priority ordered, space separated list of range types which can be
+used to customize seeking behavior. When using a command like `cib` to change
+inside a block, targets.vim considers the three targets:
+
+    smallest target around cursor
+    next target after cursor
+    last target before cursor
+
+For each of those that were found, we detect what range type it has. A range
+type depends on the relative position of the start and end of the target,
+relative to the current cursor position and the currently visible lines.
+
+The possibly relative positions are:
+    l    left of cursor in current line ~
+    r    right of cursor in current line ~
+    a    above cursor on screen ~
+    b    below cursor on screen ~
+    A    above cursor off screen ~
+    B    below cursor off screen ~
+
+All possibly ranges are listed below, denoted by two characters: one for the
+relative start and one for the relative end position of the target. For
+example, `lr` means "from left of cursor to right of cursor in cursor line".
+
+Next to each range type is a pictogram of an example. They are made of these
+symbols:
+    .    current cursor position ~
+   ( )   start and end of target ~
+    /    line break before and after cursor line ~
+    |    screen edge between hidden and visible lines ~
+
+Ranges around cursor:
+  lr   |  / (.) /  |   around cursor, current line ~
+  lb   |  / (.  /) |   around cursor, multiline down, on screen ~
+  ar   | (/  .) /  |   around cursor, multiline up, on screen ~
+  ab   | (/  .  /) |   around cursor, multiline both, on screen ~
+  lB   |  / (.  /  |)  around cursor, multiline down, partially off screen ~
+  Ar  (|  /  .) /  |   around cursor, multiline up, partially off screen ~
+  aB   | (/  .  /  |)  around cursor, multiline both, partially off screen bottom ~
+  Ab  (|  /  .  /) |   around cursor, multiline both, partially off screen top ~
+  AB  (|  /  .  /  |)  around cursor, multiline both, partially off screen both ~
+
+Ranges after (right of/below) cursor
+  rr   |  /  .()/  |   after cursor, current line ~
+  rb   |  /  .( /) |   after cursor, multiline, on screen ~
+  rB   |  /  .( /  |)  after cursor, multiline, partially off screen ~
+  bb   |  /  .  /()|   after cursor below, on screen ~
+  bB   |  /  .  /( |)  after cursor below, partially off screen ~
+  BB   |  /  .  /  |() after cursor below, off screen ~
+
+Ranges before (left of/above) cursor
+  ll   |  /().  /  |   before cursor, current line ~
+  al   | (/ ).  /  |   before cursor, multiline, on screen ~
+  Al  (|  / ).  /  |   before cursor, multiline, partially off screen ~
+  aa   |()/  .  /  |   before cursor above, on screen ~
+  Aa  (| )/  .  /  |   before cursor above, partially off screen ~
+  AA ()|  /  .  /  |   before cursor above, off screen ~
+
+      A  a  l r  b  B  relative positions
+       └───────────┘   visible screen
+          └─────┘      current line
+
+Given the range types of our targets, we then pick the one that appears first
+in `g:targets_seekRanges`. If none is found, the selection fails.
+
+The default setting generally prefers targets around the cursor, with one
+exception: If the target around the cursor is not contained in the current
+cursor line, but the next or last target are, then prefer those. Targets
+beginning or ending on the cursor are preferred over everything else.
+
+Some other useful example settings (or build your own!):
+
+Never seek backwards:
+    let g:targets_seekRanges = 'cr cb cB lc ac Ac lr rr lb ar ab lB Ar aB Ab AB rb rB bb bB BB' ~
+
+Only seek if next/last targets touch current line:
+    let g:targets_seekRanges = 'cr cb cB lc ac Ac lr rr ll lb ar ab lB Ar aB Ab AB rb rB al Al' ~
+
+Only consider targets fully visible on screen:
+    let g:targets_seekRanges = 'cr cb cB lc ac Ac lr lb ar ab rr rb bb ll al aa' ~
+
+Only consider targets around cursor:
+    let g:targets_seekRanges = 'cr cb cB lc ac Ac lr lb ar ab lB Ar aB Ab AB' ~
+
+Only consider targets fully contained in current line:
+    let g:targets_seekRanges = 'cr cb cB lc ac Ac lr rr ll' ~
+
+                                                        *g:targets_jumpRanges*
+
+Default:
+    let g:targets_jumpRanges = 'bb bB BB aa Aa AA' ~
+
+Defines an unordered, space separated list of range types which can be used to
+customize the jumplist behavior (see documentation on seek ranges). It
+controls whether or not to add the cursor position prior to selecting the text
+object to the jumplist.
+
+The default setting adds the previous cursor position to the jumplist if the
+target that was operated on doesn't intersect the cursor line. That means it
+adds a jumplist entry if the target ends above the cursor line or starts below
+the cursor line.
+
+Some other useful example settings (or build your own!):
+
+Never add cursor position to jumplist:
+    let g:targets_jumpRanges = '' ~
+
+Always add cursor position to jumplist:
+    let g:targets_jumpRanges = 'cr cb cB lc ac Ac lr rr ll lb ar ab lB Ar aB Ab AB rb al rB Al bb aa bB Aa BB AA' ~
+
+Only add to jumplist if cursor was not inside the target:
+    let g:targets_jumpRanges = 'rr rb rB bb bB BB ll al Al aa Aa AA' ~
+
+==============================================================================
+NOTES                                                          *targets-notes*
+
+Repeating an operator-pending mapping forgets its last count.
+    https://groups.google.com/forum/?fromgroups#!topic/vim_dev/G4SSgcRVN7g
+Works since Vim 7.4.160
+
+==============================================================================
+ISSUES                                                        *targets-issues*
+
+Empty matches can't be selected because it is no possible to visually select
+zero-character ranges.
+
+Forcing to motion to work linewise by inserting `V` in `dVan(` doesn't work
+for operator-pending mappings. See |o_V|.
+
+Report issues or submit pull requests to:
+    https://github.com/wellle/vim-targets
+
+==============================================================================
+TODOS                                                          *targets-todos*
+
+Create more mappings to support commands like `danw` or `danp` to delete the
+next word or paragraph.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:

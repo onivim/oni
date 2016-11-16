@@ -1,0 +1,16 @@
+:MkVimball	vimball.txt	/*:MkVimball*
+:RmVimball	vimball.txt	/*:RmVimball*
+:UseVimball	vimball.txt	/*:UseVimball*
+:VimballList	vimball.txt	/*:VimballList*
+Vimball-copyright	vimball.txt	/*Vimball-copyright*
+g:vimball_home	vimball.txt	/*g:vimball_home*
+g:vimball_mkdir	vimball.txt	/*g:vimball_mkdir*
+vba	vimball.txt	/*vba*
+vimball	vimball.txt	/*vimball*
+vimball-contents	vimball.txt	/*vimball-contents*
+vimball-extract	vimball.txt	/*vimball-extract*
+vimball-history	vimball.txt	/*vimball-history*
+vimball-intro	vimball.txt	/*vimball-intro*
+vimball-manual	vimball.txt	/*vimball-manual*
+vimball-windows	vimball.txt	/*vimball-windows*
+vimball.txt	vimball.txt	/*vimball.txt*
