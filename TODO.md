@@ -5,19 +5,13 @@
 - Performance
     - Optimistic typing
 
-- Good reference implementation of mouse: 
-https://github.com/rhysd/neovim-component/blob/6d3efd8e2ed4fec67ccfa2c8b047aa1711c2f01d/src/neovim/screen-drag.ts
 
 - Error scenario
-    - Display mapping
-        - Component to show error
-
     - Split UI into layers
         - Chrome (Pane, Menu, Completion, QuickInfo)
         - Plugin (layers)
-    - Get mapping for lines
 
-    - File explorer
+- File explorer
 
 - Fast nav through chrome
 
@@ -149,6 +143,11 @@ https://github.com/rhysd/neovim-component/blob/6d3efd8e2ed4fec67ccfa2c8b047aa171
     - CTRL-P open window
 
 - Implement single main but multiple browser windows, for quick re-open
+
+- Mouse
+    - Modifier keys
+        - Ctrl/alt/shift
+        - Right / middle button
 
 - Create Oni API object, pass to plugin
     - Add 'engine' property - "oni": "^0.0.1"

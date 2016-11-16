@@ -11,6 +11,7 @@ import { DeltaRegionTracker, IncrementalDeltaRegionTracker } from "./DeltaRegion
 
 import { Cursor } from "./Cursor"
 import { Keyboard } from "./Keyboard"
+import { Mouse } from "./Mouse"
 import { PluginManager } from "./Plugins/PluginManager"
 import * as Config from "./Config"
 import * as UI from "./UI/index"
@@ -29,8 +30,9 @@ var screen = new NeovimScreen(deltaRegion)
 const pluginManager = new PluginManager(screen);
 var instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight);
 
+const canvasElement = document.getElementById("test-canvas") as HTMLCanvasElement
 var renderer = new CanvasRenderer()
-renderer.start(document.getElementById("test-canvas") as HTMLCanvasElement)
+renderer.start(canvasElement)
 
 var cursor = new Cursor()
 
@@ -70,6 +72,12 @@ const updateFunction = () => {
 }
 
 instance.setFont(Config.getValue<string>("editor.fontFamily"), Config.getValue<string>("editor.fontSize"));
+
+const mouse = new Mouse(canvasElement, screen)
+
+mouse.on("mouse", (mouseInput) => {
+    instance.input(mouseInput)
+})
 
 const keyboard = new Keyboard()
 keyboard.on("keydown", key => {
