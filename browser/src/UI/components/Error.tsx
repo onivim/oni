@@ -10,6 +10,7 @@ export interface ErrorsProps {
     lineToPositionMap: any
     fontHeight: number
     fontWidth: number
+    columnOffset: number
 }
 
 const padding = 8
@@ -31,10 +32,10 @@ export class Errors extends React.Component<ErrorsProps, void> {
         const squiggles = errors.map(e => {
             if(this.props.lineToPositionMap[e.lineNumber] && e.endColumn) {
                 const screenLine = this.props.lineToPositionMap[e.lineNumber]
-                const yPos = (screenLine - 1) * this.props.fontHeight - (padding / 2)
+                const yPos = (screenLine - 1) * this.props.fontHeight
 
-                const startX = e.startColumn * this.props.fontWidth
-                const endX = e.endColumn * this.props.fontWidth
+                const startX = (this.props.columnOffset + e.startColumn - 1) * this.props.fontWidth
+                const endX = (this.props.columnOffset + e.endColumn - 1) * this.props.fontWidth
 
                 return <ErrorSquiggle 
                             y={yPos} 

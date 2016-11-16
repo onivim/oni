@@ -9,10 +9,13 @@ export class ErrorOverlay implements IOverlay {
     private _errors: {[fileName: string]: Oni.Plugin.Diagnostics.Error[]} = {}
     private _currentFileName: string
     private _lastWindowContext: IWindowContext
+    private _columnOffset: number
 
     public onVimEvent(eventName: string, eventContext: Oni.EventContext): void {
         const fullPath = eventContext.bufferFullPath
         this._currentFileName = fullPath
+
+        this._columnOffset = eventContext.wincol - eventContext.column
 
         this._showErrors()
     }
@@ -46,6 +49,7 @@ export class ErrorOverlay implements IOverlay {
 
         renderErrorMarkers({
             errors: this._errors[this._currentFileName],
+            columnOffset: this._columnOffset
             fontHeight: this._lastWindowContext.fontHeightInPixels,
             fontWidth: this._lastWindowContext.fontWidthInPixels,
             lineToPositionMap: this._lastWindowContext.lineToPositionMap

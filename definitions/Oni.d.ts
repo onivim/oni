@@ -3,9 +3,20 @@ declare namespace Oni {
     export interface EventContext {
         bufferFullPath: string
         line: number
+
+        /**
+         * Column within the buffer
+         */
         column: number
         byte: number
         filetype: string
+
+        /**
+         * Actual column position within the window
+         * Includes line number, gutter, etc
+         */
+        wincol: number
+        winline: number
     }
 
     export interface TextDocumentPosition {

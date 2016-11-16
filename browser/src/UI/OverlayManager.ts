@@ -18,6 +18,7 @@ export interface IWindowContext {
     dimensions: WindowDimensions
 
     fontHeightInPixels: number
+    fontWidthInPixels: number
 
     startLine: number
     endLine: number
