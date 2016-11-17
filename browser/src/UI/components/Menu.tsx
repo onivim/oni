@@ -89,6 +89,7 @@ const mapDispatchToProps = (dispatch) => {
 export const MenuContainer = connect(mapStateToProps, mapDispatchToProps)(Menu)
 
 export interface MenuItemProps {
+    icon?: string
     isSelected: boolean
     filterText: string
     label: string
@@ -105,7 +106,10 @@ export class MenuItem extends React.Component<MenuItemProps, void> {
             className += " selected"
         }
 
+        const icon = this.props.icon ? <Icon name={this.props.icon} /> : null
+
         return <div className={className}>
+            {icon}
             <HighlightText className="label" text={this.props.label} highlightText={this.props.filterText} highlightClassName={"highlight"} />
             <span className="detail">{this.props.detail}</span>
             <Visible visible={this.props.pinned}>

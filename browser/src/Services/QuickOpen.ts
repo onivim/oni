@@ -33,6 +33,7 @@ export class QuickOpen {
             const folder = path.dirname(f)
             const fullPath = path.join(folder, file)
             return {
+                icon: "file-text-o",
                 label: file,
                 detail: folder,
                 pinned: this._seenItems.indexOf(fullPath) >= 0

@@ -30,6 +30,11 @@ declare namespace Oni {
 
     export namespace Menu {
         export interface MenuOption {
+            /**
+             * Optional font-awesome icon
+             */
+            icon?: string
+
             label: string
             detail: string
 
