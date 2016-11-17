@@ -138,6 +138,9 @@ export class AutoCompletionIcon extends React.Component<AutoCompletionIconProps,
                 return <Icon name="cog" />
             case "keyword":
                 return <Icon name="key" />
+            case "warning":
+            case "$warning":
+                return <Icon name="exclamation-triangle" />
             default:
                 return !this.props.kind ? null : <span>`?${this.props.kind}?`</span>
         }

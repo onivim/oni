@@ -8,7 +8,7 @@
   },
   "oni": {
     "debugging": false,
-    "typescript": {
+    "javascript,typescript": {
       "subscriptions": [
         "buffer-update",
         "vim-events"

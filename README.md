@@ -18,17 +18,18 @@ This repository is under __active development__, and until 1.0 please consider e
 
 ## Usage
 
-- For Windows, a pre-built x86 binary of NeoVim is included for convenience.
+- For Windows, a pre-built x86 binary of NeoVim is included.
 
 - For OSX, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim.exe' is available.
 
-1) Clone the repository
-
-`git clone TODO`
+1) Clone the repository: `git clone TODO`
 
 2) Install dependencies by running `npm install` from the root
-3) Build using 'npm run build' from the root
+
+3) Build using `npm run build` from the root
+
 4) Run `npm link` to register the *ONI* command
+
 5) Run `oni` at the command line
 
 ## Goals
@@ -56,7 +57,7 @@ The goal of this project is to give an editor that gives the best of both worlds
     - [x] OS X / Windows support
     - [x] TypeScript language support
 - 0.2
-    - [ ] Mouse support
+    - [x] Mouse support
         - [ ] Buffer scroll bars
     - [ ] Extensibility models
         - [ ] Language service
@@ -64,27 +65,48 @@ The goal of this project is to give an editor that gives the best of both worlds
             - [ ] QuickInfo (TypeScript, JavaScript)
             - [ ] Goto Definition (TypeScript, JavaScript)
             - [ ] Errors
+            - [ ] Documentation
     - [ ] Services
         - [ ] QuickOpen - Modern CTRL-P replacement
     - [ ] Installation via NPM
+        - [ ] Handle case where NeoVim is not already installed
 - 0.3
     - [ ] Proper keymap support
+    - [ ] Feature: Replace visual world
     - [ ] Configuration loading
     - [ ] Git overlays
+        - [ ] Git blame overlay
+        - [ ] Git log overlay
     - [ ] QuickOpen Improvements
+        - [ ] Config variable
         - [ ] Non-git strategy
         - [ ] Fuzzy Matching
         - [ ] Scrollbar
+        - [ ] Icon
     - [ ] AutoCompletion
         - [ ] Fuzzy Matching
         - [ ] Scrollbar
+- 0.4
+    - [ ] Better app icon
+    - [ ] Listing in NeoVim wiki
+    - [ ] Left Pane
+    - [ ] Animation support
+        - [ ] Cursor animation
+    - [ ] Performance improvements
+        - [ ] Scroll performance improvement (avoid redraw)
+        - [ ] Perceived performance - render characters instally in insert
+
+- 0.5
+    - [ ] Status Line Replacement
+        - [ ] Extensibility API
 
 - Future
-    - [ ] Icon
     - [ ] Scrollbar minimap (a-la sublime)
     - [ ] Enhanced VimTutor
-    - [ ] Debugger support
-    - [ ] Snippet support
+    - [ ] Collaborative app icon
+    - [ ] Extensibility
+        - [ ] Debugger support
+        - [ ] Snippet support
     - [ ] Project templates
     - [ ] Package Manager
 

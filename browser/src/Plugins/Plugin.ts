@@ -183,6 +183,9 @@ export class Plugin {
                 }
 
                 const pluginMetadata = this._packageMetadata.oni || {}
+
+                this._expandMultipleLanguageKeys(pluginMetadata)
+
                 this._oniPluginMetadata = Object.assign({}, DefaultMetadata, pluginMetadata)
 
                 if(this._oniPluginMetadata.debugging) {
@@ -191,6 +194,22 @@ export class Plugin {
                 }
             }
         }
+    }
+
+    /* 
+    * For blocks that handle multiple languages
+    * ie, javascript,typescript
+    * Split into separate language srevice blocks
+    */
+    private _expandMultipleLanguageKeys(packageMetadata: {[languageKey:string]: any}) {
+        Object.keys(packageMetadata).forEach(key => {
+            if(key.indexOf(",")) {
+                const val = packageMetadata[key]
+                key.split(",").forEach(splitKey => {
+                    packageMetadata[splitKey] = val
+                })
+            }
+        })
     }
 }
 
