@@ -26456,6 +26456,7 @@
 	                    this._webContents = this._browserWindow.webContents;
 	                }
 	                const pluginMetadata = this._packageMetadata.oni || {};
+	                this._expandMultipleLanguageKeys(pluginMetadata);
 	                this._oniPluginMetadata = Object.assign({}, DefaultMetadata, pluginMetadata);
 	                if (this._oniPluginMetadata.debugging) {
 	                    this._browserWindow.openDevTools();
@@ -26563,6 +26564,21 @@
 	            return false;
 	        const filePluginInfo = this._oniPluginMetadata[fileType];
 	        return filePluginInfo && filePluginInfo.languageService && filePluginInfo.languageService.indexOf(capability) >= 0;
+	    }
+	    /*
+	    * For blocks that handle multiple languages
+	    * ie, javascript,typescript
+	    * Split into separate language srevice blocks
+	    */
+	    _expandMultipleLanguageKeys(packageMetadata) {
+	        Object.keys(packageMetadata).forEach(key => {
+	            if (key.indexOf(",")) {
+	                const val = packageMetadata[key];
+	                key.split(",").forEach(splitKey => {
+	                    packageMetadata[splitKey] = val;
+	                });
+	            }
+	        });
 	    }
 	}
 	exports.Plugin = Plugin;
@@ -48450,6 +48466,9 @@
 	                return React.createElement(Icon_1.Icon, {name: "cog"});
 	            case "keyword":
 	                return React.createElement(Icon_1.Icon, {name: "key"});
+	            case "warning":
+	            case "$warning":
+	                return React.createElement(Icon_1.Icon, {name: "exclamation-triangle"});
 	            default:
 	                return !this.props.kind ? null : React.createElement("span", null, 
 	                    "`?$", 
@@ -49648,7 +49667,7 @@
 
 
 	// module
-	exports.push([module.id, "#overlay-ui {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  right: 0px;\n  bottom: 0px;\n}\n.overlay-container {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  right: 0px;\n  bottom: 0px;\n}\n", ""]);
+	exports.push([module.id, "#overlay-ui {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  right: 0px;\n  bottom: 0px;\n}\n.overlay-container {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  right: 0px;\n  bottom: 0px;\n  overflow: hidden;\n}\n", ""]);
 
 	// exports
 
