@@ -1,17 +1,23 @@
-- fuzzy matching for items
-- set up uglification / minification for 'production' builds
-    - production webpack config
+- QuickOpen: fuzzy matching for items
+- AutoComplete: fuzzy matching
 
 - Performance
     - Optimistic typing
 
+- Animation: Cursor velocity
 
-- Error scenario
-    - Split UI into layers
-        - Chrome (Pane, Menu, Completion, QuickInfo)
-        - Plugin (layers)
+- Performance: oni-typescript
+    - For autocomplete, need to drop:
+        - if cursor position is different
+        - or if mode is different
+    - PromiseQueue concept - only execute latest promise for updateFile
+        - Need to make sure updateFile promise is actually working
+
+- Pane
+    - Assumptions around sizing / positions
 
 - File explorer
+    - Fast nav hook up?
 
 - Fast nav through chrome
 
@@ -144,36 +150,9 @@
 
 - Implement single main but multiple browser windows, for quick re-open
 
+- Performance: Start-up time: Minification of bundle.js 
+
 - Mouse
     - Modifier keys
         - Ctrl/alt/shift
         - Right / middle button
-
-- Create Oni API object, pass to plugin
-    - Add 'engine' property - "oni": "^0.0.1"
-        - Exclude other plugins
-    - Make plugins debuggable
-        - Expose plugin list from neovim instance
-        - Make sure neovim instance is global
-    - NeovimInstance - emit 'rpcnotify' action
-
-    - Plugin - subscribe to rpcnotify
-        - onBufferOpened(..)
-        - onBufferClosed(..)
-        - onBufferChanged(..)
-
-        - registerLanguageService("typescript", {
-                getCompletions = (bufferPosition) => ICompletionItem[]
-                getCompletions(position: BufferPosition => {
-                    return []
-                })
-
-                resolveCompletion = (completionItem) => ResolvedCompletionItem
-                resolveCompletion(completionItem => {
-
-                })
-            })
-
-    - LanguageServiceManager
-        - Manage current active language service
-        - Manage rendering auto-complete UI
