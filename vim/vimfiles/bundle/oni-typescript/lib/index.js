@@ -111,6 +111,9 @@ host.on("semanticDiag", function (diagnostics) {
     });
     Oni.diagnostics.setErrors("typescript-compiler", fileName, errors, "red");
 });
+var updateFile = _.throttle(function (bufferFullPath, stringContents) {
+    host.updateFile(bufferFullPath, stringContents);
+}, 250);
 var requestErrorUpdate = _.throttle(function (file) {
     host.getErrorsAcrossProject(file);
 }, 500, { leading: true, trailing: true });
@@ -121,7 +124,7 @@ Oni.on("buffer-update", function (args) {
         host.openFile(args.eventContext.bufferFullPath);
     }
     lastBuffer = args.bufferLines;
-    host.updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL));
+    updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL));
     requestErrorUpdate(args.eventContext.bufferFullPath);
 });
 // TODO: Refactor to separate file

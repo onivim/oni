@@ -169,7 +169,7 @@ var TypeScriptServerHost = (function (_super) {
                 this._seqToPromises[seq].resolve(response.body);
             }
             else {
-                this._seqToPromises[seq].reject(response.message);
+                this._seqToPromises[seq].reject(new Error(response.message));
             }
         }
         else {
