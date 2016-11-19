@@ -25,8 +25,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     private _handleNotification(arg) {
-        console.log("Oni: Got notification: " + arg.type + JSON.stringify(arg))
-
         if (arg.type === "buffer-update") {
             this.emit("buffer-update", arg.payload)
         } else if (arg.type === "event") {

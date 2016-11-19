@@ -143,6 +143,11 @@ host.on("semanticDiag", (diagnostics) => {
     Oni.diagnostics.setErrors("typescript-compiler", fileName, errors, "red")
 })
 
+
+const updateFile = _.throttle((bufferFullPath, stringContents) => {
+    host.updateFile(bufferFullPath, stringContents)
+}, 250)
+
 const requestErrorUpdate = _.throttle((file) => {
     host.getErrorsAcrossProject(file)
 }, 500, { leading: true, trailing: true })
@@ -158,7 +163,7 @@ Oni.on("buffer-update", (args) => {
 
     lastBuffer = args.bufferLines
 
-    host.updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL));
+    updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL));
 
     requestErrorUpdate(args.eventContext.bufferFullPath)
 });

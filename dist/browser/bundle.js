@@ -48579,7 +48579,9 @@
 	        if (this.props.isSelected) {
 	            className += " selected";
 	        }
+	        const icon = this.props.icon ? React.createElement(Icon_1.Icon, {name: this.props.icon}) : null;
 	        return React.createElement("div", {className: className}, 
+	            icon, 
 	            React.createElement(HighlightText_1.HighlightText, {className: "label", text: this.props.label, highlightText: this.props.filterText, highlightClassName: "highlight"}), 
 	            React.createElement("span", {className: "detail"}, this.props.detail), 
 	            React.createElement(Visible_1.Visible, {visible: this.props.pinned}, 
@@ -48745,7 +48747,7 @@
 
 
 	// module
-	exports.push([module.id, ".menu-background {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  bottom: 0px;\n  right: 0px;\n  background-color: rgba(0, 0, 0, 0.4);\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: column;\n      flex-direction: column;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.menu {\n  margin-top: 16px;\n  background-color: #282828;\n  color: #c8c8c8;\n  border: 1px solid #3c3c3c;\n  padding: 8px;\n  box-shadow: 4px 4px rgba(0, 0, 0, 0.2);\n  width: 600px;\n  max-height: 400px;\n}\n.menu input {\n  color: #c8c8c8;\n  background-color: #3c3c3c;\n  border: 1px solid #505050;\n  font-size: 14px;\n  box-sizing: border-box;\n  width: 100%;\n  padding: 4px;\n}\n.menu .items .item {\n  padding: 4px;\n  margin-top: 4px;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: row;\n      flex-direction: row;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.menu .items .item.selected {\n  background-color: rgba(100, 200, 255, 0.2);\n}\n.menu .items .item .label {\n  margin: 4px;\n}\n.menu .items .item .label .highlight {\n  color: #32c8ff;\n  font-weight: bold;\n  font-style: italic;\n}\n.menu .items .item .detail {\n  font-size: 11px;\n  color: rgba(100, 100, 100, 0.6);\n  -ms-flex: 1 1 auto;\n      flex: 1 1 auto;\n}\n", ""]);
+	exports.push([module.id, ".menu-background {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  bottom: 0px;\n  right: 0px;\n  background-color: rgba(0, 0, 0, 0.4);\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: column;\n      flex-direction: column;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.menu {\n  margin-top: 16px;\n  background-color: #282828;\n  color: #c8c8c8;\n  border: 1px solid #3c3c3c;\n  padding: 8px;\n  box-shadow: 4px 4px rgba(0, 0, 0, 0.2);\n  width: 600px;\n  max-height: 400px;\n}\n.menu input {\n  color: #c8c8c8;\n  background-color: #3c3c3c;\n  border: 1px solid #505050;\n  font-size: 14px;\n  box-sizing: border-box;\n  width: 100%;\n  padding: 4px;\n}\n.menu .items .item {\n  padding: 4px;\n  margin-top: 4px;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: row;\n      flex-direction: row;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.menu .items .item .fa {\n  padding-right: 8px;\n}\n.menu .items .item.selected {\n  background-color: rgba(100, 200, 255, 0.2);\n}\n.menu .items .item .label {\n  margin: 4px;\n  padding-right: 8px;\n}\n.menu .items .item .label .highlight {\n  color: #32c8ff;\n  font-weight: bold;\n  font-style: italic;\n}\n.menu .items .item .detail {\n  font-size: 11px;\n  color: rgba(100, 100, 100, 0.6);\n  -ms-flex: 1 1 auto;\n      flex: 1 1 auto;\n}\n", ""]);
 
 	// exports
 
@@ -49575,12 +49577,15 @@
 	        });
 	    }
 	    show() {
-	        const files = child_process_1.execSync("git ls-files").toString("utf8").split("\n");
+	        const trackedFiles = child_process_1.execSync("git ls-files").toString("utf8").split("\n");
+	        const untrackedFiles = child_process_1.execSync("git ls-files --others --exclude-standard").toString("utf8").split("\n");
+	        const files = trackedFiles.concat(untrackedFiles);
 	        const options = files.map(f => {
 	            const file = path.basename(f);
 	            const folder = path.dirname(f);
 	            const fullPath = path.join(folder, file);
 	            return {
+	                icon: "file-text-o",
 	                label: file,
 	                detail: folder,
 	                pinned: this._seenItems.indexOf(fullPath) >= 0

@@ -1,5 +1,13 @@
-- QuickOpen: fuzzy matching for items
-- AutoComplete: fuzzy matching
+
+- Autocomplete and quick info
+    - For autocomplete, need to drop:
+        - if cursor position is different
+        - or if mode is different
+        - spinner while request in progress
+    - Typescript performance: Promise debouncer in Oni.ts
+        - Move debounce to plugin_api, port over test changes and everything
+        - Debounce the actual language service object, since this will likely be a common issue
+
 
 - Screenshots of ONI in action
 
@@ -9,13 +17,6 @@
 - Default langauge service - keyword autocomplete
 
 - Animation: Cursor velocity
-
-- Performance: oni-typescript
-    - For autocomplete, need to drop:
-        - if cursor position is different
-        - or if mode is different
-    - PromiseQueue concept - only execute latest promise for updateFile
-        - Need to make sure updateFile promise is actually working
 
 - Pane
     - Assumptions around sizing / positions
@@ -163,3 +164,7 @@
     - Modifier keys
         - Ctrl/alt/shift
         - Right / middle button
+
+- QuickOpen: fuzzy matching for items
+- AutoComplete: fuzzy matching
+
