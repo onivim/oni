@@ -1,8 +1,12 @@
 - QuickOpen: fuzzy matching for items
 - AutoComplete: fuzzy matching
 
+- Screenshots of ONI in action
+
 - Performance
     - Optimistic typing
+
+- Default langauge service - keyword autocomplete
 
 - Animation: Cursor velocity
 
@@ -38,6 +42,9 @@
     - Minimap
     - git changes
     - errors
+
+- CTRL+Shift+P - command palette
+- Preview window
 
 - Terminal support
     - 'Read-only' except for command line
@@ -146,7 +153,7 @@
 
 - Features
     - Cycle open windows
-    - CTRL-P open window
+    - CTRL-p open window
 
 - Implement single main but multiple browser windows, for quick re-open
 
