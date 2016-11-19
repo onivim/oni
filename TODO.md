@@ -5,6 +5,7 @@
         - or if mode is different
         - spinner while request in progress
     - Typescript performance: Promise debouncer in Oni.ts
+        - Move debounce to plugin_api, port over test changes and everything
         - Debounce the actual language service object, since this will likely be a common issue
 
 
