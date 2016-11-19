@@ -25,8 +25,9 @@ export class QuickOpen {
     }
 
     public show(): void {
-
-        const files = execSync("git ls-files").toString("utf8").split("\n")
+        const trackedFiles = execSync("git ls-files").toString("utf8").split("\n")
+        const untrackedFiles = execSync("git ls-files --others --exclude-standard").toString("utf8").split("\n")
+        const files = trackedFiles.concat(untrackedFiles)
 
         const options = files.map(f => {
             const file = path.basename(f)

@@ -49577,7 +49577,9 @@
 	        });
 	    }
 	    show() {
-	        const files = child_process_1.execSync("git ls-files").toString("utf8").split("\n");
+	        const trackedFiles = child_process_1.execSync("git ls-files").toString("utf8").split("\n");
+	        const untrackedFiles = child_process_1.execSync("git ls-files --others --exclude-standard").toString("utf8").split("\n");
+	        const files = trackedFiles.concat(untrackedFiles);
 	        const options = files.map(f => {
 	            const file = path.basename(f);
 	            const folder = path.dirname(f);
