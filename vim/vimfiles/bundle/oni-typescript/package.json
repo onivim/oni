@@ -5,7 +5,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "tsc -p tsconfig.test.json; mocha -r ./lib_test/test"
+    "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
   },
   "oni": {
     "debugging": true,
