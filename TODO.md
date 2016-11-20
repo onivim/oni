@@ -1,5 +1,11 @@
 - Screenshots of ONI in action
 
+- F5 launch
+
+- Errors - only on save
+
+- VimTutor enhancements
+
 - Autocomplete and quick info
     - For autocomplete, need to drop:
         - if cursor position is different
