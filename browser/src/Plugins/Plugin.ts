@@ -158,7 +158,7 @@ export class Plugin {
         if (!this._oniPluginMetadata)
             return false;
 
-        const filePluginInfo = this._oniPluginMetadata[fileType];
+        const filePluginInfo = this._oniPluginMetadata[fileType] || this._oniPluginMetadata["*"];
 
         return filePluginInfo && filePluginInfo.languageService && filePluginInfo.languageService.indexOf(capability) >= 0;
     }
