@@ -22,7 +22,7 @@ const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles")
 
 export class PluginManager {
 
-    private _rootPluginPaths = []
+    private _rootPluginPaths: string[] = []
     private _extensionPath: string
     private _plugins: Plugin[] = []
     private _neovimInstance: INeovimInstance
