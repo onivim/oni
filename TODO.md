@@ -1,17 +1,34 @@
-- Screenshots of ONI in action
-
-- F5 launch
-
-- Errors - only on save
-
-- VimTutor enhancements
-    - Konami code / game
-
 - Autocomplete and quick info
     - For autocomplete, need to drop:
         - if cursor position is different
         - or if mode is different
         - spinner while request in progress
+
+- Screenshots of ONI in action
+- Install on npm as oni-vim
+
+- Config loading relative to path
+
+- F5 launch
+    launch.json
+
+- Tasks provider
+    - npm tasks
+    - output window
+
+- Errors - only on save
+    - Errors service
+
+- Sample language service plugin
+- Launch
+
+- Default Autocomplete plugin 
+
+- VimTutor enhancements
+    - Konami code / game
+
+- Animation: Cursor velocity
+- Animation: Background video / background image
 
 - Error fixes
     - Add to quick info
@@ -20,13 +37,11 @@
 - Markdown preview mode
     - Side-by-side? Pane view?
 
-
 - Performance
     - Optimistic typing
 
 - Default langauge service - keyword autocomplete
 
-- Animation: Cursor velocity
 
 - Pane
     - Assumptions around sizing / positions
