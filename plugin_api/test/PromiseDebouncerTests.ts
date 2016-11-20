@@ -1,7 +1,5 @@
 import * as assert from "assert"
 
-import * as Promise from "bluebird"
-
 import { debounce } from "./../src/PromiseDebouncer"
 
 describe("PromiseDebouncer", () => {
@@ -27,7 +25,11 @@ describe("PromiseDebouncer", () => {
         let executionCount = 0;
         const debouncedFunction = debounce((val: number) => {
                 executionCount++
-                return Promise.resolve(val).timeout(1)
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve(val)
+                    }, 1)
+                })
         })
 
         // The first function should always be executed
@@ -36,6 +38,7 @@ describe("PromiseDebouncer", () => {
                 assert.strictEqual(val, 100)
                 return val
             })
+
 
         // This function will be skipped, because the current function is in progress
         const promise2 = debouncedFunction(200)

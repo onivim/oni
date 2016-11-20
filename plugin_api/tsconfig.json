@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outDir": "../lib/plugin_api",
+        "outDir": "../lib_test/plugin_api",
         "sourceMap": true,
         "module": "commonjs",
         "target": "es6"
@@ -9,10 +9,10 @@
         "./../definitions/Oni.d.ts"
     ],
     "include": [
-        "**/*.ts"
+        "src/**/*.ts",
+        "test/**/*.ts"
     ],
     "exclude": [
-        "test",
         "node_modules"
     ]
 }

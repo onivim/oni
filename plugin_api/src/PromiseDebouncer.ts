@@ -1,5 +1,3 @@
-import * as Promise from "bluebird"
-
 export interface PromiseFunction<T> {
     (...args):  Promise<T> 
 }
@@ -18,7 +16,7 @@ export function debounce<T>(promiseFunction: PromiseFunction<T>): PromiseFunctio
 
     const executeNextPromise = () => {
         if (!pendingPromise && queuedPromises.length > 0 ) {
-            for(var i = 0; i < queuedPromises.length - 2; i++) {
+            for(var i = 0; i < queuedPromises.length - 1; i++) {
                 queuedPromises[i].reject(new Error("Preempted"))
             }
 
