@@ -2,7 +2,6 @@ declare var Oni;
 import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
-import * as Promise from "bluebird";
 import {TypeScriptServerHost} from "./TypeScriptServerHost"
 import {QuickInfo} from "./QuickInfo";
 

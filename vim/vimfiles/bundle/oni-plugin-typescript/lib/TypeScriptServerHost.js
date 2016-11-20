@@ -12,7 +12,6 @@ var path = require("path");
 var readline = require("readline");
 var os = require("os");
 var events = require("events");
-var Promise = require("bluebird");
 var tssPath = path.join(__dirname, "..", "node_modules", "typescript", "lib", "tsserver.js");
 var TypeScriptServerHost = (function (_super) {
     __extends(TypeScriptServerHost, _super);

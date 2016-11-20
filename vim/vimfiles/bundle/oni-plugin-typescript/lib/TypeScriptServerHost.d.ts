@@ -1,7 +1,6 @@
 /// <reference types="node" />
-/// <reference types="bluebird" />
+/// <reference types="es6-promise" />
 import * as events from "events";
-import Promise = require("bluebird");
 export declare class TypeScriptServerHost extends events.EventEmitter {
     private _tssProcess;
     private _seqNumber;

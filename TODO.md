@@ -18,6 +18,7 @@
 
 - Errors - only on save
     - Errors service
+    - Hook into quick info
 
 - Sample language service plugin
 - Launch
@@ -29,10 +30,6 @@
 
 - Animation: Cursor velocity
 - Animation: Background video / background image
-
-- Error fixes
-    - Add to quick info
-    - ErrorManager
 
 - Markdown preview mode
     - Side-by-side? Pane view?

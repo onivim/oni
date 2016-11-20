@@ -11,8 +11,6 @@ import os = require("os");
 
 import * as events from "events";
 
-import Promise = require("bluebird");
-
 var tssPath = path.join(__dirname, "..", "node_modules", "typescript", "lib", "tsserver.js");
 
 export class TypeScriptServerHost extends events.EventEmitter {

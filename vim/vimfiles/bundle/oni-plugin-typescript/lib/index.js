@@ -1,6 +1,5 @@
 "use strict";
 var os = require("os");
-var Promise = require("bluebird");
 var TypeScriptServerHost_1 = require("./TypeScriptServerHost");
 var QuickInfo_1 = require("./QuickInfo");
 var _ = require("lodash");
