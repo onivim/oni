@@ -35,6 +35,9 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
             if(arg.payload.name === "CursorMoved") {
                 this.emit("cursor-moved", arg.payload.context);
                 this.emit("CursorMoved", arg.payload.context);
+            } else if(arg.payload.name === "BufWritePost") {
+                this.emit("buffer-saved", arg.payload.context)
+                this.emit("BufWritePost", arg.payload.context)
             }
         } else if (arg.type === "request") {
             console.log("request: " + arg.payload.name);

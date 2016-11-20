@@ -113,9 +113,6 @@ host.on("semanticDiag", function (diagnostics) {
 var updateFile = _.throttle(function (bufferFullPath, stringContents) {
     host.updateFile(bufferFullPath, stringContents);
 }, 50);
-var requestErrorUpdate = _.throttle(function (file) {
-    host.getErrorsAcrossProject(file);
-}, 500, { leading: true, trailing: true });
 Oni.on("buffer-update", function (args) {
     if (!args.eventContext.bufferFullPath)
         return;
@@ -124,7 +121,9 @@ Oni.on("buffer-update", function (args) {
     }
     lastBuffer = args.bufferLines;
     updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL));
-    requestErrorUpdate(args.eventContext.bufferFullPath);
+});
+Oni.on("buffer-saved", function (args) {
+    host.getErrorsAcrossProject(args.bufferFullPath);
 });
 // TODO: Refactor to separate file
 var convertToDisplayString = function (displayParts) {

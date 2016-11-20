@@ -147,10 +147,6 @@ const updateFile = _.throttle((bufferFullPath, stringContents) => {
     host.updateFile(bufferFullPath, stringContents)
 }, 50)
 
-const requestErrorUpdate = _.throttle((file) => {
-    host.getErrorsAcrossProject(file)
-}, 500, { leading: true, trailing: true })
-
 Oni.on("buffer-update", (args) => {
 
     if(!args.eventContext.bufferFullPath)
@@ -164,8 +160,11 @@ Oni.on("buffer-update", (args) => {
 
     updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL));
 
-    requestErrorUpdate(args.eventContext.bufferFullPath)
 });
+
+Oni.on("buffer-saved", (args: Oni.TextDocumentPosition) => {
+    host.getErrorsAcrossProject(args.bufferFullPath)
+})
 
 export interface DisplayPart {
     text: string;

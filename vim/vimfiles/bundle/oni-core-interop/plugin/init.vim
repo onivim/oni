@@ -52,6 +52,8 @@ augroup END
 
 augroup OniEventListeners
     autocmd!
+    autocmd! BufWritePre * :call OniNotifyEvent("BufWritePre")
+    autocmd! BufWritePost * :call OniNotifyEvent("BufWritePost")
     autocmd! BufEnter * :call OniNotifyEvent("BufEnter")
     autocmd! CursorMoved * :call OniNotifyEvent("CursorMoved")
     autocmd! CursorMovedI * :call OniNotifyEvent("CursorMovedI")
