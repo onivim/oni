@@ -7,11 +7,12 @@
     "oni": "./cli/neotron"
   },
   "scripts": {
-    "postinstall": "cd vim/vimfiles/bundle/oni-typescript && npm install",
+    "postinstall": "npm install:oni-plugin-typescript",
     "build": "npm run build:browser && npm run build:plugin_api && npm run build:plugins",
     "build:browser": "webpack --config browser/webpack.production.config.js",
     "build:plugin_api": "cd plugin_api && tsc -p tsconfig.src.json",
-    "build:plugins": "cd vim/vimfiles/bundle/oni-typescript && tsc",
+    "build:plugins": "cd vim/vimfiles/bundle/oni-plugin-typescript && tsc",
+    "install:oni-plugin-typescript": "cd vim/vimfiles/bundle/oni-plugin-typescript && npm install",
     "test:browser": "cd browser && tsc -p tsconfig_with_tests.json && mocha --recursive lib/browser/test",
     "test:plugin_api": "cd plugin_api && tsc -p tsconfig.json && mocha --recursive ../lib_test/plugin_api/test",
     "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch\"",
