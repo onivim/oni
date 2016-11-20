@@ -1,3 +1,4 @@
+- Screenshots of ONI in action
 
 - Autocomplete and quick info
     - For autocomplete, need to drop:
@@ -5,9 +6,13 @@
         - or if mode is different
         - spinner while request in progress
 
-- Markdown preview mode
+- Error fixes
+    - Add to quick info
+    - ErrorManager
 
-- Screenshots of ONI in action
+- Markdown preview mode
+    - Side-by-side? Pane view?
+
 
 - Performance
     - Optimistic typing
