@@ -12,13 +12,13 @@ const DefaultMetadata: PluginMetadata = {
 }
 
 // Subscription Events
-const VimEventsSubscription = "vim-events"
-const BufferUpdateEvents = "buffer-update"
+export const VimEventsSubscription = "vim-events"
+export const BufferUpdateEvents = "buffer-update"
 
 // Language Service Capabilities
-const QuickInfoCapability = "quick-info"
-const GotoDefinitionCapability = "goto-definition"
-const CompletionProviderCapability = "completion-provider"
+export const QuickInfoCapability = "quick-info"
+export const GotoDefinitionCapability = "goto-definition"
+export const CompletionProviderCapability = "completion-provider"
 
 export interface EventContext {
     bufferFullPath: string
@@ -57,34 +57,42 @@ export class Plugin {
         this._webContents.send("cross-browser-ipc", message)
     }
 
-    public handleCommand(command: string): void {
-
-        if(!this._lastEventContext)
-            return
-
-        const eventContext = this._lastEventContext
-
-        if(command === "editor.gotoDefinition"
-            && this._doesPluginProvideLanguageServiceCapability(eventContext.filetype, GotoDefinitionCapability)) {
-                this._send({
-                    type: "request",
-                    payload: {
-                        name: "goto-definition",
-                        context: eventContext
-                    }
-                })
+    public requestGotoDefinition(eventContext: EventContext): void {
+        this._send({
+            type: "request",
+            payload: {
+                name: "goto-definition",
+                context: eventContext
             }
+        })
     }
 
     public notifyBufferUpdateEvent(eventContext: EventContext, bufferLines: string[]): void {
-        if (!this._isPluginSubscribedToBufferUpdates(eventContext.filetype))
-            return;
-
         this._send({
             type: "buffer-update",
             payload: {
                 eventContext: eventContext,
                 bufferLines: bufferLines
+            }
+        })
+    }
+
+    public requestCompletions(eventContext: EventContext): void {
+        this._send({
+            type: "request",
+            payload: {
+                name: "completion-provider",
+                context: eventContext
+            }
+        })
+    }
+
+    public requestQuickInfo(eventContext: EventContext): void {
+        this._send({
+            type: "request",
+            payload: {
+                name: "quick-info",
+                context: eventContext
             }
         })
     }
@@ -103,11 +111,7 @@ export class Plugin {
     }
 
     public notifyVimEvent(eventName: string, eventContext: EventContext): void {
-
         this._lastEventContext = eventContext
-
-        if (!this._isPluginSubscribedToVimEvents(eventContext.filetype))
-            return;
 
         this._send({
             type: "event",
@@ -116,36 +120,17 @@ export class Plugin {
                 context: eventContext
             }
         });
-
-        if (eventName === "CursorMoved" && this._doesPluginProvideLanguageServiceCapability(eventContext.filetype, QuickInfoCapability)) {
-            this._send({
-                type: "request",
-                payload: {
-                    name: "quick-info",
-                    context: eventContext
-                }
-            });
-        }
-        else if(eventName === "CursorMovedI" && this._doesPluginProvideLanguageServiceCapability(eventContext.filetype, CompletionProviderCapability)) {
-            this._send({
-                type: "request",
-                payload: {
-                    name: "completion-provider",
-                    context: eventContext
-                }
-            })
-        }
     }
 
-    private _isPluginSubscribedToVimEvents(fileType: string): boolean {
-        return this._isPluginSubscribedToEventType(fileType, VimEventsSubscription);
+    public isPluginSubscribedToVimEvents(fileType: string): boolean {
+        return this.isPluginSubscribedToEventType(fileType, VimEventsSubscription);
     }
 
-    private _isPluginSubscribedToBufferUpdates(fileType: string): boolean {
-        return this._isPluginSubscribedToEventType(fileType, BufferUpdateEvents);
+    public isPluginSubscribedToBufferUpdates(fileType: string): boolean {
+        return this.isPluginSubscribedToEventType(fileType, BufferUpdateEvents);
     }
 
-    private _isPluginSubscribedToEventType(fileType: string, oniEventName: string): boolean {
+    public isPluginSubscribedToEventType(fileType: string, oniEventName: string): boolean {
         if (!this._oniPluginMetadata)
             return false;
 
@@ -154,11 +139,11 @@ export class Plugin {
         return filePluginInfo && filePluginInfo.subscriptions && filePluginInfo.subscriptions.indexOf(oniEventName) >= 0;
     }
 
-    private _doesPluginProvideLanguageServiceCapability(fileType: string, capability: string): boolean {
+    public doesPluginProvideLanguageServiceCapability(fileType: string, capability: string): boolean {
         if (!this._oniPluginMetadata)
             return false;
 
-        const filePluginInfo = this._oniPluginMetadata[fileType] || this._oniPluginMetadata["*"];
+        const filePluginInfo = this._oniPluginMetadata[fileType]
 
         return filePluginInfo && filePluginInfo.languageService && filePluginInfo.languageService.indexOf(capability) >= 0;
     }

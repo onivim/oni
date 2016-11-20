@@ -38,6 +38,11 @@
     - Optimistic typing
 
 - Default langauge service - keyword autocomplete
+    - Single language service
+        - Plugin - figure out if there is an existing one?
+        - Otherwise, see if there is a default one
+    - Multiple language service
+        - Would need to tag plugins with an id, and resolve that
 
 
 - Pane

@@ -1,0 +1,23 @@
+{
+  "main": "index.js",
+  "engines": {
+    "oni": "^0.0.1"
+  },
+  "scripts": {
+  },
+  "oni": {
+    "debugging": false,
+    "@@DISABLED_LANGUAGE": {
+      "subscriptions": [
+        "buffer-update",
+        "vim-events"
+      ],
+      "languageService": [
+        "completion-provider"
+      ],
+      "diagnosticsService": []
+    }
+  },
+  "dependencies": {
+  }
+}

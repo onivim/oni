@@ -61,7 +61,6 @@ var getCompletions = function (textDocumentPosition) {
             completions: []
         });
     console.log("Get completions: current line " + currentLine);
-    console.log("Current prefix");
     return host.getCompletions(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, currentPrefix)
         .then(function (val) {
         var results = val

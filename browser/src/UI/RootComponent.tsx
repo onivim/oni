@@ -138,6 +138,8 @@ export class AutoCompletionIcon extends React.Component<AutoCompletionIconProps,
                 return <Icon name="cog" />
             case "keyword":
                 return <Icon name="key" />
+            case "text":
+                return <Icon name="align-justify" />
             case "warning":
             case "$warning":
                 return <Icon name="exclamation-triangle" />

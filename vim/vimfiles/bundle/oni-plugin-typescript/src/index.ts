@@ -1,7 +1,8 @@
-declare var Oni;
-import * as path from "path";
-import * as fs from "fs";
-import * as os from "os";
+declare var Oni
+import * as path from "path"
+import * as fs from "fs"
+import * as os from "os"
+
 import {TypeScriptServerHost} from "./TypeScriptServerHost"
 import {QuickInfo} from "./QuickInfo";
 
@@ -79,7 +80,6 @@ const getCompletions = (textDocumentPosition: Oni.TextDocumentPosition) => {
         })
 
     console.log("Get completions: current line " + currentLine)
-    console.log("Current prefix")
 
     return host.getCompletions(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, currentPrefix)
         .then((val: any[]) => {

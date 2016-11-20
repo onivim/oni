@@ -26276,7 +26276,7 @@
 	    _doesPluginProvideLanguageServiceCapability(fileType, capability) {
 	        if (!this._oniPluginMetadata)
 	            return false;
-	        const filePluginInfo = this._oniPluginMetadata[fileType];
+	        const filePluginInfo = this._oniPluginMetadata[fileType] || this._oniPluginMetadata["*"];
 	        return filePluginInfo && filePluginInfo.languageService && filePluginInfo.languageService.indexOf(capability) >= 0;
 	    }
 	    /*
@@ -48268,6 +48268,8 @@
 	                return React.createElement(Icon_1.Icon, { name: "cog" });
 	            case "keyword":
 	                return React.createElement(Icon_1.Icon, { name: "key" });
+	            case "text":
+	                return React.createElement(Icon_1.Icon, { name: "align-justify" });
 	            case "warning":
 	            case "$warning":
 	                return React.createElement(Icon_1.Icon, { name: "exclamation-triangle" });

@@ -3,7 +3,7 @@ import * as path from "path";
 import * as cp from "child_process";
 import * as os from "os";
 import * as Q from "q";
-import { remote } from "electron"
+import { remote } from "electron";
 
 const attach = require("neovim-client");
 

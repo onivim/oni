@@ -9,7 +9,7 @@ import * as mkdirp from "mkdirp"
 
 import * as Config from "./../Config"
 import { INeovimInstance } from "./../NeovimInstance"
-import { Plugin } from "./Plugin"
+import { QuickInfoCapability, GotoDefinitionCapability, CompletionProviderCapability, Plugin } from "./Plugin"
 import { Screen } from "./../Screen"
 
 import * as UI from "./../UI/index"
@@ -29,6 +29,7 @@ export class PluginManager {
     private _overlayManager: OverlayManager
 
     private _errorOverlay: ErrorOverlay
+    private _lastEventContext: any
 
     constructor(screen: Screen) {
         this._rootPluginPaths.push(builtInPluginsRoot)
@@ -56,7 +57,12 @@ export class PluginManager {
     }
 
     public executeCommand(command: string): void {
-        this._plugins.forEach(p => p.handleCommand(command))
+        if(command === "editor.gotoDefinition") {
+            const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, GotoDefinitionCapability)
+            if(plugin) {
+                plugin.requestGotoDefinition(this._lastEventContext)
+            }
+        }
     }
 
     public handleNotification(method: string, args: any[]): void {
@@ -64,20 +70,59 @@ export class PluginManager {
             const eventContext = args[0][0]
             const bufferLines = args[0][1]
 
-            this._plugins.forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines))
+            this._plugins
+                .filter(p => p.isPluginSubscribedToBufferUpdates(eventContext.filetype))
+                .forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines))
+
         } else if(method === "event") {
             const eventName = args[0][0]
             const eventContext = args[0][1]
 
-            this._plugins.forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext))
+            this._lastEventContext = eventContext
+
+            this._plugins
+                .filter(p => p.isPluginSubscribedToVimEvents(eventContext.filetype))
+                .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext))
+
             this._overlayManager.handleCursorMovedEvent(eventContext)
             this._errorOverlay.onVimEvent(eventName, eventContext)
+
+            if (eventName === "CursorMoved") {
+                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, QuickInfoCapability)
+
+                if (plugin) {
+                    plugin.requestQuickInfo(eventContext)
+                }
+            } else if(eventName === "CursorMovedI") {
+                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, CompletionProviderCapability)
+
+                if (plugin) {
+                    plugin.requestCompletions(eventContext)
+                }
+            }
+
         } else if(method === "window_display_update") {
             this._overlayManager.notifyWindowDimensionsChanged(args[0][1])
         }
     }
 
+    private _getFirstPluginThatHasCapability(filetype: string, capability: string): Plugin {
+        const handlers = this._plugins.filter(p => p.doesPluginProvideLanguageServiceCapability(filetype, capability))
+
+        if (handlers.length > 0) {
+            return handlers[0]
+        }
+
+        const defaultHandlers = this._plugins.filter(p => p.doesPluginProvideLanguageServiceCapability("*", capability))
+
+        if(defaultHandlers.length > 0)
+            return defaultHandlers[0]
+
+        return null
+    }
+
     public notifyCompletionItemSelected(completionItem: any) {
+        // TODO: Scope this to the plugin that is providing completion
         this._plugins.forEach((plugin) => plugin.notifyCompletionItemSelected(completionItem))
     }
 
