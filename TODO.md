@@ -5,6 +5,7 @@
 - Errors - only on save
 
 - VimTutor enhancements
+    - Konami code / game
 
 - Autocomplete and quick info
     - For autocomplete, need to drop:
