@@ -742,7 +742,9 @@
 	            });
 	            this._neovim.uiAttach(80, 40, true, (err) => {
 	                console.log("Attach success");
+	                performance.mark("NeovimInstance.Plugins.Start");
 	                this._pluginManager.startPlugins(this);
+	                performance.mark("NeovimInstance.Plugins.End");
 	            });
 	        });
 	        this.setFont("Consolas", "14px");

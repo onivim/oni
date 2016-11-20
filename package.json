@@ -40,7 +40,7 @@
     "@types/electron": "^1.4.27",
     "@types/lodash": "^4.14.38",
     "@types/mkdirp": "^0.3.29",
-    "@types/mocha": "^2.2.32",
+    "@types/mocha": "^2.2.33",
     "@types/node": "^6.0.48",
     "@types/q": "0.0.32",
     "@types/react": "^0.14.48",

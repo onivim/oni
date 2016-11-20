@@ -30,6 +30,9 @@ module.exports = {
             new lessPluginAutoPrefix({browsers: ["last 2 versions"]})
         ]
     },
+    ts: {
+        configFileName: "tsconfig.src.json"
+    },
     resolve: {
         extensions: ['', '.webpack.js', '.js', '.jsx', '.ts', '.tsx']
     },
