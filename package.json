@@ -7,7 +7,7 @@
     "oni": "./cli/neotron"
   },
   "scripts": {
-    "postinstall": "npm install:oni-plugin-typescript",
+    "postinstall": "npm run install:oni-plugin-typescript",
     "build": "npm run build:browser && npm run build:plugin_api && npm run build:plugins",
     "build:browser": "webpack --config browser/webpack.production.config.js",
     "build:plugin_api": "cd plugin_api && tsc -p tsconfig.src.json",
