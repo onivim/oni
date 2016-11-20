@@ -146,7 +146,7 @@ host.on("semanticDiag", (diagnostics) => {
 
 const updateFile = _.throttle((bufferFullPath, stringContents) => {
     host.updateFile(bufferFullPath, stringContents)
-}, 250)
+}, 50)
 
 const requestErrorUpdate = _.throttle((file) => {
     host.getErrorsAcrossProject(file)

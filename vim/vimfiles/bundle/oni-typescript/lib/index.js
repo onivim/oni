@@ -113,7 +113,7 @@ host.on("semanticDiag", function (diagnostics) {
 });
 var updateFile = _.throttle(function (bufferFullPath, stringContents) {
     host.updateFile(bufferFullPath, stringContents);
-}, 250);
+}, 50);
 var requestErrorUpdate = _.throttle(function (file) {
     host.getErrorsAcrossProject(file);
 }, 500, { leading: true, trailing: true });
