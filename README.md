@@ -31,8 +31,11 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ### Syntax / Compilation Errors
 
+![syntax-error-demo](http://i.imgur.com/3ErOKYI.gif)
 
 ### Fuzzy Finder
+
+![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
 ## Usage
 
