@@ -17,10 +17,14 @@ import { Mouse } from "./Input/Mouse"
 import { PluginManager } from "./Plugins/PluginManager"
 import * as Config from "./Config"
 import * as UI from "./UI/index"
+import * as minimist from "minimist"
 
 import { QuickOpen } from "./Services/QuickOpen"
 
 const start = (args: string[]) => {
+
+    const parsedArgs = minimist(args)
+
     // Helper for debugging:
     window["UI"] = UI
 
@@ -31,7 +35,7 @@ const start = (args: string[]) => {
     var screen = new NeovimScreen(deltaRegion)
 
     const pluginManager = new PluginManager(screen);
-    var instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight, args);
+    var instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight, parsedArgs._);
 
     const canvasElement = document.getElementById("test-canvas") as HTMLCanvasElement
     var renderer = new CanvasRenderer()
