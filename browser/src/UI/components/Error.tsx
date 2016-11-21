@@ -2,6 +2,7 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 
 import { Icon } from "./../Icon"
+import * as Config from "./../../Config"
 
 require("./Error.less")
 
@@ -78,12 +79,14 @@ export class ErrorMarker extends React.Component<ErrorMarkerProps, void> {
 
         let className = this.props.isActive ? "error-marker active" : "error-marker"
 
-        return <div style={positionDivStyles} className={className}>
-                     <div className="error">
+        const errorDescription = Config.getValue<boolean>("editor.errors.slideOnFocus") ? (<div className="error">
                         <div className="text">
                             {this.props.text}
                         </div>
-                     </div>
+                     </div>) : null
+
+        return <div style={positionDivStyles} className={className}>
+                    {errorDescription}
                     <div className="icon-container">
                         <Icon name="exclamation-circle" />
                     </div>

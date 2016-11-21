@@ -3,9 +3,14 @@ import * as os from "os"
 const DefaultConfig: any = {
     // "debug.fixedSize": { rows: 10, columns: 100 }
     "debug.incrementalRenderRegions": false,
+
     "vim.loadVimPlugins": true,
     "oni.loadPlugins": true,
-    "editor.fontSize": "14px"
+
+    "editor.fontSize": "14px",
+    "editor.quickInfo.enabled": true,
+    "editor.completions.enabled": true,
+    "editor.errors.slideOnFocus": true
 }
 
 const MacConfig: any = {

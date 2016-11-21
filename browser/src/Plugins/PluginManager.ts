@@ -87,13 +87,13 @@ export class PluginManager {
             this._overlayManager.handleCursorMovedEvent(eventContext)
             this._errorOverlay.onVimEvent(eventName, eventContext)
 
-            if (eventName === "CursorMoved") {
+            if (eventName === "CursorMoved" && Config.getValue<boolean>("editor.quickInfo.enabled")) {
                 const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, QuickInfoCapability)
 
                 if (plugin) {
                     plugin.requestQuickInfo(eventContext)
                 }
-            } else if(eventName === "CursorMovedI") {
+            } else if(eventName === "CursorMovedI" && Config.getValue<boolean>("editor.completions.enabled")) {
                 const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, CompletionProviderCapability)
 
                 if (plugin) {
