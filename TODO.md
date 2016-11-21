@@ -41,6 +41,7 @@
     - Add clearRect to canvas
     - Add opacity option to settings
     - Use opacity when drawing background
+    - Can we remove filling by background image?
 - Aniamtion: QuickOpen - blur 
 
 - Overlay fixes
