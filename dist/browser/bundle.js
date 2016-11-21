@@ -25942,26 +25942,59 @@
 	        this._overlayManager.addOverlay("errors", this._errorOverlay);
 	    }
 	    executeCommand(command) {
-	        this._plugins.forEach(p => p.handleCommand(command));
+	        if (command === "editor.gotoDefinition") {
+	            const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, Plugin_1.GotoDefinitionCapability);
+	            if (plugin) {
+	                plugin.requestGotoDefinition(this._lastEventContext);
+	            }
+	        }
 	    }
 	    handleNotification(method, args) {
 	        if (method === "buffer_update") {
 	            const eventContext = args[0][0];
 	            const bufferLines = args[0][1];
-	            this._plugins.forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines));
+	            this._plugins
+	                .filter(p => p.isPluginSubscribedToBufferUpdates(eventContext.filetype) || p.isPluginSubscribedToBufferUpdates("*"))
+	                .forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines));
 	        }
 	        else if (method === "event") {
 	            const eventName = args[0][0];
 	            const eventContext = args[0][1];
-	            this._plugins.forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext));
+	            this._lastEventContext = eventContext;
+	            this._plugins
+	                .filter(p => p.isPluginSubscribedToVimEvents(eventContext.filetype) || p.isPluginSubscribedToVimEvents("*"))
+	                .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext));
 	            this._overlayManager.handleCursorMovedEvent(eventContext);
 	            this._errorOverlay.onVimEvent(eventName, eventContext);
+	            if (eventName === "CursorMoved") {
+	                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.QuickInfoCapability);
+	                if (plugin) {
+	                    plugin.requestQuickInfo(eventContext);
+	                }
+	            }
+	            else if (eventName === "CursorMovedI") {
+	                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.CompletionProviderCapability);
+	                if (plugin) {
+	                    plugin.requestCompletions(eventContext);
+	                }
+	            }
 	        }
 	        else if (method === "window_display_update") {
 	            this._overlayManager.notifyWindowDimensionsChanged(args[0][1]);
 	        }
 	    }
+	    _getFirstPluginThatHasCapability(filetype, capability) {
+	        const handlers = this._plugins.filter(p => p.doesPluginProvideLanguageServiceCapability(filetype, capability));
+	        if (handlers.length > 0) {
+	            return handlers[0];
+	        }
+	        const defaultHandlers = this._plugins.filter(p => p.doesPluginProvideLanguageServiceCapability("*", capability));
+	        if (defaultHandlers.length > 0)
+	            return defaultHandlers[0];
+	        return null;
+	    }
 	    notifyCompletionItemSelected(completionItem) {
+	        // TODO: Scope this to the plugin that is providing completion
 	        this._plugins.forEach((plugin) => plugin.notifyCompletionItemSelected(completionItem));
 	    }
 	    _handlePluginResponse(pluginResponse) {
@@ -26146,12 +26179,12 @@
 	    debugging: false
 	};
 	// Subscription Events
-	const VimEventsSubscription = "vim-events";
-	const BufferUpdateEvents = "buffer-update";
+	exports.VimEventsSubscription = "vim-events";
+	exports.BufferUpdateEvents = "buffer-update";
 	// Language Service Capabilities
-	const QuickInfoCapability = "quick-info";
-	const GotoDefinitionCapability = "goto-definition";
-	const CompletionProviderCapability = "completion-provider";
+	exports.QuickInfoCapability = "quick-info";
+	exports.GotoDefinitionCapability = "goto-definition";
+	exports.CompletionProviderCapability = "completion-provider";
 	class Plugin {
 	    constructor(pluginRootDirectory) {
 	        var packageJsonPath = path.join(pluginRootDirectory, "package.json");
@@ -26193,29 +26226,39 @@
 	        });
 	        this._webContents.send("cross-browser-ipc", message);
 	    }
-	    handleCommand(command) {
-	        if (!this._lastEventContext)
-	            return;
-	        const eventContext = this._lastEventContext;
-	        if (command === "editor.gotoDefinition"
-	            && this._doesPluginProvideLanguageServiceCapability(eventContext.filetype, GotoDefinitionCapability)) {
-	            this._send({
-	                type: "request",
-	                payload: {
-	                    name: "goto-definition",
-	                    context: eventContext
-	                }
-	            });
-	        }
+	    requestGotoDefinition(eventContext) {
+	        this._send({
+	            type: "request",
+	            payload: {
+	                name: "goto-definition",
+	                context: eventContext
+	            }
+	        });
 	    }
 	    notifyBufferUpdateEvent(eventContext, bufferLines) {
-	        if (!this._isPluginSubscribedToBufferUpdates(eventContext.filetype))
-	            return;
 	        this._send({
 	            type: "buffer-update",
 	            payload: {
 	                eventContext: eventContext,
 	                bufferLines: bufferLines
+	            }
+	        });
+	    }
+	    requestCompletions(eventContext) {
+	        this._send({
+	            type: "request",
+	            payload: {
+	                name: "completion-provider",
+	                context: eventContext
+	            }
+	        });
+	    }
+	    requestQuickInfo(eventContext) {
+	        this._send({
+	            type: "request",
+	            payload: {
+	                name: "quick-info",
+	                context: eventContext
 	            }
 	        });
 	    }
@@ -26233,8 +26276,6 @@
 	    }
 	    notifyVimEvent(eventName, eventContext) {
 	        this._lastEventContext = eventContext;
-	        if (!this._isPluginSubscribedToVimEvents(eventContext.filetype))
-	            return;
 	        this._send({
 	            type: "event",
 	            payload: {
@@ -26242,41 +26283,23 @@
 	                context: eventContext
 	            }
 	        });
-	        if (eventName === "CursorMoved" && this._doesPluginProvideLanguageServiceCapability(eventContext.filetype, QuickInfoCapability)) {
-	            this._send({
-	                type: "request",
-	                payload: {
-	                    name: "quick-info",
-	                    context: eventContext
-	                }
-	            });
-	        }
-	        else if (eventName === "CursorMovedI" && this._doesPluginProvideLanguageServiceCapability(eventContext.filetype, CompletionProviderCapability)) {
-	            this._send({
-	                type: "request",
-	                payload: {
-	                    name: "completion-provider",
-	                    context: eventContext
-	                }
-	            });
-	        }
 	    }
-	    _isPluginSubscribedToVimEvents(fileType) {
-	        return this._isPluginSubscribedToEventType(fileType, VimEventsSubscription);
+	    isPluginSubscribedToVimEvents(fileType) {
+	        return this.isPluginSubscribedToEventType(fileType, exports.VimEventsSubscription);
 	    }
-	    _isPluginSubscribedToBufferUpdates(fileType) {
-	        return this._isPluginSubscribedToEventType(fileType, BufferUpdateEvents);
+	    isPluginSubscribedToBufferUpdates(fileType) {
+	        return this.isPluginSubscribedToEventType(fileType, exports.BufferUpdateEvents);
 	    }
-	    _isPluginSubscribedToEventType(fileType, oniEventName) {
+	    isPluginSubscribedToEventType(fileType, oniEventName) {
 	        if (!this._oniPluginMetadata)
 	            return false;
 	        const filePluginInfo = this._oniPluginMetadata[fileType];
 	        return filePluginInfo && filePluginInfo.subscriptions && filePluginInfo.subscriptions.indexOf(oniEventName) >= 0;
 	    }
-	    _doesPluginProvideLanguageServiceCapability(fileType, capability) {
+	    doesPluginProvideLanguageServiceCapability(fileType, capability) {
 	        if (!this._oniPluginMetadata)
 	            return false;
-	        const filePluginInfo = this._oniPluginMetadata[fileType] || this._oniPluginMetadata["*"];
+	        const filePluginInfo = this._oniPluginMetadata[fileType];
 	        return filePluginInfo && filePluginInfo.languageService && filePluginInfo.languageService.indexOf(capability) >= 0;
 	    }
 	    /*
@@ -26297,7 +26320,7 @@
 	}
 	exports.Plugin = Plugin;
 	const loadPluginInBrowser = (pathToModule, apiObject) => {
-	    var browserWindow = new BrowserWindow({ width: 800, height: 600, show: false, webPreferences: { webSecurity: false } });
+	    var browserWindow = new BrowserWindow({ width: 10, height: 10, show: false, webPreferences: { webSecurity: false } });
 	    browserWindow.webContents.on("did-finish-load", () => {
 	        browserWindow.webContents.send("init", {
 	            pathToModule: pathToModule

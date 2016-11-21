@@ -43,11 +43,13 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
             console.log("request: " + arg.payload.name);
             const requestType = arg.payload.name;
 
+            const originalContext = arg.payload.context
+
             switch(requestType) {
                 case "quick-info":
                     this._languageService.getQuickInfo(arg.payload.context)
                         .then((quickInfo) => {
-                                Sender.send("show-quick-info", {
+                                Sender.send("show-quick-info", originalContext, {
                                     info: quickInfo.title,
                                     documentation: quickInfo.description
                                 })
@@ -56,7 +58,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                 case "goto-definition":
                     this._languageService.getDefinition(arg.payload.context)
                         .then((definitionPosition) => {
-                                Sender.send("goto-definition", {
+                                Sender.send("goto-definition", originalContext, {
                                     filePath: definitionPosition.filePath,
                                     line: definitionPosition.line,
                                     column: definitionPosition.column
@@ -66,14 +68,14 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                 case "completion-provider":
                     this._languageService.getCompletions(arg.payload.context)
                         .then(completions => {
-                                Sender.send("completion-provider", completions)
+                                Sender.send("completion-provider", originalContext, completions)
                             })
                         break
                 case "completion-provider-item-selected":
                     console.log("completion-provider-item-selected")
                     this._languageService.getCompletionDetails(arg.payload.context, arg.payload.item)
                         .then((details) => {
-                                Sender.send("completion-provider-item-selected", {
+                                Sender.send("completion-provider-item-selected", originalContext, {
                                     details: details
                                 })
                             })

@@ -1,18 +1,24 @@
 
+var os = require("os")
+
 console.log("hey")
+
+var currentWords = []
+
+Oni.on("buffer-update", (args) => {
+    console.log("buffer update!")
+    const fullText = args.bufferLines.join(os.EOL)
+    currentWords = fullText.split(/\W+/)
+})
+
 
 const getCompletions = () => {
     return Promise.resolve({
         base: "",
-        completions: [
-        {
-            label: "a",
+        completions: currentWords.map(w => ({
+            label: w,
             kind: "text"
-        }, 
-        {
-            label: "b",
-            kind: "text"
-        }]
+        }))
     })
 }
 

@@ -71,7 +71,7 @@ export class PluginManager {
             const bufferLines = args[0][1]
 
             this._plugins
-                .filter(p => p.isPluginSubscribedToBufferUpdates(eventContext.filetype))
+                .filter(p => p.isPluginSubscribedToBufferUpdates(eventContext.filetype) || p.isPluginSubscribedToBufferUpdates("*"))
                 .forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines))
 
         } else if(method === "event") {
@@ -81,7 +81,7 @@ export class PluginManager {
             this._lastEventContext = eventContext
 
             this._plugins
-                .filter(p => p.isPluginSubscribedToVimEvents(eventContext.filetype))
+                .filter(p => p.isPluginSubscribedToVimEvents(eventContext.filetype) || p.isPluginSubscribedToVimEvents("*"))
                 .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext))
 
             this._overlayManager.handleCursorMovedEvent(eventContext)
@@ -142,6 +142,17 @@ export class PluginManager {
             this._errorOverlay.setErrors(pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors)
         }
     }
+
+    /**
+     * Validate that the originating event matched the initating event
+     */
+    private _validateOriginEventMatchesCurrentEvent(pluginResponse: any): boolean {
+        debugger
+        const currentEvent = this._lastEventContext
+        const originEvent = pluginResponse.meta.originEvent
+        return true;
+    }
+
 
     public startPlugins(neovimInstance: INeovimInstance): void {
         this._neovimInstance = neovimInstance

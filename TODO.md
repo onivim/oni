@@ -3,6 +3,7 @@
         - if cursor position is different
         - or if mode is different
         - spinner while request in progress
+        - Need to send up event context (plugin id, row, line)
 
 - Screenshots of ONI in action
 - Install on npm as oni-vim
@@ -16,9 +17,10 @@
     - npm tasks
     - output window
 
-- Errors - only on save
-    - Errors service
-    - Hook into quick info
+- Errors + Quick Info
+    - Add field for errors in quick info
+    - Factor current error state management from overlay to service
+    - When opening QuickInfo, check if there is an error at current position, and add
 
 - Sample language service plugin
 - Launch
@@ -38,16 +40,14 @@
     - Optimistic typing
 
 - Default langauge service - keyword autocomplete
-    - Single language service
-        - Plugin - figure out if there is an existing one?
-        - Otherwise, see if there is a default one
-    - Multiple language service
-        - Would need to tag plugins with an id, and resolve that
+    - Remove duplicate words
+    - Move common base code from the typescript completer to a helper on Oni
 
 
 - Pane
     - Assumptions around sizing / positions
 
+- Allow multiple language services / completion providers
 - File explorer
     - Fast nav hook up?
 

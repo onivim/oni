@@ -199,7 +199,7 @@ export class Plugin {
 }
 
 const loadPluginInBrowser = (pathToModule: string, apiObject: any) => {
-    var browserWindow = new BrowserWindow({width: 800, height: 600, show: false, webPreferences: { webSecurity: false }});
+    var browserWindow = new BrowserWindow({width: 10, height: 10, show: false, webPreferences: { webSecurity: false }});
 
     browserWindow.webContents.on("did-finish-load", () => {
         browserWindow.webContents.send("init", {
