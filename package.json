@@ -1,5 +1,5 @@
 {
-  "name": "oni",
+  "name": "oni-vim",
   "version": "0.0.1",
   "description": "NeoVim front-end with IDE-style extensibility",
   "keywords": ["vim", "neovim", "text", "editor", "ide", "vim"],
