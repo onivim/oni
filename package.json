@@ -4,7 +4,8 @@
   "description": "Electron + React extensible NeoVim client",
   "main": "index.js",
   "bin": {
-    "oni": "./cli/neotron"
+    "oni": "./cli/oni",
+    "oni-vim": "./cli/oni"
   },
   "scripts": {
     "postinstall": "npm run install:oni-plugin-typescript",

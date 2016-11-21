@@ -4,6 +4,7 @@
 - Command line argument to include additional plugin path
 
 - LaunchService
+    - Launch command: editor.launch
     - F5 launch
         launch.json
     - F5 -> editor.launch
@@ -13,6 +14,7 @@
 - Sample language service plugin
     - Refactor the common prefix-resolution to a helper method in Oni
     - Launch
+    - Documentation  - generate from Oni.d.ts
 
 - Tasks provider
     - npm tasks
@@ -29,17 +31,20 @@
     - Add field for errors in quick info
     - Factor current error state management from overlay to service
     - When opening QuickInfo, check if there is an error at current position, and add
+    - Remove slide out error detail
 
-- VimTutor enhancements
-    - Konami code / game
-
+- Performance: Scrolling
 - Aniamtion/Performance: Optimistic Typing
 - Animation: Cursor velocity
 - Animation: Background video / background image
+- Aniamtion: QuickOpen - blur 
 
 - Overlay fixes
     - Config variable to show overlay
     - Find repro for the overlay to shift
+
+- VimTutor enhancements
+    - Konami code / game
 
 - Overlay concept
     - Host in webview vs browser window?
@@ -48,6 +53,7 @@
     - Handling error messages
     - Minimap
     - Scrollbar
+    - Filetype overlay
 
 - Markdown preview mode
     - Side-by-side? Pane view?
@@ -58,9 +64,10 @@
 - Pane
     - Assumptions around sizing / positions
 
-- Allow multiple language services / completion providers
 - File explorer
     - Fast nav hook up?
+
+- Allow multiple language services / completion providers
 
 - Fast nav through chrome
 
