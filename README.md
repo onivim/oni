@@ -21,13 +21,16 @@ This repository is under __active development__, and until 1.0 please consider e
 
 ONI brings several IDE-like integrations to NeoVim:
 
-### Code Completion
-
-![completion-demo](http://imgur.com/DVkaIBI)
-
 ### Quick Info
 
+![quick-info-demo](http://i.imgur.com/TlIH97w.gifv)
+
+### Code Completion
+
+![completion-demo](http://.imgur.com/DVkaIBI.gifv)
+
 ### Syntax / Compilation Errors
+
 
 ### Fuzzy Finder
 
