@@ -20,9 +20,15 @@ ipcMain.on("cross-browser-ipc", (event, arg) => {
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
-function createWindow () {
+function createWindow (commandLineArguments) {
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 800, height: 600, icon: path.join(__dirname, "images", "icon-placeholder.png")})
+
+  mainWindow.webContents.on("did-finish-load", () => {
+      mainWindow.webContents.send("init", {
+          args: commandLineArguments
+      })
+  })
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`)
@@ -43,7 +49,7 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', () => createWindow(process.argv.slice(2)))
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {

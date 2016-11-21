@@ -35,8 +35,13 @@
     - When opening QuickInfo, check if there is an error at current position, and add
     - Remove slide out error detail
 
+- Improved terminal
+    - create Terminal service
+    - create terminal output window
+    - create terminal entry window
+
 - Performance: Scrolling
-- Aniamtion/Performance: Optimistic Typing
+- Animation/Performance: Optimistic Typing
 - Animation: Cursor velocity
 - Animation: Background video / background image
 - Aniamtion: QuickOpen - blur 
