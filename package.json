@@ -1,7 +1,7 @@
 {
   "name": "oni",
   "version": "0.0.1",
-  "description": "Electron + React extensible NeoVim client",
+  "description": "NeoVim front-end with IDE-style extensibility",
   "main": "index.js",
   "bin": {
     "oni": "./cli/oni",

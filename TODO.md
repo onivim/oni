@@ -1,6 +1,11 @@
 - Screenshots of ONI in action
 - Install on npm as oni-vim
 
+- Config options
+    - editor.quickInfo.enabled
+    - editor.completion.enabled
+    - editor.errors.slideOnFocus
+
 - Command line argument to include additional plugin path
 
 - LaunchService

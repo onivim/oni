@@ -2,6 +2,7 @@
 ## Neovim + JavaScript powered IDE
 
 - [Introduction](#Introduction)
+- [Features](#Features)
 - [Usage](#Usage)
 - [Roadmap](#Roadmap)
 - [User Guide](#User Guide)
@@ -15,6 +16,20 @@
 ONI is a NeoVim front-end UI with rich IDE-like UI integration points.
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
+
+## Features
+
+ONI brings several IDE-like integrations to NeoVim:
+
+### Code Completion
+
+![completion-demo](http://imgur.com/DVkaIBI)
+
+### Quick Info
+
+### Syntax / Compilation Errors
+
+### Fuzzy Finder
 
 ## Usage
 
