@@ -38,6 +38,9 @@
 - Animation/Performance: Optimistic Typing
 - Animation: Cursor velocity
 - Animation: Background video / background image
+    - Add clearRect to canvas
+    - Add opacity option to settings
+    - Use opacity when drawing background
 - Aniamtion: QuickOpen - blur 
 
 - Overlay fixes

@@ -1,6 +1,9 @@
 import { Screen, Cell, PixelPosition, Position } from "./Screen"
 import { DeltaRegionTracker } from "./DeltaRegionTracker"
 import { Grid } from "./Grid"
+import * as Config from "./Config"
+
+const hexRgb = require("hex-rgb")
 
 export interface NeovimRenderer {
     start(element: HTMLElement);
@@ -40,6 +43,8 @@ export class CanvasRenderer implements NeovimRenderer {
         const fontWidth = screenInfo.fontWidthInPixels
         const fontHeight = screenInfo.fontHeightInPixels
 
+        const opacity = Config.getValue<number>("prototype.editor.backgroundOpacity")
+
         var cells = deltaRegionTracker.getModifiedCells()
                     .forEach(pos => {
 
@@ -57,7 +62,11 @@ export class CanvasRenderer implements NeovimRenderer {
                     if(lastRenderedCell === cell)
                         return
 
-                    const backgroundColor = cell.backgroundColor || screenInfo.backgroundColor;
+                    const hexBackgroundColor = cell.backgroundColor || screenInfo.backgroundColor;
+                    const rgb = hexRgb(hexBackgroundColor)
+                    const backgroundColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacity})`
+
+                    this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight)
 
                     if(cell.character !== "" && cell.character !== " ") {
                         var foregroundColor = cell.foregroundColor ? cell.foregroundColor : screenInfo.foregroundColor

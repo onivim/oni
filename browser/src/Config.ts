@@ -4,13 +4,16 @@ const DefaultConfig: any = {
     // "debug.fixedSize": { rows: 10, columns: 100 }
     "debug.incrementalRenderRegions": false,
 
+    "prototype.editor.backgroundOpacity": 0.5,
+
     "vim.loadVimPlugins": true,
     "oni.loadPlugins": true,
 
     "editor.fontSize": "14px",
     "editor.quickInfo.enabled": true,
     "editor.completions.enabled": true,
-    "editor.errors.slideOnFocus": true
+    "editor.errors.slideOnFocus": true,
+
 }
 
 const MacConfig: any = {
