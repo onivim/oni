@@ -1,21 +1,54 @@
 
 var os = require("os")
 
-console.log("hey")
-
 var currentWords = []
+var lastBuffer = []
 
 Oni.on("buffer-update", (args) => {
-    console.log("buffer update!")
     const fullText = args.bufferLines.join(os.EOL)
-    currentWords = fullText.split(/\W+/)
+    const words = fullText.split(/\W+/)
+
+    lastBuffer = args.bufferLines
+
+    currentWords = Object.keys(words.reduce((prev, cur) => {
+        prev[cur] = cur
+        return prev
+    }, {}))
+        .filter(w => w.length >= 3)
 })
 
+const getCompletions = (textDocumentPosition) => {
+    if(textDocumentPosition.column <= 1)
+        return Promise.resolve({
+            completions: []
+        })
 
-const getCompletions = () => {
+    let currentLine = lastBuffer[textDocumentPosition.line - 1];
+    let col = textDocumentPosition.column - 2
+    let currentPrefix = "";
+
+    while(col >= 0) {
+        const currentCharacter = currentLine[col]
+
+        if (!currentCharacter.match(/[_a-z]/i))
+            break
+
+        currentPrefix = currentCharacter + currentPrefix
+        col--
+    }
+
+    const basePos = col;
+
+    if (currentPrefix.length < 1)
+        return Promise.resolve({
+            base: currentPrefix,
+            completions: []
+        })
+
+
     return Promise.resolve({
-        base: "",
-        completions: currentWords.map(w => ({
+        base: currentPrefix,
+        completions: currentWords.filter(w => w.indexOf(currentPrefix) === 0).map(w => ({
             label: w,
             kind: "text"
         }))

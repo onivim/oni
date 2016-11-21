@@ -1,48 +1,46 @@
-- Autocomplete and quick info
-    - For autocomplete, need to drop:
-        - if cursor position is different
-        - or if mode is different
-        - spinner while request in progress
-        - Need to send up event context (plugin id, row, line)
-
 - Screenshots of ONI in action
 - Install on npm as oni-vim
 
-- Config loading relative to path
+- Command line argument to include additional plugin path
 
-- F5 launch
-    launch.json
+- LaunchService
+    - F5 launch
+        launch.json
+    - F5 -> editor.launch
+    - GetLaunchOptions(..)
+    - Launch(launchOption)
+
+- Sample language service plugin
+    - Refactor the common prefix-resolution to a helper method in Oni
+    - Launch
 
 - Tasks provider
     - npm tasks
     - output window
+    - GetTasks(..)
+    - RunTask(..)
+    - Include tasks in QuickOpen
 
 - Errors + Quick Info
     - Add field for errors in quick info
     - Factor current error state management from overlay to service
     - When opening QuickInfo, check if there is an error at current position, and add
 
-- Sample language service plugin
-- Launch
-
-- Default Autocomplete plugin 
+- Default langauge service - keyword autocomplete
+    - Remove duplicate words
+    - Move common base code from the typescript completer to a helper on Oni
 
 - VimTutor enhancements
     - Konami code / game
 
+- Aniamtion/Performance: Optimistic Typing
 - Animation: Cursor velocity
 - Animation: Background video / background image
 
 - Markdown preview mode
     - Side-by-side? Pane view?
 
-- Performance
-    - Optimistic typing
-
-- Default langauge service - keyword autocomplete
-    - Remove duplicate words
-    - Move common base code from the typescript completer to a helper on Oni
-
+- Welcome page
 
 - Pane
     - Assumptions around sizing / positions
@@ -70,6 +68,8 @@
     - Minimap
     - git changes
     - errors
+
+- Config loading relative to path
 
 - CTRL+Shift+P - command palette
 - Preview window

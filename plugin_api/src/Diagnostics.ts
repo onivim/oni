@@ -6,7 +6,7 @@ import * as Sender from "./Sender"
 export class Diagnostics implements Oni.Plugin.Diagnostics.Api { 
 
     public setErrors(key: string, fileName: string, errors: Oni.Plugin.Diagnostics.Error[], color?: string): void {
-        Sender.send("set-errors", {
+        Sender.send("set-errors", null, {
             key: key,
             fileName: fileName,
             errors: errors,
@@ -15,7 +15,7 @@ export class Diagnostics implements Oni.Plugin.Diagnostics.Api {
     }
 
     public clearErrors(key: string): void {
-        Sender.send("clear-errors", {
+        Sender.send("clear-errors", null, {
             key: key
         })
     }

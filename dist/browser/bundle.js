@@ -25999,15 +25999,21 @@
 	    }
 	    _handlePluginResponse(pluginResponse) {
 	        if (pluginResponse.type === "show-quick-info") {
+	            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
+	                return;
 	            setTimeout(() => UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation), 50);
 	        }
 	        else if (pluginResponse.type === "goto-definition") {
+	            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
+	                return;
 	            const { filePath, line, column } = pluginResponse.payload;
 	            this._neovimInstance.command("e! " + filePath);
 	            this._neovimInstance.command("keepjumps norm " + line + "G" + column);
 	            this._neovimInstance.command("norm zz");
 	        }
 	        else if (pluginResponse.type === "completion-provider") {
+	            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
+	                return;
 	            setTimeout(() => UI.showCompletions(pluginResponse.payload));
 	        }
 	        else if (pluginResponse.type === "completion-provider-item-selected") {
@@ -26015,6 +26021,22 @@
 	        }
 	        else if (pluginResponse.type === "set-errors") {
 	            this._errorOverlay.setErrors(pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors);
+	        }
+	    }
+	    /**
+	     * Validate that the originating event matched the initating event
+	     */
+	    _validateOriginEventMatchesCurrentEvent(pluginResponse) {
+	        const currentEvent = this._lastEventContext;
+	        const originEvent = pluginResponse.meta.originEvent;
+	        if (originEvent.bufferFullPath === currentEvent.bufferFullPath
+	            && originEvent.line === currentEvent.line
+	            && originEvent.column === currentEvent.column) {
+	            return true;
+	        }
+	        else {
+	            console.log("Plugin response aborted as it didn't match current even (buffer/line/col)");
+	            return false;
 	        }
 	    }
 	    startPlugins(neovimInstance) {

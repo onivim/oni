@@ -7,7 +7,7 @@
   },
   "oni": {
     "debugging": false,
-    "@@DISABLED_LANGUAGE": {
+    "@@DEFAULT_LANGUAGE_PROTOTYPE": {
       "subscriptions": [
         "buffer-update",
         "vim-events"
