@@ -1,9 +1,3 @@
-- Command line argument to include additional plugin path
-    - IPC from main -> browserwindow
-    - Refactor from starting implicitly to waiting until the start command came down
-        - Set some global state like window.neovimMain
-            - additionalPluginPath
-
 - LaunchService
     - Create test plugin to exercise this functionality
     - Launch command: editor.launch
