@@ -16,10 +16,11 @@ var tssPath = path.join(__dirname, "..", "node_modules", "typescript", "lib", "t
 var TypeScriptServerHost = (function (_super) {
     __extends(TypeScriptServerHost, _super);
     function TypeScriptServerHost() {
-        var _this = _super.call(this) || this;
-        _this._tssProcess = null;
-        _this._seqNumber = 0;
-        _this._seqToPromises = {};
+        var _this = this;
+        _super.call(this);
+        this._tssProcess = null;
+        this._seqNumber = 0;
+        this._seqToPromises = {};
         // Other tries for creating process:
         // this._tssProcess = childProcess.spawn("node", [tssPath], { stdio: "pipe", detached: true, shell: false });
         // this._tssProcess = childProcess.fork(tssPath, [], { stdio: "pipe "})
@@ -31,35 +32,34 @@ var TypeScriptServerHost = (function (_super) {
         // This has some info on using eventPort: https://github.com/Microsoft/TypeScript/blob/master/src/server/server.ts
         // which might be more reliable
         // Can create the port using this here: https://github.com/Microsoft/TypeScript/blob/master/src/server/server.ts
-        _this._tssProcess = childProcess.exec("node " + tssPath, { maxBuffer: 500 * 1024 * 1024 }, function (err) {
+        this._tssProcess = childProcess.exec("node " + tssPath, { maxBuffer: 500 * 1024 * 1024 }, function (err) {
             if (err) {
                 console.error(err);
             }
         });
-        console.log("Process ID: " + _this._tssProcess.pid);
-        _this._rl = readline.createInterface({
-            input: _this._tssProcess.stdout,
-            output: _this._tssProcess.stdin,
+        console.log("Process ID: " + this._tssProcess.pid);
+        this._rl = readline.createInterface({
+            input: this._tssProcess.stdout,
+            output: this._tssProcess.stdin,
             terminal: false
         });
-        _this._tssProcess.stderr.on("data", function (data, err) {
+        this._tssProcess.stderr.on("data", function (data, err) {
             console.error("Error from tss: " + data);
         });
-        _this._tssProcess.on("error", function (data) {
+        this._tssProcess.on("error", function (data) {
             debugger;
         });
-        _this._tssProcess.on("exit", function (data) {
+        this._tssProcess.on("exit", function (data) {
             debugger;
         });
-        _this._tssProcess.on("close", function (data) {
+        this._tssProcess.on("close", function (data) {
             debugger;
         });
-        _this._rl.on("line", function (msg) {
+        this._rl.on("line", function (msg) {
             if (msg.indexOf("{") === 0) {
                 _this._parseResponse(msg);
             }
         });
-        return _this;
     }
     Object.defineProperty(TypeScriptServerHost.prototype, "pid", {
         get: function () {
