@@ -25531,7 +25531,10 @@
 	    "debug.incrementalRenderRegions": false,
 	    "vim.loadVimPlugins": true,
 	    "oni.loadPlugins": true,
-	    "editor.fontSize": "14px"
+	    "editor.fontSize": "14px",
+	    "editor.quickInfo.enabled": true,
+	    "editor.completions.enabled": true,
+	    "editor.errors.slideOnFocus": true
 	};
 	const MacConfig = {
 	    "editor.fontFamily": "Monaco"
@@ -25966,13 +25969,13 @@
 	                .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext));
 	            this._overlayManager.handleCursorMovedEvent(eventContext);
 	            this._errorOverlay.onVimEvent(eventName, eventContext);
-	            if (eventName === "CursorMoved") {
+	            if (eventName === "CursorMoved" && Config.getValue("editor.quickInfo.enabled")) {
 	                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.QuickInfoCapability);
 	                if (plugin) {
 	                    plugin.requestQuickInfo(eventContext);
 	                }
 	            }
-	            else if (eventName === "CursorMovedI") {
+	            else if (eventName === "CursorMovedI" && Config.getValue("editor.completions.enabled")) {
 	                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.CompletionProviderCapability);
 	                if (plugin) {
 	                    plugin.requestCompletions(eventContext);
@@ -49289,6 +49292,7 @@
 	const React = __webpack_require__(58);
 	const ReactDOM = __webpack_require__(85);
 	const Icon_1 = __webpack_require__(253);
+	const Config = __webpack_require__(47);
 	__webpack_require__(271);
 	const padding = 8;
 	class Errors extends React.Component {
@@ -49331,9 +49335,10 @@
 	            height: (padding + this.props.height).toString() + "px"
 	        };
 	        let className = this.props.isActive ? "error-marker active" : "error-marker";
+	        const errorDescription = Config.getValue("editor.errors.slideOnFocus") ? (React.createElement("div", { className: "error" },
+	            React.createElement("div", { className: "text" }, this.props.text))) : null;
 	        return React.createElement("div", { style: positionDivStyles, className: className },
-	            React.createElement("div", { className: "error" },
-	                React.createElement("div", { className: "text" }, this.props.text)),
+	            errorDescription,
 	            React.createElement("div", { className: "icon-container" },
 	                React.createElement(Icon_1.Icon, { name: "exclamation-circle" })));
 	    }
