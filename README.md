@@ -4,9 +4,13 @@
 - [Introduction](#Introduction)
 - [Features](#Features)
 - [Usage](#Usage)
+    - [Install](#Install)
+    - [Build](#Build)
+- [Documentation](#Documentation)
+    - [User Guide](#User Guide)
+    - [Extensibility](#Extensibility)
+    - [FAQ](#FAQ)
 - [Roadmap](#Roadmap)
-- [User Guide](#User Guide)
-- [Extension Points](#Extension Points)
 - [License](#License)
 - [Contributing](#Contributing)
 - [Thanks](#Thanks)
@@ -39,9 +43,17 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ## Usage
 
+### Install
+
 - For Windows, a pre-built x86 binary of NeoVim is included.
 
 - For OSX, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim.exe' is available.
+
+1) Run npm install -g oni-vim
+
+2) Run `oni` at the command line to start the editor.
+
+### Build
 
 1) Clone the repository: `git clone https://github.com/extr0py/oni.git`
 
@@ -70,6 +82,47 @@ However, going from thought to *code* has some different challenges than going f
 In my journey of learning VIM and increasing proficiency in other editors, I've found there is always a trade-off - either enjoy the autocompletion and IDE features, and compromise on the experience and muscle memory I've built with VIM, or work in VIM and compromise on the rich language functionality we have in an IDE.
 
 The goal of this project is to give an editor that gives the best of both worlds - the power, speed, and flexibility of using VIM for manipulating text, as well as the rich tooling that comes with an IDE.
+
+## Documentation
+
+### User Guide
+
+TODO: Coming soon. 
+
+### Extensibility
+
+TODO: Coming soon. See the oni-typescript implementation for the time being.
+
+#### Language Extensibility
+
+#### Diagnostic Providers
+
+#### Overlays
+
+#### Panes
+
+#### Debuggers
+
+#### Project Templates
+
+#### Snippets
+
+### FAQ
+
+TODO
+
+### Included VIM Plugins
+
+This distribution contains several VIM plugins that enhance the VIM experience.
+
+These are:
+- [targets.vim](https://github.com/wellle/targets.vim)
+- [typescript-vim](https://github.com/leafgarland/typescript-vim)
+- [vim-commentary](https://github.com/tpope/vim-commentary)
+
+As well as some color-schemes:
+- [vim-monokai](https://github.com/sickill/vim-monokai)
+- [onedark.vim](https://github.com/joshdick/onedark.vim)
 
 ## Roadmap
 
@@ -130,37 +183,6 @@ The goal of this project is to give an editor that gives the best of both worlds
         - [ ] Snippet support
     - [ ] Project templates
     - [ ] Package Manager
-
-## Extension Points
-
-TODO: Coming soon. See the oni-typescript implementation for the time being.
-
-### Language Extensibility
-
-### Diagnostic Providers
-
-### Overlays
-
-### Panes
-
-### Debuggers
-
-### Project Templates
-
-### Snippets
-
-## Included VIM Plugins
-
-This distribution contains several VIM plugins that enhance the VIM experience.
-
-These are:
-- [targets.vim](https://github.com/wellle/targets.vim)
-- [typescript-vim](https://github.com/leafgarland/typescript-vim)
-- [vim-commentary](https://github.com/tpope/vim-commentary)
-
-As well as some color-schemes:
-- [vim-monokai](https://github.com/sickill/vim-monokai)
-- [onedark.vim](https://github.com/joshdick/onedark.vim)
 
 ## License
 
