@@ -23,11 +23,11 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ### Quick Info
 
-![quick-info-demo](http://i.imgur.com/TlIH97w.gifv)
+![quick-info-demo](http://i.imgur.com/TlIH97w.gif)
 
 ### Code Completion
 
-![completion-demo](http://.imgur.com/DVkaIBI.gifv)
+![completion-demo](http://i.imgur.com/DVkaIBI.gif)
 
 ### Syntax / Compilation Errors
 
