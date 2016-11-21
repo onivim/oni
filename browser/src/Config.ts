@@ -4,7 +4,7 @@ const DefaultConfig: any = {
     // "debug.fixedSize": { rows: 10, columns: 100 }
     "debug.incrementalRenderRegions": false,
 
-    "prototype.editor.backgroundOpacity": 0.5,
+    "prototype.editor.backgroundOpacity": 1,
 
     "vim.loadVimPlugins": true,
     "oni.loadPlugins": true,

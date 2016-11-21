@@ -66,7 +66,9 @@ export class CanvasRenderer implements NeovimRenderer {
                     const rgb = hexRgb(hexBackgroundColor)
                     const backgroundColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacity})`
 
-                    this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight)
+                    if (opacity < 1) {
+                        this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight)
+                    }
 
                     if(cell.character !== "" && cell.character !== " ") {
                         var foregroundColor = cell.foregroundColor ? cell.foregroundColor : screenInfo.foregroundColor
