@@ -24,6 +24,7 @@ import { QuickOpen } from "./Services/QuickOpen"
 const start = (args: string[]) => {
 
     const parsedArgs = minimist(args)
+    const debugPlugin = parsedArgs["debugPlugin"]
 
     // Helper for debugging:
     window["UI"] = UI
@@ -34,7 +35,7 @@ const start = (args: string[]) => {
     var deltaRegion = new IncrementalDeltaRegionTracker()
     var screen = new NeovimScreen(deltaRegion)
 
-    const pluginManager = new PluginManager(screen);
+    const pluginManager = new PluginManager(screen, debugPlugin);
     var instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight, parsedArgs._);
 
     const canvasElement = document.getElementById("test-canvas") as HTMLCanvasElement

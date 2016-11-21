@@ -68,13 +68,14 @@
 	const QuickOpen_1 = __webpack_require__(275);
 	const start = (args) => {
 	    const parsedArgs = minimist(args);
+	    const debugPlugin = parsedArgs["debugPlugin"];
 	    // Helper for debugging:
 	    window["UI"] = UI;
 	    __webpack_require__(276);
 	    __webpack_require__(278);
 	    var deltaRegion = new DeltaRegionTracker_1.IncrementalDeltaRegionTracker();
 	    var screen = new Screen_1.NeovimScreen(deltaRegion);
-	    const pluginManager = new PluginManager_1.PluginManager(screen);
+	    const pluginManager = new PluginManager_1.PluginManager(screen, debugPlugin);
 	    var instance = new NeovimInstance_1.NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight, parsedArgs._);
 	    const canvasElement = document.getElementById("test-canvas");
 	    var renderer = new Renderer_1.CanvasRenderer();
@@ -26219,9 +26220,10 @@
 	const initFilePath = path.join(__dirname, "vim", "init_template.vim");
 	const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles");
 	class PluginManager {
-	    constructor(screen) {
+	    constructor(screen, debugPlugin) {
 	        this._rootPluginPaths = [];
 	        this._plugins = [];
+	        this._debugPluginPath = debugPlugin;
 	        this._rootPluginPaths.push(builtInPluginsRoot);
 	        this._rootPluginPaths.push(path.join(builtInPluginsRoot, "bundle"));
 	        if (Config.getValue("vim.loadVimPlugins")) {
@@ -26342,6 +26344,9 @@
 	        this._neovimInstance = neovimInstance;
 	        const allPlugins = this._getAllPluginPaths();
 	        this._plugins = allPlugins.map(pluginRootDirectory => new Plugin_1.Plugin(pluginRootDirectory));
+	        if (this._debugPluginPath) {
+	            this._plugins.push(new Plugin_1.Plugin(this._debugPluginPath, true));
+	        }
 	    }
 	    _ensureOniPluginsPath() {
 	        var rootOniPluginsDir = path.join(os.homedir(), ".oni", "extensions");
@@ -26507,7 +26512,7 @@
 	exports.GotoDefinitionCapability = "goto-definition";
 	exports.CompletionProviderCapability = "completion-provider";
 	class Plugin {
-	    constructor(pluginRootDirectory) {
+	    constructor(pluginRootDirectory, debugMode) {
 	        var packageJsonPath = path.join(pluginRootDirectory, "package.json");
 	        if (fs.existsSync(packageJsonPath)) {
 	            this._packageMetadata = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
@@ -26526,7 +26531,7 @@
 	                const pluginMetadata = this._packageMetadata.oni || {};
 	                this._expandMultipleLanguageKeys(pluginMetadata);
 	                this._oniPluginMetadata = Object.assign({}, DefaultMetadata, pluginMetadata);
-	                if (this._oniPluginMetadata.debugging) {
+	                if (this._oniPluginMetadata.debugging || debugMode) {
 	                    this._browserWindow.openDevTools();
 	                    this._browserWindow.show();
 	                }
