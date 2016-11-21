@@ -17,6 +17,10 @@
 - Tasks provider
     - npm tasks
     - output window
+        - rightbelow 20new
+            -20new = number of lines
+        - set nomodifiable
+        - create as scratch buffer: http://vim.wikia.com/wiki/Vim_buffer_FAQ
     - GetTasks(..)
     - RunTask(..)
     - Include tasks in QuickOpen
@@ -26,10 +30,6 @@
     - Factor current error state management from overlay to service
     - When opening QuickInfo, check if there is an error at current position, and add
 
-- Default langauge service - keyword autocomplete
-    - Remove duplicate words
-    - Move common base code from the typescript completer to a helper on Oni
-
 - VimTutor enhancements
     - Konami code / game
 
@@ -37,10 +37,23 @@
 - Animation: Cursor velocity
 - Animation: Background video / background image
 
+- Overlay fixes
+    - Config variable to show overlay
+    - Find repro for the overlay to shift
+
+- Overlay concept
+    - Host in webview vs browser window?
+    - What would API look like for this?
+    - Git changes
+    - Handling error messages
+    - Minimap
+    - Scrollbar
+
 - Markdown preview mode
     - Side-by-side? Pane view?
 
 - Welcome page
+    - Overlay plugin
 
 - Pane
     - Assumptions around sizing / positions
@@ -55,13 +68,6 @@
     - VolumeUp/VolumeDown
     - ScrollLock
 
-- Overlay concept
-    - Host in webview vs browser window?
-    - What would API look like for this?
-    - Git changes
-    - Handling error messages
-    - Minimap
-    - Scrollbar
 
 - Type signature help
 - Scroll bar
