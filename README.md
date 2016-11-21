@@ -7,7 +7,7 @@
     - [Install](#Install)
     - [Build](#Build)
 - [Documentation](#Documentation)
-    - [User Guide](#User Guide)
+    - [Guide](#Guide)
     - [Extensibility](#Extensibility)
     - [FAQ](#FAQ)
 - [Roadmap](#Roadmap)
@@ -85,7 +85,7 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 ## Documentation
 
-### User Guide
+### Guide
 
 TODO: Coming soon. 
 
