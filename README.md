@@ -43,7 +43,7 @@ ONI brings several IDE-like integrations to NeoVim:
 
 - For OSX, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim.exe' is available.
 
-1) Clone the repository: `git clone TODO`
+1) Clone the repository: `git clone https://github.com/extr0py/oni.git`
 
 2) Install dependencies by running `npm install` from the root
 
