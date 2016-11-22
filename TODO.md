@@ -9,7 +9,7 @@
 
 - Sample language service plugin
     - Refactor the common prefix-resolution to a helper method in Oni
-    - Launch
+    - F5 Launch
     - Documentation  - generate from Oni.d.ts
 
 - Tasks provider
@@ -28,6 +28,7 @@
     - Factor current error state management from overlay to service
     - When opening QuickInfo, check if there is an error at current position, and add
     - Remove slide out error detail
+    - editor.error.next/editor.error.prev <- ErrorManager
 
 - Improved terminal
     - create Terminal service
@@ -44,11 +45,27 @@
     - Add opacity option to settings
     - Use opacity when drawing background
     - Can we remove filling by background image?
-- Aniamtion: QuickOpen - blur 
+- Animation: QuickOpen - blur 
 
-- Overlay fixes
-    - Config variable to show overlay
-    - Find repro for the overlay to shift
+- NeoVim as window component
+    - Just use for text boxes for the short-term
+        - Start insert mode
+    - Standalone instances of neovim
+    - Manage splits externally
+        - Use 'cabbrev' to override sp/vsp/rightbelow/etc
+    - Simplifies overlay management, because there is only ever one buffer per window
+    - Reuse pluginmanager between instances
+    - Rename 'NeovimInstance' to 'NeovimProcess'
+    - Move index to be 'Neovim'
+    - Window Management
+        - Editor.activeWindow.neovim
+        - Introduce 'activeWindow' concept without multiple windows
+    - Direct input to activeWindow
+    - Formalize layers 
+        - Move canvas inside 'neovim-container'
+        - Move background behind neovim-container
+        - Move overlay-ui on top
+    - Factor to react component
 
 - VimTutor enhancements
     - Konami code / game
@@ -148,27 +165,6 @@
     - CommandManager
         - Pluginmanager - subscribeToCommand("editor.gotoDefinition")
 
-- Need to pivot on the request/response
-    - send 'buffer-update'
-    - send 'vim-event'
-    - send 'request'
-        - 'quick-info'
-        - 'definition'
-        - 'completions'
-
-    - plugin sends back 'response'
-        - 'quick-info'
-        - 'definition'
-        - 'completions'
-
-    - Plugin manager - don't directly call send
-        - bufferUpdate function
-        - handleVimEvent function
-
-    - Means we need to push up the handling
-        - if event is 'CursorMoved', do quick-info request
-        - if event is 'CursorMovedI', do completion request
-
 - Plugin manifest
     - engine property: "oni": "^0.0.1"
     - oni
@@ -206,6 +202,10 @@
 - Implement single main but multiple browser windows, for quick re-open
 
 - Performance: Start-up time: Minification of bundle.js 
+
+- Overlay fixes
+    - Config variable to show overlay
+    - Find repro for the overlay to shift
 
 - Mouse
     - Modifier keys
