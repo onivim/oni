@@ -1,3 +1,5 @@
+- Better error message when starting with vim error
+
 - LaunchService
     - Create test plugin to exercise this functionality
     - Launch command: editor.launch

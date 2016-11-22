@@ -73,7 +73,7 @@ const start = (args: string[]) => {
         // TODO: Move cursor to component
         UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
 
-        UI.setBackgroundColor("red")
+        UI.setBackgroundColor(screen.backgroundColor)
 
         clearTimeout(pendingTimeout)
         pendingTimeout = null
