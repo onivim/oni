@@ -29,6 +29,7 @@
     - When opening QuickInfo, check if there is an error at current position, and add
     - Remove slide out error detail
     - editor.error.next/editor.error.prev <- ErrorManager
+    - ]e - OniExecute("editor.error.next")
 
 - Improved terminal
     - create Terminal service
@@ -37,7 +38,6 @@
     - shelljs: https://www.npmjs.com/package/shelljs
     - node-shell-quote: https://github.com/substack/node-shell-quote
 
-- Performance: Scrolling
 - Animation/Performance: Optimistic Typing
 - Animation: Cursor velocity
 - Animation: Background video / background image
@@ -66,6 +66,8 @@
         - Move background behind neovim-container
         - Move overlay-ui on top
     - Factor to react component
+
+- Performance: Scrolling
 
 - VimTutor enhancements
     - Konami code / game
