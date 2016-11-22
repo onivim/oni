@@ -14,6 +14,10 @@
     - F5 Launch
     - Documentation  - generate from Oni.d.ts
 
+- Syntax highlighting
+    - Get highlight spans
+    - Read highlight colors when colorscheme changes
+
 - Tasks provider
     - npm tasks
     - output window
