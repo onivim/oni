@@ -1,5 +1,16 @@
 - Better error message when starting with vim error
 
+- Tasks provider
+    - npm tasks
+    - output window
+        - rightbelow 20new
+            -20new = number of lines
+        - set nomodifiable
+        - create as scratch buffer: http://vim.wikia.com/wiki/Vim_buffer_FAQ
+    - GetTasks(..)
+    - RunTask(..)
+    - Include tasks in QuickOpen
+
 - LaunchService
     - Create test plugin to exercise this functionality
     - Launch command: editor.launch
@@ -14,28 +25,21 @@
     - F5 Launch
     - Documentation  - generate from Oni.d.ts
 
-- Syntax highlighting
-    - Get highlight spans
-    - Read highlight colors when colorscheme changes
-
-- Tasks provider
-    - npm tasks
-    - output window
-        - rightbelow 20new
-            -20new = number of lines
-        - set nomodifiable
-        - create as scratch buffer: http://vim.wikia.com/wiki/Vim_buffer_FAQ
-    - GetTasks(..)
-    - RunTask(..)
-    - Include tasks in QuickOpen
+- Keybindings
+    - Use 'OniExecute'
 
 - Errors + Quick Info
     - Add field for errors in quick info
     - Factor current error state management from overlay to service
     - When opening QuickInfo, check if there is an error at current position, and add
     - Remove slide out error detail
-    - editor.error.next/editor.error.prev <- ErrorManager
-    - ]e - OniExecute("editor.error.next")
+
+    - editor.errors.next/editor.errors.prev <- ErrorManager
+    - ]e - OniExecute("editor.errors.next")
+
+- Syntax highlighting
+    - Get highlight spans
+    - Read highlight colors when colorscheme changes
 
 - Improved terminal
     - create Terminal service
@@ -72,6 +76,8 @@
         - Move background behind neovim-container
         - Move overlay-ui on top
     - Factor to react component
+
+- Load time for window splits, if using standalone instance of neovim?
 
 - Performance: Scrolling
 
