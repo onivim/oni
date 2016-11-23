@@ -28,10 +28,28 @@ var getDefinition = function (textDocumentPosition) {
     });
 };
 var getFormattingEdits = function (position) {
-    return Promise.resolve({
-        filePath: "derp",
-        version: 0,
-        edits: []
+    return host.getFormattingEdits(position.bufferFullPath, 1, 1, lastBuffer.length, 0)
+        .then(function (val) {
+        var edits = val.map(function (v) {
+            var start = {
+                line: v.start.line,
+                column: v.start.offset
+            };
+            var end = {
+                line: v.end.line,
+                column: v.end.offset
+            };
+            return {
+                start: start,
+                end: end,
+                newValue: v.newText
+            };
+        });
+        return {
+            filePath: position.bufferFullPath,
+            version: position.version,
+            edits: edits
+        };
     });
 };
 var getCompletionDetails = function (textDocumentPosition, completionItem) {

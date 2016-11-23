@@ -11,6 +11,7 @@ export declare class TypeScriptServerHost extends events.EventEmitter {
     openFile(fullFilePath: string): void;
     getProjectInfo(fullFilePath: string): void;
     getTypeDefinition(fullFilePath: string, line: number, col: number): Promise<void>;
+    getFormattingEdits(fullFilePath: string, line: number, col: number, endLine: number, endCol: number): Promise<any>;
     getCompletions(fullFilePath: string, line: number, col: number, prefix: string): Promise<any>;
     getCompletionDetails(fullFilePath: string, line: number, col: number, entryNames: string[]): Promise<any>;
     updateFile(fullFilePath: string, updatedContents: string): Promise<void>;

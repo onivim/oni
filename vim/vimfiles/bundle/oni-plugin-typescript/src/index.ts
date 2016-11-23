@@ -38,11 +38,33 @@ const getDefinition = (textDocumentPosition: Oni.EventContext) => {
 }
 
 const getFormattingEdits = (position: Oni.EventContext) => {
-    return Promise.resolve({
-        filePath: "derp",
-        version: 0,
-        edits: []
-    })
+    return host.getFormattingEdits(position.bufferFullPath, 1, 1, lastBuffer.length, 0)
+        .then((val) => {
+            const edits = val.map(v => {
+                const start = {
+                    line: v.start.line,
+                    column: v.start.offset
+                }
+
+                const end = {
+                    line: v.end.line,
+                    column: v.end.offset
+                }
+
+                return {
+                    start: start,
+                    end: end,
+                    newValue: v.newText
+                }
+
+            })
+
+            return {
+                filePath: position.bufferFullPath,
+                version: position.version,
+                edits: edits
+            }
+        })
 }
 
 const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {

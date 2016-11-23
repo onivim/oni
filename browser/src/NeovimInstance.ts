@@ -13,6 +13,8 @@ import * as Config from "./Config"
 import { PixelPosition, Position } from "./Screen"
 import { PluginManager } from "./Plugins/PluginManager"
 
+if (true) { }
+
 export interface INeovimInstance {
     cursorPosition: Position;
     screenToPixels(row: number, col: number): PixelPosition
@@ -90,16 +92,16 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _resizeInternal(rows: number, columns: number): void {
 
-        if(Config.hasValue("debug.fixedSize")) {
+        if (Config.hasValue("debug.fixedSize")) {
             const fixedSize = Config.getValue<any>("debug.fixedSize")
             rows = fixedSize.rows
             columns = fixedSize.columns
-            console.warn ("Overriding screen size based on debug.fixedSize")
+            console.warn("Overriding screen size based on debug.fixedSize")
         }
 
         this._initPromise.then(() => {
             this._neovim.uiTryResize(columns, rows, function(err) {
-                if(err)
+                if (err)
                     console.error(err)
             });
         });
@@ -133,9 +135,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 })
 
                 this._neovim.on("notification", (method, args) => {
-                    if(method === "redraw") {
+                    if (method === "redraw") {
                         this._handleNotification(method, args);
-                    } else if(method === "oni_plugin_notify"){
+                    } else if (method === "oni_plugin_notify") {
                         var pluginArgs = args[0];
                         var pluginMethod = pluginArgs.shift()
                         this._pluginManager.handleNotification(pluginMethod, args)
@@ -165,56 +167,56 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     private _handleNotification(method, args): void {
-       args.forEach((a) => {
-           var command = a[0];
-           a.shift();
+        args.forEach((a) => {
+            var command = a[0];
+            a.shift();
 
-           if(command === "cursor_goto"){
-               this.emit("action", Actions.createCursorGotoAction(a[0][0], a[0][1]));
-           } else if(command === "put") {
+            if (command === "cursor_goto") {
+                this.emit("action", Actions.createCursorGotoAction(a[0][0], a[0][1]));
+            } else if (command === "put") {
 
-               var charactersToPut = a.map(v => v[0]);
-               this.emit("action", Actions.put(charactersToPut))
-           } else if(command === "set_scroll_region") {
+                var charactersToPut = a.map(v => v[0]);
+                this.emit("action", Actions.put(charactersToPut))
+            } else if (command === "set_scroll_region") {
                 var param = a[0]
                 this.emit("action", Actions.setScrollRegion(param[0], param[1], param[2], param[3]))
-           } else if(command === "scroll") {
-               this.emit("action", Actions.scroll(a[0][0]))
-           } else if(command === "highlight_set") {
+            } else if (command === "scroll") {
+                this.emit("action", Actions.scroll(a[0][0]))
+            } else if (command === "highlight_set") {
 
-               var count = a.length;
+                var count = a.length;
 
-               var highlightInfo = a[count - 1][0]
+                var highlightInfo = a[count - 1][0]
 
-               this.emit("action", Actions.setHighlight(
-                   !!highlightInfo.bold,
-                   !!highlightInfo.italic,
-                   !!highlightInfo.reverse,
-                   !!highlightInfo.underline,
-                   !!highlightInfo.undercurl,
-                   highlightInfo.foreground,
-                   highlightInfo.background
-               ))
-           } else if(command === "resize") {
-               this.emit("action", Actions.resize(a[0][0], a[0][1]))
-           } else if(command === "eol_clear") {
-               this.emit("action", Actions.clearToEndOfLine())
-           } else if(command === "clear") {
-               this.emit("action", Actions.clear())
-           } else if(command === "mouse_on") {
-               // TODO
-           } else if(command === "update_bg") {
-               this.emit("action", Actions.updateBackground(a[0][0]))
-           } else if(command === "update_fg") {
-               this.emit("action", Actions.updateForeground(a[0][0]))
-           } else if(command === "mode_change") {
-               const newMode = a[0][0]
-               this.emit("action", Actions.changeMode(newMode))
-               this.emit("mode-change", newMode)
-           } else {
-               console.warn("Unhandled command: " + command);
-           }
-       })
+                this.emit("action", Actions.setHighlight(
+                    !!highlightInfo.bold,
+                    !!highlightInfo.italic,
+                    !!highlightInfo.reverse,
+                    !!highlightInfo.underline,
+                    !!highlightInfo.undercurl,
+                    highlightInfo.foreground,
+                    highlightInfo.background
+                ))
+            } else if (command === "resize") {
+                this.emit("action", Actions.resize(a[0][0], a[0][1]))
+            } else if (command === "eol_clear") {
+                this.emit("action", Actions.clearToEndOfLine())
+            } else if (command === "clear") {
+                this.emit("action", Actions.clear())
+            } else if (command === "mouse_on") {
+                // TODO
+            } else if (command === "update_bg") {
+                this.emit("action", Actions.updateBackground(a[0][0]))
+            } else if (command === "update_fg") {
+                this.emit("action", Actions.updateForeground(a[0][0]))
+            } else if (command === "mode_change") {
+                const newMode = a[0][0]
+                this.emit("action", Actions.changeMode(newMode))
+                this.emit("mode-change", newMode)
+            } else {
+                console.warn("Unhandled command: " + command);
+            }
+        })
     }
 }
 

@@ -5,20 +5,18 @@ declare namespace Oni {
         column: number
     }
 
-    export interface Range {
-        start: Position
-        end: Position
-    }
 
     export interface TextEdit {
-        range: Range
+        start: Position
+        end: Position
         newValue: string
     }
 
     export interface EventContext {
         bufferFullPath: string
-        bufferVersion: number
+        version: number
         line: number
+
 
 
         /**

@@ -96,6 +96,16 @@ export class TypeScriptServerHost extends events.EventEmitter {
         });
     }
 
+    public getFormattingEdits(fullFilePath: string, line: number, col: number, endLine: number, endCol: number): Promise<any> {
+        return this._makeTssRequest<void>("format", {
+            file: fullFilePath,
+            line: line,
+            offset: col,
+            endLine: endLine,
+            endOffset: endCol
+        })
+    }
+
     public getCompletions(fullFilePath: string, line: number, col: number, prefix: string): Promise<any> {
         return this._makeTssRequest<void>("completions", {
             file: fullFilePath,
