@@ -58,7 +58,6 @@ export class Formatter {
 
 }
 
-
 export function applyEdit(line: string, start: number, end: number, newText: string): string {
     const startString = line.substr(0, start)
     const endString = line.substr(end, line.length - end)
