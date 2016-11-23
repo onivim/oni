@@ -22,16 +22,20 @@ export class Formatter {
 
         this._pluginManager.on("format", (response: Oni.Plugin.FormattingEditsResponse) => {
 
-            if(response.version != this._bufferInfoAtRequest.version)
+            if (response.version != this._bufferInfoAtRequest.version)
                 return
 
             const outputBuffer = [].concat(this._bufferInfoAtRequest.lines)
 
+            // Edits can affect the position of other edits... For example, if we remove a character at column 2,
+            // another edit referenced at column 8 would now apply at column 7.
+            // Long-term, there needs to be a strategy to map / re-map edits, but for now,
+            // this can be worked around by sorting the edits in reverse - applying later column edits first
             const sortedEdits = _.orderBy(response.edits, [e => e.start.line, e => e.start.column], ["asc", "desc"])
 
             sortedEdits.forEach((edit) => {
 
-                if(edit.start.line !== edit.end.line) {
+                if (edit.start.line !== edit.end.line) {
                     console.warn("Unable to apply multi-line edit")
                     return
                 }

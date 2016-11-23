@@ -1,24 +1,4 @@
 
-- Formatting
-    - Add 'FormatDocument' service
-        -  var buf = pluginManager.getCurrentBuffer() { lines, version}
-        - pluginManager.requestDocumentEdits()
-            .then((edits: {version, textEdits}) => {
-                if(version != requestedVersion)
-                    bail
-
-                var newBuffer = applyEdits(buf)
-
-                neovim.setBuffer(buf)
-            })
-    - Add 'format' capability to language servicevisua
-        - Add change tick to meta
-        - Make sure to pass up so that the appropriate version is being edited
-    - Auto-format as typing?
-    - Applying updates to buffer
-        function applyUpdates(buffer: string[], edits: Oni.TextEdit[])
-    - Remap errors
-
 - Tasks provider
     - npm tasks
     - output window
@@ -267,6 +247,8 @@
 - Implement single main but multiple browser windows, for quick re-open
 
 - Performance: Start-up time: Minification of bundle.js 
+
+- Add function to map text edits based on previously applied edits
 
 - Overlay fixes
     - Config variable to show overlay
