@@ -37,6 +37,14 @@ const getDefinition = (textDocumentPosition: Oni.EventContext) => {
     })
 }
 
+const getFormattingEdits = (position: Oni.EventContext) => {
+    return Promise.resolve({
+        filePath: "derp",
+        version: 0,
+        edits: []
+    })
+}
+
 const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {
     return host.getCompletionDetails(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, [completionItem.label])
     .then((details) => {
@@ -111,7 +119,8 @@ Oni.registerLanguageService({
     getQuickInfo: getQuickInfo,
     getDefinition: getDefinition,
     getCompletions: getCompletions,
-    getCompletionDetails: getCompletionDetails
+    getCompletionDetails: getCompletionDetails,
+    getFormattingEdits: getFormattingEdits
 })
 
 host.on("semanticDiag", (diagnostics) => {

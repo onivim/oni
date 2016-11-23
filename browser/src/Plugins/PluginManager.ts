@@ -1,6 +1,7 @@
 import * as os from "os"
 import * as path from "path"
 import * as fs from "fs"
+import { EventEmitter } from "events"
 
 import {ipcRenderer} from "electron"
 
@@ -9,7 +10,7 @@ import * as mkdirp from "mkdirp"
 
 import * as Config from "./../Config"
 import { INeovimInstance } from "./../NeovimInstance"
-import { QuickInfoCapability, GotoDefinitionCapability, CompletionProviderCapability, Plugin } from "./Plugin"
+import { FormatCapability, QuickInfoCapability, GotoDefinitionCapability, CompletionProviderCapability, Plugin } from "./Plugin"
 import { Screen } from "./../Screen"
 
 import * as UI from "./../UI/index"
@@ -26,7 +27,7 @@ export interface BufferInfo {
     fileName: string
 }
 
-export class PluginManager {
+export class PluginManager extends EventEmitter {
 
     private _debugPluginPath: string
     private _rootPluginPaths: string[] = []
@@ -40,6 +41,8 @@ export class PluginManager {
     private _lastBufferInfo: BufferInfo
 
     constructor(screen: Screen, debugPlugin?: string) {
+        super()
+
         this._debugPluginPath = debugPlugin
 
         this._rootPluginPaths.push(builtInPluginsRoot)
@@ -125,6 +128,15 @@ export class PluginManager {
         }
     }
 
+    public requestFormat(): void {
+        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, FormatCapability)
+
+        if (plugin) {
+            plugin.requestFormat(this._lastEventContext)
+        }
+
+    }
+
     private _getFirstPluginThatHasCapability(filetype: string, capability: string): Plugin {
         const handlers = this._plugins.filter(p => p.doesPluginProvideLanguageServiceCapability(filetype, capability))
 
@@ -168,6 +180,8 @@ export class PluginManager {
             setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details))
         } else if(pluginResponse.type === "set-errors") {
             this._errorOverlay.setErrors(pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors)
+        } else if(pluginResponse.type === "format") {
+            this.emit("format", pluginResponse.payload)
         }
     }
 

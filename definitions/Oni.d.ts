@@ -90,6 +90,12 @@ declare namespace Oni {
             filePath: string
         }
 
+        export interface FormattingEditsResponse {
+            filePath: string
+            version: number
+            edits: TextEdit[]
+        }
+
         export interface Api {
             // handleNotification(method: string, args: any[]): void
 
@@ -123,6 +129,8 @@ declare namespace Oni {
 
             getQuickInfo?(position: EventContext): Promise<QuickInfo>
             getDefinition?(position: EventContext): Promise<GotoDefinitionResponse>
+
+            getFormattingEdits?(position: EventContext): Promise<FormattingEditsResponse>
         }
     }
 

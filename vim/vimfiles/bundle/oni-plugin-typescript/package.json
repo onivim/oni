@@ -10,7 +10,7 @@
     "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
   },
   "oni": {
-    "debugging": false,
+    "debugging": true,
     "javascript,typescript": {
       "subscriptions": [
         "buffer-update",
@@ -19,7 +19,8 @@
       "languageService": [
         "quick-info",
         "goto-definition",
-        "completion-provider"
+        "completion-provider",
+        "formatting"
       ],
       "diagnosticsService": []
     }

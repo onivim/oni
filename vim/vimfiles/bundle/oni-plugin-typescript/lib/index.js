@@ -27,6 +27,13 @@ var getDefinition = function (textDocumentPosition) {
         };
     });
 };
+var getFormattingEdits = function (position) {
+    return Promise.resolve({
+        filePath: "derp",
+        version: 0,
+        edits: []
+    });
+};
 var getCompletionDetails = function (textDocumentPosition, completionItem) {
     return host.getCompletionDetails(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, [completionItem.label])
         .then(function (details) {
@@ -86,7 +93,8 @@ Oni.registerLanguageService({
     getQuickInfo: getQuickInfo,
     getDefinition: getDefinition,
     getCompletions: getCompletions,
-    getCompletionDetails: getCompletionDetails
+    getCompletionDetails: getCompletionDetails,
+    getFormattingEdits: getFormattingEdits
 });
 host.on("semanticDiag", function (diagnostics) {
     var fileName = diagnostics.file;

@@ -16,6 +16,7 @@ export const VimEventsSubscription = "vim-events"
 export const BufferUpdateEvents = "buffer-update"
 
 // Language Service Capabilities
+export const FormatCapability = "formatting"
 export const QuickInfoCapability = "quick-info"
 export const GotoDefinitionCapability = "goto-definition"
 export const CompletionProviderCapability = "completion-provider"
@@ -94,6 +95,17 @@ export class Plugin {
             }
         })
     }
+
+    public requestFormat(eventContext: EventContext): void {
+        this._send({
+            type: "request",
+            payload: {
+                name: "format",
+                context: eventContext
+            }
+        })
+    }
+
 
     public notifyCompletionItemSelected(completionItem: any): void {
         // TODO: Only send to plugin that sent the request

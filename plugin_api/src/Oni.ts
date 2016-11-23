@@ -80,6 +80,12 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                                 })
                             })
                     break
+                case "format":
+                    this._languageService.getFormattingEdits(arg.payload.context)
+                        .then((formattingResponse) => {
+                            Sender.send("format", originalContext, formattingResponse)
+                        })
+                    break
             }
         } else {
             console.warn("Unknown notification type")

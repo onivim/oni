@@ -33,4 +33,8 @@ export class DebouncedLanguageService implements Oni.Plugin.LanguageService {
     public getCompletionDetails(position: Oni.EventContext, completionInfo: Oni.Plugin.CompletionInfo): Promise<Oni.Plugin.CompletionInfo> {
         return this._languageService.getCompletionDetails(position, completionInfo)
     }
+
+    public getFormattingEdits(position: Oni.EventContext): Promise<Oni.Plugin.FormattingEditsResponse> {
+        return this._languageService.getFormattingEdits(position)
+    }
 }
