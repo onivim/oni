@@ -22,6 +22,7 @@ const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles")
 
 export class PluginManager {
 
+    private _debugPluginPath: string
     private _rootPluginPaths: string[] = []
     private _extensionPath: string
     private _plugins: Plugin[] = []
@@ -31,7 +32,9 @@ export class PluginManager {
     private _errorOverlay: ErrorOverlay
     private _lastEventContext: any
 
-    constructor(screen: Screen) {
+    constructor(screen: Screen, debugPlugin?: string) {
+        this._debugPluginPath = debugPlugin
+
         this._rootPluginPaths.push(builtInPluginsRoot)
         this._rootPluginPaths.push(path.join(builtInPluginsRoot, "bundle"))
 
@@ -174,6 +177,10 @@ export class PluginManager {
         this._neovimInstance = neovimInstance
         const allPlugins = this._getAllPluginPaths()
         this._plugins = allPlugins.map(pluginRootDirectory => new Plugin(pluginRootDirectory))
+
+        if (this._debugPluginPath) {
+            this._plugins.push(new Plugin(this._debugPluginPath, true))
+        }
     }
 
     private _ensureOniPluginsPath(): string {

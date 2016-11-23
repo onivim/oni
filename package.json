@@ -2,7 +2,14 @@
   "name": "oni-vim",
   "version": "0.0.3",
   "description": "NeoVim front-end with IDE-style extensibility",
-  "keywords": ["vim", "neovim", "text", "editor", "ide", "vim"],
+  "keywords": [
+    "vim",
+    "neovim",
+    "text",
+    "editor",
+    "ide",
+    "vim"
+  ],
   "main": "index.js",
   "bin": {
     "oni": "./cli/oni",
@@ -30,7 +37,9 @@
   "license": "MIT",
   "dependencies": {
     "electron": "^1.4.5",
+    "hex-rgb": "^1.0.0",
     "lodash": "^4.16.6",
+    "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
     "neovim-client": "^1.1.0",
     "q": "^1.4.1",
@@ -42,6 +51,7 @@
   "devDependencies": {
     "@types/electron": "^1.4.27",
     "@types/lodash": "^4.14.38",
+    "@types/minimist": "^1.1.29",
     "@types/mkdirp": "^0.3.29",
     "@types/mocha": "^2.2.33",
     "@types/node": "^6.0.48",

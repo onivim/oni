@@ -1,22 +1,18 @@
-- Command line argument to include additional plugin path
-    - IPC from main -> browserwindow
-    - Refactor from starting implicitly to waiting until the start command came down
-        - Set some global state like window.neovimMain
-            - additionalPluginPath
+- Better error message when starting with vim error
+    - Simulate error
+    - Event on error
+        - Check node client for that
 
-- LaunchService
-    - Create test plugin to exercise this functionality
-    - Launch command: editor.launch
-    - F5 launch
-        .oni/launch.json
-    - F5 -> editor.launch
-    - GetLaunchOptions(..)
-    - Launch(launchOption)
-
-- Sample language service plugin
-    - Refactor the common prefix-resolution to a helper method in Oni
-    - Launch
-    - Documentation  - generate from Oni.d.ts
+- Formatting
+    - Add 'format' capability to language servicevisua
+        - Add 'textedit' object
+        - Apply to buffer
+        - Add change tick to meta
+        - Make sure to pass up so that the appropriate version is being edited
+    - Auto-format as typing?
+    - Applying updates to buffer
+        function applyUpdates(buffer: string[], edits: Oni.TextEdit[])
+    - Remap errors
 
 - Tasks provider
     - npm tasks
@@ -29,21 +25,95 @@
     - RunTask(..)
     - Include tasks in QuickOpen
 
+- LaunchService
+    - Create test plugin to exercise this functionality
+    - Launch command: editor.launch
+    - F5 launch
+        .oni/launch.json
+    - F5 -> editor.launch
+    - GetLaunchOptions(..)
+    - Launch(launchOption)
+
+- Sample language service plugin
+    - Refactor the common prefix-resolution to a helper method in Oni
+    - F5 Launch
+    - Documentation  - generate from Oni.d.ts
+
+- Keybindings
+    - Use 'OniExecute'
+
 - Errors + Quick Info
     - Add field for errors in quick info
     - Factor current error state management from overlay to service
     - When opening QuickInfo, check if there is an error at current position, and add
     - Remove slide out error detail
 
-- Performance: Scrolling
-- Aniamtion/Performance: Optimistic Typing
-- Animation: Cursor velocity
-- Animation: Background video / background image
-- Aniamtion: QuickOpen - blur 
+    - editor.errors.next/editor.errors.prev <- ErrorManager
+    - ]e - OniExecute("editor.errors.next")
 
-- Overlay fixes
-    - Config variable to show overlay
-    - Find repro for the overlay to shift
+
+- Syntax highlighting
+    - Get highlight spans
+    - Read highlight colors when colorscheme changes
+        - Can use: let bgcolor=synIDattr(hlID('NonText'), 'bg#'): http://stackoverflow.com/questions/9912116/vimscript-programmatically-get-colors-from-colorscheme 
+        -  ColorScheme autocmd
+
+- Improved terminal
+    - create Terminal service
+    - create terminal output window
+    - create terminal entry window
+    - shelljs: https://www.npmjs.com/package/shelljs
+    - node-shell-quote: https://github.com/substack/node-shell-quote
+
+- Animation/Performance: Optimistic Typing
+- Animation: Cursor velocity
+    - Create variable
+    - Refactor cursor to component
+    - Use 'particle style' animation
+- Animation: Background video / background image
+    - Add clearRect to canvas
+    - Add opacity option to settings
+    - Use opacity when drawing background
+    - Can we remove filling by background image?
+- Animation: QuickOpen - blur 
+
+- Animation: Scroll
+    - Start moving canvas up
+
+- Katas
+- Achievements
+
+- Multiple Oni instances
+    - Force single instance
+    - Proper routing of messages in main
+    - Show context menu in bottom right to open different sessions
+    - Quick switch between them
+    
+
+- NeoVim as window component
+    - Just use for text boxes for the short-term
+        - Start insert mode
+    - Standalone instances of neovim
+    - Manage splits externally
+        - Use 'cabbrev' to override sp/vsp/rightbelow/etc
+    - Simplifies overlay management, because there is only ever one buffer per window
+        - Concern: Performance when opening, multiple neovim processes
+    - Reuse pluginmanager between instances
+    - Rename 'NeovimInstance' to 'NeovimProcess'
+    - Move index to be 'Neovim'
+    - Window Management
+        - Editor.activeWindow.neovim
+        - Introduce 'activeWindow' concept without multiple windows
+    - Direct input to activeWindow
+    - Formalize layers 
+        - Move canvas inside 'neovim-container'
+        - Move background behind neovim-container
+        - Move overlay-ui on top
+    - Factor to react component
+
+- Load time for window splits, if using standalone instance of neovim?
+
+- Performance: Scrolling
 
 - VimTutor enhancements
     - Konami code / game
@@ -143,27 +213,6 @@
     - CommandManager
         - Pluginmanager - subscribeToCommand("editor.gotoDefinition")
 
-- Need to pivot on the request/response
-    - send 'buffer-update'
-    - send 'vim-event'
-    - send 'request'
-        - 'quick-info'
-        - 'definition'
-        - 'completions'
-
-    - plugin sends back 'response'
-        - 'quick-info'
-        - 'definition'
-        - 'completions'
-
-    - Plugin manager - don't directly call send
-        - bufferUpdate function
-        - handleVimEvent function
-
-    - Means we need to push up the handling
-        - if event is 'CursorMoved', do quick-info request
-        - if event is 'CursorMovedI', do completion request
-
 - Plugin manifest
     - engine property: "oni": "^0.0.1"
     - oni
@@ -201,6 +250,13 @@
 - Implement single main but multiple browser windows, for quick re-open
 
 - Performance: Start-up time: Minification of bundle.js 
+
+- Overlay fixes
+    - Config variable to show overlay
+    - Find repro for the overlay to shift
+    - Better way to get windows: 
+        - window.neovim._neovim.getWindows(function() { console.dir(arguments) })
+        - window.neovim._neovim.winGetPosition(window.derp, function() { console.dir(arguments) })
 
 - Mouse
     - Modifier keys

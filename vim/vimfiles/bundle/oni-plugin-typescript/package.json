@@ -1,4 +1,6 @@
 {
+  "name": "oni-plugin-typescript",
+  "version": "0.0.1",
   "main": "lib/index.js",
   "engines": {
     "oni": "^0.0.1"

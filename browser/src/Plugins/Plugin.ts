@@ -29,8 +29,6 @@ export interface EventContext {
 }
 
 export class Plugin {
-
-
     private _packageMetadata: any;
     private _oniPluginMetadata: PluginMetadata;
     private _browserWindow: Electron.BrowserWindow;
@@ -148,7 +146,7 @@ export class Plugin {
         return filePluginInfo && filePluginInfo.languageService && filePluginInfo.languageService.indexOf(capability) >= 0;
     }
 
-    constructor(pluginRootDirectory: string) {
+    constructor(pluginRootDirectory: string, debugMode?: boolean) {
         var packageJsonPath = path.join(pluginRootDirectory, "package.json")
 
         if(fs.existsSync(packageJsonPath)) {
@@ -173,7 +171,7 @@ export class Plugin {
 
                 this._oniPluginMetadata = Object.assign({}, DefaultMetadata, pluginMetadata)
 
-                if(this._oniPluginMetadata.debugging) {
+                if(this._oniPluginMetadata.debugging || debugMode) {
                     (<any>this._browserWindow).openDevTools()
                     this._browserWindow.show()
                 }

@@ -105,18 +105,18 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         });
     }
 
-    constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
+    constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number, filesToOpen?: string[]) {
         super()
 
-        this._pluginManager = pluginManager;
+        filesToOpen = filesToOpen || []
+        this._pluginManager = pluginManager
 
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
 
-        const files = remote.getGlobal("args")
         const initVimPath = this._pluginManager.generateInitVim()
 
-        this._initPromise = startNeovim(initVimPath, files)
+        this._initPromise = startNeovim(initVimPath, filesToOpen)
             .then((nv) => {
                 console.log("NevoimInstance: Neovim started");
 
@@ -141,7 +141,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 });
 
                 this._neovim.on("disconnect", () => {
-                    require("electron").remote.app.quit()
+                    remote.app.quit()
                 })
 
                 this._neovim.uiAttach(80, 40, true, (err) => {
