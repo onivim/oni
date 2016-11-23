@@ -122,6 +122,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                 nv.command("colorscheme onedark")
 
+                // Workaround for issue where UI
+                // can fail to attach if there is a UI-blocking error
+                // nv.input("<ESC>")
+
                 this._neovim = nv;
 
                 this._neovim.on("error", (err) => {

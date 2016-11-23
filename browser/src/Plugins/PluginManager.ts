@@ -20,6 +20,12 @@ const initFilePath = path.join(__dirname, "vim", "init_template.vim")
 
 const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles")
 
+export interface BufferInfo {
+    lines: string[]
+    version: number
+    fileName: string
+}
+
 export class PluginManager {
 
     private _debugPluginPath: string
@@ -31,6 +37,7 @@ export class PluginManager {
 
     private _errorOverlay: ErrorOverlay
     private _lastEventContext: any
+    private _lastBufferInfo: BufferInfo
 
     constructor(screen: Screen, debugPlugin?: string) {
         this._debugPluginPath = debugPlugin
@@ -59,6 +66,10 @@ export class PluginManager {
         this._overlayManager.addOverlay("errors", this._errorOverlay)
     }
 
+    public get currentBuffer(): BufferInfo {
+            return this._lastBufferInfo
+    }
+
     public executeCommand(command: string): void {
         if(command === "editor.gotoDefinition") {
             const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, GotoDefinitionCapability)
@@ -72,6 +83,11 @@ export class PluginManager {
         if(method === "buffer_update") {
             const eventContext = args[0][0]
             const bufferLines = args[0][1]
+            this._lastBufferInfo = {
+                lines: bufferLines,
+                fileName: eventContext.bufferFullPath,
+                version: eventContext.version
+            }
 
             this._plugins
                 .filter(p => p.isPluginSubscribedToBufferUpdates(eventContext.filetype) || p.isPluginSubscribedToBufferUpdates("*"))

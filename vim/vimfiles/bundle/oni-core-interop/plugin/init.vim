@@ -70,7 +70,11 @@ let context.winline = winline()
 let context.wincol = wincol()
 let context.byte = line2byte(line(".")) + col(".")
 let context.filetype = eval("&filetype")
-let context.bufferVersion = b:last_change_tick
+
+if exists("b:last_change_tick")
+    let context.version = b:last_change_tick
+endif
+
 return context
 endfunction
 
