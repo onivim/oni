@@ -1,4 +1,7 @@
 - Better error message when starting with vim error
+    - Simulate error
+    - Event on error
+        - Check node client for that
 
 - Formatting
     - Add 'format' capability to language servicevisua
@@ -80,6 +83,13 @@
 - Katas
 - Achievements
 
+- Multiple Oni instances
+    - Force single instance
+    - Proper routing of messages in main
+    - Show context menu in bottom right to open different sessions
+    - Quick switch between them
+    
+
 - NeoVim as window component
     - Just use for text boxes for the short-term
         - Start insert mode
@@ -87,6 +97,7 @@
     - Manage splits externally
         - Use 'cabbrev' to override sp/vsp/rightbelow/etc
     - Simplifies overlay management, because there is only ever one buffer per window
+        - Concern: Performance when opening, multiple neovim processes
     - Reuse pluginmanager between instances
     - Rename 'NeovimInstance' to 'NeovimProcess'
     - Move index to be 'Neovim'
