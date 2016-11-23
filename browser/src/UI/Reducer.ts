@@ -50,7 +50,14 @@ export const reducer = (s: State.State, a: Actions.Action) => {
 export const popupMenuReducer = (s: State.Menu, a: Actions.Action) => {
     switch(a.type) {
         case "SHOW_MENU":
-            const sortedOptions = _.sortBy(a.payload.options, f => f.pinned ? 0 : 1)
+            const sortedOptions = _.sortBy(a.payload.options, f => f.pinned ? 0 : 1).map(s => ({
+                icon: s.icon,
+                detail: s.detail,
+                label: s.label,
+                pinned: s.pinned,
+                detailHighlights: [],
+                labelHighlights: []
+            }))
 
             return <State.Menu>{
                     filter: "",
@@ -71,8 +78,11 @@ export const popupMenuReducer = (s: State.Menu, a: Actions.Action) => {
 
         })
         case "FILTER_MENU":
-            const filteredOptions = s.options.filter(f => f.label.indexOf(a.payload.filter) >= 0)
-            const filteredOptionsSorted = _.sortBy(filteredOptions, f => f.pinned ? 0 : 1)
+
+            // If we already had search results, and this search is a superset of the previous,
+            // just filter the already-pruned subset
+            const optionsToSearch = a.payload.filter.indexOf(s.filter) === 0 ? s.filteredOptions : s.options
+            const filteredOptionsSorted = filterMenuOptions(optionsToSearch, a.payload.filter)
 
             return Object.assign({}, s, {
                 filter: a.payload.filter,
@@ -82,6 +92,66 @@ export const popupMenuReducer = (s: State.Menu, a: Actions.Action) => {
     }
 
     return s
+}
+
+export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string): State.MenuOptionWithHighlights[] {
+
+    if (!searchString) {
+        const opt =  options.map(o => {
+            return {
+                label: o.label,
+                detail: o.detail,
+                icon: o.icon,
+                pinned: o.pinned,
+                detailHighlights: [],
+                labelHighlights: []
+            }
+        })
+
+        return _.sortBy(opt, o => o.pinned ? 0 : 1)
+    }
+
+    const searchArray = searchString.split("")
+
+    let initialFilter = options
+    searchArray.forEach((str) => {
+        initialFilter = initialFilter.filter(f => f.detail.indexOf(str) >= 0 || f.label.indexOf(str) >= 0)
+    })
+
+    const highlightOptions = initialFilter.map(f => {
+        const detailArray = f.detail.split("")
+        const labelArray = f.label.split("")
+        const detailMatches = fuzzyMatchCharacters(detailArray, searchArray)
+        const labelMatches = fuzzyMatchCharacters(labelArray, detailMatches.remainingCharacters)
+
+        return {
+            icon: f.icon,
+            pinned: f.pinned,
+            label: f.label,
+            detail: f.detail,
+            detailArray: detailArray,
+            labelArray: labelArray,
+            detailMatches: detailMatches,
+            labelMatches: labelMatches,
+            detailHighlights: detailMatches.highlightIndices,
+            labelHighlights: labelMatches.highlightIndices
+        }
+    })
+
+    const filteredOptions = highlightOptions.filter(f => f.labelMatches.remainingCharacters.length === 0)
+
+    const filteredOptionsSorted = _.sortBy(filteredOptions, (f) => {
+        const baseVal = f.pinned ? 0 : 2
+
+        const totalSearchSize = searchArray.length
+        const matchingInLabel = fuzzyMatchCharacters(f.labelArray, searchArray)
+
+        const labelMatchPercent = matchingInLabel.highlightIndices.length / totalSearchSize
+
+        return baseVal - labelMatchPercent
+    })
+
+    return <any>filteredOptionsSorted
 }
 
 export interface FuzzyMatchResults {

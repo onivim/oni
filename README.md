@@ -154,7 +154,7 @@ As well as some color-schemes:
     - [ ] QuickOpen Improvements
         - [ ] Config variable
         - [ ] Non-git strategy
-        - [ ] Fuzzy Matching
+        - [x] Fuzzy Matching
         - [ ] Scrollbar
         - [ ] Icon
     - [ ] AutoCompletion

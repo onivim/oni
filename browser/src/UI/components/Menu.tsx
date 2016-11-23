@@ -9,7 +9,7 @@ import * as ActionCreators from "./../ActionCreators"
 
 import { Icon } from "./../Icon"
 
-import { HighlightText } from "./HighlightText"
+import { HighlightTextByIndex } from "./HighlightText"
 import { Visible } from "./Visible"
 
 /**
@@ -21,7 +21,7 @@ export interface MenuProps {
     selectedIndex: number;
     filterText: string
     onChangeFilterText: (text: string) => void
-    items: Oni.Menu.MenuOption[]
+    items: State.MenuOptionWithHighlights[]
 }
 
 export class Menu extends React.Component<MenuProps, void> {
@@ -35,7 +35,6 @@ export class Menu extends React.Component<MenuProps, void> {
 
         const pinnedItems = initialItems.filter(f => f.pinned)
         const unpinnedItems = initialItems.filter(f => !f.pinned)
-
         const items = initialItems.map((menuItem, index) => <MenuItem {...menuItem} 
                                                                 filterText={this.props.filterText}
                                                                 isSelected={index === this.props.selectedIndex}
@@ -93,7 +92,9 @@ export interface MenuItemProps {
     isSelected: boolean
     filterText: string
     label: string
+    labelHighlights: number[]
     detail: string
+    detailHighlights: number[]
     pinned: boolean
 }
 
@@ -110,8 +111,8 @@ export class MenuItem extends React.Component<MenuItemProps, void> {
 
         return <div className={className}>
             {icon}
-            <HighlightText className="label" text={this.props.label} highlightText={this.props.filterText} highlightClassName={"highlight"} />
-            <span className="detail">{this.props.detail}</span>
+            <HighlightTextByIndex className="label" text={this.props.label} highlightIndices={this.props.labelHighlights} highlightClassName={"highlight"} />
+            <HighlightTextByIndex className="detail" text={this.props.detail} highlightIndices={this.props.detailHighlights} highlightClassName={"highlight"} />
             <Visible visible={this.props.pinned}>
                 <Icon name="clock-o" />
             </Visible>

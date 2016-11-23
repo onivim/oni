@@ -10,9 +10,14 @@ export interface State {
 
 export interface Menu {
     filter: string,
-    filteredOptions: Oni.Menu.MenuOption[],
+    filteredOptions: MenuOptionWithHighlights[],
     options: Oni.Menu.MenuOption[],
     selectedIndex: number
+}
+
+export interface MenuOptionWithHighlights extends Oni.Menu.MenuOption {
+    labelHighlights: number[],
+    detailHighlights: number[]
 }
 
 export interface AutoCompletionInfo {

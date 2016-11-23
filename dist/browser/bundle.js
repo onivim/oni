@@ -48477,8 +48477,8 @@
 	        const icon = this.props.icon ? React.createElement(Icon_1.Icon, { name: this.props.icon }) : null;
 	        return React.createElement("div", { className: className },
 	            icon,
-	            React.createElement(HighlightText_1.HighlightText, { className: "label", text: this.props.label, highlightText: this.props.filterText, highlightClassName: "highlight" }),
-	            React.createElement("span", { className: "detail" }, this.props.detail),
+	            React.createElement(HighlightText_1.HighlightTextByIndex, { className: "label", text: this.props.label, highlightIndices: this.props.labelHighlights, highlightClassName: "highlight" }),
+	            React.createElement(HighlightText_1.HighlightTextByIndex, { className: "detail", text: this.props.detail, highlightIndices: this.props.detailHighlights, highlightClassName: "highlight" }),
 	            React.createElement(Visible_1.Visible, { visible: this.props.pinned },
 	                React.createElement(Icon_1.Icon, { name: "clock-o" })));
 	    }
@@ -48576,6 +48576,22 @@
 	    }
 	}
 	exports.HighlightText = HighlightText;
+	class HighlightTextByIndex extends React.Component {
+	    render() {
+	        const childNodes = [];
+	        const highlightIndices = this.props.highlightIndices || [];
+	        this.props.text.split("").forEach((c, idx) => {
+	            if (highlightIndices.indexOf(idx) >= 0) {
+	                childNodes.push(React.createElement("span", { className: this.props.highlightClassName }, c));
+	            }
+	            else {
+	                childNodes.push(React.createElement("span", null, c));
+	            }
+	        });
+	        return React.createElement("span", { className: this.props.className }, childNodes);
+	    }
+	}
+	exports.HighlightTextByIndex = HighlightTextByIndex;
 	function createLetterCountDictionary(text) {
 	    const array = text.split("");
 	    return array.reduce((previousValue, currentValue) => {
@@ -48641,7 +48657,7 @@
 
 
 	// module
-	exports.push([module.id, ".menu-background {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  bottom: 0px;\n  right: 0px;\n  background-color: rgba(0, 0, 0, 0.4);\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: column;\n      flex-direction: column;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.menu {\n  margin-top: 16px;\n  background-color: #282828;\n  color: #c8c8c8;\n  border: 1px solid #3c3c3c;\n  padding: 8px;\n  box-shadow: 4px 4px rgba(0, 0, 0, 0.2);\n  width: 600px;\n  max-height: 400px;\n}\n.menu input {\n  color: #c8c8c8;\n  background-color: #3c3c3c;\n  border: 1px solid #505050;\n  font-size: 14px;\n  box-sizing: border-box;\n  width: 100%;\n  padding: 4px;\n}\n.menu .items .item {\n  padding: 4px;\n  margin-top: 4px;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: row;\n      flex-direction: row;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.menu .items .item .fa {\n  padding-right: 8px;\n}\n.menu .items .item.selected {\n  background-color: rgba(100, 200, 255, 0.2);\n}\n.menu .items .item .label {\n  margin: 4px;\n  padding-right: 8px;\n}\n.menu .items .item .label .highlight {\n  color: #32c8ff;\n  font-weight: bold;\n  font-style: italic;\n}\n.menu .items .item .detail {\n  font-size: 11px;\n  color: rgba(100, 100, 100, 0.6);\n  -ms-flex: 1 1 auto;\n      flex: 1 1 auto;\n}\n", ""]);
+	exports.push([module.id, ".menu-background {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  bottom: 0px;\n  right: 0px;\n  background-color: rgba(0, 0, 0, 0.4);\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: column;\n      flex-direction: column;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.menu {\n  margin-top: 16px;\n  background-color: #282828;\n  color: #c8c8c8;\n  border: 1px solid #3c3c3c;\n  padding: 8px;\n  box-shadow: 4px 4px rgba(0, 0, 0, 0.2);\n  width: 600px;\n  max-height: 400px;\n}\n.menu input {\n  color: #c8c8c8;\n  background-color: #3c3c3c;\n  border: 1px solid #505050;\n  font-size: 14px;\n  box-sizing: border-box;\n  width: 100%;\n  padding: 4px;\n}\n.menu .items .item {\n  padding: 4px;\n  margin-top: 4px;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: row;\n      flex-direction: row;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.menu .items .item .fa {\n  padding-right: 8px;\n}\n.menu .items .item.selected {\n  background-color: rgba(100, 200, 255, 0.2);\n}\n.menu .items .item .label {\n  margin: 4px;\n  padding-right: 8px;\n}\n.menu .items .item .label .highlight {\n  color: #32c8ff;\n  font-weight: bold;\n  font-style: italic;\n}\n.menu .items .item .detail {\n  font-size: 11px;\n  color: rgba(100, 100, 100, 0.6);\n  -ms-flex: 1 1 auto;\n      flex: 1 1 auto;\n}\n.menu .items .item .detail .highlight {\n  color: #32c8ff;\n  font-weight: bold;\n  font-style: italic;\n}\n", ""]);
 
 	// exports
 
@@ -49120,7 +49136,14 @@
 	exports.popupMenuReducer = (s, a) => {
 	    switch (a.type) {
 	        case "SHOW_MENU":
-	            const sortedOptions = _.sortBy(a.payload.options, f => f.pinned ? 0 : 1);
+	            const sortedOptions = _.sortBy(a.payload.options, f => f.pinned ? 0 : 1).map(s => ({
+	                icon: s.icon,
+	                detail: s.detail,
+	                label: s.label,
+	                pinned: s.pinned,
+	                detailHighlights: [],
+	                labelHighlights: []
+	            }));
 	            return {
 	                filter: "",
 	                filteredOptions: sortedOptions,
@@ -49138,8 +49161,10 @@
 	                selectedIndex: (s.selectedIndex - 1) % s.filteredOptions.length
 	            });
 	        case "FILTER_MENU":
-	            const filteredOptions = s.options.filter(f => f.label.indexOf(a.payload.filter) >= 0);
-	            const filteredOptionsSorted = _.sortBy(filteredOptions, f => f.pinned ? 0 : 1);
+	            // If we already had search results, and this search is a superset of the previous,
+	            // just filter the already-pruned subset
+	            const optionsToSearch = a.payload.filter.indexOf(s.filter) === 0 ? s.filteredOptions : s.options;
+	            const filteredOptionsSorted = filterMenuOptions(optionsToSearch, a.payload.filter);
 	            return Object.assign({}, s, {
 	                filter: a.payload.filter,
 	                filteredOptions: filteredOptionsSorted
@@ -49147,8 +49172,72 @@
 	    }
 	    return s;
 	};
+	function filterMenuOptions(options, searchString) {
+	    if (!searchString) {
+	        const opt = options.map(o => {
+	            return {
+	                label: o.label,
+	                detail: o.detail,
+	                icon: o.icon,
+	                pinned: o.pinned,
+	                detailHighlights: [],
+	                labelHighlights: []
+	            };
+	        });
+	        return _.sortBy(opt, o => o.pinned ? 0 : 1);
+	    }
+	    const searchArray = searchString.split("");
+	    let initialFilter = options;
+	    searchArray.forEach((str) => {
+	        initialFilter = initialFilter.filter(f => f.detail.indexOf(str) >= 0 || f.label.indexOf(str) >= 0);
+	    });
+	    const highlightOptions = initialFilter.map(f => {
+	        const detailArray = f.detail.split("");
+	        const labelArray = f.label.split("");
+	        const detailMatches = fuzzyMatchCharacters(detailArray, searchArray);
+	        const labelMatches = fuzzyMatchCharacters(labelArray, detailMatches.remainingCharacters);
+	        return {
+	            icon: f.icon,
+	            pinned: f.pinned,
+	            label: f.label,
+	            detail: f.detail,
+	            detailArray: detailArray,
+	            labelArray: labelArray,
+	            detailMatches: detailMatches,
+	            labelMatches: labelMatches,
+	            detailHighlights: detailMatches.highlightIndices,
+	            labelHighlights: labelMatches.highlightIndices
+	        };
+	    });
+	    const filteredOptions = highlightOptions.filter(f => f.labelMatches.remainingCharacters.length === 0);
+	    const filteredOptionsSorted = _.sortBy(filteredOptions, (f) => {
+	        const baseVal = f.pinned ? 0 : 2;
+	        const totalSearchSize = searchArray.length;
+	        const matchingInLabel = fuzzyMatchCharacters(f.labelArray, searchArray);
+	        const labelMatchPercent = matchingInLabel.highlightIndices.length / totalSearchSize;
+	        return baseVal - labelMatchPercent;
+	    });
+	    return filteredOptionsSorted;
+	}
+	exports.filterMenuOptions = filterMenuOptions;
 	function fuzzyMatchCharacters(text, searchString) {
-	    return null;
+	    const startValue = {
+	        highlightIndices: [],
+	        remainingCharacters: searchString
+	    };
+	    const outputValue = text.reduce((previousValue, currValue, idx) => {
+	        const { highlightIndices, remainingCharacters } = previousValue;
+	        if (remainingCharacters.length === 0)
+	            return previousValue;
+	        if (remainingCharacters[0] === currValue) {
+	            return {
+	                highlightIndices: highlightIndices.concat([idx]),
+	                remainingCharacters: remainingCharacters.slice(1, remainingCharacters.length)
+	            };
+	        }
+	        return previousValue;
+	    }, startValue);
+	    return outputValue;
 	}
 	exports.fuzzyMatchCharacters = fuzzyMatchCharacters;
 	exports.autoCompletionReducer = (s, a) => {
