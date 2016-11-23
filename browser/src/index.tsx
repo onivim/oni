@@ -20,6 +20,7 @@ import * as UI from "./UI/index"
 import * as minimist from "minimist"
 
 import { QuickOpen } from "./Services/QuickOpen"
+import { Formatter } from "./Services/Formatter"
 
 const start = (args: string[]) => {
 
@@ -46,7 +47,9 @@ const start = (args: string[]) => {
 
     let pendingTimeout = null
 
+    // Services
     const quickOpen = new QuickOpen(instance)
+    const formatter = new Formatter(instance, pluginManager)
 
     instance.on("action", (action) => {
         screen.dispatch(action)

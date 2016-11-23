@@ -50,6 +50,10 @@ export class Keyboard extends EventEmitter {
                 return "<down>"
             case 45:
                 return "<insert>"
+            case 114:
+                return "<f3>"
+            case 116:
+                return "<f5>"
             case 123:
                 return "<f12>"
             default:
