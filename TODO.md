@@ -1,5 +1,16 @@
 - Better error message when starting with vim error
 
+- Formatting
+    - Add 'format' capability to language servicevisua
+        - Add 'textedit' object
+        - Apply to buffer
+        - Add change tick to meta
+        - Make sure to pass up so that the appropriate version is being edited
+    - Auto-format as typing?
+    - Applying updates to buffer
+        function applyUpdates(buffer: string[], edits: Oni.TextEdit[])
+    - Remap errors
+
 - Tasks provider
     - npm tasks
     - output window
@@ -37,9 +48,12 @@
     - editor.errors.next/editor.errors.prev <- ErrorManager
     - ]e - OniExecute("editor.errors.next")
 
+
 - Syntax highlighting
     - Get highlight spans
     - Read highlight colors when colorscheme changes
+        - Can use: let bgcolor=synIDattr(hlID('NonText'), 'bg#'): http://stackoverflow.com/questions/9912116/vimscript-programmatically-get-colors-from-colorscheme 
+        -  ColorScheme autocmd
 
 - Improved terminal
     - create Terminal service
@@ -50,12 +64,21 @@
 
 - Animation/Performance: Optimistic Typing
 - Animation: Cursor velocity
+    - Create variable
+    - Refactor cursor to component
+    - Use 'particle style' animation
 - Animation: Background video / background image
     - Add clearRect to canvas
     - Add opacity option to settings
     - Use opacity when drawing background
     - Can we remove filling by background image?
 - Animation: QuickOpen - blur 
+
+- Animation: Scroll
+    - Start moving canvas up
+
+- Katas
+- Achievements
 
 - NeoVim as window component
     - Just use for text boxes for the short-term
@@ -220,6 +243,9 @@
 - Overlay fixes
     - Config variable to show overlay
     - Find repro for the overlay to shift
+    - Better way to get windows: 
+        - window.neovim._neovim.getWindows(function() { console.dir(arguments) })
+        - window.neovim._neovim.winGetPosition(window.derp, function() { console.dir(arguments) })
 
 - Mouse
     - Modifier keys
