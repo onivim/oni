@@ -24,7 +24,6 @@ cnoremap :: <C-R>=fnameescape(expand('%:p:h'))<CR>/
 " Make Control+nav keys functionality in insert mode
 inoremap <expr> <C-a> pumvisible() ? "<Esc>A" : "<C-o>A"
 inoremap <expr> <C-b> pumvisible() ? "<Esc>bi" : "<C-o>b"
-inoremap <expr> <C-i> pumvisible() ? "<Esc>I" : "<C-o>I"
 inoremap <expr> <C-l> pumvisible() ? "<Esc>la" : "<C-o>a"
 
 ${runtimepaths}

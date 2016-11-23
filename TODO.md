@@ -1,5 +1,7 @@
 
 - Formatting
+    - Add 'FormatDocument' service
+        :- 
     - Add 'format' capability to language servicevisua
         - Add 'textedit' object
         - Apply to buffer
