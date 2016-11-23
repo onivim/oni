@@ -124,6 +124,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                 this._neovim = nv;
 
+                this._neovim.on("error", (err) => {
+                    console.error(err)
+                })
+
                 this._neovim.on("notification", (method, args) => {
                     if(method === "redraw") {
                         this._handleNotification(method, args);

@@ -1,7 +1,3 @@
-- Better error message when starting with vim error
-    - Simulate error
-    - Event on error
-        - Check node client for that
 
 - Formatting
     - Add 'format' capability to language servicevisua
@@ -87,8 +83,11 @@
 - Animation: Scroll
     - Start moving canvas up
 
-- Katas
-- Achievements
+- Ease-of-use / fun
+    - Katas
+    - Achievements
+    - VimTutor enhancements
+        - Konami code / game
 
 - Multiple Oni instances
     - Force single instance
@@ -122,8 +121,11 @@
 
 - Performance: Scrolling
 
-- VimTutor enhancements
-    - Konami code / game
+- Better error message when starting with vim error
+    - Neovim bug: https://github.com/neovim/neovim/issues/3901
+    - Simulate error
+    - Event on error
+        - Check node client for that
 
 - Overlay concept
     - Host in webview vs browser window?
