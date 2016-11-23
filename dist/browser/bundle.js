@@ -66,13 +66,14 @@
 	const UI = __webpack_require__(58);
 	const minimist = __webpack_require__(274);
 	const QuickOpen_1 = __webpack_require__(275);
+	const Formatter_1 = __webpack_require__(276);
 	const start = (args) => {
 	    const parsedArgs = minimist(args);
 	    const debugPlugin = parsedArgs["debugPlugin"];
 	    // Helper for debugging:
 	    window["UI"] = UI;
-	    __webpack_require__(276);
-	    __webpack_require__(278);
+	    __webpack_require__(277);
+	    __webpack_require__(279);
 	    var deltaRegion = new DeltaRegionTracker_1.IncrementalDeltaRegionTracker();
 	    var screen = new Screen_1.NeovimScreen(deltaRegion);
 	    const pluginManager = new PluginManager_1.PluginManager(screen, debugPlugin);
@@ -82,7 +83,9 @@
 	    renderer.start(canvasElement);
 	    var cursor = new Cursor_1.Cursor();
 	    let pendingTimeout = null;
+	    // Services
 	    const quickOpen = new QuickOpen_1.QuickOpen(instance);
+	    const formatter = new Formatter_1.Formatter(instance, pluginManager);
 	    instance.on("action", (action) => {
 	        screen.dispatch(action);
 	        cursor.dispatch(action);
@@ -115,6 +118,9 @@
 	    });
 	    const keyboard = new Keyboard_1.Keyboard();
 	    keyboard.on("keydown", key => {
+	        if (key === "<f3>") {
+	            formatter.formatBuffer();
+	        }
 	        if (UI.isPopupMenuOpen()) {
 	            if (key === "<esc>") {
 	                UI.hidePopupMenu();
@@ -790,6 +796,15 @@
 	const Actions = __webpack_require__(10);
 	const measureFont_1 = __webpack_require__(48);
 	const Config = __webpack_require__(6);
+	class Buffer {
+	    constructor(bufferInstance) {
+	        this._bufferInstance = bufferInstance;
+	    }
+	    setLines(start, end, useStrictIndexing, lines) {
+	        this._bufferInstance.setLines(start, end, useStrictIndexing, lines);
+	    }
+	}
+	exports.Buffer = Buffer;
 	/**
 	 * Integration with NeoVim API
 	 */
@@ -807,6 +822,9 @@
 	            .then((nv) => {
 	            console.log("NevoimInstance: Neovim started");
 	            nv.command("colorscheme onedark");
+	            // Workaround for issue where UI
+	            // can fail to attach if there is a UI-blocking error
+	            // nv.input("<ESC>")
 	            this._neovim = nv;
 	            this._neovim.on("error", (err) => {
 	                console.error(err);
@@ -847,6 +865,13 @@
 	        this._fontHeightInPixels = height;
 	        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height));
 	        this.resize(this._lastWidthInPixels, this._lastHeightInPixels);
+	    }
+	    getCurrentBuffer() {
+	        const deferred = Q.defer();
+	        this._neovim.getCurrentBuffer((err, buffer) => {
+	            deferred.resolve(new Buffer(buffer));
+	        });
+	        return deferred.promise;
 	    }
 	    get cursorPosition() {
 	        return {
@@ -25890,6 +25915,10 @@
 	                return "<down>";
 	            case 45:
 	                return "<insert>";
+	            case 114:
+	                return "<f3>";
+	            case 116:
+	                return "<f5>";
 	            case 123:
 	                return "<f12>";
 	            default:
@@ -25956,6 +25985,7 @@
 	const os = __webpack_require__(7);
 	const path = __webpack_require__(13);
 	const fs = __webpack_require__(55);
+	const events_1 = __webpack_require__(12);
 	const electron_1 = __webpack_require__(3);
 	const mkdirp = __webpack_require__(56);
 	const Config = __webpack_require__(6);
@@ -25965,8 +25995,9 @@
 	const ErrorOverlay_1 = __webpack_require__(270);
 	const initFilePath = path.join(__dirname, "vim", "init_template.vim");
 	const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles");
-	class PluginManager {
+	class PluginManager extends events_1.EventEmitter {
 	    constructor(screen, debugPlugin) {
+	        super();
 	        this._rootPluginPaths = [];
 	        this._plugins = [];
 	        this._debugPluginPath = debugPlugin;
@@ -25988,6 +26019,9 @@
 	        this._errorOverlay = new ErrorOverlay_1.ErrorOverlay();
 	        this._overlayManager.addOverlay("errors", this._errorOverlay);
 	    }
+	    get currentBuffer() {
+	        return this._lastBufferInfo;
+	    }
 	    executeCommand(command) {
 	        if (command === "editor.gotoDefinition") {
 	            const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, Plugin_1.GotoDefinitionCapability);
@@ -26000,6 +26034,11 @@
 	        if (method === "buffer_update") {
 	            const eventContext = args[0][0];
 	            const bufferLines = args[0][1];
+	            this._lastBufferInfo = {
+	                lines: bufferLines,
+	                fileName: eventContext.bufferFullPath,
+	                version: eventContext.version
+	            };
 	            this._plugins
 	                .filter(p => p.isPluginSubscribedToBufferUpdates(eventContext.filetype) || p.isPluginSubscribedToBufferUpdates("*"))
 	                .forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines));
@@ -26028,6 +26067,12 @@
 	        }
 	        else if (method === "window_display_update") {
 	            this._overlayManager.notifyWindowDimensionsChanged(args[0][1]);
+	        }
+	    }
+	    requestFormat() {
+	        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, Plugin_1.FormatCapability);
+	        if (plugin) {
+	            plugin.requestFormat(this._lastEventContext);
 	        }
 	    }
 	    _getFirstPluginThatHasCapability(filetype, capability) {
@@ -26068,6 +26113,9 @@
 	        }
 	        else if (pluginResponse.type === "set-errors") {
 	            this._errorOverlay.setErrors(pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors);
+	        }
+	        else if (pluginResponse.type === "format") {
+	            this.emit("format", pluginResponse.payload);
 	        }
 	    }
 	    /**
@@ -26254,6 +26302,7 @@
 	exports.VimEventsSubscription = "vim-events";
 	exports.BufferUpdateEvents = "buffer-update";
 	// Language Service Capabilities
+	exports.FormatCapability = "formatting";
 	exports.QuickInfoCapability = "quick-info";
 	exports.GotoDefinitionCapability = "goto-definition";
 	exports.CompletionProviderCapability = "completion-provider";
@@ -26330,6 +26379,15 @@
 	            type: "request",
 	            payload: {
 	                name: "quick-info",
+	                context: eventContext
+	            }
+	        });
+	    }
+	    requestFormat(eventContext) {
+	        this._send({
+	            type: "request",
+	            payload: {
+	                name: "format",
 	                context: eventContext
 	            }
 	        });
@@ -49832,10 +49890,56 @@
 /* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * QuickOpen.ts
+	 *
+	 * Manages the quick open menu
+	 */
+	"use strict";
+	const _ = __webpack_require__(46);
+	class Formatter {
+	    constructor(neovimInstance, pluginManager) {
+	        this._neovimInstance = neovimInstance;
+	        this._pluginManager = pluginManager;
+	        this._pluginManager.on("format", (response) => {
+	            if (response.version != this._bufferInfoAtRequest.version)
+	                return;
+	            const outputBuffer = [].concat(this._bufferInfoAtRequest.lines);
+	            const sortedEdits = _.orderBy(response.edits, [e => e.start.line, e => e.start.column], ["asc", "desc"]);
+	            sortedEdits.forEach((edit) => {
+	                if (edit.start.line !== edit.end.line) {
+	                    console.warn("Unable to apply multi-line edit");
+	                    return;
+	                }
+	                const line = edit.start.line;
+	                outputBuffer[line - 1] = applyEdit(outputBuffer[line - 1], edit.start.column - 1, edit.end.column - 1, edit.newValue);
+	            });
+	            this._neovimInstance.getCurrentBuffer()
+	                .then((buffer) => buffer.setLines(0, outputBuffer.length, false, outputBuffer));
+	        });
+	    }
+	    formatBuffer() {
+	        this._bufferInfoAtRequest = this._pluginManager.currentBuffer;
+	        this._pluginManager.requestFormat();
+	    }
+	}
+	exports.Formatter = Formatter;
+	function applyEdit(line, start, end, newText) {
+	    const startString = line.substr(0, start);
+	    const endString = line.substr(end, line.length - end);
+	    return startString + newText + endString;
+	}
+	exports.applyEdit = applyEdit;
+
+
+/***/ },
+/* 277 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(277);
+	var content = __webpack_require__(278);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(262)(content, {});
@@ -49855,7 +49959,7 @@
 	}
 
 /***/ },
-/* 277 */
+/* 278 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(261)();
@@ -49869,13 +49973,13 @@
 
 
 /***/ },
-/* 278 */
+/* 279 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(279);
+	var content = __webpack_require__(280);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(262)(content, {});
@@ -49895,7 +49999,7 @@
 	}
 
 /***/ },
-/* 279 */
+/* 280 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(261)();

@@ -32,29 +32,28 @@ export class Menu extends React.Component<MenuProps, void> {
 
         const initialItems = _.take(this.props.items, 10);
 
-
         const pinnedItems = initialItems.filter(f => f.pinned)
         const unpinnedItems = initialItems.filter(f => !f.pinned)
-        const items = initialItems.map((menuItem, index) => <MenuItem {...menuItem} 
-                                                                filterText={this.props.filterText}
-                                                                isSelected={index === this.props.selectedIndex}
-                                                                />)
+        const items = initialItems.map((menuItem, index) => <MenuItem {...menuItem}
+            filterText={this.props.filterText}
+            isSelected={index === this.props.selectedIndex}
+            />)
 
         return <div className="menu-background">
-                    <div className="menu">
-                        <input type="text" 
-                            ref={(inputElement) => this._inputElement = inputElement}
-                            onChange={(evt) => this._onChange(evt)}
-                        />
-                        <div className="items">
-                            {items}
-                        </div>
-                    </div>
+            <div className="menu">
+                <input type="text"
+                    ref={(inputElement) => this._inputElement = inputElement}
+                    onChange={(evt) => this._onChange(evt)}
+                    />
+                <div className="items">
+                    {items}
                 </div>
+            </div>
+        </div>
     }
 
     public componentDidMount(): void {
-        if(this._inputElement)
+        if (this._inputElement)
             this._inputElement.focus()
     }
 
@@ -103,7 +102,7 @@ export class MenuItem extends React.Component<MenuItemProps, void> {
     public render(): JSX.Element {
         let className = "item";
 
-        if(this.props.isSelected) {
+        if (this.props.isSelected) {
             className += " selected"
         }
 

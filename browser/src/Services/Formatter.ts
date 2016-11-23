@@ -40,7 +40,8 @@ export class Formatter {
                 outputBuffer[line - 1] = applyEdit(outputBuffer[line - 1], edit.start.column - 1, edit.end.column - 1, edit.newValue)
             })
 
-            debugger
+            this._neovimInstance.getCurrentBuffer()
+                .then((buffer) => buffer.setLines(0, outputBuffer.length, false, outputBuffer))
 
         })
     }

@@ -13,18 +13,34 @@ import * as Config from "./Config"
 import { PixelPosition, Position } from "./Screen"
 import { PluginManager } from "./Plugins/PluginManager"
 
-if (true) { }
-
 export interface INeovimInstance {
     cursorPosition: Position;
     screenToPixels(row: number, col: number): PixelPosition
 
-    input(inputString: string);
-    command(command: string);
+    input(inputString: string)
+    command(command: string)
 
-    on(event: string, handler: Function);
+    on(event: string, handler: Function)
 
-    setFont(fontFamily: string, fontSize: string);
+    setFont(fontFamily: string, fontSize: string)
+
+    getCurrentBuffer(): Q.Promise<Buffer>
+}
+
+export interface Buffer {
+    setLines(start: number, end: number, useStrictIndexing: boolean, lines: string[]): void
+}
+
+export class Buffer {
+    private _bufferInstance: any
+
+    constructor(bufferInstance: any) {
+        this._bufferInstance = bufferInstance
+    }
+
+    public setLines(start: number, end: number, useStrictIndexing: boolean, lines: string[]) {
+        this._bufferInstance.setLines(start, end, useStrictIndexing, lines)
+    }
 }
 
 /**
@@ -56,6 +72,16 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this.emit("action", Actions.setFont(fontFamily, fontSize, width, height));
 
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
+    }
+
+    public getCurrentBuffer(): Q.Promise<Buffer> {
+        const deferred = Q.defer<Buffer>()
+
+        this._neovim.getCurrentBuffer((err, buffer) => {
+            deferred.resolve(new Buffer(buffer))
+        })
+
+        return deferred.promise
     }
 
     public get cursorPosition(): Position {
