@@ -1,3 +1,24 @@
+- Fuzzy matching full path ('fuzzy' npm module)
+    - Fuzzy NPM module doesn't work
+    - function fuzzyMatchCharacters(string, characters): remainingCharacters, highlightIndices
+    - Use fuzzy match characters in comparison function
+
+    - const matchForLabelScore = fuzzyMatchCharacters(optionLabel, searchString).highlightIndices.length
+    - const detailMatch = fuzzyMatchCharacters(optionDetail, searchString)
+    - const detailMatchScore = detailMatch.highlightIndices.length
+h
+    - const labelMatch = fuzzyMatchCharacters(optionLabel, detailMatch.remainingCharacters)
+    - const labelMatchScore = labelMatch.highlightIndices.length
+    - const score = matchForLabelScore * 2 + detailMatch + labelMatch
+
+- <C-p> working in insert mode
+    - Render popupmenu
+
+- init.vim - add mappings for insert mode:
+    - <C-l> next character
+    - <C-i> beginning of line
+    - <C-a> end of line
+
 - Better error message when starting with vim error
     - Simulate error
     - Event on error
@@ -180,7 +201,6 @@
     - Git detection
         - Handle case when git is not available, fallback to readdir approach
 
-    - Fuzzy matching full path ('fuzzy' npm module)
     - Scrollbar / integration with C-n
     - Extending pinned concept - use time or ordering to remove from MRU
 

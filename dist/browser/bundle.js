@@ -49147,6 +49147,10 @@
 	    }
 	    return s;
 	};
+	function fuzzyMatchCharacters(text, searchString) {
+	    return null;
+	}
+	exports.fuzzyMatchCharacters = fuzzyMatchCharacters;
 	exports.autoCompletionReducer = (s, a) => {
 	    if (!s)
 	        return s;

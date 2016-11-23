@@ -84,6 +84,38 @@ export const popupMenuReducer = (s: State.Menu, a: Actions.Action) => {
     return s
 }
 
+export interface FuzzyMatchResults {
+    highlightIndices: number[]
+    remainingCharacters: string[]
+}
+
+export function fuzzyMatchCharacters(text: string[], searchString: string[]): FuzzyMatchResults {
+    const startValue = {
+        highlightIndices: [],
+        remainingCharacters: searchString
+    }
+
+    const outputValue = text.reduce((previousValue: FuzzyMatchResults, currValue: string, idx: number) => {
+
+        const { highlightIndices, remainingCharacters } = previousValue
+
+        if (remainingCharacters.length === 0)
+            return previousValue
+
+        if(remainingCharacters[0] === currValue) {
+            return {
+                highlightIndices: highlightIndices.concat([idx]),
+                remainingCharacters: remainingCharacters.slice(1, remainingCharacters.length)
+            }
+        }
+
+        return previousValue
+        
+    }, startValue)
+
+    return outputValue
+}
+
 export const autoCompletionReducer = (s: State.AutoCompletionInfo, a: Actions.Action) => {
 
     if (!s)
