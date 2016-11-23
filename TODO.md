@@ -1,10 +1,17 @@
 
 - Formatting
     - Add 'FormatDocument' service
-        :- 
+        -  var buf = pluginManager.getCurrentBuffer() { lines, version}
+        - pluginManager.requestDocumentEdits()
+            .then((edits: {version, textEdits}) => {
+                if(version != requestedVersion)
+                    bail
+
+                var newBuffer = applyEdits(buf)
+
+                neovim.setBuffer(buf)
+            })
     - Add 'format' capability to language servicevisua
-        - Add 'textedit' object
-        - Apply to buffer
         - Add change tick to meta
         - Make sure to pass up so that the appropriate version is being edited
     - Auto-format as typing?

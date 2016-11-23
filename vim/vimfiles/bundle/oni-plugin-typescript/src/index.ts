@@ -15,7 +15,7 @@ let lastOpenFile = null;
 
 let lastBuffer: string[] = []
 
-const getQuickInfo = (textDocumentPosition: Oni.TextDocumentPosition) => {
+const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
     return host.getQuickInfo(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
         .then((val: any) => {
             return {
@@ -25,7 +25,7 @@ const getQuickInfo = (textDocumentPosition: Oni.TextDocumentPosition) => {
         })
 }
 
-const getDefinition = (textDocumentPosition: Oni.TextDocumentPosition) => {
+const getDefinition = (textDocumentPosition: Oni.EventContext) => {
     return host.getTypeDefinition(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
     .then((val: any) => {
         val = val[0];
@@ -37,7 +37,7 @@ const getDefinition = (textDocumentPosition: Oni.TextDocumentPosition) => {
     })
 }
 
-const getCompletionDetails = (textDocumentPosition: Oni.TextDocumentPosition, completionItem) => {
+const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {
     return host.getCompletionDetails(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, [completionItem.label])
     .then((details) => {
         const entry = details[0]
@@ -50,7 +50,7 @@ const getCompletionDetails = (textDocumentPosition: Oni.TextDocumentPosition, co
     })
 }
 
-const getCompletions = (textDocumentPosition: Oni.TextDocumentPosition) => {
+const getCompletions = (textDocumentPosition: Oni.EventContext) => {
     if(textDocumentPosition.column <= 1)
         return Promise.resolve({
             completions: []
@@ -162,7 +162,7 @@ Oni.on("buffer-update", (args) => {
 
 });
 
-Oni.on("buffer-saved", (args: Oni.TextDocumentPosition) => {
+Oni.on("buffer-saved", (args: Oni.EventContext) => {
     host.getErrorsAcrossProject(args.bufferFullPath)
 })
 

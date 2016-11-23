@@ -22,15 +22,15 @@ export class DebouncedLanguageService implements Oni.Plugin.LanguageService {
         return this._debouncedQuickInfo(context)
     }
 
-    public getCompletions(position: Oni.TextDocumentPosition): Promise<Oni.Plugin.CompletionResult> {
+    public getCompletions(position: Oni.EventContext): Promise<Oni.Plugin.CompletionResult> {
         return this._debouncedCompletions(position)
     }
 
-    public getDefinition(context: Oni.TextDocumentPosition): Promise<Oni.TextDocumentPosition> {
+    public getDefinition(context: Oni.EventContext): Promise<Oni.Plugin.GotoDefinitionResponse> {
         return this._languageService.getDefinition(context)
     }
 
-    public getCompletionDetails(position: Oni.TextDocumentPosition, completionInfo: Oni.Plugin.CompletionInfo): Promise<Oni.Plugin.CompletionInfo> {
+    public getCompletionDetails(position: Oni.EventContext, completionInfo: Oni.Plugin.CompletionInfo): Promise<Oni.Plugin.CompletionInfo> {
         return this._languageService.getCompletionDetails(position, completionInfo)
     }
 }

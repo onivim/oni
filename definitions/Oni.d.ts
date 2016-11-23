@@ -17,7 +17,9 @@ declare namespace Oni {
 
     export interface EventContext {
         bufferFullPath: string
+        bufferVersion: number
         line: number
+
 
         /**
          * Column within the buffer
@@ -34,14 +36,14 @@ declare namespace Oni {
         winline: number
     }
 
-    export interface TextDocumentPosition {
-        // TODO: Reconcile these - remove buffer
-        bufferFullPath?: string
-        filePath?: string
-        line: number
-        column: number
-        byte?: number
-    }
+    // export interface TextDocumentPosition {
+    //     // TODO: Reconcile these - remove buffer
+    //     bufferFullPath?: string
+    //     filePath?: string
+    //     line: number
+    //     column: number
+    //     byte?: number
+    // }
 
     export namespace Menu {
         export interface MenuOption {
@@ -84,6 +86,10 @@ declare namespace Oni {
             description: string
         }
 
+        export interface GotoDefinitionResponse extends Position {
+            filePath: string
+        }
+
         export interface Api {
             // handleNotification(method: string, args: any[]): void
 
@@ -112,11 +118,11 @@ declare namespace Oni {
         }
 
         export interface LanguageService {
-            getCompletions?(position: TextDocumentPosition): Promise<CompletionResult>
-            getCompletionDetails?(position: TextDocumentPosition, completionInfo: CompletionInfo): Promise<CompletionInfo>
+            getCompletions?(position: EventContext): Promise<CompletionResult>
+            getCompletionDetails?(position: EventContext, completionInfo: CompletionInfo): Promise<CompletionInfo>
 
-            getQuickInfo?(position: TextDocumentPosition): Promise<QuickInfo>
-            getDefinition?(position: TextDocumentPosition): Promise<TextDocumentPosition>
+            getQuickInfo?(position: EventContext): Promise<QuickInfo>
+            getDefinition?(position: EventContext): Promise<GotoDefinitionResponse>
         }
     }
 
