@@ -23,7 +23,6 @@ import { QuickOpen } from "./Services/QuickOpen"
 import { Formatter } from "./Services/Formatter"
 import { OutputWindow } from "./Services/Output"
 
-
 const start = (args: string[]) => {
 
     const parsedArgs = minimist(args)
@@ -52,21 +51,21 @@ const start = (args: string[]) => {
     // Services
     const quickOpen = new QuickOpen(instance)
     const formatter = new Formatter(instance, pluginManager)
-    const outputWindow = new OutputWindow(instance)
+    const outputWindow = new OutputWindow(instance, pluginManager)
 
     instance.on("action", (action) => {
         screen.dispatch(action)
         cursor.dispatch(action)
 
-        if(!pendingTimeout) {
+        if (!pendingTimeout) {
             pendingTimeout = setTimeout(updateFunction, 0);
         }
     })
 
     instance.on("mode-change", (newMode: string) => {
-        if(newMode === "normal") {
+        if (newMode === "normal") {
             UI.hideCompletions()
-        } else if(newMode === "insert") {
+        } else if (newMode === "insert") {
             UI.hideQuickInfo()
         }
     })
@@ -96,18 +95,18 @@ const start = (args: string[]) => {
     const keyboard = new Keyboard()
     keyboard.on("keydown", key => {
 
-        if(key === "<f3>") {
+        if (key === "<f3>") {
             formatter.formatBuffer()
         }
 
         if (UI.isPopupMenuOpen()) {
-            if(key === "<esc>") {
+            if (key === "<esc>") {
                 UI.hidePopupMenu()
-            } else if(key === "<enter>") {
+            } else if (key === "<enter>") {
                 UI.selectPopupMenuItem()
-            } else if(key === "<C-n>") {
+            } else if (key === "<C-n>") {
                 UI.nextPopupMenuItem()
-            } else if(key === "<C-p>") {
+            } else if (key === "<C-p>") {
                 UI.previousPopupMenuItem()
             }
 
@@ -116,26 +115,26 @@ const start = (args: string[]) => {
 
         if (UI.areCompletionsVisible()) {
 
-            if(key === "<enter>") {
+            if (key === "<enter>") {
                 // Put a dummy character in front so it removes the word,
                 // but not a '.' if the completion comes directly after
                 instance.input("a<c-w>" + UI.getSelectedCompletion())
 
                 UI.hideCompletions()
                 return
-            } else if(key === "<C-n>") {
+            } else if (key === "<C-n>") {
                 UI.nextCompletion()
                 return
 
-            } else if(key=== "<C-p>") {
+            } else if (key === "<C-p>") {
                 UI.previousCompletion()
                 return
             }
         }
 
-        if(key === "<f12>") {
+        if (key === "<f12>") {
             pluginManager.executeCommand("editor.gotoDefinition")
-        } else if(key === "<C-p>") {
+        } else if (key === "<C-p>") {
             quickOpen.show()
         } else {
             instance.input(key)

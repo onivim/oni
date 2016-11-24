@@ -1,9 +1,9 @@
-
 import { EventEmitter } from "events"
 import { ipcRenderer } from "electron"
 
 import * as Sender from "./Sender"
 import { Diagnostics } from "./Diagnostics"
+import { Editor } from "./Editor"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 
@@ -12,11 +12,16 @@ import { DebouncedLanguageService } from "./DebouncedLanguageService"
  */
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
+    private _editor: Oni.Editor = new Editor()
     private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api = new Diagnostics()
 
     public get diagnostics(): Oni.Plugin.Diagnostics.Api {
         return this._diagnostics
+    }
+
+    public get editor(): Oni.Editor {
+        return this._editor
     }
 
     constructor() {

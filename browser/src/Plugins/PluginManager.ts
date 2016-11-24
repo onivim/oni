@@ -182,6 +182,9 @@ export class PluginManager extends EventEmitter {
             this._errorOverlay.setErrors(pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors)
         } else if(pluginResponse.type === "format") {
             this.emit("format", pluginResponse.payload)
+        } else if(pluginResponse.type === "execute-shell-command") {
+            // TODO: Check plugin permission
+            this.emit("execute-shell-command", pluginResponse.payload)
         }
     }
 

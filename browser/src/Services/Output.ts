@@ -1,6 +1,7 @@
 import * as Q from "q"
 
 import { exec } from "child_process"
+import { PluginManager } from "./../Plugins/PluginManager"
 import { INeovimInstance } from "./../NeovimInstance"
 import { IBuffer } from "./../neovim/Buffer"
 import { IWindow } from "./../neovim/Window"
@@ -15,8 +16,14 @@ export class OutputWindow {
     private _currentWindow: IWindow = null
     private _currentBuffer: IBuffer = null
 
-    constructor(neovimInstance: INeovimInstance) {
+    constructor(neovimInstance: INeovimInstance, pluginManager: PluginManager) {
         this._neovimInstance = neovimInstance
+
+        pluginManager.on("execute-shell-command", (payload) => {
+            const command = payload.command
+
+            // this.execute(command)
+        })
     }
 
     public open(): Q.Promise<void> {

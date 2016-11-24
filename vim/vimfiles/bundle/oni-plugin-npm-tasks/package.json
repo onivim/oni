@@ -1,0 +1,24 @@
+{
+  "main": "index.js",
+  "engines": {
+    "oni": "^0.0.1"
+  },
+  "scripts": {
+  },
+  "oni": {
+    "debugging": true,
+    "*": {
+      "subscriptions": [
+        "vim-events"
+      ],
+      "permissions": [
+        "shell-execute"
+      ],
+      "tasks": [
+        "NPM"
+      ]
+    }
+  },
+  "dependencies": {
+  }
+}

@@ -1,5 +1,9 @@
 declare namespace Oni {
 
+    export interface Editor {
+        executeShellCommand(shellCommand: string): void
+    }
+
     export interface Position {
         line: number
         column: number
@@ -61,7 +65,6 @@ declare namespace Oni {
         }
     }
 
-
     export namespace Plugin {
         export namespace Diagnostics {
             export interface Error {
@@ -98,6 +101,7 @@ declare namespace Oni {
             // handleNotification(method: string, args: any[]): void
 
             diagnostics: Diagnostics.Api;
+            editor: Editor;
 
             registerLanguageService(languageType: string, languageService: LanguageService)
         }
