@@ -103,7 +103,9 @@ const start = (args: string[]) => {
             if (key === "<esc>") {
                 UI.hidePopupMenu()
             } else if (key === "<enter>") {
-                UI.selectPopupMenuItem()
+                UI.selectPopupMenuItem(false)
+            } else if (key === "<C-v>") {
+                UI.selectPopupMenuItem(true)
             } else if (key === "<C-n>") {
                 UI.nextPopupMenuItem()
             } else if (key === "<C-p>") {

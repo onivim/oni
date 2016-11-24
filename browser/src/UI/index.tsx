@@ -71,11 +71,14 @@ export function previousPopupMenuItem(): void {
     store.dispatch(ActionCreators.previousMenu())
 }
 
-export function selectPopupMenuItem(): void {
+export function selectPopupMenuItem(openInSplit: boolean): void {
     const selectedIndex = store.getState().popupMenu.selectedIndex
     const selectedOption = store.getState().popupMenu.filteredOptions[selectedIndex]
 
-    events.emit("menu-item-selected", selectedOption)
+    events.emit("menu-item-selected", {
+        selectedOption: selectedOption,
+        openInSplit: openInSplit
+    })
 
     hidePopupMenu()
 }

@@ -1,15 +1,14 @@
-
 - Tasks provider
     - npm tasks
-    - allow plugins to call Oni.editor.registerTask(label, detail, fileScope, () => { ... })
+    - allow plugins to call Oni.editor.registerTask(id, label, detail, fileScope, () => { ... })
     - allow plugins to call Oni.editor.executeShellCommand(..)
+    - QuickOpen.registerTask(plugin, label, detail, fileScope)
+        - callback to pluginmanage
     - output window
         - rightbelow 20new
             -20new = number of lines
         - set nomodifiable
         - create as scratch buffer: http://vim.wikia.com/wiki/Vim_buffer_FAQ
-    - GetTasks(..)
-    - RunTask(..)
     - Include tasks in QuickOpen
 
 - LaunchService

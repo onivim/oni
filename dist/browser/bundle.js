@@ -128,7 +128,10 @@
 	                UI.hidePopupMenu();
 	            }
 	            else if (key === "<enter>") {
-	                UI.selectPopupMenuItem();
+	                UI.selectPopupMenuItem(false);
+	            }
+	            else if (key === "<C-v>") {
+	                UI.selectPopupMenuItem(true);
 	            }
 	            else if (key === "<C-n>") {
 	                UI.nextPopupMenuItem();
@@ -26732,10 +26735,13 @@
 	    store.dispatch(ActionCreators.previousMenu());
 	}
 	exports.previousPopupMenuItem = previousPopupMenuItem;
-	function selectPopupMenuItem() {
+	function selectPopupMenuItem(openInSplit) {
 	    const selectedIndex = store.getState().popupMenu.selectedIndex;
 	    const selectedOption = store.getState().popupMenu.filteredOptions[selectedIndex];
-	    exports.events.emit("menu-item-selected", selectedOption);
+	    exports.events.emit("menu-item-selected", {
+	        selectedOption: selectedOption,
+	        openInSplit: openInSplit
+	    });
 	    hidePopupMenu();
 	}
 	exports.selectPopupMenuItem = selectPopupMenuItem;
@@ -49993,10 +49999,16 @@
 	class QuickOpen {
 	    constructor(neovimInstance) {
 	        this._seenItems = [];
-	        UI.events.on("menu-item-selected", (arg) => {
+	        UI.events.on("menu-item-selected", (selectedItem) => {
+	            const arg = selectedItem.selectedOption;
 	            const fullPath = path.join(arg.detail, arg.label);
 	            this._seenItems.push(fullPath);
-	            neovimInstance.command("e! " + fullPath);
+	            if (arg.openInSplit) {
+	                neovimInstance.command("e! " + fullPath);
+	            }
+	            else {
+	                neovimInstance.command("vsp! " + fullPath);
+	            }
 	        });
 	    }
 	    show() {

@@ -15,11 +15,17 @@ export class QuickOpen {
     private _seenItems = [];
 
     constructor(neovimInstance: INeovimInstance) {
-        UI.events.on("menu-item-selected", (arg) => {
+        UI.events.on("menu-item-selected", (selectedItem) => {
+            const arg = selectedItem.selectedOption
             const fullPath = path.join(arg.detail, arg.label)
 
             this._seenItems.push(fullPath)
-            neovimInstance.command("e! " + fullPath)
+
+            if (arg.openInSplit) {
+                neovimInstance.command("e! " + fullPath)
+            } else {
+                neovimInstance.command("vsp! " + fullPath)
+            }
         })
 
     }
