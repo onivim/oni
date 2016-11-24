@@ -75,6 +75,10 @@
 - Animation: Scroll
     - Start moving canvas up
 
+- Background image
+    - Edges not being rendered
+    - Canvas hiding on resize
+
 - Ease-of-use / fun
     - Katas
     - Achievements
@@ -253,11 +257,4 @@
         - window.neovim._neovim.getWindows(function() { console.dir(arguments) })
         - window.neovim._neovim.winGetPosition(window.derp, function() { console.dir(arguments) })
 
-- Mouse
-    - Modifier keys
-        - Ctrl/alt/shift
-        - Right / middle button
-
-- QuickOpen: fuzzy matching for items
 - AutoComplete: fuzzy matching
-
