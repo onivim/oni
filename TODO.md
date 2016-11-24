@@ -51,6 +51,10 @@
     - editor.errors.next/editor.errors.prev <- ErrorManager
     - ]e - OniExecute("editor.errors.next")
 
+- Config file
+    - Watch for changes
+    - Implement command to edit
+    - Add menu item for edit command
 
 - Syntax highlighting
     - Get highlight spans
