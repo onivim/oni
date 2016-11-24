@@ -1,7 +1,7 @@
 
 - Tasks provider
     - npm tasks
-    - allow plugins to call Oni.editor.registerTask(category, label, detail, fileScope, () => { ... })
+    - allow plugins to call Oni.editor.registerTask(label, detail, fileScope, () => { ... })
     - allow plugins to call Oni.editor.executeShellCommand(..)
     - output window
         - rightbelow 20new

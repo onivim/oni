@@ -87,7 +87,7 @@
 	    // Services
 	    const quickOpen = new QuickOpen_1.QuickOpen(instance);
 	    const formatter = new Formatter_1.Formatter(instance, pluginManager);
-	    const outputWindow = new Output_1.OutputWindow(instance);
+	    const outputWindow = new Output_1.OutputWindow(instance, pluginManager);
 	    instance.on("action", (action) => {
 	        screen.dispatch(action);
 	        cursor.dispatch(action);
@@ -121,8 +121,7 @@
 	    const keyboard = new Keyboard_1.Keyboard();
 	    keyboard.on("keydown", key => {
 	        if (key === "<f3>") {
-	            outputWindow.open();
-	            outputWindow.execute("npm run build");
+	            formatter.formatBuffer();
 	        }
 	        if (UI.isPopupMenuOpen()) {
 	            if (key === "<esc>") {
@@ -26160,6 +26159,10 @@
 	        else if (pluginResponse.type === "format") {
 	            this.emit("format", pluginResponse.payload);
 	        }
+	        else if (pluginResponse.type === "execute-shell-command") {
+	            // TODO: Check plugin permission
+	            this.emit("execute-shell-command", pluginResponse.payload);
+	        }
 	    }
 	    /**
 	     * Validate that the originating event matched the initating event
@@ -49986,11 +49989,18 @@
 	"use strict";
 	const Q = __webpack_require__(15);
 	const child_process_1 = __webpack_require__(14);
+	/**
+	 * Window that shows terminal output
+	 */
 	class OutputWindow {
-	    constructor(neovimInstance) {
+	    constructor(neovimInstance, pluginManager) {
 	        this._currentWindow = null;
 	        this._currentBuffer = null;
 	        this._neovimInstance = neovimInstance;
+	        pluginManager.on("execute-shell-command", (payload) => {
+	            const command = payload.command;
+	            // this.execute(command)
+	        });
 	    }
 	    open() {
 	        return this._isWindowOpen()
