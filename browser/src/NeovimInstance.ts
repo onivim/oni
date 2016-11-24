@@ -15,7 +15,6 @@ import { PluginManager } from "./Plugins/PluginManager"
 import { Buffer, IBuffer } from "./neovim/Buffer"
 import { Window, IWindow } from "./neovim/Window"
 
-
 export interface INeovimInstance {
     cursorPosition: Position;
     screenToPixels(row: number, col: number): PixelPosition

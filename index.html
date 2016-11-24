@@ -24,8 +24,11 @@
     </style>
   </head>
   <body>
-    <div id="neovim-container"></div>
-    <canvas id="test-canvas" style="width: 100%; height: 100%;"></canvas>
+    <div id="background">
+        <div class="background-image"></div>
+        <div class="background-cover"></div>
+    </div>
+    <canvas id="test-canvas" style="position: absolute; width: 100%; height: 100%;"></canvas>
     <div id="overlay-ui"></div>
       <script>
         var path = "dist/browser/bundle.js"

@@ -6,7 +6,7 @@
   "scripts": {
   },
   "oni": {
-    "debugging": true,
+    "debugging": false,
     "*": {
       "subscriptions": [
         "vim-events"

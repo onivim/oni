@@ -4,9 +4,15 @@ const DefaultConfig: any = {
     // "debug.fixedSize": { rows: 10, columns: 100 }
     "debug.incrementalRenderRegions": false,
 
+    // Experimental background settings
     "prototype.editor.backgroundOpacity": 1,
 
-    "vim.loadVimPlugins": true,
+    /*
+    "prototype.editor.backgroundOpacity": 0.9,
+    "prototype.editor.backgroundImageUrl": "http://cdn.wonderfulengineering.com/wp-content/uploads/2014/04/code-wallpaper-2.jpg",
+    "prototype.editor.backgroundImageSize": "cover",
+    */
+
     "oni.loadPlugins": true,
 
     "editor.fontSize": "14px",

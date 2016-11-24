@@ -5,8 +5,10 @@ import * as ReactDOM from "react-dom"
 import { createStore } from "redux"
 import { Provider } from "react-redux"
 
+import * as Config from "./../Config"
+
 import * as State from "./State"
-import {RootComponentContainer } from "./RootComponent"
+import { RootComponentContainer } from "./RootComponent"
 
 import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
@@ -27,7 +29,21 @@ let state: State.State = {
 const CompletionItemSelectedEvent = "completion-item-selected"
 
 export function setBackgroundColor(backgroundColor: string): void {
-    document.body.style.backgroundColor = backgroundColor
+    const backgroundImageElement: HTMLElement = document.getElementsByClassName("background-image")[0] as HTMLElement
+    const backgroundColorElement: HTMLElement = document.getElementsByClassName("background-cover")[0] as HTMLElement
+    // TODO: Refactor to react component
+    if (Config.hasValue("prototype.editor.backgroundImageUrl")) {
+        const backgroundImageUrl = Config.getValue<string>("prototype.editor.backgroundImageUrl")
+        const backgroundImageSize = Config.getValue<string>("prototype.editor.backgroundImageSize") || "cover"
+
+        backgroundImageElement.style.backgroundImage = "url(" + backgroundImageUrl + ")"
+        backgroundImageElement.style.backgroundSize = backgroundImageSize
+        backgroundColorElement.style.display = "none"
+    } else {
+        backgroundColorElement.style.backgroundColor = backgroundColor
+        backgroundColorElement.style.opacity = Config.getValue<string>("prototype.editor.backgroundOpacity")
+        backgroundColorElement.style.display = ""
+    }
 }
 
 export function setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number): void {

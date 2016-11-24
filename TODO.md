@@ -57,7 +57,6 @@
 
 - Improved terminal
     - create Terminal service
-    - create terminal output window
     - create terminal entry window
     - shelljs: https://www.npmjs.com/package/shelljs
     - node-shell-quote: https://github.com/substack/node-shell-quote
