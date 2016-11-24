@@ -12,6 +12,9 @@ import { measureFont } from "./measureFont";
 import * as Config from "./Config"
 import { PixelPosition, Position } from "./Screen"
 import { PluginManager } from "./Plugins/PluginManager"
+import { Buffer, IBuffer } from "./neovim/Buffer"
+import { Window, IWindow } from "./neovim/Window"
+
 
 export interface INeovimInstance {
     cursorPosition: Position;
@@ -24,23 +27,8 @@ export interface INeovimInstance {
 
     setFont(fontFamily: string, fontSize: string)
 
-    getCurrentBuffer(): Q.Promise<Buffer>
-}
-
-export interface Buffer {
-    setLines(start: number, end: number, useStrictIndexing: boolean, lines: string[]): void
-}
-
-export class Buffer {
-    private _bufferInstance: any
-
-    constructor(bufferInstance: any) {
-        this._bufferInstance = bufferInstance
-    }
-
-    public setLines(start: number, end: number, useStrictIndexing: boolean, lines: string[]) {
-        this._bufferInstance.setLines(start, end, useStrictIndexing, lines)
-    }
+    getCurrentBuffer(): Q.Promise<IBuffer>
+    getCurrentWindow(): Q.Promise<IWindow>
 }
 
 /**
@@ -74,14 +62,18 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
     }
 
-    public getCurrentBuffer(): Q.Promise<Buffer> {
-        const deferred = Q.defer<Buffer>()
+    public command(command: string): Q.Promise<void> {
+        return Q.ninvoke<void>(this._neovim, "command", command)
+    }
 
-        this._neovim.getCurrentBuffer((err, buffer) => {
-            deferred.resolve(new Buffer(buffer))
-        })
+    public getCurrentBuffer(): Q.Promise<IBuffer> {
+        return Q.ninvoke(this._neovim, "getCurrentBuffer")
+                .then((buf) => new Buffer(buf))
+    }
 
-        return deferred.promise
+    public getCurrentWindow(): Q.Promise<IWindow> {
+        return Q.ninvoke(this._neovim, "getCurrentWindow")
+                .then((win) => new Window(win))
     }
 
     public get cursorPosition(): Position {
@@ -100,10 +92,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public input(inputString: string): void {
         this._neovim.input(inputString)
-    }
-
-    public command(commandString: string): void {
-        this._neovim.command(commandString)
     }
 
     public resize(widthInPixels: number, heightInPixels: number): void {

@@ -21,6 +21,8 @@ import * as minimist from "minimist"
 
 import { QuickOpen } from "./Services/QuickOpen"
 import { Formatter } from "./Services/Formatter"
+import { OutputWindow } from "./Services/Output"
+
 
 const start = (args: string[]) => {
 
@@ -50,6 +52,7 @@ const start = (args: string[]) => {
     // Services
     const quickOpen = new QuickOpen(instance)
     const formatter = new Formatter(instance, pluginManager)
+    const outputWindow = new OutputWindow(instance)
 
     instance.on("action", (action) => {
         screen.dispatch(action)

@@ -1,6 +1,8 @@
 
 - Tasks provider
     - npm tasks
+    - allow plugins to call Oni.editor.registerTask(category, label, detail, fileScope, () => { ... })
+    - allow plugins to call Oni.editor.executeShellCommand(..)
     - output window
         - rightbelow 20new
             -20new = number of lines
@@ -9,6 +11,7 @@
     - GetTasks(..)
     - RunTask(..)
     - Include tasks in QuickOpen
+
 
 - LaunchService
     - Create test plugin to exercise this functionality
@@ -31,6 +34,8 @@
     - Render popupmenu
 
 - Find usages
+
+- Scroll bars
 
 - Rename
 

@@ -135,13 +135,14 @@ As well as some color-schemes:
         - [ ] Buffer scroll bars
     - [ ] Extensibility models
         - [ ] Language service
-            - [ ] Autocompletion (TypeScript, Javascript)
-            - [ ] QuickInfo (TypeScript, JavaScript)
-            - [ ] Goto Definition (TypeScript, JavaScript)
-            - [ ] Errors
+            - [x] Autocompletion (TypeScript, Javascript)
+            - [x] QuickInfo (TypeScript, JavaScript)
+            - [x] Goto Definition (TypeScript, JavaScript)
+            - [x] Errors
+            - [x] Formatting
             - [ ] Documentation
     - [ ] Services
-        - [ ] QuickOpen - Modern CTRL-P replacement
+        - [x] QuickOpen - Modern CTRL-P replacement
     - [ ] Installation via NPM
         - [ ] Handle case where NeoVim is not already installed
 - 0.3
