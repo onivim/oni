@@ -12,10 +12,13 @@
     - RunTask(..)
     - Include tasks in QuickOpen
 
-
 - LaunchService
     - Create test plugin to exercise this functionality
     - Launch command: editor.launch
+    - Use find-parent-dir module to search upward
+    - Implement this functionality in a plugin
+    - Oni.registerCommand("editor.launch", () => { Oni.editor.executeShellCommand(...) })
+    - Use mapping to bind to editor.launch
     - F5 launch
         .oni/launch.json
     - F5 -> editor.launch
