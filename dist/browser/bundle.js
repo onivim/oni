@@ -235,17 +235,21 @@
 	                var lastRenderedCell = this._lastRenderedCell.getCell(x, y);
 	                if (lastRenderedCell === cell)
 	                    return;
-	                const hexBackgroundColor = cell.backgroundColor || screenInfo.backgroundColor;
-	                const rgb = hexRgb(hexBackgroundColor);
-	                const backgroundColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacity})`;
-	                if (opacity < 1) {
-	                    this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight);
-	                }
+	                // const hexBackgroundColor = cell.backgroundColor || screenInfo.backgroundColor;
+	                // const rgb = hexRgb(hexBackgroundColor)
+	                // const backgroundColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacity})`
+	                // if (opacity < 1) {
+	                this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight);
+	                // }
+	                const defaultBackgroundColor = "rgba(255, 255, 255, 0)";
+	                let backgroundColor = defaultBackgroundColor;
+	                if (cell.backgroundColor && cell.backgroundColor !== screenInfo.backgroundColor)
+	                    backgroundColor = cell.backgroundColor;
 	                if (cell.character !== "" && cell.character !== " ") {
 	                    var foregroundColor = cell.foregroundColor ? cell.foregroundColor : screenInfo.foregroundColor;
 	                    this._renderCache.drawText(cell.character, backgroundColor, foregroundColor, drawX, drawY, screenInfo.fontFamily, screenInfo.fontSize, fontWidth, fontHeight);
 	                }
-	                else {
+	                else if (backgroundColor !== defaultBackgroundColor) {
 	                    this._canvasContext.fillStyle = backgroundColor;
 	                    this._canvasContext.fillRect(drawX, drawY, fontWidth, fontHeight);
 	                }
@@ -26695,19 +26699,12 @@
 	function setBackgroundColor(backgroundColor) {
 	    const backgroundImageElement = document.getElementsByClassName("background-image")[0];
 	    const backgroundColorElement = document.getElementsByClassName("background-cover")[0];
-	    // TODO: Refactor to react component
-	    if (Config.hasValue("prototype.editor.backgroundImageUrl")) {
-	        const backgroundImageUrl = Config.getValue("prototype.editor.backgroundImageUrl");
-	        const backgroundImageSize = Config.getValue("prototype.editor.backgroundImageSize") || "cover";
-	        backgroundImageElement.style.backgroundImage = "url(" + backgroundImageUrl + ")";
-	        backgroundImageElement.style.backgroundSize = backgroundImageSize;
-	        backgroundColorElement.style.display = "none";
-	    }
-	    else {
-	        backgroundColorElement.style.backgroundColor = backgroundColor;
-	        backgroundColorElement.style.opacity = Config.getValue("prototype.editor.backgroundOpacity");
-	        backgroundColorElement.style.display = "";
-	    }
+	    const backgroundImageUrl = Config.getValue("prototype.editor.backgroundImageUrl");
+	    const backgroundImageSize = Config.getValue("prototype.editor.backgroundImageSize") || "cover";
+	    backgroundImageElement.style.backgroundImage = "url(" + backgroundImageUrl + ")";
+	    backgroundImageElement.style.backgroundSize = backgroundImageSize;
+	    backgroundColorElement.style.backgroundColor = backgroundColor;
+	    backgroundColorElement.style.opacity = Config.getValue("prototype.editor.backgroundOpacity");
 	}
 	exports.setBackgroundColor = setBackgroundColor;
 	function setCursorPosition(cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight) {

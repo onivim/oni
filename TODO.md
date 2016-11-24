@@ -1,5 +1,3 @@
-- Background - only draw non matching colors?
-
 - REPL support
     - Run code for highlighted lines
     - Decorators - @run(..)
