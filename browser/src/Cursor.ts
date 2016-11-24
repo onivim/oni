@@ -1,4 +1,4 @@
-import { Action, UPDATE_FG, UpdateColorAction } from "./Actions"
+import { Action, UPDATE_FG, UpdateColorAction } from "./actions"
 import { Screen } from "./Screen"
 
 export class Cursor {
