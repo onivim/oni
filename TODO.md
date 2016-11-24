@@ -1,3 +1,10 @@
+- Background - only draw non matching colors?
+
+- REPL support
+    - Run code for highlighted lines
+    - Decorators - @run(..)
+    - REPL.watch(val)
+
 - Tasks provider
     - npm tasks
     - allow plugins to call Oni.editor.registerTask(id, label, detail, fileScope, () => { ... })

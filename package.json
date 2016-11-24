@@ -25,10 +25,12 @@
     "test": "npm run test:browser && npm run test:plugin_api",
     "test:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
     "test:plugin_api": "cd plugin_api && tsc -p tsconfig.json && mocha --recursive ../lib_test/plugin_api/test",
-    "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch\"",
+    "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\" \"npm run watch:plugin_api\"",
     "start-hot": "cross-env NODE_ENV=development electron main.js",
     "start-not-dev": "cross-env electron main.js",
-    "watch": "webpack-dev-server --config browser/webpack.config.js --hot --host 0.0.0.0 --port 8191"
+    "watch:browser": "webpack-dev-server --config browser/webpack.config.js --hot --host 0.0.0.0 --port 8191",
+    "watch:plugin_api": "cd plugin_api && tsc --watch",
+    "watch:plugins": "cd vim/vimfiles/bundle/oni-plugin-typescript && tsc --watch"
   },
   "repository": {
     "type": "git",
