@@ -37,7 +37,7 @@
 
 - Scroll bars
 
-- Rename
+- Language Service: Rename
 
 - Errors + Quick Info
     - Add field for errors in quick info
@@ -66,13 +66,9 @@
     - Create variable
     - Refactor cursor to component
     - Use 'particle style' animation
-- Animation: Background video / background image
-    - Add clearRect to canvas
-    - Add opacity option to settings
-    - Use opacity when drawing background
-    - Can we remove filling by background image?
 - Animation: QuickOpen - blur 
 
+- Performance: Scrolling
 - Animation: Scroll
     - Start moving canvas up
 
@@ -112,7 +108,7 @@
 
 - Load time for window splits, if using standalone instance of neovim?
 
-- Performance: Scrolling
+- Animation: Background video? 
 
 - Better error message when starting with vim error
     - Neovim bug: https://github.com/neovim/neovim/issues/3901
@@ -149,21 +145,14 @@
     - VolumeUp/VolumeDown
     - ScrollLock
 
-
 - Type signature help
 - Scroll bar
     - Minimap
     - git changes
     - errors
 
-- Config loading relative to path
-
 - CTRL+Shift+P - command palette
 - Preview window
-
-- Terminal support
-    - 'Read-only' except for command line
-    - Generalizing neovim to work in text box
 
 - REPL support
     - Run functions locally

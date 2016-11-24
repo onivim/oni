@@ -8,6 +8,7 @@
     - [Install](#Install)
     - [Build](#Build)
 - [Documentation](#Documentation)
+    - [Configuration](#Configuration)
     - [Guide](#Guide)
     - [Extensibility](#Extensibility)
     - [FAQ](#FAQ)
@@ -85,6 +86,12 @@ In my journey of learning VIM and increasing proficiency in other editors, I've 
 The goal of this project is to give an editor that gives the best of both worlds - the power, speed, and flexibility of using VIM for manipulating text, as well as the rich tooling that comes with an IDE.
 
 ## Documentation
+
+### Configuration
+
+> ONI is configurable via a 'config.json' located in $HOME/.oni
+
+See the Config.ts file for interesting values to set
 
 ### Guide
 
