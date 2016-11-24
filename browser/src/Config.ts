@@ -1,4 +1,7 @@
-import * as os from "os"
+import * as path from "path"
+import * as fs from "fs"
+
+import * as Platform from "./Platform"
 
 const DefaultConfig: any = {
     // "debug.fixedSize": { rows: 10, columns: 100 }
@@ -30,11 +33,17 @@ const WindowsConfig: any = {
     "editor.fontFamily": "Consolas"
 }
 
-const isMac = os.platform() === "darwin"
+const DefaultPlatformConfig = Platform.isMac() ? MacConfig : WindowsConfig
 
-const DefaultPlatformConfig = isMac ? MacConfig : WindowsConfig
+const userConfigFile = path.join(Platform.getUserHome(), ".oni", "config.json")
 
-const Config = Object.assign({}, DefaultConfig, DefaultPlatformConfig);
+let userConfig = {}
+
+if (fs.existsSync(userConfigFile)) {
+    userConfig = JSON.parse(fs.readFileSync(userConfigFile, "utf8"))
+}
+
+const Config = Object.assign({}, DefaultConfig, DefaultPlatformConfig, userConfig);
 
 export function hasValue(configValue: string): boolean {
     return !!getValue<any>(configValue)
