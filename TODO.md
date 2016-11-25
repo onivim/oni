@@ -1,15 +1,23 @@
-- Add command to easily edit config file
-
 - REPL support
+    - Add 'REPL' service
     - Get highlight
+        - Can use the < and > marks AFTER the selection has ended
+        - 'Esc' from the mode and then get the visual marks
+        - Use mark 'z' for this
     - Run code for highlighted lines
-    - Decorators - @run(..)
+        - Can map back to sourcemap using this: https://github.com/evanw/node-source-map-support
+    - Some interesting stuff here too: http://stackoverflow.com/questions/3919134/is-there-a-way-to-wrap-all-javascript-methods-with-a-function
     - REPL.watch(val)
+    - Decorators - @run(..)
     - ts.transpileModule(source, { compilerOptions: { } }
         - Add 'REPL' service
         - Show UI for 'transpilation' region
         - Send transpilation region from client -> plugin
         - Gutter UI: Show result / rich image
+    - UI to show overlays in gutter
+        - One off as well as proof of concept
+
+- Add command to easily edit config file
 
 - Tasks provider
     - npm tasks
@@ -44,6 +52,10 @@
 
 - Keybindings
     - Use 'OniExecute'
+
+- Update app menu
+    - Open keybindings
+    - Open config file
 
 - <C-p> working in insert mode
     - Render popupmenu
