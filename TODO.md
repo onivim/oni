@@ -1,6 +1,4 @@
-- Format on switch to normal
-
-- Remove multiple blank lines in row
+- Add command to easily edit config file
 
 - REPL support
     - Get highlight
@@ -88,6 +86,8 @@
     - Refactor cursor to component
     - Use 'particle style' animation
 - Animation: QuickOpen - blur 
+
+- Formatting: Add option to remove multiple blank lines in row
 
 - Performance: Scrolling
 - Animation: Scroll
