@@ -67,12 +67,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public getCurrentBuffer(): Q.Promise<IBuffer> {
         return Q.ninvoke(this._neovim, "getCurrentBuffer")
-                .then((buf) => new Buffer(buf))
+            .then((buf) => new Buffer(buf))
     }
 
     public getCurrentWindow(): Q.Promise<IWindow> {
         return Q.ninvoke(this._neovim, "getCurrentWindow")
-                .then((win) => new Window(win))
+            .then((win) => new Window(win))
     }
 
     public get cursorPosition(): Position {

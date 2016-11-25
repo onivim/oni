@@ -1,8 +1,9 @@
-- Format on switch to whitespace
+- Format on switch to normal
 
 - Remove multiple blank lines in row
 
 - REPL support
+    - Get highlight
     - Run code for highlighted lines
     - Decorators - @run(..)
     - REPL.watch(val)

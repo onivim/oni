@@ -21,6 +21,8 @@ const DefaultConfig: any = {
     "editor.completions.enabled": true,
     "editor.errors.slideOnFocus": true,
 
+    "editor.formatting.formatOnSwitchToNormalMode": true
+
 }
 
 const MacConfig: any = {

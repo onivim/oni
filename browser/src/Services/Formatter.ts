@@ -6,6 +6,7 @@
 
 import { INeovimInstance } from "./../NeovimInstance"
 import { BufferInfo, PluginManager } from "./../Plugins/PluginManager"
+import * as Config from "./../Config"
 
 import * as _ from "lodash"
 
@@ -15,10 +16,20 @@ export class Formatter {
     private _pluginManager: PluginManager
 
     private _bufferInfoAtRequest: BufferInfo
+    private _lastMode: string
 
     constructor(neovimInstance: INeovimInstance, pluginManager: PluginManager) {
         this._neovimInstance = neovimInstance
         this._pluginManager = pluginManager
+
+        this._neovimInstance.on("mode-change", (newMode: string) => {
+            if (Config.getValue<boolean>("editor.formatting.formatOnSwitchToNormalMode")
+                && newMode === "normal"
+                && this._lastMode === "insert") {
+                this.formatBuffer()
+            }
+            this._lastMode = newMode
+        })
 
         this._pluginManager.on("format", (response: Oni.Plugin.FormattingEditsResponse) => {
 
