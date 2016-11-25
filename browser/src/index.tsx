@@ -7,6 +7,8 @@ import { createStore, applyMiddleware } from "redux"
 import { Provider } from "react-redux"
 
 import { CanvasRenderer } from "./Renderer/CanvasRenderer"
+import { CanvasActionRenderer } from "./Renderer/CanvasActionRenderer"
+
 import { NeovimScreen, Screen } from "./Screen"
 import { NeovimInstance } from "./NeovimInstance"
 import { DeltaRegionTracker, IncrementalDeltaRegionTracker } from "./DeltaRegionTracker"
@@ -54,6 +56,7 @@ const start = (args: string[]) => {
     const outputWindow = new OutputWindow(instance, pluginManager)
 
     instance.on("action", (action) => {
+        renderer.onAction(action)
         screen.dispatch(action)
         cursor.dispatch(action)
 

@@ -54,7 +54,7 @@
 
 	"use strict";
 	const electron_1 = __webpack_require__(3);
-	const Renderer_1 = __webpack_require__(4);
+	const CanvasRenderer_1 = __webpack_require__(4);
 	const Screen_1 = __webpack_require__(12);
 	const NeovimInstance_1 = __webpack_require__(14);
 	const DeltaRegionTracker_1 = __webpack_require__(53);
@@ -80,7 +80,7 @@
 	    const pluginManager = new PluginManager_1.PluginManager(screen, debugPlugin);
 	    var instance = new NeovimInstance_1.NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight, parsedArgs._);
 	    const canvasElement = document.getElementById("test-canvas");
-	    var renderer = new Renderer_1.CanvasRenderer();
+	    var renderer = new CanvasRenderer_1.CanvasRenderer();
 	    renderer.start(canvasElement);
 	    var cursor = new Cursor_1.Cursor();
 	    let pendingTimeout = null;
@@ -161,7 +161,7 @@
 	        if (key === "<f12>") {
 	            pluginManager.executeCommand("editor.gotoDefinition");
 	        }
-	        else if (key === "<C-p>") {
+	        else if (key === "<C-p>" && screen.mode === "normal") {
 	            quickOpen.show();
 	        }
 	        else {
@@ -199,7 +199,7 @@
 	"use strict";
 	const Grid_1 = __webpack_require__(5);
 	const Config = __webpack_require__(6);
-	const hexRgb = __webpack_require__(11);
+	const RenderCache_1 = __webpack_require__(11);
 	class CanvasRenderer {
 	    constructor() {
 	        this._lastRenderedCell = new Grid_1.Grid();
@@ -210,7 +210,9 @@
 	        this._canvas.width = this._canvas.offsetWidth;
 	        this._canvas.height = this._canvas.offsetHeight;
 	        this._canvasContext = this._canvas.getContext("2d");
-	        this._renderCache = new RenderCache(this._canvasContext);
+	        this._renderCache = new RenderCache_1.RenderCache(this._canvasContext);
+	    }
+	    onAction(action) {
 	    }
 	    onResize() {
 	        var width = this._canvas.offsetWidth;
@@ -235,12 +237,7 @@
 	                var lastRenderedCell = this._lastRenderedCell.getCell(x, y);
 	                if (lastRenderedCell === cell)
 	                    return;
-	                // const hexBackgroundColor = cell.backgroundColor || screenInfo.backgroundColor;
-	                // const rgb = hexRgb(hexBackgroundColor)
-	                // const backgroundColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacity})`
-	                // if (opacity < 1) {
 	                this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight);
-	                // }
 	                const defaultBackgroundColor = "rgba(255, 255, 255, 0)";
 	                let backgroundColor = defaultBackgroundColor;
 	                if (cell.backgroundColor && cell.backgroundColor !== screenInfo.backgroundColor)
@@ -262,31 +259,6 @@
 	    }
 	}
 	exports.CanvasRenderer = CanvasRenderer;
-	class RenderCache {
-	    constructor(canvasContext) {
-	        this._renderCache = {};
-	        this._canvasContext = canvasContext;
-	    }
-	    drawText(character, backgroundColor, color, x, y, fontFamily, fontSize, fontWidth, fontHeight) {
-	        var keyString = character + "_" + backgroundColor + "_" + color + "_" + fontFamily + "_" + fontSize;
-	        if (!this._renderCache[keyString]) {
-	            var canvas = document.createElement("canvas");
-	            canvas.width = fontWidth;
-	            canvas.height = fontHeight;
-	            var canvasContext = canvas.getContext("2d");
-	            canvasContext.font = "normal normal lighter " + fontSize + " " + fontFamily;
-	            canvasContext.textBaseline = "top";
-	            canvasContext.fillStyle = backgroundColor;
-	            canvasContext.fillRect(0, 0, fontWidth, fontHeight);
-	            canvasContext.fillStyle = color;
-	            canvasContext.fillText(character, 0, 0);
-	            this._renderCache[keyString] = canvas;
-	        }
-	        let sourceCanvas = this._renderCache[keyString];
-	        this._canvasContext.drawImage(sourceCanvas, x, y);
-	    }
-	}
-	exports.RenderCache = RenderCache;
 
 
 /***/ },
@@ -466,22 +438,32 @@
 /* 11 */
 /***/ function(module, exports) {
 
-	'use strict';
-	module.exports = function (hex) {
-		if (typeof hex !== 'string') {
-			throw new TypeError('Expected a string');
-		}
-
-		hex = hex.replace(/^#/, '');
-
-		if (hex.length === 3) {
-			hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-		}
-
-		var num = parseInt(hex, 16);
-
-		return [num >> 16, num >> 8 & 255, num & 255];
-	};
+	"use strict";
+	class RenderCache {
+	    constructor(canvasContext) {
+	        this._renderCache = {};
+	        this._canvasContext = canvasContext;
+	    }
+	    drawText(character, backgroundColor, color, x, y, fontFamily, fontSize, fontWidth, fontHeight) {
+	        var keyString = character + "_" + backgroundColor + "_" + color + "_" + fontFamily + "_" + fontSize;
+	        if (!this._renderCache[keyString]) {
+	            var canvas = document.createElement("canvas");
+	            canvas.width = fontWidth;
+	            canvas.height = fontHeight;
+	            var canvasContext = canvas.getContext("2d");
+	            canvasContext.font = "normal normal lighter " + fontSize + " " + fontFamily;
+	            canvasContext.textBaseline = "top";
+	            canvasContext.fillStyle = backgroundColor;
+	            canvasContext.fillRect(0, 0, fontWidth, fontHeight);
+	            canvasContext.fillStyle = color;
+	            canvasContext.fillText(character, 0, 0);
+	            this._renderCache[keyString] = canvas;
+	        }
+	        let sourceCanvas = this._renderCache[keyString];
+	        this._canvasContext.drawImage(sourceCanvas, x, y);
+	    }
+	}
+	exports.RenderCache = RenderCache;
 
 
 /***/ },

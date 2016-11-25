@@ -41,8 +41,6 @@ export class CanvasRenderer implements INeovimRenderer {
         const fontWidth = screenInfo.fontWidthInPixels
         const fontHeight = screenInfo.fontHeightInPixels
 
-        const opacity = Config.getValue<number>("prototype.editor.backgroundOpacity")
-
         var cells = deltaRegionTracker.getModifiedCells()
             .forEach(pos => {
 
