@@ -62,19 +62,25 @@ export class CanvasRenderer implements NeovimRenderer {
                     if(lastRenderedCell === cell)
                         return
 
-                    const hexBackgroundColor = cell.backgroundColor || screenInfo.backgroundColor;
-                    const rgb = hexRgb(hexBackgroundColor)
-                    const backgroundColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacity})`
+                    // const hexBackgroundColor = cell.backgroundColor || screenInfo.backgroundColor;
+                    // const rgb = hexRgb(hexBackgroundColor)
+                    // const backgroundColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacity})`
 
-                    if (opacity < 1) {
+                    // if (opacity < 1) {
                         this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight)
-                    }
+                    // }
+
+                    const defaultBackgroundColor = "rgba(255, 255, 255, 0)"
+                    let backgroundColor = defaultBackgroundColor
+
+                    if (cell.backgroundColor && cell.backgroundColor !== screenInfo.backgroundColor)
+                        backgroundColor = cell.backgroundColor
 
                     if(cell.character !== "" && cell.character !== " ") {
                         var foregroundColor = cell.foregroundColor ? cell.foregroundColor : screenInfo.foregroundColor
                         this._renderCache.drawText(cell.character, backgroundColor, foregroundColor, drawX, drawY, screenInfo.fontFamily, screenInfo.fontSize, fontWidth, fontHeight)
-                    } else {
-                        this._canvasContext.fillStyle = backgroundColor;
+                    } else if(backgroundColor !== defaultBackgroundColor) {
+                        this._canvasContext.fillStyle = backgroundColor
                         this._canvasContext.fillRect(drawX, drawY, fontWidth, fontHeight)
                     }
 

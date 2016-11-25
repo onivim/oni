@@ -1,15 +1,19 @@
+- REPL support
+    - Run code for highlighted lines
+    - Decorators - @run(..)
+    - REPL.watch(val)
 
 - Tasks provider
     - npm tasks
-    - allow plugins to call Oni.editor.registerTask(label, detail, fileScope, () => { ... })
+    - allow plugins to call Oni.editor.registerTask(id, label, detail, fileScope, () => { ... })
     - allow plugins to call Oni.editor.executeShellCommand(..)
+    - QuickOpen.registerTask(plugin, label, detail, fileScope)
+        - callback to pluginmanage
     - output window
         - rightbelow 20new
             -20new = number of lines
         - set nomodifiable
         - create as scratch buffer: http://vim.wikia.com/wiki/Vim_buffer_FAQ
-    - GetTasks(..)
-    - RunTask(..)
     - Include tasks in QuickOpen
 
 - LaunchService
@@ -78,6 +82,10 @@
 - Performance: Scrolling
 - Animation: Scroll
     - Start moving canvas up
+
+- Background image
+    - Edges not being rendered
+    - Canvas hiding on resize
 
 - Ease-of-use / fun
     - Katas
@@ -257,11 +265,4 @@
         - window.neovim._neovim.getWindows(function() { console.dir(arguments) })
         - window.neovim._neovim.winGetPosition(window.derp, function() { console.dir(arguments) })
 
-- Mouse
-    - Modifier keys
-        - Ctrl/alt/shift
-        - Right / middle button
-
-- QuickOpen: fuzzy matching for items
 - AutoComplete: fuzzy matching
-

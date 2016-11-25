@@ -31,19 +31,13 @@ const CompletionItemSelectedEvent = "completion-item-selected"
 export function setBackgroundColor(backgroundColor: string): void {
     const backgroundImageElement: HTMLElement = document.getElementsByClassName("background-image")[0] as HTMLElement
     const backgroundColorElement: HTMLElement = document.getElementsByClassName("background-cover")[0] as HTMLElement
-    // TODO: Refactor to react component
-    if (Config.hasValue("prototype.editor.backgroundImageUrl")) {
-        const backgroundImageUrl = Config.getValue<string>("prototype.editor.backgroundImageUrl")
-        const backgroundImageSize = Config.getValue<string>("prototype.editor.backgroundImageSize") || "cover"
+    const backgroundImageUrl = Config.getValue<string>("prototype.editor.backgroundImageUrl")
+    const backgroundImageSize = Config.getValue<string>("prototype.editor.backgroundImageSize") || "cover"
 
-        backgroundImageElement.style.backgroundImage = "url(" + backgroundImageUrl + ")"
-        backgroundImageElement.style.backgroundSize = backgroundImageSize
-        backgroundColorElement.style.display = "none"
-    } else {
-        backgroundColorElement.style.backgroundColor = backgroundColor
-        backgroundColorElement.style.opacity = Config.getValue<string>("prototype.editor.backgroundOpacity")
-        backgroundColorElement.style.display = ""
-    }
+    backgroundImageElement.style.backgroundImage = "url(" + backgroundImageUrl + ")"
+    backgroundImageElement.style.backgroundSize = backgroundImageSize
+    backgroundColorElement.style.backgroundColor = backgroundColor
+    backgroundColorElement.style.opacity = Config.getValue<string>("prototype.editor.backgroundOpacity")
 }
 
 export function setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number): void {
@@ -71,11 +65,14 @@ export function previousPopupMenuItem(): void {
     store.dispatch(ActionCreators.previousMenu())
 }
 
-export function selectPopupMenuItem(): void {
+export function selectPopupMenuItem(openInSplit: boolean): void {
     const selectedIndex = store.getState().popupMenu.selectedIndex
     const selectedOption = store.getState().popupMenu.filteredOptions[selectedIndex]
 
-    events.emit("menu-item-selected", selectedOption)
+    events.emit("menu-item-selected", {
+        selectedOption: selectedOption,
+        openInSplit: openInSplit
+    })
 
     hidePopupMenu()
 }

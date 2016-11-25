@@ -8,13 +8,11 @@ const DefaultConfig: any = {
     "debug.incrementalRenderRegions": false,
 
     // Experimental background settings
-    "prototype.editor.backgroundOpacity": 1,
+    // "prototype.editor.backgroundOpacity": 1,
 
-    /*
     "prototype.editor.backgroundOpacity": 0.9,
     "prototype.editor.backgroundImageUrl": "http://cdn.wonderfulengineering.com/wp-content/uploads/2014/04/code-wallpaper-2.jpg",
     "prototype.editor.backgroundImageSize": "cover",
-    */
 
     "oni.loadPlugins": true,
 
