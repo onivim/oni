@@ -2,6 +2,7 @@ set number
 set relativenumber
 set noswapfile
 set ruler
+set cursorline
 
 " Default tab settings
 set tabstop=4
