@@ -19,6 +19,7 @@
 
 - Add command to easily edit config file
 
+
 - Tasks provider
     - npm tasks
     - allow plugins to call Oni.editor.registerTask(id, label, detail, fileScope, () => { ... })
@@ -31,6 +32,11 @@
         - set nomodifiable
         - create as scratch buffer: http://vim.wikia.com/wiki/Vim_buffer_FAQ
     - Include tasks in QuickOpen
+
+- Left gutter
+    - Git status
+    - Marks
+    - Investigate bringing in signs to expand left gutter
 
 - LaunchService
     - Create test plugin to exercise this functionality

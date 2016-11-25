@@ -12,7 +12,7 @@ export function send(type: string, originalEventContext: any, payload: any): voi
         type: type,
         meta: {
             senderId: id,
-            destinationId: 1, // TODO: What's the right value for this? Will be needed for multiple browser window case
+            destinationId: global["SourceBrowserId"],
             originEvent: originalEventContext
         },
         payload: payload

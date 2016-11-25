@@ -25911,6 +25911,7 @@
 	const fs = __webpack_require__(8);
 	const events_1 = __webpack_require__(15);
 	const electron_1 = __webpack_require__(3);
+	const electron_2 = __webpack_require__(3);
 	const mkdirp = __webpack_require__(58);
 	const Config = __webpack_require__(6);
 	const Plugin_1 = __webpack_require__(59);
@@ -25919,6 +25920,7 @@
 	const ErrorOverlay_1 = __webpack_require__(272);
 	const initFilePath = path.join(__dirname, "vim", "init_template.vim");
 	const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles");
+	const BrowserId = electron_1.remote.getCurrentWindow().webContents.id;
 	class PluginManager extends events_1.EventEmitter {
 	    constructor(screen, debugPlugin) {
 	        super();
@@ -25935,7 +25937,7 @@
 	        }
 	        this._extensionPath = this._ensureOniPluginsPath();
 	        this._rootPluginPaths.push(this._extensionPath);
-	        electron_1.ipcRenderer.on("cross-browser-ipc", (event, arg) => {
+	        electron_2.ipcRenderer.on("cross-browser-ipc", (event, arg) => {
 	            console.log("cross-browser-ipc: " + JSON.stringify(arg));
 	            this._handlePluginResponse(arg);
 	        });
@@ -26216,10 +26218,12 @@
 	"use strict";
 	const path = __webpack_require__(7);
 	const fs = __webpack_require__(8);
+	const electron_1 = __webpack_require__(3);
 	const BrowserWindow = __webpack_require__(3).remote.BrowserWindow;
 	const DefaultMetadata = {
 	    debugging: false
 	};
+	const BrowserId = electron_1.remote.getCurrentWindow().webContents.id;
 	// Subscription Events
 	exports.VimEventsSubscription = "vim-events";
 	exports.BufferUpdateEvents = "buffer-update";
@@ -26263,7 +26267,7 @@
 	            return;
 	        const messageToSend = Object.assign({}, message, {
 	            meta: {
-	                senderId: 1,
+	                senderId: BrowserId,
 	                destinationId: this._browserWindowId
 	            }
 	        });
@@ -26375,7 +26379,8 @@
 	    var browserWindow = new BrowserWindow({ width: 10, height: 10, show: false, webPreferences: { webSecurity: false } });
 	    browserWindow.webContents.on("did-finish-load", () => {
 	        browserWindow.webContents.send("init", {
-	            pathToModule: pathToModule
+	            pathToModule: pathToModule,
+	            sourceId: BrowserId
 	        });
 	    });
 	    const url = "file://" + path.join(__dirname, "browser", "src", "Plugins", "plugin_host.html");

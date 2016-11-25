@@ -15,6 +15,7 @@
         const oniApiPath = path.join(__dirname, "..", "..", "..", "lib", "plugin_api", "Oni.js");
         const OniClass = require(oniApiPath).Oni;
         global.Oni = new OniClass();
+        global.SourceBrowserId = message.sourceId;
 
         // Load plugin module
         const moduleToLoad = message.pathToModule;

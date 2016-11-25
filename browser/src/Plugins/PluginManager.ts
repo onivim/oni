@@ -3,6 +3,7 @@ import * as path from "path"
 import * as fs from "fs"
 import { EventEmitter } from "events"
 
+import {remote} from "electron"
 import {ipcRenderer} from "electron"
 
 import * as Q from "q"
@@ -20,6 +21,8 @@ import { ErrorOverlay } from "./../UI/Overlay/ErrorOverlay"
 const initFilePath = path.join(__dirname, "vim", "init_template.vim")
 
 const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles")
+
+const BrowserId = remote.getCurrentWindow().webContents.id
 
 export interface BufferInfo {
     lines: string[]

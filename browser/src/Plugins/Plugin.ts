@@ -1,5 +1,6 @@
 import * as path from "path"
 import * as fs from "fs"
+import {remote} from "electron"
 
 const BrowserWindow = require("electron").remote.BrowserWindow
 
@@ -10,6 +11,8 @@ export interface PluginMetadata {
 const DefaultMetadata: PluginMetadata = {
     debugging: false
 }
+
+const BrowserId = remote.getCurrentWindow().webContents.id
 
 // Subscription Events
 export const VimEventsSubscription = "vim-events"
@@ -48,7 +51,7 @@ export class Plugin {
 
         const messageToSend = Object.assign({}, message, {
             meta: {
-                senderId: 1, // TODO
+                senderId: BrowserId,
                 destinationId: this._browserWindowId
             }
         })
@@ -213,7 +216,8 @@ const loadPluginInBrowser = (pathToModule: string, apiObject: any) => {
 
     browserWindow.webContents.on("did-finish-load", () => {
         browserWindow.webContents.send("init", {
-            pathToModule: pathToModule
+            pathToModule: pathToModule,
+            sourceId: BrowserId
         })
     });
 
