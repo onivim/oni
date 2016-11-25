@@ -156,7 +156,7 @@ As well as some color-schemes:
 - 0.3
     - [ ] Proper keymap support
     - [ ] Feature: Replace visual world
-    - [ ] Configuration loading
+    - [x] Configuration loading
     - [ ] Git overlays
         - [ ] Git blame overlay
         - [ ] Git log overlay
@@ -165,7 +165,7 @@ As well as some color-schemes:
         - [ ] Non-git strategy
         - [x] Fuzzy Matching
         - [ ] Scrollbar
-        - [ ] Icon
+        - [x] Icon
     - [ ] AutoCompletion
         - [ ] Fuzzy Matching
         - [ ] Scrollbar
