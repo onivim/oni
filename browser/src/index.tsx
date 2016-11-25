@@ -6,7 +6,7 @@ import { ipcRenderer } from "electron"
 import { createStore, applyMiddleware } from "redux"
 import { Provider } from "react-redux"
 
-import { CanvasRenderer } from "./Renderer"
+import { CanvasRenderer } from "./Renderer/CanvasRenderer"
 import { NeovimScreen, Screen } from "./Screen"
 import { NeovimInstance } from "./NeovimInstance"
 import { DeltaRegionTracker, IncrementalDeltaRegionTracker } from "./DeltaRegionTracker"
@@ -136,7 +136,7 @@ const start = (args: string[]) => {
 
         if (key === "<f12>") {
             pluginManager.executeCommand("editor.gotoDefinition")
-        } else if (key === "<C-p>") {
+        } else if (key === "<C-p>" && screen.mode === "normal") {
             quickOpen.show()
         } else {
             instance.input(key)
