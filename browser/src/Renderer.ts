@@ -46,20 +46,20 @@ export class CanvasRenderer implements NeovimRenderer {
         const opacity = Config.getValue<number>("prototype.editor.backgroundOpacity")
 
         var cells = deltaRegionTracker.getModifiedCells()
-                    .forEach(pos => {
+            .forEach(pos => {
 
-                        var x = pos.x
-                        var y = pos.y
+                var x = pos.x
+                var y = pos.y
 
                 var drawX = x * fontWidth;
                 var drawY = y * fontHeight;
 
                 var cell = screenInfo.getCell(x, y);
 
-                if(cell) {
+                if (cell) {
                     var lastRenderedCell = this._lastRenderedCell.getCell(x, y)
 
-                    if(lastRenderedCell === cell)
+                    if (lastRenderedCell === cell)
                         return
 
                     // const hexBackgroundColor = cell.backgroundColor || screenInfo.backgroundColor;
@@ -67,7 +67,7 @@ export class CanvasRenderer implements NeovimRenderer {
                     // const backgroundColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacity})`
 
                     // if (opacity < 1) {
-                        this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight)
+                    this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight)
                     // }
 
                     const defaultBackgroundColor = "rgba(255, 255, 255, 0)"
@@ -76,10 +76,10 @@ export class CanvasRenderer implements NeovimRenderer {
                     if (cell.backgroundColor && cell.backgroundColor !== screenInfo.backgroundColor)
                         backgroundColor = cell.backgroundColor
 
-                    if(cell.character !== "" && cell.character !== " ") {
+                    if (cell.character !== "" && cell.character !== " ") {
                         var foregroundColor = cell.foregroundColor ? cell.foregroundColor : screenInfo.foregroundColor
                         this._renderCache.drawText(cell.character, backgroundColor, foregroundColor, drawX, drawY, screenInfo.fontFamily, screenInfo.fontSize, fontWidth, fontHeight)
-                    } else if(backgroundColor !== defaultBackgroundColor) {
+                    } else if (backgroundColor !== defaultBackgroundColor) {
                         this._canvasContext.fillStyle = backgroundColor
                         this._canvasContext.fillRect(drawX, drawY, fontWidth, fontHeight)
                     }
@@ -104,7 +104,7 @@ export class RenderCache {
 
         var keyString = character + "_" + backgroundColor + "_" + color + "_" + fontFamily + "_" + fontSize;
 
-        if(!this._renderCache[keyString]) {
+        if (!this._renderCache[keyString]) {
             var canvas = document.createElement("canvas")
             canvas.width = fontWidth
             canvas.height = fontHeight
