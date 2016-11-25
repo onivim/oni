@@ -1,7 +1,16 @@
+- Format on switch to whitespace
+
+- Remove multiple blank lines in row
+
 - REPL support
     - Run code for highlighted lines
     - Decorators - @run(..)
     - REPL.watch(val)
+    - ts.transpileModule(source, { compilerOptions: { } }
+        - Add 'REPL' service
+        - Show UI for 'transpilation' region
+        - Send transpilation region from client -> plugin
+        - Gutter UI: Show result / rich image
 
 - Tasks provider
     - npm tasks
