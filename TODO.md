@@ -1,18 +1,8 @@
-- REPL support
-    - Can map back to sourcemap using this: https://github.com/evanw/node-source-map-support
-    - Some interesting stuff here too: http://stackoverflow.com/questions/3919134/is-there-a-way-to-wrap-all-javascript-methods-with-a-function
-    - REPL.watch(val)
-    - Decorators - @run(..)
-    - ts.transpileModule(source, { compilerOptions: { } }
-        - Add 'REPL' service
-        - Show UI for 'transpilation' region
-        - Send transpilation region from client -> plugin
-        - Gutter UI: Show result / rich image
-    - UI to show overlays in gutter
-        - One off as well as proof of concept
-    - live-eval-file
-
-- Add command to easily edit config file
+- Syntax highlighting
+    - Get highlight spans
+    - Read highlight colors when colorscheme changes
+        - Can use: let bgcolor=synIDattr(hlID('NonText'), 'bg#'): http://stackoverflow.com/questions/9912116/vimscript-programmatically-get-colors-from-colorscheme 
+        -  ColorScheme autocmd
 
 - Tasks provider
     - npm tasks
@@ -26,6 +16,8 @@
         - set nomodifiable
         - create as scratch buffer: http://vim.wikia.com/wiki/Vim_buffer_FAQ
     - Include tasks in QuickOpen
+
+- Scroll bars
 
 - Left gutter
     - Git status
@@ -60,11 +52,27 @@
 - <C-p> working in insert mode
     - Render popupmenu
 
+- Find-in-files
 - Find usages
 
-- Scroll bars
-
 - Language Service: Rename
+
+- REPL support
+    - Can map back to sourcemap using this: https://github.com/evanw/node-source-map-support
+    - Some interesting stuff here too: http://stackoverflow.com/questions/3919134/is-there-a-way-to-wrap-all-javascript-methods-with-a-function
+    - REPL.watch(val)
+    - Decorators - @run(..)
+    - ts.transpileModule(source, { compilerOptions: { } }
+        - Add 'REPL' service
+        - Show UI for 'transpilation' region
+        - Send transpilation region from client -> plugin
+        - Gutter UI: Show result / rich image
+    - UI to show overlays in gutter
+        - One off as well as proof of concept
+    - live-eval-file
+
+- Add command to easily edit config file
+
 
 - Errors + Quick Info
     - Add field for errors in quick info
@@ -79,12 +87,6 @@
     - Watch for changes
     - Implement command to edit
     - Add menu item for edit command
-
-- Syntax highlighting
-    - Get highlight spans
-    - Read highlight colors when colorscheme changes
-        - Can use: let bgcolor=synIDattr(hlID('NonText'), 'bg#'): http://stackoverflow.com/questions/9912116/vimscript-programmatically-get-colors-from-colorscheme 
-        -  ColorScheme autocmd
 
 - Improved terminal
     - create Terminal service
