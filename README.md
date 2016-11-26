@@ -99,15 +99,26 @@ TODO: Coming soon.
 
 ### Extensibility
 
-TODO: Coming soon. See the oni-typescript implementation for the time being.
+ONI offers several rich extensibility points, with the focus being on various UI integrations as well as IDE-like capabilities.
 
 #### Language Extensibility
 
-#### Diagnostic Providers
+Language extenders given ONI rich integration with languages, offering services like:
 
-#### Overlays
+- Code Completion
+- Quick Info
+- Goto Definition
+- Formatting
+- Live code evaluation
+- Unit test integration
+- Enhanced syntax highlighting
 
-#### Panes
+To see the in-progress API, check out the [Oni.d.ts](https://github.com/extr0py/oni/blob/master/definitions/Oni.d.ts) definition file as well as the [typescript language plugin](https://github.com/extr0py/oni/tree/master/vim/vimfiles/bundle/oni-plugin-typescript), which demonstrates several of these features:
+
+
+#### Background
+
+ONI currently supports the setting of a background image as well as background opacity.
 
 #### Debuggers
 

@@ -24,6 +24,12 @@
 - Issue: AutoComplete opening too low
 - Issue: Update binaries
 
+- Documentation: Configuration
+    - Where configuration files are stored
+    - Using init.vim
+        - Check and see if init.vim is actually being picked up
+    - Configuration variables
+
 - Tasks provider
     - QuickOpen - Ctrl-SHIFT-P mode
     - npm tasks
