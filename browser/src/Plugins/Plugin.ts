@@ -45,6 +45,13 @@ export class Plugin {
         return this._browserWindow;
     }
 
+    public dispose(): void {
+        if (this._browserWindow) {
+            this._browserWindow.close()
+            this._browserWindow = null
+        }
+    }
+
     private _send(message: any) {
 
         if (!this.browserWindow)

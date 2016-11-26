@@ -68,13 +68,14 @@
 	const QuickOpen_1 = __webpack_require__(277);
 	const Formatter_1 = __webpack_require__(278);
 	const Output_1 = __webpack_require__(279);
+	const LiveEvaluation_1 = __webpack_require__(280);
 	const start = (args) => {
 	    const parsedArgs = minimist(args);
 	    const debugPlugin = parsedArgs["debugPlugin"];
 	    // Helper for debugging:
 	    window["UI"] = UI;
-	    __webpack_require__(280);
-	    __webpack_require__(282);
+	    __webpack_require__(281);
+	    __webpack_require__(283);
 	    var deltaRegion = new DeltaRegionTracker_1.IncrementalDeltaRegionTracker();
 	    var screen = new Screen_1.NeovimScreen(deltaRegion);
 	    const pluginManager = new PluginManager_1.PluginManager(screen, debugPlugin);
@@ -88,6 +89,7 @@
 	    const quickOpen = new QuickOpen_1.QuickOpen(instance);
 	    const formatter = new Formatter_1.Formatter(instance, pluginManager);
 	    const outputWindow = new Output_1.OutputWindow(instance, pluginManager);
+	    const liveEvaluation = new LiveEvaluation_1.LiveEvaluation(instance, pluginManager);
 	    instance.on("action", (action) => {
 	        renderer.onAction(action);
 	        screen.dispatch(action);
@@ -122,7 +124,7 @@
 	    const keyboard = new Keyboard_1.Keyboard();
 	    keyboard.on("keydown", key => {
 	        if (key === "<f3>") {
-	            formatter.formatBuffer();
+	            liveEvaluation.evaluateBlock();
 	        }
 	        if (UI.isPopupMenuOpen()) {
 	            if (key === "<esc>") {
@@ -804,6 +806,32 @@
 	        });
 	        this.setFont("Consolas", "14px");
 	    }
+	    getMode() {
+	        return this.eval("mode()");
+	    }
+	    getSelectionRange() {
+	        let buffer = null;
+	        let start = null;
+	        let end = null;
+	        return this.getMode()
+	            .then((mode) => {
+	            if (mode !== "v" && mode !== "V") {
+	                throw "Not in visual mode";
+	            }
+	        })
+	            .then(() => this.input("<esc>"))
+	            .then(() => this.getCurrentBuffer())
+	            .then((buf) => buffer = buf)
+	            .then(() => buffer.getMark("<"))
+	            .then((s) => start = s)
+	            .then(() => buffer.getMark(">"))
+	            .then((e) => end = e)
+	            .then(() => this.command("normal! gv"))
+	            .then(() => ({
+	            start: start,
+	            end: end
+	        }));
+	    }
 	    setFont(fontFamily, fontSize) {
 	        this._fontFamily = fontFamily;
 	        this._fontSize = fontSize;
@@ -812,6 +840,9 @@
 	        this._fontHeightInPixels = height;
 	        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height));
 	        this.resize(this._lastWidthInPixels, this._lastHeightInPixels);
+	    }
+	    eval(expression) {
+	        return Q.ninvoke(this._neovim, "eval", expression);
 	    }
 	    command(command) {
 	        return Q.ninvoke(this._neovim, "command", command);
@@ -837,7 +868,7 @@
 	        };
 	    }
 	    input(inputString) {
-	        this._neovim.input(inputString);
+	        return Q.ninvoke(this._neovim, "input", inputString);
 	    }
 	    resize(widthInPixels, heightInPixels) {
 	        this._lastWidthInPixels = widthInPixels;
@@ -25658,8 +25689,18 @@
 	    setLines(start, end, useStrictIndexing, lines) {
 	        return Q.ninvoke(this._bufferInstance, "setLines", start, end, useStrictIndexing, lines);
 	    }
+	    getLines(start, end, useStrictIndexing) {
+	        return Q.ninvoke(this._bufferInstance, "getLines", start, end, useStrictIndexing);
+	    }
 	    setOption(optionName, optionValue) {
 	        return Q.ninvoke(this._bufferInstance, "setOption", optionName, optionValue);
+	    }
+	    getMark(mark) {
+	        return Q.ninvoke(this._bufferInstance, "getMark", mark)
+	            .then((pos) => ({
+	            line: pos[0],
+	            column: pos[1]
+	        }));
 	    }
 	    appendLines(lines) {
 	        return this.getLineCount()
@@ -25907,7 +25948,8 @@
 	const ErrorOverlay_1 = __webpack_require__(272);
 	const initFilePath = path.join(__dirname, "vim", "init_template.vim");
 	const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles");
-	const BrowserId = electron_1.remote.getCurrentWindow().webContents.id;
+	const webcontents = electron_1.remote.getCurrentWindow().webContents;
+	const BrowserId = webcontents.id;
 	class PluginManager extends events_1.EventEmitter {
 	    constructor(screen, debugPlugin) {
 	        super();
@@ -25931,6 +25973,12 @@
 	        this._overlayManager = new OverlayManager_1.OverlayManager(screen);
 	        this._errorOverlay = new ErrorOverlay_1.ErrorOverlay();
 	        this._overlayManager.addOverlay("errors", this._errorOverlay);
+	        window.onbeforeunload = () => {
+	            this.dispose();
+	        };
+	    }
+	    dispose() {
+	        this._plugins.forEach(p => p.dispose());
 	    }
 	    get currentBuffer() {
 	        return this._lastBufferInfo;
@@ -25988,6 +26036,12 @@
 	            plugin.requestFormat(this._lastEventContext);
 	        }
 	    }
+	    requestEvaluateBlock(code) {
+	        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, Plugin_1.EvaluateBlockCapability);
+	        if (plugin) {
+	            plugin.requestEvaluateBlock(this._lastEventContext, code);
+	        }
+	    }
 	    _getFirstPluginThatHasCapability(filetype, capability) {
 	        const handlers = this._plugins.filter(p => p.doesPluginProvideLanguageServiceCapability(filetype, capability));
 	        if (handlers.length > 0) {
@@ -26033,6 +26087,9 @@
 	        else if (pluginResponse.type === "execute-shell-command") {
 	            // TODO: Check plugin permission
 	            this.emit("execute-shell-command", pluginResponse.payload);
+	        }
+	        else if (pluginResponse.type === "evaluate-block-result") {
+	            this.emit("evaluate-block-result", pluginResponse.payload);
 	        }
 	    }
 	    /**
@@ -26219,6 +26276,7 @@
 	exports.QuickInfoCapability = "quick-info";
 	exports.GotoDefinitionCapability = "goto-definition";
 	exports.CompletionProviderCapability = "completion-provider";
+	exports.EvaluateBlockCapability = "evaluate-block";
 	class Plugin {
 	    constructor(pluginRootDirectory, debugMode) {
 	        var packageJsonPath = path.join(pluginRootDirectory, "package.json");
@@ -26248,6 +26306,12 @@
 	    }
 	    get browserWindow() {
 	        return this._browserWindow;
+	    }
+	    dispose() {
+	        if (this._browserWindow) {
+	            this._browserWindow.close();
+	            this._browserWindow = null;
+	        }
 	    }
 	    _send(message) {
 	        if (!this.browserWindow)
@@ -26302,6 +26366,16 @@
 	            payload: {
 	                name: "format",
 	                context: eventContext
+	            }
+	        });
+	    }
+	    requestEvaluateBlock(eventContext, code) {
+	        this._send({
+	            type: "request",
+	            payload: {
+	                name: "evaluate-block",
+	                context: eventContext,
+	                code: code
 	            }
 	        });
 	    }
@@ -49942,10 +50016,46 @@
 /* 280 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * LiveEvaluation.ts
+	 */
+	"use strict";
+	const os = __webpack_require__(13);
+	/**
+	 * Implementation of the LiveEvaluation service
+	 */
+	class LiveEvaluation {
+	    constructor(neovimInstance, pluginManager) {
+	        this._neovimInstance = neovimInstance;
+	        this._pluginManager = pluginManager;
+	        this._pluginManager.on("evaluate-block-result", (res) => {
+	            alert(JSON.stringify(res));
+	        });
+	    }
+	    evaluateBlock() {
+	        let selectionRange = null;
+	        this._neovimInstance.getSelectionRange()
+	            .then((s) => selectionRange = s)
+	            .then(() => this._neovimInstance.getCurrentBuffer())
+	            .then((b) => b.getLines(selectionRange.start.line - 1, selectionRange.end.line, false))
+	            .then((lines) => {
+	            console.log(selectionRange);
+	            const code = lines.join(os.EOL);
+	            this._pluginManager.requestEvaluateBlock(code);
+	        });
+	    }
+	}
+	exports.LiveEvaluation = LiveEvaluation;
+
+
+/***/ },
+/* 281 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(281);
+	var content = __webpack_require__(282);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(264)(content, {});
@@ -49965,7 +50075,7 @@
 	}
 
 /***/ },
-/* 281 */
+/* 282 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(263)();
@@ -49979,13 +50089,13 @@
 
 
 /***/ },
-/* 282 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(283);
+	var content = __webpack_require__(284);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(264)(content, {});
@@ -50005,7 +50115,7 @@
 	}
 
 /***/ },
-/* 283 */
+/* 284 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(263)();

@@ -67,16 +67,43 @@ const getFormattingEdits = (position: Oni.EventContext) => {
         })
 }
 
-const evaluateBlock = (code: string) => {
+const evaluateBlock = (context: Oni.EventContext, code: string) => {
     const vm = require("vm")
     const script = new vm.Script(code)
-    const sandbox = {}
-    const result = script.runInNewContext({})
-    return Promise.resolve({
-        result: result,
-        variables: sandbox,
-        output: null
-    })
+    const fileName = context.bufferFullPath
+    var Module = require("module")
+    const mod = new Module(fileName)
+    const sandbox = {
+        module: mod,
+        __filename: fileName,
+        __dirname: path.dirname(fileName),
+        require: (path) => {
+            return mod.require(path)
+        }
+    }
+
+    const result = script.runInNewContext(sandbox)
+
+    if(result.then) {
+        return result.then((val) => ({
+            result: val,
+            variables: sandbox,
+            output: null,
+            errors: null
+        }), (err) => ({
+            result: null,
+            variables: sandbox,
+            output: null,
+            errors: [err]
+        }))
+    } else {
+        return Promise.resolve({
+            result: result,
+            variables: sandbox,
+            output: null,
+            errors: null
+        })
+    }
 }
 
 const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {

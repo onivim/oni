@@ -2,6 +2,8 @@
  * LiveEvaluation.ts
  */
 
+import * as os from "os"
+
 import { INeovimInstance } from "./../NeovimInstance"
 import { BufferInfo, PluginManager } from "./../Plugins/PluginManager"
 
@@ -29,12 +31,10 @@ export class LiveEvaluation {
         this._neovimInstance.getSelectionRange()
             .then((s) => selectionRange = s)
             .then(() => this._neovimInstance.getCurrentBuffer())
-            .then((b) => b.getLines(selectionRange.start.line-1, selectionRange.end.line, false))
+            .then((b) => b.getLines(selectionRange.start.line - 1, selectionRange.end.line, false))
             .then((lines: string[]) => {
-                // TODO: EOL
-                debugger
                 console.log(selectionRange)
-                const code = lines.join(";")
+                const code = lines.join(os.EOL)
                 this._pluginManager.requestEvaluateBlock(code)
             })
     }

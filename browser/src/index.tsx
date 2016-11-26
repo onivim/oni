@@ -169,3 +169,4 @@ const start = (args: string[]) => {
 ipcRenderer.on("init", (evt, message) => {
     start(message.args)
 })
+

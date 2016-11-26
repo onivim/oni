@@ -34,7 +34,7 @@ export class DebouncedLanguageService implements Oni.Plugin.LanguageService {
         return this._languageService.getCompletionDetails(position, completionInfo)
     }
 
-    public evaluateBlock(code: string): Promise<Oni.Plugin.EvaluationResult> {
-        return this._languageService.evaluateBlock(code)
+    public evaluateBlock(position: Oni.EventContext, code: string): Promise<Oni.Plugin.EvaluationResult> {
+        return this._languageService.evaluateBlock(position, code)
     }
 }

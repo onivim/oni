@@ -3,6 +3,20 @@
     - Read highlight colors when colorscheme changes
         - Can use: let bgcolor=synIDattr(hlID('NonText'), 'bg#'): http://stackoverflow.com/questions/9912116/vimscript-programmatically-get-colors-from-colorscheme 
         -  ColorScheme autocmd
+    - Use NeoVim APIs
+    - Event from plugin side - syntax-highlight-resolve
+    - Some ideas here from VSCode: https://github.com/Microsoft/vscode/blob/master/extensions/typescript/src/features/documentSymbolProvider.ts
+    - SymbolInfo - name, location, kind
+
+- REPL - 
+    - /// <LiveEvaluation path=".." />
+    - Handle imports - relative to path? 
+
+- Parameter helper
+    - Show parameter info, like QuickInfo
+
+- Issue: QuickInfo opening too high
+- Issue: AutoComplete opening too low
 
 - Animation/Performance: Optimistic Typing
 - Animation: Cursor velocity
@@ -13,6 +27,7 @@
     - Start moving canvas up
 
 - Tasks provider
+    - QuickOpen - Ctrl-SHIFT-P mode
     - npm tasks
     - allow plugins to call Oni.editor.registerTask(id, label, detail, fileScope, () => { ... })
     - allow plugins to call Oni.editor.executeShellCommand(..)

@@ -92,7 +92,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                         })
                     break
                 case "evaluate-block":
-                    this._languageService.evaluateBlock(arg.payload.code)
+                    this._languageService.evaluateBlock(arg.payload.context, arg.payload.code)
                         .then((val) => {
                             Sender.send("evaluate-block-result", originalContext, val)
                         })

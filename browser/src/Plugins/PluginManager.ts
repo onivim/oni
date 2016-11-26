@@ -28,7 +28,9 @@ const initFilePath = path.join(__dirname, "vim", "init_template.vim")
 
 const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles")
 
-const BrowserId = remote.getCurrentWindow().webContents.id
+const webcontents = remote.getCurrentWindow().webContents
+
+const BrowserId = webcontents.id
 
 export interface BufferInfo {
     lines: string[]
@@ -76,6 +78,15 @@ export class PluginManager extends EventEmitter {
         this._overlayManager = new OverlayManager(screen)
         this._errorOverlay = new ErrorOverlay()
         this._overlayManager.addOverlay("errors", this._errorOverlay)
+
+        window.onbeforeunload = () => {
+            this.dispose()
+        }
+
+    }
+
+    public dispose(): void {
+        this._plugins.forEach(p => p.dispose())
     }
 
     public get currentBuffer(): BufferInfo {

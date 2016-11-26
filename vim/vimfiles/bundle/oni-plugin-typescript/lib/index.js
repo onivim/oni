@@ -1,4 +1,5 @@
 "use strict";
+var path = require("path");
 var os = require("os");
 var TypeScriptServerHost_1 = require("./TypeScriptServerHost");
 var QuickInfo_1 = require("./QuickInfo");
@@ -52,16 +53,42 @@ var getFormattingEdits = function (position) {
         };
     });
 };
-var evaluateBlock = function (code) {
+var evaluateBlock = function (context, code) {
     var vm = require("vm");
     var script = new vm.Script(code);
-    var sandbox = {};
-    var result = script.runInNewContext({});
-    return Promise.resolve({
-        result: result,
-        variables: sandbox,
-        output: null
-    });
+    var fileName = context.bufferFullPath;
+    var Module = require("module");
+    var mod = new Module(fileName);
+    var sandbox = {
+        module: mod,
+        __filename: fileName,
+        __dirname: path.dirname(fileName),
+        require: function (path) {
+            return mod.require(path);
+        }
+    };
+    var result = script.runInNewContext(sandbox);
+    if (result.then) {
+        return result.then(function (val) { return ({
+            result: val,
+            variables: sandbox,
+            output: null,
+            errors: null
+        }); }, function (err) { return ({
+            result: null,
+            variables: sandbox,
+            output: null,
+            errors: [err]
+        }); });
+    }
+    else {
+        return Promise.resolve({
+            result: result,
+            variables: sandbox,
+            output: null,
+            errors: null
+        });
+    }
 };
 var getCompletionDetails = function (textDocumentPosition, completionItem) {
     return host.getCompletionDetails(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, [completionItem.label])
