@@ -24,6 +24,7 @@ import * as minimist from "minimist"
 import { QuickOpen } from "./Services/QuickOpen"
 import { Formatter } from "./Services/Formatter"
 import { OutputWindow } from "./Services/Output"
+import { LiveEvaluation } from "./Services/LiveEvaluation"
 
 const start = (args: string[]) => {
 
@@ -54,6 +55,7 @@ const start = (args: string[]) => {
     const quickOpen = new QuickOpen(instance)
     const formatter = new Formatter(instance, pluginManager)
     const outputWindow = new OutputWindow(instance, pluginManager)
+    const liveEvaluation = new LiveEvaluation(instance, pluginManager)
 
     instance.on("action", (action) => {
         renderer.onAction(action)
@@ -99,7 +101,7 @@ const start = (args: string[]) => {
     keyboard.on("keydown", key => {
 
         if (key === "<f3>") {
-            formatter.formatBuffer()
+            liveEvaluation.evaluateBlock()
         }
 
         if (UI.isPopupMenuOpen()) {

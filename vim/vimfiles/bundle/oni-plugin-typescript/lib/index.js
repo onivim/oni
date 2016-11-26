@@ -52,6 +52,17 @@ var getFormattingEdits = function (position) {
         };
     });
 };
+var evaluateBlock = function (code) {
+    var vm = require("vm");
+    var script = new vm.Script(code);
+    var sandbox = {};
+    var result = script.runInNewContext({});
+    return Promise.resolve({
+        result: result,
+        variables: sandbox,
+        output: null
+    });
+};
 var getCompletionDetails = function (textDocumentPosition, completionItem) {
     return host.getCompletionDetails(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, [completionItem.label])
         .then(function (details) {
@@ -112,7 +123,8 @@ Oni.registerLanguageService({
     getDefinition: getDefinition,
     getCompletions: getCompletions,
     getCompletionDetails: getCompletionDetails,
-    getFormattingEdits: getFormattingEdits
+    getFormattingEdits: getFormattingEdits,
+    evaluateBlock: evaluateBlock
 });
 host.on("semanticDiag", function (diagnostics) {
     var fileName = diagnostics.file;

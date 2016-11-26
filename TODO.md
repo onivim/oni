@@ -1,11 +1,5 @@
 - REPL support
-    - Add 'REPL' service
-    - Get highlight
-        - Can use the < and > marks AFTER the selection has ended
-        - 'Esc' from the mode and then get the visual marks
-        - Use mark 'z' for this
-    - Run code for highlighted lines
-        - Can map back to sourcemap using this: https://github.com/evanw/node-source-map-support
+    - Can map back to sourcemap using this: https://github.com/evanw/node-source-map-support
     - Some interesting stuff here too: http://stackoverflow.com/questions/3919134/is-there-a-way-to-wrap-all-javascript-methods-with-a-function
     - REPL.watch(val)
     - Decorators - @run(..)
@@ -16,9 +10,9 @@
         - Gutter UI: Show result / rich image
     - UI to show overlays in gutter
         - One off as well as proof of concept
+    - live-eval-file
 
 - Add command to easily edit config file
-
 
 - Tasks provider
     - npm tasks

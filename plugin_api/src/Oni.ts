@@ -37,10 +37,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         } else if (arg.type === "event") {
             console.log("event: " + arg.payload.name + "|" + arg.payload.context)
 
-            if(arg.payload.name === "CursorMoved") {
+            if (arg.payload.name === "CursorMoved") {
                 this.emit("cursor-moved", arg.payload.context);
                 this.emit("CursorMoved", arg.payload.context);
-            } else if(arg.payload.name === "BufWritePost") {
+            } else if (arg.payload.name === "BufWritePost") {
                 this.emit("buffer-saved", arg.payload.context)
                 this.emit("BufWritePost", arg.payload.context)
             }
@@ -50,45 +50,51 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
             const originalContext = arg.payload.context
 
-            switch(requestType) {
+            switch (requestType) {
                 case "quick-info":
                     this._languageService.getQuickInfo(arg.payload.context)
                         .then((quickInfo) => {
-                                Sender.send("show-quick-info", originalContext, {
-                                    info: quickInfo.title,
-                                    documentation: quickInfo.description
-                                })
+                            Sender.send("show-quick-info", originalContext, {
+                                info: quickInfo.title,
+                                documentation: quickInfo.description
                             })
+                        })
                     break
                 case "goto-definition":
                     this._languageService.getDefinition(arg.payload.context)
                         .then((definitionPosition) => {
-                                Sender.send("goto-definition", originalContext, {
-                                    filePath: definitionPosition.filePath,
-                                    line: definitionPosition.line,
-                                    column: definitionPosition.column
-                                })
+                            Sender.send("goto-definition", originalContext, {
+                                filePath: definitionPosition.filePath,
+                                line: definitionPosition.line,
+                                column: definitionPosition.column
                             })
+                        })
                     break
                 case "completion-provider":
                     this._languageService.getCompletions(arg.payload.context)
                         .then(completions => {
-                                Sender.send("completion-provider", originalContext, completions)
-                            })
-                        break
+                            Sender.send("completion-provider", originalContext, completions)
+                        })
+                    break
                 case "completion-provider-item-selected":
                     console.log("completion-provider-item-selected")
                     this._languageService.getCompletionDetails(arg.payload.context, arg.payload.item)
                         .then((details) => {
-                                Sender.send("completion-provider-item-selected", originalContext, {
-                                    details: details
-                                })
+                            Sender.send("completion-provider-item-selected", originalContext, {
+                                details: details
                             })
+                        })
                     break
                 case "format":
                     this._languageService.getFormattingEdits(arg.payload.context)
                         .then((formattingResponse) => {
                             Sender.send("format", originalContext, formattingResponse)
+                        })
+                    break
+                case "evaluate-block":
+                    this._languageService.evaluateBlock(arg.payload.code)
+                        .then((val) => {
+                            Sender.send("evaluate-block-result", originalContext, val)
                         })
                     break
             }
@@ -98,7 +104,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {
-        this._languageService =  new DebouncedLanguageService(languageService)
+        this._languageService = new DebouncedLanguageService(languageService)
     }
 }
 

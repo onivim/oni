@@ -3,15 +3,21 @@ import * as path from "path"
 import * as fs from "fs"
 import { EventEmitter } from "events"
 
-import {remote} from "electron"
-import {ipcRenderer} from "electron"
+import { remote } from "electron"
+import { ipcRenderer } from "electron"
 
 import * as Q from "q"
 import * as mkdirp from "mkdirp"
 
 import * as Config from "./../Config"
 import { INeovimInstance } from "./../NeovimInstance"
-import { FormatCapability, QuickInfoCapability, GotoDefinitionCapability, CompletionProviderCapability, Plugin } from "./Plugin"
+import { 
+    EvaluateBlockCapability, 
+    FormatCapability,
+    QuickInfoCapability,
+    GotoDefinitionCapability,
+    CompletionProviderCapability,
+    Plugin } from "./Plugin"
 import { Screen } from "./../Screen"
 
 import * as UI from "./../UI/index"
@@ -51,10 +57,10 @@ export class PluginManager extends EventEmitter {
         this._rootPluginPaths.push(builtInPluginsRoot)
         this._rootPluginPaths.push(path.join(builtInPluginsRoot, "bundle"))
 
-        if(Config.getValue<boolean>("vim.loadVimPlugins")) {
+        if (Config.getValue<boolean>("vim.loadVimPlugins")) {
             var userRoot = path.join(os.homedir(), "vimfiles", "bundle")
 
-            if(fs.existsSync(userRoot)) {
+            if (fs.existsSync(userRoot)) {
                 this._rootPluginPaths.push(userRoot)
             }
         }
@@ -73,20 +79,20 @@ export class PluginManager extends EventEmitter {
     }
 
     public get currentBuffer(): BufferInfo {
-            return this._lastBufferInfo
+        return this._lastBufferInfo
     }
 
     public executeCommand(command: string): void {
-        if(command === "editor.gotoDefinition") {
+        if (command === "editor.gotoDefinition") {
             const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, GotoDefinitionCapability)
-            if(plugin) {
+            if (plugin) {
                 plugin.requestGotoDefinition(this._lastEventContext)
             }
         }
     }
 
     public handleNotification(method: string, args: any[]): void {
-        if(method === "buffer_update") {
+        if (method === "buffer_update") {
             const eventContext = args[0][0]
             const bufferLines = args[0][1]
             this._lastBufferInfo = {
@@ -99,7 +105,7 @@ export class PluginManager extends EventEmitter {
                 .filter(p => p.isPluginSubscribedToBufferUpdates(eventContext.filetype) || p.isPluginSubscribedToBufferUpdates("*"))
                 .forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines))
 
-        } else if(method === "event") {
+        } else if (method === "event") {
             const eventName = args[0][0]
             const eventContext = args[0][1]
 
@@ -118,7 +124,7 @@ export class PluginManager extends EventEmitter {
                 if (plugin) {
                     plugin.requestQuickInfo(eventContext)
                 }
-            } else if(eventName === "CursorMovedI" && Config.getValue<boolean>("editor.completions.enabled")) {
+            } else if (eventName === "CursorMovedI" && Config.getValue<boolean>("editor.completions.enabled")) {
                 const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, CompletionProviderCapability)
 
                 if (plugin) {
@@ -126,7 +132,7 @@ export class PluginManager extends EventEmitter {
                 }
             }
 
-        } else if(method === "window_display_update") {
+        } else if (method === "window_display_update") {
             this._overlayManager.notifyWindowDimensionsChanged(args[0][1])
         }
     }
@@ -137,7 +143,14 @@ export class PluginManager extends EventEmitter {
         if (plugin) {
             plugin.requestFormat(this._lastEventContext)
         }
+    }
 
+    public requestEvaluateBlock(code: string): void {
+        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, EvaluateBlockCapability)
+
+        if (plugin) {
+            plugin.requestEvaluateBlock(this._lastEventContext, code)
+        }
     }
 
     private _getFirstPluginThatHasCapability(filetype: string, capability: string): Plugin {
@@ -149,7 +162,7 @@ export class PluginManager extends EventEmitter {
 
         const defaultHandlers = this._plugins.filter(p => p.doesPluginProvideLanguageServiceCapability("*", capability))
 
-        if(defaultHandlers.length > 0)
+        if (defaultHandlers.length > 0)
             return defaultHandlers[0]
 
         return null
@@ -161,33 +174,35 @@ export class PluginManager extends EventEmitter {
     }
 
     private _handlePluginResponse(pluginResponse: any): void {
-        if(pluginResponse.type === "show-quick-info") {
-            if(!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
+        if (pluginResponse.type === "show-quick-info") {
+            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
                 return
 
             setTimeout(() => UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation), 50)
-        } else if(pluginResponse.type === "goto-definition") {
-            if(!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
+        } else if (pluginResponse.type === "goto-definition") {
+            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
                 return
 
             const { filePath, line, column } = pluginResponse.payload
             this._neovimInstance.command("e! " + filePath)
             this._neovimInstance.command("keepjumps norm " + line + "G" + column)
             this._neovimInstance.command("norm zz")
-        } else if(pluginResponse.type === "completion-provider") {
-            if(!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
+        } else if (pluginResponse.type === "completion-provider") {
+            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
                 return
 
             setTimeout(() => UI.showCompletions(pluginResponse.payload))
-        } else if(pluginResponse.type === "completion-provider-item-selected") {
+        } else if (pluginResponse.type === "completion-provider-item-selected") {
             setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details))
-        } else if(pluginResponse.type === "set-errors") {
+        } else if (pluginResponse.type === "set-errors") {
             this._errorOverlay.setErrors(pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors)
-        } else if(pluginResponse.type === "format") {
+        } else if (pluginResponse.type === "format") {
             this.emit("format", pluginResponse.payload)
-        } else if(pluginResponse.type === "execute-shell-command") {
+        } else if (pluginResponse.type === "execute-shell-command") {
             // TODO: Check plugin permission
             this.emit("execute-shell-command", pluginResponse.payload)
+        } else if (pluginResponse.type === "evaluate-block-result") {
+            this.emit("evaluate-block-result", pluginResponse.payload)
         }
     }
 
@@ -198,9 +213,9 @@ export class PluginManager extends EventEmitter {
         const currentEvent = this._lastEventContext
         const originEvent = pluginResponse.meta.originEvent
 
-        if(originEvent.bufferFullPath === currentEvent.bufferFullPath
-        && originEvent.line === currentEvent.line
-        && originEvent.column === currentEvent.column) {
+        if (originEvent.bufferFullPath === currentEvent.bufferFullPath
+            && originEvent.line === currentEvent.line
+            && originEvent.column === currentEvent.column) {
             return true
         } else {
             console.log("Plugin response aborted as it didn't match current even (buffer/line/col)")
@@ -230,7 +245,7 @@ export class PluginManager extends EventEmitter {
         var contents = fs.readFileSync(initFilePath, "utf8")
 
         const paths = this._getAllRuntimePaths()
-        contents = contents.replace("${runtimepaths}" , "set rtp+=" + paths.join(","))
+        contents = contents.replace("${runtimepaths}", "set rtp+=" + paths.join(","))
         var destDir = path.join(os.tmpdir(), "init.vim")
         fs.writeFileSync(destDir, contents, "utf8")
 
@@ -239,7 +254,7 @@ export class PluginManager extends EventEmitter {
         return destDir
     }
 
-    private _getAllRuntimePaths(): string [] {
+    private _getAllRuntimePaths(): string[] {
         var pluginPaths = this._getAllPluginPaths()
 
         return pluginPaths.concat(this._rootPluginPaths)

@@ -9,10 +9,13 @@ declare namespace Oni {
         column: number
     }
 
-
-    export interface TextEdit {
+    export interface Range {
         start: Position
         end: Position
+    }
+
+
+    export interface TextEdit extends Range {
         newValue: string
     }
 
@@ -20,8 +23,6 @@ declare namespace Oni {
         bufferFullPath: string
         version: number
         line: number
-
-
 
         /**
          * Column within the buffer
@@ -125,6 +126,12 @@ declare namespace Oni {
             documentation?: string
         }
 
+        export interface EvaluationResult {
+            result: any,
+            variables?: any,
+            output?: any
+        }
+
         export interface LanguageService {
             getCompletions?(position: EventContext): Promise<CompletionResult>
             getCompletionDetails?(position: EventContext, completionInfo: CompletionInfo): Promise<CompletionInfo>
@@ -133,6 +140,11 @@ declare namespace Oni {
             getDefinition?(position: EventContext): Promise<GotoDefinitionResponse>
 
             getFormattingEdits?(position: EventContext): Promise<FormattingEditsResponse>
+
+
+            evaluateBlock?(code: string): Promise<EvaluationResult>
+
+            // liveEvaluate(): LiveEvaluationResult[]
         }
     }
 

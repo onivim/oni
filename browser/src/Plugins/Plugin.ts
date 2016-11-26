@@ -1,6 +1,6 @@
 import * as path from "path"
 import * as fs from "fs"
-import {remote} from "electron"
+import { remote } from "electron"
 
 const BrowserWindow = require("electron").remote.BrowserWindow
 
@@ -23,6 +23,7 @@ export const FormatCapability = "formatting"
 export const QuickInfoCapability = "quick-info"
 export const GotoDefinitionCapability = "goto-definition"
 export const CompletionProviderCapability = "completion-provider"
+export const EvaluateBlockCapability = "evaluate-block"
 
 export interface EventContext {
     bufferFullPath: string
@@ -46,7 +47,7 @@ export class Plugin {
 
     private _send(message: any) {
 
-        if(!this.browserWindow)
+        if (!this.browserWindow)
             return
 
         const messageToSend = Object.assign({}, message, {
@@ -109,6 +110,17 @@ export class Plugin {
         })
     }
 
+    public requestEvaluateBlock(eventContext: EventContext, code: string): void {
+        this._send({
+            type: "request",
+            payload: {
+                name: "evaluate-block",
+                context: eventContext,
+                code: code
+            }
+        })
+    }
+
 
     public notifyCompletionItemSelected(completionItem: any): void {
         // TODO: Only send to plugin that sent the request
@@ -164,16 +176,16 @@ export class Plugin {
     constructor(pluginRootDirectory: string, debugMode?: boolean) {
         var packageJsonPath = path.join(pluginRootDirectory, "package.json")
 
-        if(fs.existsSync(packageJsonPath)) {
+        if (fs.existsSync(packageJsonPath)) {
             this._packageMetadata = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"))
 
             const engines = this._packageMetadata.engines;
 
             // TODO: Handle oni engine version
-            if(!engines || !engines["oni"]) {
+            if (!engines || !engines["oni"]) {
                 console.warn("Aborting plugin load as Oni engine version not specified: " + packageJsonPath);
             } else {
-                if(this._packageMetadata.main) {
+                if (this._packageMetadata.main) {
                     var moduleEntryPoint = path.join(pluginRootDirectory, this._packageMetadata.main)
                     this._browserWindow = loadPluginInBrowser(moduleEntryPoint, null)
                     this._browserWindowId = this._browserWindow.id
@@ -186,7 +198,7 @@ export class Plugin {
 
                 this._oniPluginMetadata = Object.assign({}, DefaultMetadata, pluginMetadata)
 
-                if(this._oniPluginMetadata.debugging || debugMode) {
+                if (this._oniPluginMetadata.debugging || debugMode) {
                     (<any>this._browserWindow).openDevTools()
                     this._browserWindow.show()
                 }
@@ -199,9 +211,9 @@ export class Plugin {
     * ie, javascript,typescript
     * Split into separate language srevice blocks
     */
-    private _expandMultipleLanguageKeys(packageMetadata: {[languageKey:string]: any}) {
+    private _expandMultipleLanguageKeys(packageMetadata: { [languageKey: string]: any }) {
         Object.keys(packageMetadata).forEach(key => {
-            if(key.indexOf(",")) {
+            if (key.indexOf(",")) {
                 const val = packageMetadata[key]
                 key.split(",").forEach(splitKey => {
                     packageMetadata[splitKey] = val
@@ -212,7 +224,7 @@ export class Plugin {
 }
 
 const loadPluginInBrowser = (pathToModule: string, apiObject: any) => {
-    var browserWindow = new BrowserWindow({width: 10, height: 10, show: false, webPreferences: { webSecurity: false }});
+    var browserWindow = new BrowserWindow({ width: 10, height: 10, show: false, webPreferences: { webSecurity: false } });
 
     browserWindow.webContents.on("did-finish-load", () => {
         browserWindow.webContents.send("init", {

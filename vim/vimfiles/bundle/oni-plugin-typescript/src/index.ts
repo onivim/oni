@@ -3,8 +3,8 @@ import * as path from "path"
 import * as fs from "fs"
 import * as os from "os"
 
-import {TypeScriptServerHost} from "./TypeScriptServerHost"
-import {QuickInfo} from "./QuickInfo";
+import { TypeScriptServerHost } from "./TypeScriptServerHost"
+import { QuickInfo } from "./QuickInfo";
 
 import * as _ from "lodash"
 
@@ -27,14 +27,14 @@ const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
 
 const getDefinition = (textDocumentPosition: Oni.EventContext) => {
     return host.getTypeDefinition(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
-    .then((val: any) => {
-        val = val[0];
-        return {
-            filePath: val.file,
-            line: val.start.line,
-            column: val.start.offset
-        }
-    })
+        .then((val: any) => {
+            val = val[0];
+            return {
+                filePath: val.file,
+                line: val.start.line,
+                column: val.start.offset
+            }
+        })
 }
 
 const getFormattingEdits = (position: Oni.EventContext) => {
@@ -67,21 +67,33 @@ const getFormattingEdits = (position: Oni.EventContext) => {
         })
 }
 
-const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {
-    return host.getCompletionDetails(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, [completionItem.label])
-    .then((details) => {
-        const entry = details[0]
-        return {
-            kind: entry.kind,
-            label: entry.name,
-            documentation: entry.documentation && entry.documentation.length ? entry.documentation[0].text : null,
-            detail: convertToDisplayString(entry.displayParts)
-        }
+const evaluateBlock = (code: string) => {
+    const vm = require("vm")
+    const script = new vm.Script(code)
+    const sandbox = {}
+    const result = script.runInNewContext({})
+    return Promise.resolve({
+        result: result,
+        variables: sandbox,
+        output: null
     })
 }
 
+const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {
+    return host.getCompletionDetails(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, [completionItem.label])
+        .then((details) => {
+            const entry = details[0]
+            return {
+                kind: entry.kind,
+                label: entry.name,
+                documentation: entry.documentation && entry.documentation.length ? entry.documentation[0].text : null,
+                detail: convertToDisplayString(entry.displayParts)
+            }
+        })
+}
+
 const getCompletions = (textDocumentPosition: Oni.EventContext) => {
-    if(textDocumentPosition.column <= 1)
+    if (textDocumentPosition.column <= 1)
         return Promise.resolve({
             completions: []
         })
@@ -90,7 +102,7 @@ const getCompletions = (textDocumentPosition: Oni.EventContext) => {
     let col = textDocumentPosition.column - 2
     let currentPrefix = "";
 
-    while(col >= 0) {
+    while (col >= 0) {
         const currentCharacter = currentLine[col]
 
         if (!currentCharacter.match(/[_a-z]/i))
@@ -117,9 +129,9 @@ const getCompletions = (textDocumentPosition: Oni.EventContext) => {
             const results = val
                 .filter(v => v.name.indexOf(currentPrefix) === 0 || currentPrefix.length === 0)
                 .map(v => ({
-                label: v.name,
-                kind: v.kind
-            }))
+                    label: v.name,
+                    kind: v.kind
+                }))
 
             let ret = [];
 
@@ -142,7 +154,8 @@ Oni.registerLanguageService({
     getDefinition: getDefinition,
     getCompletions: getCompletions,
     getCompletionDetails: getCompletionDetails,
-    getFormattingEdits: getFormattingEdits
+    getFormattingEdits: getFormattingEdits,
+    evaluateBlock: evaluateBlock
 })
 
 host.on("semanticDiag", (diagnostics) => {
@@ -150,13 +163,13 @@ host.on("semanticDiag", (diagnostics) => {
     const fileName = diagnostics.file
 
     const diags = diagnostics.diagnostics || []
-    
+
     const errors = diags.map(d => {
         const lineNumber = d.start.line
         let startColumn = null
         let endColumn = null
 
-        if(d.start.line === d.end.line) {
+        if (d.start.line === d.end.line) {
             startColumn = d.start.offset
             endColumn = d.end.offset
         }
@@ -180,10 +193,10 @@ const updateFile = _.throttle((bufferFullPath, stringContents) => {
 
 Oni.on("buffer-update", (args) => {
 
-    if(!args.eventContext.bufferFullPath)
+    if (!args.eventContext.bufferFullPath)
         return
 
-    if(lastOpenFile !== args.eventContext.bufferFullPath) {
+    if (lastOpenFile !== args.eventContext.bufferFullPath) {
         host.openFile(args.eventContext.bufferFullPath);
     }
 

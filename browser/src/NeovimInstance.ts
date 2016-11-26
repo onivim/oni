@@ -28,6 +28,8 @@ export interface INeovimInstance {
 
     getCurrentBuffer(): Q.Promise<IBuffer>
     getCurrentWindow(): Q.Promise<IWindow>
+
+    getSelectionRange(): Q.Promise<Oni.Range>
 }
 
 /**
@@ -47,6 +49,37 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _pluginManager: PluginManager;
 
+    public getMode(): Q.Promise<string> {
+        return this.eval<string>("mode()")
+    }
+
+    public getSelectionRange(): Q.Promise<Oni.Range> {
+
+        let buffer: IBuffer = null
+        let start = null
+        let end = null
+
+        return this.getMode()
+            .then((mode) => {
+
+                if (mode !== "v" && mode !== "V") {
+                    throw "Not in visual mode"
+                }
+            })
+            .then(() => this.input("<esc>"))
+            .then(() => this.getCurrentBuffer())
+            .then((buf) => buffer = buf)
+            .then(() => buffer.getMark("<"))
+            .then((s) => start = s)
+            .then(() => buffer.getMark(">"))
+            .then((e) => end = e)
+            .then(() => this.command("normal! gv"))
+            .then(() => ({
+                start: start,
+                end: end
+            }))
+    }
+
     public setFont(fontFamily: string, fontSize: string): void {
         this._fontFamily = fontFamily;
         this._fontSize = fontSize;
@@ -59,6 +92,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this.emit("action", Actions.setFont(fontFamily, fontSize, width, height));
 
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
+    }
+
+    public eval<T>(expression: string): Q.Promise<T> {
+        return Q.ninvoke<T>(this._neovim, "eval", expression)
     }
 
     public command(command: string): Q.Promise<void> {
@@ -89,8 +126,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         }
     }
 
-    public input(inputString: string): void {
-        this._neovim.input(inputString)
+    public input(inputString: string): Q.Promise<void> {
+        return Q.ninvoke<void>(this._neovim, "input", inputString)
     }
 
     public resize(widthInPixels: number, heightInPixels: number): void {
