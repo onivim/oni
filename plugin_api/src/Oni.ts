@@ -43,7 +43,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
             } else if (arg.payload.name === "BufWritePost") {
                 this.emit("buffer-saved", arg.payload.context)
                 this.emit("BufWritePost", arg.payload.context)
-            } else if(arg.payload.name === "BufEnter") {
+            } else if (arg.payload.name === "BufEnter") {
                 this.emit("buffer-enter", arg.payload.context)
                 this.emit("BufEnter", arg.payload.context)
             }
@@ -100,6 +100,12 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                             Sender.send("evaluate-block-result", originalContext, val)
                         })
                     break
+                case "signature-help":
+                    this._languageService.getSignatureHelp(arg.payload.context)
+                        .then((val) => {
+                            Sender.send("signature-help-response", originalContext, val)
+                        })
+
             }
         } else {
             console.warn("Unknown notification type")

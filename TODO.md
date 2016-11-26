@@ -1,5 +1,11 @@
 - Parameter helper
     - Show parameter info, like QuickInfo
+    - Add UI component in RootComponent
+
+- Animation/Performance: 
+    - No flicker on quickinfo/autocomplete
+    - Factor to always show
+    - Why are there problems if it is always showing?
 
 - Animation/Performance: Optimistic Typing
 - Animation: Cursor velocity
@@ -71,6 +77,7 @@
 - Find usages
 
 - Syntax highlighting - optimize syntax highlighter
+    - Make it a 'pull' so it can be enabled via config file
     - Only highlight appropriate lines
     - Make sure to not continuously redefine - only define new entries
     - Update syntax when going back to normal mode

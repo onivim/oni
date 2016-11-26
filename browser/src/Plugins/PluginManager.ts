@@ -17,6 +17,7 @@ import {
     QuickInfoCapability,
     GotoDefinitionCapability,
     CompletionProviderCapability,
+    SignatureHelpCapability,
     Plugin } from "./Plugin"
 import { Screen } from "./../Screen"
 
@@ -136,11 +137,18 @@ export class PluginManager extends EventEmitter {
                     plugin.requestQuickInfo(eventContext)
                 }
             } else if (eventName === "CursorMovedI" && Config.getValue<boolean>("editor.completions.enabled")) {
-                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, CompletionProviderCapability)
+                const completionPlugin = this._getFirstPluginThatHasCapability(eventContext.filetype, CompletionProviderCapability)
+
+                if (completionPlugin) {
+                    completionPlugin.requestCompletions(eventContext)
+                }
+
+                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, SignatureHelpCapability)
 
                 if (plugin) {
-                    plugin.requestCompletions(eventContext)
+                    plugin.requestSignatureHelp(eventContext)
                 }
+
             }
 
         } else if (method === "window_display_update") {
@@ -218,6 +226,8 @@ export class PluginManager extends EventEmitter {
             this.emit("set-syntax-highlights", pluginResponse.payload)
         } else if(pluginResponse.type === "clear-syntax-highlights") {
             this.emit("clear-syntax-highlights", pluginResponse.payload)
+        } else if(pluginResponse.type === "signature-help-response") {
+            this.emit("signature-help-response", pluginResponse.payload)
         }
 
     }

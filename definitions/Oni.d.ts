@@ -145,9 +145,31 @@ declare namespace Oni {
             errors?: string[]
         }
 
+        export interface SignatureHelpItem {
+            variableArguments: boolean
+            prefix: string
+            suffix: string
+            separator: string
+            parameters: SignatureHelpParameter[]
+        }
+
+        export interface SignatureHelpParameter {
+            text: string
+            documentation: string
+        }
+
+        export interface SignatureHelpResult {
+            items: SignatureHelpItem[]
+            selectedItemIndex: number
+            argumentIndex: number
+            argumentCount: number
+        }
+
         export interface LanguageService {
             getCompletions?(position: EventContext): Promise<CompletionResult>
             getCompletionDetails?(position: EventContext, completionInfo: CompletionInfo): Promise<CompletionInfo>
+
+            getSignatureHelp?(position: EventContext): Promise<SignatureHelpResult>
 
             getQuickInfo?(position: EventContext): Promise<QuickInfo>
             getDefinition?(position: EventContext): Promise<GotoDefinitionResponse>

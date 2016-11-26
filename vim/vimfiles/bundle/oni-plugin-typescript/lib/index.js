@@ -159,13 +159,36 @@ var getCompletions = function (textDocumentPosition) {
         };
     });
 };
+var getSignatureHelp = function (textDocumentPosition) {
+    return host.getSignatureHelp(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
+        .then(function (result) {
+        var items = result.items || [];
+        var signatureHelpItems = items.map(function (item) { return ({
+            variableArguments: item.isVariadic,
+            prefix: convertToDisplayString(item.prefixDisplayParts),
+            suffix: convertToDisplayString(item.suffixDisplayParts),
+            separator: convertToDisplayString(item.separatorDisplayParts),
+            parameters: item.parameters.map(function (p) { return ({
+                text: convertToDisplayString(p.displayParts),
+                documentation: convertToDisplayString(p.documentation)
+            }); })
+        }); });
+        return {
+            items: signatureHelpItems,
+            selectedItemIndex: result.selectedItemIndex,
+            argumentCount: result.argumentCount,
+            argumentIndex: result.argumentIndex
+        };
+    });
+};
 Oni.registerLanguageService({
     getQuickInfo: getQuickInfo,
     getDefinition: getDefinition,
     getCompletions: getCompletions,
     getCompletionDetails: getCompletionDetails,
     getFormattingEdits: getFormattingEdits,
-    evaluateBlock: evaluateBlock
+    evaluateBlock: evaluateBlock,
+    getSignatureHelp: getSignatureHelp
 });
 host.on("semanticDiag", function (diagnostics) {
     var fileName = diagnostics.file;

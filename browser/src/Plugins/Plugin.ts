@@ -24,6 +24,7 @@ export const QuickInfoCapability = "quick-info"
 export const GotoDefinitionCapability = "goto-definition"
 export const CompletionProviderCapability = "completion-provider"
 export const EvaluateBlockCapability = "evaluate-block"
+export const SignatureHelpCapability = "signature-help"
 
 export interface EventContext {
     bufferFullPath: string
@@ -92,6 +93,16 @@ export class Plugin {
             type: "request",
             payload: {
                 name: "completion-provider",
+                context: eventContext
+            }
+        })
+    }
+
+    public requestSignatureHelp(eventContext: EventContext): void {
+        this._send({
+            type: "request",
+            payload: {
+                name: "signature-help",
                 context: eventContext
             }
         })

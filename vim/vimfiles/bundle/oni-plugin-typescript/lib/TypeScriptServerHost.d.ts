@@ -39,7 +39,7 @@ export declare class TypeScriptServerHost extends events.EventEmitter {
     updateFile(fullFilePath: string, updatedContents: string): Promise<void>;
     getQuickInfo(fullFilePath: string, line: number, col: number): Promise<void>;
     saveTo(fullFilePath: string, tmpFile: string): Promise<void>;
-    getSignatureHelp(fullFilePath: string, line: number, col: number): Promise<void>;
+    getSignatureHelp(fullFilePath: string, line: number, col: number): Promise<any>;
     getErrors(fullFilePath: string): Promise<void>;
     getErrorsAcrossProject(fullFilePath: string): Promise<void>;
     getNavigationTree(fullFilePath: string): Promise<NavigationTree>;

@@ -174,7 +174,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
         });
     }
 
-    public getSignatureHelp(fullFilePath: string, line: number, col: number): Promise<void> {
+    public getSignatureHelp(fullFilePath: string, line: number, col: number): Promise<any> {
         return this._makeTssRequest<void>("signatureHelp", {
             file: fullFilePath,
             line: line,

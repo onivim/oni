@@ -193,13 +193,41 @@ const getCompletions = (textDocumentPosition: Oni.EventContext) => {
         });
 }
 
+
+const getSignatureHelp = (textDocumentPosition: Oni.EventContext) => {
+    return host.getSignatureHelp(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
+        .then((result) => {
+            const items = result.items || []
+
+            const signatureHelpItems = items.map(item => ({
+                variableArguments: item.isVariadic,
+                prefix: convertToDisplayString(item.prefixDisplayParts),
+                suffix: convertToDisplayString(item.suffixDisplayParts),
+                separator: convertToDisplayString(item.separatorDisplayParts),
+                parameters: item.parameters.map(p => ({
+                    text: convertToDisplayString(p.displayParts),
+                    documentation: convertToDisplayString(p.documentation)
+                }))
+            }))
+
+            return {
+                items: signatureHelpItems,
+                selectedItemIndex: result.selectedItemIndex,
+                argumentCount: result.argumentCount,
+                argumentIndex: result.argumentIndex
+            }
+        })
+}
+
+
 Oni.registerLanguageService({
     getQuickInfo: getQuickInfo,
     getDefinition: getDefinition,
     getCompletions: getCompletions,
     getCompletionDetails: getCompletionDetails,
     getFormattingEdits: getFormattingEdits,
-    evaluateBlock: evaluateBlock
+    evaluateBlock: evaluateBlock,
+    getSignatureHelp: getSignatureHelp
 })
 
 host.on("semanticDiag", (diagnostics) => {

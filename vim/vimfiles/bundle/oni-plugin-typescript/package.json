@@ -21,7 +21,8 @@
         "goto-definition",
         "completion-provider",
         "formatting",
-        "evaluate-block"
+        "evaluate-block",
+        "signature-help"
       ],
       "diagnosticsService": []
     }

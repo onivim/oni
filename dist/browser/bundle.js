@@ -69,13 +69,14 @@
 	const Formatter_1 = __webpack_require__(278);
 	const Output_1 = __webpack_require__(279);
 	const LiveEvaluation_1 = __webpack_require__(280);
+	const SyntaxHighlighter_1 = __webpack_require__(281);
 	const start = (args) => {
 	    const parsedArgs = minimist(args);
 	    const debugPlugin = parsedArgs["debugPlugin"];
 	    // Helper for debugging:
 	    window["UI"] = UI;
-	    __webpack_require__(281);
-	    __webpack_require__(283);
+	    __webpack_require__(282);
+	    __webpack_require__(284);
 	    var deltaRegion = new DeltaRegionTracker_1.IncrementalDeltaRegionTracker();
 	    var screen = new Screen_1.NeovimScreen(deltaRegion);
 	    const pluginManager = new PluginManager_1.PluginManager(screen, debugPlugin);
@@ -90,6 +91,7 @@
 	    const formatter = new Formatter_1.Formatter(instance, pluginManager);
 	    const outputWindow = new Output_1.OutputWindow(instance, pluginManager);
 	    const liveEvaluation = new LiveEvaluation_1.LiveEvaluation(instance, pluginManager);
+	    const syntaxHighligher = new SyntaxHighlighter_1.SyntaxHighlighter(instance, pluginManager);
 	    instance.on("action", (action) => {
 	        renderer.onAction(action);
 	        screen.dispatch(action);
@@ -25686,6 +25688,12 @@
 	    getLineCount() {
 	        return Q.ninvoke(this._bufferInstance, "lineCount");
 	    }
+	    addHighlight(highlightId, highlightType, line, startColumn, endColumn) {
+	        return Q.ninvoke(this._bufferInstance, "addHighlight", highlightId, highlightType, line, startColumn, endColumn);
+	    }
+	    clearHighlight(highlightId, startLine, endLine) {
+	        return Q.ninvoke(this._bufferInstance, "clearHighlight", highlightId, startLine, endLine);
+	    }
 	    setLines(start, end, useStrictIndexing, lines) {
 	        return Q.ninvoke(this._bufferInstance, "setLines", start, end, useStrictIndexing, lines);
 	    }
@@ -26020,9 +26028,13 @@
 	                }
 	            }
 	            else if (eventName === "CursorMovedI" && Config.getValue("editor.completions.enabled")) {
-	                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.CompletionProviderCapability);
+	                const completionPlugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.CompletionProviderCapability);
+	                if (completionPlugin) {
+	                    completionPlugin.requestCompletions(eventContext);
+	                }
+	                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.SignatureHelpCapability);
 	                if (plugin) {
-	                    plugin.requestCompletions(eventContext);
+	                    plugin.requestSignatureHelp(eventContext);
 	                }
 	            }
 	        }
@@ -26090,6 +26102,15 @@
 	        }
 	        else if (pluginResponse.type === "evaluate-block-result") {
 	            this.emit("evaluate-block-result", pluginResponse.payload);
+	        }
+	        else if (pluginResponse.type === "set-syntax-highlights") {
+	            this.emit("set-syntax-highlights", pluginResponse.payload);
+	        }
+	        else if (pluginResponse.type === "clear-syntax-highlights") {
+	            this.emit("clear-syntax-highlights", pluginResponse.payload);
+	        }
+	        else if (pluginResponse.type === "signature-help-response") {
+	            this.emit("signature-help-response", pluginResponse.payload);
 	        }
 	    }
 	    /**
@@ -26277,6 +26298,7 @@
 	exports.GotoDefinitionCapability = "goto-definition";
 	exports.CompletionProviderCapability = "completion-provider";
 	exports.EvaluateBlockCapability = "evaluate-block";
+	exports.SignatureHelpCapability = "signature-help";
 	class Plugin {
 	    constructor(pluginRootDirectory, debugMode) {
 	        var packageJsonPath = path.join(pluginRootDirectory, "package.json");
@@ -26347,6 +26369,15 @@
 	            type: "request",
 	            payload: {
 	                name: "completion-provider",
+	                context: eventContext
+	            }
+	        });
+	    }
+	    requestSignatureHelp(eventContext) {
+	        this._send({
+	            type: "request",
+	            payload: {
+	                name: "signature-help",
 	                context: eventContext
 	            }
 	        });
@@ -50050,12 +50081,49 @@
 
 /***/ },
 /* 281 */
+/***/ function(module, exports) {
+
+	/**
+	 * SyntaxHighlighter.ts
+	 */
+	"use strict";
+	class SyntaxHighlighter {
+	    constructor(neovimInstance, pluginManager) {
+	        this._neovimInstance = neovimInstance;
+	        this._pluginManager = pluginManager;
+	        this._pluginManager.on("set-syntax-highlights", (payload) => {
+	            var buf = null;
+	            this._neovimInstance.getCurrentBuffer()
+	                .then((buffer) => buf = buffer)
+	                .then(() => this._neovimInstance.eval("expand('%:p')"))
+	                .then((res) => {
+	                if (res !== payload.file) {
+	                    throw "Syntax highlighting was for different file.";
+	                }
+	                const key = payload.key;
+	                const highlights = payload.highlights;
+	                highlights.forEach((h) => {
+	                    if (!h.highlightKind) {
+	                        console.warn("Undefined highlight: ", h);
+	                        return;
+	                    }
+	                    this._neovimInstance.command("syntax keyword " + h.highlightKind + " " + h.token);
+	                });
+	            });
+	        });
+	    }
+	}
+	exports.SyntaxHighlighter = SyntaxHighlighter;
+
+
+/***/ },
+/* 282 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(282);
+	var content = __webpack_require__(283);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(264)(content, {});
@@ -50075,7 +50143,7 @@
 	}
 
 /***/ },
-/* 282 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(263)();
@@ -50089,13 +50157,13 @@
 
 
 /***/ },
-/* 283 */
+/* 284 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(284);
+	var content = __webpack_require__(285);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(264)(content, {});
@@ -50115,7 +50183,7 @@
 	}
 
 /***/ },
-/* 284 */
+/* 285 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(263)();
