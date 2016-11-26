@@ -3,6 +3,7 @@ set relativenumber
 set noswapfile
 set ruler
 set cursorline
+set smartcase
 
 " Default tab settings
 set tabstop=4
