@@ -12,6 +12,12 @@
 - Animation: Scroll
     - Start moving canvas up
 
+- Documentation: Configuration
+    - Where configuration files are stored
+    - Using init.vim
+        - Check and see if init.vim is actually being picked up
+    - Configuration variables
+
 - Tasks provider
     - npm tasks
     - allow plugins to call Oni.editor.registerTask(id, label, detail, fileScope, () => { ... })

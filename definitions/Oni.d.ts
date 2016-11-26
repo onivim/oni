@@ -14,7 +14,6 @@ declare namespace Oni {
         end: Position
     }
 
-
     export interface TextEdit extends Range {
         newValue: string
     }
