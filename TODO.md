@@ -4,6 +4,14 @@
         - Can use: let bgcolor=synIDattr(hlID('NonText'), 'bg#'): http://stackoverflow.com/questions/9912116/vimscript-programmatically-get-colors-from-colorscheme 
         -  ColorScheme autocmd
 
+- Animation/Performance: Optimistic Typing
+- Animation: Cursor velocity
+    - Create variable
+    - Refactor cursor to component
+    - Use 'particle style' animation
+- Animation: Scroll
+    - Start moving canvas up
+
 - Tasks provider
     - npm tasks
     - allow plugins to call Oni.editor.registerTask(id, label, detail, fileScope, () => { ... })
@@ -94,18 +102,11 @@
     - shelljs: https://www.npmjs.com/package/shelljs
     - node-shell-quote: https://github.com/substack/node-shell-quote
 
-- Animation/Performance: Optimistic Typing
-- Animation: Cursor velocity
-    - Create variable
-    - Refactor cursor to component
-    - Use 'particle style' animation
 - Animation: QuickOpen - blur 
 
 - Formatting: Add option to remove multiple blank lines in row
 
 - Performance: Scrolling
-- Animation: Scroll
-    - Start moving canvas up
 
 - Background image
     - Edges not being rendered
