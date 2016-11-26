@@ -2,7 +2,7 @@ import { Screen, Cell, PixelPosition, Position } from "./../Screen"
 import { DeltaRegionTracker } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
 import * as Config from "./../Config"
-import * as Actions from "./../Actions"
+import * as Actions from "./../actions"
 
 import { RenderCache } from "./RenderCache"
 import { INeovimRenderer } from "./INeovimRenderer"

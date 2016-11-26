@@ -55,14 +55,14 @@
 	"use strict";
 	const electron_1 = __webpack_require__(3);
 	const CanvasRenderer_1 = __webpack_require__(4);
-	const Screen_1 = __webpack_require__(12);
-	const NeovimInstance_1 = __webpack_require__(14);
+	const Screen_1 = __webpack_require__(7);
+	const NeovimInstance_1 = __webpack_require__(9);
 	const DeltaRegionTracker_1 = __webpack_require__(53);
 	const Cursor_1 = __webpack_require__(54);
 	const Keyboard_1 = __webpack_require__(55);
 	const Mouse_1 = __webpack_require__(56);
 	const PluginManager_1 = __webpack_require__(57);
-	const Config = __webpack_require__(6);
+	const Config = __webpack_require__(48);
 	const UI = __webpack_require__(60);
 	const minimist = __webpack_require__(276);
 	const QuickOpen_1 = __webpack_require__(277);
@@ -89,6 +89,7 @@
 	    const formatter = new Formatter_1.Formatter(instance, pluginManager);
 	    const outputWindow = new Output_1.OutputWindow(instance, pluginManager);
 	    instance.on("action", (action) => {
+	        renderer.onAction(action);
 	        screen.dispatch(action);
 	        cursor.dispatch(action);
 	        if (!pendingTimeout) {
@@ -198,8 +199,7 @@
 
 	"use strict";
 	const Grid_1 = __webpack_require__(5);
-	const Config = __webpack_require__(6);
-	const RenderCache_1 = __webpack_require__(11);
+	const RenderCache_1 = __webpack_require__(6);
 	class CanvasRenderer {
 	    constructor() {
 	        this._lastRenderedCell = new Grid_1.Grid();
@@ -225,7 +225,6 @@
 	        this._canvasContext.textBaseline = "top";
 	        const fontWidth = screenInfo.fontWidthInPixels;
 	        const fontHeight = screenInfo.fontHeightInPixels;
-	        const opacity = Config.getValue("prototype.editor.backgroundOpacity");
 	        var cells = deltaRegionTracker.getModifiedCells()
 	            .forEach(pos => {
 	            var x = pos.x;
@@ -359,83 +358,6 @@
 
 /***/ },
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	const path = __webpack_require__(7);
-	const fs = __webpack_require__(8);
-	const Platform = __webpack_require__(9);
-	const DefaultConfig = {
-	    // "debug.fixedSize": { rows: 10, columns: 100 }
-	    "debug.incrementalRenderRegions": false,
-	    // Experimental background settings
-	    // "prototype.editor.backgroundOpacity": 1,
-	    "prototype.editor.backgroundOpacity": 0.9,
-	    "prototype.editor.backgroundImageUrl": "http://cdn.wonderfulengineering.com/wp-content/uploads/2014/04/code-wallpaper-2.jpg",
-	    "prototype.editor.backgroundImageSize": "cover",
-	    "oni.loadPlugins": true,
-	    "editor.fontSize": "14px",
-	    "editor.quickInfo.enabled": true,
-	    "editor.completions.enabled": true,
-	    "editor.errors.slideOnFocus": true,
-	    "editor.formatting.formatOnSwitchToNormalMode": true
-	};
-	const MacConfig = {
-	    "editor.fontFamily": "Monaco"
-	};
-	const WindowsConfig = {
-	    "editor.fontFamily": "Consolas"
-	};
-	const DefaultPlatformConfig = Platform.isMac() ? MacConfig : WindowsConfig;
-	const userConfigFile = path.join(Platform.getUserHome(), ".oni", "config.json");
-	let userConfig = {};
-	if (fs.existsSync(userConfigFile)) {
-	    userConfig = JSON.parse(fs.readFileSync(userConfigFile, "utf8"));
-	}
-	const Config = Object.assign({}, DefaultConfig, DefaultPlatformConfig, userConfig);
-	function hasValue(configValue) {
-	    return !!getValue(configValue);
-	}
-	exports.hasValue = hasValue;
-	function getValue(configValue) {
-	    return Config[configValue];
-	}
-	exports.getValue = getValue;
-
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
-
-	module.exports = require("path");
-
-/***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-	module.exports = require("fs");
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	const os = __webpack_require__(10);
-	exports.isMac = () => os.platform() === "darwin";
-	exports.isWindows = () => os.platform() === "win32";
-	exports.getUserHome = () => {
-	    return exports.isWindows() ? process.env["USERPROFILE"] : process.env["HOME"];
-	};
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	module.exports = require("os");
-
-/***/ },
-/* 11 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -467,11 +389,11 @@
 
 
 /***/ },
-/* 12 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const Actions = __webpack_require__(13);
+	const Actions = __webpack_require__(8);
 	const Grid_1 = __webpack_require__(5);
 	class NeovimScreen {
 	    constructor(deltaTracker) {
@@ -520,6 +442,12 @@
 	    }
 	    get foregroundColor() {
 	        return this._foregroundColor;
+	    }
+	    get currentForegroundColor() {
+	        return this._currentHighlight.foregroundColor ? this._currentHighlight.foregroundColor : this._foregroundColor;
+	    }
+	    get currentBackgroundColor() {
+	        return this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor;
 	    }
 	    getCell(x, y) {
 	        var defaultCell = {
@@ -618,7 +546,7 @@
 	                };
 	                break;
 	            case Actions.SCROLL:
-	                const { top, bottom, left, right } = this._getScrollRegion();
+	                const { top, bottom, left, right } = this.getScrollRegion();
 	                const count = action.scroll;
 	                var width = right - left;
 	                var height = bottom - top;
@@ -631,14 +559,7 @@
 	                break;
 	        }
 	    }
-	    _notifyAllCellsModified() {
-	        for (var x = 0; x < this.width; x++) {
-	            for (var y = 0; y < this.height; y++) {
-	                this._deltaTracker.notifyCellModified(x, y);
-	            }
-	        }
-	    }
-	    _getScrollRegion() {
+	    getScrollRegion() {
 	        if (this._scrollRegion)
 	            return this._scrollRegion;
 	        else
@@ -649,12 +570,19 @@
 	                right: this.width
 	            };
 	    }
+	    _notifyAllCellsModified() {
+	        for (var x = 0; x < this.width; x++) {
+	            for (var y = 0; y < this.height; y++) {
+	                this._deltaTracker.notifyCellModified(x, y);
+	            }
+	        }
+	    }
 	}
 	exports.NeovimScreen = NeovimScreen;
 
 
 /***/ },
-/* 13 */
+/* 8 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -808,20 +736,20 @@
 
 
 /***/ },
-/* 14 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const events_1 = __webpack_require__(15);
-	const path = __webpack_require__(7);
-	const cp = __webpack_require__(16);
-	const os = __webpack_require__(10);
-	const Q = __webpack_require__(17);
+	const events_1 = __webpack_require__(10);
+	const path = __webpack_require__(11);
+	const cp = __webpack_require__(12);
+	const os = __webpack_require__(13);
+	const Q = __webpack_require__(14);
 	const electron_1 = __webpack_require__(3);
-	const attach = __webpack_require__(18);
-	const Actions = __webpack_require__(13);
-	const measureFont_1 = __webpack_require__(50);
-	const Config = __webpack_require__(6);
+	const attach = __webpack_require__(15);
+	const Actions = __webpack_require__(8);
+	const measureFont_1 = __webpack_require__(47);
+	const Config = __webpack_require__(48);
 	const Buffer_1 = __webpack_require__(51);
 	const Window_1 = __webpack_require__(52);
 	/**
@@ -999,19 +927,31 @@
 
 
 /***/ },
-/* 15 */
+/* 10 */
 /***/ function(module, exports) {
 
 	module.exports = require("events");
 
 /***/ },
-/* 16 */
+/* 11 */
+/***/ function(module, exports) {
+
+	module.exports = require("path");
+
+/***/ },
+/* 12 */
 /***/ function(module, exports) {
 
 	module.exports = require("child_process");
 
 /***/ },
-/* 17 */
+/* 13 */
+/***/ function(module, exports) {
+
+	module.exports = require("os");
+
+/***/ },
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// vim:ts=4:sts=4:sw=4:
@@ -3065,16 +3005,16 @@
 
 
 /***/ },
-/* 18 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* jshint loopfunc: true, evil: true */
-	var util = __webpack_require__(19);
-	var EventEmitter = __webpack_require__(15).EventEmitter;
+	var util = __webpack_require__(16);
+	var EventEmitter = __webpack_require__(10).EventEmitter;
 
-	var traverse = __webpack_require__(20);
-	var Session = __webpack_require__(21);
-	var _ = __webpack_require__(48);
+	var traverse = __webpack_require__(17);
+	var Session = __webpack_require__(18);
+	var _ = __webpack_require__(45);
 
 	function Nvim(session, channel_id) {
 	  this._session = session;
@@ -3270,13 +3210,13 @@
 
 
 /***/ },
-/* 19 */
+/* 16 */
 /***/ function(module, exports) {
 
 	module.exports = require("util");
 
 /***/ },
-/* 20 */
+/* 17 */
 /***/ function(module, exports) {
 
 	var traverse = module.exports = function (obj) {
@@ -3596,13 +3536,13 @@
 
 
 /***/ },
-/* 21 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var util = __webpack_require__(19);
-	var EventEmitter = __webpack_require__(15).EventEmitter;
+	var util = __webpack_require__(16);
+	var EventEmitter = __webpack_require__(10).EventEmitter;
 
-	var msgpack5 = __webpack_require__(22);
+	var msgpack5 = __webpack_require__(19);
 
 
 	function Response(encoder, request_id) {
@@ -3709,14 +3649,14 @@
 
 
 /***/ },
-/* 22 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assert = __webpack_require__(23)
-	var bl = __webpack_require__(24)
-	var streams = __webpack_require__(38)
-	var buildDecode = __webpack_require__(46)
-	var buildEncode = __webpack_require__(47)
+	var assert = __webpack_require__(20)
+	var bl = __webpack_require__(21)
+	var streams = __webpack_require__(35)
+	var buildDecode = __webpack_require__(43)
+	var buildEncode = __webpack_require__(44)
 
 	function msgpack (options) {
 	  var encodingTypes = []
@@ -3796,17 +3736,17 @@
 
 
 /***/ },
-/* 23 */
+/* 20 */
 /***/ function(module, exports) {
 
 	module.exports = require("assert");
 
 /***/ },
-/* 24 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var DuplexStream = __webpack_require__(25)
-	  , util         = __webpack_require__(19)
+	var DuplexStream = __webpack_require__(22)
+	  , util         = __webpack_require__(16)
 
 
 	function BufferList (callback) {
@@ -4051,14 +3991,14 @@
 
 
 /***/ },
-/* 25 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(26)
+	module.exports = __webpack_require__(23)
 
 
 /***/ },
-/* 26 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// a duplex stream is just a stream that is both readable and writable.
@@ -4081,16 +4021,16 @@
 	module.exports = Duplex;
 
 	/*<replacement>*/
-	var processNextTick = __webpack_require__(27);
+	var processNextTick = __webpack_require__(24);
 	/*</replacement>*/
 
 	/*<replacement>*/
-	var util = __webpack_require__(28);
-	util.inherits = __webpack_require__(29);
+	var util = __webpack_require__(25);
+	util.inherits = __webpack_require__(26);
 	/*</replacement>*/
 
-	var Readable = __webpack_require__(31);
-	var Writable = __webpack_require__(36);
+	var Readable = __webpack_require__(28);
+	var Writable = __webpack_require__(33);
 
 	util.inherits(Duplex, Readable);
 
@@ -4138,7 +4078,7 @@
 	}
 
 /***/ },
-/* 27 */
+/* 24 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -4187,7 +4127,7 @@
 
 
 /***/ },
-/* 28 */
+/* 25 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -4300,20 +4240,20 @@
 
 
 /***/ },
-/* 29 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	try {
-	  var util = __webpack_require__(19);
+	  var util = __webpack_require__(16);
 	  if (typeof util.inherits !== 'function') throw '';
 	  module.exports = util.inherits;
 	} catch (e) {
-	  module.exports = __webpack_require__(30);
+	  module.exports = __webpack_require__(27);
 	}
 
 
 /***/ },
-/* 30 */
+/* 27 */
 /***/ function(module, exports) {
 
 	if (typeof Object.create === 'function') {
@@ -4342,7 +4282,7 @@
 
 
 /***/ },
-/* 31 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4350,20 +4290,20 @@
 	module.exports = Readable;
 
 	/*<replacement>*/
-	var processNextTick = __webpack_require__(27);
+	var processNextTick = __webpack_require__(24);
 	/*</replacement>*/
 
 	/*<replacement>*/
-	var isArray = __webpack_require__(32);
+	var isArray = __webpack_require__(29);
 	/*</replacement>*/
 
 	/*<replacement>*/
-	var Buffer = __webpack_require__(33).Buffer;
+	var Buffer = __webpack_require__(30).Buffer;
 	/*</replacement>*/
 
 	Readable.ReadableState = ReadableState;
 
-	var EE = __webpack_require__(15);
+	var EE = __webpack_require__(10);
 
 	/*<replacement>*/
 	var EElistenerCount = function (emitter, type) {
@@ -4375,22 +4315,22 @@
 	var Stream;
 	(function () {
 	  try {
-	    Stream = __webpack_require__(34);
+	    Stream = __webpack_require__(31);
 	  } catch (_) {} finally {
-	    if (!Stream) Stream = __webpack_require__(15).EventEmitter;
+	    if (!Stream) Stream = __webpack_require__(10).EventEmitter;
 	  }
 	})();
 	/*</replacement>*/
 
-	var Buffer = __webpack_require__(33).Buffer;
+	var Buffer = __webpack_require__(30).Buffer;
 
 	/*<replacement>*/
-	var util = __webpack_require__(28);
-	util.inherits = __webpack_require__(29);
+	var util = __webpack_require__(25);
+	util.inherits = __webpack_require__(26);
 	/*</replacement>*/
 
 	/*<replacement>*/
-	var debugUtil = __webpack_require__(19);
+	var debugUtil = __webpack_require__(16);
 	var debug = undefined;
 	if (debugUtil && debugUtil.debuglog) {
 	  debug = debugUtil.debuglog('stream');
@@ -4405,7 +4345,7 @@
 
 	var Duplex;
 	function ReadableState(options, stream) {
-	  Duplex = Duplex || __webpack_require__(26);
+	  Duplex = Duplex || __webpack_require__(23);
 
 	  options = options || {};
 
@@ -4464,7 +4404,7 @@
 	  this.decoder = null;
 	  this.encoding = null;
 	  if (options.encoding) {
-	    if (!StringDecoder) StringDecoder = __webpack_require__(35).StringDecoder;
+	    if (!StringDecoder) StringDecoder = __webpack_require__(32).StringDecoder;
 	    this.decoder = new StringDecoder(options.encoding);
 	    this.encoding = options.encoding;
 	  }
@@ -4472,7 +4412,7 @@
 
 	var Duplex;
 	function Readable(options) {
-	  Duplex = Duplex || __webpack_require__(26);
+	  Duplex = Duplex || __webpack_require__(23);
 
 	  if (!(this instanceof Readable)) return new Readable(options);
 
@@ -4575,7 +4515,7 @@
 
 	// backwards compatibility.
 	Readable.prototype.setEncoding = function (enc) {
-	  if (!StringDecoder) StringDecoder = __webpack_require__(35).StringDecoder;
+	  if (!StringDecoder) StringDecoder = __webpack_require__(32).StringDecoder;
 	  this._readableState.decoder = new StringDecoder(enc);
 	  this._readableState.encoding = enc;
 	  return this;
@@ -5227,7 +5167,7 @@
 	}
 
 /***/ },
-/* 32 */
+/* 29 */
 /***/ function(module, exports) {
 
 	var toString = {}.toString;
@@ -5238,19 +5178,19 @@
 
 
 /***/ },
-/* 33 */
+/* 30 */
 /***/ function(module, exports) {
 
 	module.exports = require("buffer");
 
 /***/ },
-/* 34 */
+/* 31 */
 /***/ function(module, exports) {
 
 	module.exports = require("stream");
 
 /***/ },
-/* 35 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -5274,7 +5214,7 @@
 	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 	// USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-	var Buffer = __webpack_require__(33).Buffer;
+	var Buffer = __webpack_require__(30).Buffer;
 
 	var isBufferEncoding = Buffer.isEncoding
 	  || function(encoding) {
@@ -5477,7 +5417,7 @@
 
 
 /***/ },
-/* 36 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// A bit simpler than readable streams.
@@ -5489,7 +5429,7 @@
 	module.exports = Writable;
 
 	/*<replacement>*/
-	var processNextTick = __webpack_require__(27);
+	var processNextTick = __webpack_require__(24);
 	/*</replacement>*/
 
 	/*<replacement>*/
@@ -5497,19 +5437,19 @@
 	/*</replacement>*/
 
 	/*<replacement>*/
-	var Buffer = __webpack_require__(33).Buffer;
+	var Buffer = __webpack_require__(30).Buffer;
 	/*</replacement>*/
 
 	Writable.WritableState = WritableState;
 
 	/*<replacement>*/
-	var util = __webpack_require__(28);
-	util.inherits = __webpack_require__(29);
+	var util = __webpack_require__(25);
+	util.inherits = __webpack_require__(26);
 	/*</replacement>*/
 
 	/*<replacement>*/
 	var internalUtil = {
-	  deprecate: __webpack_require__(37)
+	  deprecate: __webpack_require__(34)
 	};
 	/*</replacement>*/
 
@@ -5517,14 +5457,14 @@
 	var Stream;
 	(function () {
 	  try {
-	    Stream = __webpack_require__(34);
+	    Stream = __webpack_require__(31);
 	  } catch (_) {} finally {
-	    if (!Stream) Stream = __webpack_require__(15).EventEmitter;
+	    if (!Stream) Stream = __webpack_require__(10).EventEmitter;
 	  }
 	})();
 	/*</replacement>*/
 
-	var Buffer = __webpack_require__(33).Buffer;
+	var Buffer = __webpack_require__(30).Buffer;
 
 	util.inherits(Writable, Stream);
 
@@ -5539,7 +5479,7 @@
 
 	var Duplex;
 	function WritableState(options, stream) {
-	  Duplex = Duplex || __webpack_require__(26);
+	  Duplex = Duplex || __webpack_require__(23);
 
 	  options = options || {};
 
@@ -5656,7 +5596,7 @@
 
 	var Duplex;
 	function Writable(options) {
-	  Duplex = Duplex || __webpack_require__(26);
+	  Duplex = Duplex || __webpack_require__(23);
 
 	  // Writable ctor is applied to Duplexes, though they're not
 	  // instanceof Writable, they're instanceof Readable.
@@ -5998,7 +5938,7 @@
 	}
 
 /***/ },
-/* 37 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -6006,16 +5946,16 @@
 	 * For Node.js, simply re-export the core `util.deprecate` function.
 	 */
 
-	module.exports = __webpack_require__(19).deprecate;
+	module.exports = __webpack_require__(16).deprecate;
 
 
 /***/ },
-/* 38 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Transform = __webpack_require__(39).Transform
-	var inherits = __webpack_require__(29)
-	var bl = __webpack_require__(24)
+	var Transform = __webpack_require__(36).Transform
+	var inherits = __webpack_require__(26)
+	var bl = __webpack_require__(21)
 
 	function Base (opts) {
 	  opts = opts || {}
@@ -6099,25 +6039,25 @@
 
 
 /***/ },
-/* 39 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Stream = (function (){
 	  try {
-	    return __webpack_require__(34); // hack to fix a circular dependency issue when used with browserify
+	    return __webpack_require__(31); // hack to fix a circular dependency issue when used with browserify
 	  } catch(_){}
 	}());
-	exports = module.exports = __webpack_require__(40);
+	exports = module.exports = __webpack_require__(37);
 	exports.Stream = Stream || exports;
 	exports.Readable = exports;
-	exports.Writable = __webpack_require__(43);
-	exports.Duplex = __webpack_require__(42);
-	exports.Transform = __webpack_require__(44);
-	exports.PassThrough = __webpack_require__(45);
+	exports.Writable = __webpack_require__(40);
+	exports.Duplex = __webpack_require__(39);
+	exports.Transform = __webpack_require__(41);
+	exports.PassThrough = __webpack_require__(42);
 
 
 /***/ },
-/* 40 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6125,20 +6065,20 @@
 	module.exports = Readable;
 
 	/*<replacement>*/
-	var processNextTick = __webpack_require__(27);
+	var processNextTick = __webpack_require__(24);
 	/*</replacement>*/
 
 	/*<replacement>*/
-	var isArray = __webpack_require__(41);
+	var isArray = __webpack_require__(38);
 	/*</replacement>*/
 
 	/*<replacement>*/
-	var Buffer = __webpack_require__(33).Buffer;
+	var Buffer = __webpack_require__(30).Buffer;
 	/*</replacement>*/
 
 	Readable.ReadableState = ReadableState;
 
-	var EE = __webpack_require__(15);
+	var EE = __webpack_require__(10);
 
 	/*<replacement>*/
 	var EElistenerCount = function (emitter, type) {
@@ -6150,22 +6090,22 @@
 	var Stream;
 	(function () {
 	  try {
-	    Stream = __webpack_require__(34);
+	    Stream = __webpack_require__(31);
 	  } catch (_) {} finally {
-	    if (!Stream) Stream = __webpack_require__(15).EventEmitter;
+	    if (!Stream) Stream = __webpack_require__(10).EventEmitter;
 	  }
 	})();
 	/*</replacement>*/
 
-	var Buffer = __webpack_require__(33).Buffer;
+	var Buffer = __webpack_require__(30).Buffer;
 
 	/*<replacement>*/
-	var util = __webpack_require__(28);
-	util.inherits = __webpack_require__(29);
+	var util = __webpack_require__(25);
+	util.inherits = __webpack_require__(26);
 	/*</replacement>*/
 
 	/*<replacement>*/
-	var debugUtil = __webpack_require__(19);
+	var debugUtil = __webpack_require__(16);
 	var debug = undefined;
 	if (debugUtil && debugUtil.debuglog) {
 	  debug = debugUtil.debuglog('stream');
@@ -6180,7 +6120,7 @@
 
 	var Duplex;
 	function ReadableState(options, stream) {
-	  Duplex = Duplex || __webpack_require__(42);
+	  Duplex = Duplex || __webpack_require__(39);
 
 	  options = options || {};
 
@@ -6239,7 +6179,7 @@
 	  this.decoder = null;
 	  this.encoding = null;
 	  if (options.encoding) {
-	    if (!StringDecoder) StringDecoder = __webpack_require__(35).StringDecoder;
+	    if (!StringDecoder) StringDecoder = __webpack_require__(32).StringDecoder;
 	    this.decoder = new StringDecoder(options.encoding);
 	    this.encoding = options.encoding;
 	  }
@@ -6247,7 +6187,7 @@
 
 	var Duplex;
 	function Readable(options) {
-	  Duplex = Duplex || __webpack_require__(42);
+	  Duplex = Duplex || __webpack_require__(39);
 
 	  if (!(this instanceof Readable)) return new Readable(options);
 
@@ -6350,7 +6290,7 @@
 
 	// backwards compatibility.
 	Readable.prototype.setEncoding = function (enc) {
-	  if (!StringDecoder) StringDecoder = __webpack_require__(35).StringDecoder;
+	  if (!StringDecoder) StringDecoder = __webpack_require__(32).StringDecoder;
 	  this._readableState.decoder = new StringDecoder(enc);
 	  this._readableState.encoding = enc;
 	  return this;
@@ -7002,7 +6942,7 @@
 	}
 
 /***/ },
-/* 41 */
+/* 38 */
 /***/ function(module, exports) {
 
 	var toString = {}.toString;
@@ -7013,7 +6953,7 @@
 
 
 /***/ },
-/* 42 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// a duplex stream is just a stream that is both readable and writable.
@@ -7036,16 +6976,16 @@
 	module.exports = Duplex;
 
 	/*<replacement>*/
-	var processNextTick = __webpack_require__(27);
+	var processNextTick = __webpack_require__(24);
 	/*</replacement>*/
 
 	/*<replacement>*/
-	var util = __webpack_require__(28);
-	util.inherits = __webpack_require__(29);
+	var util = __webpack_require__(25);
+	util.inherits = __webpack_require__(26);
 	/*</replacement>*/
 
-	var Readable = __webpack_require__(40);
-	var Writable = __webpack_require__(43);
+	var Readable = __webpack_require__(37);
+	var Writable = __webpack_require__(40);
 
 	util.inherits(Duplex, Readable);
 
@@ -7093,7 +7033,7 @@
 	}
 
 /***/ },
-/* 43 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// A bit simpler than readable streams.
@@ -7105,7 +7045,7 @@
 	module.exports = Writable;
 
 	/*<replacement>*/
-	var processNextTick = __webpack_require__(27);
+	var processNextTick = __webpack_require__(24);
 	/*</replacement>*/
 
 	/*<replacement>*/
@@ -7113,19 +7053,19 @@
 	/*</replacement>*/
 
 	/*<replacement>*/
-	var Buffer = __webpack_require__(33).Buffer;
+	var Buffer = __webpack_require__(30).Buffer;
 	/*</replacement>*/
 
 	Writable.WritableState = WritableState;
 
 	/*<replacement>*/
-	var util = __webpack_require__(28);
-	util.inherits = __webpack_require__(29);
+	var util = __webpack_require__(25);
+	util.inherits = __webpack_require__(26);
 	/*</replacement>*/
 
 	/*<replacement>*/
 	var internalUtil = {
-	  deprecate: __webpack_require__(37)
+	  deprecate: __webpack_require__(34)
 	};
 	/*</replacement>*/
 
@@ -7133,14 +7073,14 @@
 	var Stream;
 	(function () {
 	  try {
-	    Stream = __webpack_require__(34);
+	    Stream = __webpack_require__(31);
 	  } catch (_) {} finally {
-	    if (!Stream) Stream = __webpack_require__(15).EventEmitter;
+	    if (!Stream) Stream = __webpack_require__(10).EventEmitter;
 	  }
 	})();
 	/*</replacement>*/
 
-	var Buffer = __webpack_require__(33).Buffer;
+	var Buffer = __webpack_require__(30).Buffer;
 
 	util.inherits(Writable, Stream);
 
@@ -7155,7 +7095,7 @@
 
 	var Duplex;
 	function WritableState(options, stream) {
-	  Duplex = Duplex || __webpack_require__(42);
+	  Duplex = Duplex || __webpack_require__(39);
 
 	  options = options || {};
 
@@ -7272,7 +7212,7 @@
 
 	var Duplex;
 	function Writable(options) {
-	  Duplex = Duplex || __webpack_require__(42);
+	  Duplex = Duplex || __webpack_require__(39);
 
 	  // Writable ctor is applied to Duplexes, though they're not
 	  // instanceof Writable, they're instanceof Readable.
@@ -7614,7 +7554,7 @@
 	}
 
 /***/ },
-/* 44 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// a transform stream is a readable/writable stream where you do
@@ -7663,11 +7603,11 @@
 
 	module.exports = Transform;
 
-	var Duplex = __webpack_require__(42);
+	var Duplex = __webpack_require__(39);
 
 	/*<replacement>*/
-	var util = __webpack_require__(28);
-	util.inherits = __webpack_require__(29);
+	var util = __webpack_require__(25);
+	util.inherits = __webpack_require__(26);
 	/*</replacement>*/
 
 	util.inherits(Transform, Duplex);
@@ -7799,7 +7739,7 @@
 	}
 
 /***/ },
-/* 45 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// a passthrough stream.
@@ -7810,11 +7750,11 @@
 
 	module.exports = PassThrough;
 
-	var Transform = __webpack_require__(44);
+	var Transform = __webpack_require__(41);
 
 	/*<replacement>*/
-	var util = __webpack_require__(28);
-	util.inherits = __webpack_require__(29);
+	var util = __webpack_require__(25);
+	util.inherits = __webpack_require__(26);
 	/*</replacement>*/
 
 	util.inherits(PassThrough, Transform);
@@ -7830,11 +7770,11 @@
 	};
 
 /***/ },
-/* 46 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var bl = __webpack_require__(24)
-	var util = __webpack_require__(19)
+	var bl = __webpack_require__(21)
+	var util = __webpack_require__(16)
 
 	function IncompleteBufferError (message) {
 	  Error.call(this) // super constructor
@@ -8233,10 +8173,10 @@
 
 
 /***/ },
-/* 47 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var bl = __webpack_require__(24)
+	var bl = __webpack_require__(21)
 	var TOLERANCE = 0.1
 
 	module.exports = function buildEncode (encodingTypes, forceFloat64, compatibilityMode) {
@@ -8521,7 +8461,7 @@
 
 
 /***/ },
-/* 48 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {/**
@@ -25590,10 +25530,10 @@
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(49)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(46)(module)))
 
 /***/ },
-/* 49 */
+/* 46 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -25609,7 +25549,7 @@
 
 
 /***/ },
-/* 50 */
+/* 47 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -25638,11 +25578,76 @@
 
 
 /***/ },
+/* 48 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const path = __webpack_require__(11);
+	const fs = __webpack_require__(49);
+	const Platform = __webpack_require__(50);
+	const DefaultConfig = {
+	    // "debug.fixedSize": { rows: 10, columns: 100 }
+	    "debug.incrementalRenderRegions": false,
+	    // Experimental background settings
+	    // "prototype.editor.backgroundOpacity": 1,
+	    "prototype.editor.backgroundOpacity": 0.9,
+	    "prototype.editor.backgroundImageUrl": "http://cdn.wonderfulengineering.com/wp-content/uploads/2014/04/code-wallpaper-2.jpg",
+	    "prototype.editor.backgroundImageSize": "cover",
+	    "oni.loadPlugins": true,
+	    "editor.fontSize": "14px",
+	    "editor.quickInfo.enabled": true,
+	    "editor.completions.enabled": true,
+	    "editor.errors.slideOnFocus": true,
+	    "editor.formatting.formatOnSwitchToNormalMode": true
+	};
+	const MacConfig = {
+	    "editor.fontFamily": "Monaco"
+	};
+	const WindowsConfig = {
+	    "editor.fontFamily": "Consolas"
+	};
+	const DefaultPlatformConfig = Platform.isMac() ? MacConfig : WindowsConfig;
+	const userConfigFile = path.join(Platform.getUserHome(), ".oni", "config.json");
+	let userConfig = {};
+	if (fs.existsSync(userConfigFile)) {
+	    userConfig = JSON.parse(fs.readFileSync(userConfigFile, "utf8"));
+	}
+	const Config = Object.assign({}, DefaultConfig, DefaultPlatformConfig, userConfig);
+	function hasValue(configValue) {
+	    return !!getValue(configValue);
+	}
+	exports.hasValue = hasValue;
+	function getValue(configValue) {
+	    return Config[configValue];
+	}
+	exports.getValue = getValue;
+
+
+/***/ },
+/* 49 */
+/***/ function(module, exports) {
+
+	module.exports = require("fs");
+
+/***/ },
+/* 50 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const os = __webpack_require__(13);
+	exports.isMac = () => os.platform() === "darwin";
+	exports.isWindows = () => os.platform() === "win32";
+	exports.getUserHome = () => {
+	    return exports.isWindows() ? process.env["USERPROFILE"] : process.env["HOME"];
+	};
+
+
+/***/ },
 /* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const Q = __webpack_require__(17);
+	const Q = __webpack_require__(14);
 	class Buffer {
 	    constructor(bufferInstance) {
 	        this._bufferInstance = bufferInstance;
@@ -25671,7 +25676,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const Q = __webpack_require__(17);
+	const Q = __webpack_require__(14);
 	class Window {
 	    constructor(windowInstance) {
 	        this._windowInstance = windowInstance;
@@ -25689,7 +25694,7 @@
 
 	"use strict";
 	const Grid_1 = __webpack_require__(5);
-	const Config = __webpack_require__(6);
+	const Config = __webpack_require__(48);
 	/**
 	 * This strategy doesn't help much in practice, as
 	 * often there are UI elements at the bounds, that
@@ -25740,7 +25745,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const actions_1 = __webpack_require__(13);
+	const actions_1 = __webpack_require__(8);
 	class Cursor {
 	    constructor() {
 	        var cursorElement = document.createElement("div");
@@ -25776,7 +25781,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const events_1 = __webpack_require__(15);
+	const events_1 = __webpack_require__(10);
 	class Keyboard extends events_1.EventEmitter {
 	    constructor() {
 	        super();
@@ -25846,7 +25851,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const events_1 = __webpack_require__(15);
+	const events_1 = __webpack_require__(10);
 	// TODO
 	// Handle modifier keys
 	class Mouse extends events_1.EventEmitter {
@@ -25888,14 +25893,14 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const os = __webpack_require__(10);
-	const path = __webpack_require__(7);
-	const fs = __webpack_require__(8);
-	const events_1 = __webpack_require__(15);
+	const os = __webpack_require__(13);
+	const path = __webpack_require__(11);
+	const fs = __webpack_require__(49);
+	const events_1 = __webpack_require__(10);
 	const electron_1 = __webpack_require__(3);
 	const electron_2 = __webpack_require__(3);
 	const mkdirp = __webpack_require__(58);
-	const Config = __webpack_require__(6);
+	const Config = __webpack_require__(48);
 	const Plugin_1 = __webpack_require__(59);
 	const UI = __webpack_require__(60);
 	const OverlayManager_1 = __webpack_require__(271);
@@ -26093,8 +26098,8 @@
 /* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var path = __webpack_require__(7);
-	var fs = __webpack_require__(8);
+	var path = __webpack_require__(11);
+	var fs = __webpack_require__(49);
 	var _0777 = parseInt('0777', 8);
 
 	module.exports = mkdirP.mkdirp = mkdirP.mkdirP = mkdirP;
@@ -26198,8 +26203,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const path = __webpack_require__(7);
-	const fs = __webpack_require__(8);
+	const path = __webpack_require__(11);
+	const fs = __webpack_require__(49);
 	const electron_1 = __webpack_require__(3);
 	const BrowserWindow = __webpack_require__(3).remote.BrowserWindow;
 	const DefaultMetadata = {
@@ -26376,12 +26381,12 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const events_1 = __webpack_require__(15);
+	const events_1 = __webpack_require__(10);
 	const React = __webpack_require__(61);
 	const ReactDOM = __webpack_require__(88);
 	const redux_1 = __webpack_require__(226);
 	const react_redux_1 = __webpack_require__(246);
-	const Config = __webpack_require__(6);
+	const Config = __webpack_require__(48);
 	const RootComponent_1 = __webpack_require__(255);
 	const ActionCreators = __webpack_require__(258);
 	const Reducer_1 = __webpack_require__(270);
@@ -47156,7 +47161,7 @@
 
 	var result = (0, _ponyfill2['default'])(root);
 	exports['default'] = result;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(49)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(46)(module)))
 
 /***/ },
 /* 240 */
@@ -48254,7 +48259,7 @@
 	};
 	const React = __webpack_require__(61);
 	const react_redux_1 = __webpack_require__(246);
-	const _ = __webpack_require__(48);
+	const _ = __webpack_require__(45);
 	const Icon_1 = __webpack_require__(256);
 	const Menu_1 = __webpack_require__(257);
 	const QuickInfo_1 = __webpack_require__(265);
@@ -48398,7 +48403,7 @@
 	};
 	const React = __webpack_require__(61);
 	const react_redux_1 = __webpack_require__(246);
-	const _ = __webpack_require__(48);
+	const _ = __webpack_require__(45);
 	const ActionCreators = __webpack_require__(258);
 	const Icon_1 = __webpack_require__(256);
 	const HighlightText_1 = __webpack_require__(259);
@@ -49074,7 +49079,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const _ = __webpack_require__(48);
+	const _ = __webpack_require__(45);
 	exports.reducer = (s, a) => {
 	    switch (a.type) {
 	        case "SET_CURSOR_POSITION":
@@ -49258,7 +49263,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const _ = __webpack_require__(48);
+	const _ = __webpack_require__(45);
 	class WindowContext {
 	    get dimensions() {
 	        return this._dimensions;
@@ -49349,7 +49354,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const path = __webpack_require__(7);
+	const path = __webpack_require__(11);
 	const Error_1 = __webpack_require__(273);
 	class ErrorOverlay {
 	    constructor() {
@@ -49410,7 +49415,7 @@
 	const React = __webpack_require__(61);
 	const ReactDOM = __webpack_require__(88);
 	const Icon_1 = __webpack_require__(256);
-	const Config = __webpack_require__(6);
+	const Config = __webpack_require__(48);
 	__webpack_require__(274);
 	const padding = 8;
 	class Errors extends React.Component {
@@ -49773,9 +49778,9 @@
 	 *
 	 * Manages the quick open menu
 	 */
-	const path = __webpack_require__(7);
+	const path = __webpack_require__(11);
 	const UI = __webpack_require__(60);
-	const child_process_1 = __webpack_require__(16);
+	const child_process_1 = __webpack_require__(12);
 	class QuickOpen {
 	    constructor(neovimInstance) {
 	        this._seenItems = [];
@@ -49822,8 +49827,8 @@
 	 * Manages the quick open menu
 	 */
 	"use strict";
-	const Config = __webpack_require__(6);
-	const _ = __webpack_require__(48);
+	const Config = __webpack_require__(48);
+	const _ = __webpack_require__(45);
 	class Formatter {
 	    constructor(neovimInstance, pluginManager) {
 	        this._neovimInstance = neovimInstance;
@@ -49876,8 +49881,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const Q = __webpack_require__(17);
-	const child_process_1 = __webpack_require__(16);
+	const Q = __webpack_require__(14);
+	const child_process_1 = __webpack_require__(12);
 	/**
 	 * Window that shows terminal output
 	 */
