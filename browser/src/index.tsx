@@ -25,6 +25,7 @@ import { QuickOpen } from "./Services/QuickOpen"
 import { Formatter } from "./Services/Formatter"
 import { OutputWindow } from "./Services/Output"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
+import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
 
 const start = (args: string[]) => {
 
@@ -56,6 +57,8 @@ const start = (args: string[]) => {
     const formatter = new Formatter(instance, pluginManager)
     const outputWindow = new OutputWindow(instance, pluginManager)
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
+    const syntaxHighligher = new SyntaxHighlighter(instance, pluginManager)
+
 
     instance.on("action", (action) => {
         renderer.onAction(action)

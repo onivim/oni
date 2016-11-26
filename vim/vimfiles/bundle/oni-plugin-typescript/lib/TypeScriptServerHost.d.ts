@@ -1,6 +1,28 @@
 /// <reference types="node" />
 /// <reference types="es6-promise" />
 import * as events from "events";
+/**
+ * Taken from definitions here:
+ * https://github.com/Microsoft/TypeScript/blob/master/lib/protocol.d.ts#L5
+ */
+export interface TextSpan {
+    start: Location;
+    end: Location;
+}
+export interface Location {
+    line: number;
+    offset: number;
+}
+export interface NavigationTree {
+    text: string;
+    kind: string;
+    kindModifiers: string;
+    spans: TextSpan[];
+    childItems?: NavigationTree[];
+}
+/**
+ * End definitions
+ */
 export declare class TypeScriptServerHost extends events.EventEmitter {
     private _tssProcess;
     private _seqNumber;
@@ -20,6 +42,7 @@ export declare class TypeScriptServerHost extends events.EventEmitter {
     getSignatureHelp(fullFilePath: string, line: number, col: number): Promise<void>;
     getErrors(fullFilePath: string): Promise<void>;
     getErrorsAcrossProject(fullFilePath: string): Promise<void>;
+    getNavigationTree(fullFilePath: string): Promise<NavigationTree>;
     getDocumentHighlights(fullFilePath: string, lineNumber: number, offset: number): Promise<void>;
     _makeTssRequest<T>(commandName: string, args: any): Promise<T>;
     private _parseResponse(returnedData);

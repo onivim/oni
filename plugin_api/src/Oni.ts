@@ -43,6 +43,9 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
             } else if (arg.payload.name === "BufWritePost") {
                 this.emit("buffer-saved", arg.payload.context)
                 this.emit("BufWritePost", arg.payload.context)
+            } else if(arg.payload.name === "BufEnter") {
+                this.emit("buffer-enter", arg.payload.context)
+                this.emit("BufEnter", arg.payload.context)
             }
         } else if (arg.type === "request") {
             console.log("request: " + arg.payload.name);
@@ -106,5 +109,19 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {
         this._languageService = new DebouncedLanguageService(languageService)
     }
-}
 
+    public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {
+        Sender.send("set-syntax-highlights", null, {
+            file: file,
+            key: key,
+            highlights: highlights
+        })
+    }
+
+    public clearHighlights(file: string, key: string): void {
+        Sender.send("clear-syntax-highlights", null, {
+            file: file,
+            key: key
+        })
+    }
+}

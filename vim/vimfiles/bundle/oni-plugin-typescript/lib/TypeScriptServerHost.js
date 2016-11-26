@@ -13,6 +13,9 @@ var readline = require("readline");
 var os = require("os");
 var events = require("events");
 var tssPath = path.join(__dirname, "..", "node_modules", "typescript", "lib", "tsserver.js");
+/**
+ * End definitions
+ */
 var TypeScriptServerHost = (function (_super) {
     __extends(TypeScriptServerHost, _super);
     function TypeScriptServerHost() {
@@ -144,6 +147,11 @@ var TypeScriptServerHost = (function (_super) {
     };
     TypeScriptServerHost.prototype.getErrorsAcrossProject = function (fullFilePath) {
         return this._makeTssRequest("geterrForProject", {
+            file: fullFilePath
+        });
+    };
+    TypeScriptServerHost.prototype.getNavigationTree = function (fullFilePath) {
+        return this._makeTssRequest("navtree", {
             file: fullFilePath
         });
     };

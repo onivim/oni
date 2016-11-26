@@ -3,7 +3,7 @@ import * as path from "path"
 import * as fs from "fs"
 import * as os from "os"
 
-import { TypeScriptServerHost } from "./TypeScriptServerHost"
+import { NavigationTree, TypeScriptServerHost } from "./TypeScriptServerHost"
 import { QuickInfo } from "./QuickInfo";
 
 import * as _ from "lodash"
@@ -26,7 +26,9 @@ let lastBuffer: string[] = []
 // var derp = require(path.join(__dirname, "..", "lib", "TypeScriptServerHost"))
 // var object = new derp.TypeScriptServerHost()
 // object.openFile("D:/oni/browser/src/NeovimInstance.ts")
+// object.getNavTree("D:/oni/browser/src/NeovimInstance.ts", 10, 1)
 // object.getCompletions("D:/oni/browser/src/NeovimInstance.ts", 10, 1)
+
 // 
 
 const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
@@ -248,14 +250,75 @@ Oni.on("buffer-update", (args) => {
 
 });
 
+
+const getHighlightsFromNavTree = (navTree: NavigationTree[], highlights: any[]) => {
+    if(!navTree)
+        return
+
+    navTree.forEach((item) => {
+        const spans = item.spans
+        const highlightKind = kindToHighlightGroup[item.kind]
+
+        // if(!highlightKind)
+        //     debugger
+
+        spans.forEach((s) => {
+            highlights.push({
+                highlightKind: highlightKind,
+                start: {line: s.start.line, column: s.start.offset},
+                end: {line: s.end.line, column: s.end.offset},
+                token: item.text
+            })
+        })
+
+        if (item.childItems)
+            getHighlightsFromNavTree(item.childItems, highlights)
+    })
+}
+
+Oni.on("buffer-enter", (args: Oni.EventContext) => {
+    // // TODO: Look at alternate implementation for this
+    host.openFile(args.bufferFullPath);
+
+    host.getNavigationTree(args.bufferFullPath)
+        .then(navTree => {
+            const highlights = []
+            // debugger
+            getHighlightsFromNavTree(navTree.childItems, highlights)
+
+            Oni.setHighlights(args.bufferFullPath, "derp", highlights)
+        })
+})
+
 Oni.on("buffer-saved", (args: Oni.EventContext) => {
     host.getErrorsAcrossProject(args.bufferFullPath)
+
+    host.getNavigationTree(args.bufferFullPath)
+        .then(navTree => {
+            const highlights = []
+            // debugger
+            getHighlightsFromNavTree(navTree.childItems, highlights)
+
+            Oni.setHighlights(args.bufferFullPath, "derp", highlights)
+        })
 })
 
 export interface DisplayPart {
     text: string;
     kind: string;
 }
+
+var kindToHighlightGroup = {
+    let: "Identifier", 
+    const: "Constant",
+    var: "Identifier",
+    alias: "Include",
+    function: "Macro",
+    method: "Function",
+    property: "Special",
+    class: "Type",
+    interface: "Type"
+};
 
 // TODO: Refactor to separate file
 const convertToDisplayString = (displayParts: DisplayPart[]) => {

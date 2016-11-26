@@ -37,6 +37,8 @@ declare namespace Oni {
          */
         wincol: number
         winline: number
+        windowTopLine: number
+        windowBottomLine: number
     }
 
     // export interface TextDocumentPosition {
@@ -105,6 +107,9 @@ declare namespace Oni {
             editor: Editor;
 
             registerLanguageService(languageType: string, languageService: LanguageService)
+
+            clearHighlights(file: string, key: string)
+            setHighlights(file: string, key: string, highlights: SyntaxHighlight[])
         }
 
         export interface CompletionResult {
@@ -115,6 +120,13 @@ declare namespace Oni {
             base: string;
 
             completions: CompletionInfo[];
+        }
+
+        export interface SyntaxHighlight {
+            highlightKind: string,
+            start: Oni.Position,
+            end: Oni.Position,
+            token: string
         }
 
         //export type CompletionKind = "method" | "function" | "var"

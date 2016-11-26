@@ -214,7 +214,12 @@ export class PluginManager extends EventEmitter {
             this.emit("execute-shell-command", pluginResponse.payload)
         } else if (pluginResponse.type === "evaluate-block-result") {
             this.emit("evaluate-block-result", pluginResponse.payload)
+        } else if(pluginResponse.type === "set-syntax-highlights") {
+            this.emit("set-syntax-highlights", pluginResponse.payload)
+        } else if(pluginResponse.type === "clear-syntax-highlights") {
+            this.emit("clear-syntax-highlights", pluginResponse.payload)
         }
+
     }
 
     /**

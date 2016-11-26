@@ -13,6 +13,34 @@ import * as events from "events";
 
 var tssPath = path.join(__dirname, "..", "node_modules", "typescript", "lib", "tsserver.js");
 
+/**
+ * Taken from definitions here:
+ * https://github.com/Microsoft/TypeScript/blob/master/lib/protocol.d.ts#L5
+ */
+export interface TextSpan {
+    start: Location
+    end: Location
+}
+
+export interface Location {
+    line: number
+    offset: number
+}
+
+export interface NavigationTree {
+    text: string
+    kind: string
+    kindModifiers: string
+    spans: TextSpan[]
+    childItems?: NavigationTree[]
+}
+
+/**
+ * End definitions
+ */
+
+
+
 export class TypeScriptServerHost extends events.EventEmitter {
 
     private _tssProcess = null;
@@ -162,6 +190,12 @@ export class TypeScriptServerHost extends events.EventEmitter {
 
     public getErrorsAcrossProject(fullFilePath: string): Promise<void> {
         return this._makeTssRequest<void>("geterrForProject", {
+            file: fullFilePath
+        });
+    }
+
+    public getNavigationTree(fullFilePath: string): Promise<NavigationTree> {
+        return this._makeTssRequest<NavigationTree>("navtree", {
             file: fullFilePath
         });
     }

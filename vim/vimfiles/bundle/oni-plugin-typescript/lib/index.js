@@ -18,6 +18,7 @@ var lastBuffer = [];
 // var derp = require(path.join(__dirname, "..", "lib", "TypeScriptServerHost"))
 // var object = new derp.TypeScriptServerHost()
 // object.openFile("D:/oni/browser/src/NeovimInstance.ts")
+// object.getNavTree("D:/oni/browser/src/NeovimInstance.ts", 10, 1)
 // object.getCompletions("D:/oni/browser/src/NeovimInstance.ts", 10, 1)
 // 
 var getQuickInfo = function (textDocumentPosition) {
@@ -199,9 +200,58 @@ Oni.on("buffer-update", function (args) {
     lastBuffer = args.bufferLines;
     updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL));
 });
+var getHighlightsFromNavTree = function (navTree, highlights) {
+    if (!navTree)
+        return;
+    navTree.forEach(function (item) {
+        var spans = item.spans;
+        var highlightKind = kindToHighlightGroup[item.kind];
+        // if(!highlightKind)
+        //     debugger
+        spans.forEach(function (s) {
+            highlights.push({
+                highlightKind: highlightKind,
+                start: { line: s.start.line, column: s.start.offset },
+                end: { line: s.end.line, column: s.end.offset },
+                token: item.text
+            });
+        });
+        if (item.childItems)
+            getHighlightsFromNavTree(item.childItems, highlights);
+    });
+};
+Oni.on("buffer-enter", function (args) {
+    // // TODO: Look at alternate implementation for this
+    host.openFile(args.bufferFullPath);
+    host.getNavigationTree(args.bufferFullPath)
+        .then(function (navTree) {
+        var highlights = [];
+        // debugger
+        getHighlightsFromNavTree(navTree.childItems, highlights);
+        Oni.setHighlights(args.bufferFullPath, "derp", highlights);
+    });
+});
 Oni.on("buffer-saved", function (args) {
     host.getErrorsAcrossProject(args.bufferFullPath);
+    host.getNavigationTree(args.bufferFullPath)
+        .then(function (navTree) {
+        var highlights = [];
+        // debugger
+        getHighlightsFromNavTree(navTree.childItems, highlights);
+        Oni.setHighlights(args.bufferFullPath, "derp", highlights);
+    });
 });
+var kindToHighlightGroup = {
+    let: "Identifier",
+    const: "Constant",
+    var: "Identifier",
+    alias: "Include",
+    function: "Macro",
+    method: "Function",
+    property: "Special",
+    class: "Type",
+    interface: "Type"
+};
 // TODO: Refactor to separate file
 var convertToDisplayString = function (displayParts) {
     var ret = "";

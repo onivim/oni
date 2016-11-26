@@ -68,6 +68,8 @@ let context.line = line(".")
 let context.column = col(".")
 let context.winline = winline()
 let context.wincol = wincol()
+let context.windowTopLine = line("w0")
+let context.windowBottomLine = line("w$")
 let context.byte = line2byte(line(".")) + col(".")
 let context.filetype = eval("&filetype")
 

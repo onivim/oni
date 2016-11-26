@@ -21,6 +21,8 @@ export interface INeovimInstance {
 
     input(inputString: string)
     command(command: string)
+    eval(expression: string): Q.Promise<any>
+
 
     on(event: string, handler: Function)
 

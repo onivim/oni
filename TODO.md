@@ -1,22 +1,5 @@
-- Syntax highlighting
-    - Get highlight spans
-    - Read highlight colors when colorscheme changes
-        - Can use: let bgcolor=synIDattr(hlID('NonText'), 'bg#'): http://stackoverflow.com/questions/9912116/vimscript-programmatically-get-colors-from-colorscheme 
-        -  ColorScheme autocmd
-    - Use NeoVim APIs
-    - Event from plugin side - syntax-highlight-resolve
-    - Some ideas here from VSCode: https://github.com/Microsoft/vscode/blob/master/extensions/typescript/src/features/documentSymbolProvider.ts
-    - SymbolInfo - name, location, kind
-
-- REPL - 
-    - /// <LiveEvaluation path=".." />
-    - Handle imports - relative to path? 
-
 - Parameter helper
     - Show parameter info, like QuickInfo
-
-- Issue: QuickInfo opening too high
-- Issue: AutoComplete opening too low
 
 - Animation/Performance: Optimistic Typing
 - Animation: Cursor velocity
@@ -25,6 +8,15 @@
     - Use 'particle style' animation
 - Animation: Scroll
     - Start moving canvas up
+
+- REPL - 
+    - /// <LiveEvaluation path=".." />
+    - Handle imports - relative to path? 
+
+
+- Issue: QuickInfo opening too high
+- Issue: AutoComplete opening too low
+- Issue: Update binaries
 
 - Tasks provider
     - QuickOpen - Ctrl-SHIFT-P mode
@@ -77,6 +69,12 @@
 
 - Find-in-files
 - Find usages
+
+- Syntax highlighting - optimize syntax highlighter
+    - Only highlight appropriate lines
+    - Make sure to not continuously redefine - only define new entries
+    - Update syntax when going back to normal mode
+    - Use document highlights in insert mode while typing
 
 - Language Service: Rename
 
