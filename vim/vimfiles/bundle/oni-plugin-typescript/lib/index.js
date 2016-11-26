@@ -8,6 +8,18 @@ var host = new TypeScriptServerHost_1.TypeScriptServerHost();
 var quickInfo = new QuickInfo_1.QuickInfo(Oni, host);
 var lastOpenFile = null;
 var lastBuffer = [];
+// Testing Live evaluation
+//
+// Simple case
+// 1+2+3
+// Requiring node modules + absolute paths
+//
+// var path = require("path")
+// var derp = require(path.join(__dirname, "..", "lib", "TypeScriptServerHost"))
+// var object = new derp.TypeScriptServerHost()
+// object.openFile("D:/oni/browser/src/NeovimInstance.ts")
+// object.getCompletions("D:/oni/browser/src/NeovimInstance.ts", 10, 1)
+// 
 var getQuickInfo = function (textDocumentPosition) {
     return host.getQuickInfo(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
         .then(function (val) {
@@ -59,6 +71,7 @@ var evaluateBlock = function (context, code) {
     var fileName = context.bufferFullPath;
     var Module = require("module");
     var mod = new Module(fileName);
+    var util = require("util");
     var sandbox = {
         module: mod,
         __filename: fileName,
@@ -70,21 +83,21 @@ var evaluateBlock = function (context, code) {
     var result = script.runInNewContext(sandbox);
     if (result.then) {
         return result.then(function (val) { return ({
-            result: val,
-            variables: sandbox,
+            result: util.inspect(val),
+            variables: util.inspect(sandbox),
             output: null,
             errors: null
         }); }, function (err) { return ({
             result: null,
-            variables: sandbox,
+            variables: util.inspect(sandbox),
             output: null,
             errors: [err]
         }); });
     }
     else {
         return Promise.resolve({
-            result: result,
-            variables: sandbox,
+            result: util.inspect(result),
+            variables: util.inspect(sandbox),
             output: null,
             errors: null
         });

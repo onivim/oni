@@ -75,14 +75,14 @@ export class TypeScriptServerHost extends events.EventEmitter {
         });
     }
 
-    public openFile(fullFilePath: string): void {
-        this._makeTssRequest("open", {
+    public openFile(fullFilePath: string): Promise<any> {
+        return this._makeTssRequest("open", {
             file: fullFilePath
         });
     }
 
-    public getProjectInfo(fullFilePath: string): void {
-        this._makeTssRequest("projectInfo", {
+    public getProjectInfo(fullFilePath: string): Promise<any> {
+        return this._makeTssRequest("projectInfo", {
             file: fullFilePath,
             needFileNameList: true
         });

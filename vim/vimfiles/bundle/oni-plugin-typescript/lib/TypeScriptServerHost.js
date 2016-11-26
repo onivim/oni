@@ -69,12 +69,12 @@ var TypeScriptServerHost = (function (_super) {
         configurable: true
     });
     TypeScriptServerHost.prototype.openFile = function (fullFilePath) {
-        this._makeTssRequest("open", {
+        return this._makeTssRequest("open", {
             file: fullFilePath
         });
     };
     TypeScriptServerHost.prototype.getProjectInfo = function (fullFilePath) {
-        this._makeTssRequest("projectInfo", {
+        return this._makeTssRequest("projectInfo", {
             file: fullFilePath,
             needFileNameList: true
         });

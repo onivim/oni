@@ -15,6 +15,20 @@ let lastOpenFile = null;
 
 let lastBuffer: string[] = []
 
+// Testing Live evaluation
+//
+// Simple case
+// 1+2+3
+
+// Requiring node modules + absolute paths
+//
+// var path = require("path")
+// var derp = require(path.join(__dirname, "..", "lib", "TypeScriptServerHost"))
+// var object = new derp.TypeScriptServerHost()
+// object.openFile("D:/oni/browser/src/NeovimInstance.ts")
+// object.getCompletions("D:/oni/browser/src/NeovimInstance.ts", 10, 1)
+// 
+
 const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
     return host.getQuickInfo(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
         .then((val: any) => {
@@ -73,6 +87,7 @@ const evaluateBlock = (context: Oni.EventContext, code: string) => {
     const fileName = context.bufferFullPath
     var Module = require("module")
     const mod = new Module(fileName)
+    const util = require("util")
     const sandbox = {
         module: mod,
         __filename: fileName,
@@ -84,22 +99,22 @@ const evaluateBlock = (context: Oni.EventContext, code: string) => {
 
     const result = script.runInNewContext(sandbox)
 
-    if(result.then) {
+    if (result.then) {
         return result.then((val) => ({
-            result: val,
-            variables: sandbox,
+            result: util.inspect(val),
+            variables: util.inspect(sandbox),
             output: null,
             errors: null
         }), (err) => ({
             result: null,
-            variables: sandbox,
+            variables: util.inspect(sandbox),
             output: null,
             errors: [err]
         }))
     } else {
         return Promise.resolve({
-            result: result,
-            variables: sandbox,
+            result: util.inspect(result),
+            variables: util.inspect(sandbox),
             output: null,
             errors: null
         })

@@ -8,8 +8,8 @@ export declare class TypeScriptServerHost extends events.EventEmitter {
     private _rl;
     readonly pid: number;
     constructor();
-    openFile(fullFilePath: string): void;
-    getProjectInfo(fullFilePath: string): void;
+    openFile(fullFilePath: string): Promise<any>;
+    getProjectInfo(fullFilePath: string): Promise<any>;
     getTypeDefinition(fullFilePath: string, line: number, col: number): Promise<void>;
     getFormattingEdits(fullFilePath: string, line: number, col: number, endLine: number, endCol: number): Promise<any>;
     getCompletions(fullFilePath: string, line: number, col: number, prefix: string): Promise<any>;
