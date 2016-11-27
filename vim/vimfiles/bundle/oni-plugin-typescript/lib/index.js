@@ -20,7 +20,6 @@ var lastBuffer = [];
 // object.openFile("D:/oni/browser/src/NeovimInstance.ts")
 // object.getNavTree("D:/oni/browser/src/NeovimInstance.ts", 10, 1)
 // object.getCompletions("D:/oni/browser/src/NeovimInstance.ts", 10, 1)
-// 
 var getQuickInfo = function (textDocumentPosition) {
     return host.getQuickInfo(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
         .then(function (val) {
@@ -68,6 +67,13 @@ var getFormattingEdits = function (position) {
 };
 var evaluateBlock = function (context, code) {
     var vm = require("vm");
+    var ts = require("typescript");
+    // Get all imports from last module
+    var commonImports = lastBuffer.filter(function (line) {
+        return (line.trim().indexOf("import") === 0 || line.indexOf("require(") >= 0) && line.indexOf("ignore-live") === -1 && line.indexOf("return") === -1;
+    });
+    code = commonImports.join(os.EOL) + code;
+    code = ts.transpileModule(code, { target: "ES6" }).outputText;
     var script = new vm.Script(code);
     var fileName = context.bufferFullPath;
     var Module = require("module");
@@ -78,7 +84,11 @@ var evaluateBlock = function (context, code) {
         __filename: fileName,
         __dirname: path.dirname(fileName),
         require: function (path) {
-            return mod.require(path);
+            try {
+                return mod.require(path);
+            }
+            catch (ex) {
+            }
         }
     };
     var result = script.runInNewContext(sandbox);

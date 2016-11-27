@@ -29,8 +29,6 @@ let lastBuffer: string[] = []
 // object.getNavTree("D:/oni/browser/src/NeovimInstance.ts", 10, 1)
 // object.getCompletions("D:/oni/browser/src/NeovimInstance.ts", 10, 1)
 
-// 
-
 const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
     return host.getQuickInfo(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
         .then((val: any) => {
@@ -85,6 +83,18 @@ const getFormattingEdits = (position: Oni.EventContext) => {
 
 const evaluateBlock = (context: Oni.EventContext, code: string) => {
     const vm = require("vm")
+    const ts = require("typescript")
+
+    // Get all imports from last module
+
+    const commonImports = lastBuffer.filter(line => {
+        return (line.trim().indexOf("import") === 0 || line.indexOf("require(") >= 0) && line.indexOf("ignore-live") === -1 && line.indexOf("return") === -1
+    })
+
+    code = commonImports.join(os.EOL) + code
+
+    code = ts.transpileModule(code, { target: "ES6" }).outputText
+
     const script = new vm.Script(code)
     const fileName = context.bufferFullPath
     var Module = require("module")
@@ -95,7 +105,11 @@ const evaluateBlock = (context: Oni.EventContext, code: string) => {
         __filename: fileName,
         __dirname: path.dirname(fileName),
         require: (path) => {
-            return mod.require(path)
+            try {
+                return mod.require(path)
+            } catch (ex) {
+                // TODO: Log require error here
+            }
         }
     }
 
@@ -280,7 +294,7 @@ Oni.on("buffer-update", (args) => {
 
 
 const getHighlightsFromNavTree = (navTree: NavigationTree[], highlights: any[]) => {
-    if(!navTree)
+    if (!navTree)
         return
 
     navTree.forEach((item) => {
@@ -293,8 +307,8 @@ const getHighlightsFromNavTree = (navTree: NavigationTree[], highlights: any[]) 
         spans.forEach((s) => {
             highlights.push({
                 highlightKind: highlightKind,
-                start: {line: s.start.line, column: s.start.offset},
-                end: {line: s.end.line, column: s.end.offset},
+                start: { line: s.start.line, column: s.start.offset },
+                end: { line: s.end.line, column: s.end.offset },
                 token: item.text
             })
         })
@@ -337,7 +351,7 @@ export interface DisplayPart {
 }
 
 var kindToHighlightGroup = {
-    let: "Identifier", 
+    let: "Identifier",
     const: "Constant",
     var: "Identifier",
     alias: "Include",
