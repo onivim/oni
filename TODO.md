@@ -1,11 +1,28 @@
+- REPL
+    - Use /// <scratch> pragma to detect sections
+    - Bring in all imports
+    - Use ts transpiler
+    - Syntax region for <scratch> </scratch>
+
 - Parameter helper
     - Show parameter info, like QuickInfo
     - Add UI component in RootComponent
+
+- Syntax - improve performance by keeping dictionary
+    - filename -> syntax groups -> keywords
 
 - Animation/Performance: 
     - No flicker on quickinfo/autocomplete
     - Factor to always show
     - Why are there problems if it is always showing?
+
+- UI for REPL
+    - Result - top level
+    - Objects - get by highlighted variable name
+    - Errors
+    - Output
+
+- Good README example: - TSLint by Palantir
 
 - Animation/Performance: Optimistic Typing
 - Animation: Cursor velocity
@@ -14,10 +31,6 @@
     - Use 'particle style' animation
 - Animation: Scroll
     - Start moving canvas up
-
-- REPL - 
-    - /// <LiveEvaluation path=".." />
-    - Handle imports - relative to path? 
 
 
 - Issue: QuickInfo opening too high
