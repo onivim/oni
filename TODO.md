@@ -1,9 +1,3 @@
-- REPL
-    - Use /// <scratch> pragma to detect sections
-    - Bring in all imports
-    - Use ts transpiler
-    - Syntax region for <scratch> </scratch>
-
 - Parameter helper
     - Show parameter info, like QuickInfo
     - Add UI component in RootComponent
