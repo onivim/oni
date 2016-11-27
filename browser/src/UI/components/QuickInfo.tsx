@@ -6,10 +6,10 @@ import { State } from "./../State"
 require("./QuickInfo.less")
 
 export interface QuickInfoProps {
+    visible: boolean
     x: number
     y: number
-    title: string
-    documentation: string
+    elements: JSX.Element[]
 }
 
 export class QuickInfo extends React.Component<QuickInfoProps, void> {
@@ -24,26 +24,58 @@ export class QuickInfo extends React.Component<QuickInfoProps, void> {
 
         const innerStyle = {
             position: "absolute",
-            bottom: "0px"
+            bottom: "0px",
+            opacity: this.props.visible ? 1 : 0
         }
 
-        return (<div style={containerStyle}>
-                <div style={innerStyle} className="quickinfo">
-                    <div className="title">{this.props.title}</div>
-                    <div className="documentation">{this.props.documentation}</div>
-                </div>
-            </div>)
+        return <div key={"quickinfo-container"} className="quickinfo-container" style={containerStyle}>
+            <div key={"quickInfo"} style={innerStyle} className="quickinfo">
+                {this.props.elements}
+            </div>
+        </div>
     }
 }
 
-const mapStateToQuickInfoProps = (state: State) => {
-    const ret: QuickInfoProps = {
-        x: state.cursorPixelX,
-        y: state.cursorPixelY - (state.fontPixelHeight),
-        title: state.quickInfo.title,
-        documentation: state.quickInfo.description
+export interface TextProps {
+    text: string
+}
+
+export class TextComponent extends React.Component<TextProps, void> {
+
+}
+
+export class QuickInfoTitle extends TextComponent {
+    public render(): JSX.Element {
+        return <div className="title">{this.props.text}</div>
     }
-    return ret
+}
+
+export class QuickInfoDocumentation extends TextComponent {
+    public render(): JSX.Element {
+        return <div className="documentation">{this.props.text}</div>
+    }
+}
+
+
+const mapStateToQuickInfoProps = (state: State) => {
+    if (!state.quickInfo) {
+        return {
+            visible: false,
+            x: state.cursorPixelX,
+            y: state.cursorPixelY - (state.fontPixelHeight),
+            elements: []
+        }
+    } else {
+        return {
+            visible: true,
+            x: state.cursorPixelX,
+            y: state.cursorPixelY - (state.fontPixelHeight),
+            elements: [
+                <QuickInfoTitle text={state.quickInfo.title} />,
+                <QuickInfoDocumentation text={state.quickInfo.description} />
+            ]
+        }
+    }
 }
 
 export const QuickInfoContainer = connect(mapStateToQuickInfoProps)(QuickInfo)

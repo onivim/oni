@@ -38,18 +38,18 @@ export interface INeovimInstance {
  * Integration with NeoVim API
  */
 export class NeovimInstance extends EventEmitter implements INeovimInstance {
-    private _neovim: any;
-    private _initPromise: any;
+    private _neovim: any
+    private _initPromise: any
 
-    private _fontFamily: string = Config.getValue<string>("editor.fontFamily");
-    private _fontSize: string = Config.getValue<string>("editor.fontSize");
-    private _fontWidthInPixels: number;
-    private _fontHeightInPixels: number;
+    private _fontFamily: string = Config.getValue<string>("editor.fontFamily")
+    private _fontSize: string = Config.getValue<string>("editor.fontSize")
+    private _fontWidthInPixels: number
+    private _fontHeightInPixels: number
 
-    private _lastHeightInPixels: number;
-    private _lastWidthInPixels: number;
+    private _lastHeightInPixels: number
+    private _lastWidthInPixels: number
 
-    private _pluginManager: PluginManager;
+    private _pluginManager: PluginManager
 
     public getMode(): Q.Promise<string> {
         return this.eval<string>("mode()")
@@ -83,15 +83,15 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public setFont(fontFamily: string, fontSize: string): void {
-        this._fontFamily = fontFamily;
+        this._fontFamily = fontFamily
         this._fontSize = fontSize;
 
-        const {width, height} = measureFont(this._fontFamily, this._fontSize);
+        const {width, height} = measureFont(this._fontFamily, this._fontSize)
 
         this._fontWidthInPixels = width
         this._fontHeightInPixels = height
 
-        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height));
+        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height))
 
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
     }
@@ -155,8 +155,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             this._neovim.uiTryResize(columns, rows, function(err) {
                 if (err)
                     console.error(err)
-            });
-        });
+            })
+        })
     }
 
     constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number, filesToOpen?: string[]) {
@@ -172,7 +172,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._initPromise = startNeovim(initVimPath, filesToOpen)
             .then((nv) => {
-                console.log("NevoimInstance: Neovim started");
+                console.log("NevoimInstance: Neovim started")
 
                 nv.command("colorscheme onedark")
 
@@ -180,7 +180,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 // can fail to attach if there is a UI-blocking error
                 // nv.input("<ESC>")
 
-                this._neovim = nv;
+                this._neovim = nv
 
                 this._neovim.on("error", (err) => {
                     console.error(err)
@@ -188,9 +188,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                 this._neovim.on("notification", (method, args) => {
                     if (method === "redraw") {
-                        this._handleNotification(method, args);
+                        this._handleNotification(method, args)
                     } else if (method === "oni_plugin_notify") {
-                        var pluginArgs = args[0];
+                        var pluginArgs = args[0]
                         var pluginMethod = pluginArgs.shift()
 
                         // TODO: Update pluginManager to subscribe from event here, instead of dupliating this
@@ -211,20 +211,20 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             console.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
                         }
                     } else {
-                        console.warn("Unknown notification: " + method);
+                        console.warn("Unknown notification: " + method)
                     }
-                });
+                })
 
                 this._neovim.on("request", (method, args, resp) => {
-                    console.warn("Unhandled request: " + method);
-                });
+                    console.warn("Unhandled request: " + method)
+                })
 
                 this._neovim.on("disconnect", () => {
                     remote.app.quit()
                 })
 
                 this._neovim.uiAttach(80, 40, true, (err) => {
-                    console.log("Attach success");
+                    console.log("Attach success")
 
                     performance.mark("NeovimInstance.Plugins.Start")
                     this._pluginManager.startPlugins(this)

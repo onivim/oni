@@ -26,6 +26,8 @@
 - Animation: Scroll
     - Start moving canvas up
 
+- Use JS to apply changes to an entire file
+    - Remove all semicolons
 
 - Issue: QuickInfo opening too high
 - Issue: AutoComplete opening too low
