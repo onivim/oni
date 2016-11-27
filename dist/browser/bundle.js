@@ -125,9 +125,6 @@
 	    });
 	    const keyboard = new Keyboard_1.Keyboard();
 	    keyboard.on("keydown", key => {
-	        if (key === "<f3>") {
-	            liveEvaluation.evaluateBlock();
-	        }
 	        if (UI.isPopupMenuOpen()) {
 	            if (key === "<esc>") {
 	                UI.hidePopupMenu();
@@ -787,7 +784,23 @@
 	                else if (method === "oni_plugin_notify") {
 	                    var pluginArgs = args[0];
 	                    var pluginMethod = pluginArgs.shift();
-	                    this._pluginManager.handleNotification(pluginMethod, args);
+	                    // TODO: Update pluginManager to subscribe from event here, instead of dupliating this
+	                    if (pluginMethod === "buffer_update") {
+	                        const eventContext = args[0][0];
+	                        const bufferLines = args[0][1];
+	                        this.emit("buffer-update", eventContext, bufferLines);
+	                    }
+	                    else if (pluginMethod === "event") {
+	                        const eventName = args[0][0];
+	                        const eventContext = args[0][1];
+	                        this.emit("event", eventName, eventContext);
+	                    }
+	                    else if (pluginMethod === "window_display_update") {
+	                        this.emit("window-display-update", args[0][1]);
+	                    }
+	                    else {
+	                        console.warn("Unknown event from oni_plugin_notify: " + pluginMethod);
+	                    }
 	                }
 	                else {
 	                    console.warn("Unknown notification: " + method);
@@ -25999,48 +26012,42 @@
 	            }
 	        }
 	    }
-	    handleNotification(method, args) {
-	        if (method === "buffer_update") {
-	            const eventContext = args[0][0];
-	            const bufferLines = args[0][1];
-	            this._lastBufferInfo = {
-	                lines: bufferLines,
-	                fileName: eventContext.bufferFullPath,
-	                version: eventContext.version
-	            };
-	            this._plugins
-	                .filter(p => p.isPluginSubscribedToBufferUpdates(eventContext.filetype) || p.isPluginSubscribedToBufferUpdates("*"))
-	                .forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines));
-	        }
-	        else if (method === "event") {
-	            const eventName = args[0][0];
-	            const eventContext = args[0][1];
-	            this._lastEventContext = eventContext;
-	            this._plugins
-	                .filter(p => p.isPluginSubscribedToVimEvents(eventContext.filetype) || p.isPluginSubscribedToVimEvents("*"))
-	                .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext));
-	            this._overlayManager.handleCursorMovedEvent(eventContext);
-	            this._errorOverlay.onVimEvent(eventName, eventContext);
-	            if (eventName === "CursorMoved" && Config.getValue("editor.quickInfo.enabled")) {
-	                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.QuickInfoCapability);
-	                if (plugin) {
-	                    plugin.requestQuickInfo(eventContext);
-	                }
-	            }
-	            else if (eventName === "CursorMovedI" && Config.getValue("editor.completions.enabled")) {
-	                const completionPlugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.CompletionProviderCapability);
-	                if (completionPlugin) {
-	                    completionPlugin.requestCompletions(eventContext);
-	                }
-	                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.SignatureHelpCapability);
-	                if (plugin) {
-	                    plugin.requestSignatureHelp(eventContext);
-	                }
+	    _onBufferUpdate(eventContext, bufferLines) {
+	        this._lastBufferInfo = {
+	            lines: bufferLines,
+	            fileName: eventContext.bufferFullPath,
+	            version: eventContext.version
+	        };
+	        this._plugins
+	            .filter(p => p.isPluginSubscribedToBufferUpdates(eventContext.filetype) || p.isPluginSubscribedToBufferUpdates("*"))
+	            .forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines));
+	    }
+	    _onEvent(eventName, eventContext) {
+	        this._lastEventContext = eventContext;
+	        this._plugins
+	            .filter(p => p.isPluginSubscribedToVimEvents(eventContext.filetype) || p.isPluginSubscribedToVimEvents("*"))
+	            .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext));
+	        this._overlayManager.handleCursorMovedEvent(eventContext);
+	        this._errorOverlay.onVimEvent(eventName, eventContext);
+	        if (eventName === "CursorMoved" && Config.getValue("editor.quickInfo.enabled")) {
+	            const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.QuickInfoCapability);
+	            if (plugin) {
+	                plugin.requestQuickInfo(eventContext);
 	            }
 	        }
-	        else if (method === "window_display_update") {
-	            this._overlayManager.notifyWindowDimensionsChanged(args[0][1]);
+	        else if (eventName === "CursorMovedI" && Config.getValue("editor.completions.enabled")) {
+	            const completionPlugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.CompletionProviderCapability);
+	            if (completionPlugin) {
+	                completionPlugin.requestCompletions(eventContext);
+	            }
+	            const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.SignatureHelpCapability);
+	            if (plugin) {
+	                plugin.requestSignatureHelp(eventContext);
+	            }
 	        }
+	    }
+	    _onWindowDisplayUpdate(arg) {
+	        this._overlayManager.notifyWindowDimensionsChanged(arg);
 	    }
 	    requestFormat() {
 	        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, Plugin_1.FormatCapability);
@@ -26131,6 +26138,13 @@
 	    }
 	    startPlugins(neovimInstance) {
 	        this._neovimInstance = neovimInstance;
+	        this._neovimInstance.on("buffer-update", (args, bufferLines) => {
+	            this._onBufferUpdate(args, bufferLines);
+	        });
+	        this._neovimInstance.on("event", (eventName, context) => {
+	            this._onEvent(eventName, context);
+	        });
+	        this._neovimInstance.on("window-display-update", (args) => this._onWindowDisplayUpdate(args));
 	        const allPlugins = this._getAllPluginPaths();
 	        this._plugins = allPlugins.map(pluginRootDirectory => new Plugin_1.Plugin(pluginRootDirectory));
 	        if (this._debugPluginPath) {
@@ -50059,24 +50073,44 @@
 	    constructor(neovimInstance, pluginManager) {
 	        this._neovimInstance = neovimInstance;
 	        this._pluginManager = pluginManager;
+	        this._neovimInstance.on("buffer-update", (context, lines) => {
+	            const currentBlocks = getLiveCodeBlocks(lines);
+	            currentBlocks.forEach(b => {
+	                const code = b.codeBlock.join(os.EOL);
+	                this._pluginManager.requestEvaluateBlock(code);
+	            });
+	        });
 	        this._pluginManager.on("evaluate-block-result", (res) => {
 	            alert(JSON.stringify(res));
 	        });
 	    }
-	    evaluateBlock() {
-	        let selectionRange = null;
-	        this._neovimInstance.getSelectionRange()
-	            .then((s) => selectionRange = s)
-	            .then(() => this._neovimInstance.getCurrentBuffer())
-	            .then((b) => b.getLines(selectionRange.start.line - 1, selectionRange.end.line, false))
-	            .then((lines) => {
-	            console.log(selectionRange);
-	            const code = lines.join(os.EOL);
-	            this._pluginManager.requestEvaluateBlock(code);
-	        });
-	    }
 	}
 	exports.LiveEvaluation = LiveEvaluation;
+	function getLiveCodeBlocks(buffer) {
+	    let isInLiveBlock = false;
+	    const result = buffer.reduce((prev, curr, idx) => {
+	        if (!isInLiveBlock) {
+	            if (curr.indexOf("<live>") >= 0
+	                && curr.indexOf("///") >= 0) {
+	                isInLiveBlock = true;
+	                return prev.concat([{ startLine: idx, codeBlock: [] }]);
+	            }
+	        }
+	        else {
+	            const currentCodeBlock = prev[prev.length - 1];
+	            if (curr.indexOf("</live>") >= 0
+	                && curr.indexOf("///") >= 0) {
+	                isInLiveBlock = false;
+	                return prev;
+	            }
+	            else {
+	                prev[prev.length - 1].codeBlock.push(curr);
+	            }
+	        }
+	        return prev;
+	    }, []);
+	    return result;
+	}
 
 
 /***/ },
@@ -50102,12 +50136,22 @@
 	                }
 	                const key = payload.key;
 	                const highlights = payload.highlights;
+	                const highlightKindToKeywords = {};
 	                highlights.forEach((h) => {
 	                    if (!h.highlightKind) {
 	                        console.warn("Undefined highlight: ", h);
 	                        return;
 	                    }
-	                    this._neovimInstance.command("syntax keyword " + h.highlightKind + " " + h.token);
+	                    const currentValue = highlightKindToKeywords[h.highlightKind] || "";
+	                    highlightKindToKeywords[h.highlightKind] = currentValue + " " + h.token;
+	                });
+	                return highlightKindToKeywords;
+	            })
+	                .then((highlightDictionary) => {
+	                Object.keys(highlightDictionary).forEach((k) => {
+	                    const highlight = k;
+	                    const keywords = highlightDictionary[k];
+	                    this._neovimInstance.command("syntax keyword " + highlight + keywords);
 	                });
 	            });
 	        });
