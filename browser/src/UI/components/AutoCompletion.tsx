@@ -3,9 +3,12 @@ import { connect } from "react-redux"
 
 import * as _ from "lodash"
 
-import { State, AutoCompletionInfo } from "./State"
+import { Icon } from "./../Icon"
+import { HighlightText } from "./HighlightText"
+import { State, AutoCompletionInfo } from "./../State"
 
 export interface AutoCompletionProps {
+    visible: boolean
     x: number
     y: number
     base: string
@@ -18,6 +21,9 @@ require("./AutoCompletion.less")
 export class AutoCompletion extends React.Component<AutoCompletionProps, void> {
 
     public render(): JSX.Element {
+
+        if (!this.props.visible)
+            return null
 
         const containerStyle = {
             position: "absolute",
@@ -122,14 +128,26 @@ export class AutoCompletionIcon extends React.Component<AutoCompletionIconProps,
 }
 
 const mapStateToProps = (state: State) => {
-    const ret: AutoCompletionProps = {
-        x: state.cursorPixelX,
-        y: state.cursorPixelY + state.fontPixelHeight,
-        base: state.autoCompletion.base,
-        entries: state.autoCompletion.entries,
-        selectedIndex: state.autoCompletion.selectedIndex
+    if (!state.autoCompletion) {
+        return {
+            visible: false,
+            x: state.cursorPixelX,
+            y: state.cursorPixelY + state.fontPixelHeight,
+            base: "",
+            entries: [],
+            selectedIndex: 0
+        }
+    } else {
+        const ret: AutoCompletionProps = {
+            visible: true,
+            x: state.cursorPixelX,
+            y: state.cursorPixelY + state.fontPixelHeight,
+            base: state.autoCompletion.base,
+            entries: state.autoCompletion.entries,
+            selectedIndex: state.autoCompletion.selectedIndex
+        }
+        return ret
     }
-    return ret
 }
 
-const AutoCompletionContainer = connect(mapStateToProps)(AutoCompletion)
+export const AutoCompletionContainer = connect(mapStateToProps)(AutoCompletion)

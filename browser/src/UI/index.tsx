@@ -8,7 +8,7 @@ import { Provider } from "react-redux"
 import * as Config from "./../Config"
 
 import * as State from "./State"
-import { RootComponentContainer } from "./RootComponent"
+import { RootComponent } from "./RootComponent"
 
 import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
@@ -23,7 +23,8 @@ let state: State.State = {
     fontPixelHeight: 10,
     autoCompletion: null,
     quickInfo: null,
-    popupMenu: null
+    popupMenu: null,
+    signatureHelp: null
 }
 
 const CompletionItemSelectedEvent = "completion-item-selected"
@@ -42,6 +43,14 @@ export function setBackgroundColor(backgroundColor: string): void {
 
 export function setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number): void {
     store.dispatch(ActionCreators.setCursorPosition(cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight))
+}
+
+export function showSignatureHelp(help: Oni.Plugin.SignatureHelpResult): void {
+    store.dispatch(ActionCreators.showSignatureHelp(help))
+}
+
+export function hideSignatureHelp(): void {
+    store.dispatch(ActionCreators.hideSignatureHelp())
 }
 
 export function showPopupMenu(id: string, options: Oni.Menu.MenuOption[]): void {
@@ -150,6 +159,6 @@ function render(state: State.State): void {
     const element = document.getElementById("overlay-ui")
     ReactDOM.render(
         <Provider store={store}>
-            <RootComponentContainer />
+            <RootComponent />
         </Provider>, element)
 }

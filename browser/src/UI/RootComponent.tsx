@@ -7,24 +7,26 @@ import { State, AutoCompletionInfo } from "./State"
 
 import { Icon } from "./Icon"
 import { MenuContainer } from "./components/Menu"
-import { QuickInfoContainer } from "./components/QuickInfo"
+import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
 import { HighlightText } from "./components/HighlightText"
-import { AutoCompletionContainer } from "./components/AutoCompletionContainer"
+import { AutoCompletionContainer } from "./components/AutoCompletion"
 
-class RootComponent extends React.Component<State, void> {
+export class RootComponent extends React.Component<void, void> {
     public render() {
 
         const children = []
 
-        if (this.props.autoCompletion)
-            children.push(<AutoCompletionContainer />)
+        // if (this.props.autoCompletion)
+        //     children.push(<AutoCompletionContainer />)
 
-        if (this.props.popupMenu)
-            children.push(<MenuContainer />)
+        // if (this.props.popupMenu)
+        //     children.push(<MenuContainer />)
 
         return <div className="ui-overlay">
             <QuickInfoContainer />
-            {children}
+            <SignatureHelpContainer />
+            <MenuContainer />
+            <AutoCompletionContainer />
         </div>
     }
 }

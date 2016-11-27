@@ -59,6 +59,10 @@ const start = (args: string[]) => {
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
     const syntaxHighligher = new SyntaxHighlighter(instance, pluginManager)
 
+    pluginManager.on("signature-help-response", (signatureHelp: Oni.Plugin.SignatureHelpResult) => {
+        UI.showSignatureHelp(signatureHelp)
+    })
+
 
     instance.on("action", (action) => {
         renderer.onAction(action)

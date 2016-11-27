@@ -1,13 +1,12 @@
-
 import * as State from "./State"
 
 import * as Actions from "./Actions"
 
 import * as _ from "lodash"
 
-export const reducer = (s: State.State, a: Actions.Action) => { 
+export const reducer = (s: State.State, a: Actions.Action) => {
 
-    switch(a.type) {
+    switch (a.type) {
         case "SET_CURSOR_POSITION":
             return Object.assign({}, s, {
                 cursorPixelX: a.payload.pixelX,
@@ -39,6 +38,14 @@ export const reducer = (s: State.State, a: Actions.Action) => {
             return Object.assign({}, s, {
                 autoCompletion: null
             })
+        case "SHOW_SIGNATURE_HELP":
+            return Object.assign({}, s, {
+                signatureHelp: a.payload
+            })
+        case "HIDE_SIGNATURE_HELP":
+            return Object.assign({}, s, {
+                signatureHelp: null
+            })
     }
 
     return Object.assign({}, s, {
@@ -48,7 +55,7 @@ export const reducer = (s: State.State, a: Actions.Action) => {
 }
 
 export const popupMenuReducer = (s: State.Menu, a: Actions.Action) => {
-    switch(a.type) {
+    switch (a.type) {
         case "SHOW_MENU":
             const sortedOptions = _.sortBy(a.payload.options, f => f.pinned ? 0 : 1).map(s => ({
                 icon: s.icon,
@@ -60,23 +67,23 @@ export const popupMenuReducer = (s: State.Menu, a: Actions.Action) => {
             }))
 
             return <State.Menu>{
-                    filter: "",
-                    filteredOptions: sortedOptions,
-                    options: a.payload.options,
-                    selectedIndex: 0
-                }
+                filter: "",
+                filteredOptions: sortedOptions,
+                options: a.payload.options,
+                selectedIndex: 0
+            }
 
         case "HIDE_MENU":
             return null
-        case "NEXT_MENU": 
+        case "NEXT_MENU":
             return Object.assign({}, s, {
                 selectedIndex: (s.selectedIndex + 1) % s.filteredOptions.length
-        })
+            })
         case "PREVIOUS_MENU":
             return Object.assign({}, s, {
                 selectedIndex: (s.selectedIndex - 1) % s.filteredOptions.length
 
-        })
+            })
         case "FILTER_MENU":
 
             // If we already had search results, and this search is a superset of the previous,
@@ -97,7 +104,7 @@ export const popupMenuReducer = (s: State.Menu, a: Actions.Action) => {
 export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string): State.MenuOptionWithHighlights[] {
 
     if (!searchString) {
-        const opt =  options.map(o => {
+        const opt = options.map(o => {
             return {
                 label: o.label,
                 detail: o.detail,
@@ -172,7 +179,7 @@ export function fuzzyMatchCharacters(text: string[], searchString: string[]): Fu
         if (remainingCharacters.length === 0)
             return previousValue
 
-        if(remainingCharacters[0] === currValue) {
+        if (remainingCharacters[0] === currValue) {
             return {
                 highlightIndices: highlightIndices.concat([idx]),
                 remainingCharacters: remainingCharacters.slice(1, remainingCharacters.length)
@@ -180,7 +187,7 @@ export function fuzzyMatchCharacters(text: string[], searchString: string[]): Fu
         }
 
         return previousValue
-        
+
     }, startValue)
 
     return outputValue
@@ -193,7 +200,7 @@ export const autoCompletionReducer = (s: State.AutoCompletionInfo, a: Actions.Ac
 
     const currentEntryCount = s.entries.length;
 
-    switch(a.type) {
+    switch (a.type) {
         case "NEXT_AUTO_COMPLETION":
             return Object.assign({}, s, {
                 selectedIndex: (s.selectedIndex + 1) % currentEntryCount
@@ -211,16 +218,16 @@ export const autoCompletionReducer = (s: State.AutoCompletionInfo, a: Actions.Ac
 
 export const autoCompletionEntryReducer = (s: Oni.Plugin.CompletionInfo[], action: Actions.Action) => {
 
-    switch(action.type) {
+    switch (action.type) {
         case "SET_AUTO_COMPLETION_DETAILS":
             return s.map(entry => {
 
-            if(entry.label === action.payload.detailedEntry.label) {
-                return action.payload.detailedEntry
-            }
+                if (entry.label === action.payload.detailedEntry.label) {
+                    return action.payload.detailedEntry
+                }
 
-            return entry
-        })
+                return entry
+            })
     }
 
     return s

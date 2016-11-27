@@ -78,4 +78,27 @@ const mapStateToQuickInfoProps = (state: State) => {
     }
 }
 
+const mapStateToSignatureHelpProps = (state: State) => {
+
+    if (!state.signatureHelp) {
+        return {
+            visible: false,
+            x: state.cursorPixelX,
+            y: state.cursorPixelY - (state.fontPixelHeight),
+            elements: []
+        }
+    } else {
+        return {
+            visible: true,
+            x: state.cursorPixelX,
+            y: state.cursorPixelY - (state.fontPixelHeight),
+            elements: [
+                <QuickInfoTitle text={JSON.stringify(state.signatureHelp)} />
+            ]
+        }
+
+    }
+}
+
 export const QuickInfoContainer = connect(mapStateToQuickInfoProps)(QuickInfo)
+export const SignatureHelpContainer = connect(mapStateToSignatureHelpProps)(QuickInfo)

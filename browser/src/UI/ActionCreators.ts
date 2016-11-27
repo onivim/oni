@@ -11,6 +11,15 @@ export const setCursorPosition = (cursorPixelX, cursorPixelY, fontPixelWidth, fo
     }
 })
 
+export const showSignatureHelp = (signatureHelpResult: Oni.Plugin.SignatureHelpResult) => ({
+    type: "SHOW_SIGNATURE_HELP",
+    payload: signatureHelpResult
+})
+
+export const hideSignatureHelp = () => ({
+    type: "HIDE_SIGNATURE_HELP"
+})
+
 export const showMenu = (id: string, options: Oni.Menu.MenuOption[]) => ({
     type: "SHOW_MENU",
     payload: {
@@ -33,7 +42,6 @@ export const filterMenu = (filterString: string) => ({
         filter: filterString
     }
 })
-
 
 export const nextMenu = () => ({
     type: "NEXT_MENU"

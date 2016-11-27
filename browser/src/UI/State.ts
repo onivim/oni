@@ -6,6 +6,7 @@ export interface State {
     autoCompletion: AutoCompletionInfo
     quickInfo: Oni.Plugin.QuickInfo
     popupMenu: Menu
+    signatureHelp: Oni.Plugin.SignatureHelpResult
 }
 
 export interface Menu {

@@ -1,6 +1,6 @@
 - Parameter helper
-    - Show parameter info, like QuickInfo
-    - Add UI component in RootComponent
+    - Clean up quick info component
+    - Hide signature help if not available, send 'null' back 
 
 - Syntax - improve performance by keeping dictionary
     - filename -> syntax groups -> keywords

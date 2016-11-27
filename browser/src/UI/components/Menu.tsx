@@ -18,7 +18,8 @@ import { Visible } from "./Visible"
 require("./Menu.less")
 
 export interface MenuProps {
-    selectedIndex: number;
+    visible: boolean
+    selectedIndex: number
     filterText: string
     onChangeFilterText: (text: string) => void
     items: State.MenuOptionWithHighlights[]
@@ -29,6 +30,9 @@ export class Menu extends React.Component<MenuProps, void> {
     private _inputElement: HTMLInputElement = null;
 
     public render(): JSX.Element {
+
+        if (!this.props.visible)
+            return null
 
         const initialItems = _.take(this.props.items, 10);
 
@@ -42,7 +46,7 @@ export class Menu extends React.Component<MenuProps, void> {
         return <div className="menu-background">
             <div className="menu">
                 <input type="text"
-                    ref={(inputElement) => this._inputElement = inputElement}
+                    ref={(inputElement) => { this._inputElement = inputElement; if (this._inputElement) this._inputElement.focus() } }
                     onChange={(evt) => this._onChange(evt)}
                     />
                 <div className="items">
@@ -50,11 +54,6 @@ export class Menu extends React.Component<MenuProps, void> {
                 </div>
             </div>
         </div>
-    }
-
-    public componentDidMount(): void {
-        if (this._inputElement)
-            this._inputElement.focus()
     }
 
     private _onChange(evt: React.FormEvent<HTMLInputElement>) {
@@ -65,11 +64,21 @@ export class Menu extends React.Component<MenuProps, void> {
 
 
 const mapStateToProps = (state: State.State) => {
-    const popupMenu = state.popupMenu
-    return {
-        selectedIndex: popupMenu.selectedIndex,
-        filterText: popupMenu.filter,
-        items: popupMenu.filteredOptions
+    if (!state.popupMenu) {
+        return {
+            visible: false,
+            selectedIndex: 0,
+            filterText: "",
+            items: []
+        }
+    } else {
+        const popupMenu = state.popupMenu
+        return {
+            visible: true,
+            selectedIndex: popupMenu.selectedIndex,
+            filterText: popupMenu.filter,
+            items: popupMenu.filteredOptions
+        }
     }
 }
 

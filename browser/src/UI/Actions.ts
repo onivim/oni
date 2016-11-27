@@ -10,6 +10,15 @@ export interface SetCursorPositionAction {
     }
 }
 
+export interface ShowSignatureHelpAction {
+    type: "SHOW_SIGNATURE_HELP",
+    payload: Oni.Plugin.SignatureHelpResult
+}
+
+export interface HideSignatureHelpAction {
+    type: "HIDE_SIGNATURE_HELP"
+}
+
 export interface ShowMenuAction {
     type: "SHOW_MENU",
     payload: {
@@ -76,4 +85,18 @@ export interface HideQuickInfoAction {
     type: "HIDE_QUICK_INFO"
 }
 
-export type Action = SetCursorPositionAction | ShowQuickInfoAction | HideQuickInfoAction | ShowAutoCompletionAction | HideAutoCompletionAction | NextAutoCompletionAction | PreviousAutoCompletionAction | SetAutoCompletionDetails | ShowMenuAction | HideMenuAction | PreviousMenuAction | NextMenuAction | FilterMenuAction
+export type Action = SetCursorPositionAction |
+    ShowSignatureHelpAction |
+    HideSignatureHelpAction |
+    ShowQuickInfoAction |
+    HideQuickInfoAction |
+    ShowAutoCompletionAction |
+    HideAutoCompletionAction |
+    NextAutoCompletionAction |
+    PreviousAutoCompletionAction |
+    SetAutoCompletionDetails |
+    ShowMenuAction |
+    HideMenuAction |
+    PreviousMenuAction |
+    NextMenuAction | 
+    FilterMenuAction
