@@ -192,7 +192,24 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     } else if (method === "oni_plugin_notify") {
                         var pluginArgs = args[0];
                         var pluginMethod = pluginArgs.shift()
-                        this._pluginManager.handleNotification(pluginMethod, args)
+
+                        // TODO: Update pluginManager to subscribe from event here, instead of dupliating this
+
+                        if (pluginMethod === "buffer_update") {
+                            const eventContext = args[0][0]
+                            const bufferLines = args[0][1]
+
+                            this.emit("buffer-update", eventContext, bufferLines)
+                        } else if (pluginMethod === "event") {
+                            const eventName = args[0][0]
+                            const eventContext = args[0][1]
+
+                            this.emit("event", eventName, eventContext)
+                        } else if (pluginMethod === "window_display_update") {
+                            this.emit("window-display-update", args[0][1])
+                        } else {
+                            console.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
+                        }
                     } else {
                         console.warn("Unknown notification: " + method);
                     }

@@ -103,10 +103,7 @@ export class PluginManager extends EventEmitter {
         }
     }
 
-    public handleNotification(method: string, args: any[]): void {
-        if (method === "buffer_update") {
-            const eventContext = args[0][0]
-            const bufferLines = args[0][1]
+    private _onBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]) {
             this._lastBufferInfo = {
                 lines: bufferLines,
                 fileName: eventContext.bufferFullPath,
@@ -117,43 +114,41 @@ export class PluginManager extends EventEmitter {
                 .filter(p => p.isPluginSubscribedToBufferUpdates(eventContext.filetype) || p.isPluginSubscribedToBufferUpdates("*"))
                 .forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines))
 
-        } else if (method === "event") {
-            const eventName = args[0][0]
-            const eventContext = args[0][1]
+    }
 
-            this._lastEventContext = eventContext
+    private _onEvent(eventName: string, eventContext: Oni.EventContext): void {
+        this._lastEventContext = eventContext
 
-            this._plugins
-                .filter(p => p.isPluginSubscribedToVimEvents(eventContext.filetype) || p.isPluginSubscribedToVimEvents("*"))
-                .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext))
+        this._plugins
+        .filter(p => p.isPluginSubscribedToVimEvents(eventContext.filetype) || p.isPluginSubscribedToVimEvents("*"))
+        .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext))
 
-            this._overlayManager.handleCursorMovedEvent(eventContext)
-            this._errorOverlay.onVimEvent(eventName, eventContext)
+        this._overlayManager.handleCursorMovedEvent(eventContext)
+        this._errorOverlay.onVimEvent(eventName, eventContext)
 
-            if (eventName === "CursorMoved" && Config.getValue<boolean>("editor.quickInfo.enabled")) {
-                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, QuickInfoCapability)
+        if (eventName === "CursorMoved" && Config.getValue<boolean>("editor.quickInfo.enabled")) {
+            const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, QuickInfoCapability)
 
-                if (plugin) {
-                    plugin.requestQuickInfo(eventContext)
-                }
-            } else if (eventName === "CursorMovedI" && Config.getValue<boolean>("editor.completions.enabled")) {
-                const completionPlugin = this._getFirstPluginThatHasCapability(eventContext.filetype, CompletionProviderCapability)
+            if (plugin) {
+                plugin.requestQuickInfo(eventContext)
+            }
+        } else if (eventName === "CursorMovedI" && Config.getValue<boolean>("editor.completions.enabled")) {
+            const completionPlugin = this._getFirstPluginThatHasCapability(eventContext.filetype, CompletionProviderCapability)
 
-                if (completionPlugin) {
-                    completionPlugin.requestCompletions(eventContext)
-                }
-
-                const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, SignatureHelpCapability)
-
-                if (plugin) {
-                    plugin.requestSignatureHelp(eventContext)
-                }
-
+            if (completionPlugin) {
+                completionPlugin.requestCompletions(eventContext)
             }
 
-        } else if (method === "window_display_update") {
-            this._overlayManager.notifyWindowDimensionsChanged(args[0][1])
+            const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, SignatureHelpCapability)
+
+            if (plugin) {
+                plugin.requestSignatureHelp(eventContext)
+            }
         }
+    }
+
+    private _onWindowDisplayUpdate(arg: any) {
+        this._overlayManager.notifyWindowDimensionsChanged(arg)
     }
 
     public requestFormat(): void {
@@ -252,6 +247,17 @@ export class PluginManager extends EventEmitter {
 
     public startPlugins(neovimInstance: INeovimInstance): void {
         this._neovimInstance = neovimInstance
+
+        this._neovimInstance.on("buffer-update", (args: Oni.EventContext, bufferLines: string[]) => {
+            this._onBufferUpdate(args, bufferLines)
+        })
+
+        this._neovimInstance.on("event", (eventName: string, context: Oni.EventContext) => {
+            this._onEvent(eventName, context)
+        })
+
+        this._neovimInstance.on("window-display-update", (args) => this._onWindowDisplayUpdate(args))
+
         const allPlugins = this._getAllPluginPaths()
         this._plugins = allPlugins.map(pluginRootDirectory => new Plugin(pluginRootDirectory))
 

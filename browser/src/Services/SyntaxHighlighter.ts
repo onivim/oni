@@ -15,19 +15,21 @@ export class SyntaxHighlighter {
         this._neovimInstance = neovimInstance
         this._pluginManager = pluginManager
 
-        this._pluginManager.on("set-syntax-highlights",  (payload) => {
+        this._pluginManager.on("set-syntax-highlights", (payload) => {
 
             var buf: IBuffer = null
             this._neovimInstance.getCurrentBuffer()
                 .then((buffer) => buf = buffer)
                 .then(() => this._neovimInstance.eval("expand('%:p')"))
                 .then((res) => {
-                    if(res !== payload.file) {
+                    if (res !== payload.file) {
                         throw "Syntax highlighting was for different file."
                     }
 
                     const key = payload.key
                     const highlights: Oni.Plugin.SyntaxHighlight[] = payload.highlights
+
+                    const highlightKindToKeywords = {}
 
                     highlights.forEach((h) => {
 
@@ -36,7 +38,20 @@ export class SyntaxHighlighter {
                             return
                         }
 
-                        this._neovimInstance.command("syntax keyword " + h.highlightKind + " " + h.token)
+                        const currentValue = highlightKindToKeywords[h.highlightKind] || ""
+                        highlightKindToKeywords[h.highlightKind] = currentValue + " " + h.token
+
+                    })
+
+                    return highlightKindToKeywords
+                })
+                .then((highlightDictionary) => {
+                    Object.keys(highlightDictionary).forEach((k) => {
+
+                        const highlight = k
+                        const keywords = highlightDictionary[k]
+                        this._neovimInstance.command("syntax keyword " + highlight + keywords)
+
                     })
                 })
         })
