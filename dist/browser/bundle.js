@@ -64,19 +64,19 @@
 	const PluginManager_1 = __webpack_require__(57);
 	const Config = __webpack_require__(48);
 	const UI = __webpack_require__(60);
-	const minimist = __webpack_require__(276);
-	const QuickOpen_1 = __webpack_require__(277);
-	const Formatter_1 = __webpack_require__(278);
-	const Output_1 = __webpack_require__(279);
-	const LiveEvaluation_1 = __webpack_require__(280);
-	const SyntaxHighlighter_1 = __webpack_require__(281);
+	const minimist = __webpack_require__(277);
+	const QuickOpen_1 = __webpack_require__(278);
+	const Formatter_1 = __webpack_require__(279);
+	const Output_1 = __webpack_require__(280);
+	const LiveEvaluation_1 = __webpack_require__(281);
+	const SyntaxHighlighter_1 = __webpack_require__(282);
 	const start = (args) => {
 	    const parsedArgs = minimist(args);
 	    const debugPlugin = parsedArgs["debugPlugin"];
 	    // Helper for debugging:
 	    window["UI"] = UI;
-	    __webpack_require__(282);
-	    __webpack_require__(284);
+	    __webpack_require__(283);
+	    __webpack_require__(285);
 	    var deltaRegion = new DeltaRegionTracker_1.IncrementalDeltaRegionTracker();
 	    var screen = new Screen_1.NeovimScreen(deltaRegion);
 	    const pluginManager = new PluginManager_1.PluginManager(screen, debugPlugin);
@@ -92,6 +92,9 @@
 	    const outputWindow = new Output_1.OutputWindow(instance, pluginManager);
 	    const liveEvaluation = new LiveEvaluation_1.LiveEvaluation(instance, pluginManager);
 	    const syntaxHighligher = new SyntaxHighlighter_1.SyntaxHighlighter(instance, pluginManager);
+	    pluginManager.on("signature-help-response", (signatureHelp) => {
+	        UI.showSignatureHelp(signatureHelp);
+	    });
 	    instance.on("action", (action) => {
 	        renderer.onAction(action);
 	        screen.dispatch(action);
@@ -25965,8 +25968,8 @@
 	const Config = __webpack_require__(48);
 	const Plugin_1 = __webpack_require__(59);
 	const UI = __webpack_require__(60);
-	const OverlayManager_1 = __webpack_require__(271);
-	const ErrorOverlay_1 = __webpack_require__(272);
+	const OverlayManager_1 = __webpack_require__(272);
+	const ErrorOverlay_1 = __webpack_require__(273);
 	const initFilePath = path.join(__dirname, "vim", "init_template.vim");
 	const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles");
 	const webcontents = electron_1.remote.getCurrentWindow().webContents;
@@ -26507,8 +26510,8 @@
 	const react_redux_1 = __webpack_require__(246);
 	const Config = __webpack_require__(48);
 	const RootComponent_1 = __webpack_require__(255);
-	const ActionCreators = __webpack_require__(258);
-	const Reducer_1 = __webpack_require__(270);
+	const ActionCreators = __webpack_require__(257);
+	const Reducer_1 = __webpack_require__(271);
 	exports.events = new events_1.EventEmitter();
 	let state = {
 	    cursorPixelX: 10,
@@ -26517,7 +26520,8 @@
 	    fontPixelHeight: 10,
 	    autoCompletion: null,
 	    quickInfo: null,
-	    popupMenu: null
+	    popupMenu: null,
+	    signatureHelp: null
 	};
 	const CompletionItemSelectedEvent = "completion-item-selected";
 	function setBackgroundColor(backgroundColor) {
@@ -26535,6 +26539,14 @@
 	    store.dispatch(ActionCreators.setCursorPosition(cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight));
 	}
 	exports.setCursorPosition = setCursorPosition;
+	function showSignatureHelp(help) {
+	    store.dispatch(ActionCreators.showSignatureHelp(help));
+	}
+	exports.showSignatureHelp = showSignatureHelp;
+	function hideSignatureHelp() {
+	    store.dispatch(ActionCreators.hideSignatureHelp());
+	}
+	exports.hideSignatureHelp = hideSignatureHelp;
 	function showPopupMenu(id, options) {
 	    store.dispatch(ActionCreators.showMenu(id, options));
 	}
@@ -26629,7 +26641,7 @@
 	function render(state) {
 	    const element = document.getElementById("overlay-ui");
 	    ReactDOM.render(React.createElement(react_redux_1.Provider, { store: store },
-	        React.createElement(RootComponent_1.RootComponentContainer, null)), element);
+	        React.createElement(RootComponent_1.RootComponent, null)), element);
 	}
 
 
@@ -48368,128 +48380,25 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var __assign = (this && this.__assign) || Object.assign || function(t) {
-	    for (var s, i = 1, n = arguments.length; i < n; i++) {
-	        s = arguments[i];
-	        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-	            t[p] = s[p];
-	    }
-	    return t;
-	};
 	const React = __webpack_require__(61);
-	const react_redux_1 = __webpack_require__(246);
-	const _ = __webpack_require__(45);
-	const Icon_1 = __webpack_require__(256);
-	const Menu_1 = __webpack_require__(257);
+	const Menu_1 = __webpack_require__(256);
 	const QuickInfo_1 = __webpack_require__(265);
-	const HighlightText_1 = __webpack_require__(259);
+	const AutoCompletion_1 = __webpack_require__(268);
 	class RootComponent extends React.Component {
 	    render() {
 	        const children = [];
-	        if (this.props.autoCompletion)
-	            children.push(React.createElement(AutoCompletionContainer, null));
-	        if (this.props.quickInfo)
-	            children.push(React.createElement(QuickInfo_1.QuickInfoContainer, null));
-	        if (this.props.popupMenu)
-	            children.push(React.createElement(Menu_1.MenuContainer, null));
-	        return React.createElement("div", { className: "ui-overlay" }, children);
+	        // if (this.props.autoCompletion)
+	        //     children.push(<AutoCompletionContainer />)
+	        // if (this.props.popupMenu)
+	        //     children.push(<MenuContainer />)
+	        return React.createElement("div", { className: "ui-overlay" },
+	            React.createElement(QuickInfo_1.QuickInfoContainer, null),
+	            React.createElement(QuickInfo_1.SignatureHelpContainer, null),
+	            React.createElement(Menu_1.MenuContainer, null),
+	            React.createElement(AutoCompletion_1.AutoCompletionContainer, null));
 	    }
 	}
-	exports.RootComponentContainer = react_redux_1.connect((state) => { return state; })(RootComponent);
-	__webpack_require__(268);
-	class AutoCompletion extends React.Component {
-	    render() {
-	        const containerStyle = {
-	            position: "absolute",
-	            top: this.props.y.toString() + "px",
-	            left: this.props.x.toString() + "px"
-	        };
-	        if (this.props.entries.length === 0)
-	            return null;
-	        if (this.props.entries.length === 1
-	            && this.props.entries[0].label === this.props.base)
-	            return null;
-	        const firstTenEntries = _.take(this.props.entries, 10);
-	        const entries = firstTenEntries.map((s, i) => {
-	            const isSelected = i === this.props.selectedIndex;
-	            return React.createElement(AutoCompletionItem, __assign({}, s, { isSelected: isSelected, base: this.props.base }));
-	        });
-	        return (React.createElement("div", { style: containerStyle, className: "autocompletion" }, entries));
-	    }
-	}
-	exports.AutoCompletion = AutoCompletion;
-	class AutoCompletionItem extends React.Component {
-	    render() {
-	        let className = "entry";
-	        if (this.props.isSelected) {
-	            className += " selected";
-	        }
-	        const detailToShow = this.props.isSelected ? this.props.detail : "";
-	        const documentation = this.props.isSelected ? this.props.documentation : "";
-	        return React.createElement("div", { className: className },
-	            React.createElement("div", { className: "main" },
-	                React.createElement(AutoCompletionIcon, { kind: this.props.kind }),
-	                React.createElement(HighlightText_1.HighlightText, { className: "label", highlightClassName: "highlight", highlightText: this.props.base, text: this.props.label }),
-	                React.createElement("span", { className: "detail" }, detailToShow)),
-	            React.createElement("div", { className: "documentation" }, documentation));
-	    }
-	}
-	exports.AutoCompletionItem = AutoCompletionItem;
-	class AutoCompletionIcon extends React.Component {
-	    render() {
-	        switch (this.props.kind) {
-	            case "let":
-	                return React.createElement(Icon_1.Icon, { name: "wrench" });
-	            case "interface":
-	                return React.createElement(Icon_1.Icon, { name: "plug" });
-	            case "alias":
-	                return React.createElement(Icon_1.Icon, { name: "id-badge" });
-	            case "const":
-	                return React.createElement(Icon_1.Icon, { name: "lock" });
-	            case "class":
-	                return React.createElement(Icon_1.Icon, { name: "cube" });
-	            case "type":
-	                return React.createElement(Icon_1.Icon, { name: "sitemap" });
-	            case "directory":
-	                return React.createElement(Icon_1.Icon, { name: "folder" });
-	            case "var":
-	            case "property":
-	            case "parameter":
-	                // Closed cube?
-	                return React.createElement(Icon_1.Icon, { name: "code" });
-	            case "module":
-	            case "external module name":
-	                return React.createElement(Icon_1.Icon, { name: "cubes" });
-	            case "method":
-	            case "function":
-	                return React.createElement(Icon_1.Icon, { name: "cog" });
-	            case "keyword":
-	                return React.createElement(Icon_1.Icon, { name: "key" });
-	            case "text":
-	                return React.createElement(Icon_1.Icon, { name: "align-justify" });
-	            case "warning":
-	            case "$warning":
-	                return React.createElement(Icon_1.Icon, { name: "exclamation-triangle" });
-	            default:
-	                return !this.props.kind ? null : React.createElement("span", null,
-	                    "`?$",
-	                    this.props.kind,
-	                    "?`");
-	        }
-	    }
-	}
-	exports.AutoCompletionIcon = AutoCompletionIcon;
-	const mapStateToProps = (state) => {
-	    const ret = {
-	        x: state.cursorPixelX,
-	        y: state.cursorPixelY + state.fontPixelHeight,
-	        base: state.autoCompletion.base,
-	        entries: state.autoCompletion.entries,
-	        selectedIndex: state.autoCompletion.selectedIndex
-	    };
-	    return ret;
-	};
-	const AutoCompletionContainer = react_redux_1.connect(mapStateToProps)(AutoCompletion);
+	exports.RootComponent = RootComponent;
 
 
 /***/ },
@@ -48497,21 +48406,6 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const React = __webpack_require__(61);
-	class Icon extends React.Component {
-	    render() {
-	        const className = "fa fa-" + this.props.name;
-	        return React.createElement("i", { className: className, "aria-hidden": "true" });
-	    }
-	}
-	exports.Icon = Icon;
-
-
-/***/ },
-/* 257 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
 	var __assign = (this && this.__assign) || Object.assign || function(t) {
 	    for (var s, i = 1, n = arguments.length; i < n; i++) {
 	        s = arguments[i];
@@ -48523,8 +48417,8 @@
 	const React = __webpack_require__(61);
 	const react_redux_1 = __webpack_require__(246);
 	const _ = __webpack_require__(45);
-	const ActionCreators = __webpack_require__(258);
-	const Icon_1 = __webpack_require__(256);
+	const ActionCreators = __webpack_require__(257);
+	const Icon_1 = __webpack_require__(258);
 	const HighlightText_1 = __webpack_require__(259);
 	const Visible_1 = __webpack_require__(260);
 	/**
@@ -48537,18 +48431,17 @@
 	        this._inputElement = null;
 	    }
 	    render() {
+	        if (!this.props.visible)
+	            return null;
 	        const initialItems = _.take(this.props.items, 10);
 	        const pinnedItems = initialItems.filter(f => f.pinned);
 	        const unpinnedItems = initialItems.filter(f => !f.pinned);
 	        const items = initialItems.map((menuItem, index) => React.createElement(MenuItem, __assign({}, menuItem, { filterText: this.props.filterText, isSelected: index === this.props.selectedIndex })));
 	        return React.createElement("div", { className: "menu-background" },
 	            React.createElement("div", { className: "menu" },
-	                React.createElement("input", { type: "text", ref: (inputElement) => this._inputElement = inputElement, onChange: (evt) => this._onChange(evt) }),
+	                React.createElement("input", { type: "text", ref: (inputElement) => { this._inputElement = inputElement; if (this._inputElement)
+	                        this._inputElement.focus(); }, onChange: (evt) => this._onChange(evt) }),
 	                React.createElement("div", { className: "items" }, items)));
-	    }
-	    componentDidMount() {
-	        if (this._inputElement)
-	            this._inputElement.focus();
 	    }
 	    _onChange(evt) {
 	        const target = evt.target;
@@ -48557,12 +48450,23 @@
 	}
 	exports.Menu = Menu;
 	const mapStateToProps = (state) => {
-	    const popupMenu = state.popupMenu;
-	    return {
-	        selectedIndex: popupMenu.selectedIndex,
-	        filterText: popupMenu.filter,
-	        items: popupMenu.filteredOptions
-	    };
+	    if (!state.popupMenu) {
+	        return {
+	            visible: false,
+	            selectedIndex: 0,
+	            filterText: "",
+	            items: []
+	        };
+	    }
+	    else {
+	        const popupMenu = state.popupMenu;
+	        return {
+	            visible: true,
+	            selectedIndex: popupMenu.selectedIndex,
+	            filterText: popupMenu.filter,
+	            items: popupMenu.filteredOptions
+	        };
+	    }
 	};
 	const mapDispatchToProps = (dispatch) => {
 	    const dispatchFilterText = (text) => {
@@ -48592,7 +48496,7 @@
 
 
 /***/ },
-/* 258 */
+/* 257 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -48604,6 +48508,13 @@
 	        fontPixelWidth: fontPixelWidth,
 	        fontPixelHeight: fontPixelHeight
 	    }
+	});
+	exports.showSignatureHelp = (signatureHelpResult) => ({
+	    type: "SHOW_SIGNATURE_HELP",
+	    payload: signatureHelpResult
+	});
+	exports.hideSignatureHelp = () => ({
+	    type: "HIDE_SIGNATURE_HELP"
 	});
 	exports.showMenu = (id, options) => ({
 	    type: "SHOW_MENU",
@@ -48655,6 +48566,21 @@
 	});
 	exports.hideAutoCompletion = () => ({ type: "HIDE_AUTO_COMPLETION" });
 	exports.hideQuickInfo = () => ({ type: "HIDE_QUICK_INFO" });
+
+
+/***/ },
+/* 258 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const React = __webpack_require__(61);
+	class Icon extends React.Component {
+	    render() {
+	        const className = "fa fa-" + this.props.name;
+	        return React.createElement("i", { className: className, "aria-hidden": "true" });
+	    }
+	}
+	exports.Icon = Icon;
 
 
 /***/ },
@@ -49092,25 +49018,107 @@
 	        };
 	        const innerStyle = {
 	            position: "absolute",
-	            bottom: "0px"
+	            bottom: "0px",
+	            opacity: this.props.visible ? 1 : 0,
+	            whiteSpace: this.props.wrap ? "normal" : "nowrap"
 	        };
-	        return (React.createElement("div", { style: containerStyle },
-	            React.createElement("div", { style: innerStyle, className: "quickinfo" },
-	                React.createElement("div", { className: "title" }, this.props.title),
-	                React.createElement("div", { className: "documentation" }, this.props.documentation))));
+	        return React.createElement("div", { key: "quickinfo-container", className: "quickinfo-container", style: containerStyle },
+	            React.createElement("div", { key: "quickInfo", style: innerStyle, className: "quickinfo" }, this.props.elements));
 	    }
 	}
 	exports.QuickInfo = QuickInfo;
+	class TextComponent extends React.Component {
+	}
+	exports.TextComponent = TextComponent;
+	class QuickInfoTitle extends TextComponent {
+	    render() {
+	        return React.createElement("div", { className: "title" }, this.props.text);
+	    }
+	}
+	exports.QuickInfoTitle = QuickInfoTitle;
+	class QuickInfoDocumentation extends TextComponent {
+	    render() {
+	        return React.createElement("div", { className: "documentation" }, this.props.text);
+	    }
+	}
+	exports.QuickInfoDocumentation = QuickInfoDocumentation;
+	class Text extends TextComponent {
+	    render() {
+	        return React.createElement("span", null, this.props.text);
+	    }
+	}
+	exports.Text = Text;
+	class SelectedText extends TextComponent {
+	    render() {
+	        return React.createElement("span", { className: "selected" }, this.props.text);
+	    }
+	}
+	exports.SelectedText = SelectedText;
 	const mapStateToQuickInfoProps = (state) => {
-	    const ret = {
-	        x: state.cursorPixelX,
-	        y: state.cursorPixelY - (state.fontPixelHeight),
-	        title: state.quickInfo.title,
-	        documentation: state.quickInfo.description
-	    };
-	    return ret;
+	    if (!state.quickInfo) {
+	        return {
+	            wrap: true,
+	            visible: false,
+	            x: state.cursorPixelX,
+	            y: state.cursorPixelY - (state.fontPixelHeight),
+	            elements: []
+	        };
+	    }
+	    else {
+	        return {
+	            wrap: true,
+	            visible: true,
+	            x: state.cursorPixelX,
+	            y: state.cursorPixelY - (state.fontPixelHeight),
+	            elements: [
+	                React.createElement(QuickInfoTitle, { text: state.quickInfo.title }),
+	                React.createElement(QuickInfoDocumentation, { text: state.quickInfo.description })
+	            ]
+	        };
+	    }
+	};
+	const mapStateToSignatureHelpProps = (state) => {
+	    if (!state.signatureHelp) {
+	        return {
+	            wrap: false,
+	            visible: false,
+	            x: state.cursorPixelX,
+	            y: state.cursorPixelY - (state.fontPixelHeight),
+	            elements: []
+	        };
+	    }
+	    else {
+	        const currentItem = state.signatureHelp.items[state.signatureHelp.selectedItemIndex];
+	        const argumentCount = state.signatureHelp.argumentCount;
+	        const parameters = currentItem.parameters.map((item, idx) => {
+	            const sidx = Math.min(idx, currentItem.parameters.length);
+	            let currentText = item.text;
+	            if (idx < argumentCount)
+	                currentText += currentItem.separator + " ";
+	            if (sidx === state.signatureHelp.argumentIndex)
+	                return React.createElement(SelectedText, { text: currentText });
+	            else
+	                return React.createElement(Text, { text: currentText });
+	        });
+	        let elements = [].concat([React.createElement(Text, { text: currentItem.prefix })])
+	            .concat(parameters)
+	            .concat([React.createElement(Text, { text: currentItem.suffix })]);
+	        const selectedIndex = Math.min(currentItem.parameters.length, state.signatureHelp.argumentIndex);
+	        const selectedArgument = currentItem.parameters[selectedIndex];
+	        if (selectedArgument && selectedArgument.documentation) {
+	            elements.push(React.createElement(QuickInfoDocumentation, { text: selectedArgument.documentation }));
+	        }
+	        return {
+	            wrap: false,
+	            visible: true,
+	            x: state.cursorPixelX,
+	            y: state.cursorPixelY - (state.fontPixelHeight),
+	            elements: elements
+	        };
+	    }
 	};
 	exports.QuickInfoContainer = react_redux_1.connect(mapStateToQuickInfoProps)(QuickInfo);
+	exports.SignatureHelpContainer = react_redux_1.connect(mapStateToSignatureHelpProps)(QuickInfo);
 
 
 /***/ },
@@ -49148,7 +49156,7 @@
 
 
 	// module
-	exports.push([module.id, ".quickinfo {\n  background-color: #282828;\n  border: 1px solid gray;\n  padding: 4px;\n  box-shadow: 4px 4px rgba(0, 0, 0, 0.2);\n  color: #c8c8c8;\n  max-width: 500px;\n}\n.quickinfo .title {\n  width: 100%;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  margin: 4px;\n}\n.quickinfo .documentation {\n  margin: 4px;\n  color: #32c8ff;\n  font-size: 11px;\n}\n", ""]);
+	exports.push([module.id, ".quickinfo {\n  background-color: #282828;\n  border: 1px solid gray;\n  padding: 4px;\n  box-shadow: 4px 4px rgba(0, 0, 0, 0.2);\n  color: #c8c8c8;\n  max-width: 500px;\n}\n.quickinfo .title {\n  width: 100%;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  margin: 4px;\n}\n.quickinfo .documentation {\n  margin: 4px;\n  color: #32c8ff;\n  font-size: 11px;\n}\n.quickinfo .selected {\n  font-style: italic;\n  text-decoration: underline;\n}\n", ""]);
 
 	// exports
 
@@ -49157,10 +49165,139 @@
 /* 268 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+	var __assign = (this && this.__assign) || Object.assign || function(t) {
+	    for (var s, i = 1, n = arguments.length; i < n; i++) {
+	        s = arguments[i];
+	        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+	            t[p] = s[p];
+	    }
+	    return t;
+	};
+	const React = __webpack_require__(61);
+	const react_redux_1 = __webpack_require__(246);
+	const _ = __webpack_require__(45);
+	const Icon_1 = __webpack_require__(258);
+	const HighlightText_1 = __webpack_require__(259);
+	__webpack_require__(269);
+	class AutoCompletion extends React.Component {
+	    render() {
+	        if (!this.props.visible)
+	            return null;
+	        const containerStyle = {
+	            position: "absolute",
+	            top: this.props.y.toString() + "px",
+	            left: this.props.x.toString() + "px"
+	        };
+	        if (this.props.entries.length === 0)
+	            return null;
+	        if (this.props.entries.length === 1
+	            && this.props.entries[0].label === this.props.base)
+	            return null;
+	        const firstTenEntries = _.take(this.props.entries, 10);
+	        const entries = firstTenEntries.map((s, i) => {
+	            const isSelected = i === this.props.selectedIndex;
+	            return React.createElement(AutoCompletionItem, __assign({}, s, { isSelected: isSelected, base: this.props.base }));
+	        });
+	        return (React.createElement("div", { style: containerStyle, className: "autocompletion" }, entries));
+	    }
+	}
+	exports.AutoCompletion = AutoCompletion;
+	class AutoCompletionItem extends React.Component {
+	    render() {
+	        let className = "entry";
+	        if (this.props.isSelected) {
+	            className += " selected";
+	        }
+	        const detailToShow = this.props.isSelected ? this.props.detail : "";
+	        const documentation = this.props.isSelected ? this.props.documentation : "";
+	        return React.createElement("div", { className: className },
+	            React.createElement("div", { className: "main" },
+	                React.createElement(AutoCompletionIcon, { kind: this.props.kind }),
+	                React.createElement(HighlightText_1.HighlightText, { className: "label", highlightClassName: "highlight", highlightText: this.props.base, text: this.props.label }),
+	                React.createElement("span", { className: "detail" }, detailToShow)),
+	            React.createElement("div", { className: "documentation" }, documentation));
+	    }
+	}
+	exports.AutoCompletionItem = AutoCompletionItem;
+	class AutoCompletionIcon extends React.Component {
+	    render() {
+	        switch (this.props.kind) {
+	            case "let":
+	                return React.createElement(Icon_1.Icon, { name: "wrench" });
+	            case "interface":
+	                return React.createElement(Icon_1.Icon, { name: "plug" });
+	            case "alias":
+	                return React.createElement(Icon_1.Icon, { name: "id-badge" });
+	            case "const":
+	                return React.createElement(Icon_1.Icon, { name: "lock" });
+	            case "class":
+	                return React.createElement(Icon_1.Icon, { name: "cube" });
+	            case "type":
+	                return React.createElement(Icon_1.Icon, { name: "sitemap" });
+	            case "directory":
+	                return React.createElement(Icon_1.Icon, { name: "folder" });
+	            case "var":
+	            case "property":
+	            case "parameter":
+	                // Closed cube?
+	                return React.createElement(Icon_1.Icon, { name: "code" });
+	            case "module":
+	            case "external module name":
+	                return React.createElement(Icon_1.Icon, { name: "cubes" });
+	            case "method":
+	            case "function":
+	                return React.createElement(Icon_1.Icon, { name: "cog" });
+	            case "keyword":
+	                return React.createElement(Icon_1.Icon, { name: "key" });
+	            case "text":
+	                return React.createElement(Icon_1.Icon, { name: "align-justify" });
+	            case "warning":
+	            case "$warning":
+	                return React.createElement(Icon_1.Icon, { name: "exclamation-triangle" });
+	            default:
+	                return !this.props.kind ? null : React.createElement("span", null,
+	                    "`?$",
+	                    this.props.kind,
+	                    "?`");
+	        }
+	    }
+	}
+	exports.AutoCompletionIcon = AutoCompletionIcon;
+	const mapStateToProps = (state) => {
+	    if (!state.autoCompletion) {
+	        return {
+	            visible: false,
+	            x: state.cursorPixelX,
+	            y: state.cursorPixelY + state.fontPixelHeight,
+	            base: "",
+	            entries: [],
+	            selectedIndex: 0
+	        };
+	    }
+	    else {
+	        const ret = {
+	            visible: true,
+	            x: state.cursorPixelX,
+	            y: state.cursorPixelY + state.fontPixelHeight,
+	            base: state.autoCompletion.base,
+	            entries: state.autoCompletion.entries,
+	            selectedIndex: state.autoCompletion.selectedIndex
+	        };
+	        return ret;
+	    }
+	};
+	exports.AutoCompletionContainer = react_redux_1.connect(mapStateToProps)(AutoCompletion);
+
+
+/***/ },
+/* 269 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(269);
+	var content = __webpack_require__(270);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(264)(content, {});
@@ -49169,8 +49306,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?-url!./../../../node_modules/less-loader/index.js!./AutoCompletion.less", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?-url!./../../../node_modules/less-loader/index.js!./AutoCompletion.less");
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?-url!./../../../../node_modules/less-loader/index.js!./AutoCompletion.less", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js?-url!./../../../../node_modules/less-loader/index.js!./AutoCompletion.less");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -49180,7 +49317,7 @@
 	}
 
 /***/ },
-/* 269 */
+/* 270 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(263)();
@@ -49194,7 +49331,7 @@
 
 
 /***/ },
-/* 270 */
+/* 271 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -49207,7 +49344,9 @@
 	                cursorPixelY: a.payload.pixelY,
 	                fontPixelWidth: a.payload.fontPixelWidth,
 	                fontPixelHeight: a.payload.fontPixelHeight,
-	                quickInfo: null
+	                // TODO: Better way to handle this
+	                quickInfo: null,
+	                signatureHelp: null
 	            });
 	        case "SHOW_QUICK_INFO":
 	            return Object.assign({}, s, {
@@ -49231,6 +49370,14 @@
 	        case "HIDE_AUTO_COMPLETION":
 	            return Object.assign({}, s, {
 	                autoCompletion: null
+	            });
+	        case "SHOW_SIGNATURE_HELP":
+	            return Object.assign({}, s, {
+	                signatureHelp: a.payload
+	            });
+	        case "HIDE_SIGNATURE_HELP":
+	            return Object.assign({}, s, {
+	                signatureHelp: null
 	            });
 	    }
 	    return Object.assign({}, s, {
@@ -49378,7 +49525,7 @@
 
 
 /***/ },
-/* 271 */
+/* 272 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -49469,12 +49616,12 @@
 
 
 /***/ },
-/* 272 */
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	const path = __webpack_require__(11);
-	const Error_1 = __webpack_require__(273);
+	const Error_1 = __webpack_require__(274);
 	class ErrorOverlay {
 	    constructor() {
 	        this._errors = {};
@@ -49519,7 +49666,7 @@
 
 
 /***/ },
-/* 273 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -49533,9 +49680,9 @@
 	};
 	const React = __webpack_require__(61);
 	const ReactDOM = __webpack_require__(88);
-	const Icon_1 = __webpack_require__(256);
+	const Icon_1 = __webpack_require__(258);
 	const Config = __webpack_require__(48);
-	__webpack_require__(274);
+	__webpack_require__(275);
 	const padding = 8;
 	class Errors extends React.Component {
 	    render() {
@@ -49606,13 +49753,13 @@
 
 
 /***/ },
-/* 274 */
+/* 275 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(275);
+	var content = __webpack_require__(276);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(264)(content, {});
@@ -49632,7 +49779,7 @@
 	}
 
 /***/ },
-/* 275 */
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(263)();
@@ -49646,7 +49793,7 @@
 
 
 /***/ },
-/* 276 */
+/* 277 */
 /***/ function(module, exports) {
 
 	module.exports = function (args, opts) {
@@ -49888,7 +50035,7 @@
 
 
 /***/ },
-/* 277 */
+/* 278 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -49937,7 +50084,7 @@
 
 
 /***/ },
-/* 278 */
+/* 279 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -49996,7 +50143,7 @@
 
 
 /***/ },
-/* 279 */
+/* 280 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50058,7 +50205,7 @@
 
 
 /***/ },
-/* 280 */
+/* 281 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -50114,7 +50261,7 @@
 
 
 /***/ },
-/* 281 */
+/* 282 */
 /***/ function(module, exports) {
 
 	/**
@@ -50161,13 +50308,13 @@
 
 
 /***/ },
-/* 282 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(283);
+	var content = __webpack_require__(284);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(264)(content, {});
@@ -50187,7 +50334,7 @@
 	}
 
 /***/ },
-/* 283 */
+/* 284 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(263)();
@@ -50201,13 +50348,13 @@
 
 
 /***/ },
-/* 284 */
+/* 285 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(285);
+	var content = __webpack_require__(286);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(264)(content, {});
@@ -50227,7 +50374,7 @@
 	}
 
 /***/ },
-/* 285 */
+/* 286 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(263)();

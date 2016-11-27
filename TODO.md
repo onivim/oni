@@ -1,22 +1,16 @@
-- Parameter helper
-    - Clean up quick info component
-    - Hide signature help if not available, send 'null' back 
-
-- Syntax - improve performance by keeping dictionary
-    - filename -> syntax groups -> keywords
-
-- Animation/Performance: 
-    - No flicker on quickinfo/autocomplete
-    - Factor to always show
-    - Why are there problems if it is always showing?
-
 - UI for REPL
+    - Hook up OverlayManager - need to improve how events are passed there
     - Result - top level
     - Objects - get by highlighted variable name
     - Errors
     - Output
 
 - Good README example: - TSLint by Palantir
+
+- Animation/Performance: 
+    - No flicker on quickinfo/autocomplete
+    - Factor to always show
+    - Why are there problems if it is always showing?
 
 - Animation/Performance: Optimistic Typing
 - Animation: Cursor velocity
