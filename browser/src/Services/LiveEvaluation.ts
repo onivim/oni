@@ -7,6 +7,7 @@ import * as os from "os"
 import { INeovimInstance } from "./../NeovimInstance"
 import { BufferInfo, PluginManager } from "./../Plugins/PluginManager"
 
+
 /**
  * Implementation of the LiveEvaluation service
  */
@@ -14,6 +15,7 @@ export class LiveEvaluation {
 
     private _neovimInstance: INeovimInstance
     private _pluginManager: PluginManager
+    private _currentBlocks: LiveCodeBlock[]
 
     constructor(neovimInstance: INeovimInstance, pluginManager: PluginManager) {
         this._neovimInstance = neovimInstance
@@ -22,21 +24,24 @@ export class LiveEvaluation {
         this._neovimInstance.on("buffer-update", (context: Oni.EventContext, lines: string[]) => {
 
             const currentBlocks = getLiveCodeBlocks(lines)
+            this._currentBlocks = currentBlocks
 
             currentBlocks.forEach(b => {
                 const code = b.codeBlock.join(os.EOL)
-                this._pluginManager.requestEvaluateBlock(code)
+                this._pluginManager.requestEvaluateBlock(code, b.startLine)
             })
         })
 
         this._pluginManager.on("evaluate-block-result", (res) => {
-            alert(JSON.stringify(res))
+            // TODO: Something useful here...
+            console.warn(JSON.stringify(res))
         })
     }
 }
 
 interface LiveCodeBlock {
-    startLine: number,
+    endLine: number
+    startLine: number
     codeBlock: string[]
 }
 
@@ -50,7 +55,7 @@ function getLiveCodeBlocks(buffer: string[]): LiveCodeBlock[] {
                 && curr.indexOf("///") >= 0) {
 
                 isInLiveBlock = true
-                return prev.concat([{ startLine: idx, codeBlock: [] }])
+                return prev.concat([{ startLine: idx, codeBlock: [], endLine: -1 }])
             }
         } else {
             const currentCodeBlock = prev[prev.length - 1]
@@ -58,6 +63,7 @@ function getLiveCodeBlocks(buffer: string[]): LiveCodeBlock[] {
             if (curr.indexOf("</live>") >= 0
                 && curr.indexOf("///") >= 0) {
                 isInLiveBlock = false
+                prev[prev.length - 1].endLine = idx
                 return prev
             } else {
                 prev[prev.length - 1].codeBlock.push(curr)

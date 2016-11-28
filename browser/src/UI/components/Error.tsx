@@ -4,15 +4,13 @@ import * as ReactDOM from "react-dom"
 import { Icon } from "./../Icon"
 import * as Config from "./../../Config"
 
+import { IWindowContext } from "./../OverlayManager"
+
 require("./Error.less")
 
 export interface ErrorsProps {
     errors: Oni.Plugin.Diagnostics.Error[]
-    lineToPositionMap: any
-    fontHeight: number
-    fontWidth: number
-    columnOffset: number
-    currentScreenLine: number
+    windowContext: IWindowContext
 }
 
 const padding = 8
@@ -22,34 +20,35 @@ export class Errors extends React.Component<ErrorsProps, void> {
         const errors = this.props.errors || []
 
         const markers = errors.map(e => {
-            if(this.props.lineToPositionMap[e.lineNumber]) {
-                const screenLine = this.props.lineToPositionMap[e.lineNumber]
-                const yPos = (screenLine - 1) * this.props.fontHeight - (padding / 2)
+            if (this.props.windowContext.isLineInView(e.lineNumber)) {
+                const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
 
-                const isActive = screenLine === this.props.currentScreenLine
+                const yPos = this.props.windowContext.getWindowRegionForLine(e.lineNumber).y - (padding / 2)
+                const isActive = screenLine === this.props.windowContext.getCurrentWindowLine()
 
-                return <ErrorMarker isActive={isActive} 
-                        y={yPos} 
-                        height={this.props.fontHeight} 
-                        text={e.text} />
+                return <ErrorMarker isActive={isActive}
+                    y={yPos}
+                    height={this.props.windowContext.fontHeightInPixels}
+                    text={e.text} />
             } else {
                 return null
             }
         })
 
         const squiggles = errors.map(e => {
-            if(this.props.lineToPositionMap[e.lineNumber] && e.endColumn) {
-                const screenLine = this.props.lineToPositionMap[e.lineNumber]
-                const yPos = (screenLine - 1) * this.props.fontHeight
+            if (this.props.windowContext.isLineInView(e.lineNumber) && e.endColumn) {
+                const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
 
-                const startX = (this.props.columnOffset + e.startColumn - 1) * this.props.fontWidth
-                const endX = (this.props.columnOffset + e.endColumn - 1) * this.props.fontWidth
+                const yPos = this.props.windowContext.getWindowRegionForLine(e.lineNumber).y
 
-                return <ErrorSquiggle 
-                            y={yPos} 
-                            height={this.props.fontHeight} 
-                            x={startX}
-                            width={endX-startX}/>
+                const startX = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn).x
+                const endX = this.props.windowContext.getWindowPosition(e.lineNumber, e.endColumn).x
+
+                return <ErrorSquiggle
+                    y={yPos}
+                    height={this.props.windowContext.fontHeightInPixels}
+                    x={startX}
+                    width={endX - startX} />
             } else {
                 return null
             }
@@ -80,17 +79,17 @@ export class ErrorMarker extends React.Component<ErrorMarkerProps, void> {
         let className = this.props.isActive ? "error-marker active" : "error-marker"
 
         const errorDescription = Config.getValue<boolean>("editor.errors.slideOnFocus") ? (<div className="error">
-                        <div className="text">
-                            {this.props.text}
-                        </div>
-                     </div>) : null
+            <div className="text">
+                {this.props.text}
+            </div>
+        </div>) : null
 
         return <div style={positionDivStyles} className={className}>
-                    {errorDescription}
-                    <div className="icon-container">
-                        <Icon name="exclamation-circle" />
-                    </div>
-                </div>
+            {errorDescription}
+            <div className="icon-container">
+                <Icon name="exclamation-circle" />
+            </div>
+        </div>
     }
 }
 
@@ -104,7 +103,7 @@ export interface ErrorSquiggleProps {
 export class ErrorSquiggle extends React.Component<ErrorSquiggleProps, void> {
     public render(): JSX.Element {
 
-        const {x,y,width,height} = this.props
+        const {x, y, width, height} = this.props
 
         const style = {
             top: y.toString() + "px",

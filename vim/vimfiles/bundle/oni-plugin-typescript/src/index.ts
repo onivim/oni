@@ -81,7 +81,7 @@ const getFormattingEdits = (position: Oni.EventContext) => {
         })
 }
 
-const evaluateBlock = (context: Oni.EventContext, code: string) => {
+const evaluateBlock = (context: Oni.EventContext, code: string, line: number) => {
     const vm = require("vm")
     const ts = require("typescript")
 
@@ -117,11 +117,13 @@ const evaluateBlock = (context: Oni.EventContext, code: string) => {
 
     if (result.then) {
         return result.then((val) => ({
+            line: line,
             result: util.inspect(val),
             variables: util.inspect(sandbox),
             output: null,
             errors: null
         }), (err) => ({
+            line: line,
             result: null,
             variables: util.inspect(sandbox),
             output: null,
@@ -129,6 +131,7 @@ const evaluateBlock = (context: Oni.EventContext, code: string) => {
         }))
     } else {
         return Promise.resolve({
+            line: line,
             result: util.inspect(result),
             variables: util.inspect(sandbox),
             output: null,

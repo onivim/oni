@@ -20,14 +20,35 @@ export interface IWindowContext {
     fontHeightInPixels: number
     fontWidthInPixels: number
 
+    /**
+     * Line number of buffer at the start of window
+     */
     startLine: number
+
+    /** 
+     * Line number of buffer at end of window
+     */
     endLine: number
 
     lineCount: number;
 
-    lineToPositionMap: any
+    //lineToPositionMap: any
 
-    getRegionForLine(line: number): PixelRectangle
+    isLineInView(line: number): boolean
+
+    getWindowLine(bufferLine: number): number
+
+    getCurrentWindowLine(): number
+
+    getWindowRegionForLine(line: number): PixelRectangle
+
+    getWindowPosition(line: number, column: number): PixelRectangle
+}
+
+// TODO: Can these types be consolidated?
+export interface PixelPosition {
+    x: number
+    y: number
 }
 
 export interface PixelRectangle {
@@ -43,6 +64,7 @@ class WindowContext implements IWindowContext {
     private _fontWidthInPixels: number
     private _lineMapping: any
     private _dimensions: WindowDimensions
+    private _eventContext: Oni.EventContext
 
     public get dimensions(): WindowDimensions {
         return this._dimensions
@@ -72,15 +94,50 @@ class WindowContext implements IWindowContext {
         return this._lineMapping
     }
 
-    public getRegionForLine(line: number) {
-        return null
+    public isLineInView(line: number): boolean {
+        return typeof this._lineMapping[line] === "number"
     }
 
-    constructor(windowData: WindowMappingData, fontWidthInPixels: number, fontHeightInPixels: number) {
+    public getCurrentWindowLine(): number {
+        return this._eventContext.winline
+    }
+
+    public getWindowLine(bufferLine: number): number {
+        return this._lineMapping[bufferLine]
+    }
+
+    public getWindowRegionForLine(line: number) {
+
+        const screenLine = this._lineMapping[line]
+        const ypos = (screenLine - 1) * this._fontHeightInPixels
+
+        return {
+            x: 0, // TODO
+            y: ypos,
+            width: 0, // TODO
+            height: this._fontHeightInPixels // TODO
+        }
+    }
+
+    public getWindowPosition(line: number, column: number): PixelRectangle {
+        var linePosition = this.getWindowRegionForLine(line)
+
+        const columnPosition = (this._eventContext.wincol - this._eventContext.column + column - 1) * this._fontWidthInPixels
+
+        return {
+            x: linePosition.x + columnPosition,
+            y: linePosition.y,
+            width: this._fontWidthInPixels,
+            height: this._fontHeightInPixels
+        }
+    }
+
+    constructor(windowData: WindowMappingData, fontWidthInPixels: number, fontHeightInPixels: number, lastEventContext: Oni.EventContext) {
         this._fontHeightInPixels = fontHeightInPixels
         this._fontWidthInPixels = fontWidthInPixels
         this._dimensions = windowData.dimensions
         this._lineMapping = windowData.mapping
+        this._eventContext = lastEventContext
     }
 }
 
@@ -101,7 +158,7 @@ export class OverlayManager {
     private _lastEventContext: any
     private _lastWindowData: WindowMappingData
 
-    private _overlays: {[key:string]: OverlayInfo} = {}
+    private _overlays: { [key: string]: OverlayInfo } = {}
 
     constructor(screen: Screen) {
         this._screen = screen
@@ -146,7 +203,7 @@ export class OverlayManager {
 
     private _redrawElement(): void {
 
-        if(!this._lastWindowData || !this._lastEventContext)
+        if (!this._lastWindowData || !this._lastEventContext)
             return
 
         const windowStartRow = this._screen.cursorRow - this._lastEventContext.winline + 1
@@ -161,7 +218,7 @@ export class OverlayManager {
         this._containerElement.style.width = width
         this._containerElement.style.height = height
 
-        const windowContext = new WindowContext(this._lastWindowData, this._screen.fontWidthInPixels, this._screen.fontHeightInPixels)
+        const windowContext = new WindowContext(this._lastWindowData, this._screen.fontWidthInPixels, this._screen.fontHeightInPixels, this._lastEventContext)
 
         _.values(this._overlays).forEach(overlayInfo => {
             overlayInfo.overlay.update(overlayInfo.element, windowContext)

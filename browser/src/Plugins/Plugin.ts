@@ -128,13 +128,14 @@ export class Plugin {
         })
     }
 
-    public requestEvaluateBlock(eventContext: EventContext, code: string): void {
+    public requestEvaluateBlock(eventContext: EventContext, code: string, line: number): void {
         this._send({
             type: "request",
             payload: {
                 name: "evaluate-block",
                 context: eventContext,
-                code: code
+                code: code,
+                line: line
             }
         })
     }

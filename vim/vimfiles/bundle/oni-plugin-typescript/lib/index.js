@@ -65,7 +65,7 @@ var getFormattingEdits = function (position) {
         };
     });
 };
-var evaluateBlock = function (context, code) {
+var evaluateBlock = function (context, code, line) {
     var vm = require("vm");
     var ts = require("typescript");
     // Get all imports from last module
@@ -94,11 +94,13 @@ var evaluateBlock = function (context, code) {
     var result = script.runInNewContext(sandbox);
     if (result.then) {
         return result.then(function (val) { return ({
+            line: line,
             result: util.inspect(val),
             variables: util.inspect(sandbox),
             output: null,
             errors: null
         }); }, function (err) { return ({
+            line: line,
             result: null,
             variables: util.inspect(sandbox),
             output: null,
@@ -107,6 +109,7 @@ var evaluateBlock = function (context, code) {
     }
     else {
         return Promise.resolve({
+            line: line,
             result: util.inspect(result),
             variables: util.inspect(sandbox),
             output: null,

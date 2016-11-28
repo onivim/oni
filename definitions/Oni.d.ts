@@ -138,9 +138,10 @@ declare namespace Oni {
         }
 
         export interface EvaluationResult {
-            result: any,
-            variables?: any,
-            output?: string[],
+            line: number
+            result: any
+            variables?: any
+            output?: string[]
             errors?: string[]
         }
 
@@ -175,7 +176,7 @@ declare namespace Oni {
 
             getFormattingEdits?(position: EventContext): Promise<FormattingEditsResponse>
 
-            evaluateBlock?(context: EventContext, code: string): Promise<EvaluationResult>
+            evaluateBlock?(context: EventContext, code: string, line: number): Promise<EvaluationResult>
             // liveEvaluate(): LiveEvaluationResult[]
         }
     }

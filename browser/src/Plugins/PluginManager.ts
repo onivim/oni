@@ -142,11 +142,11 @@ export class PluginManager extends EventEmitter {
         }
     }
 
-    public requestEvaluateBlock(code: string): void {
+    public requestEvaluateBlock(code: string, line: number): void {
         const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, EvaluateBlockCapability)
 
         if (plugin) {
-            plugin.requestEvaluateBlock(this._lastEventContext, code)
+            plugin.requestEvaluateBlock(this._lastEventContext, code, line)
         }
     }
 
