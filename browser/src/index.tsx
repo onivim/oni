@@ -29,6 +29,7 @@ import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
 
 import { OverlayManager } from "./UI/OverlayManager"
 import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
+import { LiveEvaluationOverlay } from "./UI/Overlay/LiveEvaluationOverlay"
 
 const start = (args: string[]) => {
 
@@ -65,7 +66,10 @@ const start = (args: string[]) => {
     // Overlays
     const overlayManager = new OverlayManager(screen)
     const errorOverlay = new ErrorOverlay()
+    const liveEvaluationOverlay = new LiveEvaluationOverlay()
     overlayManager.addOverlay("errors", errorOverlay)
+    overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
+
 
     pluginManager.on("signature-help-response", (signatureHelp: Oni.Plugin.SignatureHelpResult) => {
         UI.showSignatureHelp(signatureHelp)
@@ -73,6 +77,10 @@ const start = (args: string[]) => {
 
     pluginManager.on("set-errors", (key, fileName, errors, colors) => {
         errorOverlay.setErrors(key, fileName, errors, colors)
+    })
+
+    pluginManager.on("evaluate-block-result", (key) => {
+        liveEvaluationOverlay.setLiveEvaluationResults([key])
     })
 
     instance.on("event", (eventName: string, evt) => {

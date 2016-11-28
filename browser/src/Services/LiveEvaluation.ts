@@ -7,7 +7,6 @@ import * as os from "os"
 import { INeovimInstance } from "./../NeovimInstance"
 import { BufferInfo, PluginManager } from "./../Plugins/PluginManager"
 
-
 /**
  * Implementation of the LiveEvaluation service
  */
@@ -39,10 +38,11 @@ export class LiveEvaluation {
     }
 }
 
-interface LiveCodeBlock {
+export interface LiveCodeBlock {
     endLine: number
     startLine: number
     codeBlock: string[]
+    result?: Oni.Plugin.EvaluationResult
 }
 
 function getLiveCodeBlocks(buffer: string[]): LiveCodeBlock[] {

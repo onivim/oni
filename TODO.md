@@ -1,10 +1,8 @@
 - UI for REPL
-    - Include line number when sending back up
-    - UI - just show result in sidebar
-    - Hook up OverlayManager - need to improve how events are passed there
-        - Hopefully can be simpler with the window APIs
-        - Still need the buffer line mapping
-    - Result - top level
+    - Include buffer name when sending result up
+    - LiveEvaluationService needs to coalesce results, push out per-buffer
+    - Associate the 'LiveCodeBlock' object (startLine/endLine) with the results from the buffer
+    - Buffer enter event from NeovimInstance?
     - Objects - get by highlighted variable name
     - Errors
     - Output
