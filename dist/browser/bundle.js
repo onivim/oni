@@ -64,19 +64,22 @@
 	const PluginManager_1 = __webpack_require__(57);
 	const Config = __webpack_require__(48);
 	const UI = __webpack_require__(60);
-	const minimist = __webpack_require__(277);
-	const QuickOpen_1 = __webpack_require__(278);
-	const Formatter_1 = __webpack_require__(279);
-	const Output_1 = __webpack_require__(280);
-	const LiveEvaluation_1 = __webpack_require__(281);
-	const SyntaxHighlighter_1 = __webpack_require__(282);
+	const minimist = __webpack_require__(272);
+	const QuickOpen_1 = __webpack_require__(273);
+	const Formatter_1 = __webpack_require__(274);
+	const Output_1 = __webpack_require__(275);
+	const LiveEvaluation_1 = __webpack_require__(276);
+	const SyntaxHighlighter_1 = __webpack_require__(277);
+	const OverlayManager_1 = __webpack_require__(278);
+	const ErrorOverlay_1 = __webpack_require__(279);
+	const LiveEvaluationOverlay_1 = __webpack_require__(283);
 	const start = (args) => {
 	    const parsedArgs = minimist(args);
 	    const debugPlugin = parsedArgs["debugPlugin"];
 	    // Helper for debugging:
 	    window["UI"] = UI;
-	    __webpack_require__(283);
-	    __webpack_require__(285);
+	    __webpack_require__(287);
+	    __webpack_require__(289);
 	    var deltaRegion = new DeltaRegionTracker_1.IncrementalDeltaRegionTracker();
 	    var screen = new Screen_1.NeovimScreen(deltaRegion);
 	    const pluginManager = new PluginManager_1.PluginManager(screen, debugPlugin);
@@ -92,8 +95,28 @@
 	    const outputWindow = new Output_1.OutputWindow(instance, pluginManager);
 	    const liveEvaluation = new LiveEvaluation_1.LiveEvaluation(instance, pluginManager);
 	    const syntaxHighligher = new SyntaxHighlighter_1.SyntaxHighlighter(instance, pluginManager);
+	    // Overlays
+	    const overlayManager = new OverlayManager_1.OverlayManager(screen);
+	    const errorOverlay = new ErrorOverlay_1.ErrorOverlay();
+	    const liveEvaluationOverlay = new LiveEvaluationOverlay_1.LiveEvaluationOverlay();
+	    overlayManager.addOverlay("errors", errorOverlay);
+	    overlayManager.addOverlay("live-eval", liveEvaluationOverlay);
 	    pluginManager.on("signature-help-response", (signatureHelp) => {
 	        UI.showSignatureHelp(signatureHelp);
+	    });
+	    pluginManager.on("set-errors", (key, fileName, errors, colors) => {
+	        errorOverlay.setErrors(key, fileName, errors, colors);
+	    });
+	    pluginManager.on("evaluate-block-result", (key) => {
+	        liveEvaluationOverlay.setLiveEvaluationResults([key]);
+	    });
+	    instance.on("event", (eventName, evt) => {
+	        // TODO: Can we get rid of these?
+	        overlayManager.handleCursorMovedEvent(evt);
+	        errorOverlay.onVimEvent(eventName, evt);
+	    });
+	    instance.on("window-display-update", (arg) => {
+	        overlayManager.notifyWindowDimensionsChanged(arg);
 	    });
 	    instance.on("action", (action) => {
 	        renderer.onAction(action);
@@ -25968,8 +25991,6 @@
 	const Config = __webpack_require__(48);
 	const Plugin_1 = __webpack_require__(59);
 	const UI = __webpack_require__(60);
-	const OverlayManager_1 = __webpack_require__(272);
-	const ErrorOverlay_1 = __webpack_require__(273);
 	const initFilePath = path.join(__dirname, "vim", "init_template.vim");
 	const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles");
 	const webcontents = electron_1.remote.getCurrentWindow().webContents;
@@ -25994,9 +26015,6 @@
 	            console.log("cross-browser-ipc: " + JSON.stringify(arg));
 	            this._handlePluginResponse(arg);
 	        });
-	        this._overlayManager = new OverlayManager_1.OverlayManager(screen);
-	        this._errorOverlay = new ErrorOverlay_1.ErrorOverlay();
-	        this._overlayManager.addOverlay("errors", this._errorOverlay);
 	        window.onbeforeunload = () => {
 	            this.dispose();
 	        };
@@ -26030,8 +26048,6 @@
 	        this._plugins
 	            .filter(p => p.isPluginSubscribedToVimEvents(eventContext.filetype) || p.isPluginSubscribedToVimEvents("*"))
 	            .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext));
-	        this._overlayManager.handleCursorMovedEvent(eventContext);
-	        this._errorOverlay.onVimEvent(eventName, eventContext);
 	        if (eventName === "CursorMoved" && Config.getValue("editor.quickInfo.enabled")) {
 	            const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, Plugin_1.QuickInfoCapability);
 	            if (plugin) {
@@ -26049,19 +26065,16 @@
 	            }
 	        }
 	    }
-	    _onWindowDisplayUpdate(arg) {
-	        this._overlayManager.notifyWindowDimensionsChanged(arg);
-	    }
 	    requestFormat() {
 	        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, Plugin_1.FormatCapability);
 	        if (plugin) {
 	            plugin.requestFormat(this._lastEventContext);
 	        }
 	    }
-	    requestEvaluateBlock(code) {
+	    requestEvaluateBlock(code, line) {
 	        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, Plugin_1.EvaluateBlockCapability);
 	        if (plugin) {
-	            plugin.requestEvaluateBlock(this._lastEventContext, code);
+	            plugin.requestEvaluateBlock(this._lastEventContext, code, line);
 	        }
 	    }
 	    _getFirstPluginThatHasCapability(filetype, capability) {
@@ -26087,6 +26100,7 @@
 	        else if (pluginResponse.type === "goto-definition") {
 	            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
 	                return;
+	            // TODO: Refactor to 'Service', break remaining NeoVim dependencies
 	            const { filePath, line, column } = pluginResponse.payload;
 	            this._neovimInstance.command("e! " + filePath);
 	            this._neovimInstance.command("keepjumps norm " + line + "G" + column);
@@ -26101,7 +26115,7 @@
 	            setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details));
 	        }
 	        else if (pluginResponse.type === "set-errors") {
-	            this._errorOverlay.setErrors(pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors);
+	            this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors);
 	        }
 	        else if (pluginResponse.type === "format") {
 	            this.emit("format", pluginResponse.payload);
@@ -26147,7 +26161,6 @@
 	        this._neovimInstance.on("event", (eventName, context) => {
 	            this._onEvent(eventName, context);
 	        });
-	        this._neovimInstance.on("window-display-update", (args) => this._onWindowDisplayUpdate(args));
 	        const allPlugins = this._getAllPluginPaths();
 	        this._plugins = allPlugins.map(pluginRootDirectory => new Plugin_1.Plugin(pluginRootDirectory));
 	        if (this._debugPluginPath) {
@@ -26417,13 +26430,14 @@
 	            }
 	        });
 	    }
-	    requestEvaluateBlock(eventContext, code) {
+	    requestEvaluateBlock(eventContext, code, line) {
 	        this._send({
 	            type: "request",
 	            payload: {
 	                name: "evaluate-block",
 	                context: eventContext,
-	                code: code
+	                code: code,
+	                line: line
 	            }
 	        });
 	    }
@@ -49526,274 +49540,6 @@
 
 /***/ },
 /* 272 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	const _ = __webpack_require__(45);
-	class WindowContext {
-	    get dimensions() {
-	        return this._dimensions;
-	    }
-	    get startLine() {
-	        return -1; // TODO
-	    }
-	    get endLine() {
-	        return -1; // TODO
-	    }
-	    get lineCount() {
-	        return -1; // TODO
-	    }
-	    get fontHeightInPixels() {
-	        return this._fontHeightInPixels;
-	    }
-	    get fontWidthInPixels() {
-	        return this._fontWidthInPixels;
-	    }
-	    get lineToPositionMap() {
-	        return this._lineMapping;
-	    }
-	    getRegionForLine(line) {
-	        return null;
-	    }
-	    constructor(windowData, fontWidthInPixels, fontHeightInPixels) {
-	        this._fontHeightInPixels = fontHeightInPixels;
-	        this._fontWidthInPixels = fontWidthInPixels;
-	        this._dimensions = windowData.dimensions;
-	        this._lineMapping = windowData.mapping;
-	    }
-	}
-	class OverlayManager {
-	    constructor(screen) {
-	        this._overlays = {};
-	        this._screen = screen;
-	        const div = document.createElement("div");
-	        div.style.position = "absolute";
-	        div.style.top = "0px";
-	        div.style.left = "0px";
-	        div.style.width = "100px";
-	        div.style.height = "100px";
-	        document.body.appendChild(div);
-	        this._containerElement = div;
-	    }
-	    addOverlay(key, overlay) {
-	        const overlayContainer = document.createElement("div");
-	        overlayContainer.className = "overlay-container";
-	        this._containerElement.appendChild(overlayContainer);
-	        this._overlays[key] = {
-	            overlay: overlay,
-	            element: overlayContainer
-	        };
-	    }
-	    handleCursorMovedEvent(eventContext) {
-	        this._lastEventContext = eventContext;
-	        this._redrawWithDelay();
-	    }
-	    notifyWindowDimensionsChanged(data) {
-	        this._lastWindowData = data;
-	        this._redrawWithDelay();
-	    }
-	    _redrawWithDelay() {
-	        setTimeout(() => this._redrawElement(), 250);
-	    }
-	    _redrawElement() {
-	        if (!this._lastWindowData || !this._lastEventContext)
-	            return;
-	        const windowStartRow = this._screen.cursorRow - this._lastEventContext.winline + 1;
-	        const windowStartColumn = this._screen.cursorColumn - this._lastEventContext.wincol + 1;
-	        this._containerElement.style.top = (windowStartRow * this._screen.fontHeightInPixels) + "px";
-	        this._containerElement.style.left = (windowStartColumn * this._screen.fontWidthInPixels) + "px";
-	        const width = (this._lastWindowData.dimensions.width * this._screen.fontWidthInPixels) + "px";
-	        const height = (this._lastWindowData.dimensions.height * this._screen.fontHeightInPixels) + "px";
-	        this._containerElement.style.width = width;
-	        this._containerElement.style.height = height;
-	        const windowContext = new WindowContext(this._lastWindowData, this._screen.fontWidthInPixels, this._screen.fontHeightInPixels);
-	        _.values(this._overlays).forEach(overlayInfo => {
-	            overlayInfo.overlay.update(overlayInfo.element, windowContext);
-	        });
-	    }
-	}
-	exports.OverlayManager = OverlayManager;
-
-
-/***/ },
-/* 273 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	const path = __webpack_require__(11);
-	const Error_1 = __webpack_require__(274);
-	class ErrorOverlay {
-	    constructor() {
-	        this._errors = {};
-	    }
-	    onVimEvent(eventName, eventContext) {
-	        const fullPath = eventContext.bufferFullPath;
-	        this._currentFileName = fullPath;
-	        this._columnOffset = eventContext.wincol - eventContext.column;
-	        this._currentLine = eventContext.winline;
-	        this._showErrors();
-	    }
-	    setErrors(key, fileName, errors, color) {
-	        fileName = path.normalize(fileName);
-	        this._errors[fileName] = errors;
-	        this._showErrors();
-	    }
-	    update(element, windowContext) {
-	        this._element = element;
-	        this._lastWindowContext = windowContext;
-	        this._showErrors();
-	    }
-	    _showErrors() {
-	        if (!this._currentFileName)
-	            return;
-	        if (!this._element)
-	            return;
-	        if (!this._errors) {
-	            this._element.textContent = "";
-	            return;
-	        }
-	        Error_1.renderErrorMarkers({
-	            errors: this._errors[this._currentFileName],
-	            columnOffset: this._columnOffset,
-	            fontHeight: this._lastWindowContext.fontHeightInPixels,
-	            fontWidth: this._lastWindowContext.fontWidthInPixels,
-	            lineToPositionMap: this._lastWindowContext.lineToPositionMap,
-	            currentScreenLine: this._currentLine
-	        }, this._element);
-	    }
-	}
-	exports.ErrorOverlay = ErrorOverlay;
-
-
-/***/ },
-/* 274 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __assign = (this && this.__assign) || Object.assign || function(t) {
-	    for (var s, i = 1, n = arguments.length; i < n; i++) {
-	        s = arguments[i];
-	        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-	            t[p] = s[p];
-	    }
-	    return t;
-	};
-	const React = __webpack_require__(61);
-	const ReactDOM = __webpack_require__(88);
-	const Icon_1 = __webpack_require__(258);
-	const Config = __webpack_require__(48);
-	__webpack_require__(275);
-	const padding = 8;
-	class Errors extends React.Component {
-	    render() {
-	        const errors = this.props.errors || [];
-	        const markers = errors.map(e => {
-	            if (this.props.lineToPositionMap[e.lineNumber]) {
-	                const screenLine = this.props.lineToPositionMap[e.lineNumber];
-	                const yPos = (screenLine - 1) * this.props.fontHeight - (padding / 2);
-	                const isActive = screenLine === this.props.currentScreenLine;
-	                return React.createElement(ErrorMarker, { isActive: isActive, y: yPos, height: this.props.fontHeight, text: e.text });
-	            }
-	            else {
-	                return null;
-	            }
-	        });
-	        const squiggles = errors.map(e => {
-	            if (this.props.lineToPositionMap[e.lineNumber] && e.endColumn) {
-	                const screenLine = this.props.lineToPositionMap[e.lineNumber];
-	                const yPos = (screenLine - 1) * this.props.fontHeight;
-	                const startX = (this.props.columnOffset + e.startColumn - 1) * this.props.fontWidth;
-	                const endX = (this.props.columnOffset + e.endColumn - 1) * this.props.fontWidth;
-	                return React.createElement(ErrorSquiggle, { y: yPos, height: this.props.fontHeight, x: startX, width: endX - startX });
-	            }
-	            else {
-	                return null;
-	            }
-	        });
-	        return React.createElement("div", null,
-	            markers,
-	            squiggles);
-	    }
-	}
-	exports.Errors = Errors;
-	class ErrorMarker extends React.Component {
-	    render() {
-	        const positionDivStyles = {
-	            top: this.props.y.toString() + "px",
-	            right: "0px",
-	            height: (padding + this.props.height).toString() + "px"
-	        };
-	        let className = this.props.isActive ? "error-marker active" : "error-marker";
-	        const errorDescription = Config.getValue("editor.errors.slideOnFocus") ? (React.createElement("div", { className: "error" },
-	            React.createElement("div", { className: "text" }, this.props.text))) : null;
-	        return React.createElement("div", { style: positionDivStyles, className: className },
-	            errorDescription,
-	            React.createElement("div", { className: "icon-container" },
-	                React.createElement(Icon_1.Icon, { name: "exclamation-circle" })));
-	    }
-	}
-	exports.ErrorMarker = ErrorMarker;
-	class ErrorSquiggle extends React.Component {
-	    render() {
-	        const { x, y, width, height } = this.props;
-	        const style = {
-	            top: y.toString() + "px",
-	            left: x.toString() + "px",
-	            height: height.toString() + "px",
-	            width: width.toString() + "px"
-	        };
-	        return React.createElement("div", { className: "error-squiggle", style: style });
-	    }
-	}
-	exports.ErrorSquiggle = ErrorSquiggle;
-	function renderErrorMarkers(props, element) {
-	    ReactDOM.render(React.createElement(Errors, __assign({}, props)), element);
-	}
-	exports.renderErrorMarkers = renderErrorMarkers;
-
-
-/***/ },
-/* 275 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(276);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(264)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?-url!./../../../../node_modules/less-loader/index.js!./Error.less", function() {
-				var newContent = require("!!./../../../../node_modules/css-loader/index.js?-url!./../../../../node_modules/less-loader/index.js!./Error.less");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 276 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(263)();
-	// imports
-
-
-	// module
-	exports.push([module.id, ".error-marker {\n  position: absolute;\n  opacity: 0.5;\n  width: 200px;\n  display: -ms-flexbox;\n  display: flex;\n}\n.error-marker.active {\n  opacity: 0.8;\n}\n.error-marker.active .error {\n  left: 0px;\n}\n.error-marker .error {\n  -ms-flex: 1 1 auto;\n      flex: 1 1 auto;\n  transition: left 0.5s;\n  position: absolute;\n  left: 200px;\n  background-color: #3c3c3c;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-align: center;\n      align-items: center;\n  height: 100%;\n  width: 100%;\n}\n.error-marker .error .text {\n  font-size: 10px;\n  color: #c8c8c8;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  text-align: center;\n  -ms-flex-pack: center;\n      justify-content: center;\n  -ms-flex-align: center;\n      align-items: center;\n  padding: 8px;\n}\n.error-marker .icon-container {\n  position: absolute;\n  right: 0px;\n  background-color: #505050;\n}\n.error-marker .icon-container .fa {\n  color: red;\n  padding: 6px;\n}\n.error-squiggle {\n  position: absolute;\n  border-bottom: 1px dashed red;\n}\n", ""]);
-
-	// exports
-
-
-/***/ },
-/* 277 */
 /***/ function(module, exports) {
 
 	module.exports = function (args, opts) {
@@ -50035,7 +49781,7 @@
 
 
 /***/ },
-/* 278 */
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50084,7 +49830,7 @@
 
 
 /***/ },
-/* 279 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -50143,7 +49889,7 @@
 
 
 /***/ },
-/* 280 */
+/* 275 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50205,7 +49951,7 @@
 
 
 /***/ },
-/* 281 */
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -50222,13 +49968,15 @@
 	        this._pluginManager = pluginManager;
 	        this._neovimInstance.on("buffer-update", (context, lines) => {
 	            const currentBlocks = getLiveCodeBlocks(lines);
+	            this._currentBlocks = currentBlocks;
 	            currentBlocks.forEach(b => {
 	                const code = b.codeBlock.join(os.EOL);
-	                this._pluginManager.requestEvaluateBlock(code);
+	                this._pluginManager.requestEvaluateBlock(code, b.startLine);
 	            });
 	        });
 	        this._pluginManager.on("evaluate-block-result", (res) => {
-	            alert(JSON.stringify(res));
+	            // TODO: Something useful here...
+	            console.warn(JSON.stringify(res));
 	        });
 	    }
 	}
@@ -50240,7 +49988,7 @@
 	            if (curr.indexOf("<live>") >= 0
 	                && curr.indexOf("///") >= 0) {
 	                isInLiveBlock = true;
-	                return prev.concat([{ startLine: idx, codeBlock: [] }]);
+	                return prev.concat([{ startLine: idx, codeBlock: [], endLine: -1 }]);
 	            }
 	        }
 	        else {
@@ -50248,6 +49996,7 @@
 	            if (curr.indexOf("</live>") >= 0
 	                && curr.indexOf("///") >= 0) {
 	                isInLiveBlock = false;
+	                prev[prev.length - 1].endLine = idx;
 	                return prev;
 	            }
 	            else {
@@ -50261,7 +50010,7 @@
 
 
 /***/ },
-/* 282 */
+/* 277 */
 /***/ function(module, exports) {
 
 	/**
@@ -50308,13 +50057,424 @@
 
 
 /***/ },
-/* 283 */
+/* 278 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const _ = __webpack_require__(45);
+	class WindowContext {
+	    get dimensions() {
+	        return this._dimensions;
+	    }
+	    get startLine() {
+	        return -1; // TODO
+	    }
+	    get endLine() {
+	        return -1; // TODO
+	    }
+	    get lineCount() {
+	        return -1; // TODO
+	    }
+	    get fontHeightInPixels() {
+	        return this._fontHeightInPixels;
+	    }
+	    get fontWidthInPixels() {
+	        return this._fontWidthInPixels;
+	    }
+	    get lineToPositionMap() {
+	        return this._lineMapping;
+	    }
+	    isLineInView(line) {
+	        return typeof this._lineMapping[line] === "number";
+	    }
+	    getCurrentWindowLine() {
+	        return this._eventContext.winline;
+	    }
+	    getWindowLine(bufferLine) {
+	        return this._lineMapping[bufferLine];
+	    }
+	    getWindowRegionForLine(line) {
+	        const screenLine = this._lineMapping[line];
+	        const ypos = (screenLine - 1) * this._fontHeightInPixels;
+	        return {
+	            x: 0,
+	            y: ypos,
+	            width: 0,
+	            height: this._fontHeightInPixels // TODO
+	        };
+	    }
+	    getWindowPosition(line, column) {
+	        var linePosition = this.getWindowRegionForLine(line);
+	        const columnPosition = (this._eventContext.wincol - this._eventContext.column + column - 1) * this._fontWidthInPixels;
+	        return {
+	            x: linePosition.x + columnPosition,
+	            y: linePosition.y,
+	            width: this._fontWidthInPixels,
+	            height: this._fontHeightInPixels
+	        };
+	    }
+	    constructor(windowData, fontWidthInPixels, fontHeightInPixels, lastEventContext) {
+	        this._fontHeightInPixels = fontHeightInPixels;
+	        this._fontWidthInPixels = fontWidthInPixels;
+	        this._dimensions = windowData.dimensions;
+	        this._lineMapping = windowData.mapping;
+	        this._eventContext = lastEventContext;
+	    }
+	}
+	class OverlayManager {
+	    constructor(screen) {
+	        this._overlays = {};
+	        this._screen = screen;
+	        const div = document.createElement("div");
+	        div.style.position = "absolute";
+	        div.style.top = "0px";
+	        div.style.left = "0px";
+	        div.style.width = "100px";
+	        div.style.height = "100px";
+	        document.body.appendChild(div);
+	        this._containerElement = div;
+	    }
+	    addOverlay(key, overlay) {
+	        const overlayContainer = document.createElement("div");
+	        overlayContainer.className = "overlay-container";
+	        this._containerElement.appendChild(overlayContainer);
+	        this._overlays[key] = {
+	            overlay: overlay,
+	            element: overlayContainer
+	        };
+	    }
+	    handleCursorMovedEvent(eventContext) {
+	        this._lastEventContext = eventContext;
+	        this._redrawWithDelay();
+	    }
+	    notifyWindowDimensionsChanged(data) {
+	        this._lastWindowData = data;
+	        this._redrawWithDelay();
+	    }
+	    _redrawWithDelay() {
+	        setTimeout(() => this._redrawElement(), 250);
+	    }
+	    _redrawElement() {
+	        if (!this._lastWindowData || !this._lastEventContext)
+	            return;
+	        const windowStartRow = this._screen.cursorRow - this._lastEventContext.winline + 1;
+	        const windowStartColumn = this._screen.cursorColumn - this._lastEventContext.wincol + 1;
+	        this._containerElement.style.top = (windowStartRow * this._screen.fontHeightInPixels) + "px";
+	        this._containerElement.style.left = (windowStartColumn * this._screen.fontWidthInPixels) + "px";
+	        const width = (this._lastWindowData.dimensions.width * this._screen.fontWidthInPixels) + "px";
+	        const height = (this._lastWindowData.dimensions.height * this._screen.fontHeightInPixels) + "px";
+	        this._containerElement.style.width = width;
+	        this._containerElement.style.height = height;
+	        const windowContext = new WindowContext(this._lastWindowData, this._screen.fontWidthInPixels, this._screen.fontHeightInPixels, this._lastEventContext);
+	        _.values(this._overlays).forEach(overlayInfo => {
+	            overlayInfo.overlay.update(overlayInfo.element, windowContext);
+	        });
+	    }
+	}
+	exports.OverlayManager = OverlayManager;
+
+
+/***/ },
+/* 279 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const path = __webpack_require__(11);
+	const Error_1 = __webpack_require__(280);
+	class ErrorOverlay {
+	    constructor() {
+	        this._errors = {};
+	    }
+	    onVimEvent(eventName, eventContext) {
+	        const fullPath = eventContext.bufferFullPath;
+	        this._currentFileName = fullPath;
+	        this._showErrors();
+	    }
+	    setErrors(key, fileName, errors, color) {
+	        fileName = path.normalize(fileName);
+	        this._errors[fileName] = errors;
+	        this._showErrors();
+	    }
+	    update(element, windowContext) {
+	        this._element = element;
+	        this._lastWindowContext = windowContext;
+	        this._showErrors();
+	    }
+	    _showErrors() {
+	        if (!this._currentFileName)
+	            return;
+	        if (!this._element)
+	            return;
+	        if (!this._errors) {
+	            this._element.textContent = "";
+	            return;
+	        }
+	        Error_1.renderErrorMarkers({
+	            errors: this._errors[this._currentFileName],
+	            windowContext: this._lastWindowContext
+	        }, this._element);
+	    }
+	}
+	exports.ErrorOverlay = ErrorOverlay;
+
+
+/***/ },
+/* 280 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __assign = (this && this.__assign) || Object.assign || function(t) {
+	    for (var s, i = 1, n = arguments.length; i < n; i++) {
+	        s = arguments[i];
+	        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+	            t[p] = s[p];
+	    }
+	    return t;
+	};
+	const React = __webpack_require__(61);
+	const ReactDOM = __webpack_require__(88);
+	const Icon_1 = __webpack_require__(258);
+	const Config = __webpack_require__(48);
+	__webpack_require__(281);
+	const padding = 8;
+	class Errors extends React.Component {
+	    render() {
+	        const errors = this.props.errors || [];
+	        const markers = errors.map(e => {
+	            if (this.props.windowContext.isLineInView(e.lineNumber)) {
+	                const screenLine = this.props.windowContext.getWindowLine(e.lineNumber);
+	                const yPos = this.props.windowContext.getWindowRegionForLine(e.lineNumber).y - (padding / 2);
+	                const isActive = screenLine === this.props.windowContext.getCurrentWindowLine();
+	                return React.createElement(ErrorMarker, { isActive: isActive, y: yPos, height: this.props.windowContext.fontHeightInPixels, text: e.text });
+	            }
+	            else {
+	                return null;
+	            }
+	        });
+	        const squiggles = errors.map(e => {
+	            if (this.props.windowContext.isLineInView(e.lineNumber) && e.endColumn) {
+	                const screenLine = this.props.windowContext.getWindowLine(e.lineNumber);
+	                const yPos = this.props.windowContext.getWindowRegionForLine(e.lineNumber).y;
+	                const startX = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn).x;
+	                const endX = this.props.windowContext.getWindowPosition(e.lineNumber, e.endColumn).x;
+	                return React.createElement(ErrorSquiggle, { y: yPos, height: this.props.windowContext.fontHeightInPixels, x: startX, width: endX - startX });
+	            }
+	            else {
+	                return null;
+	            }
+	        });
+	        return React.createElement("div", null,
+	            markers,
+	            squiggles);
+	    }
+	}
+	exports.Errors = Errors;
+	class ErrorMarker extends React.Component {
+	    render() {
+	        const positionDivStyles = {
+	            top: this.props.y.toString() + "px",
+	            right: "0px",
+	            height: (padding + this.props.height).toString() + "px"
+	        };
+	        let className = this.props.isActive ? "error-marker active" : "error-marker";
+	        const errorDescription = Config.getValue("editor.errors.slideOnFocus") ? (React.createElement("div", { className: "error" },
+	            React.createElement("div", { className: "text" }, this.props.text))) : null;
+	        return React.createElement("div", { style: positionDivStyles, className: className },
+	            errorDescription,
+	            React.createElement("div", { className: "icon-container" },
+	                React.createElement(Icon_1.Icon, { name: "exclamation-circle" })));
+	    }
+	}
+	exports.ErrorMarker = ErrorMarker;
+	class ErrorSquiggle extends React.Component {
+	    render() {
+	        const { x, y, width, height } = this.props;
+	        const style = {
+	            top: y.toString() + "px",
+	            left: x.toString() + "px",
+	            height: height.toString() + "px",
+	            width: width.toString() + "px"
+	        };
+	        return React.createElement("div", { className: "error-squiggle", style: style });
+	    }
+	}
+	exports.ErrorSquiggle = ErrorSquiggle;
+	function renderErrorMarkers(props, element) {
+	    ReactDOM.render(React.createElement(Errors, __assign({}, props)), element);
+	}
+	exports.renderErrorMarkers = renderErrorMarkers;
+
+
+/***/ },
+/* 281 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(284);
+	var content = __webpack_require__(282);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(264)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?-url!./../../../../node_modules/less-loader/index.js!./Error.less", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js?-url!./../../../../node_modules/less-loader/index.js!./Error.less");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 282 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(263)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".error-marker {\n  position: absolute;\n  opacity: 0.5;\n  width: 200px;\n  display: -ms-flexbox;\n  display: flex;\n}\n.error-marker.active {\n  opacity: 0.8;\n}\n.error-marker.active .error {\n  left: 0px;\n}\n.error-marker .error {\n  -ms-flex: 1 1 auto;\n      flex: 1 1 auto;\n  transition: left 0.5s;\n  position: absolute;\n  left: 200px;\n  background-color: #3c3c3c;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-align: center;\n      align-items: center;\n  height: 100%;\n  width: 100%;\n}\n.error-marker .error .text {\n  font-size: 10px;\n  color: #c8c8c8;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  text-align: center;\n  -ms-flex-pack: center;\n      justify-content: center;\n  -ms-flex-align: center;\n      align-items: center;\n  padding: 8px;\n}\n.error-marker .icon-container {\n  position: absolute;\n  right: 0px;\n  background-color: #505050;\n}\n.error-marker .icon-container .fa {\n  color: red;\n  padding: 6px;\n}\n.error-squiggle {\n  position: absolute;\n  border-bottom: 1px dashed red;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 283 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const LiveEvalMarker_1 = __webpack_require__(284);
+	class LiveEvaluationOverlay {
+	    setLiveEvaluationResults(codeBlocks) {
+	        this._lastEvalResults = codeBlocks;
+	        this._showLiveEval();
+	    }
+	    update(element, windowContext) {
+	        this._element = element;
+	        this._lastWindowContext = windowContext;
+	        this._showLiveEval();
+	    }
+	    _showLiveEval() {
+	        if (!this._lastEvalResults) {
+	            this._element.textContent = "";
+	            return;
+	        }
+	        if (!this._element)
+	            return;
+	        LiveEvalMarker_1.renderLiveEval({
+	            blocks: this._lastEvalResults,
+	            windowContext: this._lastWindowContext
+	        }, this._element);
+	    }
+	}
+	exports.LiveEvaluationOverlay = LiveEvaluationOverlay;
+
+
+/***/ },
+/* 284 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __assign = (this && this.__assign) || Object.assign || function(t) {
+	    for (var s, i = 1, n = arguments.length; i < n; i++) {
+	        s = arguments[i];
+	        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+	            t[p] = s[p];
+	    }
+	    return t;
+	};
+	const React = __webpack_require__(61);
+	const ReactDOM = __webpack_require__(88);
+	__webpack_require__(285);
+	class LiveEvalMarkerContainer extends React.Component {
+	    render() {
+	        const blocks = this.props.blocks || [];
+	        const blockComponents = blocks.map(b => {
+	            if (this.props.windowContext.isLineInView(b.startLine)) {
+	                const startY = this.props.windowContext.getWindowLine(b.startLine);
+	                return React.createElement(LiveEvalMarker, { y: startY, height: 50, result: b.result });
+	            }
+	            else {
+	                return null;
+	            }
+	        });
+	        return React.createElement("div", null, blockComponents);
+	    }
+	}
+	exports.LiveEvalMarkerContainer = LiveEvalMarkerContainer;
+	class LiveEvalMarker extends React.Component {
+	    render() {
+	        const positionDivStyles = {
+	            top: this.props.y.toString() + "px",
+	            right: "0px",
+	            height: (this.props.height).toString() + "px",
+	            width: "250px"
+	        };
+	        return React.createElement("div", { style: positionDivStyles }, "JSON.stringify(this.props.result)");
+	    }
+	}
+	exports.LiveEvalMarker = LiveEvalMarker;
+	function renderLiveEval(props, element) {
+	    ReactDOM.render(React.createElement(LiveEvalMarkerContainer, __assign({}, props)), element);
+	}
+	exports.renderLiveEval = renderLiveEval;
+
+
+/***/ },
+/* 285 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(286);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(264)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?-url!./../../../../node_modules/less-loader/index.js!./LiveEvalMarker.less", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js?-url!./../../../../node_modules/less-loader/index.js!./LiveEvalMarker.less");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 286 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(263)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".live-eval-marker {\n  position: absolute;\n  right: 0px;\n  opacity: 0.5;\n  width: 300px;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 287 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(288);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(264)(content, {});
@@ -50334,7 +50494,7 @@
 	}
 
 /***/ },
-/* 284 */
+/* 288 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(263)();
@@ -50348,13 +50508,13 @@
 
 
 /***/ },
-/* 285 */
+/* 289 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(286);
+	var content = __webpack_require__(290);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(264)(content, {});
@@ -50374,7 +50534,7 @@
 	}
 
 /***/ },
-/* 286 */
+/* 290 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(263)();
