@@ -5,6 +5,9 @@ set ruler
 set cursorline
 set smartcase
 
+set splitright
+set splitbelow
+
 " Default tab settings
 set tabstop=4
 set shiftwidth=4

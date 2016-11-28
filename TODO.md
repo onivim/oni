@@ -1,11 +1,6 @@
 - UI for REPL
     - Include line number when sending back up
     - UI - just show result in sidebar
-    - Refactor OverlayManager out of PluginManager
-        - hook the 'event' from neovim instance instead
-        - hook the 'window-display-update from neovim instance instead
-    - Refactor errorOverlay out of PluginManager
-        - hook 
     - Hook up OverlayManager - need to improve how events are passed there
         - Hopefully can be simpler with the window APIs
         - Still need the buffer line mapping
@@ -29,6 +24,8 @@
         - Start moving reducers out
     - Menu
     - Autocomplete
+
+- Syntax highlighting - only update if item changed
 
 - Startup UI if NeoVim not found
     - Landing page design
@@ -187,7 +184,7 @@
     - Proper routing of messages in main
     - Show context menu in bottom right to open different sessions
     - Quick switch between them
-    
+    - Good exercises here: https://github.com/steveshogren/10-minute-vim-exercises/blob/master/book_sample_delimited_edits.md
 
 - NeoVim as window component
     - Just use for text boxes for the short-term

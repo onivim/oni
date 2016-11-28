@@ -22,8 +22,6 @@ import {
 import { Screen } from "./../Screen"
 
 import * as UI from "./../UI/index"
-import { OverlayManager } from "./../UI/OverlayManager"
-import { ErrorOverlay } from "./../UI/Overlay/ErrorOverlay"
 
 const initFilePath = path.join(__dirname, "vim", "init_template.vim")
 
@@ -46,9 +44,6 @@ export class PluginManager extends EventEmitter {
     private _extensionPath: string
     private _plugins: Plugin[] = []
     private _neovimInstance: INeovimInstance
-    private _overlayManager: OverlayManager
-
-    private _errorOverlay: ErrorOverlay
     private _lastEventContext: any
     private _lastBufferInfo: BufferInfo
 
@@ -76,14 +71,9 @@ export class PluginManager extends EventEmitter {
             this._handlePluginResponse(arg);
         })
 
-        this._overlayManager = new OverlayManager(screen)
-        this._errorOverlay = new ErrorOverlay()
-        this._overlayManager.addOverlay("errors", this._errorOverlay)
-
         window.onbeforeunload = () => {
             this.dispose()
         }
-
     }
 
     public dispose(): void {
@@ -123,9 +113,6 @@ export class PluginManager extends EventEmitter {
         .filter(p => p.isPluginSubscribedToVimEvents(eventContext.filetype) || p.isPluginSubscribedToVimEvents("*"))
         .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext))
 
-        this._overlayManager.handleCursorMovedEvent(eventContext)
-        this._errorOverlay.onVimEvent(eventName, eventContext)
-
         if (eventName === "CursorMoved" && Config.getValue<boolean>("editor.quickInfo.enabled")) {
             const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, QuickInfoCapability)
 
@@ -145,10 +132,6 @@ export class PluginManager extends EventEmitter {
                 plugin.requestSignatureHelp(eventContext)
             }
         }
-    }
-
-    private _onWindowDisplayUpdate(arg: any) {
-        this._overlayManager.notifyWindowDimensionsChanged(arg)
     }
 
     public requestFormat(): void {
@@ -197,6 +180,7 @@ export class PluginManager extends EventEmitter {
             if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
                 return
 
+            // TODO: Refactor to 'Service', break remaining NeoVim dependencies
             const { filePath, line, column } = pluginResponse.payload
             this._neovimInstance.command("e! " + filePath)
             this._neovimInstance.command("keepjumps norm " + line + "G" + column)
@@ -209,7 +193,7 @@ export class PluginManager extends EventEmitter {
         } else if (pluginResponse.type === "completion-provider-item-selected") {
             setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details))
         } else if (pluginResponse.type === "set-errors") {
-            this._errorOverlay.setErrors(pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors)
+            this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors)
         } else if (pluginResponse.type === "format") {
             this.emit("format", pluginResponse.payload)
         } else if (pluginResponse.type === "execute-shell-command") {
@@ -224,7 +208,6 @@ export class PluginManager extends EventEmitter {
         } else if(pluginResponse.type === "signature-help-response") {
             this.emit("signature-help-response", pluginResponse.payload)
         }
-
     }
 
     /**
@@ -255,8 +238,6 @@ export class PluginManager extends EventEmitter {
         this._neovimInstance.on("event", (eventName: string, context: Oni.EventContext) => {
             this._onEvent(eventName, context)
         })
-
-        this._neovimInstance.on("window-display-update", (args) => this._onWindowDisplayUpdate(args))
 
         const allPlugins = this._getAllPluginPaths()
         this._plugins = allPlugins.map(pluginRootDirectory => new Plugin(pluginRootDirectory))

@@ -27,6 +27,9 @@ import { OutputWindow } from "./Services/Output"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
 import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
 
+import { OverlayManager } from "./UI/OverlayManager"
+import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
+
 const start = (args: string[]) => {
 
     const parsedArgs = minimist(args)
@@ -59,10 +62,28 @@ const start = (args: string[]) => {
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
     const syntaxHighligher = new SyntaxHighlighter(instance, pluginManager)
 
+    // Overlays
+    const overlayManager = new OverlayManager(screen)
+    const errorOverlay = new ErrorOverlay()
+    overlayManager.addOverlay("errors", errorOverlay)
+
     pluginManager.on("signature-help-response", (signatureHelp: Oni.Plugin.SignatureHelpResult) => {
         UI.showSignatureHelp(signatureHelp)
     })
 
+    pluginManager.on("set-errors", (key, fileName, errors, colors) => {
+        errorOverlay.setErrors(key, fileName, errors, colors)
+    })
+
+    instance.on("event", (eventName: string, evt) => {
+        // TODO: Can we get rid of these?
+        overlayManager.handleCursorMovedEvent(evt)
+        errorOverlay.onVimEvent(eventName, evt)
+    })
+
+    instance.on("window-display-update", (arg) => {
+        overlayManager.notifyWindowDimensionsChanged(arg)
+    })
 
     instance.on("action", (action) => {
         renderer.onAction(action)
