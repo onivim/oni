@@ -209,6 +209,7 @@ export const autoCompletionReducer = (s: State.AutoCompletionInfo, a: Actions.Ac
                 selectedIndex: (s.selectedIndex + 1) % currentEntryCount
             })
         case "PREVIOUS_AUTO_COMPLETION":
+
             return Object.assign({}, s, {
                 selectedIndex: (s.selectedIndex - 1) % currentEntryCount
             })

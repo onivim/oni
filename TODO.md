@@ -1,14 +1,41 @@
 - UI for REPL
+    - Include line number when sending back up
+    - UI - just show result in sidebar
+    - Refactor OverlayManager out of PluginManager
+        - hook the 'event' from neovim instance instead
+        - hook the 'window-display-update from neovim instance instead
+    - Refactor errorOverlay out of PluginManager
+        - hook 
     - Hook up OverlayManager - need to improve how events are passed there
+        - Hopefully can be simpler with the window APIs
+        - Still need the buffer line mapping
     - Result - top level
     - Objects - get by highlighted variable name
     - Errors
     - Output
 
-- Good README example: - TSLint by Palantir
+- Create scrollbars
+    - Create scrollbar component
+        - When rendering, check size and compare to viewport size
+    - For Menu/AutoComplete, need to fix viewport
+        const viewPortReducer = viewportReducer(NEXT_ACTION, PREVIOUS_ACTION)
+        Object.assign({}, s, {
+            viewport: viewportReducer(action, viewportSize, itemCount, currentViewport)
+        })
+
+        viewport:
+            viewStartIndex
+            selectedIndex
+        - Start moving reducers out
+    - Menu
+    - Autocomplete
+
+- Startup UI if NeoVim not found
+    - Landing page design
 
 - Animation/Performance: 
     - No flicker on quickinfo/autocomplete
+        - For quickinfo & parameter help - send up if there are no results to clear, as opposed to clearing on set cursor position
     - Factor to always show
     - Why are there problems if it is always showing?
 
@@ -20,11 +47,19 @@
 - Animation: Scroll
     - Start moving canvas up
 
+- Good README example: - TSLint by Palantir
+
 - Use JS to apply changes to an entire file
     - Remove all semicolons
 
+- Preview mode
+    - Markdown
+    - React
+
+- Easy: Move 'ROADMAP.md'
 - Issue: QuickInfo opening too high
 - Issue: AutoComplete opening too low
+- Issue: Argument on signature help
 - Issue: Update binaries
 
 - Documentation: Configuration
