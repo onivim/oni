@@ -8,9 +8,12 @@ const ipcMain = electron.ipcMain
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
+console.log("derp derp")
+
 ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
     const destinationWindow = BrowserWindow.fromId(destinationId)
+    console.log(`destinationId: ${destinationId}`)
     destinationWindow.webContents.send("cross-browser-ipc", arg)
 })
 

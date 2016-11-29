@@ -12,7 +12,7 @@ const DefaultMetadata: PluginMetadata = {
     debugging: false
 }
 
-const BrowserId = remote.getCurrentWindow().webContents.id
+const BrowserId = remote.getCurrentWindow().id
 
 // Subscription Events
 export const VimEventsSubscription = "vim-events"
