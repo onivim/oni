@@ -136,6 +136,11 @@ const start = (args: string[]) => {
     const keyboard = new Keyboard()
     keyboard.on("keydown", key => {
 
+        if (key === "<f3>") {
+            formatter.formatBuffer()
+            return
+        }
+
         if (UI.isPopupMenuOpen()) {
             if (key === "<esc>") {
                 UI.hidePopupMenu()

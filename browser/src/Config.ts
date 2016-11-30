@@ -21,7 +21,7 @@ const DefaultConfig: any = {
     "editor.completions.enabled": true,
     "editor.errors.slideOnFocus": true,
 
-    "editor.formatting.formatOnSwitchToNormalMode": true
+    "editor.formatting.formatOnSwitchToNormalMode": false, // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun
 
 }
 

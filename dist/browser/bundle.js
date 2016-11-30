@@ -151,6 +151,10 @@
 	    });
 	    const keyboard = new Keyboard_1.Keyboard();
 	    keyboard.on("keydown", key => {
+	        if (key === "<f3>") {
+	            formatter.formatBuffer();
+	            return;
+	        }
 	        if (UI.isPopupMenuOpen()) {
 	            if (key === "<esc>") {
 	                UI.hidePopupMenu();
@@ -25958,7 +25962,7 @@
 	    "editor.quickInfo.enabled": true,
 	    "editor.completions.enabled": true,
 	    "editor.errors.slideOnFocus": true,
-	    "editor.formatting.formatOnSwitchToNormalMode": true
+	    "editor.formatting.formatOnSwitchToNormalMode": false,
 	};
 	const MacConfig = {
 	    "editor.fontFamily": "Monaco"

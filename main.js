@@ -9,6 +9,8 @@ const ipcMain = electron.ipcMain
 const BrowserWindow = electron.BrowserWindow
 
 ipcMain.on("cross-browser-ipc", (event, arg) => {
+    const destinationId = arg.meta.destinationId
+    const destinationWindow = BrowserWindow.fromId(destinationId)
     // console.log(`sending message to destinationId: ${destinationId}`)
     destinationWindow.webContents.send("cross-browser-ipc", arg)
 })
