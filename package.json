@@ -44,7 +44,7 @@
     "lodash": "^4.16.6",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
-    "neovim-client": "^1.1.0",
+    "neovim-client": "^2.1.0",
     "q": "^1.4.1",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",

@@ -1,7 +1,7 @@
 " These commands create the option window.
 "
 " Maintainer:	Bram Moolenaar <Bram@vim.org>
-" Last Change:	2016 Mar 19
+" Last Change:	2016 Apr 21
 
 " If there already is an option window, jump to that one.
 if bufwinnr("option-window") > 0
@@ -710,6 +710,10 @@ call <SID>Header("editing text")
 call append("$", "undolevels\tmaximum number of changes that can be undone")
 call append("$", "\t(global or local to buffer)")
 call append("$", " \tset ul=" . &ul)
+call append("$", "undofile\tautomatically save and restore undo history")
+call <SID>BinOptionG("udf", &udf)
+call append("$", "undodir\tlist of directories for undo files")
+call <SID>OptionG("udir", &udir)
 call append("$", "undoreload\tmaximum number lines to save for undo on a buffer reload")
 call append("$", " \tset ur=" . &ur)
 call append("$", "modified\tchanges have been made and not written to a file")
@@ -1032,10 +1036,6 @@ if has("vertsplit")
   call append("$", "cmdwinheight\theight of the command-line window")
   call <SID>OptionG("cwh", &cwh)
 endif
-call append("$", "undofile\tautomatically save and restore undo history")
-call <SID>BinOptionG("udf", &udf)
-call append("$", "undodir\tlist of directories for undo files")
-call <SID>OptionG("udir", &udir)
 
 
 call <SID>Header("executing external commands")
@@ -1195,6 +1195,8 @@ if has("multi_byte")
   endif
   call append("$", "ambiwidth\twidth of ambiguous width characters")
   call <SID>OptionG("ambw", &ambw)
+  call append("$", "emoji\temoji characters are full width")
+  call <SID>BinOptionG("emo", &emo)
 endif
 
 

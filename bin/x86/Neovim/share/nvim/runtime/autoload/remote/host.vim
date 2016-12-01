@@ -191,6 +191,7 @@ function! s:RegistrationCommands(host) abort
   let pattern = s:plugin_patterns[a:host]
   let paths = globpath(&rtp, 'rplugin/'.a:host.'/'.pattern, 0, 1)
   let paths = map(paths, 'tr(v:val,"\\","/")') " Normalize slashes #4795
+  let paths = uniq(sort(paths))
   if empty(paths)
     return []
   endif
@@ -260,11 +261,9 @@ endfunction
 
 function! remote#host#LoadErrorForHost(host, log) abort
   return 'Failed to load '. a:host . ' host. '.
-        \ 'You can try to see what happened '.
-        \ 'by starting Neovim with the environment variable '.
-        \ a:log . ' set to a file and opening the generated '.
-        \ 'log file. Also, the host stderr is available '.
-        \ 'in messages.'
+        \ 'You can try to see what happened by starting nvim with '.
+        \ a:log . ' set and opening the generated log file.'.
+        \ ' Also, the host stderr is available in messages.'
 endfunction
 
 
