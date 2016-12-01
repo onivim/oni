@@ -7,6 +7,13 @@ import * as os from "os"
 import { INeovimInstance } from "./../NeovimInstance"
 import { BufferInfo, PluginManager } from "./../Plugins/PluginManager"
 
+
+/// <live>
+
+1+2+3
+
+/// </live>
+
 /**
  * Implementation of the LiveEvaluation service
  */

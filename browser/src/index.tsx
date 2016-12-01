@@ -79,8 +79,8 @@ const start = (args: string[]) => {
         errorOverlay.setErrors(key, fileName, errors, colors)
     })
 
-    pluginManager.on("evaluate-block-result", (key) => {
-        liveEvaluationOverlay.setLiveEvaluationResults([key])
+    pluginManager.on("evaluate-block-result", (result) => {
+        liveEvaluationOverlay.setLiveEvaluationResults([result])
     })
 
     instance.on("event", (eventName: string, evt) => {
