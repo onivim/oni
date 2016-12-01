@@ -43,6 +43,10 @@ export class IncrementalDeltaRegionTracker implements DeltaRegionTracker {
         }
     }
 
+    public dirtyAllCells(): void {
+        this._reset()
+    }
+
     public notifyCellRendered(x: number, y: number): void {
         this._dirtyGrid.setCell(x, y, false)
     }

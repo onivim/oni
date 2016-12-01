@@ -199,6 +199,8 @@ const start = (args: string[]) => {
         var width = document.body.offsetWidth;
         var height = document.body.offsetHeight;
 
+        deltaRegion.dirtyAllCells()
+
         instance.resize(width, height)
         renderer.onResize()
     }
@@ -212,4 +214,3 @@ const start = (args: string[]) => {
 ipcRenderer.on("init", (evt, message) => {
     start(message.args)
 })
-

@@ -1,5 +1,3 @@
-- RAF - revisit incremental rendering
-
 - UI for REPL
     - Include buffer name when sending result up
     - LiveEvaluationService needs to coalesce results, push out per-buffer

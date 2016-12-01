@@ -35,6 +35,8 @@ export class CanvasRenderer implements INeovimRenderer {
         const height = this._canvas.offsetHeight;
         this._canvas.width = width;
         this._canvas.height = height
+
+        this._lastRenderedCell.clear()
     }
 
     public update(screenInfo: Screen, deltaRegionTracker: DeltaRegionTracker): void {
@@ -97,6 +99,8 @@ export class CanvasRenderer implements INeovimRenderer {
         })
 
         const canvasEnd = performance.now()
-        console.log("Render time: " + (canvasEnd - canvasStart))
+
+        // TODO: Need a story for verbose logging
+        // console.log("Render time: " + (canvasEnd - canvasStart))
     }
 }
