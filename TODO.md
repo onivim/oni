@@ -1,11 +1,4 @@
-- UI for REPL
-    - Include buffer name when sending result up
-    - LiveEvaluationService needs to coalesce results, push out per-buffer
-    - Associate the 'LiveCodeBlock' object (startLine/endLine) with the results from the buffer
-    - Buffer enter event from NeovimInstance?
-    - Objects - get by highlighted variable name
-    - Errors
-    - Output
+- GIF for Live eval feature
 
 - Create scrollbars
     - Create scrollbar component
@@ -22,8 +15,18 @@
         - Start moving reducers out
     - Menu
     - Autocomplete
+    - What sort of commonalities between markers in overlay vs markers in viewport?
+    - Investigate refactoring OverlayManager to show scrollbars
+    - Use 'Marker' component inside
+    - Extract commonalities between ErrorOverlay and LiveEvalOverlay
+        - Both need to keep track of current buffer
+        - Both need code to figure out window line
+        - Too many moving parts to express these
+    - Create a 'marker' host that can render based on a common interface
 
-- Syntax highlighting - only update if item changed
+- Syntax highlighting - 
+    - only update if item changed
+    - 
 
 - Startup UI if NeoVim not found
     - Landing page design
@@ -41,6 +44,19 @@
     - Use 'particle style' animation
 - Animation: Scroll
     - Start moving canvas up
+
+- LiveEvaluation: Evaluate on initial enter of buffer, without needing the buffer-update event
+
+- Performance - Investigate latency in completion
+
+- Refactoring
+
+- UI for REPL
+    - Live code block - have LiveEvaluation service control full list, so that deleted case can be handled
+    - Objects - get by highlighted variable name
+    - Overflow - long output
+    - Errors
+    - Output
 
 - Good README example: - TSLint by Palantir
 

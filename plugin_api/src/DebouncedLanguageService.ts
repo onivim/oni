@@ -47,7 +47,7 @@ export class DebouncedLanguageService implements Oni.Plugin.LanguageService {
         return this._debouncedGetSignatureHelp(position)
     }
 
-    public evaluateBlock(position: Oni.EventContext, code: string, line: number): Promise<Oni.Plugin.EvaluationResult> {
-        return this._languageService.evaluateBlock(position, code, line)
+    public evaluateBlock(position: Oni.EventContext, id: string, fileName: string, code: string): Promise<Oni.Plugin.EvaluationResult> {
+        return this._languageService.evaluateBlock(position, id, fileName, code)
     }
 }

@@ -176,7 +176,7 @@ declare namespace Oni {
 
             getFormattingEdits?(position: EventContext): Promise<FormattingEditsResponse>
 
-            evaluateBlock?(context: EventContext, code: string, line: number): Promise<EvaluationResult>
+            evaluateBlock?(context: EventContext, id: string, fileName: string, code: string): Promise<EvaluationResult>
             // liveEvaluate(): LiveEvaluationResult[]
         }
     }

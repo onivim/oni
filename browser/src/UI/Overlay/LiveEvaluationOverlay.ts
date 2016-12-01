@@ -1,5 +1,7 @@
 import * as path from "path"
 
+import * as _ from "lodash"
+
 import { IOverlay, IWindowContext } from "./../OverlayManager"
 import { LiveCodeBlock } from "./../../Services/LiveEvaluation"
 import { renderLiveEval } from "./../components/LiveEvalMarker"
@@ -7,11 +9,25 @@ import { renderLiveEval } from "./../components/LiveEvalMarker"
 export class LiveEvaluationOverlay implements IOverlay {
 
     private _element: HTMLElement
+    private _currentFileName: string;
     private _lastWindowContext: IWindowContext
     private _lastEvalResults: LiveCodeBlock[]
 
-    public setLiveEvaluationResults(codeBlocks: LiveCodeBlock[]): void {
-        this._lastEvalResults = codeBlocks
+    private _bufferToBlocks: {[buffer: string]:{[id:string]:LiveCodeBlock}} = {}
+
+    public onVimEvent(eventName: string, eventContext: Oni.EventContext): void {
+        const fullPath = eventContext.bufferFullPath
+        this._currentFileName = fullPath
+
+        this._showLiveEval()
+    }
+
+    public setLiveEvaluationResult(fileName: string, id: string, codeBlock: LiveCodeBlock): void {
+
+        const currentBuffers = this._bufferToBlocks[fileName] || {}
+        currentBuffers[id] = codeBlock
+        this._bufferToBlocks[fileName] = currentBuffers
+
         this._showLiveEval()
     }
 
@@ -24,16 +40,24 @@ export class LiveEvaluationOverlay implements IOverlay {
 
     private _showLiveEval(): void {
 
-        if (!this._lastEvalResults) {
-            this._element.textContent = ""
+        if (!this._currentFileName) {
             return
         }
 
         if (!this._element)
             return
 
+        let liveCodeBlocks = this._bufferToBlocks[this._currentFileName]
+
+        if (!liveCodeBlocks) {
+            this._element.textContent = ""
+            return
+        }
+
+        const blocks = _.values(liveCodeBlocks)
+
         renderLiveEval({
-            blocks: this._lastEvalResults,
+            blocks: blocks,
             windowContext: this._lastWindowContext
         }, this._element)
     }

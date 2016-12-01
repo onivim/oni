@@ -11,6 +11,8 @@ import * as _ from "lodash"
 const host = new TypeScriptServerHost();
 const quickInfo = new QuickInfo(Oni, host);
 
+const findParentDir = require("find-parent-dir")
+
 let lastOpenFile = null;
 
 let lastBuffer: string[] = []
@@ -81,7 +83,7 @@ const getFormattingEdits = (position: Oni.EventContext) => {
         })
 }
 
-const evaluateBlock = (context: Oni.EventContext, code: string, line: number) => {
+const evaluateBlock = (context: Oni.EventContext, id: string, fileName: string, code: string) => {
     const vm = require("vm")
     const ts = require("typescript")
 
@@ -96,7 +98,6 @@ const evaluateBlock = (context: Oni.EventContext, code: string, line: number) =>
     code = ts.transpileModule(code, { target: "ES6" }).outputText
 
     const script = new vm.Script(code)
-    const fileName = context.bufferFullPath
     var Module = require("module")
     const mod = new Module(fileName)
     const util = require("util")
@@ -104,39 +105,47 @@ const evaluateBlock = (context: Oni.EventContext, code: string, line: number) =>
         module: mod,
         __filename: fileName,
         __dirname: path.dirname(fileName),
-        require: (path) => {
+        require: (requirePath) => {
             try {
-                return mod.require(path)
+                var path = require("path")
+                // See if this is a 'node_modules' dependency:
+
+                var modulePath = findParentDir.sync(__dirname, path.join("node_modules", requirePath))
+
+                if (modulePath) {
+                    requirePath = path.join(modulePath, "node_modules", requirePath)
+                }
+
+                return mod.require(requirePath)
             } catch (ex) {
                 // TODO: Log require error here
+                debugger
             }
         }
     }
 
     const result = script.runInNewContext(sandbox)
 
+    const initialResult = {
+        id: id,
+        fileName: fileName,
+        output: null,
+        errors: null
+    }
+
     if (result.then) {
-        return result.then((val) => ({
-            line: line,
+        return result.then((val) => (_.extend({}, initialResult, {
             result: util.inspect(val),
             variables: util.inspect(sandbox),
-            output: null,
-            errors: null
-        }), (err) => ({
-            line: line,
-            result: null,
+        })), (err) => (_.extend({}, initialResult, {
             variables: util.inspect(sandbox),
-            output: null,
             errors: [err]
-        }))
+        })))
     } else {
-        return Promise.resolve({
-            line: line,
+        return Promise.resolve(_.extend({}, initialResult, {
             result: util.inspect(result),
-            variables: util.inspect(sandbox),
-            output: null,
-            errors: null
-        })
+            variables: util.inspect(sandbox)
+        }))
     }
 }
 

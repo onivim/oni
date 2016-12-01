@@ -79,14 +79,15 @@ const start = (args: string[]) => {
         errorOverlay.setErrors(key, fileName, errors, colors)
     })
 
-    pluginManager.on("evaluate-block-result", (result) => {
-        liveEvaluationOverlay.setLiveEvaluationResults([result])
+    liveEvaluation.on("evaluate-block-result", (file: string, id: string, result) => {
+        liveEvaluationOverlay.setLiveEvaluationResult(file, id, result)
     })
 
     instance.on("event", (eventName: string, evt) => {
         // TODO: Can we get rid of these?
         overlayManager.handleCursorMovedEvent(evt)
         errorOverlay.onVimEvent(eventName, evt)
+        liveEvaluationOverlay.onVimEvent(eventName, evt)
     })
 
     instance.on("window-display-update", (arg) => {

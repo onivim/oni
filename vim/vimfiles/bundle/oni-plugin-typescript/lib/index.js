@@ -6,6 +6,7 @@ var QuickInfo_1 = require("./QuickInfo");
 var _ = require("lodash");
 var host = new TypeScriptServerHost_1.TypeScriptServerHost();
 var quickInfo = new QuickInfo_1.QuickInfo(Oni, host);
+var findParentDir = require("find-parent-dir");
 var lastOpenFile = null;
 var lastBuffer = [];
 // Testing Live evaluation
@@ -65,7 +66,7 @@ var getFormattingEdits = function (position) {
         };
     });
 };
-var evaluateBlock = function (context, code, line) {
+var evaluateBlock = function (context, id, fileName, code) {
     var vm = require("vm");
     var ts = require("typescript");
     // Get all imports from last module
@@ -75,7 +76,6 @@ var evaluateBlock = function (context, code, line) {
     code = commonImports.join(os.EOL) + code;
     code = ts.transpileModule(code, { target: "ES6" }).outputText;
     var script = new vm.Script(code);
-    var fileName = context.bufferFullPath;
     var Module = require("module");
     var mod = new Module(fileName);
     var util = require("util");
@@ -83,38 +83,43 @@ var evaluateBlock = function (context, code, line) {
         module: mod,
         __filename: fileName,
         __dirname: path.dirname(fileName),
-        require: function (path) {
+        require: function (requirePath) {
             try {
-                return mod.require(path);
+                var path = require("path");
+                // See if this is a 'node_modules' dependency:
+                var modulePath = findParentDir.sync(__dirname, path.join("node_modules", requirePath));
+                if (modulePath) {
+                    requirePath = path.join(modulePath, "node_modules", requirePath);
+                }
+                return mod.require(requirePath);
             }
             catch (ex) {
+                // TODO: Log require error here
+                debugger;
             }
         }
     };
     var result = script.runInNewContext(sandbox);
+    var initialResult = {
+        id: id,
+        fileName: fileName,
+        output: null,
+        errors: null
+    };
     if (result.then) {
-        return result.then(function (val) { return ({
-            line: line,
+        return result.then(function (val) { return (_.extend({}, initialResult, {
             result: util.inspect(val),
             variables: util.inspect(sandbox),
-            output: null,
-            errors: null
-        }); }, function (err) { return ({
-            line: line,
-            result: null,
+        })); }, function (err) { return (_.extend({}, initialResult, {
             variables: util.inspect(sandbox),
-            output: null,
             errors: [err]
-        }); });
+        })); });
     }
     else {
-        return Promise.resolve({
-            line: line,
+        return Promise.resolve(_.extend({}, initialResult, {
             result: util.inspect(result),
-            variables: util.inspect(sandbox),
-            output: null,
-            errors: null
-        });
+            variables: util.inspect(sandbox)
+        }));
     }
 };
 var getCompletionDetails = function (textDocumentPosition, completionItem) {
