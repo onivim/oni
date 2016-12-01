@@ -1,4 +1,3 @@
-- fix destinationWindow regression
 - RAF - revisit incremental rendering
 
 - UI for REPL

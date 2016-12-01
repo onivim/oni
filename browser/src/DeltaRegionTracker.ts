@@ -12,7 +12,7 @@ export interface DeltaCellPosition {
 export interface DeltaRegionTracker {
     getModifiedCells(): DeltaCellPosition[]
     notifyCellModified(x: number, y: number): void
-    clearModifiedCells(): void
+    notifyCellRendered(x: number, y: number): void
 }
 
 /**
@@ -43,15 +43,18 @@ export class IncrementalDeltaRegionTracker implements DeltaRegionTracker {
         }
     }
 
-    public clearModifiedCells(): void {
-        this._reset()
+    public notifyCellRendered(x: number, y: number): void {
+        this._dirtyGrid.setCell(x, y, false)
+    }
+
+    public cleanUpRenderedCells(): void {
+        this._cells = this._cells.filter(dcp => this._dirtyGrid.getCell(dcp.x, dcp.y))
     }
 
     public notifyCellModified(x: number, y: number): void {
-        if(this._dirtyGrid.getCell(x,y)) {
+        if (this._dirtyGrid.getCell(x, y)) {
             return
         }
-
 
         this._cells.push({
             x: x,
@@ -62,7 +65,7 @@ export class IncrementalDeltaRegionTracker implements DeltaRegionTracker {
     }
 
     public getModifiedCells(): DeltaCellPosition[] {
-        if(this._debugDiv)
+        if (this._debugDiv)
             this._debugDiv.textContent = "Modified: " + this._cells.length
 
         return this._cells

@@ -111,14 +111,20 @@ const start = (args: string[]) => {
         }
     })
 
-    const updateFunction = () => {
+    const renderFunction = () => {
         renderer.update(screen, deltaRegion);
         cursor.update(screen)
-        deltaRegion.clearModifiedCells()
+        deltaRegion.cleanUpRenderedCells()
 
         // TODO: Move cursor to component
         UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
 
+        window.requestAnimationFrame(() => renderFunction())
+    }
+
+    renderFunction()
+
+    const updateFunction = () => {
         UI.setBackgroundColor(screen.backgroundColor)
 
         clearTimeout(pendingTimeout)

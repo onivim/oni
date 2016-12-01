@@ -266,7 +266,13 @@ export class NeovimScreen implements Screen {
                 })
 
                 this._grid.setRegionFromGrid(regionToScroll, left, top)
-                this._notifyAllCellsModified()
+
+                for (var y = top; y < bottom; y++) {
+                    for (var x = left; x < right; x++) {
+                        this._deltaTracker.notifyCellModified(x, y)
+                    }
+                }
+
                 break
         }
     }

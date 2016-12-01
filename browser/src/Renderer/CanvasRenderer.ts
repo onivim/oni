@@ -1,3 +1,5 @@
+import * as _ from "lodash"
+
 import { Screen, Cell, PixelPosition, Position } from "./../Screen"
 import { DeltaRegionTracker } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
@@ -29,8 +31,8 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     public onResize(): void {
-        var width = this._canvas.offsetWidth;
-        var height = this._canvas.offsetHeight;
+        const width = this._canvas.offsetWidth;
+        const height = this._canvas.offsetHeight;
         this._canvas.width = width;
         this._canvas.height = height
     }
@@ -41,43 +43,60 @@ export class CanvasRenderer implements INeovimRenderer {
         const fontWidth = screenInfo.fontWidthInPixels
         const fontHeight = screenInfo.fontHeightInPixels
 
-        var cells = deltaRegionTracker.getModifiedCells()
-            .forEach(pos => {
+        const canvasStart = performance.now()
 
-                var x = pos.x
-                var y = pos.y
+        const numberOfCellsToRender = Config.getValue<number>("prototype.editor.maxCellsToRender")
+        const cellsToRender = _.take(_.shuffle(deltaRegionTracker.getModifiedCells()), numberOfCellsToRender)
 
-                var drawX = x * fontWidth;
-                var drawY = y * fontHeight;
+        cellsToRender.forEach(pos => {
+            const {x, y} = pos
+            const drawX = x * fontWidth;
+            const drawY = y * fontHeight;
 
-                var cell = screenInfo.getCell(x, y);
+            const cell = screenInfo.getCell(x, y);
 
-                if (cell) {
-                    var lastRenderedCell = this._lastRenderedCell.getCell(x, y)
+            if (cell) {
+                var lastRenderedCell = this._lastRenderedCell.getCell(x, y)
 
-                    if (lastRenderedCell === cell)
-                        return
-
-                    this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight)
-
-                    const defaultBackgroundColor = "rgba(255, 255, 255, 0)"
-                    let backgroundColor = defaultBackgroundColor
-
-                    if (cell.backgroundColor && cell.backgroundColor !== screenInfo.backgroundColor)
-                        backgroundColor = cell.backgroundColor
-
-                    if (cell.character !== "" && cell.character !== " ") {
-                        var foregroundColor = cell.foregroundColor ? cell.foregroundColor : screenInfo.foregroundColor
-                        this._renderCache.drawText(cell.character, backgroundColor, foregroundColor, drawX, drawY, screenInfo.fontFamily, screenInfo.fontSize, fontWidth, fontHeight)
-                    } else if (backgroundColor !== defaultBackgroundColor) {
-                        this._canvasContext.fillStyle = backgroundColor
-                        this._canvasContext.fillRect(drawX, drawY, fontWidth, fontHeight)
-                    }
-
-                    this._lastRenderedCell.setCell(x, y, cell)
-                } else {
-                    console.log(`Unset cell - x: ${x} y: ${y}`)
+                if (lastRenderedCell === cell) {
+                    deltaRegionTracker.notifyCellRendered(x, y)
+                    return
                 }
-            })
+
+                if (lastRenderedCell
+                    && lastRenderedCell.backgroundColor === cell.backgroundColor
+                    && lastRenderedCell.character === cell.character
+                    && lastRenderedCell.foregroundColor === cell.foregroundColor) {
+                    this._lastRenderedCell.setCell(x, y, cell)
+                    deltaRegionTracker.notifyCellRendered(x, y)
+                    return
+                }
+
+                this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight)
+
+                const defaultBackgroundColor = "rgba(255, 255, 255, 0)"
+                let backgroundColor = defaultBackgroundColor
+
+                if (cell.backgroundColor && cell.backgroundColor !== screenInfo.backgroundColor)
+                    backgroundColor = cell.backgroundColor
+
+                if (cell.character !== "" && cell.character !== " ") {
+                    var foregroundColor = cell.foregroundColor ? cell.foregroundColor : screenInfo.foregroundColor
+                    this._renderCache.drawText(cell.character, backgroundColor, foregroundColor, drawX, drawY, screenInfo.fontFamily, screenInfo.fontSize, fontWidth, fontHeight)
+                } else if (backgroundColor !== defaultBackgroundColor) {
+                    this._canvasContext.fillStyle = backgroundColor
+                    this._canvasContext.fillRect(drawX, drawY, fontWidth, fontHeight)
+                }
+
+                this._lastRenderedCell.setCell(x, y, cell)
+            } else {
+                console.log(`Unset cell - x: ${x} y: ${y}`)
+            }
+
+            deltaRegionTracker.notifyCellRendered(x, y)
+        })
+
+        const canvasEnd = performance.now()
+        console.log("Render time: " + (canvasEnd - canvasStart))
     }
 }
