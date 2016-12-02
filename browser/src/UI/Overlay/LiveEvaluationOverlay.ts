@@ -22,11 +22,9 @@ export class LiveEvaluationOverlay implements IOverlay {
         this._showLiveEval()
     }
 
-    public setLiveEvaluationResult(fileName: string, id: string, codeBlock: LiveCodeBlock): void {
-
-        const currentBuffers = this._bufferToBlocks[fileName] || {}
-        currentBuffers[id] = codeBlock
-        this._bufferToBlocks[fileName] = currentBuffers
+    public setLiveEvaluationResult(fileName: string, blocks: LiveCodeBlock[]): void {
+        const keyMap = _.keyBy(blocks, "startLine")
+        this._bufferToBlocks[fileName] = keyMap
 
         this._showLiveEval()
     }

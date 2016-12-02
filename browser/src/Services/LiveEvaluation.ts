@@ -2,18 +2,26 @@
  * LiveEvaluation.ts
  */
 
+
+import * as _ from "lodash"
+_.take([1, 2, 3], 1)
+
+
+
+
+
+
+
+
 import * as os from "os"
 import { EventEmitter } from "events"
 
 import { INeovimInstance } from "./../NeovimInstance"
 import { BufferInfo, PluginManager } from "./../Plugins/PluginManager"
 
-/// <live>
 
-import * as _ from "lodash"
-_.take([1, 2, 3], 2)
 
-/// </live>
+
 
 /**
  * Implementation of the LiveEvaluation service
@@ -22,7 +30,10 @@ export class LiveEvaluation extends EventEmitter {
 
     private _neovimInstance: INeovimInstance
     private _pluginManager: PluginManager
-    private _keyToBlock: {[key: string]: LiveCodeBlock} = {}
+    private _keyToBlock: { [key: string]: LiveCodeBlock } = {}
+
+    private _bufferToBlocks: { [buffer: string]: LiveCodeBlock[] } = {}
+
 
     constructor(neovimInstance: INeovimInstance, pluginManager: PluginManager) {
         super()
@@ -33,21 +44,37 @@ export class LiveEvaluation extends EventEmitter {
 
             const currentBlocks = getLiveCodeBlocks(lines)
 
+            this._bufferToBlocks[context.bufferFullPath] = currentBlocks
+
             currentBlocks.forEach(b => {
                 const code = b.codeBlock.join(os.EOL)
                 const key = context.bufferFullPath + "__" + b.startLine
+
+                // If there was a previous result, bring it over
+                if (this._keyToBlock[key]) {
+                    b.result = this._keyToBlock[key].result
+                }
+
                 this._keyToBlock[key] = b
                 this._pluginManager.requestEvaluateBlock(key, context.bufferFullPath, code)
             })
+
+            this.emit("evaluate-block-result", context.bufferFullPath, currentBlocks)
+
         })
 
         this._pluginManager.on("evaluate-block-result", (res) => {
-
             const id = res.id
             const codeBlock = this._keyToBlock[id]
+
+            if (!codeBlock)
+                return
+
             codeBlock.result = res
 
-            this.emit("evaluate-block-result", res.fileName, id, codeBlock)
+            const fileName = res.fileName
+
+            this.emit("evaluate-block-result", fileName, this._bufferToBlocks[fileName])
         })
     }
 }

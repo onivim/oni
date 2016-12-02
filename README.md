@@ -43,6 +43,10 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
+### Live Evaluation
+
+![live-eval-demo](http://i.imgur.com/XenTrdC.gif)
+
 ## Usage
 
 ### Install

@@ -79,8 +79,8 @@ const start = (args: string[]) => {
         errorOverlay.setErrors(key, fileName, errors, colors)
     })
 
-    liveEvaluation.on("evaluate-block-result", (file: string, id: string, result) => {
-        liveEvaluationOverlay.setLiveEvaluationResult(file, id, result)
+    liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
+        liveEvaluationOverlay.setLiveEvaluationResult(file, blocks)
     })
 
     instance.on("event", (eventName: string, evt) => {

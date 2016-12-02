@@ -21,7 +21,9 @@ export class LiveEvalMarkerContainer extends React.Component<LiveEvalMarkerConta
                 const startY = this.props.windowContext.getWindowRegionForLine(b.startLine + 1).y
                 const endY = this.props.windowContext.getWindowRegionForLine(b.endLine).y
 
-                return <LiveEvalMarker y={startY} height={endY - startY} result={b.result.result} />
+                const result = b.result ? b.result.result : null
+
+                return <LiveEvalMarker y={startY} height={endY - startY} result={result} />
             } else {
                 return null
             }
