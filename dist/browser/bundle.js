@@ -53,8 +53,9 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const electron_1 = __webpack_require__(3);
-	const CanvasRenderer_1 = __webpack_require__(4);
+	const path = __webpack_require__(3);
+	const electron_1 = __webpack_require__(4);
+	const CanvasRenderer_1 = __webpack_require__(5);
 	const Screen_1 = __webpack_require__(14);
 	const NeovimInstance_1 = __webpack_require__(16);
 	const DeltaRegionTracker_1 = __webpack_require__(55);
@@ -62,7 +63,7 @@
 	const Keyboard_1 = __webpack_require__(57);
 	const Mouse_1 = __webpack_require__(58);
 	const PluginManager_1 = __webpack_require__(59);
-	const Config = __webpack_require__(8);
+	const Config = __webpack_require__(9);
 	const UI = __webpack_require__(62);
 	const minimist = __webpack_require__(274);
 	const QuickOpen_1 = __webpack_require__(275);
@@ -109,6 +110,12 @@
 	    });
 	    pluginManager.on("set-errors", (key, fileName, errors, colors) => {
 	        errorOverlay.setErrors(key, fileName, errors, colors);
+	        const errorMarkers = errors.map(e => ({
+	            line: e.lineNumber,
+	            height: 1,
+	            color: "red"
+	        }));
+	        scrollbarOverlay.setMarkers(path.resolve(fileName), "errors", errorMarkers);
 	    });
 	    liveEvaluation.on("evaluate-block-result", (file, blocks) => {
 	        liveEvaluationOverlay.setLiveEvaluationResult(file, blocks);
@@ -235,16 +242,22 @@
 /* 3 */
 /***/ function(module, exports) {
 
-	module.exports = require("electron");
+	module.exports = require("path");
 
 /***/ },
 /* 4 */
+/***/ function(module, exports) {
+
+	module.exports = require("electron");
+
+/***/ },
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const _ = __webpack_require__(5);
-	const Grid_1 = __webpack_require__(7);
-	const Config = __webpack_require__(8);
+	const _ = __webpack_require__(6);
+	const Grid_1 = __webpack_require__(8);
+	const Config = __webpack_require__(9);
 	const RenderCache_1 = __webpack_require__(13);
 	class CanvasRenderer {
 	    constructor() {
@@ -323,7 +336,7 @@
 
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {/**
@@ -17392,10 +17405,10 @@
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)(module)))
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -17411,7 +17424,7 @@
 
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -17507,11 +17520,11 @@
 
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const path = __webpack_require__(9);
+	const path = __webpack_require__(3);
 	const fs = __webpack_require__(10);
 	const Platform = __webpack_require__(11);
 	const DefaultConfig = {
@@ -17552,12 +17565,6 @@
 	}
 	exports.getValue = getValue;
 
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	module.exports = require("path");
 
 /***/ },
 /* 10 */
@@ -17622,7 +17629,7 @@
 
 	"use strict";
 	const Actions = __webpack_require__(15);
-	const Grid_1 = __webpack_require__(7);
+	const Grid_1 = __webpack_require__(8);
 	class NeovimScreen {
 	    constructor(deltaTracker) {
 	        this._cursorRow = 0;
@@ -17973,15 +17980,15 @@
 
 	"use strict";
 	const events_1 = __webpack_require__(17);
-	const path = __webpack_require__(9);
+	const path = __webpack_require__(3);
 	const cp = __webpack_require__(18);
 	const os = __webpack_require__(12);
 	const Q = __webpack_require__(19);
-	const electron_1 = __webpack_require__(3);
+	const electron_1 = __webpack_require__(4);
 	const attach = __webpack_require__(20);
 	const Actions = __webpack_require__(15);
 	const measureFont_1 = __webpack_require__(52);
-	const Config = __webpack_require__(8);
+	const Config = __webpack_require__(9);
 	const Buffer_1 = __webpack_require__(53);
 	const Window_1 = __webpack_require__(54);
 	/**
@@ -20279,7 +20286,7 @@
 
 	var traverse = __webpack_require__(22);
 	var Session = __webpack_require__(23);
-	var _ = __webpack_require__(5);
+	var _ = __webpack_require__(6);
 
 	function Nvim(session, channel_id) {
 	  this._session = session;
@@ -26112,8 +26119,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const Grid_1 = __webpack_require__(7);
-	const Config = __webpack_require__(8);
+	const Grid_1 = __webpack_require__(8);
+	const Config = __webpack_require__(9);
 	/**
 	 * This strategy doesn't help much in practice, as
 	 * often there are UI elements at the bounds, that
@@ -26319,13 +26326,13 @@
 
 	"use strict";
 	const os = __webpack_require__(12);
-	const path = __webpack_require__(9);
+	const path = __webpack_require__(3);
 	const fs = __webpack_require__(10);
 	const events_1 = __webpack_require__(17);
-	const electron_1 = __webpack_require__(3);
-	const electron_2 = __webpack_require__(3);
+	const electron_1 = __webpack_require__(4);
+	const electron_2 = __webpack_require__(4);
 	const mkdirp = __webpack_require__(60);
-	const Config = __webpack_require__(8);
+	const Config = __webpack_require__(9);
 	const Plugin_1 = __webpack_require__(61);
 	const UI = __webpack_require__(62);
 	const initFilePath = path.join(__dirname, "vim", "init_template.vim");
@@ -26543,7 +26550,7 @@
 /* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var path = __webpack_require__(9);
+	var path = __webpack_require__(3);
 	var fs = __webpack_require__(10);
 	var _0777 = parseInt('0777', 8);
 
@@ -26648,10 +26655,10 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const path = __webpack_require__(9);
+	const path = __webpack_require__(3);
 	const fs = __webpack_require__(10);
-	const electron_1 = __webpack_require__(3);
-	const BrowserWindow = __webpack_require__(3).remote.BrowserWindow;
+	const electron_1 = __webpack_require__(4);
+	const BrowserWindow = __webpack_require__(4).remote.BrowserWindow;
 	const DefaultMetadata = {
 	    debugging: false
 	};
@@ -26860,7 +26867,7 @@
 	const ReactDOM = __webpack_require__(90);
 	const redux_1 = __webpack_require__(228);
 	const react_redux_1 = __webpack_require__(248);
-	const Config = __webpack_require__(8);
+	const Config = __webpack_require__(9);
 	const RootComponent_1 = __webpack_require__(257);
 	const ActionCreators = __webpack_require__(259);
 	const Reducer_1 = __webpack_require__(273);
@@ -47644,7 +47651,7 @@
 
 	var result = (0, _ponyfill2['default'])(root);
 	exports['default'] = result;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)(module)))
 
 /***/ },
 /* 242 */
@@ -48768,7 +48775,7 @@
 	};
 	const React = __webpack_require__(63);
 	const react_redux_1 = __webpack_require__(248);
-	const _ = __webpack_require__(5);
+	const _ = __webpack_require__(6);
 	const ActionCreators = __webpack_require__(259);
 	const Icon_1 = __webpack_require__(260);
 	const HighlightText_1 = __webpack_require__(261);
@@ -49528,7 +49535,7 @@
 	};
 	const React = __webpack_require__(63);
 	const react_redux_1 = __webpack_require__(248);
-	const _ = __webpack_require__(5);
+	const _ = __webpack_require__(6);
 	const Icon_1 = __webpack_require__(260);
 	const HighlightText_1 = __webpack_require__(261);
 	__webpack_require__(271);
@@ -49687,7 +49694,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const _ = __webpack_require__(5);
+	const _ = __webpack_require__(6);
 	exports.reducer = (s, a) => {
 	    switch (a.type) {
 	        case "SET_CURSOR_POSITION":
@@ -50128,7 +50135,7 @@
 	 *
 	 * Manages the quick open menu
 	 */
-	const path = __webpack_require__(9);
+	const path = __webpack_require__(3);
 	const UI = __webpack_require__(62);
 	const child_process_1 = __webpack_require__(18);
 	class QuickOpen {
@@ -50177,8 +50184,8 @@
 	 * Manages the quick open menu
 	 */
 	"use strict";
-	const Config = __webpack_require__(8);
-	const _ = __webpack_require__(5);
+	const Config = __webpack_require__(9);
+	const _ = __webpack_require__(6);
 	class Formatter {
 	    constructor(neovimInstance, pluginManager) {
 	        this._neovimInstance = neovimInstance;
@@ -50299,7 +50306,7 @@
 	const os = __webpack_require__(12);
 	const events_1 = __webpack_require__(17);
 	/// <live>
-	const _ = __webpack_require__(5);
+	const _ = __webpack_require__(6);
 	_.take([1, 2, 3], 2);
 	/// </live>
 	/**
@@ -50419,7 +50426,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const _ = __webpack_require__(5);
+	const _ = __webpack_require__(6);
 	class WindowContext {
 	    get dimensions() {
 	        return this._dimensions;
@@ -50537,7 +50544,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const path = __webpack_require__(9);
+	const path = __webpack_require__(3);
 	const Error_1 = __webpack_require__(282);
 	class ErrorOverlay {
 	    constructor() {
@@ -50592,7 +50599,7 @@
 	const React = __webpack_require__(63);
 	const ReactDOM = __webpack_require__(90);
 	const Icon_1 = __webpack_require__(260);
-	const Config = __webpack_require__(8);
+	const Config = __webpack_require__(9);
 	__webpack_require__(283);
 	const padding = 8;
 	class Errors extends React.Component {
@@ -50631,7 +50638,6 @@
 	    render() {
 	        const positionDivStyles = {
 	            top: this.props.y.toString() + "px",
-	            right: "0px",
 	            height: (padding + this.props.height).toString() + "px"
 	        };
 	        let className = this.props.isActive ? "error-marker active" : "error-marker";
@@ -50698,7 +50704,7 @@
 
 
 	// module
-	exports.push([module.id, ".error-marker {\n  position: absolute;\n  opacity: 0.5;\n  width: 200px;\n  display: -ms-flexbox;\n  display: flex;\n}\n.error-marker.active {\n  opacity: 0.8;\n}\n.error-marker.active .error {\n  left: 0px;\n}\n.error-marker .error {\n  -ms-flex: 1 1 auto;\n      flex: 1 1 auto;\n  transition: left 0.5s;\n  position: absolute;\n  left: 200px;\n  background-color: #3c3c3c;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-align: center;\n      align-items: center;\n  height: 100%;\n  width: 100%;\n}\n.error-marker .error .text {\n  font-size: 10px;\n  color: #c8c8c8;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  text-align: center;\n  -ms-flex-pack: center;\n      justify-content: center;\n  -ms-flex-align: center;\n      align-items: center;\n  padding: 8px;\n}\n.error-marker .icon-container {\n  position: absolute;\n  right: 0px;\n  background-color: #505050;\n}\n.error-marker .icon-container .fa {\n  color: red;\n  padding: 6px;\n}\n.error-squiggle {\n  position: absolute;\n  border-bottom: 1px dashed red;\n}\n", ""]);
+	exports.push([module.id, ".error-marker {\n  position: absolute;\n  right: 20px;\n  opacity: 0.5;\n  width: 200px;\n  display: -ms-flexbox;\n  display: flex;\n}\n.error-marker.active {\n  opacity: 0.8;\n}\n.error-marker.active .error {\n  left: 0px;\n  opacity: 1;\n}\n.error-marker .error {\n  opacity: 0;\n  -ms-flex: 1 1 auto;\n      flex: 1 1 auto;\n  transition: all 0.5s;\n  position: absolute;\n  left: 200px;\n  background-color: #3c3c3c;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-align: center;\n      align-items: center;\n  height: 100%;\n  width: 100%;\n}\n.error-marker .error .text {\n  font-size: 10px;\n  color: #c8c8c8;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  text-align: center;\n  -ms-flex-pack: center;\n      justify-content: center;\n  -ms-flex-align: center;\n      align-items: center;\n  padding: 8px;\n}\n.error-marker .icon-container {\n  position: absolute;\n  right: 0px;\n  background-color: #505050;\n}\n.error-marker .icon-container .fa {\n  color: red;\n  padding: 6px;\n}\n.error-squiggle {\n  position: absolute;\n  border-bottom: 1px dashed red;\n}\n", ""]);
 
 	// exports
 
@@ -50708,7 +50714,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const _ = __webpack_require__(5);
+	const _ = __webpack_require__(6);
 	const LiveEvalMarker_1 = __webpack_require__(286);
 	class LiveEvaluationOverlay {
 	    constructor() {
@@ -50848,14 +50854,25 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	const _ = __webpack_require__(6);
 	const BufferScrollBar_1 = __webpack_require__(290);
 	class ScrollBarOverlay {
+	    constructor() {
+	        this._fileToMarkers = {};
+	    }
 	    onBufferUpdate(eventContext, lines) {
 	        this._currentFileLength = lines.length;
 	    }
 	    onVimEvent(eventName, eventContext) {
 	        const fullPath = eventContext.bufferFullPath;
 	        this._lastEvent = eventContext;
+	        this._updateScrollBar();
+	    }
+	    setMarkers(file, key, markers) {
+	        const curFileToMarker = this._fileToMarkers[file] || {};
+	        curFileToMarker[key] = curFileToMarker[key] || [];
+	        curFileToMarker[key] = markers;
+	        this._fileToMarkers[file] = curFileToMarker;
 	        this._updateScrollBar();
 	    }
 	    update(element, windowContext) {
@@ -50868,7 +50885,10 @@
 	            return;
 	        if (!this._lastEvent)
 	            return;
+	        const allMarkers = this._fileToMarkers[this._lastEvent.bufferFullPath];
+	        const markers = _.flatten(_.values(allMarkers));
 	        BufferScrollBar_1.renderBufferScrollBar({
+	            markers: markers,
 	            bufferSize: this._lastEvent.bufferTotalLines,
 	            windowTopLine: this._lastEvent.windowTopLine,
 	            windowBottomLine: this._lastEvent.windowBottomLine
@@ -50914,9 +50934,24 @@
 	            top: windowTop + "px",
 	            height: windowHeight + "px"
 	        };
+	        const markers = this.props.markers || [];
+	        const markerElements = markers.map(m => {
+	            const line = m.line - 1;
+	            const pos = (line / this.props.bufferSize) * this.state.measuredHeight;
+	            const size = "2px";
+	            const markerStyle = {
+	                position: "absolute",
+	                top: pos + "px",
+	                height: size,
+	                backgroundColor: "red",
+	                width: "100%"
+	            };
+	            return React.createElement("div", { style: markerStyle });
+	        });
 	        return React.createElement(Measure, { onMeasure: (dimensions) => this._onMeasure(dimensions) },
 	            React.createElement("div", { className: "scroll-bar-container" },
-	                React.createElement("div", { className: "scroll-window", style: windowStyle })));
+	                React.createElement("div", { className: "scroll-window", style: windowStyle }),
+	                markerElements));
 	    }
 	}
 	exports.BufferScrollBar = BufferScrollBar;
@@ -52490,7 +52525,7 @@
 
 
 	// module
-	exports.push([module.id, ".scroll-bar-container {\n  position: absolute;\n  top: 0px;\n  bottom: 0px;\n  right: 0px;\n  background-color: rgba(0, 0, 0, 0.2);\n  width: 20px;\n  border-left: 1px solid rgba(255, 255, 255, 0.2);\n}\n.scroll-bar-container .scroll-window {\n  position: absolute;\n  width: 20px;\n  background-color: rgba(200, 200, 200, 0.2);\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  border-bottom: 1px solid rgba(255, 255, 255, 0.1);\n}\n", ""]);
+	exports.push([module.id, ".scroll-bar-container {\n  position: absolute;\n  top: 0px;\n  bottom: 0px;\n  right: 0px;\n  background-color: rgba(0, 0, 0, 0.2);\n  width: 20px;\n  border-left: 1px solid rgba(255, 255, 255, 0.2);\n}\n.scroll-bar-container .scroll-window {\n  position: absolute;\n  width: 20px;\n  background-color: rgba(200, 200, 200, 0.2);\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  border-bottom: 1px solid rgba(255, 255, 255, 0.1);\n  transition: 0.4s ease-out top;\n}\n", ""]);
 
 	// exports
 
