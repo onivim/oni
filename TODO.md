@@ -1,5 +1,3 @@
-- GIF for Live eval feature
-
 - Create scrollbars
     - Create scrollbar component
         - When rendering, check size and compare to viewport size

@@ -107,8 +107,8 @@
 	    pluginManager.on("set-errors", (key, fileName, errors, colors) => {
 	        errorOverlay.setErrors(key, fileName, errors, colors);
 	    });
-	    liveEvaluation.on("evaluate-block-result", (file, id, result) => {
-	        liveEvaluationOverlay.setLiveEvaluationResult(file, id, result);
+	    liveEvaluation.on("evaluate-block-result", (file, blocks) => {
+	        liveEvaluationOverlay.setLiveEvaluationResult(file, blocks);
 	    });
 	    instance.on("event", (eventName, evt) => {
 	        // TODO: Can we get rid of these?
@@ -50285,10 +50285,10 @@
 /* 278 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
 	/**
 	 * LiveEvaluation.ts
 	 */
-	"use strict";
 	const os = __webpack_require__(12);
 	const events_1 = __webpack_require__(17);
 	/// <live>
@@ -50302,22 +50302,32 @@
 	    constructor(neovimInstance, pluginManager) {
 	        super();
 	        this._keyToBlock = {};
+	        this._bufferToBlocks = {};
 	        this._neovimInstance = neovimInstance;
 	        this._pluginManager = pluginManager;
 	        this._neovimInstance.on("buffer-update", (context, lines) => {
 	            const currentBlocks = getLiveCodeBlocks(lines);
+	            this._bufferToBlocks[context.bufferFullPath] = currentBlocks;
 	            currentBlocks.forEach(b => {
 	                const code = b.codeBlock.join(os.EOL);
 	                const key = context.bufferFullPath + "__" + b.startLine;
+	                // If there was a previous result, bring it over
+	                if (this._keyToBlock[key]) {
+	                    b.result = this._keyToBlock[key].result;
+	                }
 	                this._keyToBlock[key] = b;
 	                this._pluginManager.requestEvaluateBlock(key, context.bufferFullPath, code);
 	            });
+	            this.emit("evaluate-block-result", context.bufferFullPath, currentBlocks);
 	        });
 	        this._pluginManager.on("evaluate-block-result", (res) => {
 	            const id = res.id;
 	            const codeBlock = this._keyToBlock[id];
+	            if (!codeBlock)
+	                return;
 	            codeBlock.result = res;
-	            this.emit("evaluate-block-result", res.fileName, id, codeBlock);
+	            const fileName = res.fileName;
+	            this.emit("evaluate-block-result", fileName, this._bufferToBlocks[fileName]);
 	        });
 	    }
 	}
@@ -50702,10 +50712,9 @@
 	        this._currentFileName = fullPath;
 	        this._showLiveEval();
 	    }
-	    setLiveEvaluationResult(fileName, id, codeBlock) {
-	        const currentBuffers = this._bufferToBlocks[fileName] || {};
-	        currentBuffers[id] = codeBlock;
-	        this._bufferToBlocks[fileName] = currentBuffers;
+	    setLiveEvaluationResult(fileName, blocks) {
+	        const keyMap = _.keyBy(blocks, "startLine");
+	        this._bufferToBlocks[fileName] = keyMap;
 	        this._showLiveEval();
 	    }
 	    update(element, windowContext) {
@@ -50757,7 +50766,8 @@
 	            if (this.props.windowContext.isLineInView(b.startLine)) {
 	                const startY = this.props.windowContext.getWindowRegionForLine(b.startLine + 1).y;
 	                const endY = this.props.windowContext.getWindowRegionForLine(b.endLine).y;
-	                return React.createElement(LiveEvalMarker, { y: startY, height: endY - startY, result: b.result.result });
+	                const result = b.result ? b.result.result : null;
+	                return React.createElement(LiveEvalMarker, { y: startY, height: endY - startY, result: result });
 	            }
 	            else {
 	                return null;
