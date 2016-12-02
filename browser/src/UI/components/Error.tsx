@@ -72,7 +72,6 @@ export class ErrorMarker extends React.Component<ErrorMarkerProps, void> {
 
         const positionDivStyles = {
             top: this.props.y.toString() + "px",
-            right: "0px",
             height: (padding + this.props.height).toString() + "px"
         }
 

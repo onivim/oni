@@ -6,6 +6,7 @@
 
 .error-marker {
     position: absolute;
+    right: @bufferScrollBarSize;
     opacity: 0.5;
     width: 200px;
     display: flex;
@@ -15,12 +16,14 @@
 
         .error {
             left: 0px;
+            opacity: 1;
         }
     }
 
     .error {
+        opacity: 0;
         flex: 1 1 auto;
-        transition: left 0.5s;
+        transition: all 0.5s;
         position: absolute;
         left: 200px;
         background-color: rgb(60, 60, 60);

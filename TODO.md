@@ -27,6 +27,15 @@
 - Syntax highlighting - 
     - only update if item changed
 
+- Expand to multiple displays
+    - require("electron").screen.getALDisplays
+        - Get minimum X coordinate
+        - Get maximum X coordinate + size
+        - Get minimum Y coordinate bounds
+    - Set size:
+        require('electron').remote.getCurrentWindow().setPosition(x, y)
+        require("electron").remote.getCurrentWindow().setSize(.., ..)
+
 - Completion: When pressing 'enter' on an item that has multiple selections, like _.last (_.lastIndexOf), completion window pops back up on enter. Should identify that case (same base/prefix as last completed item?) and not popup
 
 - Startup UI if NeoVim not found
