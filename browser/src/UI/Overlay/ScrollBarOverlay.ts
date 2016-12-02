@@ -4,7 +4,16 @@ import * as ReactDOM from "react-dom"
 import * as _ from "lodash"
 
 import { IOverlay, IWindowContext } from "./../OverlayManager"
-import { renderBufferScrollBar, BufferScrollBarProps } from "./../components/BufferScrollBar"
+import { renderBufferScrollBar, BufferScrollBarProps, ScrollBarMarker } from "./../components/BufferScrollBar"
+
+
+export interface KeyToMarkers {
+    [key: string]: ScrollBarMarker[]
+}
+
+export interface FileToAllMarkers {
+    [filePath:string]: KeyToMarkers
+}
 
 export class ScrollBarOverlay implements IOverlay {
 
@@ -16,6 +25,8 @@ export class ScrollBarOverlay implements IOverlay {
     private _lastWindowContext: IWindowContext
     private _lastEvent: Oni.EventContext
 
+    private _fileToMarkers: FileToAllMarkers = {}
+
     public onBufferUpdate(eventContext: Oni.EventContext, lines: string[]): void {
         this._currentFileLength = lines.length
     }
@@ -24,6 +35,16 @@ export class ScrollBarOverlay implements IOverlay {
         const fullPath = eventContext.bufferFullPath
 
         this._lastEvent = eventContext
+
+        this._updateScrollBar()
+    }
+
+    public setMarkers(file: string, key: string, markers: ScrollBarMarker[]): void {
+        
+        const curFileToMarker = this._fileToMarkers[file] || {}
+        curFileToMarker[key] = curFileToMarker[key] || []
+        curFileToMarker[key] = markers
+        this._fileToMarkers[file] = curFileToMarker
 
         this._updateScrollBar()
     }
@@ -43,7 +64,12 @@ export class ScrollBarOverlay implements IOverlay {
         if (!this._lastEvent)
             return
 
+        const allMarkers = this._fileToMarkers[this._lastEvent.bufferFullPath]
+
+        const markers = _.flatten(_.values(allMarkers))
+
         renderBufferScrollBar({
+            markers: markers,
             bufferSize: this._lastEvent.bufferTotalLines,
             windowTopLine: this._lastEvent.windowTopLine,
             windowBottomLine: this._lastEvent.windowBottomLine

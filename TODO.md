@@ -1,14 +1,27 @@
-- Overlay / scrollbar
-    - Investigate refactoring OverlayManager to show scrollbars
-    - Use 'Marker' component inside
-    - Extract commonalities between ErrorOverlay and LiveEvalOverlay
-        - Both need to keep track of current buffer
-        - Both need code to figure out window line
-        - Too many moving parts to express these
-    - Create a 'marker' host that can render based on a common interface
-
 - Regression: Quick info UI
 
+- Markdown preview
+
+- Startup UI if NeoVim not found
+    - Landing page design
+    - Use warning triangle
+    - Ensure that 'nvim' is on your path and accessible.
+    - Refer to the official installation instructions
+    - https://github.com/neovim/neovim/wiki/Installing-Neovim
+    - And FAQ: https://github.com/neovim/neovim/wiki/FAQ
+
+- Animation/Performance: 
+    - No flicker on quickinfo/autocomplete
+        - For quickinfo & parameter help - send up if there are no results to clear, as opposed to clearing on set cursor position
+    - Factor to always show
+    - Why are there problems if it is always showing?
+
+- Keybindings
+    - Use 'OniExecute'
+    - Next error / previous error
+    - Plugin handle commands - 'git merge' for example
+
+- External popupmenu UI
 - Create scrollbars
     - For Menu/AutoComplete, need to fix viewport
         const viewPortReducer = viewportReducer(NEXT_ACTION, PREVIOUS_ACTION)
@@ -22,10 +35,6 @@
         - Start moving reducers out
     - Menu
     - Autocomplete
-    - What sort of commonalities between markers in overlay vs markers in viewport?
-
-- Syntax highlighting - 
-    - only update if item changed
 
 - Expand to multiple displays
     - require("electron").screen.getALDisplays
@@ -36,34 +45,39 @@
         require('electron').remote.getCurrentWindow().setPosition(x, y)
         require("electron").remote.getCurrentWindow().setSize(.., ..)
 
+- Refactoring: Consolidate overlay strategies
+    - Fix window management issues
+    - Persist overlays for buffer
+    - Create a 'marker' host that can render based on a common interface
+
 - Completion: When pressing 'enter' on an item that has multiple selections, like _.last (_.lastIndexOf), completion window pops back up on enter. Should identify that case (same base/prefix as last completed item?) and not popup
 
-- Startup UI if NeoVim not found
-    - Landing page design
+- Syntax highlighting - 
+    - only update if item changed
 
-- Animation/Performance: 
-    - No flicker on quickinfo/autocomplete
-        - For quickinfo & parameter help - send up if there are no results to clear, as opposed to clearing on set cursor position
-    - Factor to always show
-    - Why are there problems if it is always showing?
+- Syntax highlighting - why don't method parameters show?
+
+- Scrollbar: Handle mouse events
 
 - Animation/Performance: Optimistic Typing
 - Animation: Cursor velocity
     - Create variable
     - Refactor cursor to component
     - Use 'particle style' animation
-- Animation: Scroll
-    - Start moving canvas up
 
 - LiveEvaluation: Use border color to signify process
     - Green: Done
     - Yellow: Evaluating
     - Red: Error
 
+- Performance - Investigate latency in completion
+
+- Settings
+    - Setting to enable/disable scrollbar
+
 - LiveEvaluation: Evaluate on initial enter of buffer, without needing the buffer-update event
 
 - Performance: Scrolling
-- Performance - Investigate latency in completion
 
 - Signature completion: Show number of alternate completions available
 - Signature completion: Cycle through available completions
@@ -109,8 +123,6 @@
         - create as scratch buffer: http://vim.wikia.com/wiki/Vim_buffer_FAQ
     - Include tasks in QuickOpen
 
-- Scroll bars
-
 - Left gutter
     - Git status
     - Marks
@@ -133,9 +145,6 @@
     - Refactor the common prefix-resolution to a helper method in Oni
     - F5 Launch
     - Documentation  - generate from Oni.d.ts
-
-- Keybindings
-    - Use 'OniExecute'
 
 - Update app menu
     - Open keybindings

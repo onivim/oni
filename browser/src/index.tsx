@@ -1,5 +1,6 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
+import * as path from "path"
 
 import { ipcRenderer } from "electron"
 
@@ -79,6 +80,13 @@ const start = (args: string[]) => {
 
     pluginManager.on("set-errors", (key, fileName, errors, colors) => {
         errorOverlay.setErrors(key, fileName, errors, colors)
+
+        const errorMarkers = errors.map(e => ({
+            line: e.lineNumber,
+            height: 1,
+            color: "red"
+        }))
+        scrollbarOverlay.setMarkers(path.resolve(fileName), "errors", errorMarkers)
     })
 
     liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
