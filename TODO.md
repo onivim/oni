@@ -1,6 +1,15 @@
+- Overlay / scrollbar
+    - Investigate refactoring OverlayManager to show scrollbars
+    - Use 'Marker' component inside
+    - Extract commonalities between ErrorOverlay and LiveEvalOverlay
+        - Both need to keep track of current buffer
+        - Both need code to figure out window line
+        - Too many moving parts to express these
+    - Create a 'marker' host that can render based on a common interface
+
+- Regression: Quick info UI
+
 - Create scrollbars
-    - Create scrollbar component
-        - When rendering, check size and compare to viewport size
     - For Menu/AutoComplete, need to fix viewport
         const viewPortReducer = viewportReducer(NEXT_ACTION, PREVIOUS_ACTION)
         Object.assign({}, s, {
@@ -14,13 +23,6 @@
     - Menu
     - Autocomplete
     - What sort of commonalities between markers in overlay vs markers in viewport?
-    - Investigate refactoring OverlayManager to show scrollbars
-    - Use 'Marker' component inside
-    - Extract commonalities between ErrorOverlay and LiveEvalOverlay
-        - Both need to keep track of current buffer
-        - Both need code to figure out window line
-        - Too many moving parts to express these
-    - Create a 'marker' host that can render based on a common interface
 
 - Syntax highlighting - 
     - only update if item changed
