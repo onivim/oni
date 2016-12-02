@@ -24,7 +24,8 @@
 
 - Syntax highlighting - 
     - only update if item changed
-    - 
+
+- Completion: When pressing 'enter' on an item that has multiple selections, like _.last (_.lastIndexOf), completion window pops back up on enter. Should identify that case (same base/prefix as last completed item?) and not popup
 
 - Startup UI if NeoVim not found
     - Landing page design
@@ -43,14 +44,20 @@
 - Animation: Scroll
     - Start moving canvas up
 
+- LiveEvaluation: Use border color to signify process
+    - Green: Done
+    - Yellow: Evaluating
+    - Red: Error
+
 - LiveEvaluation: Evaluate on initial enter of buffer, without needing the buffer-update event
 
+- Performance: Scrolling
 - Performance - Investigate latency in completion
 
-- Refactoring
+- Signature completion: Show number of alternate completions available
+- Signature completion: Cycle through available completions
 
 - UI for REPL
-    - Live code block - have LiveEvaluation service control full list, so that deleted case can be handled
     - Objects - get by highlighted variable name
     - Overflow - long output
     - Errors

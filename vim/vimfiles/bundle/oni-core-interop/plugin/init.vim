@@ -64,6 +64,7 @@ augroup END
 function OniGetContext()
 let context = {}
 let context.bufferFullPath = expand("%:p")
+let context.bufferTotalLines = line("$")
 let context.line = line(".")
 let context.column = col(".")
 let context.winline = winline()
@@ -89,7 +90,6 @@ function OniUpdateWindowDisplayMap()
 
     let windowStartLine = line('w0')
     let windowEndLine = line('w$')
-
 
     let mapping = {}
 

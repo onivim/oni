@@ -1,0 +1,21 @@
+@import (reference) "./common.less";
+
+@scrollBarSize: 20px;
+
+.scroll-bar-container {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    background-color: rgba(0, 0, 0, 0.2);
+    width: @scrollBarSize;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+
+    .scroll-window {
+        position: absolute;
+        width: @scrollBarSize;
+        background-color: rgba(200, 200, 200, 0.2);
+        border-top:1px solid rgba(255, 255, 255, 0.1);
+        border-bottom:1px solid rgba(255, 255, 255, 0.1);
+    }
+}

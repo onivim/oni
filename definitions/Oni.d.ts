@@ -20,6 +20,8 @@ declare namespace Oni {
 
     export interface EventContext {
         bufferFullPath: string
+        bufferTotalLines: number
+
         version: number
         line: number
 

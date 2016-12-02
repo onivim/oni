@@ -30,6 +30,7 @@ import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
 import { OverlayManager } from "./UI/OverlayManager"
 import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./UI/Overlay/LiveEvaluationOverlay"
+import { ScrollBarOverlay } from "./UI/Overlay/ScrollBarOverlay"
 
 const start = (args: string[]) => {
 
@@ -67,9 +68,10 @@ const start = (args: string[]) => {
     const overlayManager = new OverlayManager(screen)
     const errorOverlay = new ErrorOverlay()
     const liveEvaluationOverlay = new LiveEvaluationOverlay()
+    const scrollbarOverlay = new ScrollBarOverlay()
     overlayManager.addOverlay("errors", errorOverlay)
     overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
-
+    overlayManager.addOverlay("scrollbar", scrollbarOverlay)
 
     pluginManager.on("signature-help-response", (signatureHelp: Oni.Plugin.SignatureHelpResult) => {
         UI.showSignatureHelp(signatureHelp)
@@ -88,6 +90,11 @@ const start = (args: string[]) => {
         overlayManager.handleCursorMovedEvent(evt)
         errorOverlay.onVimEvent(eventName, evt)
         liveEvaluationOverlay.onVimEvent(eventName, evt)
+        scrollbarOverlay.onVimEvent(eventName, evt)
+    })
+
+    instance.on("buffer-update", (context, lines) => {
+        scrollbarOverlay.onBufferUpdate(context, lines)
     })
 
     instance.on("window-display-update", (arg) => {

@@ -23,7 +23,6 @@ export interface INeovimInstance {
     command(command: string)
     eval(expression: string): Q.Promise<any>
 
-
     on(event: string, handler: Function)
 
     setFont(fontFamily: string, fontSize: string)

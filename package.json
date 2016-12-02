@@ -48,6 +48,7 @@
     "q": "^1.4.1",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
+    "react-measure": "^1.4.2",
     "react-redux": "^4.4.5",
     "redux": "^3.5.2"
   },
@@ -61,6 +62,7 @@
     "@types/q": "0.0.32",
     "@types/react": "^0.14.48",
     "@types/react-dom": "^0.14.18",
+    "@types/react-measure": "^0.4.5",
     "@types/react-redux": "^4.4.32",
     "autoprefixer": "^6.4.0",
     "concurrently": "^2.2.0",
