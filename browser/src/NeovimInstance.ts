@@ -222,8 +222,17 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     remote.app.quit()
                 })
 
-                this._neovim.uiAttach(80, 40, true, (err) => {
+                const options = {
+                    "rgb": true,
+                    "popupmenu_external": true
+                }
+
+                // Workaround for bug in neovim/node-client
+                // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
+                this._neovim._session.request("nvim_ui_attach", [80, 40, options], (err) => {
                     console.log("Attach success")
+
+                    // this._neovim.setOption("popupmenu_external", true)
 
                     performance.mark("NeovimInstance.Plugins.Start")
                     this._pluginManager.startPlugins(this)
