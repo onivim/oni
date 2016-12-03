@@ -16,6 +16,7 @@
     "oni-vim": "./cli/oni"
   },
   "scripts": {
+    "prepublish": "crlf --set=LF ./cli/oni",
     "postinstall": "npm run install:oni-plugin-typescript",
     "build": "npm run build:browser && npm run build:plugin_api && npm run build:plugins",
     "build:browser": "webpack --config browser/webpack.production.config.js",
@@ -66,6 +67,7 @@
     "@types/react-redux": "^4.4.32",
     "autoprefixer": "^6.4.0",
     "concurrently": "^2.2.0",
+    "crlf": "^1.1.0",
     "cross-env": "^2.0.0",
     "css-loader": "^0.24.0",
     "less": "^2.7.1",
