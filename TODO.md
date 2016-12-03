@@ -6,8 +6,6 @@
 - Completion: When pressing 'enter' on an item that has multiple selections, like _.last (_.lastIndexOf), completion window pops back up on enter. Should identify that case (same base/prefix as last completed item?) and not popup
 - Completion: Sometimes full word is not completed (leaves a prefix of word) - need to isolate a repro
 
-- External popupmenu UI
-
 - Keybindings
     - Use 'OniExecute'
     - Next error / previous error
