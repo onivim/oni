@@ -4,9 +4,6 @@
 
 - [Introduction](#Introduction)
 - [Features](#Features)
-- [Usage](#Usage)
-    - [Install](#Install)
-    - [Build](#Build)
 - [Documentation](#Documentation)
     - [Configuration](#Configuration)
     - [Guide](#Guide)
@@ -19,7 +16,7 @@
 
 ## Introduction
 
-ONI is a NeoVim front-end UI with rich IDE-like UI integration points.
+ONI is a NeoVim front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
@@ -119,7 +116,6 @@ Language extenders given ONI rich integration with languages, offering services 
 
 To see the in-progress API, check out the [Oni.d.ts](https://github.com/extr0py/oni/blob/master/definitions/Oni.d.ts) definition file as well as the [typescript language plugin](https://github.com/extr0py/oni/tree/master/vim/vimfiles/bundle/oni-plugin-typescript), which demonstrates several of these features:
 
-
 #### Background
 
 ONI currently supports the setting of a background image as well as background opacity.
@@ -149,64 +145,7 @@ As well as some color-schemes:
 
 ## Roadmap
 
-- 0.1
-    - [x] Initial repo
-    - [x] OS X / Windows support
-    - [x] TypeScript language support
-- 0.2
-    - [x] Mouse support
-        - [ ] Buffer scroll bars
-    - [ ] Extensibility models
-        - [ ] Language service
-            - [x] Autocompletion (TypeScript, Javascript)
-            - [x] QuickInfo (TypeScript, JavaScript)
-            - [x] Goto Definition (TypeScript, JavaScript)
-            - [x] Errors
-            - [x] Formatting
-            - [ ] Documentation
-    - [ ] Services
-        - [x] QuickOpen - Modern CTRL-P replacement
-    - [ ] Installation via NPM
-        - [ ] Handle case where NeoVim is not already installed
-- 0.3
-    - [ ] Proper keymap support
-    - [ ] Feature: Replace visual world
-    - [x] Configuration loading
-    - [ ] Git overlays
-        - [ ] Git blame overlay
-        - [ ] Git log overlay
-    - [ ] QuickOpen Improvements
-        - [ ] Config variable
-        - [ ] Non-git strategy
-        - [x] Fuzzy Matching
-        - [ ] Scrollbar
-        - [x] Icon
-    - [ ] AutoCompletion
-        - [ ] Fuzzy Matching
-        - [ ] Scrollbar
-- 0.4
-    - [ ] Better app icon
-    - [ ] Listing in NeoVim wiki
-    - [ ] Left Pane
-    - [ ] Animation support
-        - [ ] Cursor animation
-    - [ ] Performance improvements
-        - [ ] Scroll performance improvement (avoid redraw)
-        - [ ] Perceived performance - render characters instally in insert
-
-- 0.5
-    - [ ] Status Line Replacement
-        - [ ] Extensibility API
-
-- Future
-    - [ ] Scrollbar minimap (a-la sublime)
-    - [ ] Enhanced VimTutor
-    - [ ] Collaborative app icon
-    - [ ] Extensibility
-        - [ ] Debugger support
-        - [ ] Snippet support
-    - [ ] Project templates
-    - [ ] Package Manager
+See [roadmap](ROADMAP.md)
 
 ## License
 
