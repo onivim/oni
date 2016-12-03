@@ -49958,25 +49958,22 @@
 	const electron_1 = __webpack_require__(4);
 	const Icon_1 = __webpack_require__(260);
 	__webpack_require__(275);
-	class InstallHelp extends React.Component {
-	    render() {
-	        return React.createElement("div", { className: "install-help" },
-	            React.createElement("div", { className: "title" },
-	                React.createElement(Icon_1.Icon, { name: "warning", size: Icon_1.IconSize.FiveX }),
-	                React.createElement("h1", null, "Unable to launch NeoVim")),
-	            React.createElement("div", { className: "instructions" },
-	                React.createElement("ul", null,
-	                    React.createElement("li", null,
-	                        React.createElement("span", null, "Install NeoVim from here:"),
-	                        React.createElement("a", { href: "#", onClick: (evt) => this._onClick(evt) }, "Installing Neovim")),
-	                    React.createElement("li", null, "Close and re-open Oni"))));
-	    }
-	    _onClick(evt) {
+	exports.InstallHelp = () => {
+	    const _onClick = (evt) => {
 	        electron_1.remote.shell.openExternal("https://github.com/neovim/neovim/wiki/Installing-Neovim");
 	        evt.preventDefault();
-	    }
-	}
-	exports.InstallHelp = InstallHelp;
+	    };
+	    return React.createElement("div", { className: "install-help" },
+	        React.createElement("div", { className: "title" },
+	            React.createElement(Icon_1.Icon, { name: "warning", size: Icon_1.IconSize.FiveX }),
+	            React.createElement("h1", null, "Unable to launch NeoVim")),
+	        React.createElement("div", { className: "instructions" },
+	            React.createElement("ul", null,
+	                React.createElement("li", null,
+	                    React.createElement("span", null, "Install NeoVim from here:"),
+	                    React.createElement("a", { href: "#", onClick: (evt) => _onClick(evt) }, "Installing Neovim")),
+	                React.createElement("li", null, "Close and re-open Oni"))));
+	};
 
 
 /***/ },
