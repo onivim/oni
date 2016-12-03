@@ -28,12 +28,6 @@
 
 - Refactoring: Refactor common promise completion logic in Oni.ts
 
-- Animation/Performance: 
-    - No flicker on quickinfo/autocomplete
-        - For quickinfo & parameter help - send up if there are no results to clear, as opposed to clearing on set cursor position
-    - Factor to always show
-    - Why are there problems if it is always showing?
-
 - Keybindings
     - Use 'OniExecute'
     - Next error / previous error
