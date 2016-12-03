@@ -229,6 +229,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     this._pluginManager.startPlugins(this)
                     performance.mark("NeovimInstance.Plugins.End")
                 });
+            }, (err) => {
+                this.emit("error", err)
             })
 
         this.setFont("Consolas", "14px");

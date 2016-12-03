@@ -113,6 +113,10 @@ const start = (args: string[]) => {
         }
     })
 
+    instance.on("error", (err: string) => {
+        UI.showNeovimInstallHelp()
+    })
+
     instance.on("buffer-update", (context, lines) => {
         scrollbarOverlay.onBufferUpdate(context, lines)
     })

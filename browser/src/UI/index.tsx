@@ -14,6 +14,8 @@ import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
 import { reducer } from "./Reducer"
 
+import { InstallHelp } from "./components/InstallHelp"
+
 export const events = new EventEmitter()
 
 let state: State.State = {
@@ -147,6 +149,11 @@ function emitCompletionItemSelectedEvent(): void {
     const entry = autoCompletion.entries[autoCompletion.selectedIndex]
 
     events.emit(CompletionItemSelectedEvent, entry)
+}
+
+export function showNeovimInstallHelp(): void {
+    const element = document.getElementById("overlay-ui")
+    ReactDOM.render(<InstallHelp />, element)
 }
 
 const store = createStore(reducer, state)
