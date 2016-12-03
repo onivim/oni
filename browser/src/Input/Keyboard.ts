@@ -55,6 +55,9 @@ export class Keyboard extends EventEmitter {
                 return "<f5>"
             case 123:
                 return "<f12>"
+            case 174: // Volume up
+            case 175: // Volume down
+                return null
             default:
                 let key = evt.key;
 

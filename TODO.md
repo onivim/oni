@@ -6,7 +6,6 @@
     - https://github.com/neovim/neovim/wiki/Installing-Neovim
     - And FAQ: https://github.com/neovim/neovim/wiki/FAQ
 
-- Ignore audio volume down / audio volume up keys
 - Add indicator where current cursor line is in scroll bar
 
 - Markdown preview
