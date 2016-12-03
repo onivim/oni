@@ -1,0 +1,64 @@
+# Oni
+
+## Roadmap
+
+- 0.1
+    - [x] Initial repo
+    - [x] OS X / Windows support
+    - [x] TypeScript language support
+- 0.2
+    - [x] Mouse support
+        - [ ] Buffer scroll bars
+    - [ ] Extensibility models
+        - [ ] Language service
+            - [x] Autocompletion (TypeScript, Javascript)
+            - [x] QuickInfo (TypeScript, JavaScript)
+            - [x] Goto Definition (TypeScript, JavaScript)
+            - [x] Errors
+            - [x] Formatting
+            - [ ] Documentation
+        - [ ] Integration with [language-server-protocol](https://github.com/Microsoft/language-server-protocol)
+    - [ ] Services
+        - [x] QuickOpen - Modern CTRL-P replacement
+    - [ ] Installation via NPM
+        - [ ] Handle case where NeoVim is not already installed
+- 0.3
+    - [ ] Proper keymap support
+    - [ ] Feature: Replace visual word
+    - [x] Configuration loading
+    - [ ] Git overlays
+        - [ ] Git blame overlay
+        - [ ] Git log overlay
+    - [ ] QuickOpen Improvements
+        - [ ] Config variable
+        - [ ] Non-git strategy
+        - [x] Fuzzy Matching
+        - [ ] Scrollbar
+        - [x] Icon
+    - [ ] AutoCompletion
+        - [ ] Fuzzy Matching
+        - [ ] Scrollbar
+    - [ ] 
+- 0.4
+    - [ ] Better app icon
+    - [x] Listing in NeoVim wiki
+    - [ ] Left Pane
+    - [ ] Animation support
+        - [ ] Cursor animation
+    - [ ] Performance improvements
+        - [ ] Scroll performance improvement (avoid redraw)
+        - [ ] Perceived performance - render characters instally in insert
+
+- 0.5
+    - [ ] Status Line Replacement
+        - [ ] Extensibility API
+
+- Future
+    - [ ] Scrollbar minimap (a-la sublime)
+    - [ ] Enhanced VimTutor
+    - [ ] Collaborative app icon
+    - [ ] Extensibility
+        - [ ] Debugger support
+        - [ ] Snippet support
+    - [ ] Project templates
+    - [ ] Package Manager
