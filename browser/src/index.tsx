@@ -54,8 +54,7 @@ const start = (args: string[]) => {
     var renderer = new CanvasRenderer()
     renderer.start(canvasElement)
 
-    var cursor = new Cursor()
-
+    const cursor = new Cursor()
 
     let pendingTimeout = null
 

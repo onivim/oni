@@ -6,13 +6,12 @@ import * as _ from "lodash"
 import { IOverlay, IWindowContext } from "./../OverlayManager"
 import { renderBufferScrollBar, BufferScrollBarProps, ScrollBarMarker } from "./../components/BufferScrollBar"
 
-
 export interface KeyToMarkers {
     [key: string]: ScrollBarMarker[]
 }
 
 export interface FileToAllMarkers {
-    [filePath:string]: KeyToMarkers
+    [filePath: string]: KeyToMarkers
 }
 
 export class ScrollBarOverlay implements IOverlay {
@@ -36,11 +35,18 @@ export class ScrollBarOverlay implements IOverlay {
 
         this._lastEvent = eventContext
 
+        const cursorMarker: ScrollBarMarker = {
+            line: eventContext.line,
+            height: 1,
+            color: "rgb(200, 200, 200)"
+        }
+
+        this.setMarkers(<string>eventContext.bufferFullPath, "cursor", [cursorMarker])
+
         this._updateScrollBar()
     }
 
     public setMarkers(file: string, key: string, markers: ScrollBarMarker[]): void {
-        
         const curFileToMarker = this._fileToMarkers[file] || {}
         curFileToMarker[key] = curFileToMarker[key] || []
         curFileToMarker[key] = markers

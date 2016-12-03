@@ -89,7 +89,7 @@
 	    const canvasElement = document.getElementById("test-canvas");
 	    var renderer = new CanvasRenderer_1.CanvasRenderer();
 	    renderer.start(canvasElement);
-	    var cursor = new Cursor_1.Cursor();
+	    const cursor = new Cursor_1.Cursor();
 	    let pendingTimeout = null;
 	    // Services
 	    const quickOpen = new QuickOpen_1.QuickOpen(instance);
@@ -26273,6 +26273,9 @@
 	                return "<f5>";
 	            case 123:
 	                return "<f12>";
+	            case 174: // Volume up
+	            case 175:
+	                return null;
 	            default:
 	                let key = evt.key;
 	                if (key === "<")
@@ -50879,6 +50882,12 @@
 	    onVimEvent(eventName, eventContext) {
 	        const fullPath = eventContext.bufferFullPath;
 	        this._lastEvent = eventContext;
+	        const cursorMarker = {
+	            line: eventContext.line,
+	            height: 1,
+	            color: "rgb(200, 200, 200)"
+	        };
+	        this.setMarkers(eventContext.bufferFullPath, "cursor", [cursorMarker]);
 	        this._updateScrollBar();
 	    }
 	    setMarkers(file, key, markers) {
@@ -50956,7 +50965,7 @@
 	                position: "absolute",
 	                top: pos + "px",
 	                height: size,
-	                backgroundColor: "red",
+	                backgroundColor: m.color,
 	                width: "100%"
 	            };
 	            return React.createElement("div", { style: markerStyle });

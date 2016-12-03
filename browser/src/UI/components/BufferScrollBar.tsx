@@ -58,7 +58,7 @@ export class BufferScrollBar extends React.Component<BufferScrollBarProps, Buffe
                 position: "absolute",
                 top: pos + "px",
                 height: size,
-                backgroundColor: "red",
+                backgroundColor: m.color,
                 width: "100%"
             }
 
