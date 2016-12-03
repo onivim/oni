@@ -1,0 +1,33 @@
+@import (reference) "./common.less";
+
+.install-help {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+
+    background-color: @background-color;
+    color: @text-color;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .title {
+        text-align: center;
+    }
+
+    .instructions {
+        margin-bottom: 64px;
+
+        li {
+            margin: 8px;
+        }
+
+        a {
+            color: @text-color-highlight;
+        }
+    }
+}

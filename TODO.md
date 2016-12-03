@@ -1,18 +1,10 @@
-- Startup UI if NeoVim not found
-    - Landing page design
-    - Use warning triangle
-    - Ensure that 'nvim' is on your path and accessible.
-    - Refer to the official installation instructions
-    - https://github.com/neovim/neovim/wiki/Installing-Neovim
-    - And FAQ: https://github.com/neovim/neovim/wiki/FAQ
-
 - Markdown preview
 
 - Single-instance language service
     - Way to pass configuration variables downwards to plugins
 
 - Completion: When pressing 'enter' on an item that has multiple selections, like _.last (_.lastIndexOf), completion window pops back up on enter. Should identify that case (same base/prefix as last completed item?) and not popup
-- Completion: Sometimes full word is not completed
+- Completion: Sometimes full word is not completed (leaves a prefix of word) - need to isolate a repro
 
 - External popupmenu UI
 
