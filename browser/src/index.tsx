@@ -113,6 +113,17 @@ const start = (args: string[]) => {
         }
     })
 
+    instance.on("show-popup-menu", (completions: any[]) => {
+        const c = completions.map(c => ({
+            kind: "text",
+            label: c[0],
+        }))
+        UI.showCompletions({
+            base: "",
+            completions: c
+        })
+    })
+
     instance.on("error", (err: string) => {
         UI.showNeovimInstallHelp()
     })

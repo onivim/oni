@@ -293,6 +293,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 const newMode = a[0][0]
                 this.emit("action", Actions.changeMode(newMode))
                 this.emit("mode-change", newMode)
+            } else if (command === "popupmenu_show") {
+                const completions = a[0][0]
+                this.emit("show-popup-menu", completions)
             } else {
                 console.warn("Unhandled command: " + command);
             }

@@ -116,7 +116,6 @@ declare namespace Oni {
         }
 
         export interface CompletionResult {
-
             /**
              * Base entry being completed against
              */
