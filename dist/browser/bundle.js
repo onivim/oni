@@ -65,23 +65,23 @@
 	const PluginManager_1 = __webpack_require__(59);
 	const Config = __webpack_require__(9);
 	const UI = __webpack_require__(62);
-	const minimist = __webpack_require__(274);
-	const QuickOpen_1 = __webpack_require__(275);
-	const Formatter_1 = __webpack_require__(276);
-	const Output_1 = __webpack_require__(277);
-	const LiveEvaluation_1 = __webpack_require__(278);
-	const SyntaxHighlighter_1 = __webpack_require__(279);
-	const OverlayManager_1 = __webpack_require__(280);
-	const ErrorOverlay_1 = __webpack_require__(281);
-	const LiveEvaluationOverlay_1 = __webpack_require__(285);
-	const ScrollBarOverlay_1 = __webpack_require__(289);
+	const minimist = __webpack_require__(277);
+	const QuickOpen_1 = __webpack_require__(278);
+	const Formatter_1 = __webpack_require__(279);
+	const Output_1 = __webpack_require__(280);
+	const LiveEvaluation_1 = __webpack_require__(281);
+	const SyntaxHighlighter_1 = __webpack_require__(282);
+	const OverlayManager_1 = __webpack_require__(283);
+	const ErrorOverlay_1 = __webpack_require__(284);
+	const LiveEvaluationOverlay_1 = __webpack_require__(288);
+	const ScrollBarOverlay_1 = __webpack_require__(292);
 	const start = (args) => {
 	    const parsedArgs = minimist(args);
 	    const debugPlugin = parsedArgs["debugPlugin"];
 	    // Helper for debugging:
 	    window["UI"] = UI;
-	    __webpack_require__(299);
-	    __webpack_require__(301);
+	    __webpack_require__(302);
+	    __webpack_require__(304);
 	    var deltaRegion = new DeltaRegionTracker_1.IncrementalDeltaRegionTracker();
 	    var screen = new Screen_1.NeovimScreen(deltaRegion);
 	    const pluginManager = new PluginManager_1.PluginManager(screen, debugPlugin);
@@ -131,6 +131,16 @@
 	        errorOverlay.onVimEvent(eventName, evt);
 	        liveEvaluationOverlay.onVimEvent(eventName, evt);
 	        scrollbarOverlay.onVimEvent(eventName, evt);
+	        if (eventName === "BufEnter") {
+	            // TODO: More convenient way to hide all UI?
+	            UI.hideCompletions();
+	            UI.hidePopupMenu();
+	            UI.hideSignatureHelp();
+	            UI.hideQuickInfo();
+	        }
+	    });
+	    instance.on("error", (err) => {
+	        UI.showNeovimInstallHelp();
 	    });
 	    instance.on("buffer-update", (context, lines) => {
 	        scrollbarOverlay.onBufferUpdate(context, lines);
@@ -18065,6 +18075,8 @@
 	                this._pluginManager.startPlugins(this);
 	                performance.mark("NeovimInstance.Plugins.End");
 	            });
+	        }, (err) => {
+	            this.emit("error", err);
 	        });
 	        this.setFont("Consolas", "14px");
 	    }
@@ -26888,6 +26900,7 @@
 	const RootComponent_1 = __webpack_require__(257);
 	const ActionCreators = __webpack_require__(259);
 	const Reducer_1 = __webpack_require__(273);
+	const InstallHelp_1 = __webpack_require__(274);
 	exports.events = new events_1.EventEmitter();
 	let state = {
 	    cursorPixelX: 10,
@@ -27009,6 +27022,11 @@
 	    const entry = autoCompletion.entries[autoCompletion.selectedIndex];
 	    exports.events.emit(CompletionItemSelectedEvent, entry);
 	}
+	function showNeovimInstallHelp() {
+	    const element = document.getElementById("overlay-ui");
+	    ReactDOM.render(React.createElement(InstallHelp_1.InstallHelp, null), element);
+	}
+	exports.showNeovimInstallHelp = showNeovimInstallHelp;
 	const store = redux_1.createStore(Reducer_1.reducer, state);
 	function init() {
 	    render(state);
@@ -48950,10 +48968,42 @@
 
 	"use strict";
 	const React = __webpack_require__(63);
+	exports.Default = "";
+	exports.Large = "fa-lg";
+	exports.TwoX = "fa-2x";
+	exports.ThreeX = "fa-3x";
+	exports.FourX = "fa-4x";
+	exports.FiveX = "fa-5x";
+	(function (IconSize) {
+	    IconSize[IconSize["Default"] = 0] = "Default";
+	    IconSize[IconSize["Large"] = 1] = "Large";
+	    IconSize[IconSize["TwoX"] = 2] = "TwoX";
+	    IconSize[IconSize["ThreeX"] = 3] = "ThreeX";
+	    IconSize[IconSize["FourX"] = 4] = "FourX";
+	    IconSize[IconSize["FiveX"] = 5] = "FiveX";
+	})(exports.IconSize || (exports.IconSize = {}));
+	var IconSize = exports.IconSize;
 	class Icon extends React.Component {
 	    render() {
-	        const className = "fa fa-" + this.props.name;
+	        const className = "fa fa-" + this.props.name + " " + this._getClassForIconSize(this.props.size);
 	        return React.createElement("i", { className: className, "aria-hidden": "true" });
+	    }
+	    _getClassForIconSize(size) {
+	        const normalizedSize = size || IconSize.Default;
+	        switch (normalizedSize) {
+	            case IconSize.Large:
+	                return exports.Large;
+	            case IconSize.TwoX:
+	                return exports.TwoX;
+	            case IconSize.ThreeX:
+	                return exports.ThreeX;
+	            case IconSize.FourX:
+	                return exports.FourX;
+	            case IconSize.FiveX:
+	                return exports.FiveX;
+	            default:
+	                return exports.Default;
+	        }
 	    }
 	}
 	exports.Icon = Icon;
@@ -49901,6 +49951,76 @@
 
 /***/ },
 /* 274 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const React = __webpack_require__(63);
+	const electron_1 = __webpack_require__(4);
+	const Icon_1 = __webpack_require__(260);
+	__webpack_require__(275);
+	class InstallHelp extends React.Component {
+	    render() {
+	        return React.createElement("div", { className: "install-help" },
+	            React.createElement("div", { className: "title" },
+	                React.createElement(Icon_1.Icon, { name: "warning", size: Icon_1.IconSize.FiveX }),
+	                React.createElement("h1", null, "Unable to launch NeoVim")),
+	            React.createElement("div", { className: "instructions" },
+	                React.createElement("ul", null,
+	                    React.createElement("li", null,
+	                        React.createElement("span", null, "Install NeoVim from here:"),
+	                        React.createElement("a", { href: "#", onClick: (evt) => this._onClick(evt) }, "Installing Neovim")),
+	                    React.createElement("li", null, "Close and re-open Oni"))));
+	    }
+	    _onClick(evt) {
+	        electron_1.remote.shell.openExternal("https://github.com/neovim/neovim/wiki/Installing-Neovim");
+	        evt.preventDefault();
+	    }
+	}
+	exports.InstallHelp = InstallHelp;
+
+
+/***/ },
+/* 275 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(276);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(266)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?-url!./../../../../node_modules/less-loader/index.js!./InstallHelp.less", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js?-url!./../../../../node_modules/less-loader/index.js!./InstallHelp.less");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 276 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(265)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".install-help {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  right: 0px;\n  bottom: 0px;\n  background-color: #282828;\n  color: #c8c8c8;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: column;\n      flex-direction: column;\n  -ms-flex-pack: center;\n      justify-content: center;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.install-help .title {\n  text-align: center;\n}\n.install-help .instructions {\n  margin-bottom: 64px;\n}\n.install-help .instructions li {\n  margin: 8px;\n}\n.install-help .instructions a {\n  color: #32c8ff;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 277 */
 /***/ function(module, exports) {
 
 	module.exports = function (args, opts) {
@@ -50142,7 +50262,7 @@
 
 
 /***/ },
-/* 275 */
+/* 278 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50191,7 +50311,7 @@
 
 
 /***/ },
-/* 276 */
+/* 279 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -50250,7 +50370,7 @@
 
 
 /***/ },
-/* 277 */
+/* 280 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50312,7 +50432,7 @@
 
 
 /***/ },
-/* 278 */
+/* 281 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50391,7 +50511,7 @@
 
 
 /***/ },
-/* 279 */
+/* 282 */
 /***/ function(module, exports) {
 
 	/**
@@ -50438,7 +50558,7 @@
 
 
 /***/ },
-/* 280 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50556,12 +50676,12 @@
 
 
 /***/ },
-/* 281 */
+/* 284 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	const path = __webpack_require__(3);
-	const Error_1 = __webpack_require__(282);
+	const Error_1 = __webpack_require__(285);
 	class ErrorOverlay {
 	    constructor() {
 	        this._errors = {};
@@ -50600,7 +50720,7 @@
 
 
 /***/ },
-/* 282 */
+/* 285 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50616,7 +50736,7 @@
 	const ReactDOM = __webpack_require__(90);
 	const Icon_1 = __webpack_require__(260);
 	const Config = __webpack_require__(9);
-	__webpack_require__(283);
+	__webpack_require__(286);
 	const padding = 8;
 	class Errors extends React.Component {
 	    render() {
@@ -50686,13 +50806,13 @@
 
 
 /***/ },
-/* 283 */
+/* 286 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(284);
+	var content = __webpack_require__(287);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(266)(content, {});
@@ -50712,7 +50832,7 @@
 	}
 
 /***/ },
-/* 284 */
+/* 287 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(265)();
@@ -50726,12 +50846,12 @@
 
 
 /***/ },
-/* 285 */
+/* 288 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	const _ = __webpack_require__(6);
-	const LiveEvalMarker_1 = __webpack_require__(286);
+	const LiveEvalMarker_1 = __webpack_require__(289);
 	class LiveEvaluationOverlay {
 	    constructor() {
 	        this._bufferToBlocks = {};
@@ -50773,7 +50893,7 @@
 
 
 /***/ },
-/* 286 */
+/* 289 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50787,7 +50907,7 @@
 	};
 	const React = __webpack_require__(63);
 	const ReactDOM = __webpack_require__(90);
-	__webpack_require__(287);
+	__webpack_require__(290);
 	class LiveEvalMarkerContainer extends React.Component {
 	    render() {
 	        const blocks = this.props.blocks || [];
@@ -50826,13 +50946,13 @@
 
 
 /***/ },
-/* 287 */
+/* 290 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(288);
+	var content = __webpack_require__(291);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(266)(content, {});
@@ -50852,7 +50972,7 @@
 	}
 
 /***/ },
-/* 288 */
+/* 291 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(265)();
@@ -50866,12 +50986,12 @@
 
 
 /***/ },
-/* 289 */
+/* 292 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	const _ = __webpack_require__(6);
-	const BufferScrollBar_1 = __webpack_require__(290);
+	const BufferScrollBar_1 = __webpack_require__(293);
 	class ScrollBarOverlay {
 	    constructor() {
 	        this._fileToMarkers = {};
@@ -50921,7 +51041,7 @@
 
 
 /***/ },
-/* 290 */
+/* 293 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50935,8 +51055,8 @@
 	};
 	const React = __webpack_require__(63);
 	const ReactDOM = __webpack_require__(90);
-	const Measure = __webpack_require__(291);
-	__webpack_require__(297);
+	const Measure = __webpack_require__(294);
+	__webpack_require__(300);
 	class BufferScrollBar extends React.Component {
 	    constructor(props) {
 	        super(props);
@@ -50984,7 +51104,7 @@
 
 
 /***/ },
-/* 291 */
+/* 294 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50994,7 +51114,7 @@
 	});
 	exports.default = undefined;
 
-	var _Measure = __webpack_require__(292);
+	var _Measure = __webpack_require__(295);
 
 	var _Measure2 = _interopRequireDefault(_Measure);
 
@@ -51004,7 +51124,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 292 */
+/* 295 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51025,7 +51145,7 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _getNodeDimensions = __webpack_require__(293);
+	var _getNodeDimensions = __webpack_require__(296);
 
 	var _getNodeDimensions2 = _interopRequireDefault(_getNodeDimensions);
 
@@ -51041,7 +51161,7 @@
 
 	// only require ResizeObserver polyfill if it isn't available and we aren't in a SSR environment
 	if (isWindowDefined && !window.ResizeObserver) {
-	  window.ResizeObserver = __webpack_require__(296);
+	  window.ResizeObserver = __webpack_require__(299);
 	}
 
 	var Measure = function (_Component) {
@@ -51206,7 +51326,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 293 */
+/* 296 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51218,11 +51338,11 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _getCloneDimensions = __webpack_require__(294);
+	var _getCloneDimensions = __webpack_require__(297);
 
 	var _getCloneDimensions2 = _interopRequireDefault(_getCloneDimensions);
 
-	var _getMargin = __webpack_require__(295);
+	var _getMargin = __webpack_require__(298);
 
 	var _getMargin2 = _interopRequireDefault(_getMargin);
 
@@ -51267,7 +51387,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 294 */
+/* 297 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51279,7 +51399,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _getMargin = __webpack_require__(295);
+	var _getMargin = __webpack_require__(298);
 
 	var _getMargin2 = _interopRequireDefault(_getMargin);
 
@@ -51345,7 +51465,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 295 */
+/* 298 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -51370,7 +51490,7 @@
 	module.exports = exports["default"];
 
 /***/ },
-/* 296 */
+/* 299 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function (global, factory) {
@@ -52513,13 +52633,13 @@
 
 
 /***/ },
-/* 297 */
+/* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(298);
+	var content = __webpack_require__(301);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(266)(content, {});
@@ -52539,7 +52659,7 @@
 	}
 
 /***/ },
-/* 298 */
+/* 301 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(265)();
@@ -52553,13 +52673,13 @@
 
 
 /***/ },
-/* 299 */
+/* 302 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(300);
+	var content = __webpack_require__(303);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(266)(content, {});
@@ -52579,7 +52699,7 @@
 	}
 
 /***/ },
-/* 300 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(265)();
@@ -52593,13 +52713,13 @@
 
 
 /***/ },
-/* 301 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(302);
+	var content = __webpack_require__(305);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(266)(content, {});
@@ -52619,7 +52739,7 @@
 	}
 
 /***/ },
-/* 302 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(265)();
