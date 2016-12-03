@@ -4,27 +4,24 @@ import * as fs from "fs"
 import * as Platform from "./Platform"
 
 const DefaultConfig: any = {
-    // "debug.fixedSize": { rows: 10, columns: 100 }
+    // Debug settings
     "debug.incrementalRenderRegions": false,
 
-    // Experimental background settings
-    // "prototype.editor.backgroundOpacity": 1,
-
+    // Prototype settings
     "prototype.editor.backgroundOpacity": 0.9,
     "prototype.editor.backgroundImageUrl": "http://cdn.wonderfulengineering.com/wp-content/uploads/2014/04/code-wallpaper-2.jpg",
     "prototype.editor.backgroundImageSize": "cover",
 
     "prototype.editor.maxCellsToRender": 12000,
 
+    // Production settings
     "oni.loadPlugins": true,
 
     "editor.fontSize": "14px",
     "editor.quickInfo.enabled": true,
     "editor.completions.enabled": true,
     "editor.errors.slideOnFocus": true,
-
     "editor.formatting.formatOnSwitchToNormalMode": false, // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun
-
 }
 
 const MacConfig: any = {

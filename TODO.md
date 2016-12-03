@@ -1,7 +1,3 @@
-- Regression: Quick info UI
-
-- Markdown preview
-
 - Startup UI if NeoVim not found
     - Landing page design
     - Use warning triangle
@@ -10,16 +6,10 @@
     - https://github.com/neovim/neovim/wiki/Installing-Neovim
     - And FAQ: https://github.com/neovim/neovim/wiki/FAQ
 
-- Animation/Performance: 
-    - No flicker on quickinfo/autocomplete
-        - For quickinfo & parameter help - send up if there are no results to clear, as opposed to clearing on set cursor position
-    - Factor to always show
-    - Why are there problems if it is always showing?
+- Ignore audio volume down / audio volume up keys
+- Add indicator where current cursor line is in scroll bar
 
-- Keybindings
-    - Use 'OniExecute'
-    - Next error / previous error
-    - Plugin handle commands - 'git merge' for example
+- Markdown preview
 
 - External popupmenu UI
 - Create scrollbars
@@ -35,6 +25,13 @@
         - Start moving reducers out
     - Menu
     - Autocomplete
+
+- Refactoring: Refactor common promise completion logic in Oni.ts
+
+- Keybindings
+    - Use 'OniExecute'
+    - Next error / previous error
+    - Plugin handle commands - 'git merge' for example
 
 - Expand to multiple displays
     - require("electron").screen.getALDisplays

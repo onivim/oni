@@ -61,6 +61,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                                 info: quickInfo.title,
                                 documentation: quickInfo.description
                             })
+                        }, (err) => {
+                            Sender.sendError("show-quick-info", originalContext, err)
                         })
                     break
                 case "goto-definition":
@@ -77,6 +79,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                     this._languageService.getCompletions(arg.payload.context)
                         .then(completions => {
                             Sender.send("completion-provider", originalContext, completions)
+                        }, (err) => {
+                            Sender.sendError("completion-provider", originalContext, err)
                         })
                     break
                 case "completion-provider-item-selected":
@@ -104,6 +108,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                     this._languageService.getSignatureHelp(arg.payload.context)
                         .then((val) => {
                             Sender.send("signature-help-response", originalContext, val)
+                        }, (err) => {
+                            Sender.sendError("signature-help-response", originalContext, err)
                         })
 
             }

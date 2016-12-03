@@ -8,6 +8,9 @@
     max-height: 300px;
     overflow-x: hidden;
     overflow-y: auto;
+    animation-name: appear;
+    animation-duration: 0.5s;
+    transition: all 0.5s;
 
     .entry {
         padding: 4px;
@@ -61,3 +64,9 @@
         }
     }
 }
+
+@keyframes appear {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
