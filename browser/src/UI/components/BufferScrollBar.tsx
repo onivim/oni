@@ -39,7 +39,7 @@ export class BufferScrollBar extends React.Component<BufferScrollBarProps, Buffe
     }
 
     public render(): JSX.Element {
-        const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine) / this.props.bufferSize) * this.state.measuredHeight
+        const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine + 1) / this.props.bufferSize) * this.state.measuredHeight
         const windowTop = ((this.props.windowTopLine - 1) / this.props.bufferSize) * this.state.measuredHeight
 
         const windowStyle = {

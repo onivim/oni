@@ -18,3 +18,16 @@ export function send(type: string, originalEventContext: any, payload: any): voi
         payload: payload
     })
 }
+
+export function sendError(type: string, originalEventContext: any, error: string): void {
+    ipcRenderer.send("cross-browser-ipc", {
+        type: type,
+        meta: {
+            senderId: id,
+            destinationId: global["SourceBrowserId"],
+            originEvent: originalEventContext
+        },
+        error: error
+    })
+}
+

@@ -13,10 +13,6 @@ export const reducer = (s: State.State, a: Actions.Action) => {
                 cursorPixelY: a.payload.pixelY,
                 fontPixelWidth: a.payload.fontPixelWidth,
                 fontPixelHeight: a.payload.fontPixelHeight,
-
-                // TODO: Better way to handle this
-                quickInfo: null,
-                signatureHelp: null
             })
         case "SHOW_QUICK_INFO":
             return Object.assign({}, s, {

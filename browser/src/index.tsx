@@ -56,6 +56,7 @@ const start = (args: string[]) => {
 
     var cursor = new Cursor()
 
+
     let pendingTimeout = null
 
     // Services
@@ -74,8 +75,12 @@ const start = (args: string[]) => {
     overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
     overlayManager.addOverlay("scrollbar", scrollbarOverlay)
 
-    pluginManager.on("signature-help-response", (signatureHelp: Oni.Plugin.SignatureHelpResult) => {
-        UI.showSignatureHelp(signatureHelp)
+    pluginManager.on("signature-help-response", (err: string, signatureHelp: Oni.Plugin.SignatureHelpResult) => {
+        if (err) {
+            UI.hideSignatureHelp()
+        } else {
+            UI.showSignatureHelp(signatureHelp)
+        }
     })
 
     pluginManager.on("set-errors", (key, fileName, errors, colors) => {
@@ -122,18 +127,21 @@ const start = (args: string[]) => {
     instance.on("mode-change", (newMode: string) => {
         if (newMode === "normal") {
             UI.hideCompletions()
+            UI.hideSignatureHelp()
         } else if (newMode === "insert") {
             UI.hideQuickInfo()
         }
     })
 
     const renderFunction = () => {
+        if(pendingTimeout) {
+            UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
+        }
+
         renderer.update(screen, deltaRegion);
         cursor.update(screen)
         deltaRegion.cleanUpRenderedCells()
 
-        // TODO: Move cursor to component
-        UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
 
         window.requestAnimationFrame(() => renderFunction())
     }
@@ -141,6 +149,9 @@ const start = (args: string[]) => {
     renderFunction()
 
     const updateFunction = () => {
+        // TODO: Move cursor to component
+        UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
+
         UI.setBackgroundColor(screen.backgroundColor)
 
         clearTimeout(pendingTimeout)

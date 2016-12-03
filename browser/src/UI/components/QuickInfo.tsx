@@ -16,6 +16,8 @@ export interface QuickInfoProps {
 export class QuickInfo extends React.Component<QuickInfoProps, void> {
 
     public render(): JSX.Element {
+        if (!this.props.elements || !this.props.elements.length)
+            return null
 
         const containerStyle = {
             position: "absolute",

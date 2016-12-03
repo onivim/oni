@@ -175,7 +175,11 @@ export class PluginManager extends EventEmitter {
             if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
                 return
 
-            setTimeout(() => UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation), 50)
+            if (!pluginResponse.error) {
+                setTimeout(() => UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation))
+            } else {
+                setTimeout(() => UI.hideQuickInfo())
+            }
         } else if (pluginResponse.type === "goto-definition") {
             if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
                 return
@@ -206,7 +210,7 @@ export class PluginManager extends EventEmitter {
         } else if(pluginResponse.type === "clear-syntax-highlights") {
             this.emit("clear-syntax-highlights", pluginResponse.payload)
         } else if(pluginResponse.type === "signature-help-response") {
-            this.emit("signature-help-response", pluginResponse.payload)
+            this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
         }
     }
 

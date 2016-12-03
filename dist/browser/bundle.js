@@ -105,8 +105,13 @@
 	    overlayManager.addOverlay("errors", errorOverlay);
 	    overlayManager.addOverlay("live-eval", liveEvaluationOverlay);
 	    overlayManager.addOverlay("scrollbar", scrollbarOverlay);
-	    pluginManager.on("signature-help-response", (signatureHelp) => {
-	        UI.showSignatureHelp(signatureHelp);
+	    pluginManager.on("signature-help-response", (err, signatureHelp) => {
+	        if (err) {
+	            UI.hideSignatureHelp();
+	        }
+	        else {
+	            UI.showSignatureHelp(signatureHelp);
+	        }
 	    });
 	    pluginManager.on("set-errors", (key, fileName, errors, colors) => {
 	        errorOverlay.setErrors(key, fileName, errors, colors);
@@ -144,21 +149,25 @@
 	    instance.on("mode-change", (newMode) => {
 	        if (newMode === "normal") {
 	            UI.hideCompletions();
+	            UI.hideSignatureHelp();
 	        }
 	        else if (newMode === "insert") {
 	            UI.hideQuickInfo();
 	        }
 	    });
 	    const renderFunction = () => {
+	        if (pendingTimeout) {
+	            UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels);
+	        }
 	        renderer.update(screen, deltaRegion);
 	        cursor.update(screen);
 	        deltaRegion.cleanUpRenderedCells();
-	        // TODO: Move cursor to component
-	        UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels);
 	        window.requestAnimationFrame(() => renderFunction());
 	    };
 	    renderFunction();
 	    const updateFunction = () => {
+	        // TODO: Move cursor to component
+	        UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels);
 	        UI.setBackgroundColor(screen.backgroundColor);
 	        clearTimeout(pendingTimeout);
 	        pendingTimeout = null;
@@ -17528,14 +17537,14 @@
 	const fs = __webpack_require__(10);
 	const Platform = __webpack_require__(11);
 	const DefaultConfig = {
-	    // "debug.fixedSize": { rows: 10, columns: 100 }
+	    // Debug settings
 	    "debug.incrementalRenderRegions": false,
-	    // Experimental background settings
-	    // "prototype.editor.backgroundOpacity": 1,
+	    // Prototype settings
 	    "prototype.editor.backgroundOpacity": 0.9,
 	    "prototype.editor.backgroundImageUrl": "http://cdn.wonderfulengineering.com/wp-content/uploads/2014/04/code-wallpaper-2.jpg",
 	    "prototype.editor.backgroundImageSize": "cover",
 	    "prototype.editor.maxCellsToRender": 12000,
+	    // Production settings
 	    "oni.loadPlugins": true,
 	    "editor.fontSize": "14px",
 	    "editor.quickInfo.enabled": true,
@@ -26439,7 +26448,12 @@
 	        if (pluginResponse.type === "show-quick-info") {
 	            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
 	                return;
-	            setTimeout(() => UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation), 50);
+	            if (!pluginResponse.error) {
+	                setTimeout(() => UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation));
+	            }
+	            else {
+	                setTimeout(() => UI.hideQuickInfo());
+	            }
 	        }
 	        else if (pluginResponse.type === "goto-definition") {
 	            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
@@ -26478,7 +26492,7 @@
 	            this.emit("clear-syntax-highlights", pluginResponse.payload);
 	        }
 	        else if (pluginResponse.type === "signature-help-response") {
-	            this.emit("signature-help-response", pluginResponse.payload);
+	            this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload);
 	        }
 	    }
 	    /**
@@ -49370,6 +49384,8 @@
 	__webpack_require__(268);
 	class QuickInfo extends React.Component {
 	    render() {
+	        if (!this.props.elements || !this.props.elements.length)
+	            return null;
 	        const containerStyle = {
 	            position: "absolute",
 	            top: this.props.y.toString() + "px",
@@ -49515,7 +49531,7 @@
 
 
 	// module
-	exports.push([module.id, ".quickinfo {\n  background-color: #282828;\n  border: 1px solid gray;\n  padding: 4px;\n  box-shadow: 4px 4px rgba(0, 0, 0, 0.2);\n  color: #c8c8c8;\n  max-width: 500px;\n}\n.quickinfo .title {\n  width: 100%;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  margin: 4px;\n}\n.quickinfo .documentation {\n  margin: 4px;\n  color: #32c8ff;\n  font-size: 11px;\n}\n.quickinfo .selected {\n  font-style: italic;\n  text-decoration: underline;\n}\n", ""]);
+	exports.push([module.id, ".quickinfo-container {\n  transition: all 0.5s;\n  animation-name: appear;\n  animation-duration: 0.5s;\n}\n.quickinfo-container .quickinfo {\n  background-color: #282828;\n  border: 1px solid gray;\n  padding: 4px;\n  box-shadow: 4px 4px rgba(0, 0, 0, 0.2);\n  color: #c8c8c8;\n  max-width: 500px;\n}\n.quickinfo-container .quickinfo .title {\n  width: 100%;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  margin: 4px;\n}\n.quickinfo-container .quickinfo .documentation {\n  margin: 4px;\n  color: #32c8ff;\n  font-size: 11px;\n}\n.quickinfo-container .quickinfo .selected {\n  font-style: italic;\n  text-decoration: underline;\n}\n@keyframes appear {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n", ""]);
 
 	// exports
 
@@ -49684,7 +49700,7 @@
 
 
 	// module
-	exports.push([module.id, ".autocompletion {\n  background-color: #282828;\n  border: 1px solid gray;\n  box-shadow: 4px 4px rgba(0, 0, 0, 0.2);\n  color: #c8c8c8;\n  max-width: 800px;\n  max-height: 300px;\n  overflow-x: hidden;\n  overflow-y: auto;\n}\n.autocompletion .entry {\n  padding: 4px;\n}\n.autocompletion .entry.selected {\n  background-color: #3c3c3c;\n}\n.autocompletion .entry .main {\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: row;\n      flex-direction: row;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.autocompletion .entry .main i {\n  margin-left: 4px;\n  margin-right: 4px;\n  font-size: 10px;\n}\n.autocompletion .entry .label {\n  -ms-flex: 1 0 auto;\n      flex: 1 0 auto;\n  min-width: 100px;\n}\n.autocompletion .entry .label .highlight {\n  font-weight: bold;\n  font-style: italic;\n  color: #32c8ff;\n}\n.autocompletion .entry .detail {\n  -ms-flex: 0 1 auto;\n      flex: 0 1 auto;\n  min-width: 50px;\n  text-align: right;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 16px;\n  color: rgba(100, 100, 100, 0.6);\n  font-size: 11px;\n}\n.autocompletion .entry .documentation {\n  font-size: 10px;\n  color: #32c8ff;\n}\n", ""]);
+	exports.push([module.id, ".autocompletion {\n  background-color: #282828;\n  border: 1px solid gray;\n  box-shadow: 4px 4px rgba(0, 0, 0, 0.2);\n  color: #c8c8c8;\n  max-width: 800px;\n  max-height: 300px;\n  overflow-x: hidden;\n  overflow-y: auto;\n  animation-name: appear;\n  animation-duration: 0.5s;\n  transition: all 0.5s;\n}\n.autocompletion .entry {\n  padding: 4px;\n}\n.autocompletion .entry.selected {\n  background-color: #3c3c3c;\n}\n.autocompletion .entry .main {\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: row;\n      flex-direction: row;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.autocompletion .entry .main i {\n  margin-left: 4px;\n  margin-right: 4px;\n  font-size: 10px;\n}\n.autocompletion .entry .label {\n  -ms-flex: 1 0 auto;\n      flex: 1 0 auto;\n  min-width: 100px;\n}\n.autocompletion .entry .label .highlight {\n  font-weight: bold;\n  font-style: italic;\n  color: #32c8ff;\n}\n.autocompletion .entry .detail {\n  -ms-flex: 0 1 auto;\n      flex: 0 1 auto;\n  min-width: 50px;\n  text-align: right;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 16px;\n  color: rgba(100, 100, 100, 0.6);\n  font-size: 11px;\n}\n.autocompletion .entry .documentation {\n  font-size: 10px;\n  color: #32c8ff;\n}\n@keyframes appear {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n", ""]);
 
 	// exports
 
@@ -49703,9 +49719,6 @@
 	                cursorPixelY: a.payload.pixelY,
 	                fontPixelWidth: a.payload.fontPixelWidth,
 	                fontPixelHeight: a.payload.fontPixelHeight,
-	                // TODO: Better way to handle this
-	                quickInfo: null,
-	                signatureHelp: null
 	            });
 	        case "SHOW_QUICK_INFO":
 	            return Object.assign({}, s, {
@@ -50928,7 +50941,7 @@
 	        });
 	    }
 	    render() {
-	        const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine) / this.props.bufferSize) * this.state.measuredHeight;
+	        const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine + 1) / this.props.bufferSize) * this.state.measuredHeight;
 	        const windowTop = ((this.props.windowTopLine - 1) / this.props.bufferSize) * this.state.measuredHeight;
 	        const windowStyle = {
 	            top: windowTop + "px",

@@ -89,6 +89,8 @@ declare namespace Oni {
         export interface QuickInfo {
             title: string
             description: string
+
+            error?: string
         }
 
         export interface GotoDefinitionResponse extends Position {
@@ -118,9 +120,10 @@ declare namespace Oni {
             /**
              * Base entry being completed against
              */
-            base: string;
+            base: string
+            completions: CompletionInfo[]
 
-            completions: CompletionInfo[];
+            error?: string
         }
 
         export interface SyntaxHighlight {
@@ -165,6 +168,8 @@ declare namespace Oni {
             selectedItemIndex: number
             argumentIndex: number
             argumentCount: number
+
+            error?: string
         }
 
         export interface LanguageService {
