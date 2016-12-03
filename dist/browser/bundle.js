@@ -17568,7 +17568,7 @@
 	const WindowsConfig = {
 	    "editor.fontFamily": "Consolas"
 	};
-	const DefaultPlatformConfig = Platform.isMac() ? MacConfig : WindowsConfig;
+	const DefaultPlatformConfig = Platform.isWindows() ? WindowsConfig : MacConfig;
 	const userConfigFile = path.join(Platform.getUserHome(), ".oni", "config.json");
 	let userConfig = {};
 	if (fs.existsSync(userConfigFile)) {
@@ -17597,7 +17597,6 @@
 
 	"use strict";
 	const os = __webpack_require__(12);
-	exports.isMac = () => os.platform() === "darwin";
 	exports.isWindows = () => os.platform() === "win32";
 	exports.getUserHome = () => {
 	    return exports.isWindows() ? process.env["USERPROFILE"] : process.env["HOME"];
@@ -18001,7 +18000,6 @@
 	const events_1 = __webpack_require__(17);
 	const path = __webpack_require__(3);
 	const cp = __webpack_require__(18);
-	const os = __webpack_require__(12);
 	const Q = __webpack_require__(19);
 	const electron_1 = __webpack_require__(4);
 	const attach = __webpack_require__(20);
@@ -18010,6 +18008,7 @@
 	const Config = __webpack_require__(9);
 	const Buffer_1 = __webpack_require__(53);
 	const Window_1 = __webpack_require__(54);
+	const Platform = __webpack_require__(11);
 	/**
 	 * Integration with NeoVim API
 	 */
@@ -18219,12 +18218,10 @@
 	exports.NeovimInstance = NeovimInstance;
 	var attachAsPromise = Q.denodeify(attach);
 	function startNeovim(initVimPath, args) {
-	    const isOSX = os.platform() === "darwin";
 	    const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe");
-	    // For Mac, assume there is a locally installed neovim
-	    // TODO: Instructions if neovim ins not installed
+	    // For Mac / Linux, assume there is a locally installed neovim
 	    const nvimMacProcessPath = "nvim";
-	    const nvimProcessPath = isOSX ? nvimMacProcessPath : nvimWindowsProcessPath;
+	    const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : nvimMacProcessPath;
 	    var argsToPass = ['-u', initVimPath, '-N', '--embed', "--"].concat(args);
 	    var nvim_proc = cp.spawn(nvimProcessPath, argsToPass, {});
 	    return attachAsPromise(nvim_proc.stdin, nvim_proc.stdout);

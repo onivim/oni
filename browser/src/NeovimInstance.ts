@@ -14,6 +14,7 @@ import { PixelPosition, Position } from "./Screen"
 import { PluginManager } from "./Plugins/PluginManager"
 import { Buffer, IBuffer } from "./neovim/Buffer"
 import { Window, IWindow } from "./neovim/Window"
+import * as Platform from "./Platform"
 
 export interface INeovimInstance {
     cursorPosition: Position;
@@ -293,13 +294,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 var attachAsPromise = Q.denodeify(attach)
 
 function startNeovim(initVimPath, args): Q.IPromise<any> {
-    const isOSX = os.platform() === "darwin"
 
     const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
-    // For Mac, assume there is a locally installed neovim
-    // TODO: Instructions if neovim ins not installed
+
+    // For Mac / Linux, assume there is a locally installed neovim
     const nvimMacProcessPath = "nvim"
-    const nvimProcessPath = isOSX ? nvimMacProcessPath : nvimWindowsProcessPath
+    const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : nvimMacProcessPath 
 
     var argsToPass = ['-u', initVimPath, '-N', '--embed', "--"].concat(args)
 
