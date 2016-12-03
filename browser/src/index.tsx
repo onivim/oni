@@ -103,6 +103,14 @@ const start = (args: string[]) => {
         errorOverlay.onVimEvent(eventName, evt)
         liveEvaluationOverlay.onVimEvent(eventName, evt)
         scrollbarOverlay.onVimEvent(eventName, evt)
+
+        if (eventName === "BufEnter") {
+            // TODO: More convenient way to hide all UI?
+            UI.hideCompletions()
+            UI.hidePopupMenu()
+            UI.hideSignatureHelp()
+            UI.hideQuickInfo()
+        }
     })
 
     instance.on("buffer-update", (context, lines) => {
@@ -133,7 +141,7 @@ const start = (args: string[]) => {
     })
 
     const renderFunction = () => {
-        if(pendingTimeout) {
+        if (pendingTimeout) {
             UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
         }
 

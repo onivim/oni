@@ -6,26 +6,15 @@
     - https://github.com/neovim/neovim/wiki/Installing-Neovim
     - And FAQ: https://github.com/neovim/neovim/wiki/FAQ
 
-- Add indicator where current cursor line is in scroll bar
-
 - Markdown preview
 
+- Single-instance language service
+    - Way to pass configuration variables downwards to plugins
+
+- Completion: When pressing 'enter' on an item that has multiple selections, like _.last (_.lastIndexOf), completion window pops back up on enter. Should identify that case (same base/prefix as last completed item?) and not popup
+- Completion: Sometimes full word is not completed
+
 - External popupmenu UI
-- Create scrollbars
-    - For Menu/AutoComplete, need to fix viewport
-        const viewPortReducer = viewportReducer(NEXT_ACTION, PREVIOUS_ACTION)
-        Object.assign({}, s, {
-            viewport: viewportReducer(action, viewportSize, itemCount, currentViewport)
-        })
-
-        viewport:
-            viewStartIndex
-            selectedIndex
-        - Start moving reducers out
-    - Menu
-    - Autocomplete
-
-- Refactoring: Refactor common promise completion logic in Oni.ts
 
 - Keybindings
     - Use 'OniExecute'
@@ -41,12 +30,26 @@
         require('electron').remote.getCurrentWindow().setPosition(x, y)
         require("electron").remote.getCurrentWindow().setSize(.., ..)
 
+- Refactoring: Refactor common promise completion logic in Oni.ts
+
 - Refactoring: Consolidate overlay strategies
     - Fix window management issues
     - Persist overlays for buffer
     - Create a 'marker' host that can render based on a common interface
 
-- Completion: When pressing 'enter' on an item that has multiple selections, like _.last (_.lastIndexOf), completion window pops back up on enter. Should identify that case (same base/prefix as last completed item?) and not popup
+- Create scrollbars
+    - For Menu/AutoComplete, need to fix viewport
+        const viewPortReducer = viewportReducer(NEXT_ACTION, PREVIOUS_ACTION)
+        Object.assign({}, s, {
+            viewport: viewportReducer(action, viewportSize, itemCount, currentViewport)
+        })
+
+        viewport:
+            viewStartIndex
+            selectedIndex
+        - Start moving reducers out
+    - Menu
+    - Autocomplete
 
 - Syntax highlighting - 
     - only update if item changed
