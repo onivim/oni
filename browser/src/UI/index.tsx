@@ -10,7 +10,7 @@ import * as Config from "./../Config"
 import * as State from "./State"
 import { RootComponent } from "./RootComponent"
 
-import * as Actions from "./Actions"
+// import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
 import { reducer } from "./Reducer"
 
@@ -18,7 +18,7 @@ import { InstallHelp } from "./components/InstallHelp"
 
 export const events = new EventEmitter()
 
-let state: State.State = {
+let state: State.IState = {
     cursorPixelX: 10,
     cursorPixelY: 10,
     fontPixelWidth: 10,
@@ -77,8 +77,8 @@ export function previousPopupMenuItem(): void {
 }
 
 export function selectPopupMenuItem(openInSplit: boolean): void {
-    const selectedIndex = store.getState().popupMenu.selectedIndex
-    const selectedOption = store.getState().popupMenu.filteredOptions[selectedIndex]
+    const selectedIndex = (store.getState().popupMenu as any).selectedIndex // FIXME: null
+    const selectedOption = (store.getState().popupMenu as any).filteredOptions[selectedIndex] // FIXME: null
 
     events.emit("menu-item-selected", {
         selectedOption: selectedOption,
@@ -107,12 +107,12 @@ export function areCompletionsVisible(): boolean {
         return true
 
     // In the case of a single entry, should not be visible if the base is equal to the selected item
-    return autoCompletion.base !== getSelectedCompletion()
+    return autoCompletion != null && autoCompletion.base !== getSelectedCompletion()
 }
 
-export function getSelectedCompletion(): string {
+export function getSelectedCompletion(): null | string {
     const autoCompletion = store.getState().autoCompletion
-    return autoCompletion.entries[autoCompletion.selectedIndex].label
+    return autoCompletion ? autoCompletion.entries[autoCompletion.selectedIndex].label : null;
 }
 
 export function showCompletions(result: Oni.Plugin.CompletionResult): void {
@@ -146,9 +146,10 @@ export function previousCompletion(): void {
 
 function emitCompletionItemSelectedEvent(): void {
     const autoCompletion = store.getState().autoCompletion
-    const entry = autoCompletion.entries[autoCompletion.selectedIndex]
-
-    events.emit(CompletionItemSelectedEvent, entry)
+    if (autoCompletion != null) {
+        const entry = autoCompletion.entries[autoCompletion.selectedIndex]
+        events.emit(CompletionItemSelectedEvent, entry)
+    }
 }
 
 export function showNeovimInstallHelp(): void {
@@ -162,7 +163,7 @@ export function init(): void {
     render(state)
 }
 
-function render(state: State.State): void {
+function render(_state: State.IState): void {
     const element = document.getElementById("overlay-ui")
     ReactDOM.render(
         <Provider store={store}>

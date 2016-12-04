@@ -1,10 +1,10 @@
 import * as Actions from "./actions"
+import { IDeltaRegionTracker } from "./DeltaRegionTracker"
 import { Grid } from "./Grid"
-import { DeltaRegionTracker } from "./DeltaRegionTracker"
 
-export type Mode = "insert" | "normal";
+export type Mode = "insert" | "normal"
 
-export interface Highlight {
+export interface IHighlight {
     bold?: boolean
     italic?: boolean
     reverse?: boolean
@@ -15,95 +15,82 @@ export interface Highlight {
     backgroundColor?: string
 }
 
-export interface Screen {
-    width: number;
-    height: number;
-
-    fontFamily: string;
-    fontSize: string;
-    fontWidthInPixels: number;
-    fontHeightInPixels: number;
-
-    getCell(x: number, y: number): Cell;
-    dispatch(action: Actions.Action): void;
-
-    cursorRow: number;
-    cursorColumn: number;
-    mode: string;
-
+export interface IScreen {
     backgroundColor: string
-    foregroundColor: string
-
-    currentForegroundColor: string
     currentBackgroundColor: string
-
-    getScrollRegion(): ScrollRegion
+    currentForegroundColor: string
+    cursorColumn: number
+    cursorRow: number
+    fontFamily: null | string
+    fontHeightInPixels: number
+    fontSize: null | string
+    fontWidthInPixels: number
+    foregroundColor: string
+    height: number
+    mode: string
+    width: number
+    dispatch(action: Actions.IAction): void
+    getCell(x: number, y: number): ICell
+    getScrollRegion(): IScrollRegion
 }
 
-export interface Cell {
-    character: string;
-    foregroundColor?: string;
-    backgroundColor?: string;
+export interface ICell {
+    character: string
+    foregroundColor?: string
+    backgroundColor?: string
 }
 
-export interface PixelPosition {
-    x: number;
-    y: number;
+export interface IPixelPosition {
+    x: number
+    y: number
 }
 
-export interface Position {
-    row: number;
-    column: number;
+export interface IPosition {
+    row: number
+    column: number
 }
 
-export interface ScrollRegion {
+export interface IScrollRegion {
     top: number
     bottom: number
     left: number
     right: number
 }
 
-export class NeovimScreen implements Screen {
-
-    private _cursorRow: number = 0
-    private _cursorColumn: number = 0
-    private _width: number = 80;
-    private _height: number = 40;
-
-    private _grid: Grid<Cell> = new Grid<Cell>()
-
-    private _fontFamily: string = null;
-    private _fontSize: string = null;
-    private _fontWidthInPixels: number;
-    private _fontHeightInPixels: number;
-
-    private _mode: Mode = "normal";
+export class NeovimScreen implements IScreen {
     private _backgroundColor: string = "#000000"
+    private _currentHighlight: IHighlight = {}
+    private _cursorColumn: number = 0
+    private _cursorRow: number = 0
+    private _deltaTracker: IDeltaRegionTracker
+    private _fontFamily: null | string = null
+    private _fontHeightInPixels: number
+    private _fontSize: null | string = null
+    private _fontWidthInPixels: number
     private _foregroundColor: string = "#00FF00"
+    private _grid: Grid<ICell> = new Grid<ICell>()
+    private _height: number = 40
+    private _mode: Mode = "normal"
+    private _scrollRegion: IScrollRegion
+    private _width: number = 80
 
-    private _currentHighlight: Highlight = {};
-
-    private _scrollRegion: ScrollRegion;
-
-    private _deltaTracker: DeltaRegionTracker;
-
-    constructor(deltaTracker: DeltaRegionTracker) {
+    constructor(deltaTracker: IDeltaRegionTracker) {
         this._deltaTracker = deltaTracker
     }
 
     public get width(): number {
-        return this._width;
+        return this._width
     }
 
     public get height(): number {
-        return this._height;
+        return this._height
     }
 
-    public get fontFamily(): string {
+    public get fontFamily(): null | string {
         return this._fontFamily
     }
 
-    public get fontSize(): string {
+    public get fontSize(): null | string {
         return this._fontSize
     }
 
@@ -143,32 +130,18 @@ export class NeovimScreen implements Screen {
         return this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor
     }
 
-    public getCell(x: number, y: number): Cell {
-        var defaultCell = {
-            character: ""
+    public getCell(x: number, y: number): ICell {
+        const defaultCell = {
+            character: "",
         }
 
-        var cell = this._grid.getCell(x, y)
+        const cell = this._grid.getCell(x, y)
 
-        if (cell)
+        if (cell) {
             return cell
-        else
+        } else {
             return defaultCell
-    }
-
-    private _setCell(x: number, y: number, cell: Cell): void {
-
-        const currentCell = this._grid.getCell(x, y);
-
-        if (currentCell) {
-            if (currentCell.foregroundColor === cell.foregroundColor
-                && currentCell.backgroundColor === cell.backgroundColor
-                && currentCell.character === cell.character)
-                return;
         }
-
-        this._deltaTracker.notifyCellModified(x, y)
-        this._grid.setCell(x, y, cell)
     }
 
     public dispatch(action: any): void {
@@ -176,53 +149,53 @@ export class NeovimScreen implements Screen {
             case Actions.CursorGotoType:
                 this._cursorRow = action.row
                 this._cursorColumn = action.col
-                break;
-            case Actions.PutAction:
-
-                var foregroundColor = this._currentHighlight.foregroundColor ? this._currentHighlight.foregroundColor : this._foregroundColor
-                var backgroundColor = this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor
+                break
+            case Actions.PutAction: {
+                let foregroundColor = this._currentHighlight.foregroundColor ? this._currentHighlight.foregroundColor : this._foregroundColor
+                let backgroundColor = this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor
 
                 if (this._currentHighlight.reverse) {
-                    var temp = foregroundColor;
+                    const temp = foregroundColor
                     foregroundColor = backgroundColor
-                    backgroundColor = foregroundColor
+                    backgroundColor = temp
                 }
 
-                var characters = action.characters
-
-                var row = this._cursorRow
-                var col = this._cursorColumn
+                const characters = action.characters
+                const row = this._cursorRow
+                const col = this._cursorColumn
 
                 for (let i = 0; i < characters.length; i++) {
                     this._setCell(col + i, row, {
-                        foregroundColor: foregroundColor,
-                        backgroundColor: backgroundColor,
-                        character: characters[i]
+                        foregroundColor,
+                        backgroundColor,
+                        character: characters[i],
                     })
                 }
 
                 this._cursorColumn += characters.length
-                break;
-            case Actions.CLEAR_TO_END_OF_LINE:
-                var foregroundColor = this._currentHighlight.foregroundColor ? this._currentHighlight.foregroundColor : this._foregroundColor
-                var backgroundColor = this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor
+                break
+            }
+            case Actions.CLEAR_TO_END_OF_LINE: {
+                const foregroundColor = this._currentHighlight.foregroundColor ? this._currentHighlight.foregroundColor : this._foregroundColor
+                const backgroundColor = this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor
 
-                var row = this._cursorRow
+                const row = this._cursorRow
                 for (let i = this._cursorColumn; i < this.width; i++) {
                     this._setCell(i, row, {
-                        foregroundColor: foregroundColor,
-                        backgroundColor: backgroundColor,
-                        character: ""
+                        foregroundColor,
+                        backgroundColor,
+                        character: "",
                     })
                 }
                 break
+            }
             case Actions.CLEAR:
                 this._grid.clear()
                 this._notifyAllCellsModified()
                 break
             case Actions.RESIZE:
-                this._width = action.columns;
-                this._height = action.rows;
+                this._width = action.columns
+                this._height = action.rows
                 this._notifyAllCellsModified()
                 break
             case Actions.SET_FONT:
@@ -250,49 +223,65 @@ export class NeovimScreen implements Screen {
                     top: action.top,
                     bottom: action.bottom,
                     left: action.left,
-                    right: action.right
+                    right: action.right,
                 }
                 break
-            case Actions.SCROLL:
+            case Actions.SCROLL: {
                 const { top, bottom, left, right } = this.getScrollRegion()
                 const count = action.scroll
 
-                var width = right - left;
-                var height = bottom - top;
-                var regionToScroll = this._grid.cloneRegion(left, top, width + 1, height + 1)
+                const width = right - left
+                const height = bottom - top
+                const regionToScroll = this._grid.cloneRegion(left, top, width + 1, height + 1)
 
                 regionToScroll.shiftRows(count, {
-                    character: ""
+                    character: "",
                 })
 
                 this._grid.setRegionFromGrid(regionToScroll, left, top)
 
-                for (var y = top; y < bottom; y++) {
-                    for (var x = left; x < right; x++) {
+                for (let y = top; y < bottom; y++) {
+                    for (let x = left; x < right; x++) {
                         this._deltaTracker.notifyCellModified(x, y)
                     }
                 }
 
                 break
+            }
+            default:
+                break
         }
     }
 
-    public getScrollRegion(): ScrollRegion {
-        if (this._scrollRegion)
-            return this._scrollRegion;
-        else
+    public getScrollRegion(): IScrollRegion {
+        if (this._scrollRegion) {
+            return this._scrollRegion
+        } else {
             return {
                 top: 0,
                 bottom: this.height,
                 left: 0,
-                right: this.width
-
+                right: this.width,
             }
+        }
+    }
+
+    private _setCell(x: number, y: number, cell: ICell): void {
+        const currentCell = this._grid.getCell(x, y)
+        if (currentCell) {
+            if (currentCell.foregroundColor === cell.foregroundColor &&
+                currentCell.backgroundColor === cell.backgroundColor &&
+                currentCell.character === cell.character) {
+                return
+            }
+        }
+        this._deltaTracker.notifyCellModified(x, y)
+        this._grid.setCell(x, y, cell)
     }
 
     private _notifyAllCellsModified(): void {
-        for (var x = 0; x < this.width; x++) {
-            for (var y = 0; y < this.height; y++) {
+        for (let x = 0; x < this.width; x++) {
+            for (let y = 0; y < this.height; y++) {
                 this._deltaTracker.notifyCellModified(x, y)
             }
         }

@@ -1,12 +1,12 @@
 "use strict";
-var path = require("path");
-var os = require("os");
-var TypeScriptServerHost_1 = require("./TypeScriptServerHost");
-var QuickInfo_1 = require("./QuickInfo");
 var _ = require("lodash");
+var os = require("os");
+var path = require("path");
+var QuickInfo_1 = require("./QuickInfo");
+var TypeScriptServerHost_1 = require("./TypeScriptServerHost");
 var host = new TypeScriptServerHost_1.TypeScriptServerHost();
 var quickInfo = new QuickInfo_1.QuickInfo(Oni, host);
-var findParentDir = require("find-parent-dir");
+var findParentDir = require("find-parent-dir"); // tslint:disable-line no-var-requires
 var lastOpenFile = null;
 var lastBuffer = [];
 // Testing Live evaluation
@@ -26,7 +26,7 @@ var getQuickInfo = function (textDocumentPosition) {
         .then(function (val) {
         return {
             title: val.displayString,
-            description: val.documentation
+            description: val.documentation,
         };
     });
 };
@@ -37,7 +37,7 @@ var getDefinition = function (textDocumentPosition) {
         return {
             filePath: val.file,
             line: val.start.line,
-            column: val.start.offset
+            column: val.start.offset,
         };
     });
 };
@@ -47,22 +47,22 @@ var getFormattingEdits = function (position) {
         var edits = val.map(function (v) {
             var start = {
                 line: v.start.line,
-                column: v.start.offset
+                column: v.start.offset,
             };
             var end = {
                 line: v.end.line,
-                column: v.end.offset
+                column: v.end.offset,
             };
             return {
                 start: start,
                 end: end,
-                newValue: v.newText
+                newValue: v.newText,
             };
         });
         return {
             filePath: position.bufferFullPath,
             version: position.version,
-            edits: edits
+            edits: edits,
         };
     });
 };
@@ -85,26 +85,26 @@ var evaluateBlock = function (context, id, fileName, code) {
         __dirname: path.dirname(fileName),
         require: function (requirePath) {
             try {
-                var path = require("path");
+                var path_1 = require("path");
                 // See if this is a 'node_modules' dependency:
-                var modulePath = findParentDir.sync(__dirname, path.join("node_modules", requirePath));
+                var modulePath = findParentDir.sync(__dirname, path_1.join("node_modules", requirePath));
                 if (modulePath) {
-                    requirePath = path.join(modulePath, "node_modules", requirePath);
+                    requirePath = path_1.join(modulePath, "node_modules", requirePath);
                 }
                 return mod.require(requirePath);
             }
             catch (ex) {
                 // TODO: Log require error here
-                debugger;
+                debugger; // tslint:disable-line no-debugger
             }
-        }
+        },
     };
     var result = script.runInNewContext(sandbox);
     var initialResult = {
         id: id,
         fileName: fileName,
         output: null,
-        errors: null
+        errors: null,
     };
     if (result.then) {
         return result.then(function (val) { return (_.extend({}, initialResult, {
@@ -112,13 +112,13 @@ var evaluateBlock = function (context, id, fileName, code) {
             variables: util.inspect(sandbox),
         })); }, function (err) { return (_.extend({}, initialResult, {
             variables: util.inspect(sandbox),
-            errors: [err]
+            errors: [err],
         })); });
     }
     else {
         return Promise.resolve(_.extend({}, initialResult, {
             result: util.inspect(result),
-            variables: util.inspect(sandbox)
+            variables: util.inspect(sandbox),
         }));
     }
 };
@@ -130,50 +130,55 @@ var getCompletionDetails = function (textDocumentPosition, completionItem) {
             kind: entry.kind,
             label: entry.name,
             documentation: entry.documentation && entry.documentation.length ? entry.documentation[0].text : null,
-            detail: convertToDisplayString(entry.displayParts)
+            detail: convertToDisplayString(entry.displayParts),
         };
     });
 };
 var getCompletions = function (textDocumentPosition) {
-    if (textDocumentPosition.column <= 1)
+    if (textDocumentPosition.column <= 1) {
         return Promise.resolve({
-            completions: []
+            completions: [],
         });
+    }
     var currentLine = lastBuffer[textDocumentPosition.line - 1];
     var col = textDocumentPosition.column - 2;
     var currentPrefix = "";
     while (col >= 0) {
         var currentCharacter = currentLine[col];
-        if (!currentCharacter.match(/[_a-z]/i))
+        if (!currentCharacter.match(/[_a-z]/i)) {
             break;
+        }
         currentPrefix = currentCharacter + currentPrefix;
         col--;
     }
     var basePos = col;
-    if (currentPrefix.length === 0 && currentLine[basePos] !== ".")
+    if (currentPrefix.length === 0 && currentLine[basePos] !== ".") {
         return Promise.resolve({
             base: currentPrefix,
-            completions: []
+            completions: [],
         });
-    console.log("Get completions: current line " + currentLine);
+    }
+    console.log("Get completions: current line " + currentLine); // tslint:disable-line no-console
     return host.getCompletions(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, currentPrefix)
         .then(function (val) {
         var results = val
             .filter(function (v) { return v.name.indexOf(currentPrefix) === 0 || currentPrefix.length === 0; })
             .map(function (v) { return ({
             label: v.name,
-            kind: v.kind
+            kind: v.kind,
         }); });
         var ret = [];
         // If there is only one result, and it matches exactly,
         // don't show
-        if (results.length === 1 && results[0].label === currentPrefix)
+        if (results.length === 1 && results[0].label === currentPrefix) {
             ret = [];
-        else
+        }
+        else {
             ret = results;
+        }
         return {
             base: currentPrefix,
-            completions: results
+            completions: results,
         };
     });
 };
@@ -188,25 +193,25 @@ var getSignatureHelp = function (textDocumentPosition) {
             separator: convertToDisplayString(item.separatorDisplayParts),
             parameters: item.parameters.map(function (p) { return ({
                 text: convertToDisplayString(p.displayParts),
-                documentation: convertToDisplayString(p.documentation)
-            }); })
+                documentation: convertToDisplayString(p.documentation),
+            }); }),
         }); });
         return {
             items: signatureHelpItems,
             selectedItemIndex: result.selectedItemIndex,
             argumentCount: result.argumentCount,
-            argumentIndex: result.argumentIndex
+            argumentIndex: result.argumentIndex,
         };
     });
 };
 Oni.registerLanguageService({
-    getQuickInfo: getQuickInfo,
-    getDefinition: getDefinition,
-    getCompletions: getCompletions,
-    getCompletionDetails: getCompletionDetails,
-    getFormattingEdits: getFormattingEdits,
     evaluateBlock: evaluateBlock,
-    getSignatureHelp: getSignatureHelp
+    getCompletionDetails: getCompletionDetails,
+    getCompletions: getCompletions,
+    getDefinition: getDefinition,
+    getFormattingEdits: getFormattingEdits,
+    getQuickInfo: getQuickInfo,
+    getSignatureHelp: getSignatureHelp,
 });
 host.on("semanticDiag", function (diagnostics) {
     var fileName = diagnostics.file;
@@ -224,7 +229,7 @@ host.on("semanticDiag", function (diagnostics) {
             text: d.text,
             lineNumber: lineNumber,
             startColumn: startColumn,
-            endColumn: endColumn
+            endColumn: endColumn,
         };
     });
     Oni.diagnostics.setErrors("typescript-compiler", fileName, errors, "red");
@@ -233,8 +238,9 @@ var updateFile = _.throttle(function (bufferFullPath, stringContents) {
     host.updateFile(bufferFullPath, stringContents);
 }, 50);
 Oni.on("buffer-update", function (args) {
-    if (!args.eventContext.bufferFullPath)
+    if (!args.eventContext.bufferFullPath) {
         return;
+    }
     if (lastOpenFile !== args.eventContext.bufferFullPath) {
         host.openFile(args.eventContext.bufferFullPath);
     }
@@ -242,8 +248,9 @@ Oni.on("buffer-update", function (args) {
     updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL));
 });
 var getHighlightsFromNavTree = function (navTree, highlights) {
-    if (!navTree)
+    if (!navTree) {
         return;
+    }
     navTree.forEach(function (item) {
         var spans = item.spans;
         var highlightKind = kindToHighlightGroup[item.kind];
@@ -254,11 +261,12 @@ var getHighlightsFromNavTree = function (navTree, highlights) {
                 highlightKind: highlightKind,
                 start: { line: s.start.line, column: s.start.offset },
                 end: { line: s.end.line, column: s.end.offset },
-                token: item.text
+                token: item.text,
             });
         });
-        if (item.childItems)
+        if (item.childItems) {
             getHighlightsFromNavTree(item.childItems, highlights);
+        }
     });
 };
 Oni.on("buffer-enter", function (args) {
@@ -291,13 +299,14 @@ var kindToHighlightGroup = {
     method: "Function",
     property: "Special",
     class: "Type",
-    interface: "Type"
+    interface: "Type",
 };
 // TODO: Refactor to separate file
 var convertToDisplayString = function (displayParts) {
     var ret = "";
-    if (!displayParts || !displayParts.forEach)
+    if (!displayParts || !displayParts.forEach) {
         return ret;
+    }
     displayParts.forEach(function (dp) {
         ret += dp.text;
     });

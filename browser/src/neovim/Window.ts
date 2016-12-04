@@ -1,4 +1,4 @@
-import * as Q from "q";
+import * as Q from "q"
 
 export interface IWindow {
     isValid(): Q.Promise<boolean>

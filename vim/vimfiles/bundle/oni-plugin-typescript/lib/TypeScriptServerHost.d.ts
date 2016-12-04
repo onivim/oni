@@ -5,20 +5,20 @@ import * as events from "events";
  * Taken from definitions here:
  * https://github.com/Microsoft/TypeScript/blob/master/lib/protocol.d.ts#L5
  */
-export interface TextSpan {
-    start: Location;
-    end: Location;
+export interface ITextSpan {
+    start: ILocation;
+    end: ILocation;
 }
-export interface Location {
+export interface ILocation {
     line: number;
     offset: number;
 }
-export interface NavigationTree {
+export interface INavigationTree {
     text: string;
     kind: string;
     kindModifiers: string;
-    spans: TextSpan[];
-    childItems?: NavigationTree[];
+    spans: ITextSpan[];
+    childItems?: INavigationTree[];
 }
 /**
  * End definitions
@@ -30,20 +30,20 @@ export declare class TypeScriptServerHost extends events.EventEmitter {
     private _rl;
     readonly pid: number;
     constructor();
-    openFile(fullFilePath: string): Promise<any>;
-    getProjectInfo(fullFilePath: string): Promise<any>;
-    getTypeDefinition(fullFilePath: string, line: number, col: number): Promise<void>;
-    getFormattingEdits(fullFilePath: string, line: number, col: number, endLine: number, endCol: number): Promise<any>;
-    getCompletions(fullFilePath: string, line: number, col: number, prefix: string): Promise<any>;
-    getCompletionDetails(fullFilePath: string, line: number, col: number, entryNames: string[]): Promise<any>;
-    updateFile(fullFilePath: string, updatedContents: string): Promise<void>;
-    getQuickInfo(fullFilePath: string, line: number, col: number): Promise<void>;
-    saveTo(fullFilePath: string, tmpFile: string): Promise<void>;
-    getSignatureHelp(fullFilePath: string, line: number, col: number): Promise<any>;
+    openFile(file: string): Promise<any>;
+    getProjectInfo(file: string): Promise<any>;
+    getTypeDefinition(file: string, line: number, offset: number): Promise<void>;
+    getFormattingEdits(file: string, line: number, offset: number, endLine: number, endOffset: number): Promise<any>;
+    getCompletions(file: string, line: number, offset: number, prefix: string): Promise<any>;
+    getCompletionDetails(file: string, line: number, offset: number, entryNames: string[]): Promise<any>;
+    updateFile(file: string, fileContent: string): Promise<void>;
+    getQuickInfo(file: string, line: number, offset: number): Promise<void>;
+    saveTo(file: string, tmpfile: string): Promise<void>;
+    getSignatureHelp(file: string, line: number, offset: number): Promise<any>;
     getErrors(fullFilePath: string): Promise<void>;
     getErrorsAcrossProject(fullFilePath: string): Promise<void>;
-    getNavigationTree(fullFilePath: string): Promise<NavigationTree>;
-    getDocumentHighlights(fullFilePath: string, lineNumber: number, offset: number): Promise<void>;
+    getNavigationTree(fullFilePath: string): Promise<INavigationTree>;
+    getDocumentHighlights(file: string, line: number, offset: number): Promise<void>;
     _makeTssRequest<T>(commandName: string, args: any): Promise<T>;
     private _parseResponse(returnedData);
     private _createDeferredPromise<T>();

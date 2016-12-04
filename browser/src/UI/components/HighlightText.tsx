@@ -11,7 +11,7 @@ export class HighlightText extends React.Component<HighlightTextProps, void> {
 
     public render(): JSX.Element {
 
-        const childNodes = []
+        const childNodes: JSX.Element[] = []
 
         const letterCountDictionary = createLetterCountDictionary(this.props.highlightText)
 
@@ -20,7 +20,7 @@ export class HighlightText extends React.Component<HighlightTextProps, void> {
             const currentVal = letterCountDictionary[c]
             letterCountDictionary[c] = currentVal - 1
 
-            if(currentVal > 0) {
+            if (currentVal > 0) {
                 childNodes.push(<span className={this.props.highlightClassName}>{c}</span>)
             } else {
                 childNodes.push(<span>{c}</span>)
@@ -42,7 +42,7 @@ export interface HighlightTextByIndexProps {
 export class HighlightTextByIndex extends React.Component<HighlightTextByIndexProps, void> {
     public render(): JSX.Element {
 
-        const childNodes = []
+        const childNodes: JSX.Element[] = []
         const highlightIndices = this.props.highlightIndices || []
 
         this.props.text.split("").forEach((c: string, idx: number) => {
@@ -60,7 +60,7 @@ export class HighlightTextByIndex extends React.Component<HighlightTextByIndexPr
 }
 
 export function createLetterCountDictionary(text: string): any {
-    const array: string[] =  text.split("");
+    const array: string[] = text.split("");
     return array.reduce((previousValue: any, currentValue: string) => {
         let cur = previousValue[currentValue] || 0
         previousValue[currentValue] = cur + 1

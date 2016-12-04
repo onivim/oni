@@ -1,16 +1,13 @@
-import * as Actions from "./actions"
-
-import { Screen } from "./Screen"
-import { Grid } from "./Grid"
 import * as Config from "./Config"
+import { Grid } from "./Grid"
 
-export interface DeltaCellPosition {
-    x: number;
-    y: number;
+export interface IDeltaCellPosition {
+    x: number
+    y: number
 }
 
-export interface DeltaRegionTracker {
-    getModifiedCells(): DeltaCellPosition[]
+export interface IDeltaRegionTracker {
+    getModifiedCells(): IDeltaCellPosition[]
     notifyCellModified(x: number, y: number): void
     notifyCellRendered(x: number, y: number): void
 }
@@ -20,20 +17,20 @@ export interface DeltaRegionTracker {
  * often there are UI elements at the bounds, that
  * cause the entire screen to be invalidated anyway
  */
-export class IncrementalDeltaRegionTracker implements DeltaRegionTracker {
+export class IncrementalDeltaRegionTracker implements IDeltaRegionTracker {
 
-    private _screen: Screen;
-    private _cells: DeltaCellPosition[]
+    // private _screen: Screen;
+    private _cells: IDeltaCellPosition[]
 
     private _dirtyGrid: Grid<boolean> = new Grid<boolean>()
 
-    private _debugDiv;
+    private _debugDiv: null | Element
 
     constructor() {
         this._reset()
 
         if (Config.hasValue("debug.incrementalRenderRegions")) {
-            var div = document.createElement("div")
+            const div = document.createElement("div")
             document.body.appendChild(div)
             div.style.position = "absolute"
             div.style.top = "0px"
@@ -52,7 +49,7 @@ export class IncrementalDeltaRegionTracker implements DeltaRegionTracker {
     }
 
     public cleanUpRenderedCells(): void {
-        this._cells = this._cells.filter(dcp => this._dirtyGrid.getCell(dcp.x, dcp.y))
+        this._cells = this._cells.filter((dcp) => this._dirtyGrid.getCell(dcp.x, dcp.y))
     }
 
     public notifyCellModified(x: number, y: number): void {
@@ -61,16 +58,17 @@ export class IncrementalDeltaRegionTracker implements DeltaRegionTracker {
         }
 
         this._cells.push({
-            x: x,
-            y: y
+            x,
+            y,
         })
 
         this._dirtyGrid.setCell(x, y, true)
     }
 
-    public getModifiedCells(): DeltaCellPosition[] {
-        if (this._debugDiv)
+    public getModifiedCells(): IDeltaCellPosition[] {
+        if (this._debugDiv) {
             this._debugDiv.textContent = "Modified: " + this._cells.length
+        }
 
         return this._cells
     }

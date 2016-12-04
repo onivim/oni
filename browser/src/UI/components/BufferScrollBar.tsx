@@ -24,7 +24,7 @@ export interface BufferScrollState {
 
 export class BufferScrollBar extends React.Component<BufferScrollBarProps, BufferScrollState> {
 
-    constructor(props) {
+    constructor(props: any) {
         super(props)
 
         this.state = {
@@ -32,7 +32,7 @@ export class BufferScrollBar extends React.Component<BufferScrollBarProps, Buffe
         }
     }
 
-    private _onMeasure(dimensions): void {
+    private _onMeasure(dimensions: any): void {
         this.setState({
             measuredHeight: dimensions.height
         })

@@ -4,18 +4,17 @@
  * Manages the quick open menu
  */
 
-import { INeovimInstance } from "./../NeovimInstance"
-import { BufferInfo, PluginManager } from "./../Plugins/PluginManager"
-import * as Config from "./../Config"
-
 import * as _ from "lodash"
+import * as Config from "./../Config"
+import { INeovimInstance } from "./../NeovimInstance"
+import { IBufferInfo, PluginManager } from "./../Plugins/PluginManager"
 
 export class Formatter {
 
     private _neovimInstance: INeovimInstance
     private _pluginManager: PluginManager
 
-    private _bufferInfoAtRequest: BufferInfo
+    private _bufferInfoAtRequest: IBufferInfo
     private _lastMode: string
 
     constructor(neovimInstance: INeovimInstance, pluginManager: PluginManager) {
@@ -33,16 +32,17 @@ export class Formatter {
 
         this._pluginManager.on("format", (response: Oni.Plugin.FormattingEditsResponse) => {
 
-            if (response.version != this._bufferInfoAtRequest.version)
+            if (response.version !== this._bufferInfoAtRequest.version) {
                 return
+            }
 
-            const outputBuffer = [].concat(this._bufferInfoAtRequest.lines)
+            const outputBuffer = this._bufferInfoAtRequest.lines
 
             // Edits can affect the position of other edits... For example, if we remove a character at column 2,
             // another edit referenced at column 8 would now apply at column 7.
             // Long-term, there needs to be a strategy to map / re-map edits, but for now,
             // this can be worked around by sorting the edits in reverse - applying later column edits first
-            const sortedEdits = _.orderBy(response.edits, [e => e.start.line, e => e.start.column], ["asc", "desc"])
+            const sortedEdits = _.orderBy(response.edits, [(e) => e.start.line, (e) => e.start.column], ["asc", "desc"])
 
             sortedEdits.forEach((edit) => {
 

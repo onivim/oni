@@ -2,10 +2,9 @@
  * SyntaxHighlighter.ts
  */
 
-import { INeovimInstance } from "./../NeovimInstance"
 import { IBuffer } from "./../neovim/Buffer"
-
-import { BufferInfo, PluginManager } from "./../Plugins/PluginManager"
+import { INeovimInstance } from "./../NeovimInstance"
+import { PluginManager } from "./../Plugins/PluginManager"
 
 export class SyntaxHighlighter {
     private _neovimInstance: INeovimInstance
@@ -15,9 +14,9 @@ export class SyntaxHighlighter {
         this._neovimInstance = neovimInstance
         this._pluginManager = pluginManager
 
-        this._pluginManager.on("set-syntax-highlights", (payload) => {
+        this._pluginManager.on("set-syntax-highlights", (payload: any) => {
 
-            var buf: IBuffer = null
+            let buf: IBuffer = <any> null // FIXME: null
             this._neovimInstance.getCurrentBuffer()
                 .then((buffer) => buf = buffer)
                 .then(() => this._neovimInstance.eval("expand('%:p')"))
@@ -26,7 +25,7 @@ export class SyntaxHighlighter {
                         throw "Syntax highlighting was for different file."
                     }
 
-                    const key = payload.key
+                    // const key = payload.key
                     const highlights: Oni.Plugin.SyntaxHighlight[] = payload.highlights
 
                     const highlightKindToKeywords = {}

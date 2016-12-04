@@ -1,9 +1,32 @@
 {
     "compilerOptions": {
-        "outDir": "../lib_test/plugin_api",
-        "sourceMap": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "lib": [
+            "dom",
+            "es2017"
+        ],
         "module": "commonjs",
-        "target": "es6"
+        "moduleResolution": "node",
+        "newLine": "LF",
+        "noEmitOnError": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "outDir": "../lib_test/plugin_api",
+        "pretty": true,
+        "removeComments": true,
+        "rootDir": ".",
+        "skipLibCheck": true,
+        "strictNullChecks": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "target": "es2015",
+        "sourceMap": true
     },
     "files": [
         "./../definitions/Oni.d.ts"

@@ -1,7 +1,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import { State } from "./../State"
+import { IState } from "./../State"
 
 require("./QuickInfo.less")
 
@@ -15,7 +15,7 @@ export interface QuickInfoProps {
 
 export class QuickInfo extends React.Component<QuickInfoProps, void> {
 
-    public render(): JSX.Element {
+    public render(): null | JSX.Element {
         if (!this.props.elements || !this.props.elements.length)
             return null
 
@@ -72,7 +72,7 @@ export class SelectedText extends TextComponent {
     }
 }
 
-const mapStateToQuickInfoProps = (state: State) => {
+const mapStateToQuickInfoProps = (state: IState) => {
     if (!state.quickInfo) {
         return {
             wrap: true,
@@ -95,7 +95,7 @@ const mapStateToQuickInfoProps = (state: State) => {
     }
 }
 
-const mapStateToSignatureHelpProps = (state: State) => {
+const mapStateToSignatureHelpProps = (state: IState) => {
 
     if (!state.signatureHelp) {
         return {
@@ -118,13 +118,13 @@ const mapStateToSignatureHelpProps = (state: State) => {
             if (idx < argumentCount)
                 currentText += currentItem.separator + " "
 
-            if (sidx === state.signatureHelp.argumentIndex)
+            if (state.signatureHelp && sidx === state.signatureHelp.argumentIndex)
                 return <SelectedText text={currentText} />
             else
                 return <Text text={currentText} />
         })
 
-        let elements = [].concat([<Text text={currentItem.prefix} />])
+        let elements = [<Text text={currentItem.prefix} />]
             .concat(parameters)
             .concat([<Text text={currentItem.suffix} />])
 

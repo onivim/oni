@@ -1,28 +1,24 @@
-import * as path from "path"
-
 import * as _ from "lodash"
-
-import { IOverlay, IWindowContext } from "./../OverlayManager"
-import { LiveCodeBlock } from "./../../Services/LiveEvaluation"
+import { ILiveCodeBlock } from "./../../Services/LiveEvaluation"
 import { renderLiveEval } from "./../components/LiveEvalMarker"
+import { IOverlay, IWindowContext } from "./../OverlayManager"
 
 export class LiveEvaluationOverlay implements IOverlay {
-
     private _element: HTMLElement
-    private _currentFileName: string;
+    private _currentFileName: string
     private _lastWindowContext: IWindowContext
-    private _lastEvalResults: LiveCodeBlock[]
+    // private _lastEvalResults: LiveCodeBlock[]
 
-    private _bufferToBlocks: {[buffer: string]:{[id:string]:LiveCodeBlock}} = {}
+    private _bufferToBlocks: { [buffer: string]: { [id: string]: ILiveCodeBlock } } = {}
 
-    public onVimEvent(eventName: string, eventContext: Oni.EventContext): void {
+    public onVimEvent(_eventName: string, eventContext: Oni.EventContext): void {
         const fullPath = eventContext.bufferFullPath
         this._currentFileName = fullPath
 
         this._showLiveEval()
     }
 
-    public setLiveEvaluationResult(fileName: string, blocks: LiveCodeBlock[]): void {
+    public setLiveEvaluationResult(fileName: string, blocks: ILiveCodeBlock[]): void {
         const keyMap = _.keyBy(blocks, "startLine")
         this._bufferToBlocks[fileName] = keyMap
 
@@ -42,10 +38,11 @@ export class LiveEvaluationOverlay implements IOverlay {
             return
         }
 
-        if (!this._element)
+        if (!this._element) {
             return
+        }
 
-        let liveCodeBlocks = this._bufferToBlocks[this._currentFileName]
+        const liveCodeBlocks = this._bufferToBlocks[this._currentFileName]
 
         if (!liveCodeBlocks) {
             this._element.textContent = ""
@@ -55,8 +52,8 @@ export class LiveEvaluationOverlay implements IOverlay {
         const blocks = _.values(liveCodeBlocks)
 
         renderLiveEval({
-            blocks: blocks,
-            windowContext: this._lastWindowContext
+            blocks,
+            windowContext: this._lastWindowContext,
         }, this._element)
     }
 }

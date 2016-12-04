@@ -8,10 +8,10 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var childProcess = require("child_process");
+var events = require("events");
+var os = require("os");
 var path = require("path");
 var readline = require("readline");
-var os = require("os");
-var events = require("events");
 var tssPath = path.join(__dirname, "..", "node_modules", "typescript", "lib", "tsserver.js");
 /**
  * End definitions
@@ -39,23 +39,23 @@ var TypeScriptServerHost = (function (_super) {
                 console.error(err);
             }
         });
-        console.log("Process ID: " + _this._tssProcess.pid);
+        console.log("Process ID: " + _this._tssProcess.pid); // tslint:disable-line no-console
         _this._rl = readline.createInterface({
             input: _this._tssProcess.stdout,
             output: _this._tssProcess.stdin,
-            terminal: false
+            terminal: false,
         });
         _this._tssProcess.stderr.on("data", function (data, err) {
             console.error("Error from tss: " + data);
         });
         _this._tssProcess.on("error", function (data) {
-            debugger;
+            debugger; // tslint:disable-line no-debugger
         });
         _this._tssProcess.on("exit", function (data) {
-            debugger;
+            debugger; // tslint:disable-line no-debugger
         });
         _this._tssProcess.on("close", function (data) {
-            debugger;
+            debugger; // tslint:disable-line no-debugger
         });
         _this._rl.on("line", function (msg) {
             if (msg.indexOf("{") === 0) {
@@ -71,73 +71,73 @@ var TypeScriptServerHost = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    TypeScriptServerHost.prototype.openFile = function (fullFilePath) {
+    TypeScriptServerHost.prototype.openFile = function (file) {
         return this._makeTssRequest("open", {
-            file: fullFilePath
+            file: file,
         });
     };
-    TypeScriptServerHost.prototype.getProjectInfo = function (fullFilePath) {
+    TypeScriptServerHost.prototype.getProjectInfo = function (file) {
         return this._makeTssRequest("projectInfo", {
-            file: fullFilePath,
-            needFileNameList: true
+            file: file,
+            needFileNameList: true,
         });
     };
-    TypeScriptServerHost.prototype.getTypeDefinition = function (fullFilePath, line, col) {
+    TypeScriptServerHost.prototype.getTypeDefinition = function (file, line, offset) {
         return this._makeTssRequest("typeDefinition", {
-            file: fullFilePath,
+            file: file,
             line: line,
-            offset: col
+            offset: offset,
         });
     };
-    TypeScriptServerHost.prototype.getFormattingEdits = function (fullFilePath, line, col, endLine, endCol) {
+    TypeScriptServerHost.prototype.getFormattingEdits = function (file, line, offset, endLine, endOffset) {
         return this._makeTssRequest("format", {
-            file: fullFilePath,
+            file: file,
             line: line,
-            offset: col,
+            offset: offset,
             endLine: endLine,
-            endOffset: endCol
+            endOffset: endOffset,
         });
     };
-    TypeScriptServerHost.prototype.getCompletions = function (fullFilePath, line, col, prefix) {
+    TypeScriptServerHost.prototype.getCompletions = function (file, line, offset, prefix) {
         return this._makeTssRequest("completions", {
-            file: fullFilePath,
+            file: file,
             line: line,
-            offset: col,
-            prefix: prefix
+            offset: offset,
+            prefix: prefix,
         });
     };
-    TypeScriptServerHost.prototype.getCompletionDetails = function (fullFilePath, line, col, entryNames) {
+    TypeScriptServerHost.prototype.getCompletionDetails = function (file, line, offset, entryNames) {
         return this._makeTssRequest("completionEntryDetails", {
-            file: fullFilePath,
+            file: file,
             line: line,
-            offset: col,
-            entryNames: entryNames
+            offset: offset,
+            entryNames: entryNames,
         });
     };
-    TypeScriptServerHost.prototype.updateFile = function (fullFilePath, updatedContents) {
+    TypeScriptServerHost.prototype.updateFile = function (file, fileContent) {
         return this._makeTssRequest("open", {
-            file: fullFilePath,
-            fileContent: updatedContents
+            file: file,
+            fileContent: fileContent,
         });
     };
-    TypeScriptServerHost.prototype.getQuickInfo = function (fullFilePath, line, col) {
+    TypeScriptServerHost.prototype.getQuickInfo = function (file, line, offset) {
         return this._makeTssRequest("quickinfo", {
-            file: fullFilePath,
+            file: file,
             line: line,
-            offset: col
+            offset: offset,
         });
     };
-    TypeScriptServerHost.prototype.saveTo = function (fullFilePath, tmpFile) {
+    TypeScriptServerHost.prototype.saveTo = function (file, tmpfile) {
         return this._makeTssRequest("saveto", {
-            file: fullFilePath,
-            tmpfile: tmpFile
+            file: file,
+            tmpfile: tmpfile,
         });
     };
-    TypeScriptServerHost.prototype.getSignatureHelp = function (fullFilePath, line, col) {
+    TypeScriptServerHost.prototype.getSignatureHelp = function (file, line, offset) {
         return this._makeTssRequest("signatureHelp", {
-            file: fullFilePath,
+            file: file,
             line: line,
-            offset: col
+            offset: offset,
         });
     };
     TypeScriptServerHost.prototype.getErrors = function (fullFilePath) {
@@ -147,39 +147,39 @@ var TypeScriptServerHost = (function (_super) {
     };
     TypeScriptServerHost.prototype.getErrorsAcrossProject = function (fullFilePath) {
         return this._makeTssRequest("geterrForProject", {
-            file: fullFilePath
+            file: fullFilePath,
         });
     };
     TypeScriptServerHost.prototype.getNavigationTree = function (fullFilePath) {
         return this._makeTssRequest("navtree", {
-            file: fullFilePath
+            file: fullFilePath,
         });
     };
-    TypeScriptServerHost.prototype.getDocumentHighlights = function (fullFilePath, lineNumber, offset) {
+    TypeScriptServerHost.prototype.getDocumentHighlights = function (file, line, offset) {
         return this._makeTssRequest("documentHighlights", {
-            file: fullFilePath,
-            line: lineNumber,
-            offset: offset
+            file: file,
+            line: line,
+            offset: offset,
         });
     };
     TypeScriptServerHost.prototype._makeTssRequest = function (commandName, args) {
-        var seqNumber = this._seqNumber++;
+        var seq = this._seqNumber++;
         var payload = {
-            seq: seqNumber,
+            seq: seq,
             type: "request",
             command: commandName,
-            arguments: args
+            arguments: args,
         };
         var ret = this._createDeferredPromise();
-        this._seqToPromises[seqNumber] = ret;
+        this._seqToPromises[seq] = ret;
         // TODO: Handle updates in parallel?
         this._tssProcess.stdin.write(JSON.stringify(payload) + os.EOL);
         return ret.promise;
     };
     TypeScriptServerHost.prototype._parseResponse = function (returnedData) {
         var response = JSON.parse(returnedData);
-        var seq = response["request_seq"];
-        var success = response["success"];
+        var seq = response["request_seq"]; // tslint:disable-line no-string-literal
+        var success = response["success"]; // tslint:disable-line no-string-literal
         if (typeof seq === "number") {
             if (success) {
                 this._seqToPromises[seq].resolve(response.body);
@@ -191,7 +191,7 @@ var TypeScriptServerHost = (function (_super) {
         else {
             // If a sequence wasn't specified, it might be a call that returns multiple results
             // Like 'geterr' - returns both semanticDiag and syntaxDiag
-            console.log("No sequence number returned.");
+            console.log("No sequence number returned."); // tslint:disable-line no-console
             if (response.type && response.type === "event") {
                 if (response.event && response.event === "semanticDiag") {
                     this.emit("semanticDiag", response.body);
@@ -200,15 +200,16 @@ var TypeScriptServerHost = (function (_super) {
         }
     };
     TypeScriptServerHost.prototype._createDeferredPromise = function () {
-        var resolve, reject;
-        var promise = new Promise(function () {
-            resolve = arguments[0];
-            reject = arguments[1];
+        var resolve;
+        var reject;
+        var promise = new Promise(function (res, rej) {
+            resolve = res;
+            reject = rej;
         });
         return {
             resolve: resolve,
             reject: reject,
-            promise: promise
+            promise: promise,
         };
     };
     return TypeScriptServerHost;

@@ -13,113 +13,111 @@ export const SET_HIGHLIGHT = "SET_HIGHLIGHT"
 export const SET_SCROLL_REGION = "SET_SCROLL_REGION"
 export const SCROLL = "SCROLL"
 
-export interface Action {
-    type: string;
+export interface IAction {
+    type: string
 }
 
-
-
-export interface StartNeovimAction extends Action {
+export interface IStartNeovimAction extends IAction {
 
 }
 
-export interface CursorGotoAction extends Action {
-    row: number;
-    col: number;
+export interface ICursorGotoAction extends IAction {
+    row: number
+    col: number
 }
 
-export interface ResizeAction extends Action {
+export interface IResizeAction extends IAction {
     rows: number
     columns: number
 }
 
-export interface PutCharacterAction extends Action {
-    characters: string[];
+export interface IPutCharacterAction extends IAction {
+    characters: string[]
 }
 
-export interface ClearToEndOfLineAction extends Action {
-
-}
-
-export interface ClearAction extends Action {
+export interface IClearToEndOfLineAction extends IAction {
 
 }
 
-export interface ChangeModeAction extends Action {
+export interface IClearAction extends IAction {
+
+}
+
+export interface IChangeModeAction extends IAction {
     mode: string
 }
 
-export interface KeyboardInputAction extends Action {
-    input: string;
+export interface IKeyboardInputAction extends IAction {
+    input: string
 }
 
-export interface SetFontAction extends Action {
-    fontFamily: string;
-    fontSize: string;
-    fontWidthInPixels: number;
-    fontHeightInPixels: number;
+export interface ISetFontAction extends IAction {
+    fontFamily: string
+    fontSize: string
+    fontWidthInPixels: number
+    fontHeightInPixels: number
 }
 
-export interface ScrollAction extends Action {
+export interface IScrollAction extends IAction {
     scroll: number
 }
 
-export interface SetScrollRegionAction extends Action {
+export interface ISetScrollRegionAction extends IAction {
     top: number
     bottom: number
     left: number
     right: number
 }
 
-export interface UpdateColorAction extends Action {
-    color: string;
+export interface IUpdateColorAction extends IAction {
+    color: string
 }
 
-export interface SetHighlightAction extends Action {
-    bold: boolean;
-    italic: boolean;
-    reverse: boolean;
-    underline: boolean;
-    undercurl: boolean;
+export interface ISetHighlightAction extends IAction {
+    bold: boolean
+    italic: boolean
+    reverse: boolean
+    underline: boolean
+    undercurl: boolean
 
-    foregroundColor?: string;
+    foregroundColor?: string
     backgroundColor?: string
 }
 
-export function scroll(scroll: number): ScrollAction {
+export function scroll(scroll: number): IScrollAction {
     return {
         type: SCROLL,
-        scroll: scroll
+        scroll,
     }
 }
 
-export function setScrollRegion(top: number, bottom: number, left: number, right: number): SetScrollRegionAction {
+export function setScrollRegion(top: number, bottom: number, left: number, right: number): ISetScrollRegionAction {
     return {
         type: SET_SCROLL_REGION,
-        top: top,
-        bottom: bottom,
-        left: left,
-        right: right
+        top,
+        bottom,
+        left,
+        right,
     }
 }
 
-export function setHighlight(bold: boolean, italic: boolean, reverse: boolean, underline: boolean, undercurl: boolean, foregroundColor?: number, backgroundColor?: number): SetHighlightAction {
-    var action: SetHighlightAction = {
+export function setHighlight(bold: boolean, italic: boolean, reverse: boolean, underline: boolean, undercurl: boolean, foregroundColor?: number, backgroundColor?: number): ISetHighlightAction {
+    const action: ISetHighlightAction = {
         type: SET_HIGHLIGHT,
-        bold: bold,
-        italic: italic,
-        reverse: reverse,
-        underline: underline,
-        undercurl: undercurl,
-        foregroundColor: null,
-        backgroundColor: null
+        bold,
+        italic,
+        reverse,
+        underline,
+        undercurl,
+        foregroundColor: undefined,
+        backgroundColor: undefined,
     }
 
-    if(foregroundColor && foregroundColor !== -1) {
+    if (foregroundColor && foregroundColor !== -1) {
         action.foregroundColor = colorToString(foregroundColor, "#FFFFFF")
     }
 
-    if(backgroundColor && backgroundColor !== -1) {
+    if (backgroundColor && backgroundColor !== -1) {
         action.backgroundColor = colorToString(backgroundColor, "#000000")
     }
 
@@ -127,106 +125,109 @@ export function setHighlight(bold: boolean, italic: boolean, reverse: boolean, u
 }
 
 function colorToString(color: number, defaultColor: string): string {
-    if(color === -1)
+    if (color === -1) {
         return defaultColor
+    }
 
-    var r = (color >> 16) & 0xff
-    var g = (color >> 8) & 0xff
-    var b = color & 0xff
+    // tslint:disable no-bitwise
+    const r = (color >> 16) & 0xff
+    const g = (color >> 8) & 0xff
+    const b = color & 0xff
+    // tslint:enable no-bitwise
 
     return "#" + _convertToHexString(r) + _convertToHexString(g) + _convertToHexString(b)
 }
 
 function _convertToHexString(num: number): string {
     let hex: string = num.toString(16)
-    if(hex.length === 1)
+    if (hex.length === 1) {
         hex = "0" + hex
+    }
 
     return hex
 }
 
-export function updateBackground(color: number): UpdateColorAction {
+export function updateBackground(color: number): IUpdateColorAction {
     return {
         type: UPDATE_BG,
-        color: colorToString(color, "#000000")
+        color: colorToString(color, "#000000"),
     }
 }
 
-export function updateForeground(color: number): UpdateColorAction {
+export function updateForeground(color: number): IUpdateColorAction {
     return {
         type: UPDATE_FG,
-        color: colorToString(color, "#FFFFFF")
+        color: colorToString(color, "#FFFFFF"),
     }
 }
 
-export function changeMode(mode: string): ChangeModeAction {
+export function changeMode(mode: string): IChangeModeAction {
     return {
         type: CHANGE_MODE,
-        mode: mode
+        mode,
     }
 }
 
-export function setFont(fontFamily: string, fontSize: string, fontWidthInPixels: number, fontHeightInPixels: number): SetFontAction {
+export function setFont(fontFamily: string, fontSize: string, fontWidthInPixels: number, fontHeightInPixels: number): ISetFontAction {
     return {
         type: SET_FONT,
-        fontFamily: fontFamily,
-        fontSize: fontSize,
-        fontWidthInPixels: fontWidthInPixels,
-        fontHeightInPixels: fontHeightInPixels
+        fontFamily,
+        fontSize,
+        fontWidthInPixels,
+        fontHeightInPixels,
     }
 }
 
-export function clear(): ClearAction {
+export function clear(): IClearAction {
     return {
-        type: CLEAR
+        type: CLEAR,
     }
 }
 
-export function resize(columns: number, rows: number): ResizeAction {
+export function resize(columns: number, rows: number): IResizeAction {
     return {
         type: RESIZE,
-        rows: rows,
-        columns: columns
+        rows,
+        columns,
     }
 }
 
-export function put(characters: string[]): PutCharacterAction {
+export function put(characters: string[]): IPutCharacterAction {
     return {
         type: PutAction,
-        characters: characters
+        characters,
     }
 }
 
-export function clearToEndOfLine(): ClearToEndOfLineAction {
+export function clearToEndOfLine(): IClearToEndOfLineAction {
     return {
-        type: CLEAR_TO_END_OF_LINE
+        type: CLEAR_TO_END_OF_LINE,
     }
 }
 
-
-export function createKeyboardInputAction(key: string): KeyboardInputAction {
+export function createKeyboardInputAction(key: string): IKeyboardInputAction {
     return {
         type: "KeyboardInputAction",
-        input: key
+        input: key,
     }
 }
 
-export function createCursorGotoAction(row: number, col: number): CursorGotoAction {
+export function createCursorGotoAction(row: number, col: number): ICursorGotoAction {
     return {
         type: CursorGotoType,
-        row: row,
-        col: col
+        row,
+        col,
     }
 }
 
-export var createStartNeovimAction = () => {
+export const createStartNeovimAction = () => {
     return {
-        type: "StartNeovimAction"
+        type: "StartNeovimAction",
     }
 }
 
-export var createKeyboardInitializeAction = () => {
+export const createKeyboardInitializeAction = () => {
     return {
-        type: "KeyboardInitialize"
+        type: "KeyboardInitialize",
     }
 }

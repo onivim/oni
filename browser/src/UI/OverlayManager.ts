@@ -1,22 +1,21 @@
-import { Screen } from "./../Screen"
 import * as _ from "lodash"
+import { IScreen } from "./../Screen"
 
-export interface WindowDimensions {
-    width: number;
+export interface IWindowDimensions {
+    width: number
     height: number
 }
 
 /**
  * These interfaces must be kept in sync with the window_display_update method in init.vim
  */
-export interface WindowMappingData {
-    dimensions: WindowDimensions
+export interface IWindowMappingData {
+    dimensions: IWindowDimensions
     mapping: any
 }
 
 export interface IWindowContext {
-    dimensions: WindowDimensions
-
+    dimensions: IWindowDimensions
     fontHeightInPixels: number
     fontWidthInPixels: number
 
@@ -25,48 +24,50 @@ export interface IWindowContext {
      */
     startLine: number
 
-    /** 
+    /**
      * Line number of buffer at end of window
      */
     endLine: number
+    lineCount: number
 
-    lineCount: number;
-
-    //lineToPositionMap: any
-
-    isLineInView(line: number): boolean
-
-    getWindowLine(bufferLine: number): number
+    // lineToPositionMap: any
 
     getCurrentWindowLine(): number
-
-    getWindowRegionForLine(line: number): PixelRectangle
-
-    getWindowPosition(line: number, column: number): PixelRectangle
+    getWindowLine(bufferLine: number): number
+    getWindowPosition(line: number, column: number): IPixelRectangle
+    getWindowRegionForLine(line: number): IPixelRectangle
+    isLineInView(line: number): boolean
 }
 
 // TODO: Can these types be consolidated?
-export interface PixelPosition {
+export interface IPixelPosition {
     x: number
     y: number
 }
 
-export interface PixelRectangle {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+export interface IPixelRectangle {
+    x: number
+    y: number
+    width: number
+    height: number
 }
 
 class WindowContext implements IWindowContext {
-
     private _fontHeightInPixels: number
     private _fontWidthInPixels: number
     private _lineMapping: any
-    private _dimensions: WindowDimensions
+    private _dimensions: IWindowDimensions
     private _eventContext: Oni.EventContext
 
-    public get dimensions(): WindowDimensions {
+    constructor(windowData: IWindowMappingData, fontWidthInPixels: number, fontHeightInPixels: number, lastEventContext: Oni.EventContext) {
+        this._fontHeightInPixels = fontHeightInPixels
+        this._fontWidthInPixels = fontWidthInPixels
+        this._dimensions = windowData.dimensions
+        this._lineMapping = windowData.mapping
+        this._eventContext = lastEventContext
+    }
+
+    public get dimensions(): IWindowDimensions {
         return this._dimensions
     }
 
@@ -107,63 +108,51 @@ class WindowContext implements IWindowContext {
     }
 
     public getWindowRegionForLine(line: number) {
-
         const screenLine = this._lineMapping[line]
-        const ypos = (screenLine - 1) * this._fontHeightInPixels
-
+        const y = (screenLine - 1) * this._fontHeightInPixels
         return {
             x: 0, // TODO
-            y: ypos,
+            y,
             width: 0, // TODO
-            height: this._fontHeightInPixels // TODO
+            height: this._fontHeightInPixels, // TODO
         }
     }
 
-    public getWindowPosition(line: number, column: number): PixelRectangle {
-        var linePosition = this.getWindowRegionForLine(line)
-
+    public getWindowPosition(line: number, column: number): IPixelRectangle {
+        const linePosition = this.getWindowRegionForLine(line)
         const columnPosition = (this._eventContext.wincol - this._eventContext.column + column - 1) * this._fontWidthInPixels
-
         return {
             x: linePosition.x + columnPosition,
             y: linePosition.y,
             width: this._fontWidthInPixels,
-            height: this._fontHeightInPixels
+            height: this._fontHeightInPixels,
         }
-    }
-
-    constructor(windowData: WindowMappingData, fontWidthInPixels: number, fontHeightInPixels: number, lastEventContext: Oni.EventContext) {
-        this._fontHeightInPixels = fontHeightInPixels
-        this._fontWidthInPixels = fontWidthInPixels
-        this._dimensions = windowData.dimensions
-        this._lineMapping = windowData.mapping
-        this._eventContext = lastEventContext
     }
 }
 
 export interface IOverlay {
-    update(element: HTMLElement, windowContext: IWindowContext)
+    update(element: HTMLElement, windowContext: IWindowContext): void
 }
 
-interface OverlayInfo {
+interface IOverlayInfo {
     overlay: IOverlay
     element: HTMLElement
 }
 
 export class OverlayManager {
 
-    private _screen: Screen
-    private _containerElement: HTMLElement;
+    private _screen: IScreen
+    private _containerElement: HTMLElement
 
     private _lastEventContext: any
-    private _lastWindowData: WindowMappingData
+    private _lastWindowData: IWindowMappingData
 
-    private _overlays: { [key: string]: OverlayInfo } = {}
+    private _overlays: { [key: string]: IOverlayInfo } = {}
 
-    constructor(screen: Screen) {
+    constructor(screen: IScreen) {
         this._screen = screen
 
-        const div = document.createElement("div");
+        const div = document.createElement("div")
         div.style.position = "absolute"
         div.style.top = "0px"
         div.style.left = "0px"
@@ -181,8 +170,8 @@ export class OverlayManager {
         this._containerElement.appendChild(overlayContainer)
 
         this._overlays[key] = {
-            overlay: overlay,
-            element: overlayContainer
+            overlay,
+            element: overlayContainer,
         }
     }
 
@@ -191,7 +180,7 @@ export class OverlayManager {
         this._redrawWithDelay()
     }
 
-    public notifyWindowDimensionsChanged(data: WindowMappingData) {
+    public notifyWindowDimensionsChanged(data: IWindowMappingData) {
         this._lastWindowData = data
 
         this._redrawWithDelay()
@@ -203,8 +192,9 @@ export class OverlayManager {
 
     private _redrawElement(): void {
 
-        if (!this._lastWindowData || !this._lastEventContext)
+        if (!this._lastWindowData || !this._lastEventContext) {
             return
+        }
 
         const windowStartRow = this._screen.cursorRow - this._lastEventContext.winline + 1
         const windowStartColumn = this._screen.cursorColumn - this._lastEventContext.wincol + 1
@@ -220,7 +210,7 @@ export class OverlayManager {
 
         const windowContext = new WindowContext(this._lastWindowData, this._screen.fontWidthInPixels, this._screen.fontHeightInPixels, this._lastEventContext)
 
-        _.values(this._overlays).forEach(overlayInfo => {
+        _.values(this._overlays).forEach((overlayInfo) => {
             overlayInfo.overlay.update(overlayInfo.element, windowContext)
         })
     }

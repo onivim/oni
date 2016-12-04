@@ -5,7 +5,7 @@ import * as _ from "lodash"
 
 import { Icon } from "./../Icon"
 import { HighlightText } from "./HighlightText"
-import { State, AutoCompletionInfo } from "./../State"
+import { IState, /* AutoCompletionInfo */ } from "./../State"
 
 export interface AutoCompletionProps {
     visible: boolean
@@ -20,7 +20,7 @@ require("./AutoCompletion.less")
 
 export class AutoCompletion extends React.Component<AutoCompletionProps, void> {
 
-    public render(): JSX.Element {
+    public render(): null | JSX.Element {
 
         if (!this.props.visible)
             return null
@@ -69,7 +69,7 @@ export class AutoCompletionItem extends React.Component<AutoCompletionItemProps,
         const detailToShow = this.props.isSelected ? this.props.detail : ""
         const documentation = this.props.isSelected ? this.props.documentation : ""
 
-        const highlightColor = this.props.highlightColor || this._getDefaultHighlightColor(this.props.kind)
+        const highlightColor = this.props.highlightColor || this._getDefaultHighlightColor(this.props.kind as any) // FIXME: undefined
 
         const iconContainerStyle = {
             backgroundColor: highlightColor
@@ -78,7 +78,7 @@ export class AutoCompletionItem extends React.Component<AutoCompletionItemProps,
         return <div className={className}>
             <div className="main">
                 <span className="icon" style={iconContainerStyle}>
-                    <AutoCompletionIcon kind={this.props.kind} />
+                    <AutoCompletionIcon kind={this.props.kind as any /* FIXME: undefined */} />
                 </span>
                 <HighlightText className="label" highlightClassName="highlight" highlightText={this.props.base} text={this.props.label} />
                 <span className="detail">{detailToShow}</span>
@@ -87,7 +87,7 @@ export class AutoCompletionItem extends React.Component<AutoCompletionItemProps,
         </div>
     }
 
-    private _getDefaultHighlightColor(kind: string): string {
+    private _getDefaultHighlightColor(_kind: string): string {
         // TODO: Extend this logic for better defaults per kind
         return "rgb(32, 232, 38)"
     }
@@ -99,7 +99,7 @@ export interface AutoCompletionIconProps {
 
 export class AutoCompletionIcon extends React.Component<AutoCompletionIconProps, void> {
 
-    public render(): JSX.Element {
+    public render(): null | JSX.Element {
 
         switch (this.props.kind) {
             case "let":
@@ -140,7 +140,7 @@ export class AutoCompletionIcon extends React.Component<AutoCompletionIconProps,
     }
 }
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = (state: IState) => {
     if (!state.autoCompletion) {
         return {
             visible: false,

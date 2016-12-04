@@ -1,33 +1,29 @@
-import { Screen, Cell, PixelPosition, Position } from "./../Screen"
-import { DeltaRegionTracker } from "./../DeltaRegionTracker"
-import { Grid } from "./../Grid"
-import * as Config from "./../Config"
 import * as Actions from "./../actions"
-
+import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
+import { IScreen } from "./../Screen"
 import { RenderCache } from "./RenderCache"
-import { INeovimRenderer } from "./INeovimRenderer"
 
 /**
  * Canvas strategy that renders directly when an action comes in
  */
 export class CanvasActionRenderer {
-    private _canvas: HTMLCanvasElement;
-    private _canvasContext: CanvasRenderingContext2D;
+    private _canvas: HTMLCanvasElement
+    private _canvasContext: CanvasRenderingContext2D
 
-    private _renderCache: RenderCache;
+    private _renderCache: RenderCache
 
-    private _lastRenderedCell: Grid<Cell> = new Grid<Cell>()
+    // private _lastRenderedCell: Grid<Cell> = new Grid<Cell>()
 
-    private _screen: Screen
+    private _screen: IScreen
 
-    public start(element: HTMLCanvasElement, screen: Screen): void {
+    public start(element: HTMLCanvasElement, screen: IScreen): void {
         // Assert canvas
-        this._canvas = element;
-        this._canvas.width = this._canvas.offsetWidth;
-        this._canvas.height = this._canvas.offsetHeight;
-        this._canvasContext = this._canvas.getContext("2d");
+        this._canvas = element
+        this._canvas.width = this._canvas.offsetWidth
+        this._canvas.height = this._canvas.offsetHeight
+        this._canvasContext = <any> this._canvas.getContext("2d") // FIXME: null
 
-        this._renderCache = new RenderCache(this._canvasContext);
+        this._renderCache = new RenderCache(this._canvasContext)
         this._screen = screen
     }
 
@@ -44,14 +40,14 @@ export class CanvasActionRenderer {
 
         switch (action.type) {
             case Actions.PutAction:
-                for (var i = 0; i < action.characters.length; i++) {
+                for (let i = 0; i < action.characters.length; i++) {
                     this._renderCache.drawText(action.characters[i],
                         backgroundColor,
                         foregroundColor,
                         (cursorColumn + i) * widthInPixels,
                         (cursorRow) * heightInPixels,
-                        this._screen.fontFamily,
-                        this._screen.fontSize,
+                        <any> this._screen.fontFamily, // FIXME: null
+                        <any> this._screen.fontSize, // FIXME: null
                         widthInPixels,
                         heightInPixels)
 
@@ -59,13 +55,13 @@ export class CanvasActionRenderer {
                 break
             case Actions.CLEAR:
                 this._canvasContext.clearRect(0, 0, this._canvas.width, this._canvas.height)
+                break
             case Actions.CLEAR_TO_END_OF_LINE:
                 this._canvasContext.clearRect(cursorColumn * widthInPixels,
                     cursorRow * heightInPixels,
                     (this._screen.width - cursorColumn) * widthInPixels,
                     heightInPixels)
                 break
-
             case Actions.SCROLL:
                 const count = action.scroll
                 const region = this._screen.getScrollRegion()
@@ -85,17 +81,19 @@ export class CanvasActionRenderer {
                     this._canvasContext.clearRect(x, 0, width, -count * heightInPixels)
                 }
                 break
-
+            default:
+                break
         }
     }
 
     public onResize(): void {
-        var width = this._canvas.offsetWidth;
-        var height = this._canvas.offsetHeight;
-        this._canvas.width = width;
+        const width = this._canvas.offsetWidth
+        const height = this._canvas.offsetHeight
+        this._canvas.width = width
         this._canvas.height = height
     }
 
-    public update(screenInfo: Screen, deltaRegionTracker: DeltaRegionTracker): void {
+    public update(_screenInfo: IScreen, _deltaRegionTracker: IDeltaRegionTracker): void {
+        return
     }
 }

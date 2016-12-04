@@ -1,83 +1,80 @@
-import * as State from "./State"
-import * as Action from "./Actions"
-
-export const setCursorPosition = (cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight) => ({
+export const setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any) => ({
     type: "SET_CURSOR_POSITION",
     payload: {
         pixelX: cursorPixelX,
         pixelY: cursorPixelY,
-        fontPixelWidth: fontPixelWidth,
-        fontPixelHeight: fontPixelHeight
-    }
+        fontPixelWidth,
+        fontPixelHeight,
+    },
 })
 
 export const showSignatureHelp = (signatureHelpResult: Oni.Plugin.SignatureHelpResult) => ({
     type: "SHOW_SIGNATURE_HELP",
-    payload: signatureHelpResult
+    payload: signatureHelpResult,
 })
 
 export const hideSignatureHelp = () => ({
-    type: "HIDE_SIGNATURE_HELP"
+    type: "HIDE_SIGNATURE_HELP",
 })
 
 export const showMenu = (id: string, options: Oni.Menu.MenuOption[]) => ({
     type: "SHOW_MENU",
     payload: {
-        id: id,
-        options: options
-    }
+        id,
+        options,
+    },
 })
 
 export const hideMenu = () => ({
-    type: "HIDE_MENU"
+    type: "HIDE_MENU",
 })
 
 export const previousMenu = () => ({
-    type: "PREVIOUS_MENU"
+    type: "PREVIOUS_MENU",
 })
 
 export const filterMenu = (filterString: string) => ({
     type: "FILTER_MENU",
     payload: {
-        filter: filterString
-    }
+        filter: filterString,
+    },
 })
 
 export const nextMenu = () => ({
-    type: "NEXT_MENU"
+    type: "NEXT_MENU",
 })
 
 export const showQuickInfo = (title: string, description: string) => ({
     type: "SHOW_QUICK_INFO",
     payload: {
-        title: title,
-        description: description
-    }
+        title,
+        description,
+    },
 })
 
 export const showAutoCompletion = (base: string, entries: Oni.Plugin.CompletionInfo[]) => ({
     type: "SHOW_AUTO_COMPLETION",
     payload: {
-        base: base,
-        entries: entries
-    }
+        base,
+        entries,
+    },
 })
 
 export const setAutoCompletionDetails = (detailedEntry: Oni.Plugin.CompletionInfo) => ({
     type: "SET_AUTO_COMPLETION_DETAILS",
     payload: {
-        detailedEntry: detailedEntry
-    }
+        detailedEntry,
+    },
 })
 
 export const nextAutoCompletion = () => ({
-    type: "NEXT_AUTO_COMPLETION"
+    type: "NEXT_AUTO_COMPLETION",
 })
 
 export const previousAutoCompletion = () => ({
-    type: "PREVIOUS_AUTO_COMPLETION"
+    type: "PREVIOUS_AUTO_COMPLETION",
 })
 
 export const hideAutoCompletion = () => ({ type: "HIDE_AUTO_COMPLETION" })
 
-export const hideQuickInfo = () => ({ type: "HIDE_QUICK_INFO"})
+export const hideQuickInfo = () => ({ type: "HIDE_QUICK_INFO" })

@@ -1,11 +1,11 @@
-import { Action, UPDATE_FG, UpdateColorAction } from "./actions"
-import { Screen } from "./Screen"
+import { UPDATE_FG } from "./actions"
+import { IScreen } from "./Screen"
 
 export class Cursor {
-    private _cursorElement: HTMLElement;
+    private _cursorElement: HTMLElement
 
     constructor() {
-        var cursorElement = document.createElement("div")
+        const cursorElement = document.createElement("div")
         cursorElement.style.position = "absolute"
         this._cursorElement = cursorElement
         this._cursorElement.style.backgroundColor = "red"
@@ -14,25 +14,24 @@ export class Cursor {
         document.body.appendChild(cursorElement)
     }
 
-    update(screen: Screen): void {
-        var cursorRow = screen.cursorRow;
-        var cursorColumn = screen.cursorColumn;
+    public update(screen: IScreen): void {
+        const cursorRow = screen.cursorRow
+        const cursorColumn = screen.cursorColumn
 
-        var fontWidthInPixels = screen.fontWidthInPixels
-        var fontHeightInPixels = screen.fontHeightInPixels
+        const fontWidthInPixels = screen.fontWidthInPixels
+        const fontHeightInPixels = screen.fontHeightInPixels
 
         this._cursorElement.style.top = (cursorRow * fontHeightInPixels) + "px"
         this._cursorElement.style.left = (cursorColumn * fontWidthInPixels) + "px"
 
-        var width = screen.mode === "normal" ? fontWidthInPixels : fontWidthInPixels / 4;
+        const width = screen.mode === "normal" ? fontWidthInPixels : fontWidthInPixels / 4
         this._cursorElement.style.width = width + "px"
         this._cursorElement.style.height = fontHeightInPixels + "px"
 
     }
 
-    dispatch(action: any): void {
-
-        if(action.type === UPDATE_FG) {
+    public dispatch(action: any): void {
+        if (action.type === UPDATE_FG) {
             this._cursorElement.style.backgroundColor = action.color
         }
     }
