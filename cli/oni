@@ -4,9 +4,9 @@ var path = require('path')
 var spawn = require('child_process').spawn
 const os = require("os");
 
-// TODO: Other platforms
-const isMac = os.platform() === "darwin";
-const electronBinFile = isMac ? "electron" : "electron.cmd"
+// Check for Windows, assume macOS/Windows otherwise
+const isWindows = os.platform() === "win32";
+const electronBinFile = isWindows ? "electron.cmd" : "electron"
 var electronPath = path.join(__dirname, "..", "node_modules", ".bin", electronBinFile)
 var args = process.argv.slice(2);
 args.unshift(path.resolve(path.join(__dirname, "..", "main.js")))
