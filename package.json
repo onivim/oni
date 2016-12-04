@@ -23,8 +23,9 @@
     "build:plugin_api": "cd plugin_api && tsc -p tsconfig.src.json",
     "build:plugins": "cd vim/vimfiles/bundle/oni-plugin-typescript && tsc",
     "install:oni-plugin-typescript": "cd vim/vimfiles/bundle/oni-plugin-typescript && npm install",
-    "test": "npm run test:browser && npm run test:plugin_api",
+    "test": "npm run test:lint && npm run test:browser && npm run test:plugin_api",
     "test:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
+    "test:lint": "tslint browser/**/*.ts && tslint vim/vimfiles/bundle/oni-plugin-typescript/src/**/*.ts",
     "test:plugin_api": "cd plugin_api && tsc -p tsconfig.json && mocha --recursive ../lib_test/plugin_api/test",
     "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\" \"npm run watch:plugin_api\"",
     "start-hot": "cross-env NODE_ENV=development electron main.js",
@@ -77,6 +78,7 @@
     "react-hot-loader": "^1.3.0",
     "style-loader": "^0.13.1",
     "ts-loader": "^0.8.2",
+    "tslint": "^4.0.2",
     "typescript": "^2.0.3",
     "webpack": "^1.13.2",
     "webpack-dev-server": "^1.16.1"
