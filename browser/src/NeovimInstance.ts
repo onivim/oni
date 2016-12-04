@@ -1,24 +1,22 @@
-import { EventEmitter } from "events";
-import * as path from "path";
-import * as cp from "child_process";
-// import * as os from "os";
-import * as Q from "q";
-import { remote } from "electron";
-
-const attach = require("neovim-client");
-
-import * as Actions from "./actions";
-import { measureFont } from "./measureFont";
+import * as cp from "child_process"
+import { remote } from "electron"
+import { EventEmitter } from "events"
+import * as path from "path"
+import * as Q from "q"
+import * as Actions from "./actions"
 import * as Config from "./Config"
-import { PixelPosition, Position } from "./Screen"
-import { PluginManager } from "./Plugins/PluginManager"
+import { measureFont } from "./measureFont"
 import { Buffer, IBuffer } from "./neovim/Buffer"
-import { Window, IWindow } from "./neovim/Window"
+import { IWindow, Window } from "./neovim/Window"
 import * as Platform from "./Platform"
+import { PluginManager } from "./Plugins/PluginManager"
+import { IPixelPosition, IPosition } from "./Screen"
+
+const attach = require("neovim-client") // tslint:disable-line no-var-requires
 
 export interface INeovimInstance {
-    cursorPosition: Position;
-    screenToPixels(row: number, col: number): PixelPosition
+    cursorPosition: IPosition
+    screenToPixels(row: number, col: number): IPixelPosition
 
     input(inputString: string): void
     command(command: string): Q.Promise<any>
@@ -51,115 +49,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _pluginManager: PluginManager
 
-    public getMode(): Q.Promise<string> {
-        return this.eval<string>("mode()")
-    }
-
-    public getSelectionRange(): Q.Promise<null | Oni.Range> {
-
-        let buffer: null | IBuffer = null
-        let start = null
-        let end = null
-
-        // FIXME: deal with nulls
-        return this.getMode()
-            .then((mode) => {
-
-                if (mode !== "v" && mode !== "V") {
-                    throw "Not in visual mode"
-                }
-            })
-            .then(() => this.input("<esc>"))
-            .then(() => this.getCurrentBuffer())
-            .then((buf) => buffer = buf)
-            .then(() => buffer && buffer.getMark("<") as any)
-            .then((s) => start = s)
-            .then(() => buffer && buffer.getMark(">") as any)
-            .then((e) => end = e)
-            .then(() => this.command("normal! gv"))
-            .then(() => ({
-                start: start,
-                end: end
-            })) as any
-    }
-
-    public setFont(fontFamily: string, fontSize: string): void {
-        this._fontFamily = fontFamily
-        this._fontSize = fontSize;
-
-        const {width, height} = measureFont(this._fontFamily, this._fontSize)
-
-        this._fontWidthInPixels = width
-        this._fontHeightInPixels = height
-
-        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height))
-
-        this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
-    }
-
-    public eval<T>(expression: string): Q.Promise<T> {
-        return Q.ninvoke<T>(this._neovim, "eval", expression)
-    }
-
-    public command(command: string): Q.Promise<void> {
-        return Q.ninvoke<void>(this._neovim, "command", command)
-    }
-
-    public getCurrentBuffer(): Q.Promise<IBuffer> {
-        return Q.ninvoke(this._neovim, "getCurrentBuffer")
-            .then((buf) => new Buffer(buf))
-    }
-
-    public getCurrentWindow(): Q.Promise<IWindow> {
-        return Q.ninvoke(this._neovim, "getCurrentWindow")
-            .then((win) => new Window(win))
-    }
-
-    public get cursorPosition(): Position {
-        return {
-            row: 0,
-            column: 0
-        }
-    }
-
-    public screenToPixels(_row: number, _col: number): PixelPosition {
-        return {
-            x: 0,
-            y: 0
-        }
-    }
-
-    public input(inputString: string): Q.Promise<void> {
-        return Q.ninvoke<void>(this._neovim, "input", inputString)
-    }
-
-    public resize(widthInPixels: number, heightInPixels: number): void {
-        this._lastWidthInPixels = widthInPixels
-        this._lastHeightInPixels = heightInPixels
-
-        const rows = Math.floor(heightInPixels / this._fontHeightInPixels)
-        const cols = Math.floor(widthInPixels / this._fontWidthInPixels)
-
-        this._resizeInternal(rows, cols)
-    }
-
-    private _resizeInternal(rows: number, columns: number): void {
-
-        if (Config.hasValue("debug.fixedSize")) {
-            const fixedSize = Config.getValue<any>("debug.fixedSize")
-            rows = fixedSize.rows
-            columns = fixedSize.columns
-            console.warn("Overriding screen size based on debug.fixedSize")
-        }
-
-        this._initPromise.then(() => {
-            this._neovim.uiTryResize(columns, rows, function(err?: Error) {
-                if (err)
-                    console.error(err)
-            })
-        })
-    }
-
     constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number, filesToOpen?: string[]) {
         super()
 
@@ -173,7 +62,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._initPromise = startNeovim(initVimPath, filesToOpen)
             .then((nv) => {
-                console.log("NevoimInstance: Neovim started")
+                console.log("NevoimInstance: Neovim started") // tslint:disable-line no-console
 
                 nv.command("colorscheme onedark")
 
@@ -191,8 +80,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     if (method === "redraw") {
                         this._handleNotification(method, args)
                     } else if (method === "oni_plugin_notify") {
-                        var pluginArgs = args[0]
-                        var pluginMethod = pluginArgs.shift()
+                        const pluginArgs = args[0]
+                        const pluginMethod = pluginArgs.shift()
 
                         // TODO: Update pluginManager to subscribe from event here, instead of dupliating this
 
@@ -225,40 +114,150 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 })
 
                 this._neovim.uiAttach(80, 40, true, (_err?: Error) => {
-                    console.log("Attach success")
+                    console.log("Attach success") // tslint:disable-line no-console
 
                     performance.mark("NeovimInstance.Plugins.Start")
                     this._pluginManager.startPlugins(this)
                     performance.mark("NeovimInstance.Plugins.End")
-                });
+                })
             }, (err) => {
                 this.emit("error", err)
             })
 
-        this.setFont("Consolas", "14px");
+        this.setFont("Consolas", "14px")
+    }
+
+    public getMode(): Q.Promise<string> {
+        return this.eval<string>("mode()")
+    }
+
+    public getSelectionRange(): Q.Promise<null | Oni.Range> {
+
+        let buffer: null | IBuffer = null
+        let start: any = null
+        let end: any = null
+
+        // FIXME: deal with nulls
+        return this.getMode()
+            .then((mode) => {
+
+                if (mode !== "v" && mode !== "V") {
+                    throw "Not in visual mode"
+                }
+            })
+            .then(() => this.input("<esc>"))
+            .then(() => this.getCurrentBuffer())
+            .then((buf) => buffer = buf)
+            .then(() => buffer && buffer.getMark("<") as any)
+            .then((s) => start = s)
+            .then(() => buffer && buffer.getMark(">") as any)
+            .then((e) => end = e)
+            .then(() => this.command("normal! gv"))
+            .then(() => ({
+                start,
+                end,
+            })) as any
+    }
+
+    public setFont(fontFamily: string, fontSize: string): void {
+        this._fontFamily = fontFamily
+        this._fontSize = fontSize
+
+        const {width, height} = measureFont(this._fontFamily, this._fontSize)
+
+        this._fontWidthInPixels = width
+        this._fontHeightInPixels = height
+
+        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height))
+
+        this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
+    }
+
+    public eval<T>(expression: string): Q.Promise<T> {
+        return Q.ninvoke<T>(this._neovim, "eval", expression)
+    }
+
+    public command(command: string): Q.Promise<void> {
+        return Q.ninvoke<void>(this._neovim, "command", command)
+    }
+
+    public getCurrentBuffer(): Q.Promise<IBuffer> {
+        return Q.ninvoke(this._neovim, "getCurrentBuffer")
+            .then((buf) => new Buffer(buf))
+    }
+
+    public getCurrentWindow(): Q.Promise<IWindow> {
+        return Q.ninvoke(this._neovim, "getCurrentWindow")
+            .then((win) => new Window(win))
+    }
+
+    public get cursorPosition(): IPosition {
+        return {
+            row: 0,
+            column: 0,
+        }
+    }
+
+    public screenToPixels(_row: number, _col: number): IPixelPosition {
+        return {
+            x: 0,
+            y: 0,
+        }
+    }
+
+    public input(inputString: string): Q.Promise<void> {
+        return Q.ninvoke<void>(this._neovim, "input", inputString)
+    }
+
+    public resize(widthInPixels: number, heightInPixels: number): void {
+        this._lastWidthInPixels = widthInPixels
+        this._lastHeightInPixels = heightInPixels
+
+        const rows = Math.floor(heightInPixels / this._fontHeightInPixels)
+        const cols = Math.floor(widthInPixels / this._fontWidthInPixels)
+
+        this._resizeInternal(rows, cols)
+    }
+
+    private _resizeInternal(rows: number, columns: number): void {
+
+        if (Config.hasValue("debug.fixedSize")) {
+            const fixedSize = Config.getValue<any>("debug.fixedSize")
+            rows = fixedSize.rows
+            columns = fixedSize.columns
+            console.warn("Overriding screen size based on debug.fixedSize")
+        }
+
+        this._initPromise.then(() => {
+            this._neovim.uiTryResize(columns, rows, (err?: Error) => {
+                if (err) {
+                    console.error(err)
+                }
+            })
+        })
     }
 
     private _handleNotification(_method: any, args: any): void {
         args.forEach((a: any[]) => {
-            var command = a[0];
-            a.shift();
+            const command = a[0]
+            a.shift()
 
             if (command === "cursor_goto") {
-                this.emit("action", Actions.createCursorGotoAction(a[0][0], a[0][1]));
+                this.emit("action", Actions.createCursorGotoAction(a[0][0], a[0][1]))
             } else if (command === "put") {
 
-                var charactersToPut = a.map(v => v[0]);
+                const charactersToPut = a.map((v) => v[0])
                 this.emit("action", Actions.put(charactersToPut))
             } else if (command === "set_scroll_region") {
-                var param = a[0]
+                const param = a[0]
                 this.emit("action", Actions.setScrollRegion(param[0], param[1], param[2], param[3]))
             } else if (command === "scroll") {
                 this.emit("action", Actions.scroll(a[0][0]))
             } else if (command === "highlight_set") {
 
-                var count = a.length;
+                const count = a.length
 
-                var highlightInfo = a[count - 1][0]
+                const highlightInfo = a[count - 1][0]
 
                 this.emit("action", Actions.setHighlight(
                     !!highlightInfo.bold,
@@ -267,7 +266,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     !!highlightInfo.underline,
                     !!highlightInfo.undercurl,
                     highlightInfo.foreground,
-                    highlightInfo.background
+                    highlightInfo.background,
                 ))
             } else if (command === "resize") {
                 this.emit("action", Actions.resize(a[0][0], a[0][1]))
@@ -286,13 +285,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 this.emit("action", Actions.changeMode(newMode))
                 this.emit("mode-change", newMode)
             } else {
-                console.warn("Unhandled command: " + command);
+                console.warn("Unhandled command: " + command)
             }
         })
     }
 }
 
-var attachAsPromise = Q.denodeify(attach)
+const attachAsPromise = Q.denodeify(attach)
 
 function startNeovim(initVimPath: any, args: any): Q.IPromise<any> {
 
@@ -302,9 +301,9 @@ function startNeovim(initVimPath: any, args: any): Q.IPromise<any> {
     const nvimMacProcessPath = "nvim"
     const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : nvimMacProcessPath
 
-    var argsToPass = ['-u', initVimPath, '-N', '--embed', "--"].concat(args)
+    const argsToPass = ["-u", initVimPath, "-N", "--embed", "--"].concat(args)
 
-    var nvim_proc = cp.spawn(nvimProcessPath, argsToPass, {});
+    const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
 
-    return attachAsPromise(nvim_proc.stdin, nvim_proc.stdout);
+    return attachAsPromise(nvimProc.stdin, nvimProc.stdout)
 }

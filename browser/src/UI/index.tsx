@@ -18,7 +18,7 @@ import { InstallHelp } from "./components/InstallHelp"
 
 export const events = new EventEmitter()
 
-let state: State.State = {
+let state: State.IState = {
     cursorPixelX: 10,
     cursorPixelY: 10,
     fontPixelWidth: 10,
@@ -163,7 +163,7 @@ export function init(): void {
     render(state)
 }
 
-function render(_state: State.State): void {
+function render(_state: State.IState): void {
     const element = document.getElementById("overlay-ui")
     ReactDOM.render(
         <Provider store={store}>

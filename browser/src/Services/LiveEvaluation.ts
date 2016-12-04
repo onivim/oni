@@ -1,16 +1,16 @@
 /**
  * LiveEvaluation.ts
  */
-import * as os from "os"
-import { EventEmitter } from "events"
 
+import { EventEmitter } from "events"
+import * as os from "os"
 import { INeovimInstance } from "./../NeovimInstance"
-import { /* BufferInfo,*/ PluginManager } from "./../Plugins/PluginManager"
+import { PluginManager } from "./../Plugins/PluginManager"
 
 /// <live>
 
 import * as _ from "lodash"
-_.take([1, 2, 3],2)
+_.take([1, 2, 3], 2)
 
 /// </live>
 
@@ -21,9 +21,9 @@ export class LiveEvaluation extends EventEmitter {
 
     private _neovimInstance: INeovimInstance
     private _pluginManager: PluginManager
-    private _keyToBlock: { [key: string]: LiveCodeBlock } = {}
+    private _keyToBlock: { [key: string]: ILiveCodeBlock } = {}
 
-    private _bufferToBlocks: { [buffer: string]: LiveCodeBlock[] } = {}
+    private _bufferToBlocks: { [buffer: string]: ILiveCodeBlock[] } = {}
 
     constructor(neovimInstance: INeovimInstance, pluginManager: PluginManager) {
         super()
@@ -36,7 +36,7 @@ export class LiveEvaluation extends EventEmitter {
 
             this._bufferToBlocks[context.bufferFullPath] = currentBlocks
 
-            currentBlocks.forEach(b => {
+            currentBlocks.forEach((b) => {
                 const code = b.codeBlock.join(os.EOL)
                 const key = context.bufferFullPath + "__" + b.startLine
 
@@ -56,8 +56,9 @@ export class LiveEvaluation extends EventEmitter {
             const id = res.id
             const codeBlock = this._keyToBlock[id]
 
-            if (!codeBlock)
+            if (!codeBlock) {
                 return
+            }
 
             codeBlock.result = res
 
@@ -68,7 +69,7 @@ export class LiveEvaluation extends EventEmitter {
     }
 }
 
-export interface LiveCodeBlock {
+export interface ILiveCodeBlock {
     endLine: number
     startLine: number
     codeBlock: string[]
@@ -76,10 +77,10 @@ export interface LiveCodeBlock {
     result?: Oni.Plugin.EvaluationResult
 }
 
-function getLiveCodeBlocks(buffer: string[]): LiveCodeBlock[] {
+function getLiveCodeBlocks(buffer: string[]): ILiveCodeBlock[] {
 
     let isInLiveBlock = false
-    const result = buffer.reduce((prev: LiveCodeBlock[], curr: string, idx: number) => {
+    const result = buffer.reduce((prev: ILiveCodeBlock[], curr: string, idx: number) => {
 
         if (!isInLiveBlock) {
             if (curr.indexOf("<live>") >= 0

@@ -2,10 +2,9 @@
  * SyntaxHighlighter.ts
  */
 
-import { INeovimInstance } from "./../NeovimInstance"
 import { IBuffer } from "./../neovim/Buffer"
-
-import { /*BufferInfo,*/ PluginManager } from "./../Plugins/PluginManager"
+import { INeovimInstance } from "./../NeovimInstance"
+import { PluginManager } from "./../Plugins/PluginManager"
 
 export class SyntaxHighlighter {
     private _neovimInstance: INeovimInstance
@@ -17,7 +16,7 @@ export class SyntaxHighlighter {
 
         this._pluginManager.on("set-syntax-highlights", (payload: any) => {
 
-            var buf: IBuffer = null as any // FIXME: null
+            let buf: IBuffer = <any> null // FIXME: null
             this._neovimInstance.getCurrentBuffer()
                 .then((buffer) => buf = buffer)
                 .then(() => this._neovimInstance.eval("expand('%:p')"))

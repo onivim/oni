@@ -1,102 +1,100 @@
-// import * as State from "./State"
-
-export interface SetCursorPositionAction {
+export interface ISetCursorPositionAction {
     type: "SET_CURSOR_POSITION",
     payload: {
         pixelX: number,
         pixelY: number,
         fontPixelWidth: number,
-        fontPixelHeight: number
+        fontPixelHeight: number,
     }
 }
 
-export interface ShowSignatureHelpAction {
+export interface IShowSignatureHelpAction {
     type: "SHOW_SIGNATURE_HELP",
     payload: Oni.Plugin.SignatureHelpResult
 }
 
-export interface HideSignatureHelpAction {
+export interface IHideSignatureHelpAction {
     type: "HIDE_SIGNATURE_HELP"
 }
 
-export interface ShowMenuAction {
+export interface IShowMenuAction {
     type: "SHOW_MENU",
     payload: {
         id: string
-        options: Oni.Menu.MenuOption[]
+        options: Oni.Menu.MenuOption[],
     }
 }
 
-export interface FilterMenuAction {
+export interface IFilterMenuAction {
     type: "FILTER_MENU",
     payload: {
-        filter: string
+        filter: string,
     }
 }
 
-export interface HideMenuAction {
+export interface IHideMenuAction {
     type: "HIDE_MENU"
 }
 
-export interface NextMenuAction {
+export interface INextMenuAction {
     type: "NEXT_MENU"
 }
 
-export interface PreviousMenuAction {
+export interface IPreviousMenuAction {
     type: "PREVIOUS_MENU"
 }
 
-export interface ShowQuickInfoAction {
+export interface IShowQuickInfoAction {
     type: "SHOW_QUICK_INFO",
     payload: {
         title: string
-        description: string
+        description: string,
     }
 }
 
-export interface ShowAutoCompletionAction {
+export interface IShowAutoCompletionAction {
     type: "SHOW_AUTO_COMPLETION",
     payload: {
         base: string
-        entries: Oni.Plugin.CompletionInfo[]
+        entries: Oni.Plugin.CompletionInfo[],
     }
 }
 
-export interface SetAutoCompletionDetails {
+export interface ISetAutoCompletionDetails {
     type: "SET_AUTO_COMPLETION_DETAILS",
     payload: {
-        detailedEntry: Oni.Plugin.CompletionInfo
+        detailedEntry: Oni.Plugin.CompletionInfo,
     }
 }
 
-export interface HideAutoCompletionAction {
+export interface IHideAutoCompletionAction {
     type: "HIDE_AUTO_COMPLETION"
 }
 
-export interface NextAutoCompletionAction {
+export interface INextAutoCompletionAction {
     type: "NEXT_AUTO_COMPLETION"
 }
 
-export interface PreviousAutoCompletionAction {
+export interface IPreviousAutoCompletionAction {
     type: "PREVIOUS_AUTO_COMPLETION"
 }
 
-export interface HideQuickInfoAction {
+export interface IHideQuickInfoAction {
     type: "HIDE_QUICK_INFO"
 }
 
-export type Action = SetCursorPositionAction |
-    ShowSignatureHelpAction |
-    HideSignatureHelpAction |
-    ShowQuickInfoAction |
-    HideQuickInfoAction |
-    ShowAutoCompletionAction |
-    HideAutoCompletionAction |
-    NextAutoCompletionAction |
-    PreviousAutoCompletionAction |
-    SetAutoCompletionDetails |
-    ShowMenuAction |
-    HideMenuAction |
-    PreviousMenuAction |
-    NextMenuAction |
-    FilterMenuAction
+export type Action = ISetCursorPositionAction |
+    IShowSignatureHelpAction |
+    IHideSignatureHelpAction |
+    IShowQuickInfoAction |
+    IHideQuickInfoAction |
+    IShowAutoCompletionAction |
+    IHideAutoCompletionAction |
+    INextAutoCompletionAction |
+    IPreviousAutoCompletionAction |
+    ISetAutoCompletionDetails |
+    IShowMenuAction |
+    IHideMenuAction |
+    IPreviousMenuAction |
+    INextMenuAction |
+    IFilterMenuAction

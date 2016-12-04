@@ -1,6 +1,5 @@
-import * as path from "path"
 import * as fs from "fs"
-
+import * as path from "path"
 import * as Platform from "./Platform"
 
 const DefaultConfig: any = {
@@ -25,11 +24,11 @@ const DefaultConfig: any = {
 }
 
 const MacConfig: any = {
-    "editor.fontFamily": "Monaco"
+    "editor.fontFamily": "Monaco",
 }
 
 const WindowsConfig: any = {
-    "editor.fontFamily": "Consolas"
+    "editor.fontFamily": "Consolas",
 }
 
 const DefaultPlatformConfig = Platform.isWindows() ? WindowsConfig : MacConfig
@@ -42,7 +41,7 @@ if (fs.existsSync(userConfigFile)) {
     userConfig = JSON.parse(fs.readFileSync(userConfigFile, "utf8"))
 }
 
-const Config = Object.assign({}, DefaultConfig, DefaultPlatformConfig, userConfig);
+const Config = Object.assign({}, DefaultConfig, DefaultPlatformConfig, userConfig)
 
 export function hasValue(configValue: string): boolean {
     return !!getValue<any>(configValue)

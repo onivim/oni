@@ -1,7 +1,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import { State } from "./../State"
+import { IState } from "./../State"
 
 require("./QuickInfo.less")
 
@@ -72,7 +72,7 @@ export class SelectedText extends TextComponent {
     }
 }
 
-const mapStateToQuickInfoProps = (state: State) => {
+const mapStateToQuickInfoProps = (state: IState) => {
     if (!state.quickInfo) {
         return {
             wrap: true,
@@ -95,7 +95,7 @@ const mapStateToQuickInfoProps = (state: State) => {
     }
 }
 
-const mapStateToSignatureHelpProps = (state: State) => {
+const mapStateToSignatureHelpProps = (state: IState) => {
 
     if (!state.signatureHelp) {
         return {

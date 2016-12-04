@@ -1,4 +1,4 @@
-import * as Q from "q";
+import * as Q from "q"
 
 export interface IBuffer {
     getLines(start: number, end: number, useStrictIndexing: boolean): Q.Promise<string[]>
@@ -48,13 +48,13 @@ export class Buffer implements IBuffer {
         return Q.ninvoke(this._bufferInstance, "getMark", mark)
             .then((pos) => ({
                 line: pos[0],
-                column: pos[1]
+                column: pos[1],
             }))
     }
 
     public appendLines(lines: string[]): Q.Promise<{}> {
         return this.getLineCount()
-            .then(lineCount => {
+            .then((lineCount) => {
                 return Q.ninvoke(this._bufferInstance, "setLines", lineCount, lineCount, true, lines)
             })
     }

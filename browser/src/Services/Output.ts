@@ -1,10 +1,9 @@
-import * as Q from "q"
-
 import { exec } from "child_process"
-import { PluginManager } from "./../Plugins/PluginManager"
-import { INeovimInstance } from "./../NeovimInstance"
+import * as Q from "q"
 import { IBuffer } from "./../neovim/Buffer"
 import { IWindow } from "./../neovim/Window"
+import { INeovimInstance } from "./../NeovimInstance"
+import { PluginManager } from "./../Plugins/PluginManager"
 
 /**
  * Window that shows terminal output
@@ -13,8 +12,8 @@ import { IWindow } from "./../neovim/Window"
 export class OutputWindow {
 
     private _neovimInstance: INeovimInstance
-    private _currentWindow: IWindow = null as any // FIXME: null
-    private _currentBuffer: IBuffer = null as any // FIXME: null
+    private _currentWindow: IWindow = <any> null // FIXME: null
+    private _currentBuffer: IBuffer = <any> null // FIXME: null
 
     constructor(neovimInstance: INeovimInstance, pluginManager: PluginManager) {
         this._neovimInstance = neovimInstance
@@ -39,8 +38,7 @@ export class OutputWindow {
                         .then(() => this._currentBuffer.setOption("bufhidden", "hide"))
                         .then(() => this._currentBuffer.setOption("swapfile", false))
                         .then(() => this._currentBuffer.setOption("filetype", "output"))
-                }
-                else {
+                } else {
                     return
                 }
             })
@@ -49,9 +47,10 @@ export class OutputWindow {
     public execute(shellCommand: string): Q.Promise<void> {
         this.write([shellCommand])
 
-        var proc = exec(shellCommand, (err: any, _stdout: any, _stderr: any) => {
-            if (err)
+        const proc = exec(shellCommand, (err: any, _stdout: any, _stderr: any) => {
+            if (err) {
                 console.error(err)
+            }
         })
 
         proc.stdout.on("data", (data) => this.write(data.toString().split("\n")))
@@ -69,8 +68,9 @@ export class OutputWindow {
     }
 
     private _isWindowOpen(): Q.Promise<boolean> {
-        if (!this._currentWindow || !this._currentBuffer)
+        if (!this._currentWindow || !this._currentBuffer) {
             return Q.resolve(false)
+        }
 
         return this._currentWindow.isValid()
     }

@@ -5,25 +5,27 @@ export class Keyboard extends EventEmitter {
         super()
 
         document.addEventListener("keydown", (evt) => {
-            console.log("Keydown: " + evt)
+            console.log("Keydown: " + evt) // tslint:disable-line no-console
 
             const mappedKey = this._convertKeyEventToVimKey(evt)
 
-            if(mappedKey)
+            if (mappedKey) {
                 this.emit("keydown", mappedKey)
+            }
 
             // Temporary workaround to block closing Window
             // The default electron menu maps C-w to close the window,
             // so we need to stop that.
             //
             // Later, the menu should be customized to fix this.
-            if(mappedKey === "<C-w>" || mappedKey === "<C-r>")
+            if (mappedKey === "<C-w>" || mappedKey === "<C-r>") {
                 evt.preventDefault()
+            }
         })
     }
 
     private _convertKeyEventToVimKey(evt: KeyboardEvent): null | string {
-        switch(evt.keyCode) {
+        switch (evt.keyCode) {
             case 8: // Backspace
                 return "<bs>"
             case 9: // Tab
@@ -59,10 +61,10 @@ export class Keyboard extends EventEmitter {
             case 175: // Volume down
                 return null
             default:
-                let key = evt.key;
-                if (key === "<")
+                let key = evt.key
+                if (key === "<") {
                     key = "<lt>"
-
+                }
                 if (evt.ctrlKey) {
                     key = "<C-" + key + ">"
                 }

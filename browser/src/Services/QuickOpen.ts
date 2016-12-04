@@ -3,16 +3,15 @@
  *
  * Manages the quick open menu
  */
-import * as path from "path";
-
-import * as UI from "./../UI/index"
 
 import { execSync } from "child_process"
+import * as path from "path"
 import { INeovimInstance } from "./../NeovimInstance"
+import * as UI from "./../UI/index"
 
 export class QuickOpen {
 
-    private _seenItems: string[] = [];
+    private _seenItems: string[] = []
 
     constructor(neovimInstance: INeovimInstance) {
         UI.events.on("menu-item-selected", (selectedItem: any) => {
@@ -35,7 +34,7 @@ export class QuickOpen {
         const untrackedFiles = execSync("git ls-files --others --exclude-standard").toString("utf8").split("\n")
         const files = trackedFiles.concat(untrackedFiles)
 
-        const options = files.map(f => {
+        const options = files.map((f) => {
             const file = path.basename(f)
             const folder = path.dirname(f)
             const fullPath = path.join(folder, file)
@@ -43,7 +42,7 @@ export class QuickOpen {
                 icon: "file-text-o",
                 label: file,
                 detail: folder,
-                pinned: this._seenItems.indexOf(fullPath) >= 0
+                pinned: this._seenItems.indexOf(fullPath) >= 0,
             }
         })
 
@@ -51,4 +50,3 @@ export class QuickOpen {
     }
 
 }
-

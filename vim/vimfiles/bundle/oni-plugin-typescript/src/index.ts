@@ -1,19 +1,16 @@
-declare var Oni
-import * as path from "path"
-import * as fs from "fs"
-import * as os from "os"
-
-import { NavigationTree, TypeScriptServerHost } from "./TypeScriptServerHost"
-import { QuickInfo } from "./QuickInfo";
-
 import * as _ from "lodash"
+import * as os from "os"
+import * as path from "path"
+import { QuickInfo } from "./QuickInfo"
+import { INavigationTree, TypeScriptServerHost } from "./TypeScriptServerHost"
+declare var Oni
 
-const host = new TypeScriptServerHost();
-const quickInfo = new QuickInfo(Oni, host);
+const host = new TypeScriptServerHost()
+const quickInfo = new QuickInfo(Oni, host)
 
-const findParentDir = require("find-parent-dir")
+const findParentDir = require("find-parent-dir") // tslint:disable-line no-var-requires
 
-let lastOpenFile = null;
+const lastOpenFile = null
 
 let lastBuffer: string[] = []
 
@@ -36,7 +33,7 @@ const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
         .then((val: any) => {
             return {
                 title: val.displayString,
-                description: val.documentation
+                description: val.documentation,
             }
         })
 }
@@ -44,11 +41,11 @@ const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
 const getDefinition = (textDocumentPosition: Oni.EventContext) => {
     return host.getTypeDefinition(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
         .then((val: any) => {
-            val = val[0];
+            val = val[0]
             return {
                 filePath: val.file,
                 line: val.start.line,
-                column: val.start.offset
+                column: val.start.offset,
             }
         })
 }
@@ -56,21 +53,21 @@ const getDefinition = (textDocumentPosition: Oni.EventContext) => {
 const getFormattingEdits = (position: Oni.EventContext) => {
     return host.getFormattingEdits(position.bufferFullPath, 1, 1, lastBuffer.length, 0)
         .then((val) => {
-            const edits = val.map(v => {
+            const edits = val.map((v) => {
                 const start = {
                     line: v.start.line,
-                    column: v.start.offset
+                    column: v.start.offset,
                 }
 
                 const end = {
                     line: v.end.line,
-                    column: v.end.offset
+                    column: v.end.offset,
                 }
 
                 return {
-                    start: start,
-                    end: end,
-                    newValue: v.newText
+                    start,
+                    end,
+                    newValue: v.newText,
                 }
 
             })
@@ -78,7 +75,7 @@ const getFormattingEdits = (position: Oni.EventContext) => {
             return {
                 filePath: position.bufferFullPath,
                 version: position.version,
-                edits: edits
+                edits,
             }
         })
 }
@@ -89,7 +86,7 @@ const evaluateBlock = (context: Oni.EventContext, id: string, fileName: string, 
 
     // Get all imports from last module
 
-    const commonImports = lastBuffer.filter(line => {
+    const commonImports = lastBuffer.filter((line) => {
         return (line.trim().indexOf("import") === 0 || line.indexOf("require(") >= 0) && line.indexOf("ignore-live") === -1 && line.indexOf("return") === -1
     })
 
@@ -98,7 +95,7 @@ const evaluateBlock = (context: Oni.EventContext, id: string, fileName: string, 
     code = ts.transpileModule(code, { target: "ES6" }).outputText
 
     const script = new vm.Script(code)
-    var Module = require("module")
+    const Module = require("module")
     const mod = new Module(fileName)
     const util = require("util")
     const sandbox = {
@@ -107,10 +104,10 @@ const evaluateBlock = (context: Oni.EventContext, id: string, fileName: string, 
         __dirname: path.dirname(fileName),
         require: (requirePath) => {
             try {
-                var path = require("path")
+                const path = require("path")
                 // See if this is a 'node_modules' dependency:
 
-                var modulePath = findParentDir.sync(__dirname, path.join("node_modules", requirePath))
+                const modulePath = findParentDir.sync(__dirname, path.join("node_modules", requirePath))
 
                 if (modulePath) {
                     requirePath = path.join(modulePath, "node_modules", requirePath)
@@ -119,18 +116,18 @@ const evaluateBlock = (context: Oni.EventContext, id: string, fileName: string, 
                 return mod.require(requirePath)
             } catch (ex) {
                 // TODO: Log require error here
-                debugger
+                debugger // tslint:disable-line no-debugger
             }
-        }
+        },
     }
 
     const result = script.runInNewContext(sandbox)
 
     const initialResult = {
-        id: id,
-        fileName: fileName,
+        id,
+        fileName,
         output: null,
-        errors: null
+        errors: null,
     }
 
     if (result.then) {
@@ -139,12 +136,12 @@ const evaluateBlock = (context: Oni.EventContext, id: string, fileName: string, 
             variables: util.inspect(sandbox),
         })), (err) => (_.extend({}, initialResult, {
             variables: util.inspect(sandbox),
-            errors: [err]
+            errors: [err],
         })))
     } else {
         return Promise.resolve(_.extend({}, initialResult, {
             result: util.inspect(result),
-            variables: util.inspect(sandbox)
+            variables: util.inspect(sandbox),
         }))
     }
 }
@@ -157,103 +154,104 @@ const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completion
                 kind: entry.kind,
                 label: entry.name,
                 documentation: entry.documentation && entry.documentation.length ? entry.documentation[0].text : null,
-                detail: convertToDisplayString(entry.displayParts)
+                detail: convertToDisplayString(entry.displayParts),
             }
         })
 }
 
 const getCompletions = (textDocumentPosition: Oni.EventContext) => {
-    if (textDocumentPosition.column <= 1)
+    if (textDocumentPosition.column <= 1) {
         return Promise.resolve({
-            completions: []
+            completions: [],
         })
+    }
 
-    let currentLine = lastBuffer[textDocumentPosition.line - 1];
+    const currentLine = lastBuffer[textDocumentPosition.line - 1]
     let col = textDocumentPosition.column - 2
-    let currentPrefix = "";
+    let currentPrefix = ""
 
     while (col >= 0) {
         const currentCharacter = currentLine[col]
 
-        if (!currentCharacter.match(/[_a-z]/i))
+        if (!currentCharacter.match(/[_a-z]/i)) {
             break
+        }
 
         currentPrefix = currentCharacter + currentPrefix
         col--
     }
 
-    const basePos = col;
+    const basePos = col
 
-
-    if (currentPrefix.length === 0 && currentLine[basePos] !== ".")
+    if (currentPrefix.length === 0 && currentLine[basePos] !== ".") {
         return Promise.resolve({
             base: currentPrefix,
-            completions: []
+            completions: [],
         })
+    }
 
-    console.log("Get completions: current line " + currentLine)
+    console.log("Get completions: current line " + currentLine) // tslint:disable-line no-console
 
     return host.getCompletions(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, currentPrefix)
         .then((val: any[]) => {
 
             const results = val
-                .filter(v => v.name.indexOf(currentPrefix) === 0 || currentPrefix.length === 0)
-                .map(v => ({
+                .filter((v) => v.name.indexOf(currentPrefix) === 0 || currentPrefix.length === 0)
+                .map((v) => ({
                     label: v.name,
-                    kind: v.kind
+                    kind: v.kind,
                 }))
 
-            let ret = [];
+            let ret = []
 
             // If there is only one result, and it matches exactly,
             // don't show
-            if (results.length === 1 && results[0].label === currentPrefix)
-                ret = [];
-            else
+            if (results.length === 1 && results[0].label === currentPrefix) {
+                ret = []
+            } else {
                 ret = results
+            }
 
             return {
                 base: currentPrefix,
-                completions: results
+                completions: results,
             }
-        });
+        })
 }
-
 
 const getSignatureHelp = (textDocumentPosition: Oni.EventContext) => {
     return host.getSignatureHelp(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
         .then((result) => {
             const items = result.items || []
 
-            const signatureHelpItems = items.map(item => ({
+            const signatureHelpItems = items.map((item) => ({
                 variableArguments: item.isVariadic,
                 prefix: convertToDisplayString(item.prefixDisplayParts),
                 suffix: convertToDisplayString(item.suffixDisplayParts),
                 separator: convertToDisplayString(item.separatorDisplayParts),
-                parameters: item.parameters.map(p => ({
+                parameters: item.parameters.map((p) => ({
                     text: convertToDisplayString(p.displayParts),
-                    documentation: convertToDisplayString(p.documentation)
-                }))
+                    documentation: convertToDisplayString(p.documentation),
+                })),
             }))
 
             return {
                 items: signatureHelpItems,
                 selectedItemIndex: result.selectedItemIndex,
                 argumentCount: result.argumentCount,
-                argumentIndex: result.argumentIndex
+                argumentIndex: result.argumentIndex,
             }
         })
 }
 
-
 Oni.registerLanguageService({
-    getQuickInfo: getQuickInfo,
-    getDefinition: getDefinition,
-    getCompletions: getCompletions,
-    getCompletionDetails: getCompletionDetails,
-    getFormattingEdits: getFormattingEdits,
-    evaluateBlock: evaluateBlock,
-    getSignatureHelp: getSignatureHelp
+    evaluateBlock,
+    getCompletionDetails,
+    getCompletions,
+    getDefinition,
+    getFormattingEdits,
+    getQuickInfo,
+    getSignatureHelp,
 })
 
 host.on("semanticDiag", (diagnostics) => {
@@ -262,7 +260,7 @@ host.on("semanticDiag", (diagnostics) => {
 
     const diags = diagnostics.diagnostics || []
 
-    const errors = diags.map(d => {
+    const errors = diags.map((d) => {
         const lineNumber = d.start.line
         let startColumn = null
         let endColumn = null
@@ -275,15 +273,14 @@ host.on("semanticDiag", (diagnostics) => {
         return {
             type: null,
             text: d.text,
-            lineNumber: lineNumber,
-            startColumn: startColumn,
-            endColumn: endColumn
+            lineNumber,
+            startColumn,
+            endColumn,
         }
     })
 
     Oni.diagnostics.setErrors("typescript-compiler", fileName, errors, "red")
 })
-
 
 const updateFile = _.throttle((bufferFullPath, stringContents) => {
     host.updateFile(bufferFullPath, stringContents)
@@ -291,23 +288,24 @@ const updateFile = _.throttle((bufferFullPath, stringContents) => {
 
 Oni.on("buffer-update", (args) => {
 
-    if (!args.eventContext.bufferFullPath)
+    if (!args.eventContext.bufferFullPath) {
         return
+    }
 
     if (lastOpenFile !== args.eventContext.bufferFullPath) {
-        host.openFile(args.eventContext.bufferFullPath);
+        host.openFile(args.eventContext.bufferFullPath)
     }
 
     lastBuffer = args.bufferLines
 
-    updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL));
+    updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL))
 
-});
+})
 
-
-const getHighlightsFromNavTree = (navTree: NavigationTree[], highlights: any[]) => {
-    if (!navTree)
+const getHighlightsFromNavTree = (navTree: INavigationTree[], highlights: any[]) => {
+    if (!navTree) {
         return
+    }
 
     navTree.forEach((item) => {
         const spans = item.spans
@@ -318,24 +316,25 @@ const getHighlightsFromNavTree = (navTree: NavigationTree[], highlights: any[]) 
 
         spans.forEach((s) => {
             highlights.push({
-                highlightKind: highlightKind,
+                highlightKind,
                 start: { line: s.start.line, column: s.start.offset },
                 end: { line: s.end.line, column: s.end.offset },
-                token: item.text
+                token: item.text,
             })
         })
 
-        if (item.childItems)
+        if (item.childItems) {
             getHighlightsFromNavTree(item.childItems, highlights)
+        }
     })
 }
 
 Oni.on("buffer-enter", (args: Oni.EventContext) => {
     // // TODO: Look at alternate implementation for this
-    host.openFile(args.bufferFullPath);
+    host.openFile(args.bufferFullPath)
 
     host.getNavigationTree(args.bufferFullPath)
-        .then(navTree => {
+        .then((navTree) => {
             const highlights = []
             // debugger
             getHighlightsFromNavTree(navTree.childItems, highlights)
@@ -348,7 +347,7 @@ Oni.on("buffer-saved", (args: Oni.EventContext) => {
     host.getErrorsAcrossProject(args.bufferFullPath)
 
     host.getNavigationTree(args.bufferFullPath)
-        .then(navTree => {
+        .then((navTree) => {
             const highlights = []
             // debugger
             getHighlightsFromNavTree(navTree.childItems, highlights)
@@ -357,12 +356,12 @@ Oni.on("buffer-saved", (args: Oni.EventContext) => {
         })
 })
 
-export interface DisplayPart {
-    text: string;
-    kind: string;
+export interface IDisplayPart {
+    text: string
+    kind: string
 }
 
-var kindToHighlightGroup = {
+const kindToHighlightGroup = {
     let: "Identifier",
     const: "Constant",
     var: "Identifier",
@@ -371,19 +370,20 @@ var kindToHighlightGroup = {
     method: "Function",
     property: "Special",
     class: "Type",
-    interface: "Type"
-};
+    interface: "Type",
+}
 
 // TODO: Refactor to separate file
-const convertToDisplayString = (displayParts: DisplayPart[]) => {
-    let ret = "";
+const convertToDisplayString = (displayParts: IDisplayPart[]) => {
+    let ret = ""
 
-    if (!displayParts || !displayParts.forEach)
-        return ret;
+    if (!displayParts || !displayParts.forEach) {
+        return ret
+    }
 
     displayParts.forEach((dp) => {
-        ret += dp.text;
-    });
+        ret += dp.text
+    })
 
-    return ret;
+    return ret
 }

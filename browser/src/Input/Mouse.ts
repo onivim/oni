@@ -1,6 +1,5 @@
 import { EventEmitter } from "events"
-
-import { Screen } from "./../Screen"
+import { IScreen } from "./../Screen"
 
 // interface ScreenPoint {
 //     line: number
@@ -12,10 +11,10 @@ import { Screen } from "./../Screen"
 export class Mouse extends EventEmitter {
 
     private _canvasElement: HTMLCanvasElement
-    private _screen: Screen
+    private _screen: IScreen
     private _isDragging = false
 
-    constructor(canvasElement: HTMLCanvasElement, screen: Screen) {
+    constructor(canvasElement: HTMLCanvasElement, screen: IScreen) {
         super()
 
         this._canvasElement = canvasElement
@@ -31,8 +30,9 @@ export class Mouse extends EventEmitter {
         document.body.addEventListener("mousemove", (evt: MouseEvent) => {
             const { line, column } = this._convertEventToPosition(evt)
 
-            if (this._isDragging)
+            if (this._isDragging) {
                 this.emit("mouse", `<LeftDrag><${line},${column}>`)
+            }
         })
 
         document.body.addEventListener("mouseup", (evt: MouseEvent) => {
@@ -49,7 +49,7 @@ export class Mouse extends EventEmitter {
 
         return {
             line: Math.round(mouseX / this._screen.fontWidthInPixels),
-            column: Math.round(mouseY / this._screen.fontHeightInPixels)
+            column: Math.round(mouseY / this._screen.fontHeightInPixels),
         }
     }
 }

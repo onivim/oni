@@ -1,7 +1,6 @@
 import * as path from "path"
-
-import { IOverlay, IWindowContext } from "./../OverlayManager"
 import { renderErrorMarkers } from "./../components/Error"
+import { IOverlay, IWindowContext } from "./../OverlayManager"
 
 export class ErrorOverlay implements IOverlay {
 
@@ -35,11 +34,13 @@ export class ErrorOverlay implements IOverlay {
 
     private _showErrors(): void {
 
-        if (!this._currentFileName)
+        if (!this._currentFileName) {
             return
+        }
 
-        if (!this._element)
+        if (!this._element) {
             return
+        }
 
         if (!this._errors) {
             this._element.textContent = ""
@@ -48,7 +49,7 @@ export class ErrorOverlay implements IOverlay {
 
         renderErrorMarkers({
             errors: this._errors[this._currentFileName],
-            windowContext: this._lastWindowContext
+            windowContext: this._lastWindowContext,
         }, this._element)
     }
 }

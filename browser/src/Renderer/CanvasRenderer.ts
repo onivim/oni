@@ -1,46 +1,45 @@
 import * as _ from "lodash"
-
-import { Screen, Cell, /* PixelPosition, Position */ } from "./../Screen"
-import { DeltaRegionTracker } from "./../DeltaRegionTracker"
-import { Grid } from "./../Grid"
 import * as Config from "./../Config"
-
-import { RenderCache } from "./RenderCache"
+import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
+import { Grid } from "./../Grid"
+import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
+import { RenderCache } from "./RenderCache"
 
 export class CanvasRenderer implements INeovimRenderer {
-    private _canvas: HTMLCanvasElement;
-    private _canvasContext: CanvasRenderingContext2D;
+    private _canvas: HTMLCanvasElement
+    private _canvasContext: CanvasRenderingContext2D
 
-    private _renderCache: RenderCache;
+    private _renderCache: RenderCache
 
-    private _lastRenderedCell: Grid<Cell> = new Grid<Cell>()
+    private _lastRenderedCell: Grid<ICell> = new Grid<ICell>()
 
     public start(element: HTMLCanvasElement): void {
         // Assert canvas
-        this._canvas = element;
-        this._canvas.width = this._canvas.offsetWidth;
-        this._canvas.height = this._canvas.offsetHeight;
-        this._canvasContext = this._canvas.getContext("2d") as any; // FIXME: null
+        this._canvas = element
+        this._canvas.width = this._canvas.offsetWidth
+        this._canvas.height = this._canvas.offsetHeight
+        this._canvasContext = <any> this._canvas.getContext("2d") // FIXME: null
 
-        this._renderCache = new RenderCache(this._canvasContext);
+        this._renderCache = new RenderCache(this._canvasContext)
     }
 
     public onAction(_action: any): void {
+        return
     }
 
     public onResize(): void {
-        const width = this._canvas.offsetWidth;
-        const height = this._canvas.offsetHeight;
-        this._canvas.width = width;
+        const width = this._canvas.offsetWidth
+        const height = this._canvas.offsetHeight
+        this._canvas.width = width
         this._canvas.height = height
 
         this._lastRenderedCell.clear()
     }
 
-    public update(screenInfo: Screen, deltaRegionTracker: DeltaRegionTracker): void {
+    public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
         this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
-        this._canvasContext.textBaseline = "top";
+        this._canvasContext.textBaseline = "top"
         const fontWidth = screenInfo.fontWidthInPixels
         const fontHeight = screenInfo.fontHeightInPixels
 
@@ -49,15 +48,15 @@ export class CanvasRenderer implements INeovimRenderer {
         const numberOfCellsToRender = Config.getValue<number>("prototype.editor.maxCellsToRender")
         const cellsToRender = _.take(_.shuffle(deltaRegionTracker.getModifiedCells()), numberOfCellsToRender)
 
-        cellsToRender.forEach(pos => {
+        cellsToRender.forEach((pos) => {
             const {x, y} = pos
-            const drawX = x * fontWidth;
-            const drawY = y * fontHeight;
+            const drawX = x * fontWidth
+            const drawY = y * fontHeight
 
-            const cell = screenInfo.getCell(x, y);
+            const cell = screenInfo.getCell(x, y)
 
             if (cell) {
-                var lastRenderedCell = this._lastRenderedCell.getCell(x, y)
+                const lastRenderedCell = this._lastRenderedCell.getCell(x, y)
 
                 if (lastRenderedCell === cell) {
                     deltaRegionTracker.notifyCellRendered(x, y)
@@ -78,19 +77,20 @@ export class CanvasRenderer implements INeovimRenderer {
                 const defaultBackgroundColor = "rgba(255, 255, 255, 0)"
                 let backgroundColor = defaultBackgroundColor
 
-                if (cell.backgroundColor && cell.backgroundColor !== screenInfo.backgroundColor)
+                if (cell.backgroundColor && cell.backgroundColor !== screenInfo.backgroundColor) {
                     backgroundColor = cell.backgroundColor
+                }
 
                 if (cell.character !== "" && cell.character !== " ") {
-                    var foregroundColor = cell.foregroundColor ? cell.foregroundColor : screenInfo.foregroundColor
+                    const foregroundColor = cell.foregroundColor ? cell.foregroundColor : screenInfo.foregroundColor
                     this._renderCache.drawText(
                         cell.character,
                         backgroundColor,
                         foregroundColor,
                         drawX,
                         drawY,
-                        screenInfo.fontFamily as any, // FIXME: null
-                        screenInfo.fontSize as any, // FIXME: null
+                        <any> screenInfo.fontFamily, // FIXME: null
+                        <any> screenInfo.fontSize, // FIXME: null
                         fontWidth,
                         fontHeight)
                 } else if (backgroundColor !== defaultBackgroundColor) {
@@ -100,7 +100,7 @@ export class CanvasRenderer implements INeovimRenderer {
 
                 this._lastRenderedCell.setCell(x, y, cell)
             } else {
-                console.log(`Unset cell - x: ${x} y: ${y}`)
+                console.log(`Unset cell - x: ${x} y: ${y}`) // tslint:disable-line no-console
             }
 
             deltaRegionTracker.notifyCellRendered(x, y)

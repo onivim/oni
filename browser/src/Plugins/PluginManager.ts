@@ -1,53 +1,44 @@
+import { ipcRenderer } from "electron"
+import { EventEmitter } from "events"
+import * as fs from "fs"
+import * as mkdirp from "mkdirp"
 import * as os from "os"
 import * as path from "path"
-import * as fs from "fs"
-import { EventEmitter } from "events"
-
-// import { remote } from "electron"
-import { ipcRenderer } from "electron"
-
-// import * as Q from "q"
-import * as mkdirp from "mkdirp"
-
 import * as Config from "./../Config"
 import { INeovimInstance } from "./../NeovimInstance"
+import { IScreen } from "./../Screen"
+import * as UI from "./../UI/index"
 import {
+    CompletionProviderCapability,
     EvaluateBlockCapability,
     FormatCapability,
-    QuickInfoCapability,
     GotoDefinitionCapability,
-    CompletionProviderCapability,
+    Plugin,
+    QuickInfoCapability,
     SignatureHelpCapability,
-    Plugin } from "./Plugin"
-import { Screen } from "./../Screen"
-
-import * as UI from "./../UI/index"
+} from "./Plugin"
 
 const initFilePath = path.join(__dirname, "vim", "init_template.vim")
-
 const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles")
-
 // const webcontents = remote.getCurrentWindow().webContents
-
 // const BrowserId = webcontents.id
 
-export interface BufferInfo {
+export interface IBufferInfo {
     lines: string[]
     version: number
     fileName: string
 }
 
 export class PluginManager extends EventEmitter {
-
     private _debugPluginPath: undefined | string
     private _rootPluginPaths: string[] = []
     private _extensionPath: string
     private _plugins: Plugin[] = []
     private _neovimInstance: INeovimInstance
     private _lastEventContext: any
-    private _lastBufferInfo: BufferInfo
+    private _lastBufferInfo: IBufferInfo
 
-    constructor(_screen: Screen, debugPlugin?: string) {
+    constructor(_screen: IScreen, debugPlugin?: string) {
         super()
 
         this._debugPluginPath = debugPlugin
@@ -56,7 +47,7 @@ export class PluginManager extends EventEmitter {
         this._rootPluginPaths.push(path.join(builtInPluginsRoot, "bundle"))
 
         if (Config.getValue<boolean>("vim.loadVimPlugins")) {
-            var userRoot = path.join(os.homedir(), "vimfiles", "bundle")
+            const userRoot = path.join(os.homedir(), "vimfiles", "bundle")
 
             if (fs.existsSync(userRoot)) {
                 this._rootPluginPaths.push(userRoot)
@@ -67,8 +58,8 @@ export class PluginManager extends EventEmitter {
         this._rootPluginPaths.push(this._extensionPath)
 
         ipcRenderer.on("cross-browser-ipc", (_event, arg) => {
-            console.log("cross-browser-ipc: " + JSON.stringify(arg));
-            this._handlePluginResponse(arg);
+            console.log("cross-browser-ipc: " + JSON.stringify(arg)) // tslint:disable-line no-console
+            this._handlePluginResponse(arg)
         })
 
         window.onbeforeunload = () => {
@@ -77,10 +68,10 @@ export class PluginManager extends EventEmitter {
     }
 
     public dispose(): void {
-        this._plugins.forEach(p => p.dispose())
+        this._plugins.forEach((p) => p.dispose())
     }
 
-    public get currentBuffer(): BufferInfo {
+    public get currentBuffer(): IBufferInfo {
         return this._lastBufferInfo
     }
 
@@ -93,16 +84,155 @@ export class PluginManager extends EventEmitter {
         }
     }
 
-    private _onBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]): void {
-            this._lastBufferInfo = {
-                lines: bufferLines,
-                fileName: eventContext.bufferFullPath,
-                version: eventContext.version
+    public requestFormat(): void {
+        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, FormatCapability)
+
+        if (plugin) {
+            plugin.requestFormat(this._lastEventContext)
+        }
+    }
+
+    public requestEvaluateBlock(id: string, fileName: string, code: string): void {
+        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, EvaluateBlockCapability)
+
+        if (plugin) {
+            plugin.requestEvaluateBlock(this._lastEventContext, id, fileName, code)
+        }
+    }
+
+    public notifyCompletionItemSelected(completionItem: any): void {
+        // TODO: Scope this to the plugin that is providing completion
+        this._plugins.forEach((plugin) => plugin.notifyCompletionItemSelected(completionItem))
+    }
+
+    public startPlugins(neovimInstance: INeovimInstance): void {
+        this._neovimInstance = neovimInstance
+
+        this._neovimInstance.on("buffer-update", (args: Oni.EventContext, bufferLines: string[]) => {
+            this._onBufferUpdate(args, bufferLines)
+        })
+
+        this._neovimInstance.on("event", (eventName: string, context: Oni.EventContext) => {
+            this._onEvent(eventName, context)
+        })
+
+        const allPlugins = this._getAllPluginPaths()
+        this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory))
+
+        if (this._debugPluginPath) {
+            this._plugins.push(new Plugin(this._debugPluginPath, true))
+        }
+    }
+
+    public generateInitVim(): string {
+        let contents = fs.readFileSync(initFilePath, "utf8")
+
+        const paths = this._getAllRuntimePaths()
+        contents = contents.replace("${runtimepaths}", "set rtp+=" + paths.join(","))
+        const destDir = path.join(os.tmpdir(), "init.vim")
+        fs.writeFileSync(destDir, contents, "utf8")
+
+        console.log("init.vim written to: " + destDir) // tslint:disable-line no-console
+
+        return destDir
+    }
+
+    private _ensureOniPluginsPath(): string {
+        const rootOniPluginsDir = path.join(os.homedir(), ".oni", "extensions")
+
+        mkdirp.sync(rootOniPluginsDir)
+        return rootOniPluginsDir
+    }
+
+    private _getAllPluginPaths(): string[] {
+        const paths: string[] = []
+        this._rootPluginPaths.forEach((rp) => {
+            const subPaths = getDirectories(rp)
+            paths.push(...subPaths)
+        })
+
+        return paths
+    }
+
+    private _getAllRuntimePaths(): string[] {
+        const pluginPaths = this._getAllPluginPaths()
+
+        return pluginPaths.concat(this._rootPluginPaths)
+    }
+
+    private _getFirstPluginThatHasCapability(filetype: string, capability: string): null | Plugin {
+        const handlers = this._plugins.filter((p) => p.doesPluginProvideLanguageServiceCapability(filetype, capability))
+
+        if (handlers.length > 0) {
+            return handlers[0]
+        }
+
+        const defaultHandlers = this._plugins.filter((p) => p.doesPluginProvideLanguageServiceCapability("*", capability))
+
+        if (defaultHandlers.length > 0) {
+            return defaultHandlers[0]
+        }
+
+        return null
+    }
+
+    private _handlePluginResponse(pluginResponse: any): void {
+        if (pluginResponse.type === "show-quick-info") {
+            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                return
             }
 
-            this._plugins
-                .filter(p => p.isPluginSubscribedToBufferUpdates(eventContext.filetype) || p.isPluginSubscribedToBufferUpdates("*"))
-                .forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines))
+            if (!pluginResponse.error) {
+                setTimeout(() => UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation))
+            } else {
+                setTimeout(() => UI.hideQuickInfo())
+            }
+        } else if (pluginResponse.type === "goto-definition") {
+            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                return
+            }
+
+            // TODO: Refactor to 'Service', break remaining NeoVim dependencies
+            const { filePath, line, column } = pluginResponse.payload
+            this._neovimInstance.command("e! " + filePath)
+            this._neovimInstance.command("keepjumps norm " + line + "G" + column)
+            this._neovimInstance.command("norm zz")
+        } else if (pluginResponse.type === "completion-provider") {
+            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                return
+            }
+
+            setTimeout(() => UI.showCompletions(pluginResponse.payload))
+        } else if (pluginResponse.type === "completion-provider-item-selected") {
+            setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details))
+        } else if (pluginResponse.type === "set-errors") {
+            this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors)
+        } else if (pluginResponse.type === "format") {
+            this.emit("format", pluginResponse.payload)
+        } else if (pluginResponse.type === "execute-shell-command") {
+            // TODO: Check plugin permission
+            this.emit("execute-shell-command", pluginResponse.payload)
+        } else if (pluginResponse.type === "evaluate-block-result") {
+            this.emit("evaluate-block-result", pluginResponse.payload)
+        } else if (pluginResponse.type === "set-syntax-highlights") {
+            this.emit("set-syntax-highlights", pluginResponse.payload)
+        } else if (pluginResponse.type === "clear-syntax-highlights") {
+            this.emit("clear-syntax-highlights", pluginResponse.payload)
+        } else if (pluginResponse.type === "signature-help-response") {
+            this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
+        }
+    }
+
+    private _onBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]): void {
+        this._lastBufferInfo = {
+            lines: bufferLines,
+            fileName: eventContext.bufferFullPath,
+            version: eventContext.version,
+        }
+
+        this._plugins
+            .filter((p) => p.isPluginSubscribedToBufferUpdates(eventContext.filetype) || p.isPluginSubscribedToBufferUpdates("*"))
+            .forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines))
 
     }
 
@@ -110,8 +240,8 @@ export class PluginManager extends EventEmitter {
         this._lastEventContext = eventContext
 
         this._plugins
-        .filter(p => p.isPluginSubscribedToVimEvents(eventContext.filetype) || p.isPluginSubscribedToVimEvents("*"))
-        .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext))
+            .filter((p) => p.isPluginSubscribedToVimEvents(eventContext.filetype) || p.isPluginSubscribedToVimEvents("*"))
+            .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext))
 
         if (eventName === "CursorMoved" && Config.getValue<boolean>("editor.quickInfo.enabled")) {
             const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, QuickInfoCapability)
@@ -134,86 +264,6 @@ export class PluginManager extends EventEmitter {
         }
     }
 
-    public requestFormat(): void {
-        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, FormatCapability)
-
-        if (plugin) {
-            plugin.requestFormat(this._lastEventContext)
-        }
-    }
-
-    public requestEvaluateBlock(id: string, fileName: string, code: string): void {
-        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, EvaluateBlockCapability)
-
-        if (plugin) {
-            plugin.requestEvaluateBlock(this._lastEventContext, id, fileName, code)
-        }
-    }
-
-    private _getFirstPluginThatHasCapability(filetype: string, capability: string): null | Plugin {
-        const handlers = this._plugins.filter(p => p.doesPluginProvideLanguageServiceCapability(filetype, capability))
-
-        if (handlers.length > 0) {
-            return handlers[0]
-        }
-
-        const defaultHandlers = this._plugins.filter(p => p.doesPluginProvideLanguageServiceCapability("*", capability))
-
-        if (defaultHandlers.length > 0)
-            return defaultHandlers[0]
-
-        return null
-    }
-
-    public notifyCompletionItemSelected(completionItem: any): void {
-        // TODO: Scope this to the plugin that is providing completion
-        this._plugins.forEach((plugin) => plugin.notifyCompletionItemSelected(completionItem))
-    }
-
-    private _handlePluginResponse(pluginResponse: any): void {
-        if (pluginResponse.type === "show-quick-info") {
-            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
-                return
-
-            if (!pluginResponse.error) {
-                setTimeout(() => UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation))
-            } else {
-                setTimeout(() => UI.hideQuickInfo())
-            }
-        } else if (pluginResponse.type === "goto-definition") {
-            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
-                return
-
-            // TODO: Refactor to 'Service', break remaining NeoVim dependencies
-            const { filePath, line, column } = pluginResponse.payload
-            this._neovimInstance.command("e! " + filePath)
-            this._neovimInstance.command("keepjumps norm " + line + "G" + column)
-            this._neovimInstance.command("norm zz")
-        } else if (pluginResponse.type === "completion-provider") {
-            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse))
-                return
-
-            setTimeout(() => UI.showCompletions(pluginResponse.payload))
-        } else if (pluginResponse.type === "completion-provider-item-selected") {
-            setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details))
-        } else if (pluginResponse.type === "set-errors") {
-            this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors)
-        } else if (pluginResponse.type === "format") {
-            this.emit("format", pluginResponse.payload)
-        } else if (pluginResponse.type === "execute-shell-command") {
-            // TODO: Check plugin permission
-            this.emit("execute-shell-command", pluginResponse.payload)
-        } else if (pluginResponse.type === "evaluate-block-result") {
-            this.emit("evaluate-block-result", pluginResponse.payload)
-        } else if(pluginResponse.type === "set-syntax-highlights") {
-            this.emit("set-syntax-highlights", pluginResponse.payload)
-        } else if(pluginResponse.type === "clear-syntax-highlights") {
-            this.emit("clear-syntax-highlights", pluginResponse.payload)
-        } else if(pluginResponse.type === "signature-help-response") {
-            this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
-        }
-    }
-
     /**
      * Validate that the originating event matched the initating event
      */
@@ -226,71 +276,14 @@ export class PluginManager extends EventEmitter {
             && originEvent.column === currentEvent.column) {
             return true
         } else {
-            console.log("Plugin response aborted as it didn't match current even (buffer/line/col)")
+            console.log("Plugin response aborted as it didn't match current even (buffer/line/col)") // tslint:disable-line no-console
             return false
         }
-    }
-
-
-    public startPlugins(neovimInstance: INeovimInstance): void {
-        this._neovimInstance = neovimInstance
-
-        this._neovimInstance.on("buffer-update", (args: Oni.EventContext, bufferLines: string[]) => {
-            this._onBufferUpdate(args, bufferLines)
-        })
-
-        this._neovimInstance.on("event", (eventName: string, context: Oni.EventContext) => {
-            this._onEvent(eventName, context)
-        })
-
-        const allPlugins = this._getAllPluginPaths()
-        this._plugins = allPlugins.map(pluginRootDirectory => new Plugin(pluginRootDirectory))
-
-        if (this._debugPluginPath) {
-            this._plugins.push(new Plugin(this._debugPluginPath, true))
-        }
-    }
-
-    private _ensureOniPluginsPath(): string {
-        var rootOniPluginsDir = path.join(os.homedir(), ".oni", "extensions")
-
-        mkdirp.sync(rootOniPluginsDir)
-        return rootOniPluginsDir
-    }
-
-    public generateInitVim(): string {
-        var contents = fs.readFileSync(initFilePath, "utf8")
-
-        const paths = this._getAllRuntimePaths()
-        contents = contents.replace("${runtimepaths}", "set rtp+=" + paths.join(","))
-        var destDir = path.join(os.tmpdir(), "init.vim")
-        fs.writeFileSync(destDir, contents, "utf8")
-
-        console.log("init.vim written to: " + destDir)
-
-        return destDir
-    }
-
-    private _getAllRuntimePaths(): string[] {
-        var pluginPaths = this._getAllPluginPaths()
-
-        return pluginPaths.concat(this._rootPluginPaths)
-    }
-
-    private _getAllPluginPaths(): string[] {
-
-        var paths: string[] = []
-        this._rootPluginPaths.forEach(rp => {
-            const subPaths = getDirectories(rp)
-            paths = paths.concat(subPaths)
-        })
-
-        return paths
     }
 }
 
 function getDirectories(rootPath: string | Buffer): string[] {
     return fs.readdirSync(rootPath)
-        .map(f => path.join(rootPath, f))
-        .filter(f => fs.statSync(f).isDirectory())
+        .map((f) => path.join(rootPath, f))
+        .filter((f) => fs.statSync(f).isDirectory())
 }

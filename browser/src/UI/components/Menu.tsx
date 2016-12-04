@@ -22,7 +22,7 @@ export interface MenuProps {
     selectedIndex: number
     filterText: string
     onChangeFilterText: (text: string) => void
-    items: State.MenuOptionWithHighlights[]
+    items: State.IMenuOptionWithHighlights[]
 }
 
 export class Menu extends React.Component<MenuProps, void> {
@@ -63,7 +63,7 @@ export class Menu extends React.Component<MenuProps, void> {
 }
 
 
-const mapStateToProps = (state: State.State) => {
+const mapStateToProps = (state: State.IState) => {
     if (!state.popupMenu) {
         return {
             visible: false,

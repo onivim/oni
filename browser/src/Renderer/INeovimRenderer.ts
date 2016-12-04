@@ -1,12 +1,12 @@
-import { Screen } from "./../Screen"
-import { DeltaRegionTracker } from "./../DeltaRegionTracker"
+import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
+import { IScreen } from "./../Screen"
 
 export interface INeovimRenderer {
     start(element: HTMLElement): void
 
-    update(screenInfo: Screen, deltaRegionTracker: DeltaRegionTracker): void
+    update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void
 
-    onAction(action: any, deltaRegionTracker: DeltaRegionTracker): void
+    onAction(action: any, deltaRegionTracker: IDeltaRegionTracker): void
 
     onResize(): void
 }

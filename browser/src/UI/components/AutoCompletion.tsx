@@ -5,7 +5,7 @@ import * as _ from "lodash"
 
 import { Icon } from "./../Icon"
 import { HighlightText } from "./HighlightText"
-import { State, /* AutoCompletionInfo */ } from "./../State"
+import { IState, /* AutoCompletionInfo */ } from "./../State"
 
 export interface AutoCompletionProps {
     visible: boolean
@@ -140,7 +140,7 @@ export class AutoCompletionIcon extends React.Component<AutoCompletionIconProps,
     }
 }
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = (state: IState) => {
     if (!state.autoCompletion) {
         return {
             visible: false,

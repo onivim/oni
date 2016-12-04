@@ -28,9 +28,9 @@ export class Icon extends React.Component<IconProps, void> {
     }
 
     private _getClassForIconSize(size: IconSize): string {
-       const normalizedSize = size || IconSize.Default
+        const normalizedSize = size || IconSize.Default
 
-       switch(normalizedSize) {
+        switch (normalizedSize) {
             case IconSize.Large:
                 return Large
             case IconSize.TwoX:
@@ -43,6 +43,6 @@ export class Icon extends React.Component<IconProps, void> {
                 return FiveX
             default:
                 return Default
-       }
+        }
     }
 }
