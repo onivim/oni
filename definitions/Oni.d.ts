@@ -136,6 +136,7 @@ declare namespace Oni {
         //export type CompletionKind = "method" | "function" | "var"
 
         export interface CompletionInfo {
+            highlightColor?: string,
             kind?: string
             label: string
             detail?: string
