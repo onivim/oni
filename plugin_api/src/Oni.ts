@@ -26,12 +26,12 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     constructor() {
         super()
-        ipcRenderer.on("cross-browser-ipc", (event, arg) => {
+        ipcRenderer.on("cross-browser-ipc", (_event, arg) => {
             this._handleNotification(arg)
         })
     }
 
-    private _handleNotification(arg) {
+    private _handleNotification(arg: any): void {
         if (arg.type === "buffer-update") {
             this.emit("buffer-update", arg.payload)
         } else if (arg.type === "event") {
@@ -53,9 +53,18 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
             const originalContext = arg.payload.context
 
+            const {
+                evaluateBlock,
+                getCompletionDetails,
+                getCompletions,
+                getDefinition,
+                getFormattingEdits,
+                getQuickInfo,
+                getSignatureHelp,
+            } = this._languageService;
             switch (requestType) {
                 case "quick-info":
-                    this._languageService.getQuickInfo(arg.payload.context)
+                    getQuickInfo && getQuickInfo(arg.payload.context)
                         .then((quickInfo) => {
                             Sender.send("show-quick-info", originalContext, {
                                 info: quickInfo.title,
@@ -66,7 +75,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                         })
                     break
                 case "goto-definition":
-                    this._languageService.getDefinition(arg.payload.context)
+                    getDefinition && getDefinition(arg.payload.context)
                         .then((definitionPosition) => {
                             Sender.send("goto-definition", originalContext, {
                                 filePath: definitionPosition.filePath,
@@ -76,7 +85,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                         })
                     break
                 case "completion-provider":
-                    this._languageService.getCompletions(arg.payload.context)
+                    getCompletions && getCompletions(arg.payload.context)
                         .then(completions => {
                             Sender.send("completion-provider", originalContext, completions)
                         }, (err) => {
@@ -85,7 +94,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                     break
                 case "completion-provider-item-selected":
                     console.log("completion-provider-item-selected")
-                    this._languageService.getCompletionDetails(arg.payload.context, arg.payload.item)
+                    getCompletionDetails && getCompletionDetails(arg.payload.context, arg.payload.item)
                         .then((details) => {
                             Sender.send("completion-provider-item-selected", originalContext, {
                                 details: details
@@ -93,19 +102,19 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                         })
                     break
                 case "format":
-                    this._languageService.getFormattingEdits(arg.payload.context)
+                    getFormattingEdits && getFormattingEdits(arg.payload.context)
                         .then((formattingResponse) => {
                             Sender.send("format", originalContext, formattingResponse)
                         })
                     break
                 case "evaluate-block":
-                    this._languageService.evaluateBlock(arg.payload.context, arg.payload.id, arg.payload.fileName, arg.payload.code)
+                    evaluateBlock && evaluateBlock(arg.payload.context, arg.payload.id, arg.payload.fileName, arg.payload.code)
                         .then((val) => {
                             Sender.send("evaluate-block-result", originalContext, val)
                         })
                     break
                 case "signature-help":
-                    this._languageService.getSignatureHelp(arg.payload.context)
+                    getSignatureHelp && getSignatureHelp(arg.payload.context)
                         .then((val) => {
                             Sender.send("signature-help-response", originalContext, val)
                         }, (err) => {

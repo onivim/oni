@@ -58,7 +58,7 @@ describe("PromiseDebouncer", () => {
 
         const allPromises = Promise.all([successPromises, promise2])
             .then(() => assert.ok(false, "Promise2 should not be successful"),
-                  (err) => assert.ok(true, "Error path hit as expected"))
+                  (_err) => assert.ok(true, "Error path hit as expected"))
 
         return allPromises
     })

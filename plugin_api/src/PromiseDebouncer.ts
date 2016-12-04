@@ -1,5 +1,5 @@
 export interface PromiseFunction<T> {
-    (...args):  Promise<T> 
+    (...args: any[]):  Promise<T>
 }
 
 export interface DeferredPromise<T> {
@@ -8,10 +8,10 @@ export interface DeferredPromise<T> {
     reject: (error: Error) => void
 }
 
-export function debounce<T>(promiseFunction: PromiseFunction<T>): PromiseFunction<T> {
+export function debounce<T>(this: any, promiseFunction: PromiseFunction<T>): PromiseFunction<T> {
 
-    let lastArguments: any[] = null
-    let pendingPromise: Promise<T> = null
+    let lastArguments: any[] = null as any
+    let pendingPromise: Promise<T> = null as any
     let queuedPromises: DeferredPromise<T>[] = []
 
     const executeNextPromise = () => {
@@ -26,24 +26,24 @@ export function debounce<T>(promiseFunction: PromiseFunction<T>): PromiseFunctio
         }
     }
 
-    const runPromiseFunction = (currentPromise, lastArguments) => {
+    const runPromiseFunction = (currentPromise: any, lastArguments : any) => {
         pendingPromise = promiseFunction.apply(this, lastArguments)
         lastArguments = null
 
         pendingPromise.then((val) => {
             currentPromise.resolve(val)
-            pendingPromise = null
+            pendingPromise = null as any
             executeNextPromise()
         }, (err) => {
             currentPromise.reject(err)
-            pendingPromise = null
+            pendingPromise = null as any
             executeNextPromise()
         })
 
     }
 
     return function(...args): Promise<T> {
-        
+
         let resolve = null
         let reject = null
         const promise = new Promise<T>(function () {
@@ -58,7 +58,7 @@ export function debounce<T>(promiseFunction: PromiseFunction<T>): PromiseFunctio
         }
 
         lastArguments = args
-        queuedPromises.push(deferredPromise)
+        queuedPromises.push(deferredPromise as any)
 
         executeNextPromise()
 
