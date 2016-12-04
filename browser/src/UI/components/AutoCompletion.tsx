@@ -69,14 +69,27 @@ export class AutoCompletionItem extends React.Component<AutoCompletionItemProps,
         const detailToShow = this.props.isSelected ? this.props.detail : ""
         const documentation = this.props.isSelected ? this.props.documentation : ""
 
+        const highlightColor = this.props.highlightColor || this._getDefaultHighlightColor(this.props.kind)
+
+        const iconContainerStyle = {
+            backgroundColor: highlightColor
+        }
+
         return <div className={className}>
             <div className="main">
-                <AutoCompletionIcon kind={this.props.kind} />
+                <span className="icon" style={iconContainerStyle}>
+                    <AutoCompletionIcon kind={this.props.kind} />
+                </span>
                 <HighlightText className="label" highlightClassName="highlight" highlightText={this.props.base} text={this.props.label} />
                 <span className="detail">{detailToShow}</span>
             </div>
             <div className="documentation">{documentation}</div>
         </div>
+    }
+
+    private _getDefaultHighlightColor(kind: string): string {
+        // TODO: Extend this logic for better defaults per kind
+        return "rgb(32, 232, 38)"
     }
 }
 

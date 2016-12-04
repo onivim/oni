@@ -49636,12 +49636,21 @@
 	        }
 	        const detailToShow = this.props.isSelected ? this.props.detail : "";
 	        const documentation = this.props.isSelected ? this.props.documentation : "";
+	        const highlightColor = this.props.highlightColor || this._getDefaultHighlightColor(this.props.kind);
+	        const iconContainerStyle = {
+	            backgroundColor: highlightColor
+	        };
 	        return React.createElement("div", { className: className },
 	            React.createElement("div", { className: "main" },
-	                React.createElement(AutoCompletionIcon, { kind: this.props.kind }),
+	                React.createElement("span", { className: "icon", style: iconContainerStyle },
+	                    React.createElement(AutoCompletionIcon, { kind: this.props.kind })),
 	                React.createElement(HighlightText_1.HighlightText, { className: "label", highlightClassName: "highlight", highlightText: this.props.base, text: this.props.label }),
 	                React.createElement("span", { className: "detail" }, detailToShow)),
 	            React.createElement("div", { className: "documentation" }, documentation));
+	    }
+	    _getDefaultHighlightColor(kind) {
+	        // TODO: Extend this logic for better defaults per kind
+	        return "rgb(32, 232, 38)";
 	    }
 	}
 	exports.AutoCompletionItem = AutoCompletionItem;
@@ -49750,7 +49759,7 @@
 
 
 	// module
-	exports.push([module.id, ".autocompletion {\n  background-color: #282828;\n  border: 1px solid gray;\n  box-shadow: 4px 4px rgba(0, 0, 0, 0.2);\n  color: #c8c8c8;\n  max-width: 800px;\n  max-height: 300px;\n  overflow-x: hidden;\n  overflow-y: auto;\n  animation-name: appear;\n  animation-duration: 0.5s;\n  transition: all 0.5s;\n}\n.autocompletion .entry {\n  padding: 4px;\n}\n.autocompletion .entry.selected {\n  background-color: #3c3c3c;\n}\n.autocompletion .entry .main {\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: row;\n      flex-direction: row;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.autocompletion .entry .main i {\n  margin-left: 4px;\n  margin-right: 4px;\n  font-size: 10px;\n}\n.autocompletion .entry .label {\n  -ms-flex: 1 0 auto;\n      flex: 1 0 auto;\n  min-width: 100px;\n}\n.autocompletion .entry .label .highlight {\n  font-weight: bold;\n  font-style: italic;\n  color: #32c8ff;\n}\n.autocompletion .entry .detail {\n  -ms-flex: 0 1 auto;\n      flex: 0 1 auto;\n  min-width: 50px;\n  text-align: right;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 16px;\n  color: rgba(100, 100, 100, 0.6);\n  font-size: 11px;\n}\n.autocompletion .entry .documentation {\n  font-size: 10px;\n  color: #32c8ff;\n}\n@keyframes appear {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n", ""]);
+	exports.push([module.id, ".autocompletion {\n  background-color: #282828;\n  border: 1px solid gray;\n  box-shadow: 4px 4px rgba(0, 0, 0, 0.2);\n  color: #c8c8c8;\n  max-width: 800px;\n  max-height: 300px;\n  overflow-x: hidden;\n  overflow-y: auto;\n  animation-name: appear;\n  animation-duration: 0.5s;\n  transition: all 0.5s;\n}\n.autocompletion .entry.selected {\n  background-color: #3c3c3c;\n}\n.autocompletion .entry.selected .main {\n  opacity: 1;\n}\n.autocompletion .entry.selected .main .icon {\n  border-left: 1px solid white;\n}\n.autocompletion .entry .main {\n  opacity: 0.8;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-direction: row;\n      flex-direction: row;\n  -ms-flex-align: center;\n      align-items: center;\n}\n.autocompletion .entry .main .icon {\n  padding: 4px;\n  width: 20px;\n  -ms-flex: 0 0 auto;\n      flex: 0 0 auto;\n  color: white;\n}\n.autocompletion .entry .main .icon i {\n  margin-left: 4px;\n  margin-right: 4px;\n  font-size: 10px;\n}\n.autocompletion .entry .label {\n  -ms-flex: 1 0 auto;\n      flex: 1 0 auto;\n  min-width: 100px;\n  margin-left: 8px;\n}\n.autocompletion .entry .label .highlight {\n  font-weight: bold;\n  font-style: italic;\n  color: #32c8ff;\n}\n.autocompletion .entry .detail {\n  -ms-flex: 0 1 auto;\n      flex: 0 1 auto;\n  min-width: 50px;\n  text-align: right;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 16px;\n  color: rgba(100, 100, 100, 0.6);\n  font-size: 11px;\n}\n.autocompletion .entry .documentation {\n  font-size: 10px;\n  color: #32c8ff;\n}\n@keyframes appear {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n", ""]);
 
 	// exports
 

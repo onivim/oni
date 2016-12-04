@@ -13,28 +13,42 @@
     transition: all 0.5s;
 
     .entry {
-        padding: 4px;
-
         &.selected {
             background-color: rgb(60, 60, 60);
+
+            .main {
+                opacity: 1;
+
+                .icon {
+                    border-left: 1px solid white;
+                }
+            }
         }
 
         .main {
+            opacity: 0.8;
             display: flex;
             flex-direction: row;
             align-items: center;
 
-            i {
-                margin-left: 4px;
-                margin-right: 4px;
-                font-size: 10px;
-            }
+            .icon {
+                padding: 4px;
+                width: 20px;
+                flex: 0 0 auto;
+                color: white;
 
+                i {
+                    margin-left: 4px;
+                    margin-right: 4px;
+                    font-size: 10px;
+                }
+            }
         }
 
         .label {
             flex: 1 0 auto;
             min-width:100px;
+            margin-left: 8px;
 
             .highlight {
                 font-weight: bold;
