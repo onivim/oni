@@ -168,9 +168,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
 
-        const initVimPath = this._pluginManager.generateInitVim()
+        const runtimePaths = this._pluginManager.getRuntimePaths()
 
-        this._initPromise = startNeovim(initVimPath, filesToOpen)
+        this._initPromise = startNeovim(runtimePaths, filesToOpen)
             .then((nv) => {
                 console.log("NevoimInstance: Neovim started")
 
@@ -293,7 +293,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
 var attachAsPromise = Q.denodeify(attach)
 
-function startNeovim(initVimPath, args): Q.IPromise<any> {
+function startNeovim(runtimePaths, args): Q.IPromise<any> {
 
     const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
 
@@ -301,7 +301,7 @@ function startNeovim(initVimPath, args): Q.IPromise<any> {
     const nvimMacProcessPath = "nvim"
     const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : nvimMacProcessPath 
 
-    var argsToPass = ['-u', initVimPath, '-N', '--embed', "--"].concat(args)
+    var argsToPass = ['--cmd', runtimePaths, '-N', '--embed', "--"].concat(args)
 
     var nvim_proc = cp.spawn(nvimProcessPath, argsToPass, {});
 

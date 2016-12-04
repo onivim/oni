@@ -271,6 +271,10 @@ export class PluginManager extends EventEmitter {
         return destDir
     }
 
+    public getRuntimePaths(): string[] {
+        return this._getAllRuntimePaths()
+    }
+
     private _getAllRuntimePaths(): string[] {
         var pluginPaths = this._getAllPluginPaths()
 
