@@ -5,7 +5,7 @@ import * as os from "os"
 import { EventEmitter } from "events"
 
 import { INeovimInstance } from "./../NeovimInstance"
-import { BufferInfo, PluginManager } from "./../Plugins/PluginManager"
+import { /* BufferInfo,*/ PluginManager } from "./../Plugins/PluginManager"
 
 /// <live>
 
@@ -52,7 +52,7 @@ export class LiveEvaluation extends EventEmitter {
             this.emit("evaluate-block-result", context.bufferFullPath, currentBlocks)
         })
 
-        this._pluginManager.on("evaluate-block-result", (res) => {
+        this._pluginManager.on("evaluate-block-result", (res: any) => {
             const id = res.id
             const codeBlock = this._keyToBlock[id]
 
@@ -89,7 +89,7 @@ function getLiveCodeBlocks(buffer: string[]): LiveCodeBlock[] {
                 return prev.concat([{ startLine: idx + 1, codeBlock: [], endLine: -1 }])
             }
         } else {
-            const currentCodeBlock = prev[prev.length - 1]
+            // const currentCodeBlock = prev[prev.length - 1]
 
             if (curr.indexOf("</live>") >= 0
                 && curr.indexOf("///") >= 0) {

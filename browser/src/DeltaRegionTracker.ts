@@ -1,6 +1,6 @@
-import * as Actions from "./actions"
+// import * as Actions from "./actions"
 
-import { Screen } from "./Screen"
+// import { Screen } from "./Screen"
 import { Grid } from "./Grid"
 import * as Config from "./Config"
 
@@ -22,12 +22,12 @@ export interface DeltaRegionTracker {
  */
 export class IncrementalDeltaRegionTracker implements DeltaRegionTracker {
 
-    private _screen: Screen;
+    // private _screen: Screen;
     private _cells: DeltaCellPosition[]
 
     private _dirtyGrid: Grid<boolean> = new Grid<boolean>()
 
-    private _debugDiv;
+    private _debugDiv: null | Element;
 
     constructor() {
         this._reset()

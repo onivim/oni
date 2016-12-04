@@ -2,11 +2,10 @@ import { EventEmitter } from "events"
 
 import { Screen } from "./../Screen"
 
-interface ScreenPoint {
-    line: number
-    column: number
-}
-
+// interface ScreenPoint {
+//     line: number
+//     column: number
+// }
 
 // TODO
 // Handle modifier keys
@@ -44,7 +43,7 @@ export class Mouse extends EventEmitter {
         })
     }
 
-    private _convertEventToPosition(evt: MouseEvent) {
+    private _convertEventToPosition(evt: MouseEvent): { line: number; column: number } {
         const mouseX = evt.clientX
         const mouseY = evt.clientY
 

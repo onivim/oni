@@ -48,8 +48,8 @@ export const reducer = (s: State.State, a: Actions.Action) => {
     }
 
     return Object.assign({}, s, {
-        autoCompletion: autoCompletionReducer(s.autoCompletion, a),
-        popupMenu: popupMenuReducer(s.popupMenu, a)
+        autoCompletion: autoCompletionReducer(s.autoCompletion as any, a), // FIXME: null
+        popupMenu: popupMenuReducer(s.popupMenu as any, a) // FIXME: null
     });
 }
 

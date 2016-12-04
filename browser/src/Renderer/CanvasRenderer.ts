@@ -1,6 +1,6 @@
 import * as _ from "lodash"
 
-import { Screen, Cell, PixelPosition, Position } from "./../Screen"
+import { Screen, Cell, /* PixelPosition, Position */ } from "./../Screen"
 import { DeltaRegionTracker } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
 import * as Config from "./../Config"
@@ -21,13 +21,12 @@ export class CanvasRenderer implements INeovimRenderer {
         this._canvas = element;
         this._canvas.width = this._canvas.offsetWidth;
         this._canvas.height = this._canvas.offsetHeight;
-        this._canvasContext = this._canvas.getContext("2d");
+        this._canvasContext = this._canvas.getContext("2d") as any; // FIXME: null
 
         this._renderCache = new RenderCache(this._canvasContext);
     }
 
-    public onAction(action: any): void {
-
+    public onAction(_action: any): void {
     }
 
     public onResize(): void {
@@ -45,7 +44,7 @@ export class CanvasRenderer implements INeovimRenderer {
         const fontWidth = screenInfo.fontWidthInPixels
         const fontHeight = screenInfo.fontHeightInPixels
 
-        const canvasStart = performance.now()
+        // const canvasStart = performance.now()
 
         const numberOfCellsToRender = Config.getValue<number>("prototype.editor.maxCellsToRender")
         const cellsToRender = _.take(_.shuffle(deltaRegionTracker.getModifiedCells()), numberOfCellsToRender)
@@ -84,7 +83,16 @@ export class CanvasRenderer implements INeovimRenderer {
 
                 if (cell.character !== "" && cell.character !== " ") {
                     var foregroundColor = cell.foregroundColor ? cell.foregroundColor : screenInfo.foregroundColor
-                    this._renderCache.drawText(cell.character, backgroundColor, foregroundColor, drawX, drawY, screenInfo.fontFamily, screenInfo.fontSize, fontWidth, fontHeight)
+                    this._renderCache.drawText(
+                        cell.character,
+                        backgroundColor,
+                        foregroundColor,
+                        drawX,
+                        drawY,
+                        screenInfo.fontFamily as any, // FIXME: null
+                        screenInfo.fontSize as any, // FIXME: null
+                        fontWidth,
+                        fontHeight)
                 } else if (backgroundColor !== defaultBackgroundColor) {
                     this._canvasContext.fillStyle = backgroundColor
                     this._canvasContext.fillRect(drawX, drawY, fontWidth, fontHeight)
@@ -98,7 +106,7 @@ export class CanvasRenderer implements INeovimRenderer {
             deltaRegionTracker.notifyCellRendered(x, y)
         })
 
-        const canvasEnd = performance.now()
+        // const canvasEnd = performance.now()
 
         // TODO: Need a story for verbose logging
         // console.log("Render time: " + (canvasEnd - canvasStart))

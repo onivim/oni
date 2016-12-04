@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import * as path from "path";
 import * as cp from "child_process";
-import * as os from "os";
+// import * as os from "os";
 import * as Q from "q";
 import { remote } from "electron";
 
@@ -20,18 +20,18 @@ export interface INeovimInstance {
     cursorPosition: Position;
     screenToPixels(row: number, col: number): PixelPosition
 
-    input(inputString: string)
-    command(command: string)
+    input(inputString: string): void
+    command(command: string): Q.Promise<any>
     eval(expression: string): Q.Promise<any>
 
-    on(event: string, handler: Function)
+    on(event: string, handler: Function): void
 
-    setFont(fontFamily: string, fontSize: string)
+    setFont(fontFamily: string, fontSize: string): void
 
     getCurrentBuffer(): Q.Promise<IBuffer>
     getCurrentWindow(): Q.Promise<IWindow>
 
-    getSelectionRange(): Q.Promise<Oni.Range>
+    getSelectionRange(): Q.Promise<null | Oni.Range>
 }
 
 /**
@@ -55,12 +55,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.eval<string>("mode()")
     }
 
-    public getSelectionRange(): Q.Promise<Oni.Range> {
+    public getSelectionRange(): Q.Promise<null | Oni.Range> {
 
-        let buffer: IBuffer = null
+        let buffer: null | IBuffer = null
         let start = null
         let end = null
 
+        // FIXME: deal with nulls
         return this.getMode()
             .then((mode) => {
 
@@ -71,15 +72,15 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             .then(() => this.input("<esc>"))
             .then(() => this.getCurrentBuffer())
             .then((buf) => buffer = buf)
-            .then(() => buffer.getMark("<"))
+            .then(() => buffer && buffer.getMark("<") as any)
             .then((s) => start = s)
-            .then(() => buffer.getMark(">"))
+            .then(() => buffer && buffer.getMark(">") as any)
             .then((e) => end = e)
             .then(() => this.command("normal! gv"))
             .then(() => ({
                 start: start,
                 end: end
-            }))
+            })) as any
     }
 
     public setFont(fontFamily: string, fontSize: string): void {
@@ -121,7 +122,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         }
     }
 
-    public screenToPixels(row: number, col: number): PixelPosition {
+    public screenToPixels(_row: number, _col: number): PixelPosition {
         return {
             x: 0,
             y: 0
@@ -152,7 +153,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         }
 
         this._initPromise.then(() => {
-            this._neovim.uiTryResize(columns, rows, function(err) {
+            this._neovim.uiTryResize(columns, rows, function(err?: Error) {
                 if (err)
                     console.error(err)
             })
@@ -182,11 +183,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                 this._neovim = nv
 
-                this._neovim.on("error", (err) => {
+                this._neovim.on("error", (err: Error) => {
                     console.error(err)
                 })
 
-                this._neovim.on("notification", (method, args) => {
+                this._neovim.on("notification", (method: any, args: any) => {
                     if (method === "redraw") {
                         this._handleNotification(method, args)
                     } else if (method === "oni_plugin_notify") {
@@ -215,7 +216,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     }
                 })
 
-                this._neovim.on("request", (method, args, resp) => {
+                this._neovim.on("request", (method: any, _args: any, _resp: any) => {
                     console.warn("Unhandled request: " + method)
                 })
 
@@ -223,7 +224,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     remote.app.quit()
                 })
 
-                this._neovim.uiAttach(80, 40, true, (err) => {
+                this._neovim.uiAttach(80, 40, true, (_err?: Error) => {
                     console.log("Attach success")
 
                     performance.mark("NeovimInstance.Plugins.Start")
@@ -237,8 +238,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this.setFont("Consolas", "14px");
     }
 
-    private _handleNotification(method, args): void {
-        args.forEach((a) => {
+    private _handleNotification(_method: any, args: any): void {
+        args.forEach((a: any[]) => {
             var command = a[0];
             a.shift();
 
@@ -293,13 +294,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
 var attachAsPromise = Q.denodeify(attach)
 
-function startNeovim(initVimPath, args): Q.IPromise<any> {
+function startNeovim(initVimPath: any, args: any): Q.IPromise<any> {
 
     const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
 
     // For Mac / Linux, assume there is a locally installed neovim
     const nvimMacProcessPath = "nvim"
-    const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : nvimMacProcessPath 
+    const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : nvimMacProcessPath
 
     var argsToPass = ['-u', initVimPath, '-N', '--embed', "--"].concat(args)
 

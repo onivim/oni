@@ -42,28 +42,28 @@ export class Plugin {
     private _webContents: any;
     private _lastEventContext: EventContext;
 
-    public get browserWindow(): Electron.BrowserWindow {
+    public get browserWindow(): null | Electron.BrowserWindow {
         return this._browserWindow;
     }
 
     public dispose(): void {
         if (this._browserWindow) {
             this._browserWindow.close()
-            this._browserWindow = null
+            delete this._browserWindow
         }
     }
 
-    private _send(message: any) {
+    private _send(message: any): void {
 
         if (!this.browserWindow)
             return
 
-        const messageToSend = Object.assign({}, message, {
-            meta: {
-                senderId: BrowserId,
-                destinationId: this._browserWindowId
-            }
-        })
+        // const messageToSend = Object.assign({}, message, {
+        //     meta: {
+        //         senderId: BrowserId,
+        //         destinationId: this._browserWindowId
+        //     }
+        // })
 
         this._webContents.send("cross-browser-ipc", message)
     }
@@ -226,12 +226,12 @@ export class Plugin {
         }
     }
 
-    /* 
+    /*
     * For blocks that handle multiple languages
     * ie, javascript,typescript
     * Split into separate language srevice blocks
     */
-    private _expandMultipleLanguageKeys(packageMetadata: { [languageKey: string]: any }) {
+    private _expandMultipleLanguageKeys(packageMetadata: { [languageKey: string]: any }): void {
         Object.keys(packageMetadata).forEach(key => {
             if (key.indexOf(",")) {
                 const val = packageMetadata[key]
@@ -243,7 +243,7 @@ export class Plugin {
     }
 }
 
-const loadPluginInBrowser = (pathToModule: string, apiObject: any) => {
+const loadPluginInBrowser = (pathToModule: string, _apiObject: any) => {
     var browserWindow = new BrowserWindow({ width: 10, height: 10, show: false, webPreferences: { webSecurity: false } });
 
     browserWindow.webContents.on("did-finish-load", () => {

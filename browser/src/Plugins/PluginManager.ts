@@ -3,16 +3,16 @@ import * as path from "path"
 import * as fs from "fs"
 import { EventEmitter } from "events"
 
-import { remote } from "electron"
+// import { remote } from "electron"
 import { ipcRenderer } from "electron"
 
-import * as Q from "q"
+// import * as Q from "q"
 import * as mkdirp from "mkdirp"
 
 import * as Config from "./../Config"
 import { INeovimInstance } from "./../NeovimInstance"
-import { 
-    EvaluateBlockCapability, 
+import {
+    EvaluateBlockCapability,
     FormatCapability,
     QuickInfoCapability,
     GotoDefinitionCapability,
@@ -27,9 +27,9 @@ const initFilePath = path.join(__dirname, "vim", "init_template.vim")
 
 const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles")
 
-const webcontents = remote.getCurrentWindow().webContents
+// const webcontents = remote.getCurrentWindow().webContents
 
-const BrowserId = webcontents.id
+// const BrowserId = webcontents.id
 
 export interface BufferInfo {
     lines: string[]
@@ -39,7 +39,7 @@ export interface BufferInfo {
 
 export class PluginManager extends EventEmitter {
 
-    private _debugPluginPath: string
+    private _debugPluginPath: undefined | string
     private _rootPluginPaths: string[] = []
     private _extensionPath: string
     private _plugins: Plugin[] = []
@@ -47,7 +47,7 @@ export class PluginManager extends EventEmitter {
     private _lastEventContext: any
     private _lastBufferInfo: BufferInfo
 
-    constructor(screen: Screen, debugPlugin?: string) {
+    constructor(_screen: Screen, debugPlugin?: string) {
         super()
 
         this._debugPluginPath = debugPlugin
@@ -66,7 +66,7 @@ export class PluginManager extends EventEmitter {
         this._extensionPath = this._ensureOniPluginsPath()
         this._rootPluginPaths.push(this._extensionPath)
 
-        ipcRenderer.on("cross-browser-ipc", (event, arg) => {
+        ipcRenderer.on("cross-browser-ipc", (_event, arg) => {
             console.log("cross-browser-ipc: " + JSON.stringify(arg));
             this._handlePluginResponse(arg);
         })
@@ -93,7 +93,7 @@ export class PluginManager extends EventEmitter {
         }
     }
 
-    private _onBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]) {
+    private _onBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]): void {
             this._lastBufferInfo = {
                 lines: bufferLines,
                 fileName: eventContext.bufferFullPath,
@@ -150,7 +150,7 @@ export class PluginManager extends EventEmitter {
         }
     }
 
-    private _getFirstPluginThatHasCapability(filetype: string, capability: string): Plugin {
+    private _getFirstPluginThatHasCapability(filetype: string, capability: string): null | Plugin {
         const handlers = this._plugins.filter(p => p.doesPluginProvideLanguageServiceCapability(filetype, capability))
 
         if (handlers.length > 0) {
@@ -165,7 +165,7 @@ export class PluginManager extends EventEmitter {
         return null
     }
 
-    public notifyCompletionItemSelected(completionItem: any) {
+    public notifyCompletionItemSelected(completionItem: any): void {
         // TODO: Scope this to the plugin that is providing completion
         this._plugins.forEach((plugin) => plugin.notifyCompletionItemSelected(completionItem))
     }
@@ -279,7 +279,7 @@ export class PluginManager extends EventEmitter {
 
     private _getAllPluginPaths(): string[] {
 
-        var paths = []
+        var paths: string[] = []
         this._rootPluginPaths.forEach(rp => {
             const subPaths = getDirectories(rp)
             paths = paths.concat(subPaths)
@@ -289,7 +289,7 @@ export class PluginManager extends EventEmitter {
     }
 }
 
-function getDirectories(rootPath) {
+function getDirectories(rootPath: string | Buffer): string[] {
     return fs.readdirSync(rootPath)
         .map(f => path.join(rootPath, f))
         .filter(f => fs.statSync(f).isDirectory())

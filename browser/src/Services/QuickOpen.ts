@@ -12,10 +12,10 @@ import { INeovimInstance } from "./../NeovimInstance"
 
 export class QuickOpen {
 
-    private _seenItems = [];
+    private _seenItems: string[] = [];
 
     constructor(neovimInstance: INeovimInstance) {
-        UI.events.on("menu-item-selected", (selectedItem) => {
+        UI.events.on("menu-item-selected", (selectedItem: any) => {
             const arg = selectedItem.selectedOption
             const fullPath = path.join(arg.detail, arg.label)
 

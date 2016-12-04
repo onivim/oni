@@ -132,7 +132,7 @@ function assertGridValues<T>(grid: Grid<T>, array: T[][]): void {
         var rowItems = array[row]
 
         for(var col = 0; col < rowItems.length; col++) {
-            var colItem = rowItems[col]
+            // var colItem = rowItems[col]
 
             var item = grid.getCell(col, row)
             assert.strictEqual(item, array[row][col], `Validate item at row: ${row} and ${col}`)

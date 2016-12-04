@@ -9,17 +9,17 @@ export class ErrorOverlay implements IOverlay {
     private _errors: { [fileName: string]: Oni.Plugin.Diagnostics.Error[] } = {}
     private _currentFileName: string
     private _lastWindowContext: IWindowContext
-    private _columnOffset: number
-    private _currentLine: number
+    // private _columnOffset: number
+    // private _currentLine: number
 
-    public onVimEvent(eventName: string, eventContext: Oni.EventContext): void {
+    public onVimEvent(_eventName: string, eventContext: Oni.EventContext): void {
         const fullPath = eventContext.bufferFullPath
         this._currentFileName = fullPath
 
         this._showErrors()
     }
 
-    public setErrors(key: string, fileName: string, errors: Oni.Plugin.Diagnostics.Error[], color?: string): void {
+    public setErrors(_key: string, fileName: string, errors: Oni.Plugin.Diagnostics.Error[], _color?: string): void {
         fileName = path.normalize(fileName)
         this._errors[fileName] = errors
 

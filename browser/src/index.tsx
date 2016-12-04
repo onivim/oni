@@ -1,19 +1,19 @@
-import * as React from "react"
-import * as ReactDOM from "react-dom"
+// import * as React from "react"
+// import * as ReactDOM from "react-dom"
 import * as path from "path"
 
 import { ipcRenderer } from "electron"
 
-import { createStore, applyMiddleware } from "redux"
-import { Provider } from "react-redux"
+// import { createStore, applyMiddleware } from "redux"
+// import { Provider } from "react-redux"
 
 import { CanvasRenderer } from "./Renderer/CanvasRenderer"
-import { CanvasActionRenderer } from "./Renderer/CanvasActionRenderer"
+// import { CanvasActionRenderer } from "./Renderer/CanvasActionRenderer"
 
-import { NeovimScreen, Screen } from "./Screen"
+import { NeovimScreen, /*Screen*/ } from "./Screen"
 import { NeovimInstance } from "./NeovimInstance"
-import { DeltaRegionTracker, IncrementalDeltaRegionTracker } from "./DeltaRegionTracker"
-import { measureFont } from "./measureFont"
+import { /*DeltaRegionTracker,*/ IncrementalDeltaRegionTracker } from "./DeltaRegionTracker"
+// import { measureFont } from "./measureFont"
 import { Cursor } from "./Cursor"
 import { Keyboard } from "./Input/Keyboard"
 import { Mouse } from "./Input/Mouse"
@@ -24,9 +24,9 @@ import * as minimist from "minimist"
 
 import { QuickOpen } from "./Services/QuickOpen"
 import { Formatter } from "./Services/Formatter"
-import { OutputWindow } from "./Services/Output"
+// import { OutputWindow } from "./Services/Output"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
-import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
+// import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
 
 import { OverlayManager } from "./UI/OverlayManager"
 import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
@@ -61,9 +61,9 @@ const start = (args: string[]) => {
     // Services
     const quickOpen = new QuickOpen(instance)
     const formatter = new Formatter(instance, pluginManager)
-    const outputWindow = new OutputWindow(instance, pluginManager)
+    // const outputWindow = new OutputWindow(instance, pluginManager)
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
-    const syntaxHighligher = new SyntaxHighlighter(instance, pluginManager)
+    // const syntaxHighligher = new SyntaxHighlighter(instance, pluginManager)
 
     // Overlays
     const overlayManager = new OverlayManager(screen)
@@ -74,7 +74,7 @@ const start = (args: string[]) => {
     overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
     overlayManager.addOverlay("scrollbar", scrollbarOverlay)
 
-    pluginManager.on("signature-help-response", (err: string, signatureHelp: Oni.Plugin.SignatureHelpResult) => {
+    pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
         if (err) {
             UI.hideSignatureHelp()
         } else {
@@ -82,10 +82,10 @@ const start = (args: string[]) => {
         }
     })
 
-    pluginManager.on("set-errors", (key, fileName, errors, colors) => {
+    pluginManager.on("set-errors", (key: string, fileName: string, errors: any[], colors?: string) => {
         errorOverlay.setErrors(key, fileName, errors, colors)
 
-        const errorMarkers = errors.map(e => ({
+        const errorMarkers = errors.map((e: any) => ({
             line: e.lineNumber,
             height: 1,
             color: "red"
@@ -97,7 +97,7 @@ const start = (args: string[]) => {
         liveEvaluationOverlay.setLiveEvaluationResult(file, blocks)
     })
 
-    instance.on("event", (eventName: string, evt) => {
+    instance.on("event", (eventName: string, evt: any) => {
         // TODO: Can we get rid of these?
         overlayManager.handleCursorMovedEvent(evt)
         errorOverlay.onVimEvent(eventName, evt)
@@ -113,25 +113,25 @@ const start = (args: string[]) => {
         }
     })
 
-    instance.on("error", (err: string) => {
+    instance.on("error", (_err: string) => {
         UI.showNeovimInstallHelp()
     })
 
-    instance.on("buffer-update", (context, lines) => {
+    instance.on("buffer-update", (context: any, lines: string[]) => {
         scrollbarOverlay.onBufferUpdate(context, lines)
     })
 
-    instance.on("window-display-update", (arg) => {
+    instance.on("window-display-update", (arg: any) => {
         overlayManager.notifyWindowDimensionsChanged(arg)
     })
 
-    instance.on("action", (action) => {
+    instance.on("action", (action: any) => {
         renderer.onAction(action)
         screen.dispatch(action)
         cursor.dispatch(action)
 
         if (!pendingTimeout) {
-            pendingTimeout = setTimeout(updateFunction, 0);
+            pendingTimeout = setTimeout(updateFunction, 0) as any; // FIXME: null
         }
     })
 
@@ -165,7 +165,7 @@ const start = (args: string[]) => {
 
         UI.setBackgroundColor(screen.backgroundColor)
 
-        clearTimeout(pendingTimeout)
+        clearTimeout(pendingTimeout as any) // FIXME: null
         pendingTimeout = null
     }
 
@@ -173,12 +173,12 @@ const start = (args: string[]) => {
 
     const mouse = new Mouse(canvasElement, screen)
 
-    mouse.on("mouse", (mouseInput) => {
+    mouse.on("mouse", (mouseInput: string) => {
         instance.input(mouseInput)
     })
 
     const keyboard = new Keyboard()
-    keyboard.on("keydown", key => {
+    keyboard.on("keydown", (key: string) => {
 
         if (key === "<f3>") {
             formatter.formatBuffer()
@@ -229,7 +229,7 @@ const start = (args: string[]) => {
         }
     })
 
-    UI.events.on("completion-item-selected", (item) => {
+    UI.events.on("completion-item-selected", (item: any) => {
         pluginManager.notifyCompletionItemSelected(item)
     })
 
@@ -249,6 +249,6 @@ const start = (args: string[]) => {
     UI.init()
 }
 
-ipcRenderer.on("init", (evt, message) => {
+ipcRenderer.on("init", (_evt, message) => {
     start(message.args)
 })

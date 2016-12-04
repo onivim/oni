@@ -27,18 +27,18 @@ export interface MenuProps {
 
 export class Menu extends React.Component<MenuProps, void> {
 
-    private _inputElement: HTMLInputElement = null;
+    private _inputElement: HTMLInputElement = null as any; // FIXME: null
 
-    public render(): JSX.Element {
+    public render(): null | JSX.Element {
 
         if (!this.props.visible)
             return null
 
         const initialItems = _.take(this.props.items, 10);
 
-        const pinnedItems = initialItems.filter(f => f.pinned)
-        const unpinnedItems = initialItems.filter(f => !f.pinned)
-        const items = initialItems.map((menuItem, index) => <MenuItem {...menuItem}
+        // const pinnedItems = initialItems.filter(f => f.pinned)
+        // const unpinnedItems = initialItems.filter(f => !f.pinned)
+        const items = initialItems.map((menuItem, index) => <MenuItem {...menuItem as any} // FIXME: undefined
             filterText={this.props.filterText}
             isSelected={index === this.props.selectedIndex}
             />)
@@ -82,7 +82,7 @@ const mapStateToProps = (state: State.State) => {
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch: any) => {
 
     const dispatchFilterText = (text: string) => {
         dispatch(ActionCreators.filterMenu(text))

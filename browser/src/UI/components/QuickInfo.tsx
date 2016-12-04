@@ -15,7 +15,7 @@ export interface QuickInfoProps {
 
 export class QuickInfo extends React.Component<QuickInfoProps, void> {
 
-    public render(): JSX.Element {
+    public render(): null | JSX.Element {
         if (!this.props.elements || !this.props.elements.length)
             return null
 
@@ -118,13 +118,13 @@ const mapStateToSignatureHelpProps = (state: State) => {
             if (idx < argumentCount)
                 currentText += currentItem.separator + " "
 
-            if (sidx === state.signatureHelp.argumentIndex)
+            if (state.signatureHelp && sidx === state.signatureHelp.argumentIndex)
                 return <SelectedText text={currentText} />
             else
                 return <Text text={currentText} />
         })
 
-        let elements = [].concat([<Text text={currentItem.prefix} />])
+        let elements = [<Text text={currentItem.prefix} />]
             .concat(parameters)
             .concat([<Text text={currentItem.suffix} />])
 

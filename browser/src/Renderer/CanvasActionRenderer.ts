@@ -1,11 +1,11 @@
-import { Screen, Cell, PixelPosition, Position } from "./../Screen"
+import { Screen, /* Cell, PixelPosition, Position */ } from "./../Screen"
 import { DeltaRegionTracker } from "./../DeltaRegionTracker"
-import { Grid } from "./../Grid"
-import * as Config from "./../Config"
+// import { Grid } from "./../Grid"
+// import * as Config from "./../Config"
 import * as Actions from "./../actions"
 
 import { RenderCache } from "./RenderCache"
-import { INeovimRenderer } from "./INeovimRenderer"
+// import { INeovimRenderer } from "./INeovimRenderer"
 
 /**
  * Canvas strategy that renders directly when an action comes in
@@ -16,7 +16,7 @@ export class CanvasActionRenderer {
 
     private _renderCache: RenderCache;
 
-    private _lastRenderedCell: Grid<Cell> = new Grid<Cell>()
+    // private _lastRenderedCell: Grid<Cell> = new Grid<Cell>()
 
     private _screen: Screen
 
@@ -25,7 +25,7 @@ export class CanvasActionRenderer {
         this._canvas = element;
         this._canvas.width = this._canvas.offsetWidth;
         this._canvas.height = this._canvas.offsetHeight;
-        this._canvasContext = this._canvas.getContext("2d");
+        this._canvasContext = this._canvas.getContext("2d") as any; // FIXME: null
 
         this._renderCache = new RenderCache(this._canvasContext);
         this._screen = screen
@@ -50,8 +50,8 @@ export class CanvasActionRenderer {
                         foregroundColor,
                         (cursorColumn + i) * widthInPixels,
                         (cursorRow) * heightInPixels,
-                        this._screen.fontFamily,
-                        this._screen.fontSize,
+                        this._screen.fontFamily as any, // FIXME: null
+                        this._screen.fontSize as any, // FIXME: null
                         widthInPixels,
                         heightInPixels)
 
@@ -59,6 +59,7 @@ export class CanvasActionRenderer {
                 break
             case Actions.CLEAR:
                 this._canvasContext.clearRect(0, 0, this._canvas.width, this._canvas.height)
+                break
             case Actions.CLEAR_TO_END_OF_LINE:
                 this._canvasContext.clearRect(cursorColumn * widthInPixels,
                     cursorRow * heightInPixels,
@@ -96,6 +97,6 @@ export class CanvasActionRenderer {
         this._canvas.height = height
     }
 
-    public update(screenInfo: Screen, deltaRegionTracker: DeltaRegionTracker): void {
+    public update(_screenInfo: Screen, _deltaRegionTracker: DeltaRegionTracker): void {
     }
 }

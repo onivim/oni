@@ -19,8 +19,8 @@ export interface Screen {
     width: number;
     height: number;
 
-    fontFamily: string;
-    fontSize: string;
+    fontFamily: null | string;
+    fontSize: null | string;
     fontWidthInPixels: number;
     fontHeightInPixels: number;
 
@@ -72,8 +72,8 @@ export class NeovimScreen implements Screen {
 
     private _grid: Grid<Cell> = new Grid<Cell>()
 
-    private _fontFamily: string = null;
-    private _fontSize: string = null;
+    private _fontFamily: null | string = null;
+    private _fontSize: null | string = null;
     private _fontWidthInPixels: number;
     private _fontHeightInPixels: number;
 
@@ -99,11 +99,11 @@ export class NeovimScreen implements Screen {
         return this._height;
     }
 
-    public get fontFamily(): string {
+    public get fontFamily(): null | string {
         return this._fontFamily
     }
 
-    public get fontSize(): string {
+    public get fontSize(): null | string {
         return this._fontSize
     }
 
@@ -183,7 +183,7 @@ export class NeovimScreen implements Screen {
                 var backgroundColor = this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor
 
                 if (this._currentHighlight.reverse) {
-                    var temp = foregroundColor;
+                    // var temp = foregroundColor;
                     foregroundColor = backgroundColor
                     backgroundColor = foregroundColor
                 }

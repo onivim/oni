@@ -1,7 +1,7 @@
-import * as State from "./State"
-import * as Action from "./Actions"
+// import * as State from "./State"
+// import * as Action from "./Actions"
 
-export const setCursorPosition = (cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight) => ({
+export const setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any) => ({
     type: "SET_CURSOR_POSITION",
     payload: {
         pixelX: cursorPixelX,

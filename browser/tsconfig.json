@@ -1,11 +1,33 @@
 {
     "compilerOptions": {
-        "outDir": "../lib_test/browser",
-        "sourceMap": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "jsx": "react",
+        "lib": [
+            "dom",
+            "es2017"
+        ],
         "module": "commonjs",
-        "typeRoots": ["../node_modules/@types"],
-        "target": "es6",
-        "jsx": "react"
+        "moduleResolution": "node",
+        "newLine": "LF",
+        "noEmitOnError": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "outDir": "../lib_test/browser",
+        "pretty": true,
+        "removeComments": true,
+        "rootDir": ".",
+        "skipLibCheck": true,
+        "strictNullChecks": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "target": "es2015",
+        "sourceMap": true
     },
     "files": [
         "./../definitions/Oni.d.ts"

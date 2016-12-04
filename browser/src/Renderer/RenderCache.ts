@@ -14,7 +14,7 @@ export class RenderCache {
             var canvas = document.createElement("canvas")
             canvas.width = fontWidth
             canvas.height = fontHeight
-            var canvasContext = canvas.getContext("2d")
+            var canvasContext = canvas.getContext("2d") as any // FIXME: null
 
             canvasContext.font = "normal normal lighter " + fontSize + " " + fontFamily;
             canvasContext.textBaseline = "top";

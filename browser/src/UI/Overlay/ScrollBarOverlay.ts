@@ -1,10 +1,10 @@
-import * as path from "path"
+// import * as path from "path"
 
-import * as ReactDOM from "react-dom"
+// import * as ReactDOM from "react-dom"
 import * as _ from "lodash"
 
 import { IOverlay, IWindowContext } from "./../OverlayManager"
-import { renderBufferScrollBar, BufferScrollBarProps, ScrollBarMarker } from "./../components/BufferScrollBar"
+import { renderBufferScrollBar, /*BufferScrollBarProps,*/ ScrollBarMarker } from "./../components/BufferScrollBar"
 
 export interface KeyToMarkers {
     [key: string]: ScrollBarMarker[]
@@ -17,21 +17,21 @@ export interface FileToAllMarkers {
 export class ScrollBarOverlay implements IOverlay {
 
     private _element: HTMLElement
-    private _currentFileName: string
+    // private _currentFileName: string
     private _currentFileLength: number
-    private _windowTop: number
-    private _windowBottom: number
+    // private _windowTop: number
+    // private _windowBottom: number
     private _lastWindowContext: IWindowContext
     private _lastEvent: Oni.EventContext
 
     private _fileToMarkers: FileToAllMarkers = {}
 
-    public onBufferUpdate(eventContext: Oni.EventContext, lines: string[]): void {
+    public onBufferUpdate(_eventContext: Oni.EventContext, lines: string[]): void {
         this._currentFileLength = lines.length
     }
 
-    public onVimEvent(eventName: string, eventContext: Oni.EventContext): void {
-        const fullPath = eventContext.bufferFullPath
+    public onVimEvent(_eventName: string, eventContext: Oni.EventContext): void {
+        // const fullPath = eventContext.bufferFullPath
 
         this._lastEvent = eventContext
 

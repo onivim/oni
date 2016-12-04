@@ -111,8 +111,8 @@ export function setHighlight(bold: boolean, italic: boolean, reverse: boolean, u
         reverse: reverse,
         underline: underline,
         undercurl: undercurl,
-        foregroundColor: null,
-        backgroundColor: null
+        foregroundColor: undefined,
+        backgroundColor: undefined
     }
 
     if(foregroundColor && foregroundColor !== -1) {

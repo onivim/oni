@@ -3,10 +3,10 @@ export interface State {
     cursorPixelY: number
     fontPixelWidth: number
     fontPixelHeight: number
-    autoCompletion: AutoCompletionInfo
-    quickInfo: Oni.Plugin.QuickInfo
-    popupMenu: Menu
-    signatureHelp: Oni.Plugin.SignatureHelpResult
+    autoCompletion: null | AutoCompletionInfo
+    quickInfo: null | Oni.Plugin.QuickInfo
+    popupMenu: null | Menu
+    signatureHelp: null | Oni.Plugin.SignatureHelpResult
 }
 
 export interface Menu {

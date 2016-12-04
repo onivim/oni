@@ -1,4 +1,4 @@
-import * as State from "./State"
+// import * as State from "./State"
 
 export interface SetCursorPositionAction {
     type: "SET_CURSOR_POSITION",
@@ -98,5 +98,5 @@ export type Action = SetCursorPositionAction |
     ShowMenuAction |
     HideMenuAction |
     PreviousMenuAction |
-    NextMenuAction | 
+    NextMenuAction |
     FilterMenuAction

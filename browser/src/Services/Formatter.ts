@@ -36,7 +36,7 @@ export class Formatter {
             if (response.version != this._bufferInfoAtRequest.version)
                 return
 
-            const outputBuffer = [].concat(this._bufferInfoAtRequest.lines)
+            const outputBuffer = this._bufferInfoAtRequest.lines
 
             // Edits can affect the position of other edits... For example, if we remove a character at column 2,
             // another edit referenced at column 8 would now apply at column 7.

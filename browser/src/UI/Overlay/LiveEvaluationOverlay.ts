@@ -1,4 +1,4 @@
-import * as path from "path"
+// import * as path from "path"
 
 import * as _ from "lodash"
 
@@ -11,11 +11,11 @@ export class LiveEvaluationOverlay implements IOverlay {
     private _element: HTMLElement
     private _currentFileName: string;
     private _lastWindowContext: IWindowContext
-    private _lastEvalResults: LiveCodeBlock[]
+    // private _lastEvalResults: LiveCodeBlock[]
 
     private _bufferToBlocks: {[buffer: string]:{[id:string]:LiveCodeBlock}} = {}
 
-    public onVimEvent(eventName: string, eventContext: Oni.EventContext): void {
+    public onVimEvent(_eventName: string, eventContext: Oni.EventContext): void {
         const fullPath = eventContext.bufferFullPath
         this._currentFileName = fullPath
 

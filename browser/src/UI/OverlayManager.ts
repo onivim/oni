@@ -25,7 +25,7 @@ export interface IWindowContext {
      */
     startLine: number
 
-    /** 
+    /**
      * Line number of buffer at end of window
      */
     endLine: number
@@ -142,7 +142,7 @@ class WindowContext implements IWindowContext {
 }
 
 export interface IOverlay {
-    update(element: HTMLElement, windowContext: IWindowContext)
+    update(element: HTMLElement, windowContext: IWindowContext): void
 }
 
 interface OverlayInfo {

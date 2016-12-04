@@ -13,14 +13,14 @@ import { IWindow } from "./../neovim/Window"
 export class OutputWindow {
 
     private _neovimInstance: INeovimInstance
-    private _currentWindow: IWindow = null
-    private _currentBuffer: IBuffer = null
+    private _currentWindow: IWindow = null as any // FIXME: null
+    private _currentBuffer: IBuffer = null as any // FIXME: null
 
     constructor(neovimInstance: INeovimInstance, pluginManager: PluginManager) {
         this._neovimInstance = neovimInstance
 
-        pluginManager.on("execute-shell-command", (payload) => {
-            const command = payload.command
+        pluginManager.on("execute-shell-command", (_payload: any) => {
+            // const command = payload.command
 
             // this.execute(command)
         })
@@ -40,13 +40,16 @@ export class OutputWindow {
                         .then(() => this._currentBuffer.setOption("swapfile", false))
                         .then(() => this._currentBuffer.setOption("filetype", "output"))
                 }
+                else {
+                    return
+                }
             })
     }
 
     public execute(shellCommand: string): Q.Promise<void> {
         this.write([shellCommand])
 
-        var proc = exec(shellCommand, (err: any, stdout, stderr) => {
+        var proc = exec(shellCommand, (err: any, _stdout: any, _stderr: any) => {
             if (err)
                 console.error(err)
         })
@@ -56,7 +59,7 @@ export class OutputWindow {
         proc.on("close", (data) => {
             this.write([`process excited with code ${data}`])
         })
-        return Q.resolve(null)
+        return Q.resolve(undefined)
 
     }
 

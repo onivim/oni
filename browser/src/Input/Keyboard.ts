@@ -14,7 +14,7 @@ export class Keyboard extends EventEmitter {
 
             // Temporary workaround to block closing Window
             // The default electron menu maps C-w to close the window,
-            // so we need to stop that. 
+            // so we need to stop that.
             //
             // Later, the menu should be customized to fix this.
             if(mappedKey === "<C-w>" || mappedKey === "<C-r>")
@@ -22,7 +22,7 @@ export class Keyboard extends EventEmitter {
         })
     }
 
-    private _convertKeyEventToVimKey(evt: KeyboardEvent): string {
+    private _convertKeyEventToVimKey(evt: KeyboardEvent): null | string {
         switch(evt.keyCode) {
             case 8: // Backspace
                 return "<bs>"
@@ -32,7 +32,7 @@ export class Keyboard extends EventEmitter {
                 return "<enter>"
             case 16: // Shift left
             case 17: // Ctrl left
-                break
+                return null
             case 27: // Escape
                 return "<esc>"
             case 35:
@@ -60,7 +60,6 @@ export class Keyboard extends EventEmitter {
                 return null
             default:
                 let key = evt.key;
-
                 if (key === "<")
                     key = "<lt>"
 
