@@ -84,6 +84,26 @@ describe("Grid", () => {
 
             assertGridValues(startGrid, expectedVal)
         })
+
+        it("sets null correctly", () => {
+            const val = [
+                [1, 2, 3],
+                [3, 4, 5],
+                [6, 7, 8],
+            ]
+
+            const startGrid = createGridFromNestedArray(val)
+
+            startGrid.setRegion(0, 0, 2, 2, null)
+
+            const expectedOuput = [
+                [null, null, 3],
+                [null, null, 5],
+                [6, 7, 8],
+            ]
+
+            assertGridValues(startGrid, expectedOuput)
+        })
     })
 
     describe("cloneRegion", () => {
@@ -125,6 +145,24 @@ describe("Grid", () => {
             ]
 
             assertGridValues(topLeftGrid, expectedOutput)
+        })
+
+        it("handles null & undefined correctly", () => {
+            const val = [
+                [null, undefined, 3],
+                [0, 1, 5],
+                [6, 7, 8],
+            ]
+
+            const startGrid = createGridFromNestedArray(val)
+            const outGrid = startGrid.cloneRegion(0, 0, 2, 2)
+
+            const expectedOutput = [
+                [null, null],
+                [0, 1],
+            ]
+
+            assertGridValues(outGrid, expectedOutput)
         })
     })
 })

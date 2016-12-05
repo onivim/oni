@@ -21,7 +21,7 @@ export class Grid<T> {
 
         const col = row[x]
 
-        if (!col) {
+        if (typeof col === "undefined") {
             return null
         }
 
@@ -91,7 +91,7 @@ export class Grid<T> {
         }
     }
 
-    public setRegion(startX: number, startY: number, width: number, height: number, val?: T): void {
+    public setRegion(startX: number, startY: number, width: number, height: number, val?: T | null): void {
         const valToSet = typeof val === "undefined" ? null : val
         for (let x = startX; x < startX + width; x++) {
             for (let y = startY; y < startY + height; y++) {
