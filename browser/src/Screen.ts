@@ -234,9 +234,7 @@ export class NeovimScreen implements IScreen {
                 const height = bottom - top
                 const regionToScroll = this._grid.cloneRegion(left, top, width + 1, height + 1)
 
-                regionToScroll.shiftRows(count, {
-                    character: "",
-                })
+                regionToScroll.shiftRows(count)
 
                 this._grid.setRegionFromGrid(regionToScroll, left, top)
 

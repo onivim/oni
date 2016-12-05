@@ -15,7 +15,7 @@ export class SyntaxHighlighter {
         this._pluginManager = pluginManager
 
         this._pluginManager.on("set-syntax-highlights", (payload: any) => {
-            let buf: IBuffer = <any>null // FIXME: null
+            let buf: IBuffer = <any> null // FIXME: null
             this._neovimInstance.getCurrentBuffer()
                 .then((buffer) => buf = buffer)
                 .then(() => this._neovimInstance.eval("expand('%:p')"))

@@ -67,20 +67,21 @@
 	const Screen_1 = __webpack_require__(277);
 	const Formatter_1 = __webpack_require__(278);
 	const LiveEvaluation_1 = __webpack_require__(279);
-	const QuickOpen_1 = __webpack_require__(280);
-	const SyntaxHighlighter_1 = __webpack_require__(281);
+	const Output_1 = __webpack_require__(280);
+	const QuickOpen_1 = __webpack_require__(281);
+	const SyntaxHighlighter_1 = __webpack_require__(282);
 	const UI = __webpack_require__(59);
-	const ErrorOverlay_1 = __webpack_require__(282);
-	const LiveEvaluationOverlay_1 = __webpack_require__(286);
-	const ScrollBarOverlay_1 = __webpack_require__(290);
-	const OverlayManager_1 = __webpack_require__(300);
+	const ErrorOverlay_1 = __webpack_require__(283);
+	const LiveEvaluationOverlay_1 = __webpack_require__(287);
+	const ScrollBarOverlay_1 = __webpack_require__(291);
+	const OverlayManager_1 = __webpack_require__(301);
 	const start = (args) => {
 	    const services = [];
 	    const parsedArgs = minimist(args);
 	    const debugPlugin = parsedArgs["debugPlugin"];
 	    window["UI"] = UI;
-	    __webpack_require__(301);
-	    __webpack_require__(303);
+	    __webpack_require__(302);
+	    __webpack_require__(304);
 	    let deltaRegion = new DeltaRegionTracker_1.IncrementalDeltaRegionTracker();
 	    let screen = new Screen_1.NeovimScreen(deltaRegion);
 	    const pluginManager = new PluginManager_1.PluginManager(screen, debugPlugin);
@@ -92,12 +93,14 @@
 	    let pendingTimeout = null;
 	    const quickOpen = new QuickOpen_1.QuickOpen(instance);
 	    const formatter = new Formatter_1.Formatter(instance, pluginManager);
+	    const outputWindow = new Output_1.OutputWindow(instance, pluginManager);
 	    const liveEvaluation = new LiveEvaluation_1.LiveEvaluation(instance, pluginManager);
 	    const syntaxHighlighter = new SyntaxHighlighter_1.SyntaxHighlighter(instance, pluginManager);
 	    services.push(quickOpen);
 	    services.push(formatter);
 	    services.push(liveEvaluation);
 	    services.push(syntaxHighlighter);
+	    services.push(outputWindow);
 	    const overlayManager = new OverlayManager_1.OverlayManager(screen);
 	    const errorOverlay = new ErrorOverlay_1.ErrorOverlay();
 	    const liveEvaluationOverlay = new LiveEvaluationOverlay_1.LiveEvaluationOverlay();
@@ -865,7 +868,7 @@
 	        this._width = 0;
 	        this._height = 0;
 	    }
-	    shiftRows(rowsToShift, _defaultVal) {
+	    shiftRows(rowsToShift) {
 	        let dir;
 	        let start;
 	        let end;
@@ -893,9 +896,7 @@
 	        for (let x = 0; x < grid.width; x++) {
 	            for (let y = 0; y < grid.height; y++) {
 	                const sourceCell = grid.getCell(x, y);
-	                if (sourceCell) {
-	                    this.setCell(xPosition + x, yPosition + y, sourceCell);
-	                }
+	                this.setCell(xPosition + x, yPosition + y, sourceCell);
 	            }
 	        }
 	    }
@@ -903,9 +904,7 @@
 	        const valToSet = typeof val === "undefined" ? null : val;
 	        for (let x = startX; x < startX + width; x++) {
 	            for (let y = startY; y < startY + height; y++) {
-	                if (valToSet) {
-	                    this.setCell(x, y, valToSet);
-	                }
+	                this.setCell(x, y, valToSet);
 	            }
 	        }
 	    }
@@ -914,9 +913,7 @@
 	        for (let cloneX = 0; cloneX < width; cloneX++) {
 	            for (let cloneY = 0; cloneY < height; cloneY++) {
 	                const sourceCell = this.getCell(cloneX + x, cloneY + y);
-	                if (sourceCell) {
-	                    outputGrid.setCell(cloneX, cloneY, sourceCell);
-	                }
+	                outputGrid.setCell(cloneX, cloneY, sourceCell);
 	            }
 	        }
 	        return outputGrid;
@@ -50182,9 +50179,7 @@
 	                const width = right - left;
 	                const height = bottom - top;
 	                const regionToScroll = this._grid.cloneRegion(left, top, width + 1, height + 1);
-	                regionToScroll.shiftRows(count, {
-	                    character: "",
-	                });
+	                regionToScroll.shiftRows(count);
 	                this._grid.setRegionFromGrid(regionToScroll, left, top);
 	                for (let y = top; y < bottom; y++) {
 	                    for (let x = left; x < right; x++) {
@@ -50360,6 +50355,68 @@
 
 	"use strict";
 	const child_process_1 = __webpack_require__(18);
+	const Q = __webpack_require__(19);
+	class OutputWindow {
+	    constructor(neovimInstance, pluginManager) {
+	        this._currentWindow = null;
+	        this._currentBuffer = null;
+	        this._neovimInstance = neovimInstance;
+	        pluginManager.on("execute-shell-command", (_payload) => {
+	        });
+	    }
+	    open() {
+	        return this._isWindowOpen()
+	            .then((open) => {
+	            if (!open) {
+	                return this._neovimInstance.command("rightbelow 20new OUPUT")
+	                    .then(() => this._neovimInstance.getCurrentWindow())
+	                    .then((win) => this._currentWindow = win)
+	                    .then(() => this._neovimInstance.getCurrentBuffer())
+	                    .then((buf) => this._currentBuffer = buf)
+	                    .then(() => this._currentBuffer.setOption("buftype", "nofile"))
+	                    .then(() => this._currentBuffer.setOption("bufhidden", "hide"))
+	                    .then(() => this._currentBuffer.setOption("swapfile", false))
+	                    .then(() => this._currentBuffer.setOption("filetype", "output"));
+	            }
+	            else {
+	                return;
+	            }
+	        });
+	    }
+	    execute(shellCommand) {
+	        this.write([shellCommand]);
+	        const proc = child_process_1.exec(shellCommand, (err, _stdout, _stderr) => {
+	            if (err) {
+	                console.error(err);
+	            }
+	        });
+	        proc.stdout.on("data", (data) => this.write(data.toString().split("\n")));
+	        proc.stderr.on("data", (data) => this.write(data.toString().split("\n")));
+	        proc.on("close", (data) => {
+	            this.write([`process excited with code ${data}`]);
+	        });
+	        return Q.resolve(undefined);
+	    }
+	    write(val) {
+	        return this.open()
+	            .then(() => this._currentBuffer.appendLines(val));
+	    }
+	    _isWindowOpen() {
+	        if (!this._currentWindow || !this._currentBuffer) {
+	            return Q.resolve(false);
+	        }
+	        return this._currentWindow.isValid();
+	    }
+	}
+	exports.OutputWindow = OutputWindow;
+
+
+/***/ },
+/* 281 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const child_process_1 = __webpack_require__(18);
 	const path = __webpack_require__(5);
 	const UI = __webpack_require__(59);
 	class QuickOpen {
@@ -50399,7 +50456,7 @@
 
 
 /***/ },
-/* 281 */
+/* 282 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -50442,12 +50499,12 @@
 
 
 /***/ },
-/* 282 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	const path = __webpack_require__(5);
-	const Error_1 = __webpack_require__(283);
+	const Error_1 = __webpack_require__(284);
 	class ErrorOverlay {
 	    constructor() {
 	        this._errors = {};
@@ -50488,7 +50545,7 @@
 
 
 /***/ },
-/* 283 */
+/* 284 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50504,7 +50561,7 @@
 	const ReactDOM = __webpack_require__(87);
 	const Icon_1 = __webpack_require__(257);
 	const Config = __webpack_require__(6);
-	__webpack_require__(284);
+	__webpack_require__(285);
 	const padding = 8;
 	class Errors extends React.Component {
 	    render() {
@@ -50573,13 +50630,13 @@
 
 
 /***/ },
-/* 284 */
+/* 285 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(285);
+	var content = __webpack_require__(286);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(263)(content, {});
@@ -50599,7 +50656,7 @@
 	}
 
 /***/ },
-/* 285 */
+/* 286 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(262)();
@@ -50613,12 +50670,12 @@
 
 
 /***/ },
-/* 286 */
+/* 287 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	const _ = __webpack_require__(55);
-	const LiveEvalMarker_1 = __webpack_require__(287);
+	const LiveEvalMarker_1 = __webpack_require__(288);
 	class LiveEvaluationOverlay {
 	    constructor() {
 	        this._bufferToBlocks = {};
@@ -50661,7 +50718,7 @@
 
 
 /***/ },
-/* 287 */
+/* 288 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50675,7 +50732,7 @@
 	};
 	const React = __webpack_require__(60);
 	const ReactDOM = __webpack_require__(87);
-	__webpack_require__(288);
+	__webpack_require__(289);
 	class LiveEvalMarkerContainer extends React.Component {
 	    render() {
 	        const blocks = this.props.blocks || [];
@@ -50714,13 +50771,13 @@
 
 
 /***/ },
-/* 288 */
+/* 289 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(289);
+	var content = __webpack_require__(290);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(263)(content, {});
@@ -50740,7 +50797,7 @@
 	}
 
 /***/ },
-/* 289 */
+/* 290 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(262)();
@@ -50754,12 +50811,12 @@
 
 
 /***/ },
-/* 290 */
+/* 291 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	const _ = __webpack_require__(55);
-	const BufferScrollBar_1 = __webpack_require__(291);
+	const BufferScrollBar_1 = __webpack_require__(292);
 	class ScrollBarOverlay {
 	    constructor() {
 	        this._fileToMarkers = {};
@@ -50810,7 +50867,7 @@
 
 
 /***/ },
-/* 291 */
+/* 292 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -50824,8 +50881,8 @@
 	};
 	const React = __webpack_require__(60);
 	const ReactDOM = __webpack_require__(87);
-	const Measure = __webpack_require__(292);
-	__webpack_require__(298);
+	const Measure = __webpack_require__(293);
+	__webpack_require__(299);
 	class BufferScrollBar extends React.Component {
 	    constructor(props) {
 	        super(props);
@@ -50873,7 +50930,7 @@
 
 
 /***/ },
-/* 292 */
+/* 293 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50883,7 +50940,7 @@
 	});
 	exports.default = undefined;
 
-	var _Measure = __webpack_require__(293);
+	var _Measure = __webpack_require__(294);
 
 	var _Measure2 = _interopRequireDefault(_Measure);
 
@@ -50893,7 +50950,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 293 */
+/* 294 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50914,7 +50971,7 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _getNodeDimensions = __webpack_require__(294);
+	var _getNodeDimensions = __webpack_require__(295);
 
 	var _getNodeDimensions2 = _interopRequireDefault(_getNodeDimensions);
 
@@ -50930,7 +50987,7 @@
 
 	// only require ResizeObserver polyfill if it isn't available and we aren't in a SSR environment
 	if (isWindowDefined && !window.ResizeObserver) {
-	  window.ResizeObserver = __webpack_require__(297);
+	  window.ResizeObserver = __webpack_require__(298);
 	}
 
 	var Measure = function (_Component) {
@@ -51095,7 +51152,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 294 */
+/* 295 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51107,11 +51164,11 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _getCloneDimensions = __webpack_require__(295);
+	var _getCloneDimensions = __webpack_require__(296);
 
 	var _getCloneDimensions2 = _interopRequireDefault(_getCloneDimensions);
 
-	var _getMargin = __webpack_require__(296);
+	var _getMargin = __webpack_require__(297);
 
 	var _getMargin2 = _interopRequireDefault(_getMargin);
 
@@ -51156,7 +51213,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 295 */
+/* 296 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51168,7 +51225,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _getMargin = __webpack_require__(296);
+	var _getMargin = __webpack_require__(297);
 
 	var _getMargin2 = _interopRequireDefault(_getMargin);
 
@@ -51234,7 +51291,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 296 */
+/* 297 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -51259,7 +51316,7 @@
 	module.exports = exports["default"];
 
 /***/ },
-/* 297 */
+/* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function (global, factory) {
@@ -52402,13 +52459,13 @@
 
 
 /***/ },
-/* 298 */
+/* 299 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(299);
+	var content = __webpack_require__(300);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(263)(content, {});
@@ -52428,7 +52485,7 @@
 	}
 
 /***/ },
-/* 299 */
+/* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(262)();
@@ -52442,7 +52499,7 @@
 
 
 /***/ },
-/* 300 */
+/* 301 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -52561,13 +52618,13 @@
 
 
 /***/ },
-/* 301 */
+/* 302 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(302);
+	var content = __webpack_require__(303);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(263)(content, {});
@@ -52587,7 +52644,7 @@
 	}
 
 /***/ },
-/* 302 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(262)();
@@ -52601,13 +52658,13 @@
 
 
 /***/ },
-/* 303 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(304);
+	var content = __webpack_require__(305);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(263)(content, {});
@@ -52627,7 +52684,7 @@
 	}
 
 /***/ },
-/* 304 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(262)();
