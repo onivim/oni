@@ -53,18 +53,13 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
             const originalContext = arg.payload.context
 
-            const {
-                evaluateBlock,
-                getCompletionDetails,
-                getCompletions,
-                getDefinition,
-                getFormattingEdits,
-                getQuickInfo,
-                getSignatureHelp,
-            } = this._languageService;
+            const languageService = this._languageService
+            if (!languageService)
+                return
+
             switch (requestType) {
                 case "quick-info":
-                    getQuickInfo && getQuickInfo(arg.payload.context)
+                    languageService.getQuickInfo(arg.payload.context)
                         .then((quickInfo) => {
                             Sender.send("show-quick-info", originalContext, {
                                 info: quickInfo.title,
@@ -75,7 +70,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                         })
                     break
                 case "goto-definition":
-                    getDefinition && getDefinition(arg.payload.context)
+                    languageService.getDefinition(arg.payload.context)
                         .then((definitionPosition) => {
                             Sender.send("goto-definition", originalContext, {
                                 filePath: definitionPosition.filePath,
@@ -85,7 +80,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                         })
                     break
                 case "completion-provider":
-                    getCompletions && getCompletions(arg.payload.context)
+                    languageService.getCompletions(arg.payload.context)
                         .then(completions => {
                             Sender.send("completion-provider", originalContext, completions)
                         }, (err) => {
@@ -94,7 +89,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                     break
                 case "completion-provider-item-selected":
                     console.log("completion-provider-item-selected")
-                    getCompletionDetails && getCompletionDetails(arg.payload.context, arg.payload.item)
+                    languageService.getCompletionDetails(arg.payload.context, arg.payload.item)
                         .then((details) => {
                             Sender.send("completion-provider-item-selected", originalContext, {
                                 details: details
@@ -102,19 +97,19 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                         })
                     break
                 case "format":
-                    getFormattingEdits && getFormattingEdits(arg.payload.context)
+                    languageService.getFormattingEdits(arg.payload.context)
                         .then((formattingResponse) => {
                             Sender.send("format", originalContext, formattingResponse)
                         })
                     break
                 case "evaluate-block":
-                    evaluateBlock && evaluateBlock(arg.payload.context, arg.payload.id, arg.payload.fileName, arg.payload.code)
+                    languageService.evaluateBlock(arg.payload.context, arg.payload.id, arg.payload.fileName, arg.payload.code)
                         .then((val) => {
                             Sender.send("evaluate-block-result", originalContext, val)
                         })
                     break
                 case "signature-help":
-                    getSignatureHelp && getSignatureHelp(arg.payload.context)
+                    languageService.getSignatureHelp(arg.payload.context)
                         .then((val) => {
                             Sender.send("signature-help-response", originalContext, val)
                         }, (err) => {

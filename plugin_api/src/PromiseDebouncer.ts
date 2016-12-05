@@ -44,8 +44,8 @@ export function debounce<T>(this: any, promiseFunction: PromiseFunction<T>): Pro
 
     return function(...args): Promise<T> {
 
-        let resolve = null
-        let reject = null
+        let resolve: any = null
+        let reject: any = null
         const promise = new Promise<T>(function () {
             resolve = arguments[0]
             reject = arguments[1]
