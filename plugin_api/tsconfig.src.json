@@ -21,7 +21,7 @@
         "outDir": "../lib/plugin_api",
         "pretty": true,
         "removeComments": true,
-        "rootDir": ".",
+        "rootDir": "./src",
         "skipLibCheck": true,
         "strictNullChecks": true,
         "suppressImplicitAnyIndexErrors": true,
