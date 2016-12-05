@@ -22,7 +22,7 @@ import { ScrollBarOverlay } from "./UI/Overlay/ScrollBarOverlay"
 import { OverlayManager } from "./UI/OverlayManager"
 
 const start = (args: string[]) => {
-    const services = []
+    const services: any[] = []
 
     const parsedArgs = minimist(args)
     const debugPlugin = parsedArgs["debugPlugin"] // tslint:disable-line no-string-literal
