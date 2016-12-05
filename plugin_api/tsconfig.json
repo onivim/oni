@@ -23,7 +23,6 @@
         "removeComments": true,
         "rootDir": ".",
         "skipLibCheck": true,
-        "strictNullChecks": true,
         "suppressImplicitAnyIndexErrors": true,
         "target": "es2015",
         "sourceMap": true
