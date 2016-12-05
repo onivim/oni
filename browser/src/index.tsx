@@ -12,7 +12,9 @@ import { CanvasRenderer } from "./Renderer/CanvasRenderer"
 import { NeovimScreen } from "./Screen"
 import { Formatter } from "./Services/Formatter"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
+import { OutputWindow } from "./Services/Output"
 import { QuickOpen } from "./Services/QuickOpen"
+import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
 import * as UI from "./UI/index"
 import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./UI/Overlay/LiveEvaluationOverlay"
@@ -20,6 +22,7 @@ import { ScrollBarOverlay } from "./UI/Overlay/ScrollBarOverlay"
 import { OverlayManager } from "./UI/OverlayManager"
 
 const start = (args: string[]) => {
+    const services = []
 
     const parsedArgs = minimist(args)
     const debugPlugin = parsedArgs["debugPlugin"] // tslint:disable-line no-string-literal
@@ -47,9 +50,15 @@ const start = (args: string[]) => {
     // Services
     const quickOpen = new QuickOpen(instance)
     const formatter = new Formatter(instance, pluginManager)
-    // const outputWindow = new OutputWindow(instance, pluginManager)
+    const outputWindow = new OutputWindow(instance, pluginManager)
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
-    // const syntaxHighligher = new SyntaxHighlighter(instance, pluginManager)
+    const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
+
+    services.push(quickOpen)
+    services.push(formatter)
+    services.push(liveEvaluation)
+    services.push(syntaxHighlighter)
+    services.push(outputWindow)
 
     // Overlays
     const overlayManager = new OverlayManager(screen)

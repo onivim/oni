@@ -21,14 +21,14 @@ export class Grid<T> {
 
         const col = row[x]
 
-        if (!col) {
+        if (typeof col === "undefined") {
             return null
         }
 
         return col
     }
 
-    public setCell(x: number, y: number, val: T) {
+    public setCell(x: number, y: number, val: T | null) {
 
         let row = this._cells[y]
         row = row || {}
@@ -50,7 +50,7 @@ export class Grid<T> {
         this._height = 0
     }
 
-    public shiftRows(rowsToShift: number, _defaultVal?: T): void {
+    public shiftRows(rowsToShift: number): void {
         // var val = typeof defaultVal === "undefined" ? null : defaultVal
 
         let dir: any
@@ -86,20 +86,16 @@ export class Grid<T> {
         for (let x = 0; x < grid.width; x++) {
             for (let y = 0; y < grid.height; y++) {
                 const sourceCell = grid.getCell(x, y)
-                if (sourceCell) {
-                    this.setCell(xPosition + x, yPosition + y, sourceCell)
-                }
+                this.setCell(xPosition + x, yPosition + y, sourceCell)
             }
         }
     }
 
-    public setRegion(startX: number, startY: number, width: number, height: number, val?: T): void {
+    public setRegion(startX: number, startY: number, width: number, height: number, val?: T | null): void {
         const valToSet = typeof val === "undefined" ? null : val
         for (let x = startX; x < startX + width; x++) {
             for (let y = startY; y < startY + height; y++) {
-                if (valToSet) {
-                    this.setCell(x, y, valToSet)
-                }
+                this.setCell(x, y, valToSet)
             }
         }
     }
@@ -109,9 +105,7 @@ export class Grid<T> {
         for (let cloneX = 0; cloneX < width; cloneX++) {
             for (let cloneY = 0; cloneY < height; cloneY++) {
                 const sourceCell = this.getCell(cloneX + x, cloneY + y)
-                if (sourceCell) {
-                    outputGrid.setCell(cloneX, cloneY, sourceCell)
-                }
+                outputGrid.setCell(cloneX, cloneY, sourceCell)
             }
         }
 

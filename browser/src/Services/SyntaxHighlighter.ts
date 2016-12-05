@@ -15,7 +15,6 @@ export class SyntaxHighlighter {
         this._pluginManager = pluginManager
 
         this._pluginManager.on("set-syntax-highlights", (payload: any) => {
-
             let buf: IBuffer = <any> null // FIXME: null
             this._neovimInstance.getCurrentBuffer()
                 .then((buffer) => buf = buffer)
@@ -50,7 +49,6 @@ export class SyntaxHighlighter {
                         const highlight = k
                         const keywords = highlightDictionary[k]
                         this._neovimInstance.command("syntax keyword " + highlight + keywords)
-
                     })
                 })
         })
