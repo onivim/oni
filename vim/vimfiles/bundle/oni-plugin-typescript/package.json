@@ -6,6 +6,7 @@
     "oni": "^0.0.1"
   },
   "scripts": {
+    "prebuild": "npm install",
     "build": "tsc",
     "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
   },
@@ -28,10 +29,6 @@
     }
   },
   "dependencies": {
-    "find-parent-dir": "^0.3.0",
-    "lodash": "^4.17.0",
-    "mocha": "^3.1.2",
-    "typescript": "^2.0.7"
   },
   "devDependencies": {
     "@types/bluebird": "^3.0.35",
@@ -40,6 +37,5 @@
     "@types/mocha": "^2.2.33",
     "@types/node": "^6.0.46",
     "@types/sinon": "^1.16.32",
-    "sinon": "^1.17.6"
   }
 }

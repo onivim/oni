@@ -58,7 +58,6 @@
   },
   "devDependencies": {
     "@types/electron": "^1.4.27",
-    "@types/es6-promise": "0.0.32",
     "@types/lodash": "^4.14.38",
     "@types/minimist": "^1.1.29",
     "@types/mkdirp": "^0.3.29",
