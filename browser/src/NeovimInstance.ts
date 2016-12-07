@@ -58,7 +58,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
 
-        this._initPromise = startNeovim(this._pluginManager._getAllRuntimePaths(), filesToOpen)
+        this._initPromise = startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen)
             .then((nv) => {
                 console.log("NevoimInstance: Neovim started") // tslint:disable-line no-console
 

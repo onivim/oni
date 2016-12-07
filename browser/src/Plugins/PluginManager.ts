@@ -18,8 +18,6 @@ import {
     SignatureHelpCapability,
 } from "./Plugin"
 
-const initFilePath = path.join(__dirname, "vim", "init_template.vim")
-
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
 
@@ -45,15 +43,9 @@ export class PluginManager extends EventEmitter {
 
         this._rootPluginPaths.push(corePluginsRoot)
 
-        this._rootPluginPaths.push(defaultPluginsRoot)
-        this._rootPluginPaths.push(path.join(defaultPluginsRoot, "bundle"))
-
-        if (Config.getValue<boolean>("vim.loadVimPlugins")) {
-            const userRoot = path.join(os.homedir(), "vimfiles", "bundle")
-
-            if (fs.existsSync(userRoot)) {
-                this._rootPluginPaths.push(userRoot)
-            }
+        if (Config.getValue<boolean>("oni.useDefaultConfig")) {
+		this._rootPluginPaths.push(defaultPluginsRoot)
+		this._rootPluginPaths.push(path.join(defaultPluginsRoot, "bundle"))
         }
 
         this._extensionPath = this._ensureOniPluginsPath()
@@ -126,19 +118,6 @@ export class PluginManager extends EventEmitter {
         }
     }
 
-    public generateInitVim(): string {
-        let contents = fs.readFileSync(initFilePath, "utf8")
-
-        const paths = this._getAllRuntimePaths()
-        contents = contents.replace("${runtimepaths}", "set rtp+=" + paths.join(","))
-        const destDir = path.join(os.tmpdir(), "init.vim")
-        fs.writeFileSync(destDir, contents, "utf8")
-
-        console.log("init.vim written to: " + destDir) // tslint:disable-line no-console
-
-        return destDir
-    }
-
     private _ensureOniPluginsPath(): string {
         const rootOniPluginsDir = path.join(os.homedir(), ".oni", "extensions")
 
@@ -156,7 +135,7 @@ export class PluginManager extends EventEmitter {
         return paths
     }
 
-    public _getAllRuntimePaths(): string[] {
+    public getAllRuntimePaths(): string[] {
         const pluginPaths = this._getAllPluginPaths()
 
         return pluginPaths.concat(this._rootPluginPaths)
