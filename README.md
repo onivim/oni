@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/extr0py/oni.svg?branch=master)](https://travis-ci.org/extr0py/oni)
-# ![alt text](./Oni_128.png) Oni
+# ![alt text](./images/Oni_128.png) Oni
 ## Neovim + JavaScript powered IDE
 
 - [Introduction](#Introduction)
