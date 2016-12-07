@@ -14,7 +14,7 @@ const DefaultConfig: any = {
     "prototype.editor.maxCellsToRender": 12000,
 
     // Production settings
-    "oni.useDefaultConfig": false,
+    "oni.useDefaultConfig": true, // The default config is an opinionated, prescribed set of plugins. If you have your own init.vim / plugins, set this to false
 
     "editor.fontSize": "14px",
     "editor.quickInfo.enabled": true,
