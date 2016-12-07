@@ -2,4 +2,4 @@
 * text=auto
 
 # Declare text files that will always have LF line endings on checking
-cli\oni eol=lf
+oni eol=lf
