@@ -8,8 +8,7 @@
         "target": "ES5"
     },
     "files": [
-        "./../../../../definitions/Oni.d.ts",
-        "node_modules/typescript/lib/protocol.d.ts"
+        "./../../../../definitions/Oni.d.ts"
     ],
     "include": [
         "src/**/*.ts"
