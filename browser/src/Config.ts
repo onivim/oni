@@ -31,7 +31,11 @@ const WindowsConfig: any = {
     "editor.fontFamily": "Consolas",
 }
 
-const DefaultPlatformConfig = Platform.isWindows() ? WindowsConfig : MacConfig
+const LinuxConfig: any = {
+    "editor.fontFamily": "DejaVu Sans Mono",
+}
+
+const DefaultPlatformConfig = Platform.isWindows() ? WindowsConfig : Platform.isLinux() ? LinuxConfig : MacConfig
 
 const userConfigFile = path.join(Platform.getUserHome(), ".oni", "config.json")
 
