@@ -58,9 +58,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
 
-        const initVimPath = this._pluginManager.generateInitVim()
-
-        this._initPromise = startNeovim(initVimPath, filesToOpen)
+        this._initPromise = startNeovim(this._pluginManager._getAllRuntimePaths(), filesToOpen)
             .then((nv) => {
                 console.log("NevoimInstance: Neovim started") // tslint:disable-line no-console
 
@@ -293,7 +291,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
 const attachAsPromise = Q.denodeify(attach)
 
-function startNeovim(initVimPath: any, args: any): Q.IPromise<any> {
+function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
 
     const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
 
@@ -301,7 +299,8 @@ function startNeovim(initVimPath: any, args: any): Q.IPromise<any> {
     const nvimMacProcessPath = "nvim"
     const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : nvimMacProcessPath
 
-    const argsToPass = ["-u", initVimPath, "-N", "--embed", "--"].concat(args)
+    const joinedRuntimePaths = runtimePaths.join(','),
+    const argsToPass = ["--cmd", "set rtp+=" + joinedRuntimePaths, "-N", "--embed", "--"].concat(args)
 
     const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
 

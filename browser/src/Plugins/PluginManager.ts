@@ -156,7 +156,7 @@ export class PluginManager extends EventEmitter {
         return paths
     }
 
-    private _getAllRuntimePaths(): string[] {
+    public _getAllRuntimePaths(): string[] {
         const pluginPaths = this._getAllPluginPaths()
 
         return pluginPaths.concat(this._rootPluginPaths)
