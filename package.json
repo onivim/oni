@@ -1,6 +1,6 @@
 {
   "name": "oni-vim",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "NeoVim front-end with IDE-style extensibility",
   "keywords": [
     "vim",
@@ -17,7 +17,6 @@
   },
   "scripts": {
     "prepublish": "crlf --set=LF ./cli/oni",
-    "postinstall": "npm run install:oni-plugin-typescript",
     "build": "npm run build:browser && npm run build:plugin_api && npm run build:plugins",
     "build:browser": "webpack --config browser/webpack.production.config.js",
     "build:plugin_api": "cd plugin_api && tsc -p tsconfig.src.json",
@@ -42,17 +41,20 @@
   "license": "MIT",
   "dependencies": {
     "electron": "^1.4.5",
+    "find-parent-dir": "^0.3.0",
     "hex-rgb": "^1.0.0",
-    "lodash": "^4.16.6",
+    "lodash": "^4.17.0",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
+    "mocha": "^3.1.2",
     "neovim-client": "^2.1.0",
     "q": "^1.4.1",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
     "react-measure": "^1.4.2",
     "react-redux": "^4.4.5",
-    "redux": "^3.5.2"
+    "redux": "^3.5.2",
+    "typescript": "^2.0.7"
   },
   "devDependencies": {
     "@types/electron": "^1.4.27",
