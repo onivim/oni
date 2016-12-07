@@ -19,9 +19,9 @@ import {
 } from "./Plugin"
 
 const initFilePath = path.join(__dirname, "vim", "init_template.vim")
-const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles")
-// const webcontents = remote.getCurrentWindow().webContents
-// const BrowserId = webcontents.id
+
+const corePluginsRoot = path.join(__dirname, "vim", "core")
+const defaultPluginsRoot = path.join(__dirname, "vim", "default")
 
 export interface IBufferInfo {
     lines: string[]
@@ -43,8 +43,10 @@ export class PluginManager extends EventEmitter {
 
         this._debugPluginPath = debugPlugin
 
-        this._rootPluginPaths.push(builtInPluginsRoot)
-        this._rootPluginPaths.push(path.join(builtInPluginsRoot, "bundle"))
+        this._rootPluginPaths.push(corePluginsRoot)
+
+        this._rootPluginPaths.push(defaultPluginsRoot)
+        this._rootPluginPaths.push(path.join(defaultPluginsRoot, "bundle"))
 
         if (Config.getValue<boolean>("vim.loadVimPlugins")) {
             const userRoot = path.join(os.homedir(), "vimfiles", "bundle")
