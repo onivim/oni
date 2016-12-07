@@ -21,7 +21,7 @@ let windows = []
 
 function createWindow(commandLineArguments) {
     // Create the browser window.
-    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "icon-placeholder.png") })
+    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png") })
 
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
