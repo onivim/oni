@@ -14,7 +14,7 @@ const DefaultConfig: any = {
     "prototype.editor.maxCellsToRender": 12000,
 
     // Production settings
-    "oni.useDefaultConfig": true,
+    "oni.useDefaultConfig": false,
 
     "editor.fontSize": "14px",
     "editor.quickInfo.enabled": true,
