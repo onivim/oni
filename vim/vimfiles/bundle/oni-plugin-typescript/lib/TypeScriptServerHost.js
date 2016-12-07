@@ -12,7 +12,7 @@ var events = require("events");
 var os = require("os");
 var path = require("path");
 var readline = require("readline");
-var tssPath = path.join(__dirname, "..", "node_modules", "typescript", "lib", "tsserver.js");
+var tssPath = path.join(__dirname, "..", "..", "..", "..", "..", "node_modules", "typescript", "lib", "tsserver.js");
 /**
  * End definitions
  */
