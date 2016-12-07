@@ -75,8 +75,9 @@ ONI brings several IDE-like integrations to NeoVim:
 
 The goal of this project is to provide both the full-fledged VIM experience, with no compromises, while pushing forward to enable new scenarios.
 
+- __Modern UX__ - The VIM experience should not be compromised with poor user experiences that stem from terminal limitations.
 - __Rich plugin development__ - using JavaScript, instead of VimL, allowing deep-language integration.
-- __Cross-platform support__ - across OS X and Windows.
+- __Cross-platform support__ - across Windows, OS X, and Linux (eventually).
 - __Batteres included__ - rich features are available out of the box - minimal setup needed to be productive. TypeScript development is the canonical example, but the hope is that other language providers will be included. Later, an included package manager will make it simple to find and install plugins.
 - __Performance__ - no compromises, VIM is fast, and ONI should be fast too.
 - __Ease Learning Curve__ - without sacrificing the VIM experience
