@@ -299,7 +299,7 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
     const nvimMacProcessPath = "nvim"
     const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : nvimMacProcessPath
 
-    const joinedRuntimePaths = runtimePaths.join(','),
+    const joinedRuntimePaths = runtimePaths.join(',')
     const argsToPass = ["--cmd", "set rtp+=" + joinedRuntimePaths, "-N", "--embed", "--"].concat(args)
 
     const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
