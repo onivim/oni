@@ -44,7 +44,7 @@ export class Mouse extends EventEmitter {
 
         // The internet told me 'mousewheel' is deprecated and use this.
         document.body.addEventListener("wheel", (evt: WheelEvent) => {
-            const { line, column } = this._convertEventToPosition(evt)
+            //const { line, column } = this._convertEventToPosition(evt)
 
             var scrollcmdY = `<` 
             var scrollcmdX = `<` 
