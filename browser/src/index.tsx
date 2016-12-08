@@ -136,6 +136,10 @@ const start = (args: string[]) => {
             UI.hideSignatureHelp()
         } else if (newMode === "insert") {
             UI.hideQuickInfo()
+        } else if (newMode === "cmdline") {
+            UI.hideCompletions()
+            UI.hideQuickInfo()
+
         }
     })
 
