@@ -41,7 +41,6 @@ export class Mouse extends EventEmitter {
             this.emit("mouse", `<LeftRelease><${line},${column}>`)
             this._isDragging = false
         })
-    }
 
         // The internet told me 'mousewheel' is deprecated and use this.
         document.body.addEventListener("wheel", (evt: WheelEvent) => {
