@@ -44,8 +44,8 @@ export class PluginManager extends EventEmitter {
         this._rootPluginPaths.push(corePluginsRoot)
 
         if (Config.getValue<boolean>("oni.useDefaultConfig")) {
-		this._rootPluginPaths.push(defaultPluginsRoot)
-		this._rootPluginPaths.push(path.join(defaultPluginsRoot, "bundle"))
+            this._rootPluginPaths.push(defaultPluginsRoot)
+            this._rootPluginPaths.push(path.join(defaultPluginsRoot, "bundle"))
         }
 
         this._extensionPath = this._ensureOniPluginsPath()
@@ -118,6 +118,12 @@ export class PluginManager extends EventEmitter {
         }
     }
 
+    public getAllRuntimePaths(): string[] {
+        const pluginPaths = this._getAllPluginPaths()
+
+        return pluginPaths.concat(this._rootPluginPaths)
+    }
+
     private _ensureOniPluginsPath(): string {
         const rootOniPluginsDir = path.join(os.homedir(), ".oni", "extensions")
 
@@ -133,12 +139,6 @@ export class PluginManager extends EventEmitter {
         })
 
         return paths
-    }
-
-    public getAllRuntimePaths(): string[] {
-        const pluginPaths = this._getAllPluginPaths()
-
-        return pluginPaths.concat(this._rootPluginPaths)
     }
 
     private _getFirstPluginThatHasCapability(filetype: string, capability: string): null | Plugin {
