@@ -19,7 +19,7 @@ const DefaultConfig: any = {
     // a good out-of-box experience, but will likely conflict with a Vim/Neovim veteran's finely honed config. 
     //
     // Set this to 'false' to avoid loading the default config, and load settings from init.vim instead.
-    "oni.useDefaultConfig": true, 
+    "oni.useDefaultConfig": true,
 
     "editor.fontSize": "14px",
     "editor.quickInfo.enabled": true,
