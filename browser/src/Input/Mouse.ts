@@ -13,6 +13,8 @@ export class Mouse extends EventEmitter {
     private _canvasElement: HTMLCanvasElement
     private _screen: IScreen
     private _isDragging = false
+    //private _lastColumn : number
+    //private _lastLine : number
 
     constructor(canvasElement: HTMLCanvasElement, screen: IScreen) {
         super()
@@ -44,8 +46,7 @@ export class Mouse extends EventEmitter {
 
         // The internet told me 'mousewheel' is deprecated and use this.
         document.body.addEventListener("wheel", (evt: WheelEvent) => {
-            //const { line, column } = this._convertEventToPosition(evt)
-
+            const { line, column } = this._convertEventToPosition(evt)
             var scrollcmdY = `<` 
             var scrollcmdX = `<` 
             if (evt.ctrlKey || evt.shiftKey) {
@@ -62,7 +63,10 @@ export class Mouse extends EventEmitter {
                 } else {
                     scrollcmdY += `ScrollWheelDown>`
                 }
-                this.emit("mouse",scrollcmdY)
+                //`if (this._lastLine !== line || this._lastColumn !== column) {
+                //    this.emit("mouse", `<LeftMouse><${line},${column}>`)
+                //}
+                this.emit("mouse",scrollcmdY + `<${line},${column}>`)
             }
             /*
              * This doesn't seem to do anything
