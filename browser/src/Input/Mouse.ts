@@ -32,7 +32,7 @@ export class Mouse extends EventEmitter {
 
             if (this._isDragging) {
                 this.emit("mouse", `<LeftDrag><${line},${column}>`)
-                }
+            }
         })
 
         document.body.addEventListener("mouseup", (evt: MouseEvent) => {
@@ -41,8 +41,9 @@ export class Mouse extends EventEmitter {
             this.emit("mouse", `<LeftRelease><${line},${column}>`)
             this._isDragging = false
         })
+    }
 
-        // The internet told me 'mousewheel' is deprecated and use this. 
+        // The internet told me 'mousewheel' is deprecated and use this.
         document.body.addEventListener("wheel", (evt: WheelEvent) => {
             const { line, column } = this._convertEventToPosition(evt)
 
