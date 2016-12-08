@@ -9,7 +9,7 @@ import * as os from "os"
 import * as path from "path"
 import * as readline from "readline"
 
-const tssPath = path.join(__dirname, "..", "..", "..", "..", "..", "node_modules", "typescript", "lib", "tsserver.js")
+const tssPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", "typescript", "lib", "tsserver.js")
 
 /**
  * Taken from definitions here:

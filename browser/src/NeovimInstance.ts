@@ -58,9 +58,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
 
-        const initVimPath = this._pluginManager.generateInitVim()
-
-        this._initPromise = startNeovim(initVimPath, filesToOpen)
+        this._initPromise = startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen)
             .then((nv) => {
                 console.log("NevoimInstance: Neovim started") // tslint:disable-line no-console
 
@@ -293,15 +291,24 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
 const attachAsPromise = Q.denodeify(attach)
 
-function startNeovim(initVimPath: any, args: any): Q.IPromise<any> {
+function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
 
     const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
+    const noopInitVimPath = path.join(__dirname, "vim", "noop.vim")
 
     // For Mac / Linux, assume there is a locally installed neovim
     const nvimMacProcessPath = "nvim"
     const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : nvimMacProcessPath
 
-    const argsToPass = ["-u", initVimPath, "-N", "--embed", "--"].concat(args)
+    const joinedRuntimePaths = runtimePaths.join(",")
+
+    // If we are using the defaultConfig, suppress loading of the user's init.vim to avoid conflicts
+    // Setting -u NONE causes no plugins at all to load, but using a 'noop' still picks up the plugins
+    const vimRcArg = Config.getValue<boolean>("oni.useDefaultConfig") ? ["-u", noopInitVimPath] : []
+
+    const argsToPass = vimRcArg
+                        .concat(["--cmd", "set rtp+=" + joinedRuntimePaths, "-N", "--embed", "--"])
+                        .concat(args)
 
     const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
 
