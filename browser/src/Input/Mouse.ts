@@ -81,7 +81,7 @@ export class Mouse extends EventEmitter {
         })
     }
     
-    private _convertEventToPosition(evt: MouseEvent): { line: number; column: number }  {
+    private _convertEventToPosition(evt: MouseEvent): { line: number; column: number } {
         const mouseX = evt.clientX
         const mouseY = evt.clientY
 
