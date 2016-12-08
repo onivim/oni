@@ -1,0 +1,1 @@
+echom "Welcome to Oni"
