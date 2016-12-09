@@ -44,15 +44,14 @@ export class Mouse extends EventEmitter {
 
         // The internet told me 'mousewheel' is deprecated and use this.
         document.body.addEventListener("wheel", (evt: WheelEvent) => {
-            //const { line, column } = this._convertEventToPosition(evt)
 
-            var scrollcmdY = `<` 
-            var scrollcmdX = `<` 
+            let scrollcmdY = `<`
+            let scrollcmdX = `<`
             if (evt.ctrlKey || evt.shiftKey) {
                 scrollcmdY += `C-` // The S- and C- prefixes have the same effect
                 scrollcmdX += `C-`
             }
-            
+
             // This is 'less than' because I made this on a mac to behave just like
             // the other applications I use. However, because OSX is super weird, it
             // might be backwards
@@ -62,7 +61,7 @@ export class Mouse extends EventEmitter {
                 } else {
                     scrollcmdY += `ScrollWheelDown>`
                 }
-                this.emit("mouse",scrollcmdY)
+                this.emit("mouse", scrollcmdY)
             }
             /*
              * This doesn't seem to do anything
@@ -76,10 +75,10 @@ export class Mouse extends EventEmitter {
             }
             */
             this._isDragging = false
-            
+
         })
     }
-    
+
     private _convertEventToPosition(evt: MouseEvent): { line: number; column: number } {
         const mouseX = evt.clientX
         const mouseY = evt.clientY
