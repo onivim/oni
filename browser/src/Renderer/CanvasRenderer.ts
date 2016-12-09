@@ -17,11 +17,10 @@ export class CanvasRenderer implements INeovimRenderer {
     public start(element: HTMLCanvasElement): void {
         // Assert canvas
         this._canvas = element
-        this._canvas.width = this._canvas.offsetWidth
-        this._canvas.height = this._canvas.offsetHeight
+        this._setContextDimensions()
         this._canvasContext = <any> this._canvas.getContext("2d") // FIXME: null
 
-        this._renderCache = new RenderCache(this._canvasContext)
+        this._renderCache = new RenderCache(this._canvasContext, this._getPixelRatio())
     }
 
     public onAction(_action: any): void {
@@ -29,10 +28,7 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     public onResize(): void {
-        const width = this._canvas.offsetWidth
-        const height = this._canvas.offsetHeight
-        this._canvas.width = width
-        this._canvas.height = height
+        this._setContextDimensions()
 
         this._lastRenderedCell.clear()
     }
@@ -40,8 +36,8 @@ export class CanvasRenderer implements INeovimRenderer {
     public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
         this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
         this._canvasContext.textBaseline = "top"
-        const fontWidth = screenInfo.fontWidthInPixels
-        const fontHeight = screenInfo.fontHeightInPixels
+        const fontWidth = screenInfo.fontWidthInPixels * this._getPixelRatio()
+        const fontHeight = screenInfo.fontHeightInPixels * this._getPixelRatio()
 
         // const canvasStart = performance.now()
 
@@ -111,4 +107,16 @@ export class CanvasRenderer implements INeovimRenderer {
         // TODO: Need a story for verbose logging
         // console.log("Render time: " + (canvasEnd - canvasStart))
     }
+
+    private _getPixelRatio(): number {
+        // TODO: Does the backingStoreContext need to be taken into account?
+        // I believe this value should be consistent at least on the Electron platform
+        return window.devicePixelRatio
+    }
+
+    private _setContextDimensions(): void {
+        this._canvas.width = this._canvas.offsetWidth * this._getPixelRatio()
+        this._canvas.height = this._canvas.offsetHeight * this._getPixelRatio()
+    }
+
 }

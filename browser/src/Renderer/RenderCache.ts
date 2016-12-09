@@ -1,9 +1,11 @@
 export class RenderCache {
     private _canvasContext: CanvasRenderingContext2D
     private _renderCache = {}
+    private _pixelRatio: number = 1
 
-    constructor(canvasContext: CanvasRenderingContext2D) {
+    constructor(canvasContext: CanvasRenderingContext2D, pixelRatio: number) {
         this._canvasContext = canvasContext
+        this._pixelRatio = pixelRatio
     }
 
     public drawText(character: string, backgroundColor: string, color: string, x: number, y: number, fontFamily: string, fontSize: string, fontWidth: number, fontHeight: number): void {
@@ -15,6 +17,7 @@ export class RenderCache {
             canvas.width = fontWidth
             canvas.height = fontHeight
             const canvasContext = <any> canvas.getContext("2d") // FIXME: null
+            canvasContext.setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0)
 
             canvasContext.font = "normal normal lighter " + fontSize + " " + fontFamily
             canvasContext.textBaseline = "top"
