@@ -17,9 +17,10 @@ export class CanvasRenderer implements INeovimRenderer {
     public start(element: HTMLCanvasElement): void {
         // Assert canvas
         this._canvas = element
-        this._canvas.width = this._canvas.offsetWidth
-        this._canvas.height = this._canvas.offsetHeight
+        this._canvas.width = this._canvas.offsetWidth * window.devicePixelRatio
+        this._canvas.height = this._canvas.offsetHeight * window.devicePixelRatio
         this._canvasContext = <any> this._canvas.getContext("2d") // FIXME: null
+        this._canvasContext.setTransform(2, 0, 0, 2, 0, 0)
 
         this._renderCache = new RenderCache(this._canvasContext)
     }
