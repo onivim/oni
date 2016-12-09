@@ -82,7 +82,7 @@
     "style-loader": "^0.13.1",
     "ts-loader": "^1.2.2",
     "tslint": "^4.0.2",
-    "typescript": "^2.0.3",
+    "typescript": "^2.1.4",
     "webpack": "^1.13.2",
     "webpack-dev-server": "^1.16.1"
   }
