@@ -18,10 +18,8 @@ import {
     SignatureHelpCapability,
 } from "./Plugin"
 
-const initFilePath = path.join(__dirname, "vim", "init_template.vim")
-const builtInPluginsRoot = path.join(__dirname, "vim", "vimfiles")
-// const webcontents = remote.getCurrentWindow().webContents
-// const BrowserId = webcontents.id
+const corePluginsRoot = path.join(__dirname, "vim", "core")
+const defaultPluginsRoot = path.join(__dirname, "vim", "default")
 
 export interface IBufferInfo {
     lines: string[]
@@ -43,15 +41,11 @@ export class PluginManager extends EventEmitter {
 
         this._debugPluginPath = debugPlugin
 
-        this._rootPluginPaths.push(builtInPluginsRoot)
-        this._rootPluginPaths.push(path.join(builtInPluginsRoot, "bundle"))
+        this._rootPluginPaths.push(corePluginsRoot)
 
-        if (Config.getValue<boolean>("vim.loadVimPlugins")) {
-            const userRoot = path.join(os.homedir(), "vimfiles", "bundle")
-
-            if (fs.existsSync(userRoot)) {
-                this._rootPluginPaths.push(userRoot)
-            }
+        if (Config.getValue<boolean>("oni.useDefaultConfig")) {
+            this._rootPluginPaths.push(defaultPluginsRoot)
+            this._rootPluginPaths.push(path.join(defaultPluginsRoot, "bundle"))
         }
 
         this._extensionPath = this._ensureOniPluginsPath()
@@ -124,17 +118,10 @@ export class PluginManager extends EventEmitter {
         }
     }
 
-    public generateInitVim(): string {
-        let contents = fs.readFileSync(initFilePath, "utf8")
+    public getAllRuntimePaths(): string[] {
+        const pluginPaths = this._getAllPluginPaths()
 
-        const paths = this._getAllRuntimePaths()
-        contents = contents.replace("${runtimepaths}", "set rtp+=" + paths.join(","))
-        const destDir = path.join(os.tmpdir(), "init.vim")
-        fs.writeFileSync(destDir, contents, "utf8")
-
-        console.log("init.vim written to: " + destDir) // tslint:disable-line no-console
-
-        return destDir
+        return pluginPaths.concat(this._rootPluginPaths)
     }
 
     private _ensureOniPluginsPath(): string {
@@ -152,12 +139,6 @@ export class PluginManager extends EventEmitter {
         })
 
         return paths
-    }
-
-    private _getAllRuntimePaths(): string[] {
-        const pluginPaths = this._getAllPluginPaths()
-
-        return pluginPaths.concat(this._rootPluginPaths)
     }
 
     private _getFirstPluginThatHasCapability(filetype: string, capability: string): null | Plugin {

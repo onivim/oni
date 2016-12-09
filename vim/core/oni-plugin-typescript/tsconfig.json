@@ -2,16 +2,15 @@
     "compilerOptions": {
         "module": "commonjs",
         "preserveConstEnums": true,
-        "outDir": "./lib_test",
+        "outDir": "./lib",
         "declaration": true,
         "sourceMap": true,
         "target": "ES5"
     },
     "files": [
-        "./../../../../definitions/Oni.d.ts"
+        "./../../../definitions/Oni.d.ts"
     ],
     "include": [
-        "test/**/*.ts",
         "src/**/*.ts"
     ],
     "exclude": [

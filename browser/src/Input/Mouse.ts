@@ -51,7 +51,7 @@ export class Mouse extends EventEmitter {
                 scrollcmdY += `C-` // The S- and C- prefixes have the same effect
                 scrollcmdX += `C-`
             }
-            
+
             // This is 'less than' because I made this on a mac to behave just like
             // the other applications I use. However, because OSX is super weird, it
             // might be backwards
@@ -65,6 +65,9 @@ export class Mouse extends EventEmitter {
             }
             /*
              * This doesn't seem to do anything
+            }
+            /*
+             * This doesn't seem to do anything
             if (evt.deltaX) {
                 if (evt.deltaX < 0) {
                     scrollcmdX += `ScrollWheeLeft>`
@@ -75,10 +78,10 @@ export class Mouse extends EventEmitter {
             }
             */
             this._isDragging = false
-            
+
         })
     }
-    
+
     private _convertEventToPosition(evt: MouseEvent): { line: number; column: number } {
         const mouseX = evt.clientX
         const mouseY = evt.clientY

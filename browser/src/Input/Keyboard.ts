@@ -35,6 +35,8 @@ export class Keyboard extends EventEmitter {
             case 16: // Shift left
             case 17: // Ctrl left
                 return null
+            case 18: // Alt left
+                return null
             case 27: // Escape
                 return "<esc>"
             case 35:
