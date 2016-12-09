@@ -13,8 +13,6 @@ export class Mouse extends EventEmitter {
     private _canvasElement: HTMLCanvasElement
     private _screen: IScreen
     private _isDragging = false
-    //private _lastColumn : number
-    //private _lastLine : number
 
     constructor(canvasElement: HTMLCanvasElement, screen: IScreen) {
         super()
@@ -63,9 +61,6 @@ export class Mouse extends EventEmitter {
                 } else {
                     scrollcmdY += `ScrollWheelDown>`
                 }
-                //`if (this._lastLine !== line || this._lastColumn !== column) {
-                //    this.emit("mouse", `<LeftMouse><${line},${column}>`)
-                //}
                 this.emit("mouse",scrollcmdY + `<${line},${column}>`)
             }
             /*
