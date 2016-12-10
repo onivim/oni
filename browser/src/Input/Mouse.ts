@@ -45,8 +45,8 @@ export class Mouse extends EventEmitter {
         // The internet told me 'mousewheel' is deprecated and use this.
         document.body.addEventListener("wheel", (evt: WheelEvent) => {
             const { line, column } = this._convertEventToPosition(evt)
-            let scrollcmdY = `<` 
-            let scrollcmdX = `<` 
+            let scrollcmdY = `<`
+            let scrollcmdX = `<`
             if (evt.ctrlKey || evt.shiftKey) {
                 scrollcmdY += `C-` // The S- and C- prefixes have the same effect
                 scrollcmdX += `C-`

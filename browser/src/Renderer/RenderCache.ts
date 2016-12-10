@@ -1,3 +1,10 @@
+import { FallbackFonts } from "./../Font"
+
+/**
+ * RenderCache caches rendered letter of a specific configuration.
+ *
+ * It turns out that, in many cases, it is faster to use ctx.drawImage vs ctx.fillText + all the state changes.
+ */
 export class RenderCache {
     private _canvasContext: CanvasRenderingContext2D
     private _renderCache = {}
@@ -19,7 +26,7 @@ export class RenderCache {
             const canvasContext = <any> canvas.getContext("2d") // FIXME: null
             canvasContext.setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0)
 
-            canvasContext.font = "normal normal lighter " + fontSize + " " + fontFamily
+            canvasContext.font = `normal normal lighter ${fontSize} ${fontFamily},${FallbackFonts}`
             canvasContext.textBaseline = "top"
             canvasContext.fillStyle = backgroundColor
             canvasContext.fillRect(0, 0, fontWidth, fontHeight)
