@@ -62,8 +62,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             .then((nv) => {
                 console.log("NevoimInstance: Neovim started") // tslint:disable-line no-console
 
-                nv.command("colorscheme onedark")
-
                 // Workaround for issue where UI
                 // can fail to attach if there is a UI-blocking error
                 // nv.input("<ESC>")
