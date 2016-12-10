@@ -109,6 +109,7 @@ A few interesting configuration options to set:
 - `editor.fontSize` - Font size
 - `editor.fontFamily` - Font family
 - `prototype.editor.backgroundImageUrl` - specific a custom background image
+- `prototype.editor.backgroundImageSize` - specific a custom background size (cover, contain)
 
 See the `Config.ts` file for other interesting values to set
 
