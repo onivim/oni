@@ -61,7 +61,7 @@ export class Mouse extends EventEmitter {
                 } else {
                     scrollcmdY += `ScrollWheelDown>`
                 }
-                this.emit("mouse",scrollcmdY + `<${line},${column}>`)
+                this.emit("mouse", scrollcmdY + `<${line},${column}>`)
             }
             /*
              * This doesn't seem to do anything
