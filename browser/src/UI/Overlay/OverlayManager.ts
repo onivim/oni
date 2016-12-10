@@ -68,6 +68,32 @@ export class OverlayManager {
             return
         }
 
+        // TODO:
+        // Expose getWindows() from NeovimInstance
+        // Get dimensions (position / height) from each window
+        // **Initial check-in - use this to calculate positions initially
+        //
+        // Create dictionary keyed by window Id -> window instance (IWindowOverlayContainer)
+        // Expose events
+        //  new window
+        //  window dimensions changed
+        //  window closed
+        // Update corresponding IWindowOverlayContainer
+        // **Check-in two - still no need for factories
+        //
+        // Update IWindowOverlayContainer with new mapping data
+        // Update overlays to be driven by factories, so there can be elements for each window
+        //          (for example, dont' lose error markers / scrollbar when switching windows)
+        // ** Check-in three - this will enable per-window scrollbars / errors / etc
+        // Interop with plugins - send these events to plugins
+        //
+        // ** Separate work
+        // Refactor plugins to use <webview> tag and be able to render UI
+        //
+        // ** Once that is all done... can start to tackle #49 (Markdown preview). This would open
+        // lots of other interesting scenarios up to - plugins would be able to render all sorts of UI.
+        // Would be really nice for a 'git blame' overlay as well
+
         const windowStartRow = this._screen.cursorRow - this._lastEventContext.winline + 1
         const windowStartColumn = this._screen.cursorColumn - this._lastEventContext.wincol + 1
 
