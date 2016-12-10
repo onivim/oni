@@ -21,6 +21,7 @@ declare namespace Oni {
     export interface EventContext {
         bufferFullPath: string
         bufferTotalLines: number
+        bufferNumber: number
 
         version: number
         line: number
@@ -36,6 +37,7 @@ declare namespace Oni {
          * Actual column position within the window
          * Includes line number, gutter, etc
          */
+        windowNumber: number
         wincol: number
         winline: number
         windowTopLine: number

@@ -4,12 +4,12 @@ import * as ReactDOM from "react-dom"
 require("./LiveEvalMarker.less")
 
 import { ILiveCodeBlock } from "./../../Services/LiveEvaluation"
-import { /* IOverlay,*/ IWindowContext } from "./../OverlayManager"
+import { WindowContext } from "./../Overlay/WindowContext"
 
 
 export interface LiveEvalMarkerContainerProps {
     blocks: ILiveCodeBlock[]
-    windowContext: IWindowContext
+    windowContext: WindowContext
 }
 
 export class LiveEvalMarkerContainer extends React.Component<LiveEvalMarkerContainerProps, void> {

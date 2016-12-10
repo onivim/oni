@@ -94,7 +94,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                             this.emit("event", eventName, eventContext)
                         } else if (pluginMethod === "window_display_update") {
-                            this.emit("window-display-update", args[0][1])
+                            this.emit("window-display-update", args[0][0], args[0][1])
                         } else {
                             console.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
                         }
