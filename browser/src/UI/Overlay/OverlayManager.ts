@@ -90,6 +90,9 @@ export class OverlayManager {
         // ** Separate work
         // Refactor plugins to use <webview> tag and be able to render UI
         //
+        // ** Separate work
+        // Allow plugins to handle commands coming from plugin
+        //
         // ** Once that is all done... can start to tackle #49 (Markdown preview). This would open
         // lots of other interesting scenarios up to - plugins would be able to render all sorts of UI.
         // Would be really nice for a 'git blame' overlay as well
