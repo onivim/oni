@@ -3,17 +3,17 @@
 ![alt text](./images/Oni_128.png)
 ## Neovim + JavaScript powered IDE
 
-- [Introduction](#Introduction)
-- [Features](#Features)
-- [Documentation](#Documentation)
-    - [Configuration](#Configuration)
-    - [Guide](#Guide)
-    - [Extensibility](#Extensibility)
-    - [FAQ](#FAQ)
-- [Roadmap](#Roadmap)
-- [License](#License)
-- [Contributing](#Contributing)
-- [Thanks](#Thanks)
+- [Introduction](#introduction)
+- [Features](#features)
+- [Documentation](#documentation)
+    - [Configuration](#configuration)
+    - [Guide](#guide)
+    - [Extensibility](#extensibility)
+    - [FAQ](#faq)
+- [Roadmap](#roadmap)
+- [License](#license)
+- [Contributing](#contributing)
+- [Thanks](#thanks)
 
 ## Introduction
 
