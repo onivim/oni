@@ -94,7 +94,23 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 > ONI is configurable via a 'config.json' located in $HOME/.oni
 
-See the Config.ts file for interesting values to set
+Here's an example config.json:
+```
+{
+    "oni.useDefaultConfig": true,
+    "editor.fontSize": "14px",
+    "editor.fontFamily": "Monaco",
+    "editor.completions.enabled": true
+}
+```
+
+A few interesting configuration options to set:
+- `oni.useDefaultConfig` - ONI comes with an opinionated default set of plugins for a predictable out-of-box experience. This will be great for newcomes to ONI or Vim, but for Vim/Neovim veterans, this will likely conflict. Set this to `false` to avoid loading the default config, and to load settings from `init.vim` instead.
+- `editor.fontSize` - Font size
+- `editor.fontFamily` - Font family
+- `prototype.editor.backgroundImageUrl` - specific a custom background image
+
+See the `Config.ts` file for other interesting values to set
 
 ### Guide
 
@@ -130,7 +146,13 @@ ONI currently supports the setting of a background image as well as background o
 
 ### FAQ
 
-TODO
+#### Why isn't my init.vim loaded?
+
+> _TL;DR_ - Set the `oni.useDefaultConfig` configuration value to _false_
+
+By default, Oni has an opinionated, prescribed set of plugins, in order to facilitate a predictable out-of-box experience that highlights the additional UI integration points. However, this will likely have conflicts with a Vim/Neovim veteran's finely-honed configuration.
+
+To avoid loading the Oni defaults, and instead use your `init.vim`, set this configuration value to false in $HOME/.oni/config.json.
 
 ### Included VIM Plugins
 
