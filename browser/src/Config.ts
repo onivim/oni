@@ -2,6 +2,8 @@ import * as fs from "fs"
 import * as path from "path"
 import * as Platform from "./Platform"
 
+export const FallbackFonts = "Consolas,Monaco,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace"
+
 const DefaultConfig: any = {
     // Debug settings
     "debug.incrementalRenderRegions": false,
@@ -50,7 +52,7 @@ if (fs.existsSync(userConfigFile)) {
     userConfig = JSON.parse(fs.readFileSync(userConfigFile, "utf8"))
 }
 
-const Config = Object.assign({}, DefaultConfig, DefaultPlatformConfig, userConfig)
+const Config = { ...DefaultConfig, ...DefaultPlatformConfig, ...userConfig }
 
 export function hasValue(configValue: string): boolean {
     return !!getValue<any>(configValue)

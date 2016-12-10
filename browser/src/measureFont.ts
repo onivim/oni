@@ -1,4 +1,6 @@
 
+import { FallbackFonts } from "./Config"
+
 export interface IFontMeasurement {
     width: number
     height: number
@@ -16,7 +18,7 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
     div.style.top = "-1000px"
 
     div.textContent = "H"
-    div.style.fontFamily = fontFamily
+    div.style.fontFamily = `${fontFamily},${FallbackFonts}`
     div.style.fontSize = fontSize
 
     document.body.appendChild(div)

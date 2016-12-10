@@ -1,5 +1,4 @@
-
-const FallbackFonts = "Consolas,Monaco,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace"
+import { FallbackFonts } from "./../Config"
 
 /**
  * RenderCache caches rendered letter of a specific configuration.
@@ -27,7 +26,7 @@ export class RenderCache {
             const canvasContext = <any> canvas.getContext("2d") // FIXME: null
             canvasContext.setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0)
 
-            canvasContext.font = `normal normal lighter ${fontSize} ${fontFamily} ${FallbackFonts}`
+            canvasContext.font = `normal normal lighter ${fontSize} ${fontFamily},${FallbackFonts}`
             canvasContext.textBaseline = "top"
             canvasContext.fillStyle = backgroundColor
             canvasContext.fillRect(0, 0, fontWidth, fontHeight)
