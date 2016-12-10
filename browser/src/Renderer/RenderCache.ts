@@ -1,4 +1,4 @@
-import { FallbackFonts } from "./../Config"
+import { FallbackFonts } from "./../Font"
 
 /**
  * RenderCache caches rendered letter of a specific configuration.
