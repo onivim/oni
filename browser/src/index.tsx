@@ -102,6 +102,8 @@ const start = (args: string[]) => {
         liveEvaluationOverlay.onVimEvent(eventName, evt)
         scrollbarOverlay.onVimEvent(eventName, evt)
 
+        tasks.onEvent(evt)
+
         if (eventName === "BufEnter") {
             // TODO: More convenient way to hide all UI?
             UI.hideCompletions()

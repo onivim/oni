@@ -1,0 +1,6 @@
+{
+    "type": "execute",
+    "name": "Oni - Test",
+    "program": "oni",
+    "args": ["--debugPlugin ${workspaceRoot}"]
+}
