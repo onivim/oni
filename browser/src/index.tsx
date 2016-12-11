@@ -14,6 +14,7 @@ import { Formatter } from "./Services/Formatter"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
 import { OutputWindow } from "./Services/Output"
 import { QuickOpen } from "./Services/QuickOpen"
+import { Tasks } from "./Services/Tasks"
 import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
 import * as UI from "./UI/index"
 import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
@@ -49,12 +50,14 @@ const start = (args: string[]) => {
 
     // Services
     const quickOpen = new QuickOpen(instance)
+    const tasks = new Tasks()
     const formatter = new Formatter(instance, pluginManager)
     const outputWindow = new OutputWindow(instance, pluginManager)
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
     const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
 
     services.push(quickOpen)
+    services.push(tasks)
     services.push(formatter)
     services.push(liveEvaluation)
     services.push(syntaxHighlighter)
@@ -222,6 +225,8 @@ const start = (args: string[]) => {
             pluginManager.executeCommand("editor.gotoDefinition")
         } else if (key === "<C-p>" && screen.mode === "normal") {
             quickOpen.show()
+        } else if (key === "<C-P>" && screen.mode === "normal") {
+            tasks.show()
         } else {
             instance.input(key)
         }
