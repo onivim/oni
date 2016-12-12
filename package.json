@@ -39,7 +39,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "electron": "^1.4.5",
+    "electron": "^1.4.12",
     "find-parent-dir": "^0.3.0",
     "hex-rgb": "^1.0.0",
     "lodash": "^4.17.0",
