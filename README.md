@@ -184,4 +184,6 @@ Contributions are very much welcome :)
 
 Big thanks to the NeoVim team - without their work, this project would not be possible. The deep integration with VIM would not be possible without the incredible work that was done to enable the msgpack-RPC interface. Thanks!
 
+Also, big thanks to our [contributors](https://github.com/extr0py/oni/graphs/contributors) for helping out!
+
 In addition, there are several other great NeoVim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) that served as great reference points and learning opportunities.
