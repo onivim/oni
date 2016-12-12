@@ -8,7 +8,7 @@
     - [x] TypeScript language support
 - 0.2
     - [x] Mouse support
-        - [ ] Buffer scroll bars
+        - [x] Buffer scroll bars
     - [ ] Extensibility models
         - [ ] Language service
             - [x] Autocompletion (TypeScript, Javascript)
@@ -18,10 +18,11 @@
             - [x] Formatting
             - [ ] Documentation
         - [ ] Integration with [language-server-protocol](https://github.com/Microsoft/language-server-protocol)
-    - [ ] Services
+    - [x] Services
         - [x] QuickOpen - Modern CTRL-P replacement
-    - [ ] Installation via NPM
-        - [ ] Handle case where NeoVim is not already installed
+    - [x] Installation via NPM
+        - [x] Handle case where NeoVim is not already installed
+    - [ ] Integration with popupmenu_external
 - 0.3
     - [ ] Proper keymap support
     - [ ] Feature: Replace visual word
