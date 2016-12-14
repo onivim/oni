@@ -40,7 +40,9 @@ export class QuickOpen {
 
         // Overridden strategy
         if (overrriddenCommand) {
-            const files = execSync(overrriddenCommand).toString("utf8").split("\n")
+            const files = execSync(overrriddenCommand)
+                            .toString("utf8")
+                            .split("\n")
             this._showMenuFromFiles(files)
             return
         }
@@ -69,7 +71,8 @@ export class QuickOpen {
     }
 
     private _showMenuFromFiles(files: string[]): void {
-        const options = files.map((f) => {
+        const options = files.map((untrimmedFile) => {
+            const f = untrimmedFile.trim()
             const file = path.basename(f)
             const folder = path.dirname(f)
             const fullPath = path.join(folder, file)

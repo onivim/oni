@@ -30,10 +30,12 @@ const DefaultConfig: any = {
     "editor.formatting.formatOnSwitchToNormalMode": false, // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun
 
     // Command to list files for 'quick open'
-    // For example, to use 'ag': ag --nocolor -l ${searchText}
+    // For example, to use 'ag': ag --nocolor -l .
     //
     // The command must emit a list of filenames
-    // "editor.quickOpen.execCommand": "ag --nocolor -l ${searchText}"
+    //
+    // IE, Windows:
+    // "editor.quickOpen.execCommand": "dir /s /b"
 }
 
 const MacConfig: any = {
