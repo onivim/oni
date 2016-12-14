@@ -31,4 +31,3 @@ export function getUntrackedFiles(): Q.Promise<string[]> {
     const untrackedFiles = execSync("git ls-files --others --exclude-standard").toString("utf8").split("\n")
     return Q.resolve(untrackedFiles)
 }
-

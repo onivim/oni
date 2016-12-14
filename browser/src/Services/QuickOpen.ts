@@ -9,6 +9,7 @@ import { execSync } from "child_process"
 
 import * as Q from "q"
 import * as _ from "lodash"
+import * as recursive from "recursive-readdir"
 
 import { INeovimInstance } from "./../NeovimInstance"
 import * as UI from "./../UI/index"
@@ -35,7 +36,7 @@ export class QuickOpen {
     }
 
     public show(): void {
-        const overrriddenCommand = Config.getValue<string>("editor.quickOpen.execCommand")) 
+        const overrriddenCommand = Config.getValue<string>("editor.quickOpen.execCommand")
 
         // Overridden strategy
         if (overrriddenCommand) {
@@ -55,9 +56,13 @@ export class QuickOpen {
                             const allFiles = _.flatten(values)
                             this._showMenuFromFiles(allFiles)
                         })
-
                 } else {
-                    alert("TBD")
+                    // TODO: This async call is being dropped, if we happen to use the promise
+                    recursive(process.cwd(), (err: Error, files: string[]) => {
+                        if (!err) {
+                            this._showMenuFromFiles(files)
+                        }
+                    })
                     return
                 }
             })
