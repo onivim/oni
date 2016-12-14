@@ -4,13 +4,18 @@
  * Manages the quick open menu
  */
 
-import { execSync } from "child_process"
 import * as path from "path"
+import { execSync } from "child_process"
+
+import * as Q from "q"
+import * as _ from "lodash"
+
 import { INeovimInstance } from "./../NeovimInstance"
 import * as UI from "./../UI/index"
+import * as Git from "./Git"
+import * as Config from "./../Config"
 
 export class QuickOpen {
-
     private _seenItems: string[] = []
 
     constructor(neovimInstance: INeovimInstance) {
@@ -30,10 +35,35 @@ export class QuickOpen {
     }
 
     public show(): void {
-        const trackedFiles = execSync("git ls-files").toString("utf8").split("\n")
-        const untrackedFiles = execSync("git ls-files --others --exclude-standard").toString("utf8").split("\n")
-        const files = trackedFiles.concat(untrackedFiles)
+        const overrriddenCommand = Config.getValue<string>("editor.quickOpen.execCommand")) 
 
+        // Overridden strategy
+        if (overrriddenCommand) {
+            const files = execSync(overrriddenCommand).toString("utf8").split("\n")
+            this._showMenuFromFiles(files)
+            return
+        }
+
+        // Default strategy
+        //  If git repo, use git ls-files
+        //  Otherwise, find all files recursively
+        Git.isGitRepository()
+            .then((isGit) => {
+                if (isGit) {
+                    return Q.all([Git.getTrackedFiles(), Git.getUntrackedFiles()])
+                        .then((values: [string[], string[]]) => {
+                            const allFiles = _.flatten(values)
+                            this._showMenuFromFiles(allFiles)
+                        })
+
+                } else {
+                    alert("TBD")
+                    return
+                }
+            })
+    }
+
+    private _showMenuFromFiles(files: string[]): void {
         const options = files.map((f) => {
             const file = path.basename(f)
             const folder = path.dirname(f)
@@ -45,8 +75,6 @@ export class QuickOpen {
                 pinned: this._seenItems.indexOf(fullPath) >= 0,
             }
         })
-
         UI.showPopupMenu("quickOpen", options)
     }
-
 }
