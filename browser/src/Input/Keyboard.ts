@@ -32,13 +32,12 @@ export class Keyboard extends EventEmitter {
                 return "<tab>"
             case 13: // Enter
                 return "<enter>"
-            case 16: // Shift left
-            case 17: // Ctrl left
-                return null
-            case 18: // Alt left
-                return null
             case 27: // Escape
                 return "<esc>"
+            case 33: // Page up
+                return "<pageup>"
+            case 34: // Page down
+                return "<pagedown>"
             case 35:
                 return "<end>"
             case 36:
@@ -59,6 +58,12 @@ export class Keyboard extends EventEmitter {
                 return "<f5>"
             case 123:
                 return "<f12>"
+            case 16: // Shift left
+            case 17: // Ctrl left
+            case 18: // Alt left
+            case 19: // Pause
+            case 20: // Caps lock
+            case 145: // Scroll lock
             case 174: // Volume up
             case 175: // Volume down
                 return null
