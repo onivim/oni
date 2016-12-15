@@ -31,6 +31,7 @@
     <canvas id="test-canvas" style="position: absolute; width: 100%; height: 100%;"></canvas>
     <div id="overlay-ui"></div>
       <script>
+        console.timeStamp("browser.domloaded")
         var path = "dist/browser/bundle.js"
         if(process.env.NODE_ENV === "development") {
             path = "http://localhost:8191/bundle.js";
