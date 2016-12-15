@@ -7,7 +7,7 @@
 - [Features](#features)
 - [Documentation](#documentation)
     - [Usage](#usage)
-        -[QuickOpen](#quickopen)
+        - [QuickOpen](#quickopen)
     - [Configuration](#configuration)
     - [Guide](#guide)
     - [Extensibility](#extensibility)
