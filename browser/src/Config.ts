@@ -54,9 +54,8 @@ const LinuxConfig: any = {
 const DefaultPlatformConfig = Platform.isWindows() ? WindowsConfig : Platform.isLinux() ? LinuxConfig : MacConfig
 
 Performance.mark("Config.load.start")
-// config.json will be deprecated at some point
-const userConfigFile = path.join(Platform.getUserHome(), ".oni", "config.json")
 
+const userConfigFile = path.join(Platform.getUserHome(), ".oni", "config.json")
 const userJsConfig = path.join(Platform.getUserHome(), ".oni", "config.js")
 
 let userConfig = {}
