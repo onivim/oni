@@ -98,8 +98,10 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 QuickOpen is a quick and easy way to switch between files. It's similiar in goal to the Ctrl-P plugin, and the built-in functionality editors like VSCode and Atom provide.
 
+##### Entry point
 - `<C-p>` - show the QuickOpen menu
 
+##### Commands
 - `<C-n>` - navigate to next entry in the QuickOpen menu
 - `<C-p>` - navigate to the previous entry in the QuickOpen menu
 - `<Enter>` - select a QuickOpen item
