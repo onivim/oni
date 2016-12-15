@@ -5,9 +5,10 @@
 
 - [Introduction](#introduction)
 - [Features](#features)
+- [Install / Build](#install-build)
 - [Documentation](#documentation)
     - [Usage](#usage)
-        - [Fuzzy Finder](#fuzzy finder)
+        - [Fuzzy Finder](#fuzzy-finder)
     - [Configuration](#configuration)
     - [Guide](#guide)
     - [Extensibility](#extensibility)
@@ -22,6 +23,9 @@
 ONI is a NeoVim front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
+
+> `npm install -g oni-vim`
+> `oni`
 
 ## Features
 
@@ -41,14 +45,14 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ### Fuzzy Finder
 
-[Documentation](#fuzzy finder)
+[Documentation](#fuzzy-finder)
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
 ### Live Evaluation
 
 ![live-eval-demo](http://i.imgur.com/XenTrdC.gif)
 
-## Usage
+## Install / Build
 
 ### Install
 
@@ -56,7 +60,7 @@ ONI brings several IDE-like integrations to NeoVim:
 
 - For OSX, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim.exe' is available.
 
-1) Run npm install -g oni-vim
+1) Run `npm install -g oni-vim`
 
 2) Run `oni` at the command line to start the editor.
 
