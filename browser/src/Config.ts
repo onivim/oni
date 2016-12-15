@@ -23,6 +23,10 @@ const DefaultConfig: any = {
     // Set this to 'false' to avoid loading the default config, and load settings from init.vim instead.
     "oni.useDefaultConfig": true,
 
+    // By default, user's init.vim is not loaded, to avoid conflicts.
+    // Set this to `true` to enable loading of init.vim.
+    "oni.loadInitVim": false,
+
     "editor.fontSize": "14px",
     "editor.quickInfo.enabled": true,
     "editor.completions.enabled": true,

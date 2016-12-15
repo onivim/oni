@@ -300,13 +300,14 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
 
     const joinedRuntimePaths = runtimePaths.join(",")
 
-    // If we are using the defaultConfig, suppress loading of the user's init.vim to avoid conflicts
-    // Setting -u NONE causes no plugins at all to load, but using a 'noop' still picks up the plugins
-    const vimRcArg = Config.getValue<boolean>("oni.useDefaultConfig") ? ["-u", noopInitVimPath] : []
+    const shouldLoadInitVim = Config.getValue<boolean>("oni.loadInitVim")
+    const useDefaultConfig = Config.getValue<boolean>("oni.useDefaultConfig")
+
+    const vimRcArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
 
     const argsToPass = vimRcArg
-                        .concat(["--cmd", "set rtp+=" + joinedRuntimePaths, "-N", "--embed", "--"])
-                        .concat(args)
+        .concat(["--cmd", "set rtp+=" + joinedRuntimePaths, "-N", "--embed", "--"])
+        .concat(args)
 
     const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
 
