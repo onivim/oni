@@ -1,5 +1,7 @@
 import * as fs from "fs"
 import * as path from "path"
+
+import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
 export const FallbackFonts = "Consolas,Monaco,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace"
@@ -56,15 +58,23 @@ const LinuxConfig: any = {
 
 const DefaultPlatformConfig = Platform.isWindows() ? WindowsConfig : Platform.isLinux() ? LinuxConfig : MacConfig
 
+Performance.mark("Config.load.start")
+
 const userConfigFile = path.join(Platform.getUserHome(), ".oni", "config.json")
+const userJsConfig = path.join(Platform.getUserHome(), ".oni", "config.js")
 
 let userConfig = {}
-
 if (fs.existsSync(userConfigFile)) {
     userConfig = JSON.parse(fs.readFileSync(userConfigFile, "utf8"))
 }
 
-const Config = { ...DefaultConfig, ...DefaultPlatformConfig, ...userConfig }
+let userRuntimeConfig = {}
+if (fs.existsSync(userJsConfig)) {
+    userRuntimeConfig = global["require"](userJsConfig) // tslint:disable-line no-string-literal
+}
+
+const Config = { ...DefaultConfig, ...DefaultPlatformConfig, ...userConfig, ...userRuntimeConfig }
+Performance.mark("Config.load.end")
 
 export function hasValue(configValue: string): boolean {
     return !!getValue<any>(configValue)
