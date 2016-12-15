@@ -1,6 +1,6 @@
 {
   "name": "oni-vim",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "NeoVim front-end with IDE-style extensibility",
   "keywords": [
     "vim",
@@ -28,7 +28,7 @@
     "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\" \"npm run watch:plugin_api\"",
     "start-hot": "cross-env NODE_ENV=development electron main.js",
     "start-not-dev": "cross-env electron main.js",
-    "watch:browser": "webpack-dev-server --config browser/webpack.config.js --hot --host 0.0.0.0 --port 8191",
+    "watch:browser": "webpack-dev-server --config browser/webpack.config.js --inline --hot --host localhost --port 8191",
     "watch:plugin_api": "cd plugin_api && tsc --watch",
     "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch"
   },
@@ -39,7 +39,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "electron": "^1.4.5",
+    "electron": "^1.4.12",
     "find-parent-dir": "^0.3.0",
     "hex-rgb": "^1.0.0",
     "lodash": "^4.17.0",
@@ -52,6 +52,7 @@
     "react-dom": "^15.3.1",
     "react-measure": "^1.4.2",
     "react-redux": "^4.4.5",
+    "recursive-readdir": "^2.1.0",
     "redux": "^3.5.2",
     "typescript": "^2.0.7"
   },
@@ -67,6 +68,7 @@
     "@types/react-dom": "^0.14.18",
     "@types/react-measure": "^0.4.5",
     "@types/react-redux": "^4.4.32",
+    "@types/recursive-readdir": "^1.2.28",
     "@types/sinon": "^1.16.32",
     "autoprefixer": "^6.4.0",
     "concurrently": "^3.1.0",
@@ -77,6 +79,7 @@
     "less-loader": "^2.2.3",
     "less-plugin-autoprefix": "^1.5.1",
     "mocha": "^3.1.2",
+    "optimize-js-plugin": "0.0.4",
     "react-hot-loader": "^1.3.0",
     "sinon": "^1.17.6",
     "style-loader": "^0.13.1",
