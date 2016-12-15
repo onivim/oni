@@ -7,12 +7,11 @@
 import { exec, execSync } from "child_process"
 import * as Q from "q"
 
-
 export function isGitRepository(): Q.Promise<any> {
     const deferred = Q.defer<boolean>()
 
     exec("git log --oneline -n1", (err: any) => {
-        if(err && err.code) {
+        if (err && err.code) {
             deferred.resolve(false)
         } else {
             deferred.resolve(true)

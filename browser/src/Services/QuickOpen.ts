@@ -4,18 +4,18 @@
  * Manages the quick open menu
  */
 
-import * as path from "path"
 import { execSync } from "child_process"
+import * as path from "path"
 
-import * as Q from "q"
 import * as _ from "lodash"
+import * as Q from "q"
 import * as recursive from "recursive-readdir"
 
+import * as Config from "./../Config"
 import { INeovimInstance } from "./../NeovimInstance"
+import * as PromiseHelper from "./../PromiseHelper"
 import * as UI from "./../UI/index"
 import * as Git from "./Git"
-import * as Config from "./../Config"
-import * as PromiseHelper from "./../PromiseHelper"
 
 const recursiveQ = Q.denodeify<string[]>(recursive)
 
@@ -35,7 +35,6 @@ export class QuickOpen {
                 neovimInstance.command("vsp! " + fullPath)
             }
         })
-
     }
 
     public show(): void {
@@ -44,8 +43,8 @@ export class QuickOpen {
         // Overridden strategy
         if (overrriddenCommand) {
             const files = execSync(overrriddenCommand)
-                            .toString("utf8")
-                            .split("\n")
+                .toString("utf8")
+                .split("\n")
             this._showMenuFromFiles(files)
             return
         }
@@ -66,7 +65,7 @@ export class QuickOpen {
                     return recursiveQ(process.cwd())
                         .then((files: string[]) => {
                             this._showMenuFromFiles(files)
-                    })
+                        })
                 }
             })
 

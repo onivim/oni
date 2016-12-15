@@ -7,7 +7,7 @@ import * as Performance from "./Performance"
  * Thin wrapper around browser performance API
  */
 export function wrapPromiseAndNotifyError<T>(operationName: string, promise: Q.Promise<T>): void {
-    Performance.mark(operationName + ".start") 
+    Performance.mark(operationName + ".start")
 
     promise.then(() => {
         Performance.mark(operationName + ".end")
