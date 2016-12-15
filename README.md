@@ -5,12 +5,13 @@
 
 - [Introduction](#introduction)
 - [Features](#features)
-- [Install / Build](#install-build)
+- [Installation](#installation)
+    - [NPM](#install-from-npm)
+    - [Build](#build)
 - [Documentation](#documentation)
     - [Usage](#usage)
         - [Fuzzy Finder](#fuzzy-finder)
     - [Configuration](#configuration)
-    - [Guide](#guide)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
 - [Roadmap](#roadmap)
@@ -52,13 +53,13 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ![live-eval-demo](http://i.imgur.com/XenTrdC.gif)
 
-## Install / Build
-
-### Install
+## Installation
 
 - For Windows, a pre-built x86 binary of NeoVim is included.
 
 - For OSX, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim.exe' is available.
+
+### Install from NPM
 
 1) Run `npm install -g oni-vim`
 
@@ -138,10 +139,6 @@ A few interesting configuration options to set:
 - `prototype.editor.backgroundImageSize` - specific a custom background size (cover, contain)
 
 See the `Config.ts` file for other interesting values to set
-
-### Guide
-
-TODO: Coming soon. 
 
 ### Extensibility
 
