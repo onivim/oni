@@ -7,7 +7,7 @@
 - [Features](#features)
 - [Documentation](#documentation)
     - [Usage](#usage)
-        - [QuickOpen](#quickopen)
+        - [Fuzzy Finder](#fuzzyfinder)
     - [Configuration](#configuration)
     - [Guide](#guide)
     - [Extensibility](#extensibility)
@@ -42,6 +42,7 @@ ONI brings several IDE-like integrations to NeoVim:
 ### Fuzzy Finder
 
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
+[Documentation](#fuzzyfinder)
 
 ### Live Evaluation
 
@@ -94,22 +95,22 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 ### Usage
 
-#### QuickOpen
+#### Fuzzy Finder
 
-QuickOpen is a quick and easy way to switch between files. It's similiar in goal to the Ctrl-P plugin, and the built-in functionality editors like VSCode and Atom provide.
+Fuzzy Finder is a quick and easy way to switch between files. It's similiar in goal to the Ctrl-P plugin, and the built-in functionality editors like VSCode and Atom provide.
 
 ##### Entry point
-- `<C-p>` - show the QuickOpen menu
+- `<C-p>` - show the Fuzzy Finder menu
 
 ##### Commands
-- `<C-n>` - navigate to next entry in the QuickOpen menu
-- `<C-p>` - navigate to the previous entry in the QuickOpen menu
-- `<Enter>` - select a QuickOpen item
-- `<Esc>` - close the QuickOpen menu
+- `<C-n>` - navigate to next entry in the Fuzzy Finder menu
+- `<C-p>` - navigate to the previous entry in the Fuzzy Finder menu
+- `<Enter>` - select a Fuzzy Finder item
+- `<Esc>` - close the Fuzzy Finder menu
 
-By default, QuickOpen uses `git ls-files` to get the available files in the directory, but if git is not present, it will fallback to a non-git strategy.
+By default, Fuzzy Finder uses `git ls-files` to get the available files in the directory, but if git is not present, it will fallback to a non-git strategy.
 
-The QuickOpen strategy can be configured by the `editor.quickOpen.execCommand`, and must be a shell command that returns a list of files, separated by newlines.
+The Fuzzy Finder strategy can be configured by the `editor.quickOpen.execCommand`, and must be a shell command that returns a list of files, separated by newlines.
 
 ### Configuration
 
