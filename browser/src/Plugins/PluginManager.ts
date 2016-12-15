@@ -183,6 +183,10 @@ export class PluginManager extends EventEmitter {
                 return
             }
 
+            if (!pluginResponse.payload) {
+                return
+            }
+
             setTimeout(() => UI.showCompletions(pluginResponse.payload))
         } else if (pluginResponse.type === "completion-provider-item-selected") {
             setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details))

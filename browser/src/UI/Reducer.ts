@@ -218,7 +218,7 @@ export const autoCompletionEntryReducer = (s: Oni.Plugin.CompletionInfo[], actio
     switch (action.type) {
         case "SET_AUTO_COMPLETION_DETAILS":
             return s.map((entry) => {
-                if (entry.label === action.payload.detailedEntry.label) {
+                if (action.payload.detailedEntry && entry.label === action.payload.detailedEntry.label) {
                     return action.payload.detailedEntry
                 }
                 return entry
