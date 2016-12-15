@@ -7,7 +7,7 @@
 - [Features](#features)
 - [Documentation](#documentation)
     - [Usage](#usage)
-        - [Fuzzy Finder](#fuzzyfinder)
+        - [Fuzzy Finder](#fuzzy_finder)
     - [Configuration](#configuration)
     - [Guide](#guide)
     - [Extensibility](#extensibility)
@@ -41,8 +41,8 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ### Fuzzy Finder
 
+[Documentation](#fuzzy_finder)
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
-[Documentation](#fuzzyfinder)
 
 ### Live Evaluation
 
