@@ -50,11 +50,11 @@ const start = (args: string[]) => {
 
     // Services
     const quickOpen = new QuickOpen(instance)
-    const tasks = new Tasks()
     const formatter = new Formatter(instance, pluginManager)
     const outputWindow = new OutputWindow(instance, pluginManager)
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
     const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
+    const tasks = new Tasks(outputWindow)
 
     services.push(quickOpen)
     services.push(tasks)

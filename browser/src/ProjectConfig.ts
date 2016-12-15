@@ -4,9 +4,11 @@
  * https://code.visualstudio.com/Docs/editor/debugging
  */
 
-// import * as path from "path"
+import * as path from "path"
+import * as fs from "fs"
 
-// import * as findParentDir from "find-parent-dir"
+import * as Q from "q"
+
 const findParentDir = require("find-parent-dir")
 
 export type LaunchType = "execute"
@@ -18,7 +20,8 @@ export interface LaunchConfiguration {
     name: string
     program: string
     args: string[]
-    cwd: string
+    cwd: string,
+    dependentCommands: string[]
 }
 
 /**
@@ -36,14 +39,25 @@ const DefaultConfiguration: ProjectConfiguration = {
  * Get the project configuration for a particular file
  * Search upward for the relevant .oni folder
  */
-export function getProjectConfiguration(filePath: string): Promise<ProjectConfiguration> {
+export function getProjectConfiguration(filePath: string): Q.Promise<ProjectConfiguration> {
     
     const oniDir = findParentDir.sync(filePath, ".oni")
-    return loadConfigurationFromFolder(oniDir)
+    return loadConfigurationFromFolder(path.join(oniDir, ".oni"))
 }
 
-function loadConfigurationFromFolder(folder: string): Promise<ProjectConfiguration> {
-    console.log(folder)
-    debugger
-    return Promise.resolve(DefaultConfiguration)
+function loadConfigurationFromFolder(folder: string): Q.Promise<ProjectConfiguration> {
+
+    const launchPath = path.join(folder, "launch.json")
+
+    if (!fs.existsSync(launchPath)) {
+        return Q(DefaultConfiguration)
+    } else {
+       const launchInfo: LaunchConfiguration = JSON.parse(fs.readFileSync(launchPath, "utf8")) 
+
+       const config = {...DefaultConfiguration, ...{
+           launchConfigurations: [launchInfo] 
+       }}
+
+       return Q(config)
+    }
 }

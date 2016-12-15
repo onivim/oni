@@ -9,9 +9,17 @@
  *  - NPM tasks
  */
 
-import * as UI from "./../UI/index"
 import * as _ from "lodash"
+import * as path from "path"
+import * as Q from "q"
+
+import * as Parser from "./../Parser"
 import { getProjectConfiguration } from "./../ProjectConfig"
+import * as UI from "./../UI/index"
+
+import { OutputWindow } from "./Output"
+
+const findParentDir = require("find-parent-dir")
 
 export interface ITask {
     name: string
@@ -20,17 +28,7 @@ export interface ITask {
 }
 
 export interface ITaskProvider {
-    getTasks(): Promise<ITask[]>
-}
-
-export class DummyTaskProvider implements ITaskProvider {
-    public getTasks(): Promise<ITask[]> {
-        return Promise.resolve([{
-            name: "NPM: build",
-            detail: "derp",
-            callback: () => { alert("selected!") }
-        }])
-    }
+    getTasks(): Q.Promise<ITask[]>
 }
 
 // TODO:
@@ -48,7 +46,7 @@ export class OniLaunchTasksProvider implements ITaskProvider {
         this._currentBufferPath = currentBufferPath
     }
 
-    public getTasks(): Promise<ITask[]> {
+    public getTasks(): Q.Promise<ITask[]> {
         return getProjectConfiguration(this._currentBufferPath)
                 .then((config) => {
                     return config.launchConfigurations.map(p => ({
@@ -60,11 +58,55 @@ export class OniLaunchTasksProvider implements ITaskProvider {
     }
 }
 
+export class PackageJsonTasksProvider implements ITaskProvider {
+
+    private _currentPath: string
+    private _output: OutputWindow
+
+    constructor(currentPath: string, output: OutputWindow) {
+        this._currentPath = currentPath
+        this._output = output
+    }
+
+    public getTasks(): Q.Promise<ITask[]> {
+        const defer = Q.defer<ITask[]>()        
+
+        findParentDir(this._currentPath, "package.json", (err: Error, dir: string) => {
+            if(err) {
+                defer.reject(err)
+                return
+            }
+
+            const packageJson = Parser.parseJsonFromFile<any>(path.join(dir, "package.json"))
+
+            if(!packageJson.scripts) {
+                defer.resolve([])
+                              return
+            }
+
+            const scripts = packageJson.scripts
+            const tasks = Object.keys(scripts)
+                            .map(key => ({
+                                name: key,
+                                detail: scripts[key],
+                                callback: () => this._output.execute(`npm run ${key}`)
+                            }))
+
+            defer.resolve(tasks)
+        })
+
+        return defer.promise
+    }
+}
+
 export class Tasks {
     private _lastTasks: ITask[] = []
     private _currentBufferPath: string
+    private _output: OutputWindow
 
-    constructor() {
+    constructor(output: OutputWindow) {
+        this._output = output
+
         UI.events.on("menu-item-selected:tasks", (selectedItem: any) => {
             const {label, detail} = selectedItem.selectedOption
 
@@ -80,16 +122,17 @@ export class Tasks {
         this._currentBufferPath = event.bufferFullPath
     }
 
-    private _refreshTasks(): Promise<void> {
+    private _refreshTasks(): Q.Promise<void> {
         this._lastTasks = []
 
         const taskProviders = []
-        taskProviders.push(new DummyTaskProvider())
-        taskProviders.push(new OniLaunchTasksProvider(this._currentBufferPath))
+        const rootPath = this._currentBufferPath || process.cwd()
+        taskProviders.push(new OniLaunchTasksProvider(rootPath))
+        taskProviders.push(new PackageJsonTasksProvider(rootPath, this._output))
 
         const promises = taskProviders.map(t => t.getTasks() || [])
 
-        return Promise.all(promises)
+        return Q.all(promises)
             .then((vals: ITask[][]) => {
                 this._lastTasks = _.flatten(vals)
             })
