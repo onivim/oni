@@ -1,7 +1,8 @@
 import * as fs from "fs"
 import * as path from "path"
-import * as Platform from "./Platform"
+
 import * as Performance from "./Performance"
+import * as Platform from "./Platform"
 
 export const FallbackFonts = "Consolas,Monaco,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace"
 
@@ -66,7 +67,7 @@ if (fs.existsSync(userConfigFile)) {
 
 let userRuntimeConfig = {}
 if (fs.existsSync(userJsConfig)) {
-    userRuntimeConfig = global["require"](userJsConfig)
+    userRuntimeConfig = global["require"](userJsConfig) // tslint:disable-line no-string-literal
 }
 
 const Config = { ...DefaultConfig, ...DefaultPlatformConfig, ...userConfig, ...userRuntimeConfig }
