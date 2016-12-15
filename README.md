@@ -43,7 +43,7 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ![syntax-error-demo](http://i.imgur.com/3ErOKYI.gif)
 
-### Fuzzy Finder
+### Fuzzy Finding
 
 [Documentation](#fuzzy-finder)
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
