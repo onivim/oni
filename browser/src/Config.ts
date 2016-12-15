@@ -60,7 +60,6 @@ const userConfigFile = path.join(Platform.getUserHome(), ".oni", "config.json")
 const userJsConfig = path.join(Platform.getUserHome(), ".oni", "config.js")
 
 let userConfig = {}
-
 if (fs.existsSync(userConfigFile)) {
     userConfig = JSON.parse(fs.readFileSync(userConfigFile, "utf8"))
 }
