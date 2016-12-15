@@ -5,9 +5,13 @@
 
 - [Introduction](#introduction)
 - [Features](#features)
+- [Installation](#installation)
+    - [NPM](#install-from-npm)
+    - [Build](#build)
 - [Documentation](#documentation)
+    - [Usage](#usage)
+        - [Fuzzy Finder](#fuzzy-finder)
     - [Configuration](#configuration)
-    - [Guide](#guide)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
 - [Roadmap](#roadmap)
@@ -20,6 +24,9 @@
 ONI is a NeoVim front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
+
+> `npm install -g oni-vim`
+> `oni`
 
 ## Features
 
@@ -37,23 +44,24 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ![syntax-error-demo](http://i.imgur.com/3ErOKYI.gif)
 
-### Fuzzy Finder
+### Fuzzy Finding
 
+[Documentation](#fuzzy-finder)
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
 ### Live Evaluation
 
 ![live-eval-demo](http://i.imgur.com/XenTrdC.gif)
 
-## Usage
-
-### Install
+## Installation
 
 - For Windows, a pre-built x86 binary of NeoVim is included.
 
 - For OSX, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim.exe' is available.
 
-1) Run npm install -g oni-vim
+### Install from NPM
+
+1) Run `npm install -g oni-vim`
 
 2) Run `oni` at the command line to start the editor.
 
@@ -90,6 +98,25 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 ## Documentation
 
+### Usage
+
+#### Fuzzy Finder
+
+Fuzzy Finder is a quick and easy way to switch between files. It's similiar in goal to the Ctrl-P plugin, and the built-in functionality editors like VSCode and Atom provide.
+
+##### Entry point
+- `<C-p>` - show the Fuzzy Finder menu
+
+##### Commands
+- `<C-n>` - navigate to next entry in the Fuzzy Finder menu
+- `<C-p>` - navigate to the previous entry in the Fuzzy Finder menu
+- `<Enter>` - select a Fuzzy Finder item
+- `<Esc>` - close the Fuzzy Finder menu
+
+By default, Fuzzy Finder uses `git ls-files` to get the available files in the directory, but if git is not present, it will fallback to a non-git strategy.
+
+The Fuzzy Finder strategy can be configured by the `editor.quickOpen.execCommand`, and must be a shell command that returns a list of files, separated by newlines.
+
 ### Configuration
 
 > ONI is configurable via a 'config.json' located in $HOME/.oni
@@ -112,10 +139,6 @@ A few interesting configuration options to set:
 - `prototype.editor.backgroundImageSize` - specific a custom background size (cover, contain)
 
 See the `Config.ts` file for other interesting values to set
-
-### Guide
-
-TODO: Coming soon. 
 
 ### Extensibility
 

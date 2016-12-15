@@ -28,6 +28,14 @@ const DefaultConfig: any = {
     "editor.completions.enabled": true,
     "editor.errors.slideOnFocus": true,
     "editor.formatting.formatOnSwitchToNormalMode": false, // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun
+
+    // Command to list files for 'quick open'
+    // For example, to use 'ag': ag --nocolor -l .
+    //
+    // The command must emit a list of filenames
+    //
+    // IE, Windows:
+    // "editor.quickOpen.execCommand": "dir /s /b"
 }
 
 const MacConfig: any = {
