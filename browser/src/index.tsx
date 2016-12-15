@@ -202,9 +202,19 @@ const start = (args: string[]) => {
         if (UI.areCompletionsVisible()) {
 
             if (key === "<enter>") {
-                // Put a dummy character in front so it removes the word,
-                // but not a '.' if the completion comes directly after
-                instance.input("a<c-w>" + UI.getSelectedCompletion())
+                let completion = UI.getSelectedCompletion() || ''
+
+                //move one character left so the cursor is "within" the word
+                //(we wouldn't be displaying completions if there wasn't at least one character)
+                instance.input('<left>')
+                //get current word under cursor
+                instance.eval<string>("expand('<cword>')")
+                    .then((word) => {
+                        //move back to where we were
+                        instance.input('<right>')
+                        //remove the first instance of the word under the cursor
+                        instance.input(completion.replace(word,''))
+                    })
 
                 UI.hideCompletions()
                 return
