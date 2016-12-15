@@ -15,6 +15,9 @@ import { INeovimInstance } from "./../NeovimInstance"
 import * as UI from "./../UI/index"
 import * as Git from "./Git"
 import * as Config from "./../Config"
+import * as PromiseHelper from "./../PromiseHelper"
+
+const recursiveQ = Q.denodeify<string[]>(recursive)
 
 export class QuickOpen {
     private _seenItems: string[] = []
@@ -50,7 +53,7 @@ export class QuickOpen {
         // Default strategy
         //  If git repo, use git ls-files
         //  Otherwise, find all files recursively
-        Git.isGitRepository()
+        const openPromise = Git.isGitRepository()
             .then((isGit) => {
                 if (isGit) {
                     return Q.all([Git.getTrackedFiles(), Git.getUntrackedFiles()])
@@ -60,14 +63,14 @@ export class QuickOpen {
                         })
                 } else {
                     // TODO: This async call is being dropped, if we happen to use the promise
-                    recursive(process.cwd(), (err: Error, files: string[]) => {
-                        if (!err) {
+                    return recursiveQ(process.cwd())
+                        .then((files: string[]) => {
                             this._showMenuFromFiles(files)
-                        }
                     })
-                    return
                 }
             })
+
+        PromiseHelper.wrapPromiseAndNotifyError("editor.quickOpen.show", openPromise)
     }
 
     private _showMenuFromFiles(files: string[]): void {

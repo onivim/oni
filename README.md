@@ -6,6 +6,8 @@
 - [Introduction](#introduction)
 - [Features](#features)
 - [Documentation](#documentation)
+    - [Usage](#usage)
+        -[QuickOpen](#quickopen)
     - [Configuration](#configuration)
     - [Guide](#guide)
     - [Extensibility](#extensibility)
@@ -89,6 +91,23 @@ In my journey of learning VIM and increasing proficiency in other editors, I've 
 The goal of this project is to give an editor that gives the best of both worlds - the power, speed, and flexibility of using VIM for manipulating text, as well as the rich tooling that comes with an IDE.
 
 ## Documentation
+
+### Usage
+
+#### QuickOpen
+
+QuickOpen is a quick and easy way to switch between files. It's similiar in goal to the Ctrl-P plugin, and the built-in functionality editors like VSCode and Atom provide.
+
+- `<C-p>` - show the QuickOpen menu
+
+- `<C-n>` - navigate to next entry in the QuickOpen menu
+- `<C-p>` - navigate to the previous entry in the QuickOpen menu
+- `<Enter>` - select a QuickOpen item
+- `<Esc>` - close the QuickOpen menu
+
+By default, QuickOpen uses `git ls-files` to get the available files in the directory, but if git is not present, it will fallback to a non-git strategy.
+
+The QuickOpen strategy can be configured by the `editor.quickOpen.execCommand`, and must be a shell command that returns a list of files, separated by newlines.
 
 ### Configuration
 
