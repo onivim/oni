@@ -87,7 +87,6 @@
     "tslint": "^4.0.2",
     "typescript": "^2.1.4",
     "webpack": "^1.13.2",
-    "webpack-dev-server": "^1.16.1",
-    "webpack-uglify-js-plugin": "^1.1.9"
+    "webpack-dev-server": "^1.16.1"
   }
 }
