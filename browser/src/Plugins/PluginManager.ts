@@ -51,6 +51,8 @@ export class PluginManager extends EventEmitter {
         this._extensionPath = this._ensureOniPluginsPath()
         this._rootPluginPaths.push(this._extensionPath)
 
+        this._rootPluginPaths.push(path.join(Config.getUserFolder(), "plugins"))
+
         ipcRenderer.on("cross-browser-ipc", (_event, arg) => {
             console.log("cross-browser-ipc: " + JSON.stringify(arg)) // tslint:disable-line no-console
             this._handlePluginResponse(arg)
@@ -264,6 +266,9 @@ export class PluginManager extends EventEmitter {
 }
 
 function getDirectories(rootPath: string | Buffer): string[] {
+    if (!fs.existsSync(rootPath))
+        return []
+
     return fs.readdirSync(rootPath)
         .map((f) => path.join(rootPath, f))
         .filter((f) => fs.statSync(f).isDirectory())
