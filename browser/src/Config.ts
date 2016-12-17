@@ -60,8 +60,8 @@ const DefaultPlatformConfig = Platform.isWindows() ? WindowsConfig : Platform.is
 
 Performance.mark("Config.load.start")
 
-const userConfigFile = path.join(Platform.getUserHome(), ".oni", "config.json")
-const userJsConfig = path.join(Platform.getUserHome(), ".oni", "config.js")
+const userConfigFile = path.join(getUserFolder(), "config.json")
+const userJsConfig = path.join(getUserFolder(), "config.js")
 
 let userConfig = {}
 if (fs.existsSync(userConfigFile)) {
@@ -82,4 +82,8 @@ export function hasValue(configValue: string): boolean {
 
 export function getValue<T>(configValue: string): T {
     return Config[configValue]
+}
+
+export function getUserFolder(): string {
+    return path.join(Platform.getUserHome(), ".oni")
 }
