@@ -110,8 +110,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 })
 
                 const startupOptions = {
-                    "rgb": true,
-                    "popupmenu_external": true
+                    rgb: true,
+                    popupmenu_external: true,
                 }
 
                 // Workaround for bug in neovim/node-client
