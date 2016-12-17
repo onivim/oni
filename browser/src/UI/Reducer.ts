@@ -14,6 +14,10 @@ export const reducer = (s: State.IState, a: Actions.Action) => {
                 fontPixelWidth: a.payload.fontPixelWidth,
                 fontPixelHeight: a.payload.fontPixelHeight,
             })
+        case "SET_MODE": 
+            return {...s, ...{mode: a.payload.mode}}
+        case "SET_COLORS":
+            return {...s, ...{foregroundColor: a.payload.foregroundColor}}
         case "SHOW_QUICK_INFO":
             return Object.assign({}, s, {
                 quickInfo: {

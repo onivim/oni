@@ -132,12 +132,16 @@ const start = (args: string[]) => {
         renderer.onAction(action)
         screen.dispatch(action)
 
+        UI.setColors(screen.foregroundColor)
+
         if (!pendingTimeout) {
             pendingTimeout = setTimeout(updateFunction, 0) as any // FIXME: null
         }
     })
 
     instance.on("mode-change", (newMode: string) => {
+        UI.setMode(newMode)
+
         if (newMode === "normal") {
             UI.hideCompletions()
             UI.hideSignatureHelp()

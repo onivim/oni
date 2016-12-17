@@ -39,8 +39,8 @@ const mapStateToProps =(state: State.IState) => {
         y: state.cursorPixelY,
         width: state.fontPixelWidth,
         height: state.fontPixelHeight,
-        mode: "normal",
-        color: "blue"
+        mode: state.mode,
+        color: state.foregroundColor,
     }
 }
 
