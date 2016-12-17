@@ -10,6 +10,7 @@ import { MenuContainer } from "./components/Menu"
 import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
 // import { HighlightText } from "./components/HighlightText"
 import { AutoCompletionContainer } from "./components/AutoCompletion"
+import { Cursor } from "./components/Cursor"
 
 export class RootComponent extends React.Component<void, void> {
     public render() {
@@ -23,6 +24,7 @@ export class RootComponent extends React.Component<void, void> {
         //     children.push(<MenuContainer />)
 
         return <div className="ui-overlay">
+            <Cursor />
             <QuickInfoContainer />
             <SignatureHelpContainer />
             <MenuContainer />
