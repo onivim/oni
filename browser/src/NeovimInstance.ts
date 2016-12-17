@@ -109,7 +109,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     remote.app.quit()
                 })
 
-                this._neovim.uiAttach(80, 40, true, (_err?: Error) => {
+                const startupOptions = {
+                    rgb: true,
+                    popupmenu_external: true,
+                }
+
+                // Workaround for bug in neovim/node-client
+                // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
+                this._neovim._session.request("nvim_ui_attach", [80, 40, startupOptions], (_err?: Error) => {
                     console.log("Attach success") // tslint:disable-line no-console
 
                     performance.mark("NeovimInstance.Plugins.Start")
@@ -280,6 +287,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 const newMode = a[0][0]
                 this.emit("action", Actions.changeMode(newMode))
                 this.emit("mode-change", newMode)
+            } else if (command === "popupmenu_show") {
+                const completions = a[0][0]
+                this.emit("show-popup-menu", completions)
             } else {
                 console.warn("Unhandled command: " + command)
             }

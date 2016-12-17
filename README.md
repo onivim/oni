@@ -10,6 +10,7 @@
     - [Build](#build)
 - [Documentation](#documentation)
     - [Usage](#usage)
+        - [Code Completion](#code-completion)
         - [Fuzzy Finder](#fuzzy-finder)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
@@ -32,24 +33,23 @@ This repository is under __active development__, and until 1.0 please consider e
 
 ONI brings several IDE-like integrations to NeoVim:
 
-### Quick Info
+- **Quick Info**
 
 ![quick-info-demo](http://i.imgur.com/TlIH97w.gif)
 
-### Code Completion
+- **[Code Completion](#code-completion)**
 
 ![completion-demo](http://i.imgur.com/DVkaIBI.gif)
 
-### Syntax / Compilation Errors
+- **Syntax / Compilation Errors**
 
 ![syntax-error-demo](http://i.imgur.com/3ErOKYI.gif)
 
-### Fuzzy Finding
+- **[Fuzzy Finding](#fuzzy-finder)**
 
-[Documentation](#fuzzy-finder)
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
-### Live Evaluation
+- **Live Evaluation**
 
 ![live-eval-demo](http://i.imgur.com/XenTrdC.gif)
 
@@ -99,6 +99,29 @@ The goal of this project is to give an editor that gives the best of both worlds
 ## Documentation
 
 ### Usage
+
+#### Code Completion
+
+Code completion is a commonly requested add-on to Vim, and the most common solutions are to use a plugin like [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), [deoplete](https://github.com/Shougo/deoplete.nvim), or [AutoComplPop](https://github.com/vim-scripts/AutoComplPop). 
+
+These are all great plugins - but they all have the same fundamental issue that they are bounded by the limitations of the Vim terminal UI, and as such, can never be quite up-to-par with new editors that do not have such limitations. In addition, some require an involved installation process. The goal of code completion in ONI is to be able to break free of these restrictions, and provide the same richness that modern editors like Atom or VSCode provide for completion.
+
+##### Entry point
+
+If a [language extension](#language-extensibility) is available for a language, then that language service will be queried as you type, and if there are completions available, those will be presented automatically.
+
+> Out of the box, the only supported languages for rich completion are JavaScript and TypeScript. These leverage the TypeScript Language Service which requires either a tsconfig.json or a jsconfig.json at the root of the project. You can use an empty json file with `{}` to get the rich completion.
+
+##### Commands
+
+- `<C-n>` - navigate to next entry in the completion menu
+- `<C-p>` - navigate to previous entry in the completion menu
+- `<Enter>` - selected completion item
+- `<Esc>` - close the completion menu
+
+##### Options
+
+- `oni.useExternalPopupMenu` - if set to _true_, will render the Vim popupmenu in the same UI as the language extension menu, so that it has a consistent look and feel. If set to _false_, will fallback to allow Neovim to render the menu.
 
 #### Fuzzy Finder
 
