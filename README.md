@@ -104,7 +104,7 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 Code completion is a commonly requested add-on to Vim, and the most common solutions are to use a plugin like [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), [deoplete](https://github.com/Shougo/deoplete.nvim), or [AutoComplPop](https://github.com/vim-scripts/AutoComplPop). 
 
-These are all great plugins - but they are bounded by the limitations of the Vim terminal UI, and as such, can never be quite up-to-par with a terminal that does not have such limitations. In addition, some of an involved installation process. The goal of code completion in ONI is to be able to break out of these boundaries, and provide the same richness that modern editors like Atom or VSCode provide for completion.
+These are all great plugins - but they all have the same fundamental issue that they are bounded by the limitations of the Vim terminal UI, and as such, can never be quite up-to-par with new editors that do not have such limitations. In addition, some require an involved installation process. The goal of code completion in ONI is to be able to break free of these restrictions, and provide the same richness that modern editors like Atom or VSCode provide for completion.
 
 ##### Entry point
 
