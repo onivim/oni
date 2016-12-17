@@ -8,6 +8,20 @@ export interface ISetCursorPositionAction {
     }
 }
 
+export interface ISetModeAction {
+    type: "SET_MODE",
+    payload: {
+        mode: string,
+    }
+}
+
+export interface ISetColorsAction {
+    type: "SET_COLORS",
+    payload: {
+        foregroundColor: string,
+    }
+}
+
 export interface IShowSignatureHelpAction {
     type: "SHOW_SIGNATURE_HELP",
     payload: Oni.Plugin.SignatureHelpResult
@@ -97,4 +111,6 @@ export type Action = ISetCursorPositionAction |
     IHideMenuAction |
     IPreviousMenuAction |
     INextMenuAction |
-    IFilterMenuAction
+    IFilterMenuAction |
+    ISetModeAction |
+    ISetColorsAction

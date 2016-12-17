@@ -3,17 +3,22 @@
 ![alt text](./images/Oni_128.png)
 ## Neovim + JavaScript powered IDE
 
-- [Introduction](#Introduction)
-- [Features](#Features)
-- [Documentation](#Documentation)
-    - [Configuration](#Configuration)
-    - [Guide](#Guide)
-    - [Extensibility](#Extensibility)
-    - [FAQ](#FAQ)
-- [Roadmap](#Roadmap)
-- [License](#License)
-- [Contributing](#Contributing)
-- [Thanks](#Thanks)
+- [Introduction](#introduction)
+- [Features](#features)
+- [Installation](#installation)
+    - [NPM](#install-from-npm)
+    - [Build](#build)
+- [Documentation](#documentation)
+    - [Usage](#usage)
+        - [Code Completion](#code-completion)
+        - [Fuzzy Finder](#fuzzy-finder)
+    - [Configuration](#configuration)
+    - [Extensibility](#extensibility)
+    - [FAQ](#faq)
+- [Roadmap](#roadmap)
+- [License](#license)
+- [Contributing](#contributing)
+- [Thanks](#thanks)
 
 ## Introduction
 
@@ -21,39 +26,42 @@ ONI is a NeoVim front-end UI with rich IDE-like UI integration points, drawing i
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
+> `npm install -g oni-vim`
+> `oni`
+
 ## Features
 
 ONI brings several IDE-like integrations to NeoVim:
 
-### Quick Info
+- **Quick Info**
 
 ![quick-info-demo](http://i.imgur.com/TlIH97w.gif)
 
-### Code Completion
+- **[Code Completion](#code-completion)**
 
 ![completion-demo](http://i.imgur.com/DVkaIBI.gif)
 
-### Syntax / Compilation Errors
+- **Syntax / Compilation Errors**
 
 ![syntax-error-demo](http://i.imgur.com/3ErOKYI.gif)
 
-### Fuzzy Finder
+- **[Fuzzy Finding](#fuzzy-finder)**
 
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
-### Live Evaluation
+- **Live Evaluation**
 
 ![live-eval-demo](http://i.imgur.com/XenTrdC.gif)
 
-## Usage
-
-### Install
+## Installation
 
 - For Windows, a pre-built x86 binary of NeoVim is included.
 
 - For OSX, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim.exe' is available.
 
-1) Run npm install -g oni-vim
+### Install from NPM
+
+1) Run `npm install -g oni-vim`
 
 2) Run `oni` at the command line to start the editor.
 
@@ -90,15 +98,72 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 ## Documentation
 
+### Usage
+
+#### Code Completion
+
+Code completion is a commonly requested add-on to Vim, and the most common solutions are to use a plugin like [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), [deoplete](https://github.com/Shougo/deoplete.nvim), or [AutoComplPop](https://github.com/vim-scripts/AutoComplPop). 
+
+These are all great plugins - but they all have the same fundamental issue that they are bounded by the limitations of the Vim terminal UI, and as such, can never be quite up-to-par with new editors that do not have such limitations. In addition, some require an involved installation process. The goal of code completion in ONI is to be able to break free of these restrictions, and provide the same richness that modern editors like Atom or VSCode provide for completion.
+
+##### Entry point
+
+If a [language extension](#language-extensibility) is available for a language, then that language service will be queried as you type, and if there are completions available, those will be presented automatically.
+
+> Out of the box, the only supported languages for rich completion are JavaScript and TypeScript. These leverage the TypeScript Language Service which requires either a tsconfig.json or a jsconfig.json at the root of the project. You can use an empty json file with `{}` to get the rich completion.
+
+##### Commands
+
+- `<C-n>` - navigate to next entry in the completion menu
+- `<C-p>` - navigate to previous entry in the completion menu
+- `<Enter>` - selected completion item
+- `<Esc>` - close the completion menu
+
+##### Options
+
+- `oni.useExternalPopupMenu` - if set to _true_, will render the Vim popupmenu in the same UI as the language extension menu, so that it has a consistent look and feel. If set to _false_, will fallback to allow Neovim to render the menu.
+
+#### Fuzzy Finder
+
+Fuzzy Finder is a quick and easy way to switch between files. It's similiar in goal to the Ctrl-P plugin, and the built-in functionality editors like VSCode and Atom provide.
+
+##### Entry point
+- `<C-p>` - show the Fuzzy Finder menu
+
+##### Commands
+- `<C-n>` - navigate to next entry in the Fuzzy Finder menu
+- `<C-p>` - navigate to the previous entry in the Fuzzy Finder menu
+- `<Enter>` - select a Fuzzy Finder item
+- `<Esc>` - close the Fuzzy Finder menu
+
+By default, Fuzzy Finder uses `git ls-files` to get the available files in the directory, but if git is not present, it will fallback to a non-git strategy.
+
+The Fuzzy Finder strategy can be configured by the `editor.quickOpen.execCommand`, and must be a shell command that returns a list of files, separated by newlines.
+
 ### Configuration
 
 > ONI is configurable via a 'config.json' located in $HOME/.oni
 
-See the Config.ts file for interesting values to set
+Here's an example config.json:
+```
+{
+    "oni.useDefaultConfig": true,
+    "oni.loadInitVim": true,
+    "editor.fontSize": "14px",
+    "editor.fontFamily": "Monaco",
+    "editor.completions.enabled": true
+}
+```
 
-### Guide
+A few interesting configuration options to set:
+- `oni.useDefaultConfig` - ONI comes with an opinionated default set of plugins for a predictable out-of-box experience. This will be great for newcomes to ONI or Vim, but for Vim/Neovim veterans, this will likely conflict. Set this to `false` to avoid loading the default config, and to load settings from `init.vim` instead (If this is false, it implies `oni.loadInitVim` is true)
+- `oni.loadInitVim` - This determines whether the user's `init.vim` is loaded. Use caution when setting this to `true` and setting `oni.useDefaultConfig` to true, as there could be conflicts with the default configuration.
+- `editor.fontSize` - Font size
+- `editor.fontFamily` - Font family
+- `prototype.editor.backgroundImageUrl` - specific a custom background image
+- `prototype.editor.backgroundImageSize` - specific a custom background size (cover, contain)
 
-TODO: Coming soon. 
+See the `Config.ts` file for other interesting values to set
 
 ### Extensibility
 
@@ -130,7 +195,13 @@ ONI currently supports the setting of a background image as well as background o
 
 ### FAQ
 
-TODO
+#### Why isn't my init.vim loaded?
+
+> _TL;DR_ - Set the `oni.useDefaultConfig` configuration value to _false_
+
+By default, Oni has an opinionated, prescribed set of plugins, in order to facilitate a predictable out-of-box experience that highlights the additional UI integration points. However, this will likely have conflicts with a Vim/Neovim veteran's finely-honed configuration.
+
+To avoid loading the Oni defaults, and instead use your `init.vim`, set this configuration value to false in $HOME/.oni/config.json.
 
 ### Included VIM Plugins
 
@@ -160,5 +231,7 @@ Contributions are very much welcome :)
 # Thanks
 
 Big thanks to the NeoVim team - without their work, this project would not be possible. The deep integration with VIM would not be possible without the incredible work that was done to enable the msgpack-RPC interface. Thanks!
+
+Also, big thanks to our [contributors](https://github.com/extr0py/oni/graphs/contributors) for helping out!
 
 In addition, there are several other great NeoVim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) that served as great reference points and learning opportunities.

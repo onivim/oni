@@ -3,6 +3,8 @@ export interface IState {
     cursorPixelY: number
     fontPixelWidth: number
     fontPixelHeight: number
+    mode: string
+    foregroundColor: string
     autoCompletion: null | IAutoCompletionInfo
     quickInfo: null | Oni.Plugin.QuickInfo
     popupMenu: null | IMenu

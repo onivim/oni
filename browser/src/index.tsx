@@ -2,7 +2,6 @@ import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
 import * as path from "path"
 import * as Config from "./Config"
-import { Cursor } from "./Cursor"
 import { IncrementalDeltaRegionTracker } from "./DeltaRegionTracker"
 import { Keyboard } from "./Input/Keyboard"
 import { Mouse } from "./Input/Mouse"
@@ -30,7 +29,6 @@ const start = (args: string[]) => {
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
 
-    require("./cursor.less")
     require("./overlay.less")
 
     let deltaRegion = new IncrementalDeltaRegionTracker()
@@ -42,8 +40,6 @@ const start = (args: string[]) => {
     const canvasElement = document.getElementById("test-canvas") as HTMLCanvasElement
     let renderer = new CanvasRenderer()
     renderer.start(canvasElement)
-
-    const cursor = new Cursor()
 
     let pendingTimeout: any = null
 
@@ -107,6 +103,18 @@ const start = (args: string[]) => {
         }
     })
 
+    instance.on("show-popup-menu", (completions: any[]) => {
+        const c = completions.map(c => ({
+            "kind": "text",
+            "label": c[0],
+        }))
+
+        UI.showCompletions({
+            base: "",
+            completions: c
+        })
+    })
+
     instance.on("error", (_err: string) => {
         UI.showNeovimInstallHelp()
     })
@@ -122,7 +130,8 @@ const start = (args: string[]) => {
     instance.on("action", (action: any) => {
         renderer.onAction(action)
         screen.dispatch(action)
-        cursor.dispatch(action)
+
+        UI.setColors(screen.foregroundColor)
 
         if (!pendingTimeout) {
             pendingTimeout = setTimeout(updateFunction, 0) as any // FIXME: null
@@ -130,6 +139,8 @@ const start = (args: string[]) => {
     })
 
     instance.on("mode-change", (newMode: string) => {
+        UI.setMode(newMode)
+
         if (newMode === "normal") {
             UI.hideCompletions()
             UI.hideSignatureHelp()
@@ -148,7 +159,6 @@ const start = (args: string[]) => {
         }
 
         renderer.update(screen, deltaRegion)
-        cursor.update(screen)
         deltaRegion.cleanUpRenderedCells()
 
         window.requestAnimationFrame(() => renderFunction())
@@ -201,9 +211,19 @@ const start = (args: string[]) => {
         if (UI.areCompletionsVisible()) {
 
             if (key === "<enter>") {
-                // Put a dummy character in front so it removes the word,
-                // but not a '.' if the completion comes directly after
-                instance.input("a<c-w>" + UI.getSelectedCompletion())
+                let completion = UI.getSelectedCompletion() || ''
+
+                //move one character left so the cursor is "within" the word
+                //(we wouldn't be displaying completions if there wasn't at least one character)
+                instance.input('<left>')
+                //get current word under cursor
+                instance.eval<string>("expand('<cword>')")
+                    .then((word) => {
+                        //move back to where we were
+                        instance.input('<right>')
+                        //remove the first instance of the word under the cursor
+                        instance.input(completion.replace(word,''))
+                    })
 
                 UI.hideCompletions()
                 return

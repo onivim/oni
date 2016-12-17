@@ -62,8 +62,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             .then((nv) => {
                 console.log("NevoimInstance: Neovim started") // tslint:disable-line no-console
 
-                nv.command("colorscheme onedark")
-
                 // Workaround for issue where UI
                 // can fail to attach if there is a UI-blocking error
                 // nv.input("<ESC>")
@@ -111,7 +109,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     remote.app.quit()
                 })
 
-                this._neovim.uiAttach(80, 40, true, (_err?: Error) => {
+                const startupOptions = {
+                    rgb: true,
+                    popupmenu_external: true,
+                }
+
+                // Workaround for bug in neovim/node-client
+                // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
+                this._neovim._session.request("nvim_ui_attach", [80, 40, startupOptions], (_err?: Error) => {
                     console.log("Attach success") // tslint:disable-line no-console
 
                     performance.mark("NeovimInstance.Plugins.Start")
@@ -282,6 +287,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 const newMode = a[0][0]
                 this.emit("action", Actions.changeMode(newMode))
                 this.emit("mode-change", newMode)
+            } else if (command === "popupmenu_show") {
+                const completions = a[0][0]
+                this.emit("show-popup-menu", completions)
             } else {
                 console.warn("Unhandled command: " + command)
             }
@@ -302,13 +310,14 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
 
     const joinedRuntimePaths = runtimePaths.join(",")
 
-    // If we are using the defaultConfig, suppress loading of the user's init.vim to avoid conflicts
-    // Setting -u NONE causes no plugins at all to load, but using a 'noop' still picks up the plugins
-    const vimRcArg = Config.getValue<boolean>("oni.useDefaultConfig") ? ["-u", noopInitVimPath] : []
+    const shouldLoadInitVim = Config.getValue<boolean>("oni.loadInitVim")
+    const useDefaultConfig = Config.getValue<boolean>("oni.useDefaultConfig")
+
+    const vimRcArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
 
     const argsToPass = vimRcArg
-                        .concat(["--cmd", "set rtp+=" + joinedRuntimePaths, "-N", "--embed", "--"])
-                        .concat(args)
+        .concat(["--cmd", "set rtp+=" + joinedRuntimePaths, "-N", "--embed", "--"])
+        .concat(args)
 
     const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
 

@@ -18,6 +18,7 @@ module.exports = {
             test: /\.tsx?$/,
             exclude: [/node_modules/],
             loaders: [
+                "react-hot",
                 "ts-loader"
             ]
         }, {
@@ -38,7 +39,7 @@ module.exports = {
     },
     output: {
         path: path.join(__dirname, "..", "dist", "browser"),
-        publicPath: "/",
+        publicPath: "http://localhost:8191/",
         filename: "bundle.js"
     },
     devServer: {
