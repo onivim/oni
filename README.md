@@ -38,6 +38,7 @@ ONI brings several IDE-like integrations to NeoVim:
 ![quick-info-demo](http://i.imgur.com/TlIH97w.gif)
 
 - **[Code Completion](#code-completion)**
+
 ![completion-demo](http://i.imgur.com/DVkaIBI.gif)
 
 - **Syntax / Compilation Errors**
@@ -45,6 +46,7 @@ ONI brings several IDE-like integrations to NeoVim:
 ![syntax-error-demo](http://i.imgur.com/3ErOKYI.gif)
 
 - **[Fuzzy Finding](#fuzzy-finder)**
+
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
 - **Live Evaluation**
