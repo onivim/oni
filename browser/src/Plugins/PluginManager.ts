@@ -270,8 +270,9 @@ export class PluginManager extends EventEmitter {
 }
 
 function getDirectories(rootPath: string | Buffer): string[] {
-    if (!fs.existsSync(rootPath))
+    if (!fs.existsSync(rootPath)) {
         return []
+    }
 
     return fs.readdirSync(rootPath)
         .map((f) => path.join(rootPath, f))

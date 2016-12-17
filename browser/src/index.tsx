@@ -2,7 +2,6 @@ import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
 import * as path from "path"
 import * as Config from "./Config"
-import { Cursor } from "./Cursor"
 import { IncrementalDeltaRegionTracker } from "./DeltaRegionTracker"
 import { Keyboard } from "./Input/Keyboard"
 import { Mouse } from "./Input/Mouse"
@@ -30,7 +29,6 @@ const start = (args: string[]) => {
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
 
-    require("./cursor.less")
     require("./overlay.less")
 
     let deltaRegion = new IncrementalDeltaRegionTracker()
@@ -42,8 +40,6 @@ const start = (args: string[]) => {
     const canvasElement = document.getElementById("test-canvas") as HTMLCanvasElement
     let renderer = new CanvasRenderer()
     renderer.start(canvasElement)
-
-    const cursor = new Cursor()
 
     let pendingTimeout: any = null
 
@@ -135,7 +131,8 @@ const start = (args: string[]) => {
     instance.on("action", (action: any) => {
         renderer.onAction(action)
         screen.dispatch(action)
-        cursor.dispatch(action)
+
+        UI.setColors(screen.foregroundColor)
 
         if (!pendingTimeout) {
             pendingTimeout = setTimeout(updateFunction, 0) as any // FIXME: null
@@ -143,6 +140,8 @@ const start = (args: string[]) => {
     })
 
     instance.on("mode-change", (newMode: string) => {
+        UI.setMode(newMode)
+
         if (newMode === "normal") {
             UI.hideCompletions()
             UI.hideSignatureHelp()
@@ -161,7 +160,6 @@ const start = (args: string[]) => {
         }
 
         renderer.update(screen, deltaRegion)
-        cursor.update(screen)
         deltaRegion.cleanUpRenderedCells()
 
         window.requestAnimationFrame(() => renderFunction())
