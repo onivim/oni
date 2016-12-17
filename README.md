@@ -37,18 +37,14 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ![quick-info-demo](http://i.imgur.com/TlIH97w.gif)
 
-- **Code Completion**
-
-[Documentation](#code-completion)
+- **[Code Completion](#code-completion)**
 ![completion-demo](http://i.imgur.com/DVkaIBI.gif)
 
 - **Syntax / Compilation Errors**
 
 ![syntax-error-demo](http://i.imgur.com/3ErOKYI.gif)
 
-- **Fuzzy Finding**
-
-[Documentation](#fuzzy-finder)
+- **[Fuzzy Finding](#fuzzy-finder)**
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
 - **Live Evaluation**
@@ -104,7 +100,7 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 #### Code Completion
 
-Code completion is a commonly requested add-on to Vim, and the most common solutions are to use a plugin like [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), [deoplete](https://github.com/Shougo/deoplete.vim), or [AutoComplPop](https://github.com/vim-scripts/AutoComplPop). However, none of these solutions really are up-to-par with what an IDE would provide - like rich details about the property, and this is because they are bounded by the limitations of the Vim terminal UI. In addition, some of these plugins require very complicated setup.
+Code completion is a commonly requested add-on to Vim, and the most common solutions are to use a plugin like [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), [deoplete](https://github.com/Shougo/deoplete.nvim), or [AutoComplPop](https://github.com/vim-scripts/AutoComplPop). However, none of these solutions really are up-to-par with what an IDE would provide - like rich details about the property, and this is because they are bounded by the limitations of the Vim terminal UI. In addition, some of these plugins require very complicated setup.
 
 Oni has an extended API for completion that allows for adding additional details and symbols in the completion UI, but it can work with the out-of-the-box popupmenu. The goal is to provide parity with modern environments like Atom and VSCode.
 
@@ -112,7 +108,7 @@ Oni has an extended API for completion that allows for adding additional details
 
 If a [language extension](#language-extensibility) is available for a language, then that language service will be queried as you type, and if there are completions available, those will be presented automatically.
 
-> Out of the box, the only supported language service is for TypeScript and JavaScript. This uses the TypeScript language service, which requires either a tsconfig.json or a jsconfig.json at the root of the project. You can use an empty json file with `{}` to get the rich completion.
+> Out of the box, the only supported languages for rich completion are JavaScript and TypeScript. These leverage the TypeScript Language Service which requires either a tsconfig.json or a jsconfig.json at the root of the project. You can use an empty json file with `{}` to get the rich completion.
 
 ##### Commands
 
