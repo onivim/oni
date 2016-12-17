@@ -18,6 +18,7 @@ module.exports = {
             test: /\.tsx?$/,
             exclude: [/node_modules/],
             loaders: [
+                "react-hot",
                 "ts-loader"
             ]
         }, {
