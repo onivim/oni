@@ -10,16 +10,12 @@ export const setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixe
 
 export const setMode = (mode: string) => ({
     type: "SET_MODE",
-    payload: {
-        mode: mode
-    }
+    payload: { mode },
 })
 
 export const setColors = (foregroundColor: string) => ({
     type: "SET_COLORS",
-    payload: {
-        foregroundColor: foregroundColor
-    }
+    payload: { foregroundColor },
 })
 
 export const showSignatureHelp = (signatureHelpResult: Oni.Plugin.SignatureHelpResult) => ({

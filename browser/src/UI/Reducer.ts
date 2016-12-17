@@ -6,6 +6,10 @@ import * as _ from "lodash"
 
 export const reducer = (s: State.IState, a: Actions.Action) => {
 
+    if (!s) {
+        return s
+    }
+
     switch (a.type) {
         case "SET_CURSOR_POSITION":
             return Object.assign({}, s, {
@@ -14,10 +18,10 @@ export const reducer = (s: State.IState, a: Actions.Action) => {
                 fontPixelWidth: a.payload.fontPixelWidth,
                 fontPixelHeight: a.payload.fontPixelHeight,
             })
-        case "SET_MODE": 
-            return {...s, ...{mode: a.payload.mode}}
+        case "SET_MODE":
+            return { ...s, ...{ mode: a.payload.mode } }
         case "SET_COLORS":
-            return {...s, ...{foregroundColor: a.payload.foregroundColor}}
+            return { ...s, ...{ foregroundColor: a.payload.foregroundColor } }
         case "SHOW_QUICK_INFO":
             return Object.assign({}, s, {
                 quickInfo: {
@@ -51,13 +55,18 @@ export const reducer = (s: State.IState, a: Actions.Action) => {
             })
         default:
             return Object.assign({}, s, {
-                autoCompletion: autoCompletionReducer(<any> s.autoCompletion, a), // FIXME: null
-                popupMenu: popupMenuReducer(<any> s.popupMenu, a), // FIXME: null
+                autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
+                popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
             })
     }
 }
 
-export const popupMenuReducer = (s: State.IMenu, a: Actions.Action) => {
+export const popupMenuReducer = (s: State.IMenu | null, a: Actions.Action) => {
+
+    if (!s) {
+        return s
+    }
+
     switch (a.type) {
         case "SHOW_MENU":
             const sortedOptions = _.sortBy(a.payload.options, (f) => f.pinned ? 0 : 1).map((o) => ({
@@ -69,7 +78,7 @@ export const popupMenuReducer = (s: State.IMenu, a: Actions.Action) => {
                 labelHighlights: [],
             }))
 
-            return <State.IMenu> {
+            return {
                 filter: "",
                 filteredOptions: sortedOptions,
                 options: a.payload.options,
@@ -159,7 +168,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
         return baseVal - labelMatchPercent
     })
 
-    return <any> filteredOptionsSorted
+    return filteredOptionsSorted
 }
 
 export interface IFuzzyMatchResults {
@@ -195,7 +204,7 @@ export function fuzzyMatchCharacters(text: string[], searchString: string[]): IF
     return outputValue
 }
 
-export const autoCompletionReducer = (s: State.IAutoCompletionInfo, a: Actions.Action) => {
+export const autoCompletionReducer = (s: State.IAutoCompletionInfo | null, a: Actions.Action) => {
     if (!s) {
         return s
     }

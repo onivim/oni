@@ -11,14 +11,14 @@ export interface ISetCursorPositionAction {
 export interface ISetModeAction {
     type: "SET_MODE",
     payload: {
-        mode: string
+        mode: string,
     }
 }
 
 export interface ISetColorsAction {
     type: "SET_COLORS",
     payload: {
-        foregroundColor: string
+        foregroundColor: string,
     }
 }
 
