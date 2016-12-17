@@ -63,10 +63,6 @@ export const reducer = (s: State.IState, a: Actions.Action) => {
 
 export const popupMenuReducer = (s: State.IMenu | null, a: Actions.Action) => {
 
-    if (!s) {
-        return s
-    }
-
     switch (a.type) {
         case "SHOW_MENU":
             const sortedOptions = _.sortBy(a.payload.options, (f) => f.pinned ? 0 : 1).map((o) => ({
@@ -84,19 +80,30 @@ export const popupMenuReducer = (s: State.IMenu | null, a: Actions.Action) => {
                 options: a.payload.options,
                 selectedIndex: 0,
             }
-
         case "HIDE_MENU":
             return null
         case "NEXT_MENU":
+            if (!s) {
+                return s
+            }
+
             return Object.assign({}, s, {
                 selectedIndex: (s.selectedIndex + 1) % s.filteredOptions.length,
             })
         case "PREVIOUS_MENU":
+            if (!s) {
+                return s
+            }
+
             return Object.assign({}, s, {
                 selectedIndex: (s.selectedIndex - 1) % s.filteredOptions.length,
 
             })
         case "FILTER_MENU":
+            if (!s) {
+                return s
+            }
+
             // If we already had search results, and this search is a superset of the previous,
             // just filter the already-pruned subset
             const optionsToSearch = a.payload.filter.indexOf(s.filter) === 0 ? s.filteredOptions : s.options
