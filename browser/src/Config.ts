@@ -29,6 +29,14 @@ const DefaultConfig: any = {
     // Set this to `true` to enable loading of init.vim.
     "oni.loadInitVim": false,
 
+    // Sets the `popupmenu_external` option in Neovim
+    // This will override the default UI to show a consistent popupmenu,
+    // whether using Oni's completion mechanisms or VIMs
+    //
+    // Use caution when changing the `menuopt` parameters if using
+    // a custom init.vim, as that may cause problematic behavior
+    "oni.useExternalPopupMenu": true,
+
     "editor.fontSize": "14px",
     "editor.quickInfo.enabled": true,
     "editor.completions.enabled": true,
