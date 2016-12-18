@@ -4,7 +4,7 @@ import * as PromiseHelper from "./../PromiseHelper"
 
 export class SessionWrapper {
 
-    private _session: any;
+    private _session: any
 
     constructor(session: any) {
         this._session = session
@@ -15,6 +15,6 @@ export class SessionWrapper {
 
         PromiseHelper.wrapPromiseAndNotifyError<T>("neovim.request." + methodName, promise)
 
-        return promise;
+        return promise
     }
 }

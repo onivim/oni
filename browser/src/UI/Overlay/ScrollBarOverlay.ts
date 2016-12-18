@@ -3,7 +3,6 @@ import { renderBufferScrollBar, ScrollBarMarker } from "./../components/BufferSc
 import { IOverlay } from "./../Overlay/OverlayManager"
 import { WindowContext } from "./../Overlay/WindowContext"
 
-
 export interface IKeyToMarkers {
     [key: string]: ScrollBarMarker[]
 }

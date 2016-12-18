@@ -4,7 +4,6 @@ import { renderLiveEval } from "./../components/LiveEvalMarker"
 import { IOverlay } from "./OverlayManager"
 import { WindowContext } from "./WindowContext"
 
-
 export class LiveEvaluationOverlay implements IOverlay {
     private _element: HTMLElement
     private _currentFileName: string

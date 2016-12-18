@@ -1,5 +1,5 @@
 
-import { WindowDimensions } from "./../../neovim/Window"
+import { IWindowDimensions } from "./../../neovim/Window"
 
 // TODO: Can these types be consolidated?
 export interface IPixelRectangle {
@@ -13,19 +13,18 @@ export interface IPixelRectangle {
  * These interfaces must be kept in sync with the window_display_update method in init.vim
  */
 export interface IWindowMappingData {
-    dimensions: WindowDimensions
+    dimensions: IWindowDimensions
     mapping: any
 }
-
 
 export class WindowContext {
     private _fontHeightInPixels: number
     private _fontWidthInPixels: number
     private _lineMapping: any
-    private _dimensions: WindowDimensions
+    private _dimensions: IWindowDimensions
     private _eventContext: Oni.EventContext
 
-    constructor(lineMapping: any, dimensions: WindowDimensions, fontWidthInPixels: number, fontHeightInPixels: number, lastEventContext: Oni.EventContext) {
+    constructor(lineMapping: any, dimensions: IWindowDimensions, fontWidthInPixels: number, fontHeightInPixels: number, lastEventContext: Oni.EventContext) {
         this._fontHeightInPixels = fontHeightInPixels
         this._fontWidthInPixels = fontWidthInPixels
         this._dimensions = dimensions
@@ -33,7 +32,7 @@ export class WindowContext {
         this._eventContext = lastEventContext
     }
 
-    public get dimensions(): WindowDimensions {
+    public get dimensions(): IWindowDimensions {
         return this._dimensions
     }
 
@@ -95,4 +94,3 @@ export class WindowContext {
         }
     }
 }
-

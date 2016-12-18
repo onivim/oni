@@ -1,9 +1,9 @@
 import * as _ from "lodash"
-import { IScreen } from "./../../Screen"
-import { NeovimInstance } from "./../../NeovimInstance"
 
-import { WindowContext } from "./WindowContext"
 import { IWindow } from "./../../neovim/Window"
+import { NeovimInstance } from "./../../NeovimInstance"
+import { IScreen } from "./../../Screen"
+import { WindowContext } from "./WindowContext"
 
 export interface IOverlay {
     update(element: HTMLElement, windowContext: WindowContext): void
@@ -69,38 +69,7 @@ export class OverlayManager {
             return
         }
 
-        // TODO:
-        // Expose getWindows() from NeovimInstance
-        // Get dimensions (position / height) from each window
-        // **Initial check-in - use this to calculate positions initially
-        //
-        // Create dictionary keyed by window Id -> window instance (IWindowOverlayContainer)
-        // Expose events
-        //  new window
-        //  window dimensions changed
-        //  window closed
-        // Update corresponding IWindowOverlayContainer
-        // **Check-in two - still no need for factories
-        //
-        // Update IWindowOverlayContainer with new mapping data
-        // Update overlays to be driven by factories, so there can be elements for each window
-        //          (for example, dont' lose error markers / scrollbar when switching windows)
-        // ** Check-in three - this will enable per-window scrollbars / errors / etc
-        // Interop with plugins - send these events to plugins
-        //
-        // ** Separate work
-        // Refactor plugins to use <webview> tag and be able to render UI
-        //
-        // ** Separate work
-        // Allow plugins to handle commands coming from plugin
-        //
-        // ** Once that is all done... can start to tackle #49 (Markdown preview). This would open
-        // lots of other interesting scenarios up to - plugins would be able to render all sorts of UI.
-        // Would be really nice for a 'git blame' overlay as well
-
         let win: IWindow
-        // let windowPosition = null
-        // let windowSize = null
 
         this._neovimInstance.getCurrentWindow()
             .then((currentWindow) => win = currentWindow)
@@ -111,7 +80,6 @@ export class OverlayManager {
 
                 this._containerElement.style.top = (windowStartRow * this._screen.fontHeightInPixels) + "px"
                 this._containerElement.style.left = (windowStartColumn * this._screen.fontWidthInPixels) + "px"
-
 
                 const width = (dimensions.width * this._screen.fontWidthInPixels) + "px"
                 const height = (dimensions.height * this._screen.fontHeightInPixels) + "px"
