@@ -1,18 +1,10 @@
 
-// TODO: Can these types be consolidated?
-export interface IPixelPosition {
-    x: number
-    y: number
-}
+import { WindowDimensions } from "./../../neovim/Window"
 
+// TODO: Can these types be consolidated?
 export interface IPixelRectangle {
     x: number
     y: number
-    width: number
-    height: number
-}
-
-export interface IWindowDimensions {
     width: number
     height: number
 }
@@ -21,7 +13,7 @@ export interface IWindowDimensions {
  * These interfaces must be kept in sync with the window_display_update method in init.vim
  */
 export interface IWindowMappingData {
-    dimensions: IWindowDimensions
+    dimensions: WindowDimensions
     mapping: any
 }
 
@@ -30,18 +22,18 @@ export class WindowContext {
     private _fontHeightInPixels: number
     private _fontWidthInPixels: number
     private _lineMapping: any
-    private _dimensions: IWindowDimensions
+    private _dimensions: WindowDimensions
     private _eventContext: Oni.EventContext
 
-    constructor(windowData: IWindowMappingData, fontWidthInPixels: number, fontHeightInPixels: number, lastEventContext: Oni.EventContext) {
+    constructor(lineMapping: any, dimensions: WindowDimensions, fontWidthInPixels: number, fontHeightInPixels: number, lastEventContext: Oni.EventContext) {
         this._fontHeightInPixels = fontHeightInPixels
         this._fontWidthInPixels = fontWidthInPixels
-        this._dimensions = windowData.dimensions
-        this._lineMapping = windowData.mapping
+        this._dimensions = dimensions
+        this._lineMapping = lineMapping
         this._eventContext = lastEventContext
     }
 
-    public get dimensions(): IWindowDimensions {
+    public get dimensions(): WindowDimensions {
         return this._dimensions
     }
 

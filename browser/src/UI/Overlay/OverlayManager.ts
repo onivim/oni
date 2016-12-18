@@ -3,6 +3,7 @@ import { IScreen } from "./../../Screen"
 import { NeovimInstance } from "./../../NeovimInstance"
 
 import { WindowContext } from "./WindowContext"
+import { IWindow } from "./../../neovim/Window"
 
 export interface IOverlay {
     update(element: HTMLElement, windowContext: WindowContext): void
@@ -97,22 +98,33 @@ export class OverlayManager {
         // lots of other interesting scenarios up to - plugins would be able to render all sorts of UI.
         // Would be really nice for a 'git blame' overlay as well
 
-        const windowStartRow = this._screen.cursorRow - this._lastEventContext.winline + 1
-        const windowStartColumn = this._screen.cursorColumn - this._lastEventContext.wincol + 1
+        let win: IWindow
+        // let windowPosition = null
+        // let windowSize = null
 
-        this._containerElement.style.top = (windowStartRow * this._screen.fontHeightInPixels) + "px"
-        this._containerElement.style.left = (windowStartColumn * this._screen.fontWidthInPixels) + "px"
+        this._neovimInstance.getCurrentWindow()
+            .then((currentWindow) => win = currentWindow)
+            .then(() => win.getDimensions())
+            .then((dimensions)  => {
+                const windowStartRow = dimensions.row
+                const windowStartColumn = dimensions.col
 
-        const width = (this._lastWindowData.dimensions.width * this._screen.fontWidthInPixels) + "px"
-        const height = (this._lastWindowData.dimensions.height * this._screen.fontHeightInPixels) + "px"
+                this._containerElement.style.top = (windowStartRow * this._screen.fontHeightInPixels) + "px"
+                this._containerElement.style.left = (windowStartColumn * this._screen.fontWidthInPixels) + "px"
 
-        this._containerElement.style.width = width
-        this._containerElement.style.height = height
 
-        const windowContext = new WindowContext(this._lastWindowData, this._screen.fontWidthInPixels, this._screen.fontHeightInPixels, this._lastEventContext)
+                const width = (dimensions.width * this._screen.fontWidthInPixels) + "px"
+                const height = (dimensions.height * this._screen.fontHeightInPixels) + "px"
 
-        _.values(this._overlays).forEach((overlayInfo) => {
-            overlayInfo.overlay.update(overlayInfo.element, windowContext)
-        })
+                this._containerElement.style.width = width
+                this._containerElement.style.height = height
+
+                const windowContext = new WindowContext(this._lastWindowData, dimensions, this._screen.fontWidthInPixels, this._screen.fontHeightInPixels, this._lastEventContext)
+
+                _.values(this._overlays).forEach((overlayInfo) => {
+                    overlayInfo.overlay.update(overlayInfo.element, windowContext)
+                })
+
+            })
     }
 }
