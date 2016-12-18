@@ -4,13 +4,13 @@ import * as ReactDOM from "react-dom"
 import { Icon } from "./../Icon"
 import * as Config from "./../../Config"
 
-import { IWindowContext } from "./../OverlayManager"
+import { WindowContext } from "./../Overlay/WindowContext"
 
 require("./Error.less")
 
 export interface ErrorsProps {
     errors: Oni.Plugin.Diagnostics.Error[]
-    windowContext: IWindowContext
+    windowContext: WindowContext
 }
 
 const padding = 8

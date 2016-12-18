@@ -1,12 +1,13 @@
 import * as _ from "lodash"
 import { ILiveCodeBlock } from "./../../Services/LiveEvaluation"
 import { renderLiveEval } from "./../components/LiveEvalMarker"
-import { IOverlay, IWindowContext } from "./../OverlayManager"
+import { IOverlay } from "./OverlayManager"
+import { WindowContext } from "./WindowContext"
 
 export class LiveEvaluationOverlay implements IOverlay {
     private _element: HTMLElement
     private _currentFileName: string
-    private _lastWindowContext: IWindowContext
+    private _lastWindowContext: WindowContext
     // private _lastEvalResults: LiveCodeBlock[]
 
     private _bufferToBlocks: { [buffer: string]: { [id: string]: ILiveCodeBlock } } = {}
@@ -25,7 +26,7 @@ export class LiveEvaluationOverlay implements IOverlay {
         this._showLiveEval()
     }
 
-    public update(element: HTMLElement, windowContext: IWindowContext) {
+    public update(element: HTMLElement, windowContext: WindowContext) {
         this._element = element
         this._lastWindowContext = windowContext
 

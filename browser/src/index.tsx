@@ -18,7 +18,7 @@ import * as UI from "./UI/index"
 import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./UI/Overlay/LiveEvaluationOverlay"
 import { ScrollBarOverlay } from "./UI/Overlay/ScrollBarOverlay"
-import { OverlayManager } from "./UI/OverlayManager"
+import { OverlayManager } from "./UI/Overlay/OverlayManager"
 
 const start = (args: string[]) => {
     const services: any[] = []
@@ -57,7 +57,7 @@ const start = (args: string[]) => {
     services.push(outputWindow)
 
     // Overlays
-    const overlayManager = new OverlayManager(screen)
+    const overlayManager = new OverlayManager(screen, instance)
     const errorOverlay = new ErrorOverlay()
     const liveEvaluationOverlay = new LiveEvaluationOverlay()
     const scrollbarOverlay = new ScrollBarOverlay()
@@ -90,7 +90,6 @@ const start = (args: string[]) => {
 
     instance.on("event", (eventName: string, evt: any) => {
         // TODO: Can we get rid of these?
-        overlayManager.handleCursorMovedEvent(evt)
         errorOverlay.onVimEvent(eventName, evt)
         liveEvaluationOverlay.onVimEvent(eventName, evt)
         scrollbarOverlay.onVimEvent(eventName, evt)
@@ -124,8 +123,8 @@ const start = (args: string[]) => {
         scrollbarOverlay.onBufferUpdate(context, lines)
     })
 
-    instance.on("window-display-update", (arg: any) => {
-        overlayManager.notifyWindowDimensionsChanged(arg)
+    instance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any) => {
+        overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
     })
 
     instance.on("action", (action: any) => {

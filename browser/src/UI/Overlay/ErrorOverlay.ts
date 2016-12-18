@@ -1,15 +1,14 @@
 import * as path from "path"
 import { renderErrorMarkers } from "./../components/Error"
-import { IOverlay, IWindowContext } from "./../OverlayManager"
+import { IOverlay } from "./OverlayManager"
+import { WindowContext } from "./WindowContext"
 
 export class ErrorOverlay implements IOverlay {
 
     private _element: HTMLElement
     private _errors: { [fileName: string]: Oni.Plugin.Diagnostics.Error[] } = {}
     private _currentFileName: string
-    private _lastWindowContext: IWindowContext
-    // private _columnOffset: number
-    // private _currentLine: number
+    private _lastWindowContext: WindowContext
 
     public onVimEvent(_eventName: string, eventContext: Oni.EventContext): void {
         const fullPath = eventContext.bufferFullPath
@@ -25,7 +24,7 @@ export class ErrorOverlay implements IOverlay {
         this._showErrors()
     }
 
-    public update(element: HTMLElement, windowContext: IWindowContext) {
+    public update(element: HTMLElement, windowContext: WindowContext) {
         this._element = element
         this._lastWindowContext = windowContext
 

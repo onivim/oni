@@ -7,6 +7,7 @@ import * as Actions from "./actions"
 import * as Config from "./Config"
 import { measureFont } from "./Font"
 import { Buffer, IBuffer } from "./neovim/Buffer"
+import { SessionWrapper } from "./neovim/SessionWrapper"
 import { IWindow, Window } from "./neovim/Window"
 import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
@@ -48,6 +49,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _lastWidthInPixels: number
 
     private _pluginManager: PluginManager
+    private _sessionWrapper: SessionWrapper
 
     constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number, filesToOpen?: string[]) {
         super()
@@ -67,6 +69,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 // nv.input("<ESC>")
 
                 this._neovim = nv
+                this._sessionWrapper = new SessionWrapper(this._neovim._session)
 
                 this._neovim.on("error", (err: Error) => {
                     console.error(err)
@@ -92,7 +95,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                             this.emit("event", eventName, eventContext)
                         } else if (pluginMethod === "window_display_update") {
-                            this.emit("window-display-update", args[0][1])
+                            this.emit("window-display-update", args[0][0], args[0][1])
                         } else {
                             console.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
                         }
@@ -185,13 +188,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public getCurrentBuffer(): Q.Promise<IBuffer> {
-        return Q.ninvoke(this._neovim, "getCurrentBuffer")
-            .then((buf) => new Buffer(buf))
+        return this._sessionWrapper.invoke<any>("nvim_get_current_buf", [])
+            .then((buf: any) => new Buffer(buf))
     }
 
     public getCurrentWindow(): Q.Promise<IWindow> {
-        return Q.ninvoke(this._neovim, "getCurrentWindow")
-            .then((win) => new Window(win))
+        return this._sessionWrapper.invoke<any>("nvim_get_current_win", [])
+            .then((win: any) => new Window(win))
     }
 
     public get cursorPosition(): IPosition {
