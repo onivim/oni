@@ -5,13 +5,18 @@ const path = require("path")
 const app = electron.app
 const ipcMain = electron.ipcMain
 
+const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose")).length > 0
+
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
 ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
     const destinationWindow = BrowserWindow.fromId(destinationId)
-    // console.log(`sending message to destinationId: ${destinationId}`)
+
+    if (isVerbose) {
+        console.log(`sending message to destinationId: ${destinationId}`)
+    }
     destinationWindow.webContents.send("cross-browser-ipc", arg)
 })
 
@@ -19,13 +24,25 @@ ipcMain.on("cross-browser-ipc", (event, arg) => {
 // be closed automatically when the JavaScript object is garbage collected.
 let windows = []
 
-function createWindow(commandLineArguments) {
+const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+    createWindow(commandLine.slice(2), workingDirectory)
+})
+
+if (shouldQuit) {
+    app.quit()
+}
+
+function createWindow(commandLineArguments, workingDirectory) {
+    if (isVerbose) {
+        console.log(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
+    }
     // Create the browser window.
     let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png") })
 
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
-            args: commandLineArguments
+            args: commandLineArguments,
+            workingDirectory: workingDirectory
         })
     })
 
@@ -42,6 +59,7 @@ function createWindow(commandLineArguments) {
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
         mainWindow = null
+        windows = windows.filter(m => m !== mainWindow)
     })
 
     windows.push(mainWindow)
@@ -51,7 +69,7 @@ function createWindow(commandLineArguments) {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-    createWindow(process.argv.slice(2))
+    createWindow(process.argv.slice(2), process.cwd())
 })
 
 // Quit when all windows are closed.
