@@ -4,18 +4,17 @@
  * https://code.visualstudio.com/Docs/editor/debugging
  */
 
-import * as path from "path"
 import * as fs from "fs"
+import * as path from "path"
 
 import * as Q from "q"
 
-const findParentDir = require("find-parent-dir")
+const findParentDir = require("find-parent-dir") // tslint:disable-line no-var-requires
 
 export type LaunchType = "execute"
 export type Request = "launch" // attach later
 
-
-export interface LaunchConfiguration {
+export interface ILaunchConfiguration {
     type: LaunchType
     name: string
     program: string
@@ -27,35 +26,33 @@ export interface LaunchConfiguration {
 /**
  * Per-project configuration options
  */
-export interface ProjectConfiguration {
-    launchConfigurations: LaunchConfiguration[]
+export interface IProjectConfiguration {
+    launchConfigurations: ILaunchConfiguration[],
 }
 
-const DefaultConfiguration: ProjectConfiguration = {
-    launchConfigurations: []
+const DefaultConfiguration: IProjectConfiguration = {
+    launchConfigurations: [],
 }
 
 /**
  * Get the project configuration for a particular file
  * Search upward for the relevant .oni folder
  */
-export function getProjectConfiguration(filePath: string): Q.Promise<ProjectConfiguration> {
-    
+export function getProjectConfiguration(filePath: string): Q.Promise<IProjectConfiguration> {
     const oniDir = findParentDir.sync(filePath, ".oni")
     return loadConfigurationFromFolder(path.join(oniDir, ".oni"))
 }
 
-function loadConfigurationFromFolder(folder: string): Q.Promise<ProjectConfiguration> {
+function loadConfigurationFromFolder(folder: string): Q.Promise<IProjectConfiguration> {
 
     const launchPath = path.join(folder, "launch.json")
 
     if (!fs.existsSync(launchPath)) {
         return Q(DefaultConfiguration)
     } else {
-       const launchInfo: LaunchConfiguration = JSON.parse(fs.readFileSync(launchPath, "utf8")) 
-
+       const launchInfo: ILaunchConfiguration = JSON.parse(fs.readFileSync(launchPath, "utf8"))
        const config = {...DefaultConfiguration, ...{
-           launchConfigurations: [launchInfo] 
+           launchConfigurations: [launchInfo],
        }}
 
        return Q(config)

@@ -19,7 +19,7 @@ import * as UI from "./../UI/index"
 
 import { OutputWindow } from "./Output"
 
-const findParentDir = require("find-parent-dir")
+const findParentDir = require("find-parent-dir") // tslint:disable-line no-var-requires
 
 export interface ITask {
     name: string
@@ -47,14 +47,14 @@ export class OniLaunchTasksProvider implements ITaskProvider {
     public getTasks(): Q.Promise<ITask[]> {
         return getProjectConfiguration(this._currentBufferPath)
             .then((config) => {
-                return config.launchConfigurations.map(p => ({
+                return config.launchConfigurations.map((p) => ({
                     name: p.name,
                     detail: p.program,
                     callback: () => {
                         const launchCommand = p.program + p.args.join(" ")
                         const commands = p.dependentCommands.concat([launchCommand])
                         this._output.executeCommands(commands)
-                    }
+                    },
                 }))
             })
     }
@@ -88,10 +88,10 @@ export class PackageJsonTasksProvider implements ITaskProvider {
 
             const scripts = packageJson.scripts
             const tasks = Object.keys(scripts)
-                .map(key => ({
+                .map((key) => ({
                     name: key,
                     detail: scripts[key],
-                    callback: () => this._output.execute(`npm run ${key}`)
+                    callback: () => this._output.execute(`npm run ${key}`),
                 }))
 
             defer.resolve(tasks)
@@ -112,7 +112,7 @@ export class Tasks {
         UI.events.on("menu-item-selected:tasks", (selectedItem: any) => {
             const {label, detail} = selectedItem.selectedOption
 
-            const selectedTask = _.find(this._lastTasks, t => t.name === label && t.detail === detail)
+            const selectedTask = _.find(this._lastTasks, (t) => t.name === label && t.detail === detail)
 
             if (selectedTask) {
                 selectedTask.callback()
@@ -124,6 +124,20 @@ export class Tasks {
         this._currentBufferPath = event.bufferFullPath
     }
 
+    public show(): void {
+        this._refreshTasks().then(() => {
+            const options = this._lastTasks.map((f) => {
+                return {
+                    icon: "tasks",
+                    label: f.name,
+                    detail: f.detail,
+                }
+            })
+
+            UI.showPopupMenu("tasks", options)
+        })
+    }
+
     private _refreshTasks(): Q.Promise<void> {
         this._lastTasks = []
 
@@ -132,26 +146,11 @@ export class Tasks {
         taskProviders.push(new OniLaunchTasksProvider(rootPath, this._output))
         taskProviders.push(new PackageJsonTasksProvider(rootPath, this._output))
 
-        const promises = taskProviders.map(t => t.getTasks() || [])
+        const promises = taskProviders.map((t) => t.getTasks() || [])
 
         return Q.all(promises)
             .then((vals: ITask[][]) => {
                 this._lastTasks = _.flatten(vals)
             })
     }
-
-    public show(): void {
-        this._refreshTasks().then(() => {
-            const options = this._lastTasks.map((f) => {
-                return {
-                    icon: "tasks",
-                    label: f.name,
-                    detail: f.detail
-                }
-            })
-
-            UI.showPopupMenu("tasks", options)
-        })
-    }
-
 }

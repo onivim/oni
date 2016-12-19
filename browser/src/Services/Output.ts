@@ -57,6 +57,10 @@ export class OutputWindow {
             })
     }
 
+    public write(val: string[], buffer: IBuffer): Q.Promise<void> {
+        return buffer.appendLines(val)
+    }
+
     private _executeInBuffer(shellCommand: string, buf: IBuffer): Q.Promise<void> {
         const deferred = Q.defer<void>()
 
@@ -77,9 +81,5 @@ export class OutputWindow {
         })
 
         return deferred.promise
-    }
-
-    public write(val: string[], buffer: IBuffer): Q.Promise<void> {
-        return buffer.appendLines(val)
     }
 }
