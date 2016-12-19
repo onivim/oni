@@ -11,6 +11,7 @@ import { CanvasRenderer } from "./Renderer/CanvasRenderer"
 import { NeovimScreen } from "./Screen"
 import { Formatter } from "./Services/Formatter"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
+import { MultiProcess } from "./Services/MultiProcess"
 import { OutputWindow } from "./Services/Output"
 import { QuickOpen } from "./Services/QuickOpen"
 import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
@@ -45,6 +46,7 @@ const start = (args: string[]) => {
 
     // Services
     const quickOpen = new QuickOpen(instance)
+    const multiProcess = new MultiProcess()
     const formatter = new Formatter(instance, pluginManager)
     const outputWindow = new OutputWindow(instance, pluginManager)
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
@@ -53,6 +55,7 @@ const start = (args: string[]) => {
     services.push(quickOpen)
     services.push(formatter)
     services.push(liveEvaluation)
+    services.push(multiProcess)
     services.push(syntaxHighlighter)
     services.push(outputWindow)
 
@@ -241,6 +244,10 @@ const start = (args: string[]) => {
             pluginManager.executeCommand("editor.gotoDefinition")
         } else if (key === "<C-p>" && screen.mode === "normal") {
             quickOpen.show()
+        } else if (key === "<C-pageup>") {
+            multiProcess.focusPreviousInstance()
+        } else if (key === "<C-pagedown>") {
+            multiProcess.focusNextInstance()
         } else {
             instance.input(key)
         }
@@ -267,5 +274,6 @@ const start = (args: string[]) => {
 }
 
 ipcRenderer.on("init", (_evt, message) => {
+    process.chdir(message.workingDirectory)
     start(message.args)
 })
