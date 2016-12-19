@@ -41,20 +41,24 @@ export interface ITaskProvider {
  */
 export class OniLaunchTasksProvider implements ITaskProvider {
     private _currentBufferPath: string
+    private _output: OutputWindow
 
-    constructor(currentBufferPath: string) {
+    constructor(currentBufferPath: string, output: OutputWindow) {
         this._currentBufferPath = currentBufferPath
+        this._output = output
     }
 
     public getTasks(): Q.Promise<ITask[]> {
         return getProjectConfiguration(this._currentBufferPath)
-                .then((config) => {
-                    return config.launchConfigurations.map(p => ({
-                        name: p.name,
-                        detail: p.program,
-                        callback: () => alert(p.name + ":" + p.program)
-                    }))
-                })
+            .then((config) => {
+                return config.launchConfigurations.map(p => ({
+                    name: p.name,
+                    detail: p.program,
+                    callback: () => {
+                        this._output.execute(p.program + p.args.join(" "))
+                    }
+                }))
+            })
     }
 }
 
@@ -69,28 +73,28 @@ export class PackageJsonTasksProvider implements ITaskProvider {
     }
 
     public getTasks(): Q.Promise<ITask[]> {
-        const defer = Q.defer<ITask[]>()        
+        const defer = Q.defer<ITask[]>()
 
         findParentDir(this._currentPath, "package.json", (err: Error, dir: string) => {
-            if(err) {
+            if (err) {
                 defer.reject(err)
                 return
             }
 
             const packageJson = Parser.parseJsonFromFile<any>(path.join(dir, "package.json"))
 
-            if(!packageJson.scripts) {
+            if (!packageJson.scripts) {
                 defer.resolve([])
-                              return
+                return
             }
 
             const scripts = packageJson.scripts
             const tasks = Object.keys(scripts)
-                            .map(key => ({
-                                name: key,
-                                detail: scripts[key],
-                                callback: () => this._output.execute(`npm run ${key}`)
-                            }))
+                .map(key => ({
+                    name: key,
+                    detail: scripts[key],
+                    callback: () => this._output.execute(`npm run ${key}`)
+                }))
 
             defer.resolve(tasks)
         })
@@ -127,7 +131,7 @@ export class Tasks {
 
         const taskProviders = []
         const rootPath = this._currentBufferPath || process.cwd()
-        taskProviders.push(new OniLaunchTasksProvider(rootPath))
+        taskProviders.push(new OniLaunchTasksProvider(rootPath, this._output))
         taskProviders.push(new PackageJsonTasksProvider(rootPath, this._output))
 
         const promises = taskProviders.map(t => t.getTasks() || [])
