@@ -211,6 +211,7 @@ These are:
 - [targets.vim](https://github.com/wellle/targets.vim)
 - [typescript-vim](https://github.com/leafgarland/typescript-vim)
 - [vim-commentary](https://github.com/tpope/vim-commentary)
+- [vim-unimpaired](https://github.com/tpope/vim-unimpaired)
 
 As well as some color-schemes:
 - [vim-monokai](https://github.com/sickill/vim-monokai)
@@ -222,7 +223,9 @@ See [roadmap](ROADMAP.md)
 
 ## License
 
-MIT
+MIT License. Copyright (c) extropygames
+
+The bundled plugins have their own license terms, along with the bundled Neovim binary
 
 ## Contributing
 
