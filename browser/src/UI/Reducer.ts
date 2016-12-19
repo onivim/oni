@@ -75,6 +75,7 @@ export const popupMenuReducer = (s: State.IMenu | null, a: Actions.Action) => {
             }))
 
             return {
+                id: a.payload.id,
                 filter: "",
                 filteredOptions: sortedOptions,
                 options: a.payload.options,
