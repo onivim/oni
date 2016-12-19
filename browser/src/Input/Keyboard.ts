@@ -8,26 +8,7 @@ export class Keyboard extends EventEmitter {
             console.log("Keydown: " + evt) // tslint:disable-line no-console
 
             const vimKey = this._convertKeyEventToVimKey(evt)
-            let mappedKey = null
-
-            if (vimKey) {
-                mappedKey = vimKey
-
-                if (mappedKey === "<")
-                    mappedKey = "lt"
-
-                if (evt.ctrlKey) {
-                    mappedKey = "C-" + vimKey + ""
-                } 
-
-                if (evt.altKey) {
-                    mappedKey = "A-" + mappedKey
-                }
-
-                if (mappedKey.length > 1) {
-                    mappedKey = "<" + mappedKey + ">"
-                }
-            }
+            const mappedKey = this._wrapWithBracketsAndModifiers(vimKey, evt)
 
             if (mappedKey) {
                 this.emit("keydown", mappedKey)
@@ -42,6 +23,32 @@ export class Keyboard extends EventEmitter {
                 evt.preventDefault()
             }
         })
+    }
+
+    private _wrapWithBracketsAndModifiers(vimKey: null | string, evt: KeyboardEvent): null | string {
+        if (vimKey === null) {
+            return null
+        }
+
+        let mappedKey = vimKey
+
+        if (mappedKey === "<") {
+            mappedKey = "lt"
+        }
+
+        if (evt.ctrlKey) {
+            mappedKey = "C-" + vimKey + ""
+        }
+
+        if (evt.altKey) {
+            mappedKey = "A-" + mappedKey
+        }
+
+        if (mappedKey.length > 1) {
+            mappedKey = "<" + mappedKey + ">"
+        }
+
+        return mappedKey
     }
 
     private _convertKeyEventToVimKey(evt: KeyboardEvent): null | string {
