@@ -12,6 +12,7 @@ export interface IState {
 }
 
 export interface IMenu {
+    id: string,
     filter: string,
     filteredOptions: IMenuOptionWithHighlights[],
     options: Oni.Menu.MenuOption[],
