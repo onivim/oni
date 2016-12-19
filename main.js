@@ -5,7 +5,7 @@ const path = require("path")
 const app = electron.app
 const ipcMain = electron.ipcMain
 
-const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose")).length > 0
+const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
 
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
@@ -14,28 +14,39 @@ ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
     const destinationWindow = BrowserWindow.fromId(destinationId)
 
-    if (isVerbose) {
-        console.log(`sending message to destinationId: ${destinationId}`)
-    }
+    log(`sending message to destinationId: ${destinationId}`)
     destinationWindow.webContents.send("cross-browser-ipc", arg)
+})
+
+ipcMain.on("focus-next-instance", () => {
+    log("focus-next-instance")
+    focusNextInstance(1)
+})
+
+ipcMain.on("focus-previous-instance", () => {
+    log("focus-previous-instance")
+    focusNextInstance(-1)
 })
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let windows = []
 
-const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
-    createWindow(commandLine.slice(2), workingDirectory)
-})
+// Only enable 'single-instance' mode when we're not in the hot-reload mode
+// Otherwise, all other open instances will also pick up the webpack bundle
+if (process.env.NODE_ENV !== "development") {
+    const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+        createWindow(commandLine.slice(2), workingDirectory)
+    })
 
-if (shouldQuit) {
-    app.quit()
+    if (shouldQuit) {
+        app.quit()
+    }
 }
 
 function createWindow(commandLineArguments, workingDirectory) {
-    if (isVerbose) {
-        console.log(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
-    }
+    log(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
+
     // Create the browser window.
     let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png") })
 
@@ -89,5 +100,29 @@ app.on('activate', function() {
     }
 })
 
+function focusNextInstance(direction) {
+    const currentFocusedWindows = windows.filter(f => f.isFocused())
+
+    if (currentFocusedWindows.length === 0) {
+        log("No window currently focused")
+        return
+    }
+
+    const currentFocusedWindow = currentFocusedWindows[0]
+    const currentWindowIdx = windows.indexOf(currentFocusedWindow)
+    let newFocusWindowIdx = (currentWindowIdx + direction) % windows.length
+
+    if (newFocusWindowIdx < 0)
+        newFocusWindowIdx = windows.length - 1
+
+    log(`Focusing index: ${newFocusWindowIdx}`)
+    windows[newFocusWindowIdx].focus()
+}
+
+function log(message) {
+    if (isVerbose) {
+        console.log(message)
+    }
+}
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
