@@ -1,6 +1,7 @@
 import * as _ from "lodash"
 import { renderBufferScrollBar, ScrollBarMarker } from "./../components/BufferScrollBar"
-import { IOverlay, IWindowContext } from "./../OverlayManager"
+import { IOverlay } from "./../Overlay/OverlayManager"
+import { WindowContext } from "./../Overlay/WindowContext"
 
 export interface IKeyToMarkers {
     [key: string]: ScrollBarMarker[]
@@ -17,7 +18,7 @@ export class ScrollBarOverlay implements IOverlay {
     private _currentFileLength: number
     // private _windowTop: number
     // private _windowBottom: number
-    private _lastWindowContext: IWindowContext
+    private _lastWindowContext: WindowContext
     private _lastEvent: Oni.EventContext
 
     private _fileToMarkers: IFileToAllMarkers = {}
@@ -51,7 +52,7 @@ export class ScrollBarOverlay implements IOverlay {
         this._updateScrollBar()
     }
 
-    public update(element: HTMLElement, windowContext: IWindowContext) {
+    public update(element: HTMLElement, windowContext: WindowContext) {
         this._element = element
         this._lastWindowContext = windowContext
 

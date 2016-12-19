@@ -116,6 +116,9 @@ export class AutoCompletionIcon extends React.Component<AutoCompletionIconProps,
                 return <Icon name="sitemap" />
             case "directory":
                 return <Icon name="folder" />
+            case "file":
+            case "script":
+                return <Icon name="file" />
             case "var":
             case "property":
             case "parameter":

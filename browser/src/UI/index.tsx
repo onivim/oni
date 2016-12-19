@@ -23,6 +23,8 @@ let state: State.IState = {
     cursorPixelY: 10,
     fontPixelWidth: 10,
     fontPixelHeight: 10,
+    mode: "normal",
+    foregroundColor: "rgba(0, 0, 0, 0)",
     autoCompletion: null,
     quickInfo: null,
     popupMenu: null,
@@ -45,6 +47,18 @@ export function setBackgroundColor(backgroundColor: string): void {
 
 export function setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number): void {
     store.dispatch(ActionCreators.setCursorPosition(cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight))
+}
+
+// TODO: Can we use bindaction creators for this?
+export function setMode(mode: string): void {
+    store.dispatch(ActionCreators.setMode(mode))
+}
+
+export function setColors(foregroundColor: string): void {
+    if(foregroundColor === store.getState().foregroundColor)
+        return
+
+    store.dispatch(ActionCreators.setColors(foregroundColor))
 }
 
 export function showSignatureHelp(help: Oni.Plugin.SignatureHelpResult): void {

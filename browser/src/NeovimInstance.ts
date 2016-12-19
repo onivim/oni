@@ -7,6 +7,7 @@ import * as Actions from "./actions"
 import * as Config from "./Config"
 import { measureFont } from "./Font"
 import { Buffer, IBuffer } from "./neovim/Buffer"
+import { SessionWrapper } from "./neovim/SessionWrapper"
 import { IWindow, Window } from "./neovim/Window"
 import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
@@ -48,6 +49,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _lastWidthInPixels: number
 
     private _pluginManager: PluginManager
+    private _sessionWrapper: SessionWrapper
 
     constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number, filesToOpen?: string[]) {
         super()
@@ -67,6 +69,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 // nv.input("<ESC>")
 
                 this._neovim = nv
+                this._sessionWrapper = new SessionWrapper(this._neovim._session)
 
                 this._neovim.on("error", (err: Error) => {
                     console.error(err)
@@ -92,7 +95,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                             this.emit("event", eventName, eventContext)
                         } else if (pluginMethod === "window_display_update") {
-                            this.emit("window-display-update", args[0][1])
+                            this.emit("window-display-update", args[0][0], args[0][1])
                         } else {
                             console.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
                         }
@@ -109,7 +112,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     remote.app.quit()
                 })
 
-                this._neovim.uiAttach(80, 40, true, (_err?: Error) => {
+                const startupOptions = {
+                    rgb: true,
+                    popupmenu_external: true,
+                }
+
+                // Workaround for bug in neovim/node-client
+                // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
+                this._neovim._session.request("nvim_ui_attach", [80, 40, startupOptions], (_err?: Error) => {
                     console.log("Attach success") // tslint:disable-line no-console
 
                     performance.mark("NeovimInstance.Plugins.Start")
@@ -178,13 +188,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public getCurrentBuffer(): Q.Promise<IBuffer> {
-        return Q.ninvoke(this._neovim, "getCurrentBuffer")
-            .then((buf) => new Buffer(buf))
+        return this._sessionWrapper.invoke<any>("nvim_get_current_buf", [])
+            .then((buf: any) => new Buffer(buf))
     }
 
     public getCurrentWindow(): Q.Promise<IWindow> {
-        return Q.ninvoke(this._neovim, "getCurrentWindow")
-            .then((win) => new Window(win))
+        return this._sessionWrapper.invoke<any>("nvim_get_current_win", [])
+            .then((win: any) => new Window(win))
     }
 
     public get cursorPosition(): IPosition {
@@ -280,6 +290,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 const newMode = a[0][0]
                 this.emit("action", Actions.changeMode(newMode))
                 this.emit("mode-change", newMode)
+            } else if (command === "popupmenu_show") {
+                const completions = a[0][0]
+                this.emit("show-popup-menu", completions)
             } else {
                 console.warn("Unhandled command: " + command)
             }

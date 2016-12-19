@@ -1,5 +1,7 @@
 import * as fs from "fs"
 import * as path from "path"
+
+import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
 export const FallbackFonts = "Consolas,Monaco,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace"
@@ -26,6 +28,14 @@ const DefaultConfig: any = {
     // By default, user's init.vim is not loaded, to avoid conflicts.
     // Set this to `true` to enable loading of init.vim.
     "oni.loadInitVim": false,
+
+    // Sets the `popupmenu_external` option in Neovim
+    // This will override the default UI to show a consistent popupmenu,
+    // whether using Oni's completion mechanisms or VIMs
+    //
+    // Use caution when changing the `menuopt` parameters if using
+    // a custom init.vim, as that may cause problematic behavior
+    "oni.useExternalPopupMenu": true,
 
     "editor.fontSize": "14px",
     "editor.quickInfo.enabled": true,
@@ -56,15 +66,23 @@ const LinuxConfig: any = {
 
 const DefaultPlatformConfig = Platform.isWindows() ? WindowsConfig : Platform.isLinux() ? LinuxConfig : MacConfig
 
-const userConfigFile = path.join(Platform.getUserHome(), ".oni", "config.json")
+Performance.mark("Config.load.start")
+
+const userConfigFile = path.join(getUserFolder(), "config.json")
+const userJsConfig = path.join(getUserFolder(), "config.js")
 
 let userConfig = {}
-
 if (fs.existsSync(userConfigFile)) {
     userConfig = JSON.parse(fs.readFileSync(userConfigFile, "utf8"))
 }
 
-const Config = { ...DefaultConfig, ...DefaultPlatformConfig, ...userConfig }
+let userRuntimeConfig = {}
+if (fs.existsSync(userJsConfig)) {
+    userRuntimeConfig = global["require"](userJsConfig) // tslint:disable-line no-string-literal
+}
+
+const Config = { ...DefaultConfig, ...DefaultPlatformConfig, ...userConfig, ...userRuntimeConfig }
+Performance.mark("Config.load.end")
 
 export function hasValue(configValue: string): boolean {
     return !!getValue<any>(configValue)
@@ -72,4 +90,8 @@ export function hasValue(configValue: string): boolean {
 
 export function getValue<T>(configValue: string): T {
     return Config[configValue]
+}
+
+export function getUserFolder(): string {
+    return path.join(Platform.getUserHome(), ".oni")
 }

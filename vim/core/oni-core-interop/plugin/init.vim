@@ -66,10 +66,12 @@ augroup END
 
 function OniGetContext()
 let context = {}
+let context.bufferNumber = bufnr("%")
 let context.bufferFullPath = expand("%:p")
 let context.bufferTotalLines = line("$")
 let context.line = line(".")
 let context.column = col(".")
+let context.windowNumber = winnr()
 let context.winline = winline()
 let context.wincol = wincol()
 let context.windowTopLine = line("w0")
@@ -109,16 +111,5 @@ function OniUpdateWindowDisplayMap()
 
     let context = OniGetContext()
 
-    let winwidth = winwidth(currentWindowNumber)
-    let winheight = winheight(currentWindowNumber)
-
-    let dimensions = {}
-    let dimensions.width = winwidth
-    let dimensions.height = winheight
-
-    let ret = {}
-    let ret.dimensions = dimensions
-    let ret.mapping = mapping
-
-    call OniNotify(["window_display_update", context, ret])
+    call OniNotify(["window_display_update", context, mapping])
 endfunction
