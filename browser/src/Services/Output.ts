@@ -37,23 +37,46 @@ export class OutputWindow {
             .then(() => buffer)
     }
 
+    public executeCommands(shellCommands: string[]): Q.Promise<void> {
+        return this.open()
+            .then((buf) => {
+                let p = Q<any>(null)
+
+                shellCommands.forEach((command) => {
+                    p = p.then(() => this._executeInBuffer(command, buf))
+                })
+
+                return p
+            })
+    }
+
     public execute(shellCommand: string): Q.Promise<void> {
         return this.open()
             .then((buf) => {
-                this.write([shellCommand], buf)
-
-                const proc = exec(shellCommand, (err: any, _stdout: any, _stderr: any) => {
-                    if (err) {
-                        console.error(err)
-                    }
-                })
-
-                proc.stdout.on("data", (data) => this.write(data.toString().split("\n"), buf))
-                proc.stderr.on("data", (data) => this.write(data.toString().split("\n"), buf))
-                proc.on("close", (data) => {
-                    this.write([`process excited with code ${data}`], buf)
-                })
+                return this._executeInBuffer(shellCommand, buf)
             })
+    }
+
+    private _executeInBuffer(shellCommand: string, buf: IBuffer): Q.Promise<void> {
+        const deferred = Q.defer<void>()
+
+        this.write([shellCommand], buf)
+
+        const proc = exec(shellCommand, (err: any, _stdout: any, _stderr: any) => {
+            if (err) {
+                console.error(err)
+                deferred.reject(err)
+            }
+        })
+
+        proc.stdout.on("data", (data) => this.write(data.toString().split("\n"), buf))
+        proc.stderr.on("data", (data) => this.write(data.toString().split("\n"), buf))
+        proc.on("close", (data) => {
+            this.write([`process excited with code ${data}`], buf)
+            deferred.resolve()
+        })
+
+        return deferred.promise
     }
 
     public write(val: string[], buffer: IBuffer): Q.Promise<void> {

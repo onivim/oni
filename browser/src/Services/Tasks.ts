@@ -31,10 +31,6 @@ export interface ITaskProvider {
     getTasks(): Q.Promise<ITask[]>
 }
 
-// TODO:
-//  - Need to get current buffer (maybe listen for events)?
-//  - When tasks are opened, create instances of those objects and pass in the path to the constructor
-
 /**
  * Implementation of TasksProvider that gets launch tasks
  * from .oni/launch.json
@@ -55,7 +51,9 @@ export class OniLaunchTasksProvider implements ITaskProvider {
                     name: p.name,
                     detail: p.program,
                     callback: () => {
-                        this._output.execute(p.program + p.args.join(" "))
+                        const launchCommand = p.program + p.args.join(" ")
+                        const commands = p.dependentCommands.concat([launchCommand])
+                        this._output.executeCommands(commands)
                     }
                 }))
             })
