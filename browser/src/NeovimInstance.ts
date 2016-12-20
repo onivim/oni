@@ -48,6 +48,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _lastHeightInPixels: number
     private _lastWidthInPixels: number
 
+    private _rows: number
+    private _cols: number
+
     private _pluginManager: PluginManager
     private _sessionWrapper: SessionWrapper
 
@@ -121,6 +124,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 }
 
                 const size = this._getSize()
+                this._rows = size.rows
+                this._cols = size.cols
 
                 // Workaround for bug in neovim/node-client
                 // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
@@ -237,6 +242,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             columns = fixedSize.columns
             console.warn("Overriding screen size based on debug.fixedSize")
         }
+
+        if (rows === this._rows && columns === this._cols) {
+            return
+        }
+
+        this._rows = rows
+        this._cols = columns
 
         // If _initPromise isn't initialized, it means the UI hasn't attached to NeoVim
         // yet. In that case, we don't need to call uiTryResize

@@ -139,11 +139,6 @@ const start = (args: string[]) => {
         renderer.onAction(action)
         screen.dispatch(action)
 
-        UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
-
-        renderer.update(screen, deltaRegion)
-        deltaRegion.cleanUpRenderedCells()
-
         UI.setColors(screen.foregroundColor)
 
         if (!pendingTimeout) {
@@ -171,8 +166,8 @@ const start = (args: string[]) => {
             UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
         }
 
-        // renderer.update(screen, deltaRegion)
-        // deltaRegion.cleanUpRenderedCells()
+        renderer.update(screen, deltaRegion)
+        deltaRegion.cleanUpRenderedCells()
 
         window.requestAnimationFrame(() => renderFunction())
     }
