@@ -37,7 +37,7 @@ const start = (args: string[]) => {
     let screen = new NeovimScreen(deltaRegion)
 
     const pluginManager = new PluginManager(screen, debugPlugin)
-    let instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight, parsedArgs._)
+    let instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight)
 
     const canvasElement = document.getElementById("test-canvas") as HTMLCanvasElement
     let renderer = new CanvasRenderer()
@@ -185,6 +185,7 @@ const start = (args: string[]) => {
     }
 
     instance.setFont(Config.getValue<string>("editor.fontFamily"), Config.getValue<string>("editor.fontSize"))
+    instance.start(parsedArgs._)
 
     const mouse = new Mouse(canvasElement, screen)
 
