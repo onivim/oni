@@ -79,6 +79,11 @@ export class PackageJsonTasksProvider implements ITaskProvider {
                 return
             }
 
+            if (!dir ) {
+                defer.resolve([])
+                return
+            }
+
             const packageJson = Parser.parseJsonFromFile<any>(path.join(dir, "package.json"))
 
             if (!packageJson.scripts) {

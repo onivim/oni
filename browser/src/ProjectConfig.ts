@@ -40,6 +40,11 @@ const DefaultConfiguration: IProjectConfiguration = {
  */
 export function getProjectConfiguration(filePath: string): Q.Promise<IProjectConfiguration> {
     const oniDir = findParentDir.sync(filePath, ".oni")
+
+    if (!oniDir) {
+        return Q(DefaultConfiguration)
+    }
+
     return loadConfigurationFromFolder(path.join(oniDir, ".oni"))
 }
 
