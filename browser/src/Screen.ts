@@ -238,8 +238,8 @@ export class NeovimScreen implements IScreen {
 
                 this._grid.setRegionFromGrid(regionToScroll, left, top)
 
-                for (let y = top; y < bottom; y++) {
-                    for (let x = left; x < right; x++) {
+                for (let y = top; y <= bottom; y++) {
+                    for (let x = left; x <= right; x++) {
                         this._deltaTracker.notifyCellModified(x, y)
                     }
                 }
