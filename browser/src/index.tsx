@@ -37,7 +37,7 @@ const start = (args: string[]) => {
     let screen = new NeovimScreen(deltaRegion)
 
     const pluginManager = new PluginManager(screen, debugPlugin)
-    let instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight, parsedArgs._)
+    let instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight)
 
     const canvasElement = document.getElementById("test-canvas") as HTMLCanvasElement
     let renderer = new CanvasRenderer()
@@ -139,6 +139,11 @@ const start = (args: string[]) => {
         renderer.onAction(action)
         screen.dispatch(action)
 
+        UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
+
+        renderer.update(screen, deltaRegion)
+        deltaRegion.cleanUpRenderedCells()
+
         UI.setColors(screen.foregroundColor)
 
         if (!pendingTimeout) {
@@ -166,8 +171,8 @@ const start = (args: string[]) => {
             UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
         }
 
-        renderer.update(screen, deltaRegion)
-        deltaRegion.cleanUpRenderedCells()
+        // renderer.update(screen, deltaRegion)
+        // deltaRegion.cleanUpRenderedCells()
 
         window.requestAnimationFrame(() => renderFunction())
     }
@@ -185,6 +190,7 @@ const start = (args: string[]) => {
     }
 
     instance.setFont(Config.getValue<string>("editor.fontFamily"), Config.getValue<string>("editor.fontSize"))
+    instance.start(parsedArgs._)
 
     const mouse = new Mouse(canvasElement, screen)
 

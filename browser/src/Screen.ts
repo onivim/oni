@@ -192,6 +192,9 @@ export class NeovimScreen implements IScreen {
             case Actions.CLEAR:
                 this._grid.clear()
                 this._notifyAllCellsModified()
+
+                this._cursorColumn = 0
+                this._cursorRow = 0
                 break
             case Actions.RESIZE:
                 this._width = action.columns

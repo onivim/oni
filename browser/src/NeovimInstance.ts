@@ -51,14 +51,17 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _pluginManager: PluginManager
     private _sessionWrapper: SessionWrapper
 
-    constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number, filesToOpen?: string[]) {
+    constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
         super()
 
-        filesToOpen = filesToOpen || []
         this._pluginManager = pluginManager
 
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
+    }
+
+    public start(filesToOpen?: string[]): void {
+        filesToOpen = filesToOpen || []
 
         this._initPromise = startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen)
             .then((nv) => {
@@ -117,9 +120,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     popupmenu_external: true,
                 }
 
+                const size = this._getSize()
+
                 // Workaround for bug in neovim/node-client
                 // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
-                this._neovim._session.request("nvim_ui_attach", [80, 40, startupOptions], (_err?: Error) => {
+                this._neovim._session.request("nvim_ui_attach", [size.cols, size.rows, startupOptions], (_err?: Error) => {
                     console.log("Attach success") // tslint:disable-line no-console
 
                     performance.mark("NeovimInstance.Plugins.Start")
@@ -219,10 +224,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
 
-        const rows = Math.floor(heightInPixels / this._fontHeightInPixels)
-        const cols = Math.floor(widthInPixels / this._fontWidthInPixels)
+        const size = this._getSize()
 
-        this._resizeInternal(rows, cols)
+        this._resizeInternal(size.rows, size.cols)
     }
 
     private _resizeInternal(rows: number, columns: number): void {
@@ -234,6 +238,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             console.warn("Overriding screen size based on debug.fixedSize")
         }
 
+        // If _initPromise isn't initialized, it means the UI hasn't attached to NeoVim
+        // yet. In that case, we don't need to call uiTryResize
+        if (!this._initPromise) {
+            return
+        }
+
         this._initPromise.then(() => {
             this._neovim.uiTryResize(columns, rows, (err?: Error) => {
                 if (err) {
@@ -241,6 +251,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 }
             })
         })
+    }
+
+    private _getSize() {
+        const rows = Math.floor(this._lastHeightInPixels / this._fontHeightInPixels)
+        const cols = Math.floor(this._lastWidthInPixels / this._fontWidthInPixels)
+        return { rows, cols}
     }
 
     private _handleNotification(_method: any, args: any): void {
