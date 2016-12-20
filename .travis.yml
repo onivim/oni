@@ -1,10 +1,16 @@
 language: node_js
 node_js:
-  - "6"
-
+- '6'
 install:
-    - npm install
-
+- npm install
 script:
-    - npm run build
-    - npm run test
+- npm run build
+- npm run test
+deploy:
+  provider: npm
+  email: extr0py@extropygames.com
+  api_key:
+    secure: MvwHMDOskLNzHLivsYaK5/yK8UN9j8DNz5kSDgBw0MfQOhL2CBruvIGc0NzVrOe2MkQYvQ9oqIkhdm8xIG3NFiKYc6lSzYmhNFm+S/kLyK0j1n6Ixat6UYhS1VtnXuZqEYywWGrVgaQMvkcRfZEwhM3+DiFdHTPC+sPRf/0o5F2yVYaYVLQuiKfFGUknnLz/40rtOJc8TSzIPqYNSaUEmNeHmCNfhtzHV2lLcRUVWFf3BTtHvBdsv3daI0ZV/jmRYShSSGkplll4XESoYkqI8EHUCxD1svcnaZ6X7iV8VPmHKdXZoa2rFpnb1PfJT703veF3sMDL6TcE34Ak02tI85njJcKxTtxCr35YyWLTGhPzjhJd0f26uLEWnbEfGIGSPgbbqnvnt9vZ4on9jlRFiGmLgCC/yTMQ9lIqJqEBap29mnV/fLILInR7pupnGK4giJqRzBWlAt+ZKqumIEDmYrUliMU9P0of4EBMOkj6rwn1ThfYfcIwLddFbL5Iof+/4gAKWGkLgxoLRWI3tcv3O4+JqYyXhN9Z2ufjXH5xaHvXCGuytLdj2vJZfkECFeyLXnxfyUM4DhJoM0FXmEMQtb0CINGW4OJWaT0jcGAsm3Y4fepGGClUGZi1SZpt4L87xst9AoNgAAQvzB5Wrpt4IVGK+wH+Ej4gZv94RweL93o=
+  on:
+    tags: true
+    repo: extr0py/oni
