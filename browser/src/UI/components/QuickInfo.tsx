@@ -108,21 +108,18 @@ const mapStateToSignatureHelpProps = (state: IState) => {
     } else {
         const currentItem = state.signatureHelp.items[state.signatureHelp.selectedItemIndex];
 
-        const maxIdx = currentItem.parameters.length - 1
-
         const parameters = currentItem.parameters.map((item, idx) => {
-
-            let currentText = item.text
-            if (idx < maxIdx)
-                currentText += currentItem.separator + " "
-
             //check state.signatureHelp to avoid "Object is possibly 'null'" error
             //even though we already checked it in the 'if' statement above
             if (state.signatureHelp && idx === state.signatureHelp.argumentIndex)
-                return <SelectedText text={currentText} />
+                return <SelectedText text={item.text} />
             else
-                return <Text text={currentText} />
+                return <Text text={item.text} />
         })
+        //insert ", " separator in between each parameter
+        for(let i=currentItem.parameters.length-1; i > 0; i-=1) {
+          parameters.splice(i, 0, <Text text={currentItem.separator + " "} />)
+        }
 
         let elements = [<Text text={currentItem.prefix} />]
             .concat(parameters)
