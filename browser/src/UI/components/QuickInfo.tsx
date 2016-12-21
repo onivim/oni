@@ -29,7 +29,8 @@ export class QuickInfo extends React.Component<QuickInfoProps, void> {
             position: "absolute",
             bottom: "0px",
             opacity: this.props.visible ? 1 : 0,
-            whiteSpace: this.props.wrap ? "normal" : "nowrap"
+            whiteSpace: this.props.wrap ? "normal" : "nowrap",
+            'max-width': (document.body.offsetWidth - this.props.x - 40) + "px"
         }
 
         return <div key={"quickinfo-container"} className="quickinfo-container" style={containerStyle}>
