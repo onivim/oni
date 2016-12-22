@@ -23,7 +23,7 @@ export class QuickOpen {
     private _seenItems: string[] = []
 
     constructor(neovimInstance: INeovimInstance) {
-        UI.events.on("menu-item-selected", (selectedItem: any) => {
+        UI.events.on("menu-item-selected:quickOpen", (selectedItem: any) => {
             const arg = selectedItem.selectedOption
             const fullPath = path.join(arg.detail, arg.label)
 

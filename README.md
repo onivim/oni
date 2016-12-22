@@ -27,6 +27,7 @@ ONI is a NeoVim front-end UI with rich IDE-like UI integration points, drawing i
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
 > `npm install -g oni-vim`
+
 > `oni`
 
 ## Features
@@ -57,7 +58,7 @@ ONI brings several IDE-like integrations to NeoVim:
 
 - For Windows, a pre-built x86 binary of NeoVim is included.
 
-- For OSX, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim.exe' is available.
+- For OSX and Linux, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available.
 
 ### Install from NPM
 
@@ -102,7 +103,7 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 #### Code Completion
 
-Code completion is a commonly requested add-on to Vim, and the most common solutions are to use a plugin like [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), [deoplete](https://github.com/Shougo/deoplete.nvim), or [AutoComplPop](https://github.com/vim-scripts/AutoComplPop). 
+Code completion is a commonly requested add-on to Vim, and the most common solutions are to use a plugin like [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), [deoplete](https://github.com/Shougo/deoplete.nvim), or [AutoComplPop](https://github.com/vim-scripts/AutoComplPop).
 
 These are all great plugins - but they all have the same fundamental issue that they are bounded by the limitations of the Vim terminal UI, and as such, can never be quite up-to-par with new editors that do not have such limitations. In addition, some require an involved installation process. The goal of code completion in ONI is to be able to break free of these restrictions, and provide the same richness that modern editors like Atom or VSCode provide for completion.
 
@@ -211,6 +212,7 @@ These are:
 - [targets.vim](https://github.com/wellle/targets.vim)
 - [typescript-vim](https://github.com/leafgarland/typescript-vim)
 - [vim-commentary](https://github.com/tpope/vim-commentary)
+- [vim-unimpaired](https://github.com/tpope/vim-unimpaired)
 
 As well as some color-schemes:
 - [vim-monokai](https://github.com/sickill/vim-monokai)
@@ -222,7 +224,9 @@ See [roadmap](ROADMAP.md)
 
 ## License
 
-MIT
+MIT License. Copyright (c) extropygames
+
+The bundled plugins have their own license terms, along with the bundled Neovim binary
 
 ## Contributing
 

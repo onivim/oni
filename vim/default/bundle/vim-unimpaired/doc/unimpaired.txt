@@ -1,0 +1,152 @@
+*unimpaired.txt*  Pairs of handy bracket mappings
+
+Author:  Tim Pope <http://tpo.pe/>
+License: Same terms as Vim itself (see |license|)
+
+This plugin is only available if 'compatible' is not set.
+
+INTRODUCTION                                    *unimpaired*
+
+This plugin provides several pairs of bracket maps.
+
+NEXT AND PREVIOUS                               *unimpaired-next*
+
+The following maps all correspond to normal mode commands.  If a count is
+given, it becomes an argument to the command.  A mnemonic for the "a" commands
+is "args" and for the "q" commands is "quickfix".
+
+*[a*     |:previous|
+*]a*     |:next|
+*[A*     |:first|
+*]A*     |:last|
+*[b*     |:bprevious|
+*]b*     |:bnext|
+*[B*     |:bfirst|
+*]B*     |:blast|
+*[l*     |:lprevious|
+*]l*     |:lnext|
+*[L*     |:lfirst|
+*]L*     |:llast|
+*[<C-L>* |:lpfile|
+*]<C-L>* |:lnfile|
+*[q*     |:cprevious|
+*]q*     |:cnext|
+*[Q*     |:cfirst|
+*]Q*     |:clast|
+*[<C-Q>* |:cpfile| (Note that <C-Q> only works in a terminal if you disable
+*]<C-Q>* |:cnfile| flow control: stty -ixon)
+*[t*     |:tprevious|
+*]t*     |:tnext|
+*[T*     |:tfirst|
+*]T*     |:tlast|
+
+                                                *[f*
+[f                      Go to the file preceding the current one
+                        alphabetically in the current file's directory.
+
+                                                *]f*
+]f                      Go to the file succeeding the current one
+                        alphabetically in the current file's directory.
+
+                                                *[n*
+[n                      Go to the previous SCM conflict marker or diff/patch
+                        hunk.  Try d[n inside a conflict.
+
+                                                *]n*
+]n                      Go to the next SCM conflict marker or diff/patch hunk.
+                        Try d]n inside a conflict.
+
+LINE OPERATIONS                                 *unimpaired-lines*
+
+                                                *[<Space>*
+[<Space>                Add [count] blank lines above the cursor.
+
+                                                *]<Space>*
+]<Space>                Add [count] blank lines below the cursor.
+
+                                                *[e* *v_[e*
+[e                      Exchange the current line with [count] lines above it.
+
+                                                *]e* *v_]e*
+]e                      Exchange the current line with [count] lines below it.
+
+OPTION TOGGLING                                 *unimpaired-toggling*
+
+On	Off	Toggle	Option
+*[ob*	*]ob*	*cob*	'background' (dark is off, light is on)
+*[oc*	*]oc*	*coc*	'cursorline'
+*[od*	*]od*	*cod*	'diff' (actually |:diffthis| / |:diffoff|)
+*[oh*	*]oh*	*coh*	'hlsearch'
+*[oi*	*]oi*	*coi*	'ignorecase'
+*[ol*	*]ol*	*col*	'list'
+*[on*	*]on*	*con*	'number'
+*[or*	*]or*	*cor*	'relativenumber'
+*[os*	*]os*	*cos*	'spell'
+*[ou*	*]ou*	*cou*	'cursorcolumn'
+*[ov*	*]ov*	*cov*	'virtualedit'
+*[ow*	*]ow*	*cow*	'wrap'
+*[ox*	*]ox*	*cox*	'cursorline' 'cursorcolumn' (x as in crosshairs)
+
+PASTING                                         *unimpaired-pasting*
+
+These are experimental:
+
+*>p*    Paste after linewise, increasing indent.
+*>P*    Paste before linewise, increasing indent.
+*<p*    Paste after linewise, decreasing indent.
+*<P*    Paste before linewise, decreasing indent.
+*=p*    Paste after linewise, reindenting.
+*=P*    Paste before linewise, reindenting.
+
+|]p| and |[p| have also been remapped to force linewise pasting, while
+preserving their usual indent matching behavior.
+
+                                                *yo* *yO*
+A toggle has not been provided for 'paste' because the typical use case of
+wrapping of a solitary insertion is so wasteful:  You toggle twice, but
+you only paste once (YOPO).  Instead, press yo or yO to invoke |o| or |O| with
+'paste' already set.  Leaving insert mode sets 'nopaste' automatically.
+
+ENCODING AND DECODING                           *unimpaired-encoding*
+
+Each of these operations has a map that takes a motion, a map that
+targets [count] lines, and a visual mode map.  The linewise variant integrates
+with repeat.vim.
+
+Mnemonic: encoding always comes before decoding; "[" always comes before "]".
+
+                                                *[x* *[xx* *v_[x*
+[x{motion}              XML encode.
+[xx                     <foo bar="baz"> => &lt;foo bar=&quot;baz&quot;&gt;
+{Visual}[x
+
+                                                *]x* *]xx* *v_]x*
+]x{motion}              XML decode.  HTML entities are handled as well.
+]xx
+{Visual}]x
+
+                                                *[u* *[uu* *v_[u*
+[u{motion}              URL encode.
+[uu                     foo bar => foo%20bar
+{Visual}[u
+
+                                                *]u* *]uu* *v_]u*
+]u{motion}              URL decode.
+]uu
+{Visual}]u
+
+                                                *[y* *[yy* *v_[y*
+[y{motion}              C String encode.  Backslash escape control
+[yy                     characters, quotation marks, and backslashes.
+{Visual}[y
+
+                                                *]y* *]yy* *v_]y*
+]y{motion}              C String decode.
+]yy
+{Visual}]y
+
+TODO                                            *unimpaired-todo*
+
+Avoid munging null characters when encoding and decoding.
+
+ vim:tw=78:et:ft=help:norl:

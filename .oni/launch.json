@@ -1,0 +1,9 @@
+{
+    "type": "execute",
+    "name": "Oni - Test",
+    "program": "oni",
+    "args": [],
+    "dependentCommands": [
+        "npm run build"
+    ]
+}

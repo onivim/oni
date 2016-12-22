@@ -91,10 +91,15 @@ export function previousPopupMenuItem(): void {
 }
 
 export function selectPopupMenuItem(openInSplit: boolean): void {
-    const selectedIndex = (store.getState().popupMenu as any).selectedIndex // FIXME: null
-    const selectedOption = (store.getState().popupMenu as any).filteredOptions[selectedIndex] // FIXME: null
+    const state = store.getState() as State.IState
 
-    events.emit("menu-item-selected", {
+    if (!state || !state.popupMenu)
+        return
+
+    const selectedIndex = state.popupMenu.selectedIndex // FIXME: null
+    const selectedOption = state.popupMenu.filteredOptions[selectedIndex] // FIXME: null
+
+    events.emit("menu-item-selected:" + state.popupMenu.id, {
         selectedOption: selectedOption,
         openInSplit: openInSplit
     })

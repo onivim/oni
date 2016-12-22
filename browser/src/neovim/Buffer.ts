@@ -6,7 +6,7 @@ export interface IBuffer {
     setLines(start: number, end: number, useStrictIndexing: boolean, lines: string[]): void
     getLineCount(): Q.Promise<number>
     setOption(optionName: string, optionValue: any): void
-    appendLines(lines: string[]): void
+    appendLines(lines: string[]): Q.Promise<void>
     clearHighlight(highlightId: number, startLine: number, endLine: number): Q.Promise<void>
     addHighlight(highlightId: number, highlightType: string, line: number, startColumn: number, endColumn: number): Q.Promise<void>
 
@@ -52,10 +52,10 @@ export class Buffer implements IBuffer {
             }))
     }
 
-    public appendLines(lines: string[]): Q.Promise<{}> {
+    public appendLines(lines: string[]): Q.Promise<void> {
         return this.getLineCount()
             .then((lineCount) => {
-                return Q.ninvoke(this._bufferInstance, "setLines", lineCount, lineCount, true, lines)
+                return Q.ninvoke<void>(this._bufferInstance, "setLines", lineCount, lineCount, true, lines)
             })
     }
 }

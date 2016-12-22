@@ -192,6 +192,9 @@ export class NeovimScreen implements IScreen {
             case Actions.CLEAR:
                 this._grid.clear()
                 this._notifyAllCellsModified()
+
+                this._cursorColumn = 0
+                this._cursorRow = 0
                 break
             case Actions.RESIZE:
                 this._width = action.columns
@@ -238,8 +241,8 @@ export class NeovimScreen implements IScreen {
 
                 this._grid.setRegionFromGrid(regionToScroll, left, top)
 
-                for (let y = top; y < bottom; y++) {
-                    for (let x = left; x < right; x++) {
+                for (let y = top; y <= bottom; y++) {
+                    for (let x = left; x <= right; x++) {
                         this._deltaTracker.notifyCellModified(x, y)
                     }
                 }

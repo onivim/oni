@@ -7,7 +7,8 @@ export class Keyboard extends EventEmitter {
         document.addEventListener("keydown", (evt) => {
             console.log("Keydown: " + evt) // tslint:disable-line no-console
 
-            const mappedKey = this._convertKeyEventToVimKey(evt)
+            const vimKey = this._convertKeyEventToVimKey(evt)
+            const mappedKey = this._wrapWithBracketsAndModifiers(vimKey, evt)
 
             if (mappedKey) {
                 this.emit("keydown", mappedKey)
@@ -24,40 +25,66 @@ export class Keyboard extends EventEmitter {
         })
     }
 
+    private _wrapWithBracketsAndModifiers(vimKey: null | string, evt: KeyboardEvent): null | string {
+        if (vimKey === null) {
+            return null
+        }
+
+        let mappedKey = vimKey
+
+        if (mappedKey === "<") {
+            mappedKey = "lt"
+        }
+
+        if (evt.ctrlKey) {
+            mappedKey = "C-" + vimKey + ""
+        }
+
+        if (evt.altKey) {
+            mappedKey = "A-" + mappedKey
+        }
+
+        if (mappedKey.length > 1) {
+            mappedKey = "<" + mappedKey + ">"
+        }
+
+        return mappedKey
+    }
+
     private _convertKeyEventToVimKey(evt: KeyboardEvent): null | string {
         switch (evt.keyCode) {
             case 8: // Backspace
-                return "<bs>"
+                return "bs"
             case 9: // Tab
-                return "<tab>"
+                return "tab"
             case 13: // Enter
-                return "<enter>"
+                return "enter"
             case 27: // Escape
-                return "<esc>"
+                return "esc"
             case 33: // Page up
-                return "<pageup>"
+                return "pageup"
             case 34: // Page down
-                return "<pagedown>"
+                return "pagedown"
             case 35:
-                return "<end>"
+                return "end"
             case 36:
-                return "<home>"
+                return "home"
             case 37: // ArrowLeft
-                return "<left>"
+                return "left"
             case 38: // ArrowUp
-                return "<up>"
+                return "up"
             case 39: // ArrowRight
-                return "<right>"
+                return "right"
             case 40: // ArrowDown
-                return "<down>"
+                return "down"
             case 45:
-                return "<insert>"
+                return "insert"
             case 114:
-                return "<f3>"
+                return "f3"
             case 116:
-                return "<f5>"
+                return "f5"
             case 123:
-                return "<f12>"
+                return "f12"
             case 16: // Shift left
             case 17: // Ctrl left
             case 18: // Alt left
@@ -68,14 +95,7 @@ export class Keyboard extends EventEmitter {
             case 175: // Volume down
                 return null
             default:
-                let key = evt.key
-                if (key === "<") {
-                    key = "<lt>"
-                }
-                if (evt.ctrlKey) {
-                    key = "<C-" + key + ">"
-                }
-                return key
+                return evt.key
         }
     }
 }
