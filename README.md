@@ -164,7 +164,9 @@ A few interesting configuration options to set:
 - `prototype.editor.backgroundImageUrl` - specific a custom background image
 - `prototype.editor.backgroundImageSize` - specific a custom background size (cover, contain)
 
-See the `Config.ts` file for other interesting values to set
+See the `Config.ts` file for other interesting values to set.
+
+In VimL, the `g:gui_oni` variable will be set to `1`, and can be validated with `if exists("g:gui_oni")` in VimL.
 
 ### Extensibility
 
