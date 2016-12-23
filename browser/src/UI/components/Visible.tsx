@@ -1,10 +1,10 @@
 import * as React from "react"
 
-export interface VisibleProps {
+export interface IVisibleProps {
     visible: boolean
 }
 
-export class Visible extends React.Component<VisibleProps, void> {
+export class Visible extends React.Component<IVisibleProps, void> {
 
     public render(): null | JSX.Element {
         if (this.props.visible) {
