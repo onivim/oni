@@ -2,8 +2,6 @@ import { remote } from "electron"
 import * as fs from "fs"
 import * as path from "path"
 
-const BrowserWindow = remote.BrowserWindow
-
 export interface IPluginMetadata {
     debugging: boolean
 }
@@ -37,9 +35,9 @@ export interface IEventContext {
 export class Plugin {
     private _packageMetadata: any
     private _oniPluginMetadata: IPluginMetadata
-    private _browserWindow: Electron.BrowserWindow
-    private _browserWindowId: number
-    private _webContents: any
+    private _webviewElement: Electron.WebViewElement
+    private _webviewId: number
+    private _webContents: Electron.WebContents
     private _lastEventContext: IEventContext
 
     constructor(pluginRootDirectory: string, debugMode?: boolean) {
@@ -56,9 +54,10 @@ export class Plugin {
             } else {
                 if (this._packageMetadata.main) {
                     const moduleEntryPoint = path.join(pluginRootDirectory, this._packageMetadata.main)
-                    this._browserWindow = loadPluginInBrowser(moduleEntryPoint, null)
-                    this._browserWindowId = this._browserWindow.id
-                    this._webContents = this._browserWindow.webContents
+                    const { webviewTag, webContents } = loadPluginInBrowser(moduleEntryPoint, null)
+                    this._webviewElement = webviewTag
+                    this._webContents = webContents
+                    this._webviewId = this._webContents.id
                 }
 
                 const pluginMetadata = this._packageMetadata.oni || {}
@@ -68,21 +67,15 @@ export class Plugin {
                 this._oniPluginMetadata = Object.assign({}, DefaultMetadata, pluginMetadata)
 
                 if (this._oniPluginMetadata.debugging || debugMode) {
-                    (<any> this._browserWindow).openDevTools()
-                    this._browserWindow.show()
+                    this._webviewElement.openDevTools()
                 }
             }
         }
     }
 
-    public get browserWindow(): null | Electron.BrowserWindow {
-        return this._browserWindow
-    }
-
     public dispose(): void {
-        if (this._browserWindow) {
-            this._browserWindow.close()
-            delete this._browserWindow
+        if (this._webviewElement) {
+            this._webviewElement.remove()
         }
     }
 
@@ -229,32 +222,31 @@ export class Plugin {
     }
 
     private _send(message: any): void {
-        if (!this.browserWindow) {
+        if (!this._webContents) {
             return
         }
-
-        // const messageToSend = Object.assign({}, message, {
-        //     meta: {
-        //         senderId: BrowserId,
-        //         destinationId: this._browserWindowId
-        //     }
-        // })
 
         this._webContents.send("cross-browser-ipc", message)
     }
 }
 
 const loadPluginInBrowser = (pathToModule: string, _apiObject: any) => {
-    const browserWindow = new BrowserWindow({ width: 10, height: 10, show: false, webPreferences: { webSecurity: false } })
+    const webviewTag = document.createElement("webview")
+    webviewTag.nodeintegration = "on"
+    webviewTag.disablewebsecurity = "on"
 
-    browserWindow.webContents.on("did-finish-load", () => {
-        browserWindow.webContents.send("init", {
+    const webContents = webviewTag.getWebContents()
+
+    webContents.on("did-finish-load", () => {
+        webContents.send("init", {
             pathToModule,
             sourceId: BrowserId,
         })
     })
 
+    document.body.appendChild(webviewTag)
+
     const url = "file://" + path.join(__dirname, "browser", "src", "Plugins", "plugin_host.html")
-    browserWindow.loadURL(url)
-    return browserWindow
+    webviewTag.loadURL(url)
+    return { webviewTag, webContents }
 }
