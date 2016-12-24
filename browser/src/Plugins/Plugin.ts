@@ -2,6 +2,8 @@ import { remote } from "electron"
 import * as fs from "fs"
 import * as path from "path"
 
+import * as Q from "q"
+
 export interface IPluginMetadata {
     debugging: boolean
 }
@@ -10,7 +12,7 @@ const DefaultMetadata: IPluginMetadata = {
     debugging: false,
 }
 
-const BrowserId = remote.getCurrentWindow().id
+const WebContentsId = remote.getCurrentWindow().webContents.id
 
 // Subscription Events
 export const VimEventsSubscription = "vim-events"
@@ -32,6 +34,11 @@ export interface IEventContext {
     filetype: string
 }
 
+export interface IWebViewInfo {
+    webViewElement: Electron.WebViewElement
+    webContents: Electron.WebContents
+}
+
 export class Plugin {
     private _packageMetadata: any
     private _oniPluginMetadata: IPluginMetadata
@@ -39,6 +46,8 @@ export class Plugin {
     private _webviewId: number
     private _webContents: Electron.WebContents
     private _lastEventContext: IEventContext
+
+    private _initPromise: Q.Promise<IWebViewInfo>
 
     constructor(pluginRootDirectory: string, debugMode?: boolean) {
         const packageJsonPath = path.join(pluginRootDirectory, "package.json")
@@ -54,10 +63,17 @@ export class Plugin {
             } else {
                 if (this._packageMetadata.main) {
                     const moduleEntryPoint = path.join(pluginRootDirectory, this._packageMetadata.main)
-                    const { webviewTag, webContents } = loadPluginInBrowser(moduleEntryPoint, null)
-                    this._webviewElement = webviewTag
-                    this._webContents = webContents
-                    this._webviewId = this._webContents.id
+                    this._initPromise = loadPluginInBrowser(moduleEntryPoint, null)
+
+                    this._initPromise.then((info) => {
+                        this._webviewElement = info.webViewElement
+                        this._webContents = info.webContents
+                        this._webviewId = this._webContents.id
+
+                        if (this._oniPluginMetadata.debugging || debugMode) {
+                            this._webviewElement.openDevTools()
+                        }
+                    })
                 }
 
                 const pluginMetadata = this._packageMetadata.oni || {}
@@ -65,10 +81,6 @@ export class Plugin {
                 this._expandMultipleLanguageKeys(pluginMetadata)
 
                 this._oniPluginMetadata = Object.assign({}, DefaultMetadata, pluginMetadata)
-
-                if (this._oniPluginMetadata.debugging || debugMode) {
-                    this._webviewElement.openDevTools()
-                }
             }
         }
     }
@@ -222,31 +234,42 @@ export class Plugin {
     }
 
     private _send(message: any): void {
-        if (!this._webContents) {
+        if (!this._initPromise) {
             return
         }
 
-        this._webContents.send("cross-browser-ipc", message)
+        this._initPromise.then((info) => {
+            info.webContents.send("cross-browser-ipc", message)
+        })
     }
 }
 
 const loadPluginInBrowser = (pathToModule: string, _apiObject: any) => {
-    const webviewTag = document.createElement("webview")
-    webviewTag.nodeintegration = "on"
-    webviewTag.disablewebsecurity = "on"
+    const webViewElement = document.createElement("webview")
+    webViewElement.nodeintegration = "on"
+    webViewElement.disablewebsecurity = "on"
 
-    const webContents = webviewTag.getWebContents()
+    const url = "file://" + path.join(__dirname, "browser", "src", "Plugins", "plugin_host.html")
+    webViewElement.src = url
+    const deferred = Q.defer<IWebViewInfo>()
 
-    webContents.on("did-finish-load", () => {
-        webContents.send("init", {
-            pathToModule,
-            sourceId: BrowserId,
+    document.body.appendChild(webViewElement)
+
+    webViewElement.addEventListener("dom-ready", () => {
+        const webContents = webViewElement.getWebContents()
+
+        webContents.on("did-finish-load", () => {
+            webContents.send("init", {
+                pathToModule,
+                sourceId: WebContentsId,
+            })
+        })
+
+        deferred.resolve({
+            webViewElement,
+            webContents
         })
     })
 
-    document.body.appendChild(webviewTag)
-
-    const url = "file://" + path.join(__dirname, "browser", "src", "Plugins", "plugin_host.html")
-    webviewTag.loadURL(url)
-    return { webviewTag, webContents }
+    return deferred.promise
 }

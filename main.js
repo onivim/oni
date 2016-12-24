@@ -9,13 +9,14 @@ const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).leng
 
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
+const WebContents = electron.WebContents
 
 ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
-    const destinationWindow = BrowserWindow.fromId(destinationId)
+    const destinationWindow = WebContents.fromId(destinationId)
 
     log(`sending message to destinationId: ${destinationId}`)
-    destinationWindow.webContents.send("cross-browser-ipc", arg)
+    webContents.send("cross-browser-ipc", arg)
 })
 
 ipcMain.on("focus-next-instance", () => {
