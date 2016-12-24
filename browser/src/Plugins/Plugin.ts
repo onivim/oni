@@ -258,11 +258,9 @@ const loadPluginInBrowser = (pathToModule: string, _apiObject: any) => {
     webViewElement.addEventListener("dom-ready", () => {
         const webContents = webViewElement.getWebContents()
 
-        webContents.on("did-finish-load", () => {
-            webContents.send("init", {
-                pathToModule,
-                sourceId: WebContentsId,
-            })
+        webContents.send("init", {
+            pathToModule,
+            sourceId: WebContentsId,
         })
 
         deferred.resolve({
