@@ -265,7 +265,7 @@ const loadPluginInBrowser = (pathToModule: string, _apiObject: any) => {
 
         deferred.resolve({
             webViewElement,
-            webContents
+            webContents,
         })
     })
 
