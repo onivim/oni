@@ -8,8 +8,12 @@ import { WindowContext } from "./../Overlay/WindowContext"
 
 require("./Error.less")
 
+export interface ErrorWithColor extends Oni.Plugin.Diagnostics.Error {
+    color: string
+}
+
 export interface ErrorsProps {
-    errors: Oni.Plugin.Diagnostics.Error[]
+    errors: ErrorWithColor[]
     windowContext: WindowContext
 }
 
@@ -85,7 +89,7 @@ export class ErrorMarker extends React.Component<ErrorMarkerProps, void> {
 
         return <div style={positionDivStyles} className={className}>
             {errorDescription}
-            <div className="icon-container">
+            <div className="icon-container" style={{color: "red"}}>
                 <Icon name="exclamation-circle" />
             </div>
         </div>
@@ -108,7 +112,8 @@ export class ErrorSquiggle extends React.Component<ErrorSquiggleProps, void> {
             top: y.toString() + "px",
             left: x.toString() + "px",
             height: height.toString() + "px",
-            width: width.toString() + "px"
+            width: width.toString() + "px",
+            borderBottom: "1px dashed red"
         }
 
         return <div className="error-squiggle" style={style}></div>
