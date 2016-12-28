@@ -29,6 +29,7 @@ export class RenderCache {
             canvas.height = fontHeight
             canvasContext.setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0)
 
+            // TODO: This doesn't seem to work as expected - should bring in alternate measureFont strategy
             const width = canvasContext.measureText(character).width
             canvas.width = width
             canvas.height = fontHeight
