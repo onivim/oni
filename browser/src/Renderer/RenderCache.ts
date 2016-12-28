@@ -18,18 +18,25 @@ export class RenderCache {
     public drawText(character: string, backgroundColor: string, color: string, x: number, y: number, fontFamily: string, fontSize: string, fontWidth: number, fontHeight: number): void {
 
         const keyString = character + "_" + backgroundColor + "_" + color + "_" + fontFamily + "_" + fontSize
+        console.log(fontWidth) // TODO: Remove
 
         if (!this._renderCache[keyString]) {
             const canvas = document.createElement("canvas")
+            const canvasContext = <CanvasRenderingContext2D> canvas.getContext("2d") // FIXME: null
+            canvasContext.font = `normal normal lighter ${fontSize} ${fontFamily},${FallbackFonts}`
+
             canvas.width = fontWidth
             canvas.height = fontHeight
-            const canvasContext = <any> canvas.getContext("2d") // FIXME: null
             canvasContext.setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0)
 
-            canvasContext.font = `normal normal lighter ${fontSize} ${fontFamily},${FallbackFonts}`
+            const width = canvasContext.measureText(character).width
+            canvas.width = width
+            canvas.height = fontHeight
+            canvasContext.setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0)
+
             canvasContext.textBaseline = "top"
             canvasContext.fillStyle = backgroundColor
-            canvasContext.fillRect(0, 0, fontWidth, fontHeight)
+            canvasContext.fillRect(0, 0, width, fontHeight)
 
             canvasContext.fillStyle = color
             canvasContext.fillText(character, 0, 0)
