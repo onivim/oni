@@ -38,6 +38,13 @@ export interface IScreen {
 
 export interface ICell {
     character: string
+
+    /**
+     * Specify the width of the character. Some Unicode characters will take up multiple
+     * cells, like `한`, which needs to be accounted for in rendering.
+     */
+    characterWidth: number
+
     foregroundColor?: string
     backgroundColor?: string
 }
@@ -135,6 +142,7 @@ export class NeovimScreen implements IScreen {
     public getCell(x: number, y: number): ICell {
         const defaultCell = {
             character: "",
+            characterWidth: 1,
         }
 
         const cell = this._grid.getCell(x, y)
@@ -169,13 +177,16 @@ export class NeovimScreen implements IScreen {
                 for (let i = 0; i < characters.length; i++) {
                     const character = characters[i]
 
+                    const characterWidth = wcwidth(character)
+
                     this._setCell(col + i, row, {
                         foregroundColor,
                         backgroundColor,
-                        character: character
+                        character,
+                        characterWidth,
                     })
 
-                    i += wcwidth(character) - 1
+                    i += characterWidth - 1
                 }
 
                 this._cursorColumn += characters.length
@@ -191,6 +202,7 @@ export class NeovimScreen implements IScreen {
                         foregroundColor,
                         backgroundColor,
                         character: "",
+                        characterWidth: 1,
                     })
                 }
                 break
