@@ -142,7 +142,7 @@ By default, Fuzzy Finder uses `git ls-files` to get the available files in the d
 
 The Fuzzy Finder strategy can be configured by the `editor.quickOpen.execCommand`, and must be a shell command that returns a list of files, separated by newlines.
 
-#### QuickInfo
+#### Quick Info
 
 QuickInfo gives a quick summary of an identifier when the cursor is held on it. JavaScript and TypeScript is supported out of the box.
 
