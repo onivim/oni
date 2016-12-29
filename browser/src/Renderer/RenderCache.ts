@@ -21,7 +21,7 @@ export class RenderCache {
 
         if (!this._renderCache[keyString]) {
             const canvas = document.createElement("canvas")
-            canvas.width =  fontWidth
+            canvas.width = fontWidth
             canvas.height = fontHeight
             const canvasContext = <any> canvas.getContext("2d") // FIXME: null
             canvasContext.setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0)
