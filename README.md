@@ -141,6 +141,20 @@ By default, Fuzzy Finder uses `git ls-files` to get the available files in the d
 
 The Fuzzy Finder strategy can be configured by the `editor.quickOpen.execCommand`, and must be a shell command that returns a list of files, separated by newlines.
 
+#### QuickInfo
+
+QuickInfo gives a quick summary of an identifier when the cursor is held on it. JavaScript and TypeScript is supported out of the box.
+
+##### Entry point
+
+Leave the cursor hovering over an identifier.
+
+##### Options
+
+- `oni.quickInfo.enabled` - If set to `true`, the QuickInfo feature is enabled. (Default: `true`)
+- `oni.quickInfo.delay` - Delay in milliseconds for the QuickInfo window to show. (Default: `500`)
+
+
 ### Configuration
 
 > ONI is configurable via a 'config.json' located in $HOME/.oni
