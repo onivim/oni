@@ -61,7 +61,7 @@ export class IncrementalDeltaRegionTracker implements IDeltaRegionTracker {
         this._cells.push({
             x,
             y,
-            force
+            force,
         })
 
         this._dirtyGrid.setCell(x, y, true)

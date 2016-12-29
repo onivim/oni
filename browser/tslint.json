@@ -20,6 +20,14 @@
       "allow-pascal-case",
       "ban-keywords",
       "check-format"
+    ],
+    "whitespace": [
+        true,
+        "check-branch",
+        "check-decl",
+        "check-operator",
+        "check-separator",
+        "check-type"
     ]
   }
 }

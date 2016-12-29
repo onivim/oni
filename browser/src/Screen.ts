@@ -4,7 +4,7 @@ import { Grid } from "./Grid"
 
 export type Mode = "insert" | "normal"
 
-const wcwidth = require("wcwidth")
+const wcwidth = require("wcwidth") // tslint:disable-line no-var-requires
 
 export interface IHighlight {
     bold?: boolean
