@@ -295,12 +295,15 @@ export class NeovimScreen implements IScreen {
             }
         }
 
-        const characterWidth = currentCell ? currentCell.characterWidth : 1
+        // TODO: Look at delta of old character and new character, instead of just new character
+        const currentCharacterWidth = currentCell ? currentCell.characterWidth : 1
+        const newCharacterWidth = cell.characterWidth
 
-        for(let offsetX = 1; offsetX < characterWidth; offsetX++) {
-            this._deltaTracker.notifyCellModified(x + offsetX, y)
+        if (newCharacterWidth < currentCharacterWidth) {
+            for (let offsetX = 1; offsetX < currentCharacterWidth; offsetX++) {
+                this._deltaTracker.notifyCellModified(x + offsetX, y)
+            }
         }
-
 
         this._deltaTracker.notifyCellModified(x, y)
         this._grid.setCell(x, y, cell)
