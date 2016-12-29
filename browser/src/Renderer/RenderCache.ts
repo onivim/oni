@@ -1,5 +1,7 @@
 import { FallbackFonts } from "./../Font"
 
+const wcwidth = require("wcwidth")
+
 /**
  * RenderCache caches rendered letter of a specific configuration.
  *
@@ -18,23 +20,16 @@ export class RenderCache {
     public drawText(character: string, backgroundColor: string, color: string, x: number, y: number, fontFamily: string, fontSize: string, fontWidth: number, fontHeight: number): void {
 
         const keyString = character + "_" + backgroundColor + "_" + color + "_" + fontFamily + "_" + fontSize
-        console.log(fontWidth) // TODO: Remove
 
         if (!this._renderCache[keyString]) {
             const canvas = document.createElement("canvas")
-            const canvasContext = <CanvasRenderingContext2D> canvas.getContext("2d") // FIXME: null
-            canvasContext.font = `normal normal lighter ${fontSize} ${fontFamily},${FallbackFonts}`
-
-            canvas.width = fontWidth
-            canvas.height = fontHeight
-            canvasContext.setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0)
-
-            // TODO: This doesn't seem to work as expected - should bring in alternate measureFont strategy
-            const width = canvasContext.measureText(character).width
+            const width = fontWidth * wcwidth(character)
             canvas.width = width
             canvas.height = fontHeight
+            const canvasContext = <any> canvas.getContext("2d") // FIXME: null
             canvasContext.setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0)
 
+            canvasContext.font = `normal normal lighter ${fontSize} ${fontFamily},${FallbackFonts}`
             canvasContext.textBaseline = "top"
             canvasContext.fillStyle = backgroundColor
             canvasContext.fillRect(0, 0, width, fontHeight)
