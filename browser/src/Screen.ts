@@ -296,12 +296,16 @@ export class NeovimScreen implements IScreen {
         }
 
         // TODO: Look at delta of old character and new character, instead of just new character
+        // In the case where the new character is smaller (in character width) than the old character,
+        // we need to dirty the additional cells so that the delta tracker knows it should clear
+        // the item
         const currentCharacterWidth = currentCell ? currentCell.characterWidth : 1
         const newCharacterWidth = cell.characterWidth
 
         if (newCharacterWidth < currentCharacterWidth) {
             for (let offsetX = 1; offsetX < currentCharacterWidth; offsetX++) {
-                this._deltaTracker.notifyCellModified(x + offsetX, y)
+                // Add 'force' option that is passed to renderer
+                this._deltaTracker.notifyCellModified(x + offsetX, y, true)
             }
         }
 
