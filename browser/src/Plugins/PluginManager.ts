@@ -171,7 +171,7 @@ export class PluginManager extends EventEmitter {
                     if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
                         return
                     }
-                    UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation) 
+                    UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation)
                 }, Config.getValue<number>("editor.quickInfo.delay"))
             } else {
                 setTimeout(() => UI.hideQuickInfo())
