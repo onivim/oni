@@ -295,7 +295,6 @@ export class NeovimScreen implements IScreen {
             }
         }
 
-        // TODO: Look at delta of old character and new character, instead of just new character
         // In the case where the new character is smaller (in character width) than the old character,
         // we need to dirty the additional cells so that the delta tracker knows it should clear
         // the item
