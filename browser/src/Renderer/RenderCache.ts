@@ -1,7 +1,5 @@
 import { FallbackFonts } from "./../Font"
 
-const wcwidth = require("wcwidth")
-
 /**
  * RenderCache caches rendered letter of a specific configuration.
  *
@@ -23,8 +21,7 @@ export class RenderCache {
 
         if (!this._renderCache[keyString]) {
             const canvas = document.createElement("canvas")
-            const width = fontWidth * wcwidth(character)
-            canvas.width = width
+            canvas.width =  fontWidth
             canvas.height = fontHeight
             const canvasContext = <any> canvas.getContext("2d") // FIXME: null
             canvasContext.setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0)
@@ -32,7 +29,7 @@ export class RenderCache {
             canvasContext.font = `normal normal lighter ${fontSize} ${fontFamily},${FallbackFonts}`
             canvasContext.textBaseline = "top"
             canvasContext.fillStyle = backgroundColor
-            canvasContext.fillRect(0, 0, width, fontHeight)
+            canvasContext.fillRect(0, 0, fontWidth, fontHeight)
 
             canvasContext.fillStyle = color
             canvasContext.fillText(character, 0, 0)
