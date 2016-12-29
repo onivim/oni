@@ -5,6 +5,7 @@ export interface ISetCursorPositionAction {
         pixelY: number,
         fontPixelWidth: number,
         fontPixelHeight: number,
+        cursorPixelWidth: number,
     }
 }
 
