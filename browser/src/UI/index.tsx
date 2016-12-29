@@ -49,8 +49,14 @@ export function setBackgroundColor(backgroundColor: string): void {
 }
 
 export function setCursorPosition(screen: IScreen): void {
-        const cursorWidth = screen.getCell(screen.cursorColumn, screen.cursorRow).characterWidth
-        _setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cursorWidth * screen.fontWidthInPixels)
+    const cursorWidth = screen.getCell(screen.cursorColumn, screen.cursorRow).characterWidth
+
+    if (screen.cursorRow === screen.height - 1) {
+        hideQuickInfo()
+        hideSignatureHelp()
+    }
+
+    _setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cursorWidth * screen.fontWidthInPixels)
 }
 
 function _setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number, cursorPixelWidth: number): void {
@@ -63,7 +69,7 @@ export function setMode(mode: string): void {
 }
 
 export function setColors(foregroundColor: string): void {
-    if(foregroundColor === store.getState().foregroundColor)
+    if (foregroundColor === store.getState().foregroundColor)
         return
 
     store.dispatch(ActionCreators.setColors(foregroundColor))
