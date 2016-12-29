@@ -52,21 +52,21 @@ export class CanvasRenderer implements INeovimRenderer {
             const cell = screenInfo.getCell(x, y)
 
             if (cell) {
-                const lastRenderedCell = this._lastRenderedCell.getCell(x, y)
+                // const lastRenderedCell = this._lastRenderedCell.getCell(x, y)
 
-                if (lastRenderedCell === cell) {
-                    deltaRegionTracker.notifyCellRendered(x, y)
-                    return
-                }
+                // if (lastRenderedCell === cell) {
+                //     deltaRegionTracker.notifyCellRendered(x, y)
+                //     return
+                // }
 
-                if (lastRenderedCell
-                    && lastRenderedCell.backgroundColor === cell.backgroundColor
-                    && lastRenderedCell.character === cell.character
-                    && lastRenderedCell.foregroundColor === cell.foregroundColor) {
-                    this._lastRenderedCell.setCell(x, y, cell)
-                    deltaRegionTracker.notifyCellRendered(x, y)
-                    return
-                }
+                // if (lastRenderedCell
+                //     && lastRenderedCell.backgroundColor === cell.backgroundColor
+                //     && lastRenderedCell.character === cell.character
+                //     && lastRenderedCell.foregroundColor === cell.foregroundColor) {
+                //     this._lastRenderedCell.setCell(x, y, cell)
+                //     deltaRegionTracker.notifyCellRendered(x, y)
+                //     return
+                // }
 
                 const calculatedWidth = cell.characterWidth
                 this._canvasContext.clearRect(drawX, drawY, fontWidth * calculatedWidth, fontHeight)

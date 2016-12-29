@@ -294,6 +294,14 @@ export class NeovimScreen implements IScreen {
                 return
             }
         }
+
+        const characterWidth = currentCell ? currentCell.characterWidth : 1
+
+        for(let offsetX = 1; offsetX < characterWidth; offsetX++) {
+            this._deltaTracker.notifyCellModified(x + offsetX, y)
+        }
+
+
         this._deltaTracker.notifyCellModified(x, y)
         this._grid.setCell(x, y, cell)
     }
