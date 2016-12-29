@@ -12,6 +12,7 @@
     - [Usage](#usage)
         - [Code Completion](#code-completion)
         - [Fuzzy Finder](#fuzzy-finder)
+        - [Quick Info](#quick-info)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
@@ -34,7 +35,7 @@ This repository is under __active development__, and until 1.0 please consider e
 
 ONI brings several IDE-like integrations to NeoVim:
 
-- **Quick Info**
+- **[Quick Info](#quick-info)**
 
 ![quick-info-demo](http://i.imgur.com/TlIH97w.gif)
 
