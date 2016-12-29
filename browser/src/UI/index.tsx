@@ -16,11 +16,14 @@ import { reducer } from "./Reducer"
 
 import { InstallHelp } from "./components/InstallHelp"
 
+import { IScreen } from "./../Screen"
+
 export const events = new EventEmitter()
 
 let state: State.IState = {
     cursorPixelX: 10,
     cursorPixelY: 10,
+    cursorPixelWidth: 10,
     fontPixelWidth: 10,
     fontPixelHeight: 10,
     mode: "normal",
@@ -45,8 +48,13 @@ export function setBackgroundColor(backgroundColor: string): void {
     backgroundColorElement.style.opacity = Config.getValue<string>("prototype.editor.backgroundOpacity")
 }
 
-export function setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number): void {
-    store.dispatch(ActionCreators.setCursorPosition(cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight))
+export function setCursorPosition(screen: IScreen): void {
+        const cursorWidth = screen.getCell(screen.cursorColumn, screen.cursorRow).characterWidth
+        _setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cursorWidth * screen.fontWidthInPixels)
+}
+
+function _setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number, cursorPixelWidth: number): void {
+    store.dispatch(ActionCreators.setCursorPosition(cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight, cursorPixelWidth))
 }
 
 // TODO: Can we use bindaction creators for this?

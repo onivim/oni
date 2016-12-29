@@ -4,6 +4,8 @@ import { Grid } from "./Grid"
 
 export type Mode = "insert" | "normal"
 
+const wcwidth = require("wcwidth") // tslint:disable-line no-var-requires
+
 export interface IHighlight {
     bold?: boolean
     italic?: boolean
@@ -36,6 +38,13 @@ export interface IScreen {
 
 export interface ICell {
     character: string
+
+    /**
+     * Specify the width of the character. Some Unicode characters will take up multiple
+     * cells, like `한`, which needs to be accounted for in rendering.
+     */
+    characterWidth: number
+
     foregroundColor?: string
     backgroundColor?: string
 }
@@ -133,6 +142,7 @@ export class NeovimScreen implements IScreen {
     public getCell(x: number, y: number): ICell {
         const defaultCell = {
             character: "",
+            characterWidth: 1,
         }
 
         const cell = this._grid.getCell(x, y)
@@ -165,11 +175,18 @@ export class NeovimScreen implements IScreen {
                 const col = this._cursorColumn
 
                 for (let i = 0; i < characters.length; i++) {
+                    const character = characters[i]
+
+                    const characterWidth = wcwidth(character)
+
                     this._setCell(col + i, row, {
                         foregroundColor,
                         backgroundColor,
-                        character: characters[i],
+                        character,
+                        characterWidth,
                     })
+
+                    i += characterWidth - 1
                 }
 
                 this._cursorColumn += characters.length
@@ -185,6 +202,7 @@ export class NeovimScreen implements IScreen {
                         foregroundColor,
                         backgroundColor,
                         character: "",
+                        characterWidth: 1,
                     })
                 }
                 break
@@ -276,6 +294,20 @@ export class NeovimScreen implements IScreen {
                 return
             }
         }
+
+        // In the case where the new character is smaller (in character width) than the old character,
+        // we need to dirty the additional cells so that the delta tracker knows it should clear
+        // the item
+        const currentCharacterWidth = currentCell ? currentCell.characterWidth : 1
+        const newCharacterWidth = cell.characterWidth
+
+        if (newCharacterWidth < currentCharacterWidth) {
+            for (let offsetX = 1; offsetX < currentCharacterWidth; offsetX++) {
+                // Add 'force' option that is passed to renderer
+                this._deltaTracker.notifyCellModified(x + offsetX, y, true)
+            }
+        }
+
         this._deltaTracker.notifyCellModified(x, y)
         this._grid.setCell(x, y, cell)
     }

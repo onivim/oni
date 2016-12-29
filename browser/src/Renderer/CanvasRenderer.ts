@@ -18,7 +18,7 @@ export class CanvasRenderer implements INeovimRenderer {
         // Assert canvas
         this._canvas = element
         this._setContextDimensions()
-        this._canvasContext = <any> this._canvas.getContext("2d") // FIXME: null
+        this._canvasContext = <any>this._canvas.getContext("2d") // FIXME: null
 
         this._renderCache = new RenderCache(this._canvasContext, this._getPixelRatio())
     }
@@ -54,21 +54,24 @@ export class CanvasRenderer implements INeovimRenderer {
             if (cell) {
                 const lastRenderedCell = this._lastRenderedCell.getCell(x, y)
 
-                if (lastRenderedCell === cell) {
-                    deltaRegionTracker.notifyCellRendered(x, y)
-                    return
+                if (!pos.force) {
+                    if (lastRenderedCell === cell) {
+                        deltaRegionTracker.notifyCellRendered(x, y)
+                        return
+                    }
+
+                    if (lastRenderedCell
+                        && lastRenderedCell.backgroundColor === cell.backgroundColor
+                        && lastRenderedCell.character === cell.character
+                        && lastRenderedCell.foregroundColor === cell.foregroundColor) {
+                        this._lastRenderedCell.setCell(x, y, cell)
+                        deltaRegionTracker.notifyCellRendered(x, y)
+                        return
+                    }
                 }
 
-                if (lastRenderedCell
-                    && lastRenderedCell.backgroundColor === cell.backgroundColor
-                    && lastRenderedCell.character === cell.character
-                    && lastRenderedCell.foregroundColor === cell.foregroundColor) {
-                    this._lastRenderedCell.setCell(x, y, cell)
-                    deltaRegionTracker.notifyCellRendered(x, y)
-                    return
-                }
-
-                this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight)
+                const calculatedWidth = cell.characterWidth
+                this._canvasContext.clearRect(drawX, drawY, fontWidth * calculatedWidth, fontHeight)
 
                 const defaultBackgroundColor = "rgba(255, 255, 255, 0)"
                 let backgroundColor = defaultBackgroundColor
@@ -85,9 +88,9 @@ export class CanvasRenderer implements INeovimRenderer {
                         foregroundColor,
                         drawX,
                         drawY,
-                        <any> screenInfo.fontFamily, // FIXME: null
-                        <any> screenInfo.fontSize, // FIXME: null
-                        fontWidth,
+                        <any>screenInfo.fontFamily, // FIXME: null
+                        <any>screenInfo.fontSize, // FIXME: null
+                        fontWidth * cell.characterWidth,
                         fontHeight)
                 } else if (backgroundColor !== defaultBackgroundColor) {
                     this._canvasContext.fillStyle = backgroundColor
