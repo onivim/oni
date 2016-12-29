@@ -6,6 +6,8 @@ import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
 import { RenderCache } from "./RenderCache"
 
+const wcwidth = require("wcwidth")
+
 export class CanvasRenderer implements INeovimRenderer {
     private _canvas: HTMLCanvasElement
     private _canvasContext: CanvasRenderingContext2D
@@ -68,7 +70,8 @@ export class CanvasRenderer implements INeovimRenderer {
                     return
                 }
 
-                this._canvasContext.clearRect(drawX, drawY, fontWidth, fontHeight)
+                const calculatedWidth = Math.max(wcwidth(cell.character), 1)
+                this._canvasContext.clearRect(drawX, drawY, fontWidth * calculatedWidth, fontHeight)
 
                 const defaultBackgroundColor = "rgba(255, 255, 255, 0)"
                 let backgroundColor = defaultBackgroundColor

@@ -4,6 +4,8 @@ import { Grid } from "./Grid"
 
 export type Mode = "insert" | "normal"
 
+const wcwidth = require("wcwidth")
+
 export interface IHighlight {
     bold?: boolean
     italic?: boolean
@@ -165,11 +167,15 @@ export class NeovimScreen implements IScreen {
                 const col = this._cursorColumn
 
                 for (let i = 0; i < characters.length; i++) {
+                    const character = characters[i]
+
                     this._setCell(col + i, row, {
                         foregroundColor,
                         backgroundColor,
-                        character: characters[i],
+                        character: character
                     })
+
+                    i += wcwidth(character) - 1
                 }
 
                 this._cursorColumn += characters.length
