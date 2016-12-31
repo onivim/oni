@@ -15,7 +15,7 @@ import { Visible } from "./Visible"
 /**
  * Popup menu
  */
-require("./Menu.less")
+require("./Menu.less") // tslint:disable-line no-var-requires
 
 export interface IMenuProps {
     visible: boolean

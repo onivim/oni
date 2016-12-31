@@ -1,7 +1,7 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-require("./LiveEvalMarker.less")
+require("./LiveEvalMarker.less") // tslint:disable-line no-var-requires
 
 import { ILiveCodeBlock } from "./../../Services/LiveEvaluation"
 import { WindowContext } from "./../Overlay/WindowContext"

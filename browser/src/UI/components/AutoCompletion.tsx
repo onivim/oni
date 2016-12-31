@@ -16,7 +16,7 @@ export interface IAutoCompletionProps {
     selectedIndex: number
 }
 
-require("./AutoCompletion.less")
+require("./AutoCompletion.less") // tslint:disable-line no-var-requires
 
 export class AutoCompletion extends React.Component<IAutoCompletionProps, void> {
 

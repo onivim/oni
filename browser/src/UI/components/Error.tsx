@@ -6,7 +6,7 @@ import { Icon } from "./../Icon"
 
 import { WindowContext } from "./../Overlay/WindowContext"
 
-require("./Error.less")
+require("./Error.less") // tslint:disable-line no-var-requires
 
 export interface IErrorWithColor extends Oni.Plugin.Diagnostics.Error {
     color: string

@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom"
 
 import * as Measure from "react-measure"
 
-require("./BufferScrollBar.less")
+require("./BufferScrollBar.less") // tslint:disable-line no-var-requires
 
 export interface IBufferScrollBarProps {
     bufferSize: number

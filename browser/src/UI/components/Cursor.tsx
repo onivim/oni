@@ -11,7 +11,7 @@ export interface ICursorProps {
     color: string
 }
 
-require("./Cursor.less")
+require("./Cursor.less") // tslint:disable-line no-var-requires
 
 class CursorRenderer extends React.Component<ICursorProps, void> {
 
