@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 
 import { IState } from "./../State"
 
-require("./QuickInfo.less")
+require("./QuickInfo.less") // tslint:disable-line no-var-requires
 
 export interface IQuickInfoProps {
     visible: boolean
