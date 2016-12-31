@@ -51,7 +51,7 @@ export class OniLaunchTasksProvider implements ITaskProvider {
                     name: p.name,
                     detail: p.program,
                     callback: () => {
-                        const launchCommand = p.program + p.args.join(" ")
+                        const launchCommand = p.program + " " + p.args.join(" ")
                         const commands = p.dependentCommands.concat([launchCommand])
                         this._output.executeCommands(commands)
                     },
