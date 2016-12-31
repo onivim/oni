@@ -9,6 +9,7 @@ import { NeovimInstance } from "./NeovimInstance"
 import { PluginManager } from "./Plugins/PluginManager"
 import { CanvasRenderer } from "./Renderer/CanvasRenderer"
 import { NeovimScreen } from "./Screen"
+import { Errors } from "./Services/Errors"
 import { Formatter } from "./Services/Formatter"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
 import { MultiProcess } from "./Services/MultiProcess"
@@ -46,6 +47,7 @@ const start = (args: string[]) => {
     let pendingTimeout: any = null
 
     // Services
+    const errorService = new Errors(instance)
     const quickOpen = new QuickOpen(instance)
     const multiProcess = new MultiProcess()
     const formatter = new Formatter(instance, pluginManager)
@@ -54,6 +56,7 @@ const start = (args: string[]) => {
     const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
     const tasks = new Tasks(outputWindow)
 
+    services.push(errorService)
     services.push(quickOpen)
     services.push(tasks)
     services.push(formatter)
@@ -80,6 +83,9 @@ const start = (args: string[]) => {
     })
 
     pluginManager.on("set-errors", (key: string, fileName: string, errors: any[], colors?: string) => {
+        errorService.setErrors(fileName, errors)
+        errorService.showErrorsInQuickFix()
+
         errorOverlay.setErrors(key, fileName, errors, colors)
 
         const errorMarkers = errors.map((e: any) => ({

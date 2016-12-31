@@ -14,6 +14,8 @@ import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./Screen"
 
+derp
+
 const attach = require("neovim-client") // tslint:disable-line no-var-requires
 
 export interface INeovimInstance {

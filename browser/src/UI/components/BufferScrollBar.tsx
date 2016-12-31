@@ -5,6 +5,8 @@ import * as Measure from "react-measure"
 
 require("./BufferScrollBar.less")
 
+derp2
+
 export interface BufferScrollBarProps {
     bufferSize: number
     windowTopLine: number
