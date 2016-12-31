@@ -24,6 +24,6 @@ export class QuickFixList implements IQuickFixList {
 
     public setqflist(list: IQuickListEntry[], title: string, action?: Action): Q.Promise<void> {
         action = action || " "
-        return this._neovimInstance.command(`setqflist(${JSON.stringify(list)}, ${title}, {action})`)
+        return this._neovimInstance.command(`call setqflist(${JSON.stringify(list)}, "${title}", "${action}")`)
     }
 }
