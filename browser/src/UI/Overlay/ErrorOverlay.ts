@@ -51,12 +51,11 @@ export class ErrorOverlay implements IOverlay {
         }
 
         const errors = this._errors[this._currentFileName]
+        let allErrors: ErrorWithColor[] = []
 
-        if (!errors) {
-            return
+        if (errors) {
+            allErrors = _.flatten<ErrorWithColor>(_.values<ErrorWithColor>(errors))
         }
-
-        const allErrors = _.flatten<ErrorWithColor>(_.values<ErrorWithColor>(errors))
 
         renderErrorMarkers({
             errors: allErrors,
