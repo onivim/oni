@@ -172,6 +172,7 @@ Here's an example config.json:
 ```
 
 A few interesting configuration options to set:
+- `oni.audio.bellUrl` - Set a custom sound effect for the `bell` (`:help bell`). The value should be an _absolute path_ to a supported audio file, such as a WAV file.
 - `oni.useDefaultConfig` - ONI comes with an opinionated default set of plugins for a predictable out-of-box experience. This will be great for newcomes to ONI or Vim, but for Vim/Neovim veterans, this will likely conflict. Set this to `false` to avoid loading the default config, and to load settings from `init.vim` instead (If this is false, it implies `oni.loadInitVim` is true)
 - `oni.loadInitVim` - This determines whether the user's `init.vim` is loaded. Use caution when setting this to `true` and setting `oni.useDefaultConfig` to true, as there could be conflicts with the default configuration.
 - `editor.fontSize` - Font size
@@ -256,3 +257,5 @@ Big thanks to the NeoVim team - without their work, this project would not be po
 Also, big thanks to our [contributors](https://github.com/extr0py/oni/graphs/contributors) for helping out!
 
 In addition, there are several other great NeoVim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) that served as great reference points and learning opportunities.
+
+Some [assets], such as audio, are included - see [Assets](Assets.md) for attribution.

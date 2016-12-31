@@ -17,6 +17,10 @@ const DefaultConfig: any = {
 
     "prototype.editor.maxCellsToRender": 12000,
 
+    // Bell sound effect to use
+    // See `:help bell` for instances where the bell sound would be used
+    "oni.audio.bellUrl": path.join(__dirname, "audio", "beep.wav"),
+
     // Production settings
 
     // The default config is an opinionated, prescribed set of plugins. This is on by default to provide
