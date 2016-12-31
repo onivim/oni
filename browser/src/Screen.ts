@@ -259,6 +259,8 @@ export class NeovimScreen implements IScreen {
 
                 this._grid.setRegionFromGrid(regionToScroll, left, top)
 
+                // TODO: Only force-render items that have a different character width
+                // And handle that by using a width of '0' for items that are adjacent to high-width items
                 for (let y = top; y <= bottom; y++) {
                     for (let x = left; x <= right; x++) {
                         this._deltaTracker.notifyCellModified(x, y, true)
