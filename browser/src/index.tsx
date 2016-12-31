@@ -80,10 +80,7 @@ const start = (args: string[]) => {
     })
 
     pluginManager.on("set-errors", (key: string, fileName: string, errors: any[], color: string) => {
-        console.log("COLOR: " + color)
-        debugger 
         color = color || "red"
-        console.log("COLOR: " + color)
         errorOverlay.setErrors(key, fileName, errors, color)
 
         const errorMarkers = errors.map((e: any) => ({

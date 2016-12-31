@@ -10,15 +10,24 @@ const tslintExecutable = isWindows ? "tslint.cmd" : "tslint"
 
 const tslintPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", ".bin", tslintExecutable)
 
-Oni.on("buffer-saved", (args) => {
+const doLint = (args) => {
     if (!args.bufferFullPath) {
         return
     }
 
-    console.log("edited: " + args.bufferFullPath)
+    const currentWorkingDirectory = path.dirname(args.bufferFullPath)
+
+    const tslint = findParentDir.sync(currentWorkingDirectory, "tslint.json")
+
+    if (!tslint) {
+        console.warn("No tslint.json found; not running tslint.")
+        return
+    }
 
     const processArgs = ["--force", "--format json"]
-    const currentWorkingDirectory = path.dirname(args.bufferFullPath)
+    processArgs.push("--config", path.join(tslint, "tslint.json"))
+
+    console.log("edited: " + args.bufferFullPath)
 
     const project = findParentDir.sync(currentWorkingDirectory, "tsconfig.json")
 
@@ -26,12 +35,6 @@ Oni.on("buffer-saved", (args) => {
         processArgs.push("--project", path.join(project, "tsconfig.json"))
     } else {
         processArgs.push(arg.bufferFullPath)
-    }
-
-    const tslint = findParentDir.sync(currentWorkingDirectory, "tslint.json")
-
-    if (tslint) {
-        processArgs.push("--config", path.join(tslint, "tslint.json"))
     }
 
     const errorOutput = execSync(tslintPath + " " + processArgs.join(" "), { cwd: currentWorkingDirectory }).toString()
@@ -64,4 +67,7 @@ Oni.on("buffer-saved", (args) => {
     Object.keys(errors).forEach(f => {
         Oni.diagnostics.setErrors("tslint-ts", f, errors[f], "yellow")
     })
-})
+}
+
+Oni.on("buffer-saved", doLint)
+Oni.on("buffer-enter", doLint)
