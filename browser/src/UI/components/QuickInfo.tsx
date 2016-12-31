@@ -117,7 +117,8 @@ const mapStateToSignatureHelpProps = (state: IState) => {
             else
                 return <Text text={item.text} />
         })
-        //insert ", " separator in between each parameter
+        
+        // insert ", " separator in between each parameter
         for(let i=currentItem.parameters.length-1; i > 0; i-=1) {
           parameters.splice(i, 0, <Text text={currentItem.separator + " "} />)
         }
@@ -137,7 +138,7 @@ const mapStateToSignatureHelpProps = (state: IState) => {
             visible: true,
             x: state.cursorPixelX,
             y: state.cursorPixelY - (state.fontPixelHeight),
-            elements: elements
+            elements: elements,
         }
 
     }
