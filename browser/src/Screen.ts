@@ -177,7 +177,7 @@ export class NeovimScreen implements IScreen {
                 for (let i = 0; i < characters.length; i++) {
                     const character = characters[i]
 
-                    const characterWidth = wcwidth(character)
+                    const characterWidth = Math.max(wcwidth(character), 1)
 
                     this._setCell(col + i, row, {
                         foregroundColor,
@@ -185,6 +185,15 @@ export class NeovimScreen implements IScreen {
                         character,
                         characterWidth,
                     })
+
+                    for (let c = 1; c < characterWidth; c++) {
+                        this._setCell(col + i + c, row, {
+                            foregroundColor,
+                            backgroundColor,
+                            character: "",
+                            characterWidth: -1,
+                        })
+                    }
 
                     i += characterWidth - 1
                 }
@@ -263,7 +272,7 @@ export class NeovimScreen implements IScreen {
                 // And handle that by using a width of '0' for items that are adjacent to high-width items
                 for (let y = top; y <= bottom; y++) {
                     for (let x = left; x <= right; x++) {
-                        this._deltaTracker.notifyCellModified(x, y, true)
+                        this._deltaTracker.notifyCellModified(x, y)
                     }
                 }
 
@@ -292,7 +301,8 @@ export class NeovimScreen implements IScreen {
         if (currentCell) {
             if (currentCell.foregroundColor === cell.foregroundColor &&
                 currentCell.backgroundColor === cell.backgroundColor &&
-                currentCell.character === cell.character) {
+                currentCell.character === cell.character &&
+                currentCell.characterWidth === cell.characterWidth) {
                 return
             }
         }
@@ -306,7 +316,17 @@ export class NeovimScreen implements IScreen {
         if (newCharacterWidth < currentCharacterWidth) {
             for (let offsetX = 1; offsetX < currentCharacterWidth; offsetX++) {
                 // Add 'force' option that is passed to renderer
-                this._deltaTracker.notifyCellModified(x + offsetX, y, true)
+
+                const adjacentCell = this.getCell(x + offsetX, y)
+                if (adjacentCell.characterWidth === -1) {
+                    this._grid.setCell(x + offsetX, y, {
+                        foregroundColor: cell.foregroundColor,
+                        backgroundColor: cell.backgroundColor,
+                        character: "",
+                        characterWidth: 1
+                    })
+                    this._deltaTracker.notifyCellModified(x, y)
+                }
             }
         }
 
