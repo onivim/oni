@@ -12,6 +12,7 @@
     - [Usage](#usage)
         - [Code Completion](#code-completion)
         - [Fuzzy Finder](#fuzzy-finder)
+        - [Quick Info](#quick-info)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
@@ -27,13 +28,14 @@ ONI is a NeoVim front-end UI with rich IDE-like UI integration points, drawing i
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
 > `npm install -g oni-vim`
+
 > `oni`
 
 ## Features
 
 ONI brings several IDE-like integrations to NeoVim:
 
-- **Quick Info**
+- **[Quick Info](#quick-info)**
 
 ![quick-info-demo](http://i.imgur.com/TlIH97w.gif)
 
@@ -57,7 +59,7 @@ ONI brings several IDE-like integrations to NeoVim:
 
 - For Windows, a pre-built x86 binary of NeoVim is included.
 
-- For OSX, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim.exe' is available.
+- For OSX and Linux, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available.
 
 ### Install from NPM
 
@@ -102,7 +104,7 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 #### Code Completion
 
-Code completion is a commonly requested add-on to Vim, and the most common solutions are to use a plugin like [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), [deoplete](https://github.com/Shougo/deoplete.nvim), or [AutoComplPop](https://github.com/vim-scripts/AutoComplPop). 
+Code completion is a commonly requested add-on to Vim, and the most common solutions are to use a plugin like [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), [deoplete](https://github.com/Shougo/deoplete.nvim), or [AutoComplPop](https://github.com/vim-scripts/AutoComplPop).
 
 These are all great plugins - but they all have the same fundamental issue that they are bounded by the limitations of the Vim terminal UI, and as such, can never be quite up-to-par with new editors that do not have such limitations. In addition, some require an involved installation process. The goal of code completion in ONI is to be able to break free of these restrictions, and provide the same richness that modern editors like Atom or VSCode provide for completion.
 
@@ -140,6 +142,20 @@ By default, Fuzzy Finder uses `git ls-files` to get the available files in the d
 
 The Fuzzy Finder strategy can be configured by the `editor.quickOpen.execCommand`, and must be a shell command that returns a list of files, separated by newlines.
 
+#### Quick Info
+
+Quick Info gives a quick summary of an identifier when the cursor is held on it. JavaScript and TypeScript is supported out of the box.
+
+##### Entry point
+
+Leave the cursor hovering over an identifier.
+
+##### Options
+
+- `oni.quickInfo.enabled` - If set to `true`, the Quick Info feature is enabled. (Default: `true`)
+- `oni.quickInfo.delay` - Delay in milliseconds for the Quick Info window to show. (Default: `500`)
+
+
 ### Configuration
 
 > ONI is configurable via a 'config.json' located in $HOME/.oni
@@ -163,7 +179,9 @@ A few interesting configuration options to set:
 - `prototype.editor.backgroundImageUrl` - specific a custom background image
 - `prototype.editor.backgroundImageSize` - specific a custom background size (cover, contain)
 
-See the `Config.ts` file for other interesting values to set
+See the `Config.ts` file for other interesting values to set.
+
+In VimL, the `g:gui_oni` variable will be set to `1`, and can be validated with `if exists("g:gui_oni")` in VimL.
 
 ### Extensibility
 

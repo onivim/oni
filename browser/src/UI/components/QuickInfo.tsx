@@ -29,7 +29,8 @@ export class QuickInfo extends React.Component<QuickInfoProps, void> {
             position: "absolute",
             bottom: "0px",
             opacity: this.props.visible ? 1 : 0,
-            whiteSpace: this.props.wrap ? "normal" : "nowrap"
+            whiteSpace: this.props.wrap ? "normal" : "nowrap",
+            'max-width': (document.body.offsetWidth - this.props.x - 40) + "px"
         }
 
         return <div key={"quickinfo-container"} className="quickinfo-container" style={containerStyle}>
@@ -108,21 +109,18 @@ const mapStateToSignatureHelpProps = (state: IState) => {
     } else {
         const currentItem = state.signatureHelp.items[state.signatureHelp.selectedItemIndex];
 
-        const argumentCount = state.signatureHelp.argumentCount
-
         const parameters = currentItem.parameters.map((item, idx) => {
-
-            const sidx = Math.min(idx, currentItem.parameters.length)
-
-            let currentText = item.text
-            if (idx < argumentCount)
-                currentText += currentItem.separator + " "
-
-            if (state.signatureHelp && sidx === state.signatureHelp.argumentIndex)
-                return <SelectedText text={currentText} />
+            //check state.signatureHelp to avoid "Object is possibly 'null'" error
+            //even though we already checked it in the 'if' statement above
+            if (state.signatureHelp && idx === state.signatureHelp.argumentIndex)
+                return <SelectedText text={item.text} />
             else
-                return <Text text={currentText} />
+                return <Text text={item.text} />
         })
+        //insert ", " separator in between each parameter
+        for(let i=currentItem.parameters.length-1; i > 0; i-=1) {
+          parameters.splice(i, 0, <Text text={currentItem.separator + " "} />)
+        }
 
         let elements = [<Text text={currentItem.prefix} />]
             .concat(parameters)
