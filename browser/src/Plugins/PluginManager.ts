@@ -193,7 +193,7 @@ export class PluginManager extends EventEmitter {
         } else if (pluginResponse.type === "completion-provider-item-selected") {
             setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details))
         } else if (pluginResponse.type === "set-errors") {
-            this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors)
+            this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
         } else if (pluginResponse.type === "format") {
             this.emit("format", pluginResponse.payload)
         } else if (pluginResponse.type === "execute-shell-command") {

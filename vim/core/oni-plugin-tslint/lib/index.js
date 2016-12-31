@@ -2,26 +2,66 @@ const path = require("path")
 const os = require("os")
 const execSync = require("child_process").execSync
 
+const findParentDir = require("find-parent-dir")
+
 const isWindows = os.platform() === "win32"
 
 const tslintExecutable = isWindows ? "tslint.cmd" : "tslint"
 
 const tslintPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", ".bin", tslintExecutable)
 
-// TODO: Switch to save event
-Oni.on("buffer-update", (args) => {
-    if (!args.eventContext.bufferFullPath) {
+Oni.on("buffer-saved", (args) => {
+    if (!args.bufferFullPath) {
         return
     }
 
-    console.log("edited: " + args.eventContext.bufferFullPath)
+    console.log("edited: " + args.bufferFullPath)
 
-    const args = ["--force", "--format json"]
+    const processArgs = ["--force", "--format json"]
+    const currentWorkingDirectory = path.dirname(args.bufferFullPath)
 
-    // TODO: If tsconfig.json is present, use that
-    // TODO: If tslint.json is present, use that
+    const project = findParentDir.sync(currentWorkingDirectory, "tsconfig.json")
 
-    const derp = execSync(tslintPath + " --force --format json " + args.eventContext.bufferFullPath, { cwd: path.dirname(args.eventContext.bufferFullPath) }).toString()
+    if (project) {
+        processArgs.push("--project", path.join(project, "tsconfig.json"))
+    } else {
+        processArgs.push(arg.bufferFullPath)
+    }
 
-    Oni.diagnostics.setErrors("tslint", args.eventContext.bufferFullPath, [{ type: null, text: "derp", lineNumber: 1, startColumn: 0, endColumn: 1}], "yellow")
+    const tslint = findParentDir.sync(currentWorkingDirectory, "tslint.json")
+
+    if (tslint) {
+        processArgs.push("--config", path.join(tslint, "tslint.json"))
+    }
+
+    const errorOutput = execSync(tslintPath + " " + processArgs.join(" "), { cwd: currentWorkingDirectory }).toString()
+
+    const lintErrors = JSON.parse(errorOutput)
+
+    const errorsWithFileName = lintErrors.map(e => ({
+        type: null,
+        file: e.name,
+        text: e.failure,
+        lineNumber: e.startPosition.line,
+        startColumn: e.startPosition.character,
+        endColumn: e.endPosition.character,
+    }))
+
+    const errors = errorsWithFileName.reduce((prev, curr) => {
+        prev[curr.file] = prev[curr.file] || []
+
+        prev[curr.file].push({
+            type: curr.type,
+            text: curr.text,
+            lineNumber: curr.lineNumber + 1,
+            startColumn: curr.startColumn + 1,
+            endColumn: curr.endColumn
+        })
+
+        return prev
+    }, {})
+
+    Object.keys(errors).forEach(f => {
+        Oni.diagnostics.setErrors("tslint-ts", f, errors[f], "yellow")
+    })
 })
