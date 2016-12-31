@@ -1,0 +1,24 @@
+{
+  "name": "oni-plugin-tslint",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "engines": {
+    "oni": "^0.0.1"
+  },
+  "scripts": {
+  },
+  "oni": {
+    "debugging": false,
+    "javascript,typescript": {
+      "subscriptions": [
+        "buffer-update",
+        "vim-events"
+      ],
+      "diagnosticsService": []
+    }
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}

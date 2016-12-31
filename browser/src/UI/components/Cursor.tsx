@@ -2,7 +2,7 @@ import * as React from "react"
 import { connect } from "react-redux"
 import * as State from "./../State"
 
-export interface CursorProps {
+export interface ICursorProps {
     x: number
     y: number
     width: number
@@ -11,9 +11,9 @@ export interface CursorProps {
     color: string
 }
 
-require("./Cursor.less")
+require("./Cursor.less") // tslint:disable-line no-var-requires
 
-class _Cursor extends React.Component<CursorProps, void> {
+class CursorRenderer extends React.Component<ICursorProps, void> {
 
     public render(): JSX.Element {
 
@@ -26,7 +26,7 @@ class _Cursor extends React.Component<CursorProps, void> {
             width: width.toString() + "px",
             height: this.props.height.toString() + "px",
             backgroundColor: this.props.color,
-            opacity: 0.5
+            opacity: 0.5,
         }
 
         return <div style={cursorStyle} className="cursor"/>
@@ -44,4 +44,4 @@ const mapStateToProps = (state: State.IState) => {
     }
 }
 
-export const Cursor = connect(mapStateToProps)(_Cursor)
+export const Cursor = connect(mapStateToProps)(CursorRenderer)

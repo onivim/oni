@@ -1,25 +1,29 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-import { Icon } from "./../Icon"
 import * as Config from "./../../Config"
+import { Icon } from "./../Icon"
 
 import { WindowContext } from "./../Overlay/WindowContext"
 
-require("./Error.less")
+require("./Error.less") // tslint:disable-line no-var-requires
 
-export interface ErrorsProps {
-    errors: Oni.Plugin.Diagnostics.Error[]
+export interface IErrorWithColor extends Oni.Plugin.Diagnostics.Error {
+    color: string
+}
+
+export interface IErrorsProps {
+    errors: IErrorWithColor[]
     windowContext: WindowContext
 }
 
 const padding = 8
 
-export class Errors extends React.Component<ErrorsProps, void> {
+export class Errors extends React.Component<IErrorsProps, void> {
     public render(): JSX.Element {
         const errors = this.props.errors || []
 
-        const markers = errors.map(e => {
+        const markers = errors.map((e) => {
             if (this.props.windowContext.isLineInView(e.lineNumber)) {
                 const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
 
@@ -29,13 +33,14 @@ export class Errors extends React.Component<ErrorsProps, void> {
                 return <ErrorMarker isActive={isActive}
                     y={yPos}
                     height={this.props.windowContext.fontHeightInPixels}
-                    text={e.text} />
+                    text={e.text}
+                    color={e.color}/>
             } else {
                 return null
             }
         })
 
-        const squiggles = errors.map(e => {
+        const squiggles = errors.map((e) => {
             if (this.props.windowContext.isLineInView(e.lineNumber) && e.endColumn) {
                 // const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
 
@@ -48,7 +53,8 @@ export class Errors extends React.Component<ErrorsProps, void> {
                     y={yPos}
                     height={this.props.windowContext.fontHeightInPixels}
                     x={startX}
-                    width={endX - startX} />
+                    width={endX - startX}
+                    color={e.color}/>
             } else {
                 return null
             }
@@ -58,21 +64,21 @@ export class Errors extends React.Component<ErrorsProps, void> {
     }
 }
 
-
-export interface ErrorMarkerProps {
+export interface IErrorMarkerProps {
     y: number
     height: number
     text: string
     isActive: boolean
+    color: string
 }
 
-export class ErrorMarker extends React.Component<ErrorMarkerProps, void> {
+export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
 
     public render(): JSX.Element {
 
         const positionDivStyles = {
             top: this.props.y.toString() + "px",
-            height: (padding + this.props.height).toString() + "px"
+            height: (padding + this.props.height).toString() + "px",
         }
 
         let className = this.props.isActive ? "error-marker active" : "error-marker"
@@ -85,37 +91,38 @@ export class ErrorMarker extends React.Component<ErrorMarkerProps, void> {
 
         return <div style={positionDivStyles} className={className}>
             {errorDescription}
-            <div className="icon-container">
+            <div className="icon-container" style={{color: this.props.color}}>
                 <Icon name="exclamation-circle" />
             </div>
         </div>
     }
 }
 
-export interface ErrorSquiggleProps {
+export interface IErrorSquiggleProps {
     x: number,
     y: number,
     height: number,
-    width: number
+    width: number,
+    color: string,
 }
 
-export class ErrorSquiggle extends React.Component<ErrorSquiggleProps, void> {
+export class ErrorSquiggle extends React.Component<IErrorSquiggleProps, void> {
     public render(): JSX.Element {
 
-        const {x, y, width, height} = this.props
+        const {x, y, width, height, color} = this.props
 
         const style = {
             top: y.toString() + "px",
             left: x.toString() + "px",
             height: height.toString() + "px",
-            width: width.toString() + "px"
+            width: width.toString() + "px",
+            borderBottom: `1px dashed ${color}`,
         }
 
         return <div className="error-squiggle" style={style}></div>
     }
 }
 
-export function renderErrorMarkers(props: ErrorsProps, element: HTMLElement) {
+export function renderErrorMarkers(props: IErrorsProps, element: HTMLElement) {
     ReactDOM.render(<Errors {...props} />, element)
 }
-

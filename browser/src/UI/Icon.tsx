@@ -13,7 +13,7 @@ export enum IconSize {
     TwoX,
     ThreeX,
     FourX,
-    FiveX
+    FiveX,
 }
 
 export interface IconProps {
