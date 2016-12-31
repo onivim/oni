@@ -23,14 +23,16 @@
     "build:plugins": "cd vim/core/oni-plugin-typescript && npm run build",
     "test": "npm run test:lint && npm run test:browser && npm run test:plugin_api",
     "test:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
-    "test:lint": "tslint browser/**/*.ts && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
+    "test:lint": "tslint --project browser/tsconfig.json --config browser/tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
     "test:plugin_api": "cd plugin_api && tsc -p tsconfig.json && mocha --recursive ../lib_test/plugin_api/test",
     "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\" \"npm run watch:plugin_api\"",
     "start-hot": "cross-env NODE_ENV=development electron main.js",
     "start-not-dev": "cross-env electron main.js",
     "watch:browser": "webpack-dev-server --config browser/webpack.config.js --inline --hot --host localhost --port 8191",
     "watch:plugin_api": "cd plugin_api && tsc --watch",
-    "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch"
+    "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch",
+    "uninstall-global": "npm rm -g oni-vim",
+    "install-global": "npm install -g oni-vim"
   },
   "repository": {
     "type": "git",

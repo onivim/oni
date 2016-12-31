@@ -3,9 +3,9 @@ import { connect } from "react-redux"
 
 import { IState } from "./../State"
 
-require("./QuickInfo.less")
+require("./QuickInfo.less") // tslint:disable-line no-var-requires
 
-export interface QuickInfoProps {
+export interface IQuickInfoProps {
     visible: boolean
     wrap: boolean
     x: number
@@ -13,11 +13,12 @@ export interface QuickInfoProps {
     elements: JSX.Element[]
 }
 
-export class QuickInfo extends React.Component<QuickInfoProps, void> {
+export class QuickInfo extends React.Component<IQuickInfoProps, void> {
 
     public render(): null | JSX.Element {
-        if (!this.props.elements || !this.props.elements.length)
+        if (!this.props.elements || !this.props.elements.length) {
             return null
+        }
 
         const containerStyle = {
             position: "absolute",
@@ -26,11 +27,11 @@ export class QuickInfo extends React.Component<QuickInfoProps, void> {
         }
 
         const innerStyle = {
-            position: "absolute",
-            bottom: "0px",
-            opacity: this.props.visible ? 1 : 0,
-            whiteSpace: this.props.wrap ? "normal" : "nowrap",
-            'max-width': (document.body.offsetWidth - this.props.x - 40) + "px"
+            "position": "absolute",
+            "bottom": "0px",
+            "opacity": this.props.visible ? 1 : 0,
+            "whiteSpace": this.props.wrap ? "normal" : "nowrap",
+            "max-width": (document.body.offsetWidth - this.props.x - 40) + "px",
         }
 
         return <div key={"quickinfo-container"} className="quickinfo-container" style={containerStyle}>
@@ -41,11 +42,11 @@ export class QuickInfo extends React.Component<QuickInfoProps, void> {
     }
 }
 
-export interface TextProps {
+export interface ITextProps {
     text: string
 }
 
-export class TextComponent extends React.Component<TextProps, void> {
+export class TextComponent extends React.Component<ITextProps, void> {
 
 }
 
@@ -80,7 +81,7 @@ const mapStateToQuickInfoProps = (state: IState) => {
             visible: false,
             x: state.cursorPixelX,
             y: state.cursorPixelY - (state.fontPixelHeight),
-            elements: []
+            elements: [],
         }
     } else {
         return {
@@ -90,8 +91,8 @@ const mapStateToQuickInfoProps = (state: IState) => {
             y: state.cursorPixelY - (state.fontPixelHeight),
             elements: [
                 <QuickInfoTitle text={state.quickInfo.title} />,
-                <QuickInfoDocumentation text={state.quickInfo.description} />
-            ]
+                <QuickInfoDocumentation text={state.quickInfo.description} />,
+            ],
         }
     }
 }
@@ -104,22 +105,23 @@ const mapStateToSignatureHelpProps = (state: IState) => {
             visible: false,
             x: state.cursorPixelX,
             y: state.cursorPixelY - (state.fontPixelHeight),
-            elements: []
+            elements: [],
         }
     } else {
-        const currentItem = state.signatureHelp.items[state.signatureHelp.selectedItemIndex];
+        const currentItem = state.signatureHelp.items[state.signatureHelp.selectedItemIndex]
 
         const parameters = currentItem.parameters.map((item, idx) => {
-            //check state.signatureHelp to avoid "Object is possibly 'null'" error
-            //even though we already checked it in the 'if' statement above
-            if (state.signatureHelp && idx === state.signatureHelp.argumentIndex)
+            // check state.signatureHelp to avoid "Object is possibly 'null'" error
+            // even though we already checked it in the 'if' statement above
+            if (state.signatureHelp && idx === state.signatureHelp.argumentIndex) {
                 return <SelectedText text={item.text} />
-            else
+            } else {
                 return <Text text={item.text} />
+            }
         })
-        
+
         // insert ", " separator in between each parameter
-        for(let i=currentItem.parameters.length-1; i > 0; i-=1) {
+        for (let i = currentItem.parameters.length - 1; i > 0; i -= 1) {
           parameters.splice(i, 0, <Text text={currentItem.separator + " "} />)
         }
 
@@ -138,9 +140,8 @@ const mapStateToSignatureHelpProps = (state: IState) => {
             visible: true,
             x: state.cursorPixelX,
             y: state.cursorPixelY - (state.fontPixelHeight),
-            elements: elements,
+            elements,
         }
-
     }
 }
 

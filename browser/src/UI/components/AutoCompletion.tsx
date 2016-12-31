@@ -4,10 +4,10 @@ import { connect } from "react-redux"
 import * as _ from "lodash"
 
 import { Icon } from "./../Icon"
+import { IState /*, AutoCompletionInfo */ } from "./../State"
 import { HighlightText } from "./HighlightText"
-import { IState, /* AutoCompletionInfo */ } from "./../State"
 
-export interface AutoCompletionProps {
+export interface IAutoCompletionProps {
     visible: boolean
     x: number
     y: number
@@ -16,27 +16,30 @@ export interface AutoCompletionProps {
     selectedIndex: number
 }
 
-require("./AutoCompletion.less")
+require("./AutoCompletion.less") // tslint:disable-line no-var-requires
 
-export class AutoCompletion extends React.Component<AutoCompletionProps, void> {
+export class AutoCompletion extends React.Component<IAutoCompletionProps, void> {
 
     public render(): null | JSX.Element {
 
-        if (!this.props.visible)
+        if (!this.props.visible) {
             return null
+        }
 
         const containerStyle = {
             position: "absolute",
             top: this.props.y.toString() + "px",
-            left: this.props.x.toString() + "px"
+            left: this.props.x.toString() + "px",
         }
 
-        if (this.props.entries.length === 0)
+        if (this.props.entries.length === 0) {
             return null
+        }
 
         if (this.props.entries.length === 1
-            && this.props.entries[0].label === this.props.base)
+            && this.props.entries[0].label === this.props.base) {
             return null
+        }
 
         const firstTenEntries = _.take(this.props.entries, 10)
 
@@ -53,12 +56,12 @@ export class AutoCompletion extends React.Component<AutoCompletionProps, void> {
     }
 }
 
-export interface AutoCompletionItemProps extends Oni.Plugin.CompletionInfo {
+export interface IAutoCompletionItemProps extends Oni.Plugin.CompletionInfo {
     base: string
     isSelected: boolean
 }
 
-export class AutoCompletionItem extends React.Component<AutoCompletionItemProps, void> {
+export class AutoCompletionItem extends React.Component<IAutoCompletionItemProps, void> {
     public render(): JSX.Element {
 
         let className = "entry"
@@ -72,7 +75,7 @@ export class AutoCompletionItem extends React.Component<AutoCompletionItemProps,
         const highlightColor = this.props.highlightColor || this._getDefaultHighlightColor(this.props.kind as any) // FIXME: undefined
 
         const iconContainerStyle = {
-            backgroundColor: highlightColor
+            backgroundColor: highlightColor,
         }
 
         return <div className={className}>
@@ -93,11 +96,11 @@ export class AutoCompletionItem extends React.Component<AutoCompletionItemProps,
     }
 }
 
-export interface AutoCompletionIconProps {
-    kind: string;
+export interface IAutoCompletionIconProps {
+    kind: string
 }
 
-export class AutoCompletionIcon extends React.Component<AutoCompletionIconProps, void> {
+export class AutoCompletionIcon extends React.Component<IAutoCompletionIconProps, void> {
 
     public render(): null | JSX.Element {
 
@@ -151,16 +154,16 @@ const mapStateToProps = (state: IState) => {
             y: state.cursorPixelY + state.fontPixelHeight,
             base: "",
             entries: [],
-            selectedIndex: 0
+            selectedIndex: 0,
         }
     } else {
-        const ret: AutoCompletionProps = {
+        const ret: IAutoCompletionProps = {
             visible: true,
             x: state.cursorPixelX,
             y: state.cursorPixelY + state.fontPixelHeight,
             base: state.autoCompletion.base,
             entries: state.autoCompletion.entries,
-            selectedIndex: state.autoCompletion.selectedIndex
+            selectedIndex: state.autoCompletion.selectedIndex,
         }
         return ret
     }

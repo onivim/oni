@@ -2,13 +2,13 @@ import { EventEmitter } from "events"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-import { createStore } from "redux"
 import { Provider } from "react-redux"
+import { createStore } from "redux"
 
 import * as Config from "./../Config"
 
-import * as State from "./State"
 import { RootComponent } from "./RootComponent"
+import * as State from "./State"
 
 // import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
@@ -20,7 +20,7 @@ import { IScreen } from "./../Screen"
 
 export const events = new EventEmitter()
 
-let state: State.IState = {
+let defaultState: State.IState = {
     cursorPixelX: 10,
     cursorPixelY: 10,
     cursorPixelWidth: 10,
@@ -31,7 +31,7 @@ let state: State.IState = {
     autoCompletion: null,
     quickInfo: null,
     popupMenu: null,
-    signatureHelp: null
+    signatureHelp: null,
 }
 
 const CompletionItemSelectedEvent = "completion-item-selected"
@@ -69,8 +69,9 @@ export function setMode(mode: string): void {
 }
 
 export function setColors(foregroundColor: string): void {
-    if (foregroundColor === store.getState().foregroundColor)
+    if (foregroundColor === store.getState().foregroundColor) {
         return
+    }
 
     store.dispatch(ActionCreators.setColors(foregroundColor))
 }
@@ -107,16 +108,14 @@ export function previousPopupMenuItem(): void {
 export function selectPopupMenuItem(openInSplit: boolean): void {
     const state = store.getState() as State.IState
 
-    if (!state || !state.popupMenu)
+    if (!state || !state.popupMenu) {
         return
+    }
 
     const selectedIndex = state.popupMenu.selectedIndex // FIXME: null
     const selectedOption = state.popupMenu.filteredOptions[selectedIndex] // FIXME: null
 
-    events.emit("menu-item-selected:" + state.popupMenu.id, {
-        selectedOption: selectedOption,
-        openInSplit: openInSplit
-    })
+    events.emit("menu-item-selected:" + state.popupMenu.id, { selectedOption, openInSplit })
 
     hidePopupMenu()
 }
@@ -133,11 +132,13 @@ export function areCompletionsVisible(): boolean {
     const autoCompletion = store.getState().autoCompletion
     const entryCount = (autoCompletion && autoCompletion.entries) ? autoCompletion.entries.length : 0
 
-    if (entryCount === 0)
+    if (entryCount === 0) {
         return false
+    }
 
-    if (entryCount > 1)
+    if (entryCount > 1) {
         return true
+    }
 
     // In the case of a single entry, should not be visible if the base is equal to the selected item
     return autoCompletion != null && autoCompletion.base !== getSelectedCompletion()
@@ -145,7 +146,7 @@ export function areCompletionsVisible(): boolean {
 
 export function getSelectedCompletion(): null | string {
     const autoCompletion = store.getState().autoCompletion
-    return autoCompletion ? autoCompletion.entries[autoCompletion.selectedIndex].label : null;
+    return autoCompletion ? autoCompletion.entries[autoCompletion.selectedIndex].label : null
 }
 
 export function showCompletions(result: Oni.Plugin.CompletionResult): void {
@@ -190,10 +191,10 @@ export function showNeovimInstallHelp(): void {
     ReactDOM.render(<InstallHelp />, element)
 }
 
-const store = createStore(reducer, state)
+const store = createStore(reducer, defaultState)
 
 export function init(): void {
-    render(state)
+    render(defaultState)
 }
 
 function render(_state: State.IState): void {

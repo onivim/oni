@@ -14,13 +14,13 @@ import { LiveEvaluation } from "./Services/LiveEvaluation"
 import { MultiProcess } from "./Services/MultiProcess"
 import { OutputWindow } from "./Services/Output"
 import { QuickOpen } from "./Services/QuickOpen"
-import { Tasks } from "./Services/Tasks"
 import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
+import { Tasks } from "./Services/Tasks"
 import * as UI from "./UI/index"
 import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./UI/Overlay/LiveEvaluationOverlay"
-import { ScrollBarOverlay } from "./UI/Overlay/ScrollBarOverlay"
 import { OverlayManager } from "./UI/Overlay/OverlayManager"
+import { ScrollBarOverlay } from "./UI/Overlay/ScrollBarOverlay"
 
 const start = (args: string[]) => {
     const services: any[] = []
@@ -113,14 +113,14 @@ const start = (args: string[]) => {
     })
 
     instance.on("show-popup-menu", (completions: any[]) => {
-        const c = completions.map(c => ({
-            "kind": "text",
-            "label": c[0],
+        const c = completions.map((completion) => ({
+            kind: "text",
+            label: completion[0],
         }))
 
         UI.showCompletions({
             base: "",
-            completions: c
+            completions: c,
         })
     })
 
@@ -221,18 +221,18 @@ const start = (args: string[]) => {
         if (UI.areCompletionsVisible()) {
 
             if (key === "<enter>") {
-                let completion = UI.getSelectedCompletion() || ''
+                let completion = UI.getSelectedCompletion() || ""
 
-                //move one character left so the cursor is "within" the word
-                //(we wouldn't be displaying completions if there wasn't at least one character)
-                instance.input('<left>')
-                //get current word under cursor
+                // move one character left so the cursor is "within" the word
+                // (we wouldn't be displaying completions if there wasn't at least one character)
+                instance.input("<left>")
+                // get current word under cursor
                 instance.eval<string>("expand('<cword>')")
                     .then((word) => {
-                        //move back to where we were
-                        instance.input('<right>')
-                        //remove the first instance of the word under the cursor
-                        instance.input(completion.replace(word,''))
+                        // move back to where we were
+                        instance.input("<right>")
+                        // remove the first instance of the word under the cursor
+                        instance.input(completion.replace(word, ""))
                     })
 
                 UI.hideCompletions()

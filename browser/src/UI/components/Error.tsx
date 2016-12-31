@@ -1,29 +1,29 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-import { Icon } from "./../Icon"
 import * as Config from "./../../Config"
+import { Icon } from "./../Icon"
 
 import { WindowContext } from "./../Overlay/WindowContext"
 
-require("./Error.less")
+require("./Error.less") // tslint:disable-line no-var-requires
 
-export interface ErrorWithColor extends Oni.Plugin.Diagnostics.Error {
+export interface IErrorWithColor extends Oni.Plugin.Diagnostics.Error {
     color: string
 }
 
-export interface ErrorsProps {
-    errors: ErrorWithColor[]
+export interface IErrorsProps {
+    errors: IErrorWithColor[]
     windowContext: WindowContext
 }
 
 const padding = 8
 
-export class Errors extends React.Component<ErrorsProps, void> {
+export class Errors extends React.Component<IErrorsProps, void> {
     public render(): JSX.Element {
         const errors = this.props.errors || []
 
-        const markers = errors.map(e => {
+        const markers = errors.map((e) => {
             if (this.props.windowContext.isLineInView(e.lineNumber)) {
                 const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
 
@@ -40,7 +40,7 @@ export class Errors extends React.Component<ErrorsProps, void> {
             }
         })
 
-        const squiggles = errors.map(e => {
+        const squiggles = errors.map((e) => {
             if (this.props.windowContext.isLineInView(e.lineNumber) && e.endColumn) {
                 // const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
 
@@ -64,8 +64,7 @@ export class Errors extends React.Component<ErrorsProps, void> {
     }
 }
 
-
-export interface ErrorMarkerProps {
+export interface IErrorMarkerProps {
     y: number
     height: number
     text: string
@@ -73,13 +72,13 @@ export interface ErrorMarkerProps {
     color: string
 }
 
-export class ErrorMarker extends React.Component<ErrorMarkerProps, void> {
+export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
 
     public render(): JSX.Element {
 
         const positionDivStyles = {
             top: this.props.y.toString() + "px",
-            height: (padding + this.props.height).toString() + "px"
+            height: (padding + this.props.height).toString() + "px",
         }
 
         let className = this.props.isActive ? "error-marker active" : "error-marker"
@@ -99,7 +98,7 @@ export class ErrorMarker extends React.Component<ErrorMarkerProps, void> {
     }
 }
 
-export interface ErrorSquiggleProps {
+export interface IErrorSquiggleProps {
     x: number,
     y: number,
     height: number,
@@ -107,7 +106,7 @@ export interface ErrorSquiggleProps {
     color: string,
 }
 
-export class ErrorSquiggle extends React.Component<ErrorSquiggleProps, void> {
+export class ErrorSquiggle extends React.Component<IErrorSquiggleProps, void> {
     public render(): JSX.Element {
 
         const {x, y, width, height, color} = this.props
@@ -124,7 +123,6 @@ export class ErrorSquiggle extends React.Component<ErrorSquiggleProps, void> {
     }
 }
 
-export function renderErrorMarkers(props: ErrorsProps, element: HTMLElement) {
+export function renderErrorMarkers(props: IErrorsProps, element: HTMLElement) {
     ReactDOM.render(<Errors {...props} />, element)
 }
-

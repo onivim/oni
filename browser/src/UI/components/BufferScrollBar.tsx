@@ -3,39 +3,33 @@ import * as ReactDOM from "react-dom"
 
 import * as Measure from "react-measure"
 
-require("./BufferScrollBar.less")
+require("./BufferScrollBar.less") // tslint:disable-line no-var-requires
 
-export interface BufferScrollBarProps {
+export interface IBufferScrollBarProps {
     bufferSize: number
     windowTopLine: number
     windowBottomLine: number
-    markers: ScrollBarMarker[]
+    markers: IScrollBarMarker[]
 }
 
-export interface ScrollBarMarker {
+export interface IScrollBarMarker {
     line: number
     height: number
     color: string
 }
 
-export interface BufferScrollState {
+export interface IBufferScrollState {
     measuredHeight: number
 }
 
-export class BufferScrollBar extends React.Component<BufferScrollBarProps, BufferScrollState> {
+export class BufferScrollBar extends React.Component<IBufferScrollBarProps, IBufferScrollState> {
 
     constructor(props: any) {
         super(props)
 
         this.state = {
-            measuredHeight: -1
+            measuredHeight: -1,
         }
-    }
-
-    private _onMeasure(dimensions: any): void {
-        this.setState({
-            measuredHeight: dimensions.height
-        })
     }
 
     public render(): JSX.Element {
@@ -44,12 +38,12 @@ export class BufferScrollBar extends React.Component<BufferScrollBarProps, Buffe
 
         const windowStyle = {
             top: windowTop + "px",
-            height: windowHeight + "px"
+            height: windowHeight + "px",
         }
 
         const markers = this.props.markers || []
 
-        const markerElements = markers.map(m => {
+        const markerElements = markers.map((m) => {
             const line = m.line - 1
             const pos = (line / this.props.bufferSize) * this.state.measuredHeight
             const size = "2px"
@@ -59,7 +53,7 @@ export class BufferScrollBar extends React.Component<BufferScrollBarProps, Buffe
                 top: pos + "px",
                 height: size,
                 backgroundColor: m.color,
-                width: "100%"
+                width: "100%",
             }
 
             return <div style={markerStyle} />
@@ -72,8 +66,14 @@ export class BufferScrollBar extends React.Component<BufferScrollBarProps, Buffe
             </div>
         </Measure>
     }
+
+    private _onMeasure(dimensions: any): void {
+        this.setState({
+            measuredHeight: dimensions.height,
+        })
+    }
 }
 
-export function renderBufferScrollBar(props: BufferScrollBarProps, element: HTMLElement) {
+export function renderBufferScrollBar(props: IBufferScrollBarProps, element: HTMLElement) {
     ReactDOM.render(<BufferScrollBar {...props} />, element)
 }
