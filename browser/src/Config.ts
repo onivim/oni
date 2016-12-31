@@ -17,6 +17,9 @@ const DefaultConfig: any = {
 
     "prototype.editor.maxCellsToRender": 12000,
 
+    // Beep sound effect to use
+    "oni.audio.beepUrl": path.join(__dirname, "audio", "beep.wav"),
+
     // Production settings
 
     // The default config is an opinionated, prescribed set of plugins. This is on by default to provide
