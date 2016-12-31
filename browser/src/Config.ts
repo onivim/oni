@@ -39,6 +39,10 @@ const DefaultConfig: any = {
 
     "editor.fontSize": "14px",
     "editor.quickInfo.enabled": true,
+
+    // Delay (in ms) for showing QuickInfo, when the cursor is on a term
+    "editor.quickInfo.delay": 500,
+
     "editor.completions.enabled": true,
     "editor.errors.slideOnFocus": true,
     "editor.formatting.formatOnSwitchToNormalMode": false, // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun

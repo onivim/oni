@@ -79,15 +79,16 @@ const start = (args: string[]) => {
         }
     })
 
-    pluginManager.on("set-errors", (key: string, fileName: string, errors: any[], colors?: string) => {
-        errorOverlay.setErrors(key, fileName, errors, colors)
+    pluginManager.on("set-errors", (key: string, fileName: string, errors: any[], color: string) => {
+        color = color || "red"
+        errorOverlay.setErrors(key, fileName, errors, color)
 
         const errorMarkers = errors.map((e: any) => ({
             line: e.lineNumber,
             height: 1,
-            color: "red",
+            color: color,
         }))
-        scrollbarOverlay.setMarkers(path.resolve(fileName), "errors", errorMarkers)
+        scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
     })
 
     liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
@@ -163,7 +164,7 @@ const start = (args: string[]) => {
 
     const renderFunction = () => {
         if (pendingTimeout) {
-            UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
+            UI.setCursorPosition(screen)
         }
 
         renderer.update(screen, deltaRegion)
@@ -176,7 +177,7 @@ const start = (args: string[]) => {
 
     const updateFunction = () => {
         // TODO: Move cursor to component
-        UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
+        UI.setCursorPosition(screen)
 
         UI.setBackgroundColor(screen.backgroundColor)
 

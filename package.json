@@ -1,6 +1,6 @@
 {
   "name": "oni-vim",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "NeoVim front-end with IDE-style extensibility",
   "keywords": [
     "vim",
@@ -30,7 +30,9 @@
     "start-not-dev": "cross-env electron main.js",
     "watch:browser": "webpack-dev-server --config browser/webpack.config.js --inline --hot --host localhost --port 8191",
     "watch:plugin_api": "cd plugin_api && tsc --watch",
-    "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch"
+    "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch",
+    "uninstall-global": "npm rm -g oni-vim",
+    "install-global": "npm install -g oni-vim"
   },
   "repository": {
     "type": "git",
@@ -41,7 +43,6 @@
   "dependencies": {
     "electron": "^1.4.12",
     "find-parent-dir": "^0.3.0",
-    "hex-rgb": "^1.0.0",
     "lodash": "^4.17.0",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
@@ -54,7 +55,8 @@
     "react-redux": "^4.4.5",
     "recursive-readdir": "^2.1.0",
     "redux": "^3.5.2",
-    "typescript": "^2.0.7"
+    "typescript": "^2.0.7",
+    "wcwidth": "^1.0.1"
   },
   "devDependencies": {
     "@types/electron": "^1.4.27",

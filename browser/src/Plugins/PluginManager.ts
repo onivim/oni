@@ -112,7 +112,7 @@ export class PluginManager extends EventEmitter {
             this._onEvent(eventName, context)
         })
 
-        const allPlugins = this._getAllPluginPaths()
+        const allPlugins = this._getAllPluginPaths().filter(p => p !== this._debugPluginPath)
         this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory))
 
         if (this._debugPluginPath) {
@@ -166,7 +166,13 @@ export class PluginManager extends EventEmitter {
             }
 
             if (!pluginResponse.error) {
-                setTimeout(() => UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation))
+                UI.hideQuickInfo()
+                setTimeout(() => {
+                    if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                        return
+                    }
+                    UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation)
+                }, Config.getValue<number>("editor.quickInfo.delay"))
             } else {
                 setTimeout(() => UI.hideQuickInfo())
             }
@@ -193,7 +199,7 @@ export class PluginManager extends EventEmitter {
         } else if (pluginResponse.type === "completion-provider-item-selected") {
             setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details))
         } else if (pluginResponse.type === "set-errors") {
-            this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors)
+            this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
         } else if (pluginResponse.type === "format") {
             this.emit("format", pluginResponse.payload)
         } else if (pluginResponse.type === "execute-shell-command") {

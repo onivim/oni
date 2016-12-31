@@ -8,8 +8,12 @@ import { WindowContext } from "./../Overlay/WindowContext"
 
 require("./Error.less")
 
+export interface IErrorWithColor extends Oni.Plugin.Diagnostics.Error {
+    color: string
+}
+
 export interface IErrorsProps {
-    errors: Oni.Plugin.Diagnostics.Error[]
+    errors: IErrorWithColor[]
     windowContext: WindowContext
 }
 
@@ -29,7 +33,8 @@ export class Errors extends React.Component<IErrorsProps, void> {
                 return <ErrorMarker isActive={isActive}
                     y={yPos}
                     height={this.props.windowContext.fontHeightInPixels}
-                    text={e.text} />
+                    text={e.text}
+                    color={e.color}/>
             } else {
                 return null
             }
@@ -48,7 +53,8 @@ export class Errors extends React.Component<IErrorsProps, void> {
                     y={yPos}
                     height={this.props.windowContext.fontHeightInPixels}
                     x={startX}
-                    width={endX - startX} />
+                    width={endX - startX}
+                    color={e.color}/>
             } else {
                 return null
             }
@@ -63,6 +69,7 @@ export interface IErrorMarkerProps {
     height: number
     text: string
     isActive: boolean
+    color: string
 }
 
 export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
@@ -84,7 +91,7 @@ export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
 
         return <div style={positionDivStyles} className={className}>
             {errorDescription}
-            <div className="icon-container">
+            <div className="icon-container" style={{color: this.props.color}}>
                 <Icon name="exclamation-circle" />
             </div>
         </div>
@@ -95,19 +102,21 @@ export interface IErrorSquiggleProps {
     x: number,
     y: number,
     height: number,
-    width: number
+    width: number,
+    color: string,
 }
 
 export class ErrorSquiggle extends React.Component<IErrorSquiggleProps, void> {
     public render(): JSX.Element {
 
-        const {x, y, width, height} = this.props
+        const {x, y, width, height, color} = this.props
 
         const style = {
             top: y.toString() + "px",
             left: x.toString() + "px",
             height: height.toString() + "px",
             width: width.toString() + "px",
+            borderBottom: `1px dashed ${color}`,
         }
 
         return <div className="error-squiggle" style={style}></div>

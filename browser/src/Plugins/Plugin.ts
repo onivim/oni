@@ -2,7 +2,7 @@ import { remote } from "electron"
 import * as fs from "fs"
 import * as path from "path"
 
-const BrowserWindow = remote.BrowserWindow
+import * as Q from "q"
 
 export interface IPluginMetadata {
     debugging: boolean
@@ -12,7 +12,7 @@ const DefaultMetadata: IPluginMetadata = {
     debugging: false,
 }
 
-const BrowserId = remote.getCurrentWindow().id
+const WebContentsId = remote.getCurrentWindow().webContents.id
 
 // Subscription Events
 export const VimEventsSubscription = "vim-events"
@@ -34,13 +34,20 @@ export interface IEventContext {
     filetype: string
 }
 
+export interface IWebViewInfo {
+    webViewElement: Electron.WebViewElement
+    webContents: Electron.WebContents
+}
+
 export class Plugin {
     private _packageMetadata: any
     private _oniPluginMetadata: IPluginMetadata
-    private _browserWindow: Electron.BrowserWindow
-    private _browserWindowId: number
-    private _webContents: any
+    private _webviewElement: Electron.WebViewElement
+    private _webviewId: number
+    private _webContents: Electron.WebContents
     private _lastEventContext: IEventContext
+
+    private _initPromise: Q.Promise<IWebViewInfo>
 
     constructor(pluginRootDirectory: string, debugMode?: boolean) {
         const packageJsonPath = path.join(pluginRootDirectory, "package.json")
@@ -56,9 +63,17 @@ export class Plugin {
             } else {
                 if (this._packageMetadata.main) {
                     const moduleEntryPoint = path.join(pluginRootDirectory, this._packageMetadata.main)
-                    this._browserWindow = loadPluginInBrowser(moduleEntryPoint, null)
-                    this._browserWindowId = this._browserWindow.id
-                    this._webContents = this._browserWindow.webContents
+                    this._initPromise = loadPluginInBrowser(moduleEntryPoint, null)
+
+                    this._initPromise.then((info) => {
+                        this._webviewElement = info.webViewElement
+                        this._webContents = info.webContents
+                        this._webviewId = this._webContents.id
+
+                        if (this._oniPluginMetadata.debugging || debugMode) {
+                            this._webviewElement.openDevTools()
+                        }
+                    })
                 }
 
                 const pluginMetadata = this._packageMetadata.oni || {}
@@ -66,23 +81,13 @@ export class Plugin {
                 this._expandMultipleLanguageKeys(pluginMetadata)
 
                 this._oniPluginMetadata = Object.assign({}, DefaultMetadata, pluginMetadata)
-
-                if (this._oniPluginMetadata.debugging || debugMode) {
-                    (<any> this._browserWindow).openDevTools()
-                    this._browserWindow.show()
-                }
             }
         }
     }
 
-    public get browserWindow(): null | Electron.BrowserWindow {
-        return this._browserWindow
-    }
-
     public dispose(): void {
-        if (this._browserWindow) {
-            this._browserWindow.close()
-            delete this._browserWindow
+        if (this._webviewElement) {
+            this._webviewElement.remove()
         }
     }
 
@@ -229,32 +234,40 @@ export class Plugin {
     }
 
     private _send(message: any): void {
-        if (!this.browserWindow) {
+        if (!this._initPromise) {
             return
         }
 
-        // const messageToSend = Object.assign({}, message, {
-        //     meta: {
-        //         senderId: BrowserId,
-        //         destinationId: this._browserWindowId
-        //     }
-        // })
-
-        this._webContents.send("cross-browser-ipc", message)
+        this._initPromise.then((info) => {
+            info.webContents.send("cross-browser-ipc", message)
+        })
     }
 }
 
 const loadPluginInBrowser = (pathToModule: string, _apiObject: any) => {
-    const browserWindow = new BrowserWindow({ width: 10, height: 10, show: false, webPreferences: { webSecurity: false } })
+    const webViewElement = document.createElement("webview")
+    webViewElement.nodeintegration = "on"
+    webViewElement.disablewebsecurity = "on"
 
-    browserWindow.webContents.on("did-finish-load", () => {
-        browserWindow.webContents.send("init", {
+    const url = "file://" + path.join(__dirname, "browser", "src", "Plugins", "plugin_host.html")
+    webViewElement.src = url
+    const deferred = Q.defer<IWebViewInfo>()
+
+    document.body.appendChild(webViewElement)
+
+    webViewElement.addEventListener("dom-ready", () => {
+        const webContents = webViewElement.getWebContents()
+
+        webContents.send("init", {
             pathToModule,
-            sourceId: BrowserId,
+            sourceId: WebContentsId,
+        })
+
+        deferred.resolve({
+            webViewElement,
+            webContents,
         })
     })
 
-    const url = "file://" + path.join(__dirname, "browser", "src", "Plugins", "plugin_host.html")
-    browserWindow.loadURL(url)
-    return browserWindow
+    return deferred.promise
 }

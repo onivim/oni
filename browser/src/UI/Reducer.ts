@@ -17,6 +17,7 @@ export const reducer = (s: State.IState, a: Actions.Action) => {
                 cursorPixelY: a.payload.pixelY,
                 fontPixelWidth: a.payload.fontPixelWidth,
                 fontPixelHeight: a.payload.fontPixelHeight,
+                cursorPixelWidth: a.payload.cursorPixelWidth,
             })
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }
