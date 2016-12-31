@@ -1,14 +1,15 @@
-import * as path from "path"
 import * as _ from "lodash"
+import * as path from "path"
 
-import { renderErrorMarkers, ErrorWithColor } from "./../components/Error"
+import { IErrorWithColor, renderErrorMarkers } from "./../components/Error"
+
 import { IOverlay } from "./OverlayManager"
 import { WindowContext } from "./WindowContext"
 
 export class ErrorOverlay implements IOverlay {
 
     private _element: HTMLElement
-    private _errors: { [fileName: string]: ErrorWithColor[] } = {}
+    private _errors: { [fileName: string]: IErrorWithColor[] } = {}
     private _currentFileName: string
     private _lastWindowContext: WindowContext
 
@@ -23,7 +24,7 @@ export class ErrorOverlay implements IOverlay {
         fileName = path.normalize(fileName)
         color = color || "red"
         this._errors[fileName] = this._errors[fileName] || {}
-        this._errors[fileName][key] = errors.map(e => ({...e, color }))
+        this._errors[fileName][key] = errors.map((e) => ({...e, color }))
 
         this._showErrors()
     }
@@ -51,10 +52,10 @@ export class ErrorOverlay implements IOverlay {
         }
 
         const errors = this._errors[this._currentFileName]
-        let allErrors: ErrorWithColor[] = []
+        let allErrors: IErrorWithColor[] = []
 
         if (errors) {
-            allErrors = _.flatten<ErrorWithColor>(_.values<ErrorWithColor>(errors))
+            allErrors = _.flatten<IErrorWithColor>(_.values<IErrorWithColor>(errors))
         }
 
         renderErrorMarkers({

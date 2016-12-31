@@ -112,7 +112,7 @@ export class PluginManager extends EventEmitter {
             this._onEvent(eventName, context)
         })
 
-        const allPlugins = this._getAllPluginPaths().filter(p => p !== this._debugPluginPath)
+        const allPlugins = this._getAllPluginPaths().filter((p) => p !== this._debugPluginPath)
         this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory))
 
         if (this._debugPluginPath) {
