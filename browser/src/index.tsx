@@ -88,7 +88,7 @@ const start = (args: string[]) => {
             height: 1,
             color: color,
         }))
-        scrollbarOverlay.setMarkers(path.resolve(fileName), "errors", errorMarkers)
+        scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
     })
 
     liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
