@@ -261,7 +261,7 @@ export class NeovimScreen implements IScreen {
 
                 for (let y = top; y <= bottom; y++) {
                     for (let x = left; x <= right; x++) {
-                        this._deltaTracker.notifyCellModified(x, y)
+                        this._deltaTracker.notifyCellModified(x, y, true)
                     }
                 }
 

@@ -54,6 +54,10 @@ export class CanvasRenderer implements INeovimRenderer {
             if (cell) {
                 const lastRenderedCell = this._lastRenderedCell.getCell(x, y)
 
+                const precedingCell = screenInfo.getCell(x - 1, y)
+                if (precedingCell.characterWidth > 1)
+                    return
+
                 if (!pos.force) {
                     if (lastRenderedCell === cell) {
                         deltaRegionTracker.notifyCellRendered(x, y)
