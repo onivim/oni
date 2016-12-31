@@ -9,6 +9,7 @@ import { measureFont } from "./Font"
 import { Buffer, IBuffer } from "./neovim/Buffer"
 import { SessionWrapper } from "./neovim/SessionWrapper"
 import { IWindow, Window } from "./neovim/Window"
+import { IQuickFixList, QuickFixList } from "./neovim/QuickFix"
 import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./Screen"
@@ -17,6 +18,7 @@ const attach = require("neovim-client") // tslint:disable-line no-var-requires
 
 export interface INeovimInstance {
     cursorPosition: IPosition
+    quickFix: IQuickFixList
     screenToPixels(row: number, col: number): IPixelPosition
 
     input(inputString: string): void
@@ -53,6 +55,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _pluginManager: PluginManager
     private _sessionWrapper: SessionWrapper
+    private _quickFix: QuickFixList
+
+    public get quickFix(): IQuickFixList {
+        return this._quickFix
+    }
 
     constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
         super()
@@ -61,6 +68,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
+        this._quickFix = new QuickFixList(this._neovim)
     }
 
     public start(filesToOpen?: string[]): void {
