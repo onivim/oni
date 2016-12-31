@@ -164,7 +164,7 @@ const start = (args: string[]) => {
 
     const renderFunction = () => {
         if (pendingTimeout) {
-            UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
+            UI.setCursorPosition(screen)
         }
 
         renderer.update(screen, deltaRegion)
@@ -177,7 +177,7 @@ const start = (args: string[]) => {
 
     const updateFunction = () => {
         // TODO: Move cursor to component
-        UI.setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels)
+        UI.setCursorPosition(screen)
 
         UI.setBackgroundColor(screen.backgroundColor)
 

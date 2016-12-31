@@ -12,6 +12,7 @@
     - [Usage](#usage)
         - [Code Completion](#code-completion)
         - [Fuzzy Finder](#fuzzy-finder)
+        - [Quick Info](#quick-info)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
@@ -34,7 +35,7 @@ This repository is under __active development__, and until 1.0 please consider e
 
 ONI brings several IDE-like integrations to NeoVim:
 
-- **Quick Info**
+- **[Quick Info](#quick-info)**
 
 ![quick-info-demo](http://i.imgur.com/TlIH97w.gif)
 
@@ -140,6 +141,20 @@ Fuzzy Finder is a quick and easy way to switch between files. It's similiar in g
 By default, Fuzzy Finder uses `git ls-files` to get the available files in the directory, but if git is not present, it will fallback to a non-git strategy.
 
 The Fuzzy Finder strategy can be configured by the `editor.quickOpen.execCommand`, and must be a shell command that returns a list of files, separated by newlines.
+
+#### Quick Info
+
+Quick Info gives a quick summary of an identifier when the cursor is held on it. JavaScript and TypeScript is supported out of the box.
+
+##### Entry point
+
+Leave the cursor hovering over an identifier.
+
+##### Options
+
+- `oni.quickInfo.enabled` - If set to `true`, the Quick Info feature is enabled. (Default: `true`)
+- `oni.quickInfo.delay` - Delay in milliseconds for the Quick Info window to show. (Default: `500`)
+
 
 ### Configuration
 
