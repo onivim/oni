@@ -1,4 +1,6 @@
 import * as path from "path"
+import * as _ from "lodash"
+
 import { renderErrorMarkers, ErrorWithColor } from "./../components/Error"
 import { IOverlay } from "./OverlayManager"
 import { WindowContext } from "./WindowContext"
@@ -17,10 +19,11 @@ export class ErrorOverlay implements IOverlay {
         this._showErrors()
     }
 
-    public setErrors(_key: string, fileName: string, errors: Oni.Plugin.Diagnostics.Error[], color: string): void {
+    public setErrors(key: string, fileName: string, errors: Oni.Plugin.Diagnostics.Error[], color: string): void {
         fileName = path.normalize(fileName)
         color = color || "red"
-        this._errors[fileName] = errors.map(e => ({...e, color }))
+        this._errors[fileName] = this._errors[fileName] || {}
+        this._errors[fileName][key] = errors.map(e => ({...e, color }))
 
         this._showErrors()
     }
@@ -47,8 +50,16 @@ export class ErrorOverlay implements IOverlay {
             return
         }
 
+        const errors = this._errors[this._currentFileName]
+
+        if (!errors) {
+            return
+        }
+
+        const allErrors = _.flatten<ErrorWithColor>(_.values<ErrorWithColor>(errors))
+
         renderErrorMarkers({
-            errors: this._errors[this._currentFileName],
+            errors: allErrors,
             windowContext: this._lastWindowContext,
         }, this._element)
     }

@@ -27,8 +27,6 @@ export class BufferScrollBar extends React.Component<BufferScrollBarProps, Buffe
     constructor(props: any) {
         super(props)
 
-        this.props.derp()
-
         this.state = {
             measuredHeight: -1
         }
