@@ -139,8 +139,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             }, (err) => {
                 this.emit("error", err)
             })
-
-        this.setFont("Consolas", "14px")
     }
 
     public getMode(): Q.Promise<string> {
