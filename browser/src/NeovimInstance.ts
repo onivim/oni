@@ -320,8 +320,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 const completions = a[0][0]
                 this.emit("show-popup-menu", completions)
             } else if (command === "bell") {
-                const audio = new Audio(Config.getValue<string>("oni.audio.beepUrl"))
-                audio.play()
+                const bellUrl = Config.getValue<string>("oni.audio.bellUrl")
+                if (bellUrl) {
+                    const audio = new Audio(bellUrl)
+                    audio.play()
+                }
             } else {
                 console.warn("Unhandled command: " + command)
             }
