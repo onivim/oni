@@ -1,10 +1,6 @@
-// import * as _ from "lodash"
-// import * as Config from "./../Config"
 import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
-// import { Grid } from "./../Grid"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
-// import { RenderCache } from "./RenderCache"
 
 export interface ITokenRenderer {
     canHandleCell(cell: ICell): boolean
@@ -53,9 +49,9 @@ export class DOMRenderer implements INeovimRenderer {
                 } else if (!currentRenderer.canHandleCell(cell)) {
                     div.appendChild(currentRenderer.getTag())
                     currentRenderer = getRendererForCell(x, cell, screenInfo)
-                } 
+                }
 
-                if(currentRenderer) {
+                if (currentRenderer) {
                     currentRenderer.appendCell(cell)
                 }
 
@@ -101,13 +97,11 @@ export class BaseTokenRenderer {
         span.style.left = (this._x * this.screen.fontWidthInPixels) + "px"
         span.style.height = this.screen.fontHeightInPixels + "px"
 
-        if(this._backgroundColor && this._backgroundColor !== this._screen.backgroundColor) {
+        if (this._backgroundColor && this._backgroundColor !== this._screen.backgroundColor) {
             span.style.backgroundColor = this._backgroundColor
         }
 
-        if (this._foregroundColor) {
-            span.style.color = this._foregroundColor
-        }
+        span.style.color = this._foregroundColor || this._screen.foregroundColor
         return span
 
     }
@@ -137,7 +131,7 @@ export class WhiteSpaceTokenRenderer extends BaseTokenRenderer implements IToken
     }
 }
 
-export class SimpleRenderer extends BaseTokenRenderer implements ITokenRenderer {
+export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
 
     private _str: string = ""
 
@@ -155,22 +149,23 @@ export class SimpleRenderer extends BaseTokenRenderer implements ITokenRenderer 
 
     public getTag(): HTMLElement {
         const span = super.getTag()
-        span.innerHTML = this._str
-        span.style.width = ((this._str.length+1) * this.screen.fontWidthInPixels) + "px"
+        span.textContent = this._str
+        span.style.width = ((this._str.length + 1) * this.screen.fontWidthInPixels) + "px"
         return span
     }
 
 }
 
 export function getRendererForCell(x: number, cell: ICell, screen: IScreen) {
-    if(isWhiteSpace(cell))
+    if (isWhiteSpace(cell)) {
         return new WhiteSpaceTokenRenderer(x, cell, screen)
-    else
-        return new SimpleRenderer(x, cell, screen)
+    } else {
+        return new TokenRenderer(x, cell, screen)
+    }
 }
 
 function isWhiteSpace(cell: ICell): boolean {
     const character = cell.character
 
-    return character === " " || character === "" || character === "\t" || character === "\n" || character === "\r"
+    return character === " " || character === "" || character === "\t" || character === "\n"
 }
