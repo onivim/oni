@@ -14,9 +14,14 @@ export class CanvasRenderer implements INeovimRenderer {
 
     private _lastRenderedCell: Grid<ICell> = new Grid<ICell>()
 
-    public start(element: HTMLCanvasElement): void {
-        // Assert canvas
-        this._canvas = element
+    public start(element: HTMLDivElement): void {
+        this._canvas = document.createElement("canvas") as HTMLCanvasElement
+
+        this._canvas.style.position = "absolute"
+        this._canvas.style.width = "100%"
+        this._canvas.style.height = "100%"
+        element.appendChild(this._canvas)
+
         this._setContextDimensions()
         this._canvasContext = <any>this._canvas.getContext("2d") // FIXME: null
 
@@ -38,8 +43,6 @@ export class CanvasRenderer implements INeovimRenderer {
         this._canvasContext.textBaseline = "top"
         const fontWidth = screenInfo.fontWidthInPixels * this._getPixelRatio()
         const fontHeight = screenInfo.fontHeightInPixels * this._getPixelRatio()
-
-        // const canvasStart = performance.now()
 
         const numberOfCellsToRender = Config.getValue<number>("prototype.editor.maxCellsToRender")
         const cellsToRender = _.take(_.shuffle(deltaRegionTracker.getModifiedCells()), numberOfCellsToRender)
@@ -104,11 +107,6 @@ export class CanvasRenderer implements INeovimRenderer {
 
             deltaRegionTracker.notifyCellRendered(x, y)
         })
-
-        // const canvasEnd = performance.now()
-
-        // TODO: Need a story for verbose logging
-        // console.log("Render time: " + (canvasEnd - canvasStart))
     }
 
     private _getPixelRatio(): number {

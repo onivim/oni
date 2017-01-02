@@ -1,23 +1,18 @@
 import { EventEmitter } from "events"
 import { IScreen } from "./../Screen"
 
-// interface ScreenPoint {
-//     line: number
-//     column: number
-// }
-
 // TODO
 // Handle modifier keys
 export class Mouse extends EventEmitter {
 
-    private _canvasElement: HTMLCanvasElement
+    private _editorElement: HTMLDivElement
     private _screen: IScreen
     private _isDragging = false
 
-    constructor(canvasElement: HTMLCanvasElement, screen: IScreen) {
+    constructor(editorElement: HTMLDivElement, screen: IScreen) {
         super()
 
-        this._canvasElement = canvasElement
+        this._editorElement = editorElement
         this._screen = screen
 
         document.body.addEventListener("mousedown", (evt: MouseEvent) => {
@@ -63,20 +58,7 @@ export class Mouse extends EventEmitter {
                 }
                 this.emit("mouse", scrollcmdY + `<${line},${column}>`)
             }
-            /*
-             * This doesn't seem to do anything
-            }
-            /*
-             * This doesn't seem to do anything
-            if (evt.deltaX) {
-                if (evt.deltaX < 0) {
-                    scrollcmdX += `ScrollWheeLeft>`
-                } else {
-                    scrollcmdX += `ScrollWheelRight>`
-                }
-                this.emit("mouse",scrollcmdX)
-            }
-            */
+
             this._isDragging = false
 
         })
