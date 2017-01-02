@@ -7,7 +7,8 @@ import { Keyboard } from "./Input/Keyboard"
 import { Mouse } from "./Input/Mouse"
 import { NeovimInstance } from "./NeovimInstance"
 import { PluginManager } from "./Plugins/PluginManager"
-import { CanvasRenderer } from "./Renderer/CanvasRenderer"
+// import { CanvasRenderer } from "./Renderer/CanvasRenderer"
+import { DOMRenderer } from "./Renderer/DOMRenderer"
 import { NeovimScreen } from "./Screen"
 import { Formatter } from "./Services/Formatter"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
@@ -40,7 +41,7 @@ const start = (args: string[]) => {
     let instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight)
 
     const editorElement = document.getElementById("oni-text-editor") as HTMLDivElement
-    let renderer = new CanvasRenderer()
+    let renderer = new DOMRenderer()
     renderer.start(editorElement)
 
     let pendingTimeout: any = null
@@ -168,6 +169,7 @@ const start = (args: string[]) => {
         }
 
         renderer.update(screen, deltaRegion)
+
         deltaRegion.cleanUpRenderedCells()
 
         window.requestAnimationFrame(() => renderFunction())

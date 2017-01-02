@@ -1,125 +1,176 @@
-import * as _ from "lodash"
-import * as Config from "./../Config"
+// import * as _ from "lodash"
+// import * as Config from "./../Config"
 import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
-import { Grid } from "./../Grid"
+// import { Grid } from "./../Grid"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
-import { RenderCache } from "./RenderCache"
+// import { RenderCache } from "./RenderCache"
+
+export interface ITokenRenderer {
+    canHandleCell(cell: ICell): boolean
+    appendCell(cell: ICell): void
+    getTag(): HTMLElement
+}
 
 export class DOMRenderer implements INeovimRenderer {
-    private _canvas: HTMLCanvasElement
-    private _canvasContext: CanvasRenderingContext2D
+    private _editorElement: HTMLDivElement
 
-    private _renderCache: RenderCache
-
-    private _lastRenderedCell: Grid<ICell> = new Grid<ICell>()
-
-    public start(element: HTMLCanvasElement): void {
+    public start(element: HTMLDivElement): void {
         // Assert canvas
-        this._canvas = element
-        this._setContextDimensions()
-        this._canvasContext = <any>this._canvas.getContext("2d") // FIXME: null
-
-        this._renderCache = new RenderCache(this._canvasContext, this._getPixelRatio())
+        this._editorElement = element
     }
 
     public onAction(_action: any): void {
-        return
     }
 
     public onResize(): void {
-        this._setContextDimensions()
-
-        this._lastRenderedCell.clear()
     }
 
     public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
-        this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
-        this._canvasContext.textBaseline = "top"
-        const fontWidth = screenInfo.fontWidthInPixels * this._getPixelRatio()
-        const fontHeight = screenInfo.fontHeightInPixels * this._getPixelRatio()
 
-        // const canvasStart = performance.now()
+        if (deltaRegionTracker.getModifiedCells().length === 0)
+            return
 
-        const numberOfCellsToRender = Config.getValue<number>("prototype.editor.maxCellsToRender")
-        const cellsToRender = _.take(_.shuffle(deltaRegionTracker.getModifiedCells()), numberOfCellsToRender)
+        this._editorElement.innerHTML = ""
+        this._editorElement.style.fontFamily = screenInfo.fontFamily
+        this._editorElement.style.fontSize = screenInfo.fontSize
+        const width = screenInfo.width
+        const height = screenInfo.height
 
-        cellsToRender.forEach((pos) => {
-            const {x, y} = pos
-            const drawX = x * fontWidth
-            const drawY = y * fontHeight
+        for (let y = 0; y < height; y++) {
+            const div = document.createElement("div")
+            div.style.position = "absolute"
+            div.style.left = "0px"
+            div.style.top = (screenInfo.fontHeightInPixels * y) + "px"
+            let currentRenderer: ITokenRenderer | null = null
 
-            const cell = screenInfo.getCell(x, y)
+            for (let x = 0; x < width; x++) {
 
-            if (cell) {
-                const lastRenderedCell = this._lastRenderedCell.getCell(x, y)
+                const cell = screenInfo.getCell(x, y)
 
-                if (!pos.force) {
-                    if (lastRenderedCell === cell) {
-                        deltaRegionTracker.notifyCellRendered(x, y)
-                        return
-                    }
+                if (!currentRenderer) {
+                    currentRenderer = getRendererForCell(x, cell, screenInfo)
+                } else if (!currentRenderer.canHandleCell(cell)) {
+                    div.appendChild(currentRenderer.getTag())
+                    currentRenderer = getRendererForCell(x, cell, screenInfo)
+                } 
 
-                    if (lastRenderedCell
-                        && lastRenderedCell.backgroundColor === cell.backgroundColor
-                        && lastRenderedCell.character === cell.character
-                        && lastRenderedCell.foregroundColor === cell.foregroundColor) {
-                        this._lastRenderedCell.setCell(x, y, cell)
-                        deltaRegionTracker.notifyCellRendered(x, y)
-                        return
-                    }
+                if(currentRenderer) {
+                    currentRenderer.appendCell(cell)
                 }
 
-                const calculatedWidth = cell.characterWidth
-                this._canvasContext.clearRect(drawX, drawY, fontWidth * calculatedWidth, fontHeight)
-
-                const defaultBackgroundColor = "rgba(255, 255, 255, 0)"
-                let backgroundColor = defaultBackgroundColor
-
-                if (cell.backgroundColor && cell.backgroundColor !== screenInfo.backgroundColor) {
-                    backgroundColor = cell.backgroundColor
-                }
-
-                if (cell.character !== "" && cell.character !== " ") {
-                    const foregroundColor = cell.foregroundColor ? cell.foregroundColor : screenInfo.foregroundColor
-                    this._renderCache.drawText(
-                        cell.character,
-                        backgroundColor,
-                        foregroundColor,
-                        drawX,
-                        drawY,
-                        <any>screenInfo.fontFamily, // FIXME: null
-                        <any>screenInfo.fontSize, // FIXME: null
-                        fontWidth * cell.characterWidth,
-                        fontHeight)
-                } else if (backgroundColor !== defaultBackgroundColor) {
-                    this._canvasContext.fillStyle = backgroundColor
-                    this._canvasContext.fillRect(drawX, drawY, fontWidth, fontHeight)
-                }
-
-                this._lastRenderedCell.setCell(x, y, cell)
-            } else {
-                console.log(`Unset cell - x: ${x} y: ${y}`) // tslint:disable-line no-console
+                deltaRegionTracker.notifyCellRendered(x, y)
             }
 
-            deltaRegionTracker.notifyCellRendered(x, y)
-        })
+            if (currentRenderer) {
+                const tag = currentRenderer.getTag()
+                div.appendChild(tag)
+            }
 
-        // const canvasEnd = performance.now()
+            this._editorElement.appendChild(div)
+        }
+    }
+}
 
-        // TODO: Need a story for verbose logging
-        // console.log("Render time: " + (canvasEnd - canvasStart))
+export class BaseTokenRenderer {
+
+    private _screen: IScreen
+    private _backgroundColor: string | undefined
+    private _foregroundColor: string | undefined
+    private _x: number
+
+    protected get screen(): IScreen {
+        return this._screen
     }
 
-    private _getPixelRatio(): number {
-        // TODO: Does the backingStoreContext need to be taken into account?
-        // I believe this value should be consistent at least on the Electron platform
-        return window.devicePixelRatio
+    constructor(x: number, cell: ICell, screen: IScreen) {
+        this._foregroundColor = cell.foregroundColor
+        this._backgroundColor = cell.backgroundColor
+        this._screen = screen
+        this._x = x
     }
 
-    private _setContextDimensions(): void {
-        this._canvas.width = this._canvas.offsetWidth * this._getPixelRatio()
-        this._canvas.height = this._canvas.offsetHeight * this._getPixelRatio()
+    public canHandleCell(cell: ICell): boolean {
+        return this._foregroundColor === cell.foregroundColor && this._backgroundColor === cell.backgroundColor
     }
 
+    public getTag(): HTMLElement {
+
+        const span = document.createElement("span")
+        span.style.position = "absolute"
+        span.style.left = (this._x * this.screen.fontWidthInPixels) + "px"
+        span.style.height = this.screen.fontHeightInPixels + "px"
+
+        if(this._backgroundColor && this._backgroundColor !== this._screen.backgroundColor) {
+            span.style.backgroundColor = this._backgroundColor
+        }
+
+        if (this._foregroundColor) {
+            span.style.color = this._foregroundColor
+        }
+        return span
+
+    }
+}
+
+export class WhiteSpaceTokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
+
+    private _whitespaceCount = 0
+
+    constructor(x: number, cell: ICell, screen: IScreen) {
+        super(x, cell, screen)
+    }
+
+    public canHandleCell(cell: ICell): boolean {
+        return isWhiteSpace(cell)
+    }
+
+    public appendCell(): void {
+        this._whitespaceCount++
+    }
+
+    public getTag(): HTMLElement {
+        const span = super.getTag()
+        span.className = "whitespace"
+        span.style.width = (this._whitespaceCount * this.screen.fontWidthInPixels) + "px"
+        return span
+    }
+}
+
+export class SimpleRenderer extends BaseTokenRenderer implements ITokenRenderer {
+
+    private _str: string = ""
+
+    constructor(x: number, cell: ICell, screen: IScreen) {
+        super(x, cell, screen)
+    }
+
+    public canHandleCell(cell: ICell): boolean {
+        return !isWhiteSpace(cell)
+    }
+
+    public appendCell(cell: ICell): void {
+        this._str += cell.character
+    }
+
+    public getTag(): HTMLElement {
+        const span = super.getTag()
+        span.innerHTML = this._str
+        span.style.width = ((this._str.length+1) * this.screen.fontWidthInPixels) + "px"
+        return span
+    }
+
+}
+
+export function getRendererForCell(x: number, cell: ICell, screen: IScreen) {
+    if(isWhiteSpace(cell))
+        return new WhiteSpaceTokenRenderer(x, cell, screen)
+    else
+        return new SimpleRenderer(x, cell, screen)
+}
+
+function isWhiteSpace(cell: ICell): boolean {
+    const character = cell.character
+
+    return character === " " || character === "" || character === "\t" || character === "\n" || character === "\r"
 }
