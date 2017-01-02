@@ -22,10 +22,10 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
 
     document.body.appendChild(div)
 
-    const width = div.offsetWidth
-    const height = div.offsetHeight
+    const rect = div.getBoundingClientRect()
 
-    // TODO: Remove child
+    const width = rect.width
+    const height = rect.height
 
     return {
         width,
