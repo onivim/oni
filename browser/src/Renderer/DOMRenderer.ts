@@ -116,7 +116,7 @@ export class WhiteSpaceTokenRenderer extends BaseTokenRenderer implements IToken
     }
 
     public canHandleCell(cell: ICell): boolean {
-        return isWhiteSpace(cell)
+        return super.canHandleCell(cell) && isWhiteSpace(cell)
     }
 
     public appendCell(): void {
@@ -140,11 +140,13 @@ export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
     }
 
     public canHandleCell(cell: ICell): boolean {
-        return !isWhiteSpace(cell)
+        return super.canHandleCell(cell) && !isWhiteSpace(cell)
     }
 
     public appendCell(cell: ICell): void {
-        this._str += cell.character
+        if (cell.characterWidth > 0) {
+            this._str += cell.character
+        }
     }
 
     public getTag(): HTMLElement {
@@ -167,5 +169,5 @@ export function getRendererForCell(x: number, cell: ICell, screen: IScreen) {
 function isWhiteSpace(cell: ICell): boolean {
     const character = cell.character
 
-    return character === " " || character === "" || character === "\t" || character === "\n"
+    return cell.characterWidth === 1 && (character === " " || character === "" || character === "\t" || character === "\n")
 }
