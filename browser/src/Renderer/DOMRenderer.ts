@@ -5,7 +5,7 @@ import { INeovimRenderer } from "./INeovimRenderer"
 export interface ITokenRenderer {
     canHandleCell(cell: ICell): boolean
     appendCell(cell: ICell): void
-    getTag(): HTMLElement
+    getTag(): HTMLElement | null
 }
 
 export class DOMRenderer implements INeovimRenderer {
@@ -47,7 +47,11 @@ export class DOMRenderer implements INeovimRenderer {
                 if (!currentRenderer) {
                     currentRenderer = getRendererForCell(x, cell, screenInfo)
                 } else if (!currentRenderer.canHandleCell(cell)) {
-                    div.appendChild(currentRenderer.getTag())
+                    const tag = currentRenderer.getTag()
+
+                    if (tag) {
+                        div.appendChild(tag)
+                    }
                     currentRenderer = getRendererForCell(x, cell, screenInfo)
                 }
 
@@ -60,7 +64,9 @@ export class DOMRenderer implements INeovimRenderer {
 
             if (currentRenderer) {
                 const tag = currentRenderer.getTag()
-                div.appendChild(tag)
+                if (tag) {
+                    div.appendChild(tag)
+                }
             }
 
             this._editorElement.appendChild(div)
@@ -79,6 +85,14 @@ export class BaseTokenRenderer {
         return this._screen
     }
 
+    protected get foregroundColor(): string | undefined {
+        return this._foregroundColor
+    }
+
+    protected get backgroundColor(): string | undefined {
+        return this._backgroundColor
+    }
+
     constructor(x: number, cell: ICell, screen: IScreen) {
         this._foregroundColor = cell.foregroundColor
         this._backgroundColor = cell.backgroundColor
@@ -90,7 +104,7 @@ export class BaseTokenRenderer {
         return this._foregroundColor === cell.foregroundColor && this._backgroundColor === cell.backgroundColor
     }
 
-    public getTag(): HTMLElement {
+    public getDefaultTag(): HTMLElement {
 
         const span = document.createElement("span")
         span.style.position = "absolute"
@@ -123,8 +137,11 @@ export class WhiteSpaceTokenRenderer extends BaseTokenRenderer implements IToken
         this._whitespaceCount++
     }
 
-    public getTag(): HTMLElement {
-        const span = super.getTag()
+    public getTag(): HTMLElement | null {
+        if (!this.backgroundColor || this.backgroundColor === this.screen.backgroundColor)
+            return null
+
+        const span = super.getDefaultTag()
         span.className = "whitespace"
         span.style.width = (this._whitespaceCount * this.screen.fontWidthInPixels) + "px"
         return span
@@ -149,8 +166,8 @@ export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
         }
     }
 
-    public getTag(): HTMLElement {
-        const span = super.getTag()
+    public getTag(): HTMLElement | null {
+        const span = super.getDefaultTag()
         span.textContent = this._str
         span.style.width = ((this._str.length + 1) * this.screen.fontWidthInPixels) + "px"
         return span
