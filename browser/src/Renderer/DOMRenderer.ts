@@ -24,8 +24,9 @@ export class DOMRenderer implements INeovimRenderer {
 
     public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
 
-        if (deltaRegionTracker.getModifiedCells().length === 0)
+        if (deltaRegionTracker.getModifiedCells().length === 0) {
             return
+        }
 
         this._editorElement.innerHTML = ""
         this._editorElement.style.fontFamily = screenInfo.fontFamily
