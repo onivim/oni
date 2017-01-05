@@ -275,7 +275,7 @@ export class PluginManager extends EventEmitter {
     }
 }
 
-function getDirectories(rootPath: string | Buffer): string[] {
+function getDirectories(rootPath: string): string[] {
     if (!fs.existsSync(rootPath)) {
         return []
     }
