@@ -129,7 +129,7 @@ export class AutoCompletionIcon extends React.Component<IAutoCompletionIconProps
         };
 
         return   iconName[this.props.kind]?iconName[this.props.kind]:iconName['default'];
-
+    }
 }
 
 const mapStateToProps = (state: IState) => {
