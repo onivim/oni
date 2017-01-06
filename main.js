@@ -3,6 +3,7 @@ const path = require("path")
 // Module to control application life.
 const defaultMenu = require('electron-default-menu');
 const { Menu, app, shell,dialog } = electron;
+const os = require('os');
 
 const ipcMain = electron.ipcMain
 
@@ -54,8 +55,9 @@ function createWindow(commandLineArguments, workingDirectory) {
     let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png") })
     let menu = defaultMenu(app, shell);
 
+  let firstMenu = os.platform()=="win32" ? 'File':'Oni';
   menu.unshift ({
-    label: 'File',
+    label: firstMenu,
     submenu: [
       {
         label: 'Quit',
