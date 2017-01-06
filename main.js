@@ -1,8 +1,9 @@
 const electron = require('electron')
 const path = require("path")
 // Module to control application life.
+const defaultMenu = require('electron-default-menu');
+const { Menu, app, shell,dialog } = electron;
 
-const app = electron.app
 const ipcMain = electron.ipcMain
 
 const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
@@ -10,6 +11,7 @@ const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).leng
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 const webContents = electron.webContents
+
 
 ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
@@ -50,6 +52,44 @@ function createWindow(commandLineArguments, workingDirectory) {
 
     // Create the browser window.
     let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png") })
+    let menu = defaultMenu(app, shell);
+
+  menu.unshift ({
+    label: 'Oni',
+    submenu: [
+      {
+        label: 'Quit',
+        click: (item, focusedWindow) => {
+          app.quit()
+        }
+      }
+    ]
+  })
+
+//    deleting 'Toggle Developer Tools'
+   menu[2].submenu.splice(2,1)
+   menu[4].submenu = [
+       {
+        label: 'Learn more',
+        click: (item, focusedWindow) => {
+        shell.openExternal('https://github.com/extr0py/oni#introduction');
+        }
+      },
+        {
+        label: 'Issues',
+        click: (item, focusedWindow) => {
+          shell.openExternal('https://github.com/extr0py/oni/issues');
+        }
+      },
+      {
+        label: 'Github',
+        click: (item, focusedWindow) => {
+          shell.openExternal('https://github.com/extr0py/oni');
+        }
+      }
+   ]
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
 
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
