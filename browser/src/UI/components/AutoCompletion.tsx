@@ -105,30 +105,30 @@ export class AutoCompletionIcon extends React.Component<IAutoCompletionIconProps
     public render(): null | JSX.Element {
 
         const iconName = {
-            'let':<Icon name='wrench'/>,
-            'interface':<Icon name='plug'/>,
-            'alias':<Icon name='id-badge'/>,
-            'const':<Icon name='lock'/>,
-            'class':<Icon name='cube'/>,
-            'type':<Icon name='sitemap'/>,
-            'directory':<Icon name='folder'/>,
-            'file':<Icon name='file'/>,
-            'script':<Icon name='file'/>,
-            'var':<Icon name='code'/>,
-            'property':<Icon name='code'/>,
-            'parameter':<Icon name='code'/>,
-            'module':<Icon name='cubes'/>,
-            'external module name':<Icon name='cubes'/>,
-            'method':<Icon name='cog'/>,
-            'functioin':<Icon name='cog'/>,
-            'keyword':<Icon name='key'/>,
-            'text':<Icon name='align-justify'/>,
-            'warning':<Icon name='exclamation-triangle'/>,
-            '$warning':<Icon name='exclamation-triangle'/>,
-            'default':!this.props.kind ? null : <span>`?${this.props.kind}?`</span>
+            "let":<Icon name="wrench"/>,
+            "interface":<Icon name="plug"/>,
+            "alias":<Icon name="id-badge"/>,
+            "const":<Icon name="lock"/>,
+            "class":<Icon name="cube"/>,
+            "type":<Icon name="sitemap"/>,
+            "directory":<Icon name="folder"/>,
+            "file":<Icon name="file"/>,
+            "script":<Icon name="file"/>,
+            "var":<Icon name="code"/>,
+            "property":<Icon name="code"/>,
+            "parameter":<Icon name="code"/>,
+            "module":<Icon name="cubes"/>,
+            "external module name":<Icon name="cubes"/>,
+            "method":<Icon name="cog"/>,
+            "functioin":<Icon name="cog"/>,
+            "keyword":<Icon name="key"/>,
+            "text":<Icon name="align-justify"/>,
+            "warning":<Icon name="exclamation-triangle"/>,
+            "$warning":<Icon name="exclamation-triangle"/>,
+            "default":!this.props.kind ? null : <span>`?${this.props.kind}?`</span>
         };
 
-        return   iconName[this.props.kind]?iconName[this.props.kind]:iconName['default'];
+        return   iconName[this.props.kind]?iconName[this.props.kind]:iconName["default"];
     }
 }
 

@@ -59,7 +59,7 @@ export class Keyboard extends EventEmitter {
              13: "enter",   // Enter                 
              27: "esc",     // Escape
              33: "pageup",  // Page up
-             34: "pagedown",// Page down
+             34: "pagedown", // Page down
              35: "end",
              36: "home",
              37: "left",    // ArrowLeft
@@ -69,7 +69,7 @@ export class Keyboard extends EventEmitter {
              45: "insert",
              114: "f3",
              116: "f5",
-             123: "f12",                 
+             123: "f12",
              16:  null,     // Shift left
              17:  null,     // Ctrl left
              18:  null,     // Alt left
@@ -78,9 +78,9 @@ export class Keyboard extends EventEmitter {
              145: null,     // Scroll lock
              174: null,     // Volume up
              175: null,     // Volume down                
-        };
-        
-        return keyCode[evt.keyCode]?keyCode[evt.keyCode]:evt.key
+        }
+
+       return keyCode[evt.keyCode ] ? keyCode[evt.keyCode ] : evt.key
 
     }
 }
