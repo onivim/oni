@@ -55,7 +55,7 @@ function createWindow(commandLineArguments, workingDirectory) {
     let menu = defaultMenu(app, shell);
 
   menu.unshift ({
-    label: 'Oni',
+    label: 'File',
     submenu: [
       {
         label: 'Quit',
