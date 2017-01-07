@@ -2,7 +2,15 @@
 
 var path = require('path')
 var spawn = require('child_process').spawn
-const os = require("os");
+const os = require("os"),
+      fs = require("fs");
+
+let processOptions = {}
+let log = require('path').join(__dirname, 'out.log')
+let out = fs.openSync(log, 'a')
+let err = fs.openSync(log, 'a')
+processOptions.detached = true
+processOptions.stdio = [ 'ignore', out, err ]
 
 // Check for Windows, assume macOS/Windows otherwise
 const isWindows = os.platform() === "win32";
@@ -11,8 +19,10 @@ var electronPath = path.join(__dirname, "..", "node_modules", ".bin", electronBi
 var args = process.argv.slice(2);
 args.unshift(path.resolve(path.join(__dirname, "..", "main.js")))
 
-var child = spawn(electronPath, args)
-child.stdout.pipe(process.stdout)
-process.stdin.pipe(child.stdin)
+// var child = spawn(electronPath, args)
+let child = new spawn(electronPath,args, processOptions)
+child.unref()
 
+child.on('error', (err) => self.emit('error', err))
 child.on("exit", (code) => process.exit(code));
+process.exit(0)
