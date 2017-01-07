@@ -9,8 +9,9 @@ let processOptions = {}
 let log = require('path').join(__dirname, 'out.log')
 let out = fs.openSync(log, 'a')
 let err = fs.openSync(log, 'a')
+processOptions.shell = true
 processOptions.detached = true
-processOptions.stdio = [ 'ignore', out, err ]
+processOptions.stdio = [ 'ignore', "ignore", "ignore"]
 
 // Check for Windows, assume macOS/Windows otherwise
 const isWindows = os.platform() === "win32";
@@ -19,10 +20,14 @@ var electronPath = path.join(__dirname, "..", "node_modules", ".bin", electronBi
 var args = process.argv.slice(2);
 args.unshift(path.resolve(path.join(__dirname, "..", "main.js")))
 
-// var child = spawn(electronPath, args)
-let child = new spawn(electronPath,args, processOptions)
-child.unref()
+// In Windows, for the `electron.cmd`, the spawn has to be done with cmd.exe -
+// otherwise we'll end up with a floating node console
+let spawnProcess = isWindows ? "cmd.exe" : electronPath
+let spawnArgs = isWindows ? ["/c", electronPath].concat(args) : args
 
-child.on('error', (err) => self.emit('error', err))
-child.on("exit", (code) => process.exit(code));
+console.log(spawnProcess)
+console.log(spawnArgs)
+
+let child = new spawn(spawnProcess, spawnArgs, processOptions)
+
 process.exit(0)
