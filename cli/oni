@@ -9,9 +9,8 @@ let processOptions = {}
 let log = require('path').join(__dirname, 'out.log')
 let out = fs.openSync(log, 'a')
 let err = fs.openSync(log, 'a')
-processOptions.shell = true
 processOptions.detached = true
-processOptions.stdio = [ 'ignore', "ignore", "ignore"]
+processOptions.stdio = "pipe"
 
 // Check for Windows, assume macOS/Windows otherwise
 const isWindows = os.platform() === "win32";
@@ -23,11 +22,14 @@ args.unshift(path.resolve(path.join(__dirname, "..", "main.js")))
 // In Windows, for the `electron.cmd`, the spawn has to be done with cmd.exe -
 // otherwise we'll end up with a floating node console
 let spawnProcess = isWindows ? "cmd.exe" : electronPath
-let spawnArgs = isWindows ? ["/c", electronPath].concat(args) : args
+let spawnArgs = isWindows ? ["/d", "/s", "/c", electronPath].concat(args) : args
 
 console.log(spawnProcess)
 console.log(spawnArgs)
 
-let child = new spawn(spawnProcess, spawnArgs, processOptions)
+let child = spawn(spawnProcess, spawnArgs)
+child.unref()
 
-process.exit(0)
+setTimeout(() => {
+    process.exit(0)
+}, 500)
