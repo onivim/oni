@@ -22,12 +22,11 @@ args.unshift(path.resolve(path.join(__dirname, "..", "main.js")))
 // In Windows, directly call into the electron executable - otherwise we"ll end up with a floating node console
 const windowsElectronPath = path.join(__dirname, "..", "node_modules", "electron", "dist", "electron.exe")
 let spawnProcess = isWindows ? windowsElectronPath : electronPath
-let spawnProcessOptions = isWindows ? {} : processOptions
 
 let child = spawn(spawnProcess, args, processOptions)
 child.unref()
 
-child.on("error", (err) => console.log(err))
+child.on("error", (err) => console.error(err))
 child.on("exit", (code) => process.exit(code));
 
 process.exit(0)
