@@ -1,16 +1,17 @@
 #! /usr/bin/env node
 
-var path = require('path')
-var spawn = require('child_process').spawn
+var path = require("path")
+var spawn = require("child_process").spawn
+var exec = require("child_process").exec
 const os = require("os"),
       fs = require("fs");
 
 let processOptions = {}
-let log = require('path').join(__dirname, 'out.log')
-let out = fs.openSync(log, 'a')
-let err = fs.openSync(log, 'a')
+let log = require("path").join(__dirname, "out.log")
+let out = fs.openSync(log, "a")
+let err = fs.openSync(log, "a")
 processOptions.detached = true
-processOptions.stdio = "pipe"
+processOptions.stdio = ["ignore", out, err]
 
 // Check for Windows, assume macOS/Windows otherwise
 const isWindows = os.platform() === "win32";
@@ -19,17 +20,15 @@ var electronPath = path.join(__dirname, "..", "node_modules", ".bin", electronBi
 var args = process.argv.slice(2);
 args.unshift(path.resolve(path.join(__dirname, "..", "main.js")))
 
-// In Windows, for the `electron.cmd`, the spawn has to be done with cmd.exe -
-// otherwise we'll end up with a floating node console
-let spawnProcess = isWindows ? "cmd.exe" : electronPath
-let spawnArgs = isWindows ? ["/d", "/s", "/c", electronPath].concat(args) : args
+// In Windows, directly call into the electron executable - otherwise we"ll end up with a floating node console
+const windowsElectronPath = path.join(__dirname, "..", "node_modules", "electron", "dist", "electron.exe")
+let spawnProcess = isWindows ? windowsElectronPath : electronPath
+let spawnProcessOptions = isWindows ? {} : processOptions
 
-console.log(spawnProcess)
-console.log(spawnArgs)
-
-let child = spawn(spawnProcess, spawnArgs)
+let child = spawn(spawnProcess, args, processOptions)
 child.unref()
 
-setTimeout(() => {
-    process.exit(0)
-}, 500)
+child.on("error", (err) => console.log(err))
+child.on("exit", (code) => process.exit(code));
+
+process.exit(0)
