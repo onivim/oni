@@ -200,7 +200,7 @@ Language extenders given ONI rich integration with languages, offering services 
 - Unit test integration
 - Enhanced syntax highlighting
 
-To see the in-progress API, check out the [Oni.d.ts](https://github.com/extr0py/oni/blob/master/definitions/Oni.d.ts) definition file as well as the [typescript language plugin](https://github.com/extr0py/oni/tree/master/vim/vimfiles/bundle/oni-plugin-typescript), which demonstrates several of these features:
+To see the in-progress API, check out the [Oni.d.ts](https://github.com/extr0py/oni/blob/master/definitions/Oni.d.ts) definition file as well as the [typescript language plugin](https://github.com/extr0py/oni/tree/master/vim/core/oni-plugin-typescript), which demonstrates several of these features:
 
 #### Background
 
