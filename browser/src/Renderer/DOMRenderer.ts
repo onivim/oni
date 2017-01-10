@@ -13,15 +13,18 @@ export interface ITokenRenderer {
     getTag(): HTMLElement | null
 }
 
-export interface IElementInfo {
-    x: number
-    width: number
+export interface ISpan {
+    startX: number
+    endX: number
+}
+
+export interface ISpanElementInfo extends ISpan {
     element: HTMLElement | null
 }
 
 export class DOMRenderer implements INeovimRenderer {
     private _editorElement: HTMLDivElement
-    private _grid: Grid<IElementInfo> = new Grid<IElementInfo>()
+    private _grid: Grid<ISpanElementInfo> = new Grid<ISpanElementInfo>()
 
     public start(element: HTMLDivElement): void {
         this._editorElement = element
@@ -33,70 +36,53 @@ export class DOMRenderer implements INeovimRenderer {
     public onResize(): void {
     }
 
+
     public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
 
         if (deltaRegionTracker.getModifiedCells().length === 0) {
             return
         }
 
-        // Get all 'spans'
-        const rowToSpans = {}
-        deltaRegionTracker.getModifiedCells().forEach((cell) => {
-            const {x, y} = cell
-
-            const info = this._grid.getCell(x, y)
-
-            rowToSpans[y] = rowToSpans[y] || []
-
-            if (!info) {
-                rowToSpans[y].push({x, y, width: 1})
-                return
-            }
-
-            rowToSpans[y].push({
-                x: info.x,
-                width: info.width,
-                y: y
-            })
-
-            if (info.element) {
-                info.element.remove()
-            }
-
-            this._grid.setRegion(x, y, info.width, 1, null)
-        })
-
         // TODO: Get rid of this
-        this._editorElement.innerHTML = ""
+        // this._editorElement.innerHTML = ""
         this._editorElement.style.fontFamily = screenInfo.fontFamily
         this._editorElement.style.fontSize = screenInfo.fontSize
-        const width = screenInfo.width
-        const height = screenInfo.height
 
-        for (let y = 0; y < height; y++) {
-            let currentRenderer: ITokenRenderer | null = null
+        const rowsToEdit = getSpansToEdit(this._grid, deltaRegionTracker)
 
-            for (let x = 0; x < width; x++) {
+        for (let y of rowsToEdit.keys()) {
+            const row = rowsToEdit.get(y)
 
-                const cell = screenInfo.getCell(x, y)
+            if (!row)
+                return
 
-                if (!currentRenderer) {
-                    currentRenderer = getRendererForCell(x, y, cell, screenInfo)
-                } else if (!currentRenderer.canHandleCell(cell)) {
-                    this._applyRenderedToken(currentRenderer)
-                    currentRenderer = getRendererForCell(x, y, cell, screenInfo)
-                }
+            row.forEach((span: ISpan) => {
+                this._renderSpan(span.startX, span.endX, y, screenInfo)
+            })
+        }
+    }
 
-                if (currentRenderer) {
-                    currentRenderer.appendCell(cell)
-                }
+    private _renderSpan(startX: number, endX: number, y: number, screenInfo: IScreen): void {
+        let currentRenderer: ITokenRenderer | null = null
 
-                deltaRegionTracker.notifyCellRendered(x, y)
+        for (let x = startX; x < endX; x++) {
+
+            const cell = screenInfo.getCell(x, y)
+
+            if (!currentRenderer) {
+                currentRenderer = getRendererForCell(x, y, cell, screenInfo)
+            } else if (!currentRenderer.canHandleCell(cell)) {
+                this._applyRenderedToken(currentRenderer)
+                currentRenderer = getRendererForCell(x, y, cell, screenInfo)
             }
 
             if (currentRenderer) {
-                this._applyRenderedToken(currentRenderer)
+                currentRenderer.appendCell(cell)
             }
+        }
+
+        if (currentRenderer) {
+            this._applyRenderedToken(currentRenderer)
         }
     }
 
@@ -116,12 +102,12 @@ export class DOMRenderer implements INeovimRenderer {
         const element = tag || null
 
         const infoToSave = {
-            x: startX,
-            width: width,
+            startX: startX,
+            endX: startX + width,
             element: element
         }
 
-        for(let x = startX; x < startX + width; x++) {
+        for (let x = startX; x < startX + width; x++) {
             this._grid.setCell(x, y, infoToSave)
         }
     }
@@ -260,4 +246,56 @@ function isWhiteSpace(cell: ICell): boolean {
     const character = cell.character
 
     return cell.characterWidth === 1 && (character === " " || character === "" || character === "\t" || character === "\n")
+}
+
+function addOrCoalesceSpan(existingSpans: ISpan[], newSpan: ISpan): ISpan[] {
+    const overlappingSpans = existingSpans.filter(s =>  {
+
+        if ((newSpan.startX >= s.startX && newSpan.startX <= s.endX)
+            || (newSpan.endX >= s.startX && newSpan.endX <= s.endX)) {
+                return true
+            } else {
+                return false
+            }
+    })
+
+    const nonOverlappingSpans = existingSpans.filter(s => overlappingSpans.indexOf(s) === -1)
+
+    const combinedSpan = overlappingSpans.reduce((prev, cur) => ({
+        startX: Math.min(prev.startX, cur.startX),
+        endX: Math.max(prev.endX, cur.endX)
+    }), newSpan)
+
+    return nonOverlappingSpans.concat([combinedSpan])
+}
+
+function getSpansToEdit(grid: Grid<ISpanElementInfo>, deltaRegionTracker: IDeltaRegionTracker): Map<number, ISpan[]> {
+    const rowToSpans = new Map<number, ISpan[]>()
+    deltaRegionTracker.getModifiedCells().forEach((cell) => {
+        const {x, y} = cell
+
+        const info = grid.getCell(x, y)
+        const currentRow = rowToSpans.get(y) || []
+
+        if (!info) {
+            rowToSpans.set(y, addOrCoalesceSpan(currentRow, {
+                startX: x,
+                endX: x + 1
+            }))
+        } else {
+            rowToSpans.set(y, addOrCoalesceSpan(currentRow, {
+                startX: info.startX,
+                endX: info.endX
+            }))
+
+            if (info.element) {
+                info.element.remove()
+            }
+
+            grid.setRegion(x, y, info.endX - info.startX , 1, null)
+        }
+
+        deltaRegionTracker.notifyCellRendered(x, y)
+    })
+    return rowToSpans
 }
