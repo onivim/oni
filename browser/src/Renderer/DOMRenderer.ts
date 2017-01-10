@@ -1,5 +1,5 @@
-import { Grid } from "./../Grid"
 import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
+// import { Grid } from "./../Grid"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
 
@@ -11,7 +11,7 @@ export interface ITokenRenderer {
 
 export class DOMRenderer implements INeovimRenderer {
     private _editorElement: HTMLDivElement
-    private _grid: Grid<HTMLDivElement> = new Grid<HTMLDivElement>()
+    // private _grid: Grid<HTMLDivElement> = new Grid<HTMLDivElement>()
 
     public start(element: HTMLDivElement): void {
         // Assert canvas
@@ -37,10 +37,6 @@ export class DOMRenderer implements INeovimRenderer {
         const height = screenInfo.height
 
         for (let y = 0; y < height; y++) {
-            const div = document.createElement("div")
-            div.style.position = "absolute"
-            div.style.left = "0px"
-            div.style.top = (screenInfo.fontHeightInPixels * y) + "px"
             let currentRenderer: ITokenRenderer | null = null
 
             for (let x = 0; x < width; x++) {
@@ -48,14 +44,14 @@ export class DOMRenderer implements INeovimRenderer {
                 const cell = screenInfo.getCell(x, y)
 
                 if (!currentRenderer) {
-                    currentRenderer = getRendererForCell(x, cell, screenInfo)
+                    currentRenderer = getRendererForCell(x, y, cell, screenInfo)
                 } else if (!currentRenderer.canHandleCell(cell)) {
                     const tag = currentRenderer.getTag()
 
                     if (tag) {
-                        div.appendChild(tag)
+                        this._editorElement.appendChild(tag)
                     }
-                    currentRenderer = getRendererForCell(x, cell, screenInfo)
+                    currentRenderer = getRendererForCell(x, y, cell, screenInfo)
                 }
 
                 if (currentRenderer) {
@@ -68,11 +64,9 @@ export class DOMRenderer implements INeovimRenderer {
             if (currentRenderer) {
                 const tag = currentRenderer.getTag()
                 if (tag) {
-                    div.appendChild(tag)
+                    this._editorElement.appendChild(tag)
                 }
             }
-
-            this._editorElement.appendChild(div)
         }
     }
 }
@@ -83,6 +77,22 @@ export class BaseTokenRenderer {
     private _backgroundColor: string | undefined
     private _foregroundColor: string | undefined
     private _x: number
+    private _y: number
+    private _width: number
+
+    private _lastCell: ICell // TODO: This is just used to work around TS compiler... Specifically, it doesn't like `cell` being passedin appendCell to be overridden
+
+    public get x(): number {
+        return this._x
+    }
+
+    public get y(): number {
+        return this._y
+    }
+
+    public get width(): number {
+        return this._width
+    }
 
     protected get screen(): IScreen {
         return this._screen
@@ -96,21 +106,29 @@ export class BaseTokenRenderer {
         return this._backgroundColor
     }
 
-    constructor(x: number, cell: ICell, screen: IScreen) {
+    constructor(x: number, y: number, cell: ICell, screen: IScreen) {
         this._foregroundColor = cell.foregroundColor
         this._backgroundColor = cell.backgroundColor
         this._screen = screen
         this._x = x
+        this._y = y
     }
 
     public canHandleCell(cell: ICell): boolean {
         return this._foregroundColor === cell.foregroundColor && this._backgroundColor === cell.backgroundColor
     }
 
+    public appendCell(cell: ICell): void {
+        this._lastCell = cell
+
+        this._width++
+    }
+
     public getDefaultTag(): HTMLElement {
 
         const span = document.createElement("span")
         span.style.position = "absolute"
+        span.style.top = (this._y * this.screen.fontHeightInPixels) + "px"
         span.style.left = (this._x * this.screen.fontWidthInPixels) + "px"
         span.style.height = this.screen.fontHeightInPixels + "px"
 
@@ -126,18 +144,12 @@ export class BaseTokenRenderer {
 
 export class WhiteSpaceTokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
 
-    private _whitespaceCount = 0
-
-    constructor(x: number, cell: ICell, screen: IScreen) {
-        super(x, cell, screen)
+    constructor(x: number, y: number, cell: ICell, screen: IScreen) {
+        super(x, y, cell, screen)
     }
 
     public canHandleCell(cell: ICell): boolean {
         return super.canHandleCell(cell) && isWhiteSpace(cell)
-    }
-
-    public appendCell(): void {
-        this._whitespaceCount++
     }
 
     public getTag(): HTMLElement | null {
@@ -146,7 +158,7 @@ export class WhiteSpaceTokenRenderer extends BaseTokenRenderer implements IToken
 
         const span = super.getDefaultTag()
         span.className = "whitespace"
-        span.style.width = (this._whitespaceCount * this.screen.fontWidthInPixels) + "px"
+        span.style.width = (this.width * this.screen.fontWidthInPixels) + "px"
         return span
     }
 }
@@ -155,8 +167,8 @@ export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
 
     private _str: string = ""
 
-    constructor(x: number, cell: ICell, screen: IScreen) {
-        super(x, cell, screen)
+    constructor(x: number, y: number, cell: ICell, screen: IScreen) {
+        super(x, y, cell, screen)
     }
 
     public canHandleCell(cell: ICell): boolean {
@@ -164,6 +176,8 @@ export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
     }
 
     public appendCell(cell: ICell): void {
+        super.appendCell(cell)
+
         if (cell.characterWidth > 0) {
             this._str += cell.character
         }
@@ -178,11 +192,11 @@ export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
 
 }
 
-export function getRendererForCell(x: number, cell: ICell, screen: IScreen) {
+export function getRendererForCell(x: number, y: number, cell: ICell, screen: IScreen) {
     if (isWhiteSpace(cell)) {
-        return new WhiteSpaceTokenRenderer(x, cell, screen)
+        return new WhiteSpaceTokenRenderer(x, y, cell, screen)
     } else {
-        return new TokenRenderer(x, cell, screen)
+        return new TokenRenderer(x, y, cell, screen)
     }
 }
 
