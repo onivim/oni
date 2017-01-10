@@ -1,3 +1,4 @@
+import { Grid } from "./../Grid"
 import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
@@ -10,6 +11,7 @@ export interface ITokenRenderer {
 
 export class DOMRenderer implements INeovimRenderer {
     private _editorElement: HTMLDivElement
+    private _grid: Grid<HTMLDivElement> = new Grid<HTMLDivElement>()
 
     public start(element: HTMLDivElement): void {
         // Assert canvas
