@@ -1,9 +1,13 @@
 import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
-// import { Grid } from "./../Grid"
+import { Grid } from "./../Grid"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
 
 export interface ITokenRenderer {
+    x: number
+    y: number
+    width: number
+
     canHandleCell(cell: ICell): boolean
     appendCell(cell: ICell): void
     getTag(): HTMLElement | null
@@ -11,10 +15,9 @@ export interface ITokenRenderer {
 
 export class DOMRenderer implements INeovimRenderer {
     private _editorElement: HTMLDivElement
-    // private _grid: Grid<HTMLDivElement> = new Grid<HTMLDivElement>()
+    private _grid: Grid<HTMLElement> = new Grid<HTMLElement>()
 
     public start(element: HTMLDivElement): void {
-        // Assert canvas
         this._editorElement = element
     }
 
@@ -46,11 +49,7 @@ export class DOMRenderer implements INeovimRenderer {
                 if (!currentRenderer) {
                     currentRenderer = getRendererForCell(x, y, cell, screenInfo)
                 } else if (!currentRenderer.canHandleCell(cell)) {
-                    const tag = currentRenderer.getTag()
-
-                    if (tag) {
-                        this._editorElement.appendChild(tag)
-                    }
+                    this._applyRenderedToken(currentRenderer)
                     currentRenderer = getRendererForCell(x, y, cell, screenInfo)
                 }
 
@@ -62,12 +61,30 @@ export class DOMRenderer implements INeovimRenderer {
             }
 
             if (currentRenderer) {
-                const tag = currentRenderer.getTag()
-                if (tag) {
-                    this._editorElement.appendChild(tag)
-                }
+                this._applyRenderedToken(currentRenderer)
             }
         }
+    }
+
+    /**
+     * Apply the token to the DOM, and update our grid storage to reflect the state
+     */
+    private _applyRenderedToken(renderer: ITokenRenderer): void {
+        const { y, width } = renderer
+        const startX = renderer.x
+
+        const tag = renderer.getTag()
+
+        if (tag) {
+            this._editorElement.appendChild(tag)
+        }
+
+        const tagToSave = tag || null
+
+        for(let x = startX; x < startX + width; x++) {
+            this._grid.setCell(x, y, tagToSave)
+        }
+
     }
 }
 
