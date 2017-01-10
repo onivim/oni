@@ -13,9 +13,15 @@ export interface ITokenRenderer {
     getTag(): HTMLElement | null
 }
 
+export interface IElementInfo {
+    x: number
+    width: number
+    element: HTMLElement | null
+}
+
 export class DOMRenderer implements INeovimRenderer {
     private _editorElement: HTMLDivElement
-    private _grid: Grid<HTMLElement> = new Grid<HTMLElement>()
+    private _grid: Grid<IElementInfo> = new Grid<IElementInfo>()
 
     public start(element: HTMLDivElement): void {
         this._editorElement = element
@@ -79,12 +85,17 @@ export class DOMRenderer implements INeovimRenderer {
             this._editorElement.appendChild(tag)
         }
 
-        const tagToSave = tag || null
+        const element = tag || null
 
-        for(let x = startX; x < startX + width; x++) {
-            this._grid.setCell(x, y, tagToSave)
+        const infoToSave = {
+            x: startX,
+            width: width,
+            element: element
         }
 
+        for(let x = startX; x < startX + width; x++) {
+            this._grid.setCell(x, y, infoToSave)
+        }
     }
 }
 
