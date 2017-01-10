@@ -39,6 +39,34 @@ export class DOMRenderer implements INeovimRenderer {
             return
         }
 
+        // Get all 'spans'
+        const rowToSpans = {}
+        deltaRegionTracker.getModifiedCells().forEach((cell) => {
+            const {x, y} = cell
+
+            const info = this._grid.getCell(x, y)
+
+            rowToSpans[y] = rowToSpans[y] || []
+
+            if (!info) {
+                rowToSpans[y].push({x, y, width: 1})
+                return
+            }
+
+            rowToSpans[y].push({
+                x: info.x,
+                width: info.width,
+                y: y
+            })
+
+            if (info.element) {
+                info.element.remove()
+            }
+
+            this._grid.setRegion(x, y, info.width, 1, null)
+        })
+
+        // TODO: Get rid of this
         this._editorElement.innerHTML = ""
         this._editorElement.style.fontFamily = screenInfo.fontFamily
         this._editorElement.style.fontSize = screenInfo.fontSize
@@ -106,7 +134,7 @@ export class BaseTokenRenderer {
     private _foregroundColor: string | undefined
     private _x: number
     private _y: number
-    private _width: number
+    private _width: number = 0
 
     private _lastCell: ICell // TODO: This is just used to work around TS compiler... Specifically, it doesn't like `cell` being passedin appendCell to be overridden
 
