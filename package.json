@@ -42,6 +42,7 @@
   "license": "MIT",
   "dependencies": {
     "electron": "1.4.12",
+    "electron-default-menu": "1.0.0",
     "find-parent-dir": "0.3.0",
     "lodash": "4.17.0",
     "minimist": "1.2.0",

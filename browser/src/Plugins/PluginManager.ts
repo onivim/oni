@@ -281,6 +281,6 @@ function getDirectories(rootPath: string): string[] {
     }
 
     return fs.readdirSync(rootPath)
-        .map((f) => path.join(rootPath, f))
+        .map((f) => path.join(rootPath.toString(), f))
         .filter((f) => fs.statSync(f).isDirectory())
 }
