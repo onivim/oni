@@ -102,13 +102,14 @@ export interface IAutoCompletionIconProps {
 
 export class AutoCompletionIcon extends React.Component<IAutoCompletionIconProps, void> {
 
-    public render(): null | JSX.Element {
+    public render(): JSX.Element {
 
         const iconName = {
             "let": <Icon name="wrench" />,
             "interface": <Icon name="plug" />,
             "alias": <Icon name="id-badge" />,
             "const": <Icon name="lock" />,
+            "constructor": <Icon name="building" />,
             "class": <Icon name="cube" />,
             "type": <Icon name="sitemap" />,
             "directory": <Icon name="folder" />,
@@ -125,7 +126,7 @@ export class AutoCompletionIcon extends React.Component<IAutoCompletionIconProps
             "text": <Icon name="align-justify" />,
             "warning": <Icon name="exclamation-triangle" />,
             "$warning": <Icon name="exclamation-triangle" />,
-            "default": !this.props.kind ? <Icon name="question-circle" /> : <span>`?${this.props.kind}?`</span>,
+            "default": !!this.props.kind ? <Icon name="question-circle" /> : <span>`?${this.props.kind}?`</span>,
         }
 
         const kind = this.props.kind || "default"
