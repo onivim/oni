@@ -2,7 +2,7 @@ const electron = require('electron')
 const path = require("path")
 // Module to control application life.
 const defaultMenu = require('electron-default-menu');
-const { Menu, app, shell,dialog } = electron;
+const { Menu, app, shell, dialog } = electron;
 const os = require('os');
 
 const ipcMain = electron.ipcMain
@@ -55,43 +55,41 @@ function createWindow(commandLineArguments, workingDirectory) {
     let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png") })
     let menu = defaultMenu(app, shell);
 
-  let firstMenu = os.platform()=="win32" ? 'File':'Oni';
-  menu.unshift ({
-    label: firstMenu,
-    submenu: [
-      {
-        label: 'Quit',
-        click: (item, focusedWindow) => {
-          app.quit()
-        }
-      }
-    ]
-  })
+    let firstMenu = os.platform() == "win32" ? 'File' : 'Oni';
+    menu.unshift({
+        label: firstMenu,
+        submenu: [
+            {
+                label: 'Quit',
+                click: (item, focusedWindow) => {
+                    app.quit()
+                }
+            }
+        ]
+    })
 
-//    deleting 'Toggle Developer Tools'
-   menu[2].submenu.splice(2,1)
-   menu[4].submenu = [
-       {
-        label: 'Learn more',
-        click: (item, focusedWindow) => {
-        shell.openExternal('https://github.com/extr0py/oni#introduction');
-        }
-      },
+    menu[4].submenu = [
         {
-        label: 'Issues',
-        click: (item, focusedWindow) => {
-          shell.openExternal('https://github.com/extr0py/oni/issues');
+            label: 'Learn more',
+            click: (item, focusedWindow) => {
+                shell.openExternal('https://github.com/extr0py/oni#introduction');
+            }
+        },
+        {
+            label: 'Issues',
+            click: (item, focusedWindow) => {
+                shell.openExternal('https://github.com/extr0py/oni/issues');
+            }
+        },
+        {
+            label: 'Github',
+            click: (item, focusedWindow) => {
+                shell.openExternal('https://github.com/extr0py/oni');
+            }
         }
-      },
-      {
-        label: 'Github',
-        click: (item, focusedWindow) => {
-          shell.openExternal('https://github.com/extr0py/oni');
-        }
-      }
-   ]
+    ]
 
-  Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
+    Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
 
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
