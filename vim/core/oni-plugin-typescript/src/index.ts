@@ -94,7 +94,24 @@ const evaluateBlock = (context: Oni.EventContext, id: string, fileName: string, 
 
     code = ts.transpileModule(code, { target: "ES6" }).outputText
 
-    const script = new vm.Script(code)
+    let compilationError = null
+    let script = null
+    try {
+        script = new vm.Script(code)
+    } catch (ex) {
+        compilationError = ex.toString()
+    }
+
+    if (compilationError) {
+        return Promise.resolve({
+            id,
+            fileName,
+            result: null,
+            output: null,
+            errors: [compilationError],
+        })
+    }
+
     const Module = require("module")
     const mod = new Module(fileName)
     const util = require("util")
@@ -121,16 +138,22 @@ const evaluateBlock = (context: Oni.EventContext, id: string, fileName: string, 
         },
     }
 
-    const result = script.runInNewContext(sandbox)
+    let result = null
+    let errors = []
+    try {
+        result = script.runInNewContext(sandbox)
+    } catch (ex) {
+        errors = [ex.toString()]
+    }
 
     const initialResult = {
         id,
         fileName,
         output: null,
-        errors: null,
+        errors,
     }
 
-    if (result.then) {
+    if (result && result.then) {
         return result.then((val) => (_.extend({}, initialResult, {
             result: util.inspect(val),
             variables: util.inspect(sandbox),
