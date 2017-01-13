@@ -152,12 +152,13 @@ export class Tasks {
     private _refreshTasks(): Q.Promise<void> {
         this._lastTasks = []
 
-        const taskProviders = [].concat(this._providers)
+        let initialProviders: ITaskProvider[] = []
+        const taskProviders = initialProviders.concat(this._providers)
         const rootPath = this._currentBufferPath || process.cwd()
         taskProviders.push(new OniLaunchTasksProvider(rootPath, this._output))
         taskProviders.push(new PackageJsonTasksProvider(rootPath, this._output))
 
-        const promises = taskProviders.map((t) => t.getTasks() || [])
+        const promises = taskProviders.map((t: ITaskProvider) => t.getTasks() || [])
 
         return Q.all(promises)
             .then((vals: ITask[][]) => {

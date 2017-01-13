@@ -1,11 +1,15 @@
 import * as _ from "lodash"
+import * as Q from "q"
+
 import { INeovimInstance } from "./../NeovimInstance"
+
+import { ITask, ITaskProvider } from "./Tasks"
 
 /**
  * Window that shows terminal output
  */
 
-export class Errors {
+export class Errors implements ITaskProvider {
 
     private _neovimInstance: INeovimInstance
     private _errors: { [fileName: string]: Oni.Plugin.Diagnostics.Error[] } = {}
@@ -18,22 +22,33 @@ export class Errors {
         this._errors[fileName] = errors
     }
 
-    public showErrorsInQuickFix(): void {
+    public setQuickFixErrors(): void {
         const arrayOfErrors = _.keys(this._errors).map((filename) => {
-            return this._errors[filename].map(e => ({
+            return this._errors[filename].map((e) => ({
                 ...e,
-                filename
+                filename,
             }))
         })
 
         const flattenedErrors = _.flatten(arrayOfErrors)
-        const errors = flattenedErrors.map(e => <any>({
+        const errors = flattenedErrors.map((e) => <any>({
             filename: e.filename,
             col: e.startColumn || 0,
             lnum: e.lineNumber,
-            text: e.text
+            text: e.text,
         }))
 
         this._neovimInstance.quickFix.setqflist(errors, "test", " ")
+    }
+
+    public getTasks(): Q.Promise<ITask[]> {
+        const showErrorTask: ITask = {
+            name: "Show Errors",
+            detail: "Open quickfix window and show error details",
+            callback: () => this._neovimInstance.command("copen"),
+        }
+
+        const tasks = [showErrorTask]
+        return Q(tasks)
     }
 }
