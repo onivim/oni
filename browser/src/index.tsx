@@ -86,7 +86,6 @@ const start = (args: string[]) => {
 
     pluginManager.on("set-errors", (key: string, fileName: string, errors: any[], color: string) => {
         errorService.setErrors(fileName, errors)
-        errorService.setQuickFixErrors()
 
         color = color || "red"
         errorOverlay.setErrors(key, fileName, errors, color)

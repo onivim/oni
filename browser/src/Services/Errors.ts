@@ -20,9 +20,13 @@ export class Errors implements ITaskProvider {
 
     public setErrors(fileName: string, errors: Oni.Plugin.Diagnostics.Error[]) {
         this._errors[fileName] = errors
+
+        // TODO: Debounce this so as not to spam the calling of setqflist,
+        // especially if there are no changes in error state
+        this._setQuickFixErrors();
     }
 
-    public setQuickFixErrors(): void {
+    private _setQuickFixErrors(): void {
         const arrayOfErrors = _.keys(this._errors).map((filename) => {
             return this._errors[filename].map((e) => ({
                 ...e,
