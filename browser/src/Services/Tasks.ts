@@ -111,6 +111,8 @@ export class Tasks {
     private _currentBufferPath: string
     private _output: OutputWindow
 
+    private _providers: ITaskProvider[] = []
+
     constructor(output: OutputWindow) {
         this._output = output
 
@@ -123,6 +125,10 @@ export class Tasks {
                 selectedTask.callback()
             }
         })
+    }
+
+    public registerTaskProvider(taskProvider: ITaskProvider): void {
+        this._providers.push(taskProvider)
     }
 
     public onEvent(event: Oni.EventContext): void {
@@ -146,7 +152,7 @@ export class Tasks {
     private _refreshTasks(): Q.Promise<void> {
         this._lastTasks = []
 
-        const taskProviders = []
+        const taskProviders = [].concat(this._providers)
         const rootPath = this._currentBufferPath || process.cwd()
         taskProviders.push(new OniLaunchTasksProvider(rootPath, this._output))
         taskProviders.push(new PackageJsonTasksProvider(rootPath, this._output))
