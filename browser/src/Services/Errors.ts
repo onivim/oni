@@ -2,6 +2,7 @@ import * as _ from "lodash"
 import * as Q from "q"
 
 import { INeovimInstance } from "./../NeovimInstance"
+import * as Performance from "./../Performance"
 
 import { ITask, ITaskProvider } from "./Tasks"
 
@@ -10,20 +11,35 @@ import { ITask, ITaskProvider } from "./Tasks"
  */
 
 export class Errors implements ITaskProvider {
-
     private _neovimInstance: INeovimInstance
     private _errors: { [fileName: string]: Oni.Plugin.Diagnostics.Error[] } = {}
+    private _debouncedSetQuickFix: () => void
 
     constructor(neovimInstance: INeovimInstance) {
         this._neovimInstance = neovimInstance
+
+        this._debouncedSetQuickFix = _.debounce(() => {
+            Performance.mark("_setQuickFixErrors - begin")
+            this._setQuickFixErrors()
+            Performance.mark("_setQuickFixErrors - end")
+        }, 250)
     }
 
     public setErrors(fileName: string, errors: Oni.Plugin.Diagnostics.Error[]) {
         this._errors[fileName] = errors
 
-        // TODO: Debounce this so as not to spam the calling of setqflist,
-        // especially if there are no changes in error state
-        this._setQuickFixErrors();
+        this._debouncedSetQuickFix()
+    }
+
+    public getTasks(): Q.Promise<ITask[]> {
+        const showErrorTask: ITask = {
+            name: "Show Errors",
+            detail: "Open quickfix window and show error details",
+            callback: () => this._neovimInstance.command("copen"),
+        }
+
+        const tasks = [showErrorTask]
+        return Q(tasks)
     }
 
     private _setQuickFixErrors(): void {
@@ -43,16 +59,5 @@ export class Errors implements ITaskProvider {
         }))
 
         this._neovimInstance.quickFix.setqflist(errors, "test", " ")
-    }
-
-    public getTasks(): Q.Promise<ITask[]> {
-        const showErrorTask: ITask = {
-            name: "Show Errors",
-            detail: "Open quickfix window and show error details",
-            callback: () => this._neovimInstance.command("copen"),
-        }
-
-        const tasks = [showErrorTask]
-        return Q(tasks)
     }
 }
