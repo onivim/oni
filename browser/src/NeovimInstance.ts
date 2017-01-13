@@ -26,7 +26,7 @@ export interface INeovimInstance {
     /**
      * Call a VimL function
      */
-    callFunction(function: string): Q.Promise<any>
+    callFunction(functionName: string, args: any[]): Q.Promise<any>
 
     /**
      * Execute a VimL command
@@ -216,8 +216,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return Q.ninvoke<void>(this._neovim, "command", command)
     }
 
-    public callFunction(script: string): Q.Promise<void> {
-        return this._sessionWrapper.invoke<void>("nvim_call_function", [script]);
+    public callFunction(functionName: string, args: any[]): Q.Promise<void> {
+        return this._sessionWrapper.invoke<void>("nvim_call_function", [functionName, args])
     }
 
     public getCurrentBuffer(): Q.Promise<IBuffer> {
