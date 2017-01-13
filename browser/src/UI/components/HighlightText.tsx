@@ -1,13 +1,13 @@
 import * as React from "react"
 
-export interface HighlightTextProps {
-    highlightClassName: string;
-    highlightText: string;
-    text: string;
-    className: string;
+export interface IHighlightTextProps {
+    highlightClassName: string
+    highlightText: string
+    text: string
+    className: string
 }
 
-export class HighlightText extends React.Component<HighlightTextProps, void> {
+export class HighlightText extends React.Component<IHighlightTextProps, void> {
 
     public render(): JSX.Element {
 
@@ -31,15 +31,14 @@ export class HighlightText extends React.Component<HighlightTextProps, void> {
     }
 }
 
-
-export interface HighlightTextByIndexProps {
-    highlightClassName: string;
-    highlightIndices: number[];
-    text: string;
-    className: string;
+export interface IHighlightTextByIndexProps {
+    highlightClassName: string
+    highlightIndices: number[]
+    text: string
+    className: string
 }
 
-export class HighlightTextByIndex extends React.Component<HighlightTextByIndexProps, void> {
+export class HighlightTextByIndex extends React.Component<IHighlightTextByIndexProps, void> {
     public render(): JSX.Element {
 
         const childNodes: JSX.Element[] = []
@@ -60,10 +59,10 @@ export class HighlightTextByIndex extends React.Component<HighlightTextByIndexPr
 }
 
 export function createLetterCountDictionary(text: string): any {
-    const array: string[] = text.split("");
+    const array: string[] = text.split("")
     return array.reduce((previousValue: any, currentValue: string) => {
         let cur = previousValue[currentValue] || 0
         previousValue[currentValue] = cur + 1
-        return previousValue;
+        return previousValue
     }, {})
 }

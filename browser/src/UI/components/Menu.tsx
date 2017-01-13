@@ -4,8 +4,8 @@ import { connect } from "react-redux"
 
 import * as _ from "lodash"
 
-import * as State from "./../State"
 import * as ActionCreators from "./../ActionCreators"
+import * as State from "./../State"
 
 import { Icon } from "./../Icon"
 
@@ -15,9 +15,9 @@ import { Visible } from "./Visible"
 /**
  * Popup menu
  */
-require("./Menu.less")
+require("./Menu.less") // tslint:disable-line no-var-requires
 
-export interface MenuProps {
+export interface IMenuProps {
     visible: boolean
     selectedIndex: number
     filterText: string
@@ -25,16 +25,17 @@ export interface MenuProps {
     items: State.IMenuOptionWithHighlights[]
 }
 
-export class Menu extends React.Component<MenuProps, void> {
+export class Menu extends React.Component<IMenuProps, void> {
 
-    private _inputElement: HTMLInputElement = null as any; // FIXME: null
+    private _inputElement: HTMLInputElement = null as any // FIXME: null
 
     public render(): null | JSX.Element {
 
-        if (!this.props.visible)
+        if (!this.props.visible) {
             return null
+        }
 
-        const initialItems = _.take(this.props.items, 10);
+        const initialItems = _.take(this.props.items, 10)
 
         // const pinnedItems = initialItems.filter(f => f.pinned)
         // const unpinnedItems = initialItems.filter(f => !f.pinned)
@@ -46,7 +47,12 @@ export class Menu extends React.Component<MenuProps, void> {
         return <div className="menu-background">
             <div className="menu">
                 <input type="text"
-                    ref={(inputElement) => { this._inputElement = inputElement; if (this._inputElement) this._inputElement.focus() } }
+                    ref={(inputElement) => {
+                        this._inputElement = inputElement
+                        if (this._inputElement) {
+                            this._inputElement.focus()
+                        }
+                    }}
                     onChange={(evt) => this._onChange(evt)}
                     />
                 <div className="items">
@@ -62,14 +68,13 @@ export class Menu extends React.Component<MenuProps, void> {
     }
 }
 
-
 const mapStateToProps = (state: State.IState) => {
     if (!state.popupMenu) {
         return {
             visible: false,
             selectedIndex: 0,
             filterText: "",
-            items: []
+            items: [],
         }
     } else {
         const popupMenu = state.popupMenu
@@ -77,7 +82,7 @@ const mapStateToProps = (state: State.IState) => {
             visible: true,
             selectedIndex: popupMenu.selectedIndex,
             filterText: popupMenu.filter,
-            items: popupMenu.filteredOptions
+            items: popupMenu.filteredOptions,
         }
     }
 }
@@ -89,13 +94,13 @@ const mapDispatchToProps = (dispatch: any) => {
     }
 
     return {
-        onChangeFilterText: dispatchFilterText
+        onChangeFilterText: dispatchFilterText,
     }
 }
 
 export const MenuContainer = connect(mapStateToProps, mapDispatchToProps)(Menu)
 
-export interface MenuItemProps {
+export interface IMenuItemProps {
     icon?: string
     isSelected: boolean
     filterText: string
@@ -106,10 +111,10 @@ export interface MenuItemProps {
     pinned: boolean
 }
 
-export class MenuItem extends React.Component<MenuItemProps, void> {
+export class MenuItem extends React.Component<IMenuItemProps, void> {
 
     public render(): JSX.Element {
-        let className = "item";
+        let className = "item"
 
         if (this.props.isSelected) {
             className += " selected"

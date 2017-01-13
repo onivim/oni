@@ -23,7 +23,7 @@
 
 ## Introduction
 
-ONI is a NeoVim front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
+ONI is a [NeoVim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
@@ -172,6 +172,7 @@ Here's an example config.json:
 ```
 
 A few interesting configuration options to set:
+- `oni.audio.bellUrl` - Set a custom sound effect for the `bell` (`:help bell`). The value should be an _absolute path_ to a supported audio file, such as a WAV file.
 - `oni.useDefaultConfig` - ONI comes with an opinionated default set of plugins for a predictable out-of-box experience. This will be great for newcomes to ONI or Vim, but for Vim/Neovim veterans, this will likely conflict. Set this to `false` to avoid loading the default config, and to load settings from `init.vim` instead (If this is false, it implies `oni.loadInitVim` is true)
 - `oni.loadInitVim` - This determines whether the user's `init.vim` is loaded. Use caution when setting this to `true` and setting `oni.useDefaultConfig` to true, as there could be conflicts with the default configuration.
 - `editor.fontSize` - Font size
@@ -199,7 +200,7 @@ Language extenders given ONI rich integration with languages, offering services 
 - Unit test integration
 - Enhanced syntax highlighting
 
-To see the in-progress API, check out the [Oni.d.ts](https://github.com/extr0py/oni/blob/master/definitions/Oni.d.ts) definition file as well as the [typescript language plugin](https://github.com/extr0py/oni/tree/master/vim/vimfiles/bundle/oni-plugin-typescript), which demonstrates several of these features:
+To see the in-progress API, check out the [Oni.d.ts](https://github.com/extr0py/oni/blob/master/definitions/Oni.d.ts) definition file as well as the [typescript language plugin](https://github.com/extr0py/oni/tree/master/vim/core/oni-plugin-typescript), which demonstrates several of these features:
 
 #### Background
 
@@ -256,3 +257,5 @@ Big thanks to the NeoVim team - without their work, this project would not be po
 Also, big thanks to our [contributors](https://github.com/extr0py/oni/graphs/contributors) for helping out!
 
 In addition, there are several other great NeoVim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) that served as great reference points and learning opportunities.
+
+There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.

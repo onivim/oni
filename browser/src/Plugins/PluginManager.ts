@@ -112,7 +112,7 @@ export class PluginManager extends EventEmitter {
             this._onEvent(eventName, context)
         })
 
-        const allPlugins = this._getAllPluginPaths()
+        const allPlugins = this._getAllPluginPaths().filter((p) => p !== this._debugPluginPath)
         this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory))
 
         if (this._debugPluginPath) {
@@ -199,7 +199,7 @@ export class PluginManager extends EventEmitter {
         } else if (pluginResponse.type === "completion-provider-item-selected") {
             setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details))
         } else if (pluginResponse.type === "set-errors") {
-            this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.colors)
+            this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
         } else if (pluginResponse.type === "format") {
             this.emit("format", pluginResponse.payload)
         } else if (pluginResponse.type === "execute-shell-command") {
@@ -275,12 +275,12 @@ export class PluginManager extends EventEmitter {
     }
 }
 
-function getDirectories(rootPath: string | Buffer): string[] {
+function getDirectories(rootPath: string): string[] {
     if (!fs.existsSync(rootPath)) {
         return []
     }
 
     return fs.readdirSync(rootPath)
-        .map((f) => path.join(rootPath, f))
+        .map((f) => path.join(rootPath.toString(), f))
         .filter((f) => fs.statSync(f).isDirectory())
 }

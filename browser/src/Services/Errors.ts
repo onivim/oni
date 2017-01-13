@@ -19,13 +19,13 @@ export class Errors {
     }
 
     public showErrorsInQuickFix(): void {
-        
-        const arrayOfErrors = _.keys(this._errors).map(filename => {
+        const arrayOfErrors = _.keys(this._errors).map((filename) => {
             return this._errors[filename].map(e => ({
                 ...e,
-                filename: filename
+                filename
             }))
         })
+
         const flattenedErrors = _.flatten(arrayOfErrors)
         const errors = flattenedErrors.map(e => <any>({
             filename: e.filename,

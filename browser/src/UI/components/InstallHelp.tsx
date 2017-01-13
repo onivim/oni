@@ -4,7 +4,7 @@ import { remote } from "electron"
 
 import { Icon, IconSize } from "./../Icon"
 
-require("./InstallHelp.less")
+require("./InstallHelp.less") // tslint:disable-line no-var-requires
 
 export const InstallHelp = () => {
     const _onClick = (evt: any) => {
