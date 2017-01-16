@@ -3,6 +3,10 @@ import { Grid } from "./../Grid"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
 
+// TODO: Add screen level unit tests
+// TODO: Improve performance of addOrCoalesceSpan
+// TODO: Look at scroll perf
+
 export interface ITokenRenderer {
     x: number
     y: number
@@ -50,8 +54,6 @@ export class DOMRenderer implements INeovimRenderer {
             return
         }
 
-        // TODO: Get rid of this
-        // this._editorElement.innerHTML = ""
         this._editorElement.style.fontFamily = screenInfo.fontFamily
         this._editorElement.style.fontSize = screenInfo.fontSize
 
