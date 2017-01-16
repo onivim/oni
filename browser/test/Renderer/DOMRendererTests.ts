@@ -44,6 +44,40 @@ describe("DOMRenderer", () => {
             assert.strictEqual(editorElement.children.length, 1)
         })
 
+        it("handles changing color", () => {
+            screen.dispatch(Actions.put(["="]))
+            screen.dispatch(Actions.setHighlight(false, false, false, false, false, 100, 100))
+
+            screen.dispatch(Actions.put(["="]))
+            renderer.update(screen, deltaRegionTracker)
+
+            // Since the second equals was a different color, we should see
+            // a second span for it
+            assert.strictEqual(editorElement.children.length, 2)
+        })
+
+        it("coalesces span with insert in middle", () => {
+            screen.dispatch(Actions.createCursorGotoAction(0, 0))
+
+            screen.dispatch(Actions.setHighlight(false, false, false, false, false, 1, 1))
+            screen.dispatch(Actions.put(["="]))
+
+            screen.dispatch(Actions.setHighlight(false, false, false, false, false, 2, 2))
+            screen.dispatch(Actions.put(["="]))
+
+            screen.dispatch(Actions.setHighlight(false, false, false, false, false, 1, 1))
+            screen.dispatch(Actions.put(["="]))
+
+            renderer.update(screen, deltaRegionTracker)
+            assert.strictEqual(editorElement.children.length, 3)
+
+            screen.dispatch(Actions.createCursorGotoAction(0, 1))
+            screen.dispatch(Actions.setHighlight(false, false, false, false, false, 1, 1))
+            screen.dispatch(Actions.put(["="]))
+
+            renderer.update(screen, deltaRegionTracker)
+            assert.strictEqual(editorElement.children.length, 1)
+        })
     })
 
     describe("addOrCoalesceSpan", () => {
