@@ -1,8 +1,6 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import * as _ from "lodash"
-
 import { Icon } from "./../Icon"
 import { IState /*, AutoCompletionInfo */ } from "./../State"
 import { HighlightText } from "./HighlightText"
@@ -41,9 +39,7 @@ export class AutoCompletion extends React.Component<IAutoCompletionProps, void> 
             return null
         }
 
-        const firstTenEntries = _.take(this.props.entries, 10)
-
-        const entries = firstTenEntries.map((s, i) => {
+        const entries = this.props.entries.map((s, i) => {
 
             const isSelected = i === this.props.selectedIndex
 
@@ -102,33 +98,35 @@ export interface IAutoCompletionIconProps {
 
 export class AutoCompletionIcon extends React.Component<IAutoCompletionIconProps, void> {
 
-    public render(): null | JSX.Element {
+    public render(): JSX.Element {
 
         const iconName = {
-            "let": <Icon name="wrench"/>,
-            "interface": <Icon name="plug"/>,
-            "alias": <Icon name="id-badge"/>,
-            "const": <Icon name="lock"/>,
-            "class": <Icon name="cube"/>,
-            "type": <Icon name="sitemap"/>,
-            "directory": <Icon name="folder"/>,
-            "file": <Icon name="file"/>,
-            "script": <Icon name="file"/>,
-            "var": <Icon name="code"/>,
-            "property": <Icon name="code"/>,
-            "parameter": <Icon name="code"/>,
-            "module": <Icon name="cubes"/>,
-            "external module name": <Icon name="cubes"/>,
-            "method": <Icon name="cog"/>,
-            "functioin": <Icon name="cog"/>,
-            "keyword": <Icon name="key"/>,
-            "text": <Icon name="align-justify"/>,
-            "warning": <Icon name="exclamation-triangle"/>,
-            "$warning": <Icon name="exclamation-triangle"/>,
-            "default": !this.props.kind ? null : <span>`?${this.props.kind}?`</span>,
+            "let": <Icon name="wrench" />,
+            "interface": <Icon name="plug" />,
+            "alias": <Icon name="id-badge" />,
+            "const": <Icon name="lock" />,
+            "constructor": <Icon name="building" />,
+            "class": <Icon name="cube" />,
+            "type": <Icon name="sitemap" />,
+            "directory": <Icon name="folder" />,
+            "file": <Icon name="file" />,
+            "script": <Icon name="file" />,
+            "var": <Icon name="code" />,
+            "property": <Icon name="code" />,
+            "parameter": <Icon name="code" />,
+            "module": <Icon name="cubes" />,
+            "external module name": <Icon name="cubes" />,
+            "method": <Icon name="cog" />,
+            "functioin": <Icon name="cog" />,
+            "keyword": <Icon name="key" />,
+            "text": <Icon name="align-justify" />,
+            "warning": <Icon name="exclamation-triangle" />,
+            "$warning": <Icon name="exclamation-triangle" />,
+            "default": !!this.props.kind ? <Icon name="question-circle" /> : <span>`?${this.props.kind}?`</span>,
         }
 
-        return   iconName[this.props.kind] ? iconName[this.props.kind] : iconName["default"]
+        const kind = this.props.kind || "default"
+        return iconName[kind] ? iconName[kind] : iconName["default"]
     }
 }
 

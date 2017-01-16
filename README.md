@@ -23,7 +23,7 @@
 
 ## Introduction
 
-ONI is a NeoVim front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
+ONI is a [NeoVim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
@@ -258,4 +258,4 @@ Also, big thanks to our [contributors](https://github.com/extr0py/oni/graphs/con
 
 In addition, there are several other great NeoVim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) that served as great reference points and learning opportunities.
 
-Some [assets], such as audio, are included - see [Assets](Assets.md) for attribution.
+There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.

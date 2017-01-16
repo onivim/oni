@@ -10,6 +10,7 @@ import { PluginManager } from "./Plugins/PluginManager"
 // import { CanvasRenderer } from "./Renderer/CanvasRenderer"
 import { DOMRenderer } from "./Renderer/DOMRenderer"
 import { NeovimScreen } from "./Screen"
+import { Errors } from "./Services/Errors"
 import { Formatter } from "./Services/Formatter"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
 import { MultiProcess } from "./Services/MultiProcess"
@@ -47,6 +48,7 @@ const start = (args: string[]) => {
     let pendingTimeout: any = null
 
     // Services
+    const errorService = new Errors(instance)
     const quickOpen = new QuickOpen(instance)
     const multiProcess = new MultiProcess()
     const formatter = new Formatter(instance, pluginManager)
@@ -55,6 +57,9 @@ const start = (args: string[]) => {
     const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
     const tasks = new Tasks(outputWindow)
 
+    tasks.registerTaskProvider(errorService)
+
+    services.push(errorService)
     services.push(quickOpen)
     services.push(tasks)
     services.push(formatter)
@@ -81,13 +86,15 @@ const start = (args: string[]) => {
     })
 
     pluginManager.on("set-errors", (key: string, fileName: string, errors: any[], color: string) => {
+        errorService.setErrors(fileName, errors)
+
         color = color || "red"
         errorOverlay.setErrors(key, fileName, errors, color)
 
         const errorMarkers = errors.map((e: any) => ({
             line: e.lineNumber,
             height: 1,
-            color: color,
+            color,
         }))
         scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
     })
