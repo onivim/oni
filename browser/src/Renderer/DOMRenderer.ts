@@ -1,10 +1,11 @@
 import { IDeltaCellPosition, IDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
+import * as Performance from "./../Performance"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
 
-// TODO: Add screen level unit tests
 // TODO: Improve performance of addOrCoalesceSpan
+// TODO: Recycle elements instead of removing
 // TODO: Look at scroll perf
 
 export interface ITokenRenderer {
@@ -25,7 +26,7 @@ export interface IElementFactory {
 }
 
 export class DocumentElementFactory {
-    
+
     public getElement(): HTMLSpanElement {
         return document.createElement("span")
     }
@@ -73,6 +74,8 @@ export class DOMRenderer implements INeovimRenderer {
             return
         }
 
+        Performance.mark("DOMRenderer.update.start")
+
         this._editorElement.style.fontFamily = screenInfo.fontFamily
         this._editorElement.style.fontSize = screenInfo.fontSize
 
@@ -97,6 +100,8 @@ export class DOMRenderer implements INeovimRenderer {
                 combineSpansAtBoundary(span.endX + 1, y, screenInfo.fontWidthInPixels, this._grid, this._elementFactory)
             })
         }
+
+        Performance.mark("DOMRenderer.update.end")
     }
 
     private _renderSpan(startX: number, endX: number, y: number, screenInfo: IScreen): void {
@@ -291,14 +296,14 @@ export function isWhiteSpace(cell: ICell): boolean {
 }
 
 export function addOrCoalesceSpan(existingSpans: ISpan[], newSpan: ISpan): ISpan[] {
-    const overlappingSpans = existingSpans.filter((s) =>  {
+    const overlappingSpans = existingSpans.filter((s) => {
 
         if ((newSpan.startX >= s.startX && newSpan.startX <= s.endX)
             || (newSpan.endX >= s.startX && newSpan.endX <= s.endX)) {
-                return true
-            } else {
-                return false
-            }
+            return true
+        } else {
+            return false
+        }
     })
 
     const nonOverlappingSpans = existingSpans.filter((s) => overlappingSpans.indexOf(s) === -1)
@@ -347,8 +352,8 @@ export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: 
     // TODO: Test this
     if ((previousSpan.foregroundColor !== currentSpan.foregroundColor)
         || (previousSpan.backgroundColor !== currentSpan.backgroundColor)) {
-            return
-        }
+        return
+    }
 
     // At this point, we have a candidate to combine
 
@@ -374,6 +379,96 @@ export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: 
     grid.setRegion(previousSpan.startX, y, currentSpan.endX - previousSpan.startX, 1, updatedSpan)
 }
 
+export function collapseSpanMap(currentSpanMap: Map<number, ISpan[]>): Map<number, ISpan[]> {
+    const outMap = new Map<number, ISpan[]>()
+    for (var k of currentSpanMap.keys()) {
+        outMap.set(k, collapseSpans(currentSpanMap.get(k)))
+    }
+
+    return outMap
+}
+
+export function collapseSpans(spans: ISpan[] | undefined): ISpan[] {
+
+    if(!spans)
+        return []
+
+    const flattenedArray = flattenSpansToArray(spans)
+    return expandArrayToSpans(flattenedArray)
+}
+
+export function flattenSpansToArray(spans: ISpan[]): any[] {
+
+    if (!spans || !spans.length)
+        return []
+
+    const bounds = spans.reduce((prev, cur) => ({
+        startX: Math.min(prev.startX, cur.startX),
+        endX: Math.max(prev.endX, cur.endX),
+    }), { startX: spans[0].startX, endX: spans[0].endX })
+
+    const array: any[] = []
+
+    for(var x = 0; x < bounds.startX; x++) {
+        array.push(null)
+    }
+
+    for (var x = bounds.startX; x < bounds.endX; x++) {
+        array.push(false)
+    }
+
+    spans.forEach((s) => {
+        for (var i = s.startX; i < s.endX; i++) {
+            array[i] = true
+        }
+    })
+
+    return array
+}
+
+export function expandArrayToSpans(array: any[]): ISpan[] {
+
+    if(!array || !array.length)
+        return []
+
+    let start = 0
+    while(array[start] === null) {
+        start++
+    }
+    
+    const spans: ISpan[] = []
+    let currentSpan: ISpan | null = null
+
+    let x = 0
+    while(x < array.length) {
+
+        if(array[x]) {
+            if(currentSpan === null) {
+                currentSpan = {
+                    startX: x,
+                    endX: -1
+                }
+            } 
+        } else {
+            if(currentSpan !== null) {
+                currentSpan.endX = x
+                spans.push(currentSpan)
+                currentSpan = null
+            }
+        }
+
+        x++
+    }
+
+    if(currentSpan) {
+        currentSpan.endX = array.length
+        spans.push(currentSpan)
+    }
+
+
+    return spans
+}
+
 export function getSpansToEdit(grid: Grid<ISpanElementInfo>, cells: IDeltaCellPosition[], elementFactory: IElementFactory): Map<number, ISpan[]> {
     const rowToSpans = new Map<number, ISpan[]>()
     cells.forEach((cell) => {
@@ -383,15 +478,15 @@ export function getSpansToEdit(grid: Grid<ISpanElementInfo>, cells: IDeltaCellPo
         const currentRow = rowToSpans.get(y) || []
 
         if (!info) {
-            rowToSpans.set(y, addOrCoalesceSpan(currentRow, {
+            currentRow.push({
                 startX: x,
                 endX: x + 1,
-            }))
+            })
         } else {
-            rowToSpans.set(y, addOrCoalesceSpan(currentRow, {
+            currentRow.push({
                 startX: info.startX,
                 endX: info.endX,
-            }))
+            })
 
             if (info.element) {
                 elementFactory.recycle(info.element)
@@ -401,6 +496,8 @@ export function getSpansToEdit(grid: Grid<ISpanElementInfo>, cells: IDeltaCellPo
 
             grid.setRegion(info.startX, y, info.endX - info.startX, 1, null)
         }
+
+        rowToSpans.set(y, currentRow)
     })
-    return rowToSpans
+    return collapseSpanMap(rowToSpans)
 }
