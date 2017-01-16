@@ -285,6 +285,7 @@ const start = (args: string[]) => {
     window.addEventListener("resize", resize)
 
     window["neovim"] = instance // tslint:disable-line no-string-literal
+    window["oni_screen"] = screen
 
     UI.init()
 }
