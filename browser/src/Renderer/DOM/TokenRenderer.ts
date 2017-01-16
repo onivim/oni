@@ -134,7 +134,7 @@ export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
     public getTag(): HTMLElement | null {
         const span = super.getDefaultTag()
         span.textContent = this._str
-        span.style.width = ((this._str.length + 1) * this.screen.fontWidthInPixels) + "px"
+        span.style.width = ((this._str.length) * this.screen.fontWidthInPixels) + "px"
         return span
     }
 
