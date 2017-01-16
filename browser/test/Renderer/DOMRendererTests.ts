@@ -17,6 +17,7 @@ describe("DOMRenderer", () => {
         let renderer: DOMRenderer.DOMRenderer
         let document: HTMLDocument
         let editorElement: HTMLDivElement
+        let elementFactory: DOMRenderer.IElementFactory
 
         beforeEach(() => {
             deltaRegionTracker = new IncrementalDeltaRegionTracker() 
@@ -24,8 +25,9 @@ describe("DOMRenderer", () => {
             document = jsdom.jsdom("")
 
             editorElement = document.createElement("div")
+            elementFactory = new TestElementFactory(document)
             renderer = new DOMRenderer.DOMRenderer()
-            renderer.start(editorElement)
+            renderer.start(editorElement, elementFactory)
         })
 
         it("handles simple rendering case", () => {
@@ -92,7 +94,7 @@ describe("DOMRenderer", () => {
 
             const cells = [{ x: 1, y: 1 }, { x: 2, y: 1 }, { x: 3, y: 1 }]
 
-            const spans = DOMRenderer.getSpansToEdit(grid, cells)
+            const spans = DOMRenderer.getSpansToEdit(grid, cells, new TestElementFactory(testDocument))
 
             const row = spans.get(1) || []
             assert.strictEqual(row.length, 1)
@@ -104,4 +106,21 @@ describe("DOMRenderer", () => {
         })
     })
 })
+
+export class TestElementFactory implements DOMRenderer.IElementFactory {
+
+    private _document: HTMLDocument
+
+    constructor(document: HTMLDocument) {
+        this._document = document
+    }
+
+    public getElement(): HTMLSpanElement {
+        return this._document.createElement("span")
+    }
+
+    public recycle(element: HTMLSpanElement): void {
+        element.remove()
+    }
+}
 

@@ -32,7 +32,6 @@ export class DocumentElementFactory {
 
     public recycle(element: HTMLSpanElement): void {
         element.remove()
-        // no-op
     }
 }
 
