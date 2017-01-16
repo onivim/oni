@@ -1,4 +1,4 @@
-import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
+import { IDeltaCellPosition, IDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
@@ -7,6 +7,8 @@ export interface ITokenRenderer {
     x: number
     y: number
     width: number
+    backgroundColor: string | undefined
+    foregroundColor: string | undefined
 
     canHandleCell(cell: ICell): boolean
     appendCell(cell: ICell): void
@@ -20,6 +22,8 @@ export interface ISpan {
 
 export interface ISpanElementInfo extends ISpan {
     element: HTMLElement | null
+    foregroundColor: string | undefined
+    backgroundColor: string | undefined
 }
 
 export class DOMRenderer implements INeovimRenderer {
@@ -31,15 +35,18 @@ export class DOMRenderer implements INeovimRenderer {
     }
 
     public onAction(_action: any): void {
+        // No-op
     }
 
     public onResize(): void {
+        // No-op
     }
-
 
     public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
 
-        if (deltaRegionTracker.getModifiedCells().length === 0) {
+        const modifiedCells = deltaRegionTracker.getModifiedCells()
+
+        if (modifiedCells.length === 0) {
             return
         }
 
@@ -48,16 +55,25 @@ export class DOMRenderer implements INeovimRenderer {
         this._editorElement.style.fontFamily = screenInfo.fontFamily
         this._editorElement.style.fontSize = screenInfo.fontSize
 
-        const rowsToEdit = getSpansToEdit(this._grid, deltaRegionTracker)
+        const rowsToEdit = getSpansToEdit(this._grid, modifiedCells)
+
+        modifiedCells.forEach((c) => deltaRegionTracker.notifyCellRendered(c.x, c.y))
 
         for (let y of rowsToEdit.keys()) {
             const row = rowsToEdit.get(y)
 
-            if (!row)
+            if (!row) {
                 return
+            }
 
             row.forEach((span: ISpan) => {
                 this._renderSpan(span.startX, span.endX, y, screenInfo)
+
+                // check if beginning boundary can be combined
+                combineSpansAtBoundary(span.startX, y, screenInfo.fontWidthInPixels, this._grid)
+
+                // check if following boundary can be combined
+                combineSpansAtBoundary(span.endX + 1, y, screenInfo.fontWidthInPixels, this._grid)
             })
         }
     }
@@ -102,9 +118,11 @@ export class DOMRenderer implements INeovimRenderer {
         const element = tag || null
 
         const infoToSave = {
-            startX: startX,
+            startX,
+            element,
             endX: startX + width,
-            element: element
+            foregroundColor: renderer.foregroundColor,
+            backgroundColor: renderer.backgroundColor,
         }
 
         for (let x = startX; x < startX + width; x++) {
@@ -136,16 +154,16 @@ export class BaseTokenRenderer {
         return this._width
     }
 
-    protected get screen(): IScreen {
-        return this._screen
-    }
-
-    protected get foregroundColor(): string | undefined {
+    public get foregroundColor(): string | undefined {
         return this._foregroundColor
     }
 
-    protected get backgroundColor(): string | undefined {
+    public get backgroundColor(): string | undefined {
         return this._backgroundColor
+    }
+
+    protected get screen(): IScreen {
+        return this._screen
     }
 
     constructor(x: number, y: number, cell: ICell, screen: IScreen) {
@@ -195,8 +213,9 @@ export class WhiteSpaceTokenRenderer extends BaseTokenRenderer implements IToken
     }
 
     public getTag(): HTMLElement | null {
-        if (!this.backgroundColor || this.backgroundColor === this.screen.backgroundColor)
+        if (!this.backgroundColor || this.backgroundColor === this.screen.backgroundColor) {
             return null
+        }
 
         const span = super.getDefaultTag()
         span.className = "whitespace"
@@ -242,14 +261,14 @@ export function getRendererForCell(x: number, y: number, cell: ICell, screen: IS
     }
 }
 
-function isWhiteSpace(cell: ICell): boolean {
+export function isWhiteSpace(cell: ICell): boolean {
     const character = cell.character
 
     return cell.characterWidth === 1 && (character === " " || character === "" || character === "\t" || character === "\n")
 }
 
-function addOrCoalesceSpan(existingSpans: ISpan[], newSpan: ISpan): ISpan[] {
-    const overlappingSpans = existingSpans.filter(s =>  {
+export function addOrCoalesceSpan(existingSpans: ISpan[], newSpan: ISpan): ISpan[] {
+    const overlappingSpans = existingSpans.filter((s) =>  {
 
         if ((newSpan.startX >= s.startX && newSpan.startX <= s.endX)
             || (newSpan.endX >= s.startX && newSpan.endX <= s.endX)) {
@@ -259,19 +278,81 @@ function addOrCoalesceSpan(existingSpans: ISpan[], newSpan: ISpan): ISpan[] {
             }
     })
 
-    const nonOverlappingSpans = existingSpans.filter(s => overlappingSpans.indexOf(s) === -1)
+    const nonOverlappingSpans = existingSpans.filter((s) => overlappingSpans.indexOf(s) === -1)
 
     const combinedSpan = overlappingSpans.reduce((prev, cur) => ({
         startX: Math.min(prev.startX, cur.startX),
-        endX: Math.max(prev.endX, cur.endX)
+        endX: Math.max(prev.endX, cur.endX),
     }), newSpan)
 
     return nonOverlappingSpans.concat([combinedSpan])
 }
 
-function getSpansToEdit(grid: Grid<ISpanElementInfo>, deltaRegionTracker: IDeltaRegionTracker): Map<number, ISpan[]> {
+/**
+ * Checks if it is possible to combine spans at a boundary. Spans can be combined if they have
+ * they have the same styling (foreground color and background color). The location will be checked
+ * against the span before it
+ */
+export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: number, grid: Grid<ISpanElementInfo>): void {
+
+    const prevCellX = x - 1
+
+    if (prevCellX < 0) {
+        return
+    }
+
+    const previousSpan = grid.getCell(prevCellX, y)
+    const currentSpan = grid.getCell(x, y)
+
+    // If there isn't a span already at one of the positions, it can't be combined
+    if (!previousSpan || !currentSpan) {
+        return
+    }
+
+    // Check if already combined..
+    if (previousSpan.element === currentSpan.element) {
+        return
+    }
+
+    const previousElement = previousSpan.element
+    const currentElement = currentSpan.element
+
+    if (!previousElement || !currentElement) {
+        return
+    }
+
+    // TODO: Test this
+    if ((previousSpan.foregroundColor !== currentSpan.foregroundColor)
+        || (previousSpan.backgroundColor !== currentSpan.backgroundColor)) {
+            return
+        }
+
+    // At this point, we have a candidate to combine
+
+    const previousText = previousElement.textContent
+    const currentText = currentElement.textContent
+
+    const combinedText = previousText + currentText
+    previousElement.textContent = combinedText
+    currentElement.remove()
+
+    previousElement.style.width = (fontWidthInPixels * combinedText.length) + "px"
+
+    const updatedSpan = {
+        startX: previousSpan.startX,
+        endX: currentSpan.endX,
+        element: previousElement,
+        backgroundColor: previousSpan.backgroundColor,
+        foregroundColor: previousSpan.foregroundColor
+    }
+
+    // TODO: Test this
+    grid.setRegion(previousSpan.startX, y, currentSpan.endX - previousSpan.startX, 1, updatedSpan)
+}
+
+export function getSpansToEdit(grid: Grid<ISpanElementInfo>, cells: IDeltaCellPosition[]): Map<number, ISpan[]> {
     const rowToSpans = new Map<number, ISpan[]>()
-    deltaRegionTracker.getModifiedCells().forEach((cell) => {
+    cells.forEach((cell) => {
         const {x, y} = cell
 
         const info = grid.getCell(x, y)
@@ -280,22 +361,22 @@ function getSpansToEdit(grid: Grid<ISpanElementInfo>, deltaRegionTracker: IDelta
         if (!info) {
             rowToSpans.set(y, addOrCoalesceSpan(currentRow, {
                 startX: x,
-                endX: x + 1
+                endX: x + 1,
             }))
         } else {
             rowToSpans.set(y, addOrCoalesceSpan(currentRow, {
                 startX: info.startX,
-                endX: info.endX
+                endX: info.endX,
             }))
 
             if (info.element) {
                 info.element.remove()
+                // info.element.textContent = ""
+                // info.element.className = "deleted"
             }
 
-            grid.setRegion(x, y, info.endX - info.startX , 1, null)
+            grid.setRegion(info.startX, y, info.endX - info.startX, 1, null)
         }
-
-        deltaRegionTracker.notifyCellRendered(x, y)
     })
     return rowToSpans
 }
