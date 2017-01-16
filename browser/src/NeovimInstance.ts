@@ -7,6 +7,7 @@ import * as Actions from "./actions"
 import * as Config from "./Config"
 import { measureFont } from "./Font"
 import { Buffer, IBuffer } from "./neovim/Buffer"
+import { IQuickFixList, QuickFixList } from "./neovim/QuickFix"
 import { SessionWrapper } from "./neovim/SessionWrapper"
 import { IWindow, Window } from "./neovim/Window"
 import * as Platform from "./Platform"
@@ -17,10 +18,24 @@ const attach = require("neovim-client") // tslint:disable-line no-var-requires
 
 export interface INeovimInstance {
     cursorPosition: IPosition
+    quickFix: IQuickFixList
     screenToPixels(row: number, col: number): IPixelPosition
 
     input(inputString: string): void
+
+    /**
+     * Call a VimL function
+     */
+    callFunction(functionName: string, args: any[]): Q.Promise<any>
+
+    /**
+     * Execute a VimL command
+     */
     command(command: string): Q.Promise<any>
+
+    /**
+     * Evaluate a VimL block
+     */
     eval(expression: string): Q.Promise<any>
 
     on(event: string, handler: Function): void
@@ -53,6 +68,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _pluginManager: PluginManager
     private _sessionWrapper: SessionWrapper
+    private _quickFix: QuickFixList
+
+    public get quickFix(): IQuickFixList {
+        return this._quickFix
+    }
 
     constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
         super()
@@ -61,6 +81,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
+        this._quickFix = new QuickFixList(this)
     }
 
     public start(filesToOpen?: string[]): void {
@@ -193,6 +214,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public command(command: string): Q.Promise<void> {
         return Q.ninvoke<void>(this._neovim, "command", command)
+    }
+
+    public callFunction(functionName: string, args: any[]): Q.Promise<void> {
+        return this._sessionWrapper.invoke<void>("nvim_call_function", [functionName, args])
     }
 
     public getCurrentBuffer(): Q.Promise<IBuffer> {
