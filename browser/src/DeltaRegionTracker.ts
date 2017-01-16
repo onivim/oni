@@ -1,4 +1,3 @@
-import * as Config from "./Config"
 import { Grid } from "./Grid"
 
 export interface IDeltaCellPosition {
@@ -20,25 +19,12 @@ export interface IDeltaRegionTracker {
  */
 export class IncrementalDeltaRegionTracker implements IDeltaRegionTracker {
 
-    // private _screen: Screen;
     private _cells: IDeltaCellPosition[]
 
     private _dirtyGrid: Grid<boolean> = new Grid<boolean>()
 
-    private _debugDiv: null | Element
-
     constructor() {
         this._reset()
-
-        if (Config.hasValue("debug.incrementalRenderRegions")) {
-            const div = document.createElement("div")
-            document.body.appendChild(div)
-            div.style.position = "absolute"
-            div.style.top = "0px"
-            div.style.left = "0px"
-            div.style.backgroundColor = "blue"
-            this._debugDiv = div
-        }
     }
 
     public dirtyAllCells(): void {
@@ -68,10 +54,6 @@ export class IncrementalDeltaRegionTracker implements IDeltaRegionTracker {
     }
 
     public getModifiedCells(): IDeltaCellPosition[] {
-        if (this._debugDiv) {
-            this._debugDiv.textContent = "Modified: " + this._cells.length
-        }
-
         return this._cells
     }
 

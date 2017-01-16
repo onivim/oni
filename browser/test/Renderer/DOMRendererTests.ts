@@ -2,10 +2,47 @@ import * as assert from "assert"
 
 import * as jsdom from "jsdom"
 
+import * as Actions from "./../../src/actions"
+
+import { IncrementalDeltaRegionTracker } from "./../../src/DeltaRegionTracker"
 import { Grid } from "./../../src/Grid"
 import * as DOMRenderer from "./../../src/Renderer/DOMRenderer"
+import { NeovimScreen } from "./../../src/Screen"
 
 describe("DOMRenderer", () => {
+
+    describe("core rendering", () => {
+        let deltaRegionTracker: IncrementalDeltaRegionTracker
+        let screen: NeovimScreen
+        let renderer: DOMRenderer.DOMRenderer
+        let document: HTMLDocument
+        let editorElement: HTMLDivElement
+
+        beforeEach(() => {
+            deltaRegionTracker = new IncrementalDeltaRegionTracker() 
+            screen = new NeovimScreen(deltaRegionTracker)
+            document = jsdom.jsdom("")
+
+            editorElement = document.createElement("div")
+            renderer = new DOMRenderer.DOMRenderer()
+            renderer.start(editorElement)
+        })
+
+        it("handles simple rendering case", () => {
+            screen.dispatch(Actions.put(["="]))
+            screen.dispatch(Actions.put(["="]))
+
+            renderer.update(screen, deltaRegionTracker)
+            assert.strictEqual(editorElement.children.length, 1)
+
+            // Validate that, after rendering a new item, it is still
+            // combined to the single span
+            screen.dispatch(Actions.put(["="]))
+            renderer.update(screen, deltaRegionTracker)
+            assert.strictEqual(editorElement.children.length, 1)
+        })
+
+    })
 
     describe("addOrCoalesceSpan", () => {
 

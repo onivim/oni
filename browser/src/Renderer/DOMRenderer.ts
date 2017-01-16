@@ -19,6 +19,23 @@ export interface ITokenRenderer {
     getTag(): HTMLElement | null
 }
 
+export interface IElementFactory {
+    getElement(): HTMLSpanElement
+    recycle(element: HTMLSpanElement): void
+}
+
+export class DocumentElementFactory {
+    
+    public getElement(): HTMLSpanElement {
+        return document.createElement("span")
+    }
+
+    public recycle(element: HTMLSpanElement): void {
+        element.remove()
+        // no-op
+    }
+}
+
 export interface ISpan {
     startX: number
     endX: number
@@ -33,8 +50,11 @@ export interface ISpanElementInfo extends ISpan {
 export class DOMRenderer implements INeovimRenderer {
     private _editorElement: HTMLDivElement
     private _grid: Grid<ISpanElementInfo> = new Grid<ISpanElementInfo>()
+    private _elementFactory: IElementFactory
 
-    public start(element: HTMLDivElement): void {
+    public start(element: HTMLDivElement, elementFactory?: IElementFactory): void {
+        this._elementFactory = elementFactory || new DocumentElementFactory()
+
         this._editorElement = element
     }
 
@@ -57,7 +77,7 @@ export class DOMRenderer implements INeovimRenderer {
         this._editorElement.style.fontFamily = screenInfo.fontFamily
         this._editorElement.style.fontSize = screenInfo.fontSize
 
-        const rowsToEdit = getSpansToEdit(this._grid, modifiedCells)
+        const rowsToEdit = getSpansToEdit(this._grid, modifiedCells, this._elementFactory)
 
         modifiedCells.forEach((c) => deltaRegionTracker.notifyCellRendered(c.x, c.y))
 
@@ -72,10 +92,10 @@ export class DOMRenderer implements INeovimRenderer {
                 this._renderSpan(span.startX, span.endX, y, screenInfo)
 
                 // check if beginning boundary can be combined
-                combineSpansAtBoundary(span.startX, y, screenInfo.fontWidthInPixels, this._grid)
+                combineSpansAtBoundary(span.startX, y, screenInfo.fontWidthInPixels, this._grid, this._elementFactory)
 
                 // check if following boundary can be combined
-                combineSpansAtBoundary(span.endX + 1, y, screenInfo.fontWidthInPixels, this._grid)
+                combineSpansAtBoundary(span.endX + 1, y, screenInfo.fontWidthInPixels, this._grid, this._elementFactory)
             })
         }
     }
@@ -88,10 +108,10 @@ export class DOMRenderer implements INeovimRenderer {
             const cell = screenInfo.getCell(x, y)
 
             if (!currentRenderer) {
-                currentRenderer = getRendererForCell(x, y, cell, screenInfo)
+                currentRenderer = getRendererForCell(x, y, cell, screenInfo, this._elementFactory)
             } else if (!currentRenderer.canHandleCell(cell)) {
                 this._applyRenderedToken(currentRenderer)
-                currentRenderer = getRendererForCell(x, y, cell, screenInfo)
+                currentRenderer = getRendererForCell(x, y, cell, screenInfo, this._elementFactory)
             }
 
             if (currentRenderer) {
@@ -141,6 +161,7 @@ export class BaseTokenRenderer {
     private _x: number
     private _y: number
     private _width: number = 0
+    private _elementFactory: IElementFactory
 
     private _lastCell: ICell // TODO: This is just used to work around TS compiler... Specifically, it doesn't like `cell` being passedin appendCell to be overridden
 
@@ -168,12 +189,13 @@ export class BaseTokenRenderer {
         return this._screen
     }
 
-    constructor(x: number, y: number, cell: ICell, screen: IScreen) {
+    constructor(x: number, y: number, cell: ICell, screen: IScreen, elementFactory: IElementFactory) {
         this._foregroundColor = cell.foregroundColor
         this._backgroundColor = cell.backgroundColor
         this._screen = screen
         this._x = x
         this._y = y
+        this._elementFactory = elementFactory
     }
 
     public canHandleCell(cell: ICell): boolean {
@@ -188,7 +210,7 @@ export class BaseTokenRenderer {
 
     public getDefaultTag(): HTMLElement {
 
-        const span = document.createElement("span")
+        const span = this._elementFactory.getElement()
         span.style.position = "absolute"
         span.style.top = (this._y * this.screen.fontHeightInPixels) + "px"
         span.style.left = (this._x * this.screen.fontWidthInPixels) + "px"
@@ -206,8 +228,8 @@ export class BaseTokenRenderer {
 
 export class WhiteSpaceTokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
 
-    constructor(x: number, y: number, cell: ICell, screen: IScreen) {
-        super(x, y, cell, screen)
+    constructor(x: number, y: number, cell: ICell, screen: IScreen, elementFactory: IElementFactory) {
+        super(x, y, cell, screen, elementFactory)
     }
 
     public canHandleCell(cell: ICell): boolean {
@@ -230,8 +252,8 @@ export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
 
     private _str: string = ""
 
-    constructor(x: number, y: number, cell: ICell, screen: IScreen) {
-        super(x, y, cell, screen)
+    constructor(x: number, y: number, cell: ICell, screen: IScreen, elementFactory: IElementFactory) {
+        super(x, y, cell, screen, elementFactory)
     }
 
     public canHandleCell(cell: ICell): boolean {
@@ -255,11 +277,11 @@ export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
 
 }
 
-export function getRendererForCell(x: number, y: number, cell: ICell, screen: IScreen) {
+export function getRendererForCell(x: number, y: number, cell: ICell, screen: IScreen, elementFactory: IElementFactory) {
     if (isWhiteSpace(cell)) {
-        return new WhiteSpaceTokenRenderer(x, y, cell, screen)
+        return new WhiteSpaceTokenRenderer(x, y, cell, screen, elementFactory)
     } else {
-        return new TokenRenderer(x, y, cell, screen)
+        return new TokenRenderer(x, y, cell, screen, elementFactory)
     }
 }
 
@@ -295,7 +317,7 @@ export function addOrCoalesceSpan(existingSpans: ISpan[], newSpan: ISpan): ISpan
  * they have the same styling (foreground color and background color). The location will be checked
  * against the span before it
  */
-export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: number, grid: Grid<ISpanElementInfo>): void {
+export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: number, grid: Grid<ISpanElementInfo>, elementFactory: IElementFactory): void {
 
     const prevCellX = x - 1
 
@@ -336,7 +358,8 @@ export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: 
 
     const combinedText = previousText + currentText
     previousElement.textContent = combinedText
-    currentElement.remove()
+
+    elementFactory.recycle(currentElement)
 
     previousElement.style.width = (fontWidthInPixels * combinedText.length) + "px"
 
@@ -345,14 +368,14 @@ export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: 
         endX: currentSpan.endX,
         element: previousElement,
         backgroundColor: previousSpan.backgroundColor,
-        foregroundColor: previousSpan.foregroundColor
+        foregroundColor: previousSpan.foregroundColor,
     }
 
     // TODO: Test this
     grid.setRegion(previousSpan.startX, y, currentSpan.endX - previousSpan.startX, 1, updatedSpan)
 }
 
-export function getSpansToEdit(grid: Grid<ISpanElementInfo>, cells: IDeltaCellPosition[]): Map<number, ISpan[]> {
+export function getSpansToEdit(grid: Grid<ISpanElementInfo>, cells: IDeltaCellPosition[], elementFactory: IElementFactory): Map<number, ISpan[]> {
     const rowToSpans = new Map<number, ISpan[]>()
     cells.forEach((cell) => {
         const {x, y} = cell
@@ -372,7 +395,7 @@ export function getSpansToEdit(grid: Grid<ISpanElementInfo>, cells: IDeltaCellPo
             }))
 
             if (info.element) {
-                info.element.remove()
+                elementFactory.recycle(info.element)
                 // info.element.textContent = ""
                 // info.element.className = "deleted"
             }
