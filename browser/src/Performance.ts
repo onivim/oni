@@ -7,6 +7,10 @@ export function mark(markerName: string): void {
         return
     }
 
+    if (process.env.NODE_ENV === "production") {
+        return
+    }
+
     performance.mark(markerName)
 
     const anyConsole: any = console
