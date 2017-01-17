@@ -6,9 +6,9 @@ import { INeovimRenderer } from "./INeovimRenderer"
 
 import { IElementFactory, RecycleElementFactory } from "./DOM/ElementFactory"
 
-import { ISpan, ISpanElementInfo, combineSpansAtBoundary, collapseSpanMap } from "./DOM/Span"
+import { collapseSpanMap, combineSpansAtBoundary, ISpan, ISpanElementInfo } from "./DOM/Span"
 
-import { ITokenRenderer, getRendererForCell } from "./DOM/TokenRenderer"
+import { getRendererForCell, ITokenRenderer } from "./DOM/TokenRenderer"
 
 // TODO: Look at scroll perf
 
@@ -62,7 +62,7 @@ export class DOMRenderer implements INeovimRenderer {
                 combineSpansAtBoundary(span.startX, y, screenInfo.fontWidthInPixels, this._grid, this._elementFactory)
 
                 // check if following boundary can be combined
-                combineSpansAtBoundary(span.endX + 1, y, screenInfo.fontWidthInPixels, this._grid, this._elementFactory)
+                combineSpansAtBoundary(span.endX, y, screenInfo.fontWidthInPixels, this._grid, this._elementFactory)
             })
         }
 

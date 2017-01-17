@@ -21,7 +21,7 @@ describe("DOMRenderer", () => {
         let elementFactory: IElementFactory
 
         beforeEach(() => {
-            deltaRegionTracker = new IncrementalDeltaRegionTracker() 
+            deltaRegionTracker = new IncrementalDeltaRegionTracker()
             screen = new NeovimScreen(deltaRegionTracker)
             document = jsdom.jsdom("")
 
@@ -79,6 +79,17 @@ describe("DOMRenderer", () => {
             renderer.update(screen, deltaRegionTracker)
             assert.strictEqual(editorElement.children.length, 1)
         })
+
+        it("breaks up spans with whitespace", () => {
+
+            screen.dispatch(Actions.createCursorGotoAction(0, 0))
+            screen.dispatch(Actions.setHighlight(false, false, false, false, false, 1, 1))
+            screen.dispatch(Actions.put(["=", " ", "="]))
+
+            renderer.update(screen, deltaRegionTracker)
+
+            assert.strictEqual(editorElement.children.length, 3)
+        })
     })
 })
 
@@ -102,4 +113,3 @@ export class TestElementFactory implements IElementFactory {
         element.remove()
     }
 }
-

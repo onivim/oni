@@ -11,7 +11,7 @@ export class DocumentElementFactory {
     }
 
     public getElement(): HTMLSpanElement {
-        var elem = document.createElement("span")
+        const elem = document.createElement("span")
         this._rootElement.appendChild(elem)
         return elem
     }
@@ -32,13 +32,13 @@ export class RecycleElementFactory {
     public getElement(): HTMLSpanElement {
 
         if (this._recycledElements.length > 0) {
-            let val = this._recycledElements.pop() 
+            let val = this._recycledElements.pop()
             if (val) {
                 return val
             }
-        } 
+        }
 
-        const elem =  document.createElement("span")
+        const elem = document.createElement("span")
         this._rootElement.appendChild(elem)
         return elem
     }

@@ -50,6 +50,10 @@ export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: 
         return
     }
 
+    if (previousElement.className !== currentElement.className) {
+        return
+    }
+
     // At this point, we have a candidate to combine
 
     const previousText = previousElement.textContent
@@ -75,7 +79,7 @@ export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: 
 
 export function collapseSpanMap(currentSpanMap: Map<number, ISpan[]>): Map<number, ISpan[]> {
     const outMap = new Map<number, ISpan[]>()
-    for (var k of currentSpanMap.keys()) {
+    for (let k of currentSpanMap.keys()) {
         outMap.set(k, collapseSpans(currentSpanMap.get(k)))
     }
 
@@ -83,18 +87,18 @@ export function collapseSpanMap(currentSpanMap: Map<number, ISpan[]>): Map<numbe
 }
 
 export function collapseSpans(spans: ISpan[] | undefined): ISpan[] {
-
-    if (!spans)
+    if (!spans) {
         return []
+    }
 
     const flattenedArray = flattenSpansToArray(spans)
     return expandArrayToSpans(flattenedArray)
 }
 
 export function flattenSpansToArray(spans: ISpan[]): any[] {
-
-    if (!spans || !spans.length)
+    if (!spans || !spans.length) {
         return []
+    }
 
     const bounds = spans.reduce((prev, cur) => ({
         startX: Math.min(prev.startX, cur.startX),
@@ -103,16 +107,16 @@ export function flattenSpansToArray(spans: ISpan[]): any[] {
 
     const array: any[] = []
 
-    for (var x = 0; x < bounds.startX; x++) {
+    for (let x = 0; x < bounds.startX; x++) {
         array.push(null)
     }
 
-    for (var x = bounds.startX; x < bounds.endX; x++) {
+    for (let x = bounds.startX; x < bounds.endX; x++) {
         array.push(false)
     }
 
     spans.forEach((s) => {
-        for (var i = s.startX; i < s.endX; i++) {
+        for (let i = s.startX; i < s.endX; i++) {
             array[i] = true
         }
     })
@@ -122,8 +126,9 @@ export function flattenSpansToArray(spans: ISpan[]): any[] {
 
 export function expandArrayToSpans(array: any[]): ISpan[] {
 
-    if (!array || !array.length)
+    if (!array || !array.length) {
         return []
+    }
 
     let start = 0
     while (array[start] === null) {
@@ -140,7 +145,7 @@ export function expandArrayToSpans(array: any[]): ISpan[] {
             if (currentSpan === null) {
                 currentSpan = {
                     startX: x,
-                    endX: -1
+                    endX: -1,
                 }
             }
         } else {
@@ -158,7 +163,6 @@ export function expandArrayToSpans(array: any[]): ISpan[] {
         currentSpan.endX = array.length
         spans.push(currentSpan)
     }
-
 
     return spans
 }
