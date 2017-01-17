@@ -12,8 +12,8 @@ const DefaultConfig: any = {
 
     // Prototype settings
     "prototype.editor.backgroundOpacity": 1,
-    "prototype.editor.backgroundImageUrl": null,
-    "prototype.editor.backgroundImageSize": null,
+    "prototype.editor.backgroundImageUrl": "images/background.png",
+    "prototype.editor.backgroundImageSize": "initial",
 
     "prototype.editor.maxCellsToRender": 12000,
 
