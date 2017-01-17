@@ -6,7 +6,7 @@ import { INeovimRenderer } from "./INeovimRenderer"
 
 import { IElementFactory, RecycleElementFactory } from "./DOM/ElementFactory"
 
-import { ISpan, ISpanElementInfo, combineSpansAtBoundary, collapseSpanMap, } from "./DOM/Spans"
+import { ISpan, ISpanElementInfo, combineSpansAtBoundary, collapseSpanMap } from "./DOM/Span"
 
 import { ITokenRenderer, getRendererForCell } from "./DOM/TokenRenderer"
 
