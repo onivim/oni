@@ -4,11 +4,11 @@ import * as Performance from "./../Performance"
 import { IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
 
-import { IElementFactory, RecycleElementFactory } from "./DOM/ElementFactory"
+import { IElementFactory, RecycleElementFactory } from "./ElementFactory"
 
-import { collapseSpanMap, combineSpansAtBoundary, ISpan, ISpanElementInfo } from "./DOM/Span"
+import { collapseSpanMap, combineSpansAtBoundary, ISpan, ISpanElementInfo } from "./Span"
 
-import { getRendererForCell, ITokenRenderer } from "./DOM/TokenRenderer"
+import { getRendererForCell, ITokenRenderer } from "./TokenRenderer"
 
 // TODO: Look at scroll perf
 

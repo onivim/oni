@@ -1,6 +1,6 @@
 import * as assert from "assert"
 
-import * as DOMRenderer from "./../../../src/Renderer/DOM/Span"
+import * as DOMRenderer from "./../../src/Renderer/Span"
 
 describe("Span", () => {
 

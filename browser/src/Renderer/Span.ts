@@ -1,4 +1,4 @@
-import { Grid } from "./../../Grid"
+import { Grid } from "./../Grid"
 import { IElementFactory } from "./ElementFactory"
 
 export interface ISpan {

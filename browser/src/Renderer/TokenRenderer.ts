@@ -1,4 +1,4 @@
-import { ICell, IScreen } from "./../../Screen"
+import { ICell, IScreen } from "./../Screen"
 
 import { IElementFactory } from "./ElementFactory"
 
