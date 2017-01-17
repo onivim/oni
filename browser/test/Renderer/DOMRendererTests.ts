@@ -26,7 +26,7 @@ describe("DOMRenderer", () => {
             document = jsdom.jsdom("")
 
             editorElement = document.createElement("div")
-            elementFactory = new TestElementFactory(document)
+            elementFactory = new TestElementFactory(editorElement, document)
             renderer = new DOMRenderer.DOMRenderer()
             renderer.start(editorElement, elementFactory)
         })
@@ -84,14 +84,18 @@ describe("DOMRenderer", () => {
 
 export class TestElementFactory implements IElementFactory {
 
+    private _editorElement: HTMLDivElement
     private _document: HTMLDocument
 
-    constructor(document: HTMLDocument) {
+    constructor(editorElement: HTMLDivElement, document: HTMLDocument) {
+        this._editorElement = editorElement
         this._document = document
     }
 
     public getElement(): HTMLSpanElement {
-        return this._document.createElement("span")
+        const elem = this._document.createElement("span")
+        this._editorElement.appendChild(elem)
+        return elem
     }
 
     public recycle(element: HTMLSpanElement): void {
