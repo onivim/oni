@@ -2,27 +2,27 @@
 
 var path = require("path")
 var spawn = require("child_process").spawn
-const os = require("os"),
-      fs = require("fs");
+var os = require("os")
+var fs = require("fs")
 
-let processOptions = {}
-let log = require("path").join(__dirname, "out.log")
-let out = fs.openSync(log, "a")
-let err = fs.openSync(log, "a")
+var processOptions = {}
+var log = require("path").join(__dirname, "out.log")
+var out = fs.openSync(log, "a")
+var err = fs.openSync(log, "a")
 processOptions.detached = true
 processOptions.stdio = ["ignore", out, err]
 
-const isWindows = os.platform() === "win32";
+var isWindows = os.platform() === "win32";
 
 var args = process.argv.slice(2);
 args.unshift(path.resolve(path.join(__dirname, "..", "main.js")))
 
 // In Windows, directly call into the electron executable - otherwise we"ll end up with a floating node console
-const nonWindowsElectronPath = path.join(__dirname, "..", "node_modules", ".bin", "electron")
-const windowsElectronPath = path.join(__dirname, "..", "node_modules", "electron", "dist", "electron.exe")
-let spawnProcess = isWindows ? windowsElectronPath : nonWindowsElectronPath
+var nonWindowsElectronPath = path.join(__dirname, "..", "node_modules", ".bin", "electron")
+var windowsElectronPath = path.join(__dirname, "..", "node_modules", "electron", "dist", "electron.exe")
+var spawnProcess = isWindows ? windowsElectronPath : nonWindowsElectronPath
 
-let child = spawn(spawnProcess, args, processOptions)
+var child = spawn(spawnProcess, args, processOptions)
 child.unref()
 
 child.on("error", (err) => console.error(err))
