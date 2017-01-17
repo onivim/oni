@@ -6,8 +6,8 @@ import * as Actions from "./../../src/actions"
 
 import { IncrementalDeltaRegionTracker } from "./../../src/DeltaRegionTracker"
 
-import { IElementFactory } from "./../../src/Renderer/DOM/ElementFactory"
 import * as DOMRenderer from "./../../src/Renderer/DOMRenderer"
+import { IElementFactory } from "./../../src/Renderer/ElementFactory"
 import { NeovimScreen } from "./../../src/Screen"
 
 describe("DOMRenderer", () => {

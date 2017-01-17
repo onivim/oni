@@ -62,5 +62,3 @@ export class DocumentElementFactory implements IElementFactory {
         element.remove()
     }
 }
-
-

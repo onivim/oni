@@ -36,7 +36,6 @@ describe("Span", () => {
             const outSpans = DOMRenderer.collapseSpans(spans)
 
             assert.deepEqual(outSpans, [{startX: 1, endX: 5}])
-
         })
     })
 })
