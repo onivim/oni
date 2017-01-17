@@ -7,7 +7,8 @@ import { Keyboard } from "./Input/Keyboard"
 import { Mouse } from "./Input/Mouse"
 import { NeovimInstance } from "./NeovimInstance"
 import { PluginManager } from "./Plugins/PluginManager"
-import { CanvasRenderer } from "./Renderer/CanvasRenderer"
+// import { CanvasRenderer } from "./Renderer/CanvasRenderer"
+import { DOMRenderer } from "./Renderer/DOMRenderer"
 import { NeovimScreen } from "./Screen"
 import { Errors } from "./Services/Errors"
 import { Formatter } from "./Services/Formatter"
@@ -40,9 +41,9 @@ const start = (args: string[]) => {
     const pluginManager = new PluginManager(screen, debugPlugin)
     let instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight)
 
-    const canvasElement = document.getElementById("test-canvas") as HTMLCanvasElement
-    let renderer = new CanvasRenderer()
-    renderer.start(canvasElement)
+    const editorElement = document.getElementById("oni-text-editor") as HTMLDivElement
+    let renderer = new DOMRenderer()
+    renderer.start(editorElement)
 
     let pendingTimeout: any = null
 
@@ -175,6 +176,7 @@ const start = (args: string[]) => {
         }
 
         renderer.update(screen, deltaRegion)
+
         deltaRegion.cleanUpRenderedCells()
 
         window.requestAnimationFrame(() => renderFunction())
@@ -195,7 +197,7 @@ const start = (args: string[]) => {
     instance.setFont(Config.getValue<string>("editor.fontFamily"), Config.getValue<string>("editor.fontSize"))
     instance.start(parsedArgs._)
 
-    const mouse = new Mouse(canvasElement, screen)
+    const mouse = new Mouse(editorElement, screen)
 
     mouse.on("mouse", (mouseInput: string) => {
         instance.input(mouseInput)
