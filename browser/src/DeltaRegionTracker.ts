@@ -3,12 +3,11 @@ import { Grid } from "./Grid"
 export interface IDeltaCellPosition {
     x: number
     y: number
-    force?: boolean
 }
 
 export interface IDeltaRegionTracker {
     getModifiedCells(): IDeltaCellPosition[]
-    notifyCellModified(x: number, y: number, force?: boolean): void
+    notifyCellModified(x: number, y: number): void
     notifyCellRendered(x: number, y: number): void
 }
 
@@ -39,15 +38,14 @@ export class IncrementalDeltaRegionTracker implements IDeltaRegionTracker {
         this._cells = this._cells.filter((dcp) => this._dirtyGrid.getCell(dcp.x, dcp.y))
     }
 
-    public notifyCellModified(x: number, y: number, force?: boolean): void {
-        if (this._dirtyGrid.getCell(x, y) && !force) {
+    public notifyCellModified(x: number, y: number): void {
+        if (this._dirtyGrid.getCell(x, y)) {
             return
         }
 
         this._cells.push({
             x,
             y,
-            force,
         })
 
         this._dirtyGrid.setCell(x, y, true)
