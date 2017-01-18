@@ -11,7 +11,7 @@ const DefaultConfig: any = {
     "debug.incrementalRenderRegions": false,
 
     // Prototype settings
-    "prototype.editor.backgroundOpacity": 1,
+    "prototype.editor.backgroundOpacity": 0.7,
     "prototype.editor.backgroundImageUrl": "images/background.png",
     "prototype.editor.backgroundImageSize": "initial",
 
