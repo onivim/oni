@@ -11,9 +11,9 @@ const DefaultConfig: any = {
     "debug.incrementalRenderRegions": false,
 
     // Prototype settings
-    "prototype.editor.backgroundOpacity": 1,
-    "prototype.editor.backgroundImageUrl": null,
-    "prototype.editor.backgroundImageSize": null,
+    "prototype.editor.backgroundOpacity": 0.7,
+    "prototype.editor.backgroundImageUrl": "images/background.png",
+    "prototype.editor.backgroundImageSize": "initial",
 
     "prototype.editor.maxCellsToRender": 12000,
 
