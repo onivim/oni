@@ -7,7 +7,6 @@ import { evaluateBlock, getCommonImports } from "./LiveEvaluation"
 import { QuickInfo } from "./QuickInfo"
 import { INavigationTree, TypeScriptServerHost } from "./TypeScriptServerHost"
 
-
 declare var Oni
 
 const host = new TypeScriptServerHost()
@@ -89,7 +88,7 @@ const liveEvaluation = (context: Oni.EventContext, id: string, fileName: string,
 
     code = commonImports.join(os.EOL) + code
 
-    return evaluateBlock(id, fileName, code);
+    return evaluateBlock(id, fileName, code)
 }
 
 const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {
