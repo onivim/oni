@@ -1,14 +1,16 @@
-import * as _ from "lodash"
 import * as os from "os"
 import * as path from "path"
+
+import * as _ from "lodash"
+
+import { evaluateBlock, getCommonImports } from "./LiveEvaluation"
 import { QuickInfo } from "./QuickInfo"
 import { INavigationTree, TypeScriptServerHost } from "./TypeScriptServerHost"
+
 declare var Oni
 
 const host = new TypeScriptServerHost()
 const quickInfo = new QuickInfo(Oni, host)
-
-const findParentDir = require("find-parent-dir") // tslint:disable-line no-var-requires
 
 const lastOpenFile = null
 
@@ -80,70 +82,13 @@ const getFormattingEdits = (position: Oni.EventContext) => {
         })
 }
 
-const evaluateBlock = (context: Oni.EventContext, id: string, fileName: string, code: string) => {
-    const vm = require("vm")
-    const ts = require("typescript")
+const liveEvaluation = (context: Oni.EventContext, id: string, fileName: string, code: string) => {
 
-    // Get all imports from last module
-
-    const commonImports = lastBuffer.filter((line) => {
-        return (line.trim().indexOf("import") === 0 || line.indexOf("require(") >= 0) && line.indexOf("ignore-live") === -1 && line.indexOf("return") === -1
-    })
+    const commonImports = getCommonImports(lastBuffer)
 
     code = commonImports.join(os.EOL) + code
 
-    code = ts.transpileModule(code, { target: "ES6" }).outputText
-
-    const script = new vm.Script(code)
-    const Module = require("module")
-    const mod = new Module(fileName)
-    const util = require("util")
-    const sandbox = {
-        module: mod,
-        __filename: fileName,
-        __dirname: path.dirname(fileName),
-        require: (requirePath) => {
-            try {
-                const path = require("path")
-                // See if this is a 'node_modules' dependency:
-
-                const modulePath = findParentDir.sync(__dirname, path.join("node_modules", requirePath))
-
-                if (modulePath) {
-                    requirePath = path.join(modulePath, "node_modules", requirePath)
-                }
-
-                return mod.require(requirePath)
-            } catch (ex) {
-                // TODO: Log require error here
-                debugger // tslint:disable-line no-debugger
-            }
-        },
-    }
-
-    const result = script.runInNewContext(sandbox)
-
-    const initialResult = {
-        id,
-        fileName,
-        output: null,
-        errors: null,
-    }
-
-    if (result.then) {
-        return result.then((val) => (_.extend({}, initialResult, {
-            result: util.inspect(val),
-            variables: util.inspect(sandbox),
-        })), (err) => (_.extend({}, initialResult, {
-            variables: util.inspect(sandbox),
-            errors: [err],
-        })))
-    } else {
-        return Promise.resolve(_.extend({}, initialResult, {
-            result: util.inspect(result),
-            variables: util.inspect(sandbox),
-        }))
-    }
+    return evaluateBlock(id, fileName, code)
 }
 
 const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {
@@ -245,7 +190,7 @@ const getSignatureHelp = (textDocumentPosition: Oni.EventContext) => {
 }
 
 Oni.registerLanguageService({
-    evaluateBlock,
+    evaluateBlock: liveEvaluation,
     getCompletionDetails,
     getCompletions,
     getDefinition,

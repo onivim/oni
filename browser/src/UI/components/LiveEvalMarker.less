@@ -8,9 +8,20 @@
     background-color: rgba(0, 0, 0, 0.4);
     color: rgb(200, 200, 200);
     width: @liveEvalGutterSize;
-    border-left: 1px solid yellow;
+    border-left: 1px solid green;
 
     display:flex;
     align-items: center;
     justify-content: center;
+
+    overflow-y: auto;
+
+    &.error {
+        border-left: 1px dashed red;
+    }
+
+    .text {
+        margin-left: 8px;
+        margin-right: 8px;
+    }
 }
