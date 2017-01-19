@@ -327,6 +327,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 ))
             } else if (command === "resize") {
                 this.emit("action", Actions.resize(a[0][0], a[0][1]))
+            } else if (command === "set_title") {
+                this.emit("set-title", a[0][0])
             } else if (command === "eol_clear") {
                 this.emit("action", Actions.clearToEndOfLine())
             } else if (command === "clear") {
@@ -376,7 +378,7 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
     const vimRcArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
 
     const argsToPass = vimRcArg
-        .concat(["--cmd", "set rtp+=" + joinedRuntimePaths, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
+        .concat(["--cmd", "set rtp+=" + joinedRuntimePaths, "--cmd", "set title", "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
         .concat(args)
 
     const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
