@@ -12,7 +12,7 @@ export class WindowTitle {
     constructor(neovimInstance: INeovimInstance) {
         neovimInstance.on("event", (name: string, context: any) => {
             if (name === "BufEnter") {
-                let filename: string = context.bufferFullPath
+                let filename = context.bufferFullPath
                 if ( ! filename) { // unnamed file
                     document.title = "ONI"
                     return
