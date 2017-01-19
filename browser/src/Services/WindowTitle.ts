@@ -10,7 +10,7 @@ export class WindowTitle {
 
     constructor(neovimInstance: INeovimInstance) {
         neovimInstance.on("set-title", (title: string) => {
-            document.title = title.replace("NVIM", "ONI")
+            document.title = title.replace(" - NVIM", " - ONI")
         })
     }
 }
