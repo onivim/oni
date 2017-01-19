@@ -26,7 +26,7 @@ export class WindowTitle {
                     filename = filename.slice(i + 1)
                     document.title = filename + " (" + path + ") - ONI"
                 } else {
-                    document.title = filename + "- ONI"
+                    document.title = filename + " - ONI"
                 }
             }
         })
