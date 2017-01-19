@@ -9,7 +9,7 @@ describe("LiveEvaluation Test", () => {
 
     describe("evaluateBlock", () => {
         it("has result for compilation error", () => {
-            const erroneousCodeBlock = "this code should have a syntax error"
+            const erroneousCodeBlock = "this code should have a compilation error"
 
             return evaluateBlock(testId, testFileName, erroneousCodeBlock)
                     .then((result) => {
