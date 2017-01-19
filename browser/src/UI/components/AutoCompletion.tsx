@@ -1,8 +1,6 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import * as _ from "lodash"
-
 import { Icon } from "./../Icon"
 import { IState /*, AutoCompletionInfo */ } from "./../State"
 import { HighlightText } from "./HighlightText"
@@ -41,9 +39,7 @@ export class AutoCompletion extends React.Component<IAutoCompletionProps, void> 
             return null
         }
 
-        const firstTenEntries = _.take(this.props.entries, 10)
-
-        const entries = firstTenEntries.map((s, i) => {
+        const entries = this.props.entries.map((s, i) => {
 
             const isSelected = i === this.props.selectedIndex
 
