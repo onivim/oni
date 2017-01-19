@@ -57,7 +57,9 @@ export class LiveEvalMarker extends React.Component<ILiveEvalMarkerProps, void> 
             width: "250px",
         }
 
-        return <div className={cssClasses} style={positionDivStyles}>{this._getText()}</div>
+        return <div className={cssClasses} style={positionDivStyles}>
+                <div className="text">{this._getText()}</div>
+               </div>
     }
 
     private _hasError(): boolean {
