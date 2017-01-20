@@ -156,6 +156,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     performance.mark("NeovimInstance.Plugins.Start")
                     this._pluginManager.startPlugins(this)
                     performance.mark("NeovimInstance.Plugins.End")
+
+                    // set title after attaching listeners so we can get the initial title
+                    this.command("set title")
                 })
             }, (err) => {
                 this.emit("error", err)
@@ -378,7 +381,7 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
     const vimRcArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
 
     const argsToPass = vimRcArg
-        .concat(["--cmd", "set rtp+=" + joinedRuntimePaths, "--cmd", "set title", "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
+        .concat(["--cmd", "set rtp+=" + joinedRuntimePaths, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
         .concat(args)
 
     const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
