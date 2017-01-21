@@ -2,6 +2,7 @@ export interface IState {
     cursorPixelX: number
     cursorPixelY: number
     cursorPixelWidth: number
+    cursorCharacter: string
     fontPixelWidth: number
     fontPixelHeight: number
     mode: string

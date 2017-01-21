@@ -24,6 +24,7 @@ let defaultState: State.IState = {
     cursorPixelX: 10,
     cursorPixelY: 10,
     cursorPixelWidth: 10,
+    cursorCharacter: "",
     fontPixelWidth: 10,
     fontPixelHeight: 10,
     mode: "normal",
@@ -49,18 +50,18 @@ export function setBackgroundColor(backgroundColor: string): void {
 }
 
 export function setCursorPosition(screen: IScreen): void {
-    const cursorWidth = screen.getCell(screen.cursorColumn, screen.cursorRow).characterWidth
+    const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
     if (screen.cursorRow === screen.height - 1) {
         hideQuickInfo()
         hideSignatureHelp()
     }
 
-    _setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cursorWidth * screen.fontWidthInPixels)
+    _setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels)
 }
 
-function _setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number, cursorPixelWidth: number): void {
-    store.dispatch(ActionCreators.setCursorPosition(cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight, cursorPixelWidth))
+function _setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number, cursorCharacter: string, cursorPixelWidth: number): void {
+    store.dispatch(ActionCreators.setCursorPosition(cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight, cursorCharacter, cursorPixelWidth))
 }
 
 // TODO: Can we use bindaction creators for this?
