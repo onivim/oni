@@ -18,6 +18,7 @@ import { OutputWindow } from "./Services/Output"
 import { QuickOpen } from "./Services/QuickOpen"
 import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
 import { Tasks } from "./Services/Tasks"
+import { WindowTitle } from "./Services/WindowTitle"
 import * as UI from "./UI/index"
 import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./UI/Overlay/LiveEvaluationOverlay"
@@ -50,6 +51,7 @@ const start = (args: string[]) => {
     // Services
     const errorService = new Errors(instance)
     const quickOpen = new QuickOpen(instance)
+    const windowTitle = new WindowTitle(instance)
     const multiProcess = new MultiProcess()
     const formatter = new Formatter(instance, pluginManager)
     const outputWindow = new OutputWindow(instance, pluginManager)
@@ -61,6 +63,7 @@ const start = (args: string[]) => {
 
     services.push(errorService)
     services.push(quickOpen)
+    services.push(windowTitle)
     services.push(tasks)
     services.push(formatter)
     services.push(liveEvaluation)

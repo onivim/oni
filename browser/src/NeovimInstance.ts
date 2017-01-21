@@ -156,6 +156,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     performance.mark("NeovimInstance.Plugins.Start")
                     this._pluginManager.startPlugins(this)
                     performance.mark("NeovimInstance.Plugins.End")
+
+                    // set title after attaching listeners so we can get the initial title
+                    this.command("set title")
                 })
             }, (err) => {
                 this.emit("error", err)
@@ -327,6 +330,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 ))
             } else if (command === "resize") {
                 this.emit("action", Actions.resize(a[0][0], a[0][1]))
+            } else if (command === "set_title") {
+                this.emit("set-title", a[0][0])
             } else if (command === "eol_clear") {
                 this.emit("action", Actions.clearToEndOfLine())
             } else if (command === "clear") {
