@@ -48,4 +48,4 @@ If you use the hot-reload build of ONI to make changes - you'll end up reloading
 Then, the flow is to make the code changes in the "coding" instance, and see them reflected immediately in the "running instance".
 
 Here's an example of using hot-reloading to edit the cursor styles in real time:
-[cursor-hot-reload](http://i.imgur.com/pabtP0H.gifv)
+![cursor-hot-reload](http://i.imgur.com/pabtP0H.gifv)
