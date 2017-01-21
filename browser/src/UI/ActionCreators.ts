@@ -1,10 +1,11 @@
-export const setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorPixelWidth: number) => ({
+export const setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
     type: "SET_CURSOR_POSITION",
     payload: {
         pixelX: cursorPixelX,
         pixelY: cursorPixelY,
         fontPixelWidth,
         fontPixelHeight,
+        cursorCharacter,
         cursorPixelWidth,
     },
 })
