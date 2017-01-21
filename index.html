@@ -36,6 +36,9 @@
         var path = "dist/browser/bundle.js"
         if(process.env.NODE_ENV === "development") {
             path = "http://localhost:8191/bundle.js";
+            const hotReloadElement = document.createElement("div");
+            hotReloadElement.textContent = "Waiting for webpack compilation... You may need to reload the browser once webpack finishes compiling."
+            document.body.appendChild(hotReloadElement)
         }
         var scriptTag = document.createElement("script");
         scriptTag.src = path
