@@ -17,9 +17,6 @@ set expandtab
 set list
 set listchars=trail:·
 
-" Use system clipboard
-set clipboard=unnamed
-
 " Helpers for command mode
 " %% for current buffer file name
 " :: for current buffer file path
