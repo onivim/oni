@@ -1,6 +1,7 @@
 var path = require("path");
 var webpack = require("webpack");
 var lessPluginAutoPrefix = require("less-plugin-autoprefix");
+var OptimizeJsPlugin = require("optimize-js-plugin")
 
 module.exports = {
     entry: [
@@ -18,7 +19,6 @@ module.exports = {
             test: /\.tsx?$/,
             exclude: [/node_modules/],
             loaders: [
-                "react-hot",
                 "ts-loader"
             ]
         }, {
@@ -31,6 +31,7 @@ module.exports = {
             new lessPluginAutoPrefix({browsers: ["last 2 versions"]})
         ]
     },
+    devtool: "source-map",
     ts: {
         configFileName: "tsconfig.src.json"
     },
@@ -39,17 +40,12 @@ module.exports = {
     },
     output: {
         path: path.join(__dirname, "..", "dist", "browser"),
-        publicPath: "http://localhost:8191/",
+        publicPath: "/",
         filename: "bundle.js"
     },
     devServer: {
         contentBase: "./dist",
     },
-    plugins: [
-        new webpack.DefinePlugin({
-            "process.env.NODE_ENV":'"development"'
-        })
-    ],
     node: {
         process: false,
         __dirname: false

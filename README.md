@@ -250,6 +250,8 @@ The bundled plugins have their own license terms, along with the bundled Neovim 
 
 Contributions are very much welcome :)
 
+If you're interested in helping out, check out [CONTRIBUTING.md](./CONTRIBUTING.md) for tips and tricks for working with ONI.
+
 # Thanks
 
 Big thanks to the NeoVim team - without their work, this project would not be possible. The deep integration with VIM would not be possible without the incredible work that was done to enable the msgpack-RPC interface. Thanks!
