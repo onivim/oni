@@ -1,7 +1,8 @@
 import * as React from "react"
 import { connect } from "react-redux"
-import * as State from "./../State"
+
 import * as Config from "./../../Config"
+import * as State from "./../State"
 
 export interface ICursorProps {
     x: number
@@ -22,7 +23,9 @@ class CursorRenderer extends React.Component<ICursorProps, void> {
         const fontFamily = Config.getValue<string>("editor.fontFamily")
         const fontSize = Config.getValue<string>("editor.fontSize")
 
-        const width = this.props.mode === "normal" ? this.props.width : this.props.width / 4
+        const isNormalMode = this.props.mode === "normal"
+        const width = isNormalMode ? this.props.width : this.props.width / 4
+        const characterToShow = isNormalMode ? this.props.character : ""
 
         const cursorStyle = {
             position: "absolute",
@@ -36,7 +39,7 @@ class CursorRenderer extends React.Component<ICursorProps, void> {
             fontSize,
         }
 
-        return <div style={cursorStyle} className="cursor">{this.props.character}</div>
+        return <div style={cursorStyle} className="cursor">{characterToShow}</div>
     }
 }
 
