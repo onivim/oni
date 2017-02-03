@@ -292,6 +292,10 @@ const start = (args: string[]) => {
     window["neovim"] = instance // tslint:disable-line no-string-literal
 
     UI.init()
+
+    ipcRenderer.on("menu-item-click", (_evt, message) => {
+        instance.command("normal! " + message)
+    })
 }
 
 ipcRenderer.on("init", (_evt, message) => {

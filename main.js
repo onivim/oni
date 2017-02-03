@@ -68,6 +68,66 @@ function createWindow(commandLineArguments, workingDirectory) {
         ]
     })
 
+    menu[1].submenu = [
+       {
+           label: 'Undo',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "u")
+           }
+       },
+       {
+           label: 'Redo',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\<C-r>")
+           }
+       },
+       {
+           label: 'Repeat',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", ".")
+           }
+       },
+       {
+           type: 'separator'
+       },
+       {
+           label: 'Cut',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", '"+x')
+           }
+       },
+       {
+           label: 'Copy',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", '"+y')
+           }
+       },
+       {
+           label: 'Paste',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", '"+gP')
+           }
+       },
+       {
+           label: 'Put Before',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "[p")
+           }
+       },
+       {
+           label: 'Put After',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "]p")
+           }
+       },
+       {
+           label: 'Select All',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "ggVG")
+           }
+       },
+    ]
+
     menu[4].submenu = [
         {
             label: 'Learn more',
