@@ -294,7 +294,7 @@ const start = (args: string[]) => {
     UI.init()
 
     ipcRenderer.on("menu-item-click", (_evt, message) => {
-        instance.command("normal! " + message)
+        instance.command("exec \":normal! " + message + "\"")
     })
 }
 

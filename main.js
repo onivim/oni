@@ -78,7 +78,7 @@ function createWindow(commandLineArguments, workingDirectory) {
        {
            label: 'Redo',
            click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\<C-r>")
+               mainWindow.webContents.send("menu-item-click", "\\<C-r>")
            }
        },
        {
