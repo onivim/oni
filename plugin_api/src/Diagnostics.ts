@@ -5,8 +5,11 @@ import * as Sender from "./Sender"
  */
 export class Diagnostics implements Oni.Plugin.Diagnostics.Api { 
 
+    constructor(private _sender: Sender.ISender = new Sender.IpcSender) {
+    }
+
     public setErrors(key: string, fileName: string, errors: Oni.Plugin.Diagnostics.Error[], color?: string): void {
-        Sender.send("set-errors", null, {
+        this._sender.send("set-errors", null, {
             key: key,
             fileName: fileName,
             errors: errors,
@@ -15,7 +18,7 @@ export class Diagnostics implements Oni.Plugin.Diagnostics.Api {
     }
 
     public clearErrors(key: string): void {
-        Sender.send("clear-errors", null, {
+        this._sender.send("clear-errors", null, {
             key: key
         })
     }

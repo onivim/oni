@@ -1,7 +1,7 @@
 import { EventEmitter } from "events"
 import { ipcRenderer } from "electron"
 
-import * as Sender from "./Sender"
+import { ISender, IpcSender } from "./Sender"
 import { Diagnostics } from "./Diagnostics"
 import { Editor } from "./Editor"
 
@@ -24,8 +24,11 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._editor
     }
 
-    constructor() {
+    constructor(private _sender: ISender = new IpcSender()) {
         super()
+
+        this._diagnostics = new Diagnostics(this._sender);
+
         ipcRenderer.on("cross-browser-ipc", (_event, arg) => {
             this._handleNotification(arg)
         })
@@ -61,18 +64,18 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                 case "quick-info":
                     languageService.getQuickInfo(arg.payload.context)
                         .then((quickInfo) => {
-                            Sender.send("show-quick-info", originalContext, {
+                            this._sender.send("show-quick-info", originalContext, {
                                 info: quickInfo.title,
                                 documentation: quickInfo.description
                             })
                         }, (err) => {
-                            Sender.sendError("show-quick-info", originalContext, err)
+                            this._sender.sendError("show-quick-info", originalContext, err)
                         })
                     break
                 case "goto-definition":
                     languageService.getDefinition(arg.payload.context)
                         .then((definitionPosition) => {
-                            Sender.send("goto-definition", originalContext, {
+                            this._sender.send("goto-definition", originalContext, {
                                 filePath: definitionPosition.filePath,
                                 line: definitionPosition.line,
                                 column: definitionPosition.column
@@ -82,16 +85,16 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                 case "completion-provider":
                     languageService.getCompletions(arg.payload.context)
                         .then(completions => {
-                            Sender.send("completion-provider", originalContext, completions)
+                            this._sender.send("completion-provider", originalContext, completions)
                         }, (err) => {
-                            Sender.sendError("completion-provider", originalContext, err)
+                            this._sender.sendError("completion-provider", originalContext, err)
                         })
                     break
                 case "completion-provider-item-selected":
                     console.log("completion-provider-item-selected")
                     languageService.getCompletionDetails(arg.payload.context, arg.payload.item)
                         .then((details) => {
-                            Sender.send("completion-provider-item-selected", originalContext, {
+                            this._sender.send("completion-provider-item-selected", originalContext, {
                                 details: details
                             })
                         })
@@ -99,21 +102,21 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                 case "format":
                     languageService.getFormattingEdits(arg.payload.context)
                         .then((formattingResponse) => {
-                            Sender.send("format", originalContext, formattingResponse)
+                            this._sender.send("format", originalContext, formattingResponse)
                         })
                     break
                 case "evaluate-block":
                     languageService.evaluateBlock(arg.payload.context, arg.payload.id, arg.payload.fileName, arg.payload.code)
                         .then((val) => {
-                            Sender.send("evaluate-block-result", originalContext, val)
+                            this._sender.send("evaluate-block-result", originalContext, val)
                         })
                     break
                 case "signature-help":
                     languageService.getSignatureHelp(arg.payload.context)
                         .then((val) => {
-                            Sender.send("signature-help-response", originalContext, val)
+                            this._sender.send("signature-help-response", originalContext, val)
                         }, (err) => {
-                            Sender.sendError("signature-help-response", originalContext, err)
+                            this._sender.sendError("signature-help-response", originalContext, err)
                         })
 
             }
@@ -127,7 +130,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {
-        Sender.send("set-syntax-highlights", null, {
+        this._sender.send("set-syntax-highlights", null, {
             file: file,
             key: key,
             highlights: highlights
@@ -135,7 +138,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     public clearHighlights(file: string, key: string): void {
-        Sender.send("clear-syntax-highlights", null, {
+        this._sender.send("clear-syntax-highlights", null, {
             file: file,
             key: key
         })
