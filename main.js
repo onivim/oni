@@ -93,19 +93,19 @@ function createWindow(commandLineArguments, workingDirectory) {
        {
            label: 'Cut',
            click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", '"+x')
+               mainWindow.webContents.send("menu-item-click", '\\"+x')
            }
        },
        {
            label: 'Copy',
            click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", '"+y')
+               mainWindow.webContents.send("menu-item-click", '\\"+y')
            }
        },
        {
            label: 'Paste',
            click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", '"+gP')
+               mainWindow.webContents.send("menu-item-click", '\\"+gP')
            }
        },
        {
