@@ -2,7 +2,6 @@ import { ipcRenderer } from "electron"
 
 import { remote } from "electron"
 
-const id = remote.getCurrentWebContents().id
 
 /**
  * Interface that describes a strategy for sending data
@@ -17,11 +16,17 @@ export interface ISender {
  * Implementation of ISender leverage IPC
  */
 export class IpcSender {
+    private _id: number
+
+    constructor() {
+        this._id = remote.getCurrentWebContents().id
+    }
+
     public send(type: string, originalEventContext: any, payload: any): void {
         ipcRenderer.send("cross-browser-ipc", {
             type: type,
             meta: {
-                senderId: id,
+                senderId: this._id,
                 destinationId: global["SourceBrowserId"],
                 originEvent: originalEventContext
             },
@@ -33,7 +38,7 @@ export class IpcSender {
         ipcRenderer.send("cross-browser-ipc", {
             type: type,
             meta: {
-                senderId: id,
+                senderId: this._id,
                 destinationId: global["SourceBrowserId"],
                 originEvent: originalEventContext
             },
