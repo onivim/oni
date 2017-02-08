@@ -2,6 +2,14 @@ import { ipcRenderer } from "electron"
 
 import { remote } from "electron"
 
+import * as SocketIOClient from "socket.io-client"
+const socket = SocketIOClient("http://localhost");
+console.dir(socket);
+
+socket.on("connect", () => {
+    console.log("connected");
+});
+
 
 /**
  * Interface that describes a strategy for sending data
