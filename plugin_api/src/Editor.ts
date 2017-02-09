@@ -5,8 +5,11 @@ import * as Sender from "./Sender"
  */
 export class Editor implements Oni.Editor { 
 
+    constructor(private _sender: Sender.ISender = new Sender.IpcSender) {
+    }
+
     public executeShellCommand(shellCommand: string) {
-        Sender.send("execute-shell-command", null, {
+        this._sender.send("execute-shell-command", null, {
             command: shellCommand
         })
     }
