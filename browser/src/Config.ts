@@ -58,7 +58,7 @@ const DefaultConfig: any = {
     //
     // IE, Windows:
     // "editor.quickOpen.execCommand": "dir /s /b"
-    "editor.fullScreenOnStart" : false
+    "editor.fullScreenOnStart" : false,
 }
 
 const MacConfig: any = {
