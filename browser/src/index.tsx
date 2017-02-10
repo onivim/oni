@@ -1,4 +1,4 @@
-import { ipcRenderer } from "electron"
+import { ipcRenderer, remote } from "electron"
 import * as minimist from "minimist"
 import * as path from "path"
 import * as Config from "./Config"
@@ -26,6 +26,7 @@ import { OverlayManager } from "./UI/Overlay/OverlayManager"
 import { ScrollBarOverlay } from "./UI/Overlay/ScrollBarOverlay"
 
 const start = (args: string[]) => {
+
     const services: any[] = []
 
     const parsedArgs = minimist(args)
@@ -33,7 +34,7 @@ const start = (args: string[]) => {
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
-
+    remote.BrowserWindow.getFocusedWindow().setFullScreen(Config.getValue<boolean>("editor.fullScreenOnStart"))
     require("./overlay.less")
 
     let deltaRegion = new IncrementalDeltaRegionTracker()
