@@ -33,6 +33,7 @@ let defaultState: State.IState = {
     quickInfo: null,
     popupMenu: null,
     signatureHelp: null,
+    activeWindowSize: null
 }
 
 const CompletionItemSelectedEvent = "completion-item-selected"

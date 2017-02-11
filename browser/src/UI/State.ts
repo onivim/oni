@@ -1,3 +1,6 @@
+
+import { Rectangle } from "./Types"
+
 export interface IState {
     cursorPixelX: number
     cursorPixelY: number
@@ -11,6 +14,8 @@ export interface IState {
     quickInfo: null | Oni.Plugin.QuickInfo
     popupMenu: null | IMenu
     signatureHelp: null | Oni.Plugin.SignatureHelpResult
+
+    activeWindowSize: null | Rectangle
 }
 
 export interface IMenu {

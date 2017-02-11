@@ -1,13 +1,7 @@
 
-import { IWindowDimensions } from "./../../neovim/Window"
+import { Rectangle } from "./../Types"
 
-// TODO: Can these types be consolidated?
-export interface IPixelRectangle {
-    x: number
-    y: number
-    width: number
-    height: number
-}
+import { IWindowDimensions } from "./../../neovim/Window"
 
 /**
  * These interfaces must be kept in sync with the window_display_update method in init.vim
@@ -83,7 +77,7 @@ export class WindowContext {
         }
     }
 
-    public getWindowPosition(line: number, column: number): IPixelRectangle {
+    public getWindowPosition(line: number, column: number): Rectangle {
         const linePosition = this.getWindowRegionForLine(line)
         const columnPosition = (this._eventContext.wincol - this._eventContext.column + column - 1) * this._fontWidthInPixels
         return {
