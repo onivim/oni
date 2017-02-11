@@ -34,7 +34,7 @@ const start = (args: string[]) => {
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
-    remote.BrowserWindow.getFocusedWindow().setFullScreen(Config.getValue<boolean>("editor.fullScreenOnStart"))
+    remote.getCurrentWindow().setFullScreen(Config.getValue<boolean>("editor.fullScreenOnStart"))
     require("./overlay.less")
 
     let deltaRegion = new IncrementalDeltaRegionTracker()
