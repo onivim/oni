@@ -28,3 +28,4 @@ child.unref()
 child.on("error", (err) => console.error(err))
 child.on("exit", (code) => process.exit(code));
 
+process.exit(0)
