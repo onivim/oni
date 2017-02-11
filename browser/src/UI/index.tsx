@@ -193,7 +193,7 @@ export function showNeovimInstallHelp(): void {
     ReactDOM.render(<InstallHelp />, element)
 }
 
-const store = createStore(reducer, defaultState)
+const store = createStore(reducer, defaultState, window["__REDUX_DEVTOOLS_EXTENSION__"] && window["__REDUX_DEVTOOLS_EXTENSION__"]()) // tslint:disable-line no-string-literal
 
 export function init(): void {
     render(defaultState)
