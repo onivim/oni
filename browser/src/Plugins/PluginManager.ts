@@ -42,6 +42,11 @@ export class PluginManager extends EventEmitter {
 
         // TODO: Refactor this to a helper method
         this._io = global["require"]("socket.io")()
+        this._io.on("connection", () => {
+            console.log("got connection")
+        });
+        // Pick better port
+        this._io.listen(3000)
 
         this._debugPluginPath = debugPlugin
 
