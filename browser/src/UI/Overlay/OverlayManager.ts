@@ -82,11 +82,18 @@ export class OverlayManager extends EventEmitter {
                 const windowStartRow = dimensions.row
                 const windowStartColumn = dimensions.col
 
-                this._containerElement.style.top = (windowStartRow * this._screen.fontHeightInPixels) + "px"
-                this._containerElement.style.left = (windowStartColumn * this._screen.fontWidthInPixels) + "px"
+                const dimensionsInPixels = {
+                    x: windowStartColumn * this._screen.fontWidthInPixels,
+                    y: windowStartRow * this._screen.fontHeightInPixels,
+                    width: dimensions.width * this._screen.fontWidthInPixels,
+                    height: dimensions.height * this._screen.fontHeightInPixels,
+                }
 
-                const width = (dimensions.width * this._screen.fontWidthInPixels) + "px"
-                const height = (dimensions.height * this._screen.fontHeightInPixels) + "px"
+                this._containerElement.style.top = (dimensionsInPixels.y) + "px"
+                this._containerElement.style.left = (dimensionsInPixels.x) + "px"
+
+                const width = (dimensionsInPixels.width) + "px"
+                const height = (dimensionsInPixels.height) + "px"
 
                 this._containerElement.style.width = width
                 this._containerElement.style.height = height
@@ -97,7 +104,7 @@ export class OverlayManager extends EventEmitter {
                     overlayInfo.overlay.update(overlayInfo.element, windowContext)
                 })
 
-                this.emit("current-window-size-changed", dimensions)
+                this.emit("current-window-size-changed", dimensionsInPixels)
             })
     }
 }

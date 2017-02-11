@@ -9,6 +9,7 @@ import * as Config from "./../Config"
 
 import { RootComponent } from "./RootComponent"
 import * as State from "./State"
+import { Rectangle } from "./Types"
 
 // import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
@@ -34,6 +35,11 @@ export function setBackgroundColor(backgroundColor: string): void {
     backgroundImageElement.style.backgroundSize = backgroundImageSize
     backgroundColorElement.style.backgroundColor = backgroundColor
     backgroundColorElement.style.opacity = Config.getValue<string>("prototype.editor.backgroundOpacity")
+}
+
+// TODO: Can we use bindaction creators for this?
+export function setActiveWindowDimensionsChanged(dimensions: Rectangle) {
+    store.dispatch(ActionCreators.setActiveWindowDimensions(dimensions))
 }
 
 export function setCursorPosition(screen: IScreen): void {
