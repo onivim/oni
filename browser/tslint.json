@@ -15,7 +15,7 @@
       "never"
     ],
     "interface-name": [
-        false,
+        false
     ],
     "variable-name": [
       true,
