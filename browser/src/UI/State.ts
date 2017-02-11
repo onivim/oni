@@ -45,3 +45,19 @@ export interface IAutoCompletionInfo {
      */
     selectedIndex: number
 }
+
+export const createDefaultState = () => ({
+    cursorPixelX: 10,
+    cursorPixelY: 10,
+    cursorPixelWidth: 10,
+    cursorCharacter: "",
+    fontPixelWidth: 10,
+    fontPixelHeight: 10,
+    mode: "normal",
+    foregroundColor: "rgba(0, 0, 0, 0)",
+    autoCompletion: null,
+    quickInfo: null,
+    popupMenu: null,
+    signatureHelp: null,
+    activeWindowSize: null,
+})

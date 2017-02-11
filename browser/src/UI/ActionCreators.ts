@@ -23,7 +23,7 @@ export const setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixe
 
 export const setActiveWindowDimensions = (dimensions: Rectangle) => ({
     type: "SET_ACTIVE_WINDOW_DIMENSIONS",
-    payload: { dimensions }
+    payload: { dimensions },
 })
 
 export const setMode = (mode: string) => ({

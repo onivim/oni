@@ -20,21 +20,7 @@ import { IScreen } from "./../Screen"
 
 export const events = new EventEmitter()
 
-let defaultState: State.IState = {
-    cursorPixelX: 10,
-    cursorPixelY: 10,
-    cursorPixelWidth: 10,
-    cursorCharacter: "",
-    fontPixelWidth: 10,
-    fontPixelHeight: 10,
-    mode: "normal",
-    foregroundColor: "rgba(0, 0, 0, 0)",
-    autoCompletion: null,
-    quickInfo: null,
-    popupMenu: null,
-    signatureHelp: null,
-    activeWindowSize: null,
-}
+let defaultState = State.createDefaultState()
 
 const CompletionItemSelectedEvent = "completion-item-selected"
 
