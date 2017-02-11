@@ -1,8 +1,5 @@
-import { remote } from "electron"
 import * as fs from "fs"
 import * as path from "path"
-
-import * as Q from "q"
 
 export interface IPluginMetadata {
     debugging: boolean
@@ -11,8 +8,6 @@ export interface IPluginMetadata {
 const DefaultMetadata: IPluginMetadata = {
     debugging: false,
 }
-
-const WebContentsId = remote.getCurrentWindow().webContents.id
 
 // Subscription Events
 export const VimEventsSubscription = "vim-events"
@@ -42,14 +37,10 @@ export interface IWebViewInfo {
 export class Plugin {
     private _packageMetadata: any
     private _oniPluginMetadata: IPluginMetadata
-    private _webviewElement: Electron.WebViewElement
-    private _webviewId: number
-    private _webContents: Electron.WebContents
     private _lastEventContext: IEventContext
 
-    private _initPromise: Q.Promise<IWebViewInfo>
 
-    constructor(pluginRootDirectory: string, debugMode?: boolean) {
+    constructor(pluginRootDirectory: string) {
         const packageJsonPath = path.join(pluginRootDirectory, "package.json")
 
         if (fs.existsSync(packageJsonPath)) {
@@ -62,18 +53,27 @@ export class Plugin {
                 console.warn("Aborting plugin load as Oni engine version not specified: " + packageJsonPath)
             } else {
                 if (this._packageMetadata.main) {
-                    const moduleEntryPoint = path.join(pluginRootDirectory, this._packageMetadata.main)
-                    this._initPromise = loadPluginInBrowser(moduleEntryPoint, null)
+                    let moduleEntryPoint = path.normalize(path.join(pluginRootDirectory, this._packageMetadata.main))
+                    moduleEntryPoint = moduleEntryPoint.split("\\").join("/")
+                    // this._initPromise = loadPluginInBrowser(moduleEntryPoint, null)
 
-                    this._initPromise.then((info) => {
-                        this._webviewElement = info.webViewElement
-                        this._webContents = info.webContents
-                        this._webviewId = this._webContents.id
+                    const vm = require("vm")
 
-                        if (this._oniPluginMetadata.debugging || debugMode) {
-                            this._webviewElement.openDevTools()
-                        }
+                    vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
+                     Oni: "hello world",
+                     require: window["require"],
+                     console: console,
                     })
+
+                    // this._initPromise.then((info) => {
+                    //     this._webviewElement = info.webViewElement
+                    //     this._webContents = info.webContents
+                    //     this._webviewId = this._webContents.id
+
+                    //     if (this._oniPluginMetadata.debugging || debugMode) {
+                    //         this._webviewElement.openDevTools()
+                    //     }
+                    // })
                 }
 
                 const pluginMetadata = this._packageMetadata.oni || {}
@@ -86,9 +86,7 @@ export class Plugin {
     }
 
     public dispose(): void {
-        if (this._webviewElement) {
-            this._webviewElement.remove()
-        }
+
     }
 
     public requestGotoDefinition(eventContext: IEventContext): void {
@@ -234,40 +232,6 @@ export class Plugin {
     }
 
     private _send(message: any): void {
-        if (!this._initPromise) {
-            return
-        }
-
-        this._initPromise.then((info) => {
-            info.webContents.send("cross-browser-ipc", message)
-        })
+        console.log(message)
     }
-}
-
-const loadPluginInBrowser = (pathToModule: string, _apiObject: any) => {
-    const webViewElement = document.createElement("webview")
-    webViewElement.nodeintegration = "on"
-    webViewElement.disablewebsecurity = "on"
-
-    const url = "file://" + path.join(__dirname, "browser", "src", "Plugins", "plugin_host.html")
-    webViewElement.src = url
-    const deferred = Q.defer<IWebViewInfo>()
-
-    document.body.appendChild(webViewElement)
-
-    webViewElement.addEventListener("dom-ready", () => {
-        const webContents = webViewElement.getWebContents()
-
-        webContents.send("init", {
-            pathToModule,
-            sourceId: WebContentsId,
-        })
-
-        deferred.resolve({
-            webViewElement,
-            webContents,
-        })
-    })
-
-    return deferred.promise
 }

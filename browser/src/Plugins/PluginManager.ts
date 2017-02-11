@@ -116,7 +116,7 @@ export class PluginManager extends EventEmitter {
         this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory))
 
         if (this._debugPluginPath) {
-            this._plugins.push(new Plugin(this._debugPluginPath, true))
+            this._plugins.push(new Plugin(this._debugPluginPath))
         }
     }
 
