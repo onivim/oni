@@ -204,6 +204,7 @@ const start = (args: string[]) => {
     const mouse = new Mouse(editorElement, screen)
 
     mouse.on("mouse", (mouseInput: string) => {
+        UI.hideCompletions()
         instance.input(mouseInput)
     })
 
