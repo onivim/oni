@@ -7,12 +7,20 @@ const os = require('os');
 
 const ipcMain = electron.ipcMain
 
+const isDevelopment = process.env.NODE_ENV === "development" 
+
 const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
+const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length >0
+
+// import * as derp from "./installDevTools"
+
+if (isDebug || isDevelopment) {
+    require("./installDevTools")
+}
 
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 const webContents = electron.webContents
-
 
 ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
@@ -38,7 +46,7 @@ let windows = []
 
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
-if (process.env.NODE_ENV !== "development") {
+if (!isDevelopment && !isDebug) {
     const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
         createWindow(commandLine.slice(2), workingDirectory)
     })

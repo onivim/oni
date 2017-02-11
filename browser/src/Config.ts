@@ -24,7 +24,7 @@ const DefaultConfig: any = {
     // Production settings
 
     // The default config is an opinionated, prescribed set of plugins. This is on by default to provide
-    // a good out-of-box experience, but will likely conflict with a Vim/Neovim veteran's finely honed config. 
+    // a good out-of-box experience, but will likely conflict with a Vim/Neovim veteran's finely honed config.
     //
     // Set this to 'false' to avoid loading the default config, and load settings from init.vim instead.
     "oni.useDefaultConfig": true,
@@ -58,6 +58,7 @@ const DefaultConfig: any = {
     //
     // IE, Windows:
     // "editor.quickOpen.execCommand": "dir /s /b"
+    "editor.fullScreenOnStart" : false,
 }
 
 const MacConfig: any = {
