@@ -1,3 +1,6 @@
+
+import { Rectangle } from "./Types"
+
 export interface ISetCursorPositionAction {
     type: "SET_CURSOR_POSITION",
     payload: {
@@ -7,6 +10,13 @@ export interface ISetCursorPositionAction {
         fontPixelHeight: number,
         cursorCharacter: string,
         cursorPixelWidth: number,
+    }
+}
+
+export interface ISetActiveWindowDimensions {
+    type: "SET_ACTIVE_WINDOW_DIMENSIONS",
+    payload: {
+        dimensions: Rectangle,
     }
 }
 
@@ -115,4 +125,5 @@ export type Action = ISetCursorPositionAction |
     INextMenuAction |
     IFilterMenuAction |
     ISetModeAction |
-    ISetColorsAction
+    ISetColorsAction |
+    ISetActiveWindowDimensions
