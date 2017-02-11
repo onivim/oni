@@ -188,7 +188,7 @@ export interface IFuzzyMatchResults {
 
 export function fuzzyMatchCharacters(text: string[], searchString: string[]): IFuzzyMatchResults {
     const startValue = {
-        highlightIndices: [],
+        highlightIndices: <number[]>[],
         remainingCharacters: searchString,
     }
 

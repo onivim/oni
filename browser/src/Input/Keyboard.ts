@@ -53,7 +53,7 @@ export class Keyboard extends EventEmitter {
 
     private _convertKeyEventToVimKey(evt: KeyboardEvent): null | string {
 
-       const keyCode = {
+       const keyCode: {[key: number]: string} = {
              8:  "bs",      // Backspace                 
              9:  "tab",     // Tab                 
              13: "enter",   // Enter                 

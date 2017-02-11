@@ -1,6 +1,8 @@
 import * as fs from "fs"
 import * as path from "path"
 
+import { Oni } from "./Api/Oni"
+
 export interface IPluginMetadata {
     debugging: boolean
 }
@@ -39,7 +41,6 @@ export class Plugin {
     private _oniPluginMetadata: IPluginMetadata
     private _lastEventContext: IEventContext
 
-
     constructor(pluginRootDirectory: string) {
         const packageJsonPath = path.join(pluginRootDirectory, "package.json")
 
@@ -60,7 +61,7 @@ export class Plugin {
                     const vm = require("vm")
 
                     vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
-                     Oni: "hello world",
+                     Oni: new Oni(),
                      require: window["require"],
                      console: console,
                     })

@@ -1,4 +1,3 @@
-import { ipcRenderer } from "electron"
 import { EventEmitter } from "events"
 import * as fs from "fs"
 import * as mkdirp from "mkdirp"
@@ -18,6 +17,8 @@ import {
     SignatureHelpCapability,
 } from "./Plugin"
 
+import { EventSender } from "./Api/Sender"
+
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
 
@@ -36,6 +37,8 @@ export class PluginManager extends EventEmitter {
     private _lastEventContext: any
     private _lastBufferInfo: IBufferInfo
 
+    private _eventSender: EventSender = new EventSender()
+
     constructor(_screen: IScreen, debugPlugin?: string) {
         super()
 
@@ -53,10 +56,7 @@ export class PluginManager extends EventEmitter {
 
         this._rootPluginPaths.push(path.join(Config.getUserFolder(), "plugins"))
 
-        ipcRenderer.on("cross-browser-ipc", (_event, arg) => {
-            console.log("cross-browser-ipc: " + JSON.stringify(arg)) // tslint:disable-line no-console
-            this._handlePluginResponse(arg)
-        })
+        this._eventSender.on("send", (evt: any) => this._handlePluginResponse(evt))
 
         window.onbeforeunload = () => {
             this.dispose()

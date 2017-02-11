@@ -1,7 +1,6 @@
 import { EventEmitter } from "events"
-import { ipcRenderer } from "electron"
 
-import { ISender, IpcSender } from "./Sender"
+import { ISender } from "./Sender"
 import { Diagnostics } from "./Diagnostics"
 import { Editor } from "./Editor"
 
@@ -12,9 +11,9 @@ import { DebouncedLanguageService } from "./DebouncedLanguageService"
  */
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
-    private _editor: Oni.Editor = new Editor()
+    private _editor: Oni.Editor
     private _languageService: Oni.Plugin.LanguageService
-    private _diagnostics: Oni.Plugin.Diagnostics.Api = new Diagnostics()
+    private _diagnostics: Oni.Plugin.Diagnostics.Api
 
     public get diagnostics(): Oni.Plugin.Diagnostics.Api {
         return this._diagnostics
@@ -24,10 +23,11 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._editor
     }
 
-    constructor(private _sender: ISender = new IpcSender()) {
+    constructor(private _sender: ISender) {
         super()
 
-        this._diagnostics = new Diagnostics(this._sender);
+        this._diagnostics = new Diagnostics(this._sender)
+        this._editor = new Editor(this._sender)
 
         ipcRenderer.on("cross-browser-ipc", (_event, arg) => {
             this._handleNotification(arg)
@@ -56,13 +56,14 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
             const originalContext = arg.payload.context
 
-            const languageService = this._languageService
-            if (!languageService)
+            const languageService = this._languageService || null
+            if (!languageService) {
                 return
+            }
 
             switch (requestType) {
                 case "quick-info":
-                    languageService.getQuickInfo(arg.payload.context)
+                    this._languageService.getQuickInfo(arg.payload.context)
                         .then((quickInfo) => {
                             this._sender.send("show-quick-info", originalContext, {
                                 info: quickInfo.title,

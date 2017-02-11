@@ -5,7 +5,7 @@ import * as Sender from "./Sender"
  */
 export class Editor implements Oni.Editor { 
 
-    constructor(private _sender: Sender.ISender = new Sender.IpcSender) {
+    constructor(private _sender: Sender.ISender) {
     }
 
     public executeShellCommand(shellCommand: string) {
