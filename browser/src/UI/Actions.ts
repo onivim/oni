@@ -1,3 +1,11 @@
+/**
+ * Action.ts
+ *
+ * Actions are simple payloads of information that send data from oni to the redux store.
+ *
+ * For information on Actions, check out this link:
+ * http://redux.js.org/docs/basics/Actions.html
+ */
 
 import { Rectangle } from "./Types"
 
