@@ -6,7 +6,7 @@ import * as Sender from "./Sender"
 export class Diagnostics implements Oni.Plugin.Diagnostics.Api {
     private _filesThatHaveErrors: { [fileName: string]: boolean } = {}
 
-    constructor(private _sender: Sender.ISender = new Sender.IpcSender) {
+    constructor(private _sender: Sender.ISender) {
     }
 
     public setErrors(key: string, fileName: string, errors: Oni.Plugin.Diagnostics.Error[], color?: string): void {

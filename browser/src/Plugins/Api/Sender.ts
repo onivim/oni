@@ -7,9 +7,14 @@ import { EventEmitter } from "events"
 export interface ISender {
     send(type: string, originalEventContext: any, payload: any): void
     sendError(type: string, originalEventContext: any, error: string): void
+
+    onEvent(type: string, callback: any): void
 }
 
 export class EventSender extends EventEmitter {
+    public onEvent(derp: string, callback: any): void {
+        console.log(derp, callback)
+    }
 
     public send(type: string, originalEventContext: any, payload: any): void {
         this.emit("send", {

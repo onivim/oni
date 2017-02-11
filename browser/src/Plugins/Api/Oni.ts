@@ -29,9 +29,12 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._diagnostics = new Diagnostics(this._sender)
         this._editor = new Editor(this._sender)
 
-        ipcRenderer.on("cross-browser-ipc", (_event, arg) => {
+        this._sender.onEvent("TODODERPTHIS", (arg: any) => {
             this._handleNotification(arg)
         })
+        // ipcRenderer.on("cross-browser-ipc", (_event, arg) => {
+        //     this._handleNotification(arg)
+        // })
     }
 
     private _handleNotification(arg: any): void {

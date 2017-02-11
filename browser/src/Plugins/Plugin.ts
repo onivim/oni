@@ -2,6 +2,7 @@ import * as fs from "fs"
 import * as path from "path"
 
 import { Oni } from "./Api/Oni"
+import { ISender } from "./Api/Sender"
 
 export interface IPluginMetadata {
     debugging: boolean
@@ -41,7 +42,7 @@ export class Plugin {
     private _oniPluginMetadata: IPluginMetadata
     private _lastEventContext: IEventContext
 
-    constructor(pluginRootDirectory: string) {
+    constructor(pluginRootDirectory: string, eventSender: ISender) {
         const packageJsonPath = path.join(pluginRootDirectory, "package.json")
 
         if (fs.existsSync(packageJsonPath)) {
@@ -61,7 +62,7 @@ export class Plugin {
                     const vm = require("vm")
 
                     vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
-                     Oni: new Oni(),
+                     Oni: new Oni(eventSender),
                      require: window["require"],
                      console: console,
                     })

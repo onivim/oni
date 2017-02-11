@@ -113,10 +113,10 @@ export class PluginManager extends EventEmitter {
         })
 
         const allPlugins = this._getAllPluginPaths().filter((p) => p !== this._debugPluginPath)
-        this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory))
+        this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory, this._eventSender))
 
         if (this._debugPluginPath) {
-            this._plugins.push(new Plugin(this._debugPluginPath))
+            this._plugins.push(new Plugin(this._debugPluginPath, this._eventSender))
         }
     }
 
