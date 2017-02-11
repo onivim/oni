@@ -1,3 +1,5 @@
+import { EventEmitter } from "events"
+
 import * as _ from "lodash"
 
 import { IWindow } from "./../../neovim/Window"
@@ -14,7 +16,7 @@ interface IOverlayInfo {
     element: HTMLElement
 }
 
-export class OverlayManager {
+export class OverlayManager extends EventEmitter {
 
     private _screen: IScreen
     private _containerElement: HTMLElement
@@ -26,6 +28,8 @@ export class OverlayManager {
     private _neovimInstance: NeovimInstance
 
     constructor(screen: IScreen, neovimInstance: NeovimInstance) {
+        super()
+
         this._screen = screen
 
         const div = document.createElement("div")
@@ -93,6 +97,7 @@ export class OverlayManager {
                     overlayInfo.overlay.update(overlayInfo.element, windowContext)
                 })
 
+                this.emit("current-window-size-changed", dimensions)
             })
     }
 }
