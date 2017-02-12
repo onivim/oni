@@ -7,7 +7,6 @@ import { Keyboard } from "./Input/Keyboard"
 import { Mouse } from "./Input/Mouse"
 import { NeovimInstance } from "./NeovimInstance"
 import { PluginManager } from "./Plugins/PluginManager"
-// import { CanvasRenderer } from "./Renderer/CanvasRenderer"
 import { DOMRenderer } from "./Renderer/DOMRenderer"
 import { NeovimScreen } from "./Screen"
 import { Errors } from "./Services/Errors"
@@ -24,6 +23,7 @@ import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./UI/Overlay/LiveEvaluationOverlay"
 import { OverlayManager } from "./UI/Overlay/OverlayManager"
 import { ScrollBarOverlay } from "./UI/Overlay/ScrollBarOverlay"
+import { Rectangle } from "./UI/Types"
 
 const start = (args: string[]) => {
 
@@ -80,6 +80,8 @@ const start = (args: string[]) => {
     overlayManager.addOverlay("errors", errorOverlay)
     overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
     overlayManager.addOverlay("scrollbar", scrollbarOverlay)
+
+    overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.setActiveWindowDimensionsChanged(dimensionsInPixels))
 
     pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
         if (err) {

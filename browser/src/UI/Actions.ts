@@ -1,3 +1,14 @@
+/**
+ * Action.ts
+ *
+ * Actions are simple payloads of information that send data from oni to the redux store.
+ *
+ * For information on Actions, check out this link:
+ * http://redux.js.org/docs/basics/Actions.html
+ */
+
+import { Rectangle } from "./Types"
+
 export interface ISetCursorPositionAction {
     type: "SET_CURSOR_POSITION",
     payload: {
@@ -7,6 +18,13 @@ export interface ISetCursorPositionAction {
         fontPixelHeight: number,
         cursorCharacter: string,
         cursorPixelWidth: number,
+    }
+}
+
+export interface ISetActiveWindowDimensions {
+    type: "SET_ACTIVE_WINDOW_DIMENSIONS",
+    payload: {
+        dimensions: Rectangle,
     }
 }
 
@@ -115,4 +133,5 @@ export type Action = ISetCursorPositionAction |
     INextMenuAction |
     IFilterMenuAction |
     ISetModeAction |
-    ISetColorsAction
+    ISetColorsAction |
+    ISetActiveWindowDimensions

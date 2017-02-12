@@ -1,3 +1,6 @@
+
+import { Rectangle } from "./Types"
+
 export interface IState {
     cursorPixelX: number
     cursorPixelY: number
@@ -11,6 +14,9 @@ export interface IState {
     quickInfo: null | Oni.Plugin.QuickInfo
     popupMenu: null | IMenu
     signatureHelp: null | Oni.Plugin.SignatureHelpResult
+
+    // Dimensions of active window, in pixels
+    activeWindowDimensions: null | Rectangle
 }
 
 export interface IMenu {
@@ -40,3 +46,19 @@ export interface IAutoCompletionInfo {
      */
     selectedIndex: number
 }
+
+export const createDefaultState = () => ({
+    cursorPixelX: 10,
+    cursorPixelY: 10,
+    cursorPixelWidth: 10,
+    cursorCharacter: "",
+    fontPixelWidth: 10,
+    fontPixelHeight: 10,
+    mode: "normal",
+    foregroundColor: "rgba(0, 0, 0, 0)",
+    autoCompletion: null,
+    quickInfo: null,
+    popupMenu: null,
+    signatureHelp: null,
+    activeWindowDimensions: null,
+})
