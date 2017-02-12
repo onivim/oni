@@ -20,6 +20,8 @@ export const reducer = (s: State.IState, a: Actions.Action) => {
                 cursorCharacter: a.payload.cursorCharacter,
                 cursorPixelWidth: a.payload.cursorPixelWidth,
             })
+        case "SET_ACTIVE_WINDOW_DIMENSIONS":
+            return { ...s, ...{ activeWindowDimensions: a.payload.dimensions } }
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }
         case "SET_COLORS":

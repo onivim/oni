@@ -1,3 +1,14 @@
+/**
+ * ActionCreators.ts
+ *
+ * Action Creators are relatively simple - they are just a function that returns an `Action`
+ *
+ * For information on Action Creators, check out this link:
+ * http://redux.js.org/docs/basics/Actions.html
+ */
+
+import { Rectangle } from "./Types"
+
 export const setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
     type: "SET_CURSOR_POSITION",
     payload: {
@@ -8,6 +19,11 @@ export const setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixe
         cursorCharacter,
         cursorPixelWidth,
     },
+})
+
+export const setActiveWindowDimensions = (dimensions: Rectangle) => ({
+    type: "SET_ACTIVE_WINDOW_DIMENSIONS",
+    payload: { dimensions },
 })
 
 export const setMode = (mode: string) => ({
