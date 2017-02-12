@@ -98,9 +98,16 @@ export const activate = (Oni) => {
     }
 
     const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {
+
+        if (!textDocumentPosition || !textDocumentPosition.bufferFullPath)
+            return Promise.resolve(null)
+
         return host.getCompletionDetails(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, [completionItem.label])
             .then((details) => {
                 const entry = details[0]
+                if (!entry)
+                    return null
+
                 return {
                     kind: entry.kind,
                     label: entry.name,
