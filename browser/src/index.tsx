@@ -32,6 +32,17 @@ const start = (args: string[]) => {
     const parsedArgs = minimist(args)
     const debugPlugin = parsedArgs["debugPlugin"] // tslint:disable-line no-string-literal
 
+    const cursorLine = Config.getValue<boolean>("editor.cursorLine")
+    const cursorColumn = Config.getValue<boolean>("editor.cursorColumn")
+
+    if (cursorLine) {
+        UI.showCursorLine()
+    }
+
+    if (cursorColumn) {
+        UI.showCursorColumn()
+    }
+
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
     remote.getCurrentWindow().setFullScreen(Config.getValue<boolean>("editor.fullScreenOnStart"))
@@ -46,6 +57,8 @@ const start = (args: string[]) => {
     const editorElement = document.getElementById("oni-text-editor") as HTMLDivElement
     let renderer = new DOMRenderer()
     renderer.start(editorElement)
+
+
 
     let pendingTimeout: any = null
 
@@ -165,11 +178,25 @@ const start = (args: string[]) => {
         UI.setMode(newMode)
 
         if (newMode === "normal") {
+            if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
+                UI.showCursorLine()
+            }
+            if (cursorColumn) {
+                UI.showCursorColumn()
+            }
             UI.hideCompletions()
             UI.hideSignatureHelp()
         } else if (newMode === "insert") {
             UI.hideQuickInfo()
+            if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
+                UI.showCursorLine()
+            }
+            if (cursorColumn) {
+                UI.showCursorColumn()
+            }
         } else if (newMode === "cmdline") {
+            UI.hideCursorColumn() // TODO: cleaner way to hide and unhide?
+            UI.hideCursorLine()
             UI.hideCompletions()
             UI.hideQuickInfo()
 
