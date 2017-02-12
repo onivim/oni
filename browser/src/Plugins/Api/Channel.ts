@@ -38,15 +38,15 @@ export class InProcessChannel implements IChannel {
     ) {
 
         this._hostChannel.on("send-request", (arg: any) => {
-            this._pluginChannel.emit("host-request", arg)
+            setTimeout(() => this._pluginChannel.emit("host-request", arg), 0)
         })
 
         this._pluginChannel.on("send", (arg: any) => {
-            this._hostChannel.emit("plugin-response", arg)
+            setTimeout(() => this._hostChannel.emit("plugin-response", arg), 0)
         })
 
         this._pluginChannel.on("send-error", (arg: any) => {
-            this._hostChannel.emit("plugin-response", arg)
+            setTimeout(() => this._hostChannel.emit("plugin-response", arg), 0)
         })
     }
 }
