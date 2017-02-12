@@ -9,6 +9,7 @@ import * as Config from "./../Config"
 
 import { RootComponent } from "./RootComponent"
 import * as State from "./State"
+import { Rectangle } from "./Types"
 
 // import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
@@ -20,20 +21,7 @@ import { IScreen } from "./../Screen"
 
 export const events = new EventEmitter()
 
-let defaultState: State.IState = {
-    cursorPixelX: 10,
-    cursorPixelY: 10,
-    cursorPixelWidth: 10,
-    cursorCharacter: "",
-    fontPixelWidth: 10,
-    fontPixelHeight: 10,
-    mode: "normal",
-    foregroundColor: "rgba(0, 0, 0, 0)",
-    autoCompletion: null,
-    quickInfo: null,
-    popupMenu: null,
-    signatureHelp: null,
-}
+let defaultState = State.createDefaultState()
 
 const CompletionItemSelectedEvent = "completion-item-selected"
 
@@ -47,6 +35,11 @@ export function setBackgroundColor(backgroundColor: string): void {
     backgroundImageElement.style.backgroundSize = backgroundImageSize
     backgroundColorElement.style.backgroundColor = backgroundColor
     backgroundColorElement.style.opacity = Config.getValue<string>("prototype.editor.backgroundOpacity")
+}
+
+// TODO: Can we use bindaction creators for this?
+export function setActiveWindowDimensionsChanged(dimensions: Rectangle) {
+    store.dispatch(ActionCreators.setActiveWindowDimensions(dimensions))
 }
 
 export function setCursorPosition(screen: IScreen): void {

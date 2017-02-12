@@ -1,3 +1,5 @@
+import { EventEmitter } from "events"
+
 import * as _ from "lodash"
 
 import { IWindow } from "./../../neovim/Window"
@@ -14,7 +16,7 @@ interface IOverlayInfo {
     element: HTMLElement
 }
 
-export class OverlayManager {
+export class OverlayManager extends EventEmitter {
 
     private _screen: IScreen
     private _containerElement: HTMLElement
@@ -26,6 +28,8 @@ export class OverlayManager {
     private _neovimInstance: NeovimInstance
 
     constructor(screen: IScreen, neovimInstance: NeovimInstance) {
+        super()
+
         this._screen = screen
 
         const div = document.createElement("div")
@@ -78,11 +82,18 @@ export class OverlayManager {
                 const windowStartRow = dimensions.row
                 const windowStartColumn = dimensions.col
 
-                this._containerElement.style.top = (windowStartRow * this._screen.fontHeightInPixels) + "px"
-                this._containerElement.style.left = (windowStartColumn * this._screen.fontWidthInPixels) + "px"
+                const dimensionsInPixels = {
+                    x: windowStartColumn * this._screen.fontWidthInPixels,
+                    y: windowStartRow * this._screen.fontHeightInPixels,
+                    width: dimensions.width * this._screen.fontWidthInPixels,
+                    height: dimensions.height * this._screen.fontHeightInPixels,
+                }
 
-                const width = (dimensions.width * this._screen.fontWidthInPixels) + "px"
-                const height = (dimensions.height * this._screen.fontHeightInPixels) + "px"
+                this._containerElement.style.top = (dimensionsInPixels.y) + "px"
+                this._containerElement.style.left = (dimensionsInPixels.x) + "px"
+
+                const width = (dimensionsInPixels.width) + "px"
+                const height = (dimensionsInPixels.height) + "px"
 
                 this._containerElement.style.width = width
                 this._containerElement.style.height = height
@@ -93,6 +104,7 @@ export class OverlayManager {
                     overlayInfo.overlay.update(overlayInfo.element, windowContext)
                 })
 
+                this.emit("current-window-size-changed", dimensionsInPixels)
             })
     }
 }
