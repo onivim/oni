@@ -16,7 +16,7 @@ export interface IState {
     signatureHelp: null | Oni.Plugin.SignatureHelpResult
 
     // Dimensions of active window, in pixels
-    activeWindowDimensions: null | Rectangle
+    activeWindowDimensions: Rectangle
 }
 
 export interface IMenu {
@@ -60,5 +60,10 @@ export const createDefaultState = () => ({
     quickInfo: null,
     popupMenu: null,
     signatureHelp: null,
-    activeWindowDimensions: null,
+    activeWindowDimensions: {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+    },
 })
