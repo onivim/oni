@@ -1,15 +1,15 @@
-import * as Sender from "./Sender"
+import { IPluginChannel } from "./Channel"
 
 /**
  * API instance for interacting with Oni (and vim)
  */
 export class Editor implements Oni.Editor { 
 
-    constructor(private _sender: Sender.ISender) {
+    constructor(private _channel: IPluginChannel) {
     }
 
     public executeShellCommand(shellCommand: string) {
-        this._sender.send("execute-shell-command", null, {
+        this._channel.send("execute-shell-command", null, {
             command: shellCommand
         })
     }

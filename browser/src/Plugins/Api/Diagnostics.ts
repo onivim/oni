@@ -1,4 +1,5 @@
-import * as Sender from "./Sender"
+
+import { IPluginChannel } from "./Channel";
 
 /**
  * API instance for interacting with Oni (and vim)
@@ -6,7 +7,7 @@ import * as Sender from "./Sender"
 export class Diagnostics implements Oni.Plugin.Diagnostics.Api {
     private _filesThatHaveErrors: { [fileName: string]: boolean } = {}
 
-    constructor(private _sender: Sender.ISender) {
+    constructor(private _channel: IPluginChannel) {
     }
 
     public setErrors(key: string, fileName: string, errors: Oni.Plugin.Diagnostics.Error[], color?: string): void {
@@ -19,7 +20,7 @@ export class Diagnostics implements Oni.Plugin.Diagnostics.Api {
 
         this._filesThatHaveErrors[fileName] = errors.length > 0
 
-        this._sender.send("set-errors", null, {
+        this._channel.send("set-errors", null, {
             key: key,
             fileName: fileName,
             errors: errors,
@@ -29,7 +30,7 @@ export class Diagnostics implements Oni.Plugin.Diagnostics.Api {
 
     public clearErrors(key: string): void {
         this._filesThatHaveErrors = {}
-        this._sender.send("clear-errors", null, {
+        this._channel.send("clear-errors", null, {
             key: key
         })
     }

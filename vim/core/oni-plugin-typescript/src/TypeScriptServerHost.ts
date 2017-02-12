@@ -238,8 +238,6 @@ export class TypeScriptServerHost extends events.EventEmitter {
         } else {
             // If a sequence wasn't specified, it might be a call that returns multiple results
             // Like 'geterr' - returns both semanticDiag and syntaxDiag
-            console.log("No sequence number returned.") // tslint:disable-line no-console
-
             if (response.type && response.type === "event") {
                 if (response.event && response.event === "semanticDiag") {
                     this.emit("semanticDiag", response.body)

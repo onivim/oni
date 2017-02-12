@@ -17,7 +17,7 @@ import {
     SignatureHelpCapability,
 } from "./Plugin"
 
-import { EventSender } from "./Api/Sender"
+import * as Channel from "./Api/Channel"
 
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
@@ -37,7 +37,7 @@ export class PluginManager extends EventEmitter {
     private _lastEventContext: any
     private _lastBufferInfo: IBufferInfo
 
-    private _eventSender: EventSender = new EventSender()
+    private _channel: Channel.IChannel = new Channel.InProcessChannel()
 
     constructor(_screen: IScreen, debugPlugin?: string) {
         super()
@@ -56,7 +56,7 @@ export class PluginManager extends EventEmitter {
 
         this._rootPluginPaths.push(path.join(Config.getUserFolder(), "plugins"))
 
-        this._eventSender.on("send", (evt: any) => this._handlePluginResponse(evt))
+        this._channel.host.onResponse((arg: any) => this._handlePluginResponse(arg));
 
         window.onbeforeunload = () => {
             this.dispose()
@@ -113,10 +113,10 @@ export class PluginManager extends EventEmitter {
         })
 
         const allPlugins = this._getAllPluginPaths().filter((p) => p !== this._debugPluginPath)
-        this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory, this._eventSender))
+        this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory,this._channel))
 
         if (this._debugPluginPath) {
-            this._plugins.push(new Plugin(this._debugPluginPath, this._eventSender))
+            this._plugins.push(new Plugin(this._debugPluginPath, this._channel))
         }
     }
 

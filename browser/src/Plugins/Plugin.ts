@@ -2,7 +2,7 @@ import * as fs from "fs"
 import * as path from "path"
 
 import { Oni } from "./Api/Oni"
-import { ISender } from "./Api/Sender"
+import { IChannel } from "./Api/Channel"
 
 export interface IPluginMetadata {
     debugging: boolean
@@ -42,8 +42,11 @@ export class Plugin {
     private _oniPluginMetadata: IPluginMetadata
     private _lastEventContext: IEventContext
 
-    constructor(pluginRootDirectory: string, eventSender: ISender) {
+    private _channel: IChannel
+
+    constructor(pluginRootDirectory: string, channel: IChannel) {
         const packageJsonPath = path.join(pluginRootDirectory, "package.json")
+        this._channel = channel
 
         if (fs.existsSync(packageJsonPath)) {
             this._packageMetadata = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"))
@@ -62,20 +65,10 @@ export class Plugin {
                     const vm = require("vm")
 
                     vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
-                     Oni: new Oni(eventSender),
+                     Oni: new Oni(this._channel.plugin),
                      require: window["require"],
                      console: console,
                     })
-
-                    // this._initPromise.then((info) => {
-                    //     this._webviewElement = info.webViewElement
-                    //     this._webContents = info.webContents
-                    //     this._webviewId = this._webContents.id
-
-                    //     if (this._oniPluginMetadata.debugging || debugMode) {
-                    //         this._webviewElement.openDevTools()
-                    //     }
-                    // })
                 }
 
                 const pluginMetadata = this._packageMetadata.oni || {}
@@ -234,6 +227,6 @@ export class Plugin {
     }
 
     private _send(message: any): void {
-        console.log(message)
+        this._channel.host.send(message);
     }
 }

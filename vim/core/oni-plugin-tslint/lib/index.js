@@ -13,6 +13,7 @@ const tslintPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", 
 let lastErrors = {}
 
 const activate = (Oni) => {
+    return
 
     const doLintForFile = (args) => {
         if (!args.bufferFullPath) {
