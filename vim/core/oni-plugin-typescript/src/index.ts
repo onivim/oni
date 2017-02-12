@@ -7,6 +7,12 @@ import { evaluateBlock, getCommonImports } from "./LiveEvaluation"
 import { QuickInfo } from "./QuickInfo"
 import { INavigationTree, TypeScriptServerHost } from "./TypeScriptServerHost"
 
+export interface IDisplayPart {
+    text: string
+    kind: string
+}
+
+
 export const activate = (Oni) => {
 
     const host = new TypeScriptServerHost()
@@ -300,11 +306,6 @@ export const activate = (Oni) => {
                 Oni.setHighlights(args.bufferFullPath, "derp", highlights)
             })
     })
-
-    export interface IDisplayPart {
-        text: string
-        kind: string
-    }
 
     const kindToHighlightGroup = {
         let: "Identifier",
