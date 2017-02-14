@@ -6,9 +6,7 @@ const exec = require("child_process").exec
 const findParentDir = require("find-parent-dir")
 
 const isWindows = os.platform() === "win32"
-
 const tslintExecutable = isWindows ? "tslint.cmd" : "tslint"
-
 const tslintPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", ".bin", tslintExecutable)
 
 let lastErrors = {}
@@ -30,7 +28,6 @@ const activate = (Oni) => {
 
         executeTsLint(tslint, [args.bufferFullPath], currentWorkingDirectory)
             .then((errors) => {
-                debugger
                 Object.keys(errors).forEach(f => {
                     Oni.diagnostics.setErrors("tslint-ts", f, errors[f], "yellow")
                 })
@@ -94,7 +91,7 @@ const activate = (Oni) => {
         return Q.nfcall(exec, tslintPath + " " + processArgs.join(" "), { cwd: workingDirectory })
             .then((stdout, stderr) => {
 
-                const errorOutput = stdout.join(require("os").EOL).trim()
+                const errorOutput = stdout.join(os.EOL).trim()
 
                 const lintErrors = JSON.parse(errorOutput)
 

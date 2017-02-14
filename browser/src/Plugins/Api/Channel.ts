@@ -68,21 +68,21 @@ export class InProcessPluginChannel extends EventEmitter implements IPluginChann
 
     public send(type: string, originalEventContext: any, payload: any): void {
         this.emit("send", {
-            type: type,
+            type,
             meta: {
                 originEvent: originalEventContext
             },
-            payload: payload
+            payload
         })
     }
 
     public sendError(type: string, originalEventContext: any, error: string): void {
         this.emit("send-error", {
-            type: type,
+            type,
             meta: {
                 originEvent: originalEventContext
             },
-            error: error
+            error
         })
     }
 }
