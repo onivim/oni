@@ -64,11 +64,15 @@ export class Plugin {
 
                     const vm = require("vm")
 
-                    vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
-                     Oni: new Oni(this._channel.plugin),
-                     require: window["require"],
-                     console: console,
-                    })
+                    try {
+                        vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
+                            Oni: new Oni(this._channel.plugin),
+                            require: window["require"],
+                            console: console,
+                        })
+                    } catch (ex) {
+                        console.error(`Failed to load plugin at ${pluginRootDirectory}: ${ex}`)
+                    }
                 }
 
                 const pluginMetadata = this._packageMetadata.oni || {}
