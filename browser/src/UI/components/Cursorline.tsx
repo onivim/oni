@@ -1,7 +1,5 @@
 import * as React from "react"
 import { connect } from "react-redux"
-
-import * as Config from "./../../Config"
 import * as State from "./../State"
 
 export interface ICursorLineProps {
@@ -22,11 +20,7 @@ class CursorLineRenderer extends React.Component<ICursorLineProps, void> {
             return null
         }
 
-        const fontFamily = Config.getValue<string>("editor.fontFamily")
-        const fontSize = Config.getValue<string>("editor.fontSize")
         const width = this.props.width
-
-        // TODO: Add width
 
         const cursorStyle = {
             position: "absolute",
@@ -37,8 +31,6 @@ class CursorLineRenderer extends React.Component<ICursorLineProps, void> {
             height: this.props.height.toString() + "px", // Same as cursor
             backgroundColor: this.props.color,
             opacity: 0.2,
-            fontFamily,
-            fontSize,
         }
 
         return <div style={cursorStyle} className="cursorLine"></div>
