@@ -297,8 +297,12 @@ const start = (args: string[]) => {
 
     UI.init()
 
-    ipcRenderer.on("menu-item-click", (_evt, message) => {
-        instance.command("exec \":normal! " + message + "\"")
+    ipcRenderer.on("menu-item-click", (_evt, message: string) => {
+        if (message.startsWith(":")) {
+            instance.command("exec \"" + message + "\"")
+        } else {
+            instance.command("exec \":normal! " + message + "\"")
+        }
     })
 }
 
