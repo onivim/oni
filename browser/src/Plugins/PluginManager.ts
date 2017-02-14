@@ -57,14 +57,6 @@ export class PluginManager extends EventEmitter {
         this._rootPluginPaths.push(path.join(Config.getUserFolder(), "plugins"))
 
         this._channel.host.onResponse((arg: any) => this._handlePluginResponse(arg));
-
-        window.onbeforeunload = () => {
-            this.dispose()
-        }
-    }
-
-    public dispose(): void {
-        this._plugins.forEach((p) => p.dispose())
     }
 
     public get currentBuffer(): IBufferInfo {

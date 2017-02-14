@@ -98,7 +98,7 @@ const activate = (Oni) => {
                 const errorsWithFileName = lintErrors.map(e => ({
                     type: null,
                     file: path.normalize(e.name),
-                    text: e.failure,
+                    text: `[${e.ruleName}] ${e.failure}`,
                     lineNumber: e.startPosition.line,
                     startColumn: e.startPosition.character,
                     endColumn: e.endPosition.character,

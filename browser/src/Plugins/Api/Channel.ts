@@ -34,7 +34,7 @@ export class InProcessChannel implements IChannel {
 
     constructor(
         private _hostChannel: InProcessHostChannel = new InProcessHostChannel(),
-        private _pluginChannel: InProcessPluginChannel = new InProcessPluginChannel()
+        private _pluginChannel: InProcessPluginChannel = new InProcessPluginChannel(),
     ) {
 
         this._hostChannel.on("send-request", (arg: any) => {
@@ -57,22 +57,22 @@ export class InProcessHostChannel extends EventEmitter implements IHostChannel {
     }
 
     public onResponse(responseCallback: (arg: any) => void): void {
-        this.on("plugin-response", responseCallback);
+        this.on("plugin-response", responseCallback)
     }
 }
 
 export class InProcessPluginChannel extends EventEmitter implements IPluginChannel {
     public onRequest(requestCallback: (arg: any) => void): void {
-        this.on("host-request", requestCallback);
+        this.on("host-request", requestCallback)
     }
 
     public send(type: string, originalEventContext: any, payload: any): void {
         this.emit("send", {
             type,
             meta: {
-                originEvent: originalEventContext
+                originEvent: originalEventContext,
             },
-            payload
+            payload,
         })
     }
 
@@ -80,9 +80,9 @@ export class InProcessPluginChannel extends EventEmitter implements IPluginChann
         this.emit("send-error", {
             type,
             meta: {
-                originEvent: originalEventContext
+                originEvent: originalEventContext,
             },
-            error
+            error,
         })
     }
 }

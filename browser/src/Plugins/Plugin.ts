@@ -84,10 +84,6 @@ export class Plugin {
         }
     }
 
-    public dispose(): void {
-
-    }
-
     public requestGotoDefinition(eventContext: IEventContext): void {
         this._send({
             type: "request",
