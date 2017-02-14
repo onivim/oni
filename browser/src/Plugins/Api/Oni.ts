@@ -136,6 +136,9 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                         }, (err) => {
                             this._channel.sendError("signature-help-response", originalContext, err)
                         })
+                    break
+                default:
+                    console.warn(`Unknown request type: ${requestType}`)
 
             }
         } else {

@@ -18,7 +18,7 @@ describe("Diagnostics", () => {
             startColumn: 0,
             endColumn: 1,
             type: "error",
-            text: "some error"
+            text: "some error",
         }], "red")
 
         assert.strictEqual(mockSender.sentMessages.length, 1)

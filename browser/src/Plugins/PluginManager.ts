@@ -56,7 +56,7 @@ export class PluginManager extends EventEmitter {
 
         this._rootPluginPaths.push(path.join(Config.getUserFolder(), "plugins"))
 
-        this._channel.host.onResponse((arg: any) => this._handlePluginResponse(arg));
+        this._channel.host.onResponse((arg: any) => this._handlePluginResponse(arg))
     }
 
     public get currentBuffer(): IBufferInfo {
@@ -105,7 +105,7 @@ export class PluginManager extends EventEmitter {
         })
 
         const allPlugins = this._getAllPluginPaths().filter((p) => p !== this._debugPluginPath)
-        this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory,this._channel))
+        this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory, this._channel))
 
         if (this._debugPluginPath) {
             this._plugins.push(new Plugin(this._debugPluginPath, this._channel))

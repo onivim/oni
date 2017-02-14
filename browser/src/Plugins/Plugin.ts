@@ -1,8 +1,8 @@
 import * as fs from "fs"
 import * as path from "path"
 
-import { Oni } from "./Api/Oni"
 import { IChannel } from "./Api/Channel"
+import { Oni } from "./Api/Oni"
 
 export interface IPluginMetadata {
     debugging: boolean
@@ -60,15 +60,14 @@ export class Plugin {
                 if (this._packageMetadata.main) {
                     let moduleEntryPoint = path.normalize(path.join(pluginRootDirectory, this._packageMetadata.main))
                     moduleEntryPoint = moduleEntryPoint.split("\\").join("/")
-                    // this._initPromise = loadPluginInBrowser(moduleEntryPoint, null)
 
                     const vm = require("vm")
 
                     try {
                         vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
                             Oni: new Oni(this._channel.plugin),
-                            require: window["require"],
-                            console: console,
+                            require: window["require"], // tslint:disable-line no-string-literal
+                            console,
                         })
                     } catch (ex) {
                         console.error(`Failed to load plugin at ${pluginRootDirectory}: ${ex}`)
@@ -227,6 +226,6 @@ export class Plugin {
     }
 
     private _send(message: any): void {
-        this._channel.host.send(message);
+        this._channel.host.send(message)
     }
 }
