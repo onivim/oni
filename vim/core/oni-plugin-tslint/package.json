@@ -8,7 +8,6 @@
   "scripts": {
   },
   "oni": {
-    "debugging": false,
     "javascript,typescript": {
       "subscriptions": [
         "buffer-update",
