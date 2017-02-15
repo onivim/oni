@@ -2,7 +2,7 @@ import * as React from "react"
 import { connect } from "react-redux"
 import * as State from "./../State"
 
-export interface ICursorLineProps {
+export interface ICursorLineRendererProps {
     x: number
     y: number
     width: number
@@ -11,9 +11,13 @@ export interface ICursorLineProps {
     visible: boolean
 }
 
+export interface ICursorLineProps {
+    lineType: string
+}
+
 // require("./Cursor.less") // tslint:disable-line no-var-requires
 
-class CursorLineRenderer extends React.Component<ICursorLineProps, void> {
+class CursorLineRenderer extends React.Component<ICursorLineRendererProps, void> {
 
     public render(): null |  JSX.Element {
         if (!this.props.visible) {
@@ -37,14 +41,14 @@ class CursorLineRenderer extends React.Component<ICursorLineProps, void> {
     }
 }
 
-const mapStateToProps = (state: State.IState) => {
+const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
     return {
-        x: state.activeWindowDimensions.x,
-        y: state.cursorPixelY,
-        width: state.activeWindowDimensions.width,
-        height: state.fontPixelHeight,
+        x: props.lineType === "line" ? state.activeWindowDimensions.x : state.cursorPixelX,
+        y: props.lineType === "line" ? state.cursorPixelY : state.activeWindowDimensions.y,
+        width: props.lineType === "line" ? state.activeWindowDimensions.width : state.cursorPixelWidth,
+        height: props.lineType === "line" ? state.fontPixelHeight : state.activeWindowDimensions.height,
         color: state.foregroundColor,
-        visible: state.cursorLineVisible,
+        visible: props.lineType === "line" ? state.cursorLineVisible : state.cursorColumnVisible,
     }
 }
 
