@@ -1,6 +1,6 @@
 import * as assert from "assert"
 
-import { debounce } from "./../src/PromiseDebouncer"
+import { debounce } from "./../../../src/Plugins/Api/PromiseDebouncer"
 
 describe("PromiseDebouncer", () => {
     it("returns original arguments", () => {
