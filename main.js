@@ -68,6 +68,68 @@ function createWindow(commandLineArguments, workingDirectory) {
         label: firstMenu,
         submenu: [
             {
+                label: 'Open...',
+                click: (item, focusedWindow) => {
+                    dialog.showOpenDialog(mainWindow, ['openFile'], (names) =>
+                        mainWindow.webContents.send("menu-item-click", ":e " + names)
+                    )
+                }
+            },
+            {
+                label: 'Split Open...',
+                click: (item, focusedWindow) => {
+                    dialog.showOpenDialog(mainWindow, ['openFile'], (names) =>
+                        mainWindow.webContents.send("menu-item-click", ":sp " + names)
+                    )
+                }
+            },
+            {
+                label: 'Tab Open...',
+                click: (item, focusedWindow) => {
+                    dialog.showOpenDialog(mainWindow, ['openFile'], (names) =>
+                        mainWindow.webContents.send("menu-item-click", ":tabnew " + names)
+                    )
+                }
+            },
+            {
+                label: 'New',
+                click: (item, focusedWindow) => {
+                    mainWindow.webContents.send("menu-item-click", ":enew")
+                }
+            },
+            {
+                label: 'Close',
+                click: (item, focusedWindow) => {
+                    mainWindow.webContents.send("menu-item-click", ":close")
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Save',
+                click: (item, focusedWindow) => {
+                    mainWindow.webContents.send("menu-item-click", ":w")
+                }
+            },
+            {
+                label: 'Save As...',
+                click: (item, focusedWindow) => {
+                    dialog.showSaveDialog(mainWindow, {}, (name) =>
+                        mainWindow.webContents.send("menu-item-click", ":save " + name)
+                    )
+                }
+            },
+            {
+                label: 'Save All',
+                click: (item, focusedWindow) => {
+                    mainWindow.webContents.send("menu-item-click", ":wall")
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
                 label: 'Quit',
                 click: (item, focusedWindow) => {
                     app.quit()
@@ -76,6 +138,7 @@ function createWindow(commandLineArguments, workingDirectory) {
         ]
     })
 
+    // Edit menu
     menu[1].submenu = [
        {
            label: 'Undo',
@@ -133,9 +196,101 @@ function createWindow(commandLineArguments, workingDirectory) {
            click: (item, focusedWindow) => {
                mainWindow.webContents.send("menu-item-click", "ggVG")
            }
-       },
+       }
     ]
 
+    // Window menu
+    menu[3].submenu = [
+        {
+           label: 'New',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\\<C-w>n")
+           }
+        },
+        {
+           label: 'Split',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\\<C-w>s")
+           }
+        },
+        {
+           label: 'Split Vertically',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\\<C-w>v")
+           }
+        },
+        {
+           label: 'Split File Explorer',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", ":Lexplore | vertical resize 30")
+           }
+        },
+        {
+            type: 'separator'
+        },
+        {
+           label: 'Close',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\\<C-w>c")
+           }
+        },
+        {
+           label: 'Close Other(s)',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\\<C-w>o")
+           }
+        },
+        {
+            type: 'separator'
+        },
+        {
+           label: 'Rotate Up',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\\<C-w>R")
+           }
+        },
+        {
+           label: 'Rotate Down',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\\<C-w>r")
+           }
+        },
+        {
+            type: 'separator'
+        },
+        {
+           label: 'Equal Size',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\\<C-w>=")
+           }
+        },
+        {
+           label: 'Max Height',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\\<C-w>_")
+           }
+        },
+        {
+           label: 'Min Height',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\\<C-w>1_")
+           }
+        },
+        {
+           label: 'Max Width',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\\<C-w>|")
+           }
+        },
+        {
+           label: 'Min Width',
+           click: (item, focusedWindow) => {
+               mainWindow.webContents.send("menu-item-click", "\\<C-w>1|")
+           }
+        }
+    ]
+
+    // Help menu
     menu[4].submenu = [
         {
             label: 'Learn more',
