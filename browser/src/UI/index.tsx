@@ -198,3 +198,19 @@ function render(_state: State.IState): void {
             <RootComponent />
         </Provider>, element)
 }
+
+export function showCursorLine() {
+    store.dispatch(ActionCreators.showCursorLine())
+}
+
+export function showCursorColumn() {
+    store.dispatch(ActionCreators.showCursorColumn())
+}
+
+export function hideCursorLine() {
+    store.dispatch(ActionCreators.hideCursorLine())
+}
+
+export function hideCursorColumn() {
+    store.dispatch(ActionCreators.hideCursorColumn())
+}
