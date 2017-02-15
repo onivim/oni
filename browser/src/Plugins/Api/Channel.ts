@@ -21,6 +21,12 @@ export interface IPluginChannel {
     onRequest(requestCallback: (arg: any) => void): void
 }
 
+export interface IPluginFilter {
+    fileType: string
+    requiredCapabilities?: any // TODO: { [key: CapabilityCategory]: Capability }
+    singlePlugin?: boolean
+}
+
 export interface IHostChannel {
     send(message: any): void
 
