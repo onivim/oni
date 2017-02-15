@@ -70,25 +70,31 @@ function createWindow(commandLineArguments, workingDirectory) {
             {
                 label: 'Open...',
                 click: (item, focusedWindow) => {
-                    dialog.showOpenDialog(mainWindow, ['openFile'], (names) =>
-                        mainWindow.webContents.send("menu-item-click", ":e " + names)
-                    )
+                    dialog.showOpenDialog(mainWindow, ['openFile'], (name) => {
+                        if (name) {
+                            mainWindow.webContents.send("menu-item-click", ":e " + name)
+                        }
+                    })
                 }
             },
             {
                 label: 'Split Open...',
                 click: (item, focusedWindow) => {
-                    dialog.showOpenDialog(mainWindow, ['openFile'], (names) =>
-                        mainWindow.webContents.send("menu-item-click", ":sp " + names)
-                    )
+                    dialog.showOpenDialog(mainWindow, ['openFile'], (name) => {
+                        if (name) {
+                            mainWindow.webContents.send("menu-item-click", ":sp " + name)
+                        }
+                    })
                 }
             },
             {
                 label: 'Tab Open...',
                 click: (item, focusedWindow) => {
-                    dialog.showOpenDialog(mainWindow, ['openFile'], (names) =>
-                        mainWindow.webContents.send("menu-item-click", ":tabnew " + names)
-                    )
+                    dialog.showOpenDialog(mainWindow, ['openFile'], (name) => {
+                        if (name) {
+                            mainWindow.webContents.send("menu-item-click", ":tabnew " + name)
+                        }
+                    })
                 }
             },
             {
@@ -115,9 +121,11 @@ function createWindow(commandLineArguments, workingDirectory) {
             {
                 label: 'Save As...',
                 click: (item, focusedWindow) => {
-                    dialog.showSaveDialog(mainWindow, {}, (name) =>
-                        mainWindow.webContents.send("menu-item-click", ":save " + name)
-                    )
+                    dialog.showSaveDialog(mainWindow, {}, (name) => {
+                        if (name) {
+                            mainWindow.webContents.send("menu-item-click", ":save " + name)
+                        }
+                    })
                 }
             },
             {
