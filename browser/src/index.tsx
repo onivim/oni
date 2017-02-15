@@ -30,9 +30,7 @@ const start = (args: string[]) => {
     const services: any[] = []
 
     const parsedArgs = minimist(args)
-    const debugPlugin = parsedArgs["debugPlugin"] // tslint:disable-line no-string-literal
 
-    // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
     remote.getCurrentWindow().setFullScreen(Config.getValue<boolean>("editor.fullScreenOnStart"))
     require("./overlay.less")
@@ -40,7 +38,7 @@ const start = (args: string[]) => {
     let deltaRegion = new IncrementalDeltaRegionTracker()
     let screen = new NeovimScreen(deltaRegion)
 
-    const pluginManager = new PluginManager(screen, debugPlugin)
+    const pluginManager = new PluginManager(screen)
     let instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight)
 
     const editorElement = document.getElementById("oni-text-editor") as HTMLDivElement
