@@ -65,7 +65,7 @@ export class Plugin {
 
                     try {
                         vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
-                            Oni: new Oni(this._channel.plugin),
+                            Oni: new Oni(this._channel.createPluginChannel()),
                             require: window["require"], // tslint:disable-line no-string-literal
                             console,
                         })
