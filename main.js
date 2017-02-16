@@ -188,13 +188,13 @@ function createWindow(commandLineArguments, workingDirectory) {
            }
        },
        {
-           label: 'Put Before',
+           label: 'Paste Line Before',
            click: (item, focusedWindow) => {
                mainWindow.webContents.send("menu-item-click", "[p")
            }
        },
        {
-           label: 'Put After',
+           label: 'Paste Line After',
            click: (item, focusedWindow) => {
                mainWindow.webContents.send("menu-item-click", "]p")
            }
@@ -208,27 +208,28 @@ function createWindow(commandLineArguments, workingDirectory) {
     ]
 
     // Window menu
+    menu[3].label = 'Split'
     menu[3].submenu = [
         {
-           label: 'New',
+           label: 'New Horizontal Split',
            click: (item, focusedWindow) => {
                mainWindow.webContents.send("menu-item-click", "\\<C-w>n")
            }
         },
         {
-           label: 'Split',
+           label: 'Split File Horizontally',
            click: (item, focusedWindow) => {
                mainWindow.webContents.send("menu-item-click", "\\<C-w>s")
            }
         },
         {
-           label: 'Split Vertically',
+           label: 'Split File Vertically',
            click: (item, focusedWindow) => {
                mainWindow.webContents.send("menu-item-click", "\\<C-w>v")
            }
         },
         {
-           label: 'Split File Explorer',
+           label: 'File Explorer Split',
            click: (item, focusedWindow) => {
                mainWindow.webContents.send("menu-item-click", ":Lexplore | vertical resize 30")
            }
@@ -243,13 +244,41 @@ function createWindow(commandLineArguments, workingDirectory) {
            }
         },
         {
-           label: 'Close Other(s)',
+           label: 'Close Other Split(s)',
            click: (item, focusedWindow) => {
                mainWindow.webContents.send("menu-item-click", "\\<C-w>o")
            }
         },
         {
             type: 'separator'
+        },
+        {
+           label: 'Move To',
+           submenu: [
+           {
+                label: 'Top',
+                click: (item, focusedWindow) => {
+                    mainWindow.webContents.send("menu-item-click", "\\<C-w>K")
+                }
+            },
+            {
+                label: 'Bottom',
+                click: (item, focusedWindow) => {
+                    mainWindow.webContents.send("menu-item-click", "\\<C-w>J")
+                }
+            },
+            {
+                label: 'Left Side',
+                click: (item, focusedWindow) => {
+                    mainWindow.webContents.send("menu-item-click", "\\<C-w>H")
+                }
+            },
+            {
+                label: 'Right Side',
+                click: (item, focusedWindow) => {
+                    mainWindow.webContents.send("menu-item-click", "\\<C-w>L")
+                }
+            }]
         },
         {
            label: 'Rotate Up',
