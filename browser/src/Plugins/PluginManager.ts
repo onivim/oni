@@ -53,6 +53,10 @@ export class PluginManager extends EventEmitter {
 
         this._rootPluginPaths.push(path.join(Config.getUserFolder(), "plugins"))
 
+        if (Config.hasValue("oni.prioritizedVimScript")) {
+            this._rootPluginPaths.push(Config.getValue<string>("oni.prioritizedVimScript"))
+        }
+
         ipcRenderer.on("cross-browser-ipc", (_event, arg) => {
             console.log("cross-browser-ipc: " + JSON.stringify(arg)) // tslint:disable-line no-console
             this._handlePluginResponse(arg)

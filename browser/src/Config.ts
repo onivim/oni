@@ -33,6 +33,12 @@ const DefaultConfig: any = {
     // Set this to `true` to enable loading of init.vim.
     "oni.loadInitVim": false,
 
+    // In case both `useDefaultConfig` and `loadInitVim` are set to `true`, the user's init.vim has a lower
+    // priority in the case of a configuration conflict.
+    // Set this to a path of a vim script that will take precedence over both.
+    // For example, with `"oni.prioritizedVimScript": "~/my/special/place`, all the ~/my/special/place/plugin/*.vim" files will be loaded
+    "oni.prioritizedVimScript": "",
+
     // Sets the `popupmenu_external` option in Neovim
     // This will override the default UI to show a consistent popupmenu,
     // whether using Oni's completion mechanisms or VIMs
