@@ -176,6 +176,7 @@ A few interesting configuration options to set:
 - `oni.audio.bellUrl` - Set a custom sound effect for the `bell` (`:help bell`). The value should be an _absolute path_ to a supported audio file, such as a WAV file.
 - `oni.useDefaultConfig` - ONI comes with an opinionated default set of plugins for a predictable out-of-box experience. This will be great for newcomes to ONI or Vim, but for Vim/Neovim veterans, this will likely conflict. Set this to `false` to avoid loading the default config, and to load settings from `init.vim` instead (If this is false, it implies `oni.loadInitVim` is true)
 - `oni.loadInitVim` - This determines whether the user's `init.vim` is loaded. Use caution when setting this to `true` and setting `oni.useDefaultConfig` to true, as there could be conflicts with the default configuration.
+- `oni.prioritizedVimScript` - A path to a folder with scripts that will be loaded last and thus will override any other configuration. That can be useful if some of ONI's default configuration or `init.vim` are wished to be overridden. The simplest usage is to drop all your script files under `/my_path/plugin/` (assuming `oni.prioritizedVimScript` is set to `"/my_path"`).
 - `editor.fontSize` - Font size
 - `editor.fontFamily` - Font family
 - `prototype.editor.backgroundImageUrl` - specific a custom background image
