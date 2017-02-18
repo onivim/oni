@@ -35,9 +35,18 @@ export class PluginManager extends EventEmitter {
     private _neovimInstance: INeovimInstance
     private _lastEventContext: any
     private _lastBufferInfo: IBufferInfo
+    private _io: SocketIO.Server
 
     constructor(_screen: IScreen, debugPlugin?: string) {
         super()
+
+        // TODO: Refactor this to a helper method
+        this._io = global["require"]("socket.io")()
+        this._io.on("connection", () => {
+            console.log("got connection")
+        });
+        // Pick better port
+        this._io.listen(3000)
 
         this._debugPluginPath = debugPlugin
 
