@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/extr0py/oni.svg?branch=master)](https://travis-ci.org/extr0py/oni)
+[![Join the chat at https://gitter.im/extr0py/Lobby](https://badges.gitter.im/extr0py/Lobby.svg)](https://gitter.im/extr0py/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 # Oni
 ![alt text](./images/Oni_128.png)
 ## Neovim + JavaScript powered IDE
