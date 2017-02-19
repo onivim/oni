@@ -194,7 +194,7 @@ export class PluginManager extends EventEmitter {
         this._channel.host.send({
             type: "event",
             payload: {
-                eventName,
+                name: eventName,
                 context: eventContext
             },
         }, Capabilities.createPluginFilter(this._lastEventContext.filetype, { subscriptions: ["vim-events"] }, false))
@@ -204,6 +204,8 @@ export class PluginManager extends EventEmitter {
 
         } else if (eventName === "CursorMovedI" && Config.getValue<boolean>("editor.completions.enabled")) {
             this._sendLanguageServiceRequest("completion-provider", eventContext)
+
+            this._sendLanguageServiceRequest("signature-help", eventContext)
         }
     }
 
