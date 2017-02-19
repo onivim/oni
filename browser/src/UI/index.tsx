@@ -191,6 +191,22 @@ export function init(): void {
     render(defaultState)
 }
 
+export function showCursorLine(): void {
+    store.dispatch(ActionCreators.showCursorLine())
+}
+
+export function hideCursorLine(): void {
+    store.dispatch(ActionCreators.hideCursorLine())
+}
+
+export function showCursorColumn(): void {
+    store.dispatch(ActionCreators.showCursorColumn())
+}
+
+export function hideCursorColumn(): void {
+    store.dispatch(ActionCreators.hideCursorColumn())
+}
+
 function render(_state: State.IState): void {
     const element = document.getElementById("overlay-ui")
     ReactDOM.render(

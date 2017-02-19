@@ -57,6 +57,22 @@ export const reducer = (s: State.IState, a: Actions.Action) => {
             return Object.assign({}, s, {
                 signatureHelp: null,
             })
+         case "HIDE_CURSOR_LINE":
+             return Object.assign({}, s, {
+                 cursorLineVisible: false,
+            })
+         case "HIDE_CURSOR_COLUMN":
+             return Object.assign({}, s, {
+                 cursorColumnVisible: false,
+            })
+         case "SHOW_CURSOR_LINE":
+             return Object.assign({}, s, {
+                 cursorLineVisible: true,
+            })
+         case "SHOW_CURSOR_COLUMN":
+             return Object.assign({}, s, {
+                 cursorColumnVisible: true,
+            })
         default:
             return Object.assign({}, s, {
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null

@@ -106,3 +106,11 @@ export const previousAutoCompletion = () => ({
 export const hideAutoCompletion = () => ({ type: "HIDE_AUTO_COMPLETION" })
 
 export const hideQuickInfo = () => ({ type: "HIDE_QUICK_INFO" })
+
+export const hideCursorLine = () => ({ type: "HIDE_CURSOR_LINE" })
+
+export const showCursorLine = () => ({ type: "SHOW_CURSOR_LINE" })
+
+export const showCursorColumn = () => ({ type: "SHOW_CURSOR_COLUMN" })
+
+export const hideCursorColumn = () => ({ type: "HIDE_CURSOR_COLUMN" })
