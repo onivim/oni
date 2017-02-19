@@ -1,6 +1,6 @@
 import { EventEmitter } from "events"
 
-import { IPluginChannel } from "./Channel";
+import { IPluginChannel } from "./Channel"
 
 import { Diagnostics } from "./Diagnostics"
 import { Editor } from "./Editor"
@@ -31,17 +31,35 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._editor = new Editor(this._channel)
 
         this._channel.onRequest((arg: any) => {
-            this._handleNotification(arg);
-        });
+            this._handleNotification(arg)
+        })
     }
 
+    public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {
+        this._languageService = new DebouncedLanguageService(languageService)
+    }
+
+    public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {
+        this._channel.send("set-syntax-highlights", null, {
+            file,
+            key,
+            highlights,
+        })
+    }
+
+    public clearHighlights(file: string, key: string): void {
+        this._channel.send("clear-syntax-highlights", null, {
+            file,
+            key,
+        })
+    }
     private _handleNotification(arg: any): void {
         if (arg.type === "buffer-update") {
             this.emit("buffer-update", arg.payload)
         } else if (arg.type === "event") {
             if (arg.payload.name === "CursorMoved") {
-                this.emit("cursor-moved", arg.payload.context);
-                this.emit("CursorMoved", arg.payload.context);
+                this.emit("cursor-moved", arg.payload.context)
+                this.emit("CursorMoved", arg.payload.context)
             } else if (arg.payload.name === "BufWritePost") {
                 this.emit("buffer-saved", arg.payload.context)
                 this.emit("BufWritePost", arg.payload.context)
@@ -50,7 +68,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                 this.emit("BufEnter", arg.payload.context)
             }
         } else if (arg.type === "request") {
-            const requestType = arg.payload.name;
+            const requestType = arg.payload.name
 
             const originalContext = arg.payload.context
 
@@ -66,7 +84,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                             if (quickInfo && quickInfo.title) {
                                 this._channel.send("show-quick-info", originalContext, {
                                     info: quickInfo.title,
-                                    documentation: quickInfo.description
+                                    documentation: quickInfo.description,
                                 })
                             }
                         }, (err) => {
@@ -79,13 +97,13 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                             this._channel.send("goto-definition", originalContext, {
                                 filePath: definitionPosition.filePath,
                                 line: definitionPosition.line,
-                                column: definitionPosition.column
+                                column: definitionPosition.column,
                             })
                         })
                     break
                 case "completion-provider":
                     languageService.getCompletions(arg.payload.context)
-                        .then(completions => {
+                        .then((completions) => {
                             this._channel.send("completion-provider", originalContext, completions)
                         }, (err) => {
                             this._channel.sendError("completion-provider", originalContext, err)
@@ -95,7 +113,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                     languageService.getCompletionDetails(arg.payload.context, arg.payload.item)
                         .then((details) => {
                             this._channel.send("completion-provider-item-selected", originalContext, {
-                                details: details
+                                details,
                             })
                         })
                     break
@@ -118,29 +136,13 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                         }, (err) => {
                             this._channel.sendError("signature-help-response", originalContext, err)
                         })
+                    break
+                default:
+                    console.warn(`Unknown request type: ${requestType}`)
 
             }
         } else {
             console.warn("Unknown notification type")
         }
-    }
-
-    public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {
-        this._languageService = new DebouncedLanguageService(languageService)
-    }
-
-    public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {
-        this._channel.send("set-syntax-highlights", null, {
-            file: file,
-            key: key,
-            highlights: highlights
-        })
-    }
-
-    public clearHighlights(file: string, key: string): void {
-        this._channel.send("clear-syntax-highlights", null, {
-            file: file,
-            key: key
-        })
     }
 }

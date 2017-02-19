@@ -6,7 +6,6 @@
   "scripts": {
   },
   "oni": {
-    "debugging": false,
     "@@DEFAULT_LANGUAGE_PROTOTYPE": {
       "subscriptions": [
         "buffer-update",

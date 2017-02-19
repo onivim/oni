@@ -29,7 +29,6 @@ export interface IBufferInfo {
 }
 
 export class PluginManager extends EventEmitter {
-    private _debugPluginPath: undefined | string
     private _rootPluginPaths: string[] = []
     private _extensionPath: string
     private _plugins: Plugin[] = []
@@ -39,10 +38,8 @@ export class PluginManager extends EventEmitter {
 
     private _channel: Channel.IChannel = new Channel.InProcessChannel()
 
-    constructor(_screen: IScreen, debugPlugin?: string) {
+    constructor(_screen: IScreen) {
         super()
-
-        this._debugPluginPath = debugPlugin
 
         this._rootPluginPaths.push(corePluginsRoot)
 
@@ -56,15 +53,7 @@ export class PluginManager extends EventEmitter {
 
         this._rootPluginPaths.push(path.join(Config.getUserFolder(), "plugins"))
 
-        this._channel.host.onResponse((arg: any) => this._handlePluginResponse(arg));
-
-        window.onbeforeunload = () => {
-            this.dispose()
-        }
-    }
-
-    public dispose(): void {
-        this._plugins.forEach((p) => p.dispose())
+        this._channel.host.onResponse((arg: any) => this._handlePluginResponse(arg))
     }
 
     public get currentBuffer(): IBufferInfo {
@@ -112,12 +101,8 @@ export class PluginManager extends EventEmitter {
             this._onEvent(eventName, context)
         })
 
-        const allPlugins = this._getAllPluginPaths().filter((p) => p !== this._debugPluginPath)
-        this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory,this._channel))
-
-        if (this._debugPluginPath) {
-            this._plugins.push(new Plugin(this._debugPluginPath, this._channel))
-        }
+        const allPlugins = this._getAllPluginPaths()
+        this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory, this._channel))
     }
 
     public getAllRuntimePaths(): string[] {

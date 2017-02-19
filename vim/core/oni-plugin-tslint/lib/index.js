@@ -1,19 +1,17 @@
+const Q = require("q")
 const path = require("path")
 const os = require("os")
-const execSync = require("child_process").execSync
+const exec = require("child_process").exec
 
 const findParentDir = require("find-parent-dir")
 
 const isWindows = os.platform() === "win32"
-
 const tslintExecutable = isWindows ? "tslint.cmd" : "tslint"
-
 const tslintPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", ".bin", tslintExecutable)
 
 let lastErrors = {}
 
 const activate = (Oni) => {
-    return
 
     const doLintForFile = (args) => {
         if (!args.bufferFullPath) {
@@ -28,16 +26,17 @@ const activate = (Oni) => {
             return
         }
 
-        const errors = executeTsLint(tslint, [args.bufferFullPath], currentWorkingDirectory)
+        executeTsLint(tslint, [args.bufferFullPath], currentWorkingDirectory)
+            .then((errors) => {
+                Object.keys(errors).forEach(f => {
+                    Oni.diagnostics.setErrors("tslint-ts", f, errors[f], "yellow")
+                })
 
-        Object.keys(errors).forEach(f => {
-            Oni.diagnostics.setErrors("tslint-ts", f, errors[f], "yellow")
-        })
-
-        if (!errors[args.bufferFullPath]) {
-            Oni.diagnostics.setErrors("tslint-ts", args.bufferFullPath, [], "yellow")
-            lastErrors[args.bufferFullPath] = null
-        }
+                if (!errors[args.bufferFullPath]) {
+                    Oni.diagnostics.setErrors("tslint-ts", args.bufferFullPath, [], "yellow")
+                    lastErrors[args.bufferFullPath] = null
+                }
+            })
     }
 
     const doLintForProject = (args) => {
@@ -62,21 +61,22 @@ const activate = (Oni) => {
             processArgs.push(arg.bufferFullPath)
         }
 
-        const errors = executeTsLint(tslint, processArgs, currentWorkingDirectory)
+        executeTsLint(tslint, processArgs, currentWorkingDirectory)
+            .then((errors) => {
+                // Send all updated errors
+                Object.keys(errors).forEach(f => {
+                    Oni.diagnostics.setErrors("tslint-ts", f, errors[f], "yellow")
+                })
 
-        // Send all updated errors
-        Object.keys(errors).forEach(f => {
-            Oni.diagnostics.setErrors("tslint-ts", f, errors[f], "yellow")
-        })
+                // Send all errors that were cleared
+                Object.keys(lastErrors).forEach(f => {
+                    if (lastErrors[f] && !errors[f]) {
+                        Oni.diagnostics.setErrors("tslint-ts", f, [], "yellow")
+                    }
+                })
 
-        // Send all errors that were cleared
-        Object.keys(lastErrors).forEach(f => {
-            if (lastErrors[f] && !errors[f]) {
-                Oni.diagnostics.setErrors("tslint-ts", f, [], "yellow")
-            }
-        })
-
-        lastErrors = errors
+                lastErrors = errors
+            })
     }
 
     Oni.on("buffer-saved", doLintForFile)
@@ -88,34 +88,38 @@ const activate = (Oni) => {
         processArgs.push("--config", path.join(configPath, "tslint.json"))
         processArgs = processArgs.concat(args)
 
-        const errorOutput = execSync(tslintPath + " " + processArgs.join(" "), { cwd: workingDirectory }).toString()
+        return Q.nfcall(exec, tslintPath + " " + processArgs.join(" "), { cwd: workingDirectory })
+            .then((stdout, stderr) => {
 
-        const lintErrors = JSON.parse(errorOutput)
+                const errorOutput = stdout.join(os.EOL).trim()
 
-        const errorsWithFileName = lintErrors.map(e => ({
-            type: null,
-            file: path.normalize(e.name),
-            text: e.failure,
-            lineNumber: e.startPosition.line,
-            startColumn: e.startPosition.character,
-            endColumn: e.endPosition.character,
-        }))
+                const lintErrors = JSON.parse(errorOutput)
 
-        const errors = errorsWithFileName.reduce((prev, curr) => {
-            prev[curr.file] = prev[curr.file] || []
+                const errorsWithFileName = lintErrors.map(e => ({
+                    type: null,
+                    file: path.normalize(e.name),
+                    text: `[${e.ruleName}] ${e.failure}`,
+                    lineNumber: e.startPosition.line,
+                    startColumn: e.startPosition.character,
+                    endColumn: e.endPosition.character,
+                }))
 
-            prev[curr.file].push({
-                type: curr.type,
-                text: curr.text,
-                lineNumber: curr.lineNumber + 1,
-                startColumn: curr.startColumn + 1,
-                endColumn: curr.endColumn
+                const errors = errorsWithFileName.reduce((prev, curr) => {
+                    prev[curr.file] = prev[curr.file] || []
+
+                    prev[curr.file].push({
+                        type: curr.type,
+                        text: curr.text,
+                        lineNumber: curr.lineNumber + 1,
+                        startColumn: curr.startColumn + 1,
+                        endColumn: curr.endColumn
+                    })
+
+                    return prev
+                }, {})
+
+                return errors
             })
-
-            return prev
-        }, {})
-
-        return errors
     }
 
     function getCurrentWorkingDirectory(args) {

@@ -1,3 +1,13 @@
+/**
+ * Channel.ts
+ *
+ * Channel describes the communication channel between the host code (Oni) and the plugin code.
+ *
+ * The channel interfaces are meant to be transport-agnostic - meaning that we could implement them
+ * as in-process, over websockets, over IPC, etc - this gives us lots of flexibility in terms of how
+ * plugins are managed.
+ */
+
 import { EventEmitter } from "events"
 
 /**
@@ -11,6 +21,12 @@ export interface IPluginChannel {
     onRequest(requestCallback: (arg: any) => void): void
 }
 
+export interface IPluginFilter {
+    fileType: string
+    requiredCapabilities?: any // TODO: { [key: CapabilityCategory]: Capability }
+    singlePlugin?: boolean
+}
+
 export interface IHostChannel {
     send(message: any): void
 
@@ -19,36 +35,52 @@ export interface IHostChannel {
 
 export interface IChannel {
     host: IHostChannel
-    plugin: IPluginChannel
+    createPluginChannel(): IPluginChannel
 }
 
 export class InProcessChannel implements IChannel {
+
+    private _pluginChannels: InProcessPluginChannel[] = []
 
     public get host(): IHostChannel {
         return this._hostChannel
     }
 
-    public get plugin(): IPluginChannel {
-        return this._pluginChannel
-    }
-
     constructor(
         private _hostChannel: InProcessHostChannel = new InProcessHostChannel(),
-        private _pluginChannel: InProcessPluginChannel = new InProcessPluginChannel()
     ) {
 
         this._hostChannel.on("send-request", (arg: any) => {
-            setTimeout(() => this._pluginChannel.emit("host-request", arg), 0)
-        })
-
-        this._pluginChannel.on("send", (arg: any) => {
-            setTimeout(() => this._hostChannel.emit("plugin-response", arg), 0)
-        })
-
-        this._pluginChannel.on("send-error", (arg: any) => {
-            setTimeout(() => this._hostChannel.emit("plugin-response", arg), 0)
+            setTimeout(() => {
+                const pluginsToBroadcast = this._getChannelsForRequestFromHost()
+                pluginsToBroadcast.forEach((channel) => channel.emit("host-request", arg))
+            }, 0)
         })
     }
+
+    public createPluginChannel(): IPluginChannel {
+        const channel = new InProcessPluginChannel()
+        this._pluginChannels.push(channel)
+
+        channel.on("send", (arg: any) => {
+            setTimeout(() => this._hostChannel.emit("plugin-response", arg), 0)
+        })
+
+        channel.on("send-error", (arg: any) => {
+            setTimeout(() => this._hostChannel.emit("plugin-response", arg), 0)
+        })
+
+        return channel
+    }
+
+    private _getChannelsForRequestFromHost(): InProcessPluginChannel[] {
+        // TODO: Implement filtering layer
+        return this._pluginChannels
+    }
+}
+
+export class InProcessPluginChannelFactory {
+
 }
 
 export class InProcessHostChannel extends EventEmitter implements IHostChannel {
@@ -57,32 +89,32 @@ export class InProcessHostChannel extends EventEmitter implements IHostChannel {
     }
 
     public onResponse(responseCallback: (arg: any) => void): void {
-        this.on("plugin-response", responseCallback);
+        this.on("plugin-response", responseCallback)
     }
 }
 
 export class InProcessPluginChannel extends EventEmitter implements IPluginChannel {
     public onRequest(requestCallback: (arg: any) => void): void {
-        this.on("host-request", requestCallback);
+        this.on("host-request", requestCallback)
     }
 
     public send(type: string, originalEventContext: any, payload: any): void {
         this.emit("send", {
-            type: type,
+            type,
             meta: {
-                originEvent: originalEventContext
+                originEvent: originalEventContext,
             },
-            payload: payload
+            payload,
         })
     }
 
     public sendError(type: string, originalEventContext: any, error: string): void {
         this.emit("send-error", {
-            type: type,
+            type,
             meta: {
-                originEvent: originalEventContext
+                originEvent: originalEventContext,
             },
-            error: error
+            error,
         })
     }
 }

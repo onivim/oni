@@ -1,35 +1,35 @@
 import * as assert from "assert"
 
-import { debounce } from "./../src/PromiseDebouncer"
+import { debounce } from "./../../../src/Plugins/Api/PromiseDebouncer"
 
 describe("PromiseDebouncer", () => {
     it("returns original arguments", () => {
         const debouncedFunction = debounce((val: string) => Promise.resolve(val))
 
         return debouncedFunction("b")
-                .then((val) => {
-                    assert.strictEqual(val, "b")
-                })
+            .then((val) => {
+                assert.strictEqual(val, "b")
+            })
     })
 
     it("returns multiple arguments", () => {
         const debouncedFunction = debounce((val1: string, val2: string) => Promise.resolve([val1, val2]))
 
         return debouncedFunction("a", "b")
-                .then((values: string[]) => {
-                    assert.deepEqual(values, ["a", "b"])
-                });
+            .then((values: string[]) => {
+                assert.deepEqual(values, ["a", "b"])
+            })
     })
 
     it("debounces multiple calls", () => {
-        let executionCount = 0;
+        let executionCount = 0
         const debouncedFunction = debounce((val: number) => {
-                executionCount++
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        resolve(val)
-                    }, 1)
-                })
+            executionCount++
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve(val)
+                }, 1)
+            })
         })
 
         // The first function should always be executed
@@ -38,7 +38,6 @@ describe("PromiseDebouncer", () => {
                 assert.strictEqual(val, 100)
                 return val
             })
-
 
         // This function will be skipped, because the current function is in progress
         const promise2 = debouncedFunction(200)
@@ -58,9 +57,8 @@ describe("PromiseDebouncer", () => {
 
         const allPromises = Promise.all([successPromises, promise2])
             .then(() => assert.ok(false, "Promise2 should not be successful"),
-                  (_err) => assert.ok(true, "Error path hit as expected"))
+            (_err) => assert.ok(true, "Error path hit as expected"))
 
         return allPromises
     })
 })
-

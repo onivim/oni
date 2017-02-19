@@ -1,4 +1,4 @@
-import { PromiseFunction, debounce } from "./PromiseDebouncer"
+import { debounce, PromiseFunction } from "./PromiseDebouncer"
 
 /**
  * Wrapper around language service to assist with debouncing
@@ -7,35 +7,35 @@ import { PromiseFunction, debounce } from "./PromiseDebouncer"
 export class DebouncedLanguageService implements Oni.Plugin.LanguageService {
 
     private _debouncedCompletions: PromiseFunction<null | Oni.Plugin.CompletionResult>
-    private _debouncedFormattingEdits: PromiseFunction<null |Oni.Plugin.FormattingEditsResponse>
+    private _debouncedFormattingEdits: PromiseFunction<null | Oni.Plugin.FormattingEditsResponse>
     private _debouncedGetSignatureHelp: PromiseFunction<null | Oni.Plugin.SignatureHelpResult>
     private _debouncedQuickInfo: PromiseFunction<null | Oni.Plugin.QuickInfo>
     private _languageService: Oni.Plugin.LanguageService
 
     constructor(languageService: Oni.Plugin.LanguageService) {
         this._languageService = languageService
-        this._debouncedCompletions = debounce(async (context) => {
+        this._debouncedCompletions = debounce(async (context) => { // tslint:disable-line arrow-parens
             if (this._languageService.getCompletions) {
                 return this._languageService.getCompletions(context)
             } else {
                 return null
             }
         })
-        this._debouncedFormattingEdits = debounce(async (context) => {
+        this._debouncedFormattingEdits = debounce(async (context) => { // tslint:disable-line arrow-parens
             if (this._languageService.getFormattingEdits) {
                 return this._languageService.getFormattingEdits(context)
             } else {
                 return null
             }
         })
-        this._debouncedGetSignatureHelp = debounce(async (context) => {
+        this._debouncedGetSignatureHelp = debounce(async (context) => { // tslint:disable-line arrow-parens
             if (this._languageService.getSignatureHelp) {
                 return this._languageService.getSignatureHelp(context)
             } else {
                 return null
             }
         })
-        this._debouncedQuickInfo = debounce(async (context) => {
+        this._debouncedQuickInfo = debounce(async (context) => { // tslint:disable-line arrow-parens
             if (this._languageService.getQuickInfo) {
                 return this._languageService.getQuickInfo(context)
             } else {

@@ -2,6 +2,6 @@
     "type": "execute",
     "name": "Run Plugin",
     "program": "oni",
-    "args": ["--debugPlugin", "C:/oni/vim/core/oni-plugin-tslint"],
+    "args": [],
     "dependentCommands": []
 }
