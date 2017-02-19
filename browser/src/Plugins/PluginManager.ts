@@ -72,7 +72,7 @@ export class PluginManager extends EventEmitter {
     }
 
     public requestEvaluateBlock(id: string, fileName: string, code: string): void {
-        this._sendLanguageServiceRequest("evaluate-block", this._lastEventContext, {
+        this._sendLanguageServiceRequest("evaluate-block", this._lastEventContext, "evaluate-block", {
             id, 
             fileName,
             code,
