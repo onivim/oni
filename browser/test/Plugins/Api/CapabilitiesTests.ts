@@ -5,21 +5,22 @@ import * as Capabilities from "./../../../src/Plugins/Api/Capabilities"
 describe("Capabilities", () => {
 
     const Plugin1: Capabilities.IPluginMetadata = {
+        main: "",
         engines: "",
         oni: {
             "typescript": {
-                "languageService": ["quick-info"]
-            }
-        }
+                "languageService": ["quick-info"],
+            },
+        },
     }
 
     const Plugin2: Capabilities.IPluginMetadata = {
+        main: "",
         engines: "",
         oni: {
             "javascript": {
-
-            }
-        }
+            },
+        },
     }
 
     describe("doesMetadataMatchFilter", () => {
@@ -40,7 +41,7 @@ describe("Capabilities", () => {
 
         it("returns true if requiredCapabilities matches", () => {
             const filter = Capabilities.createPluginFilter("typescript", {
-                languageService: ["quick-info"]
+                languageService: ["quick-info"],
             })
 
             const result = Capabilities.doesMetadataMatchFilter(Plugin1, filter)
@@ -49,7 +50,7 @@ describe("Capabilities", () => {
 
         it("returns false if requiredCapabilities do not match", () => {
             const filter = Capabilities.createPluginFilter("typescript", {
-                languageService: ["goto-definition"]
+                languageService: ["goto-definition"],
             })
 
             const result = Capabilities.doesMetadataMatchFilter(Plugin2, filter)

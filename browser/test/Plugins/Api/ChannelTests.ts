@@ -1,6 +1,7 @@
 import * as assert from "assert"
 import * as sinon from "sinon"
 
+import * as Capabilities from "./../../../src/Plugins/Api/Capabilities"
 import * as Channel from "./../../../src/Plugins/Api/Channel"
 
 describe("Channel", () => {
@@ -20,7 +21,7 @@ describe("Channel", () => {
             const channel = new Channel.InProcessChannel()
             const pluginChannel = channel.createPluginChannel(null)
 
-            channel.host.send("test", null)
+            channel.host.send("test", Capabilities.createPluginFilter(null))
 
             let wasChannelCalled = false
             pluginChannel.onRequest((arg) => {
@@ -37,7 +38,7 @@ describe("Channel", () => {
             const pluginChannel1 = channel.createPluginChannel(null)
             const pluginChannel2 = channel.createPluginChannel(null)
 
-            channel.host.send("test", null)
+            channel.host.send("test", Capabilities.createPluginFilter(null))
 
             let channelCallCount = 0
             pluginChannel1.onRequest((arg) => {

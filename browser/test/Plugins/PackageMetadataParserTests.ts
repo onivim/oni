@@ -6,8 +6,8 @@ describe("PackageMetadataParser", () => {
 
     const blankMetadataWithOniEngine: any = {
         engines: {
-            oni: "0.1"
-        }
+            oni: "0.1",
+        },
     }
 
     describe("parseFromString", () => {
@@ -30,16 +30,16 @@ describe("PackageMetadataParser", () => {
         it("passes through language capabilities", () => {
             const metadata = { ...blankMetadataWithOniEngine }
             metadata.oni = {}
-            metadata.oni["typescript"] = {
-                "languageService": ["quick-info"]
+            metadata.oni["typescript"] = { // tslint:disable-line no-string-literal
+                "languageService": ["quick-info"],
             }
             const metadataString = JSON.stringify(metadata)
 
             const output = PackageMetadataParser.parseFromString(metadataString)
             assert.deepEqual(output.oni, {
                 "typescript": {
-                    "languageService": ["quick-info"]
-                }
+                    "languageService": ["quick-info"],
+                },
             })
         })
 
@@ -47,21 +47,21 @@ describe("PackageMetadataParser", () => {
             const metadata = { ...blankMetadataWithOniEngine }
             metadata.oni = {}
             metadata.oni["typescript,javascript"] = {
-                "languageService": ["quick-info"]
+                "languageService": ["quick-info"],
             }
             const metadataString = JSON.stringify(metadata)
 
             const output = PackageMetadataParser.parseFromString(metadataString)
             assert.deepEqual(output.oni, {
                 "typescript": {
-                    "languageService": ["quick-info"]
+                    "languageService": ["quick-info"],
                 },
                 "javascript": {
-                    "languageService": ["quick-info"]
+                    "languageService": ["quick-info"],
                 },
                 "typescript,javascript": {
-                    "languageService": ["quick-info"]
-                }
+                    "languageService": ["quick-info"],
+                },
             })
         })
     })

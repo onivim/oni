@@ -62,7 +62,7 @@ export const doCapabilitiesMeetRequirements = (capabilities: Capabilities, requi
             return false
         }
 
-        if (!!requiredCapabilities.languageService.find(v => capabilities.languageService.indexOf(v) === -1)) {
+        if (!!requiredCapabilities.languageService.find((v) => capabilities.languageService.indexOf(v) === -1)) {
             return false
         }
     }

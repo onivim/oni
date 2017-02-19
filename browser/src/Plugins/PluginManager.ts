@@ -8,8 +8,8 @@ import { INeovimInstance } from "./../NeovimInstance"
 import { IScreen } from "./../Screen"
 import * as UI from "./../UI/index"
 
-import * as Channel from "./Api/Channel"
 import * as Capabilities from "./Api/Capabilities"
+import * as Channel from "./Api/Channel"
 import { Plugin } from "./Plugin"
 
 const corePluginsRoot = path.join(__dirname, "vim", "core")
@@ -73,7 +73,7 @@ export class PluginManager extends EventEmitter {
 
     public requestEvaluateBlock(id: string, fileName: string, code: string): void {
         this._sendLanguageServiceRequest("evaluate-block", this._lastEventContext, "evaluate-block", {
-            id, 
+            id,
             fileName,
             code,
         })
@@ -179,7 +179,7 @@ export class PluginManager extends EventEmitter {
     }
 
     private _onBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]): void {
-       this._lastBufferInfo = {
+        this._lastBufferInfo = {
             lines: bufferLines,
             fileName: eventContext.bufferFullPath,
             version: eventContext.version,
@@ -201,7 +201,7 @@ export class PluginManager extends EventEmitter {
             type: "event",
             payload: {
                 name: eventName,
-                context: eventContext
+                context: eventContext,
             },
         }, Capabilities.createPluginFilter(this._lastEventContext.filetype, { subscriptions: ["vim-events"] }, false))
 

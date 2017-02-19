@@ -82,8 +82,8 @@ export class InProcessChannel implements IChannel {
 
     private _getChannelsForRequestFromHost(filter: Capabilities.IPluginFilter): InProcessPluginChannel[] {
         let potentialPlugins = this._pluginChannels
-            .filter(p => Capabilities.doesMetadataMatchFilter(p.metadata, filter))
-            .map(p => p.channel)
+            .filter((p) => Capabilities.doesMetadataMatchFilter(p.metadata, filter))
+            .map((p) => p.channel)
 
         if (filter.singlePlugin) {
             potentialPlugins = _.take(potentialPlugins, 1)

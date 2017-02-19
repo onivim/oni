@@ -18,7 +18,7 @@ export class Plugin {
         if (fs.existsSync(packageJsonPath)) {
             this._oniPluginMetadata = PackageMetadataParser.parseFromString(fs.readFileSync(packageJsonPath, "utf8"))
 
-            if (!this._oniPluginMetadata) { 
+            if (!this._oniPluginMetadata) {
                 console.warn("Aborting plugin load, invalid package.json: " + packageJsonPath)
             } else {
                 if (this._oniPluginMetadata.main) {
