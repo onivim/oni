@@ -179,6 +179,12 @@ export class PluginManager extends EventEmitter {
     }
 
     private _onBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]): void {
+       this._lastBufferInfo = {
+            lines: bufferLines,
+            fileName: eventContext.bufferFullPath,
+            version: eventContext.version,
+        }
+
         this._channel.host.send({
             type: "buffer-update",
             payload: {
