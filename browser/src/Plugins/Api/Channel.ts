@@ -94,8 +94,8 @@ export class InProcessChannel implements IChannel {
 }
 
 export class InProcessHostChannel extends EventEmitter implements IHostChannel {
-    public send(arg: any): void {
-        this.emit("send-request", arg)
+    public send(arg: any, filter: Capabilities.IPluginFilter): void {
+        this.emit("send-request", arg, filter)
     }
 
     public onResponse(responseCallback: (arg: any) => void): void {

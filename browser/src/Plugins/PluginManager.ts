@@ -7,17 +7,10 @@ import * as Config from "./../Config"
 import { INeovimInstance } from "./../NeovimInstance"
 import { IScreen } from "./../Screen"
 import * as UI from "./../UI/index"
-import {
-    CompletionProviderCapability,
-    EvaluateBlockCapability,
-    FormatCapability,
-    GotoDefinitionCapability,
-    Plugin,
-    QuickInfoCapability,
-    SignatureHelpCapability,
-} from "./Plugin"
 
 import * as Channel from "./Api/Channel"
+import * as Capabilities from "./Api/Capabilities"
+import { Plugin } from "./Plugin"
 
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
@@ -26,6 +19,14 @@ export interface IBufferInfo {
     lines: string[]
     version: number
     fileName: string
+}
+
+export interface IEventContext {
+    bufferFullPath: string
+    line: number
+    column: number
+    byte: number
+    filetype: string
 }
 
 export class PluginManager extends EventEmitter {
@@ -62,32 +63,24 @@ export class PluginManager extends EventEmitter {
 
     public executeCommand(command: string): void {
         if (command === "editor.gotoDefinition") {
-            const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, GotoDefinitionCapability)
-            if (plugin) {
-                plugin.requestGotoDefinition(this._lastEventContext)
-            }
+            this._sendLanguageServiceRequest("goto-definition", this._lastEventContext)
         }
     }
 
     public requestFormat(): void {
-        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, FormatCapability)
-
-        if (plugin) {
-            plugin.requestFormat(this._lastEventContext)
-        }
+        this._sendLanguageServiceRequest("format", this._lastEventContext, "formatting")
     }
 
     public requestEvaluateBlock(id: string, fileName: string, code: string): void {
-        const plugin = this._getFirstPluginThatHasCapability(this._lastEventContext.filetype, EvaluateBlockCapability)
-
-        if (plugin) {
-            plugin.requestEvaluateBlock(this._lastEventContext, id, fileName, code)
-        }
+        this._sendLanguageServiceRequest("evaluate-block", this._lastEventContext, {
+            id, 
+            fileName,
+            code,
+        })
     }
 
     public notifyCompletionItemSelected(completionItem: any): void {
-        // TODO: Scope this to the plugin that is providing completion
-        this._plugins.forEach((plugin) => plugin.notifyCompletionItemSelected(completionItem))
+        this._sendLanguageServiceRequest("completion-provider-item-selected", this._lastEventContext, "completion-provider", { item: completionItem })
     }
 
     public startPlugins(neovimInstance: INeovimInstance): void {
@@ -126,22 +119,6 @@ export class PluginManager extends EventEmitter {
         })
 
         return paths
-    }
-
-    private _getFirstPluginThatHasCapability(filetype: string, capability: string): null | Plugin {
-        const handlers = this._plugins.filter((p) => p.doesPluginProvideLanguageServiceCapability(filetype, capability))
-
-        if (handlers.length > 0) {
-            return handlers[0]
-        }
-
-        const defaultHandlers = this._plugins.filter((p) => p.doesPluginProvideLanguageServiceCapability("*", capability))
-
-        if (defaultHandlers.length > 0) {
-            return defaultHandlers[0]
-        }
-
-        return null
     }
 
     private _handlePluginResponse(pluginResponse: any): void {
@@ -202,44 +179,48 @@ export class PluginManager extends EventEmitter {
     }
 
     private _onBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]): void {
-        this._lastBufferInfo = {
-            lines: bufferLines,
-            fileName: eventContext.bufferFullPath,
-            version: eventContext.version,
-        }
-
-        this._plugins
-            .filter((p) => p.isPluginSubscribedToBufferUpdates(eventContext.filetype) || p.isPluginSubscribedToBufferUpdates("*"))
-            .forEach((plugin) => plugin.notifyBufferUpdateEvent(eventContext, bufferLines))
-
+        this._channel.host.send({
+            type: "buffer-update",
+            payload: {
+                eventContext,
+                bufferLines,
+            },
+        }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update"] }, false))
     }
 
     private _onEvent(eventName: string, eventContext: Oni.EventContext): void {
         this._lastEventContext = eventContext
 
-        this._plugins
-            .filter((p) => p.isPluginSubscribedToVimEvents(eventContext.filetype) || p.isPluginSubscribedToVimEvents("*"))
-            .forEach((plugin) => plugin.notifyVimEvent(eventName, eventContext))
+        this._channel.host.send({
+            type: "event",
+            payload: {
+                eventName,
+                context: eventContext
+            },
+        }, Capabilities.createPluginFilter(this._lastEventContext.filetype, { subscriptions: ["vim-events"] }, false))
 
         if (eventName === "CursorMoved" && Config.getValue<boolean>("editor.quickInfo.enabled")) {
-            const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, QuickInfoCapability)
+            this._sendLanguageServiceRequest("quick-info", eventContext)
 
-            if (plugin) {
-                plugin.requestQuickInfo(eventContext)
-            }
         } else if (eventName === "CursorMovedI" && Config.getValue<boolean>("editor.completions.enabled")) {
-            const completionPlugin = this._getFirstPluginThatHasCapability(eventContext.filetype, CompletionProviderCapability)
-
-            if (completionPlugin) {
-                completionPlugin.requestCompletions(eventContext)
-            }
-
-            const plugin = this._getFirstPluginThatHasCapability(eventContext.filetype, SignatureHelpCapability)
-
-            if (plugin) {
-                plugin.requestSignatureHelp(eventContext)
-            }
+            this._sendLanguageServiceRequest("completion-provider", eventContext)
         }
+    }
+
+    private _sendLanguageServiceRequest(requestName: string, eventContext: any, languageServiceCapability?: any, additionalArgs?: any): void {
+        languageServiceCapability = languageServiceCapability || requestName
+        additionalArgs = additionalArgs || {}
+
+        const payload = {
+            name: requestName,
+            context: eventContext,
+            ...additionalArgs,
+        }
+
+        this._channel.host.send({
+            type: "request",
+            payload,
+        }, Capabilities.createPluginFilter(eventContext.filetype, { languageService: [languageServiceCapability] }, true))
     }
 
     /**

@@ -6,6 +6,7 @@
 
 export interface Capabilities {
     languageService?: string[]
+    subscriptions?: string[]
 }
 
 /**
@@ -24,6 +25,7 @@ export const createPluginFilter = (fileType: string, requiredCapabilities?: Capa
 })
 
 export interface IPluginMetadata {
+    main: string
     engines: string
     oni: { [language: string]: Capabilities }
 }
