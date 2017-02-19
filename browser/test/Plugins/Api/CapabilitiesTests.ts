@@ -4,7 +4,6 @@ import * as Capabilities from "./../../../src/Plugins/Api/Capabilities"
 
 describe("Capabilities", () => {
 
-
     const Plugin1: Capabilities.IPluginMetadata = {
         engines: "",
         oni: {
@@ -22,7 +21,6 @@ describe("Capabilities", () => {
             }
         }
     }
-
 
     describe("doesMetadataMatchFilter", () => {
 
