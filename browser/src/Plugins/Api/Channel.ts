@@ -87,10 +87,6 @@ export class InProcessChannel implements IChannel {
     }
 }
 
-export class InProcessPluginChannelFactory {
-
-}
-
 export class InProcessHostChannel extends EventEmitter implements IHostChannel {
     public send(arg: any): void {
         this.emit("send-request", arg)

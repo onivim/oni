@@ -6,7 +6,6 @@
 
 import * as Capabilities from "./Api/Capabilities"
 
-
 export const parseFromString = (packageJson: string) => {
     const metadata: Capabilities.IPluginMetadata = JSON.parse(packageJson)
 

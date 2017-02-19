@@ -4,47 +4,66 @@
  * Export utility types / functions for working with plugin capabilities
  */
 
-/**
- * Capability categories
- */
-
-export type CapabilityCategory = "subscriptions" | "languageService"
-
-/** 
- * Capabilities
- */
-export type Capability = "buffer-update" | "goto-definition" | "completion-provider" | "formatting" | "evaulate-block" | "signature-help"
-
-type RequiredCapability = Record<CapabilityCategory, Capability>
-type DeclaredCapabilities = Record<CapabilityCategory, Capability[]>
+export interface Capabilities {
+    languageService?: string[]
+}
 
 /**
  * Interface describing 
  */
 export interface IPluginFilter {
     fileType: string
-    requiredCapabilities?: RequiredCapability
+    requiredCapabilities: Capabilities
     singlePlugin?: boolean
 }
 
-export const createPluginFilter = (fileType: string, requiredCapabilities?: RequiredCapability, isSinglePlugin?: boolean) => ({
+export const createPluginFilter = (fileType: string, requiredCapabilities?: Capabilities, isSinglePlugin?: boolean) => ({
     fileType,
     requiredCapabilities,
     singlePlugin: isSinglePlugin,
 })
 
-
-export type CapabilityDeclaration = Record<string /* filetype */, DeclaredCapabilities>
-
 export interface IPluginMetadata {
     engines: string
-    oni: CapabilityDeclaration
+    oni: { [language: string]: Capabilities }
 }
 
 /**
  * Returns true if the metadata matches the filter, false otherwise
  */
 export const doesMetadataMatchFilter = (metadata: IPluginMetadata, filter: IPluginFilter) => {
-    console.log(JSON.stringify(metadata), JSON.stringify(filter))
+
+    if (!filter || !filter.fileType) {
+        return true
+    }
+
+    const expectedFileType = filter.fileType
+
+    if (!metadata.oni || !metadata.oni[expectedFileType]) {
+        return false
+    }
+
+    const capabilities = metadata.oni[expectedFileType]
+    const requiredCapabilities = filter.requiredCapabilities
+
+    if (!requiredCapabilities) {
+        return true
+    }
+
+    return doCapabilitiesMeetRequirements(capabilities, requiredCapabilities)
+}
+
+export const doCapabilitiesMeetRequirements = (capabilities: Capabilities, requiredCapabilities: Capabilities) => {
+    if (requiredCapabilities.languageService) {
+
+        if (!capabilities.languageService) {
+            return false
+        }
+
+        if (!!requiredCapabilities.languageService.find(v => capabilities.languageService.indexOf(v) === -1)) {
+            return false
+        }
+    }
+
     return true
 }
