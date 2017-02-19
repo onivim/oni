@@ -49,7 +49,7 @@ export interface IAutoCompletionInfo {
     selectedIndex: number
 }
 
-export const createDefaultState = () => ({
+export const createDefaultState = () => (<IState>{
     cursorPixelX: 10,
     cursorPixelY: 10,
     cursorPixelWidth: 10,

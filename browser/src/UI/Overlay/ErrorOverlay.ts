@@ -9,7 +9,7 @@ import { WindowContext } from "./WindowContext"
 export class ErrorOverlay implements IOverlay {
 
     private _element: HTMLElement
-    private _errors: { [fileName: string]: IErrorWithColor[] } = {}
+    private _errors: { [fileName: string]: any } = {}
     private _currentFileName: string
     private _lastWindowContext: WindowContext
 

@@ -10,7 +10,6 @@
     "test": "npm install && tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
   },
   "oni": {
-    "debugging": false,
     "javascript,typescript": {
       "subscriptions": [
         "buffer-update",

@@ -294,7 +294,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _getSize() {
         const rows = Math.floor(this._lastHeightInPixels / this._fontHeightInPixels)
         const cols = Math.floor(this._lastWidthInPixels / this._fontWidthInPixels)
-        return { rows, cols}
+        return { rows, cols }
     }
 
     private _handleNotification(_method: any, args: any): void {

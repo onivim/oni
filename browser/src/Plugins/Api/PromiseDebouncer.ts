@@ -1,5 +1,5 @@
 export interface PromiseFunction<T> {
-    (...args: any[]):  Promise<T>
+    (...args: any[]): Promise<T>
 }
 
 export interface DeferredPromise<T> {
@@ -12,11 +12,11 @@ export function debounce<T>(this: any, promiseFunction: PromiseFunction<T>): Pro
 
     let lastArguments: any[] = null as any
     let pendingPromise: Promise<T> = null as any
-    let queuedPromises: DeferredPromise<T>[] = []
+    let queuedPromises: Array<DeferredPromise<T>> = []
 
     const executeNextPromise = () => {
-        if (!pendingPromise && queuedPromises.length > 0 ) {
-            for(var i = 0; i < queuedPromises.length - 1; i++) {
+        if (!pendingPromise && queuedPromises.length > 0) {
+            for (let i = 0; i < queuedPromises.length - 1; i++) {
                 queuedPromises[i].reject(new Error("Preempted"))
             }
 
@@ -26,8 +26,8 @@ export function debounce<T>(this: any, promiseFunction: PromiseFunction<T>): Pro
         }
     }
 
-    const runPromiseFunction = (currentPromise: any, lastArguments : any) => {
-        pendingPromise = promiseFunction.apply(this, lastArguments)
+    const runPromiseFunction = (currentPromise: any, lastArgs: any) => {
+        pendingPromise = promiseFunction.apply(this, lastArgs)
         lastArguments = null
 
         pendingPromise.then((val) => {
@@ -42,19 +42,18 @@ export function debounce<T>(this: any, promiseFunction: PromiseFunction<T>): Pro
 
     }
 
-    return function(...args): Promise<T> {
-
+    return function(...args): Promise<T> { // tslint:disable-line only-arrow-functions
         let resolve: any = null
         let reject: any = null
-        const promise = new Promise<T>(function () {
+        const promise = new Promise<T>(function() { // tslint:disable-line only-arrow-functions
             resolve = arguments[0]
             reject = arguments[1]
-        });
+        })
 
         const deferredPromise = {
-            resolve: resolve,
-            reject: reject,
-            promise: promise
+            resolve,
+            reject,
+            promise,
         }
 
         lastArguments = args

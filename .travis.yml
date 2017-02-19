@@ -6,6 +6,7 @@ install:
 script:
 - npm run build
 - npm run test
+- npm run lint
 deploy:
   provider: npm
   email: extr0py@extropygames.com

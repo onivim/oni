@@ -1,4 +1,10 @@
+/**
+ * AutoCompletion.tsx
+ */
+
+import * as _ from "lodash"
 import * as React from "react"
+
 import { connect } from "react-redux"
 
 import { Icon } from "./../Icon"
@@ -39,8 +45,9 @@ export class AutoCompletion extends React.Component<IAutoCompletionProps, void> 
             return null
         }
 
-        const entries = this.props.entries.map((s, i) => {
+        const firstTenEntries = _.take(this.props.entries, 10)
 
+        const entries = firstTenEntries.map((s, i) => {
             const isSelected = i === this.props.selectedIndex
 
             return <AutoCompletionItem {...s} isSelected={isSelected} base={this.props.base} />

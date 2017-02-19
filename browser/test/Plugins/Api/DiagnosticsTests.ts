@@ -1,15 +1,15 @@
 import * as assert from "assert"
 
-import { Diagnostics } from "./../src/Diagnostics"
-import { ISender } from "./../src/Sender"
+import { IPluginChannel } from "./../../../src/Plugins/Api/Channel"
+import { Diagnostics } from "./../../../src/Plugins/Api/Diagnostics"
 
 describe("Diagnostics", () => {
     let diagnostics: Diagnostics
-    let mockSender: MockSender
+    let mockChannel: MockPluginChannel
 
     beforeEach(() => {
-        mockSender = new MockSender()
-        diagnostics = new Diagnostics(mockSender)
+        mockChannel = new MockPluginChannel()
+        diagnostics = new Diagnostics(mockChannel)
     })
 
     it("sends errors for a file", () => {
@@ -18,16 +18,16 @@ describe("Diagnostics", () => {
             startColumn: 0,
             endColumn: 1,
             type: "error",
-            text: "some error"
+            text: "some error",
         }], "red")
 
-        assert.strictEqual(mockSender.sentMessages.length, 1)
+        assert.strictEqual(mockChannel.sentMessages.length, 1)
     })
 
     it("does not send errors for a file if there have never been any errors", () => {
         diagnostics.setErrors("test-plugin", "someFile.ts", [], "red")
 
-        assert.strictEqual(mockSender.sentMessages.length, 0)
+        assert.strictEqual(mockChannel.sentMessages.length, 0)
     })
 
     it("does send empty errors array, if there have been errors previously", () => {
@@ -36,15 +36,15 @@ describe("Diagnostics", () => {
             startColumn: 0,
             endColumn: 1,
             type: "error",
-            text: "some error"
+            text: "some error",
         }], "red")
 
         diagnostics.setErrors("test-plugin", "someFile.ts", [], "red")
-        assert.strictEqual(mockSender.sentMessages.length, 2)
+        assert.strictEqual(mockChannel.sentMessages.length, 2)
     })
 })
 
-class MockSender implements ISender {
+class MockPluginChannel implements IPluginChannel {
     private _sentMessages: any[] = []
     private _sentErrors: any[] = []
 
@@ -60,7 +60,7 @@ class MockSender implements ISender {
         this._sentMessages.push({
             type,
             originalEvent,
-            payload
+            payload,
         })
     }
 
@@ -68,7 +68,18 @@ class MockSender implements ISender {
         this._sentErrors.push({
             type,
             originalEvent,
-            error
+            error,
         })
+    }
+
+    public onRequest(requestCallback: (arg: any) => void): void {
+        noop(requestCallback)
+    }
+}
+
+function noop(...args: any[]): void {
+
+    if (args) {
+        // tslint:disable-line no-empty
     }
 }

@@ -1,7 +1,7 @@
 import { EventEmitter } from "events"
-import { ipcRenderer } from "electron"
 
-import { ISender, IpcSender } from "./Sender"
+import { IPluginChannel } from "./Channel"
+
 import { Diagnostics } from "./Diagnostics"
 import { Editor } from "./Editor"
 
@@ -12,9 +12,9 @@ import { DebouncedLanguageService } from "./DebouncedLanguageService"
  */
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
-    private _editor: Oni.Editor = new Editor()
+    private _editor: Oni.Editor
     private _languageService: Oni.Plugin.LanguageService
-    private _diagnostics: Oni.Plugin.Diagnostics.Api = new Diagnostics()
+    private _diagnostics: Oni.Plugin.Diagnostics.Api
 
     public get diagnostics(): Oni.Plugin.Diagnostics.Api {
         return this._diagnostics
@@ -24,25 +24,42 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._editor
     }
 
-    constructor(private _sender: ISender = new IpcSender()) {
+    constructor(private _channel: IPluginChannel) {
         super()
 
-        this._diagnostics = new Diagnostics(this._sender);
+        this._diagnostics = new Diagnostics(this._channel)
+        this._editor = new Editor(this._channel)
 
-        ipcRenderer.on("cross-browser-ipc", (_event, arg) => {
+        this._channel.onRequest((arg: any) => {
             this._handleNotification(arg)
         })
     }
 
+    public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {
+        this._languageService = new DebouncedLanguageService(languageService)
+    }
+
+    public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {
+        this._channel.send("set-syntax-highlights", null, {
+            file,
+            key,
+            highlights,
+        })
+    }
+
+    public clearHighlights(file: string, key: string): void {
+        this._channel.send("clear-syntax-highlights", null, {
+            file,
+            key,
+        })
+    }
     private _handleNotification(arg: any): void {
         if (arg.type === "buffer-update") {
             this.emit("buffer-update", arg.payload)
         } else if (arg.type === "event") {
-            console.log("event: " + arg.payload.name + "|" + arg.payload.context)
-
             if (arg.payload.name === "CursorMoved") {
-                this.emit("cursor-moved", arg.payload.context);
-                this.emit("CursorMoved", arg.payload.context);
+                this.emit("cursor-moved", arg.payload.context)
+                this.emit("CursorMoved", arg.payload.context)
             } else if (arg.payload.name === "BufWritePost") {
                 this.emit("buffer-saved", arg.payload.context)
                 this.emit("BufWritePost", arg.payload.context)
@@ -51,96 +68,81 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                 this.emit("BufEnter", arg.payload.context)
             }
         } else if (arg.type === "request") {
-            console.log("request: " + arg.payload.name);
-            const requestType = arg.payload.name;
+            const requestType = arg.payload.name
 
             const originalContext = arg.payload.context
 
-            const languageService = this._languageService
-            if (!languageService)
+            const languageService = this._languageService || null
+            if (!languageService) {
                 return
+            }
 
             switch (requestType) {
                 case "quick-info":
-                    languageService.getQuickInfo(arg.payload.context)
+                    this._languageService.getQuickInfo(arg.payload.context)
                         .then((quickInfo) => {
-                            this._sender.send("show-quick-info", originalContext, {
-                                info: quickInfo.title,
-                                documentation: quickInfo.description
-                            })
+                            if (quickInfo && quickInfo.title) {
+                                this._channel.send("show-quick-info", originalContext, {
+                                    info: quickInfo.title,
+                                    documentation: quickInfo.description,
+                                })
+                            }
                         }, (err) => {
-                            this._sender.sendError("show-quick-info", originalContext, err)
+                            this._channel.sendError("show-quick-info", originalContext, err)
                         })
                     break
                 case "goto-definition":
                     languageService.getDefinition(arg.payload.context)
                         .then((definitionPosition) => {
-                            this._sender.send("goto-definition", originalContext, {
+                            this._channel.send("goto-definition", originalContext, {
                                 filePath: definitionPosition.filePath,
                                 line: definitionPosition.line,
-                                column: definitionPosition.column
+                                column: definitionPosition.column,
                             })
                         })
                     break
                 case "completion-provider":
                     languageService.getCompletions(arg.payload.context)
-                        .then(completions => {
-                            this._sender.send("completion-provider", originalContext, completions)
+                        .then((completions) => {
+                            this._channel.send("completion-provider", originalContext, completions)
                         }, (err) => {
-                            this._sender.sendError("completion-provider", originalContext, err)
+                            this._channel.sendError("completion-provider", originalContext, err)
                         })
                     break
                 case "completion-provider-item-selected":
-                    console.log("completion-provider-item-selected")
                     languageService.getCompletionDetails(arg.payload.context, arg.payload.item)
                         .then((details) => {
-                            this._sender.send("completion-provider-item-selected", originalContext, {
-                                details: details
+                            this._channel.send("completion-provider-item-selected", originalContext, {
+                                details,
                             })
                         })
                     break
                 case "format":
                     languageService.getFormattingEdits(arg.payload.context)
                         .then((formattingResponse) => {
-                            this._sender.send("format", originalContext, formattingResponse)
+                            this._channel.send("format", originalContext, formattingResponse)
                         })
                     break
                 case "evaluate-block":
                     languageService.evaluateBlock(arg.payload.context, arg.payload.id, arg.payload.fileName, arg.payload.code)
                         .then((val) => {
-                            this._sender.send("evaluate-block-result", originalContext, val)
+                            this._channel.send("evaluate-block-result", originalContext, val)
                         })
                     break
                 case "signature-help":
                     languageService.getSignatureHelp(arg.payload.context)
                         .then((val) => {
-                            this._sender.send("signature-help-response", originalContext, val)
+                            this._channel.send("signature-help-response", originalContext, val)
                         }, (err) => {
-                            this._sender.sendError("signature-help-response", originalContext, err)
+                            this._channel.sendError("signature-help-response", originalContext, err)
                         })
+                    break
+                default:
+                    console.warn(`Unknown request type: ${requestType}`)
 
             }
         } else {
             console.warn("Unknown notification type")
         }
-    }
-
-    public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {
-        this._languageService = new DebouncedLanguageService(languageService)
-    }
-
-    public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {
-        this._sender.send("set-syntax-highlights", null, {
-            file: file,
-            key: key,
-            highlights: highlights
-        })
-    }
-
-    public clearHighlights(file: string, key: string): void {
-        this._sender.send("clear-syntax-highlights", null, {
-            file: file,
-            key: key
-        })
     }
 }
