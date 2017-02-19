@@ -18,9 +18,9 @@ describe("Channel", () => {
     describe("InProcessChannel", () => {
         it("broadcasts created plugin channel on host send", () => {
             const channel = new Channel.InProcessChannel()
-            const pluginChannel = channel.createPluginChannel()
+            const pluginChannel = channel.createPluginChannel(null)
 
-            channel.host.send("test")
+            channel.host.send("test", null)
 
             let wasChannelCalled = false
             pluginChannel.onRequest((arg) => {
@@ -34,10 +34,10 @@ describe("Channel", () => {
 
         it("broadcasts to multiple created plugin channels on host send", () => {
             const channel = new Channel.InProcessChannel()
-            const pluginChannel1 = channel.createPluginChannel()
-            const pluginChannel2 = channel.createPluginChannel()
+            const pluginChannel1 = channel.createPluginChannel(null)
+            const pluginChannel2 = channel.createPluginChannel(null)
 
-            channel.host.send("test")
+            channel.host.send("test", null)
 
             let channelCallCount = 0
             pluginChannel1.onRequest((arg) => {

@@ -10,6 +10,8 @@
 
 import { EventEmitter } from "events"
 
+import * as Capabilities from "./Capabilities"
+
 /**
  * Interface that describes a strategy for sending data
  * to the main process from the plugin
@@ -21,26 +23,25 @@ export interface IPluginChannel {
     onRequest(requestCallback: (arg: any) => void): void
 }
 
-export interface IPluginFilter {
-    fileType: string
-    requiredCapabilities?: any // TODO: { [key: CapabilityCategory]: Capability }
-    singlePlugin?: boolean
-}
-
 export interface IHostChannel {
-    send(message: any): void
+    send(message: any, filter: Capabilities.IPluginFilter): void
 
     onResponse(responseCallback: (arg: any) => void): void
 }
 
 export interface IChannel {
     host: IHostChannel
-    createPluginChannel(): IPluginChannel
+    createPluginChannel(metadata: Capabilities.IPluginMetadata): IPluginChannel
+}
+
+export interface InProcessPluginInfo {
+    channel: InProcessPluginChannel
+    metadata: Capabilities.IPluginMetadata
 }
 
 export class InProcessChannel implements IChannel {
 
-    private _pluginChannels: InProcessPluginChannel[] = []
+    private _pluginChannels: InProcessPluginInfo[] = []
 
     public get host(): IHostChannel {
         return this._hostChannel
@@ -50,17 +51,21 @@ export class InProcessChannel implements IChannel {
         private _hostChannel: InProcessHostChannel = new InProcessHostChannel(),
     ) {
 
-        this._hostChannel.on("send-request", (arg: any) => {
+        this._hostChannel.on("send-request", (arg: any, filter: Capabilities.IPluginFilter) => {
             setTimeout(() => {
-                const pluginsToBroadcast = this._getChannelsForRequestFromHost()
+                const pluginsToBroadcast = this._getChannelsForRequestFromHost(filter)
                 pluginsToBroadcast.forEach((channel) => channel.emit("host-request", arg))
             }, 0)
         })
     }
 
-    public createPluginChannel(): IPluginChannel {
+    public createPluginChannel(metadata: Capabilities.IPluginMetadata): IPluginChannel {
         const channel = new InProcessPluginChannel()
-        this._pluginChannels.push(channel)
+
+        this._pluginChannels.push({
+            channel,
+            metadata,
+        })
 
         channel.on("send", (arg: any) => {
             setTimeout(() => this._hostChannel.emit("plugin-response", arg), 0)
@@ -73,9 +78,12 @@ export class InProcessChannel implements IChannel {
         return channel
     }
 
-    private _getChannelsForRequestFromHost(): InProcessPluginChannel[] {
-        // TODO: Implement filtering layer
-        return this._pluginChannels
+    private _getChannelsForRequestFromHost(filter: Capabilities.IPluginFilter): InProcessPluginChannel[] {
+        const potentialPlugins = this._pluginChannels
+            .filter(p => Capabilities.doesMetadataMatchFilter(p.metadata, filter))
+            .map(p => p.channel)
+
+        return potentialPlugins
     }
 }
 

@@ -1,16 +1,14 @@
 import * as fs from "fs"
 import * as path from "path"
 
+import * as Capabilities from "./Api/Capabilities"
 import { IChannel } from "./Api/Channel"
 import { Oni } from "./Api/Oni"
 
-export interface IPluginMetadata {
-    debugging: boolean
-}
+import * as PackageMetadataParser from "./PackageMetadataParser"
 
-const DefaultMetadata: IPluginMetadata = {
-    debugging: false,
-}
+
+// TODO: Remove htis
 
 // Subscription Events
 export const VimEventsSubscription = "vim-events"
@@ -32,14 +30,9 @@ export interface IEventContext {
     filetype: string
 }
 
-export interface IWebViewInfo {
-    webViewElement: Electron.WebViewElement
-    webContents: Electron.WebContents
-}
-
 export class Plugin {
     private _packageMetadata: any
-    private _oniPluginMetadata: IPluginMetadata
+    private _oniPluginMetadata: Capabilities.IPluginMetadata
     private _lastEventContext: IEventContext
 
     private _channel: IChannel
@@ -49,13 +42,10 @@ export class Plugin {
         this._channel = channel
 
         if (fs.existsSync(packageJsonPath)) {
-            this._packageMetadata = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"))
+            this._oniPluginMetadata = PackageMetadataParser.parseFromString(fs.readFileSync(packageJsonPath, "utf8"))
 
-            const engines = this._packageMetadata.engines
-
-            // TODO: Handle oni engine version
-            if (!engines || !engines["oni"]) { // tslint:disable-line no-string-literal
-                console.warn("Aborting plugin load as Oni engine version not specified: " + packageJsonPath)
+            if (!this._oniPluginMetadata) { 
+                console.warn("Aborting plugin load, invalid package.json: " + packageJsonPath)
             } else {
                 if (this._packageMetadata.main) {
                     let moduleEntryPoint = path.normalize(path.join(pluginRootDirectory, this._packageMetadata.main))
@@ -65,7 +55,7 @@ export class Plugin {
 
                     try {
                         vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
-                            Oni: new Oni(this._channel.createPluginChannel()),
+                            Oni: new Oni(this._channel.createPluginChannel(this._oniPluginMetadata)),
                             require: window["require"], // tslint:disable-line no-string-literal
                             console,
                         })
@@ -73,12 +63,6 @@ export class Plugin {
                         console.error(`Failed to load plugin at ${pluginRootDirectory}: ${ex}`)
                     }
                 }
-
-                const pluginMetadata = this._packageMetadata.oni || {}
-
-                this._expandMultipleLanguageKeys(pluginMetadata)
-
-                this._oniPluginMetadata = Object.assign({}, DefaultMetadata, pluginMetadata)
             }
         }
     }
@@ -209,23 +193,7 @@ export class Plugin {
         return filePluginInfo && filePluginInfo.languageService && filePluginInfo.languageService.indexOf(capability) >= 0
     }
 
-    /*
-    * For blocks that handle multiple languages
-    * ie, javascript,typescript
-    * Split into separate language srevice blocks
-    */
-    private _expandMultipleLanguageKeys(packageMetadata: { [languageKey: string]: any }): void {
-        Object.keys(packageMetadata).forEach((key) => {
-            if (key.indexOf(",")) {
-                const val = packageMetadata[key]
-                key.split(",").forEach((splitKey) => {
-                    packageMetadata[splitKey] = val
-                })
-            }
-        })
-    }
-
     private _send(message: any): void {
-        this._channel.host.send(message)
+        this._channel.host.send(message, null)
     }
 }
