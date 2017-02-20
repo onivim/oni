@@ -13,8 +13,9 @@ import { IWindow, Window } from "./neovim/Window"
 import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./Screen"
+import { nodeRequire } from "./Utility"
 
-const attach = require("neovim-client") // tslint:disable-line no-var-requires
+const attach = nodeRequire("neovim-client")
 
 export interface INeovimInstance {
     cursorPosition: IPosition
