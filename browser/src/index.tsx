@@ -72,7 +72,7 @@ const start = (args: string[]) => {
     const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
     const tasks = new Tasks(outputWindow)
     const commandManager = new CommandManager()
-    registerBuiltInCommands(commandManager, pluginManager)
+    registerBuiltInCommands(commandManager, pluginManager, instance)
 
     tasks.registerTaskProvider(commandManager)
     tasks.registerTaskProvider(errorService)
