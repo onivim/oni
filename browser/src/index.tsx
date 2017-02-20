@@ -9,6 +9,8 @@ import { NeovimInstance } from "./NeovimInstance"
 import { PluginManager } from "./Plugins/PluginManager"
 import { DOMRenderer } from "./Renderer/DOMRenderer"
 import { NeovimScreen } from "./Screen"
+import { CommandManager } from "./Services/CommandManager"
+import { registerBuiltInCommands } from "./Services/Commands"
 import { Errors } from "./Services/Errors"
 import { Formatter } from "./Services/Formatter"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
@@ -57,8 +59,6 @@ const start = (args: string[]) => {
     let renderer = new DOMRenderer()
     renderer.start(editorElement)
 
-
-
     let pendingTimeout: any = null
 
     // Services
@@ -71,7 +71,10 @@ const start = (args: string[]) => {
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
     const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
     const tasks = new Tasks(outputWindow)
+    const commandManager = new CommandManager()
+    registerBuiltInCommands(commandManager, pluginManager)
 
+    tasks.registerTaskProvider(commandManager)
     tasks.registerTaskProvider(errorService)
 
     services.push(errorService)
@@ -290,7 +293,7 @@ const start = (args: string[]) => {
         }
 
         if (key === "<f12>") {
-            pluginManager.executeCommand("editor.gotoDefinition")
+            commandManager.executeCommand("oni.editor.gotoDefinition", null)
         } else if (key === "<C-p>" && screen.mode === "normal") {
             quickOpen.show()
         } else if (key === "<C-P>" && screen.mode === "normal") {

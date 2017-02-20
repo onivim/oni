@@ -11,7 +11,6 @@ import { INeovimInstance } from "./../NeovimInstance"
 
 import { ITask, ITaskProvider } from "./Tasks"
 
-
 export interface ICommand {
     command: string
     name: string
@@ -48,12 +47,12 @@ export class CommandManager implements ITaskProvider {
 
     public registerCommand(command: ICommand): void {
 
-        if (this._commandDictionary[command.name]) {
+        if (this._commandDictionary[command.command]) {
             console.error(`Tried to register multiple commands for: ${command.name}`)
             return
         }
 
-        this._commandDictionary[command.name] = command
+        this._commandDictionary[command.command] = command
     }
 
     public executeCommand(name: string, args: any): void {
@@ -73,7 +72,7 @@ export class CommandManager implements ITaskProvider {
             name: c.name,
             detail: c.detail,
             callback: () => c.execute(),
-        })
+        }))
         return Q(tasks)
     }
 }
