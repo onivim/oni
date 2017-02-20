@@ -47,6 +47,8 @@ export interface INeovimInstance {
     getCurrentWindow(): Q.Promise<IWindow>
 
     getSelectionRange(): Q.Promise<null | Oni.Range>
+
+    open(fileName: string): Q.Promise<void>
 }
 
 /**
@@ -210,6 +212,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this.emit("action", Actions.setFont(fontFamily, fontSize, width, height))
 
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
+    }
+
+    public open(fileName: string): Q.Promise<void> {
+        return this.command(`e! ${fileName}`)
     }
 
     public eval<T>(expression: string): Q.Promise<T> {

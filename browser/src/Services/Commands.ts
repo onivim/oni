@@ -6,11 +6,13 @@
 
 import { remote } from "electron"
 
+import * as Config from "./../Config"
+import { INeovimInstance } from "./../NeovimInstance"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { CallbackCommand, CommandManager } from "./CommandManager"
 
-export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager) => {
+export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance) => {
     const commands = [
 
         // Debug
@@ -18,6 +20,11 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         // Language service
         new CallbackCommand("oni.editor.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => pluginManager.gotoDefinition()),
+
+        // Menu commands
+        // TODO: Generate config.js if not already built
+        new CallbackCommand("oni.config.openConfigJs", "Edit Configuration", "Edit configuration file ('config.js') for ONI", () => neovimInstance.open(Config.userJsConfig)),
+        new CallbackCommand("oni.config.openInitVim", "Edit NeoVim Configuration", "Edit configuration file ('init.vim') for NeoVim", () => neovimInstance.open("$MYVIMRC")),
 
         // Add additional commands here
         // ...

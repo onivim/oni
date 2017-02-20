@@ -80,8 +80,8 @@ const DefaultPlatformConfig = Platform.isWindows() ? WindowsConfig : Platform.is
 
 Performance.mark("Config.load.start")
 
-const userConfigFile = path.join(getUserFolder(), "config.json")
-const userJsConfig = path.join(getUserFolder(), "config.js")
+export const userConfigFile = path.join(getUserFolder(), "config.json")
+export const userJsConfig = path.join(getUserFolder(), "config.js")
 
 let userConfig = {}
 if (fs.existsSync(userConfigFile)) {
