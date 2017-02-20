@@ -70,7 +70,7 @@ const buildMenu = (mainWindow) => {
                     click: () => executeOniCommand("oni.config.openInitVim")
                 }
                 ]
-            }
+            },
             {
                 type: 'separator'
             },

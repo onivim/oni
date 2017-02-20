@@ -333,6 +333,10 @@ const start = (args: string[]) => {
             instance.command("exec \":normal! " + message + "\"")
         }
     })
+
+    ipcRenderer.on("execute-command", (_evt, command: string) => {
+        commandManager.executeCommand(command, null)
+    })
 }
 
 ipcRenderer.on("init", (_evt, message) => {
