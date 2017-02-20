@@ -61,11 +61,6 @@ export class PluginManager extends EventEmitter {
         return this._lastBufferInfo
     }
 
-    public executeCommand(command: string): void {
-        if (command === "editor.gotoDefinition") {
-        }
-    }
-
     public gotoDefinition(): void {
         this._sendLanguageServiceRequest("goto-definition", this._lastEventContext)
     }
