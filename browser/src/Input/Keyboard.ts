@@ -19,9 +19,6 @@ export class Keyboard extends EventEmitter {
             // so we need to stop that.
             //
             // Later, the menu should be customized to fix this.
-            if (mappedKey === "<C-w>" || mappedKey === "<C-r>") {
-                evt.preventDefault()
-            }
         })
     }
 
@@ -38,10 +35,16 @@ export class Keyboard extends EventEmitter {
 
         if (evt.ctrlKey) {
             mappedKey = "C-" + vimKey + ""
+            evt.preventDefault()
         }
 
         if (evt.altKey) {
             mappedKey = "A-" + mappedKey
+            evt.preventDefault()
+        }
+
+        if (evt.metaKey) {
+            evt.preventDefault()
         }
 
         if (mappedKey.length > 1) {
@@ -53,34 +56,34 @@ export class Keyboard extends EventEmitter {
 
     private _convertKeyEventToVimKey(evt: KeyboardEvent): null | string {
 
-       const keyCode = {
-             8:  "bs",      // Backspace                 
-             9:  "tab",     // Tab                 
-             13: "enter",   // Enter                 
-             27: "esc",     // Escape
-             33: "pageup",  // Page up
-             34: "pagedown", // Page down
-             35: "end",
-             36: "home",
-             37: "left",    // ArrowLeft
-             38: "up",      // ArrowUp 
-             39: "right",   // ArrowRight
-             40: "down",    // ArrowDown
-             45: "insert",
-             114: "f3",
-             116: "f5",
-             123: "f12",
-             16:  null,     // Shift left
-             17:  null,     // Ctrl left
-             18:  null,     // Alt left
-             19:  null,     // Pause
-             20:  null,     // Caps lock
-             145: null,     // Scroll lock
-             174: null,     // Volume up
-             175: null,     // Volume down                
+        const keyCode: { [key: number]: string } = {
+            8: "bs",      // Backspace
+            9: "tab",     // Tab
+            13: "enter",   // Enter
+            27: "esc",     // Escape
+            33: "pageup",  // Page up
+            34: "pagedown", // Page down
+            35: "end",
+            36: "home",
+            37: "left",    // ArrowLeft
+            38: "up",      // ArrowUp
+            39: "right",   // ArrowRight
+            40: "down",    // ArrowDown
+            45: "insert",
+            114: "f3",
+            116: "f5",
+            123: "f12",
+            16: null,     // Shift left
+            17: null,     // Ctrl left
+            18: null,     // Alt left
+            19: null,     // Pause
+            20: null,     // Caps lock
+            145: null,     // Scroll lock
+            174: null,     // Volume up
+            175: null,     // Volume down
         }
 
-       return keyCode[evt.keyCode ] ? keyCode[evt.keyCode ] : evt.key
+        return keyCode[evt.keyCode] ? keyCode[evt.keyCode] : evt.key
 
     }
 }

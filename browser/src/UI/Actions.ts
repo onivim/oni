@@ -117,6 +117,22 @@ export interface IHideQuickInfoAction {
     type: "HIDE_QUICK_INFO"
 }
 
+export interface IShowCursorLineAction {
+    type: "SHOW_CURSOR_LINE"
+}
+
+export interface IHideCurorLineAction {
+    type: "HIDE_CURSOR_LINE"
+}
+
+export interface IShowCursorColumnAction {
+    type: "SHOW_CURSOR_COLUMN"
+}
+
+export interface IHideCursorColumnAction {
+    type: "HIDE_CURSOR_COLUMN"
+}
+
 export type Action = ISetCursorPositionAction |
     IShowSignatureHelpAction |
     IHideSignatureHelpAction |
@@ -134,4 +150,8 @@ export type Action = ISetCursorPositionAction |
     IFilterMenuAction |
     ISetModeAction |
     ISetColorsAction |
-    ISetActiveWindowDimensions
+    ISetActiveWindowDimensions |
+    IHideCurorLineAction |
+    IHideCursorColumnAction |
+    IShowCursorLineAction |
+    IShowCursorColumnAction

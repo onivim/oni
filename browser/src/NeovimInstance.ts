@@ -13,8 +13,9 @@ import { IWindow, Window } from "./neovim/Window"
 import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./Screen"
+import { nodeRequire } from "./Utility"
 
-const attach = require("neovim-client") // tslint:disable-line no-var-requires
+const attach = nodeRequire("neovim-client")
 
 export interface INeovimInstance {
     cursorPosition: IPosition
@@ -46,6 +47,8 @@ export interface INeovimInstance {
     getCurrentWindow(): Q.Promise<IWindow>
 
     getSelectionRange(): Q.Promise<null | Oni.Range>
+
+    open(fileName: string): Q.Promise<void>
 }
 
 /**
@@ -211,6 +214,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
     }
 
+    public open(fileName: string): Q.Promise<void> {
+        return this.command(`e! ${fileName}`)
+    }
+
     public eval<T>(expression: string): Q.Promise<T> {
         return Q.ninvoke<T>(this._neovim, "eval", expression)
     }
@@ -294,7 +301,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _getSize() {
         const rows = Math.floor(this._lastHeightInPixels / this._fontHeightInPixels)
         const cols = Math.floor(this._lastWidthInPixels / this._fontWidthInPixels)
-        return { rows, cols}
+        return { rows, cols }
     }
 
     private _handleNotification(_method: any, args: any): void {

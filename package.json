@@ -17,22 +17,19 @@
   },
   "scripts": {
     "prepublish": "crlf --set=LF ./cli/oni",
-    "build": "npm run build:browser && npm run build:plugin_api && npm run build:plugins",
-    "build-debug": "npm run build:browser-debug && npm run build:plugin_api && npm run build:plugins",
+    "build": "npm run build:browser && npm run build:plugins",
+    "build-debug": "npm run build:browser-debug && npm run build:plugins",
     "build:browser": "webpack --config browser/webpack.production.config.js",
     "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
-    "build:plugin_api": "cd plugin_api && tsc -p tsconfig.src.json",
     "build:plugins": "cd vim/core/oni-plugin-typescript && npm run build",
-    "test": "npm run test:lint && npm run test:browser && npm run test:plugin_api && npm run test:plugins:typescript",
+    "test": "npm run test:browser && npm run test:plugins:typescript",
     "test:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
-    "test:lint": "tslint --project browser/tsconfig.json --config browser/tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
+    "lint": "tslint --project browser/tsconfig.json --config browser/tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
     "test:plugins:typescript": "cd vim/core/oni-plugin-typescript && npm run test",
-    "test:plugin_api": "cd plugin_api && tsc -p tsconfig.json && mocha --recursive ../lib_test/plugin_api/test",
-    "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\" \"npm run watch:plugin_api\"",
+    "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
     "start-hot": "cross-env NODE_ENV=development electron main.js",
     "start-not-dev": "cross-env electron main.js",
     "watch:browser": "webpack-dev-server --config browser/webpack.hotreload.config.js --inline --hot --host localhost --port 8191",
-    "watch:plugin_api": "cd plugin_api && tsc --watch",
     "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch",
     "uninstall-global": "npm rm -g oni-vim",
     "install-global": "npm install -g oni-vim"
@@ -60,7 +57,7 @@
     "react-redux": "4.4.5",
     "recursive-readdir": "2.1.0",
     "redux": "3.5.2",
-    "typescript": "2.1.4",
+    "typescript": "2.1.6",
     "wcwidth": "1.0.1"
   },
   "devDependencies": {
@@ -96,7 +93,6 @@
     "style-loader": "0.13.1",
     "ts-loader": "1.2.2",
     "tslint": "4.0.2",
-    "typescript": "2.1.4",
     "webpack": "1.13.2",
     "webpack-dev-server": "1.16.1"
   }

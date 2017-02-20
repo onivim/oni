@@ -9,6 +9,8 @@ import { NeovimInstance } from "./NeovimInstance"
 import { PluginManager } from "./Plugins/PluginManager"
 import { DOMRenderer } from "./Renderer/DOMRenderer"
 import { NeovimScreen } from "./Screen"
+import { CommandManager } from "./Services/CommandManager"
+import { registerBuiltInCommands } from "./Services/Commands"
 import { Errors } from "./Services/Errors"
 import { Formatter } from "./Services/Formatter"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
@@ -30,7 +32,17 @@ const start = (args: string[]) => {
     const services: any[] = []
 
     const parsedArgs = minimist(args)
-    const debugPlugin = parsedArgs["debugPlugin"] // tslint:disable-line no-string-literal
+
+    const cursorLine = Config.getValue<boolean>("editor.cursorLine")
+    const cursorColumn = Config.getValue<boolean>("editor.cursorColumn")
+
+    if (cursorLine) {
+        UI.showCursorLine()
+    }
+
+    if (cursorColumn) {
+        UI.showCursorColumn()
+    }
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
@@ -40,7 +52,7 @@ const start = (args: string[]) => {
     let deltaRegion = new IncrementalDeltaRegionTracker()
     let screen = new NeovimScreen(deltaRegion)
 
-    const pluginManager = new PluginManager(screen, debugPlugin)
+    const pluginManager = new PluginManager(screen)
     let instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight)
 
     const editorElement = document.getElementById("oni-text-editor") as HTMLDivElement
@@ -59,7 +71,10 @@ const start = (args: string[]) => {
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
     const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
     const tasks = new Tasks(outputWindow)
+    const commandManager = new CommandManager()
+    registerBuiltInCommands(commandManager, pluginManager, instance)
 
+    tasks.registerTaskProvider(commandManager)
     tasks.registerTaskProvider(errorService)
 
     services.push(errorService)
@@ -165,11 +180,25 @@ const start = (args: string[]) => {
         UI.setMode(newMode)
 
         if (newMode === "normal") {
+            if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
+                UI.showCursorLine()
+            }
+            if (cursorColumn) {
+                UI.showCursorColumn()
+            }
             UI.hideCompletions()
             UI.hideSignatureHelp()
         } else if (newMode === "insert") {
             UI.hideQuickInfo()
+            if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
+                UI.showCursorLine()
+            }
+            if (cursorColumn) {
+                UI.showCursorColumn()
+            }
         } else if (newMode === "cmdline") {
+            UI.hideCursorColumn() // TODO: cleaner way to hide and unhide?
+            UI.hideCursorLine()
             UI.hideCompletions()
             UI.hideQuickInfo()
 
@@ -264,7 +293,7 @@ const start = (args: string[]) => {
         }
 
         if (key === "<f12>") {
-            pluginManager.executeCommand("editor.gotoDefinition")
+            commandManager.executeCommand("oni.editor.gotoDefinition", null)
         } else if (key === "<C-p>" && screen.mode === "normal") {
             quickOpen.show()
         } else if (key === "<C-P>" && screen.mode === "normal") {
@@ -297,8 +326,16 @@ const start = (args: string[]) => {
 
     UI.init()
 
-    ipcRenderer.on("menu-item-click", (_evt, message) => {
-        instance.command("exec \":normal! " + message + "\"")
+    ipcRenderer.on("menu-item-click", (_evt, message: string) => {
+        if (message.startsWith(":")) {
+            instance.command("exec \"" + message + "\"")
+        } else {
+            instance.command("exec \":normal! " + message + "\"")
+        }
+    })
+
+    ipcRenderer.on("execute-command", (_evt, command: string) => {
+        commandManager.executeCommand(command, null)
     })
 }
 

@@ -1,7 +1,6 @@
 const electron = require('electron')
 const path = require("path")
 // Module to control application life.
-const defaultMenu = require('electron-default-menu');
 const { Menu, app, shell, dialog } = electron;
 const os = require('os');
 
@@ -11,6 +10,8 @@ const isDevelopment = process.env.NODE_ENV === "development"
 
 const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length >0
+
+const { buildMenu } = require("./Menu")
 
 // import * as derp from "./installDevTools"
 
@@ -61,103 +62,9 @@ function createWindow(commandLineArguments, workingDirectory) {
 
     // Create the browser window.
     let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png") })
-    let menu = defaultMenu(app, shell);
 
-    let firstMenu = os.platform() == "win32" ? 'File' : 'Oni';
-    menu.unshift({
-        label: firstMenu,
-        submenu: [
-            {
-                label: 'Quit',
-                click: (item, focusedWindow) => {
-                    app.quit()
-                }
-            }
-        ]
-    })
-
-    menu[1].submenu = [
-       {
-           label: 'Undo',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "u")
-           }
-       },
-       {
-           label: 'Redo',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-r>")
-           }
-       },
-       {
-           label: 'Repeat',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", ".")
-           }
-       },
-       {
-           type: 'separator'
-       },
-       {
-           label: 'Cut',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", '\\"+x')
-           }
-       },
-       {
-           label: 'Copy',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", '\\"+y')
-           }
-       },
-       {
-           label: 'Paste',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", '\\"+gP')
-           }
-       },
-       {
-           label: 'Put Before',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "[p")
-           }
-       },
-       {
-           label: 'Put After',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "]p")
-           }
-       },
-       {
-           label: 'Select All',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "ggVG")
-           }
-       },
-    ]
-
-    menu[4].submenu = [
-        {
-            label: 'Learn more',
-            click: (item, focusedWindow) => {
-                shell.openExternal('https://github.com/extr0py/oni#introduction');
-            }
-        },
-        {
-            label: 'Issues',
-            click: (item, focusedWindow) => {
-                shell.openExternal('https://github.com/extr0py/oni/issues');
-            }
-        },
-        {
-            label: 'Github',
-            click: (item, focusedWindow) => {
-                shell.openExternal('https://github.com/extr0py/oni');
-            }
-        }
-    ]
-
-    Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
+    const menu = buildMenu(mainWindow)
+    Menu.setApplicationMenu(menu);
 
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
