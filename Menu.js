@@ -66,7 +66,7 @@ const buildMenu = (mainWindow) => {
                     click: () => executeOniCommand("oni.config.openConfigJs")
                 },
                 {
-                    label: "Edit NeoVim configuration",
+                    label: "Edit Neovim configuration",
                     click: () => executeOniCommand("oni.config.openInitVim")
                 }
                 ]
