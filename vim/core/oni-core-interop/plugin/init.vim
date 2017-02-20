@@ -26,9 +26,9 @@ function OniNotifyBufferUpdate()
         if b:last_cursor_line == line(".")
             let buffer_lines = [getline(".")]
         elseif b:last_cursor_line < line(".")
-           let buffer_lines = getline(b:last_cursor_line, line("."))
+            let buffer_lines = getline(b:last_cursor_line, line("."))
         elseif b:last_cursor_line > line(".")
-           let buffer_lines = getline(line("."),b:last_cursor_line)
+            let buffer_lines = getline(line("."),b:last_cursor_line)
         endif
 
         let context = OniGetContext()
@@ -124,8 +124,4 @@ function OniUpdateWindowDisplayMap()
     let context = OniGetContext()
 
     call OniNotify(["window_display_update", context, mapping])
-endfunction
-
-function OniVersionInfo()
-    call OniNotify(["api_info",api_info()['version']])
 endfunction
