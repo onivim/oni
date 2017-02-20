@@ -23,7 +23,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         // Menu commands
         // TODO: Generate config.js if not already built
-        new CallbackCommand("oni.config.openConfigJs", "Edit Configuration", "Edit configuration file ('config.js') for ONI", () => neovimInstance.open(Config.userJsConfig))
+        new CallbackCommand("oni.config.openConfigJs", "Edit Configuration", "Edit configuration file ('config.js') for ONI", () => neovimInstance.open(Config.userJsConfig)),
+        new CallbackCommand("oni.config.openInitVim", "Edit NeoVim Configuration", "Edit configuration file ('init.vim') for NeoVim", () => neovimInstance.open("$MYVIMRC")),
 
         // Add additional commands here
         // ...

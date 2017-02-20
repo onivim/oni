@@ -7,7 +7,11 @@ const { Menu, app, shell, dialog } = electron;
 
 
 const buildMenu = (mainWindow) => {
-    let menu = defaultMenu(app, shell);
+    let menu = []
+
+    const executeVimCommand = (command) => mainWindow.webContents.send("menu-item-click", command)
+
+    const executeOniCommand = (command) => mainWindow.webContents.send("execute-command", command)
 
     let firstMenu = os.platform() == "win32" ? 'File' : 'Oni';
     menu.unshift({
@@ -18,7 +22,7 @@ const buildMenu = (mainWindow) => {
                 click: (item, focusedWindow) => {
                     dialog.showOpenDialog(mainWindow, ['openFile'], (name) => {
                         if (name) {
-                            mainWindow.webContents.send("menu-item-click", ":e " + name)
+                            executeVimCommand(":e " + name)
                         }
                     })
                 }
@@ -28,7 +32,7 @@ const buildMenu = (mainWindow) => {
                 click: (item, focusedWindow) => {
                     dialog.showOpenDialog(mainWindow, ['openFile'], (name) => {
                         if (name) {
-                            mainWindow.webContents.send("menu-item-click", ":sp " + name)
+                            executeVimCommand(":sp " + name)
                         }
                     })
                 }
@@ -38,47 +42,55 @@ const buildMenu = (mainWindow) => {
                 click: (item, focusedWindow) => {
                     dialog.showOpenDialog(mainWindow, ['openFile'], (name) => {
                         if (name) {
-                            mainWindow.webContents.send("menu-item-click", ":tabnew " + name)
+                            executeVimCommand(":tabnew " + name)
                         }
                     })
                 }
             },
             {
                 label: 'New',
-                click: (item, focusedWindow) => {
-                    mainWindow.webContents.send("menu-item-click", ":enew")
-                }
+                click: (item, focusedWindow) => executeVimCommand(":enew")
             },
             {
                 label: 'Close',
-                click: (item, focusedWindow) => {
-                    mainWindow.webContents.send("menu-item-click", ":close")
-                }
+                click: (item, focusedWindow) => executeVimCommand(":close")
             },
             {
                 type: 'separator'
             },
             {
-                label: 'Save',
-                click: (item, focusedWindow) => {
-                    mainWindow.webContents.send("menu-item-click", ":w")
+                label: 'Preferences',
+                submenu: [
+                {
+                    label: "Edit configuration",
+                    click: () => executeOniCommand("oni.config.openConfigJs")
+                },
+                {
+                    label: "Edit NeoVim configuration",
+                    click: () => executeOniCommand("oni.config.openInitVim")
                 }
+                ]
+            }
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Save',
+                click: (item, focusedWindow) => executeVimCommand(":w")
             },
             {
                 label: 'Save As...',
                 click: (item, focusedWindow) => {
                     dialog.showSaveDialog(mainWindow, {}, (name) => {
                         if (name) {
-                            mainWindow.webContents.send("menu-item-click", ":save " + name)
+                            executeVimCommand(":save " + name)
                         }
                     })
                 }
             },
             {
                 label: 'Save All',
-                click: (item, focusedWindow) => {
-                    mainWindow.webContents.send("menu-item-click", ":wall")
-                }
+                click: (item, focusedWindow) => executeVimCommand(":wall")
             },
             {
                 type: 'separator'
@@ -93,107 +105,82 @@ const buildMenu = (mainWindow) => {
     })
 
     // Edit menu
-    menu[1].submenu = [
+    menu.push({
+        label: "Edit",
+        submenu:  [
+
        {
            label: 'Undo',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "u")
-           }
+           click: (item, focusedWindow) => executeVimCommand("u")
        },
        {
            label: 'Redo',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-r>")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-r>")
        },
        {
            label: 'Repeat',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", ".")
-           }
+           click: (item, focusedWindow) => executeVimCommand(".")
        },
        {
            type: 'separator'
        },
        {
            label: 'Cut',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", '\\"+x')
-           }
+           click: (item, focusedWindow) => executeVimCommand('\\"+x')
        },
        {
            label: 'Copy',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", '\\"+y')
-           }
+           click: (item, focusedWindow) => executeVimCommand('\\"+y')
        },
        {
            label: 'Paste',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", '\\"+gP')
-           }
+           click: (item, focusedWindow) => executeVimCommand('\\"+gP')
        },
        {
            label: 'Paste Line Before',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "[p")
-           }
+           click: (item, focusedWindow) => executeVimCommand("[p")
        },
        {
            label: 'Paste Line After',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "]p")
-           }
+           click: (item, focusedWindow) => executeVimCommand("]p")
        },
        {
            label: 'Select All',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "ggVG")
-           }
+           click: (item, focusedWindow) => executeVimCommand("ggVG")
        }
-    ]
+    ]})
 
     // Window menu
-    menu[3].label = 'Split'
-    menu[3].submenu = [
+    menu.push({
+
+        label:  'Split',
+    submenu : [
         {
            label: 'New Horizontal Split',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-w>n")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>n")
         },
         {
            label: 'Split File Horizontally',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-w>s")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>s")
         },
         {
            label: 'Split File Vertically',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-w>v")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>v")
         },
         {
            label: 'File Explorer Split',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", ":Lexplore | vertical resize 30")
-           }
+           click: (item, focusedWindow) => executeVimCommand(":Lexplore | vertical resize 30")
         },
         {
             type: 'separator'
         },
         {
            label: 'Close',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-w>c")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>c")
         },
         {
            label: 'Close Other Split(s)',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-w>o")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>o")
         },
         {
             type: 'separator'
@@ -203,78 +190,67 @@ const buildMenu = (mainWindow) => {
            submenu: [
            {
                 label: 'Top',
-                click: (item, focusedWindow) => {
-                    mainWindow.webContents.send("menu-item-click", "\\<C-w>K")
-                }
+                click: (item, focusedWindow) => executeVimCommand("\\<C-w>K")
             },
             {
                 label: 'Bottom',
-                click: (item, focusedWindow) => {
-                    mainWindow.webContents.send("menu-item-click", "\\<C-w>J")
-                }
+                click: (item, focusedWindow) => executeVimCommand("\\<C-w>J")
             },
             {
                 label: 'Left Side',
-                click: (item, focusedWindow) => {
-                    mainWindow.webContents.send("menu-item-click", "\\<C-w>H")
-                }
+                click: (item, focusedWindow) => executeVimCommand("\\<C-w>H")
             },
             {
                 label: 'Right Side',
-                click: (item, focusedWindow) => {
-                    mainWindow.webContents.send("menu-item-click", "\\<C-w>L")
-                }
+                click: (item, focusedWindow) => executeVimCommand("\\<C-w>L")
             }]
         },
         {
            label: 'Rotate Up',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-w>R")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>R")
         },
         {
            label: 'Rotate Down',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-w>r")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>r")
         },
         {
             type: 'separator'
         },
         {
            label: 'Equal Size',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-w>=")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>=")
         },
         {
            label: 'Max Height',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-w>_")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>_")
         },
         {
            label: 'Min Height',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-w>1_")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>1_")
         },
         {
            label: 'Max Width',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-w>|")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>|")
         },
         {
            label: 'Min Width',
-           click: (item, focusedWindow) => {
-               mainWindow.webContents.send("menu-item-click", "\\<C-w>1|")
-           }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>1|")
         }
-    ]
+    ]})
+
+    menu.push({
+        label: "Develop",
+        submenu: [
+            {
+                label: 'Open DevTools',
+                click: () => executeOniCommand('oni.debug.openDevTools')
+            }
+        ]})
 
     // Help menu
-    menu[4].submenu = [
+    menu.push({
+        label: "Help",
+        submenu: [
         {
             label: 'Learn more',
             click: (item, focusedWindow) => {
@@ -293,8 +269,7 @@ const buildMenu = (mainWindow) => {
                 shell.openExternal('https://github.com/extr0py/oni');
             }
         }
-    ]
-
+    ]})
 
     return Menu.buildFromTemplate(menu)
 }
