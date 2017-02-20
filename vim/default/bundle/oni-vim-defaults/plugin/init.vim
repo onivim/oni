@@ -2,7 +2,6 @@ set number
 set relativenumber
 set noswapfile
 set ruler
-set cursorline
 set smartcase
 
 set splitright

@@ -60,7 +60,7 @@ const DefaultConfig: any = {
     // "editor.quickOpen.execCommand": "dir /s /b"
     "editor.fullScreenOnStart" : false,
 
-    "editor.cursorLine": false,
+    "editor.cursorLine": true,
     "editor.cursorColumn": false,
 }
 
