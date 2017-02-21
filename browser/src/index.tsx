@@ -52,7 +52,7 @@ const start = (args: string[]) => {
     let deltaRegion = new IncrementalDeltaRegionTracker()
     let screen = new NeovimScreen(deltaRegion)
 
-    const pluginManager = new PluginManager(screen)
+    const pluginManager = new PluginManager()
     let instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight)
 
     const editorElement = document.getElementById("oni-text-editor") as HTMLDivElement

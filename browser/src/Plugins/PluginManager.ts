@@ -5,7 +5,6 @@ import * as os from "os"
 import * as path from "path"
 import * as Config from "./../Config"
 import { INeovimInstance } from "./../NeovimInstance"
-import { IScreen } from "./../Screen"
 import * as UI from "./../UI/index"
 
 import * as Capabilities from "./Api/Capabilities"
@@ -39,7 +38,7 @@ export class PluginManager extends EventEmitter {
 
     private _channel: Channel.IChannel = new Channel.InProcessChannel()
 
-    constructor(_screen: IScreen) {
+    constructor() {
         super()
 
         this._rootPluginPaths.push(corePluginsRoot)
