@@ -11,7 +11,7 @@ import * as UI from "./../UI/index"
 import * as Capabilities from "./Api/Capabilities"
 import * as Channel from "./Api/Channel"
 import { Plugin } from "./Plugin"
-import { CommandManager } from "./../Services/CommandManager"
+import { CallbackCommand, CommandManager } from "./../Services/CommandManager"
 
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
@@ -96,7 +96,25 @@ export class PluginManager extends EventEmitter {
         })
 
         const allPlugins = this._getAllPluginPaths()
-        this._plugins = allPlugins.map((pluginRootDirectory) => new Plugin(pluginRootDirectory, this._channel, this._commandManager))
+        this._plugins = allPlugins.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
+    }
+
+    private _createPlugin(pluginRootDirectory: string): Plugin {
+        const plugin = new Plugin(pluginRootDirectory, this._channel)
+
+        plugin.commands.forEach((commandInfo) => {
+            this._commandManager.registerCommand(new CallbackCommand(commandInfo.command, commandInfo.name, commandInfo.details, (args?: any) => {
+                this._channel.host.send({
+                    type: "command",
+                    payload: {
+                        args,
+                        eventContext: this._lastEventContext
+                    }
+                })
+            }))
+        })
+
+        return plugin
     }
 
     public getAllRuntimePaths(): string[] {

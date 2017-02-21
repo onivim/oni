@@ -5,17 +5,23 @@ import * as Capabilities from "./Api/Capabilities"
 import { IChannel } from "./Api/Channel"
 import { Oni } from "./Api/Oni"
 
-import { CallbackCommand, CommandManager } from "./../Services/CommandManager"
-
 import * as PackageMetadataParser from "./PackageMetadataParser"
+
+export interface IPluginCommandInfo extends Capabilities.ICommandInfo {
+    command: string
+}
 
 export class Plugin {
     private _oniPluginMetadata: Capabilities.IPluginMetadata
     private _channel: IChannel
 
-    constructor(pluginRootDirectory: string,
+    public get commands(): IPluginCommandInfo[] {
+        return []
+    }
+
+    constructor(
+        pluginRootDirectory: string,
         channel: IChannel,
-        private _commandManager: CommandManager
     ) {
         const packageJsonPath = path.join(pluginRootDirectory, "package.json")
         this._channel = channel
@@ -41,6 +47,10 @@ export class Plugin {
                     } catch (ex) {
                         console.error(`Failed to load plugin at ${pluginRootDirectory}: ${ex}`)
                     }
+
+
+                    const commands = Capabilities.getAllCommandsFromMetadata(this._oniPluginMetadata)
+                    // Return commands
                 }
             }
         }

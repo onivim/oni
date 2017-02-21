@@ -75,3 +75,7 @@ export const doCapabilitiesMeetRequirements = (capabilities: Capabilities, requi
 
     return true
 }
+
+export const getAllCommandsFromMetadata = (metadata: IPluginMetadata) => {
+    return []
+}
