@@ -7,6 +7,12 @@
 export interface Capabilities {
     languageService?: string[]
     subscriptions?: string[]
+    commands?: { [commandName: string]: ICommandInfo }
+}
+
+export interface ICommandInfo {
+    name: string
+    details: string
 }
 
 /**

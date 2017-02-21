@@ -5,13 +5,18 @@ import * as Capabilities from "./Api/Capabilities"
 import { IChannel } from "./Api/Channel"
 import { Oni } from "./Api/Oni"
 
+import { CallbackCommand, CommandManager } from "./../Services/CommandManager"
+
 import * as PackageMetadataParser from "./PackageMetadataParser"
 
 export class Plugin {
     private _oniPluginMetadata: Capabilities.IPluginMetadata
     private _channel: IChannel
 
-    constructor(pluginRootDirectory: string, channel: IChannel) {
+    constructor(pluginRootDirectory: string,
+        channel: IChannel,
+        private _commandManager: CommandManager
+    ) {
         const packageJsonPath = path.join(pluginRootDirectory, "package.json")
         this._channel = channel
 
