@@ -159,11 +159,11 @@ Leave the cursor hovering over an identifier.
 
 ### Configuration
 
-> ONI is configurable via a 'config.json' located in $HOME/.oni
+> ONI is configurable via a 'config.js' located in $HOME/.oni
 
-Here's an example config.json:
+Here's an example config.js:
 ```
-{
+module.exports = {
     "oni.useDefaultConfig": true,
     "oni.loadInitVim": true,
     "editor.fontSize": "14px",
