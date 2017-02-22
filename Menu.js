@@ -238,15 +238,6 @@ const buildMenu = (mainWindow) => {
         }
     ]})
 
-    menu.push({
-        label: "Develop",
-        submenu: [
-            {
-                label: 'Open DevTools',
-                click: () => executeOniCommand('oni.debug.openDevTools')
-            }
-        ]})
-
     // Help menu
     menu.push({
         label: "Help",
@@ -268,6 +259,13 @@ const buildMenu = (mainWindow) => {
             click: (item, focusedWindow) => {
                 shell.openExternal('https://github.com/extr0py/oni');
             }
+        },
+        {
+            type: 'separator'
+        },
+        {
+            label: 'Developer Tools',
+            click: () => executeOniCommand('oni.debug.openDevTools')
         }
     ]})
 
