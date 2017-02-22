@@ -107,11 +107,13 @@ export class PluginManager extends EventEmitter {
     private _createPlugin(pluginRootDirectory: string): Plugin {
         const plugin = new Plugin(pluginRootDirectory, this._channel)
 
-        plugin.commands.forEach((commandInfo) => {
-            this._commandManager.registerCommand(new CallbackCommand(commandInfo.command, commandInfo.name, commandInfo.details, (args?: any) => {
-                this._sendCommand(commandInfo.command, args)
-            }))
-        })
+        if (plugin.commands) {
+            plugin.commands.forEach((commandInfo) => {
+                this._commandManager.registerCommand(new CallbackCommand(commandInfo.command, commandInfo.name, commandInfo.details, (args?: any) => {
+                    this._sendCommand(commandInfo.command, args)
+                }))
+            })
+        }
 
         return plugin
     }
