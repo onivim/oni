@@ -77,7 +77,6 @@ describe("Capabilities", () => {
             })
 
             it("command with different name does not pass filter", () => {
-
                 const filter = Capabilities.createPluginFilterForCommand("typescript", "someOtherCommand")
 
                 const capabilityWithCommand = {
