@@ -56,4 +56,42 @@ describe("Capabilities", () => {
             assert.strictEqual(result, false)
         })
     })
+
+    describe("doCapabilitiesMeetRequirements", () => {
+        describe("commands", () => {
+
+            it("command with same name passes filter", () => {
+                const filter = Capabilities.createPluginFilterForCommand("typescript", "command1")
+
+                const capabilityWithCommand = {
+                    commands: {
+                        command1: {
+                            name: "Command1",
+                            details: "Command1Details",
+                        },
+                    },
+                }
+
+                const result = Capabilities.doCapabilitiesMeetRequirements(capabilityWithCommand, filter.requiredCapabilities)
+                assert.strictEqual(result, true)
+            })
+
+            it("command with different name does not pass filter", () => {
+
+                const filter = Capabilities.createPluginFilterForCommand("typescript", "someOtherCommand")
+
+                const capabilityWithCommand = {
+                    commands: {
+                        command1: {
+                            name: "Command1",
+                            details: "Command1Details",
+                        },
+                    },
+                }
+
+                const result = Capabilities.doCapabilitiesMeetRequirements(capabilityWithCommand, filter.requiredCapabilities)
+                assert.strictEqual(result, false)
+            })
+        })
+    })
 })

@@ -30,6 +30,14 @@ export const createPluginFilter = (fileType: string, requiredCapabilities?: Capa
     singlePlugin: isSinglePlugin,
 })
 
+export const createPluginFilterForCommand = (fileType: string, command: string) => {
+    const commands = {}
+    commands[command] = null
+    return createPluginFilter(fileType, { 
+        commands
+    }, true)
+}
+
 export interface IPluginMetadata {
     main: string
     engines: string
