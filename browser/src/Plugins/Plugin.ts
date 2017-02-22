@@ -14,9 +14,10 @@ export interface IPluginCommandInfo extends Capabilities.ICommandInfo {
 export class Plugin {
     private _oniPluginMetadata: Capabilities.IPluginMetadata
     private _channel: IChannel
+    private _commands: IPluginCommandInfo[]
 
     public get commands(): IPluginCommandInfo[] {
-        return []
+        return this._commands
     }
 
     constructor(
@@ -48,9 +49,7 @@ export class Plugin {
                         console.error(`Failed to load plugin at ${pluginRootDirectory}: ${ex}`)
                     }
 
-
-                    const commands = Capabilities.getAllCommandsFromMetadata(this._oniPluginMetadata)
-                    // Return commands
+                    this._commands = PackageMetadataParser.getAllCommandsFromMetadata(this._oniPluginMetadata)
                 }
             }
         }

@@ -1,5 +1,6 @@
 import * as assert from "assert"
 
+import * as Capabilities from "./../../src/Plugins/Api/Capabilities"
 import * as PackageMetadataParser from "./../../src/Plugins/PackageMetadataParser"
 
 describe("PackageMetadataParser", () => {
@@ -63,6 +64,77 @@ describe("PackageMetadataParser", () => {
                     "languageService": ["quick-info"],
                 },
             })
+        })
+    })
+
+    describe("getAllCommandsFromMetadata", () => {
+        const PluginWithNoCommands: Capabilities.IPluginMetadata = {
+            main: "",
+            engines: "",
+            oni: {
+                "javascript": {
+                },
+            },
+        }
+        const PluginWithCommand: Capabilities.IPluginMetadata = {
+            main: "",
+            engines: "",
+            oni: {
+                "javascript": {
+                    commands: {
+                        "test.testCommand": {
+                            name: "Test Command",
+                            details: "Test Command Details",
+                        },
+                    },
+                },
+            },
+        }
+
+        const PluginWithDuplicateCommands: Capabilities.IPluginMetadata = {
+            main: "",
+            engines: "",
+            oni: {
+                "javascript": {
+                    commands: {
+                        "test.testCommand": {
+                            name: "Test Command",
+                            details: "Test Command Details",
+                        },
+                    },
+                },
+                 "typescript": {
+                    commands: {
+                        "test.testCommand": {
+                            name: "Test Command",
+                            details: "Test Command Details",
+                        },
+                    },
+                },
+            },
+        }
+
+        it("returns empty array if no commands", () => {
+            const commands = PackageMetadataParser.getAllCommandsFromMetadata(PluginWithNoCommands)
+            assert.deepEqual(commands, [])
+        })
+
+        it("returns single command", () => {
+            const commands = PackageMetadataParser.getAllCommandsFromMetadata(PluginWithCommand)
+            assert.deepEqual(commands, [{
+                command: "test.testCommand",
+                name: "Test Command",
+                details: "Test Command Details",
+            }])
+        })
+
+        it("doesn't return duplicate commands", () => {
+            const commands = PackageMetadataParser.getAllCommandsFromMetadata(PluginWithDuplicateCommands)
+            assert.deepEqual(commands, [{
+                command: "test.testCommand",
+                name: "Test Command",
+                details: "Test Command Details",
+            }])
         })
     })
 })

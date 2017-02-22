@@ -24,7 +24,6 @@ describe("Capabilities", () => {
     }
 
     describe("doesMetadataMatchFilter", () => {
-
         it("returns true if filetype matches", () => {
             const filter = Capabilities.createPluginFilter("typescript")
 

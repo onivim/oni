@@ -5,13 +5,12 @@ import * as os from "os"
 import * as path from "path"
 import * as Config from "./../Config"
 import { INeovimInstance } from "./../NeovimInstance"
+import { CallbackCommand, CommandManager } from "./../Services/CommandManager"
 import * as UI from "./../UI/index"
-
 
 import * as Capabilities from "./Api/Capabilities"
 import * as Channel from "./Api/Channel"
 import { Plugin } from "./Plugin"
-import { CallbackCommand, CommandManager } from "./../Services/CommandManager"
 
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
@@ -99,28 +98,22 @@ export class PluginManager extends EventEmitter {
         this._plugins = allPlugins.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
     }
 
+    public getAllRuntimePaths(): string[] {
+        const pluginPaths = this._getAllPluginPaths()
+
+        return pluginPaths.concat(this._rootPluginPaths)
+    }
+
     private _createPlugin(pluginRootDirectory: string): Plugin {
         const plugin = new Plugin(pluginRootDirectory, this._channel)
 
         plugin.commands.forEach((commandInfo) => {
             this._commandManager.registerCommand(new CallbackCommand(commandInfo.command, commandInfo.name, commandInfo.details, (args?: any) => {
-                this._channel.host.send({
-                    type: "command",
-                    payload: {
-                        args,
-                        eventContext: this._lastEventContext
-                    }
-                })
+                this._sendCommand(commandInfo.command, args)
             }))
         })
 
         return plugin
-    }
-
-    public getAllRuntimePaths(): string[] {
-        const pluginPaths = this._getAllPluginPaths()
-
-        return pluginPaths.concat(this._rootPluginPaths)
     }
 
     private _ensureOniPluginsPath(): string {
@@ -248,6 +241,22 @@ export class PluginManager extends EventEmitter {
             type: "request",
             payload,
         }, Capabilities.createPluginFilter(eventContext.filetype, { languageService: [languageServiceCapability] }, true))
+    }
+
+    private _sendCommand(command: string, args?: any): void {
+        const filterCapabilities = {
+            commands: {},
+        }
+        filterCapabilities.commands[command] = null
+        const filter = Capabilities.createPluginFilter(this._lastEventContext.fileType, filterCapabilities)
+        this._channel.host.send({
+            type: "command",
+            payload: {
+                command,
+                args,
+                eventContext: this._lastEventContext,
+            },
+        }, filter)
     }
 
     /**
