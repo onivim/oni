@@ -57,7 +57,7 @@
     "react-redux": "4.4.5",
     "recursive-readdir": "2.1.0",
     "redux": "3.5.2",
-    "typescript": "2.1.6",
+    "typescript": "2.2.1",
     "wcwidth": "1.0.1"
   },
   "devDependencies": {
