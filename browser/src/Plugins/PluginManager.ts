@@ -246,7 +246,8 @@ export class PluginManager extends EventEmitter {
     }
 
     private _sendCommand(command: string, args?: any): void {
-        const filter = Capabilities.createPluginFilterForCommand(this._lastEventContext.fileType, command)
+        const filetype = !!this._lastEventContext ? this._lastEventContext.filetype : null
+        const filter = Capabilities.createPluginFilterForCommand(filetype, command)
         this._channel.host.send({
             type: "command",
             payload: {

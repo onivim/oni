@@ -4,6 +4,10 @@ declare namespace Oni {
         executeShellCommand(shellCommand: string): void
     }
 
+    export interface Commands {
+        registerCommand(commandName: string, callback: (args?: any) => void): void
+    }
+
     export interface Position {
         line: number
         column: number
