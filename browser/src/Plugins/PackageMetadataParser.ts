@@ -4,6 +4,8 @@
  * Responsible for parsing and normalizing package.json for ONI plugins
  */
 
+import * as _ from "lodash"
+
 import * as Capabilities from "./Api/Capabilities"
 
 export const parseFromString = (packageJson: string) => {
@@ -19,6 +21,28 @@ export const parseFromString = (packageJson: string) => {
     _expandMultipleLanguageKeys(metadata.oni)
 
     return metadata
+}
+
+export const getAllCommandsFromMetadata = (metadata: Capabilities.IPluginMetadata) => {
+    if (!metadata || !metadata.oni) {
+        return []
+    }
+
+    const languages = _.values(metadata.oni)
+    const commandsWithName = _.flatMap(languages, (item) => {
+        if (!item.commands) {
+            return []
+        }
+
+        const commandNames = _.keys(item.commands)
+        return commandNames.map((command) => ({
+            command,
+            name: item.commands[command].name,
+            details: item.commands[command].details,
+        }))
+    })
+
+    return _.uniqBy(commandsWithName, (c) => c.command)
 }
 
 /*

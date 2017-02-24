@@ -4,9 +4,17 @@
  * Export utility types / functions for working with plugin capabilities
  */
 
+import * as _ from "lodash"
+
 export interface Capabilities {
     languageService?: string[]
     subscriptions?: string[]
+    commands?: { [commandName: string]: ICommandInfo }
+}
+
+export interface ICommandInfo {
+    name: string
+    details: string
 }
 
 /**
@@ -23,6 +31,14 @@ export const createPluginFilter = (fileType: string, requiredCapabilities?: Capa
     requiredCapabilities,
     singlePlugin: isSinglePlugin,
 })
+
+export const createPluginFilterForCommand = (fileType: string, command: string) => {
+    const commands = {}
+    commands[command] = null
+    return createPluginFilter(fileType, {
+        commands,
+    }, true)
+}
 
 export interface IPluginMetadata {
     main: string
@@ -41,11 +57,11 @@ export const doesMetadataMatchFilter = (metadata: IPluginMetadata, filter: IPlug
 
     const expectedFileType = filter.fileType
 
-    if (!metadata.oni || !metadata.oni[expectedFileType]) {
+    if (!metadata.oni || (!metadata.oni[expectedFileType] && !metadata.oni["*"])) {
         return false
     }
 
-    const capabilities = metadata.oni[expectedFileType]
+    const capabilities = metadata.oni[expectedFileType] || metadata.oni["*"]
     const requiredCapabilities = filter.requiredCapabilities
 
     if (!requiredCapabilities) {
@@ -63,6 +79,22 @@ export const doCapabilitiesMeetRequirements = (capabilities: Capabilities, requi
         }
 
         if (!!requiredCapabilities.languageService.find((v) => capabilities.languageService.indexOf(v) === -1)) {
+            return false
+        }
+    }
+
+    if (requiredCapabilities.commands) {
+
+        if (!capabilities.commands) {
+            return false
+        }
+
+        const requiredCommands = _.keys(requiredCapabilities.commands)
+        const allCommands = _.keys(capabilities.commands)
+
+        const hasAllRequiredCommands = requiredCommands.every((s) => allCommands.indexOf(s) >= 0)
+
+        if (!hasAllRequiredCommands) {
             return false
         }
     }

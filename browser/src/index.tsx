@@ -52,7 +52,8 @@ const start = (args: string[]) => {
     let deltaRegion = new IncrementalDeltaRegionTracker()
     let screen = new NeovimScreen(deltaRegion)
 
-    const pluginManager = new PluginManager(screen)
+    const commandManager = new CommandManager()
+    const pluginManager = new PluginManager(commandManager)
     let instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight)
 
     const editorElement = document.getElementById("oni-text-editor") as HTMLDivElement
@@ -71,7 +72,6 @@ const start = (args: string[]) => {
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
     const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
     const tasks = new Tasks(outputWindow)
-    const commandManager = new CommandManager()
     registerBuiltInCommands(commandManager, pluginManager, instance)
 
     tasks.registerTaskProvider(commandManager)

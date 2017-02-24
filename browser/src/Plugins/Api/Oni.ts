@@ -2,6 +2,7 @@ import { EventEmitter } from "events"
 
 import { IPluginChannel } from "./Channel"
 
+import { Commands } from "./Commands"
 import { Diagnostics } from "./Diagnostics"
 import { Editor } from "./Editor"
 
@@ -13,6 +14,7 @@ import { DebouncedLanguageService } from "./DebouncedLanguageService"
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     private _editor: Oni.Editor
+    private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
 
@@ -24,11 +26,16 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._editor
     }
 
+    public get commands(): Oni.Commands {
+        return this._commands
+    }
+
     constructor(private _channel: IPluginChannel) {
         super()
 
         this._diagnostics = new Diagnostics(this._channel)
         this._editor = new Editor(this._channel)
+        this._commands = new Commands()
 
         this._channel.onRequest((arg: any) => {
             this._handleNotification(arg)
@@ -67,6 +74,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                 this.emit("buffer-enter", arg.payload.context)
                 this.emit("BufEnter", arg.payload.context)
             }
+        } else if (arg.type === "command") {
+            this._commands.onCommand(arg.payload.command, arg.payload.args)
         } else if (arg.type === "request") {
             const requestType = arg.payload.name
 

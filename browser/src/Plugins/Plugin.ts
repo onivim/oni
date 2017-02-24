@@ -7,11 +7,23 @@ import { Oni } from "./Api/Oni"
 
 import * as PackageMetadataParser from "./PackageMetadataParser"
 
+export interface IPluginCommandInfo extends Capabilities.ICommandInfo {
+    command: string
+}
+
 export class Plugin {
     private _oniPluginMetadata: Capabilities.IPluginMetadata
     private _channel: IChannel
+    private _commands: IPluginCommandInfo[]
 
-    constructor(pluginRootDirectory: string, channel: IChannel) {
+    public get commands(): IPluginCommandInfo[] {
+        return this._commands
+    }
+
+    constructor(
+        pluginRootDirectory: string,
+        channel: IChannel,
+    ) {
         const packageJsonPath = path.join(pluginRootDirectory, "package.json")
         this._channel = channel
 
@@ -36,6 +48,8 @@ export class Plugin {
                     } catch (ex) {
                         console.error(`Failed to load plugin at ${pluginRootDirectory}: ${ex}`)
                     }
+
+                    this._commands = PackageMetadataParser.getAllCommandsFromMetadata(this._oniPluginMetadata)
                 }
             }
         }
