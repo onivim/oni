@@ -133,6 +133,20 @@ export interface IHideCursorColumnAction {
     type: "HIDE_CURSOR_COLUMN"
 }
 
+export interface ISetCursorLineOpacityAction {
+    type: "SET_CURSOR_LINE_OPACITY"
+    payload: {
+        opacity: number,
+    }
+}
+
+export interface ISetCursorColumnOpacityAction {
+    type: "SET_CURSOR_COLUMN_OPACITY"
+    payload: {
+        opacity: number,
+    }
+}
+
 export type Action = ISetCursorPositionAction |
     IShowSignatureHelpAction |
     IHideSignatureHelpAction |
@@ -154,4 +168,6 @@ export type Action = ISetCursorPositionAction |
     IHideCurorLineAction |
     IHideCursorColumnAction |
     IShowCursorLineAction |
-    IShowCursorColumnAction
+    IShowCursorColumnAction |
+    ISetCursorColumnOpacityAction |
+    ISetCursorLineOpacityAction

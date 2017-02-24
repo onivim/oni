@@ -207,6 +207,14 @@ export function hideCursorColumn(): void {
     store.dispatch(ActionCreators.hideCursorColumn())
 }
 
+export function setCursorLineOpacity(opacity: number): void {
+    store.dispatch(ActionCreators.setCursorLineOpacity(opacity))
+}
+
+export function setCursorColumnOpacity(opacity: number): void {
+    store.dispatch(ActionCreators.setCursorColumnOpacity(opacity))
+}
+
 function render(_state: State.IState): void {
     const element = document.getElementById("overlay-ui")
     ReactDOM.render(
