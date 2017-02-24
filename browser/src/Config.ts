@@ -80,15 +80,11 @@ const DefaultPlatformConfig = Platform.isWindows() ? WindowsConfig : Platform.is
 
 Performance.mark("Config.load.start")
 
-export const userConfigFile = path.join(getUserFolder(), "config.json")
 export const userJsConfig = path.join(getUserFolder(), "config.js")
 
 let userConfig = {}
-if (fs.existsSync(userConfigFile)) {
-    userConfig = JSON.parse(fs.readFileSync(userConfigFile, "utf8"))
-}
-
 let userRuntimeConfig = {}
+
 if (fs.existsSync(userJsConfig)) {
     userRuntimeConfig = global["require"](userJsConfig) // tslint:disable-line no-string-literal
 }
