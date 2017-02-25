@@ -86,10 +86,6 @@ export class PluginManager extends EventEmitter {
     public startPlugins(neovimInstance: INeovimInstance): void {
         this._neovimInstance = neovimInstance
 
-        this._neovimInstance.on("buffer-update", (args: Oni.EventContext, bufferLines: string[]) => {
-            this._onBufferUpdate(args, bufferLines)
-        })
-
         this._neovimInstance.on("event", (eventName: string, context: Oni.EventContext) => {
             this._onEvent(eventName, context)
         })
@@ -192,7 +188,7 @@ export class PluginManager extends EventEmitter {
         }
     }
 
-    private _onBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]): void {
+    public notifyBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]): void {
         this._lastBufferInfo = {
             lines: bufferLines,
             fileName: eventContext.bufferFullPath,
@@ -206,6 +202,18 @@ export class PluginManager extends EventEmitter {
                 bufferLines,
             },
         }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update"] }, false))
+    }
+
+    public notifyBufferUpdateIncremental(eventContext: Oni.EventContext, lineNumber: number, bufferLine: string): void {
+        // Update _lastBufferInfo
+        this._channel.host.send({
+            type: "buffer-update-incremental",
+            payload: {
+                eventContext,
+                lineNumber,
+                bufferLine
+            },
+        }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update-incremental"] }, false))
     }
 
     private _onEvent(eventName: string, eventContext: Oni.EventContext): void {
