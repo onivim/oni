@@ -15,7 +15,9 @@ export interface IState {
     popupMenu: null | IMenu
     signatureHelp: null | Oni.Plugin.SignatureHelpResult
     cursorLineVisible: boolean
+    cursorLineOpacity: number
     cursorColumnVisible: boolean
+    cursorColumnOpacity: number
 
     // Dimensions of active window, in pixels
     activeWindowDimensions: Rectangle
@@ -69,5 +71,8 @@ export const createDefaultState = () => (<IState>{
         height: 0,
     },
     cursorLineVisible: false,
+    cursorLineOpacity: 0,
     cursorColumnVisible: false,
+    cursorColumnOpacity: 0,
+
 })

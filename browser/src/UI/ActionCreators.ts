@@ -114,3 +114,17 @@ export const showCursorLine = () => ({ type: "SHOW_CURSOR_LINE" })
 export const showCursorColumn = () => ({ type: "SHOW_CURSOR_COLUMN" })
 
 export const hideCursorColumn = () => ({ type: "HIDE_CURSOR_COLUMN" })
+
+export const setCursorLineOpacity = (opacity: number) => ({
+    type: "SET_CURSOR_LINE_OPACITY",
+    payload: {
+        opacity,
+    },
+})
+
+export const setCursorColumnOpacity = (opacity: number) => ({
+    type: "SET_CURSOR_COLUMN_OPACITY",
+    payload: {
+        opacity,
+    },
+})

@@ -9,6 +9,7 @@ export interface ICursorLineRendererProps {
     height: number
     color: string
     visible: boolean
+    opacity: number
 }
 
 export interface ICursorLineProps {
@@ -34,7 +35,7 @@ class CursorLineRenderer extends React.Component<ICursorLineRendererProps, void>
 
             height: this.props.height.toString() + "px", // Same as cursor
             backgroundColor: this.props.color,
-            opacity: 0.2,
+            opacity: this.props.opacity,
         }
 
         return <div style={cursorStyle} className="cursorLine"></div>
@@ -49,6 +50,7 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
         height: props.lineType === "line" ? state.fontPixelHeight : state.activeWindowDimensions.height,
         color: state.foregroundColor,
         visible: props.lineType === "line" ? state.cursorLineVisible : state.cursorColumnVisible,
+        opacity: props.lineType === "line" ? state.cursorLineOpacity : state.cursorColumnOpacity,
     }
 }
 

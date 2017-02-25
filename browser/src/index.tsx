@@ -35,6 +35,8 @@ const start = (args: string[]) => {
 
     const cursorLine = Config.getValue<boolean>("editor.cursorLine")
     const cursorColumn = Config.getValue<boolean>("editor.cursorColumn")
+    UI.setCursorLineOpacity(Config.getValue<number>("editor.cursorLineOpacity"))
+    UI.setCursorColumnOpacity(Config.getValue<number>("editor.cursorColumnOpacity"))
 
     if (cursorLine) {
         UI.showCursorLine()

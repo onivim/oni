@@ -73,6 +73,14 @@ export const reducer = (s: State.IState, a: Actions.Action) => {
              return Object.assign({}, s, {
                  cursorColumnVisible: true,
             })
+        case "SET_CURSOR_LINE_OPACITY":
+            return Object.assign({}, s, {
+                cursorLineOpacity: a.payload.opacity,
+            })
+        case "SET_CURSOR_COLUMN_OPACITY":
+            return Object.assign({}, s, {
+                cursorLineOpacity: a.payload.opacity,
+            })
         default:
             return Object.assign({}, s, {
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null

@@ -61,7 +61,10 @@ const DefaultConfig: any = {
     "editor.fullScreenOnStart" : false,
 
     "editor.cursorLine": true,
+    "editor.cursorLineOpacity" : 0.1,
+
     "editor.cursorColumn": false,
+    "editor.cursorColumnOpacity": 0.1,
 }
 
 const MacConfig: any = {
