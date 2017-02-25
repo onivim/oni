@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // Debug files that configure Electron (main.js, Menu.js, etc.)
+            "name": "Oni Main Process",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/main.js",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+            "runtimeArgs": [
+                "--enable-logging"
+            ],
+            "console": "internalConsole"
+        },
+        {
+            // Debug typescript files
+            // (must run `npm run build-debug` first to generate bundle.js.map)
+            "name": "Oni Application",
+            "type": "chrome", // <-- requires Extension "Debugger for Chrome"
+            "request": "launch",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+            "runtimeArgs": [
+                "--enable-logging",
+                "${workspaceRoot}/main.js"
+            ],
+            "webRoot": "${workspaceRoot}",
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "webpack:///./*": "${webRoot}/*"
+            }
+        }
+    ]
+}

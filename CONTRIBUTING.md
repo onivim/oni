@@ -15,6 +15,8 @@ In order to build a source-map enabled build, you can do the following:
 - `npm link` (only needed the first time)
 - `oni`
 
+Debugging in [VSCode](https://github.com/Microsoft/vscode)?  Default launch configurations are provided for debugging both the Electron main process and Oni application from VSCode.
+
 ## Production build
 
 A production build removes sourcemaps and applies minification, so it's worth testing in this config:
