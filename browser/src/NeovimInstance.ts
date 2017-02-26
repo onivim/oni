@@ -128,10 +128,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             this.emit("window-display-update", args[0][0], args[0][1])
                         } else if (pluginMethod === "api_info") {
                             const apiVersion = args[0][0]
-                            if (apiVersion.minor < 1) {
-                                if (apiVersion.patch < 6) {
-                                    alert("Please upgrade to at least Neovim 0.1.6")
-                                }
+                            if (apiVersion.api_level < 1) {
+                                alert("Please upgrade to at least Neovim 0.1.6")
                             }
 
                         } else {
@@ -170,7 +168,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                     // set title after attaching listeners so we can get the initial title
                     this.command("set title")
-                    this.callFunction("OniApiInfo",[])
+                    this.callFunction("OniApiInfo", [])
                 })
             }, (err) => {
                 this.emit("error", err)
