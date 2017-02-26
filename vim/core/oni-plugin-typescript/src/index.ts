@@ -280,6 +280,19 @@ export const activate = (Oni) => {
 
     })
 
+    Oni.on("buffer-update-incremental", (args) => {
+        if (!args.eventContext.bufferFullPath) {
+            return
+        }
+
+        const changedLine = args.bufferLine
+        const lineNumber = args.lineNumber
+
+        lastBuffer[lineNumber - 1] = changedLine
+
+        host.changeLineInFile(args.eventContext.bufferFullPath, lineNumber, changedLine)
+    })
+
     const getHighlightsFromNavTree = (navTree: INavigationTree[], highlights: any[]) => {
         if (!navTree) {
             return

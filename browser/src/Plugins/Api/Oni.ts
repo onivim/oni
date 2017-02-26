@@ -63,6 +63,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     private _handleNotification(arg: any): void {
         if (arg.type === "buffer-update") {
             this.emit("buffer-update", arg.payload)
+        } else if (arg.type === "buffer-update-incremental") {
+            this.emit("buffer-update-incremental", arg.payload)
         } else if (arg.type === "event") {
             if (arg.payload.name === "CursorMoved") {
                 this.emit("cursor-moved", arg.payload.context)

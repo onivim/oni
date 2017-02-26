@@ -9,6 +9,7 @@ import { NeovimInstance } from "./NeovimInstance"
 import { PluginManager } from "./Plugins/PluginManager"
 import { DOMRenderer } from "./Renderer/DOMRenderer"
 import { NeovimScreen } from "./Screen"
+import { BufferUpdates } from "./Services/BufferUpdates"
 import { CommandManager } from "./Services/CommandManager"
 import { registerBuiltInCommands } from "./Services/Commands"
 import { Errors } from "./Services/Errors"
@@ -65,6 +66,7 @@ const start = (args: string[]) => {
     let pendingTimeout: any = null
 
     // Services
+    const bufferUpdates = new BufferUpdates(instance, pluginManager)
     const errorService = new Errors(instance)
     const quickOpen = new QuickOpen(instance)
     const windowTitle = new WindowTitle(instance)
@@ -79,6 +81,7 @@ const start = (args: string[]) => {
     tasks.registerTaskProvider(commandManager)
     tasks.registerTaskProvider(errorService)
 
+    services.push(bufferUpdates)
     services.push(errorService)
     services.push(quickOpen)
     services.push(windowTitle)
