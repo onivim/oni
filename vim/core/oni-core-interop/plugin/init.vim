@@ -113,3 +113,7 @@ function OniUpdateWindowDisplayMap()
 
     call OniNotify(["window_display_update", context, mapping])
 endfunction
+
+function OniApiInfo()
+    call OniNotify(["api_info",api_info()['version']])
+endfunction
