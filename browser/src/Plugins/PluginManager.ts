@@ -107,7 +107,7 @@ export class PluginManager extends EventEmitter {
                 lineNumber,
                 bufferLine
             },
-        }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update-incremental"] }, false))
+        }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update"] }, false))
     }
 
     private _createPlugin(pluginRootDirectory: string): Plugin {

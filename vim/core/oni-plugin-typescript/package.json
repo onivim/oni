@@ -11,16 +11,6 @@
   },
   "oni": {
     "javascript,typescript": {
-      "commands": {
-          "typescript.debug.saveToTemporary": {
-                "name": "[DEBUG] Save to tempfile",
-                "details": "[DEBUG] Save to a temporary file"
-          },
-          "typescript.debug.changeLineToDerp": {
-                "name": "[DEBUG] Change line to derp",
-                "details": "[DEBUG] Change line to derp"
-          }
-      },
       "subscriptions": [
         "buffer-update",
         "vim-events"
