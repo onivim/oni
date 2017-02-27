@@ -15,12 +15,6 @@ import { Plugin } from "./Plugin"
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
 
-export interface IBufferInfo {
-    lines: string[]
-    version: number
-    fileName: string
-}
-
 export interface IEventContext {
     bufferFullPath: string
     line: number
@@ -35,7 +29,6 @@ export class PluginManager extends EventEmitter {
     private _plugins: Plugin[] = []
     private _neovimInstance: INeovimInstance
     private _lastEventContext: any
-    private _lastBufferInfo: IBufferInfo
 
     private _channel: Channel.IChannel = new Channel.InProcessChannel()
 
@@ -57,10 +50,6 @@ export class PluginManager extends EventEmitter {
         this._rootPluginPaths.push(path.join(Config.getUserFolder(), "plugins"))
 
         this._channel.host.onResponse((arg: any) => this._handlePluginResponse(arg))
-    }
-
-    public get currentBuffer(): IBufferInfo {
-        return this._lastBufferInfo
     }
 
     public gotoDefinition(): void {
@@ -98,6 +87,27 @@ export class PluginManager extends EventEmitter {
         const pluginPaths = this._getAllPluginPaths()
 
         return pluginPaths.concat(this._rootPluginPaths)
+    }
+
+    public notifyBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]): void {
+        this._channel.host.send({
+            type: "buffer-update",
+            payload: {
+                eventContext,
+                bufferLines,
+            },
+        }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update"] }, false))
+    }
+
+    public notifyBufferUpdateIncremental(eventContext: Oni.EventContext, lineNumber: number, bufferLine: string): void {
+        this._channel.host.send({
+            type: "buffer-update-incremental",
+            payload: {
+                eventContext,
+                lineNumber,
+                bufferLine
+            },
+        }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update-incremental"] }, false))
     }
 
     private _createPlugin(pluginRootDirectory: string): Plugin {
@@ -186,34 +196,6 @@ export class PluginManager extends EventEmitter {
         } else if (pluginResponse.type === "signature-help-response") {
             this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
         }
-    }
-
-    public notifyBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]): void {
-        this._lastBufferInfo = {
-            lines: bufferLines,
-            fileName: eventContext.bufferFullPath,
-            version: eventContext.version,
-        }
-
-        this._channel.host.send({
-            type: "buffer-update",
-            payload: {
-                eventContext,
-                bufferLines,
-            },
-        }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update"] }, false))
-    }
-
-    public notifyBufferUpdateIncremental(eventContext: Oni.EventContext, lineNumber: number, bufferLine: string): void {
-        // Update _lastBufferInfo
-        this._channel.host.send({
-            type: "buffer-update-incremental",
-            payload: {
-                eventContext,
-                lineNumber,
-                bufferLine
-            },
-        }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update-incremental"] }, false))
     }
 
     private _onEvent(eventName: string, eventContext: Oni.EventContext): void {

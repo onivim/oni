@@ -29,7 +29,6 @@ import { ScrollBarOverlay } from "./UI/Overlay/ScrollBarOverlay"
 import { Rectangle } from "./UI/Types"
 
 const start = (args: string[]) => {
-
     const services: any[] = []
 
     const parsedArgs = minimist(args)
@@ -71,7 +70,7 @@ const start = (args: string[]) => {
     const quickOpen = new QuickOpen(instance)
     const windowTitle = new WindowTitle(instance)
     const multiProcess = new MultiProcess()
-    const formatter = new Formatter(instance, pluginManager)
+    const formatter = new Formatter(instance, pluginManager, bufferUpdates)
     const outputWindow = new OutputWindow(instance, pluginManager)
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
     const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
