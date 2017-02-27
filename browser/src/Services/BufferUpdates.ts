@@ -25,7 +25,7 @@ export class BufferUpdates {
 
     constructor(
         private _neovimInstance: INeovimInstance,
-        private _pluginManager: PluginManager
+        private _pluginManager: PluginManager,
     ) {
 
         this._neovimInstance.on("mode-change", (mode: string) => {

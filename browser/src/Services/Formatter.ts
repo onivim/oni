@@ -16,8 +16,8 @@ export class Formatter {
     private _lastMode: string
 
     constructor(
-        private _neovimInstance: INeovimInstance, 
-        private _pluginManager: PluginManager, 
+        private _neovimInstance: INeovimInstance,
+        private _pluginManager: PluginManager,
         private _bufferUpdates: BufferUpdates,
     ) {
         this._neovimInstance.on("mode-change", (newMode: string) => {
