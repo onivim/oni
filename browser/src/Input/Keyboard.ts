@@ -5,8 +5,6 @@ export class Keyboard extends EventEmitter {
         super()
 
         document.addEventListener("keydown", (evt) => {
-            console.log("Keydown: " + evt) // tslint:disable-line no-console
-
             const vimKey = this._convertKeyEventToVimKey(evt)
             const mappedKey = this._wrapWithBracketsAndModifiers(vimKey, evt)
 

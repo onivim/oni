@@ -21,6 +21,24 @@ export const activate = (Oni) => {
 
     let lastBuffer: string[] = []
 
+    let lastFileName
+
+    Oni.on("CursorMoved", (context: Oni.EventContext) => {
+        lastFileName = context.bufferFullPath
+    })
+
+    Oni.on("CursorMovedI", (context: Oni.EventContext) => {
+        lastFileName = context.bufferFullPath
+    })
+
+    Oni.commands.registerCommand("typescript.debug.saveToTemporary", () => {
+        host.saveTo(lastFileName, "C:/temp.ts")
+    })
+
+    Oni.commands.registerCommand("typescript.debug.changeLineToDerp", () => {
+        host.changeLineInFile(lastFileName, 2, "derp\n")
+    })
+
     // Testing Live evaluation
     //
     // Simple case
@@ -260,6 +278,19 @@ export const activate = (Oni) => {
 
         updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL))
 
+    })
+
+    Oni.on("buffer-update-incremental", (args) => {
+        if (!args.eventContext.bufferFullPath) {
+            return
+        }
+
+        const changedLine = args.bufferLine
+        const lineNumber = args.lineNumber
+
+        lastBuffer[lineNumber - 1] = changedLine
+
+        host.changeLineInFile(args.eventContext.bufferFullPath, lineNumber, changedLine)
     })
 
     const getHighlightsFromNavTree = (navTree: INavigationTree[], highlights: any[]) => {

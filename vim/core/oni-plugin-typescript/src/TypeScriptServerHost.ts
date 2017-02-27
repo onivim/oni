@@ -155,6 +155,17 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
+    public changeLineInFile(file: string, line: number, newLineContents: string): Promise<void> {
+        return this._makeTssRequest<void>("change", {
+            file,
+            line,
+            offset: 1,
+            endOffset: 1,
+            endLine: line + 1,
+            insertString: newLineContents + os.EOL,
+        })
+    }
+
     public getQuickInfo(file: string, line: number, offset: number): Promise<void> {
         return this._makeTssRequest<void>("quickinfo", {
             file,
@@ -204,7 +215,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-   public _makeTssRequest<T>(commandName: string, args: any): Promise<T> {
+    public _makeTssRequest<T>(commandName: string, args: any): Promise<T> {
         const seq = this._seqNumber++
         const payload = {
             seq,

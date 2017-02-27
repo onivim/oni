@@ -9,6 +9,7 @@ import { NeovimInstance } from "./NeovimInstance"
 import { PluginManager } from "./Plugins/PluginManager"
 import { DOMRenderer } from "./Renderer/DOMRenderer"
 import { NeovimScreen } from "./Screen"
+import { BufferUpdates } from "./Services/BufferUpdates"
 import { CommandManager } from "./Services/CommandManager"
 import { registerBuiltInCommands } from "./Services/Commands"
 import { Errors } from "./Services/Errors"
@@ -28,7 +29,6 @@ import { ScrollBarOverlay } from "./UI/Overlay/ScrollBarOverlay"
 import { Rectangle } from "./UI/Types"
 
 const start = (args: string[]) => {
-
     const services: any[] = []
 
     const parsedArgs = minimist(args)
@@ -65,11 +65,12 @@ const start = (args: string[]) => {
     let pendingTimeout: any = null
 
     // Services
+    const bufferUpdates = new BufferUpdates(instance, pluginManager)
     const errorService = new Errors(instance)
     const quickOpen = new QuickOpen(instance)
     const windowTitle = new WindowTitle(instance)
     const multiProcess = new MultiProcess()
-    const formatter = new Formatter(instance, pluginManager)
+    const formatter = new Formatter(instance, pluginManager, bufferUpdates)
     const outputWindow = new OutputWindow(instance, pluginManager)
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
     const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
@@ -79,6 +80,7 @@ const start = (args: string[]) => {
     tasks.registerTaskProvider(commandManager)
     tasks.registerTaskProvider(errorService)
 
+    services.push(bufferUpdates)
     services.push(errorService)
     services.push(quickOpen)
     services.push(windowTitle)

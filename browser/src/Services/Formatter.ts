@@ -7,20 +7,19 @@
 import * as _ from "lodash"
 import * as Config from "./../Config"
 import { INeovimInstance } from "./../NeovimInstance"
-import { IBufferInfo, PluginManager } from "./../Plugins/PluginManager"
+import { PluginManager } from "./../Plugins/PluginManager"
+
+import { BufferUpdates } from "./BufferUpdates"
 
 export class Formatter {
 
-    private _neovimInstance: INeovimInstance
-    private _pluginManager: PluginManager
-
-    private _bufferInfoAtRequest: IBufferInfo
     private _lastMode: string
 
-    constructor(neovimInstance: INeovimInstance, pluginManager: PluginManager) {
-        this._neovimInstance = neovimInstance
-        this._pluginManager = pluginManager
-
+    constructor(
+        private _neovimInstance: INeovimInstance,
+        private _pluginManager: PluginManager,
+        private _bufferUpdates: BufferUpdates,
+    ) {
         this._neovimInstance.on("mode-change", (newMode: string) => {
             if (Config.getValue<boolean>("editor.formatting.formatOnSwitchToNormalMode")
                 && newMode === "normal"
@@ -32,11 +31,11 @@ export class Formatter {
 
         this._pluginManager.on("format", (response: Oni.Plugin.FormattingEditsResponse) => {
 
-            if (response.version !== this._bufferInfoAtRequest.version) {
+            if (response.version !== this._bufferUpdates.version) {
                 return
             }
 
-            const outputBuffer = this._bufferInfoAtRequest.lines
+            const outputBuffer = this._bufferUpdates.lines
 
             // Edits can affect the position of other edits... For example, if we remove a character at column 2,
             // another edit referenced at column 8 would now apply at column 7.
@@ -62,8 +61,6 @@ export class Formatter {
     }
 
     public formatBuffer(): void {
-        this._bufferInfoAtRequest = this._pluginManager.currentBuffer
-
         this._pluginManager.requestFormat()
     }
 
