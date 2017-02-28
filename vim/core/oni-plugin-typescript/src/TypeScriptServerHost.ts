@@ -33,11 +33,11 @@ export interface INavigationTree {
     childItems?: INavigationTree[]
 }
 
-export interface FileSpan extends ITextSpan {
+export interface IFileSpan extends ITextSpan {
     file: string
 }
 
-export interface ReferencesResponseItem extends FileSpan {
+export interface IReferencesResponseItem extends IFileSpan {
     lineText: string
 
     isWriteAccess: boolean
@@ -45,8 +45,8 @@ export interface ReferencesResponseItem extends FileSpan {
     isDefinition: boolean
 }
 
-export interface ReferencesResponseBody {
-    refs: ReferencesResponseItem[]
+export interface IReferencesResponseBody {
+    refs: IReferencesResponseItem[]
 
     symbolName: string
 
@@ -237,8 +237,8 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public findAllReferences(file: string, line: number, offset: number): Promise<ReferencesResponseBody> {
-        return this._makeTssRequest<ReferencesResponseBody>("references", {
+    public findAllReferences(file: string, line: number, offset: number): Promise<IReferencesResponseBody> {
+        return this._makeTssRequest<IReferencesResponseBody>("references", {
             file,
             line,
             offset,
