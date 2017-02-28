@@ -179,9 +179,19 @@ declare namespace Oni {
             error?: string
         }
 
+        export interface ReferencesResultItem extends Position {
+            lineText?: string
+        }
+
+        export interface ReferencesResult {
+            items: ReferencesResultItem[]
+        }
+
         export interface LanguageService {
             getCompletions?(position: EventContext): Promise<CompletionResult>
             getCompletionDetails?(position: EventContext, completionInfo: CompletionInfo): Promise<CompletionInfo>
+
+            findAllReferences?(position: EventContext): Promise<ReferencesResult>
 
             getSignatureHelp?(position: EventContext): Promise<SignatureHelpResult>
 

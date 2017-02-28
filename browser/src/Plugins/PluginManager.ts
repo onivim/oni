@@ -56,6 +56,10 @@ export class PluginManager extends EventEmitter {
         this._sendLanguageServiceRequest("goto-definition", this._lastEventContext)
     }
 
+    public findAllReferences(): void {
+        this._sendLanguageServiceRequest("find-all-references", this._lastEventContext)
+    }
+
     public requestFormat(): void {
         this._sendLanguageServiceRequest("format", this._lastEventContext, "formatting")
     }

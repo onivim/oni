@@ -33,6 +33,28 @@ export interface INavigationTree {
     childItems?: INavigationTree[]
 }
 
+export interface FileSpan extends ITextSpan {
+    file: string
+}
+
+export interface ReferencesResponseItem extends FileSpan {
+    lineText: string
+
+    isWriteAccess: boolean
+
+    isDefinition: boolean
+}
+
+export interface ReferencesResponseBody {
+    refs: ReferencesResponseItem[]
+
+    symbolName: string
+
+    symbolStartOffset: number
+
+    symbolDisplayString: string
+}
+
 /**
  * End definitions
  */
@@ -209,6 +231,14 @@ export class TypeScriptServerHost extends events.EventEmitter {
 
     public getDocumentHighlights(file: string, line: number, offset: number): Promise<void> {
         return this._makeTssRequest<void>("documentHighlights", {
+            file,
+            line,
+            offset,
+        })
+    }
+
+    public findAllReferences(file: string, line: number, offset: number): Promise<ReferencesResponseBody> {
+        return this._makeTssRequest<ReferencesResponseBody>("references", {
             file,
             line,
             offset,

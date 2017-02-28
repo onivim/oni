@@ -251,6 +251,10 @@ const start = (args: string[]) => {
             return
         }
 
+        if (key === "|") {
+            pluginManager.findAllReferences()
+        }
+
         if (UI.isPopupMenuOpen()) {
             if (key === "<esc>") {
                 UI.hidePopupMenu()

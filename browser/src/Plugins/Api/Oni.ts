@@ -112,6 +112,14 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                             })
                         })
                     break
+                case "find-all-references":
+                    languageService.findAllReferences(arg.payload.context)
+                        .then((references) => {
+                            this._channel.send("find-all-references", originalContext, {
+                                references,
+                            })
+                        })
+                    break
                 case "completion-provider":
                     languageService.getCompletions(arg.payload.context)
                         .then((completions) => {

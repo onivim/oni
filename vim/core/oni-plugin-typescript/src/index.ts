@@ -21,24 +21,6 @@ export const activate = (Oni) => {
 
     let lastBuffer: string[] = []
 
-    let lastFileName
-
-    Oni.on("CursorMoved", (context: Oni.EventContext) => {
-        lastFileName = context.bufferFullPath
-    })
-
-    Oni.on("CursorMovedI", (context: Oni.EventContext) => {
-        lastFileName = context.bufferFullPath
-    })
-
-    Oni.commands.registerCommand("typescript.debug.saveToTemporary", () => {
-        host.saveTo(lastFileName, "C:/temp.ts")
-    })
-
-    Oni.commands.registerCommand("typescript.debug.changeLineToDerp", () => {
-        host.changeLineInFile(lastFileName, 2, "derp\n")
-    })
-
     // Testing Live evaluation
     //
     // Simple case
@@ -60,6 +42,13 @@ export const activate = (Oni) => {
                     title: val.displayString,
                     description: val.documentation,
                 }
+            })
+    }
+
+    const findAllReferences = (textDocumentPosition: Oni.EventContext) => {
+        return host.findAllReferences(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
+            .then((val: any) => {
+                return null
             })
     }
 
