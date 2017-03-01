@@ -64,7 +64,13 @@ function createWindow(commandLineArguments, workingDirectory) {
     let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png") })
 
     const menu = buildMenu(mainWindow)
-    Menu.setApplicationMenu(menu);
+    if (process.platform === 'darwin') {
+        //all osx windows share the same menu
+        Menu.setApplicationMenu(menu)
+    } else {
+        //on windows and linux, set menu per window
+        mainWindow.setMenu(menu);
+    }
 
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
