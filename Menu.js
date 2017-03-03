@@ -62,11 +62,11 @@ const buildMenu = (mainWindow) => {
                 label: 'Preferences',
                 submenu: [
                 {
-                    label: "Edit configuration",
+                    label: "Edit Oni config",
                     click: () => executeOniCommand("oni.config.openConfigJs")
                 },
                 {
-                    label: "Edit Neovim configuration",
+                    label: "Edit Neovim config",
                     click: () => executeOniCommand("oni.config.openInitVim")
                 }
                 ]

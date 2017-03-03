@@ -7,6 +7,7 @@
 import { remote } from "electron"
 
 import * as Config from "./../Config"
+import { IBuffer } from "./../neovim/Buffer"
 import { INeovimInstance } from "./../NeovimInstance"
 import { PluginManager } from "./../Plugins/PluginManager"
 
@@ -22,9 +23,27 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("oni.editor.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => pluginManager.gotoDefinition()),
 
         // Menu commands
-        // TODO: Generate config.js if not already built
-        new CallbackCommand("oni.config.openConfigJs", "Edit Configuration", "Edit configuration file ('config.js') for ONI", () => neovimInstance.open(Config.userJsConfig)),
-        new CallbackCommand("oni.config.openInitVim", "Edit Neovim Configuration", "Edit configuration file ('init.vim') for Neovim", () => neovimInstance.open("$MYVIMRC")),
+        new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for ONI", () => {
+            let buffer: null | IBuffer = null
+            neovimInstance.open(Config.userJsConfig)
+                .then(() => neovimInstance.getCurrentBuffer())
+                .then((buf) => buffer = buf)
+                .then(() => buffer.getLineCount())
+                .then((count) => {
+                    if (count === 1) {
+                        let lines = [
+                            "module.exports = {",
+                            "  //add custom config here, such as",
+                            "  //\"oni.useDefaultConfig\": true,",
+                            "  //\"editor.fontSize\": \"14px\",",
+                            "  //\"editor.fontFamily\": \"Monaco\"",
+                            "}",
+                        ]
+                        buffer.setLines(0, lines.length, false, lines)
+                    }
+                })
+        }),
+        new CallbackCommand("oni.config.openInitVim", "Edit Neovim Config", "Edit configuration file ('init.vim') for Neovim", () => neovimInstance.open("$MYVIMRC")),
 
         // Add additional commands here
         // ...
