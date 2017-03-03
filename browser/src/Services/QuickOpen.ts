@@ -7,17 +7,15 @@
 import { execSync } from "child_process"
 import * as path from "path"
 
+import * as glob from "glob"
 import * as _ from "lodash"
 import * as Q from "q"
-import * as recursive from "recursive-readdir"
 
 import * as Config from "./../Config"
 import { INeovimInstance } from "./../NeovimInstance"
 import * as PromiseHelper from "./../PromiseHelper"
 import * as UI from "./../UI/index"
 import * as Git from "./Git"
-
-const recursiveQ = Q.denodeify<string[]>(recursive)
 
 export class QuickOpen {
     private _seenItems: string[] = []
@@ -39,6 +37,13 @@ export class QuickOpen {
 
     public show(): void {
         const overrriddenCommand = Config.getValue<string>("editor.quickOpen.execCommand")
+
+        UI.showPopupMenu("quickOpen", [{
+            icon: "refresh fa-spin fa-fw",
+            label: "Loading Files...",
+            detail: "",
+            pinned: false,
+        }])
 
         // Overridden strategy
         if (overrriddenCommand) {
@@ -62,10 +67,12 @@ export class QuickOpen {
                         })
                 } else {
                     // TODO: This async call is being dropped, if we happen to use the promise
-                    return recursiveQ(process.cwd())
-                        .then((files: string[]) => {
-                            this._showMenuFromFiles(files)
-                        })
+                    return glob("**/*", {
+                        nodir: true,
+                        ignore: ["**/node_modules/**"], // all hidden dirs (start with '.') are skipped by default
+                    }, (_err: any, files: string[]) => {
+                        this._showMenuFromFiles(files)
+                    })
                 }
             })
 
