@@ -42,7 +42,7 @@
   "license": "MIT",
   "dependencies": {
     "classnames": "2.2.5",
-    "electron": "1.4.12",
+    "electron": "1.6.1",
     "electron-default-menu": "1.0.0",
     "find-parent-dir": "0.3.0",
     "glob": "7.1.1",
