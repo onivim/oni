@@ -7,8 +7,8 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
-import { Rectangle } from "./Types"
 import * as Events from "./Events"
+import { Rectangle } from "./Types"
 
 export const setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
     type: "SET_CURSOR_POSITION",

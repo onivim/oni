@@ -2,7 +2,7 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 
 import { Provider } from "react-redux"
-import { createStore, compose, applyMiddleware } from "redux"
+import { compose, createStore, applyMiddleware } from "redux"
 import thunk from "redux-thunk"
 
 import * as Config from "./../Config"
@@ -173,7 +173,6 @@ export function showNeovimInstallHelp(): void {
     const element = document.getElementById("overlay-ui")
     ReactDOM.render(<InstallHelp />, element)
 }
-
 
 const composeEnhancers = window["__REDUX_DEVTOOLS_EXTENSION__COMPOSE__"] || compose // tslint:disable-line no-string-literal
 const enhancer = composeEnhancers(
