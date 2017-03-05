@@ -100,7 +100,7 @@ export function previousPopupMenuItem(): void {
 }
 
 export function selectPopupMenuItem(openInSplit: boolean, menuItemIndex?: number): void {
-    ActionCreators.selectMenuItem(store.dispatch, store.getState)(openInSplit, menuItemIndex)
+    store.dispatch(ActionCreators.selectMenuItem(openInSplit, menuItemIndex))
 }
 
 export function showQuickInfo(title: string, description: string): void {
