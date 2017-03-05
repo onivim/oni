@@ -10,6 +10,8 @@ export class DebouncedLanguageService implements Oni.Plugin.LanguageService {
     private _debouncedFormattingEdits: PromiseFunction<null | Oni.Plugin.FormattingEditsResponse>
     private _debouncedGetSignatureHelp: PromiseFunction<null | Oni.Plugin.SignatureHelpResult>
     private _debouncedQuickInfo: PromiseFunction<null | Oni.Plugin.QuickInfo>
+    private _debouncedEvaluateBlock: PromiseFunction<null | Oni.Plugin.EvaluationResult>
+
     private _languageService: Oni.Plugin.LanguageService
 
     constructor(languageService: Oni.Plugin.LanguageService) {
@@ -38,6 +40,14 @@ export class DebouncedLanguageService implements Oni.Plugin.LanguageService {
         this._debouncedQuickInfo = debounce(async (context) => { // tslint:disable-line arrow-parens
             if (this._languageService.getQuickInfo) {
                 return this._languageService.getQuickInfo(context)
+            } else {
+                return null
+            }
+        })
+
+        this._debouncedEvaluateBlock = debounce(async (position: Oni.EventContext, id: string, fileName: string, code: string) => {
+            if (this._languageService.evaluateBlock) {
+                return this._languageService.evaluateBlock(position, id, fileName, code)
             } else {
                 return null
             }
@@ -76,11 +86,7 @@ export class DebouncedLanguageService implements Oni.Plugin.LanguageService {
         return this._debouncedGetSignatureHelp(position)
     }
 
-    public async evaluateBlock(position: Oni.EventContext, id: string, fileName: string, code: string): Promise<null | Oni.Plugin.EvaluationResult> {
-        if (this._languageService.evaluateBlock) {
-            return this._languageService.evaluateBlock(position, id, fileName, code)
-        } else {
-            return null
-        }
+    public evaluateBlock(position: Oni.EventContext, id: string, filename: string, code: string): Promise<null | Oni.Plugin.EvaluationResult> {
+        return this._debouncedEvaluateBlock(position, id, filename, code)
     }
 }
