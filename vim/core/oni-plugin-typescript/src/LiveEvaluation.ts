@@ -44,6 +44,7 @@ export const evaluateBlock = (id: string, fileName: string, code: string) => {
     const mod = new Module(fileName)
     const util = require("util")
     const sandbox = {
+        exports: {},
         module: mod,
         __filename: fileName,
         __dirname: path.dirname(fileName),
