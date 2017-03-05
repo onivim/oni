@@ -6,11 +6,8 @@ var os = require("os")
 var fs = require("fs")
 
 var processOptions = {}
-var log = require("path").join(__dirname, "out.log")
-var out = fs.openSync(log, "a")
-var err = fs.openSync(log, "a")
 processOptions.detached = true
-processOptions.stdio = ["ignore", out, err]
+processOptions.stdio = ["ignore", null, null]
 
 var isWindows = os.platform() === "win32";
 

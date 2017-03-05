@@ -101,6 +101,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 this._neovim = nv
                 this._sessionWrapper = new SessionWrapper(this._neovim._session)
 
+                // Override completeopt so Oni works correctly with external popupmenu
+                this.command("set completeopt=longest,menu")
+
                 this._neovim.on("error", (err: Error) => {
                     console.error(err)
                 })
