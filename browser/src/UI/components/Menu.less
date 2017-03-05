@@ -44,11 +44,15 @@
             flex-direction: row;
             align-items: center;
 
+            user-select: none;
+            -webkit-user-drag: none;
+            cursor: pointer;
+
             .fa:not(.fa-spin) {
                 padding-right: 8px;
             }
 
-            &.selected {
+            &.selected, &:hover {
                 background-color: @background-color-highlight;
             }
 
