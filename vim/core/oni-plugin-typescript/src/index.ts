@@ -213,6 +213,7 @@ export const activate = (Oni) => {
 
     Oni.registerLanguageService({
         evaluateBlock: liveEvaluation,
+        findAllReferences,
         getCompletionDetails,
         getCompletions,
         getDefinition,
