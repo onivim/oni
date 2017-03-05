@@ -3,7 +3,8 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 
 import { Provider } from "react-redux"
-import { createStore } from "redux"
+import { createStore, compose, applyMiddleware } from "redux"
+import thunk from "redux-thunk"
 
 import * as Config from "./../Config"
 
@@ -185,7 +186,13 @@ export function showNeovimInstallHelp(): void {
     ReactDOM.render(<InstallHelp />, element)
 }
 
-const store = createStore(reducer, defaultState, window["__REDUX_DEVTOOLS_EXTENSION__"] && window["__REDUX_DEVTOOLS_EXTENSION__"]()) // tslint:disable-line no-string-literal
+
+const composeEnhancers = window["__REDUX_DEVTOOLS_EXTENSION__COMPOSE__"] || compose // tslint:disable-line no-string-literal
+const enhancer = composeEnhancers(
+    applyMiddleware(thunk),
+)
+
+const store = createStore(reducer, defaultState, enhancer)
 
 export function init(): void {
     render(defaultState)
