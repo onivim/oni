@@ -1,4 +1,3 @@
-import { EventEmitter } from "events"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
@@ -20,11 +19,11 @@ import { InstallHelp } from "./components/InstallHelp"
 
 import { IScreen } from "./../Screen"
 
-export const events = new EventEmitter()
+import * as Events from "./Events"
+
+export const events = Events.events
 
 let defaultState = State.createDefaultState()
-
-const CompletionItemSelectedEvent = "completion-item-selected"
 
 export function setBackgroundColor(backgroundColor: string): void {
     const backgroundImageElement: HTMLElement = document.getElementsByClassName("background-image")[0] as HTMLElement
@@ -100,19 +99,8 @@ export function previousPopupMenuItem(): void {
     store.dispatch(ActionCreators.previousMenu())
 }
 
-export function selectPopupMenuItem(openInSplit: boolean): void {
-    const state = store.getState() as State.IState
-
-    if (!state || !state.popupMenu) {
-        return
-    }
-
-    const selectedIndex = state.popupMenu.selectedIndex // FIXME: null
-    const selectedOption = state.popupMenu.filteredOptions[selectedIndex] // FIXME: null
-
-    events.emit("menu-item-selected:" + state.popupMenu.id, { selectedOption, openInSplit })
-
-    hidePopupMenu()
+export function selectPopupMenuItem(openInSplit: boolean, menuItemIndex?: number): void {
+    ActionCreators.selectMenuItem(store.dispatch, store.getState)(openInSplit, menuItemIndex)
 }
 
 export function showQuickInfo(title: string, description: string): void {
@@ -177,7 +165,7 @@ function emitCompletionItemSelectedEvent(): void {
     const autoCompletion = store.getState().autoCompletion
     if (autoCompletion != null) {
         const entry = autoCompletion.entries[autoCompletion.selectedIndex]
-        events.emit(CompletionItemSelectedEvent, entry)
+        events.emit(Events.CompletionItemSelectedEvent, entry)
     }
 }
 
