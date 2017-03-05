@@ -57,6 +57,7 @@
     "react-measure": "1.4.2",
     "react-redux": "4.4.5",
     "redux": "3.5.2",
+    "redux-thunk": "2.2.0",
     "typescript": "2.2.1",
     "wcwidth": "1.0.1"
   },
@@ -75,6 +76,7 @@
     "@types/react-dom": "0.14.18",
     "@types/react-measure": "0.4.5",
     "@types/react-redux": "4.4.32",
+    "@types/redux-thunk": "^2.1.0",
     "@types/sinon": "1.16.32",
     "autoprefixer": "6.4.0",
     "concurrently": "3.1.0",
