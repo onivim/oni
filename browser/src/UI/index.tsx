@@ -2,7 +2,7 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 
 import { Provider } from "react-redux"
-import { compose, createStore, applyMiddleware } from "redux"
+import { applyMiddleware, compose, createStore } from "redux"
 import thunk from "redux-thunk"
 
 import * as Config from "./../Config"
