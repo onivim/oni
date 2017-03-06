@@ -1,3 +1,12 @@
+/**
+ * index.ts
+ *
+ * Entry point for ONI's TypeScript Language Service integraiton
+ */
+
+/// <reference path="./../../../../definitions/Oni.d.ts" />
+/// <reference path="./../../../../node_modules/typescript/lib/protocol.d.ts" />
+
 import * as os from "os"
 import * as path from "path"
 
@@ -5,7 +14,7 @@ import * as _ from "lodash"
 
 import { evaluateBlock, getCommonImports } from "./LiveEvaluation"
 import { QuickInfo } from "./QuickInfo"
-import { INavigationTree, TypeScriptServerHost } from "./TypeScriptServerHost"
+import { TypeScriptServerHost } from "./TypeScriptServerHost"
 
 export interface IDisplayPart {
     text: string
@@ -47,8 +56,20 @@ export const activate = (Oni) => {
 
     const findAllReferences = (textDocumentPosition: Oni.EventContext) => {
         return host.findAllReferences(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
-            .then((val: any) => {
-                return null
+            .then((val: protocol.ReferencesResponseBody) => {
+
+                const mapResponseToItem = (referenceItem: protocol.ReferencesResponseItem) => ({
+                    fullPath: referenceItem.file,
+                    line: referenceItem.start.line,
+                    column: referenceItem.start.offset,
+                })
+
+                const output: Oni.Plugin.ReferencesResult = {
+                    tokenName: val.symbolDisplayString,
+                    items: val.refs.map((item) => mapResponseToItem(item)),
+                }
+
+                return output
             })
     }
 
@@ -282,7 +303,7 @@ export const activate = (Oni) => {
         host.changeLineInFile(args.eventContext.bufferFullPath, lineNumber, changedLine)
     })
 
-    const getHighlightsFromNavTree = (navTree: INavigationTree[], highlights: any[]) => {
+    const getHighlightsFromNavTree = (navTree: protocol.NavigationTree[], highlights: any[]) => {
         if (!navTree) {
             return
         }

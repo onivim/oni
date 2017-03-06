@@ -180,10 +180,12 @@ declare namespace Oni {
         }
 
         export interface ReferencesResultItem extends Position {
+            fullPath: string
             lineText?: string
         }
 
         export interface ReferencesResult {
+            tokenName: string
             items: ReferencesResultItem[]
         }
 
@@ -204,6 +206,8 @@ declare namespace Oni {
             // liveEvaluate(): LiveEvaluationResult[]
         }
     }
-
 }
+
+export = Oni
+export as namespace Oni
 
