@@ -137,7 +137,6 @@ const start = (args: string[]) => {
     })
 
     pluginManager.on("find-all-references", (references: Oni.Plugin.ReferencesResult) => {
-
         const convertToQuickFixItem = (item: Oni.Plugin.ReferencesResultItem) => ({
             filename: item.fullPath,
             lnum: item.line,
