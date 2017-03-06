@@ -7,6 +7,7 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
+import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
 export const setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
@@ -71,6 +72,22 @@ export const filterMenu = (filterString: string) => ({
 export const nextMenu = () => ({
     type: "NEXT_MENU",
 })
+
+export const selectMenuItem = (openInSplit: boolean, index?: number) => (dispatch: Function, getState: Function) => {
+
+    const state = getState()
+
+    if (!state || !state.popupMenu) {
+        return
+    }
+
+    const selectedIndex = index || state.popupMenu.selectedIndex
+    const selectedOption = state.popupMenu.filteredOptions[selectedIndex]
+
+    Events.events.emit("menu-item-selected:" + state.popupMenu.id, { selectedOption, openInSplit })
+
+    dispatch(hideMenu())
+}
 
 export const showQuickInfo = (title: string, description: string) => ({
     type: "SHOW_QUICK_INFO",

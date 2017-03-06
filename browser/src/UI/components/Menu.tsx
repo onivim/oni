@@ -22,6 +22,7 @@ export interface IMenuProps {
     selectedIndex: number
     filterText: string
     onChangeFilterText: (text: string) => void
+    onSelect: (openInSplit: boolean, selectedIndex?: number) => void
     items: State.IMenuOptionWithHighlights[]
 }
 
@@ -42,6 +43,7 @@ export class Menu extends React.Component<IMenuProps, void> {
         const items = initialItems.map((menuItem, index) => <MenuItem {...menuItem as any} // FIXME: undefined
             filterText={this.props.filterText}
             isSelected={index === this.props.selectedIndex}
+            onClick={() => this.props.onSelect(false, index)}
             />)
 
         return <div className="menu-background">
@@ -93,8 +95,13 @@ const mapDispatchToProps = (dispatch: any) => {
         dispatch(ActionCreators.filterMenu(text))
     }
 
+    const selectItem = (openInSplit: boolean, selectedIndex: number) => {
+        dispatch(ActionCreators.selectMenuItem(openInSplit, selectedIndex))
+    }
+
     return {
         onChangeFilterText: dispatchFilterText,
+        onSelect: selectItem,
     }
 }
 
@@ -109,6 +116,7 @@ export interface IMenuItemProps {
     detail: string
     detailHighlights: number[]
     pinned: boolean
+    onClick: Function
 }
 
 export class MenuItem extends React.Component<IMenuItemProps, void> {
@@ -122,7 +130,7 @@ export class MenuItem extends React.Component<IMenuItemProps, void> {
 
         const icon = this.props.icon ? <Icon name={this.props.icon} /> : null
 
-        return <div className={className}>
+        return <div className={className} onClick={() => this.props.onClick()}>
             {icon}
             <HighlightTextByIndex className="label" text={this.props.label} highlightIndices={this.props.labelHighlights} highlightClassName={"highlight"} />
             <HighlightTextByIndex className="detail" text={this.props.detail} highlightIndices={this.props.detailHighlights} highlightClassName={"highlight"} />

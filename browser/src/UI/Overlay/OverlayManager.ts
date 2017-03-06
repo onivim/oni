@@ -32,12 +32,18 @@ export class OverlayManager extends EventEmitter {
 
         this._screen = screen
 
+        // TODO: Refactor to component
         const div = document.createElement("div")
         div.style.position = "absolute"
         div.style.top = "0px"
         div.style.left = "0px"
         div.style.width = "100px"
         div.style.height = "100px"
+
+        // This is not a long-term solution, and to make things like mouse-events
+        // work on buffer scroll, or be useful for errors, we'll need to remove this
+        // and move this element to a proper spot in the DOM.
+        div.style.pointerEvents = "none"
         document.body.appendChild(div)
         this._containerElement = div
 

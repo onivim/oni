@@ -1,9 +1,9 @@
-import { EventEmitter } from "events"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
 import { Provider } from "react-redux"
-import { createStore } from "redux"
+import { applyMiddleware, compose, createStore } from "redux"
+import thunk from "redux-thunk"
 
 import * as Config from "./../Config"
 
@@ -19,11 +19,11 @@ import { InstallHelp } from "./components/InstallHelp"
 
 import { IScreen } from "./../Screen"
 
-export const events = new EventEmitter()
+import * as Events from "./Events"
+
+export const events = Events.events
 
 let defaultState = State.createDefaultState()
-
-const CompletionItemSelectedEvent = "completion-item-selected"
 
 export function setBackgroundColor(backgroundColor: string): void {
     const backgroundImageElement: HTMLElement = document.getElementsByClassName("background-image")[0] as HTMLElement
@@ -99,19 +99,8 @@ export function previousPopupMenuItem(): void {
     store.dispatch(ActionCreators.previousMenu())
 }
 
-export function selectPopupMenuItem(openInSplit: boolean): void {
-    const state = store.getState() as State.IState
-
-    if (!state || !state.popupMenu) {
-        return
-    }
-
-    const selectedIndex = state.popupMenu.selectedIndex // FIXME: null
-    const selectedOption = state.popupMenu.filteredOptions[selectedIndex] // FIXME: null
-
-    events.emit("menu-item-selected:" + state.popupMenu.id, { selectedOption, openInSplit })
-
-    hidePopupMenu()
+export function selectPopupMenuItem(openInSplit: boolean, menuItemIndex?: number): void {
+    store.dispatch(ActionCreators.selectMenuItem(openInSplit, menuItemIndex))
 }
 
 export function showQuickInfo(title: string, description: string): void {
@@ -176,7 +165,7 @@ function emitCompletionItemSelectedEvent(): void {
     const autoCompletion = store.getState().autoCompletion
     if (autoCompletion != null) {
         const entry = autoCompletion.entries[autoCompletion.selectedIndex]
-        events.emit(CompletionItemSelectedEvent, entry)
+        events.emit(Events.CompletionItemSelectedEvent, entry)
     }
 }
 
@@ -185,7 +174,12 @@ export function showNeovimInstallHelp(): void {
     ReactDOM.render(<InstallHelp />, element)
 }
 
-const store = createStore(reducer, defaultState, window["__REDUX_DEVTOOLS_EXTENSION__"] && window["__REDUX_DEVTOOLS_EXTENSION__"]()) // tslint:disable-line no-string-literal
+const composeEnhancers = window["__REDUX_DEVTOOLS_EXTENSION__COMPOSE__"] || compose // tslint:disable-line no-string-literal
+const enhancer = composeEnhancers(
+    applyMiddleware(thunk),
+)
+
+const store = createStore(reducer, defaultState, enhancer)
 
 export function init(): void {
     render(defaultState)
