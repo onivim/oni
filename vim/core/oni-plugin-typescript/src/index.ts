@@ -66,7 +66,7 @@ export const activate = (Oni) => {
                 })
 
                 const output: Oni.Plugin.ReferencesResult = {
-                    tokenName: val.symbolDisplayString,
+                    tokenName: val.symbolName,
                     items: val.refs.map((item) => mapResponseToItem(item)),
                 }
 

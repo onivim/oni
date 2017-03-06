@@ -147,7 +147,7 @@ const start = (args: string[]) => {
 
         const quickFixItems = references.items.map((item) => convertToQuickFixItem(item))
 
-        instance.quickFix.setqflist(quickFixItems, "Find All References: " + references.tokenName)
+        instance.quickFix.setqflist(quickFixItems, ` Find All References: ${references.tokenName}`)
         instance.command("copen")
         instance.command(`execute "normal! /${references.tokenName}\\<cr>"`)
     })
