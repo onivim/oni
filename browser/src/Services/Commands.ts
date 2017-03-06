@@ -18,9 +18,11 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         // Debug
         new CallbackCommand("oni.debug.openDevTools", "Open DevTools", "Debug ONI and any running plugins using the Chrome developer tools", () => remote.getCurrentWindow().webContents.openDevTools()),
+        new CallbackCommand("oni.debug.reload", "Reload ONI", "Reloads the ONI instance. You will lose all unsaved changes.", () => remote.getCurrentWindow().reload()),
 
         // Language service
         new CallbackCommand("oni.editor.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => pluginManager.gotoDefinition()),
+        new CallbackCommand("oni.editor.maximize", "Maximize Window", "Maximize the current window", () => remote.getCurrentWindow().maximize()),
 
         // Menu commands
         new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for ONI", () => {
@@ -43,6 +45,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
                     }
                 })
         }),
+
         new CallbackCommand("oni.config.openInitVim", "Edit Neovim Config", "Edit configuration file ('init.vim') for Neovim", () => neovimInstance.open("$MYVIMRC")),
 
         // Add additional commands here
