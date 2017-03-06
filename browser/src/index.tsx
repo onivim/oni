@@ -1,3 +1,11 @@
+/**
+ * index.tsx
+ *
+ * Entry point for the BrowserWindow process
+ */
+
+/// <reference path="./../../definitions/Oni.d.ts" />
+
 import { ipcRenderer, remote } from "electron"
 import * as minimist from "minimist"
 import * as path from "path"
@@ -128,8 +136,20 @@ const start = (args: string[]) => {
         liveEvaluationOverlay.setLiveEvaluationResult(file, blocks)
     })
 
-    pluginManager.on("find-all-references", (references: any) => {
-        alert(references)
+    pluginManager.on("find-all-references", (references: Oni.Plugin.ReferencesResult) => {
+
+        const convertToQuickFixItem = (item: Oni.Plugin.ReferencesResultItem) => ({
+            filename: item.fullPath,
+            lnum: item.line,
+            col: item.column,
+            text: item.lineText,
+        })
+
+        const quickFixItems = references.items.map((item) => convertToQuickFixItem(item))
+
+        instance.quickFix.setqflist(quickFixItems, "Find All References: " + references.tokenName)
+        instance.command("copen")
+        instance.command(`execute "normal! /${references.tokenName}\\<cr>"`)
     })
 
     instance.on("event", (eventName: string, evt: any) => {

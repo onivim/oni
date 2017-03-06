@@ -62,6 +62,7 @@ export const activate = (Oni) => {
                     fullPath: referenceItem.file,
                     line: referenceItem.start.line,
                     column: referenceItem.start.offset,
+                    lineText: referenceItem.lineText,
                 })
 
                 const output: Oni.Plugin.ReferencesResult = {

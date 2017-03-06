@@ -7,6 +7,7 @@
     "max-line-length": [
       false
     ],
+    "no-reference": false,
     "no-namespace": false,
     "object-literal-key-quotes": false,
     "object-literal-sort-keys": false,

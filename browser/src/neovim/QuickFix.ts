@@ -8,7 +8,7 @@ export interface IQuickListEntry {
     filename: string
     lnum: number
     col: number
-    text: number
+    text: string
 }
 
 export interface IQuickFixList {
