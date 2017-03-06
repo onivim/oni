@@ -128,6 +128,10 @@ const start = (args: string[]) => {
         liveEvaluationOverlay.setLiveEvaluationResult(file, blocks)
     })
 
+    pluginManager.on("find-all-references", (references: any) => {
+        alert(references)
+    })
+
     instance.on("event", (eventName: string, evt: any) => {
         // TODO: Can we get rid of these?
         errorOverlay.onVimEvent(eventName, evt)
@@ -249,10 +253,6 @@ const start = (args: string[]) => {
         if (key === "<f3>") {
             formatter.formatBuffer()
             return
-        }
-
-        if (key === "|") {
-            pluginManager.findAllReferences()
         }
 
         if (UI.isPopupMenuOpen()) {
