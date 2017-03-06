@@ -35,7 +35,7 @@ export class QuickOpen {
         })
     }
 
-    public show(): void {
+    public show(exclude: string[]): void {
         const overrriddenCommand = Config.getValue<string>("editor.quickOpen.execCommand")
 
         UI.showPopupMenu("quickOpen", [{
@@ -60,7 +60,7 @@ export class QuickOpen {
         const openPromise = Git.isGitRepository()
             .then((isGit) => {
                 if (isGit) {
-                    return Q.all([Git.getTrackedFiles(), Git.getUntrackedFiles()])
+                    return Q.all([Git.getTrackedFiles(), Git.getUntrackedFiles(exclude)])
                         .then((values: [string[], string[]]) => {
                             const allFiles = _.flatten(values)
                             this._showMenuFromFiles(allFiles)
@@ -69,7 +69,7 @@ export class QuickOpen {
                     // TODO: This async call is being dropped, if we happen to use the promise
                     return glob("**/*", {
                         nodir: true,
-                        ignore: ["**/node_modules/**"], // all hidden dirs (start with '.') are skipped by default
+                        ignore: exclude,
                     }, (_err: any, files: string[]) => {
                         this._showMenuFromFiles(files)
                     })
