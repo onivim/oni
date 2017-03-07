@@ -120,6 +120,4 @@ function OniApiInfo()
     else
         call OniNotify(["api_info",{api_level:0}])
     endif
-
-
 endfunction
