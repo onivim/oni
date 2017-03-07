@@ -91,6 +91,9 @@ export const reducer = (s: State.IState, a: Actions.Action) => {
 
 export const popupMenuReducer = (s: State.IMenu | null, a: Actions.Action) => {
 
+    // TODO: sync max display items (10) with value in Menu.render() (Menu.tsx)
+    let size = s ? Math.min(10, s.filteredOptions.length) : 0
+
     switch (a.type) {
         case "SHOW_MENU":
             const sortedOptions = _.sortBy(a.payload.options, (f) => f.pinned ? 0 : 1).map((o) => ({
@@ -117,7 +120,7 @@ export const popupMenuReducer = (s: State.IMenu | null, a: Actions.Action) => {
             }
 
             return Object.assign({}, s, {
-                selectedIndex: (s.selectedIndex + 1) % s.filteredOptions.length,
+                selectedIndex: (s.selectedIndex + 1) % size,
             })
         case "PREVIOUS_MENU":
             if (!s) {
@@ -125,8 +128,7 @@ export const popupMenuReducer = (s: State.IMenu | null, a: Actions.Action) => {
             }
 
             return Object.assign({}, s, {
-                selectedIndex: (s.selectedIndex - 1) % s.filteredOptions.length,
-
+                selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : size - 1,
             })
         case "FILTER_MENU":
             if (!s) {
