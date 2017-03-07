@@ -8,7 +8,7 @@ export interface IQuickListEntry {
     filename: string
     lnum: number
     col: number
-    text: number
+    text: string
 }
 
 export interface IQuickFixList {
@@ -24,6 +24,6 @@ export class QuickFixList implements IQuickFixList {
 
     public setqflist(list: IQuickListEntry[], title: string, action?: Action): Q.Promise<void> {
         action = action || " "
-        return this._neovimInstance.callFunction("setqflist", [list, title, action])
+        return this._neovimInstance.callFunction("setqflist", [list, action, title])
     }
 }

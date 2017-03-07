@@ -1,3 +1,12 @@
+/**
+ * index.ts
+ *
+ * Entry point for ONI's TypeScript Language Service integraiton
+ */
+
+/// <reference path="./../../../../definitions/Oni.d.ts" />
+/// <reference path="./../../../../node_modules/typescript/lib/protocol.d.ts" />
+
 import * as os from "os"
 import * as path from "path"
 
@@ -5,7 +14,7 @@ import * as _ from "lodash"
 
 import { evaluateBlock, getCommonImports } from "./LiveEvaluation"
 import { QuickInfo } from "./QuickInfo"
-import { INavigationTree, TypeScriptServerHost } from "./TypeScriptServerHost"
+import { TypeScriptServerHost } from "./TypeScriptServerHost"
 
 export interface IDisplayPart {
     text: string
@@ -20,24 +29,6 @@ export const activate = (Oni) => {
     const lastOpenFile = null
 
     let lastBuffer: string[] = []
-
-    let lastFileName
-
-    Oni.on("CursorMoved", (context: Oni.EventContext) => {
-        lastFileName = context.bufferFullPath
-    })
-
-    Oni.on("CursorMovedI", (context: Oni.EventContext) => {
-        lastFileName = context.bufferFullPath
-    })
-
-    Oni.commands.registerCommand("typescript.debug.saveToTemporary", () => {
-        host.saveTo(lastFileName, "C:/temp.ts")
-    })
-
-    Oni.commands.registerCommand("typescript.debug.changeLineToDerp", () => {
-        host.changeLineInFile(lastFileName, 2, "derp\n")
-    })
 
     // Testing Live evaluation
     //
@@ -60,6 +51,26 @@ export const activate = (Oni) => {
                     title: val.displayString,
                     description: val.documentation,
                 }
+            })
+    }
+
+    const findAllReferences = (textDocumentPosition: Oni.EventContext) => {
+        return host.findAllReferences(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
+            .then((val: protocol.ReferencesResponseBody) => {
+
+                const mapResponseToItem = (referenceItem: protocol.ReferencesResponseItem) => ({
+                    fullPath: referenceItem.file,
+                    line: referenceItem.start.line,
+                    column: referenceItem.start.offset,
+                    lineText: referenceItem.lineText,
+                })
+
+                const output: Oni.Plugin.ReferencesResult = {
+                    tokenName: val.symbolName,
+                    items: val.refs.map((item) => mapResponseToItem(item)),
+                }
+
+                return output
             })
     }
 
@@ -224,6 +235,7 @@ export const activate = (Oni) => {
 
     Oni.registerLanguageService({
         evaluateBlock: liveEvaluation,
+        findAllReferences,
         getCompletionDetails,
         getCompletions,
         getDefinition,
@@ -293,7 +305,7 @@ export const activate = (Oni) => {
         host.changeLineInFile(args.eventContext.bufferFullPath, lineNumber, changedLine)
     })
 
-    const getHighlightsFromNavTree = (navTree: INavigationTree[], highlights: any[]) => {
+    const getHighlightsFromNavTree = (navTree: protocol.NavigationTree[], highlights: any[]) => {
         if (!navTree) {
             return
         }

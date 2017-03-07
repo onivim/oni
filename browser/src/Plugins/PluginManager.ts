@@ -56,6 +56,10 @@ export class PluginManager extends EventEmitter {
         this._sendLanguageServiceRequest("goto-definition", this._lastEventContext)
     }
 
+    public findAllReferences(): void {
+        this._sendLanguageServiceRequest("find-all-references", this._lastEventContext)
+    }
+
     public requestFormat(): void {
         this._sendLanguageServiceRequest("format", this._lastEventContext, "formatting")
     }
@@ -142,6 +146,10 @@ export class PluginManager extends EventEmitter {
     }
 
     private _handlePluginResponse(pluginResponse: any): void {
+
+        // TODO: Refactor these handlers to separate classes
+        // - pluginManager.registerResponseHandler("show-quick-info", new QuickInfoHandler())
+
         if (pluginResponse.type === "show-quick-info") {
             if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
                 return
@@ -182,6 +190,8 @@ export class PluginManager extends EventEmitter {
             setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details))
         } else if (pluginResponse.type === "set-errors") {
             this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
+        } else if (pluginResponse.type === "find-all-references") {
+            this.emit("find-all-references", pluginResponse.payload.references)
         } else if (pluginResponse.type === "format") {
             this.emit("format", pluginResponse.payload)
         } else if (pluginResponse.type === "execute-shell-command") {

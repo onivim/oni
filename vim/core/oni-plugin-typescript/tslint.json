@@ -8,6 +8,7 @@
       false
     ],
     "no-namespace": false,
+    "no-reference": false,
     "object-literal-sort-keys": false,
     "semicolon": [
       true,

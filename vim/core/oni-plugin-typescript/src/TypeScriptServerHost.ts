@@ -2,6 +2,8 @@
  * TypeScriptServerHost.ts
  */
 
+/// <reference path="./../../../../node_modules/typescript/lib/protocol.d.ts" />
+
 import * as childProcess from "child_process"
 import * as events from "events"
 import * as fs from "fs"
@@ -10,32 +12,6 @@ import * as path from "path"
 import * as readline from "readline"
 
 const tssPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", "typescript", "lib", "tsserver.js")
-
-/**
- * Taken from definitions here:
- * https://github.com/Microsoft/TypeScript/blob/master/lib/protocol.d.ts#L5
- */
-export interface ITextSpan {
-    start: ILocation
-    end: ILocation
-}
-
-export interface ILocation {
-    line: number
-    offset: number
-}
-
-export interface INavigationTree {
-    text: string
-    kind: string
-    kindModifiers: string
-    spans: ITextSpan[]
-    childItems?: INavigationTree[]
-}
-
-/**
- * End definitions
- */
 
 export class TypeScriptServerHost extends events.EventEmitter {
 
@@ -201,14 +177,22 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public getNavigationTree(fullFilePath: string): Promise<INavigationTree> {
-        return this._makeTssRequest<INavigationTree>("navtree", {
+    public getNavigationTree(fullFilePath: string): Promise<protocol.NavigationTree> {
+        return this._makeTssRequest<protocol.NavigationTree>("navtree", {
             file: fullFilePath,
         })
     }
 
     public getDocumentHighlights(file: string, line: number, offset: number): Promise<void> {
         return this._makeTssRequest<void>("documentHighlights", {
+            file,
+            line,
+            offset,
+        })
+    }
+
+    public findAllReferences(file: string, line: number, offset: number): Promise<protocol.ReferencesResponseBody> {
+        return this._makeTssRequest<protocol.ReferencesResponseBody>("references", {
             file,
             line,
             offset,

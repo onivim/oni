@@ -19,6 +19,7 @@
         "quick-info",
         "goto-definition",
         "completion-provider",
+        "find-all-references",
         "formatting",
         "evaluate-block",
         "signature-help"

@@ -179,9 +179,21 @@ declare namespace Oni {
             error?: string
         }
 
+        export interface ReferencesResultItem extends Position {
+            fullPath: string
+            lineText?: string
+        }
+
+        export interface ReferencesResult {
+            tokenName: string
+            items: ReferencesResultItem[]
+        }
+
         export interface LanguageService {
             getCompletions?(position: EventContext): Promise<CompletionResult>
             getCompletionDetails?(position: EventContext, completionInfo: CompletionInfo): Promise<CompletionInfo>
+
+            findAllReferences?(position: EventContext): Promise<ReferencesResult>
 
             getSignatureHelp?(position: EventContext): Promise<SignatureHelpResult>
 
@@ -194,6 +206,8 @@ declare namespace Oni {
             // liveEvaluate(): LiveEvaluationResult[]
         }
     }
-
 }
+
+export = Oni
+export as namespace Oni
 

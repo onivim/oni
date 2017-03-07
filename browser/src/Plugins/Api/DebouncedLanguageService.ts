@@ -44,6 +44,14 @@ export class DebouncedLanguageService implements Oni.Plugin.LanguageService {
         })
     }
 
+    public findAllReferences(context: any): Promise<null | Oni.Plugin.ReferencesResult> {
+        if (this._languageService.findAllReferences) {
+            return this._languageService.findAllReferences(context)
+        } else {
+            return null
+        }
+    }
+
     public getQuickInfo(context: any): Promise<null | Oni.Plugin.QuickInfo> {
         return this._debouncedQuickInfo(context)
     }
