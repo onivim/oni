@@ -129,6 +129,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             this.emit("event", eventName, eventContext)
                         } else if (pluginMethod === "window_display_update") {
                             this.emit("window-display-update", args[0][0], args[0][1])
+                        } else if (pluginMethod === "api_info") {
+                            const apiVersion = args[0][0]
+                            if (apiVersion.api_level < 1) {
+                                alert("Please upgrade to at least Neovim 0.1.6")
+                            }
+
                         } else {
                             console.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
                         }
@@ -165,6 +171,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                     // set title after attaching listeners so we can get the initial title
                     this.command("set title")
+                    this.callFunction("OniApiInfo", [])
                 })
             }, (err) => {
                 this.emit("error", err)
