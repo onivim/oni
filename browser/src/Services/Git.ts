@@ -26,7 +26,8 @@ export function getTrackedFiles(): Q.Promise<string[]> {
     return Q.resolve(trackedFiles)
 }
 
-export function getUntrackedFiles(): Q.Promise<string[]> {
-    const untrackedFiles = execSync("git ls-files --others --exclude-standard").toString("utf8").split("\n")
+export function getUntrackedFiles(exclude: string[]): Q.Promise<string[]> {
+    let cmd = "git ls-files --others --exclude-standard" + exclude.map((dir) => " -x " + dir).join("")
+    const untrackedFiles = execSync(cmd).toString("utf8").split("\n")
     return Q.resolve(untrackedFiles)
 }

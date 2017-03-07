@@ -299,7 +299,7 @@ const start = (args: string[]) => {
         if (key === "<f12>") {
             commandManager.executeCommand("oni.editor.gotoDefinition", null)
         } else if (key === "<C-p>" && screen.mode === "normal") {
-            quickOpen.show()
+            quickOpen.show(Config.getValue<string[]>("editor.exclude"))
         } else if (key === "<C-P>" && screen.mode === "normal") {
             tasks.show()
         } else if (key === "<C-pageup>") {
