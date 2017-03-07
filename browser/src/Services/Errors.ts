@@ -58,6 +58,6 @@ export class Errors implements ITaskProvider {
             text: e.text,
         }))
 
-        this._neovimInstance.quickFix.setqflist(errors, "test", " ")
+        this._neovimInstance.quickFix.setqflist(errors, "Errors", " ")
     }
 }
