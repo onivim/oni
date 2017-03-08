@@ -36,6 +36,7 @@ export class Menu extends React.Component<IMenuProps, void> {
             return null
         }
 
+        // TODO: sync max display items (10) with value in Reducer.popupMenuReducer() (Reducer.ts)
         const initialItems = _.take(this.props.items, 10)
 
         // const pinnedItems = initialItems.filter(f => f.pinned)
