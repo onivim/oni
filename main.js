@@ -54,6 +54,7 @@ if (!isDevelopment && !isDebug) {
 
     if (shouldQuit) {
         app.quit()
+        return
     }
 }
 
