@@ -52,7 +52,10 @@
                 padding-right: 8px;
             }
 
-            &.selected, &:hover {
+            &:hover {
+                background-color: fade(@background-color-highlight, 10%);
+            }
+            &.selected {
                 background-color: @background-color-highlight;
             }
 
