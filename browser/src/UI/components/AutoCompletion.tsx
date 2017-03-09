@@ -45,6 +45,7 @@ export class AutoCompletion extends React.Component<IAutoCompletionProps, void> 
             return null
         }
 
+        // TODO: sync max display items (10) with value in Reducer.autoCompletionReducer() (Reducer.ts)
         const firstTenEntries = _.take(this.props.entries, 10)
 
         const entries = firstTenEntries.map((s, i) => {

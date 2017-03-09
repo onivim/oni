@@ -247,7 +247,8 @@ export const autoCompletionReducer = (s: State.IAutoCompletionInfo | null, a: Ac
         return s
     }
 
-    const currentEntryCount = s.entries.length
+    // TODO: sync max display items (10) with value in AutoCompletion.render() (AutoCompletion.tsx)
+    const currentEntryCount = Math.min(10, s.entries.length)
 
     switch (a.type) {
         case "NEXT_AUTO_COMPLETION":
@@ -256,7 +257,7 @@ export const autoCompletionReducer = (s: State.IAutoCompletionInfo | null, a: Ac
             })
         case "PREVIOUS_AUTO_COMPLETION":
             return Object.assign({}, s, {
-                selectedIndex: (s.selectedIndex - 1) % currentEntryCount,
+                selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : currentEntryCount - 1,
             })
         default:
             return Object.assign({}, s, {
