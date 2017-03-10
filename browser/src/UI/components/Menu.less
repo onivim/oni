@@ -20,7 +20,7 @@
     border: 1px solid rgb(60, 60, 60);
     padding: 8px;
 
-    box-shadow: 4px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 4px 4px @shadow-color;
     width: 600px;
     max-height: 400px;
 
@@ -52,7 +52,10 @@
                 padding-right: 8px;
             }
 
-            &.selected, &:hover {
+            &:hover {
+                background-color: fade(@background-color-highlight, 10%);
+            }
+            &.selected {
                 background-color: @background-color-highlight;
             }
 

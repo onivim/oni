@@ -1,9 +1,10 @@
+@import (reference) "./common.less";
 
 .autocompletion {
-    background-color: rgb(40, 40, 40);
+    background-color: @background-color;
     border: 1px solid gray;
-    box-shadow: 4px 4px rgba(0, 0, 0, 0.2);
-    color: rgb(200, 200, 200);
+    box-shadow: 4px 4px @shadow-color;
+    color: @text-color;
     max-width: 800px;
     max-height: 300px;
     overflow-x: hidden;
@@ -53,7 +54,7 @@
             .highlight {
                 font-weight: bold;
                 font-style: italic;
-                color: rgb(50, 200, 255);
+                color: @text-color-highlight;
             }
         }
 
@@ -67,14 +68,14 @@
             white-space: nowrap;
             margin-left: 16px;
 
-            color: rgba(100, 100, 100, 0.6);
+            color: @text-color-detail;
 
             font-size: 11px;
         }
 
         .documentation {
             font-size: 10px;
-            color: rgb(50, 200, 255);
+            color: @text-color-highlight;
         }
     }
 }
