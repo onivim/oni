@@ -116,8 +116,8 @@ endfunction
 
 function OniApiInfo()
     if (has_key(api_info(),'version'))
-        call OniNotify(["api_info",api_info()['version']])
+        call OniNotify(["api_info",api_info()["version"]])
     else
-        call OniNotify(["api_info",{api_level:0}])
+        call OniNotify(["api_info",{"api_level":0}])
     endif
 endfunction
