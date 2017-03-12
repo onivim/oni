@@ -110,6 +110,7 @@ export class DOMRenderer implements INeovimRenderer {
             endX: startX + width,
             foregroundColor: renderer.foregroundColor,
             backgroundColor: renderer.backgroundColor,
+            canCombine: renderer.canCombine,
         }
 
         for (let x = startX; x < startX + width; x++) {
@@ -139,8 +140,6 @@ export function getSpansToEdit(grid: Grid<ISpanElementInfo>, cells: IDeltaCellPo
 
             if (info.element) {
                 elementFactory.recycle(info.element)
-                // info.element.textContent = ""
-                // info.element.className = "deleted"
             }
 
             grid.setRegion(info.startX, y, info.endX - info.startX, 1, null)

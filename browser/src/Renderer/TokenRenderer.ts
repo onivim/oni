@@ -10,6 +10,7 @@ export interface ITokenRenderer {
     width: number
     backgroundColor: string | undefined
     foregroundColor: string | undefined
+    canCombine: boolean
 
     canHandleCell(cell: ICell): boolean
     appendCell(cell: ICell): void
@@ -34,6 +35,10 @@ export class BaseTokenRenderer {
 
     public get y(): number {
         return this._y
+    }
+
+    public get canCombine(): boolean {
+        return true
     }
 
     public get width(): number {
@@ -113,7 +118,7 @@ export class WhiteSpaceTokenRenderer extends BaseTokenRenderer implements IToken
 
 export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
 
-    private _spans: HTMLElement[] = [];
+    private _str: string = ""
 
     constructor(x: number, y: number, cell: ICell, screen: IScreen, elementFactory: IElementFactory) {
         super(x, y, cell, screen, elementFactory)
@@ -127,16 +132,13 @@ export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
         super.appendCell(cell)
 
         if (cell.characterWidth > 0) {
-            const span = document.createElement("span");
-            span.textContent = cell.character;
-            span.style.width = (cell.characterWidth * this.screen.fontWidthInPixels) + "px";
-            this._spans.push(span);
+            this._str += cell.character
         }
     }
 
     public getTag(): HTMLElement | null {
         const span = super.getDefaultTag()
-        this._spans.forEach((s) => span.appendChild(s));
+        span.textContent = this._str
         span.style.width = ((this.width) * this.screen.fontWidthInPixels) + "px"
         return span
     }
@@ -147,6 +149,10 @@ export class MultibyteTokenRenderer extends BaseTokenRenderer implements ITokenR
 
     private _spans: HTMLElement[] = []
     private _hasRendered: boolean = false
+
+    public get canCombine(): boolean {
+        return false;
+    }
 
     constructor(x: number, y: number, cell: ICell, screen: IScreen, elementFactory: IElementFactory) {
         super(x, y, cell, screen, elementFactory)
@@ -173,7 +179,6 @@ export class MultibyteTokenRenderer extends BaseTokenRenderer implements ITokenR
         const span = super.getDefaultTag()
         this._spans.forEach((s) => span.appendChild(s));
         span.style.width = ((this.width) * this.screen.fontWidthInPixels) + "px"
-        // TODO: Hack
         span.classList.add("randomclass" + Math.random() * 1000);
         return span
     }
