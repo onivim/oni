@@ -59,10 +59,10 @@ export class DOMRenderer implements INeovimRenderer {
                 this._renderSpan(span.startX, span.endX, y, screenInfo)
 
                 // check if beginning boundary can be combined
-                combineSpansAtBoundary(span.startX, y, this._grid, this._elementFactory)
+                combineSpansAtBoundary(span.startX, y, screenInfo.fontWidthInPixels,  this._grid, this._elementFactory)
 
                 // check if following boundary can be combined
-                combineSpansAtBoundary(span.endX, y, this._grid, this._elementFactory)
+                combineSpansAtBoundary(span.endX, y, screenInfo.fontWidthInPixels, this._grid, this._elementFactory)
             })
         }
 
