@@ -1,4 +1,4 @@
-*syntax.txt*	For Vim version 7.4.  Last change: 2016 Apr 10
+*syntax.txt*	For Vim version 7.4.  Last change: 2016 Aug 10
 
 
 		  VIM REFERENCE MANUAL	  by Bram Moolenaar
@@ -944,6 +944,8 @@ Variable		Highlight ~
 *c_no_bracket_error*	don't highlight {}; inside [] as errors
 *c_no_curly_error*	don't highlight {}; inside [] and () as errors;
 				except { and } in first column
+				Default is to highlight them, otherwise you
+				can't spot a missing ")".
 *c_curly_error*		highlight a missing }; this forces syncing from the
 			start of the file, can be slow
 *c_no_ansi*		don't do standard ANSI types and constants
@@ -1037,6 +1039,21 @@ This works immediately.
 
 
 CLOJURE							*ft-clojure-syntax*
+
+The default syntax groups can be augmented through the
+*g:clojure_syntax_keywords* and *b:clojure_syntax_keywords* variables. The
+value should be a |Dictionary| of syntax group names to a |List| of custom
+identifiers:
+>
+	let g:clojure_syntax_keywords = {
+	    \ 'clojureMacro': ["defproject", "defcustom"],
+	    \ 'clojureFunc': ["string/join", "string/replace"]
+	    \ }
+<
+Refer to the Clojure syntax script for valid syntax group names.
+
+If the |buffer-variable| *b:clojure_syntax_without_core_keywords* is set, only
+language constants and special forms are matched.
 
 Setting *g:clojure_fold* enables folding Clojure code via the syntax engine.
 Any list, vector, or map that extends over more than one line can be folded
@@ -1569,15 +1586,6 @@ as Fvwm2 configuration files, add the following: >
 
   :au! BufNewFile,BufRead /etc/X11/fvwm2/*  let b:fvwm_version = 2 |
 					 \ set filetype=fvwm
-
-If you'd like Vim to highlight all valid color names, tell it where to
-find the color database (rgb.txt) on your system.  Do this by setting
-"rgb_file" to its location.  Assuming your color database is located
-in /usr/X11/lib/X11/, you should add the line >
-
-	:let rgb_file = "/usr/X11/lib/X11/rgb.txt"
-
-to your vimrc file.
 
 
 GSP						*gsp.vim* *ft-gsp-syntax*
@@ -4762,6 +4770,10 @@ font={font-name}					*highlight-font*
 	All fonts used, except for Menu and Tooltip, should be of the same
 	character size as the default font!  Otherwise redrawing problems will
 	occur.
+	To use a font name with an embedded space or other special character,
+	put it in single quotes.  The single quote cannot be used then.
+	Example: >
+	    :hi comment font='Monospace 10'
 
 guifg={color-name}					*highlight-guifg*
 guibg={color-name}					*highlight-guibg*
@@ -4852,6 +4864,9 @@ SignColumn	column where |signs| are displayed
 							*hl-IncSearch*
 IncSearch	'incsearch' highlighting; also used for the text replaced with
 		":s///c"
+							*hl-Substitute*
+Substitute	|:substitute| replacement text highlighting
+
 							*hl-LineNr*
 LineNr		Line number for ":number" and ":#" commands, and when 'number'
 		or 'relativenumber' option is set.

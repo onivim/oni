@@ -1,7 +1,7 @@
 " Vim support file to detect file types
 "
 " Maintainer:	Bram Moolenaar <Bram@vim.org>
-" Last Change:	2015 Oct 13
+" Last Change:	2016 Jul 21
 
 " Listen very carefully, I will say this only once
 if exists("did_load_filetypes")
@@ -530,7 +530,7 @@ au BufNewFile,BufRead configure.in,configure.ac setf config
 au BufNewFile,BufRead *.cu			setf cuda
 
 " Dockerfile
-au BufNewFile,BufRead Dockerfile		setf dockerfile
+au BufNewFile,BufRead Dockerfile,*.Dockerfile	setf dockerfile
 
 " WildPackets EtherPeek Decoder
 au BufNewFile,BufRead *.dcd			setf dcd
@@ -1015,7 +1015,7 @@ au BufNewFile,BufRead *.jgr			setf jgraph
 au BufNewFile,BufRead *.jov,*.j73,*.jovial	setf jovial
 
 " JSON
-au BufNewFile,BufRead *.json,*.jsonp		setf json
+au BufNewFile,BufRead *.json,*.jsonp,*.webmanifest	setf json
 
 " Kixtart
 au BufNewFile,BufRead *.kix			setf kix
@@ -1143,7 +1143,7 @@ au BufNewFile,BufRead *.ist,*.mst		setf ist
 au BufNewFile,BufRead *.page			setf mallard
 
 " Manpage
-au BufNewFile,BufRead *.man			setf man
+au BufNewFile,BufRead *.man			setf nroff
 
 " Man config
 au BufNewFile,BufRead */etc/man.conf,man.config	setf manconf
@@ -1617,11 +1617,9 @@ au BufNewFile,BufRead */etc/protocols		setf protocols
 " Pyrex
 au BufNewFile,BufRead *.pyx,*.pxd		setf pyrex
 
-" Python
-au BufNewFile,BufRead *.py,*.pyw		setf python
-
+" Python, Python Shell Startup Files
 " Quixote (Python-based web framework)
-au BufNewFile,BufRead *.ptl			setf python
+au BufNewFile,BufRead *.py,*.pyw,.pythonstartup,.pythonrc,*.ptl  setf python
 
 " Radiance
 au BufNewFile,BufRead *.rad,*.mat		setf radiance
@@ -2643,6 +2641,8 @@ au BufNewFile,BufRead [rR]akefile*		call s:StarSetf('ruby')
 
 " Mail (also matches muttrc.vim, so this is below the other checks)
 au BufNewFile,BufRead mutt[[:alnum:]._-]\\\{6\}	setf mail
+
+au BufNewFile,BufRead reportbug-*		call s:StarSetf('mail')
 
 " Modconf
 au BufNewFile,BufRead */etc/modutils/*

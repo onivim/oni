@@ -1,4 +1,4 @@
-*options.txt*	For Vim version 7.4.  Last change: 2016 Mar 19
+*options.txt*	For Vim version 7.4.  Last change: 2016 Jul 12
 
 
 		  VIM REFERENCE MANUAL	  by Bram Moolenaar
@@ -52,7 +52,6 @@ achieve special effects.  These options come in three forms:
 :se[t] all&		Set all options to their default value.  The values of
 			these options are not changed:
 			  'columns'
-			  'encoding'
 			  'lines'
 			Warning: This may have a lot of side effects.
 
@@ -247,10 +246,10 @@ global value, which is used for new buffers.  With ":set" both the local and
 global value is changed.  With "setlocal" only the local value is changed,
 thus this value is not used when editing a new buffer.
 
-When editing a buffer that has been edited before, the last used window
-options are used again.  If this buffer has been edited in this window, the
-values from back then are used.  Otherwise the values from the window where
-the buffer was edited last are used.
+When editing a buffer that has been edited before, the options from the window
+that was last closed are used again.  If this buffer has been edited in this
+window, the values from back then are used.  Otherwise the values from the
+last closed window where the buffer was edited last are used.
 
 It's possible to set a local window option specifically for a type of buffer.
 When you edit another buffer in the same window, you don't want to keep
@@ -497,6 +496,7 @@ For example, to use a modeline only for Vim 7.0:
 To use a modeline for Vim after version 7.2:
 	/* vim>702: set cole=2: */ ~
 There can be no blanks between "vim" and the ":".
+The modeline is ignored if {vers} does not fit in an integer. {Nvim}
 
 
 The number of lines that are checked can be set with the 'modelines' option.
@@ -614,7 +614,6 @@ A jump table for the options with a short description can be found at |Q_op|.
 			global
 			{only available when compiled with the |+multi_byte|
 			feature}
-	Only effective when 'encoding' is "utf-8" or another Unicode encoding.
 	Tells Vim what to do with characters with East Asian Width Class
 	Ambiguous (such as Euro, Registered Sign, Copyright Sign, Greek
 	letters, Cyrillic letters).
@@ -667,7 +666,6 @@ A jump table for the options with a short description can be found at |Q_op|.
 	- Set the 'keymap' option to "arabic"; in Insert mode CTRL-^ toggles
 	  between typing English and Arabic key mapping.
 	- Set the 'delcombine' option
-	Note that 'encoding' must be "utf-8" for working with Arabic text.
 
 	Resetting this option will:
 	- Reset the 'rightleft' option.
@@ -1077,8 +1075,7 @@ A jump table for the options with a short description can be found at |Q_op|.
 			{not available when compiled without the |+linebreak|
 			feature}
 	This option lets you choose which characters might cause a line
-	break if 'linebreak' is on.  Only works for ASCII and also for 8-bit
-	characters when 'encoding' is an 8-bit encoding.
+	break if 'linebreak' is on.  Only works for ASCII characters.
 
 						*'breakindent'* *'bri'*
 'breakindent' 'bri'	boolean (default off)
@@ -1158,21 +1155,14 @@ A jump table for the options with a short description can be found at |Q_op|.
 						*'buftype'* *'bt'* *E382*
 'buftype' 'bt'		string (default: "")
 			local to buffer
-			{not available when compiled without the |+quickfix|
-			feature}
 	The value of this option specifies the type of a buffer:
 	  <empty>	normal buffer
-	  nofile	buffer which is not related to a file and will not be
-			written
-	  nowrite	buffer which will not be written
-	  acwrite	buffer which will always be written with BufWriteCmd
-			autocommands.
-	  quickfix	quickfix buffer, contains list of errors |:cwindow|
-			or list of locations |:lwindow|
-	  help		help buffer (you are not supposed to set this
-			manually)
-	  terminal	terminal buffer, this is set automatically when a 
-			terminal is created. |terminal-emulator|
+	  acwrite	buffer will always be written with |BufWriteCmd|s
+	  help		help buffer (do not set this manually)
+	  nofile	buffer is not related to a file, will not be written
+	  nowrite	buffer will not be written
+	  quickfix	list of errors |:cwindow| or locations |:lwindow|
+	  terminal	|terminal-emulator| buffer
 
 	This option is used together with 'bufhidden' and 'swapfile' to
 	specify special kinds of buffers.   See |special-buffers|.
@@ -1213,11 +1203,9 @@ A jump table for the options with a short description can be found at |Q_op|.
 	Specifies details about changing the case of letters.  It may contain
 	these words, separated by a comma:
 	internal	Use internal case mapping functions, the current
-			locale does not change the case mapping.  This only
-			matters when 'encoding' is a Unicode encoding,
-			"latin1" or "iso-8859-15".  When "internal" is
-			omitted, the towupper() and towlower() system library
-			functions are used when available.
+			locale does not change the case mapping. When
+			"internal" is omitted, the towupper() and towlower()
+			system library functions are used when available.
 	keepascii	For the ASCII characters (0x00 to 0x7f) use the US
 			case mapping, the current locale is not effective.
 			This probably only matters for Turkish.
@@ -1250,8 +1238,8 @@ A jump table for the options with a short description can be found at |Q_op|.
 	Only non-printable keys are allowed.
 	The key can be specified as a single character, but it is difficult to
 	type.  The preferred way is to use the <> notation.  Examples: >
-		:set cedit=<C-Y>
-		:set cedit=<Esc>
+		:exe "set cedit=\<C-Y>"
+		:exe "set cedit=\<Esc>"
 <	|Nvi| also has this option, but it only uses the first character.
 	See |cmdwin|.
 
@@ -1270,13 +1258,12 @@ A jump table for the options with a short description can be found at |Q_op|.
 	file to convert from.  You will have to save the text in a file first.
 	The expression must return zero or an empty string for success,
 	non-zero for failure.
-	The possible encoding names encountered are in 'encoding'.
+	See |encoding-names| for possible encoding names.
 	Additionally, names given in 'fileencodings' and 'fileencoding' are
 	used.
 	Conversion between "latin1", "unicode", "ucs-2", "ucs-4" and "utf-8"
 	is done internally by Vim, 'charconvert' is not used for this.
-	'charconvert' is also used to convert the shada file, if 'encoding' is 
-	not "utf-8".  Also used for Unicode conversion.
+	Also used for Unicode conversion.
 	Example: >
 		set charconvert=CharConvert()
 		fun CharConvert()
@@ -1291,8 +1278,6 @@ A jump table for the options with a short description can be found at |Q_op|.
 		v:fname_in		name of the input file
 		v:fname_out		name of the output file
 	Note that v:fname_in and v:fname_out will never be the same.
-	Note that v:charconvert_from and v:charconvert_to may be different
-	from 'encoding'.  Vim internally uses UTF-8 instead of UCS-2 or UCS-4.
 	This option cannot be set from a |modeline| or in the |sandbox|, for
 	security reasons.
 
@@ -1844,6 +1829,9 @@ A jump table for the options with a short description can be found at |Q_op|.
 			character, the cursor won't move. When not included,
 			the cursor would skip over it and jump to the
 			following occurrence.
+								*cpo-_*
+		_	When using |cw| on a word, do not include the
+			whitespace following the word in the motion.
 
 						*'cscopepathcomp'* *'cspc'*
 'cscopepathcomp' 'cspc'	number	(default 0)
@@ -2110,10 +2098,16 @@ A jump table for the options with a short description can be found at |Q_op|.
 	Change the way text is displayed.  This is comma separated list of
 	flags:
 	lastline	When included, as much as possible of the last line
-			in a window will be displayed.  When not included, a
-			last line that doesn't fit is replaced with "@" lines.
+			in a window will be displayed.  "@@@" is put in the
+			last columns of the last screen line to indicate the
+			rest of the line is not displayed.
+	truncate	Like "lastline", but "@@@" is displayed in the first
+			column of the last screen line.  Overrules "lastline".
 	uhex		Show unprintable characters hexadecimal as <xx>
 			instead of using ^C and ~C.
+
+	When neither "lastline" or "truncate" is included, a last line that
+	doesn't fit is replaced with "@" lines.
 
 						*'eadirection'* *'ead'*
 'eadirection' 'ead'	string	(default "both")
@@ -2133,43 +2127,13 @@ A jump table for the options with a short description can be found at |Q_op|.
 
 
 					*'encoding'* *'enc'* *E543*
-'encoding' 'enc'	string (default: "utf-8")
-			global
-			{only available when compiled with the |+multi_byte|
-			feature}
-	Sets the character encoding used inside Vim.  It applies to text in
-	the buffers, registers, Strings in expressions, text stored in the
-	shada file, etc.  It sets the kind of characters which Vim can work
-	with.  See |encoding-names| for the possible values.
+'encoding' 'enc'	Removed. |vim-differences| {Nvim}
+	Nvim always uses UTF-8 internally. RPC communication
+	(remote plugins/GUIs) must use UTF-8 strings.
 
-	'encoding' cannot be changed after startup, because (1) it causes
-	non-ASCII text inside Vim to become invalid, and (2) it complicates
-	runtime logic.  The recommended 'encoding' is "utf-8".  Remote plugins
-	and GUIs only support utf-8. See |multibyte|.
-
-	The character encoding of files can be different from 'encoding'.
+	The character encoding of files can be different than UTF-8.
 	This is specified with 'fileencoding'.  The conversion is done with
 	iconv() or as specified with 'charconvert'.
-
-	If you need to know whether 'encoding' is a multi-byte encoding, you
-	can use: >
-		if has("multi_byte_encoding")
-<
-	When you set this option, it fires the |EncodingChanged| autocommand
-	event so that you can set up fonts if necessary.
-
-	When the option is set, the value is converted to lowercase.  Thus
-	you can set it with uppercase values too.  Underscores are translated
-	to '-' signs.
-	When the encoding is recognized, it is changed to the standard name.
-	For example "Latin-1" becomes "latin1", "ISO_88592" becomes
-	"iso-8859-2" and "utf8" becomes "utf-8".
-
-	When "unicode", "ucs-2" or "ucs-4" is used, Vim internally uses utf-8.
-	You don't notice this while editing, but it does matter for the
-	|shada-file|.  And Vim expects the terminal to use utf-8 too.  Thus
-	setting 'encoding' to one of these values instead of utf-8 only has
-	effect for encoding used for files when 'fileencoding' is empty.
 
 			*'endofline'* *'eol'* *'noendofline'* *'noeol'*
 'endofline' 'eol'	boolean	(default on)
@@ -2248,18 +2212,6 @@ A jump table for the options with a short description can be found at |Q_op|.
 	Scanf-like description of the format for the lines in the error file
 	(see |errorformat|).
 
-				     *'esckeys'* *'ek'* *'noesckeys'* *'noek'*
-'esckeys' 'ek'		boolean	(Vim default: on, Vi default: off)
-			global
-	Function keys that start with an <Esc> are recognized in Insert
-	mode.  When this option is off, the cursor and function keys cannot be
-	used in Insert mode if they start with an <Esc>.  The advantage of
-	this is that the single <Esc> is recognized immediately, instead of
-	after one second.  Instead of resetting this option, you might want to
-	try changing the values for 'timeoutlen' and 'ttimeoutlen'.  Note that
-	when 'esckeys' is off, you can still map anything, but the cursor keys
-	won't work by default.
-
 						*'eventignore'* *'ei'*
 'eventignore' 'ei'	string	(default "")
 			global
@@ -2297,20 +2249,14 @@ A jump table for the options with a short description can be found at |Q_op|.
 			feature}
 	Sets the character encoding for the file of this buffer.
 
-	When 'fileencoding' is different from 'encoding', conversion will be
+	When 'fileencoding' is different from "utf-8", conversion will be
 	done when writing the file.  For reading see below.
-	When 'fileencoding' is empty, the same value as 'encoding' will be
-	used (no conversion when reading or writing a file).
-	Conversion will also be done when 'encoding' and 'fileencoding' are
-	both a Unicode encoding and 'fileencoding' is not utf-8.  That's
-	because internally Unicode is always stored as utf-8.
-		WARNING: Conversion can cause loss of information!  When
-		'encoding' is "utf-8" or another Unicode encoding, conversion
-		is most likely done in a way that the reverse conversion
-		results in the same text.  When 'encoding' is not "utf-8" some
-		characters may be lost!
+	When 'fileencoding' is empty, the file will be saved with utf-8
+	encoding.  (no conversion when reading or writing a file).
+		WARNING: Conversion to a non-Unicode encoding can cause loss of
+		information! 
 
-	See 'encoding' for the possible values.  Additionally, values may be
+	See |encoding-names| for the possible values.  Additionally, values may be
 	specified that can be handled by the converter, see
 	|mbyte-conversion|.
 
@@ -2323,8 +2269,8 @@ A jump table for the options with a short description can be found at |Q_op|.
 	Prepending "8bit-" and "2byte-" has no meaning here, they are ignored.
 	When the option is set, the value is converted to lowercase.  Thus
 	you can set it with uppercase values too.  '_' characters are
-	replaced with '-'.  If a name is recognized from the list for
-	'encoding', it is replaced by the standard name.  For example
+	replaced with '-'.  If a name is recognized from the list at
+	|encoding-names|, it is replaced by the standard name.  For example
 	"ISO8859-2" becomes "iso-8859-2".
 
 	When this option is set, after starting to edit a file, the 'modified'
@@ -2347,12 +2293,8 @@ A jump table for the options with a short description can be found at |Q_op|.
 	mentioned character encoding.  If an error is detected, the next one
 	in the list is tried.  When an encoding is found that works,
 	'fileencoding' is set to it.  If all fail, 'fileencoding' is set to
-	an empty string, which means the value of 'encoding' is used.
-		WARNING: Conversion can cause loss of information!  When
-		'encoding' is "utf-8" (or one of the other Unicode variants)
-		conversion is most likely done in a way that the reverse
-		conversion results in the same text.  When 'encoding' is not
-		"utf-8" some non-ASCII characters may be lost!  You can use
+	an empty string, which means that UTF-8 is used.
+		WARNING: Conversion can cause loss of information! You can use
 		the |++bad| argument to specify what is done with characters
 		that can't be converted.
 	For an empty file or a file with only ASCII characters most encodings
@@ -2378,11 +2320,11 @@ A jump table for the options with a short description can be found at |Q_op|.
 	because Vim cannot detect an error, thus the encoding is always
 	accepted.
 	The special value "default" can be used for the encoding from the
-	environment.  It is useful when 'encoding' is set to "utf-8" and
-	your environment uses a non-latin1 encoding, such as Russian.
-	When 'encoding' is "utf-8" and a file contains an illegal byte
-	sequence it won't be recognized as UTF-8.  You can use the |8g8|
-	command to find the illegal byte sequence.
+	environment.  It is useful when your environment uses a non-latin1
+	encoding, such as Russian.
+	When a file contains an illegal UTF-8 byte sequence it won't be
+	recognized as "utf-8".  You can use the |8g8| command to find the
+	illegal byte sequence.
 	WRONG VALUES:			WHAT'S WRONG:
 		latin1,utf-8		"latin1" will always be used
 		utf-8,ucs-bom,latin1	BOM won't be recognized in an utf-8
@@ -2731,44 +2673,6 @@ A jump table for the options with a short description can be found at |Q_op|.
 	It is not allowed to change text or jump to another window while
 	evaluating 'foldtext' |textlock|.
 
-					*'formatoptions'* *'fo'*
-'formatoptions' 'fo'	string (default: "tcqj", Vi default: "vt")
-			local to buffer
-	This is a sequence of letters which describes how automatic
-	formatting is to be done.  See |fo-table|.  When the 'paste' option is
-	on, no formatting is done (like 'formatoptions' is empty).  Commas can
-	be inserted for readability.
-	To avoid problems with flags that are added in the future, use the
-	"+=" and "-=" feature of ":set" |add-option-flags|.
-
-					*'formatlistpat'* *'flp'*
-'formatlistpat' 'flp'	string (default: "^\s*\d\+[\]:.)}\t ]\s*")
-			local to buffer
-	A pattern that is used to recognize a list header.  This is used for
-	the "n" flag in 'formatoptions'.
-	The pattern must match exactly the text that will be the indent for
-	the line below it.  You can use |/\ze| to mark the end of the match
-	while still checking more characters.  There must be a character
-	following the pattern, when it matches the whole line it is handled
-	like there is no match.
-	The default recognizes a number, followed by an optional punctuation
-	character and white space.
-
-						*'formatprg'* *'fp'*
-'formatprg' 'fp'	string (default "")
-			global
-	The name of an external program that will be used to format the lines
-	selected with the |gq| operator.  The program must take the input on
-	stdin and produce the output on stdout.  The Unix program "fmt" is
-	such a program.
-	If the 'formatexpr' option is not empty it will be used instead.
-	Otherwise, if 'formatprg' option is an empty string, the internal
-	format function will be used |C-indenting|.
-	Environment variables are expanded |:set_env|.  See |option-backslash|
-	about including spaces and backslashes.
-	This option cannot be set from a |modeline| or in the |sandbox|, for
-	security reasons.
-
 						*'formatexpr'* *'fex'*
 'formatexpr' 'fex'	string (default "")
 			local to buffer
@@ -2802,6 +2706,44 @@ A jump table for the options with a short description can be found at |Q_op|.
 	The expression will be evaluated in the |sandbox| when set from a
 	modeline, see |sandbox-option|.  That stops the option from working,
 	since changing the buffer text is not allowed.
+
+					*'formatoptions'* *'fo'*
+'formatoptions' 'fo'	string (default: "tcqj", Vi default: "vt")
+			local to buffer
+	This is a sequence of letters which describes how automatic
+	formatting is to be done.  See |fo-table|.  When the 'paste' option is
+	on, no formatting is done (like 'formatoptions' is empty).  Commas can
+	be inserted for readability.
+	To avoid problems with flags that are added in the future, use the
+	"+=" and "-=" feature of ":set" |add-option-flags|.
+
+					*'formatlistpat'* *'flp'*
+'formatlistpat' 'flp'	string (default: "^\s*\d\+[\]:.)}\t ]\s*")
+			local to buffer
+	A pattern that is used to recognize a list header.  This is used for
+	the "n" flag in 'formatoptions'.
+	The pattern must match exactly the text that will be the indent for
+	the line below it.  You can use |/\ze| to mark the end of the match
+	while still checking more characters.  There must be a character
+	following the pattern, when it matches the whole line it is handled
+	like there is no match.
+	The default recognizes a number, followed by an optional punctuation
+	character and white space.
+
+						*'formatprg'* *'fp'*
+'formatprg' 'fp'	string (default "")
+			global or local to buffer |global-local|
+	The name of an external program that will be used to format the lines
+	selected with the |gq| operator.  The program must take the input on
+	stdin and produce the output on stdout.  The Unix program "fmt" is
+	such a program.
+	If the 'formatexpr' option is not empty it will be used instead.
+	Otherwise, if 'formatprg' option is an empty string, the internal
+	format function will be used |C-indenting|.
+	Environment variables are expanded |:set_env|.  See |option-backslash|
+	about including spaces and backslashes.
+	This option cannot be set from a |modeline| or in the |sandbox|, for
+	security reasons.
 
 						*'fsync'* *'fs'*
 'fsync' 'fs'		boolean	(default on)
@@ -3041,8 +2983,7 @@ A jump table for the options with a short description can be found at |Q_op|.
 	Note: The size of these fonts must be exactly twice as wide as the one
 	specified with 'guifont' and the same height.
 
-	'guifontwide' is only used when 'encoding' is set to "utf-8" and
-	'guifontset' is empty or invalid.
+	'guifontwide' is only used when 'guifontset' is empty or invalid.
 	When 'guifont' is set and a valid font is found in it and
 	'guifontwide' is empty Vim will attempt to find a matching
 	double-width font and set 'guifontwide' to it.
@@ -3459,6 +3400,18 @@ A jump table for the options with a short description can be found at |Q_op|.
 	The value is set to 1 when it is not -1 and setting the 'keymap'
 	option to a valid keymap name.
 
+						*'inccommand'* *'icm'*
+'inccommand' 'icm'	string	(default "")
+			global
+			
+	"nosplit": Shows the effects of a command incrementally, as you type.
+	"split"	 : Also shows partial off-screen results in a preview window.
+
+	Works for |:substitute|, |:smagic|, |:snomagic|. |hl-Substitute|
+
+	If the preview is too slow (exceeds 'redrawtime') then 'inccommand' is
+	automatically disabled until |Command-line-mode| is done.
+
 						*'include'* *'inc'*
 'include' 'inc'		string	(default "^\s*#\s*include")
 			global or local to buffer |global-local|
@@ -3695,7 +3648,7 @@ A jump table for the options with a short description can be found at |Q_op|.
 		128 - 159	"~@" - "~_"
 		160 - 254	"| " - "|~"
 		   255		"~?"
-	When 'encoding' is a Unicode one, illegal bytes from 128 to 255 are
+	Illegal bytes from 128 to 255 (invalid UTF-8) are
 	displayed as <xx>, with the hexadecimal value of the byte.
 	When 'display' contains "uhex" all unprintable characters are
 	displayed as <xx>.
@@ -3939,6 +3892,7 @@ A jump table for the options with a short description can be found at |Q_op|.
 			global
 	Strings to use in 'list' mode and for the |:list| command.  It is a
 	comma separated list of string settings.
+
 							*lcs-eol*
 	  eol:c		Character to show at the end of each line.  When
 			omitted, there is no extra character at the end of the
@@ -3973,8 +3927,7 @@ A jump table for the options with a short description can be found at |Q_op|.
 			omitted.
 
 	The characters ':' and ',' should not be used.  UTF-8 characters can
-	be used when 'encoding' is "utf-8", otherwise only printable
-	characters are allowed.  All characters must be single width.
+	be used.  All characters must be single width.
 
 	Examples: >
 	    :set lcs=tab:>-,trail:-
@@ -4071,7 +4024,6 @@ A jump table for the options with a short description can be found at |Q_op|.
 			{only available when compiled with the |+multi_byte|
 			feature}
 	The maximum number of combining characters supported for displaying.
-	Only used when 'encoding' is "utf-8".
 	The default is OK for most languages.  Hebrew may require 4.
 	Maximum value is 6.
 	Even when this option is set to 2 you can still edit text with more
@@ -4775,8 +4727,8 @@ A jump table for the options with a short description can be found at |Q_op|.
 			global
 			{only available when compiled with the |+reltime|
 			feature}
-	The time in milliseconds for redrawing the display.  This applies to
-	searching for patterns for 'hlsearch' and |:match| highlighting.
+	Time in milliseconds for redrawing the display.  Applies to
+	'hlsearch', 'inccommand' and |:match| highlighting.
 	When redrawing takes more than this many milliseconds no further
 	matches will be highlighted.  This is used to avoid that Vim hangs
 	when using a very complicated pattern.
@@ -4943,6 +4895,7 @@ A jump table for the options with a short description can be found at |Q_op|.
 	  keymap/	key mapping files |mbyte-keymap|
 	  lang/		menu translations |:menutrans|
 	  menu.vim	GUI menus |menu.vim|
+	  pack/		packages |:packadd|
 	  plugin/	plugin scripts |write-plugin|
 	  print/	files for printing |postscript-print-encoding|
 	  spell/	spell checking files |spell|
@@ -4968,6 +4921,8 @@ A jump table for the options with a short description can be found at |Q_op|.
 	6, 7, 8, 9. In after/ subdirectories of 1, 2, 3 and 4, with reverse 
 	   ordering.  This is for preferences to overrule or add to the 
 	   distributed defaults or system-wide settings (rarely needed).
+
+	More entries are added when using |packages|.
 
 	Note that, unlike 'path', no wildcards like "**" are allowed.  Normal
 	wildcards are allowed, but can significantly slow down searching for
@@ -4996,6 +4951,16 @@ A jump table for the options with a short description can be found at |Q_op|.
 	changes.  If you give a count to the CTRL-U or CTRL-D command it will
 	be used as the new value for 'scroll'.  Reset to half the window
 	height with ":set scroll=0".
+
+						*'scrollback'* *'scbk'*
+'scrollback' 'scbk'	number	(default: 1000
+				 in normal buffers: -1)
+			local to buffer
+	Maximum number of lines kept beyond the visible screen. Lines at the
+	top are deleted if new lines exceed this limit.
+	Only in |terminal-emulator| buffers. 'buftype'
+	-1 means "unlimited" for normal buffers, 100000 otherwise.
+	Minimum is 1.
 
 			*'scrollbind'* *'scb'* *'noscrollbind'* *'noscb'*
 'scrollbind' 'scb'	boolean  (default off)
@@ -5236,10 +5201,10 @@ A jump table for the options with a short description can be found at |Q_op|.
 		has been used since the last search command.
 							*shada-n*
 	n	Name of the shada file.  The name must immediately follow
-		the 'n'.  Must be the last one!  If the "-i" argument was
-		given when starting Vim, that file name overrides the one
-		given here with 'shada'.  Environment variables are expanded
-		when opening the file, not when setting the option.
+		the 'n'.  Must be at the end of the option!  If the "-i"
+		argument was given when starting Vim, that file name overrides
+		the one given here with 'shada'.  Environment variables are
+		expanded when opening the file, not when setting the option.
 							*shada-r*
 	r	Removable media.  The argument is a string (up to the next
 		',').  This parameter can be given several times.  Each
@@ -5445,6 +5410,7 @@ A jump table for the options with a short description can be found at |Q_op|.
 	The |FilterReadPre|, |FilterReadPost| and |FilterWritePre|,
 	|FilterWritePost| autocommands event are not triggered when
 	'shelltemp' is off.
+	|system()| does not respect this option, it always uses pipes.
 
 						*'shellxescape'* *'sxe'*
 'shellxescape' 'sxe'	string	(default: "";
@@ -5659,10 +5625,18 @@ A jump table for the options with a short description can be found at |Q_op|.
 
 	Example: Try this together with 'sidescroll' and 'listchars' as
 		 in the following example to never allow the cursor to move
-		 onto the "extends" character:
+		 onto the "extends" character: >
 
 		 :set nowrap sidescroll=1 listchars=extends:>,precedes:<
 		 :set sidescrolloff=1
+<
+						*'signcolumn'* *'scl'*
+'signcolumn' 'scl'	string	(default "auto")
+			local to window
+	Whether or not to draw the signcolumn. Valid values are:
+	   "auto"   	only when there is a sign to display
+	   "no"	    	never
+	   "yes"    	always
 
 
 			*'smartcase'* *'scs'* *'nosmartcase'* *'noscs'*
@@ -5813,9 +5787,6 @@ A jump table for the options with a short description can be found at |Q_op|.
 	(_xx is an underscore, two letters and followed by a non-letter).
 	This is mainly for testing purposes.  You must make sure the correct
 	encoding is used, Vim doesn't check it.
-	When 'encoding' is set the word lists are reloaded.  Thus it's a good
-	idea to set 'spelllang' after setting 'encoding' to avoid loading the
-	files twice.
 	How the related spell files are found is explained here: |spell-load|.
 
 	If the |spellfile.vim| plugin is active and you use a language name
@@ -6315,6 +6286,9 @@ A jump table for the options with a short description can be found at |Q_op|.
 	By default, tag searches are case-sensitive.  Case is ignored when
 	'ignorecase' is set and 'tagcase' is "followic", or when 'tagcase' is
 	"ignore".
+	Also when 'tagcase' is "followscs" and 'smartcase' is set, or
+	'tagcase' is "smart", and the pattern contains only lowercase
+	characters.
 
 	When 'tagbsearch' is off, tags searching is slower when a full match
 	exists, but faster when no full match exists.  Tags in unsorted tags
@@ -6332,8 +6306,10 @@ A jump table for the options with a short description can be found at |Q_op|.
 	This option specifies how case is handled when searching the tags
 	file:
 	   followic	Follow the 'ignorecase' option
+	   followscs    Follow the 'smartcase' and 'ignorecase' options
 	   ignore	Ignore case
 	   match	Match case
+	   smart	Ignore case unless an upper case letter is used
 
 						*'taglength'* *'tl'*
 'taglength' 'tl'	number	(default 0)
@@ -6549,7 +6525,7 @@ A jump table for the options with a short description can be found at |Q_op|.
 				     *'ttyfast'* *'tf'* *'nottyfast'* *'notf'*
 'ttyfast' 'tf'		Removed. |vim-differences| {Nvim}
 
-						*'undodir'* *'udir'* *E926*
+						*'undodir'* *'udir'* *E5003*
 'undodir' 'udir'	string	(default "$XDG_DATA_HOME/nvim/undo")
 			global
 			{only when compiled with the |+persistent_undo| feature}
@@ -7104,7 +7080,7 @@ A jump table for the options with a short description can be found at |Q_op|.
 						*'writedelay'* *'wd'*
 'writedelay' 'wd'	number	(default 0)
 			global
-	The number of microseconds to wait for each character sent to the
+	The number of milliseconds to wait for each character sent to the
 	screen.  When non-zero, characters are sent to the terminal one by
 	one.  For debugging purposes.
 

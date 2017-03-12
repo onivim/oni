@@ -1,4 +1,4 @@
-*autocmd.txt*   For Vim version 7.4.  Last change: 2016 Mar 26
+*autocmd.txt*   For Vim version 7.4.  Last change: 2016 Jun 09
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -49,9 +49,6 @@ effects.  Be careful not to destroy your text.
 ==============================================================================
 2. Defining autocommands				*autocmd-define*
 
-Note: The ":autocmd" command cannot be followed by another command, since any
-'|' is considered part of the command.
-
 							*:au* *:autocmd*
 :au[tocmd] [group] {event} {pat} [nested] {cmd}
 			Add {cmd} to the list of commands that Vim will
@@ -63,6 +60,12 @@ Note: The ":autocmd" command cannot be followed by another command, since any
 
 The special pattern <buffer> or <buffer=N> defines a buffer-local autocommand.
 See |autocmd-buflocal|.
+
+Note: The ":autocmd" command can only be followed by another command when the
+'|' appears before {cmd}.  This works: >
+	:augroup mine | au! BufRead | augroup END
+But this sees "augroup" as part of the defined command: >
+	:augroup mine | au BufRead * set tw=70 | augroup END
 
 Note that special characters (e.g., "%", "<cword>") in the ":autocmd"
 arguments are not expanded when the autocommand is defined.  These will be
@@ -270,8 +273,10 @@ Name			triggered by ~
 |VimLeave|		before exiting Vim, after writing the shada file
 
 	Various
+|DirChanged|		after the |current-directory| was changed
+
 |FileChangedShell|	Vim notices that a file changed since editing started
-|FileChangedShellPost|	After handling a file changed since editing started
+|FileChangedShellPost|	after handling a file changed since editing started
 |FileChangedRO|		before making the first change to a read-only file
 
 |ShellCmdPost|		after executing a shell command
@@ -291,6 +296,7 @@ Name			triggered by ~
 |CursorMoved|		the cursor was moved in Normal mode
 |CursorMovedI|		the cursor was moved in Insert mode
 
+|WinNew|		after creating a new window
 |WinEnter|		after entering another window
 |WinLeave|		before leaving a window
 |TabEnter|		after entering another tab page
@@ -541,6 +547,9 @@ CursorHold			When the user doesn't press a key for the time
 
 							*CursorHoldI*
 CursorHoldI			Just like CursorHold, but in Insert mode.
+				Not triggered when waiting for another key,
+				e.g. after CTRL-V, and not when in CTRL-X mode
+				|insert_expand|.
 
 							*CursorMoved*
 CursorMoved			After the cursor was moved in Normal or Visual
@@ -556,6 +565,12 @@ CursorMoved			After the cursor was moved in Normal or Visual
 CursorMovedI			After the cursor was moved in Insert mode.
 				Not triggered when the popup menu is visible.
 				Otherwise the same as CursorMoved.
+							*DirChanged*
+DirChanged			After the |current-directory| was changed.
+				Sets these |v:event| keys:
+				    cwd:   current working directory
+				    scope: "global", "tab", "window"
+				Recursion is ignored.
 							*FileAppendCmd*
 FileAppendCmd			Before appending to a file.  Should do the
 				appending to the file.  Use the '[ and ']
@@ -720,13 +735,12 @@ InsertCharPre			When a character is typed in Insert mode,
 							*TextYankPost*
 TextYankPost			Just after a |yank| or |deleting| command, but not
 				if the black hole register |quote_| is used nor
-				for |setreg()|. Pattern must be * because its
-				meaning may change in the future.
+				for |setreg()|. Pattern must be *.
 				Sets these |v:event| keys:
-					operator
-					regcontents
-					regname
-					regtype
+				    operator
+				    regcontents
+				    regname
+				    regtype
 				Recursion is ignored.
 				It is not allowed to change the text |textlock|.
 							*InsertEnter*
@@ -940,7 +954,15 @@ VimEnter			After doing all the startup stuff, including
 				loading vimrc files, executing the "-c cmd"
 				arguments, creating all windows and loading
 				the buffers in them.
-							*VimLeave*
+				Just before this event is triggered the
+				|v:vim_did_enter| variable is set, so that you
+				can do: >
+				   if v:vim_did_enter
+				     call s:init()
+				   else
+ 	  			     au VimEnter * call s:init()
+				   endif
+<							*VimLeave*
 VimLeave			Before exiting Vim, just after writing the
 				.shada file.  Executed only once, like
 				VimLeavePre.
@@ -977,6 +999,11 @@ WinLeave			Before leaving a window.  If the window to be
 				executes the BufLeave autocommands before the
 				WinLeave autocommands (but not for ":new").
 				Not used for ":qa" or ":q" when exiting Vim.
+
+							*WinNew*
+WinNew				When a new window was created.  Not done for
+				the fist window, when Vim has just started.
+				Before a WinEnter event.
 
 ==============================================================================
 6. Patterns					*autocmd-patterns* *{pat}*
@@ -1215,6 +1242,8 @@ option will not cause any commands to be executed.
 			argument is present. You probably want to use
 			<nomodeline> for events that are not used when loading
 			a buffer, such as |User|.
+			Processing modelines is also skipped when no
+			matching autocommands were executed.
 
 						*:doautoa* *:doautoall*
 :doautoa[ll] [<nomodeline>] [group] {event} [fname]

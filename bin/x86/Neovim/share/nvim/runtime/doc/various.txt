@@ -1,4 +1,4 @@
-*various.txt*   For Vim version 7.4.  Last change: 2016 Mar 20
+*various.txt*   For Vim version 7.4.  Last change: 2016 Jul 09
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -207,24 +207,17 @@ g8			Print the hex values of the bytes used in the
 :sh[ell]		Removed. |vim-differences| {Nvim}
 
 						  *:terminal* *:te*
-:te[rminal][!] {cmd}	Spawns {cmd} using the current value of 'shell' and
-			'shellcmdflag' in a new terminal buffer.  This is
-			equivalent to: >
-
+:te[rminal][!] {cmd}	Execute {cmd} with 'shell' in a |terminal-emulator|
+                        buffer.  Equivalent to: >
 			      :enew
 			      :call termopen('{cmd}')
 			      :startinsert
 <
-			If no {cmd} is given, 'shellcmdflag' will not be sent
-			to |termopen()|.
+                        See |jobstart()|.
 
-			Like |:enew|, it will fail if the current buffer is
-			modified, but can be forced with "!".  See |termopen()|
-			and |terminal-emulator|.
-
-			To switch to terminal mode automatically:
->
+			To enter terminal mode automatically: >
 			      autocmd BufEnter term://* startinsert
+			      autocmd BufLeave term://* stopinsert
 <
 							*:!cmd* *:!* *E34*
 :!{cmd}			Execute {cmd} with 'shell'. See also |:terminal|.
@@ -255,13 +248,19 @@ g8			Print the hex values of the bytes used in the
 			backslashes are before the newline, only one is
 			removed.
 
-			On Unix the command normally runs in a non-interactive
-			shell.  If you want an interactive shell to be used
-			(to use aliases) set 'shellcmdflag' to "-ic".
+			The command runs in a non-interactive shell connected
+			to a pipe (not a terminal). Use |:terminal| to run an
+			interactive shell connected to a terminal.
+
 			For Win32 also see |:!start|.
 
 			After the command has been executed, the timestamp and
 			size of the current file is checked |timestamp|.
+
+			If the command produces too much output some lines may
+			be skipped so the command can execute quickly.  No
+			data is lost, this only affects the display.  The last
+			few lines are always displayed (never skipped).
 
 			Vim redraws the screen after the command is finished,
 			because it may have printed any text.  This requires a
@@ -410,9 +409,12 @@ m  *+xpm_w32*		Win32 GUI only: pixmap support |w32-xpm-support|
 			shown on the screen.  When [!] is included, an
 			existing file is overwritten.  When [!] is omitted,
 			and {file} exists, this command fails.
+
 			Only one ":redir" can be active at a time.  Calls to
 			":redir" will close any active redirection before
-			starting redirection to the new target.
+			starting redirection to the new target.  For recursive
+			use check out |execute()|.
+
 			To stop the messages and commands from being echoed to
 			the screen, put the commands in a function and call it
 			with ":silent call Function()".
@@ -450,6 +452,8 @@ m  *+xpm_w32*		Win32 GUI only: pixmap support |w32-xpm-support|
 			redirection starts, if the variable is removed or
 			locked or the variable type is changed, then further
 			command output messages will cause errors.
+			To get the output of one command the |execute()|
+			function can be used.
 
 :redi[r] =>> {var}	Append messages to an existing variable.  Only string
 			variables can be used.

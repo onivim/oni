@@ -1,4 +1,4 @@
-*filetype.txt*  For Vim version 7.4.  Last change: 2015 Dec 06
+*filetype.txt*  For Vim version 7.4.  Last change: 2016 Jun 20
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -520,6 +520,8 @@ To use Nvim as a manpager: >
 
 man.vim will always attempt to reuse the closest man window (above/left) but
 otherwise create a split.
+
+The case sensitivity of completion is controlled by 'fileignorecase'.
 
 Commands:
 Man {name}                Display the manpage for {name}.
