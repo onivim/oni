@@ -145,9 +145,13 @@ export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
 
 }
 
+/**
+ * Specialized renderer that renders a single instance of a multibyte-character
+ * Currently, this makes the assumption that character width will always be `2` - if that is not true, it will need to be modified.
+ */
 export class MultibyteTokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
 
-    private _spans: HTMLElement[] = []
+    private _str: string = ""
     private _hasRendered: boolean = false
 
     public get canCombine(): boolean {
@@ -166,10 +170,7 @@ export class MultibyteTokenRenderer extends BaseTokenRenderer implements ITokenR
         super.appendCell(cell)
 
         if (cell.characterWidth > 1) {
-            const span = document.createElement("span");
-            span.textContent = cell.character;
-            span.style.width = (cell.characterWidth * this.screen.fontWidthInPixels) + "px";
-            this._spans.push(span);
+            this._str += cell.character
         } else if(cell.characterWidth === 0) {
             this._hasRendered = true
         }
@@ -177,9 +178,8 @@ export class MultibyteTokenRenderer extends BaseTokenRenderer implements ITokenR
 
     public getTag(): HTMLElement | null {
         const span = super.getDefaultTag()
-        this._spans.forEach((s) => span.appendChild(s));
+        span.textContent = this._str
         span.style.width = ((this.width) * this.screen.fontWidthInPixels) + "px"
-        span.classList.add("randomclass" + Math.random() * 1000);
         return span
     }
 
