@@ -68,7 +68,7 @@ export class BaseTokenRenderer {
     public appendCell(cell: ICell): void {
         this._lastCell = cell
 
-        this._width++
+        this._width += cell.characterWidth
     }
 
     public getDefaultTag(): HTMLElement {
@@ -113,28 +113,68 @@ export class WhiteSpaceTokenRenderer extends BaseTokenRenderer implements IToken
 
 export class TokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
 
-    private _str: string = ""
+    private _spans: HTMLElement[] = [];
 
     constructor(x: number, y: number, cell: ICell, screen: IScreen, elementFactory: IElementFactory) {
         super(x, y, cell, screen, elementFactory)
     }
 
     public canHandleCell(cell: ICell): boolean {
-        return super.canHandleCell(cell) && !isWhiteSpace(cell)
+        return super.canHandleCell(cell) && !isWhiteSpace(cell) && cell.characterWidth === 1
     }
 
     public appendCell(cell: ICell): void {
         super.appendCell(cell)
 
         if (cell.characterWidth > 0) {
-            this._str += cell.character
+            const span = document.createElement("span");
+            span.textContent = cell.character;
+            span.style.width = (cell.characterWidth * this.screen.fontWidthInPixels) + "px";
+            this._spans.push(span);
         }
     }
 
     public getTag(): HTMLElement | null {
         const span = super.getDefaultTag()
-        span.textContent = this._str
-        span.style.width = ((this._str.length) * this.screen.fontWidthInPixels) + "px"
+        this._spans.forEach((s) => span.appendChild(s));
+        span.style.width = ((this.width) * this.screen.fontWidthInPixels) + "px"
+        return span
+    }
+
+}
+
+export class MultibyteTokenRenderer extends BaseTokenRenderer implements ITokenRenderer {
+
+    private _spans: HTMLElement[] = []
+    private _hasRendered: boolean = false
+
+    constructor(x: number, y: number, cell: ICell, screen: IScreen, elementFactory: IElementFactory) {
+        super(x, y, cell, screen, elementFactory)
+    }
+
+    public canHandleCell(cell: ICell): boolean {
+        return super.canHandleCell(cell) && !isWhiteSpace(cell) && cell.characterWidth !== 1 && !this._hasRendered
+    }
+
+    public appendCell(cell: ICell): void {
+        super.appendCell(cell)
+
+        if (cell.characterWidth > 1) {
+            const span = document.createElement("span");
+            span.textContent = cell.character;
+            span.style.width = (cell.characterWidth * this.screen.fontWidthInPixels) + "px";
+            this._spans.push(span);
+        } else if(cell.characterWidth === 0) {
+            this._hasRendered = true
+        }
+    }
+
+    public getTag(): HTMLElement | null {
+        const span = super.getDefaultTag()
+        this._spans.forEach((s) => span.appendChild(s));
+        span.style.width = ((this.width) * this.screen.fontWidthInPixels) + "px"
+        // TODO: Hack
+        span.classList.add("randomclass" + Math.random() * 1000);
         return span
     }
 
@@ -144,7 +184,12 @@ export function getRendererForCell(x: number, y: number, cell: ICell, screen: IS
     if (isWhiteSpace(cell)) {
         return new WhiteSpaceTokenRenderer(x, y, cell, screen, elementFactory)
     } else {
-        return new TokenRenderer(x, y, cell, screen, elementFactory)
+
+        if (cell.characterWidth === 1) {
+            return new TokenRenderer(x, y, cell, screen, elementFactory)
+        } else {
+            return new MultibyteTokenRenderer(x, y, cell, screen, elementFactory);
+        }
     }
 }
 
