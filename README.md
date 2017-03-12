@@ -262,3 +262,5 @@ Also, big thanks to our [contributors](https://github.com/extr0py/oni/graphs/con
 In addition, there are several other great NeoVim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) that served as great reference points and learning opportunities.
 
 There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
+
+Special thanks to [Till Arnold](https://github.com/tillarnold) for handing over the `oni` NPM package name.
