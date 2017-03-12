@@ -349,7 +349,8 @@ const start = (args: string[]) => {
     }
     window.addEventListener("resize", resize)
 
-    window["neovim"] = instance // tslint:disable-line no-string-literal
+    window["__neovim"] = instance // tslint:disable-line no-string-literal
+    window["__screen"] = screen // tslint:disable-line no-string-literal
 
     UI.init()
 
