@@ -177,7 +177,7 @@ export class NeovimScreen implements IScreen {
                 for (let i = 0; i < characters.length; i++) {
                     const character = characters[i]
 
-                    const characterWidth = wcwidth(character)
+                    const characterWidth = Math.max(wcwidth(character), 1)
 
                     this._setCell(col + i, row, {
                         foregroundColor,
@@ -185,6 +185,15 @@ export class NeovimScreen implements IScreen {
                         character,
                         characterWidth,
                     })
+
+                    for (let c = 1; c < characterWidth; c++) {
+                        this._setCell(col + i + c, row, {
+                            foregroundColor,
+                            backgroundColor,
+                            character: "",
+                            characterWidth: 0,
+                        })
+                    }
 
                     i += characterWidth - 1
                 }
