@@ -17,7 +17,7 @@ export interface ISpanElementInfo extends ISpan {
  * they have the same styling (foreground color and background color). The location will be checked
  * against the span before it
  */
-export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: number, grid: Grid<ISpanElementInfo>, elementFactory: IElementFactory): void {
+export function combineSpansAtBoundary(x: number, y: number, grid: Grid<ISpanElementInfo>, elementFactory: IElementFactory): void {
 
     const prevCellX = x - 1
 
@@ -64,7 +64,7 @@ export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: 
 
     elementFactory.recycle(currentElement)
 
-    previousElement.style.width = (fontWidthInPixels * combinedText.length) + "px"
+    previousElement.style.width = previousElement.offsetWidth + currentElement.offsetWidth + "px"
 
     const updatedSpan = {
         startX: previousSpan.startX,
