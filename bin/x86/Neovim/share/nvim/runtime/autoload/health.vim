@@ -1,18 +1,25 @@
 function! s:enhance_syntax() abort
+  syntax case match
+
   syntax keyword healthError ERROR
+        \ containedin=markdownCodeBlock,mkdListItemLine
   highlight link healthError Error
 
   syntax keyword healthWarning WARNING
+        \ containedin=markdownCodeBlock,mkdListItemLine
   highlight link healthWarning WarningMsg
 
-  syntax keyword healthInfo INFO
-  highlight link healthInfo ModeMsg
-
   syntax keyword healthSuccess SUCCESS
-  highlight link healthSuccess Function
+        \ containedin=markdownCodeBlock,mkdListItemLine
+  highlight healthSuccess guibg=#5fff00 guifg=#080808 ctermbg=82 ctermfg=232
 
-  syntax keyword healthSuggestion SUGGESTIONS
-  highlight link healthSuggestion String
+  syntax match healthHelp "|.\{-}|" contains=healthBar
+        \ containedin=markdownCodeBlock,mkdListItemLine
+  syntax match healthBar  "|" contained conceal
+  highlight link healthHelp Identifier
+
+  " We do not care about markdown syntax errors in :CheckHealth output.
+  highlight! link markdownError Normal
 endfunction
 
 " Runs the specified healthchecks.
@@ -23,7 +30,10 @@ function! health#check(plugin_names) abort
         \ : s:to_fn_names(a:plugin_names)
 
   tabnew
-  setlocal filetype=markdown bufhidden=wipe
+  setlocal wrap breakindent
+  setlocal filetype=markdown
+  setlocal conceallevel=2 concealcursor=nc
+  setlocal keywordprg=:help
   call s:enhance_syntax()
 
   if empty(healthchecks)
@@ -32,7 +42,7 @@ function! health#check(plugin_names) abort
     redraw|echo 'Running healthchecks...'
     for c in healthchecks
       let output = ''
-      call append('$', split(printf("\n%s\n%s", c, repeat('=',80)), "\n"))
+      call append('$', split(printf("\n%s\n%s", c, repeat('=',72)), "\n"))
       try
         let output = "\n\n".execute('call '.c.'()')
       catch
@@ -45,7 +55,7 @@ function! health#check(plugin_names) abort
           let output = execute(
                 \ 'call health#report_error(''Failed to run healthcheck for "'
                 \ .s:to_plugin_name(c)
-                \ .'" plugin. Exception:''."\n".v:exception)')
+                \ .'" plugin. Exception:''."\n".v:throwpoint."\n".v:exception)')
         endif
       endtry
       call append('$', split(output, "\n") + [''])
@@ -53,6 +63,8 @@ function! health#check(plugin_names) abort
     endfor
   endif
 
+  " needed for plasticboy/vim-markdown, because it uses fdm=expr
+  normal! zR
   setlocal nomodified
   redraw|echo ''
 endfunction
@@ -72,6 +84,11 @@ function! s:indent_after_line1(s, columns) abort
     let lines[i] = substitute(lines[i], '^\s*', repeat(' ', a:columns), 'g')
   endfor
   return join(lines, "\n")
+endfunction
+
+" Changes ':h clipboard' to ':help |clipboard|'.
+function! s:help_to_link(s) abort
+  return substitute(a:s, '\v[''"]?:h%[elp] ([^''"]+)[''"]?', '":help |\1|"', 'g')
 endfunction
 
 " Format a message for a specific report item
@@ -95,7 +112,7 @@ function! s:format_report_message(status, msg, ...) abort " {{{
     let output .= "\n      - " . s:indent_after_line1(suggestion, 10)
   endfor
 
-  return output
+  return s:help_to_link(output)
 endfunction " }}}
 
 " Use {msg} to report information in the current section
@@ -127,8 +144,8 @@ function! health#report_error(msg, ...) abort " {{{
 endfunction " }}}
 
 function! s:filepath_to_function(name) abort
-  return substitute(substitute(substitute(a:name, ".*autoload/", "", ""),
-        \ "\\.vim", "#check", ""), "/", "#", "g")
+  return substitute(substitute(substitute(a:name, '.*autoload[\/]', '', ''),
+        \ '\.vim', '#check', ''), '[\/]', '#', 'g')
 endfunction
 
 function! s:discover_health_checks() abort

@@ -168,6 +168,8 @@ API metadata object ~
 API clients exist to hide msgpack-rpc details. The API metadata object
 contains information that makes this task easier (see also |rpc-types|):
 
+  - The "version" key contains the Nvim version, API level, and API
+    backwards-compatibility level.
   - The "functions" key contains a list of metadata objects for individual
     functions.
   - Each function metadata object has |rpc-types| information about the return
@@ -388,8 +390,9 @@ of update.
 	The menu mappings changed.
 
 ["mode_change", mode]
-	The mode changed. Currently sent when "insert", "replace" and "normal"
-	modes are entered. A client could for instance change the cursor shape.
+	The mode changed. Currently sent when "insert", "replace", "cmdline" and
+	"normal" modes are entered. A client could for instance change the cursor
+	shape.
 
 ["popupmenu_show", items, selected, row, col]
 	When `popupmenu_external` is set to true, nvim will not draw the

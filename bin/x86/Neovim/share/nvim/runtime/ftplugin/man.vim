@@ -6,22 +6,10 @@ if exists('b:did_ftplugin') || &filetype !=# 'man'
 endif
 let b:did_ftplugin = 1
 
-let s:pager = 0
+let s:pager = !exists('b:man_sect')
 
-if has('vim_starting')
-  let s:pager = 1
-  " remove all those backspaces
-  silent execute 'keeppatterns keepjumps %substitute,.\b,,e'.(&gdefault?'':'g')
-  if getline(1) =~# '^\s*$'
-    silent keepjumps 1delete _
-  else
-    keepjumps 1
-  endif
-  " This is not perfect. See `man glDrawArraysInstanced`. Since the title is
-  " all caps it is impossible to tell what the original capitilization was.
-  let ref = tolower(matchstr(getline(1), '^\S\+'))
-  let b:man_sect = man#extract_sect_and_name_ref(ref)[0]
-  execute 'file man://'.ref
+if s:pager
+  call man#init_pager()
 endif
 
 setlocal buftype=nofile
@@ -43,8 +31,8 @@ setlocal nolist
 setlocal nofoldenable
 
 if !exists('g:no_plugin_maps') && !exists('g:no_man_maps')
-  nmap     <silent> <buffer> <C-]>      :Man<CR>
-  nmap     <silent> <buffer> K          :Man<CR>
+  nnoremap <silent> <buffer> <C-]>      :Man<CR>
+  nnoremap <silent> <buffer> K          :Man<CR>
   nnoremap <silent> <buffer> <C-T>      :call man#pop_tag()<CR>
   if s:pager
     nnoremap <silent> <buffer> <nowait> q :q<CR>

@@ -60,7 +60,7 @@ ONI brings several IDE-like integrations to NeoVim:
 
 - For Windows, a pre-built x86 binary of NeoVim is included.
 
-- For OSX and Linux, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available.
+- For OSX and Linux, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required.
 
 ### Install from NPM
 

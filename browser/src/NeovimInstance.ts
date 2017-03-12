@@ -132,7 +132,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         } else if (pluginMethod === "api_info") {
                             const apiVersion = args[0][0]
                             if (apiVersion.api_level < 1) {
-                                alert("Please upgrade to at least Neovim 0.1.6")
+                                alert("Please upgrade to at least Neovim 0.2.0")
                             }
 
                         } else {

@@ -1,4 +1,4 @@
-*starting.txt*  For Vim version 7.4.  Last change: 2016 Apr 05
+*starting.txt*  For Vim version 7.4.  Last change: 2016 Jul 03
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -198,7 +198,8 @@ argument.
 -Z		Restricted mode.  All commands that make use of an external
 		shell are disabled.  This includes suspending with CTRL-Z,
 		":sh", filtering, the system() function, backtick expansion,
-		delete(), rename(), mkdir(), writefile(), libcall(), etc.
+		delete(), rename(), mkdir(), writefile(), libcall(),
+		jobstart(), etc.
 
 							*-e*
 -e		Start Vim in Ex mode |Q|.
@@ -656,14 +657,9 @@ is the order used to find the value of $VIMRUNTIME:
 3. If "$VIM/runtime" exists, it is used.
 4. The value of $VIM is used.  This is for backwards compatibility with older
    versions.
-5. When the 'helpfile' option is set and doesn't contain a '$', its value is
+5. If "../share/nvim/runtime" exists relative to |v:progpath|, it is used.
+6. When the 'helpfile' option is set and doesn't contain a '$', its value is
    used, with "doc/help.txt" removed from the end.
-
-For Unix, when there is a compiled-in default for $VIMRUNTIME (check the
-output of ":version"), steps 2, 3 and 4 are skipped, and the compiled-in
-default is used after step 5.  This means that the compiled-in default
-overrules the value of $VIM.  This is useful if $VIM is "/etc" and the runtime
-files are in "/usr/share/vim/vim54".
 
 Once Vim has done this once, it will set the $VIMRUNTIME environment variable.
 To change it later, use a ":let" command like this: >
@@ -1134,7 +1130,7 @@ files for different types of files (e.g., C code) and load them based on the
 file name, using the ":autocmd" command (see |:autocmd|).  More information on 
 ShaDa file format is contained in |shada-format| section.
 
-					  *E136* *E138* *shada-error-handling*
+					  *E136* *E929* *shada-error-handling*
 Some errors make Neovim leave temporary file named `{basename}.tmp.X` (X is 
 any free letter from `a` to `z`) while normally it will create this file, 
 write to it and then rename `{basename}.tmp.X` to `{basename}`. Such errors 
@@ -1154,7 +1150,7 @@ include:
 
 Do not forget to remove the temporary file or replace the target file with 
 temporary one after getting one of the above errors or all attempts to create 
-a ShaDa file may fail with |E138|.  If you got one of them when using 
+a ShaDa file may fail with |E929|.  If you got one of them when using 
 |:wshada| (and not when exiting Neovim: i.e. when you have Neovim session 
 running) you have additional options:
 
@@ -1186,7 +1182,7 @@ running) you have additional options:
 			internal info is written (also disables safety checks 
 			described in |shada-error-handling|).  If 'shada' is 
 			empty, marks for up to 100 files will be written.
-			When you get error "E138: All .tmp.X files exist, 
+			When you get error "E929: All .tmp.X files exist, 
 			cannot write ShaDa file!" check that no old temp files 
 			were left behind (e.g. 
 			~/.local/share/nvim/shada/main.shada.tmp*).
