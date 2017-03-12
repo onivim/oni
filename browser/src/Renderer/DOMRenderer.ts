@@ -59,7 +59,7 @@ export class DOMRenderer implements INeovimRenderer {
                 this._renderSpan(span.startX, span.endX, y, screenInfo)
 
                 // check if beginning boundary can be combined
-                combineSpansAtBoundary(span.startX, y, screenInfo.fontWidthInPixels,  this._grid, this._elementFactory)
+                combineSpansAtBoundary(span.startX, y, screenInfo.fontWidthInPixels, this._grid, this._elementFactory)
 
                 // check if following boundary can be combined
                 combineSpansAtBoundary(span.endX, y, screenInfo.fontWidthInPixels, this._grid, this._elementFactory)
@@ -122,7 +122,7 @@ export class DOMRenderer implements INeovimRenderer {
 export function getSpansToEdit(grid: Grid<ISpanElementInfo>, cells: IDeltaCellPosition[], elementFactory: IElementFactory): Map<number, ISpan[]> {
     const rowToSpans = new Map<number, ISpan[]>()
     cells.forEach((cell) => {
-        const {x, y} = cell
+        const { x, y } = cell
 
         const info = grid.getCell(x, y)
         const currentRow = rowToSpans.get(y) || []

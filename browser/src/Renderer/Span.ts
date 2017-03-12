@@ -7,9 +7,9 @@ export interface ISpan {
 }
 
 export interface ISpanElementInfo extends ISpan {
-    element: HTMLElement | null
-    foregroundColor: string | undefined
-    backgroundColor: string | undefined
+    element?: HTMLElement | null
+    foregroundColor?: string | undefined
+    backgroundColor?: string | undefined
     canCombine: boolean
 }
 
