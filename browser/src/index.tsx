@@ -295,6 +295,12 @@ const start = (args: string[]) => {
             if (key === "<enter>") {
                 let completion = UI.getSelectedCompletion() || ""
 
+                instance.getCurrentBuffer()
+                    .then((buffer) => buffer.getLines(screen.cursorRow, screen.cursorRow+1, false))
+                    .then((value) => {
+                        console.log(value)
+                        debugger
+                    })
                 // move one character left so the cursor is "within" the word
                 // (we wouldn't be displaying completions if there wasn't at least one character)
                 instance.input("<left>")
