@@ -17,6 +17,8 @@ import { NeovimInstance } from "./NeovimInstance"
 import { PluginManager } from "./Plugins/PluginManager"
 import { DOMRenderer } from "./Renderer/DOMRenderer"
 import { NeovimScreen } from "./Screen"
+
+import { AutoCompletion } from "./Services/AutoCompletion"
 import { BufferUpdates } from "./Services/BufferUpdates"
 import { CommandManager } from "./Services/CommandManager"
 import { registerBuiltInCommands } from "./Services/Commands"
@@ -29,6 +31,7 @@ import { QuickOpen } from "./Services/QuickOpen"
 import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
 import { Tasks } from "./Services/Tasks"
 import { WindowTitle } from "./Services/WindowTitle"
+
 import * as UI from "./UI/index"
 import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./UI/Overlay/LiveEvaluationOverlay"
@@ -73,6 +76,7 @@ const start = (args: string[]) => {
     let pendingTimeout: any = null
 
     // Services
+    const autoCompletion = new AutoCompletion(instance, screen)
     const bufferUpdates = new BufferUpdates(instance, pluginManager)
     const errorService = new Errors(instance)
     const quickOpen = new QuickOpen(instance)
@@ -88,6 +92,7 @@ const start = (args: string[]) => {
     tasks.registerTaskProvider(commandManager)
     tasks.registerTaskProvider(errorService)
 
+    services.push(autoCompletion)
     services.push(bufferUpdates)
     services.push(errorService)
     services.push(quickOpen)
@@ -166,18 +171,6 @@ const start = (args: string[]) => {
             UI.hideSignatureHelp()
             UI.hideQuickInfo()
         }
-    })
-
-    instance.on("show-popup-menu", (completions: any[]) => {
-        const c = completions.map((completion) => ({
-            kind: "text",
-            label: completion[0],
-        }))
-
-        UI.showCompletions({
-            base: "",
-            completions: c,
-        })
     })
 
     instance.on("error", (_err: string) => {
@@ -293,27 +286,7 @@ const start = (args: string[]) => {
         if (UI.areCompletionsVisible()) {
 
             if (key === "<enter>") {
-                let completion = UI.getSelectedCompletion() || ""
-
-                instance.getCurrentBuffer()
-                    .then((buffer) => buffer.getLines(screen.cursorRow, screen.cursorRow+1, false))
-                    .then((value) => {
-                        console.log(value)
-                        debugger
-                    })
-                // move one character left so the cursor is "within" the word
-                // (we wouldn't be displaying completions if there wasn't at least one character)
-                instance.input("<left>")
-                // get current word under cursor
-                instance.eval<string>("expand('<cword>')")
-                    .then((word) => {
-                        // move back to where we were
-                        instance.input("<right>")
-                        // remove the first instance of the word under the cursor
-                        instance.input(completion.replace(word, ""))
-                    })
-
-                UI.hideCompletions()
+                autoCompletion.complete()
                 return
             } else if (key === "<C-n>") {
                 UI.nextCompletion()
