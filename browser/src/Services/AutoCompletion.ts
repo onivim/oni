@@ -1,10 +1,4 @@
 /**
- * QuickOpen.ts
- *
- * Manages the quick open menu
- */
-
-/**
  * AutoCompletion.ts
  *
  * Manages the autocompletion service:
