@@ -86,14 +86,34 @@ Performance.mark("Config.load.start")
 
 export const userJsConfig = path.join(getUserFolder(), "config.js")
 
-let userConfig = {}
-let userRuntimeConfig = {}
+let Config = {}
 
-if (fs.existsSync(userJsConfig)) {
-    userRuntimeConfig = global["require"](userJsConfig) // tslint:disable-line no-string-literal
+function applyConfig(): void {
+    let userRuntimeConfig = {}
+    if (fs.existsSync(userJsConfig)) {
+        userRuntimeConfig = global["require"](userJsConfig) // tslint:disable-line no-string-literal
+    }
+    Config = { ...DefaultConfig, ...DefaultPlatformConfig, ...userRuntimeConfig }
 }
 
-const Config = { ...DefaultConfig, ...DefaultPlatformConfig, ...userConfig, ...userRuntimeConfig }
+
+applyConfig()
+// use watch() on the directory rather than on config.js because it watches
+// file references and changing a file in Vim typically saves a tmp file
+// then moves it over to the original filename, causing watch() to lose its
+// reference. Instead, watch() can watch the folder for the file changes
+// and continue to fire when file references are swapped out.
+// Unfortunately, this also means the 'change' event fires twice.
+// I could use watchFile() but that polls every 5 seconds.  Not ideal.
+fs.watch(getUserFolder(), (event, filename) => {
+    if (event === "change" && filename === "config.js") {
+        // invalidate the Config currently stored in cache
+        delete global["require"].cache[global["require"].resolve(userJsConfig)] // tslint:disable-line no-string-literal
+        applyConfig()
+        notifyListeners()
+    }
+})
+
 Performance.mark("Config.load.end")
 
 export function hasValue(configValue: string): boolean {
@@ -106,4 +126,23 @@ export function getValue<T>(configValue: string): T {
 
 export function getUserFolder(): string {
     return path.join(Platform.getUserHome(), ".oni")
+}
+
+let listeners: Function[] = []
+
+export function registerListener(callback: Function): void {
+    listeners.push(callback)
+}
+
+export function unregisterListener(callback: Function): void {
+    let index = listeners.indexOf(callback, 0)
+    if (index > -1) {
+        listeners.splice(index, 1)
+    }
+}
+
+function notifyListeners(): void {
+    for (let callback of listeners) {
+        callback()
+    }
 }
