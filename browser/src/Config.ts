@@ -96,7 +96,6 @@ function applyConfig(): void {
     Config = { ...DefaultConfig, ...DefaultPlatformConfig, ...userRuntimeConfig }
 }
 
-
 applyConfig()
 // use watch() on the directory rather than on config.js because it watches
 // file references and changing a file in Vim typically saves a tmp file
