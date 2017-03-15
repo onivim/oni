@@ -166,6 +166,11 @@ const start = (args: string[]) => {
             UI.hideSignatureHelp()
             UI.hideQuickInfo()
         }
+
+        if (eventName === "DirChanged") {
+            instance.getCurrentWorkingDirectory()
+                .then((newDirectory) => process.chdir(newDirectory))
+        }
     })
 
     instance.on("show-popup-menu", (completions: any[]) => {
