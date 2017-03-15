@@ -245,6 +245,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             .then((buf: any) => new Buffer(buf))
     }
 
+    public getCurrentWorkingDirectory(): Q.Promise<string> {
+        return this.eval("getcwd()")
+                .then((currentWorkingDirectory: string) => path.normalize(currentWorkingDirectory))
+    }
+
     public getCurrentWindow(): Q.Promise<IWindow> {
         return this._sessionWrapper.invoke<any>("nvim_get_current_win", [])
             .then((win: any) => new Window(win))
