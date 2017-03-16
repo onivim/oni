@@ -48,7 +48,6 @@ export class AutoCompletion {
             .then((row) => cursorRow = row)
 
             .then(() => {
-                debugger
                 return currentBuffer.getLines(cursorRow - 1, cursorRow, false)
             })
             .then((value) => {
