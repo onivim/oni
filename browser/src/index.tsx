@@ -76,7 +76,7 @@ const start = (args: string[]) => {
     let pendingTimeout: any = null
 
     // Services
-    const autoCompletion = new AutoCompletion(instance, screen)
+    const autoCompletion = new AutoCompletion(instance)
     const bufferUpdates = new BufferUpdates(instance, pluginManager)
     const errorService = new Errors(instance)
     const quickOpen = new QuickOpen(instance)

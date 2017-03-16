@@ -8,7 +8,7 @@
 
 import { INeovimInstance } from "./../NeovimInstance"
 import { IBuffer } from "./../neovim/Buffer"
-import { IScreen } from "./../Screen"
+import * as Utility from "./AutoCompletionUtility"
 
 import * as UI from "./../UI/index"
 
@@ -16,7 +16,6 @@ export class AutoCompletion {
 
     constructor(
         private _neovimInstance: INeovimInstance,
-        private _screen: IScreen
     ) {
         this._neovimInstance.on("show-popup-menu", (completions: any[]) => {
             const c = completions.map((completion) => ({
@@ -32,45 +31,39 @@ export class AutoCompletion {
     }
 
     public complete(): void {
-        // TODO: Replace row/col from screen with evals
-        const { cursorRow, cursorColumn } = this._screen
+        let cursorRow: number
+        let cursorColumn: number
+        let originalLineLength: number
+        let newLineLength: number
+
         let completion = UI.getSelectedCompletion() || ""
         let currentBuffer: IBuffer
         this._neovimInstance.getCurrentBuffer()
             .then((buffer) => currentBuffer = buffer)
-            .then(() => currentBuffer.getLines(cursorRow, cursorRow + 1, false))
+
+            .then(() => this._neovimInstance.getCursorColumn())
+            .then((col) => cursorColumn = col)
+
+            .then(() => this._neovimInstance.getCursorRow())
+            .then((row) => cursorRow = row)
+
+            .then(() => {
+                debugger
+                return currentBuffer.getLines(cursorRow - 1, cursorRow, false)
+            })
             .then((value) => {
                 const line = value[0]
-                const newLine = replacePrefixWithCompletion(line, cursorColumn, completion)
+                originalLineLength =line.length
+                const newLine = Utility.replacePrefixWithCompletion(line, cursorColumn - 2, completion)
+                newLineLength = newLine.length
                 console.log(newLine)
-                return currentBuffer.setLines(cursorRow, cursorRow + 1, false, [newLine])
+                return currentBuffer.setLines(cursorRow - 1, cursorRow, false, [newLine])
+            })
+            .then(() => {
+                const cursorOffset = newLineLength - originalLineLength
+                return this._neovimInstance.eval(`setpos(".", [0, ${cursorRow}, ${cursorColumn + cursorOffset} + 2, 0])`)
             })
 
         UI.hideCompletions()
     }
-}
-
-export function getCompletionStart(bufferLine: string, cursorColumn: number, completion: string): number {
-
-    let x = cursorColumn - 1
-    while (x > 0) {
-        const subWord = bufferLine.substring(x, cursorColumn)
-
-        if (!completion.indexOf(subWord)) {
-            break
-        }
-
-        x--
-    }
-
-    return x + 1
-}
-
-export function replacePrefixWithCompletion(bufferLine: string, cursorColumn: number, completion: string): string {
-    const startPosition = getCompletionStart(bufferLine, cursorColumn, completion)
-
-    const before = bufferLine.substring(0, startPosition)
-    const after = bufferLine.substring(cursorColumn, bufferLine.length)
-
-    return before + completion + after
 }
