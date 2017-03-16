@@ -41,22 +41,11 @@ const start = (args: string[]) => {
 
     const parsedArgs = minimist(args)
 
-    const cursorLine = Config.getValue<boolean>("editor.cursorLine")
-    const cursorColumn = Config.getValue<boolean>("editor.cursorColumn")
-    UI.setCursorLineOpacity(Config.getValue<number>("editor.cursorLineOpacity"))
-    UI.setCursorColumnOpacity(Config.getValue<number>("editor.cursorColumnOpacity"))
-
-    if (cursorLine) {
-        UI.showCursorLine()
-    }
-
-    if (cursorColumn) {
-        UI.showCursorColumn()
-    }
+    let cursorLine: boolean
+    let cursorColumn: boolean
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
-    remote.getCurrentWindow().setFullScreen(Config.getValue<boolean>("editor.fullScreenOnStart"))
     require("./overlay.less")
 
     let deltaRegion = new IncrementalDeltaRegionTracker()
@@ -261,7 +250,28 @@ const start = (args: string[]) => {
         pendingTimeout = null
     }
 
-    instance.setFont(Config.getValue<string>("editor.fontFamily"), Config.getValue<string>("editor.fontSize"))
+    const configChange = () => {
+        cursorLine = Config.getValue<boolean>("editor.cursorLine")
+        cursorColumn = Config.getValue<boolean>("editor.cursorColumn")
+        UI.setCursorLineOpacity(Config.getValue<number>("editor.cursorLineOpacity"))
+        UI.setCursorColumnOpacity(Config.getValue<number>("editor.cursorColumnOpacity"))
+
+        if (cursorLine) {
+            UI.showCursorLine()
+        }
+
+        if (cursorColumn) {
+            UI.showCursorColumn()
+        }
+
+        remote.getCurrentWindow().setFullScreen(Config.getValue<boolean>("editor.fullScreenOnStart"))
+        instance.setFont(Config.getValue<string>("editor.fontFamily"), Config.getValue<string>("editor.fontSize"))
+        renderFunction()
+        updateFunction()
+    }
+    configChange() // initialize values
+    Config.registerListener(configChange)
+
     instance.start(parsedArgs._)
 
     const mouse = new Mouse(editorElement, screen)
@@ -327,7 +337,7 @@ const start = (args: string[]) => {
         if (key === "<f12>") {
             commandManager.executeCommand("oni.editor.gotoDefinition", null)
         } else if (key === "<C-p>" && screen.mode === "normal") {
-            quickOpen.show(Config.getValue<string[]>("editor.exclude"))
+            quickOpen.show()
         } else if (key === "<C-P>" && screen.mode === "normal") {
             tasks.show()
         } else if (key === "<C-pageup>") {
