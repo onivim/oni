@@ -130,7 +130,7 @@ class Config extends EventEmitter {
         this.configChanged.on("config-change", callback)
     }
 
-    public removeListener(callback: Function): void {
+    public unregisterListener(callback: Function): void {
         this.configChanged.removeListener("config-change", callback)
     }
 
