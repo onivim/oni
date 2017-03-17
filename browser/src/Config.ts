@@ -94,9 +94,6 @@ class Config extends EventEmitter {
 
         Performance.mark("Config.load.start")
 
-        let userConfig = {}
-        let userRuntimeConfig = {}
-
         this.applyConfig()
         // use watch() on the directory rather than on config.js because it watches
         // file references and changing a file in Vim typically saves a tmp file
@@ -114,7 +111,6 @@ class Config extends EventEmitter {
             }
         })
 
-        this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userConfig, ...userRuntimeConfig }
         Performance.mark("Config.load.end")
     }
 
@@ -134,7 +130,7 @@ class Config extends EventEmitter {
         this.configChanged.on("config-change", callback)
     }
 
-    public removeEventListener(callback: Function): void {
+    public removeListener(callback: Function): void {
         this.configChanged.removeListener("config-change", callback)
     }
 
