@@ -74,6 +74,8 @@ export interface IErrorMarkerProps {
 
 export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
 
+    private config = Config.instance()
+
     public render(): JSX.Element {
 
         const positionDivStyles = {
@@ -83,7 +85,7 @@ export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
 
         let className = this.props.isActive ? "error-marker active" : "error-marker"
 
-        const errorDescription = Config.getValue<boolean>("editor.errors.slideOnFocus") ? (<div className="error">
+        const errorDescription = this.config.getValue<boolean>("editor.errors.slideOnFocus") ? (<div className="error">
             <div className="text">
                 {this.props.text}
             </div>
