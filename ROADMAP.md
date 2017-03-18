@@ -9,22 +9,18 @@
 - 0.2
     - [x] Mouse support
         - [x] Buffer scroll bars
-    - [ ] Extensibility models
-        - [ ] Language service
-            - [x] Autocompletion (TypeScript, Javascript)
-            - [x] QuickInfo (TypeScript, JavaScript)
-            - [x] Goto Definition (TypeScript, JavaScript)
-            - [x] Errors
-            - [x] Formatting
-            - [ ] Documentation
-        - [ ] Integration with [language-server-protocol](https://github.com/Microsoft/language-server-protocol)
     - [x] Services
         - [x] QuickOpen - Modern CTRL-P replacement
     - [x] Installation via NPM
         - [x] Handle case where NeoVim is not already installed
-    - [ ] Integration with popupmenu_external
+    - [x] Integration with popupmenu_external
+    - [ ] Multiplexed UI + UI enhancements
+        - [ ] Window Manager
+        - [ ] Removal of `Overlay`
+        - [ ] Tab UI
+        - [ ] Status bar
+    - [ ] Website at onivim.io
 - 0.3
-    - [ ] Proper keymap support
     - [ ] Feature: Replace visual word
     - [x] Configuration loading
     - [ ] Git overlays
@@ -39,8 +35,19 @@
     - [ ] AutoCompletion
         - [ ] Fuzzy Matching
         - [ ] Scrollbar
-    - [ ] 
+    - [ ] Plugin Manager
+    - [ ] Windows Installer
+    - [ ] OSX Installer
 - 0.4
+    - [ ] Extensibility models
+        - [ ] Language service
+            - [x] Autocompletion (TypeScript, Javascript)
+            - [x] QuickInfo (TypeScript, JavaScript)
+            - [x] Goto Definition (TypeScript, JavaScript)
+            - [x] Errors
+            - [x] Formatting
+            - [ ] Documentation
+        - [ ] Integration with [language-server-protocol](https://github.com/Microsoft/language-server-protocol)
     - [ ] Better app icon
     - [x] Listing in NeoVim wiki
     - [ ] Left Pane
@@ -51,10 +58,12 @@
         - [ ] Perceived performance - render characters instally in insert
 
 - 0.5
-    - [ ] Status Line Replacement
-        - [ ] Extensibility API
+    - [ ] Proper keymap support
 
 - Future
+    - [ ] Sidebar
+        - [ ] File explorer
+    - [ ] CSS Skins
     - [ ] Scrollbar minimap (a-la sublime)
     - [ ] Enhanced VimTutor
     - [ ] Collaborative app icon
