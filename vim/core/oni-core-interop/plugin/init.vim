@@ -62,6 +62,7 @@ augroup OniEventListeners
     autocmd! CursorMovedI * :call OniNotifyEvent("CursorMovedI")
     autocmd! InsertLeave * :call OniNotifyEvent("InsertLeave")
     autocmd! InsertEnter * :call OniNotifyEvent("InsertEnter")
+    autocmd! DirChanged * :call OniNotifyEvent("DirChanged")
 augroup END
 
 function OniGetContext()

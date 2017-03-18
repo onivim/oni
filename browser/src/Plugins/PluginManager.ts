@@ -24,6 +24,7 @@ export interface IEventContext {
 }
 
 export class PluginManager extends EventEmitter {
+    private _config = Config.instance()
     private _rootPluginPaths: string[] = []
     private _extensionPath: string
     private _plugins: Plugin[] = []
@@ -39,7 +40,7 @@ export class PluginManager extends EventEmitter {
 
         this._rootPluginPaths.push(corePluginsRoot)
 
-        if (Config.getValue<boolean>("oni.useDefaultConfig")) {
+        if (this._config.getValue<boolean>("oni.useDefaultConfig")) {
             this._rootPluginPaths.push(defaultPluginsRoot)
             this._rootPluginPaths.push(path.join(defaultPluginsRoot, "bundle"))
         }
@@ -47,7 +48,7 @@ export class PluginManager extends EventEmitter {
         this._extensionPath = this._ensureOniPluginsPath()
         this._rootPluginPaths.push(this._extensionPath)
 
-        this._rootPluginPaths.push(path.join(Config.getUserFolder(), "plugins"))
+        this._rootPluginPaths.push(path.join(this._config.getUserFolder(), "plugins"))
 
         this._channel.host.onResponse((arg: any) => this._handlePluginResponse(arg))
     }
@@ -162,7 +163,7 @@ export class PluginManager extends EventEmitter {
                         return
                     }
                     UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation)
-                }, Config.getValue<number>("editor.quickInfo.delay"))
+                }, this._config.getValue<number>("editor.quickInfo.delay"))
             } else {
                 setTimeout(() => UI.hideQuickInfo())
             }
@@ -219,10 +220,10 @@ export class PluginManager extends EventEmitter {
             },
         }, Capabilities.createPluginFilter(this._lastEventContext.filetype, { subscriptions: ["vim-events"] }, false))
 
-        if (eventName === "CursorMoved" && Config.getValue<boolean>("editor.quickInfo.enabled")) {
+        if (eventName === "CursorMoved" && this._config.getValue<boolean>("editor.quickInfo.enabled")) {
             this._sendLanguageServiceRequest("quick-info", eventContext)
 
-        } else if (eventName === "CursorMovedI" && Config.getValue<boolean>("editor.completions.enabled")) {
+        } else if (eventName === "CursorMovedI" && this._config.getValue<boolean>("editor.completions.enabled")) {
             this._sendLanguageServiceRequest("completion-provider", eventContext)
 
             this._sendLanguageServiceRequest("signature-help", eventContext)

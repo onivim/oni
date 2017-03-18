@@ -14,6 +14,7 @@ import { PluginManager } from "./../Plugins/PluginManager"
 import { CallbackCommand, CommandManager } from "./CommandManager"
 
 export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance) => {
+    const config = Config.instance()
     const commands = [
 
         // Debug
@@ -29,7 +30,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         // Menu commands
         new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for ONI", () => {
             let buffer: null | IBuffer = null
-            neovimInstance.open(Config.userJsConfig)
+            neovimInstance.open(config.userJsConfig)
                 .then(() => neovimInstance.getCurrentBuffer())
                 .then((buf) => buffer = buf)
                 .then(() => buffer.getLineCount())
