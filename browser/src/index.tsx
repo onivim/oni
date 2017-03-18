@@ -17,6 +17,8 @@ import { NeovimInstance } from "./NeovimInstance"
 import { PluginManager } from "./Plugins/PluginManager"
 import { DOMRenderer } from "./Renderer/DOMRenderer"
 import { NeovimScreen } from "./Screen"
+
+import { AutoCompletion } from "./Services/AutoCompletion"
 import { BufferUpdates } from "./Services/BufferUpdates"
 import { CommandManager } from "./Services/CommandManager"
 import { registerBuiltInCommands } from "./Services/Commands"
@@ -29,6 +31,7 @@ import { QuickOpen } from "./Services/QuickOpen"
 import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
 import { Tasks } from "./Services/Tasks"
 import { WindowTitle } from "./Services/WindowTitle"
+
 import * as UI from "./UI/index"
 import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./UI/Overlay/LiveEvaluationOverlay"
@@ -41,22 +44,11 @@ const start = (args: string[]) => {
 
     const parsedArgs = minimist(args)
 
-    const cursorLine = Config.getValue<boolean>("editor.cursorLine")
-    const cursorColumn = Config.getValue<boolean>("editor.cursorColumn")
-    UI.setCursorLineOpacity(Config.getValue<number>("editor.cursorLineOpacity"))
-    UI.setCursorColumnOpacity(Config.getValue<number>("editor.cursorColumnOpacity"))
-
-    if (cursorLine) {
-        UI.showCursorLine()
-    }
-
-    if (cursorColumn) {
-        UI.showCursorColumn()
-    }
+    let cursorLine: boolean
+    let cursorColumn: boolean
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
-    remote.getCurrentWindow().setFullScreen(Config.getValue<boolean>("editor.fullScreenOnStart"))
     require("./overlay.less")
 
     let deltaRegion = new IncrementalDeltaRegionTracker()
@@ -73,6 +65,7 @@ const start = (args: string[]) => {
     let pendingTimeout: any = null
 
     // Services
+    const autoCompletion = new AutoCompletion(instance)
     const bufferUpdates = new BufferUpdates(instance, pluginManager)
     const errorService = new Errors(instance)
     const quickOpen = new QuickOpen(instance)
@@ -88,6 +81,7 @@ const start = (args: string[]) => {
     tasks.registerTaskProvider(commandManager)
     tasks.registerTaskProvider(errorService)
 
+    services.push(autoCompletion)
     services.push(bufferUpdates)
     services.push(errorService)
     services.push(quickOpen)
@@ -166,18 +160,11 @@ const start = (args: string[]) => {
             UI.hideSignatureHelp()
             UI.hideQuickInfo()
         }
-    })
 
-    instance.on("show-popup-menu", (completions: any[]) => {
-        const c = completions.map((completion) => ({
-            kind: "text",
-            label: completion[0],
-        }))
-
-        UI.showCompletions({
-            base: "",
-            completions: c,
-        })
+        if (eventName === "DirChanged") {
+            instance.getCurrentWorkingDirectory()
+                .then((newDirectory) => process.chdir(newDirectory))
+        }
     })
 
     instance.on("error", (_err: string) => {
@@ -256,7 +243,29 @@ const start = (args: string[]) => {
         pendingTimeout = null
     }
 
-    instance.setFont(Config.getValue<string>("editor.fontFamily"), Config.getValue<string>("editor.fontSize"))
+    const config = Config.instance()
+
+    const configChange = () => {
+        cursorLine = config.getValue<boolean>("editor.cursorLine")
+        cursorColumn = config.getValue<boolean>("editor.cursorColumn")
+        UI.setCursorLineOpacity(config.getValue<number>("editor.cursorLineOpacity"))
+        UI.setCursorColumnOpacity(config.getValue<number>("editor.cursorColumnOpacity"))
+
+        if (cursorLine) {
+            UI.showCursorLine()
+        }
+
+        if (cursorColumn) {
+            UI.showCursorColumn()
+        }
+
+        remote.getCurrentWindow().setFullScreen(config.getValue<boolean>("editor.fullScreenOnStart"))
+        instance.setFont(config.getValue<string>("editor.fontFamily"), config.getValue<string>("editor.fontSize"))
+        updateFunction()
+    }
+    configChange() // initialize values
+    config.registerListener(configChange)
+
     instance.start(parsedArgs._)
 
     const mouse = new Mouse(editorElement, screen)
@@ -293,21 +302,7 @@ const start = (args: string[]) => {
         if (UI.areCompletionsVisible()) {
 
             if (key === "<enter>") {
-                let completion = UI.getSelectedCompletion() || ""
-
-                // move one character left so the cursor is "within" the word
-                // (we wouldn't be displaying completions if there wasn't at least one character)
-                instance.input("<left>")
-                // get current word under cursor
-                instance.eval<string>("expand('<cword>')")
-                    .then((word) => {
-                        // move back to where we were
-                        instance.input("<right>")
-                        // remove the first instance of the word under the cursor
-                        instance.input(completion.replace(word, ""))
-                    })
-
-                UI.hideCompletions()
+                autoCompletion.complete()
                 return
             } else if (key === "<C-n>") {
                 UI.nextCompletion()
@@ -322,7 +317,7 @@ const start = (args: string[]) => {
         if (key === "<f12>") {
             commandManager.executeCommand("oni.editor.gotoDefinition", null)
         } else if (key === "<C-p>" && screen.mode === "normal") {
-            quickOpen.show(Config.getValue<string[]>("editor.exclude"))
+            quickOpen.show()
         } else if (key === "<C-P>" && screen.mode === "normal") {
             tasks.show()
         } else if (key === "<C-pageup>") {

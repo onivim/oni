@@ -46,6 +46,9 @@ export interface INeovimInstance {
     getCurrentBuffer(): Q.Promise<IBuffer>
     getCurrentWindow(): Q.Promise<IWindow>
 
+    getCursorColumn(): Q.Promise<number>
+    getCursorRow(): Q.Promise<number>
+
     getSelectionRange(): Q.Promise<null | Oni.Range>
 
     open(fileName: string): Q.Promise<void>
@@ -58,8 +61,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _neovim: any
     private _initPromise: any
 
-    private _fontFamily: string = Config.getValue<string>("editor.fontFamily")
-    private _fontSize: string = Config.getValue<string>("editor.fontSize")
+    private _config = Config.instance()
+
+    private _fontFamily: string = this._config.getValue<string>("editor.fontFamily")
+    private _fontSize: string = this._config.getValue<string>("editor.fontSize")
     private _fontWidthInPixels: number
     private _fontHeightInPixels: number
 
@@ -182,6 +187,20 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.eval<string>("mode()")
     }
 
+    /**
+     * Returns the current cursor column in buffer-space
+     */
+    public getCursorColumn(): Q.Promise<number> {
+        return this.eval<number>("col('.')")
+    }
+
+    /**
+     * Returns the current cursor row in buffer-space
+     */
+    public getCursorRow(): Q.Promise<number> {
+        return this.eval<number>("line('.')")
+    }
+
     public getSelectionRange(): Q.Promise<null | Oni.Range> {
 
         let buffer: null | IBuffer = null
@@ -245,6 +264,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             .then((buf: any) => new Buffer(buf))
     }
 
+    public getCurrentWorkingDirectory(): Q.Promise<string> {
+        return this.eval("getcwd()")
+                .then((currentWorkingDirectory: string) => path.normalize(currentWorkingDirectory))
+    }
+
     public getCurrentWindow(): Q.Promise<IWindow> {
         return this._sessionWrapper.invoke<any>("nvim_get_current_win", [])
             .then((win: any) => new Window(win))
@@ -279,8 +303,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _resizeInternal(rows: number, columns: number): void {
 
-        if (Config.hasValue("debug.fixedSize")) {
-            const fixedSize = Config.getValue<any>("debug.fixedSize")
+        if (this._config.hasValue("debug.fixedSize")) {
+            const fixedSize = this._config.getValue<any>("debug.fixedSize")
             rows = fixedSize.rows
             columns = fixedSize.columns
             console.warn("Overriding screen size based on debug.fixedSize")
@@ -367,7 +391,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 const completions = a[0][0]
                 this.emit("show-popup-menu", completions)
             } else if (command === "bell") {
-                const bellUrl = Config.getValue<string>("oni.audio.bellUrl")
+                const bellUrl = this._config.getValue<string>("oni.audio.bellUrl")
                 if (bellUrl) {
                     const audio = new Audio(bellUrl)
                     audio.play()
@@ -392,8 +416,8 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
 
     const joinedRuntimePaths = runtimePaths.join(",")
 
-    const shouldLoadInitVim = Config.getValue<boolean>("oni.loadInitVim")
-    const useDefaultConfig = Config.getValue<boolean>("oni.useDefaultConfig")
+    const shouldLoadInitVim = Config.instance().getValue<boolean>("oni.loadInitVim")
+    const useDefaultConfig = Config.instance().getValue<boolean>("oni.useDefaultConfig")
 
     const vimRcArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
 

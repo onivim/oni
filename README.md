@@ -28,7 +28,7 @@ ONI is a [NeoVim](https://github.com/neovim/neovim) front-end UI with rich IDE-l
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
-> `npm install -g oni-vim`
+> `npm install -g oni`
 
 > `oni`
 
@@ -64,7 +64,7 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ### Install from NPM
 
-1) Run `npm install -g oni-vim`
+1) Run `npm install -g oni`
 
 2) Run `oni` at the command line to start the editor.
 
@@ -262,3 +262,5 @@ Also, big thanks to our [contributors](https://github.com/extr0py/oni/graphs/con
 In addition, there are several other great NeoVim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) that served as great reference points and learning opportunities.
 
 There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
+
+Special thanks to [Till Arnold](https://github.com/tillarnold) for handing over the `oni` NPM package name.
