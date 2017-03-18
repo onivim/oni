@@ -20,8 +20,8 @@
         - [ ] Tab UI
         - [ ] Status bar
     - [ ] Website at onivim.io
+        - [ ] Youtube Demo
 - 0.3
-    - [ ] Feature: Replace visual word
     - [x] Configuration loading
     - [ ] Git overlays
         - [ ] Git blame overlay
@@ -47,7 +47,9 @@
             - [x] Errors
             - [x] Formatting
             - [ ] Documentation
+            - [ ] Find-in-files
         - [ ] Integration with [language-server-protocol](https://github.com/Microsoft/language-server-protocol)
+            - [ ] C# / OmniSharp integration
     - [ ] Better app icon
     - [x] Listing in NeoVim wiki
     - [ ] Left Pane
@@ -59,6 +61,8 @@
 
 - 0.5
     - [ ] Proper keymap support
+    - [ ] Python language service plugin
+    - [ ] ReasonML / OCaml language service plugin
 
 - Future
     - [ ] Sidebar
