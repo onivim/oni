@@ -46,6 +46,9 @@ export interface INeovimInstance {
     getCurrentBuffer(): Q.Promise<IBuffer>
     getCurrentWindow(): Q.Promise<IWindow>
 
+    getCursorColumn(): Q.Promise<number>
+    getCursorRow(): Q.Promise<number>
+
     getSelectionRange(): Q.Promise<null | Oni.Range>
 
     open(fileName: string): Q.Promise<void>
@@ -182,6 +185,20 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public getMode(): Q.Promise<string> {
         return this.eval<string>("mode()")
+    }
+
+    /**
+     * Returns the current cursor column in buffer-space
+     */
+    public getCursorColumn(): Q.Promise<number> {
+        return this.eval<number>("col('.')")
+    }
+
+    /**
+     * Returns the current cursor row in buffer-space
+     */
+    public getCursorRow(): Q.Promise<number> {
+        return this.eval<number>("line('.')")
     }
 
     public getSelectionRange(): Q.Promise<null | Oni.Range> {
