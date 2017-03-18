@@ -1,8 +1,11 @@
 import * as cp from "child_process"
-import { remote } from "electron"
 import { EventEmitter } from "events"
 import * as path from "path"
+
+import { remote } from "electron"
+import * as minimist from "minimist"
 import * as Q from "q"
+
 import * as Actions from "./actions"
 import * as Config from "./Config"
 import { measureFont } from "./Font"
@@ -13,9 +16,8 @@ import { IWindow, Window } from "./neovim/Window"
 import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./Screen"
-import { nodeRequire } from "./Utility"
 
-const attach = nodeRequire("neovim-client")
+import { startNeovim } from "./neovim/startNeovim"
 
 export interface INeovimInstance {
     cursorPosition: IPosition
@@ -92,10 +94,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._quickFix = new QuickFixList(this)
     }
 
-    public start(filesToOpen?: string[]): void {
-        filesToOpen = filesToOpen || []
-
-        this._initPromise = startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen)
+    public start(args: minimist.ParsedArgs): void {
+        this._initPromise = startNeovim(this._pluginManager.getAllRuntimePaths(), args)
             .then((nv) => {
                 console.log("NevoimInstance: Neovim started") // tslint:disable-line no-console
 
@@ -401,31 +401,4 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             }
         })
     }
-}
-
-const attachAsPromise = Q.denodeify(attach)
-
-function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
-
-    const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
-    const noopInitVimPath = path.join(__dirname, "vim", "noop.vim")
-
-    // For Mac / Linux, assume there is a locally installed neovim
-    const nvimMacProcessPath = "nvim"
-    const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : nvimMacProcessPath
-
-    const joinedRuntimePaths = runtimePaths.join(",")
-
-    const shouldLoadInitVim = Config.instance().getValue<boolean>("oni.loadInitVim")
-    const useDefaultConfig = Config.instance().getValue<boolean>("oni.useDefaultConfig")
-
-    const vimRcArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
-
-    const argsToPass = vimRcArg
-        .concat(["--cmd", "set rtp+=" + joinedRuntimePaths, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
-        .concat(args)
-
-    const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
-
-    return attachAsPromise(nvimProc.stdin, nvimProc.stdout)
 }
