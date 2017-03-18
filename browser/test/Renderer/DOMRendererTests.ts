@@ -90,6 +90,26 @@ describe("DOMRenderer", () => {
 
             assert.strictEqual(editorElement.children.length, 3)
         })
+
+        describe.only("multibyte characters", () => {
+            it("breaks up spans with multibyte characters", () => {
+                // Multibyte characters are always sent from Neovim with an extra whitespace successor
+                screen.dispatch(Actions.put(["한", "",  "한", "", "한", "", "한", ""]))
+
+                renderer.update(screen, deltaRegionTracker)
+
+                assert.strictEqual(editorElement.children.length, 4)
+            })
+
+            it("breaks up spans with mixed characters", () => {
+                // Multibyte characters are always sent from Neovim with an extra whitespace successor
+                screen.dispatch(Actions.put(["a", "한", "", "b", "한", "", "한", "", "c", "d"]))
+
+                renderer.update(screen, deltaRegionTracker)
+
+                assert.strictEqual(editorElement.children.length, 6)
+            })
+        })
     })
 })
 

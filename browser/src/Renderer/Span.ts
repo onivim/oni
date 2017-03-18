@@ -7,9 +7,10 @@ export interface ISpan {
 }
 
 export interface ISpanElementInfo extends ISpan {
-    element: HTMLElement | null
-    foregroundColor: string | undefined
-    backgroundColor: string | undefined
+    element?: HTMLElement | null
+    foregroundColor?: string | undefined
+    backgroundColor?: string | undefined
+    canCombine: boolean
 }
 
 /**
@@ -30,6 +31,10 @@ export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: 
 
     // If there isn't a span already at one of the positions, it can't be combined
     if (!previousSpan || !currentSpan) {
+        return
+    }
+
+    if (!previousSpan.canCombine || !currentSpan.canCombine) {
         return
     }
 
@@ -72,6 +77,7 @@ export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: 
         element: previousElement,
         backgroundColor: previousSpan.backgroundColor,
         foregroundColor: previousSpan.foregroundColor,
+        canCombine: true,
     }
 
     grid.setRegion(previousSpan.startX, y, currentSpan.endX - previousSpan.startX, 1, updatedSpan)
