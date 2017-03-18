@@ -155,7 +155,7 @@ export class MultibyteTokenRenderer extends BaseTokenRenderer implements ITokenR
     private _hasRendered: boolean = false
 
     public get canCombine(): boolean {
-        return false;
+        return false
     }
 
     constructor(x: number, y: number, cell: ICell, screen: IScreen, elementFactory: IElementFactory) {
@@ -171,7 +171,7 @@ export class MultibyteTokenRenderer extends BaseTokenRenderer implements ITokenR
 
         if (cell.characterWidth > 1) {
             this._str += cell.character
-        } else if(cell.characterWidth === 0) {
+        } else if (cell.characterWidth === 0) {
             this._hasRendered = true
         }
     }
@@ -182,7 +182,6 @@ export class MultibyteTokenRenderer extends BaseTokenRenderer implements ITokenR
         span.style.width = ((this.width) * this.screen.fontWidthInPixels) + "px"
         return span
     }
-
 }
 
 export function getRendererForCell(x: number, y: number, cell: ICell, screen: IScreen, elementFactory: IElementFactory) {
@@ -193,7 +192,7 @@ export function getRendererForCell(x: number, y: number, cell: ICell, screen: IS
         if (cell.characterWidth === 1) {
             return new TokenRenderer(x, y, cell, screen, elementFactory)
         } else {
-            return new MultibyteTokenRenderer(x, y, cell, screen, elementFactory);
+            return new MultibyteTokenRenderer(x, y, cell, screen, elementFactory)
         }
     }
 }
