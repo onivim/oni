@@ -31,7 +31,6 @@ describe("AutoCompletionUtility", () => {
             const newLine = AutoCompletionUtility.replacePrefixWithCompletion(line, cursorColumn, completion)
             assert.strictEqual(newLine, "window.Blob")
         })
-
     })
 
     describe("getCompletionStart", () => {
