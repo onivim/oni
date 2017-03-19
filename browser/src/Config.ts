@@ -44,6 +44,10 @@ class Config extends EventEmitter {
         // a custom init.vim, as that may cause problematic behavior
         "oni.useExternalPopupMenu": true,
 
+        // If true, hide Menu bar by default
+        // (can still be activated by pressing 'Alt')
+        "oni.hideMenu": false,
+
         "editor.fontSize": "14px",
         "editor.quickInfo.enabled": true,
 
