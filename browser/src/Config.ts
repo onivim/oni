@@ -126,6 +126,14 @@ class Config extends EventEmitter {
         return path.join(Platform.getUserHome(), ".oni")
     }
 
+    public getInitVimFolder(): string {
+        if (Platform.isWindows()) {
+            return path.join(Platform.getUserHome(), "AppData", "Local", "nvim")
+        } else {
+            return path.join(Platform.getUserHome(), ".config", "nvim")
+        }
+    }
+
     public registerListener(callback: Function): void {
         this.configChanged.on("config-change", callback)
     }

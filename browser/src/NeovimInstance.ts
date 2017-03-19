@@ -1,6 +1,7 @@
 import * as cp from "child_process"
 import { remote } from "electron"
 import { EventEmitter } from "events"
+import * as fs from "fs"
 import * as path from "path"
 import * as Q from "q"
 import * as Actions from "./actions"
@@ -173,6 +174,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     performance.mark("NeovimInstance.Plugins.Start")
                     this._pluginManager.startPlugins(this)
                     performance.mark("NeovimInstance.Plugins.End")
+
+                    if (this._config.getValue<boolean>("oni.loadInitVim")) {
+                        fs.watch(this._config.getInitVimFolder(), (event, filename) => {
+                            if (event === "change" && filename === "init.vim") {
+                                this.command("exec \":source " + path.join(this._config.getInitVimFolder(), "init.vim") + "\"")
+                            }
+                        })
+                    }
 
                     // set title after attaching listeners so we can get the initial title
                     this.command("set title")
