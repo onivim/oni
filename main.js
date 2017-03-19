@@ -15,10 +15,6 @@ const { buildMenu } = require("./Menu")
 
 // import * as derp from "./installDevTools"
 
-if (isDebug || isDevelopment) {
-    require("./installDevTools")
-}
-
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 const webContents = electron.webContents
@@ -104,6 +100,10 @@ function createWindow(commandLineArguments, workingDirectory) {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+    if (isDebug || isDevelopment) {
+        require("./installDevTools")
+    }
+
     createWindow(process.argv.slice(2), process.cwd())
 })
 
