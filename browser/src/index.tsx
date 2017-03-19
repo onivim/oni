@@ -259,7 +259,12 @@ const start = (args: string[]) => {
             UI.showCursorColumn()
         }
 
-        remote.getCurrentWindow().setFullScreen(config.getValue<boolean>("editor.fullScreenOnStart"))
+        const window = remote.getCurrentWindow()
+        const hideMenu: boolean = config.getValue<boolean>("oni.hideMenu")
+        window.setAutoHideMenuBar(hideMenu)
+        window.setMenuBarVisibility(!hideMenu)
+
+        window.setFullScreen(config.getValue<boolean>("editor.fullScreenOnStart"))
         instance.setFont(config.getValue<string>("editor.fontFamily"), config.getValue<string>("editor.fontSize"))
         updateFunction()
     }
