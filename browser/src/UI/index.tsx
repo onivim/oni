@@ -25,6 +25,8 @@ export const events = Events.events
 
 let defaultState = State.createDefaultState()
 
+require("./components/common.less")
+
 export function setBackgroundColor(backgroundColor: string): void {
     const config = Config.instance()
     const backgroundImageElement: HTMLElement = document.getElementsByClassName("background-image")[0] as HTMLElement
@@ -211,7 +213,7 @@ export function setCursorColumnOpacity(opacity: number): void {
 }
 
 function render(_state: State.IState): void {
-    const element = document.getElementById("overlay-ui")
+    const element = document.getElementById("host")
     ReactDOM.render(
         <Provider store={store}>
             <RootComponent />

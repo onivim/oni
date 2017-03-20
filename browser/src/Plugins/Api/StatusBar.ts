@@ -22,8 +22,8 @@ export class StatusBarItem {
     private _contents: HTMLElement
 
     constructor(
-        private _channel: IPluginChannel
-        private _id: number
+        private _channel: IPluginChannel,
+        private _id: number,
         private _alignment: StatusBarAlignment
     ) { }
 

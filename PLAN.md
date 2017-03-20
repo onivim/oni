@@ -6,3 +6,5 @@
 - Create `core` integration to show 
 - Add sample `weather` statusbar plugin
 - Show filename
+
+- Will eventually need to decouple the `Services` from individual Neovim instances
