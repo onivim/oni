@@ -1,5 +1,7 @@
 import * as State from "./State"
 
+import * as Fuse from "fuse.js"
+
 import * as Actions from "./Actions"
 
 import * as _ from "lodash"
@@ -166,80 +168,44 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
         return _.sortBy(opt, (o) => o.pinned ? 0 : 1)
     }
 
-    const searchArray = searchString.split("")
-
-    let initialFilter = options
-    searchArray.forEach((str) => {
-        initialFilter = initialFilter.filter((f) => f.detail.indexOf(str) >= 0 || f.label.indexOf(str) >= 0)
-    })
-
-    const highlightOptions = initialFilter.map((f) => {
-        const detailArray = f.detail.split("")
-        const labelArray = f.label.split("")
-        const detailMatches = fuzzyMatchCharacters(detailArray, searchArray)
-        const labelMatches = fuzzyMatchCharacters(labelArray, detailMatches.remainingCharacters)
-
-        return {
-            icon: f.icon,
-            pinned: f.pinned,
-            label: f.label,
-            detail: f.detail,
-            detailArray,
-            labelArray,
-            detailMatches,
-            labelMatches,
-            detailHighlights: detailMatches.highlightIndices,
-            labelHighlights: labelMatches.highlightIndices,
-        }
-    })
-
-    const filteredOptions = highlightOptions.filter((f) => f.labelMatches.remainingCharacters.length === 0)
-
-    const filteredOptionsSorted = _.sortBy(filteredOptions, (f) => {
-        const baseVal = f.pinned ? 0 : 2
-
-        const totalSearchSize = searchArray.length
-        const matchingInLabel = fuzzyMatchCharacters(f.labelArray, searchArray)
-
-        const labelMatchPercent = matchingInLabel.highlightIndices.length / totalSearchSize
-
-        return baseVal - labelMatchPercent
-    })
-
-    return filteredOptionsSorted
-}
-
-export interface IFuzzyMatchResults {
-    highlightIndices: number[]
-    remainingCharacters: string[]
-}
-
-export function fuzzyMatchCharacters(text: string[], searchString: string[]): IFuzzyMatchResults {
-    const startValue = {
-        highlightIndices: <number[]>[],
-        remainingCharacters: searchString,
+    let fuseOptions = {
+        keys: [{
+            name: "label",
+            weight: 0.7,
+        }, {
+            name: "detail",
+            weight: 0.3,
+        }],
+        include: ["matches"],
     }
 
-    const outputValue = text.reduce((previousValue: IFuzzyMatchResults, currValue: string, idx: number) => {
+    const fuse = new Fuse(options, fuseOptions)
+    const results = fuse.search(searchString)
 
-        const { highlightIndices, remainingCharacters } = previousValue
-
-        if (remainingCharacters.length === 0) {
-            return previousValue
-        }
-
-        if (remainingCharacters[0] === currValue) {
-            return {
-                highlightIndices: highlightIndices.concat([idx]),
-                remainingCharacters: remainingCharacters.slice(1, remainingCharacters.length),
+    const highlightOptions = results.map((f: any) => {
+        let labelHighlights: number[][] = []
+        let detailHighlights: number[][] = []
+        // matches will have 1 or 2 items depending on
+        // whether one or both (label and detail) matched
+        f.matches.forEach((obj: any) => {
+            if (obj.key === "label") {
+                labelHighlights = obj.indices
+            } else {
+                detailHighlights = obj.indices
             }
+        })
+
+        return {
+            icon: f.item.icon,
+            pinned: f.item.pinned,
+            label: f.item.label,
+            detail: f.item.detail,
+            labelHighlights,
+            detailHighlights,
         }
+    })
 
-        return previousValue
-
-    }, startValue)
-
-    return outputValue
+    return highlightOptions
 }
 
 export const autoCompletionReducer = (s: State.IAutoCompletionInfo | null, a: Actions.Action) => {
