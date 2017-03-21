@@ -288,7 +288,7 @@ const start = (args: string[]) => {
             return
         }
 
-        if (UI.isPopupMenuOpen()) {
+        if (UI.Selectors.isPopupMenuOpen()) {
             if (key === "<esc>") {
                 UI.Actions.hidePopupMenu()
             } else if (key === "<enter>") {
@@ -304,7 +304,7 @@ const start = (args: string[]) => {
             return
         }
 
-        if (UI.areCompletionsVisible()) {
+        if (UI.Selectors.areCompletionsVisible()) {
 
             if (key === "<enter>") {
                 autoCompletion.complete()

@@ -37,7 +37,7 @@ export class AutoCompletion {
         let originalLineLength: number
         let newLineLength: number
 
-        let completion = UI.getSelectedCompletion() || ""
+        let completion = UI.Selectors.getSelectedCompletion() || ""
         let currentBuffer: IBuffer
         this._neovimInstance.getCurrentBuffer()
             .then((buffer) => currentBuffer = buffer)
