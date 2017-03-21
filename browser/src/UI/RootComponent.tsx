@@ -3,10 +3,14 @@ import * as React from "react"
 import { AutoCompletionContainer } from "./components/AutoCompletion"
 import { Cursor } from "./components/Cursor"
 import { CursorLine } from "./components/CursorLine"
+import { EditorHost } from "./components/EditorHost"
 import { MenuContainer } from "./components/Menu"
 import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
 
 require("./components/StatusBar.less")
+
+
+import { IEditor } from "./../Editor/Editor"
 
 export class StatusBar extends React.Component<void, void> {
 
@@ -16,17 +20,17 @@ export class StatusBar extends React.Component<void, void> {
 }
 
 export interface IRootComponentProps {
-    pluginManager: any
-    commandManager: any
-    args: any
+    editor: IEditor
 }
 
 export class RootComponent extends React.Component<IRootComponentProps, void> {
+
     public render(): JSX.Element {
 
         return <div className="container vertical full">
 
             <div className="container full">
+                <EditorHost editor={this.props.editor} />
                 <Cursor />
                 <CursorLine lineType={"line"} />
                 <CursorLine lineType={"column"} />

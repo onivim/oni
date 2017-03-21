@@ -4,18 +4,11 @@
  * React component that hosts an IEditor implementation
  */
 
-import * as path from "path"
-
 import * as React from "react"
-
-import { PluginManager } from "./../../Plugins/PluginManager"
-import { CommandManager } from "./../../Services/CommandManager"
 
 import { IEditor } from "./../../Editor/Editor"
 
 export interface IEditorHostProps {
-    pluginManager: PluginManager
-    commandManager: CommandManager
     editor: IEditor
 }
 

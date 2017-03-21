@@ -1,14 +1,8 @@
 
-import { PluginManager } from "./../Plugins/PluginManager"
-import { CommandManager } from "./../Services/CommandManager"
-
-export interface IEditorContext {
-    plugins: PluginManager
-    commands: CommandManager
-    args: any
-}
+// import { PluginManager } from "./../Plugins/PluginManager"
+// import { CommandManager } from "./../Services/CommandManager"
 
 export interface IEditor {
-    init(editorContext: IEditorContext): void
+    init(): void
     render(element: HTMLDivElement): void
 }

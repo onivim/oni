@@ -42,7 +42,7 @@ import { Rectangle } from "./../UI/Types"
 
 import * as UI from "./../UI/index"
 
-import { IEditor, IEditorContext } from "./Editor"
+import { IEditor } from "./Editor"
 
 export class NeovimEditor implements IEditor {
 
@@ -50,15 +50,16 @@ export class NeovimEditor implements IEditor {
     private _deltaRegionManager: IncrementalDeltaRegionTracker
     private _screen: NeovimScreen
 
-    private _pendingTimeout: NodeJS.Timer | null = null
+    private _pendingTimeout: any = null
 
-    public init(context: IEditorContext): void {
-        this._neovimInstance.start(context.args)
+    public init(): void {
+        this._neovimInstance.start(this._args)
     }
 
     constructor(
         private _commandManager: CommandManager,
         private _pluginManager: PluginManager,
+        private _args: any,
         private _renderer: DOMRenderer = new DOMRenderer()
     ) {
         let cursorLine: boolean
@@ -344,7 +345,7 @@ export class NeovimEditor implements IEditor {
 
         UI.Actions.setCursorPosition(this._screen)
 
-        UI.Actions.setBackgroundColor(this._screen.backgroundColor)
+        UI.setBackgroundColor(this._screen.backgroundColor)
 
         if (!!this._pendingTimeout) {
             clearTimeout(this._pendingTimeout)

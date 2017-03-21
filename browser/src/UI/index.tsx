@@ -19,6 +19,9 @@ import { InstallHelp } from "./components/InstallHelp"
 import * as Events from "./Events"
 import * as UnboundSelectors from "./Selectors"
 
+import { NeovimEditor } from "./../Editor/NeovimEditor"
+
+
 export const events = Events.events
 
 let defaultState = State.createDefaultState()
@@ -65,8 +68,9 @@ export function init(pluginManager: any, commandManager: any, args: any): void {
 
 function render(_state: State.IState, pluginManager: any, commandManager: any, args: any): void {
     const element = document.getElementById("host")
+    const editor = new NeovimEditor(commandManager, pluginManager, args)
     ReactDOM.render(
         <Provider store={store}>
-            <RootComponent pluginManager={pluginManager} commandManager={commandManager} args={args}/>
+            <RootComponent editor={editor}/>
         </Provider>, element)
 }
