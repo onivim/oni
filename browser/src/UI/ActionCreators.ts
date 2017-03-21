@@ -12,6 +12,38 @@ import { Rectangle } from "./Types"
 
 import { IScreen } from "./../Screen"
 
+import * as State from "./State"
+
+import { events } from "./Events"
+
+export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: Function, getState: Function) => {
+    dispatch(_showAutoCompletion(result.base, result.completions))
+
+    if (result.completions.length > 0) {
+        emitCompletionItemSelectedEvent(getState())
+    }
+}
+
+export const previousCompletion = () => (dispatch: Function, getState: Function) => {
+    dispatch(_previousAutoCompletion())
+
+    emitCompletionItemSelectedEvent(getState())
+}
+
+export const nextCompletion = () => (dispatch: Function, getState: Function) => {
+    dispatch(_nextAutoCompletion())
+
+    emitCompletionItemSelectedEvent(getState())
+}
+
+function emitCompletionItemSelectedEvent(state: State.IState): void {
+    const autoCompletion = state.autoCompletion
+    if (autoCompletion != null) {
+        const entry = autoCompletion.entries[autoCompletion.selectedIndex]
+        events.emit(Events.CompletionItemSelectedEvent, entry)
+    }
+}
+
 export const setCursorPosition = (screen: IScreen) => (dispatch: Function) => {
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
@@ -118,7 +150,7 @@ export const showQuickInfo = (title: string, description: string) => ({
     },
 })
 
-export const showAutoCompletion = (base: string, entries: Oni.Plugin.CompletionInfo[]) => ({
+const _showAutoCompletion = (base: string, entries: Oni.Plugin.CompletionInfo[]) => ({
     type: "SHOW_AUTO_COMPLETION",
     payload: {
         base,
@@ -126,22 +158,22 @@ export const showAutoCompletion = (base: string, entries: Oni.Plugin.CompletionI
     },
 })
 
-export const setAutoCompletionDetails = (detailedEntry: Oni.Plugin.CompletionInfo) => ({
+export const setDetailedCompletionEntry = (detailedEntry: Oni.Plugin.CompletionInfo) => ({
     type: "SET_AUTO_COMPLETION_DETAILS",
     payload: {
         detailedEntry,
     },
 })
 
-export const nextAutoCompletion = () => ({
+const _nextAutoCompletion = () => ({
     type: "NEXT_AUTO_COMPLETION",
 })
 
-export const previousAutoCompletion = () => ({
+const _previousAutoCompletion = () => ({
     type: "PREVIOUS_AUTO_COMPLETION",
 })
 
-export const hideAutoCompletion = () => ({ type: "HIDE_AUTO_COMPLETION" })
+export const hideCompletions = () => ({ type: "HIDE_AUTO_COMPLETION" })
 
 export const hideQuickInfo = () => ({ type: "HIDE_QUICK_INFO" })
 

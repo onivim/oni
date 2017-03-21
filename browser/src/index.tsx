@@ -155,7 +155,7 @@ const start = (args: string[]) => {
 
         if (eventName === "BufEnter") {
             // TODO: More convenient way to hide all UI?
-            UI.hideCompletions()
+            UI.Actions.hideCompletions()
             UI.Actions.hidePopupMenu()
             UI.Actions.hideSignatureHelp()
             UI.Actions.hideQuickInfo()
@@ -200,7 +200,7 @@ const start = (args: string[]) => {
             if (cursorColumn) {
                 UI.Actions.showCursorColumn()
             }
-            UI.hideCompletions()
+            UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
         } else if (newMode === "insert") {
             UI.Actions.hideQuickInfo()
@@ -213,7 +213,7 @@ const start = (args: string[]) => {
         } else if (newMode === "cmdline") {
             UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
             UI.Actions.hideCursorLine()
-            UI.hideCompletions()
+            UI.Actions.hideCompletions()
             UI.Actions.hideQuickInfo()
 
         }
@@ -276,7 +276,7 @@ const start = (args: string[]) => {
     const mouse = new Mouse(editorElement, screen)
 
     mouse.on("mouse", (mouseInput: string) => {
-        UI.hideCompletions()
+        UI.Actions.hideCompletions()
         instance.input(mouseInput)
     })
 
@@ -310,10 +310,10 @@ const start = (args: string[]) => {
                 autoCompletion.complete()
                 return
             } else if (key === "<C-n>") {
-                UI.nextCompletion()
+                UI.Actions.nextCompletion()
                 return
             } else if (key === "<C-p>") {
-                UI.previousCompletion()
+                UI.Actions.previousCompletion()
                 return
             }
         }

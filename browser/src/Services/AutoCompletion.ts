@@ -24,7 +24,7 @@ export class AutoCompletion {
                 label: completion[0],
             }))
 
-            UI.showCompletions({
+            UI.Actions.showCompletions({
                 base: "",
                 completions: c,
             })
@@ -68,6 +68,6 @@ export class AutoCompletion {
                 return this._neovimInstance.eval(`setpos(".", [0, ${cursorRow}, ${cursorColumn + cursorOffset}, 0])`)
             })
 
-        UI.hideCompletions()
+        UI.Actions.hideCompletions()
     }
 }

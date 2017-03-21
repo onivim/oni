@@ -61,43 +61,6 @@ export function getSelectedCompletion(): null | string {
     return autoCompletion ? autoCompletion.entries[autoCompletion.selectedIndex].label : null
 }
 
-export function showCompletions(result: Oni.Plugin.CompletionResult): void {
-    store.dispatch(ActionCreators.showAutoCompletion(result.base, result.completions))
-
-    // TODO: Figure out why this isn't working
-    if (result.completions.length > 0) {
-        emitCompletionItemSelectedEvent()
-    }
-}
-
-export function setDetailedCompletionEntry(detailedEntry: Oni.Plugin.CompletionInfo): void {
-    store.dispatch(ActionCreators.setAutoCompletionDetails(detailedEntry))
-}
-
-export function hideCompletions(): void {
-    store.dispatch(ActionCreators.hideAutoCompletion())
-}
-
-export function nextCompletion(): void {
-    store.dispatch(ActionCreators.nextAutoCompletion())
-
-    emitCompletionItemSelectedEvent()
-}
-
-export function previousCompletion(): void {
-    store.dispatch(ActionCreators.previousAutoCompletion())
-
-    emitCompletionItemSelectedEvent()
-}
-
-function emitCompletionItemSelectedEvent(): void {
-    const autoCompletion = store.getState().autoCompletion
-    if (autoCompletion != null) {
-        const entry = autoCompletion.entries[autoCompletion.selectedIndex]
-        events.emit(Events.CompletionItemSelectedEvent, entry)
-    }
-}
-
 export function showNeovimInstallHelp(): void {
     const element = document.getElementById("overlay-ui")
     ReactDOM.render(<InstallHelp />, element)

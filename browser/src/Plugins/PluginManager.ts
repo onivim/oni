@@ -186,9 +186,9 @@ export class PluginManager extends EventEmitter {
                 return
             }
 
-            setTimeout(() => UI.showCompletions(pluginResponse.payload))
+            setTimeout(() => UI.Actions.showCompletions(pluginResponse.payload))
         } else if (pluginResponse.type === "completion-provider-item-selected") {
-            setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details))
+            setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
         } else if (pluginResponse.type === "set-errors") {
             this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
         } else if (pluginResponse.type === "find-all-references") {
