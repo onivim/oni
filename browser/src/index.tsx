@@ -102,7 +102,7 @@ const start = (args: string[]) => {
     overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
     overlayManager.addOverlay("scrollbar", scrollbarOverlay)
 
-    overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.setActiveWindowDimensionsChanged(dimensionsInPixels))
+    overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.Actions.setActiveWindowDimensionsChanged(dimensionsInPixels))
 
     pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
         if (err) {
@@ -191,7 +191,7 @@ const start = (args: string[]) => {
     })
 
     instance.on("mode-change", (newMode: string) => {
-        UI.setMode(newMode)
+        UI.Actions.setMode(newMode)
 
         if (newMode === "normal") {
             if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
@@ -211,7 +211,7 @@ const start = (args: string[]) => {
                 UI.Actions.showCursorColumn()
             }
         } else if (newMode === "cmdline") {
-            UI.hideCursorColumn() // TODO: cleaner way to hide and unhide?
+            UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
             UI.Actions.hideCursorLine()
             UI.hideCompletions()
             UI.hideQuickInfo()

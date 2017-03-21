@@ -9,7 +9,6 @@ import * as Config from "./../Config"
 
 import { RootComponent } from "./RootComponent"
 import * as State from "./State"
-import { Rectangle } from "./Types"
 
 // import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
@@ -38,11 +37,6 @@ export function setBackgroundColor(backgroundColor: string): void {
     backgroundColorElement.style.opacity = config.getValue<string>("prototype.editor.backgroundOpacity")
 }
 
-// TODO: Can we use bindaction creators for this?
-export function setActiveWindowDimensionsChanged(dimensions: Rectangle) {
-    store.dispatch(ActionCreators.setActiveWindowDimensions(dimensions))
-}
-
 export function setCursorPosition(screen: IScreen): void {
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
@@ -56,11 +50,6 @@ export function setCursorPosition(screen: IScreen): void {
 
 function _setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number, cursorCharacter: string, cursorPixelWidth: number): void {
     store.dispatch(ActionCreators.setCursorPosition(cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight, cursorCharacter, cursorPixelWidth))
-}
-
-// TODO: Can we use bindaction creators for this?
-export function setMode(mode: string): void {
-    store.dispatch(ActionCreators.setMode(mode))
 }
 
 export function setColors(foregroundColor: string): void {
@@ -184,17 +173,8 @@ const store = createStore(reducer, defaultState, enhancer)
 
 export const Actions = bindActionCreators(ActionCreators as any, store.dispatch)
 
-
 export function init(): void {
     render(defaultState)
-}
-
-export function showCursorColumn(): void {
-    store.dispatch(ActionCreators.showCursorColumn())
-}
-
-export function hideCursorColumn(): void {
-    store.dispatch(ActionCreators.hideCursorColumn())
 }
 
 export function setCursorLineOpacity(opacity: number): void {
