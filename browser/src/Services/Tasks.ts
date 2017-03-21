@@ -145,7 +145,7 @@ export class Tasks {
                 }
             })
 
-            UI.showPopupMenu("tasks", options)
+            UI.Actions.showPopupMenu("tasks", options)
         })
     }
 

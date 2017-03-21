@@ -102,13 +102,13 @@ const start = (args: string[]) => {
     overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
     overlayManager.addOverlay("scrollbar", scrollbarOverlay)
 
-    overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.setActiveWindowDimensionsChanged(dimensionsInPixels))
+    overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.Actions.setActiveWindowDimensionsChanged(dimensionsInPixels))
 
     pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
         if (err) {
-            UI.hideSignatureHelp()
+            UI.Actions.hideSignatureHelp()
         } else {
-            UI.showSignatureHelp(signatureHelp)
+            UI.Actions.showSignatureHelp(signatureHelp)
         }
     })
 
@@ -155,10 +155,10 @@ const start = (args: string[]) => {
 
         if (eventName === "BufEnter") {
             // TODO: More convenient way to hide all UI?
-            UI.hideCompletions()
-            UI.hidePopupMenu()
-            UI.hideSignatureHelp()
-            UI.hideQuickInfo()
+            UI.Actions.hideCompletions()
+            UI.Actions.hidePopupMenu()
+            UI.Actions.hideSignatureHelp()
+            UI.Actions.hideQuickInfo()
         }
 
         if (eventName === "DirChanged") {
@@ -183,7 +183,7 @@ const start = (args: string[]) => {
         renderer.onAction(action)
         screen.dispatch(action)
 
-        UI.setColors(screen.foregroundColor)
+        UI.Actions.setColors(screen.foregroundColor)
 
         if (!pendingTimeout) {
             pendingTimeout = setTimeout(updateFunction, 0) as any // FIXME: null
@@ -191,37 +191,37 @@ const start = (args: string[]) => {
     })
 
     instance.on("mode-change", (newMode: string) => {
-        UI.setMode(newMode)
+        UI.Actions.setMode(newMode)
 
         if (newMode === "normal") {
             if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                UI.showCursorLine()
+                UI.Actions.showCursorLine()
             }
             if (cursorColumn) {
-                UI.showCursorColumn()
+                UI.Actions.showCursorColumn()
             }
-            UI.hideCompletions()
-            UI.hideSignatureHelp()
+            UI.Actions.hideCompletions()
+            UI.Actions.hideSignatureHelp()
         } else if (newMode === "insert") {
-            UI.hideQuickInfo()
+            UI.Actions.hideQuickInfo()
             if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                UI.showCursorLine()
+                UI.Actions.showCursorLine()
             }
             if (cursorColumn) {
-                UI.showCursorColumn()
+                UI.Actions.showCursorColumn()
             }
         } else if (newMode === "cmdline") {
-            UI.hideCursorColumn() // TODO: cleaner way to hide and unhide?
-            UI.hideCursorLine()
-            UI.hideCompletions()
-            UI.hideQuickInfo()
+            UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
+            UI.Actions.hideCursorLine()
+            UI.Actions.hideCompletions()
+            UI.Actions.hideQuickInfo()
 
         }
     })
 
     const renderFunction = () => {
         if (pendingTimeout) {
-            UI.setCursorPosition(screen)
+            UI.Actions.setCursorPosition(screen)
         }
 
         renderer.update(screen, deltaRegion)
@@ -235,7 +235,7 @@ const start = (args: string[]) => {
 
     const updateFunction = () => {
         // TODO: Move cursor to component
-        UI.setCursorPosition(screen)
+        UI.Actions.setCursorPosition(screen)
 
         UI.setBackgroundColor(screen.backgroundColor)
 
@@ -248,15 +248,15 @@ const start = (args: string[]) => {
     const configChange = () => {
         cursorLine = config.getValue<boolean>("editor.cursorLine")
         cursorColumn = config.getValue<boolean>("editor.cursorColumn")
-        UI.setCursorLineOpacity(config.getValue<number>("editor.cursorLineOpacity"))
-        UI.setCursorColumnOpacity(config.getValue<number>("editor.cursorColumnOpacity"))
+        UI.Actions.setCursorLineOpacity(config.getValue<number>("editor.cursorLineOpacity"))
+        UI.Actions.setCursorColumnOpacity(config.getValue<number>("editor.cursorColumnOpacity"))
 
         if (cursorLine) {
-            UI.showCursorLine()
+            UI.Actions.showCursorLine()
         }
 
         if (cursorColumn) {
-            UI.showCursorColumn()
+            UI.Actions.showCursorColumn()
         }
 
         const window = remote.getCurrentWindow()
@@ -276,7 +276,7 @@ const start = (args: string[]) => {
     const mouse = new Mouse(editorElement, screen)
 
     mouse.on("mouse", (mouseInput: string) => {
-        UI.hideCompletions()
+        UI.Actions.hideCompletions()
         instance.input(mouseInput)
     })
 
@@ -288,33 +288,32 @@ const start = (args: string[]) => {
             return
         }
 
-        if (UI.isPopupMenuOpen()) {
+        if (UI.Selectors.isPopupMenuOpen()) {
             if (key === "<esc>") {
-                UI.hidePopupMenu()
+                UI.Actions.hidePopupMenu()
             } else if (key === "<enter>") {
-                UI.selectPopupMenuItem(false)
+                UI.Actions.selectMenuItem(false)
             } else if (key === "<C-v>") {
-                UI.selectPopupMenuItem(true)
+                UI.Actions.selectMenuItem(true)
             } else if (key === "<C-n>") {
-                UI.nextPopupMenuItem()
+                UI.Actions.nextMenuItem()
             } else if (key === "<C-p>") {
-                UI.previousPopupMenuItem()
+                UI.Actions.previousMenuItem()
             }
 
             return
         }
 
-        if (UI.areCompletionsVisible()) {
+        if (UI.Selectors.areCompletionsVisible()) {
 
             if (key === "<enter>") {
                 autoCompletion.complete()
                 return
             } else if (key === "<C-n>") {
-                UI.nextCompletion()
+                UI.Actions.nextCompletion()
                 return
-
             } else if (key === "<C-p>") {
-                UI.previousCompletion()
+                UI.Actions.previousCompletion()
                 return
             }
         }
