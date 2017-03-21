@@ -65,7 +65,7 @@ export class AutoCompletion {
                 const cursorOffset = newLineLength - originalLineLength
 
                 // Set cursor position after the word
-                return this._neovimInstance.eval(`setpos(".", [0, ${cursorRow}, ${cursorColumn + cursorOffset} + 2, 0])`)
+                return this._neovimInstance.eval(`setpos(".", [0, ${cursorRow}, ${cursorColumn + cursorOffset}, 0])`)
             })
 
         UI.hideCompletions()
