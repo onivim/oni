@@ -46,7 +46,7 @@ export const hideSignatureHelp = () => ({
     type: "HIDE_SIGNATURE_HELP",
 })
 
-export const showMenu = (id: string, options: Oni.Menu.MenuOption[]) => ({
+export const showPopupMenu = (id: string, options: Oni.Menu.MenuOption[]) => ({
     type: "SHOW_MENU",
     payload: {
         id,
@@ -54,11 +54,11 @@ export const showMenu = (id: string, options: Oni.Menu.MenuOption[]) => ({
     },
 })
 
-export const hideMenu = () => ({
+export const hidePopupMenu = () => ({
     type: "HIDE_MENU",
 })
 
-export const previousMenu = () => ({
+export const previousMenuItem = () => ({
     type: "PREVIOUS_MENU",
 })
 
@@ -69,7 +69,7 @@ export const filterMenu = (filterString: string) => ({
     },
 })
 
-export const nextMenu = () => ({
+export const nextMenuItem = () => ({
     type: "NEXT_MENU",
 })
 
@@ -86,7 +86,7 @@ export const selectMenuItem = (openInSplit: boolean, index?: number) => (dispatc
 
     Events.events.emit("menu-item-selected:" + state.popupMenu.id, { selectedOption, openInSplit })
 
-    dispatch(hideMenu())
+    dispatch(hidePopupMenu())
 }
 
 export const showQuickInfo = (title: string, description: string) => ({
