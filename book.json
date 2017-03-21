@@ -5,7 +5,7 @@
   "plugins": ["edit-link", "prism", "-highlight", "github", "anchorjs"],
   "pluginsConfig": {
     "edit-link": {
-      "base": "https://github.com/reactjs/redux/tree/master",
+      "base": "https://github.com/extr0py/oni/tree/master/docs",
       "label": "Edit This Page"
     },
     "github": {
