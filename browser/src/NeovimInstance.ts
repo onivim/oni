@@ -233,7 +233,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._fontFamily = fontFamily
         this._fontSize = fontSize
 
-        const {width, height} = measureFont(this._fontFamily, this._fontSize)
+        const { width, height } = measureFont(this._fontFamily, this._fontSize)
 
         this._fontWidthInPixels = width
         this._fontHeightInPixels = height
@@ -266,7 +266,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public getCurrentWorkingDirectory(): Q.Promise<string> {
         return this.eval("getcwd()")
-                .then((currentWorkingDirectory: string) => path.normalize(currentWorkingDirectory))
+            .then((currentWorkingDirectory: string) => path.normalize(currentWorkingDirectory))
     }
 
     public getCurrentWindow(): Q.Promise<IWindow> {
