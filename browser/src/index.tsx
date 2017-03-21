@@ -158,7 +158,7 @@ const start = (args: string[]) => {
             UI.hideCompletions()
             UI.Actions.hidePopupMenu()
             UI.Actions.hideSignatureHelp()
-            UI.hideQuickInfo()
+            UI.Actions.hideQuickInfo()
         }
 
         if (eventName === "DirChanged") {
@@ -203,7 +203,7 @@ const start = (args: string[]) => {
             UI.hideCompletions()
             UI.Actions.hideSignatureHelp()
         } else if (newMode === "insert") {
-            UI.hideQuickInfo()
+            UI.Actions.hideQuickInfo()
             if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
                 UI.Actions.showCursorLine()
             }
@@ -214,7 +214,7 @@ const start = (args: string[]) => {
             UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
             UI.Actions.hideCursorLine()
             UI.hideCompletions()
-            UI.hideQuickInfo()
+            UI.Actions.hideQuickInfo()
 
         }
     })

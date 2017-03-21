@@ -2,7 +2,7 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 
 import { Provider } from "react-redux"
-import { applyMiddleware, compose, createStore, bindActionCreators } from "redux"
+import { applyMiddleware, bindActionCreators, compose, createStore } from "redux"
 import thunk from "redux-thunk"
 
 import * as Config from "./../Config"
@@ -41,7 +41,7 @@ export function setCursorPosition(screen: IScreen): void {
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
     if (screen.cursorRow === screen.height - 1) {
-        hideQuickInfo()
+        Actions.hideQuickInfo()
         Actions.hideSignatureHelp()
     }
 
@@ -63,14 +63,6 @@ export function setColors(foregroundColor: string): void {
     }
 
     store.dispatch(ActionCreators.setColors(foregroundColor))
-}
-
-export function showQuickInfo(title: string, description: string): void {
-    store.dispatch(ActionCreators.showQuickInfo(title, description))
-}
-
-export function hideQuickInfo(): void {
-    store.dispatch(ActionCreators.hideQuickInfo())
 }
 
 export function areCompletionsVisible(): boolean {
