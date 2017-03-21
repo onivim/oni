@@ -2,7 +2,6 @@ const electron = require('electron')
 const os = require('os')
 
 // Module to control application life.
-const defaultMenu = require('electron-default-menu');
 const { Menu, app, shell, dialog } = electron;
 
 
