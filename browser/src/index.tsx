@@ -40,7 +40,7 @@ import { ScrollBarOverlay } from "./UI/Overlay/ScrollBarOverlay"
 import { Rectangle } from "./UI/Types"
 
 const start = (args: string[]) => {
-    const services: any[] = []
+    // const services: any[] = []
 
     const parsedArgs = minimist(args)
 
@@ -51,99 +51,86 @@ const start = (args: string[]) => {
     window["UI"] = UI // tslint:disable-line no-string-literal
     require("./overlay.less")
 
-    let deltaRegion = new IncrementalDeltaRegionTracker()
-    let screen = new NeovimScreen(deltaRegion)
+    // let deltaRegion = new IncrementalDeltaRegionTracker()
+    // let screen = new NeovimScreen(deltaRegion)
 
     const commandManager = new CommandManager()
     const pluginManager = new PluginManager(commandManager)
-    let instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight)
+    // let instance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight)
 
-    const editorElement = document.getElementById("oni-text-editor") as HTMLDivElement
-    let renderer = new DOMRenderer()
-    renderer.start(editorElement)
+    // const editorElement = document.getElementById("oni-text-editor") as HTMLDivElement
+    // let renderer = new DOMRenderer()
+    // renderer.start(editorElement)
 
-    let pendingTimeout: any = null
+    // let pendingTimeout: any = null
 
     // Services
-    const autoCompletion = new AutoCompletion(instance)
-    const bufferUpdates = new BufferUpdates(instance, pluginManager)
-    const errorService = new Errors(instance)
-    const quickOpen = new QuickOpen(instance)
-    const windowTitle = new WindowTitle(instance)
-    const multiProcess = new MultiProcess()
-    const formatter = new Formatter(instance, pluginManager, bufferUpdates)
-    const outputWindow = new OutputWindow(instance, pluginManager)
-    const liveEvaluation = new LiveEvaluation(instance, pluginManager)
-    const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
-    const tasks = new Tasks(outputWindow)
-    registerBuiltInCommands(commandManager, pluginManager, instance)
+    // const autoCompletion = new AutoCompletion(instance)
+    // const bufferUpdates = new BufferUpdates(instance, pluginManager)
+    // const errorService = new Errors(instance)
+    // const quickOpen = new QuickOpen(instance)
+    // const windowTitle = new WindowTitle(instance)
+    // const multiProcess = new MultiProcess()
+    // const formatter = new Formatter(instance, pluginManager, bufferUpdates)
+    // const outputWindow = new OutputWindow(instance, pluginManager)
+    // const liveEvaluation = new LiveEvaluation(instance, pluginManager)
+    // const syntaxHighlighter = new SyntaxHighlighter(instance, pluginManager)
+    // const tasks = new Tasks(outputWindow)
+    // registerBuiltInCommands(commandManager, pluginManager, instance)
 
-    tasks.registerTaskProvider(commandManager)
-    tasks.registerTaskProvider(errorService)
+    // tasks.registerTaskProvider(commandManager)
+    // tasks.registerTaskProvider(errorService)
 
-    services.push(autoCompletion)
-    services.push(bufferUpdates)
-    services.push(errorService)
-    services.push(quickOpen)
-    services.push(windowTitle)
-    services.push(tasks)
-    services.push(formatter)
-    services.push(liveEvaluation)
-    services.push(multiProcess)
-    services.push(syntaxHighlighter)
-    services.push(outputWindow)
+    // services.push(autoCompletion)
+    // services.push(bufferUpdates)
+    // services.push(errorService)
+    // services.push(quickOpen)
+    // services.push(windowTitle)
+    // services.push(tasks)
+    // services.push(formatter)
+    // services.push(liveEvaluation)
+    // services.push(multiProcess)
+    // services.push(syntaxHighlighter)
+    // services.push(outputWindow)
 
-    // Overlays
-    const overlayManager = new OverlayManager(screen, instance)
-    const errorOverlay = new ErrorOverlay()
-    const liveEvaluationOverlay = new LiveEvaluationOverlay()
-    const scrollbarOverlay = new ScrollBarOverlay()
-    overlayManager.addOverlay("errors", errorOverlay)
-    overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
-    overlayManager.addOverlay("scrollbar", scrollbarOverlay)
+    // // Overlays
+    // const overlayManager = new OverlayManager(screen, instance)
+    // const errorOverlay = new ErrorOverlay()
+    // const liveEvaluationOverlay = new LiveEvaluationOverlay()
+    // const scrollbarOverlay = new ScrollBarOverlay()
+    // overlayManager.addOverlay("errors", errorOverlay)
+    // overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
+    // overlayManager.addOverlay("scrollbar", scrollbarOverlay)
 
-    overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.setActiveWindowDimensionsChanged(dimensionsInPixels))
+    // overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.setActiveWindowDimensionsChanged(dimensionsInPixels))
 
-    pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
-        if (err) {
-            UI.hideSignatureHelp()
-        } else {
-            UI.showSignatureHelp(signatureHelp)
-        }
-    })
+    // pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
+    //     if (err) {
+    //         UI.hideSignatureHelp()
+    //     } else {
+    //         UI.showSignatureHelp(signatureHelp)
+    //     }
+    // })
 
-    pluginManager.on("set-errors", (key: string, fileName: string, errors: any[], color: string) => {
-        errorService.setErrors(fileName, errors)
 
-        color = color || "red"
-        errorOverlay.setErrors(key, fileName, errors, color)
+    // liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
+    //     liveEvaluationOverlay.setLiveEvaluationResult(file, blocks)
+    // })
 
-        const errorMarkers = errors.map((e: any) => ({
-            line: e.lineNumber,
-            height: 1,
-            color,
-        }))
-        scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
-    })
+    // pluginManager.on("find-all-references", (references: Oni.Plugin.ReferencesResult) => {
+    //     const convertToQuickFixItem = (item: Oni.Plugin.ReferencesResultItem) => ({
+    //         filename: item.fullPath,
+    //         lnum: item.line,
+    //         col: item.column,
+    //         text: item.lineText,
+    //     })
 
-    liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
-        liveEvaluationOverlay.setLiveEvaluationResult(file, blocks)
-    })
+    //     const quickFixItems = references.items.map((item) => convertToQuickFixItem(item))
 
-    pluginManager.on("find-all-references", (references: Oni.Plugin.ReferencesResult) => {
-        const convertToQuickFixItem = (item: Oni.Plugin.ReferencesResultItem) => ({
-            filename: item.fullPath,
-            lnum: item.line,
-            col: item.column,
-            text: item.lineText,
-        })
-
-        const quickFixItems = references.items.map((item) => convertToQuickFixItem(item))
-
-        instance.quickFix.setqflist(quickFixItems, ` Find All References: ${references.tokenName}`)
-        instance.command("copen")
-        instance.command(`execute "normal! /${references.tokenName}\\<cr>"`)
-    })
+    //     instance.quickFix.setqflist(quickFixItems, ` Find All References: ${references.tokenName}`)
+    //     instance.command("copen")
+    //     instance.command(`execute "normal! /${references.tokenName}\\<cr>"`)
+    // })
 
     instance.on("event", (eventName: string, evt: any) => {
         // TODO: Can we get rid of these?
