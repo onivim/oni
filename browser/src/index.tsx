@@ -247,13 +247,13 @@ const start = (args: string[]) => {
         // }
 
         remote.getCurrentWindow().setFullScreen(config.getValue<boolean>("editor.fullScreenOnStart"))
-        instance.setFont(config.getValue<string>("editor.fontFamily"), config.getValue<string>("editor.fontSize"))
+        // instance.setFont(config.getValue<string>("editor.fontFamily"), config.getValue<string>("editor.fontSize"))
         // updateFunction()
     }
     configChange() // initialize values
     config.registerListener(configChange)
 
-    instance.start(parsedArgs._)
+    // instance.start(parsedArgs._)
 
     // const mouse = new Mouse(editorElement, screen)
 
@@ -336,14 +336,6 @@ const start = (args: string[]) => {
     // window["__screen"] = screen // tslint:disable-line no-string-literal
 
     UI.init()
-
-    ipcRenderer.on("menu-item-click", (_evt, message: string) => {
-        if (message.startsWith(":")) {
-            instance.command("exec \"" + message + "\"")
-        } else {
-            instance.command("exec \":normal! " + message + "\"")
-        }
-    })
 
     ipcRenderer.on("execute-command", (_evt, command: string) => {
         commandManager.executeCommand(command, null)
