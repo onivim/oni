@@ -8,36 +8,13 @@
 
 import { ipcRenderer, remote } from "electron"
 import * as minimist from "minimist"
-import * as path from "path"
 import * as Config from "./Config"
-import { IncrementalDeltaRegionTracker } from "./DeltaRegionTracker"
-import { Keyboard } from "./Input/Keyboard"
-import { Mouse } from "./Input/Mouse"
-import { NeovimInstance } from "./NeovimInstance"
-import { PluginManager } from "./Plugins/PluginManager"
-import { DOMRenderer } from "./Renderer/DOMRenderer"
-import { NeovimScreen } from "./Screen"
 
-import { AutoCompletion } from "./Services/AutoCompletion"
-import { BufferUpdates } from "./Services/BufferUpdates"
+import { PluginManager } from "./Plugins/PluginManager"
+
 import { CommandManager } from "./Services/CommandManager"
-import { registerBuiltInCommands } from "./Services/Commands"
-import { Errors } from "./Services/Errors"
-import { Formatter } from "./Services/Formatter"
-import { LiveEvaluation } from "./Services/LiveEvaluation"
-import { MultiProcess } from "./Services/MultiProcess"
-import { OutputWindow } from "./Services/Output"
-import { QuickOpen } from "./Services/QuickOpen"
-import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
-import { Tasks } from "./Services/Tasks"
-import { WindowTitle } from "./Services/WindowTitle"
 
 import * as UI from "./UI/index"
-import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
-import { LiveEvaluationOverlay } from "./UI/Overlay/LiveEvaluationOverlay"
-import { OverlayManager } from "./UI/Overlay/OverlayManager"
-import { ScrollBarOverlay } from "./UI/Overlay/ScrollBarOverlay"
-import { Rectangle } from "./UI/Types"
 
 const start = (args: string[]) => {
     // const services: any[] = []
@@ -335,7 +312,7 @@ const start = (args: string[]) => {
     // window["__neovim"] = instance // tslint:disable-line no-string-literal
     // window["__screen"] = screen // tslint:disable-line no-string-literal
 
-    UI.init()
+    UI.init(pluginManager, commandManager, parsedArgs._)
 
     ipcRenderer.on("execute-command", (_evt, command: string) => {
         commandManager.executeCommand(command, null)

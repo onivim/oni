@@ -59,14 +59,14 @@ export const Selectors = {
     getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState()),
 }
 
-export function init(): void {
-    render(defaultState)
+export function init(pluginManager: any, commandManager: any, args: any): void {
+    render(defaultState, pluginManager, commandManager, args)
 }
 
-function render(_state: State.IState): void {
+function render(_state: State.IState, pluginManager: any, commandManager: any, args: any): void {
     const element = document.getElementById("host")
     ReactDOM.render(
         <Provider store={store}>
-            <RootComponent />
+            <RootComponent pluginManager={pluginManager} commandManager={commandManager} args={args}/>
         </Provider>, element)
 }
