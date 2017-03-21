@@ -1,7 +1,7 @@
 {
   "gitbook": "3.2.2",
   "title": "ONI",
-  "root": "docs",
+  "root": "./docs",
   "plugins": ["edit-link", "prism", "-highlight", "github", "anchorjs"],
   "pluginsConfig": {
     "edit-link": {
