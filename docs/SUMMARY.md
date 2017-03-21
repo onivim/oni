@@ -3,13 +3,12 @@
 ### Getting Started
 
 * [Installation & Setup]
-* [Basic Configuration]
 * [FAQ]
 
 ### Customization
 * [ONI Configuration]
-* [Keybindings]
 * [Neovim Configuration]
+* [Keybindings]
 * [Plugin Management]
 
 ### Plugin Development
