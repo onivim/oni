@@ -106,9 +106,9 @@ const start = (args: string[]) => {
 
     pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
         if (err) {
-            UI.hideSignatureHelp()
+            UI.Actions.hideSignatureHelp()
         } else {
-            UI.showSignatureHelp(signatureHelp)
+            UI.Actions.showSignatureHelp(signatureHelp)
         }
     })
 

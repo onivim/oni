@@ -60,14 +60,6 @@ export function setColors(foregroundColor: string): void {
     store.dispatch(ActionCreators.setColors(foregroundColor))
 }
 
-export function showSignatureHelp(help: Oni.Plugin.SignatureHelpResult): void {
-    store.dispatch(ActionCreators.showSignatureHelp(help))
-}
-
-export function hideSignatureHelp(): void {
-    store.dispatch(ActionCreators.hideSignatureHelp())
-}
-
 export function showPopupMenu(id: string, options: Oni.Menu.MenuOption[]): void {
     store.dispatch(ActionCreators.showMenu(id, options))
 }
