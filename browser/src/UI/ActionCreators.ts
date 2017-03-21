@@ -191,7 +191,6 @@ const _setColors = (foregroundColor: string) => ({
     payload: { foregroundColor },
 })
 
-
 const _nextAutoCompletion = () => ({
     type: "NEXT_AUTO_COMPLETION",
 })

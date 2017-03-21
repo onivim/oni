@@ -54,7 +54,7 @@ export const Actions = bindActionCreators(ActionCreators as any, store.dispatch)
 export const Selectors = {
     isPopupMenuOpen: () => UnboundSelectors.isPopupMenuOpen(store.getState()),
     areCompletionsVisible: () => UnboundSelectors.areCompletionsVisible(store.getState()),
-    getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState())
+    getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState()),
 }
 
 export function init(): void {
