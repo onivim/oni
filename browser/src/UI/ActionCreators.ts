@@ -10,7 +10,20 @@
 import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
-export const setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
+import { IScreen } from "./../Screen"
+
+export const setCursorPosition = (screen: IScreen) => (dispatch: Function) => {
+    const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
+
+    if (screen.cursorRow === screen.height - 1) {
+        dispatch(hideQuickInfo())
+        dispatch(hideSignatureHelp())
+    }
+
+    dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
+}
+
+const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
     type: "SET_CURSOR_POSITION",
     payload: {
         pixelX: cursorPixelX,

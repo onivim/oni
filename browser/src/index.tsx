@@ -221,7 +221,7 @@ const start = (args: string[]) => {
 
     const renderFunction = () => {
         if (pendingTimeout) {
-            UI.setCursorPosition(screen)
+            UI.Actions.setCursorPosition(screen)
         }
 
         renderer.update(screen, deltaRegion)
@@ -235,7 +235,7 @@ const start = (args: string[]) => {
 
     const updateFunction = () => {
         // TODO: Move cursor to component
-        UI.setCursorPosition(screen)
+        UI.Actions.setCursorPosition(screen)
 
         UI.setBackgroundColor(screen.backgroundColor)
 
@@ -307,7 +307,6 @@ const start = (args: string[]) => {
             } else if (key === "<C-n>") {
                 UI.nextCompletion()
                 return
-
             } else if (key === "<C-p>") {
                 UI.previousCompletion()
                 return

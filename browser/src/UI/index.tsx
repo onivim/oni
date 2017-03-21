@@ -16,8 +16,6 @@ import { reducer } from "./Reducer"
 
 import { InstallHelp } from "./components/InstallHelp"
 
-import { IScreen } from "./../Screen"
-
 import * as Events from "./Events"
 
 export const events = Events.events
@@ -37,24 +35,9 @@ export function setBackgroundColor(backgroundColor: string): void {
     backgroundColorElement.style.opacity = config.getValue<string>("prototype.editor.backgroundOpacity")
 }
 
-export function setCursorPosition(screen: IScreen): void {
-    const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
-
-    if (screen.cursorRow === screen.height - 1) {
-        Actions.hideQuickInfo()
-        Actions.hideSignatureHelp()
-    }
-
-    _setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels)
-}
-
 export function isPopupMenuOpen(): boolean {
     const popupMenu = store.getState().popupMenu
     return !!popupMenu
-}
-
-function _setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number, cursorCharacter: string, cursorPixelWidth: number): void {
-    store.dispatch(ActionCreators.setCursorPosition(cursorPixelX, cursorPixelY, fontPixelWidth, fontPixelHeight, cursorCharacter, cursorPixelWidth))
 }
 
 export function setColors(foregroundColor: string): void {
