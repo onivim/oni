@@ -10,7 +10,7 @@
     "ide",
     "vim"
   ],
-  "main": "index.js",
+  "main": "main.js",
   "bin": {
     "oni": "./cli/oni",
     "oni-vim": "./cli/oni"
@@ -22,6 +22,7 @@
     "build:browser": "webpack --config browser/webpack.production.config.js",
     "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
     "build:plugins": "cd vim/core/oni-plugin-typescript && npm run build",
+    "package": "electron-packager ./ --out dist",
     "test": "npm run test:browser && npm run test:plugins:typescript",
     "test:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
     "lint": "tslint --project browser/tsconfig.json --config browser/tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
