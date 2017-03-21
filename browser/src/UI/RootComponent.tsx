@@ -40,7 +40,7 @@ export class RootComponent extends React.Component<IRootComponentProps, void> {
                 <MenuContainer />
                 <AutoCompletionContainer />
             </div>
-            <div className="container">
+            <div className="container fixed">
                 <StatusBar />
             </div>
         </div>

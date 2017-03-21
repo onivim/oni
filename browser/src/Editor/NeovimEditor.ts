@@ -51,6 +51,7 @@ export class NeovimEditor implements IEditor {
     private _screen: NeovimScreen
 
     private _pendingTimeout: any = null
+    private _element: HTMLElement
 
     public init(args: any): void {
         this._neovimInstance.start(args)
@@ -64,7 +65,7 @@ export class NeovimEditor implements IEditor {
         let cursorLine: boolean
         let cursorColumn: boolean
 
-        this._neovimInstance = new NeovimInstance(this._pluginManager, document.body.offsetWidth, document.body.offsetHeight)
+        this._neovimInstance = new NeovimInstance(this._pluginManager, 100, 100)
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
 
@@ -331,8 +332,11 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onResize(): void {
-        let width = document.body.offsetWidth
-        let height = document.body.offsetHeight
+        if (!this._element)
+            return
+
+        let width = this._element.offsetWidth
+        let height = this._element.offsetHeight
 
         this._deltaRegionManager.dirtyAllCells()
 
@@ -353,6 +357,7 @@ export class NeovimEditor implements IEditor {
     }
 
     public render(element: HTMLDivElement): void {
+        this._element = element
         this._renderer.start(element)
 
         const mouse = new Mouse(element, this._screen)
