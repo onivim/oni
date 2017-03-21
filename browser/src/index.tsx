@@ -156,8 +156,8 @@ const start = (args: string[]) => {
         if (eventName === "BufEnter") {
             // TODO: More convenient way to hide all UI?
             UI.hideCompletions()
-            UI.hidePopupMenu()
-            UI.hideSignatureHelp()
+            UI.Actions.hidePopupMenu()
+            UI.Actions.hideSignatureHelp()
             UI.hideQuickInfo()
         }
 
@@ -201,7 +201,7 @@ const start = (args: string[]) => {
                 UI.Actions.showCursorColumn()
             }
             UI.hideCompletions()
-            UI.hideSignatureHelp()
+            UI.Actions.hideSignatureHelp()
         } else if (newMode === "insert") {
             UI.hideQuickInfo()
             if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
@@ -285,15 +285,15 @@ const start = (args: string[]) => {
 
         if (UI.isPopupMenuOpen()) {
             if (key === "<esc>") {
-                UI.hidePopupMenu()
+                UI.Actions.hidePopupMenu()
             } else if (key === "<enter>") {
-                UI.selectPopupMenuItem(false)
+                UI.Actions.selectPopupMenuItem(false)
             } else if (key === "<C-v>") {
-                UI.selectPopupMenuItem(true)
+                UI.Actions.selectPopupMenuItem(true)
             } else if (key === "<C-n>") {
-                UI.nextPopupMenuItem()
+                UI.Actions.nextPopupMenuItem()
             } else if (key === "<C-p>") {
-                UI.previousPopupMenuItem()
+                UI.Actions.previousPopupMenuItem()
             }
 
             return

@@ -40,7 +40,7 @@ export class QuickOpen {
         const overrriddenCommand = config.getValue<string>("editor.quickOpen.execCommand")
         const exclude = config.getValue<string[]>("editor.exclude")
 
-        UI.showPopupMenu("quickOpen", [{
+        UI.Actions.showPopupMenu("quickOpen", [{
             icon: "refresh fa-spin fa-fw",
             label: "Loading Files...",
             detail: "",
@@ -94,6 +94,6 @@ export class QuickOpen {
                 pinned: this._seenItems.indexOf(fullPath) >= 0,
             }
         })
-        UI.showPopupMenu("quickOpen", options)
+        UI.Actions.showPopupMenu("quickOpen", options)
     }
 }

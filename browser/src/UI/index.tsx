@@ -42,10 +42,15 @@ export function setCursorPosition(screen: IScreen): void {
 
     if (screen.cursorRow === screen.height - 1) {
         hideQuickInfo()
-        hideSignatureHelp()
+        Actions.hideSignatureHelp()
     }
 
     _setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels)
+}
+
+export function isPopupMenuOpen(): boolean {
+    const popupMenu = store.getState().popupMenu
+    return !!popupMenu
 }
 
 function _setCursorPosition(cursorPixelX: number, cursorPixelY: number, fontPixelWidth: number, fontPixelHeight: number, cursorCharacter: string, cursorPixelWidth: number): void {
@@ -58,31 +63,6 @@ export function setColors(foregroundColor: string): void {
     }
 
     store.dispatch(ActionCreators.setColors(foregroundColor))
-}
-
-export function showPopupMenu(id: string, options: Oni.Menu.MenuOption[]): void {
-    store.dispatch(ActionCreators.showMenu(id, options))
-}
-
-export function hidePopupMenu(): void {
-    store.dispatch(ActionCreators.hideMenu())
-}
-
-export function isPopupMenuOpen(): boolean {
-    const popupMenu = store.getState().popupMenu
-    return !!popupMenu
-}
-
-export function nextPopupMenuItem(): void {
-    store.dispatch(ActionCreators.nextMenu())
-}
-
-export function previousPopupMenuItem(): void {
-    store.dispatch(ActionCreators.previousMenu())
-}
-
-export function selectPopupMenuItem(openInSplit: boolean, menuItemIndex?: number): void {
-    store.dispatch(ActionCreators.selectMenuItem(openInSplit, menuItemIndex))
 }
 
 export function showQuickInfo(title: string, description: string): void {
