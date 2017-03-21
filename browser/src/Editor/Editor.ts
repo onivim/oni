@@ -7,6 +7,8 @@ import { NeovimInstance } from "./../NeovimInstance"
 import { NeovimScreen } from "./../Screen"
 import { DOMRenderer } from "./../Renderer/DOMRenderer"
 
+import * as Config from "./../Config"
+
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { AutoCompletion } from "./../Services/AutoCompletion"
@@ -57,7 +59,7 @@ export class EditorHost extends React.Component<IEditorHostProps, void> {
     }
 
     public render(): JSX.Element {
-        return <div ref={(elem) => this._element = elem} className="editor"></div>
+        return <div ref={ (elem) => this._element = elem } className = "editor" > </div>
     }
 }
 
@@ -73,7 +75,7 @@ export class NeovimEditor implements IEditor {
         private _commandManager: CommandManager
         private _pluginManager: PluginManager
         private _renderer: DOMRenderer = new DOMRenderer()
-    ) { 
+    ) {
         let cursorLine: boolean
         let cursorColumn: boolean
 
@@ -184,7 +186,7 @@ export class NeovimEditor implements IEditor {
                     .then((newDirectory) => process.chdir(newDirectory))
             }
         })
-        
+
         this._neovimInstance.on("error", (_err: string) => {
             UI.showNeovimInstallHelp()
         })
@@ -250,6 +252,99 @@ export class NeovimEditor implements IEditor {
         }
 
         renderFunction()
+
+        const config = Config.instance()
+
+        const configChange = () => {
+            cursorLine = config.getValue<boolean>("editor.cursorLine")
+            cursorColumn = config.getValue<boolean>("editor.cursorColumn")
+            UI.setCursorLineOpacity(config.getValue<number>("editor.cursorLineOpacity"))
+            UI.setCursorColumnOpacity(config.getValue<number>("editor.cursorColumnOpacity"))
+
+            if (cursorLine) {
+                UI.showCursorLine()
+            }
+
+            if (cursorColumn) {
+                UI.showCursorColumn()
+            }
+
+            this._neovimInstance.setFont(config.getValue<string>("editor.fontFamily"), config.getValue<string>("editor.fontSize"))
+            this._onUpdate()
+        }
+        configChange() // initialize values
+        config.registerListener(configChange)
+
+        const keyboard = new Keyboard()
+        keyboard.on("keydown", (key: string) => {
+
+            if (key === "<f3>") {
+                formatter.formatBuffer()
+                return
+            }
+
+            if (UI.isPopupMenuOpen()) {
+                if (key === "<esc>") {
+                    UI.hidePopupMenu()
+                } else if (key === "<enter>") {
+                    UI.selectPopupMenuItem(false)
+                } else if (key === "<C-v>") {
+                    UI.selectPopupMenuItem(true)
+                } else if (key === "<C-n>") {
+                    UI.nextPopupMenuItem()
+                } else if (key === "<C-p>") {
+                    UI.previousPopupMenuItem()
+                }
+
+                return
+            }
+
+            if (UI.areCompletionsVisible()) {
+
+                if (key === "<enter>") {
+                    autoCompletion.complete()
+                    return
+                } else if (key === "<C-n>") {
+                    UI.nextCompletion()
+                    return
+
+                } else if (key === "<C-p>") {
+                    UI.previousCompletion()
+                    return
+                }
+            }
+
+            if (key === "<f12>") {
+                commandManager.executeCommand("oni.editor.gotoDefinition", null)
+            } else if (key === "<C-p>" && screen.mode === "normal") {
+                quickOpen.show()
+            } else if (key === "<C-P>" && screen.mode === "normal") {
+                tasks.show()
+            } else if (key === "<C-pageup>") {
+                multiProcess.focusPreviousInstance()
+            } else if (key === "<C-pagedown>") {
+                multiProcess.focusNextInstance()
+            } else {
+                instance.input(key)
+            }
+        })
+
+        window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
+        window["__screen"] = this._screen // tslint:disable-line no-string-literal
+
+        // TODO: Listen to element instead
+        window.addEventListener("resize", () => this._onResize())
+
+    }
+
+    private _onResize(): void {
+        let width = document.body.offsetWidth
+        let height = document.body.offsetHeight
+
+        this._deltaRegionManager.dirtyAllCells()
+
+        this._neovimInstance.resize(width, height)
+        this._renderer.onResize()
     }
 
     private _onUpdate(): void {
@@ -266,5 +361,12 @@ export class NeovimEditor implements IEditor {
 
     public render(element: HTMLDivElement): void {
         this._renderer.start(element)
+
+        const mouse = new Mouse(element, screen)
+
+        mouse.on("mouse", (mouseInput: string) => {
+            UI.hideCompletions()
+            this._neovimInstance.input(mouseInput)
+        })
     }
 }

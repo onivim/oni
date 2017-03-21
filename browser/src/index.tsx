@@ -233,106 +233,107 @@ const start = (args: string[]) => {
     const config = Config.instance()
 
     const configChange = () => {
-        cursorLine = config.getValue<boolean>("editor.cursorLine")
-        cursorColumn = config.getValue<boolean>("editor.cursorColumn")
-        UI.setCursorLineOpacity(config.getValue<number>("editor.cursorLineOpacity"))
-        UI.setCursorColumnOpacity(config.getValue<number>("editor.cursorColumnOpacity"))
+        // cursorLine = config.getValue<boolean>("editor.cursorLine")
+        // cursorColumn = config.getValue<boolean>("editor.cursorColumn")
+        // UI.setCursorLineOpacity(config.getValue<number>("editor.cursorLineOpacity"))
+        // UI.setCursorColumnOpacity(config.getValue<number>("editor.cursorColumnOpacity"))
 
-        if (cursorLine) {
-            UI.showCursorLine()
-        }
+        // if (cursorLine) {
+        //     UI.showCursorLine()
+        // }
 
-        if (cursorColumn) {
-            UI.showCursorColumn()
-        }
+        // if (cursorColumn) {
+        //     UI.showCursorColumn()
+        // }
 
         remote.getCurrentWindow().setFullScreen(config.getValue<boolean>("editor.fullScreenOnStart"))
         instance.setFont(config.getValue<string>("editor.fontFamily"), config.getValue<string>("editor.fontSize"))
-        updateFunction()
+        // updateFunction()
     }
     configChange() // initialize values
     config.registerListener(configChange)
 
     instance.start(parsedArgs._)
 
-    const mouse = new Mouse(editorElement, screen)
+    // const mouse = new Mouse(editorElement, screen)
 
-    mouse.on("mouse", (mouseInput: string) => {
-        UI.hideCompletions()
-        instance.input(mouseInput)
-    })
+    // mouse.on("mouse", (mouseInput: string) => {
+    //     UI.hideCompletions()
+    //     instance.input(mouseInput)
+    // })
 
-    const keyboard = new Keyboard()
-    keyboard.on("keydown", (key: string) => {
+    // const keyboard = new Keyboard()
+    // keyboard.on("keydown", (key: string) => {
 
-        if (key === "<f3>") {
-            formatter.formatBuffer()
-            return
-        }
+    //     if (key === "<f3>") {
+    //         formatter.formatBuffer()
+    //         return
+    //     }
 
-        if (UI.isPopupMenuOpen()) {
-            if (key === "<esc>") {
-                UI.hidePopupMenu()
-            } else if (key === "<enter>") {
-                UI.selectPopupMenuItem(false)
-            } else if (key === "<C-v>") {
-                UI.selectPopupMenuItem(true)
-            } else if (key === "<C-n>") {
-                UI.nextPopupMenuItem()
-            } else if (key === "<C-p>") {
-                UI.previousPopupMenuItem()
-            }
+    //     if (UI.isPopupMenuOpen()) {
+    //         if (key === "<esc>") {
+    //             UI.hidePopupMenu()
+    //         } else if (key === "<enter>") {
+    //             UI.selectPopupMenuItem(false)
+    //         } else if (key === "<C-v>") {
+    //             UI.selectPopupMenuItem(true)
+    //         } else if (key === "<C-n>") {
+    //             UI.nextPopupMenuItem()
+    //         } else if (key === "<C-p>") {
+    //             UI.previousPopupMenuItem()
+    //         }
 
-            return
-        }
+    //         return
+    //     }
 
-        if (UI.areCompletionsVisible()) {
+    //     if (UI.areCompletionsVisible()) {
 
-            if (key === "<enter>") {
-                autoCompletion.complete()
-                return
-            } else if (key === "<C-n>") {
-                UI.nextCompletion()
-                return
+    //         if (key === "<enter>") {
+    //             autoCompletion.complete()
+    //             return
+    //         } else if (key === "<C-n>") {
+    //             UI.nextCompletion()
+    //             return
 
-            } else if (key === "<C-p>") {
-                UI.previousCompletion()
-                return
-            }
-        }
+    //         } else if (key === "<C-p>") {
+    //             UI.previousCompletion()
+    //             return
+    //         }
+    //     }
 
-        if (key === "<f12>") {
-            commandManager.executeCommand("oni.editor.gotoDefinition", null)
-        } else if (key === "<C-p>" && screen.mode === "normal") {
-            quickOpen.show()
-        } else if (key === "<C-P>" && screen.mode === "normal") {
-            tasks.show()
-        } else if (key === "<C-pageup>") {
-            multiProcess.focusPreviousInstance()
-        } else if (key === "<C-pagedown>") {
-            multiProcess.focusNextInstance()
-        } else {
-            instance.input(key)
-        }
-    })
+    //     if (key === "<f12>") {
+    //         commandManager.executeCommand("oni.editor.gotoDefinition", null)
+    //     } else if (key === "<C-p>" && screen.mode === "normal") {
+    //         quickOpen.show()
+    //     } else if (key === "<C-P>" && screen.mode === "normal") {
+    //         tasks.show()
+    //     } else if (key === "<C-pageup>") {
+    //         multiProcess.focusPreviousInstance()
+    //     } else if (key === "<C-pagedown>") {
+    //         multiProcess.focusNextInstance()
+    //     } else {
+    //         instance.input(key)
+    //     }
+    // })
 
+    // TODO: How should this be wired up?
     UI.events.on("completion-item-selected", (item: any) => {
         pluginManager.notifyCompletionItemSelected(item)
     })
 
-    const resize = () => {
-        let width = document.body.offsetWidth
-        let height = document.body.offsetHeight
+    // const resize = () => {
+    //     let width = document.body.offsetWidth
+    //     let height = document.body.offsetHeight
 
-        deltaRegion.dirtyAllCells()
+    //     deltaRegion.dirtyAllCells()
 
-        instance.resize(width, height)
-        renderer.onResize()
-    }
-    window.addEventListener("resize", resize)
+    //     instance.resize(width, height)
+    //     renderer.onResize()
+    // }
+    // window.addEventListener("resize", resize)
 
-    window["__neovim"] = instance // tslint:disable-line no-string-literal
-    window["__screen"] = screen // tslint:disable-line no-string-literal
+    // window["__neovim"] = instance // tslint:disable-line no-string-literal
+    // window["__screen"] = screen // tslint:disable-line no-string-literal
 
     UI.init()
 
