@@ -151,6 +151,9 @@ export const popupMenuReducer = (s: State.IMenu | null, a: Actions.Action) => {
     }
 }
 
+let fuzzyCache: any = {}
+let lastCwd: string = ""
+
 export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string): State.IMenuOptionWithHighlights[] {
 
     if (!searchString) {
@@ -168,13 +171,21 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
         return _.sortBy(opt, (o) => o.pinned ? 0 : 1)
     }
 
+    if (lastCwd !== process.cwd()) {
+        // reset cache if directory changes
+        lastCwd = process.cwd()
+        fuzzyCache = {}
+    } else if (searchString.length > 5 && fuzzyCache[searchString]) {
+        return fuzzyCache[searchString]
+    }
+
     let fuseOptions = {
         keys: [{
             name: "label",
-            weight: 0.7,
+            weight: 0.6,
         }, {
             name: "detail",
-            weight: 0.3,
+            weight: 0.4,
         }],
         include: ["matches"],
     }
@@ -204,6 +215,11 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
             detailHighlights,
         }
     })
+
+    // Cache longer queries since they take longer to run
+    if (searchString.length > 5) {
+        fuzzyCache[searchString] = highlightOptions
+    }
 
     return highlightOptions
 }
