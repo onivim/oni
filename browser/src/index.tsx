@@ -44,8 +44,8 @@ const start = (args: string[]) => {
 
     const parsedArgs = minimist(args)
 
-    let cursorLine: boolean
-    let cursorColumn: boolean
+    // let cursorLine: boolean
+    // let cursorColumn: boolean
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
@@ -132,103 +132,103 @@ const start = (args: string[]) => {
     //     instance.command(`execute "normal! /${references.tokenName}\\<cr>"`)
     // })
 
-    instance.on("event", (eventName: string, evt: any) => {
-        // TODO: Can we get rid of these?
-        errorOverlay.onVimEvent(eventName, evt)
-        liveEvaluationOverlay.onVimEvent(eventName, evt)
-        scrollbarOverlay.onVimEvent(eventName, evt)
+    // instance.on("event", (eventName: string, evt: any) => {
+    //     // TODO: Can we get rid of these?
+    //     errorOverlay.onVimEvent(eventName, evt)
+    //     liveEvaluationOverlay.onVimEvent(eventName, evt)
+    //     scrollbarOverlay.onVimEvent(eventName, evt)
 
-        tasks.onEvent(evt)
+    //     tasks.onEvent(evt)
 
-        if (eventName === "BufEnter") {
-            // TODO: More convenient way to hide all UI?
-            UI.hideCompletions()
-            UI.hidePopupMenu()
-            UI.hideSignatureHelp()
-            UI.hideQuickInfo()
-        }
+    //     if (eventName === "BufEnter") {
+    //         // TODO: More convenient way to hide all UI?
+    //         UI.hideCompletions()
+    //         UI.hidePopupMenu()
+    //         UI.hideSignatureHelp()
+    //         UI.hideQuickInfo()
+    //     }
 
-        if (eventName === "DirChanged") {
-            instance.getCurrentWorkingDirectory()
-                .then((newDirectory) => process.chdir(newDirectory))
-        }
-    })
+    //     if (eventName === "DirChanged") {
+    //         instance.getCurrentWorkingDirectory()
+    //             .then((newDirectory) => process.chdir(newDirectory))
+    //     }
+    // })
 
-    instance.on("error", (_err: string) => {
-        UI.showNeovimInstallHelp()
-    })
+    // instance.on("error", (_err: string) => {
+    //     UI.showNeovimInstallHelp()
+    // })
 
-    instance.on("buffer-update", (context: any, lines: string[]) => {
-        scrollbarOverlay.onBufferUpdate(context, lines)
-    })
+    // instance.on("buffer-update", (context: any, lines: string[]) => {
+    //     scrollbarOverlay.onBufferUpdate(context, lines)
+    // })
 
-    instance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any) => {
-        overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
-    })
+    // instance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any) => {
+    //     overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
+    // })
 
-    instance.on("action", (action: any) => {
-        renderer.onAction(action)
-        screen.dispatch(action)
+    // instance.on("action", (action: any) => {
+    //     renderer.onAction(action)
+    //     screen.dispatch(action)
 
-        UI.setColors(screen.foregroundColor)
+    //     UI.setColors(screen.foregroundColor)
 
-        if (!pendingTimeout) {
-            pendingTimeout = setTimeout(updateFunction, 0) as any // FIXME: null
-        }
-    })
+    //     if (!pendingTimeout) {
+    //         pendingTimeout = setTimeout(updateFunction, 0) as any // FIXME: null
+    //     }
+    // })
 
-    instance.on("mode-change", (newMode: string) => {
-        UI.setMode(newMode)
+    // instance.on("mode-change", (newMode: string) => {
+    //     UI.setMode(newMode)
 
-        if (newMode === "normal") {
-            if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                UI.showCursorLine()
-            }
-            if (cursorColumn) {
-                UI.showCursorColumn()
-            }
-            UI.hideCompletions()
-            UI.hideSignatureHelp()
-        } else if (newMode === "insert") {
-            UI.hideQuickInfo()
-            if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                UI.showCursorLine()
-            }
-            if (cursorColumn) {
-                UI.showCursorColumn()
-            }
-        } else if (newMode === "cmdline") {
-            UI.hideCursorColumn() // TODO: cleaner way to hide and unhide?
-            UI.hideCursorLine()
-            UI.hideCompletions()
-            UI.hideQuickInfo()
+    //     if (newMode === "normal") {
+    //         if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
+    //             UI.showCursorLine()
+    //         }
+    //         if (cursorColumn) {
+    //             UI.showCursorColumn()
+    //         }
+    //         UI.hideCompletions()
+    //         UI.hideSignatureHelp()
+    //     } else if (newMode === "insert") {
+    //         UI.hideQuickInfo()
+    //         if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
+    //             UI.showCursorLine()
+    //         }
+    //         if (cursorColumn) {
+    //             UI.showCursorColumn()
+    //         }
+    //     } else if (newMode === "cmdline") {
+    //         UI.hideCursorColumn() // TODO: cleaner way to hide and unhide?
+    //         UI.hideCursorLine()
+    //         UI.hideCompletions()
+    //         UI.hideQuickInfo()
 
-        }
-    })
+    //     }
+    // })
 
-    const renderFunction = () => {
-        if (pendingTimeout) {
-            UI.setCursorPosition(screen)
-        }
+    // const renderFunction = () => {
+    //     if (pendingTimeout) {
+    //         UI.setCursorPosition(screen)
+    //     }
 
-        renderer.update(screen, deltaRegion)
+    //     renderer.update(screen, deltaRegion)
 
-        deltaRegion.cleanUpRenderedCells()
+    //     deltaRegion.cleanUpRenderedCells()
 
-        window.requestAnimationFrame(() => renderFunction())
-    }
+    //     window.requestAnimationFrame(() => renderFunction())
+    // }
 
-    renderFunction()
+    // renderFunction()
 
-    const updateFunction = () => {
-        // TODO: Move cursor to component
-        UI.setCursorPosition(screen)
+    // const updateFunction = () => {
+    //     // TODO: Move cursor to component
+    //     UI.setCursorPosition(screen)
 
-        UI.setBackgroundColor(screen.backgroundColor)
+    //     UI.setBackgroundColor(screen.backgroundColor)
 
-        clearTimeout(pendingTimeout as any) // FIXME: null
-        pendingTimeout = null
-    }
+    //     clearTimeout(pendingTimeout as any) // FIXME: null
+    //     pendingTimeout = null
+    // }
 
     const config = Config.instance()
 

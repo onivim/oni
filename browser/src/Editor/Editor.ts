@@ -32,10 +32,7 @@ import { Rectangle } from "./../UI/Types"
 import * as UI from "./../UI/index"
 
 export interface IEditor {
-    show(): void
-    render(element: HTMLElement): void
-    hide(): void
-
+    render(element: HTMLDivElement): void
 }
 
 export interface IEditorHostProps {
@@ -70,12 +67,17 @@ export class NeovimEditor implements IEditor {
     private _deltaRegionManager: IncrementalDeltaRegionTracker
     private _screen: NeovimScreen
 
+    private _pendingTimeout: NodeJS.Timer | null = null
+
     constructor(
         private _commandManager: CommandManager
         private _pluginManager: PluginManager
         private _renderer: DOMRenderer = new DOMRenderer()
     ) { 
-        this._neovimInstance = new NeovimInstance(pluginManager, document.body.offsetWidth, document.body.offsetHeight)
+        let cursorLine: boolean
+        let cursorColumn: boolean
+
+        this._neovimInstance = new NeovimInstance(this._pluginManager, document.body.offsetWidth, document.body.offsetHeight)
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
 
@@ -160,18 +162,109 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.command("copen")
             this._neovimInstance.command(`execute "normal! /${references.tokenName}\\<cr>"`)
         })
+
+        this._neovimInstance.on("event", (eventName: string, evt: any) => {
+            // TODO: Can we get rid of these?
+            errorOverlay.onVimEvent(eventName, evt)
+            liveEvaluationOverlay.onVimEvent(eventName, evt)
+            scrollbarOverlay.onVimEvent(eventName, evt)
+
+            tasks.onEvent(evt)
+
+            if (eventName === "BufEnter") {
+                // TODO: More convenient way to hide all UI?
+                UI.hideCompletions()
+                UI.hidePopupMenu()
+                UI.hideSignatureHelp()
+                UI.hideQuickInfo()
+            }
+
+            if (eventName === "DirChanged") {
+                this._neovimInstance.getCurrentWorkingDirectory()
+                    .then((newDirectory) => process.chdir(newDirectory))
+            }
+        })
+        
+        this._neovimInstance.on("error", (_err: string) => {
+            UI.showNeovimInstallHelp()
+        })
+
+        this._neovimInstance.on("buffer-update", (context: any, lines: string[]) => {
+            scrollbarOverlay.onBufferUpdate(context, lines)
+        })
+
+        this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any) => {
+            overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
+        })
+
+        this._neovimInstance.on("action", (action: any) => {
+            this._renderer.onAction(action)
+            this._screen.dispatch(action)
+
+            UI.setColors(this._screen.foregroundColor)
+
+            if (!this._pendingTimeout) {
+                this._pendingTimeout = setTimeout(() => this._onUpdate(), 0)
+            }
+        })
+
+        this._neovimInstance.on("mode-change", (newMode: string) => {
+            UI.setMode(newMode)
+
+            if (newMode === "normal") {
+                if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
+                    UI.showCursorLine()
+                }
+                if (cursorColumn) {
+                    UI.showCursorColumn()
+                }
+                UI.hideCompletions()
+                UI.hideSignatureHelp()
+            } else if (newMode === "insert") {
+                UI.hideQuickInfo()
+                if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
+                    UI.showCursorLine()
+                }
+                if (cursorColumn) {
+                    UI.showCursorColumn()
+                }
+            } else if (newMode === "cmdline") {
+                UI.hideCursorColumn() // TODO: cleaner way to hide and unhide?
+                UI.hideCursorLine()
+                UI.hideCompletions()
+                UI.hideQuickInfo()
+
+            }
+        })
+
+        const renderFunction = () => {
+            if (this._pendingTimeout) {
+                UI.setCursorPosition(this._screen)
+            }
+
+            this._renderer.update(this._screen, this._deltaRegionManager)
+
+            this._deltaRegionManager.cleanUpRenderedCells()
+
+            window.requestAnimationFrame(() => renderFunction())
+        }
+
+        renderFunction()
     }
 
+    private _onUpdate(): void {
 
-    public show(): void {
+        UI.setCursorPosition(this._screen)
 
+        UI.setBackgroundColor(this._screen.backgroundColor)
+
+        if (!!this._pendingTimeout) {
+            clearTimeout(this._pendingTimeout)
+            this._pendingTimeout = null
+        }
     }
 
-    public hide(): void {
-
-    }
-
-    public render(element: HTMLElement): void {
+    public render(element: HTMLDivElement): void {
         this._renderer.start(element)
     }
 }
