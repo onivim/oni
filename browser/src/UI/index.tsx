@@ -2,7 +2,7 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 
 import { Provider } from "react-redux"
-import { applyMiddleware, compose, createStore } from "redux"
+import { applyMiddleware, compose, createStore, bindActionCreators } from "redux"
 import thunk from "redux-thunk"
 
 import * as Config from "./../Config"
@@ -182,16 +182,11 @@ const enhancer = composeEnhancers(
 
 const store = createStore(reducer, defaultState, enhancer)
 
+export const Actions = bindActionCreators(ActionCreators as any, store.dispatch)
+
+
 export function init(): void {
     render(defaultState)
-}
-
-export function showCursorLine(): void {
-    store.dispatch(ActionCreators.showCursorLine())
-}
-
-export function hideCursorLine(): void {
-    store.dispatch(ActionCreators.hideCursorLine())
 }
 
 export function showCursorColumn(): void {

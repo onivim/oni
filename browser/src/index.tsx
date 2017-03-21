@@ -195,24 +195,24 @@ const start = (args: string[]) => {
 
         if (newMode === "normal") {
             if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                UI.showCursorLine()
+                UI.Actions.showCursorLine()
             }
             if (cursorColumn) {
-                UI.showCursorColumn()
+                UI.Actions.showCursorColumn()
             }
             UI.hideCompletions()
             UI.hideSignatureHelp()
         } else if (newMode === "insert") {
             UI.hideQuickInfo()
             if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                UI.showCursorLine()
+                UI.Actions.showCursorLine()
             }
             if (cursorColumn) {
-                UI.showCursorColumn()
+                UI.Actions.showCursorColumn()
             }
         } else if (newMode === "cmdline") {
             UI.hideCursorColumn() // TODO: cleaner way to hide and unhide?
-            UI.hideCursorLine()
+            UI.Actions.hideCursorLine()
             UI.hideCompletions()
             UI.hideQuickInfo()
 
@@ -252,11 +252,11 @@ const start = (args: string[]) => {
         UI.setCursorColumnOpacity(config.getValue<number>("editor.cursorColumnOpacity"))
 
         if (cursorLine) {
-            UI.showCursorLine()
+            UI.Actions.showCursorLine()
         }
 
         if (cursorColumn) {
-            UI.showCursorColumn()
+            UI.Actions.showCursorColumn()
         }
 
         remote.getCurrentWindow().setFullScreen(config.getValue<boolean>("editor.fullScreenOnStart"))
