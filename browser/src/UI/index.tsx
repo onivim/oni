@@ -17,6 +17,7 @@ import { reducer } from "./Reducer"
 import { InstallHelp } from "./components/InstallHelp"
 
 import * as Events from "./Events"
+import * as UnboundSelectors from "./Selectors"
 
 export const events = Events.events
 
@@ -35,32 +36,6 @@ export function setBackgroundColor(backgroundColor: string): void {
     backgroundColorElement.style.opacity = config.getValue<string>("prototype.editor.backgroundOpacity")
 }
 
-export function isPopupMenuOpen(): boolean {
-    const popupMenu = store.getState().popupMenu
-    return !!popupMenu
-}
-
-export function areCompletionsVisible(): boolean {
-    const autoCompletion = store.getState().autoCompletion
-    const entryCount = (autoCompletion && autoCompletion.entries) ? autoCompletion.entries.length : 0
-
-    if (entryCount === 0) {
-        return false
-    }
-
-    if (entryCount > 1) {
-        return true
-    }
-
-    // In the case of a single entry, should not be visible if the base is equal to the selected item
-    return autoCompletion != null && autoCompletion.base !== getSelectedCompletion()
-}
-
-export function getSelectedCompletion(): null | string {
-    const autoCompletion = store.getState().autoCompletion
-    return autoCompletion ? autoCompletion.entries[autoCompletion.selectedIndex].label : null
-}
-
 export function showNeovimInstallHelp(): void {
     const element = document.getElementById("overlay-ui")
     ReactDOM.render(<InstallHelp />, element)
@@ -74,6 +49,13 @@ const enhancer = composeEnhancers(
 const store = createStore(reducer, defaultState, enhancer)
 
 export const Actions = bindActionCreators(ActionCreators as any, store.dispatch)
+
+// TODO: Is there a helper utility like `bindActionCreators`, but for selectors?
+export const Selectors = {
+    isPopupMenuOpen: () => UnboundSelectors.isPopupMenuOpen(store.getState()),
+    areCompletionsVisible: () => UnboundSelectors.areCompletionsVisible(store.getState()),
+    getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState())
+}
 
 export function init(): void {
     render(defaultState)

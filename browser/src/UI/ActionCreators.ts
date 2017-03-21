@@ -55,18 +55,6 @@ export const setCursorPosition = (screen: IScreen) => (dispatch: Function) => {
     dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
 }
 
-const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
-    type: "SET_CURSOR_POSITION",
-    payload: {
-        pixelX: cursorPixelX,
-        pixelY: cursorPixelY,
-        fontPixelWidth,
-        fontPixelHeight,
-        cursorCharacter,
-        cursorPixelWidth,
-    },
-})
-
 export const setColors = (foregroundColor: string) => (dispatch: Function, getState: Function) => {
     if (foregroundColor === getState().foregroundColor) {
         return
@@ -74,11 +62,6 @@ export const setColors = (foregroundColor: string) => (dispatch: Function, getSt
 
     dispatch(_setColors(foregroundColor))
 }
-
-const _setColors = (foregroundColor: string) => ({
-    type: "SET_COLORS",
-    payload: { foregroundColor },
-})
 
 export const setActiveWindowDimensions = (dimensions: Rectangle) => ({
     type: "SET_ACTIVE_WINDOW_DIMENSIONS",
@@ -165,14 +148,6 @@ export const setDetailedCompletionEntry = (detailedEntry: Oni.Plugin.CompletionI
     },
 })
 
-const _nextAutoCompletion = () => ({
-    type: "NEXT_AUTO_COMPLETION",
-})
-
-const _previousAutoCompletion = () => ({
-    type: "PREVIOUS_AUTO_COMPLETION",
-})
-
 export const hideCompletions = () => ({ type: "HIDE_AUTO_COMPLETION" })
 
 export const hideQuickInfo = () => ({ type: "HIDE_QUICK_INFO" })
@@ -197,4 +172,30 @@ export const setCursorColumnOpacity = (opacity: number) => ({
     payload: {
         opacity,
     },
+})
+
+const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
+    type: "SET_CURSOR_POSITION",
+    payload: {
+        pixelX: cursorPixelX,
+        pixelY: cursorPixelY,
+        fontPixelWidth,
+        fontPixelHeight,
+        cursorCharacter,
+        cursorPixelWidth,
+    },
+})
+
+const _setColors = (foregroundColor: string) => ({
+    type: "SET_COLORS",
+    payload: { foregroundColor },
+})
+
+
+const _nextAutoCompletion = () => ({
+    type: "NEXT_AUTO_COMPLETION",
+})
+
+const _previousAutoCompletion = () => ({
+    type: "PREVIOUS_AUTO_COMPLETION",
 })
