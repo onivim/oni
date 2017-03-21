@@ -3,6 +3,6 @@
 // import { CommandManager } from "./../Services/CommandManager"
 
 export interface IEditor {
-    init(): void
+    init(args: any): void
     render(element: HTMLDivElement): void
 }

@@ -68,7 +68,11 @@ export function init(pluginManager: any, commandManager: any, args: any): void {
 
 function render(_state: State.IState, pluginManager: any, commandManager: any, args: any): void {
     const element = document.getElementById("host")
-    const editor = new NeovimEditor(commandManager, pluginManager, args)
+
+    // TODO: Move this to an editor factory
+    const editor = new NeovimEditor(commandManager, pluginManager)
+    editor.init(args)
+
     ReactDOM.render(
         <Provider store={store}>
             <RootComponent editor={editor}/>

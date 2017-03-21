@@ -52,14 +52,13 @@ export class NeovimEditor implements IEditor {
 
     private _pendingTimeout: any = null
 
-    public init(): void {
-        this._neovimInstance.start(this._args)
+    public init(args: any): void {
+        this._neovimInstance.start(args)
     }
 
     constructor(
         private _commandManager: CommandManager,
         private _pluginManager: PluginManager,
-        private _args: any,
         private _renderer: DOMRenderer = new DOMRenderer()
     ) {
         let cursorLine: boolean
