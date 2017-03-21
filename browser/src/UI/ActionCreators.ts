@@ -10,17 +10,58 @@
 import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
-export const setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
-    type: "SET_CURSOR_POSITION",
-    payload: {
-        pixelX: cursorPixelX,
-        pixelY: cursorPixelY,
-        fontPixelWidth,
-        fontPixelHeight,
-        cursorCharacter,
-        cursorPixelWidth,
-    },
-})
+import { IScreen } from "./../Screen"
+
+import * as State from "./State"
+
+import { events } from "./Events"
+
+export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: Function, getState: Function) => {
+    dispatch(_showAutoCompletion(result.base, result.completions))
+
+    if (result.completions.length > 0) {
+        emitCompletionItemSelectedEvent(getState())
+    }
+}
+
+export const previousCompletion = () => (dispatch: Function, getState: Function) => {
+    dispatch(_previousAutoCompletion())
+
+    emitCompletionItemSelectedEvent(getState())
+}
+
+export const nextCompletion = () => (dispatch: Function, getState: Function) => {
+    dispatch(_nextAutoCompletion())
+
+    emitCompletionItemSelectedEvent(getState())
+}
+
+function emitCompletionItemSelectedEvent(state: State.IState): void {
+    const autoCompletion = state.autoCompletion
+    if (autoCompletion != null) {
+        const entry = autoCompletion.entries[autoCompletion.selectedIndex]
+        events.emit(Events.CompletionItemSelectedEvent, entry)
+    }
+}
+
+export const setCursorPosition = (screen: IScreen) => (dispatch: Function) => {
+    const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
+
+    if (screen.cursorRow === screen.height - 1) {
+        dispatch(hideQuickInfo())
+        dispatch(hideSignatureHelp())
+    }
+
+    dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
+}
+
+export const setColors = (foregroundColor: string) => (dispatch: Function, getState: Function) => {
+    if (foregroundColor === getState().foregroundColor) {
+        return
+    }
+
+    dispatch(_setColors(foregroundColor))
+}
 
 export const setActiveWindowDimensions = (dimensions: Rectangle) => ({
     type: "SET_ACTIVE_WINDOW_DIMENSIONS",
@@ -32,11 +73,6 @@ export const setMode = (mode: string) => ({
     payload: { mode },
 })
 
-export const setColors = (foregroundColor: string) => ({
-    type: "SET_COLORS",
-    payload: { foregroundColor },
-})
-
 export const showSignatureHelp = (signatureHelpResult: Oni.Plugin.SignatureHelpResult) => ({
     type: "SHOW_SIGNATURE_HELP",
     payload: signatureHelpResult,
@@ -46,7 +82,7 @@ export const hideSignatureHelp = () => ({
     type: "HIDE_SIGNATURE_HELP",
 })
 
-export const showMenu = (id: string, options: Oni.Menu.MenuOption[]) => ({
+export const showPopupMenu = (id: string, options: Oni.Menu.MenuOption[]) => ({
     type: "SHOW_MENU",
     payload: {
         id,
@@ -54,11 +90,11 @@ export const showMenu = (id: string, options: Oni.Menu.MenuOption[]) => ({
     },
 })
 
-export const hideMenu = () => ({
+export const hidePopupMenu = () => ({
     type: "HIDE_MENU",
 })
 
-export const previousMenu = () => ({
+export const previousMenuItem = () => ({
     type: "PREVIOUS_MENU",
 })
 
@@ -69,7 +105,7 @@ export const filterMenu = (filterString: string) => ({
     },
 })
 
-export const nextMenu = () => ({
+export const nextMenuItem = () => ({
     type: "NEXT_MENU",
 })
 
@@ -86,7 +122,7 @@ export const selectMenuItem = (openInSplit: boolean, index?: number) => (dispatc
 
     Events.events.emit("menu-item-selected:" + state.popupMenu.id, { selectedOption, openInSplit })
 
-    dispatch(hideMenu())
+    dispatch(hidePopupMenu())
 }
 
 export const showQuickInfo = (title: string, description: string) => ({
@@ -97,7 +133,7 @@ export const showQuickInfo = (title: string, description: string) => ({
     },
 })
 
-export const showAutoCompletion = (base: string, entries: Oni.Plugin.CompletionInfo[]) => ({
+const _showAutoCompletion = (base: string, entries: Oni.Plugin.CompletionInfo[]) => ({
     type: "SHOW_AUTO_COMPLETION",
     payload: {
         base,
@@ -105,22 +141,14 @@ export const showAutoCompletion = (base: string, entries: Oni.Plugin.CompletionI
     },
 })
 
-export const setAutoCompletionDetails = (detailedEntry: Oni.Plugin.CompletionInfo) => ({
+export const setDetailedCompletionEntry = (detailedEntry: Oni.Plugin.CompletionInfo) => ({
     type: "SET_AUTO_COMPLETION_DETAILS",
     payload: {
         detailedEntry,
     },
 })
 
-export const nextAutoCompletion = () => ({
-    type: "NEXT_AUTO_COMPLETION",
-})
-
-export const previousAutoCompletion = () => ({
-    type: "PREVIOUS_AUTO_COMPLETION",
-})
-
-export const hideAutoCompletion = () => ({ type: "HIDE_AUTO_COMPLETION" })
+export const hideCompletions = () => ({ type: "HIDE_AUTO_COMPLETION" })
 
 export const hideQuickInfo = () => ({ type: "HIDE_QUICK_INFO" })
 
@@ -144,4 +172,29 @@ export const setCursorColumnOpacity = (opacity: number) => ({
     payload: {
         opacity,
     },
+})
+
+const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
+    type: "SET_CURSOR_POSITION",
+    payload: {
+        pixelX: cursorPixelX,
+        pixelY: cursorPixelY,
+        fontPixelWidth,
+        fontPixelHeight,
+        cursorCharacter,
+        cursorPixelWidth,
+    },
+})
+
+const _setColors = (foregroundColor: string) => ({
+    type: "SET_COLORS",
+    payload: { foregroundColor },
+})
+
+const _nextAutoCompletion = () => ({
+    type: "NEXT_AUTO_COMPLETION",
+})
+
+const _previousAutoCompletion = () => ({
+    type: "PREVIOUS_AUTO_COMPLETION",
 })

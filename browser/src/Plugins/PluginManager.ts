@@ -157,15 +157,15 @@ export class PluginManager extends EventEmitter {
             }
 
             if (!pluginResponse.error) {
-                UI.hideQuickInfo()
+                UI.Actions.hideQuickInfo()
                 setTimeout(() => {
                     if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
                         return
                     }
-                    UI.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation)
+                    UI.Actions.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation)
                 }, this._config.getValue<number>("editor.quickInfo.delay"))
             } else {
-                setTimeout(() => UI.hideQuickInfo())
+                setTimeout(() => UI.Actions.hideQuickInfo())
             }
         } else if (pluginResponse.type === "goto-definition") {
             if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
@@ -186,9 +186,9 @@ export class PluginManager extends EventEmitter {
                 return
             }
 
-            setTimeout(() => UI.showCompletions(pluginResponse.payload))
+            setTimeout(() => UI.Actions.showCompletions(pluginResponse.payload))
         } else if (pluginResponse.type === "completion-provider-item-selected") {
-            setTimeout(() => UI.setDetailedCompletionEntry(pluginResponse.payload.details))
+            setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
         } else if (pluginResponse.type === "set-errors") {
             this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
         } else if (pluginResponse.type === "find-all-references") {
