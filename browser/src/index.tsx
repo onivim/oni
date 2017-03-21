@@ -248,8 +248,8 @@ const start = (args: string[]) => {
     const configChange = () => {
         cursorLine = config.getValue<boolean>("editor.cursorLine")
         cursorColumn = config.getValue<boolean>("editor.cursorColumn")
-        UI.setCursorLineOpacity(config.getValue<number>("editor.cursorLineOpacity"))
-        UI.setCursorColumnOpacity(config.getValue<number>("editor.cursorColumnOpacity"))
+        UI.Actions.setCursorLineOpacity(config.getValue<number>("editor.cursorLineOpacity"))
+        UI.Actions.setCursorColumnOpacity(config.getValue<number>("editor.cursorColumnOpacity"))
 
         if (cursorLine) {
             UI.Actions.showCursorLine()
