@@ -151,9 +151,6 @@ export const popupMenuReducer = (s: State.IMenu | null, a: Actions.Action) => {
     }
 }
 
-let fuzzyCache: any = {}
-let lastCwd: string = ""
-
 export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string): State.IMenuOptionWithHighlights[] {
 
     if (!searchString) {
@@ -171,14 +168,6 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
         return _.sortBy(opt, (o) => o.pinned ? 0 : 1)
     }
 
-    if (lastCwd !== process.cwd()) {
-        // reset cache if directory changes
-        lastCwd = process.cwd()
-        fuzzyCache = {}
-    } else if (searchString.length > 5 && fuzzyCache[searchString]) {
-        return fuzzyCache[searchString]
-    }
-
     let fuseOptions = {
         keys: [{
             name: "label",
@@ -190,7 +179,23 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
         include: ["matches"],
     }
 
-    const fuse = new Fuse(options, fuseOptions)
+    // remove duplicate characters
+    const searchSet = new Set(searchString)
+
+    // remove any items that don't have all the characters from searchString
+    const filteredOptions = options.filter((o) => {
+        const combined = o.label + o.detail
+
+        for (let c of searchSet) {
+            if (combined.indexOf(c) === -1) {
+                return false
+            }
+        }
+
+        return true
+    })
+
+    const fuse = new Fuse(filteredOptions, fuseOptions)
     const results = fuse.search(searchString)
 
     const highlightOptions = results.map((f: any) => {
@@ -215,11 +220,6 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
             detailHighlights,
         }
     })
-
-    // Cache longer queries since they take longer to run
-    if (searchString.length > 5) {
-        fuzzyCache[searchString] = highlightOptions
-    }
 
     return highlightOptions
 }
