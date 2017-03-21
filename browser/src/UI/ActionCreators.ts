@@ -35,6 +35,19 @@ const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth
     },
 })
 
+export const setColors = (foregroundColor: string) => (dispatch: Function, getState: Function) => {
+    if (foregroundColor === getState().foregroundColor) {
+        return
+    }
+
+    dispatch(_setColors(foregroundColor))
+}
+
+const _setColors = (foregroundColor: string) => ({
+    type: "SET_COLORS",
+    payload: { foregroundColor },
+})
+
 export const setActiveWindowDimensions = (dimensions: Rectangle) => ({
     type: "SET_ACTIVE_WINDOW_DIMENSIONS",
     payload: { dimensions },
@@ -43,11 +56,6 @@ export const setActiveWindowDimensions = (dimensions: Rectangle) => ({
 export const setMode = (mode: string) => ({
     type: "SET_MODE",
     payload: { mode },
-})
-
-export const setColors = (foregroundColor: string) => ({
-    type: "SET_COLORS",
-    payload: { foregroundColor },
 })
 
 export const showSignatureHelp = (signatureHelpResult: Oni.Plugin.SignatureHelpResult) => ({

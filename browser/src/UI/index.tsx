@@ -40,14 +40,6 @@ export function isPopupMenuOpen(): boolean {
     return !!popupMenu
 }
 
-export function setColors(foregroundColor: string): void {
-    if (foregroundColor === store.getState().foregroundColor) {
-        return
-    }
-
-    store.dispatch(ActionCreators.setColors(foregroundColor))
-}
-
 export function areCompletionsVisible(): boolean {
     const autoCompletion = store.getState().autoCompletion
     const entryCount = (autoCompletion && autoCompletion.entries) ? autoCompletion.entries.length : 0
