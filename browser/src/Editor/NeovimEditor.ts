@@ -57,8 +57,8 @@ export class NeovimEditor implements IEditor {
     }
 
     constructor(
-        private _commandManager: CommandManager
-        private _pluginManager: PluginManager
+        private _commandManager: CommandManager,
+        private _pluginManager: PluginManager,
         private _renderer: DOMRenderer = new DOMRenderer()
     ) {
         let cursorLine: boolean

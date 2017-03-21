@@ -21,7 +21,7 @@ export interface IRootComponentProps {
     args: any
 }
 
-export class RootComponent extends React.Component<void, void> {
+export class RootComponent extends React.Component<IRootComponentProps, void> {
     public render(): JSX.Element {
 
         return <div className="container vertical full">
