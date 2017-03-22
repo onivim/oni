@@ -27,13 +27,13 @@ export function setBackgroundColor(backgroundColor: string): void {
     const config = Config.instance()
     const backgroundImageElement: HTMLElement = document.getElementsByClassName("background-image")[0] as HTMLElement
     const backgroundColorElement: HTMLElement = document.getElementsByClassName("background-cover")[0] as HTMLElement
-    const backgroundImageUrl = config.getValue<string>("prototype.editor.backgroundImageUrl")
-    const backgroundImageSize = config.getValue<string>("prototype.editor.backgroundImageSize") || "cover"
+    const backgroundImageUrl = config.getValue<string>("editor.backgroundImageUrl")
+    const backgroundImageSize = config.getValue<string>("editor.backgroundImageSize") || "cover"
 
     backgroundImageElement.style.backgroundImage = "url(" + backgroundImageUrl + ")"
     backgroundImageElement.style.backgroundSize = backgroundImageSize
     backgroundColorElement.style.backgroundColor = backgroundColor
-    backgroundColorElement.style.opacity = config.getValue<string>("prototype.editor.backgroundOpacity")
+    backgroundColorElement.style.opacity = config.getValue<string>("editor.backgroundOpacity")
 }
 
 export function showNeovimInstallHelp(): void {

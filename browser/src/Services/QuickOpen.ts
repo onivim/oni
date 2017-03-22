@@ -38,7 +38,7 @@ export class QuickOpen {
     public show(): void {
         const config = Config.instance()
         const overrriddenCommand = config.getValue<string>("editor.quickOpen.execCommand")
-        const exclude = config.getValue<string[]>("editor.exclude")
+        const exclude = config.getValue<string[]>("oni.exclude")
 
         UI.Actions.showPopupMenu("quickOpen", [{
             icon: "refresh fa-spin fa-fw",
