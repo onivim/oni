@@ -156,7 +156,7 @@ The Command Palette offers another command-line based interface to Oni.
 - `<Enter>` - select a Command Palette item
 - `<Esc>` - close the Command Palette menu
 
-Currently, the Command Pallette includes items from: 
+Currently, the Command Palette includes items from: 
   - a few commonly used menu items
   - NPM package.json `scripts`
   - Plugin commands
