@@ -2,7 +2,7 @@
 
 ### Getting Started
 
-* [Install](./Install.md)
+* [Installation](./Installation.md)
 * [FAQ](./FAQ.md)
 
 ### Customization
