@@ -3,7 +3,7 @@
 ### Getting Started
 
 * [Install](./Install.md)
-* [FAQ]
+* [FAQ](./FAQ.md)
 
 ### Customization
 * [ONI Configuration]
