@@ -135,13 +135,32 @@ Fuzzy Finder is a quick and easy way to switch between files. It's similiar in g
 
 ##### Commands
 - `<C-n>` - navigate to next entry in the Fuzzy Finder menu
-- `<C-p>` - navigate to the previous entry in the Fuzzy Finder menu
+- `<C-p>` - navigate to previous entry in the Fuzzy Finder menu
 - `<Enter>` - select a Fuzzy Finder item
 - `<Esc>` - close the Fuzzy Finder menu
 
 By default, Fuzzy Finder uses `git ls-files` to get the available files in the directory, but if git is not present, it will fallback to a non-git strategy.
 
 The Fuzzy Finder strategy can be configured by the `editor.quickOpen.execCommand`, and must be a shell command that returns a list of files, separated by newlines.
+
+#### Command Palette
+
+The Command Palette offers another command-line based interface to Oni. 
+
+##### Entry point 
+ - `<C-P>`
+
+##### Commands
+- `<C-n>` - navigate to next entry in the Command Palette menu
+- `<C-p>` - navigate to previous entry in the Command Palette menu
+- `<Enter>` - select a Command Palette item
+- `<Esc>` - close the Command Palette menu
+
+Currently, the Command Palette includes items from: 
+  - a few commonly used menu items
+  - NPM package.json `scripts`
+  - Plugin commands
+  - Launch parameters from the `.oni` folder
 
 #### Quick Info
 
