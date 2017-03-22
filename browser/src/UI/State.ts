@@ -32,8 +32,8 @@ export interface IMenu {
 }
 
 export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
-    labelHighlights: number[],
-    detailHighlights: number[]
+    labelHighlights: number[][],
+    detailHighlights: number[][]
 }
 
 export interface IAutoCompletionInfo {
