@@ -69,8 +69,8 @@ export class Mouse extends EventEmitter {
         const mouseY = evt.clientY
 
         return {
-            line: Math.round(mouseX / this._screen.fontWidthInPixels),
-            column: Math.round(mouseY / this._screen.fontHeightInPixels),
+            line: Math.round(mouseX / this._screen.fontWidthInPixels - 0.5),
+            column: Math.round(mouseY / this._screen.fontHeightInPixels - 0.5),
         }
     }
 }
