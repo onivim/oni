@@ -21,7 +21,7 @@ test_script:
   # run tests
   - npm build
   - npm test
-  - npm dist
+  - npm run dist
 
 # Don't actually build.
 build: off
