@@ -9,6 +9,10 @@ install:
   # install modules
   - npm install
 
+artifacts:
+    - path: dist/*.exe
+      name: Setup
+
 # Post-install test scripts.
 test_script:
   # Output useful info for debugging.
