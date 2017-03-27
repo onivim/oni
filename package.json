@@ -17,6 +17,7 @@
   },
   "build": {
       "appId": "com.extropy.oni",
+      "asar": false,
       "mac": {
           "category": "public.app-category.developer-tools"
       }
