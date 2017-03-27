@@ -15,6 +15,12 @@
     "oni": "./cli/oni",
     "oni-vim": "./cli/oni"
   },
+  "build": {
+      "appId": "com.extropy.oni",
+      "mac": {
+          "category": "public.app-category.developer-tools"
+      }
+  },
   "scripts": {
     "prepublish": "crlf --set=LF ./cli/oni",
     "build": "npm run build:browser && npm run build:plugins",
@@ -22,7 +28,8 @@
     "build:browser": "webpack --config browser/webpack.production.config.js",
     "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
     "build:plugins": "cd vim/core/oni-plugin-typescript && npm run build",
-    "package": "electron-packager ./ --out dist",
+    "pack": "build --dir",
+    "dist": "build",
     "test": "npm run test:browser && npm run test:plugins:typescript",
     "test:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
     "lint": "tslint --project browser/tsconfig.json --config browser/tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
@@ -43,7 +50,6 @@
   "license": "MIT",
   "dependencies": {
     "classnames": "2.2.5",
-    "electron": "1.6.1",
     "find-parent-dir": "0.3.0",
     "glob": "7.1.1",
     "lodash": "4.17.0",
@@ -83,6 +89,7 @@
     "crlf": "1.1.0",
     "cross-env": "3.1.3",
     "css-loader": "0.26.1",
+    "electron": "1.6.1",
     "electron-builder": "16.4.2",
     "electron-devtools-installer": "2.1.0",
     "jsdom": "9.9.1",

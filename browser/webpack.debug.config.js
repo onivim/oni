@@ -39,12 +39,12 @@ module.exports = {
         extensions: ['', '.webpack.js', '.js', '.jsx', '.ts', '.tsx']
     },
     output: {
-        path: path.join(__dirname, "..", "dist", "browser"),
+        path: path.join(__dirname, "..", "lib", "browser"),
         publicPath: "/",
         filename: "bundle.js"
     },
     devServer: {
-        contentBase: "./dist",
+        contentBase: "./lib",
     },
     node: {
         process: false,
