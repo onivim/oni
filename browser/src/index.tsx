@@ -271,7 +271,7 @@ const start = (args: string[]) => {
     configChange() // initialize values
     config.registerListener(configChange)
 
-    instance.start(parsedArgs._)
+    instance.start(parsedArgs)
 
     const mouse = new Mouse(editorElement, screen)
 
