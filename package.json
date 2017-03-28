@@ -17,9 +17,22 @@
   },
   "build": {
       "appId": "com.extropy.oni",
+      "files": [
+        "**/*",
+        "!**/*.oni",
+        "!**/*.vscode",
+        "!bin"
+      ],
       "asar": false,
       "mac": {
-          "category": "public.app-category.developer-tools"
+          "category": "public.app-category.developer-tools",
+          "target": "dmg"
+      },
+      "win": {
+          "target": "dir",
+          "files": [
+              "bin/x86/**/*"
+          ]
       }
   },
   "scripts": {
