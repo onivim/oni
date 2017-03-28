@@ -33,7 +33,7 @@ export class HighlightText extends React.Component<IHighlightTextProps, void> {
 
 export interface IHighlightTextByIndexProps {
     highlightClassName: string
-    highlightIndices: number[]
+    highlightIndices: number[][]
     text: string
     className: string
 }
@@ -46,7 +46,7 @@ export class HighlightTextByIndex extends React.Component<IHighlightTextByIndexP
 
         this.props.text.split("").forEach((c: string, idx: number) => {
 
-            if (highlightIndices.indexOf(idx) >= 0) {
+            if (shouldHighlightIndex(idx, highlightIndices)) {
                 childNodes.push(<span className={this.props.highlightClassName}>{c}</span>)
             } else {
                 childNodes.push(<span>{c}</span>)
@@ -56,6 +56,17 @@ export class HighlightTextByIndex extends React.Component<IHighlightTextByIndexP
         return <span className={this.props.className}>{childNodes}</span>
     }
 
+}
+
+function shouldHighlightIndex(index: number, highlights: number[][]): boolean {
+    let matchFound = false
+    for (let startEnd of highlights) {
+        if (startEnd[0] <= index && index <= startEnd[1]) {
+            matchFound = true
+            break
+        }
+    }
+    return matchFound
 }
 
 export function createLetterCountDictionary(text: string): any {

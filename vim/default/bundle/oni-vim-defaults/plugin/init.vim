@@ -1,5 +1,4 @@
 set number
-set relativenumber
 set noswapfile
 set ruler
 set smartcase

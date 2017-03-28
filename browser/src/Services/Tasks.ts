@@ -1,7 +1,7 @@
 /**
  * Tasks.ts
  *
- * Manages the 'tasks' pane
+ * Manages the 'tasks' pane / Command Palette
  *
  * Tasks encompass a few different pieces of functionality:
  *  - Launch parameters from a .oni folder

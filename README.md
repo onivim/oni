@@ -135,13 +135,32 @@ Fuzzy Finder is a quick and easy way to switch between files. It's similiar in g
 
 ##### Commands
 - `<C-n>` - navigate to next entry in the Fuzzy Finder menu
-- `<C-p>` - navigate to the previous entry in the Fuzzy Finder menu
+- `<C-p>` - navigate to previous entry in the Fuzzy Finder menu
 - `<Enter>` - select a Fuzzy Finder item
 - `<Esc>` - close the Fuzzy Finder menu
 
 By default, Fuzzy Finder uses `git ls-files` to get the available files in the directory, but if git is not present, it will fallback to a non-git strategy.
 
 The Fuzzy Finder strategy can be configured by the `editor.quickOpen.execCommand`, and must be a shell command that returns a list of files, separated by newlines.
+
+#### Command Palette
+
+The Command Palette offers another command-line based interface to Oni. 
+
+##### Entry point 
+ - `<C-P>`
+
+##### Commands
+- `<C-n>` - navigate to next entry in the Command Palette menu
+- `<C-p>` - navigate to previous entry in the Command Palette menu
+- `<Enter>` - select a Command Palette item
+- `<Esc>` - close the Command Palette menu
+
+Currently, the Command Palette includes items from: 
+  - a few commonly used menu items
+  - NPM package.json `scripts`
+  - Plugin commands
+  - Launch parameters from the `.oni` folder
 
 #### Quick Info
 
@@ -176,10 +195,12 @@ A few interesting configuration options to set:
 - `oni.audio.bellUrl` - Set a custom sound effect for the `bell` (`:help bell`). The value should be an _absolute path_ to a supported audio file, such as a WAV file.
 - `oni.useDefaultConfig` - ONI comes with an opinionated default set of plugins for a predictable out-of-box experience. This will be great for newcomes to ONI or Vim, but for Vim/Neovim veterans, this will likely conflict. Set this to `false` to avoid loading the default config, and to load settings from `init.vim` instead (If this is false, it implies `oni.loadInitVim` is true)
 - `oni.loadInitVim` - This determines whether the user's `init.vim` is loaded. Use caution when setting this to `true` and setting `oni.useDefaultConfig` to true, as there could be conflicts with the default configuration.
+- `oni.exclude` - Glob pattern of files to exclude from Fuzzy Finder (Ctrl-P).  Defaults to `["**/node_modules/**"]`
+- `oni.hideMenu` - (default: `false`) If true, hide menu bar.  When hidden, menu bar can still be displayed with `Alt`.
 - `editor.fontSize` - Font size
 - `editor.fontFamily` - Font family
-- `prototype.editor.backgroundImageUrl` - specific a custom background image
-- `prototype.editor.backgroundImageSize` - specific a custom background size (cover, contain)
+- `editor.backgroundImageUrl` - specific a custom background image
+- `editor.backgroundImageSize` - specific a custom background size (cover, contain)
 
 See the `Config.ts` file for other interesting values to set.
 

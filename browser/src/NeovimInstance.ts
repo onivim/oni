@@ -407,12 +407,14 @@ const attachAsPromise = Q.denodeify(attach)
 
 function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
 
-    const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
     const noopInitVimPath = path.join(__dirname, "vim", "noop.vim")
 
-    // For Mac / Linux, assume there is a locally installed neovim
-    const nvimMacProcessPath = "nvim"
-    const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : nvimMacProcessPath
+    const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
+    const nvimMacProcessPath = path.join(__dirname, "bin", "osx", "neovim", "bin", "nvim")
+    // For Linux, assume there is a locally installed neovim
+    const nvimLinuxPath = "nvim"
+
+    const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
 
     const joinedRuntimePaths = runtimePaths.join(",")
 

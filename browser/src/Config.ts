@@ -12,19 +12,13 @@ class Config extends EventEmitter {
     private DefaultConfig: any = {
         // Debug settings
         "debug.incrementalRenderRegions": false,
+        "debug.maxCellsToRender": 12000,
 
-        // Prototype settings
-        "prototype.editor.backgroundOpacity": 0.7,
-        "prototype.editor.backgroundImageUrl": "images/background.png",
-        "prototype.editor.backgroundImageSize": "initial",
-
-        "prototype.editor.maxCellsToRender": 12000,
+        // Production settings
 
         // Bell sound effect to use
         // See `:help bell` for instances where the bell sound would be used
         "oni.audio.bellUrl": path.join(__dirname, "audio", "beep.wav"),
-
-        // Production settings
 
         // The default config is an opinionated, prescribed set of plugins. This is on by default to provide
         // a good out-of-box experience, but will likely conflict with a Vim/Neovim veteran's finely honed config.
@@ -48,16 +42,25 @@ class Config extends EventEmitter {
         // (can still be activated by pressing 'Alt')
         "oni.hideMenu": false,
 
-        "editor.fontSize": "14px",
-        "editor.quickInfo.enabled": true,
+        // glob pattern of files to exclude from fuzzy finder (Ctrl-P)
+        "oni.exclude": ["**/node_modules/**"],
 
+        // Editor settings
+
+        "editor.backgroundOpacity": 0.7,
+        "editor.backgroundImageUrl": "images/background.png",
+        "editor.backgroundImageSize": "initial",
+
+        "editor.quickInfo.enabled": true,
         // Delay (in ms) for showing QuickInfo, when the cursor is on a term
         "editor.quickInfo.delay": 500,
 
         "editor.completions.enabled": true,
         "editor.errors.slideOnFocus": true,
         "editor.formatting.formatOnSwitchToNormalMode": false, // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun
-        "editor.exclude": ["**/node_modules/**"],
+
+        "editor.fontSize": "14px",
+        // "editor.fontFamily" is platform-specific
 
         // Command to list files for 'quick open'
         // For example, to use 'ag': ag --nocolor -l .
@@ -66,6 +69,7 @@ class Config extends EventEmitter {
         //
         // IE, Windows:
         // "editor.quickOpen.execCommand": "dir /s /b"
+
         "editor.fullScreenOnStart" : false,
 
         "editor.cursorLine": true,
