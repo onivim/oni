@@ -9,7 +9,7 @@ AppVersion=0.1.2
 DefaultDirName={pf}\Oni
 DefaultGroupName=Oni
 UninstallDisplayIcon={app}\oni.exe
-Compression=lzma2
+Compression=zip
 SolidCompression=yes
 OutputBaseFilename=Oni_Windows_x86
 
