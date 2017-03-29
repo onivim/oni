@@ -16,6 +16,8 @@ UninstallDisplayIcon={app}\{{AppExecutableName}}
 Compression=zip
 SolidCompression=yes
 OutputBaseFilename={{AppSetupExecutableName}}
+WizardImageFile={{WizardImageFilePath}}
+WizardSmallImageFile={{WizardSmallImageFilePath}}
 
 [Files]
 Source: "{{SourcePath}}"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
