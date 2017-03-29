@@ -26,7 +26,10 @@
     "asar": false,
     "mac": {
       "category": "public.app-category.developer-tools",
-      "target": "dmg"
+      "target": "dmg",
+      "files": [
+          "bin/osx/**/*"
+      ]
     },
     "win": {
       "target": "dir",
