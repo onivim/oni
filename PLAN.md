@@ -1,16 +1,10 @@
-- Fix path for `dist` folder
-- Include binaries with installation package
-
-- Windows - setup images
 
 - Mac
+    - Test DMG
     - Add icon
 
-- Switch dist & pack
-- dist: pre setup for distribution
-- pack: get installer collateral
-
 - Minimize dependencies
+    - Fix neovim-client dependency (use webpack bundler for it)
 
 - Hook up `appveyor` build to generate windows artifacts
 - Hook up TravisCI build to generate OS X and Linux artifacts
