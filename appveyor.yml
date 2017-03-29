@@ -22,8 +22,8 @@ test_script:
   - npm build
   - npm test
   # create setup package
-  - npm run pack:win
   - npm run dist:win
+  - npm run pack:win
 
 # Don't actually build.
 build: off
