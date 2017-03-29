@@ -1,6 +1,5 @@
 const electron = require('electron')
 const os = require('os')
-const path = require("path")
 
 // Module to control application life.
 const { Menu, app, shell, dialog } = electron;
