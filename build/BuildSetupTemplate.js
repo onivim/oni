@@ -24,6 +24,7 @@ const version = packageMeta.version
 const valuesToReplace = {
     "AppName": "Oni",
     "AppExecutableName": "oni.exe",
+    "AppSetupExecutableName": `Oni_Setup_Windows_${version}_x86`,
     "Version": version
 }
 
