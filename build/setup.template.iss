@@ -17,6 +17,7 @@ Compression=zip
 SolidCompression=yes
 OutputBaseFilename={{AppSetupExecutableName}}
 WizardImageFile={{WizardImageFilePath}}
+WizardImageStretch=no
 WizardSmallImageFile={{WizardSmallImageFilePath}}
 
 [Files]

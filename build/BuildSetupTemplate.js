@@ -27,8 +27,8 @@ const valuesToReplace = {
     "AppSetupExecutableName": `Oni_Setup_Windows_${version}_x86`,
     "Version": version,
     "SourcePath": path.join(__dirname, "..", "dist", "win-ia32-unpacked", "*"),
-    "WizardImageFilePath": path.join(__dirname, "..", "images", "Oni_128.png"),
-    "WizardSmallImageFilePath": path.join(__dirname, "..", "images", "Oni_64.png")
+    "WizardImageFilePath": path.join(__dirname, "..", "images", "setup", "Oni_128.bmp"),
+    "WizardSmallImageFilePath": path.join(__dirname, "..", "images", "setup", "Oni_64.bmp")
 }
 
 _.keys(valuesToReplace).forEach((key) => {
