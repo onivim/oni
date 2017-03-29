@@ -1,5 +1,5 @@
 {
-  "name": "Oni",
+  "name": "oni",
   "version": "0.1.11",
   "description": "NeoVim front-end with IDE-style extensibility",
   "keywords": [
@@ -16,6 +16,7 @@
     "oni-vim": "./cli/oni"
   },
   "build": {
+    "productName": "Oni",
     "appId": "com.extropy.oni",
     "files": [
       "**/*",

@@ -24,7 +24,7 @@ const { version, name } = packageMeta
 const valuesToReplace = {
     "AppName": name,
     "AppExecutableName": `${name}.exe`,
-    "AppSetupExecutableName": `${name}-${version}-x86-win`,
+    "AppSetupExecutableName": `Oni-${version}-ia32-win`,
     "Version": version,
     "SourcePath": path.join(__dirname, "..", "dist", "win-ia32-unpacked", "*"),
     "WizardImageFilePath": path.join(__dirname, "..", "images", "setup", "Oni_128.bmp"),

@@ -1,3 +1,7 @@
+- Test Linux
+- Set up TravisCI to push artifacts
+- Set up AppVeyor to publish artificates with test
+
 - Windows
     - Add zip
 
