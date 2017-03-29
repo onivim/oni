@@ -417,6 +417,9 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
     const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
 
     const joinedRuntimePaths = runtimePaths.join(",")
+                                // Escape spaces in runtime path
+                                .map(p => p.split(" ").join("\\ "))
+                                .join(",")
 
     const shouldLoadInitVim = Config.instance().getValue<boolean>("oni.loadInitVim")
     const useDefaultConfig = Config.instance().getValue<boolean>("oni.useDefaultConfig")
