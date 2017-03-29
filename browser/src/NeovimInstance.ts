@@ -417,9 +417,6 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
     const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
 
     const joinedRuntimePaths = runtimePaths.join(",")
-                                // Escape spaces in runtime path
-                                .map(p => p.split(" ").join("\\ "))
-                                .join(",")
 
     const shouldLoadInitVim = Config.instance().getValue<boolean>("oni.loadInitVim")
     const useDefaultConfig = Config.instance().getValue<boolean>("oni.useDefaultConfig")
@@ -427,7 +424,7 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
     const vimRcArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
 
     const argsToPass = vimRcArg
-        .concat(["--cmd", "set rtp+=" + joinedRuntimePaths, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
+        .concat(["--cmd", `let &rtp.='${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
         .concat(args)
 
     const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
