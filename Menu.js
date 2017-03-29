@@ -8,9 +8,21 @@ const { Menu, app, shell, dialog } = electron;
 const buildMenu = (mainWindow) => {
     let menu = []
 
+    // On Windows, both the forward slash `/` and the backward slash `\` are accepted as path delimiters.
+    // The node APIs only return the backward slash, ie: `C:\\oni\\README.md`, but this causes problems
+    // for VIM as it sees escape keys.
+    const normalizePath = (fileName) => fileName.split("\\").join("/")
+
     const executeVimCommand = (command) => mainWindow.webContents.send("menu-item-click", command)
 
     const executeOniCommand = (command) => mainWindow.webContents.send("execute-command", command)
+
+    const executeVimCommandForFiles = (command, files) => {
+        if (!files || !files.length)
+            return
+
+        files.forEach((fileName) => executeVimCommand(`${command} ${normalizePath(fileName)}`))
+    }
 
     let firstMenu = os.platform() == "win32" ? 'File' : 'Oni';
     menu.unshift({
@@ -19,30 +31,24 @@ const buildMenu = (mainWindow) => {
             {
                 label: 'Open...',
                 click: (item, focusedWindow) => {
-                    dialog.showOpenDialog(mainWindow, ['openFile'], (name) => {
-                        if (name) {
-                            executeVimCommand(":e " + name)
-                        }
+                    dialog.showOpenDialog(mainWindow, ['openFile'], (files) => {
+                        executeVimCommandForFiles(":e", files)
                     })
                 }
             },
             {
                 label: 'Split Open...',
                 click: (item, focusedWindow) => {
-                    dialog.showOpenDialog(mainWindow, ['openFile'], (name) => {
-                        if (name) {
-                            executeVimCommand(":sp " + name)
-                        }
+                    dialog.showOpenDialog(mainWindow, ['openFile'], (files) => {
+                        executeVimCommandForFiles(":sp", files)
                     })
                 }
             },
             {
                 label: 'Tab Open...',
                 click: (item, focusedWindow) => {
-                    dialog.showOpenDialog(mainWindow, ['openFile'], (name) => {
-                        if (name) {
-                            executeVimCommand(":tabnew " + name)
-                        }
+                    dialog.showOpenDialog(mainWindow, ['openFile'], (files) => {
+                        executeVimCommandForFiles(":tabnew", files)
                     })
                 }
             },
