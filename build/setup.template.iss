@@ -18,7 +18,7 @@ SolidCompression=yes
 OutputBaseFilename={{AppSetupExecutableName}}
 
 [Files]
-Source: "C:\oni\dist\win-ia32-unpacked\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+Source: "{{SourcePath}}"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 Name: "{group}\{{AppName}}"; Filename: "{app}\{{AppExecutableName}}"

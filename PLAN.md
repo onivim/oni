@@ -1,4 +1,7 @@
+- Fix path for `dist` folder
 - Include binaries with installation package
+
+- Windows - setup images
 
 - Mac
     - Add icon
