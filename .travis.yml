@@ -1,9 +1,13 @@
 language: node_js
 node_js:
     - '6'
-os:
-    - linux
-    - osx
+
+matrix:
+    include:
+        - os: linux
+        dist: trusty
+        sudo: required
+        - os: osx
 install:
     - npm install
 script:
