@@ -16,6 +16,14 @@ artifacts:
     - path: dist/*.zip
       name: ProductZip
 
+deploy:
+    provider: GitHub
+    draft: false
+    prerelease: false
+    force_update: true
+    on:
+        appveyor_repo_tag: true
+
 # Post-install test scripts.
 test_script:
   # Output useful info for debugging.
