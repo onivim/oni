@@ -11,7 +11,10 @@ install:
 
 artifacts:
     - path: dist/*.exe
-      name: Setup
+      name: SetupExe
+
+    - path: dist/*.zip
+      name: ProductZip
 
 # Post-install test scripts.
 test_script:

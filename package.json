@@ -32,7 +32,7 @@
       ]
     },
     "win": {
-      "target": "dir",
+      "target": ["zip", "dir"],
       "files": [
         "bin/x86/**/*"
       ]
@@ -47,7 +47,7 @@
     "build:plugins": "cd vim/core/oni-plugin-typescript && npm run build",
     "pack:osx": "build",
     "pack:linux": "build",
-    "dist:win": "build --dir --arch ia32",
+    "dist:win": "build --arch ia32",
     "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
     "test": "npm run test:browser && npm run test:plugins:typescript",
     "test:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
