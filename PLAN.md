@@ -1,3 +1,5 @@
+- Windows
+    - Add zip
 
 - Mac
     - Test DMG
