@@ -32,6 +32,17 @@
           "bin/osx/**/*"
       ]
     },
+    "linux": {
+      "arch": [
+        "ia32",
+        "x64"
+      ],
+      "target": [
+        "deb",
+        "rpm",
+        "snap"
+      ]
+    },
     "win": {
       "target": ["zip", "dir"],
       "files": [
