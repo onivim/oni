@@ -1,5 +1,6 @@
 {
   "name": "oni",
+  "email": "extropy@extropygames.com",
   "version": "0.1.11",
   "description": "NeoVim front-end with IDE-style extensibility",
   "keywords": [
@@ -33,10 +34,11 @@
       ]
     },
     "linux": {
+      "maintainer": "extropy@extropygames.com",
       "target": [
+        "tar.gz",
         "deb",
-        "rpm",
-        "snap"
+        "rpm"
       ]
     },
     "win": {
