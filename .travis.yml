@@ -15,8 +15,13 @@ matrix:
 addons:
     apt:
         packages:
+            - libgnome-keyring-dev
             - icnsutils
             - graphicsmagick
+            - xz-utils
+            - rpm
+            - bsdtar
+            - snapd
 
 install:
     - npm install
