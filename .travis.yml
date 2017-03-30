@@ -8,7 +8,6 @@ matrix:
           sudo: required
           dist: trusty
         - os: osx
-
 install:
     - npm install
 script:
