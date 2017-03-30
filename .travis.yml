@@ -5,10 +5,9 @@ node_js:
 matrix:
     include:
         - os: linux
-          dist: trusty
           sudo: required
+          dist: trusty
         - os: osx
-          osx_image: xcode8
 
 install:
     - npm install
