@@ -35,6 +35,12 @@ deploy:
       email: extr0py@extropygames.com
       api_key:
         secure: a6rHUGI8/WT6MKReSkTIv64jwqbbrrb4OkkArjmwcp8rvkj8r0EltfNT/k7MsosG/bmBW3L8dAqlzHS21TcZzwJRTOciq5deYFc9lVUyez7SAsgrJT8SoeyAND6ZsXnKHq72BnFvdG1YXNO06d9w8qiu3/E7RgB8oTINA8lLzQVHlIa0m8SJCOIJsjNz5o+ruPYTg3zdRFa3o4kacRN1YR2qygi09rjkwW8tfqIDnANZfVz107jNR3499V8iKUQq7WUZ43l85BFbquZx4eEmqiLEahIXewgS8qMLlIVnVwfUHkijWaHdr5WWfIow+orlcKyazcQJTtP5VWAMV/HwokK+B/FRNuv5FSOFFF09pWRP4G7ueGulZvqQHT3lrZe4Z9/00WBewxDraxUmysW1Mz+A10svnCMZSgj3KnsKTSM3v8cOvStvwoM9NwS1ebRikGq2oCbXa311d5WlbKJsVInQXsOqsORCDkojLf5e4BA8zt7ChwR7VJuwgZv1hSNG6MS+7L8E66/gyMY5b5Nn+J3ryEYUBtXJEv4gWFRf8/L/rtNP3dnnMpXMqCxyLQ3fWr9tjHjDYhB+i5/ij/FPoW9iadYhe2nSptkJi2y8kHxndAqo+cTVw5RquHDWN8lVaeawtEomCUMlkMNQ3TioDS5OSFxde/908od02P3IPFA=
+      file_glob: true
+      file:
+          - dist/*.deb
+          - dist/*.AppImage
+          - dist/*.rpm
+          - dist/*.tar.gz
       on:
         condition: $TRAVIS_OS_NAME = linux
         tags: true
