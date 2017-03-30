@@ -29,8 +29,9 @@ deploy:
       api_key:
         secure: o961hrUtOURo8uSzskTxgdg3W7ORvP3Wri2cp7ptcu4Jj/L2PgK/j052UkrZGKEvvQj2e11MEOMO/NYvF0BXzI7aRkyS5RdW5QDojVrQ1emN6Kyi9jl+X6q+klG1r+W1Clb4q6w+pZ5k5B2L2I5KUuYd0H5b8z2YV5tQagM3A7/VuDvdInybsiJqXJukYmxjmwClTNFzg0CUYGgiRwG4MsNC+1uxBjP5Jn2BBqpMXV4J6ofXvC0qbyxwcKFOl3Nxc0NQstaKqKvjYH8aFEAVymiEXQF4sYhTVBMdfg54ChsORZVj3/mYivRnB3g+4Na1JFjg4uooNKK4WTa8TrGmXvOS7YxWlF+A2HvvgU5C7tw3QPBS73kbjzq7UcsTpY1qOJHbVH4lkwnQzOVayWZfF/PgutXDxOLLtiZgZt9zCob1eJNxoTqdQAWLoXY3OqWE7aaADD0vDaTi6SklJOKuB1F0AemNdi1Xjmwfw7OfJFpzYu1V5LU1OSOgVZQoZ1OznW2Vr0xiNe14MB+odghzV2fT1PjfXsj++pOhnwNOUNh1dvJrehAKCiv5nhJlbkoUmuqnXNTOGPzz24UzqT+GO5mueNvnpYFhRC9HzyeOtntB8oiB6Jc2hHaY7TIP5djOxgTgxTD7DSKHsWHawrIltgwWNwAbR7VgMvQKu1rqBgY=
       file_glob: true
-      file: dist/*
+      file: dist/*.dmg
       skip_cleanup: true
       on:
+        condition: $TRAVIS_OS_NAME = osx
         tags: true
         repo: extr0py/oni
