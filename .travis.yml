@@ -1,13 +1,23 @@
+sudo: required
+dist: trusty
+
 language: node_js
-node_js:
-    - '6'
 
 matrix:
     include:
         - os: linux
           sudo: required
           dist: trusty
+          node_js: 6
         - os: osx
+          node_js: 6
+
+addons:
+    apt:
+        packages:
+            - icnsutils
+            - graphicsmagick
+
 install:
     - npm install
 script:
