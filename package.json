@@ -36,6 +36,8 @@
     "linux": {
       "maintainer": "extropy@extropygames.com",
       "target": [
+        "AppImage",
+        "snap",
         "tar.gz",
         "deb",
         "rpm"
