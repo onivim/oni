@@ -21,7 +21,7 @@ addons:
             - xz-utils
             - rpm
             - bsdtar
-            - snapd
+            - snapcraft
 
 install:
     - npm install
