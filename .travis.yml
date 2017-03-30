@@ -21,7 +21,6 @@ addons:
             - xz-utils
             - rpm
             - bsdtar
-            - snapcraft
 
 install:
     - npm install
@@ -38,7 +37,6 @@ deploy:
       file_glob: true
       file:
           - dist/*.deb
-          - dist/*.AppImage
           - dist/*.rpm
           - dist/*.tar.gz
       on:
