@@ -33,10 +33,6 @@
       ]
     },
     "linux": {
-      "arch": [
-        "ia32",
-        "x64"
-      ],
       "target": [
         "deb",
         "rpm",
