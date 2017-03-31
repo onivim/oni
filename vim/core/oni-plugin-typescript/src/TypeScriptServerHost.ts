@@ -39,7 +39,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
         // This has some info on using eventPort: https://github.com/Microsoft/TypeScript/blob/master/src/server/server.ts
         // which might be more reliable
         // Can create the port using this here: https://github.com/Microsoft/TypeScript/blob/master/src/server/server.ts
-        this._tssProcess = childProcess.exec("node " + tssPath, { maxBuffer: 500 * 1024 * 1024 }, (err) => {
+        this._tssProcess = childProcess.exec(`node "${tssPath}"`, { maxBuffer: 500 * 1024 * 1024 }, (err) => {
             if (err) {
                 console.error(err)
             }
