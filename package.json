@@ -27,6 +27,7 @@
     ],
     "asar": false,
     "mac": {
+      "artifactName": "{productName}-${version}-osx.${ext}",
       "category": "public.app-category.developer-tools",
       "target": "dmg",
       "files": [
@@ -34,6 +35,7 @@
       ]
     },
     "linux": {
+      "artifactName": "{productName}-${version}-linux.${ext}",
       "maintainer": "extropy@extropygames.com",
       "target": [
         "tar.gz",
