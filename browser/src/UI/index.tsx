@@ -19,9 +19,14 @@ import { InstallHelp } from "./components/InstallHelp"
 import * as Events from "./Events"
 import * as UnboundSelectors from "./Selectors"
 
+import { NeovimEditor } from "./../Editor/NeovimEditor"
+
+
 export const events = Events.events
 
 let defaultState = State.createDefaultState()
+
+require("./components/common.less")
 
 export function setBackgroundColor(backgroundColor: string): void {
     const config = Config.instance()
@@ -57,14 +62,19 @@ export const Selectors = {
     getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState()),
 }
 
-export function init(): void {
-    render(defaultState)
+export function init(pluginManager: any, commandManager: any, args: any): void {
+    render(defaultState, pluginManager, commandManager, args)
 }
 
-function render(_state: State.IState): void {
-    const element = document.getElementById("overlay-ui")
+function render(_state: State.IState, pluginManager: any, commandManager: any, args: any): void {
+    const element = document.getElementById("host")
+
+    // TODO: Move this to an editor factory
+    const editor = new NeovimEditor(commandManager, pluginManager)
+    editor.init(args)
+
     ReactDOM.render(
         <Provider store={store}>
-            <RootComponent />
+            <RootComponent editor={editor}/>
         </Provider>, element)
 }

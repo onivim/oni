@@ -1,0 +1,14 @@
+- Create API for StatusBar
+- Create state for status bar in redux store
+- Create StatusBar react component as part of external UI
+    - Refactor some of the pieces in `index.tsx` to a <NeovimEditor /> react component
+        - Pass in `Pluginmanager` as a dependency
+        - Change `resize` behavior - listen to DOM element mutation directly, instead of window resize
+        - Make sure on `unmount` neovim gets disposed + render loop is removed
+- Create way for plugins to get settings (and be notified of settings changes)
+- Create `git` status bar component to show current branch
+- Create `core` integration to show 
+- Add sample `weather` statusbar plugin
+- Show filename
+
+- Will eventually need to decouple the `Services` from individual Neovim instances
