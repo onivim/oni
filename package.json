@@ -49,7 +49,6 @@
     }
   },
   "scripts": {
-    "prepublish": "crlf --set=LF ./cli/oni",
     "build": "npm run build:browser && npm run build:plugins",
     "build-debug": "npm run build:browser-debug && npm run build:plugins",
     "build:browser": "webpack --config browser/webpack.production.config.js",
