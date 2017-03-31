@@ -34,11 +34,6 @@ deploy:
       email: extr0py@extropygames.com
       api_key:
         secure: a6rHUGI8/WT6MKReSkTIv64jwqbbrrb4OkkArjmwcp8rvkj8r0EltfNT/k7MsosG/bmBW3L8dAqlzHS21TcZzwJRTOciq5deYFc9lVUyez7SAsgrJT8SoeyAND6ZsXnKHq72BnFvdG1YXNO06d9w8qiu3/E7RgB8oTINA8lLzQVHlIa0m8SJCOIJsjNz5o+ruPYTg3zdRFa3o4kacRN1YR2qygi09rjkwW8tfqIDnANZfVz107jNR3499V8iKUQq7WUZ43l85BFbquZx4eEmqiLEahIXewgS8qMLlIVnVwfUHkijWaHdr5WWfIow+orlcKyazcQJTtP5VWAMV/HwokK+B/FRNuv5FSOFFF09pWRP4G7ueGulZvqQHT3lrZe4Z9/00WBewxDraxUmysW1Mz+A10svnCMZSgj3KnsKTSM3v8cOvStvwoM9NwS1ebRikGq2oCbXa311d5WlbKJsVInQXsOqsORCDkojLf5e4BA8zt7ChwR7VJuwgZv1hSNG6MS+7L8E66/gyMY5b5Nn+J3ryEYUBtXJEv4gWFRf8/L/rtNP3dnnMpXMqCxyLQ3fWr9tjHjDYhB+i5/ij/FPoW9iadYhe2nSptkJi2y8kHxndAqo+cTVw5RquHDWN8lVaeawtEomCUMlkMNQ3TioDS5OSFxde/908od02P3IPFA=
-      file_glob: true
-      file:
-          - dist/*.deb
-          - dist/*.rpm
-          - dist/*.tar.gz
       on:
         condition: $TRAVIS_OS_NAME = linux
         tags: true
@@ -51,5 +46,18 @@ deploy:
       skip_cleanup: true
       on:
         condition: $TRAVIS_OS_NAME = osx
+        tags: true
+        repo: extr0py/oni
+    - provider: releases
+      api_key:
+        secure: o961hrUtOURo8uSzskTxgdg3W7ORvP3Wri2cp7ptcu4Jj/L2PgK/j052UkrZGKEvvQj2e11MEOMO/NYvF0BXzI7aRkyS5RdW5QDojVrQ1emN6Kyi9jl+X6q+klG1r+W1Clb4q6w+pZ5k5B2L2I5KUuYd0H5b8z2YV5tQagM3A7/VuDvdInybsiJqXJukYmxjmwClTNFzg0CUYGgiRwG4MsNC+1uxBjP5Jn2BBqpMXV4J6ofXvC0qbyxwcKFOl3Nxc0NQstaKqKvjYH8aFEAVymiEXQF4sYhTVBMdfg54ChsORZVj3/mYivRnB3g+4Na1JFjg4uooNKK4WTa8TrGmXvOS7YxWlF+A2HvvgU5C7tw3QPBS73kbjzq7UcsTpY1qOJHbVH4lkwnQzOVayWZfF/PgutXDxOLLtiZgZt9zCob1eJNxoTqdQAWLoXY3OqWE7aaADD0vDaTi6SklJOKuB1F0AemNdi1Xjmwfw7OfJFpzYu1V5LU1OSOgVZQoZ1OznW2Vr0xiNe14MB+odghzV2fT1PjfXsj++pOhnwNOUNh1dvJrehAKCiv5nhJlbkoUmuqnXNTOGPzz24UzqT+GO5mueNvnpYFhRC9HzyeOtntB8oiB6Jc2hHaY7TIP5djOxgTgxTD7DSKHsWHawrIltgwWNwAbR7VgMvQKu1rqBgY=
+      file_glob: true
+      file:
+          - dist/*.deb
+          - dist/*.rpm
+          - dist/*.tar.gz
+      skip_cleanup: true
+      on:
+        condition: $TRAVIS_OS_NAME = linux
         tags: true
         repo: extr0py/oni
