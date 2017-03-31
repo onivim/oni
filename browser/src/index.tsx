@@ -46,6 +46,7 @@ const start = (args: string[]) => {
 
     let cursorLine: boolean
     let cursorColumn: boolean
+    let loadInitVim: boolean = false
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
@@ -263,6 +264,13 @@ const start = (args: string[]) => {
         const hideMenu: boolean = config.getValue<boolean>("oni.hideMenu")
         window.setAutoHideMenuBar(hideMenu)
         window.setMenuBarVisibility(!hideMenu)
+
+        const loadInit: boolean = config.getValue<boolean>("oni.loadInitVim")
+        if (loadInit !== loadInitVim) {
+            ipcRenderer.send("rebuild-menu", loadInit)
+            // don't rebuild menu unless oni.loadInitVim actually changed
+            loadInitVim = loadInit
+        }
 
         window.setFullScreen(config.getValue<boolean>("editor.fullScreenOnStart"))
         instance.setFont(config.getValue<string>("editor.fontFamily"), config.getValue<string>("editor.fontSize"))

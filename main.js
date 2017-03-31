@@ -60,20 +60,17 @@ function createWindow(commandLineArguments, workingDirectory) {
     // Create the browser window.
     let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png") })
 
-    const menu = buildMenu(mainWindow)
-    if (process.platform === 'darwin') {
-        //all osx windows share the same menu
-        Menu.setApplicationMenu(menu)
-    } else {
-        //on windows and linux, set menu per window
-        mainWindow.setMenu(menu);
-    }
+    updateMenu(mainWindow, false)
 
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
             args: commandLineArguments,
             workingDirectory: workingDirectory
         })
+    })
+
+    ipcMain.on('rebuild-menu', function(_evt, loadInit) {
+        updateMenu(mainWindow, loadInit)
     })
 
     // and load the index.html of the app.
@@ -123,6 +120,17 @@ app.on('activate', function() {
         createWindow()
     }
 })
+
+function updateMenu(mainWindow, loadInit) {
+    const menu = buildMenu(mainWindow, loadInit)
+    if (process.platform === 'darwin') {
+        //all osx windows share the same menu
+        Menu.setApplicationMenu(menu)
+    } else {
+        //on windows and linux, set menu per window
+        mainWindow.setMenu(menu);
+    }
+}
 
 function focusNextInstance(direction) {
     const currentFocusedWindows = windows.filter(f => f.isFocused())

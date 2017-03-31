@@ -40,6 +40,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
                             "module.exports = {",
                             "  //add custom config here, such as",
                             "  //\"oni.useDefaultConfig\": true,",
+                            "  //\"oni.loadInitVim\": false,",
                             "  //\"editor.fontSize\": \"14px\",",
                             "  //\"editor.fontFamily\": \"Monaco\"",
                             "}",

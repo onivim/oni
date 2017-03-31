@@ -5,7 +5,7 @@ const os = require('os')
 const { Menu, app, shell, dialog } = electron;
 
 
-const buildMenu = (mainWindow) => {
+const buildMenu = (mainWindow, loadInit) => {
     let menu = []
 
     // On Windows, both the forward slash `/` and the backward slash `\` are accepted as path delimiters.
@@ -22,6 +22,24 @@ const buildMenu = (mainWindow) => {
             return
 
         files.forEach((fileName) => executeVimCommand(`${command} ${normalizePath(fileName)}`))
+    }
+
+    let preferences = {
+        label: 'Preferences',
+        submenu: [
+            {
+                label: "Edit Oni config",
+                click: () => executeOniCommand("oni.config.openConfigJs")
+            },
+        ]
+    }
+
+    if (loadInit) {
+        preferences.submenu.push(
+        {
+            label: "Edit Neovim config",
+            click: () => executeOniCommand("oni.config.openInitVim")
+        })
     }
 
     let firstMenu = os.platform() == "win32" ? 'File' : 'Oni';
@@ -63,19 +81,7 @@ const buildMenu = (mainWindow) => {
             {
                 type: 'separator'
             },
-            {
-                label: 'Preferences',
-                submenu: [
-                {
-                    label: "Edit Oni config",
-                    click: () => executeOniCommand("oni.config.openConfigJs")
-                },
-                {
-                    label: "Edit Neovim config",
-                    click: () => executeOniCommand("oni.config.openInitVim")
-                }
-                ]
-            },
+            preferences,
             {
                 type: 'separator'
             },
