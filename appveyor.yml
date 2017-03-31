@@ -1,0 +1,42 @@
+# Test against the latest version of this Node.js version
+environment:
+  nodejs_version: "6"
+
+# Install scripts. (runs after repo cloning)
+install:
+  # Get the latest stable version of Node.js or io.js
+  - ps: Install-Product node $env:nodejs_version
+  # install modules
+  - npm install
+
+artifacts:
+    - path: dist/*.exe
+      name: SetupExe
+
+    - path: dist/*.zip
+      name: ProductZip
+
+deploy:
+    provider: GitHub
+    auth_token:
+        secure: K2rf9kzQFZR5B4dOJcFgA4La1bHYSnqyPGce/tQy3OFc1+HumyJwvWsfcMCuMd2h
+    draft: false
+    prerelease: false
+    force_update: true
+    on:
+        appveyor_repo_tag: true
+
+# Post-install test scripts.
+test_script:
+  # Output useful info for debugging.
+  - node --version
+  - npm --version
+  # run tests
+  - npm build
+  - npm test
+  # create setup package
+  - npm run dist:win
+  - npm run pack:win
+
+# Don't actually build.
+build: off
