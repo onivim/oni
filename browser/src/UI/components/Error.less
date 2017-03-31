@@ -27,11 +27,6 @@
         position: absolute;
         left: 200px;
         background-color: rgb(60, 60, 60);
-
-        display: flex;
-
-        align-items: center;
-        height: 100%;
         width: 100%;
 
         .text {
@@ -40,10 +35,9 @@
             text-overflow: ellipsis;
             overflow: hidden;
             text-align: center;
-
-            justify-content: center;
-            align-items: center;
-            padding: 8px;
+            padding-right: @errorMarkerSize;
+            padding-top: 3px;
+            padding-bottom: 2px;
         }
     }
 
