@@ -65,11 +65,11 @@ Check out [Releases](https://github.com/extr0py/oni/releases) for the latest bin
 
 Windows & OSX releases come with a bundled Neovim release.
 
-### Windows 
+### Windows
 - [exe](https://github.com/extr0py/oni/releases/download/v0.2.1/Oni-0.2.1-ia32-win.exe)
 - [zip](https://github.com/extr0py/oni/releases/download/v0.2.1/Oni-0.2.1-ia32-win.zip)
 
-### OSX 
+### OSX
 - [dmg](https://github.com/extr0py/oni/releases/download/v0.2.1/Oni-0.2.1-osx.dmg)
 
 ### Linux
@@ -83,7 +83,7 @@ Linux does not come with a bundled Neovim release.
 
 Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-## Build from source
+### Build
 
 1) Clone the repository: `git clone https://github.com/extr0py/oni.git`
 
