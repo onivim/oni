@@ -32,8 +32,8 @@ test_script:
   - node --version
   - npm --version
   # run tests
-  - npm build
-  - npm test
+  - npm run build
+  - npm run test
   # create setup package
   - npm run dist:win
   - npm run pack:win
