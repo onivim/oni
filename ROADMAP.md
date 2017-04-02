@@ -2,10 +2,6 @@
 
 ## Roadmap
 
-- 0.1
-    - [x] Initial repo
-    - [x] OS X / Windows support
-    - [x] TypeScript language support
 - 0.2
     - [x] Mouse support
         - [x] Buffer scroll bars
@@ -14,31 +10,9 @@
     - [x] Installation via NPM
         - [x] Handle case where NeoVim is not already installed
     - [x] Integration with popupmenu_external
-    - [ ] Multiplexed UI + UI enhancements
-        - [ ] Window Manager
-        - [ ] Removal of `Overlay`
-        - [ ] Tab UI
-        - [ ] Status bar
-    - [ ] Website at onivim.io
-        - [ ] Youtube Demo
-- 0.3
-    - [x] Configuration loading
-    - [ ] Git overlays
-        - [ ] Git blame overlay
-        - [ ] Git log overlay
-    - [ ] QuickOpen Improvements
-        - [ ] Config variable
-        - [ ] Non-git strategy
-        - [x] Fuzzy Matching
-        - [ ] Scrollbar
-        - [x] Icon
-    - [ ] AutoCompletion
-        - [ ] Fuzzy Matching
-        - [ ] Scrollbar
-    - [ ] Plugin Manager
     - [ ] Windows Installer
     - [ ] OSX Installer
-- 0.4
+- 0.3
     - [ ] Extensibility models
         - [ ] Language service
             - [x] Autocompletion (TypeScript, Javascript)
@@ -50,8 +24,33 @@
             - [ ] Find-in-files
         - [ ] Integration with [language-server-protocol](https://github.com/Microsoft/language-server-protocol)
             - [ ] C# / OmniSharp integration
+            - [ ] Python Integration
+            - [ ] ReasonML Integration
+    - [x] Configuration loading
+    - [ ] Multiplexed UI + UI enhancements - Part 1
+        - [ ] Tab UI
+        - [ ] Status bar
+    - [ ] Website at onivim.io
+        - [ ] Youtube Demo
+    - [ ] QuickOpen Improvements
+        - [x] Config variable
+        - [x] Non-git strategy
+        - [x] Fuzzy Matching
+        - [ ] Scrollbar
+        - [x] Icon
+    - [ ] AutoCompletion
+        - [ ] Fuzzy Matching
+        - [ ] Scrollbar
+- 0.4
+    - [ ] Plugin Manager
+    - [ ] Multiplexed UI + UI enhancements - Part 2
+        - [ ] Window Manager
+        - [ ] Removal of `Overlay`
+        - [ ] 'Sneak Mode' like Vimium
+        - [ ] Browser Tab
+            - [ ] Markdown Preview
+            - [ ] Open Browser Window
     - [ ] Better app icon
-    - [x] Listing in NeoVim wiki
     - [ ] Left Pane
     - [ ] Animation support
         - [ ] Cursor animation
@@ -60,6 +59,8 @@
         - [ ] Perceived performance - render characters instally in insert
 
 - 0.5
+    - [ ] CSS / LESS Language Server
+    - [ ] HTML Language Server
     - [ ] Proper keymap support
     - [ ] Python language service plugin
     - [ ] ReasonML / OCaml language service plugin
@@ -70,9 +71,17 @@
     - [ ] CSS Skins
     - [ ] Scrollbar minimap (a-la sublime)
     - [ ] Enhanced VimTutor
+    - [ ] Katas
+        - [ ] Functional programming katas
     - [ ] Collaborative app icon
     - [ ] Extensibility
         - [ ] Debugger support
         - [ ] Snippet support
     - [ ] Project templates
-    - [ ] Package Manager
+
+### Completed
+    - 0.1
+        - [x] Initial repo
+        - [x] OS X / Windows support
+        - [x] TypeScript language support
+        - [x] Listing in NeoVim wiki
