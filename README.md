@@ -9,7 +9,7 @@
 - [Features](#features)
 - [Installation](#installation)
     - [Windows](#windows)
-    - [OSX](#osx)
+    - [Mac](#mac)
     - [Linux](#linux)
     - [Build](#build)
 - [Documentation](#documentation)
@@ -66,22 +66,40 @@ Check out [Releases](https://github.com/extr0py/oni/releases) for the latest bin
 Windows & OSX releases come with a bundled Neovim release.
 
 ### Windows
-- [exe](https://github.com/extr0py/oni/releases/download/v0.2.1/Oni-0.2.1-ia32-win.exe)
-- [zip](https://github.com/extr0py/oni/releases/download/v0.2.1/Oni-0.2.1-ia32-win.zip)
 
-### OSX
-- [dmg](https://github.com/extr0py/oni/releases/download/v0.2.1/Oni-0.2.1-osx.dmg)
+- Download the [Oni installer](https://github.com/extr0py/oni/releases/download/v0.2.1/Oni-0.2.1-ia32-win.exe) for Windows
+- Once it is downloaded, run the installer. This will only take a minute.
+- By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine. 
+
+You can also find install via a [zip archive](https://github.com/extr0py/oni/releases/download/v0.2.1/Oni-0.2.1-ia32-win.zip)
+
+> You may want to add Oni to your `%PATH%`, so that from the console, you can open Oni via `oni`
+
+### Mac
+
+- Download [Oni](https://github.com/extr0py/oni/releases/download/v0.2.1/Oni-0.2.1-osx.dmg) for Mac
+- Double-click on the archive to expand
+- Drag `Oni.app` to the `Applications` folder
 
 ### Linux
-- [rpm](https://github.com/extr0py/oni/releases/download/v0.2.1/oni-0.2.1.rpm)
-- [deb](https://github.com/extr0py/oni/releases/download/v0.2.1/oni_0.2.1_amd64.deb)
-- [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.1/oni-0.2.1.tar.gz)
 
-#### Linux Notes
+#### Debian and Ubuntu based distributions
 
-Linux does not come with a bundled Neovim release. 
+> If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
+- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.1/oni-0.2.1.rpm)
+- Install the package with `sudo dpkg -i <file>.deb`
+
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.1/oni-0.2.1.tar.gz) is also available.
+
+#### Red Hat based distributions (Fedora, CentOS)
+
+> If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
+
+- Download the [.rpm package](https://github.com/extr0py/oni/releases/download/v0.2.1/oni-0.2.1.rpm)
+- Install the package with `sudo dnf install <file>.rpm`
+
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.1/oni-0.2.1.tar.gz) is also available.
 
 ### Build
 
