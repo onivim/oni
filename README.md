@@ -8,7 +8,9 @@
 - [Introduction](#introduction)
 - [Features](#features)
 - [Installation](#installation)
-    - [NPM](#install-from-npm)
+    - [Windows](#windows)
+    - [OSX](#osx)
+    - [Linux](#linux)
     - [Build](#build)
 - [Documentation](#documentation)
     - [Usage](#usage)
@@ -59,17 +61,29 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ## Installation
 
-- For Windows and OSX, a pre-built binary of Neovim is included.
+Check out [Releases](https://github.com/extr0py/oni/releases) for the latest binary.
 
-- For Linux, there is no included pre-built binary. Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required.
+Windows & OSX releases come with a bundled Neovim release.
 
-### Install from NPM
+### Windows 
+- [exe](https://github.com/extr0py/oni/releases/download/v0.2.1/Oni-0.2.1-ia32-win.exe)
+- [zip](https://github.com/extr0py/oni/releases/download/v0.2.1/Oni-0.2.1-ia32-win.zip)
 
-1) Run `npm install -g oni`
+### OSX 
+- [dmg](https://github.com/extr0py/oni/releases/download/v0.2.1/Oni-0.2.1-osx.dmg)
 
-2) Run `oni` at the command line to start the editor.
+### Linux
+- [rpm](https://github.com/extr0py/oni/releases/download/v0.2.1/oni-0.2.1.rpm)
+- [deb](https://github.com/extr0py/oni/releases/download/v0.2.1/oni_0.2.1_amd64.deb)
+- [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.1/oni-0.2.1.tar.gz)
 
-### Build
+#### Linux Notes
+
+Linux does not come with a bundled Neovim release. 
+
+Please [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
+
+## Build from source
 
 1) Clone the repository: `git clone https://github.com/extr0py/oni.git`
 
