@@ -31,9 +31,7 @@ ONI is a [NeoVim](https://github.com/neovim/neovim) front-end UI with rich IDE-l
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
-> `npm install -g oni`
-
-> `oni`
+Check out [Releases](https://github.com/extr0py/oni/releases) for the latest binaries, or [Build Oni](#build) from source.
 
 ## Features
 
