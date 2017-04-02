@@ -1,7 +1,7 @@
 {
   "name": "oni",
   "email": "extropy@extropygames.com",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "NeoVim front-end with IDE-style extensibility",
   "keywords": [
     "vim",
@@ -23,7 +23,8 @@
       "**/*",
       "!**/*.oni",
       "!**/*.vscode",
-      "!bin"
+      "!bin",
+      "!lib_test"
     ],
     "asar": false,
     "mac": {
