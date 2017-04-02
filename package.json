@@ -23,7 +23,8 @@
       "**/*",
       "!**/*.oni",
       "!**/*.vscode",
-      "!bin"
+      "!bin",
+      "!lib_test"
     ],
     "asar": false,
     "mac": {
