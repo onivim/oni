@@ -2,16 +2,6 @@
 
 ## Roadmap
 
-- 0.2
-    - [x] Mouse support
-        - [x] Buffer scroll bars
-    - [x] Services
-        - [x] QuickOpen - Modern CTRL-P replacement
-    - [x] Installation via NPM
-        - [x] Handle case where NeoVim is not already installed
-    - [x] Integration with popupmenu_external
-    - [ ] Windows Installer
-    - [ ] OSX Installer
 - 0.3
     - [ ] Extensibility models
         - [ ] Language service
@@ -38,9 +28,6 @@
         - [x] Fuzzy Matching
         - [ ] Scrollbar
         - [x] Icon
-    - [ ] AutoCompletion
-        - [ ] Fuzzy Matching
-        - [ ] Scrollbar
 - 0.4
     - [ ] Plugin Manager
     - [ ] Multiplexed UI + UI enhancements - Part 2
@@ -57,8 +44,14 @@
     - [ ] Performance improvements
         - [ ] Scroll performance improvement (avoid redraw)
         - [ ] Perceived performance - render characters instally in insert
+    - [ ] Mouse support
+        - [ ] Buffer scroll bars
+        - [ ] Autocompletion scroll bars
+        - [ ] QuickOpen scroll bars
 
 - 0.5
+    - [ ] AutoCompletion
+        - [ ] Fuzzy Matching
     - [ ] CSS / LESS Language Server
     - [ ] HTML Language Server
     - [ ] Proper keymap support
@@ -85,3 +78,11 @@
         - [x] OS X / Windows support
         - [x] TypeScript language support
         - [x] Listing in NeoVim wiki
+    - 0.2
+        - [x] Services
+            - [x] QuickOpen - Modern CTRL-P replacement
+        - [x] Installation via NPM
+            - [x] Handle case where NeoVim is not already installed
+        - [x] Integration with popupmenu_external
+        - [x] Windows Installer
+        - [x] OSX Installer
