@@ -110,14 +110,16 @@ class Config extends EventEmitter {
         // and continue to fire when file references are swapped out.
         // Unfortunately, this also means the 'change' event fires twice.
         // I could use watchFile() but that polls every 5 seconds.  Not ideal.
-        fs.watch(this.getUserFolder(), (event, filename) => {
-            if (event === "change" && filename === "config.js") {
-                // invalidate the Config currently stored in cache
-                delete global["require"].cache[global["require"].resolve(this.userJsConfig)] // tslint:disable-line no-string-literal
-                this.applyConfig()
-                this.notifyListeners()
-            }
-        })
+        if (fs.existsSync(this.getUserFolder())) {
+            fs.watch(this.getUserFolder(), (event, filename) => {
+                if (event === "change" && filename === "config.js") {
+                    // invalidate the Config currently stored in cache
+                    delete global["require"].cache[global["require"].resolve(this.userJsConfig)] // tslint:disable-line no-string-literal
+                    this.applyConfig()
+                    this.notifyListeners()
+                }
+            })
+        }
 
         Performance.mark("Config.load.end")
     }
