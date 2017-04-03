@@ -85,7 +85,7 @@ You can also find install via a [zip archive](https://github.com/extr0py/oni/rel
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.2-recovery/oni-0.2.2.rpm)
+- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.2-recovery/oni_0.2.2_amd64.deb)
 - Install the package with `sudo dpkg -i <file>.deb`
 
 A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.2-recovery/oni-0.2.2.tar.gz) is also available.
