@@ -55,19 +55,27 @@ const activate = (Oni) => {
             }
         })
 
-        connection.sendRequest("textDocument/hover", {
-             textDocument:    {
-                uri: "file:///C:/test/dotnet-core/Program.cs"
-            },
-            position: {
-                line: 8,
-                character: 25
-            }
-        }).then((result) => {
-            alert(result)
+        alert("initialized")
+
+        const getQuickInfo = (textDocumentPosition) => {
+
+            return connection.sendRequest("textDocument/hover", {
+                 textDocument:    {
+                    uri: "file:///C:/test/dotnet-core/Program.cs"
+                },
+                position: {
+                    line: textDocumentPosition.line - 1,
+                    character: textDocumentPosition.column - 1
+                }
+            }).then((result) => {
+                return { title: result.contents }
+            })
+        }
+
+        Oni.registerLanguageService({
+            getQuickInfo: getQuickInfo
         })
 
-        alert("initialized")
     })
 
 }
