@@ -5,8 +5,7 @@ import { Provider } from "react-redux"
 import { applyMiddleware, bindActionCreators, compose, createStore } from "redux"
 import thunk from "redux-thunk"
 
-import * as Config from "./../Config"
-
+import { Background } from "./components/Background"
 import { RootComponent } from "./RootComponent"
 import * as State from "./State"
 
@@ -22,19 +21,6 @@ import * as UnboundSelectors from "./Selectors"
 export const events = Events.events
 
 let defaultState = State.createDefaultState()
-
-export function setBackgroundColor(backgroundColor: string): void {
-    const config = Config.instance()
-    const backgroundImageElement: HTMLElement = document.getElementsByClassName("background-image")[0] as HTMLElement
-    const backgroundColorElement: HTMLElement = document.getElementsByClassName("background-cover")[0] as HTMLElement
-    const backgroundImageUrl = config.getValue<string>("editor.backgroundImageUrl")
-    const backgroundImageSize = config.getValue<string>("editor.backgroundImageSize") || "cover"
-
-    backgroundImageElement.style.backgroundImage = "url(" + backgroundImageUrl + ")"
-    backgroundImageElement.style.backgroundSize = backgroundImageSize
-    backgroundColorElement.style.backgroundColor = backgroundColor
-    backgroundColorElement.style.opacity = config.getValue<string>("editor.backgroundOpacity")
-}
 
 export function showNeovimInstallHelp(): void {
     const element = document.getElementById("overlay-ui")
@@ -62,9 +48,14 @@ export function init(): void {
 }
 
 function render(_state: State.IState): void {
-    const element = document.getElementById("overlay-ui")
+    const uiElement = document.getElementById("overlay-ui")
+    const backgroundElement = document.getElementById("background")
     ReactDOM.render(
         <Provider store={store}>
             <RootComponent />
-        </Provider>, element)
+        </Provider>, uiElement)
+    ReactDOM.render(
+        <Provider store={store}>
+            <Background />
+        </Provider>, backgroundElement)
 }
