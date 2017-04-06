@@ -46,29 +46,35 @@ const activate = (Oni) => {
 
         const text = fs.readFileSync("C:/test/dotnet-core/Program.cs").toString("utf8")
 
-        connection.sendNotification("textDocument/didOpen", {
-            textDocument: {
-                uri: "file:///C:/test/dotnet-core/Program.cs",
-                languageId: "csharp",
-                version: 0,
-                text: text
-            }
+        const wrapPathInFileUri = (path) => "file:///" + path
+        
+        Oni.on("buffer-enter", (args) => {
+            connection.sendNotification("textDocument/didOpen", {
+                textDocument: {
+                    uri: wrapPathInFileUri(args.bufferFullPath),
+                    languageId: "csharp",
+                    version: 0,
+                    text: text
+                }
+            })
         })
 
-        alert("initialized")
 
         const getQuickInfo = (textDocumentPosition) => {
 
             return connection.sendRequest("textDocument/hover", {
                  textDocument:    {
-                    uri: "file:///C:/test/dotnet-core/Program.cs"
+                    uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath)
                 },
                 position: {
                     line: textDocumentPosition.line - 1,
                     character: textDocumentPosition.column - 1
                 }
             }).then((result) => {
-                return { title: result.contents }
+                if (!result || !result.contents || result.contents.trim().length === 0)
+                    throw "No quickinfo available"
+
+                return { title: result.contents.trim() }
             })
         }
 
