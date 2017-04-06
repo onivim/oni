@@ -55,12 +55,12 @@ export const setCursorPosition = (screen: IScreen) => (dispatch: Function) => {
     dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
 }
 
-export const setColors = (foregroundColor: string) => (dispatch: Function, getState: Function) => {
-    if (foregroundColor === getState().foregroundColor) {
+export const setColors = (foregroundColor: string, backgroundColor: string) => (dispatch: Function, getState: Function) => {
+    if (foregroundColor === getState().foregroundColor && backgroundColor === getState().backgroundColor) {
         return
     }
 
-    dispatch(_setColors(foregroundColor))
+    dispatch(_setColors(foregroundColor, backgroundColor))
 }
 
 export const setActiveWindowDimensions = (dimensions: Rectangle) => ({
@@ -186,9 +186,9 @@ const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth
     },
 })
 
-const _setColors = (foregroundColor: string) => ({
+const _setColors = (foregroundColor: string, backgroundColor: string) => ({
     type: "SET_COLORS",
-    payload: { foregroundColor },
+    payload: { foregroundColor, backgroundColor },
 })
 
 const _nextAutoCompletion = () => ({
