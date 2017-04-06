@@ -9,6 +9,14 @@ import { Editor } from "./Editor"
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 
 /**
+ * Implementation of a client that talks to a server 
+ * implement the Language Server Protocol
+ */
+export class LanguageClient {
+
+}
+
+/**
  * API instance for interacting with Oni (and vim)
  */
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
