@@ -45,15 +45,20 @@ export class LanguageClient {
     private _process: ChildProcess
 
     constructor(
-            private _startCommand: string,
-            private _initializationParams: LanguageClientInitializationParams,
-            private _oni: Oni) {
+        private _startCommand: string,
+        private _initializationParams: LanguageClientInitializationParams,
+        private _oni: Oni) {
     }
 
     public start(): Promise<any> {
 
         // TODO: Pursue alternate connection mechanisms besides stdio - maybe Node IPC?
-        this._process = exec(this._startCommand, { maxBuffer: 500 * 1024 * 1024 })
+        this._process = exec(this._startCommand, { maxBuffer: 500 * 1024 * 1024 }, (err) => {
+            if (err) {
+                console.error(err)
+                alert(err)
+            }
+        })
 
         this._connection = rpc.createMessageConnection(
             <any>(new rpc.StreamMessageReader(this._process.stdout)),
@@ -61,11 +66,7 @@ export class LanguageClient {
             new LanguageClientLogger())
 
 
-            // Register additional notifications here
-        this._connection.onNotification("initialized", () => {
-            alert("Initialized")
-        })
-
+        // Register additional notifications here
         this._connection.listen()
 
         this._initializationPromise = <any>this._connection.sendRequest("initialize", this._initializationParams)
@@ -75,7 +76,7 @@ export class LanguageClient {
         const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
 
             return <any>this._connection.sendRequest("textDocument/hover", {
-                 textDocument:    {
+                textDocument: {
                     uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath)
                 },
                 position: {
@@ -91,8 +92,10 @@ export class LanguageClient {
             })
         }
 
-        this._oni.registerLanguageService({
-            getQuickInfo,
+        this._initializationPromise.then(() => {
+            this._oni.registerLanguageService({
+                getQuickInfo,
+            })
         })
 
         return this._initializationPromise
@@ -131,6 +134,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._channel.onRequest((arg: any) => {
             this._handleNotification(arg)
         })
+    }
+
+    public createLanguageClient(initializationCommand: string, parameters: LanguageClientInitializationParams): LanguageClient {
+        return new LanguageClient(initializationCommand, parameters, this)
     }
 
     public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {
