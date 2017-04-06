@@ -44,6 +44,7 @@ LanguageClient
 - Validate only single instance of plugin is receiving updates (ensure no perf regressions)
 
 ## Longer term
+- Log issue to speed up perceived performance of startup time (animation, etc)
 - Refactor TypeScript language service to use existing implementation
 - Split up plugins to separate packages that are on-demand installed - for now, core language support (JS/TS, C#, Python, Rust, C++) will be bundled. Once some of the plugin management tasks are taken on, they can be split out into separate bundles that are installed on-demand.
 

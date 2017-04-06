@@ -8,12 +8,95 @@ import { Editor } from "./Editor"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 
+
+// Language Client WIP
+import * as rpc from "vscode-jsonrpc"
+import { exec, ChildProcess } from "child_process"
+
+export interface LanguageClientInitializationParams {
+    rootPath: string
+}
+
+export class LanguageClientLogger {
+    public error(message: string): void {
+        console.error(message)
+    }
+
+    public warn(message: string): void {
+        console.warn(message)
+    }
+
+    public info(message: string): void {
+        console.log(message)
+    }
+
+    public log(message: string): void {
+        console.log(message)
+    }
+}
+
 /**
  * Implementation of a client that talks to a server 
  * implement the Language Server Protocol
  */
 export class LanguageClient {
+    private _initializationPromise: Promise<any>
+    private _connection: rpc.MessageConnection
+    private _process: ChildProcess
 
+    constructor(
+            private _startCommand: string,
+            private _initializationParams: LanguageClientInitializationParams,
+            private _oni: Oni) {
+    }
+
+    public start(): Promise<any> {
+
+        // TODO: Pursue alternate connection mechanisms besides stdio - maybe Node IPC?
+        this._process = exec(this._startCommand, { maxBuffer: 500 * 1024 * 1024 })
+
+        this._connection = rpc.createMessageConnection(
+            <any>(new rpc.StreamMessageReader(this._process.stdout)),
+            <any>(new rpc.StreamMessageWriter(this._process.stdin)),
+            new LanguageClientLogger())
+
+
+            // Register additional notifications here
+        this._connection.onNotification("initialized", () => {
+            alert("Initialized")
+        })
+
+        this._connection.listen()
+
+        this._initializationPromise = <any>this._connection.sendRequest("initialize", this._initializationParams)
+
+        const wrapPathInFileUri = (path: string) => "file:///" + path
+
+        const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
+
+            return <any>this._connection.sendRequest("textDocument/hover", {
+                 textDocument:    {
+                    uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath)
+                },
+                position: {
+                    line: textDocumentPosition.line - 1,
+                    character: textDocumentPosition.column - 1
+                }
+            }).then((result: any) => {
+                if (!result || !result.contents || result.contents.trim().length === 0) {
+                    throw "No quickinfo available"
+                }
+
+                return { title: result.contents.trim(), description: "" }
+            })
+        }
+
+        this._oni.registerLanguageService({
+            getQuickInfo,
+        })
+
+        return this._initializationPromise
+    }
 }
 
 /**
