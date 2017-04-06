@@ -1,7 +1,8 @@
 ## Next
 - Hook up logging & telemetry events
-- Create `LanguageClient` to start hosting this functionality / lifecycle
-- Refactor to `Oni.createLanguageClient` method
+- Move `LanguageClient.ts` to separate file
+- Hook up `TextOpen` event
+- Set up lifecycle when switching between projects
 
 At plugin-level:
 
