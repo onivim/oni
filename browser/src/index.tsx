@@ -184,7 +184,7 @@ const start = (args: string[]) => {
         renderer.onAction(action)
         screen.dispatch(action)
 
-        UI.Actions.setColors(screen.foregroundColor)
+        UI.Actions.setColors(screen.foregroundColor, screen.backgroundColor)
 
         if (!pendingTimeout) {
             pendingTimeout = setTimeout(updateFunction, 0) as any // FIXME: null
@@ -237,8 +237,6 @@ const start = (args: string[]) => {
     const updateFunction = () => {
         // TODO: Move cursor to component
         UI.Actions.setCursorPosition(screen)
-
-        UI.setBackgroundColor(screen.backgroundColor)
 
         clearTimeout(pendingTimeout as any) // FIXME: null
         pendingTimeout = null

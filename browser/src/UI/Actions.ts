@@ -39,6 +39,7 @@ export interface ISetColorsAction {
     type: "SET_COLORS",
     payload: {
         foregroundColor: string,
+        backgroundColor: string,
     }
 }
 

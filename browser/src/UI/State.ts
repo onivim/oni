@@ -9,6 +9,7 @@ export interface IState {
     fontPixelWidth: number
     fontPixelHeight: number
     mode: string
+    backgroundColor: string
     foregroundColor: string
     autoCompletion: null | IAutoCompletionInfo
     quickInfo: null | Oni.Plugin.QuickInfo
@@ -74,5 +75,5 @@ export const createDefaultState = () => (<IState>{
     cursorLineOpacity: 0,
     cursorColumnVisible: false,
     cursorColumnOpacity: 0,
-
+    backgroundColor: "#000000",
 })
