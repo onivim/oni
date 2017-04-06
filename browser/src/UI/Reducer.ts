@@ -27,9 +27,9 @@ export const reducer = (s: State.IState, a: Actions.Action) => {
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }
         case "SET_COLORS":
-            return { ...s, ...{ 
-                foregroundColor: a.payload.foregroundColor ,
-                backgroundColor: a.payload.backgroundColor
+            return { ...s, ...{
+                foregroundColor: a.payload.foregroundColor,
+                backgroundColor: a.payload.backgroundColor,
             } }
         case "SHOW_QUICK_INFO":
             return Object.assign({}, s, {
