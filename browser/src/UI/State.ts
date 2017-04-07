@@ -1,4 +1,5 @@
 
+import * as Config from  "./../Config"
 import { Rectangle } from "./Types"
 
 export interface IState {
@@ -19,6 +20,7 @@ export interface IState {
     cursorLineOpacity: number
     cursorColumnVisible: boolean
     cursorColumnOpacity: number
+    configuration: Config.IConfigValues
 
     // Dimensions of active window, in pixels
     activeWindowDimensions: Rectangle
@@ -52,7 +54,7 @@ export interface IAutoCompletionInfo {
     selectedIndex: number
 }
 
-export const createDefaultState = () => (<IState>{
+export const createDefaultState = (): IState => ({
     cursorPixelX: 10,
     cursorPixelY: 10,
     cursorPixelWidth: 10,
@@ -76,4 +78,5 @@ export const createDefaultState = () => (<IState>{
     cursorColumnVisible: false,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
+    configuration: Config.instance().getValues(),
 })

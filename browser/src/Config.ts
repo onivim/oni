@@ -1,11 +1,13 @@
 import { EventEmitter } from "events"
+
 import * as fs from "fs"
+import * as _ from "lodash"
 import * as path from "path"
 
 import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
-interface IConfigValues {
+export interface IConfigValues {
     // Debug settings
     "debug.incrementalRenderRegions": boolean
     "debug.maxCellsToRender": number
@@ -177,6 +179,10 @@ class Config extends EventEmitter {
 
     public getValue<K extends keyof IConfigValues>(configValue: K) {
         return this.Config[configValue]
+    }
+
+    public getValues(): IConfigValues {
+        return _.cloneDeep(this.Config)
     }
 
     public getUserFolder(): string {
