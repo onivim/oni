@@ -1,3 +1,5 @@
+import { EventEmitter } from "events"
+
 declare namespace Oni {
 
     export interface Editor {
@@ -109,7 +111,7 @@ declare namespace Oni {
             edits: TextEdit[]
         }
 
-        export interface Api {
+        export interface Api extends EventEmitter {
             // handleNotification(method: string, args: any[]): void
 
             diagnostics: Diagnostics.Api;
