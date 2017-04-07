@@ -14,6 +14,8 @@ import { IScreen } from "./../Screen"
 
 import * as State from "./State"
 
+import * as Config from "./../Config"
+import * as Actions from "./Actions"
 import { events } from "./Events"
 
 export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: Function, getState: Function) => {
@@ -173,6 +175,16 @@ export const setCursorColumnOpacity = (opacity: number) => ({
         opacity,
     },
 })
+
+export function setConfigurationValue<K extends keyof Config.IConfigValues>(k: K, v: Config.IConfigValues[K]): Actions.ISetConfigurationValue<K> {
+    return {
+        type: "SET_CONFIGURATION_VALUE",
+        payload: {
+            key: k,
+            value: v,
+        },
+    }
+}
 
 const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
     type: "SET_CURSOR_POSITION",

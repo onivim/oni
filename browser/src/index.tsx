@@ -32,6 +32,8 @@ import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
 import { Tasks } from "./Services/Tasks"
 import { WindowTitle } from "./Services/WindowTitle"
 
+import * as _ from "lodash"
+
 import * as UI from "./UI/index"
 import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./UI/Overlay/LiveEvaluationOverlay"
@@ -243,10 +245,20 @@ const start = (args: string[]) => {
     }
 
     const config = Config.instance()
+    let prevConfigValues = config.getValues()
 
     const configChange = () => {
         cursorLine = config.getValue("editor.cursorLine")
         cursorColumn = config.getValue("editor.cursorColumn")
+
+        let newConfigValues = config.getValues()
+        for (let prop in newConfigValues) {
+            if (!_.isEqual(newConfigValues[prop], prevConfigValues[prop])) {
+                UI.Actions.setConfigValue(prop, newConfigValues[prop])
+            }
+        }
+        prevConfigValues = newConfigValues
+
         UI.Actions.setCursorLineOpacity(config.getValue("editor.cursorLineOpacity"))
         UI.Actions.setCursorColumnOpacity(config.getValue("editor.cursorColumnOpacity"))
 
