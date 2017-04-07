@@ -33,6 +33,7 @@ test_script:
   - npm --version
   # run tests
   - npm run build
+  - npm run lint
   - npm run test
   # create setup package
   - npm run dist:win
