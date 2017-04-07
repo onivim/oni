@@ -22,8 +22,8 @@ class CursorRenderer extends React.Component<ICursorProps, void> {
 
     public render(): JSX.Element {
 
-        const fontFamily = this.config.getValue<string>("editor.fontFamily")
-        const fontSize = this.config.getValue<string>("editor.fontSize")
+        const fontFamily = this.config.getValue("editor.fontFamily")
+        const fontSize = this.config.getValue("editor.fontSize")
 
         const isNormalMode = this.props.mode === "normal"
         const width = isNormalMode ? this.props.width : this.props.width / 4

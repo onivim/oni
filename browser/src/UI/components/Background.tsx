@@ -13,12 +13,12 @@ export class BackgroundRenderer extends React.Component<IBackgroundProps, void> 
 
     public render(): JSX.Element {
         const imageStyle = {
-            backgroundImage: "url(" + this.config.getValue<string>("editor.backgroundImageUrl") + ")",
-            backgroundSize: this.config.getValue<string>("editor.backgroundImageSize") || "cover",
+            backgroundImage: "url(" + this.config.getValue("editor.backgroundImageUrl") + ")",
+            backgroundSize: this.config.getValue("editor.backgroundImageSize") || "cover",
         }
         const coverStyle = {
             backgroundColor: this.props.backgroundColor,
-            opacity: this.config.getValue<number>("editor.backgroundOpacity"),
+            opacity: this.config.getValue("editor.backgroundOpacity"),
         }
 
         return <div>
