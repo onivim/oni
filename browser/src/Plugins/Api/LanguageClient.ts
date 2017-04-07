@@ -87,6 +87,10 @@ export class LanguageClient {
                 console.log(JSON.stringify(args))
             })
 
+            this._connection.onNotification("telemetry/event", (args) => {
+                console.log(JSON.stringify(args))
+            })
+
             this._connection.onNotification("window/showMessage", (args) => {
                 alert(args)
             })
