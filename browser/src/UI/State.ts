@@ -26,6 +26,10 @@ export interface IState {
     activeWindowDimensions: Rectangle
 }
 
+export const readConf <K extends keyof Config.IConfigValues>(conf: Config.IConfigValues, k: K): Config.IConfigValues[K] {
+    return conf[k]
+}
+
 export interface IMenu {
     id: string,
     filter: string,
