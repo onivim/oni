@@ -158,6 +158,9 @@ export interface ISetConfigurationValue<K extends keyof Config.IConfigValues> {
 }
 
 export type Action<K extends keyof Config.IConfigValues> =
+    SimpleAction | ActionWithGeneric<K>
+
+export type SimpleAction =
     ISetCursorPositionAction |
     IShowSignatureHelpAction |
     IHideSignatureHelpAction |
@@ -181,5 +184,7 @@ export type Action<K extends keyof Config.IConfigValues> =
     IShowCursorLineAction |
     IShowCursorColumnAction |
     ISetCursorColumnOpacityAction |
-    ISetCursorLineOpacityAction |
+    ISetCursorLineOpacityAction
+
+export type ActionWithGeneric<K extends keyof Config.IConfigValues> =
     ISetConfigurationValue<K>

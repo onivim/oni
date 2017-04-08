@@ -102,7 +102,7 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
     }
 }
 
-export function popupMenuReducer<K extends keyof Config.IConfigValues> (s: State.IMenu | null, a: Actions.Action<K>) {
+export function popupMenuReducer (s: State.IMenu | null, a: Actions.SimpleAction) {
 
     // TODO: sync max display items (10) with value in Menu.render() (Menu.tsx)
     let size = s ? Math.min(10, s.filteredOptions.length) : 0
@@ -235,7 +235,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
     return highlightOptions
 }
 
-export function autoCompletionReducer<K extends keyof Config.IConfigValues> (s: State.IAutoCompletionInfo | null, a: Actions.Action<K>) {
+export function autoCompletionReducer (s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) {
     if (!s) {
         return s
     }
@@ -259,7 +259,7 @@ export function autoCompletionReducer<K extends keyof Config.IConfigValues> (s: 
     }
 }
 
-export function autoCompletionEntryReducer<K extends keyof Config.IConfigValues> (s: Oni.Plugin.CompletionInfo[], action: Actions.Action<K>) {
+export function autoCompletionEntryReducer (s: Oni.Plugin.CompletionInfo[], action: Actions.SimpleAction) {
     switch (action.type) {
         case "SET_AUTO_COMPLETION_DETAILS":
             return s.map((entry) => {
