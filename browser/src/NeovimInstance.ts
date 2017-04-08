@@ -63,8 +63,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _config = Config.instance()
 
-    private _fontFamily: string = this._config.getValue<string>("editor.fontFamily")
-    private _fontSize: string = this._config.getValue<string>("editor.fontSize")
+    private _fontFamily: string = this._config.getValue("editor.fontFamily")
+    private _fontSize: string = this._config.getValue("editor.fontSize")
     private _fontWidthInPixels: number
     private _fontHeightInPixels: number
 
@@ -304,7 +304,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _resizeInternal(rows: number, columns: number): void {
 
         if (this._config.hasValue("debug.fixedSize")) {
-            const fixedSize = this._config.getValue<any>("debug.fixedSize")
+            const fixedSize = this._config.getValue("debug.fixedSize")
             rows = fixedSize.rows
             columns = fixedSize.columns
             console.warn("Overriding screen size based on debug.fixedSize")
@@ -391,7 +391,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 const completions = a[0][0]
                 this.emit("show-popup-menu", completions)
             } else if (command === "bell") {
-                const bellUrl = this._config.getValue<string>("oni.audio.bellUrl")
+                const bellUrl = this._config.getValue("oni.audio.bellUrl")
                 if (bellUrl) {
                     const audio = new Audio(bellUrl)
                     audio.play()
@@ -418,8 +418,8 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
 
     const joinedRuntimePaths = runtimePaths.join(",")
 
-    const shouldLoadInitVim = Config.instance().getValue<boolean>("oni.loadInitVim")
-    const useDefaultConfig = Config.instance().getValue<boolean>("oni.useDefaultConfig")
+    const shouldLoadInitVim = Config.instance().getValue("oni.loadInitVim")
+    const useDefaultConfig = Config.instance().getValue("oni.useDefaultConfig")
 
     const vimRcArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
 

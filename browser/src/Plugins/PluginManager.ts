@@ -40,7 +40,7 @@ export class PluginManager extends EventEmitter {
 
         this._rootPluginPaths.push(corePluginsRoot)
 
-        if (this._config.getValue<boolean>("oni.useDefaultConfig")) {
+        if (this._config.getValue("oni.useDefaultConfig")) {
             this._rootPluginPaths.push(defaultPluginsRoot)
             this._rootPluginPaths.push(path.join(defaultPluginsRoot, "bundle"))
         }
@@ -163,7 +163,7 @@ export class PluginManager extends EventEmitter {
                         return
                     }
                     UI.Actions.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation)
-                }, this._config.getValue<number>("editor.quickInfo.delay"))
+                }, this._config.getValue("editor.quickInfo.delay"))
             } else {
                 setTimeout(() => UI.Actions.hideQuickInfo())
             }
@@ -220,10 +220,10 @@ export class PluginManager extends EventEmitter {
             },
         }, Capabilities.createPluginFilter(this._lastEventContext.filetype, { subscriptions: ["vim-events"] }, false))
 
-        if (eventName === "CursorMoved" && this._config.getValue<boolean>("editor.quickInfo.enabled")) {
+        if (eventName === "CursorMoved" && this._config.getValue("editor.quickInfo.enabled")) {
             this._sendLanguageServiceRequest("quick-info", eventContext)
 
-        } else if (eventName === "CursorMovedI" && this._config.getValue<boolean>("editor.completions.enabled")) {
+        } else if (eventName === "CursorMovedI" && this._config.getValue("editor.completions.enabled")) {
             this._sendLanguageServiceRequest("completion-provider", eventContext)
 
             this._sendLanguageServiceRequest("signature-help", eventContext)

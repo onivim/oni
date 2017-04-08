@@ -2,11 +2,12 @@ import * as State from "./State"
 
 import * as Fuse from "fuse.js"
 
+import * as Config from "./../Config"
 import * as Actions from "./Actions"
 
 import * as _ from "lodash"
 
-export const reducer = (s: State.IState, a: Actions.Action) => {
+export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, a: Actions.Action<K>) {
 
     if (!s) {
         return s
@@ -86,6 +87,13 @@ export const reducer = (s: State.IState, a: Actions.Action) => {
             return Object.assign({}, s, {
                 cursorLineOpacity: a.payload.opacity,
             })
+        case "SET_CONFIGURATION_VALUE":
+            let obj: Partial<Config.IConfigValues> = {}
+            obj[a.payload.key] = a.payload.value
+            let newConfig = Object.assign({}, s.configuration, obj)
+            return Object.assign({}, s, {
+                configuration: newConfig,
+            })
         default:
             return Object.assign({}, s, {
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
@@ -94,7 +102,7 @@ export const reducer = (s: State.IState, a: Actions.Action) => {
     }
 }
 
-export const popupMenuReducer = (s: State.IMenu | null, a: Actions.Action) => {
+export function popupMenuReducer (s: State.IMenu | null, a: Actions.SimpleAction) {
 
     // TODO: sync max display items (10) with value in Menu.render() (Menu.tsx)
     let size = s ? Math.min(10, s.filteredOptions.length) : 0
@@ -227,7 +235,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
     return highlightOptions
 }
 
-export const autoCompletionReducer = (s: State.IAutoCompletionInfo | null, a: Actions.Action) => {
+export function autoCompletionReducer (s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) {
     if (!s) {
         return s
     }
@@ -251,7 +259,7 @@ export const autoCompletionReducer = (s: State.IAutoCompletionInfo | null, a: Ac
     }
 }
 
-export const autoCompletionEntryReducer = (s: Oni.Plugin.CompletionInfo[], action: Actions.Action) => {
+export function autoCompletionEntryReducer (s: Oni.Plugin.CompletionInfo[], action: Actions.SimpleAction) {
     switch (action.type) {
         case "SET_AUTO_COMPLETION_DETAILS":
             return s.map((entry) => {

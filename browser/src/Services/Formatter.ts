@@ -22,7 +22,7 @@ export class Formatter {
         private _bufferUpdates: BufferUpdates,
     ) {
         this._neovimInstance.on("mode-change", (newMode: string) => {
-            if (this._config.getValue<boolean>("editor.formatting.formatOnSwitchToNormalMode")
+            if (this._config.getValue("editor.formatting.formatOnSwitchToNormalMode")
                 && newMode === "normal"
                 && this._lastMode === "insert") {
                 this.formatBuffer()
