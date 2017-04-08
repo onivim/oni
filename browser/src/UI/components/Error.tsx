@@ -27,12 +27,16 @@ export class Errors extends React.Component<IErrorsProps, void> {
             if (this.props.windowContext.isLineInView(e.lineNumber)) {
                 const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
 
+                const xPos = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn).x
                 const yPos = this.props.windowContext.getWindowRegionForLine(e.lineNumber).y - (padding / 2)
                 const isActive = screenLine === this.props.windowContext.getCurrentWindowLine()
 
+                const showTooltipTop = this.props.windowContext.dimensions.height - this.props.windowContext.getWindowLine(e.lineNumber) <= 2
+
                 return <ErrorMarker isActive={isActive}
+                    x={xPos}
                     y={yPos}
-                    height={this.props.windowContext.fontHeightInPixels}
+                    showTooltipTop={showTooltipTop}
                     text={e.text}
                     color={e.color}/>
             } else {
@@ -65,8 +69,9 @@ export class Errors extends React.Component<IErrorsProps, void> {
 }
 
 export interface IErrorMarkerProps {
+    x: number
     y: number
-    height: number
+    showTooltipTop: boolean
     text: string
     isActive: boolean
     color: string
@@ -78,23 +83,40 @@ export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
 
     public render(): JSX.Element {
 
-        const positionDivStyles = {
+        const iconPositionStyles = {
             top: this.props.y.toString() + "px",
         }
+        const textPositionStyles = {
+            left: this.props.x.toString() + "px",
+            // Tooltip below line: use top so text grows downward when text gets longer
+            // Tooltip above line: use bottom so text grows upward
+            top: this.props.showTooltipTop ? "initial" : this.props.y.toString() + "px",
+            bottom: this.props.showTooltipTop ? "calc(100% - " + this.props.y.toString() + "px" : "initial",
+            borderColor: this.props.color,
+        }
 
-        let className = this.props.isActive ? "error-marker active" : "error-marker"
+        const className = [
+            "error",
+            this.props.isActive ? "active" : "",
+            this.props.showTooltipTop ? "top" : "",
+        ].join(" ")
 
-        const errorDescription = this.config.getValue("editor.errors.slideOnFocus") ? (<div className="error">
-            <div className="text">
-                {this.props.text}
-            </div>
-        </div>) : null
-
-        return <div style={positionDivStyles} className={className}>
-            {errorDescription}
+        // TODO change editor.errors.slideOnFocus name
+        const errorDescription = this.config.getValue("editor.errors.slideOnFocus") ? (
+            <div className={className} style={textPositionStyles}>
+                <div className="text">
+                    {this.props.text}
+                </div>
+            </div>) : null
+        const errorIcon = <div style={iconPositionStyles} className="error-marker">
             <div className="icon-container" style={{color: this.props.color}}>
                 <Icon name="exclamation-circle" />
             </div>
+        </div>
+
+        return <div>
+         {errorDescription}
+         {errorIcon}
         </div>
     }
 }
