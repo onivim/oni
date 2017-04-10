@@ -203,8 +203,7 @@ class Config extends EventEmitter {
             try {
                 userRuntimeConfig = global["require"](this.userJsConfig) // tslint:disable-line no-string-literal
             } catch (e) {
-                // TODO: display this error to the user somehow
-                console.log("Failed to parse " + this.userJsConfig + ": " + (<Error>e).message) // tslint:disable-line no-console
+                alert("Failed to parse " + this.userJsConfig + ":\n" + (<Error>e).message)
             }
         }
         this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfig }
