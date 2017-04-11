@@ -18,13 +18,15 @@ shelljs.cp(sourceFile, destFile)
 const packageJsonContents = fs.readFileSync(path.join(__dirname, "..", "package.json"))
 const packageMeta = JSON.parse(packageJsonContents)
 const { version, name } = packageMeta
+const prodName = packageMeta.build.productName
 
 // Replace template variables
 
 const valuesToReplace = {
     "AppName": name,
+    "ProdName": prodName,
     "AppExecutableName": `${name}.exe`,
-    "AppSetupExecutableName": `Oni-${version}-ia32-win`,
+    "AppSetupExecutableName": `${prodName}-${version}-ia32-win`,
     "Version": version,
     "SourcePath": path.join(__dirname, "..", "dist", "win-ia32-unpacked", "*"),
     "WizardImageFilePath": path.join(__dirname, "..", "images", "setup", "Oni_128.bmp"),
