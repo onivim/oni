@@ -1,15 +1,26 @@
 import * as React from "react"
 
+import { connect } from "react-redux"
 import { AutoCompletionContainer } from "./components/AutoCompletion"
 import { Cursor } from "./components/Cursor"
 import { CursorLine } from "./components/CursorLine"
+import { InstallHelp } from "./components/InstallHelp"
 import { MenuContainer } from "./components/Menu"
 import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
+import * as State from "./State"
 
-export class RootComponent extends React.Component<void, void> {
+interface IRootComponentProps {
+    showNeovimInstallHelp: boolean
+}
+
+export class RootComponentRenderer extends React.Component<IRootComponentProps, void> {
     public render() {
 
-        return <div className="ui-overlay">
+        return this.props.showNeovimInstallHelp ?
+        <div className="ui-overlay">
+          <InstallHelp />
+        </div> :
+        <div className="ui-overlay">
             <Cursor />
             <CursorLine lineType={"line"} />
             <CursorLine lineType={"column"} />
@@ -21,3 +32,11 @@ export class RootComponent extends React.Component<void, void> {
         </div>
     }
 }
+
+const mapStateToProps = (state: State.IState): IRootComponentProps => {
+    return {
+        showNeovimInstallHelp: state.showNeovimInstallHelp,
+    }
+}
+
+export const RootComponent = connect(mapStateToProps)(RootComponentRenderer)
