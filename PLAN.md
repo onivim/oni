@@ -1,18 +1,20 @@
 ## Next
-- Hook up code completion
-- Hook up incremental buffer update - validate with quick info
+- Find all references
+- Signature Help
+- Errors
 - Create constants - does vscode-langserver-types have constants for the notifications?
+- Clean up code
+    - Replace 'any' types
+    - Rationalize the `Thenable`s returned by the vscode types
+
 - Set up lifecycle when switching between projects - create / shutdown
 - Refactor to use function for creating initialization params
 
 - Validate QuickInfo across multiple projects - LSP close / open based on root directory
 
-- Refactor to a common place / function
-    - Something like `Oni.createLanguageServerClient({ ...serverOptions})`
-    - Expose dispose method on returned object so it can be closed on deactivation
-
 - Defer activation of plugin until a relevant file is opened
-- Validate only single instance of plugin is receiving updates (ensure no perf regressions)
+- Validate performance
+    - Validate only single instance of plugin is receiving updates (ensure no perf regressions)
 
 ## Longer term / Future work
 - Set up status bar to show LSP status
