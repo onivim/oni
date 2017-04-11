@@ -13,33 +13,8 @@
 
     &.active {
         opacity: 0.8;
-
-        .error {
-            left: 0px;
-            opacity: 1;
-        }
     }
 
-    .error {
-        opacity: 0;
-        flex: 1 1 auto;
-        transition: all 0.5s;
-        position: absolute;
-        left: 200px;
-        background-color: rgb(60, 60, 60);
-        width: 100%;
-
-        .text {
-            font-size: 10px;
-            color: @text-color;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            text-align: center;
-            padding-right: @errorMarkerSize;
-            padding-top: 3px;
-            padding-bottom: 2px;
-        }
-    }
 
     .icon-container {
         position: absolute;
@@ -54,4 +29,46 @@
 
 .error-squiggle {
     position: absolute;
+}
+
+.error {
+    opacity: 0;
+    flex: 1 1 auto;
+    transition: opacity 0.2s;
+    position: absolute;
+    background-color: @background-color;
+    box-shadow: 3px 3px @shadow-color;
+    border-left: 7px solid;
+    padding: 6px;
+    margin-top: 31px;
+    opacity: 0px;
+    max-width: 400px;
+
+    .text {
+        font-size: 10px;
+        color: @text-color;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+    &:before{
+        content: "";
+        position: absolute;
+        left: -7px;
+        top: -7px;
+        border: 4px solid;
+        border-top-color: transparent;
+        border-right-color: transparent;
+        border-bottom-color: inherit;
+        border-left-color: inherit;
+    }
+}
+.error.top:before{
+    top: initial;
+    bottom: -7px;
+    border-top-color: inherit;
+    border-bottom-color: transparent;
+    margin-top: -31px;
+}
+.error.active{
+    opacity: 1;
 }
