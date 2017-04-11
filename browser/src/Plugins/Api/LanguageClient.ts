@@ -8,6 +8,8 @@
 import * as os from "os"
 
 import * as rpc from "vscode-jsonrpc"
+import * as types from "vscode-languageserver-types"
+
 import { exec, ChildProcess } from "child_process"
 
 import { Oni } from "./Oni"
@@ -67,9 +69,14 @@ export class LanguageClient {
             return this._enqueuePromise(() => this._getDefinition(textDocumentPosition))
         }
 
+        const getCompletions = (textDocumentPosition: Oni.EventContext) => {
+            return this._enqueuePromise(() => this._getCompletions(textDocumentPosition))
+        }
+
         this._oni.registerLanguageService({
-            getQuickInfo,
+            getCompletions,
             getDefinition,
+            getQuickInfo,
         })
     }
 
@@ -129,6 +136,77 @@ export class LanguageClient {
             })
     }
 
+    private _getCompletions(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.CompletionResult> {
+
+        return <any>this._connection.sendRequest("textDocument/completion", {
+            textDocument: {
+                uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath),
+            },
+            position: {
+                line: textDocumentPosition.line - 1,
+                character: textDocumentPosition.column - 1
+            }
+        }).then((result: types.CompletionList) => {
+            const completions = result.items.map((i) => ({
+                label: i.label,
+                detail: i.detail,
+                documentation: i.documentation,
+                kind: this._mapCompletionKind(i.kind)
+            }))
+            // debugger
+            return {
+                base: "",
+                completions 
+            }
+        })
+    }
+
+    private _mapCompletionKind(kind?: types.CompletionItemKind): string {
+
+        if (!kind) {
+            return null
+        }
+
+        switch(kind) {
+            case types.CompletionItemKind.Text:
+                return "text"
+            case types.CompletionItemKind.Method:
+                return "method"
+            case types.CompletionItemKind.Function:
+                return "function"
+            case types.CompletionItemKind.Constructor:
+                return "constructor"
+            case types.CompletionItemKind.Variable:
+            case types.CompletionItemKind.Field:
+                return "var"
+            case types.CompletionItemKind.Class:
+                return "type"
+            case types.CompletionItemKind.Interface:
+                return "interface"
+            case types.CompletionItemKind.Module:
+                return "module"
+            case types.CompletionItemKind.Property:
+                return "property"
+            case types.CompletionItemKind.Unit:
+                return "unit"
+            case types.CompletionItemKind.Value:
+                return "const"
+            case types.CompletionItemKind.Enum:
+                return "type"
+            case types.CompletionItemKind.Keyword:
+                return "keyword"
+            case types.CompletionItemKind.Snippet:
+                return null
+            case types.CompletionItemKind.Color:
+                return "color"
+            case types.CompletionItemKind.File:
+                return "file"
+            case types.CompletionItemKind.Reference:
+                return "module"
+            default:
+                return null
+        }
+    }
 
     private _getQuickInfo(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.QuickInfo> {
         return <any>this._connection.sendRequest("textDocument/hover", {
