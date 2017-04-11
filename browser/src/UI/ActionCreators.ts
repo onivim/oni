@@ -186,7 +186,7 @@ export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Co
     }
 }
 
-export const showNeovimInstallHelp = (): Actions.IShowNeovimInstallHelp => ({
+export const showNeovimInstallHelp = (): Actions.IShowNeovimInstallHelpAction => ({
     type: "SHOW_NEOVIM_INSTALL_HELP",
 })
 
