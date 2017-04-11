@@ -49,6 +49,7 @@ export class LanguageClient {
     private _connection: rpc.MessageConnection
     private _process: ChildProcess
     private _currentOpenDocumentPath: string
+    private _currentBuffer: string[] = []
 
     constructor(
         private _startCommand: string,
@@ -59,6 +60,10 @@ export class LanguageClient {
 
         this._oni.on("buffer-update", (args: any) => {
             return this._enqueuePromise(() => this._onBufferUpdate(args))
+        })
+
+        this._oni.on("buffer-update-incremental", (args: any) => {
+            return this._enqueuePromise(() => this._onBufferUpdateIncremental(args))
         })
 
         const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
@@ -248,11 +253,37 @@ export class LanguageClient {
 
     }
 
+    private _onBufferUpdateIncremental(args: any): Promise<void> {
+        if (!args.eventContext.bufferFullPath) {
+            return Promise.resolve(null)
+        }
+
+        const changedLine = args.bufferLine
+        const lineNumber = args.lineNumber
+
+        const previousBufferLength = this._currentBuffer[lineNumber - 1].length
+
+        this._currentBuffer[lineNumber - 1] = changedLine
+
+        return <any>this._connection.sendNotification("textDocument/didChange", {
+            textDocument: {
+                uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
+                version: args.eventContext.version
+            },
+            contentChanges: [{
+                range: types.Range.create(lineNumber - 1, 0, lineNumber - 1, previousBufferLength),
+                text: changedLine
+            }]
+        })
+    }
+
     // TODO: Type for this args
     private _onBufferUpdate(args: any): Promise<void> {
         const lines = args.bufferLines
         const { bufferFullPath, filetype, version } = args.eventContext
         const text = lines.join(os.EOL)
+
+        this._currentBuffer = lines
 
         if (this._currentOpenDocumentPath !== bufferFullPath) {
             this._currentOpenDocumentPath = bufferFullPath
