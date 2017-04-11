@@ -176,7 +176,7 @@ export const setCursorColumnOpacity = (opacity: number) => ({
     },
 })
 
-export function setConfigurationValue<K extends keyof Config.IConfigValues>(k: K, v: Config.IConfigValues[K]): Actions.ISetConfigurationValue<K> {
+export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Config.IConfigValues[K]): Actions.ISetConfigurationValue<K> {
     return {
         type: "SET_CONFIGURATION_VALUE",
         payload: {
