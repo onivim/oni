@@ -35,6 +35,9 @@ export class LanguageClientLogger {
 }
 
 const wrapPathInFileUri = (path: string) => "file:///" + path
+
+const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split("file:///")[1])
+
 /**
  * Implementation of a client that talks to a server 
  * implement the Language Server Protocol
@@ -60,8 +63,13 @@ export class LanguageClient {
             return this._enqueuePromise(() => this._getQuickInfo(textDocumentPosition))
         }
 
+        const getDefinition = (textDocumentPosition: Oni.EventContext) => {
+            return this._enqueuePromise(() => this._getDefinition(textDocumentPosition))
+        }
+
         this._oni.registerLanguageService({
             getQuickInfo,
+            getDefinition,
         })
     }
 
@@ -125,7 +133,7 @@ export class LanguageClient {
     private _getQuickInfo(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.QuickInfo> {
         return <any>this._connection.sendRequest("textDocument/hover", {
             textDocument: {
-                uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath)
+                uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath),
             },
             position: {
                 line: textDocumentPosition.line - 1,
@@ -138,6 +146,28 @@ export class LanguageClient {
 
             return { title: result.contents.trim(), description: "" }
         })
+    }
+
+    private _getDefinition(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.GotoDefinitionResponse> {
+
+        // TODO: Refactor the params
+        return <any>this._connection.sendRequest("textDocument/definition", {
+            textDocument: {
+                uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath),
+            },
+            position: {
+                line: textDocumentPosition.line - 1,
+                character: textDocumentPosition.column - 1
+            }
+        }).then((result: any) => {
+            const startPos = result.range.start || result.range.end
+            return {
+                filePath: unwrapFileUriPath(result.uri),
+                line: startPos.line + 1,
+                column: startPos.character + 1,
+            }
+        })
+
     }
 
     // TODO: Type for this args

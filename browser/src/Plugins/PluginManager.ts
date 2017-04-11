@@ -175,7 +175,7 @@ export class PluginManager extends EventEmitter {
             // TODO: Refactor to 'Service', break remaining NeoVim dependencies
             const { filePath, line, column } = pluginResponse.payload
             this._neovimInstance.command("e! " + filePath)
-            this._neovimInstance.command("keepjumps norm " + line + "G" + column)
+            this._neovimInstance.command(`cal cursor(${line}, ${column})`)
             this._neovimInstance.command("norm zz")
         } else if (pluginResponse.type === "completion-provider") {
             if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
