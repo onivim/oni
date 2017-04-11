@@ -34,7 +34,7 @@ const enhancer = composeEnhancers(
 
 const store = createStore(reducer, defaultState, enhancer)
 
-export const Actions = bindActionCreators(ActionCreators as any, store.dispatch)
+export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators as any, store.dispatch)
 
 // TODO: Is there a helper utility like `bindActionCreators`, but for selectors?
 export const Selectors = {

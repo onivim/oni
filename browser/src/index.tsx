@@ -105,7 +105,7 @@ const start = (args: string[]) => {
     overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
     overlayManager.addOverlay("scrollbar", scrollbarOverlay)
 
-    overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.Actions.setActiveWindowDimensionsChanged(dimensionsInPixels))
+    overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.Actions.setActiveWindowDimensions(dimensionsInPixels))
 
     pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
         if (err) {
@@ -252,7 +252,8 @@ const start = (args: string[]) => {
         cursorColumn = config.getValue("editor.cursorColumn")
 
         let newConfigValues = config.getValues()
-        for (let prop in newConfigValues) {
+        let prop: keyof Config.IConfigValues
+        for (prop in newConfigValues) {
             if (!_.isEqual(newConfigValues[prop], prevConfigValues[prop])) {
                 UI.Actions.setConfigValue(prop, newConfigValues[prop])
             }
