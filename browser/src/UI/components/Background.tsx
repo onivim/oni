@@ -1,24 +1,24 @@
 import * as React from "react"
 
 import { connect } from "react-redux"
-import * as Config from "./../../Config"
 import * as State from "./../State"
 
 export interface IBackgroundProps {
     backgroundColor: string
+    backgroundImageUrl: string
+    backgroundImageSize: string
+    backgroundOpacity: number
 }
 
 export class BackgroundRenderer extends React.Component<IBackgroundProps, void> {
-    private config = Config.instance()
-
     public render(): JSX.Element {
         const imageStyle = {
-            backgroundImage: "url(" + this.config.getValue<string>("editor.backgroundImageUrl") + ")",
-            backgroundSize: this.config.getValue<string>("editor.backgroundImageSize") || "cover",
+            backgroundImage: "url(" + this.props.backgroundImageUrl + ")",
+            backgroundSize: this.props.backgroundImageSize || "cover",
         }
         const coverStyle = {
             backgroundColor: this.props.backgroundColor,
-            opacity: this.config.getValue<number>("editor.backgroundOpacity"),
+            opacity: this.props.backgroundOpacity,
         }
 
         return <div>
@@ -28,9 +28,13 @@ export class BackgroundRenderer extends React.Component<IBackgroundProps, void> 
     }
 }
 
-const mapStateToProps = (state: State.IState) => {
+const mapStateToProps = (state: State.IState): IBackgroundProps => {
+    let conf = state.configuration
     return {
         backgroundColor: state.backgroundColor,
+        backgroundImageUrl: State.readConf(conf, "editor.backgroundImageUrl"),
+        backgroundImageSize: State.readConf(conf, "editor.backgroundImageSize"),
+        backgroundOpacity: State.readConf(conf, "editor.backgroundOpacity"),
     }
 }
 

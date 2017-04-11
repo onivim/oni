@@ -1,7 +1,6 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import * as Config from "./../../Config"
 import * as State from "./../State"
 
 export interface ICursorProps {
@@ -12,18 +11,18 @@ export interface ICursorProps {
     mode: string
     color: string
     character: string
+    fontFamily: string
+    fontSize: string
 }
 
 require("./Cursor.less") // tslint:disable-line no-var-requires
 
 class CursorRenderer extends React.Component<ICursorProps, void> {
 
-    private config = Config.instance()
-
     public render(): JSX.Element {
 
-        const fontFamily = this.config.getValue<string>("editor.fontFamily")
-        const fontSize = this.config.getValue<string>("editor.fontSize")
+        const fontFamily = this.props.fontFamily
+        const fontSize = this.props.fontSize
 
         const isNormalMode = this.props.mode === "normal"
         const width = isNormalMode ? this.props.width : this.props.width / 4
@@ -45,7 +44,7 @@ class CursorRenderer extends React.Component<ICursorProps, void> {
     }
 }
 
-const mapStateToProps = (state: State.IState) => {
+const mapStateToProps = (state: State.IState): ICursorProps => {
     return {
         x: state.cursorPixelX,
         y: state.cursorPixelY,
@@ -54,6 +53,8 @@ const mapStateToProps = (state: State.IState) => {
         mode: state.mode,
         color: state.foregroundColor,
         character: state.cursorCharacter,
+        fontFamily: State.readConf(state.configuration, "editor.fontFamily"),
+        fontSize: State.readConf(state.configuration, "editor.fontSize"),
     }
 }
 

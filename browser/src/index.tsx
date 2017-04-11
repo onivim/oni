@@ -32,6 +32,8 @@ import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
 import { Tasks } from "./Services/Tasks"
 import { WindowTitle } from "./Services/WindowTitle"
 
+import * as _ from "lodash"
+
 import * as UI from "./UI/index"
 import { ErrorOverlay } from "./UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./UI/Overlay/LiveEvaluationOverlay"
@@ -243,12 +245,22 @@ const start = (args: string[]) => {
     }
 
     const config = Config.instance()
+    let prevConfigValues = config.getValues()
 
     const configChange = () => {
-        cursorLine = config.getValue<boolean>("editor.cursorLine")
-        cursorColumn = config.getValue<boolean>("editor.cursorColumn")
-        UI.Actions.setCursorLineOpacity(config.getValue<number>("editor.cursorLineOpacity"))
-        UI.Actions.setCursorColumnOpacity(config.getValue<number>("editor.cursorColumnOpacity"))
+        cursorLine = config.getValue("editor.cursorLine")
+        cursorColumn = config.getValue("editor.cursorColumn")
+
+        let newConfigValues = config.getValues()
+        for (let prop in newConfigValues) {
+            if (!_.isEqual(newConfigValues[prop], prevConfigValues[prop])) {
+                UI.Actions.setConfigValue(prop, newConfigValues[prop])
+            }
+        }
+        prevConfigValues = newConfigValues
+
+        UI.Actions.setCursorLineOpacity(config.getValue("editor.cursorLineOpacity"))
+        UI.Actions.setCursorColumnOpacity(config.getValue("editor.cursorColumnOpacity"))
 
         if (cursorLine) {
             UI.Actions.showCursorLine()
@@ -259,19 +271,19 @@ const start = (args: string[]) => {
         }
 
         const window = remote.getCurrentWindow()
-        const hideMenu: boolean = config.getValue<boolean>("oni.hideMenu")
+        const hideMenu: boolean = config.getValue("oni.hideMenu")
         window.setAutoHideMenuBar(hideMenu)
         window.setMenuBarVisibility(!hideMenu)
 
-        const loadInit: boolean = config.getValue<boolean>("oni.loadInitVim")
+        const loadInit: boolean = config.getValue("oni.loadInitVim")
         if (loadInit !== loadInitVim) {
             ipcRenderer.send("rebuild-menu", loadInit)
             // don't rebuild menu unless oni.loadInitVim actually changed
             loadInitVim = loadInit
         }
 
-        window.setFullScreen(config.getValue<boolean>("editor.fullScreenOnStart"))
-        instance.setFont(config.getValue<string>("editor.fontFamily"), config.getValue<string>("editor.fontSize"))
+        window.setFullScreen(config.getValue("editor.fullScreenOnStart"))
+        instance.setFont(config.getValue("editor.fontFamily"), config.getValue("editor.fontSize"))
         updateFunction()
     }
     configChange() // initialize values

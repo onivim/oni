@@ -7,6 +7,7 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
+import * as Config from "./../Config"
 import { Rectangle } from "./Types"
 
 export interface ISetCursorPositionAction {
@@ -148,7 +149,19 @@ export interface ISetCursorColumnOpacityAction {
     }
 }
 
-export type Action = ISetCursorPositionAction |
+export interface ISetConfigurationValue<K extends keyof Config.IConfigValues> {
+    type: "SET_CONFIGURATION_VALUE"
+    payload: {
+        key: K,
+        value: Config.IConfigValues[K],
+    }
+}
+
+export type Action<K extends keyof Config.IConfigValues> =
+    SimpleAction | ActionWithGeneric<K>
+
+export type SimpleAction =
+    ISetCursorPositionAction |
     IShowSignatureHelpAction |
     IHideSignatureHelpAction |
     IShowQuickInfoAction |
@@ -172,3 +185,6 @@ export type Action = ISetCursorPositionAction |
     IShowCursorColumnAction |
     ISetCursorColumnOpacityAction |
     ISetCursorLineOpacityAction
+
+export type ActionWithGeneric<K extends keyof Config.IConfigValues> =
+    ISetConfigurationValue<K>
