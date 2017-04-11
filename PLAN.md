@@ -1,5 +1,4 @@
 ## Next
-- Hook up goto definition
 - Hook up code completion
 - Hook up incremental buffer update - validate with quick info
 - Create constants - does vscode-langserver-types have constants for the notifications?
