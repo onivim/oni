@@ -157,6 +157,10 @@ export interface ISetConfigurationValue<K extends keyof Config.IConfigValues> {
     }
 }
 
+export interface IShowNeovimInstallHelpAction {
+    type: "SHOW_NEOVIM_INSTALL_HELP"
+}
+
 export type Action<K extends keyof Config.IConfigValues> =
     SimpleAction | ActionWithGeneric<K>
 
@@ -184,7 +188,8 @@ export type SimpleAction =
     IShowCursorLineAction |
     IShowCursorColumnAction |
     ISetCursorColumnOpacityAction |
-    ISetCursorLineOpacityAction
+    ISetCursorLineOpacityAction |
+    IShowNeovimInstallHelpAction
 
 export type ActionWithGeneric<K extends keyof Config.IConfigValues> =
     ISetConfigurationValue<K>

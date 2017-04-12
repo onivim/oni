@@ -21,6 +21,7 @@ export interface IState {
     cursorColumnVisible: boolean
     cursorColumnOpacity: number
     configuration: Config.IConfigValues
+    showNeovimInstallHelp: boolean
 
     // Dimensions of active window, in pixels
     activeWindowDimensions: Rectangle
@@ -82,5 +83,6 @@ export const createDefaultState = (): IState => ({
     cursorColumnVisible: false,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
+    showNeovimInstallHelp: false,
     configuration: Config.instance().getValues(),
 })
