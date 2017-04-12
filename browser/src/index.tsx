@@ -6,7 +6,7 @@
 
 /// <reference path="./../../definitions/Oni.d.ts" />
 
-import { ipcRenderer, remote } from "electron"
+import { ipcRenderer, remote } from "electron";
 import * as minimist from "minimist"
 import * as path from "path"
 import * as Config from "./Config"

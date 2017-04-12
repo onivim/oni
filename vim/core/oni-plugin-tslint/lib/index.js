@@ -10,6 +10,7 @@ const tslintExecutable = isWindows ? "tslint.cmd" : "tslint"
 const tslintPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", ".bin", tslintExecutable)
 
 let lastErrors = {}
+let lastArgs = null
 
 const activate = (Oni) => {
 
@@ -39,10 +40,12 @@ const activate = (Oni) => {
             })
     }
 
-    const doLintForProject = (args) => {
+    const doLintForProject = (args, additionalArgs) => {
         if (!args.bufferFullPath) {
             return
         }
+
+        lastArgs = args
 
         const currentWorkingDirectory = getCurrentWorkingDirectory(args)
         const tslint = getLintConfig(currentWorkingDirectory)
@@ -59,6 +62,10 @@ const activate = (Oni) => {
             processArgs.push("--project", path.join(project, "tsconfig.json"))
         } else {
             processArgs.push(arg.bufferFullPath)
+        }
+
+        if (additionalArgs) {
+            processArgs = additionalArgs.concat(processArgs)
         }
 
         executeTsLint(tslint, processArgs, currentWorkingDirectory)
@@ -81,6 +88,10 @@ const activate = (Oni) => {
 
     Oni.on("buffer-saved", doLintForFile)
     Oni.on("buffer-enter", doLintForProject)
+
+    Oni.commands.registerCommand("tslint.fix", (args) => {
+        doLintForProject(lastArgs, ["--fix"])
+    })
 
     function executeTsLint(configPath, args, workingDirectory) {
 
