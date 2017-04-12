@@ -7,6 +7,7 @@
 
 import * as os from "os"
 
+import * as _ from "lodash"
 import * as rpc from "vscode-jsonrpc"
 import * as types from "vscode-languageserver-types"
 
@@ -41,6 +42,14 @@ const wrapPathInFileUri = (path: string) => "file:///" + path
 const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split("file:///")[1])
 
 /**
+ * Function that takes an event (buffer-open event) and returns a language params
+ * This should always return the same value for a particular file.
+ */
+export interface InitializationParamsCreator {
+    (filePath: string): Promise<LanguageClientInitializationParams>
+}
+
+/**
  * Implementation of a client that talks to a server 
  * implement the Language Server Protocol
  */
@@ -50,13 +59,39 @@ export class LanguageClient {
     private _process: ChildProcess
     private _currentOpenDocumentPath: string
     private _currentBuffer: string[] = []
+    private _initializationParams: LanguageClientInitializationParams
 
     constructor(
         private _startCommand: string,
-        private _initializationParams: LanguageClientInitializationParams,
+        private _initializationParamsCreator: InitializationParamsCreator,
         private _oni: Oni) {
 
         this._currentPromise = Promise.resolve(null)
+
+        this._oni.on("buffer-enter", (args: Oni.EventContext) => {
+            this._enqueuePromise(() => {
+                return this._initializationParamsCreator(args.bufferFullPath)
+                        .then((newParams: LanguageClientInitializationParams) => {
+
+                            if(!this._initializationParams) {
+                                this._initializationParams = newParams
+                                return this.start(newParams)
+                            }
+
+                            if(!_.isEqual(this._initializationParams, newParams)) {
+
+                                // TODO: Close / dispose existing instance
+                                return this.end()
+                                        .then(() => this.start(newParams))
+                            }
+
+                            return null
+                        })
+
+            })
+
+
+        })
 
         this._oni.on("buffer-update", (args: any) => {
             return this._enqueuePromise(() => this._onBufferUpdate(args))
@@ -85,7 +120,7 @@ export class LanguageClient {
         })
     }
 
-    public start(): Promise<any> {
+    public start(initializationParams: LanguageClientInitializationParams): Promise<any> {
 
         return <any>this._enqueuePromise(() => {
             // TODO: Pursue alternate connection mechanisms besides stdio - maybe Node IPC?
@@ -119,8 +154,19 @@ export class LanguageClient {
             // Register additional notifications here
             this._connection.listen()
 
-            return <any>this._connection.sendRequest("initialize", this._initializationParams)
+            return <any>this._connection.sendRequest("initialize", initializationParams)
         }, false)
+    }
+
+    public end(): Promise<void> {
+        return <any>this._enqueuePromise(() => {
+            console.warn("Closing current document service connection")
+            this._connection.dispose()
+
+            this._connection = null
+            this._currentOpenDocumentPath = null
+            return null
+        })
     }
 
     private _enqueuePromise<T>(functionThatReturnsPromise: () => Promise<T>, requireConnection: boolean = true): Promise<T> {
