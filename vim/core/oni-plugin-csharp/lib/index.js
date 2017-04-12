@@ -1,8 +1,8 @@
+const fs = require("fs")
 const path = require("path")
 const childProcess = require("child_process")
 
-const fs = require("fs")
-
+const _ = require("lodash")
 const rpc = require("vscode-jsonrpc")
 
 const activate = (Oni) => {
@@ -12,13 +12,48 @@ const activate = (Oni) => {
     const execCommand = `node "${omniSharpLangServerPath}"`
 
     const client = Oni.createLanguageClient(execCommand, (filePath) => {
-            return Promise.resolve({
-            rootPath: "C:/test/dotnet-core",
-            capabilities: {
-                highlightProvider: true
+        return getRootProjectFileAsync(path.dirname(filePath))
+            .then((csprojPath) => {
+                return {
+                    rootPath: csprojPath,
+                    capabilities: {
+                        highlightProvider: true
+                    }
+                }
+            })
+    })
+}
+
+const getFilesForDirectoryAsync = (fullPath) => {
+    return new Promise((resolve, reject) => {
+        fs.readdir(fullPath, (err, files) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(files)
             }
         })
     })
+}
+
+const getRootProjectFileAsync = (fullPath) => {
+
+    const parentDir = path.dirname(fullPath)
+
+    if (parentDir === fullPath) {
+        return Promise.reject("Unable to find root csproj file")
+    }
+
+    return getFilesForDirectoryAsync(fullPath)
+        .then((files) => {
+            const proj = _.find(files, (f) => f.indexOf(".csproj") >= 0)
+
+            if (proj) {
+                return fullPath
+            } else {
+                return getRootProjectFileAsync(path.dirname(fullPath))
+            }
+        })
 }
 
 module.exports = {
