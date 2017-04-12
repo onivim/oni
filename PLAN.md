@@ -1,20 +1,26 @@
 ## Next
-- Find all references
-- Signature Help
+- Remove hard coded path - test with switching between two different C# projects
+    - Validate shutdown path
 - Errors
 - Create constants - does vscode-langserver-types have constants for the notifications?
 - Clean up code
+    - Add typing for the buffer events coming from Oni
     - Replace 'any' types
     - Rationalize the `Thenable`s returned by the vscode types
 
-- Set up lifecycle when switching between projects - create / shutdown
 - Refactor to use function for creating initialization params
 
 - Validate QuickInfo across multiple projects - LSP close / open based on root directory
 
-- Defer activation of plugin until a relevant file is opened
 - Validate performance
     - Validate only single instance of plugin is receiving updates (ensure no perf regressions)
+
+## Blocking issue
+- Defer activation of plugin until relevant file is opened
+
+## Separate issues
+- Find all references
+- Signature Help
 
 ## Longer term / Future work
 - Set up status bar to show LSP status
