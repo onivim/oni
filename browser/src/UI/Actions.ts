@@ -156,6 +156,12 @@ export interface ISetConfigurationValue<K extends keyof Config.IConfigValues> {
         value: Config.IConfigValues[K],
     }
 }
+export interface IToggleNotificationFold {
+    type: "TOGGLE_NOTIFICATION_FOLD"
+    payload: {
+        index: number,
+    }
+}
 
 export interface IShowNeovimInstallHelpAction {
     type: "SHOW_NEOVIM_INSTALL_HELP"
@@ -189,7 +195,8 @@ export type SimpleAction =
     IShowCursorColumnAction |
     ISetCursorColumnOpacityAction |
     ISetCursorLineOpacityAction |
-    IShowNeovimInstallHelpAction
+    IShowNeovimInstallHelpAction |
+    IToggleNotificationFold
 
 export type ActionWithGeneric<K extends keyof Config.IConfigValues> =
     ISetConfigurationValue<K>

@@ -6,6 +6,7 @@ import { Cursor } from "./components/Cursor"
 import { CursorLine } from "./components/CursorLine"
 import { InstallHelp } from "./components/InstallHelp"
 import { MenuContainer } from "./components/Menu"
+import { Notifications } from "./components/Notifications"
 import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
 import * as State from "./State"
 
@@ -29,6 +30,7 @@ export class RootComponentRenderer extends React.Component<IRootComponentProps, 
             <SignatureHelpContainer />
             <MenuContainer />
             <AutoCompletionContainer />
+            <Notifications />
         </div>
     }
 }

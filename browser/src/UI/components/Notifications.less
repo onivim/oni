@@ -1,0 +1,87 @@
+@import (reference) "./common.less";
+
+@icon-size: 30px;
+@font-family-monospace: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+
+@component-padding: 10px;
+@border-color: rgb(25, 25, 25);
+// @font-family-monospace: 
+
+@text-color-info: #6494ed;
+@text-color-success: #73c990;
+@text-color-warning: #e2c08d;
+@text-color-error: #fd6247;
+
+@background-color-info: #0098ff;
+@background-color-success: #17ca65;
+@background-color-warning: #ff4800;
+@background-color-error: #c00;
+
+@background-color-lighter: #3a3e44;
+
+.notification-logs {
+    background: @background-color;
+    position: fixed;
+    width: 100%;
+    bottom: 0px;
+    font-size: 13px;
+
+    display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    table {
+        width: 100%;
+        border-spacing: 0px;
+        border-collapse: collapse;
+        table-layout: fixed;
+        td{
+            border: 1px solid @border-color;
+        }
+    }
+
+    .notification-unfold-icon{
+        color: @text-color;
+        margin-left: @component-padding/2;
+    }
+
+    .notification-logs-header, .notification-details{
+        background-color: @background-color-lighter;
+        color: @text-color;
+        padding: @component-padding/2 @component-padding;
+        border-top: 1px solid @border-color;
+    }
+
+    .notification-icon{
+        width: @icon-size;
+        height: 100%;
+        text-align: center;
+        padding-top: @component-padding/2;
+    }
+    .notification-message{
+        padding: @component-padding/2 @component-padding;
+        outline: none;
+    }
+
+    .notification-detail-line {
+        white-space: pre;
+        // font-family: @font-family-monospace;
+    }
+
+    .clickable{
+        cursor: pointer;
+    }
+
+    .notification-fatal, .notification-error {
+        color: @text-color-error;
+    }
+    .notification-success {
+        color: @text-color-success;
+    }
+    .notification-info {
+        color: @text-color-info;
+    }
+    .notification-warning {
+        color: @text-color-warning;
+    }
+}

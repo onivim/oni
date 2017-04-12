@@ -185,6 +185,10 @@ export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Co
         },
     }
 }
+export const toggleNotificationFold = (index: number): Actions.IToggleNotificationFold => ({
+    type: "TOGGLE_NOTIFICATION_FOLD",
+    payload: {index},
+})
 
 export const showNeovimInstallHelp = (): Actions.IShowNeovimInstallHelpAction => ({
     type: "SHOW_NEOVIM_INSTALL_HELP",
