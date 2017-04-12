@@ -13,19 +13,12 @@ import * as State from "./State"
 import * as ActionCreators from "./ActionCreators"
 import { reducer } from "./Reducer"
 
-import { InstallHelp } from "./components/InstallHelp"
-
 import * as Events from "./Events"
 import * as UnboundSelectors from "./Selectors"
 
 export const events = Events.events
 
 let defaultState = State.createDefaultState()
-
-export function showNeovimInstallHelp(): void {
-    const element = document.getElementById("overlay-ui")
-    ReactDOM.render(<InstallHelp />, element)
-}
 
 const composeEnhancers = window["__REDUX_DEVTOOLS_EXTENSION__COMPOSE__"] || compose // tslint:disable-line no-string-literal
 const enhancer = composeEnhancers(

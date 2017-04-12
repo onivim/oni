@@ -171,7 +171,7 @@ const start = (args: string[]) => {
     })
 
     instance.on("error", (_err: string) => {
-        UI.showNeovimInstallHelp()
+        UI.Actions.showNeovimInstallHelp()
     })
 
     instance.on("buffer-update", (context: any, lines: string[]) => {

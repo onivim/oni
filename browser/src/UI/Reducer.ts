@@ -94,6 +94,10 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
             return Object.assign({}, s, {
                 configuration: newConfig,
             })
+        case "SHOW_NEOVIM_INSTALL_HELP":
+            return Object.assign({}, s, {
+                showNeovimInstallHelp: true,
+            })
         default:
             return Object.assign({}, s, {
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
