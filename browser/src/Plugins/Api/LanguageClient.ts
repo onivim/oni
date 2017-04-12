@@ -88,9 +88,7 @@ export class LanguageClient {
                             return null
                         })
 
-            })
-
-
+            }, false)
         })
 
         this._oni.on("buffer-update", (args: any) => {

@@ -11,10 +11,12 @@ const activate = (Oni) => {
 
     const execCommand = `node "${omniSharpLangServerPath}"`
 
-    const client = Oni.createLanguageClient(execCommand, (filePath: string) => ({
-        rootPath: "C:/test/dotnet-core",
-        capabilities: {
-            highlightProvider: true
+    const client = Oni.createLanguageClient(execCommand, (filePath) => {
+            return Promise.resolve({
+            rootPath: "C:/test/dotnet-core",
+            capabilities: {
+                highlightProvider: true
+            }
         })
     })
 }
