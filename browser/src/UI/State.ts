@@ -24,6 +24,7 @@ export interface IState {
     configuration: Config.IConfigValues
     showNeovimInstallHelp: boolean
 
+    notificationsVisible: boolean
     notifications: Array<{
         notification: INotification,
         folded: boolean,
@@ -122,6 +123,7 @@ export const createDefaultState = (): IState => ({
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
     showNeovimInstallHelp: false,
+    notificationsVisible: false,
     notifications: notifs.map((n) => ({
         notification: n,
         folded: true,

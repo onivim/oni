@@ -12,21 +12,34 @@ import { Icon } from "./../Icon"
 require("./Notifications.less") // tslint:disable-line no-var-requires
 
 export interface INotificationsProps {
+    visible: boolean
     notifications: Array<{
         notification: INotification,
         folded: boolean,
     }>
     toggleFold: (index: number) => void
+    hide: () => void
 }
 
 export class NotificationsRenderer extends React.Component<INotificationsProps, void> {
     public render(): JSX.Element {
-        // TODO unfold detail
         // TODO copy details to clipboard
-        const maxHeightStyle = {"maxHeight": "300px", "overflow": "auto"}
-        // Div wrapper so table scrolls while header stays
+        if (!this.props.visible) { return null }
+
+        const maxHeightStyle = {
+            "height": "25vh",
+            "maxHeight": "25vh",
+            "overflow": "auto",
+        }
+        // maxHeight wrapper so table scrolls while header stays
         return <div className="notification-logs">
-            <div className="notification-logs-header">Logs</div>
+            <div className="notification-logs-header clickable"
+                 onClick={this.props.hide}>
+                Logs
+                <span className="notification-logs-header-close">
+                    <Icon name="times" />
+                </span>
+            </div>
             <div style={maxHeightStyle}>
                 <table>
                     {makeNotificationRows(this.props.notifications, this.props.toggleFold)}
@@ -44,7 +57,7 @@ export class NotificationsRenderer extends React.Component<INotificationsProps, 
                         toggleFold(i)
                     }
                 }
-                return <tbody>
+                return <tbody key={i}>
                     <tr className={typeToClass(n.notification.type)}>
                         <td className="notification-icon">
                             <Icon name={typeToIcon(n.notification.type)} />
@@ -119,12 +132,16 @@ export class NotificationsRenderer extends React.Component<INotificationsProps, 
     }
 }
 function mapStateToProps(s: State.IState): Partial<INotificationsProps> {
-    return {notifications: s.notifications}
+    return {
+        visible: s.notificationsVisible,
+        notifications: s.notifications,
+    }
 }
 
 const mapDispatchToProps = (dispatch: any): Partial<INotificationsProps> => {
     const toggleFold = (index: number) => dispatch(ActionCreators.toggleNotificationFold(index))
-    return {toggleFold}
+    const hide = () => dispatch(ActionCreators.changeNotificationsVisibility(false))
+    return {toggleFold, hide}
 }
 
 export const Notifications = connect(mapStateToProps, mapDispatchToProps)(NotificationsRenderer)

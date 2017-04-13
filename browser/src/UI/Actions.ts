@@ -8,6 +8,7 @@
  */
 
 import * as Config from "./../Config"
+import { INotification } from "./Notifications"
 import { Rectangle } from "./Types"
 
 export interface ISetCursorPositionAction {
@@ -162,6 +163,18 @@ export interface IToggleNotificationFold {
         index: number,
     }
 }
+export interface IChangeNotificationsVisibility {
+    type: "CHANGE_NOTIFICATIONS_VISIBILITY",
+    payload: {
+        visibility: boolean,
+    }
+}
+export interface IMakeNotification {
+    type: "MAKE_NOTIFICATION",
+    payload: {
+        notification: INotification,
+    }
+}
 
 export interface IShowNeovimInstallHelpAction {
     type: "SHOW_NEOVIM_INSTALL_HELP"
@@ -196,7 +209,9 @@ export type SimpleAction =
     ISetCursorColumnOpacityAction |
     ISetCursorLineOpacityAction |
     IShowNeovimInstallHelpAction |
-    IToggleNotificationFold
+    IToggleNotificationFold |
+    IChangeNotificationsVisibility |
+    IMakeNotification
 
 export type ActionWithGeneric<K extends keyof Config.IConfigValues> =
     ISetConfigurationValue<K>

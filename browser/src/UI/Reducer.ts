@@ -97,12 +97,25 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
         case "SHOW_NEOVIM_INSTALL_HELP":
             return Object.assign({}, s, {
                 showNeovimInstallHelp: true,
+            })
         case "TOGGLE_NOTIFICATION_FOLD":
             return Object.assign({}, s, {
                 notifications: s.notifications.map((n, i) => {
                     return i === a.payload.index ?
                         Object.assign({}, n, {folded: !n.folded}) : n
                 }),
+            })
+        case "CHANGE_NOTIFICATIONS_VISIBILITY":
+            return Object.assign({}, s, {
+                notificationsVisible: a.payload.visibility,
+            })
+        case "MAKE_NOTIFICATION":
+            const newNotification = {
+                notification: a.payload.notification,
+                folded: true,
+            }
+            return Object.assign({}, s, {
+                notifications: _.concat(s.notifications, newNotification),
             })
         default:
             return Object.assign({}, s, {
