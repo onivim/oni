@@ -28,29 +28,35 @@ export class Errors extends React.Component<IErrorsProps, void> {
         const groupedErrors = _.groupBy(errors, (e) => e.lineNumber)
 
         const markers = _.map(groupedErrors, (es) => {
-            let screenLine: number
+            let startScreenLine: number
             let xPos: number
             let yPos: number
             let text: string[]
             let color: string
             if (es.length === 1) {
-                screenLine = this.props.windowContext.getWindowLine(es[0].lineNumber)
+                startScreenLine = this.props.windowContext.getStartScreenLineFromBufferLine(es[0].lineNumber)
                 xPos = this.props.windowContext.getWindowPosition(es[0].lineNumber, es[0].startColumn).x
-                yPos = this.props.windowContext.getWindowRegionForLine(es[0].lineNumber).y - (padding / 2)
+                yPos = this.props.windowContext.getWindowPosition(es[0].lineNumber, es[0].startColumn).y - (padding / 2)
                 text = [es[0].text]
                 color = es[0].color
             } else {
-                screenLine = this.props.windowContext.getWindowLine(es[0].lineNumber)
-                let minColumn = _.min(_.map(es, (e) => e.startColumn))
-                xPos = this.props.windowContext.getWindowPosition(es[0].lineNumber, minColumn).x
-                yPos = this.props.windowContext.getWindowRegionForLine(es[0].lineNumber).y - (padding / 2)
+                startScreenLine = this.props.windowContext.getStartScreenLineFromBufferLine(es[0].lineNumber)
+                let firstColumn = _.min(_.map(es, (e) => e.startColumn))
+                xPos = this.props.windowContext.getWindowPosition(es[0].lineNumber, firstColumn).x
+                yPos = this.props.windowContext.getWindowPosition(es[0].lineNumber, firstColumn).y - (padding / 2)
                 text = _.map(es, (e) => "* " + e.text)
                 color = es[0].color
             }
             if (this.props.windowContext.isLineInView(es[0].lineNumber)) {
-                const isActive = screenLine === this.props.windowContext.getCurrentWindowLine()
+                // startScreenLine && currentScreenLine can be same windowLine,
+                // if the current windowLine is wrapping around
+                const columnsPerScreenLine = this.props.windowContext.getColumnsPerScreenLine()
+                const currentWindowColumn = this.props.windowContext.getCurrentWindowColumn()
+                const linesWrapped = Math.floor(currentWindowColumn / (columnsPerScreenLine + 1))
+                const isActive = startScreenLine + linesWrapped === this.props.windowContext.getCurrentScreenLine()
 
-                const showTooltipTop = this.props.windowContext.dimensions.height - this.props.windowContext.getWindowLine(es[0].lineNumber) <= 2
+                const windowSizeInPixels = this.props.windowContext.dimensions.height * this.props.windowContext.fontHeightInPixels
+                const showTooltipTop = windowSizeInPixels - yPos < 80
 
                 return <ErrorMarker isActive={isActive}
                     x={xPos}
