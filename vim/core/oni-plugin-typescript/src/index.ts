@@ -320,8 +320,6 @@ export const activate = (Oni) => {
             spans.forEach((s) => {
                 highlights.push({
                     highlightKind,
-                    start: { line: s.start.line, column: s.start.offset },
-                    end: { line: s.end.line, column: s.end.offset },
                     token: item.text,
                 })
             })
@@ -342,7 +340,7 @@ export const activate = (Oni) => {
                 // debugger
                 getHighlightsFromNavTree(navTree.childItems, highlights)
 
-                Oni.setHighlights(args.bufferFullPath, "derp", highlights)
+                Oni.setHighlights(args.bufferFullPath, "typescript", highlights)
             })
     })
 
@@ -355,7 +353,7 @@ export const activate = (Oni) => {
                 // debugger
                 getHighlightsFromNavTree(navTree.childItems, highlights)
 
-                Oni.setHighlights(args.bufferFullPath, "derp", highlights)
+                Oni.setHighlights(args.bufferFullPath, "typescript", highlights)
             })
     })
 

@@ -136,8 +136,6 @@ declare namespace Oni {
 
         export interface SyntaxHighlight {
             highlightKind: string,
-            start: Oni.Position,
-            end: Oni.Position,
             token: string
         }
 

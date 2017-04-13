@@ -51,7 +51,8 @@ export interface InitializationParamsCreator {
 
 /**
  * Implementation of a client that talks to a server 
- * implement the Language Server Protocol
+ * implementing the Language Server Protocol:
+ * https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md
  */
 export class LanguageClient {
     private _currentPromise: Promise<any>
@@ -87,8 +88,12 @@ export class LanguageClient {
 
                         return null
                     })
-
             }, false)
+
+            this._enqueuePromise(() => {
+                return this._getHighlights(args)
+                        .then((highlights: Oni.Plugin.SyntaxHighlight[]) => this._oni.setHighlights(args.bufferFullPath, "langservice", highlights))
+            })
         })
 
         this._oni.on("buffer-update", (args: any) => {
@@ -295,6 +300,17 @@ export class LanguageClient {
             }
         })
 
+    }
+
+    private _getHighlights(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.SyntaxHighlight[]> {
+        return <any>this._connection.sendRequest("textDocument/documentSymbol", {
+            textDocument: {
+                uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath),
+            },
+        }).then((/* result: types.SymbolInformation[]*/) => {
+            // TODO
+            return []
+        })
     }
 
     private _onBufferUpdateIncremental(args: any): Promise<void> {
