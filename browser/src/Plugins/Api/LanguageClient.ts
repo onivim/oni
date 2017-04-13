@@ -210,7 +210,7 @@ export class LanguageClient {
                 return { base: "", completions: [] }
             }
 
-            const filteredItems = result.items.filter((item) => item.label.indexOf(meetInfo.base) >= 0)
+            const filteredItems = result.items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
 
             const completions = filteredItems.map((i) => ({
                 label: i.label,
