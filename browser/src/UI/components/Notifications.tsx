@@ -96,8 +96,8 @@ export class NotificationsRenderer extends React.Component<INotificationsProps, 
                 n.notification.details.length > 0 &&
                 !n.folded
             if (shouldShowDetails) {
-                let detailLines = n.notification.details.map((det) => {
-                    return <div className="notification-detail-line">{det}</div>
+                let detailLines = n.notification.details.map((det, i) => {
+                    return <div className="notification-detail-line" key={i}>{det}</div>
                 })
                 return <tr>
                     <td className="notification-icon"></td>
