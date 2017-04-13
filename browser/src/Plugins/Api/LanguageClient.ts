@@ -71,22 +71,22 @@ export class LanguageClient {
         this._oni.on("buffer-enter", (args: Oni.EventContext) => {
             this._enqueuePromise(() => {
                 return this._initializationParamsCreator(args.bufferFullPath)
-                        .then((newParams: LanguageClientInitializationParams) => {
+                    .then((newParams: LanguageClientInitializationParams) => {
 
-                            if(!this._initializationParams) {
-                                this._initializationParams = newParams
-                                return this.start(newParams)
-                            }
+                        if (!this._initializationParams) {
+                            this._initializationParams = newParams
+                            return this.start(newParams)
+                        }
 
-                            if(!_.isEqual(this._initializationParams, newParams)) {
+                        if (!_.isEqual(this._initializationParams, newParams)) {
+                            this._initializationParams = newParams
 
-                                // TODO: Close / dispose existing instance
-                                return this.end()
-                                        .then(() => this.start(newParams))
-                            }
+                            return this.end()
+                                .then(() => this.start(newParams))
+                        }
 
-                            return null
-                        })
+                        return null
+                    })
 
             }, false)
         })
@@ -205,7 +205,7 @@ export class LanguageClient {
             // debugger
             return {
                 base: "",
-                completions 
+                completions
             }
         })
     }
@@ -216,7 +216,7 @@ export class LanguageClient {
             return null
         }
 
-        switch(kind) {
+        switch (kind) {
             case types.CompletionItemKind.Text:
                 return "text"
             case types.CompletionItemKind.Method:
