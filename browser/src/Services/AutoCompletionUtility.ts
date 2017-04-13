@@ -64,12 +64,12 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
 
     // TODO: Refactor this into a 'trigger characters' array
     if (currentPrefix.length === 0 && line[basePos] !== ".") {
+        return null
+    } else {
         return {
             position: basePos,
             base: currentPrefix
         }
-    } else {
-        return null
     }
 
 }

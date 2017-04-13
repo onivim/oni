@@ -14,6 +14,7 @@ import * as types from "vscode-languageserver-types"
 import { exec, ChildProcess } from "child_process"
 
 import { Oni } from "./Oni"
+import { getCompletionMeet } from "./../../Services/AutoCompletionUtility"
 
 export interface LanguageClientInitializationParams {
     rootPath: string
@@ -92,7 +93,7 @@ export class LanguageClient {
 
             this._enqueuePromise(() => {
                 return this._getHighlights(args)
-                        .then((highlights: Oni.Plugin.SyntaxHighlight[]) => this._oni.setHighlights(args.bufferFullPath, "langservice", highlights))
+                    .then((highlights: Oni.Plugin.SyntaxHighlight[]) => this._oni.setHighlights(args.bufferFullPath, "langservice", highlights))
             })
         })
 
@@ -201,7 +202,17 @@ export class LanguageClient {
                 character: textDocumentPosition.column - 1
             }
         }).then((result: types.CompletionList) => {
-            const completions = result.items.map((i) => ({
+
+            const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
+            const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, /[_a-z]/i)
+
+            if (!meetInfo) {
+                return { base: "", completions: [] }
+            }
+
+            const filteredItems = result.items.filter((item) => item.label.indexOf(meetInfo.base) >= 0)
+
+            const completions = filteredItems.map((i) => ({
                 label: i.label,
                 detail: i.detail,
                 documentation: i.documentation,
