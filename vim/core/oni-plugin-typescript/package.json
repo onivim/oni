@@ -10,7 +10,7 @@
         "test": "npm install && tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
     },
     "oni": {
-        "supportedLanguages": [
+        "supportedFileTypes": [
             "javascript",
             "typescript"
         ],

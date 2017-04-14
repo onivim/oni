@@ -6,13 +6,17 @@
 
 import * as _ from "lodash"
 
-export type ActivationEvents = "*" | "buffer-enter"
+/**
+ * ActivationMode describes the policy in which the plugin should be activated.
+ * `immediate` means the plugin will be executed at startup,
+ * `on-demand` means the plugin will be executed when it encounters a command or event it can handle
+ */
+export type ActivationMode = "immediate" | "on-demand"
 
 export interface Capabilities {
     languageService?: string[]
     subscriptions?: string[]
     commands?: { [commandName: string]: ICommandInfo }
-    activationEvents?: ActivationEvents[]
 }
 
 export interface ICommandInfo {
@@ -46,7 +50,12 @@ export const createPluginFilterForCommand = (fileType: string, command: string) 
 export interface IPluginMetadata {
     main: string
     engines: string
-    oni: { [language: string]: Capabilities }
+    oni: IPluginCapabilities
+}
+
+export interface IPluginCapabilities extends Capabilities {
+    activationMode?: ActivationMode
+    supportedFileTypes?: string[]
 }
 
 /**
