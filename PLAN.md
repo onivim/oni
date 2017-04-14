@@ -1,3 +1,8 @@
+## Blocking issue
+- Defer activation of plugin until relevant file is opened
+- Performance issue with error marker (always re-rendered)
+- Add performance tracking for actions - test performance for particular action
+
 ## Next
 - Validate shutdown path when switching between projects
 - Create constants - does vscode-langserver-types have constants for the notifications?
@@ -9,8 +14,8 @@
 - Validate performance
     - Validate only single instance of plugin is receiving updates (ensure no perf regressions)
 
-## Blocking issue
-- Defer activation of plugin until relevant file is opened
+- Refactor string constants to use `CompletionItemKind`
+
 
 ## Separate issues
 - Errors

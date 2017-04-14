@@ -14,10 +14,14 @@ export class ErrorOverlay implements IOverlay {
     private _lastWindowContext: WindowContext
 
     public onVimEvent(_eventName: string, eventContext: Oni.EventContext): void {
-        const fullPath = eventContext.bufferFullPath
-        this._currentFileName = fullPath
 
-        this._showErrors()
+        // TODO: Factor this out to a separate change
+        if (_eventName === "BufEnter") {
+            const fullPath = eventContext.bufferFullPath
+            this._currentFileName = fullPath
+
+            this._showErrors()
+        }
     }
 
     public setErrors(key: string, fileName: string, errors: Oni.Plugin.Diagnostics.Error[], color: string): void {
