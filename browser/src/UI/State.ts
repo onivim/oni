@@ -65,39 +65,6 @@ export interface IAutoCompletionInfo {
      */
     selectedIndex: number
 }
-const notifs: ILog[] = [{
-    type: "success",
-    message: "Yeah, success!",
-    details: null,
-}, {
-    type: "info",
-    message: "Some info for you",
-    details: null,
-}, {
-    type: "warning",
-    message: "Oops warning",
-    details: null,
-}, {
-    type: "error",
-    message: "Failed to load your user config",
-    details: [
-        "line 6: unexpected newline",
-        "'metrics' ::",
-        "^",
-    ],
-}, {
-    type: "fatal",
-    message: "Uncaught ReferenceError: abc is not defined",
-    details: [
-        "ReferenceError: abc is not defined",
-        " at atom-workspace.&lt;anonymous&gt; (/Users/simBook/Sir/atom/notifications/lib/main.coffee:113:7)",
-        " at CommandRegistry.module.exports.CommandRegistry.handleCommandEvent (/Users/simBook/github/atom/src/command-registry.coffee:225:27)",
-        " at CommandRegistry.handleCommandEvent (/Users/simBook/github/atom/src/command-registry.coffee:1:1)",
-        " at CommandRegistry.module.exports.CommandRegistry.dispatch (/Users/simBook/github/atom/src/command-registry.coffee:173:6)",
-        " at NotificationsPanelView.module.exports.NotificationsPanelView.createFatalError (/Users/simBook/Sir/atom/notifications/lib/notifications-panel-view.coffee:48:19)",
-        " at HTMLButtonElement.&lt;anonymous&gt; (/Users/simBook/Sir/atom/notifications/lib/notifications-panel-view.coffee:3:1)",
-    ],
-}]
 export const createDefaultState = (): IState => ({
     cursorPixelX: 10,
     cursorPixelY: 10,
@@ -124,9 +91,6 @@ export const createDefaultState = (): IState => ({
     backgroundColor: "#000000",
     showNeovimInstallHelp: false,
     logsVisible: false,
-    logs: notifs.map((n) => ({
-        log: n,
-        folded: true,
-    })),
+    logs: [],
     configuration: Config.instance().getValues(),
 })
