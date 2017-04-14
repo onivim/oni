@@ -6,10 +6,13 @@
 
 import * as _ from "lodash"
 
+export type ActivationEvents = "*" | "buffer-enter"
+
 export interface Capabilities {
     languageService?: string[]
     subscriptions?: string[]
     commands?: { [commandName: string]: ICommandInfo }
+    activationEvents?: ActivationEvents[]
 }
 
 export interface ICommandInfo {

@@ -11,6 +11,9 @@
   },
   "oni": {
     "javascript,typescript": {
+      "activationEvents": [
+          "buffer-enter"
+      ],
       "subscriptions": [
         "buffer-update",
         "vim-events"

@@ -50,13 +50,15 @@ export const getAllCommandsFromMetadata = (metadata: Capabilities.IPluginMetadat
 * ie, javascript,typescript
 * Split into separate language srevice blocks
 */
-function _expandMultipleLanguageKeys(packageMetadata: { [languageKey: string]: any }): void {
+function _expandMultipleLanguageKeys(packageMetadata: { [languageKey: string]: Capabilities.IPluginMetadata }): void {
     Object.keys(packageMetadata).forEach((key) => {
         if (key.indexOf(",")) {
             const val = packageMetadata[key]
             key.split(",").forEach((splitKey) => {
-                packageMetadata[splitKey] = val
+                packageMetadata[splitKey] = { ..val }
             })
         }
     })
 }
+
+function _applyDefaults(packageMetaData: 
