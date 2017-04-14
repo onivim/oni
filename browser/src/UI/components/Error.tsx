@@ -48,7 +48,7 @@ export class Errors extends React.Component<IErrorsProps, void> {
                 color = es[0].color
             }
             if (this.props.windowContext.isLineInView(es[0].lineNumber)) {
-                // startScreenLine && currentScreenLine can be same windowLine,
+                // startScreenLine && currentScreenLine can be same windowLine
                 // if the current windowLine is wrapping around
                 const columnsPerScreenLine = this.props.windowContext.getColumnsPerScreenLine()
                 const currentWindowColumn = this.props.windowContext.getCurrentWindowColumn()
@@ -58,10 +58,14 @@ export class Errors extends React.Component<IErrorsProps, void> {
                 const windowSizeInPixels = this.props.windowContext.dimensions.height * this.props.windowContext.fontHeightInPixels
                 const showTooltipTop = windowSizeInPixels - yPos < 80
 
+                const windowWidthInPixels = this.props.windowContext.dimensions.width * this.props.windowContext.fontWidthInPixels
+                const showTooltipLeft = windowWidthInPixels - xPos < 250
+
                 return <ErrorMarker isActive={isActive}
                     x={xPos}
                     y={yPos}
                     showTooltipTop={showTooltipTop}
+                    showTooltipLeft={showTooltipLeft}
                     text={text}
                     color={color}/>
             } else {
@@ -96,6 +100,7 @@ export interface IErrorMarkerProps {
     x: number
     y: number
     showTooltipTop: boolean
+    showTooltipLeft: boolean
     text: string[]
     isActive: boolean
     color: string
@@ -111,7 +116,8 @@ export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
             top: this.props.y.toString() + "px",
         }
         const textPositionStyles = {
-            left: this.props.x.toString() + "px",
+            left: this.props.showTooltipLeft ? "initial" : this.props.x.toString() + "px",
+            right: this.props.showTooltipLeft ? "calc(100% - " + this.props.x.toString() + "px" : "initial",
             // Tooltip below line: use top so text grows downward when text gets longer
             // Tooltip above line: use bottom so text grows upward
             top: this.props.showTooltipTop ? "initial" : this.props.y.toString() + "px",
@@ -123,6 +129,7 @@ export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
             "error",
             this.props.isActive ? "active" : "",
             this.props.showTooltipTop ? "top" : "",
+            this.props.showTooltipLeft ? "left" : "",
         ].join(" ")
 
         const texts = _.map(this.props.text, (t) => {

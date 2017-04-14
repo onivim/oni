@@ -113,6 +113,9 @@ export class WindowContext {
         // It would be much easier if we could just ask neovim to give this to say how much the offset is, but I haven't found how so far
     }
 
+    /**
+     * Returns position of window line + column in pixels on the screen
+     */
     public getWindowPosition(windowline: number, column: number): Rectangle {
         const linePosition = this.getWindowRegionForLine(windowline)
 
