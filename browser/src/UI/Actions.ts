@@ -8,6 +8,7 @@
  */
 
 import * as Config from "./../Config"
+import { ILog } from "./Logs"
 import { Rectangle } from "./Types"
 
 export interface ISetCursorPositionAction {
@@ -156,6 +157,24 @@ export interface ISetConfigurationValue<K extends keyof Config.IConfigValues> {
         value: Config.IConfigValues[K],
     }
 }
+export interface IToggleLogFold {
+    type: "TOGGLE_LOG_FOLD"
+    payload: {
+        index: number,
+    }
+}
+export interface IChangeLogsVisibility {
+    type: "CHANGE_LOGS_VISIBILITY",
+    payload: {
+        visibility: boolean,
+    }
+}
+export interface IMakeLog {
+    type: "MAKE_LOG",
+    payload: {
+        log: ILog,
+    }
+}
 
 export interface IShowNeovimInstallHelpAction {
     type: "SHOW_NEOVIM_INSTALL_HELP"
@@ -189,7 +208,10 @@ export type SimpleAction =
     IShowCursorColumnAction |
     ISetCursorColumnOpacityAction |
     ISetCursorLineOpacityAction |
-    IShowNeovimInstallHelpAction
+    IShowNeovimInstallHelpAction |
+    IToggleLogFold |
+    IChangeLogsVisibility |
+    IMakeLog
 
 export type ActionWithGeneric<K extends keyof Config.IConfigValues> =
     ISetConfigurationValue<K>

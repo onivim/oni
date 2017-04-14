@@ -97,7 +97,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._initPromise = startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen)
             .then((nv) => {
-                console.log("NevoimInstance: Neovim started") // tslint:disable-line no-console
+                this.emit("logInfo", "NeovimInstance: Neovim started")
 
                 // Workaround for issue where UI
                 // can fail to attach if there is a UI-blocking error
@@ -110,7 +110,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 this.command("set completeopt=longest,menu")
 
                 this._neovim.on("error", (err: Error) => {
-                    console.error(err)
+                    this.emit("logError", err)
                 })
 
                 this._neovim.on("notification", (method: any, args: any) => {
@@ -141,15 +141,15 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             }
 
                         } else {
-                            console.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
+                            this.emit("logWarning", "Unknown event from oni_plugin_notify: " + pluginMethod)
                         }
                     } else {
-                        console.warn("Unknown notification: " + method)
+                        this.emit("logWarning", "Unknown notification: " + method)
                     }
                 })
 
                 this._neovim.on("request", (method: any, _args: any, _resp: any) => {
-                    console.warn("Unhandled request: " + method)
+                    this.emit("logWarning", "Unhandled request: " + method)
                 })
 
                 this._neovim.on("disconnect", () => {
@@ -168,7 +168,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 // Workaround for bug in neovim/node-client
                 // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
                 this._neovim._session.request("nvim_ui_attach", [size.cols, size.rows, startupOptions], (_err?: Error) => {
-                    console.log("Attach success") // tslint:disable-line no-console
+                    this.emit("logInfo", "Attach success")
 
                     performance.mark("NeovimInstance.Plugins.Start")
                     this._pluginManager.startPlugins(this)
@@ -307,7 +307,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             const fixedSize = this._config.getValue("debug.fixedSize")
             rows = fixedSize.rows
             columns = fixedSize.columns
-            console.warn("Overriding screen size based on debug.fixedSize")
+            this.emit("logWarning", "Overriding screen size based on debug.fixedSize")
         }
 
         if (rows === this._rows && columns === this._cols) {
@@ -326,7 +326,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._initPromise.then(() => {
             this._neovim.uiTryResize(columns, rows, (err?: Error) => {
                 if (err) {
-                    console.error(err)
+                    this.emit("logError", err)
                 }
             })
         })
@@ -397,7 +397,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     audio.play()
                 }
             } else {
-                console.warn("Unhandled command: " + command)
+                this.emit("logWarning", "Unhandled command: " + command)
             }
         })
     }
