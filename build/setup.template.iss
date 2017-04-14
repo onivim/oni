@@ -11,7 +11,7 @@
 AppName={{AppName}}
 AppVersion={{Version}}
 DefaultDirName={pf}\{{ProdName}}
-DefaultGroupName={{AppName}}
+DefaultGroupName={{ProdName}}
 UninstallDisplayIcon={app}\{{AppExecutableName}}
 Compression=zip
 SolidCompression=yes
