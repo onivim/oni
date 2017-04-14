@@ -97,7 +97,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._initPromise = startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen)
             .then((nv) => {
-                this.emit("logInfo", "NevoimInstance: Neovim started")
+                this.emit("logInfo", "NeovimInstance: Neovim started")
 
                 // Workaround for issue where UI
                 // can fail to attach if there is a UI-blocking error

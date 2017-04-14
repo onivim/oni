@@ -101,8 +101,10 @@ export class LogsRenderer extends React.Component<ILogsProps, void> {
                 })
                 return <tr>
                     <td className="log-icon"></td>
-                    <td className="log-details">
-                        {detailLines}
+                    <td className="log-details-cell">
+                        <div className="log-details">
+                            {detailLines}
+                        </div>
                     </td>
                 </tr>
             } else {
