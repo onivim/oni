@@ -71,18 +71,17 @@ export class Errors extends React.Component<IErrorsProps, void> {
 
         const squiggles = errors.map((e) => {
             if (this.props.windowContext.isLineInView(e.lineNumber) && e.endColumn) {
-                // const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
-
-                const yPos = this.props.windowContext.getWindowRegionForLine(e.lineNumber).y
-
-                const startX = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn as any).x // FIXME: undefined
+                const startX = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn).x
                 const endX = this.props.windowContext.getWindowPosition(e.lineNumber, e.endColumn).x
+                const width = _.max([endX - startX, 1 * this.props.windowContext.fontWidthInPixels])
+
+                const yPos = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn).y
 
                 return <ErrorSquiggle
                     y={yPos}
                     height={this.props.windowContext.fontHeightInPixels}
                     x={startX}
-                    width={endX - startX}
+                    width={width}
                     color={e.color}/>
             } else {
                 return null
