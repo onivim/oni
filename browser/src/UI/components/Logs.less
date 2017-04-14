@@ -19,7 +19,7 @@
 
 @background-color-lighter: #3a3e44;
 
-.notification-logs {
+.logs {
     background: @background-color;
     position: fixed;
     width: 100%;
@@ -40,34 +40,34 @@
         }
     }
 
-    .notification-unfold-icon{
+    .log-unfold-icon{
         color: @text-color;
         margin-left: @component-padding/2;
     }
 
-    .notification-logs-header, .notification-details{
+    .logs-header, .log-details{
         background-color: @background-color-lighter;
         color: @text-color;
         padding: @component-padding/2 @component-padding;
         border-top: 1px solid @border-color;
     }
-    .notification-logs-header-close {
+    .logs-header-close {
         position: absolute;
         right: @component-padding;
     }
 
-    .notification-icon{
+    .log-icon{
         width: @icon-size;
         height: 100%;
         text-align: center;
         padding-top: @component-padding/2;
     }
-    .notification-message{
+    .log-message{
         padding: @component-padding/2 @component-padding;
         outline: none;
     }
 
-    .notification-detail-line {
+    .log-detail-line {
         white-space: pre;
         // font-family: @font-family-monospace;
     }
@@ -76,16 +76,16 @@
         cursor: pointer;
     }
 
-    .notification-fatal, .notification-error {
+    .log-fatal, .log-error {
         color: @text-color-error;
     }
-    .notification-success {
+    .log-success {
         color: @text-color-success;
     }
-    .notification-info {
+    .log-info {
         color: @text-color-info;
     }
-    .notification-warning {
+    .log-warning {
         color: @text-color-warning;
     }
 }

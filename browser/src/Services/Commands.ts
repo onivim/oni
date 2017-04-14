@@ -54,10 +54,10 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         new CallbackCommand("oni.config.openInitVim", "Edit Neovim Config", "Edit configuration file ('init.vim') for Neovim", () => neovimInstance.open("$MYVIMRC")),
 
-        new CallbackCommand("oni.editor.showNotifications",
-                            "Show Notifications",
-                            "Show all received notifications in the bottom panel",
-                            () => UI.Actions.changeNotificationsVisibility(true)),
+        new CallbackCommand("oni.editor.showLogs",
+                            "Show Logs",
+                            "Show all logs in the bottom panel",
+                            () => UI.Actions.changeLogsVisibility(true)),
 
         // Add additional commands here
         // ...

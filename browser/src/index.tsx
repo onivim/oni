@@ -193,21 +193,21 @@ const start = (args: string[]) => {
         }
     })
     instance.on("logInfo", (info: string) => {
-        UI.Actions.makeNotification({
+        UI.Actions.makeLog({
             type: "info",
             message: info,
             details: null,
         })
     })
     instance.on("logWarning", (warning: string) => {
-        UI.Actions.makeNotification({
+        UI.Actions.makeLog({
             type: "warning",
             message: warning,
             details: null,
         })
     })
     instance.on("logError", (err: Error) => {
-        UI.Actions.makeNotification({
+        UI.Actions.makeLog({
             type: "error",
             message: err.message,
             details: err.stack.split("\n"),
@@ -267,7 +267,7 @@ const start = (args: string[]) => {
 
     const config = Config.instance()
     config.on("logError", (err: Error) => {
-        UI.Actions.makeNotification({
+        UI.Actions.makeLog({
             type: "error",
             message: err.message,
             details: err.stack.split("\n"),
@@ -275,7 +275,7 @@ const start = (args: string[]) => {
     })
     const initialConfigParsingError = config.getParsingError()
     if (initialConfigParsingError) {
-        UI.Actions.makeNotification({
+        UI.Actions.makeLog({
             type: "error",
             message: initialConfigParsingError.message,
             details: initialConfigParsingError.stack.split("\n"),

@@ -8,7 +8,7 @@
  */
 
 import * as Config from "./../Config"
-import { INotification } from "./Notifications"
+import { ILog } from "./Logs"
 import { Rectangle } from "./Types"
 
 export interface ISetCursorPositionAction {
@@ -157,22 +157,22 @@ export interface ISetConfigurationValue<K extends keyof Config.IConfigValues> {
         value: Config.IConfigValues[K],
     }
 }
-export interface IToggleNotificationFold {
-    type: "TOGGLE_NOTIFICATION_FOLD"
+export interface IToggleLogFold {
+    type: "TOGGLE_LOG_FOLD"
     payload: {
         index: number,
     }
 }
-export interface IChangeNotificationsVisibility {
-    type: "CHANGE_NOTIFICATIONS_VISIBILITY",
+export interface IChangeLogsVisibility {
+    type: "CHANGE_LOGS_VISIBILITY",
     payload: {
         visibility: boolean,
     }
 }
-export interface IMakeNotification {
-    type: "MAKE_NOTIFICATION",
+export interface IMakeLog {
+    type: "MAKE_LOG",
     payload: {
-        notification: INotification,
+        log: ILog,
     }
 }
 
@@ -209,9 +209,9 @@ export type SimpleAction =
     ISetCursorColumnOpacityAction |
     ISetCursorLineOpacityAction |
     IShowNeovimInstallHelpAction |
-    IToggleNotificationFold |
-    IChangeNotificationsVisibility |
-    IMakeNotification
+    IToggleLogFold |
+    IChangeLogsVisibility |
+    IMakeLog
 
 export type ActionWithGeneric<K extends keyof Config.IConfigValues> =
     ISetConfigurationValue<K>

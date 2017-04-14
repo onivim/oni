@@ -1,6 +1,6 @@
 
 import * as Config from  "./../Config"
-import { INotification } from "./Notifications"
+import { ILog } from "./Logs"
 import { Rectangle } from "./Types"
 
 export interface IState {
@@ -24,9 +24,9 @@ export interface IState {
     configuration: Config.IConfigValues
     showNeovimInstallHelp: boolean
 
-    notificationsVisible: boolean
-    notifications: Array<{
-        notification: INotification,
+    logsVisible: boolean
+    logs: Array<{
+        log: ILog,
         folded: boolean,
     }>
 
@@ -65,7 +65,7 @@ export interface IAutoCompletionInfo {
      */
     selectedIndex: number
 }
-const notifs: INotification[] = [{
+const notifs: ILog[] = [{
     type: "success",
     message: "Yeah, success!",
     details: null,
@@ -123,9 +123,9 @@ export const createDefaultState = (): IState => ({
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
     showNeovimInstallHelp: false,
-    notificationsVisible: false,
-    notifications: notifs.map((n) => ({
-        notification: n,
+    logsVisible: false,
+    logs: notifs.map((n) => ({
+        log: n,
         folded: true,
     })),
     configuration: Config.instance().getValues(),
