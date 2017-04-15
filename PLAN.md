@@ -9,8 +9,7 @@
 - Validate shutdown path when switching between projects
 - Create constants - does vscode-langserver-types have constants for the notifications?
 - Clean up code
-    - Add typing for the buffer events coming from Oni
-    - Rationalize the `Thenable`s returned by the vscode types
+    - Add conversion for `TextDocumentUri` types in VSCode to remove that duplication
 
 - Validate performance
     - Validate only single instance of plugin is receiving updates (ensure no perf regressions)
