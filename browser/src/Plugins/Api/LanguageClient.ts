@@ -97,11 +97,11 @@ export class LanguageClient {
             })
         })
 
-        this._oni.on("buffer-update", (args: any) => {
+        this._oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdate(args))
         })
 
-        this._oni.on("buffer-update-incremental", (args: any) => {
+        this._oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdateIncremental(args))
         })
 

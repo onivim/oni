@@ -10,7 +10,6 @@
 - Create constants - does vscode-langserver-types have constants for the notifications?
 - Clean up code
     - Add typing for the buffer events coming from Oni
-    - Replace 'any' types
     - Rationalize the `Thenable`s returned by the vscode types
 
 - Validate performance
