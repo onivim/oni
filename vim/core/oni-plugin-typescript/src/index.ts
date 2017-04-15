@@ -266,7 +266,7 @@ export const activate = (Oni) => {
         host.updateFile(bufferFullPath, stringContents)
     }, 50)
 
-    Oni.on("buffer-update", (args) => {
+    Oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
 
         if (!args.eventContext.bufferFullPath) {
             return
@@ -282,7 +282,7 @@ export const activate = (Oni) => {
 
     })
 
-    Oni.on("buffer-update-incremental", (args) => {
+    Oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
         if (!args.eventContext.bufferFullPath) {
             return
         }

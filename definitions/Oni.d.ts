@@ -24,6 +24,23 @@ declare namespace Oni {
         newValue: string
     }
 
+    /**
+     * Describes the change of an entire buffer
+     */
+    export interface BufferUpdateContext {
+        bufferLines: string[]
+        eventContext: EventContext
+    }
+
+    /**
+     * Incremental buffer update describes the change for a particular line of a document
+     */
+    export interface IncrementalBufferUpdateContext {
+        lineNumber: number
+        bufferLine: string
+        eventContext: EventContext
+    }
+
     export interface EventContext {
         bufferFullPath: string
         bufferTotalLines: number

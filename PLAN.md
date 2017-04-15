@@ -1,8 +1,11 @@
-## Blocking issue
-- Completion repro - `this.` with `_value` => `this_value`
-    - Another: `this.` with `Test` => `thiTest`
-
 ## Next
+- Still have issues with completion
+    - `window.` + `setTimeout`
+    - Interim completion
+    - `private _onBufferUpdate(args: Oni.|)` + `EventContext` -> removes parentheses
+        -test case for this?
+
+
 - Validate shutdown path when switching between projects
 - Create constants - does vscode-langserver-types have constants for the notifications?
 - Clean up code

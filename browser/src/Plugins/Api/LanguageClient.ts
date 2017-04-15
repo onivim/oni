@@ -324,7 +324,7 @@ export class LanguageClient {
         })
     }
 
-    private _onBufferUpdateIncremental(args: any): Promise<void> {
+    private _onBufferUpdateIncremental(args: Oni.IncrementalBufferUpdateContext): Promise<void> {
         if (!args.eventContext.bufferFullPath) {
             return Promise.resolve(null)
         }
@@ -348,8 +348,7 @@ export class LanguageClient {
         })
     }
 
-    // TODO: Type for this args
-    private _onBufferUpdate(args: any): Promise<void> {
+    private _onBufferUpdate(args: Oni.BufferUpdateContext): Promise<void> {
         const lines = args.bufferLines
         const { bufferFullPath, filetype, version } = args.eventContext
         const text = lines.join(os.EOL)
