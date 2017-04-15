@@ -1,6 +1,8 @@
 import * as fs from "fs"
 import * as path from "path"
 
+import * as Log from "./../Log"
+
 import * as Capabilities from "./Api/Capabilities"
 import { IChannel } from "./Api/Channel"
 import { Oni } from "./Api/Oni"
@@ -22,10 +24,10 @@ export class Plugin {
     }
 
     constructor(
-        pluginRootDirectory: string,
+        private _pluginRootDirectory: string,
         channel: IChannel,
     ) {
-        const packageJsonPath = path.join(pluginRootDirectory, "package.json")
+        const packageJsonPath = path.join(this._pluginRootDirectory, "package.json")
         this._channel = channel
 
         if (fs.existsSync(packageJsonPath)) {
@@ -35,28 +37,31 @@ export class Plugin {
                 console.warn("Aborting plugin load, invalid package.json: " + packageJsonPath)
             } else {
                 if (this._oniPluginMetadata.main) {
-                    let moduleEntryPoint = path.normalize(path.join(pluginRootDirectory, this._oniPluginMetadata.main))
-                    moduleEntryPoint = moduleEntryPoint.split("\\").join("/")
 
-                    const vm = require("vm")
-
-                    const onActivate = () => {
-                        try {
-                            vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
-                                Oni: this._oni
-                                require: window["require"], // tslint:disable-line no-string-literal
-                                console,
-                            })
-                        } catch (ex) {
-                            console.error(`Failed to load plugin at ${pluginRootDirectory}: ${ex}`)
-                        }
-                    }
-
-                    this._oni = new Oni(this._channel.createPluginChannel(this._oniPluginMetadata, onActivate))
+                    this._oni = new Oni(this._channel.createPluginChannel(this._oniPluginMetadata, 
+                                                                          () => this._onActivate()))
 
                     this._commands = PackageMetadataParser.getAllCommandsFromMetadata(this._oniPluginMetadata)
                 }
             }
+        }
+    }
+
+    private _onActivate(): void {
+        const vm = require("vm")
+        Log.info(`Activating plugin: ${this._oniPluginMetadata.name}`)
+
+        let moduleEntryPoint = path.normalize(path.join(this._pluginRootDirectory, this._oniPluginMetadata.main))
+        moduleEntryPoint = moduleEntryPoint.split("\\").join("/")
+
+        try {
+            vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
+                Oni: this._oni,
+                require: window["require"], // tslint:disable-line no-string-literal
+                console,
+            })
+        } catch (ex) {
+            console.error(`Failed to load plugin at ${this._pluginRootDirectory}: ${ex}`)
         }
     }
 }

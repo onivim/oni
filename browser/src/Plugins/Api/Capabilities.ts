@@ -48,6 +48,7 @@ export const createPluginFilterForCommand = (fileType: string, command: string) 
 }
 
 export interface IPluginMetadata {
+    name: string
     main: string
     engines: any
     oni: IPluginCapabilities
@@ -63,7 +64,7 @@ export interface IPluginCapabilities extends Capabilities {
  */
 export const doesMetadataMatchFilter = (metadata: IPluginMetadata, filter: IPluginFilter) => {
 
-    if (!filter || !filter.fileType) {
+    if (!filter) {
         return true
     }
 
