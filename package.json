@@ -62,6 +62,7 @@
     "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
     "test": "npm run test:browser && npm run test:plugins:typescript",
     "test:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
+    "fix-lint": "tslint --fix --project browser/tsconfig.json --config browser/tslint.json",
     "lint": "tslint --project browser/tsconfig.json --config browser/tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
     "test:plugins:typescript": "cd vim/core/oni-plugin-typescript && npm run test",
     "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
