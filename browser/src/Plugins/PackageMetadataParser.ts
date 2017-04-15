@@ -8,7 +8,6 @@ import * as _ from "lodash"
 
 import * as Capabilities from "./Api/Capabilities"
 
-
 export const PluginDefaults: Partial<Capabilities.IPluginCapabilities> = {
     commands: {},
     activationMode: "on-demand",
@@ -53,4 +52,3 @@ export const getAllCommandsFromMetadata = (metadata: Capabilities.IPluginMetadat
         details: commands[command].details,
     }))
 }
-
