@@ -144,11 +144,11 @@ export class LanguageClient {
             this._currentOpenDocumentPath = null
 
             this._connection.onNotification("window/logMessage", (args) => {
-                console.log(JSON.stringify(args))
+                console.log(JSON.stringify(args)) // tslint:disable-line no-console
             })
 
             this._connection.onNotification("telemetry/event", (args) => {
-                console.log(JSON.stringify(args))
+                console.log(JSON.stringify(args)) // tslint:disable-line no-console
             })
 
             this._connection.onNotification("window/showMessage", (args) => {
