@@ -11,10 +11,10 @@ import * as _ from "lodash"
 import * as rpc from "vscode-jsonrpc"
 import * as types from "vscode-languageserver-types"
 
-import { exec, ChildProcess } from "child_process"
+import { ChildProcess, exec } from "child_process"
 
-import { Oni } from "./Oni"
 import { getCompletionMeet } from "./../../Services/AutoCompletionUtility"
+import { Oni } from "./Oni"
 
 export interface LanguageClientInitializationParams {
     rootPath: string
@@ -201,8 +201,8 @@ export class LanguageClient {
             },
             position: {
                 line: textDocumentPosition.line - 1,
-                character: textDocumentPosition.column - 1
-            }
+                character: textDocumentPosition.column - 1,
+            },
         }).then((result: types.CompletionList) => {
 
             const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
@@ -218,12 +218,12 @@ export class LanguageClient {
                 label: i.label,
                 detail: i.detail,
                 documentation: i.documentation,
-                kind: this._mapCompletionKind(i.kind)
+                kind: this._mapCompletionKind(i.kind),
             }))
             // debugger
             return {
                 base: meetInfo.base,
-                completions
+                completions,
             }
         })
     }
@@ -282,8 +282,8 @@ export class LanguageClient {
             },
             position: {
                 line: textDocumentPosition.line - 1,
-                character: textDocumentPosition.column - 1
-            }
+                character: textDocumentPosition.column - 1,
+            },
         }).then((result: types.Hover) => {
             if (!result || !result.contents) {
                 throw "No quickinfo available"
@@ -308,8 +308,8 @@ export class LanguageClient {
             },
             position: {
                 line: textDocumentPosition.line - 1,
-                character: textDocumentPosition.column - 1
-            }
+                character: textDocumentPosition.column - 1,
+            },
         }).then((result: types.Location) => {
             const startPos = result.range.start || result.range.end
             return {
@@ -347,12 +347,12 @@ export class LanguageClient {
         this._connection.sendNotification("textDocument/didChange", {
             textDocument: {
                 uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
-                version: args.eventContext.version
+                version: args.eventContext.version,
             },
             contentChanges: [{
                 range: types.Range.create(lineNumber - 1, 0, lineNumber - 1, previousBufferLength),
-                text: changedLine
-            }]
+                text: changedLine,
+            }],
         })
 
         return Promise.resolve(null)
@@ -373,7 +373,7 @@ export class LanguageClient {
                     languageId: filetype,
                     version,
                     text,
-                }
+                },
             })
         } else {
             this._connection.sendNotification("textDocument/didChange", {
@@ -382,8 +382,8 @@ export class LanguageClient {
                     version,
                 },
                 contentChanges: [{
-                    text
-                }]
+                    text,
+                }],
             })
         }
 

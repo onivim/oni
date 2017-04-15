@@ -68,7 +68,7 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
     } else {
         return {
             position: basePos,
-            base: currentPrefix
+            base: currentPrefix,
         }
     }
 

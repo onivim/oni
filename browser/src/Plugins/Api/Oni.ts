@@ -7,7 +7,7 @@ import { Diagnostics } from "./Diagnostics"
 import { Editor } from "./Editor"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
-import { LanguageClient, InitializationParamsCreator } from "./LanguageClient"
+import { InitializationParamsCreator, LanguageClient } from "./LanguageClient"
 
 /**
  * API instance for interacting with Oni (and vim)
