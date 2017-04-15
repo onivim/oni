@@ -7,12 +7,11 @@
 import * as UI from "./UI/index"
 
 export function info(message: string): void {
-
     UI.Actions.makeLog({
         type: "info",
         message,
         details: null
     })
 
-    console.log(message)
+    console.log(message) // tslint:disable-line no-console
 }
