@@ -158,12 +158,12 @@ export class LanguageClient {
             // Register additional notifications here
             this._connection.listen()
 
-            return <any>this._connection.sendRequest("initialize", initializationParams)
+            return this._connection.sendRequest("initialize", initializationParams)
         }, false)
     }
 
     public end(): Promise<void> {
-        return <any>this._enqueuePromise(() => {
+        return this._enqueuePromise<void>(() => {
             console.warn("Closing current document service connection")
             this._connection.dispose()
 
@@ -173,27 +173,29 @@ export class LanguageClient {
         })
     }
 
-    private _enqueuePromise<T>(functionThatReturnsPromise: () => Promise<T>, requireConnection: boolean = true): Promise<T> {
+    private _enqueuePromise<T>(functionThatReturnsPromiseOrThenable: () => Promise<T> | Thenable<T>, requireConnection: boolean = true): Promise<T> {
 
         const promiseExecutor = () => {
             if (!this._connection && requireConnection) {
                 return Promise.reject("No active language server connection")
             }
 
-            return functionThatReturnsPromise()
+            return functionThatReturnsPromiseOrThenable()
         }
 
-        return this._currentPromise
+        this._currentPromise = this._currentPromise
             .then(() => promiseExecutor(),
             (err) => {
                 console.error(err)
                 promiseExecutor()
             })
+
+        return this._currentPromise
     }
 
-    private _getCompletions(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.CompletionResult> {
+    private _getCompletions(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.CompletionResult> {
 
-        return <any>this._connection.sendRequest("textDocument/completion", {
+        return this._connection.sendRequest("textDocument/completion", {
             textDocument: {
                 uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath),
             },
@@ -273,8 +275,8 @@ export class LanguageClient {
         }
     }
 
-    private _getQuickInfo(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.QuickInfo> {
-        return <any>this._connection.sendRequest("textDocument/hover", {
+    private _getQuickInfo(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.QuickInfo> {
+        return this._connection.sendRequest("textDocument/hover", {
             textDocument: {
                 uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath),
             },
@@ -282,19 +284,25 @@ export class LanguageClient {
                 line: textDocumentPosition.line - 1,
                 character: textDocumentPosition.column - 1
             }
-        }).then((result: any) => {
-            if (!result || !result.contents || result.contents.trim().length === 0) {
+        }).then((result: types.Hover) => {
+            if (!result || !result.contents) {
                 throw "No quickinfo available"
             }
 
-            return { title: result.contents.trim(), description: "" }
+            let contents = result.contents.toString().trim()
+
+            if (contents.length === 0) {
+                throw "Quickinfo data empty"
+            }
+
+            return { title: contents, description: "" }
         })
     }
 
-    private _getDefinition(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.GotoDefinitionResponse> {
+    private _getDefinition(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.GotoDefinitionResponse> {
 
         // TODO: Refactor the params
-        return <any>this._connection.sendRequest("textDocument/definition", {
+        return this._connection.sendRequest("textDocument/definition", {
             textDocument: {
                 uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath),
             },
@@ -302,7 +310,7 @@ export class LanguageClient {
                 line: textDocumentPosition.line - 1,
                 character: textDocumentPosition.column - 1
             }
-        }).then((result: any) => {
+        }).then((result: types.Location) => {
             const startPos = result.range.start || result.range.end
             return {
                 filePath: unwrapFileUriPath(result.uri),
@@ -313,8 +321,8 @@ export class LanguageClient {
 
     }
 
-    private _getHighlights(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.SyntaxHighlight[]> {
-        return <any>this._connection.sendRequest("textDocument/documentSymbol", {
+    private _getHighlights(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.SyntaxHighlight[]> {
+        return this._connection.sendRequest("textDocument/documentSymbol", {
             textDocument: {
                 uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath),
             },
@@ -324,7 +332,7 @@ export class LanguageClient {
         })
     }
 
-    private _onBufferUpdateIncremental(args: Oni.IncrementalBufferUpdateContext): Promise<void> {
+    private _onBufferUpdateIncremental(args: Oni.IncrementalBufferUpdateContext): Thenable<void> {
         if (!args.eventContext.bufferFullPath) {
             return Promise.resolve(null)
         }
@@ -336,7 +344,7 @@ export class LanguageClient {
 
         this._currentBuffer[lineNumber - 1] = changedLine
 
-        return <any>this._connection.sendNotification("textDocument/didChange", {
+        this._connection.sendNotification("textDocument/didChange", {
             textDocument: {
                 uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
                 version: args.eventContext.version
@@ -346,9 +354,11 @@ export class LanguageClient {
                 text: changedLine
             }]
         })
+
+        return Promise.resolve(null)
     }
 
-    private _onBufferUpdate(args: Oni.BufferUpdateContext): Promise<void> {
+    private _onBufferUpdate(args: Oni.BufferUpdateContext): Thenable<void> {
         const lines = args.bufferLines
         const { bufferFullPath, filetype, version } = args.eventContext
         const text = lines.join(os.EOL)
@@ -357,7 +367,7 @@ export class LanguageClient {
 
         if (this._currentOpenDocumentPath !== bufferFullPath) {
             this._currentOpenDocumentPath = bufferFullPath
-            return <any>this._connection.sendNotification("textDocument/didOpen", {
+            this._connection.sendNotification("textDocument/didOpen", {
                 textDocument: {
                     uri: wrapPathInFileUri(bufferFullPath),
                     languageId: filetype,
@@ -366,7 +376,7 @@ export class LanguageClient {
                 }
             })
         } else {
-            return <any>this._connection.sendNotification("textDocument/didChange", {
+            this._connection.sendNotification("textDocument/didChange", {
                 textDocument: {
                     uri: wrapPathInFileUri(bufferFullPath),
                     version,
@@ -376,5 +386,7 @@ export class LanguageClient {
                 }]
             })
         }
+
+        return Promise.resolve(null)
     }
 }
