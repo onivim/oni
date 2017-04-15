@@ -32,7 +32,7 @@ describe("Channel", () => {
             const channel = new Channel.InProcessChannel()
             const pluginChannel = channel.createPluginChannel(defaultPluginMetadata, () => { })
 
-            channel.host.send("test", Capabilities.createPluginFilter(null))
+            channel.host.send("test", Capabilities.createPluginFilter("testFileType"))
 
             let wasChannelCalled = false
             pluginChannel.onRequest((arg) => {
@@ -49,7 +49,7 @@ describe("Channel", () => {
             const pluginChannel1 = channel.createPluginChannel(defaultPluginMetadata, () => { })
             const pluginChannel2 = channel.createPluginChannel(defaultPluginMetadata, () => { })
 
-            channel.host.send("test", Capabilities.createPluginFilter(null))
+            channel.host.send("test", Capabilities.createPluginFilter("testFileType"))
 
             let channelCallCount = 0
             pluginChannel1.onRequest((arg) => {
