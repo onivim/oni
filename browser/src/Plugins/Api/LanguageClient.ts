@@ -30,11 +30,11 @@ export class LanguageClientLogger {
     }
 
     public info(message: string): void {
-        console.log(message)
+        console.log(message) // tslint:disable-line no-console
     }
 
     public log(message: string): void {
-        console.log(message)
+        console.log(message) // tslint:disable-line no-console
     }
 }
 
@@ -126,7 +126,8 @@ export class LanguageClient {
 
     public start(initializationParams: LanguageClientInitializationParams): Promise<any> {
 
-        return <any>this._enqueuePromise(() => {
+        return this._enqueuePromise(() => {
+
             // TODO: Pursue alternate connection mechanisms besides stdio - maybe Node IPC?
             this._process = exec(this._startCommand, { maxBuffer: 500 * 1024 * 1024 }, (err) => {
                 if (err) {
@@ -153,7 +154,6 @@ export class LanguageClient {
             this._connection.onNotification("window/showMessage", (args) => {
                 alert(args)
             })
-
 
             // Register additional notifications here
             this._connection.listen()

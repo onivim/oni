@@ -42,7 +42,7 @@ export interface CompletionMeetResult {
  */
 export function getCompletionMeet(line: string, cursorColumn: number, characterMatchRegex: RegExp): CompletionMeetResult {
 
-    if(cursorColumn <= 1) {
+    if (cursorColumn <= 1) {
         return null
     }
 
@@ -57,7 +57,7 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
         }
 
         currentPrefix = currentCharacter + currentPrefix
-        col --
+        col--
     }
 
     const basePos = col
