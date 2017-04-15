@@ -40,7 +40,7 @@ const activate = (Oni) => {
             })
     }
 
-    const doLintForProject = (args, additionalArgs) => {
+    const doLintForProject = (args, autoFix) => {
         if (!args.bufferFullPath) {
             return
         }
@@ -64,11 +64,7 @@ const activate = (Oni) => {
             processArgs.push(arg.bufferFullPath)
         }
 
-        if (additionalArgs) {
-            processArgs = additionalArgs.concat(processArgs)
-        }
-
-        executeTsLint(tslint, processArgs, currentWorkingDirectory)
+        executeTsLint(tslint, processArgs, currentWorkingDirectory, autoFix)
             .then((errors) => {
                 // Send all updated errors
                 Object.keys(errors).forEach(f => {
@@ -90,12 +86,19 @@ const activate = (Oni) => {
     Oni.on("buffer-enter", doLintForProject)
 
     Oni.commands.registerCommand("tslint.fix", (args) => {
-        doLintForProject(lastArgs, ["--fix"])
+        doLintForProject(lastArgs, true)
     })
 
-    function executeTsLint(configPath, args, workingDirectory) {
+    function executeTsLint(configPath, args, workingDirectory, autoFix) {
 
-        let processArgs = ["--force", "--format json"]
+        let processArgs = []
+
+        if (autoFix) {
+            processArgs = processArgs.concat(["--fix"])
+        }
+
+        processArgs = processArgs.concat(["--force", "--format json"])
+
         processArgs.push("--config", path.join(configPath, "tslint.json"))
         processArgs = processArgs.concat(args)
 
