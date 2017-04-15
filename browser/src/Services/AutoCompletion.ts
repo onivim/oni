@@ -57,7 +57,7 @@ export class AutoCompletion {
             .then((value) => {
                 const line = value[0]
                 originalLineLength = line.length
-                const newLine = Utility.replacePrefixWithCompletion(line, cursorColumn - 2, completion)
+                const newLine = Utility.replacePrefixWithCompletion(line, cursorColumn, completion)
                 newLineLength = newLine.length
                 return currentBuffer.setLines(cursorRow - 1, cursorRow, false, [newLine])
             })

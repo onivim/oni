@@ -220,7 +220,7 @@ export class LanguageClient {
             }))
             // debugger
             return {
-                base: "",
+                base: meetInfo.base,
                 completions
             }
         })

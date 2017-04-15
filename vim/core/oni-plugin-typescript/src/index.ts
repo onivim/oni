@@ -191,16 +191,6 @@ export const activate = (Oni) => {
                         kind: v.kind,
                     }))
 
-                let ret = []
-
-                // If there is only one result, and it matches exactly,
-                // don't show
-                if (results.length === 1 && results[0].label === currentPrefix) {
-                    ret = []
-                } else {
-                    ret = results
-                }
-
                 return {
                     base: currentPrefix,
                     completions: results,
