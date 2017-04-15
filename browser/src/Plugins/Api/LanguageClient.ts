@@ -124,53 +124,47 @@ export class LanguageClient {
         })
     }
 
-    public start(initializationParams: LanguageClientInitializationParams): Promise<any> {
+    public start(initializationParams: LanguageClientInitializationParams): Thenable<any> {
+        // TODO: Pursue alternate connection mechanisms besides stdio - maybe Node IPC?
+        this._process = exec(this._startCommand, { maxBuffer: 500 * 1024 * 1024 }, (err) => {
+            if (err) {
+                console.error(err)
+                alert(err)
+            }
+        })
 
-        return this._enqueuePromise(() => {
+        this._connection = rpc.createMessageConnection(
+            <any>(new rpc.StreamMessageReader(this._process.stdout)),
+            <any>(new rpc.StreamMessageWriter(this._process.stdin)),
+            new LanguageClientLogger())
 
-            // TODO: Pursue alternate connection mechanisms besides stdio - maybe Node IPC?
-            this._process = exec(this._startCommand, { maxBuffer: 500 * 1024 * 1024 }, (err) => {
-                if (err) {
-                    console.error(err)
-                    alert(err)
-                }
-            })
+        this._currentOpenDocumentPath = null
 
-            this._connection = rpc.createMessageConnection(
-                <any>(new rpc.StreamMessageReader(this._process.stdout)),
-                <any>(new rpc.StreamMessageWriter(this._process.stdin)),
-                new LanguageClientLogger())
+        this._connection.onNotification("window/logMessage", (args) => {
+            console.log(JSON.stringify(args)) // tslint:disable-line no-console
+        })
 
-            this._currentOpenDocumentPath = null
+        this._connection.onNotification("telemetry/event", (args) => {
+            console.log(JSON.stringify(args)) // tslint:disable-line no-console
+        })
 
-            this._connection.onNotification("window/logMessage", (args) => {
-                console.log(JSON.stringify(args)) // tslint:disable-line no-console
-            })
+        this._connection.onNotification("window/showMessage", (args) => {
+            alert(args)
+        })
 
-            this._connection.onNotification("telemetry/event", (args) => {
-                console.log(JSON.stringify(args)) // tslint:disable-line no-console
-            })
+        // Register additional notifications here
+        this._connection.listen()
 
-            this._connection.onNotification("window/showMessage", (args) => {
-                alert(args)
-            })
-
-            // Register additional notifications here
-            this._connection.listen()
-
-            return this._connection.sendRequest("initialize", initializationParams)
-        }, false)
+        return this._connection.sendRequest("initialize", initializationParams)
     }
 
     public end(): Promise<void> {
-        return this._enqueuePromise<void>(() => {
-            console.warn("Closing current document service connection")
-            this._connection.dispose()
+        console.warn("Closing current document service connection")
+        this._connection.dispose()
 
-            this._connection = null
-            this._currentOpenDocumentPath = null
-            return null
-        })
+        this._connection = null
+        this._currentOpenDocumentPath = null
+        return null
     }
 
     private _enqueuePromise<T>(functionThatReturnsPromiseOrThenable: () => Promise<T> | Thenable<T>, requireConnection: boolean = true): Promise<T> {
@@ -183,14 +177,15 @@ export class LanguageClient {
             return functionThatReturnsPromiseOrThenable()
         }
 
-        this._currentPromise = this._currentPromise
+        const newPromise = this._currentPromise
             .then(() => promiseExecutor(),
             (err) => {
                 console.error(err)
-                promiseExecutor()
+                return promiseExecutor()
             })
 
-        return this._currentPromise
+        this._currentPromise = newPromise
+        return newPromise
     }
 
     private _getCompletions(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.CompletionResult> {
