@@ -17,9 +17,9 @@
             "vim-events"
         ],
         "diagnosticsService": []
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
     }
-},
-"dependencies": {
-},
-"devDependencies": {
 }

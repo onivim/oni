@@ -8,19 +8,15 @@ describe("Capabilities", () => {
         main: "",
         engines: "",
         oni: {
-            "typescript": {
-                "languageService": ["quick-info"],
-            },
+            "supportedFileTypes": ["typescript"],
+            "languageService": ["quick-info"],
         },
     }
 
     const Plugin2: Capabilities.IPluginMetadata = {
         main: "",
         engines: "",
-        oni: {
-            "javascript": {
-            },
-        },
+        oni: { },
     }
 
     describe("doesMetadataMatchFilter", () => {

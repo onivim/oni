@@ -49,7 +49,7 @@ export const createPluginFilterForCommand = (fileType: string, command: string) 
 
 export interface IPluginMetadata {
     main: string
-    engines: string
+    engines: any
     oni: IPluginCapabilities
 }
 
@@ -69,18 +69,34 @@ export const doesMetadataMatchFilter = (metadata: IPluginMetadata, filter: IPlug
 
     const expectedFileType = filter.fileType
 
-    if (!metadata.oni || (!metadata.oni[expectedFileType] && !metadata.oni["*"])) {
+    if (!metadata.oni) {
         return false
     }
 
-    const capabilities = metadata.oni[expectedFileType] || metadata.oni["*"]
+    if (!doesPluginSupportFiletype(metadata.oni, expectedFileType)) {
+        return false
+    }
+
     const requiredCapabilities = filter.requiredCapabilities
 
     if (!requiredCapabilities) {
         return true
     }
 
-    return doCapabilitiesMeetRequirements(capabilities, requiredCapabilities)
+    return doCapabilitiesMeetRequirements(metadata.oni, requiredCapabilities)
+}
+
+export const doesPluginSupportFiletype = (pluginCapabilities: IPluginCapabilities, fileType: string) => {
+
+    if (!pluginCapabilities.supportedFileTypes || !pluginCapabilities.supportedFileTypes.length) {
+        return false
+    }
+
+    const matches = pluginCapabilities.supportedFileTypes.filter((ft) => {
+            return ft === "*" || ft === fileType
+    })
+
+    return matches.length > 0
 }
 
 export const doCapabilitiesMeetRequirements = (capabilities: Capabilities, requiredCapabilities: Capabilities) => {

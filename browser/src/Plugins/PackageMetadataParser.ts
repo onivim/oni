@@ -8,6 +8,15 @@ import * as _ from "lodash"
 
 import * as Capabilities from "./Api/Capabilities"
 
+
+export const PluginDefaults: Partial<Capabilities.IPluginCapabilities> = {
+    commands: {},
+    activationMode: "on-demand",
+    languageService: [],
+    supportedFileTypes: [],
+    subscriptions: [],
+}
+
 export const parseFromString = (packageJson: string): Capabilities.IPluginMetadata | null => {
     const metadata: Capabilities.IPluginMetadata = JSON.parse(packageJson)
 
@@ -16,18 +25,10 @@ export const parseFromString = (packageJson: string): Capabilities.IPluginMetada
         return null
     }
 
-    const pluginDefaults: Partial<Capabilities.IPluginCapabilities> = {
-        commands: {},
-        activationMode: "on-demand",
-        languageService: [],
-        supportedFileTypes: [],
-        subscriptions: [],
-    }
-
     const pluginData = metadata.oni || {}
 
     metadata.oni = {
-        ...pluginDefaults,
+        ...PluginDefaults,
         ...pluginData
     }
 
@@ -41,7 +42,7 @@ export const getAllCommandsFromMetadata = (metadata: Capabilities.IPluginMetadat
 
     const commands = metadata.oni.commands
 
-    if (!commands || !commands.length) {
+    if (!commands) {
         return []
     }
 
@@ -51,5 +52,5 @@ export const getAllCommandsFromMetadata = (metadata: Capabilities.IPluginMetadat
         name: commands[command].name,
         details: commands[command].details,
     }))
-})
+}
 
