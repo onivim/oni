@@ -98,6 +98,25 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
             return Object.assign({}, s, {
                 showNeovimInstallHelp: true,
             })
+        case "TOGGLE_LOG_FOLD":
+            return Object.assign({}, s, {
+                logs: s.logs.map((n, i) => {
+                    return i === a.payload.index ?
+                        Object.assign({}, n, {folded: !n.folded}) : n
+                }),
+            })
+        case "CHANGE_LOGS_VISIBILITY":
+            return Object.assign({}, s, {
+                logsVisible: a.payload.visibility,
+            })
+        case "MAKE_LOG":
+            const newLog = {
+                log: a.payload.log,
+                folded: true,
+            }
+            return Object.assign({}, s, {
+                logs: _.concat(s.logs, newLog),
+            })
         default:
             return Object.assign({}, s, {
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null

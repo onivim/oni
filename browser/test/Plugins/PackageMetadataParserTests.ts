@@ -5,7 +5,8 @@ import * as PackageMetadataParser from "./../../src/Plugins/PackageMetadataParse
 
 describe("PackageMetadataParser", () => {
 
-    const blankMetadataWithOniEngine: any = {
+    const blankMetadataWithOniEngine: Partial<Capabilities.IPluginMetadata> = {
+        name: "blankMetadata",
         engines: {
             oni: "0.1",
         },
@@ -25,90 +26,59 @@ describe("PackageMetadataParser", () => {
             const metadataString = JSON.stringify(metadata)
 
             const output = PackageMetadataParser.parseFromString(metadataString)
-            assert.deepEqual(output.oni, {})
+            assert.deepEqual(output.oni, PackageMetadataParser.PluginDefaults)
         })
 
         it("passes through language capabilities", () => {
             const metadata = { ...blankMetadataWithOniEngine }
-            metadata.oni = {}
-            metadata.oni["typescript"] = { // tslint:disable-line no-string-literal
-                "languageService": ["quick-info"],
+            metadata.oni = {
+                supportedFileTypes: ["typescript"],
+                languageService: ["quick-info"],
             }
+
             const metadataString = JSON.stringify(metadata)
 
             const output = PackageMetadataParser.parseFromString(metadataString)
             assert.deepEqual(output.oni, {
-                "typescript": {
-                    "languageService": ["quick-info"],
-                },
-            })
-        })
-
-        it("expands multiple language capabilities", () => {
-            const metadata = { ...blankMetadataWithOniEngine }
-            metadata.oni = {}
-            metadata.oni["typescript,javascript"] = {
-                "languageService": ["quick-info"],
-            }
-            const metadataString = JSON.stringify(metadata)
-
-            const output = PackageMetadataParser.parseFromString(metadataString)
-            assert.deepEqual(output.oni, {
-                "typescript": {
-                    "languageService": ["quick-info"],
-                },
-                "javascript": {
-                    "languageService": ["quick-info"],
-                },
-                "typescript,javascript": {
-                    "languageService": ["quick-info"],
-                },
+                ...PackageMetadataParser.PluginDefaults,
+                ...metadata.oni,
             })
         })
     })
 
     describe("getAllCommandsFromMetadata", () => {
         const PluginWithNoCommands: Capabilities.IPluginMetadata = {
+            name: "PluginWithNoCommands",
             main: "",
             engines: "",
             oni: {
-                "javascript": {
-                },
             },
         }
         const PluginWithCommand: Capabilities.IPluginMetadata = {
+            name: "PluginWithNoCommands",
             main: "",
             engines: "",
             oni: {
-                "javascript": {
-                    commands: {
-                        "test.testCommand": {
-                            name: "Test Command",
-                            details: "Test Command Details",
-                        },
+                supportedFileTypes: ["javascript"],
+                commands: {
+                    "test.testCommand": {
+                        name: "Test Command",
+                        details: "Test Command Details",
                     },
                 },
             },
         }
 
         const PluginWithDuplicateCommands: Capabilities.IPluginMetadata = {
+            name: "PluginWithDuplicateCommands",
             main: "",
             engines: "",
             oni: {
-                "javascript": {
-                    commands: {
-                        "test.testCommand": {
-                            name: "Test Command",
-                            details: "Test Command Details",
-                        },
-                    },
-                },
-                 "typescript": {
-                    commands: {
-                        "test.testCommand": {
-                            name: "Test Command",
-                            details: "Test Command Details",
-                        },
+                supportedFileTypes: ["javascript", "typescript"],
+                commands: {
+                    "test.testCommand": {
+                        name: "Test Command",
+                        details: "Test Command Details",
                     },
                 },
             },

@@ -31,14 +31,20 @@ export interface IHostChannel {
     onResponse(responseCallback: (arg: any) => void): void
 }
 
+export interface PluginActivationFunction {
+    (): void
+}
+
 export interface IChannel {
     host: IHostChannel
-    createPluginChannel(metadata: Capabilities.IPluginMetadata): IPluginChannel
+    createPluginChannel(metadata: Capabilities.IPluginMetadata, activationFunction: PluginActivationFunction): IPluginChannel
 }
 
 export interface InProcessPluginInfo {
     channel: InProcessPluginChannel
     metadata: Capabilities.IPluginMetadata
+    activationFunction: PluginActivationFunction
+    isActivated?: boolean
 }
 
 export class InProcessChannel implements IChannel {
@@ -56,17 +62,23 @@ export class InProcessChannel implements IChannel {
         this._hostChannel.on("send-request", (arg: any, filter: Capabilities.IPluginFilter) => {
             setTimeout(() => {
                 const pluginsToBroadcast = this._getChannelsForRequestFromHost(filter)
-                pluginsToBroadcast.forEach((channel) => channel.emit("host-request", arg))
+
+                pluginsToBroadcast.forEach((plugin) => {
+                    this._activateIfNecessary(plugin)
+                    plugin.channel.emit("host-request", arg)
+                })
             }, 0)
         })
     }
 
-    public createPluginChannel(metadata: Capabilities.IPluginMetadata): IPluginChannel {
+    public createPluginChannel(metadata: Capabilities.IPluginMetadata, onActivate: PluginActivationFunction): IPluginChannel {
         const channel = new InProcessPluginChannel()
 
         this._pluginChannels.push({
             channel,
             metadata,
+            isActivated: false,
+            activationFunction: onActivate,
         })
 
         channel.on("send", (arg: any) => {
@@ -80,10 +92,16 @@ export class InProcessChannel implements IChannel {
         return channel
     }
 
-    private _getChannelsForRequestFromHost(filter: Capabilities.IPluginFilter): InProcessPluginChannel[] {
+    private _activateIfNecessary(info: InProcessPluginInfo): void {
+        if (!info.isActivated) {
+            info.activationFunction()
+            info.isActivated = true
+        }
+    }
+
+    private _getChannelsForRequestFromHost(filter: Capabilities.IPluginFilter): InProcessPluginInfo[] {
         let potentialPlugins = this._pluginChannels
             .filter((p) => Capabilities.doesMetadataMatchFilter(p.metadata, filter))
-            .map((p) => p.channel)
 
         if (filter.singlePlugin) {
             potentialPlugins = _.take(potentialPlugins, 1)

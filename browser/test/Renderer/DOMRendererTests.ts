@@ -91,7 +91,7 @@ describe("DOMRenderer", () => {
             assert.strictEqual(editorElement.children.length, 3)
         })
 
-        describe.only("multibyte characters", () => {
+        describe("multibyte characters", () => {
             it("breaks up spans with multibyte characters", () => {
                 // Multibyte characters are always sent from Neovim with an extra whitespace successor
                 screen.dispatch(Actions.put(["한", "",  "한", "", "한", "", "한", ""]))
