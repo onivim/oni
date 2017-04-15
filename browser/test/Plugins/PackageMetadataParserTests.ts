@@ -40,7 +40,7 @@ describe("PackageMetadataParser", () => {
             const output = PackageMetadataParser.parseFromString(metadataString)
             assert.deepEqual(output.oni, {
                 ...PackageMetadataParser.PluginDefaults,
-                ...metadata.oni
+                ...metadata.oni,
             })
         })
     })

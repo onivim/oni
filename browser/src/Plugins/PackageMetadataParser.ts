@@ -29,7 +29,7 @@ export const parseFromString = (packageJson: string): Capabilities.IPluginMetada
 
     metadata.oni = {
         ...PluginDefaults,
-        ...pluginData
+        ...pluginData,
     }
 
     return metadata

@@ -10,7 +10,7 @@ export function info(message: string): void {
     UI.Actions.makeLog({
         type: "info",
         message,
-        details: null
+        details: null,
     })
 
     console.log(message) // tslint:disable-line no-console
