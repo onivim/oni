@@ -26,11 +26,11 @@ export function warn(message: string): void {
     console.warn(message) // tslint:disable-line no-console
 }
 
-export function error(message: string, errorDetails: any): void {
+export function error(message: string, errorDetails?: any): void {
     UI.Actions.makeLog({
         type: "error",
         message,
-        details: errorDetails,
+        details: errorDetails || null,
     })
 
     console.error(message) // tslint:disable-line no-console
