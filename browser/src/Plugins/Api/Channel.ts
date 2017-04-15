@@ -31,9 +31,13 @@ export interface IHostChannel {
     onResponse(responseCallback: (arg: any) => void): void
 }
 
+export interface PluginActivationFunction {
+    (): void
+}
+
 export interface IChannel {
     host: IHostChannel
-    createPluginChannel(metadata: Capabilities.IPluginMetadata): IPluginChannel
+    createPluginChannel(metadata: Capabilities.IPluginMetadata, activationFunction: PluginActivationFunction): IPluginChannel
 }
 
 export interface InProcessPluginInfo {

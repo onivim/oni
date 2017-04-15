@@ -15,6 +15,7 @@ export class Plugin {
     private _oniPluginMetadata: Capabilities.IPluginMetadata
     private _channel: IChannel
     private _commands: IPluginCommandInfo[]
+    private _oni: Oni
 
     public get commands(): IPluginCommandInfo[] {
         return this._commands
@@ -39,15 +40,19 @@ export class Plugin {
 
                     const vm = require("vm")
 
-                    try {
-                        vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
-                            Oni: new Oni(this._channel.createPluginChannel(this._oniPluginMetadata)),
-                            require: window["require"], // tslint:disable-line no-string-literal
-                            console,
-                        })
-                    } catch (ex) {
-                        console.error(`Failed to load plugin at ${pluginRootDirectory}: ${ex}`)
+                    const onActivate = () => {
+                        try {
+                            vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
+                                Oni: this._oni
+                                require: window["require"], // tslint:disable-line no-string-literal
+                                console,
+                            })
+                        } catch (ex) {
+                            console.error(`Failed to load plugin at ${pluginRootDirectory}: ${ex}`)
+                        }
                     }
+
+                    this._oni = new Oni(this._channel.createPluginChannel(this._oniPluginMetadata, onActivate))
 
                     this._commands = PackageMetadataParser.getAllCommandsFromMetadata(this._oniPluginMetadata)
                 }
