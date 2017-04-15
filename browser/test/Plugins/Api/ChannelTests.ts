@@ -16,10 +16,21 @@ describe("Channel", () => {
         clock.restore()
     })
 
+    const defaultPluginMetadata: Capabilities.IPluginMetadata = {
+        name: "defaultPluginMetadata",
+        main: "index.js",
+        engines: {
+            oni: "0.1.0"
+        },
+        oni: {
+            supportedFileTypes: ["testFileType"],
+        },
+    }
+
     describe("InProcessChannel", () => {
         it("broadcasts created plugin channel on host send", () => {
             const channel = new Channel.InProcessChannel()
-            const pluginChannel = channel.createPluginChannel(null)
+            const pluginChannel = channel.createPluginChannel(defaultPluginMetadata, () => { })
 
             channel.host.send("test", Capabilities.createPluginFilter(null))
 
@@ -35,8 +46,8 @@ describe("Channel", () => {
 
         it("broadcasts to multiple created plugin channels on host send", () => {
             const channel = new Channel.InProcessChannel()
-            const pluginChannel1 = channel.createPluginChannel(null)
-            const pluginChannel2 = channel.createPluginChannel(null)
+            const pluginChannel1 = channel.createPluginChannel(defaultPluginMetadata, () => { })
+            const pluginChannel2 = channel.createPluginChannel(defaultPluginMetadata, () => { })
 
             channel.host.send("test", Capabilities.createPluginFilter(null))
 

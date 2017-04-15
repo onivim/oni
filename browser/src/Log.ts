@@ -18,7 +18,7 @@ export function info(message: string): void {
 
 export function warn(message: string): void {
     UI.Actions.makeLog({
-        type: "warn",
+        type: "warning",
         message,
         details: null,
     })

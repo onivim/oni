@@ -5,6 +5,7 @@ import * as Capabilities from "./../../../src/Plugins/Api/Capabilities"
 describe("Capabilities", () => {
 
     const Plugin1: Capabilities.IPluginMetadata = {
+        name: "plugin1",
         main: "",
         engines: "",
         oni: {
@@ -14,6 +15,7 @@ describe("Capabilities", () => {
     }
 
     const Plugin2: Capabilities.IPluginMetadata = {
+        name: "plugin2",
         main: "",
         engines: "",
         oni: { },

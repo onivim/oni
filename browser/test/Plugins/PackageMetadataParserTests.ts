@@ -6,6 +6,7 @@ import * as PackageMetadataParser from "./../../src/Plugins/PackageMetadataParse
 describe("PackageMetadataParser", () => {
 
     const blankMetadataWithOniEngine: Partial<Capabilities.IPluginMetadata> = {
+        name: "blankMetadata",
         engines: {
             oni: "0.1",
         },
@@ -47,12 +48,14 @@ describe("PackageMetadataParser", () => {
 
     describe("getAllCommandsFromMetadata", () => {
         const PluginWithNoCommands: Capabilities.IPluginMetadata = {
+            name: "PluginWithNoCommands",
             main: "",
             engines: "",
             oni: {
             },
         }
         const PluginWithCommand: Capabilities.IPluginMetadata = {
+            name: "PluginWithNoCommands",
             main: "",
             engines: "",
             oni: {
@@ -67,6 +70,7 @@ describe("PackageMetadataParser", () => {
         }
 
         const PluginWithDuplicateCommands: Capabilities.IPluginMetadata = {
+            name: "PluginWithDuplicateCommands",
             main: "",
             engines: "",
             oni: {
