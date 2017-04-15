@@ -16,6 +16,12 @@
             "buffer-update",
             "vim-events"
         ],
+          "commands": {
+              "tslint.fix": {
+                "name": "TSLint: Fix",
+                "details": "Automatically fix lint issues for certain rules"
+              }
+          },
         "diagnosticsService": []
     },
     "dependencies": {

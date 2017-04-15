@@ -10,6 +10,7 @@ const tslintExecutable = isWindows ? "tslint.cmd" : "tslint"
 const tslintPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", ".bin", tslintExecutable)
 
 let lastErrors = {}
+let lastArgs = null
 
 const activate = (Oni) => {
 
@@ -39,10 +40,12 @@ const activate = (Oni) => {
             })
     }
 
-    const doLintForProject = (args) => {
+    const doLintForProject = (args, autoFix) => {
         if (!args.bufferFullPath) {
             return
         }
+
+        lastArgs = args
 
         const currentWorkingDirectory = getCurrentWorkingDirectory(args)
         const tslint = getLintConfig(currentWorkingDirectory)
@@ -61,7 +64,7 @@ const activate = (Oni) => {
             processArgs.push(arg.bufferFullPath)
         }
 
-        executeTsLint(tslint, processArgs, currentWorkingDirectory)
+        executeTsLint(tslint, processArgs, currentWorkingDirectory, autoFix)
             .then((errors) => {
                 // Send all updated errors
                 Object.keys(errors).forEach(f => {
@@ -82,9 +85,20 @@ const activate = (Oni) => {
     Oni.on("buffer-saved", doLintForFile)
     Oni.on("buffer-enter", doLintForProject)
 
-    function executeTsLint(configPath, args, workingDirectory) {
+    Oni.commands.registerCommand("tslint.fix", (args) => {
+        doLintForProject(lastArgs, true)
+    })
 
-        let processArgs = ["--force", "--format json"]
+    function executeTsLint(configPath, args, workingDirectory, autoFix) {
+
+        let processArgs = []
+
+        if (autoFix) {
+            processArgs = processArgs.concat(["--fix"])
+        }
+
+        processArgs = processArgs.concat(["--force", "--format json"])
+
         processArgs.push("--config", path.join(configPath, "tslint.json"))
         processArgs = processArgs.concat(args)
 
