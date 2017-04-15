@@ -6,6 +6,13 @@
 
 import * as _ from "lodash"
 
+/**
+ * ActivationMode describes the policy in which the plugin should be activated.
+ * `immediate` means the plugin will be executed at startup,
+ * `on-demand` means the plugin will be executed when it encounters a command or event it can handle
+ */
+export type ActivationMode = "immediate" | "on-demand"
+
 export interface Capabilities {
     languageService?: string[]
     subscriptions?: string[]
@@ -41,9 +48,15 @@ export const createPluginFilterForCommand = (fileType: string, command: string) 
 }
 
 export interface IPluginMetadata {
+    name: string
     main: string
-    engines: string
-    oni: { [language: string]: Capabilities }
+    engines: any
+    oni: IPluginCapabilities
+}
+
+export interface IPluginCapabilities extends Capabilities {
+    activationMode?: ActivationMode
+    supportedFileTypes?: string[]
 }
 
 /**
@@ -51,24 +64,40 @@ export interface IPluginMetadata {
  */
 export const doesMetadataMatchFilter = (metadata: IPluginMetadata, filter: IPluginFilter) => {
 
-    if (!filter || !filter.fileType) {
+    if (!filter) {
         return true
     }
 
     const expectedFileType = filter.fileType
 
-    if (!metadata.oni || (!metadata.oni[expectedFileType] && !metadata.oni["*"])) {
+    if (!metadata.oni) {
         return false
     }
 
-    const capabilities = metadata.oni[expectedFileType] || metadata.oni["*"]
+    if (!doesPluginSupportFiletype(metadata.oni, expectedFileType)) {
+        return false
+    }
+
     const requiredCapabilities = filter.requiredCapabilities
 
     if (!requiredCapabilities) {
         return true
     }
 
-    return doCapabilitiesMeetRequirements(capabilities, requiredCapabilities)
+    return doCapabilitiesMeetRequirements(metadata.oni, requiredCapabilities)
+}
+
+export const doesPluginSupportFiletype = (pluginCapabilities: IPluginCapabilities, fileType: string) => {
+
+    if (!pluginCapabilities.supportedFileTypes || !pluginCapabilities.supportedFileTypes.length) {
+        return false
+    }
+
+    const matches = pluginCapabilities.supportedFileTypes.filter((ft) => {
+            return ft === "*" || ft === fileType
+    })
+
+    return matches.length > 0
 }
 
 export const doCapabilitiesMeetRequirements = (capabilities: Capabilities, requiredCapabilities: Capabilities) => {

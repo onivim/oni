@@ -1,5 +1,6 @@
 
 import * as Config from  "./../Config"
+import { ILog } from "./Logs"
 import { Rectangle } from "./Types"
 
 export interface IState {
@@ -22,6 +23,12 @@ export interface IState {
     cursorColumnOpacity: number
     configuration: Config.IConfigValues
     showNeovimInstallHelp: boolean
+
+    logsVisible: boolean
+    logs: Array<{
+        log: ILog,
+        folded: boolean,
+    }>
 
     // Dimensions of active window, in pixels
     activeWindowDimensions: Rectangle
@@ -58,7 +65,6 @@ export interface IAutoCompletionInfo {
      */
     selectedIndex: number
 }
-
 export const createDefaultState = (): IState => ({
     cursorPixelX: 10,
     cursorPixelY: 10,
@@ -84,5 +90,7 @@ export const createDefaultState = (): IState => ({
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
     showNeovimInstallHelp: false,
+    logsVisible: false,
+    logs: [],
     configuration: Config.instance().getValues(),
 })

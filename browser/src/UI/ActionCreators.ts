@@ -17,6 +17,7 @@ import * as State from "./State"
 import * as Config from "./../Config"
 import * as Actions from "./Actions"
 import { events } from "./Events"
+import {ILog} from "./Logs"
 
 export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: Function, getState: Function) => {
     dispatch(_showAutoCompletion(result.base, result.completions))
@@ -185,6 +186,18 @@ export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Co
         },
     }
 }
+export const toggleLogFold = (index: number): Actions.IToggleLogFold => ({
+    type: "TOGGLE_LOG_FOLD",
+    payload: {index},
+})
+export const changeLogsVisibility = (visibility: boolean): Actions.IChangeLogsVisibility => ({
+    type: "CHANGE_LOGS_VISIBILITY",
+    payload: {visibility},
+})
+export const makeLog = (log: ILog): Actions.IMakeLog => ({
+    type: "MAKE_LOG",
+    payload: {log},
+})
 
 export const showNeovimInstallHelp = (): Actions.IShowNeovimInstallHelpAction => ({
     type: "SHOW_NEOVIM_INSTALL_HELP",

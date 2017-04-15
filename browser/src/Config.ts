@@ -196,17 +196,34 @@ class Config extends EventEmitter {
     public unregisterListener(callback: Function): void {
         this.configChanged.removeListener("config-change", callback)
     }
+    // Emitting event is not enough, at startup nobody's listening yet
+    // so we can't emit the parsing error to anyone when it happens
+    public getParsingError(): Error | null {
+        const maybeError = this.getUserRuntimeConfig()
+        return _.isError(maybeError) ? maybeError : null
+    }
 
     private applyConfig(): void {
-        let userRuntimeConfig = {}
+        let userRuntimeConfigOrError = this.getUserRuntimeConfig()
+        if (_.isError(userRuntimeConfigOrError)) {
+            this.emit("logError", userRuntimeConfigOrError)
+            this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig}
+        } else {
+            this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfigOrError}
+        }
+    }
+    private getUserRuntimeConfig(): IConfigValues | Error {
+        let userRuntimeConfig: IConfigValues | null = null
+        let error: Error | null = null
         if (fs.existsSync(this.userJsConfig)) {
             try {
                 userRuntimeConfig = global["require"](this.userJsConfig) // tslint:disable-line no-string-literal
             } catch (e) {
-                alert("Failed to parse " + this.userJsConfig + ":\n" + (<Error>e).message)
+                e.message = "Failed to parse " + this.userJsConfig + ":\n" + (<Error>e).message
+                error = e
             }
         }
-        this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfig }
+        return error ? error : userRuntimeConfig
     }
 
     private notifyListeners(): void {

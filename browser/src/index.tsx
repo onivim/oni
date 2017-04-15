@@ -192,6 +192,27 @@ const start = (args: string[]) => {
             pendingTimeout = setTimeout(updateFunction, 0) as any // FIXME: null
         }
     })
+    instance.on("logInfo", (info: string) => {
+        UI.Actions.makeLog({
+            type: "info",
+            message: info,
+            details: null,
+        })
+    })
+    instance.on("logWarning", (warning: string) => {
+        UI.Actions.makeLog({
+            type: "warning",
+            message: warning,
+            details: null,
+        })
+    })
+    instance.on("logError", (err: Error) => {
+        UI.Actions.makeLog({
+            type: "error",
+            message: err.message,
+            details: err.stack.split("\n"),
+        })
+    })
 
     instance.on("mode-change", (newMode: string) => {
         UI.Actions.setMode(newMode)
@@ -245,6 +266,21 @@ const start = (args: string[]) => {
     }
 
     const config = Config.instance()
+    config.on("logError", (err: Error) => {
+        UI.Actions.makeLog({
+            type: "error",
+            message: err.message,
+            details: err.stack.split("\n"),
+        })
+    })
+    const initialConfigParsingError = config.getParsingError()
+    if (initialConfigParsingError) {
+        UI.Actions.makeLog({
+            type: "error",
+            message: initialConfigParsingError.message,
+            details: initialConfigParsingError.stack.split("\n"),
+        })
+    }
     let prevConfigValues = config.getValues()
 
     const configChange = () => {

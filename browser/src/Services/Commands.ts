@@ -11,6 +11,8 @@ import { IBuffer } from "./../neovim/Buffer"
 import { INeovimInstance } from "./../NeovimInstance"
 import { PluginManager } from "./../Plugins/PluginManager"
 
+import * as UI from "./../UI/index"
+
 import { CallbackCommand, CommandManager } from "./CommandManager"
 
 export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance) => {
@@ -51,6 +53,11 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         }),
 
         new CallbackCommand("oni.config.openInitVim", "Edit Neovim Config", "Edit configuration file ('init.vim') for Neovim", () => neovimInstance.open("$MYVIMRC")),
+
+        new CallbackCommand("oni.editor.showLogs",
+                            "Show Logs",
+                            "Show all logs in the bottom panel",
+                            () => UI.Actions.changeLogsVisibility(true)),
 
         // Add additional commands here
         // ...

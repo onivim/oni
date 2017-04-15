@@ -1,29 +1,31 @@
 {
-  "name": "oni-plugin-tslint",
-  "version": "0.0.1",
-  "main": "lib/index.js",
-  "engines": {
-    "oni": "^0.0.1"
-  },
-  "scripts": {
-  },
-  "oni": {
-    "javascript,typescript": {
-      "subscriptions": [
-        "buffer-update",
-        "vim-events"
-      ],
-      "diagnosticsService": [],
-      "commands": {
-          "tslint.fix": {
-            "name": "TSLint: Fix",
-            "details": "Automatically fix lint issues for certain rules"
-          }
-      }
+    "name": "oni-plugin-tslint",
+    "version": "0.0.1",
+    "main": "lib/index.js",
+    "engines": {
+        "oni": "^0.0.1"
+    },
+    "scripts": {
+    },
+    "oni": {
+        "supportedFileTypes": [
+            "javascript",
+            "typescript"
+        ],
+        "subscriptions": [
+            "buffer-update",
+            "vim-events"
+        ],
+          "commands": {
+              "tslint.fix": {
+                "name": "TSLint: Fix",
+                "details": "Automatically fix lint issues for certain rules"
+              }
+          },
+        "diagnosticsService": []
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
     }
-  },
-  "dependencies": {
-  },
-  "devDependencies": {
-  }
 }

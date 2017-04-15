@@ -16,12 +16,25 @@ describe("Channel", () => {
         clock.restore()
     })
 
+    const defaultPluginMetadata: Capabilities.IPluginMetadata = {
+        name: "defaultPluginMetadata",
+        main: "index.js",
+        engines: {
+            oni: "0.1.0",
+        },
+        oni: {
+            supportedFileTypes: ["testFileType"],
+        },
+    }
+
+    const noop = () => { } // tslint:disable-line no-empty
+
     describe("InProcessChannel", () => {
         it("broadcasts created plugin channel on host send", () => {
             const channel = new Channel.InProcessChannel()
-            const pluginChannel = channel.createPluginChannel(null)
+            const pluginChannel = channel.createPluginChannel(defaultPluginMetadata, noop)
 
-            channel.host.send("test", Capabilities.createPluginFilter(null))
+            channel.host.send("test", Capabilities.createPluginFilter("testFileType"))
 
             let wasChannelCalled = false
             pluginChannel.onRequest((arg) => {
@@ -35,10 +48,10 @@ describe("Channel", () => {
 
         it("broadcasts to multiple created plugin channels on host send", () => {
             const channel = new Channel.InProcessChannel()
-            const pluginChannel1 = channel.createPluginChannel(null)
-            const pluginChannel2 = channel.createPluginChannel(null)
+            const pluginChannel1 = channel.createPluginChannel(defaultPluginMetadata, noop)
+            const pluginChannel2 = channel.createPluginChannel(defaultPluginMetadata, noop)
 
-            channel.host.send("test", Capabilities.createPluginFilter(null))
+            channel.host.send("test", Capabilities.createPluginFilter("testFileType"))
 
             let channelCallCount = 0
             pluginChannel1.onRequest((arg) => {

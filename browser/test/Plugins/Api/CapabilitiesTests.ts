@@ -5,22 +5,20 @@ import * as Capabilities from "./../../../src/Plugins/Api/Capabilities"
 describe("Capabilities", () => {
 
     const Plugin1: Capabilities.IPluginMetadata = {
+        name: "plugin1",
         main: "",
         engines: "",
         oni: {
-            "typescript": {
-                "languageService": ["quick-info"],
-            },
+            "supportedFileTypes": ["typescript"],
+            "languageService": ["quick-info"],
         },
     }
 
     const Plugin2: Capabilities.IPluginMetadata = {
+        name: "plugin2",
         main: "",
         engines: "",
-        oni: {
-            "javascript": {
-            },
-        },
+        oni: { },
     }
 
     describe("doesMetadataMatchFilter", () => {

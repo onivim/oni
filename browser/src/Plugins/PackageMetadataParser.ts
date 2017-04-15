@@ -8,7 +8,15 @@ import * as _ from "lodash"
 
 import * as Capabilities from "./Api/Capabilities"
 
-export const parseFromString = (packageJson: string) => {
+export const PluginDefaults: Partial<Capabilities.IPluginCapabilities> = {
+    commands: {},
+    activationMode: "on-demand",
+    languageService: [],
+    supportedFileTypes: [],
+    subscriptions: [],
+}
+
+export const parseFromString = (packageJson: string): Capabilities.IPluginMetadata | null => {
     const metadata: Capabilities.IPluginMetadata = JSON.parse(packageJson)
 
     if (!metadata.engines || !metadata.engines["oni"]) { // tslint:disable-line no-string-literal
@@ -16,9 +24,12 @@ export const parseFromString = (packageJson: string) => {
         return null
     }
 
-    metadata.oni = metadata.oni || {}
+    const pluginData = metadata.oni || {}
 
-    _expandMultipleLanguageKeys(metadata.oni)
+    metadata.oni = {
+        ...PluginDefaults,
+        ...pluginData,
+    }
 
     return metadata
 }
@@ -28,35 +39,16 @@ export const getAllCommandsFromMetadata = (metadata: Capabilities.IPluginMetadat
         return []
     }
 
-    const languages = _.values(metadata.oni)
-    const commandsWithName = _.flatMap(languages, (item) => {
-        if (!item.commands) {
-            return []
-        }
+    const commands = metadata.oni.commands
 
-        const commandNames = _.keys(item.commands)
-        return commandNames.map((command) => ({
-            command,
-            name: item.commands[command].name,
-            details: item.commands[command].details,
-        }))
-    })
+    if (!commands) {
+        return []
+    }
 
-    return _.uniqBy(commandsWithName, (c) => c.command)
-}
-
-/*
-* For blocks that handle multiple languages
-* ie, javascript,typescript
-* Split into separate language srevice blocks
-*/
-function _expandMultipleLanguageKeys(packageMetadata: { [languageKey: string]: any }): void {
-    Object.keys(packageMetadata).forEach((key) => {
-        if (key.indexOf(",")) {
-            const val = packageMetadata[key]
-            key.split(",").forEach((splitKey) => {
-                packageMetadata[splitKey] = val
-            })
-        }
-    })
+    const commandNames = _.keys(commands)
+    return commandNames.map((command) => ({
+        command,
+        name: commands[command].name,
+        details: commands[command].details,
+    }))
 }
