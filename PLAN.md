@@ -1,7 +1,6 @@
 ## Blocking issue
-- Defer activation of plugin until relevant file is opened
-- Performance issue with error marker (always re-rendered)
-- Add performance tracking for actions - test performance for particular action
+- Completion repro - `this.` with `_value` => `this_value`
+    - Another: `this.` with `Test` => `thiTest`
 
 ## Next
 - Validate shutdown path when switching between projects

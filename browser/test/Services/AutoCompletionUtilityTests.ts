@@ -25,7 +25,7 @@ describe("AutoCompletionUtility", () => {
 
         it("replaces with completion where none of the items match", () => {
             const line = "window."
-            const cursorColumn = 8
+            const cursorColumn = 7
             const completion = "Blob"
 
             const newLine = AutoCompletionUtility.replacePrefixWithCompletion(line, cursorColumn, completion)
