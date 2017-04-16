@@ -5,8 +5,6 @@
  * https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md
  */
 
-import * as os from "os"
-
 import * as _ from "lodash"
 import * as rpc from "vscode-jsonrpc"
 import * as types from "vscode-languageserver-types"
@@ -16,13 +14,12 @@ import { ChildProcess, exec } from "child_process"
 import { getCompletionMeet } from "./../../Services/AutoCompletionUtility"
 import { Oni } from "./Oni"
 
+import * as Helpers from "./LanguageClientHelpers"
+import { LanguageClientLogger } from "./LanguageClientLogger"
+
 export interface LanguageClientInitializationParams {
     rootPath: string
 }
-
-const wrapPathInFileUri = (path: string) => "file:///" + path
-
-const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split("file:///")[1])
 
 /**
  * Function that takes an event (buffer-open event) and returns a language params
@@ -107,6 +104,7 @@ export class LanguageClient {
     }
 
     public start(initializationParams: LanguageClientInitializationParams): Thenable<any> {
+
         // TODO: Pursue alternate connection mechanisms besides stdio - maybe Node IPC?
         this._process = exec(this._startCommand, { maxBuffer: 500 * 1024 * 1024 }, (err) => {
             if (err) {
@@ -141,7 +139,7 @@ export class LanguageClient {
     }
 
     public end(): Promise<void> {
-        console.warn("Closing current document service connection")
+        console.warn("Closing current language service connection")
         this._connection.dispose()
 
         this._connection = null
@@ -172,37 +170,30 @@ export class LanguageClient {
 
     private _getCompletions(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.CompletionResult> {
 
-        return this._connection.sendRequest("textDocument/completion", {
-            textDocument: {
-                uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath),
-            },
-            position: {
-                line: textDocumentPosition.line - 1,
-                character: textDocumentPosition.column - 1,
-            },
-        }).then((result: types.CompletionList) => {
+        return this._connection.sendRequest("textDocument/completion", Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
+            .then((result: types.CompletionList) => {
 
-            const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
-            const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, /[_a-z]/i)
+                const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
+                const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, /[_a-z]/i)
 
-            if (!meetInfo) {
-                return { base: "", completions: [] }
-            }
+                if (!meetInfo) {
+                    return { base: "", completions: [] }
+                }
 
-            const filteredItems = result.items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
+                const filteredItems = result.items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
 
-            const completions = filteredItems.map((i) => ({
-                label: i.label,
-                detail: i.detail,
-                documentation: i.documentation,
-                kind: this._mapCompletionKind(i.kind),
-            }))
-            // debugger
-            return {
-                base: meetInfo.base,
-                completions,
-            }
-        })
+                const completions = filteredItems.map((i) => ({
+                    label: i.label,
+                    detail: i.detail,
+                    documentation: i.documentation,
+                    kind: this._mapCompletionKind(i.kind),
+                }))
+
+                return {
+                    base: meetInfo.base,
+                    completions,
+                }
+            })
     }
 
     private _mapCompletionKind(kind?: types.CompletionItemKind): string {
@@ -253,55 +244,40 @@ export class LanguageClient {
     }
 
     private _getQuickInfo(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.QuickInfo> {
-        return this._connection.sendRequest("textDocument/hover", {
-            textDocument: {
-                uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath),
-            },
-            position: {
-                line: textDocumentPosition.line - 1,
-                character: textDocumentPosition.column - 1,
-            },
-        }).then((result: types.Hover) => {
-            if (!result || !result.contents) {
-                throw "No quickinfo available"
-            }
+        return this._connection.sendRequest("textDocument/hover", Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
+            .then((result: types.Hover) => {
+                if (!result || !result.contents) {
+                    throw "No quickinfo available"
+                }
 
-            let contents = result.contents.toString().trim()
+                let contents = result.contents.toString().trim()
 
-            if (contents.length === 0) {
-                throw "Quickinfo data empty"
-            }
+                if (contents.length === 0) {
+                    throw "Quickinfo data empty"
+                }
 
-            return { title: contents, description: "" }
-        })
+                return { title: contents, description: "" }
+            })
     }
 
     private _getDefinition(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.GotoDefinitionResponse> {
 
-        // TODO: Refactor the params
-        return this._connection.sendRequest("textDocument/definition", {
-            textDocument: {
-                uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath),
-            },
-            position: {
-                line: textDocumentPosition.line - 1,
-                character: textDocumentPosition.column - 1,
-            },
-        }).then((result: types.Location) => {
-            const startPos = result.range.start || result.range.end
-            return {
-                filePath: unwrapFileUriPath(result.uri),
-                line: startPos.line + 1,
-                column: startPos.character + 1,
-            }
-        })
+        return this._connection.sendRequest("textDocument/definition", Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
+            .then((result: types.Location) => {
+                const startPos = result.range.start || result.range.end
+                return {
+                    filePath: Helpers.unwrapFileUriPath(result.uri),
+                    line: startPos.line + 1,
+                    column: startPos.character + 1,
+                }
+            })
 
     }
 
     private _getHighlights(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.SyntaxHighlight[]> {
         return this._connection.sendRequest("textDocument/documentSymbol", {
             textDocument: {
-                uri: wrapPathInFileUri(textDocumentPosition.bufferFullPath),
+                uri: Helpers.wrapPathInFileUri(textDocumentPosition.bufferFullPath),
             },
         }).then((/* result: types.SymbolInformation[]*/) => {
             // TODO
@@ -317,72 +293,31 @@ export class LanguageClient {
         const changedLine = args.bufferLine
         const lineNumber = args.lineNumber
 
-        const previousBufferLength = this._currentBuffer[lineNumber - 1].length
+        const previousLine = this._currentBuffer[lineNumber - 1]
 
         this._currentBuffer[lineNumber - 1] = changedLine
 
-        this._connection.sendNotification("textDocument/didChange", {
-            textDocument: {
-                uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
-                version: args.eventContext.version,
-            },
-            contentChanges: [{
-                range: types.Range.create(lineNumber - 1, 0, lineNumber - 1, previousBufferLength),
-                text: changedLine,
-            }],
-        })
+        this._connection.sendNotification("textDocument/didChange", 
+                                          Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine))
 
         return Promise.resolve(null)
     }
 
     private _onBufferUpdate(args: Oni.BufferUpdateContext): Thenable<void> {
         const lines = args.bufferLines
-        const { bufferFullPath, filetype, version } = args.eventContext
-        const text = lines.join(os.EOL)
+        const { bufferFullPath } = args.eventContext
 
         this._currentBuffer = lines
 
         if (this._currentOpenDocumentPath !== bufferFullPath) {
             this._currentOpenDocumentPath = bufferFullPath
             this._connection.sendNotification("textDocument/didOpen", {
-                textDocument: {
-                    uri: wrapPathInFileUri(bufferFullPath),
-                    languageId: filetype,
-                    version,
-                    text,
-                },
+                textDocument: Helpers.bufferUpdateToTextDocumentItem(args),
             })
         } else {
-            this._connection.sendNotification("textDocument/didChange", {
-                textDocument: {
-                    uri: wrapPathInFileUri(bufferFullPath),
-                    version,
-                },
-                contentChanges: [{
-                    text,
-                }],
-            })
+            this._connection.sendNotification("textDocument/didChange", Helpers.bufferUpdateToDidChangeTextDocumentParams(args))
         }
 
         return Promise.resolve(null)
     }
 }
-
-export class LanguageClientLogger {
-    public error(message: string): void {
-        console.error(message)
-    }
-
-    public warn(message: string): void {
-        console.warn(message)
-    }
-
-    public info(message: string): void {
-        console.log(message) // tslint:disable-line no-console
-    }
-
-    public log(message: string): void {
-        console.log(message) // tslint:disable-line no-console
-    }
-}
-

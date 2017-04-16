@@ -1,23 +1,28 @@
 ## Next
+
+- Split in separate files:
+    - LanguageClient.ts
+    - LanguageClientLogger.ts
+    - LanguageClientHelpers.ts
+    - Continue fixing parameters for remaining methods
+
+- Clean up code
+    - Add constants in languageClientHelper
+    - Refactor string constants to use `CompletionItemKind`
+
+- Validate shutdown path when switching between projects
+
+- Validate performance
+    - Validate only single instance of plugin is receiving updates (ensure no perf regressions)
+
+## Separate issues
+- Track in separate issue
 - Still have issues with completion
     - `window.` + `setTimeout`
     - Interim completion
     - `private _onBufferUpdate(args: Oni.|)` + `EventContext` -> removes parentheses
         -test case for this?
 
-
-- Validate shutdown path when switching between projects
-- Create constants - does vscode-langserver-types have constants for the notifications?
-- Clean up code
-    - Add conversion for `TextDocumentUri` types in VSCode to remove that duplication
-    - Refactor string constants to use `CompletionItemKind`
-    - ErrorOverlay regression
-
-- Validate performance
-    - Validate only single instance of plugin is receiving updates (ensure no perf regressions)
-
-
-## Separate issues
 - Errors
 - Find all references
 - Signature Help
