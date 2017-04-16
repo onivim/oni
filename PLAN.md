@@ -10,11 +10,11 @@
 - Create constants - does vscode-langserver-types have constants for the notifications?
 - Clean up code
     - Add conversion for `TextDocumentUri` types in VSCode to remove that duplication
+    - Refactor string constants to use `CompletionItemKind`
+    - ErrorOverlay regression
 
 - Validate performance
     - Validate only single instance of plugin is receiving updates (ensure no perf regressions)
-
-- Refactor string constants to use `CompletionItemKind`
 
 
 ## Separate issues

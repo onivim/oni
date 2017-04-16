@@ -20,24 +20,6 @@ export interface LanguageClientInitializationParams {
     rootPath: string
 }
 
-export class LanguageClientLogger {
-    public error(message: string): void {
-        console.error(message)
-    }
-
-    public warn(message: string): void {
-        console.warn(message)
-    }
-
-    public info(message: string): void {
-        console.log(message) // tslint:disable-line no-console
-    }
-
-    public log(message: string): void {
-        console.log(message) // tslint:disable-line no-console
-    }
-}
-
 const wrapPathInFileUri = (path: string) => "file:///" + path
 
 const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split("file:///")[1])
@@ -385,3 +367,22 @@ export class LanguageClient {
         return Promise.resolve(null)
     }
 }
+
+export class LanguageClientLogger {
+    public error(message: string): void {
+        console.error(message)
+    }
+
+    public warn(message: string): void {
+        console.warn(message)
+    }
+
+    public info(message: string): void {
+        console.log(message) // tslint:disable-line no-console
+    }
+
+    public log(message: string): void {
+        console.log(message) // tslint:disable-line no-console
+    }
+}
+
