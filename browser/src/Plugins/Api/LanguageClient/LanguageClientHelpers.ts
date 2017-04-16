@@ -55,13 +55,13 @@ export const incrementalBufferUpdateToDidChangeTextDocumentParams = (args: Oni.I
     const previousLineLength = previousLine.length
 
     return {
-            textDocument: {
-                uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
-                version: args.eventContext.version,
-            },
-            contentChanges: [{
-                range: types.Range.create(lineNumber - 1, 0, lineNumber - 1, previousLineLength)
-                text: changedLine,
-            }],
+        textDocument: {
+            uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
+            version: args.eventContext.version,
+        },
+        contentChanges: [{
+            range: types.Range.create(lineNumber - 1, 0, lineNumber - 1, previousLineLength),
+            text: changedLine,
+        }],
     }
-})
+}

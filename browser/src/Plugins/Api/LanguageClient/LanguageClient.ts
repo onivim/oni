@@ -11,8 +11,8 @@ import * as types from "vscode-languageserver-types"
 
 import { ChildProcess, exec } from "child_process"
 
-import { getCompletionMeet } from "./../../Services/AutoCompletionUtility"
-import { Oni } from "./Oni"
+import { getCompletionMeet } from "./../../../Services/AutoCompletionUtility"
+import { Oni } from "./../Oni"
 
 import * as Helpers from "./LanguageClientHelpers"
 import { LanguageClientLogger } from "./LanguageClientLogger"
@@ -261,7 +261,6 @@ export class LanguageClient {
     }
 
     private _getDefinition(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.GotoDefinitionResponse> {
-
         return this._connection.sendRequest("textDocument/definition", Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
             .then((result: types.Location) => {
                 const startPos = result.range.start || result.range.end
@@ -271,7 +270,6 @@ export class LanguageClient {
                     column: startPos.character + 1,
                 }
             })
-
     }
 
     private _getHighlights(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.SyntaxHighlight[]> {

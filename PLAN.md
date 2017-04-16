@@ -28,6 +28,8 @@
 - Signature Help
 
 ## Longer term / Future work
+- Move PluginManager / current typescript server to use VS types - have conversion at plugin layer
+    - Start updating Oni.d.ts to use vscode types
 - Set up status bar to show LSP status
 - Hook up signature helper
 - Hook up syntax highlighting

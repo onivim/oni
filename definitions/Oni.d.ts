@@ -1,5 +1,7 @@
 import { EventEmitter } from "events"
 
+import * as types from "vscode-languageserver-types"
+
 declare namespace Oni {
 
     export interface Editor {
