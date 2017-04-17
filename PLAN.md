@@ -1,19 +1,8 @@
 ## Next
 
-- Add document highlights support
-
-- Clean up code
-    - Refactor string constants to use `CompletionItemKind`
-
-- OSX: Track issues
-
 - Validate shutdown path when switching between projects
 
-- Validate performance
-    - Validate only single instance of plugin is receiving updates (ensure no perf regressions)
-
 ## Separate issues
-- Track in separate issue
 - Still have issues with completion
     - `window.` + `setTimeout`
     - Interim completion
@@ -26,6 +15,8 @@
 - Signature Help
 
 ## Longer term / Future work
+- Clean up code
+    - Refactor string constants to use `CompletionItemKind`
 - Move PluginManager / current typescript server to use VS types - have conversion at plugin layer
     - Start updating Oni.d.ts to use vscode types
 - Set up status bar to show LSP status

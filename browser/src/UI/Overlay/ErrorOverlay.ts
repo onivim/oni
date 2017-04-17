@@ -15,7 +15,6 @@ export class ErrorOverlay implements IOverlay {
 
     public onVimEvent(_eventName: string, eventContext: Oni.EventContext): void {
 
-        // TODO: Factor this out to a separate change
         if (_eventName === "BufEnter") {
             const fullPath = eventContext.bufferFullPath
             this._currentFileName = fullPath
