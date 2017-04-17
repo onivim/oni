@@ -1,8 +1,11 @@
 ## Next
 
+- Add document highlights support
+
 - Clean up code
-    - Add constants in languageClientHelper
     - Refactor string constants to use `CompletionItemKind`
+
+- OSX: Track issues
 
 - Validate shutdown path when switching between projects
 
