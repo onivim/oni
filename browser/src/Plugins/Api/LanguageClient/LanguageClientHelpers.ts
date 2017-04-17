@@ -6,6 +6,24 @@ import * as os from "os"
 
 import * as types from "vscode-languageserver-types"
 
+export const ProtocolConstants = {
+    Initialize: "initialize",
+    Telemetry: {
+        Event: "telemetry/event",
+    },
+    TextDocument: {
+        Completion: "textDocument/completion",
+        Hover: "textDocument/hover",
+        Definition: "textDocument/definition",
+        DocumentSymbol: "textDocument/documentSymbol",
+        DidChange: "textDocument/didChange",
+    },
+    Window: {
+        LogMessage: "window/logMessage",
+        ShowMessage: "window/showMessage",
+    },
+}
+
 export const wrapPathInFileUri = (path: string) => "file:///" + path
 
 export const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split("file:///")[1])

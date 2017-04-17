@@ -120,22 +120,23 @@ export class LanguageClient {
 
         this._currentOpenDocumentPath = null
 
-        this._connection.onNotification("window/logMessage", (args) => {
+        this._connection.onNotification(Helpers.ProtocolConstants.Window.LogMessage, (args) => {
             console.log(JSON.stringify(args)) // tslint:disable-line no-console
         })
 
-        this._connection.onNotification("telemetry/event", (args) => {
+        this._connection.onNotification(Helpers.ProtocolConstants.Telemetry.Event, (args) => {
             console.log(JSON.stringify(args)) // tslint:disable-line no-console
         })
 
-        this._connection.onNotification("window/showMessage", (args) => {
+        this._connection.onNotification(Helpers.ProtocolConstants.Window.ShowMessage, (args) => {
+            // TODO: Need alternate paradigm for showing a message
             alert(args)
         })
 
         // Register additional notifications here
         this._connection.listen()
 
-        return this._connection.sendRequest("initialize", initializationParams)
+        return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, initializationParams)
     }
 
     public end(): Promise<void> {
@@ -170,7 +171,8 @@ export class LanguageClient {
 
     private _getCompletions(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.CompletionResult> {
 
-        return this._connection.sendRequest("textDocument/completion", Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
+        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.Completion,
+            Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
             .then((result: types.CompletionList) => {
 
                 const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
@@ -244,7 +246,8 @@ export class LanguageClient {
     }
 
     private _getQuickInfo(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.QuickInfo> {
-        return this._connection.sendRequest("textDocument/hover", Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
+        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.Hover,
+            Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
             .then((result: types.Hover) => {
                 if (!result || !result.contents) {
                     throw "No quickinfo available"
@@ -261,7 +264,8 @@ export class LanguageClient {
     }
 
     private _getDefinition(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.GotoDefinitionResponse> {
-        return this._connection.sendRequest("textDocument/definition", Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
+        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.Definition,
+            Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
             .then((result: types.Location) => {
                 const startPos = result.range.start || result.range.end
                 return {
@@ -273,7 +277,7 @@ export class LanguageClient {
     }
 
     private _getHighlights(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.SyntaxHighlight[]> {
-        return this._connection.sendRequest("textDocument/documentSymbol", {
+        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.DocumentSymbol, {
             textDocument: {
                 uri: Helpers.wrapPathInFileUri(textDocumentPosition.bufferFullPath),
             },
@@ -295,8 +299,8 @@ export class LanguageClient {
 
         this._currentBuffer[lineNumber - 1] = changedLine
 
-        this._connection.sendNotification("textDocument/didChange", 
-                                          Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine))
+        this._connection.sendNotification(Helpers.ProtocolConstants.TextDocument.DidChange,
+            Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine))
 
         return Promise.resolve(null)
     }
@@ -313,7 +317,8 @@ export class LanguageClient {
                 textDocument: Helpers.bufferUpdateToTextDocumentItem(args),
             })
         } else {
-            this._connection.sendNotification("textDocument/didChange", Helpers.bufferUpdateToDidChangeTextDocumentParams(args))
+            this._connection.sendNotification(Helpers.ProtocolConstants.TextDocument.DidChange,
+                Helpers.bufferUpdateToDidChangeTextDocumentParams(args))
         }
 
         return Promise.resolve(null)

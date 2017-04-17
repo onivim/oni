@@ -16,6 +16,7 @@
     - Interim completion
     - `private _onBufferUpdate(args: Oni.|)` + `EventContext` -> removes parentheses
         -test case for this?
+    - Helpers.ProtocolConstants.| (TextDocument) -> fail
 
 - Errors
 - Find all references
