@@ -21,4 +21,3 @@ export class LanguageClientLogger {
         console.log(message) // tslint:disable-line no-console
     }
 }
-

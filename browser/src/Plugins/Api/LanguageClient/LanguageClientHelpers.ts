@@ -48,7 +48,7 @@ export const eventContextToTextDocumentPositionParams = (args: Oni.EventContext)
     position: {
         line: args.line - 1,
         character: args.column - 1,
-    }
+    },
 })
 
 export const bufferUpdateToDidChangeTextDocumentParams = (args: Oni.BufferUpdateContext) => {
