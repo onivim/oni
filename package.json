@@ -86,7 +86,7 @@
     "minimist": "1.2.0",
     "mkdirp": "0.5.1",
     "neovim-client": "2.1.0",
-    "omnisharp-client": "7.0.4",
+    "omnisharp-client": "7.0.5",
     "typescript": "2.2.1",
     "vscode-jsonrpc": "3.2.0",
     "vscode-languageserver-types": "3.2.0",
