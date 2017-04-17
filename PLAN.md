@@ -1,11 +1,5 @@
 ## Next
 
-- Split in separate files:
-    - LanguageClient.ts
-    - LanguageClientLogger.ts
-    - LanguageClientHelpers.ts
-    - Continue fixing parameters for remaining methods
-
 - Clean up code
     - Add constants in languageClientHelper
     - Refactor string constants to use `CompletionItemKind`
