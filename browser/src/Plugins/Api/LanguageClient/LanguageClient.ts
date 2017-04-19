@@ -160,7 +160,7 @@ export class LanguageClient {
 
         this._connection = null
         this._currentOpenDocumentPath = null
-        return null
+        return Promise.resolve(null)
     }
 
     private _enqueuePromise<T>(functionThatReturnsPromiseOrThenable: () => Promise<T> | Thenable<T>, requireConnection: boolean = true): Promise<T> {
