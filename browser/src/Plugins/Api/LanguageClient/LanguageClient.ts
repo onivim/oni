@@ -18,6 +18,7 @@ import * as Helpers from "./LanguageClientHelpers"
 import { LanguageClientLogger } from "./LanguageClientLogger"
 
 export interface LanguageClientInitializationParams {
+    clientName: string
     rootPath: string
 }
 
@@ -131,6 +132,20 @@ export class LanguageClient {
         this._connection.onNotification(Helpers.ProtocolConstants.Window.ShowMessage, (args) => {
             // TODO: Need alternate paradigm for showing a message
             alert(args)
+        })
+
+        this._connection.onNotification(Helpers.ProtocolConstants.TextDocument.PublishDiagnostics, (args) => {
+            const diagnostics: types.Diagnostic[] = args.diagnostics
+
+            const oniDiagnostics = diagnostics.map((d) => ({
+                type: null,
+                text: d.message,
+                lineNumber: d.range.start.line + 1,
+                startColumn: d.range.start.character + 1,
+                endColumn: d.range.end.character + 1,
+            }))
+
+            this._oni.diagnostics.setErrors(this._initializationParams.clientName, Helpers.unwrapFileUriPath(args.uri), oniDiagnostics, "red")
         })
 
         // Register additional notifications here

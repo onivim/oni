@@ -15,6 +15,7 @@ const activate = (Oni) => {
         return getRootProjectFileAsync(path.dirname(filePath))
             .then((csprojPath) => {
                 return {
+                    clientName: "omnisharp",
                     rootPath: csprojPath,
                     capabilities: {
                         highlightProvider: true
