@@ -231,6 +231,7 @@ A few interesting configuration options to set:
 - `oni.hideMenu` - (default: `false`) If true, hide menu bar.  When hidden, menu bar can still be displayed with `Alt`.
 - `editor.fontSize` - Font size
 - `editor.fontFamily` - Font family
+- `editor.fontLigatures` - (default: `true`). If true, ligatures are enabled.
 - `editor.backgroundImageUrl` - specific a custom background image
 - `editor.backgroundImageSize` - specific a custom background size (cover, contain)
 

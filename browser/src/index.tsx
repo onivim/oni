@@ -307,6 +307,8 @@ const start = (args: string[]) => {
             UI.Actions.showCursorColumn()
         }
 
+        document.body.style.fontVariant = config.getValue("editor.fontLigatures") ? "normal" : "none"
+
         const window = remote.getCurrentWindow()
         const hideMenu: boolean = config.getValue("oni.hideMenu")
         window.setAutoHideMenuBar(hideMenu)
