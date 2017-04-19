@@ -340,26 +340,24 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _handleNotification(_method: any, args: any): void {
         args.forEach((a: any[]) => {
-            const command = a[0]
-            a.shift()
-
-            if (command === "cursor_goto") {
+            const command = a.shift()
+            switch (command) {
+            case "cursor_goto":
                 this.emit("action", Actions.createCursorGotoAction(a[0][0], a[0][1]))
-            } else if (command === "put") {
-
+                break
+            case "put":
                 const charactersToPut = a.map((v) => v[0])
                 this.emit("action", Actions.put(charactersToPut))
-            } else if (command === "set_scroll_region") {
+                break
+            case "set_scroll_region":
                 const param = a[0]
                 this.emit("action", Actions.setScrollRegion(param[0], param[1], param[2], param[3]))
-            } else if (command === "scroll") {
+                break
+            case "scroll":
                 this.emit("action", Actions.scroll(a[0][0]))
-            } else if (command === "highlight_set") {
-
-                const count = a.length
-
-                const highlightInfo = a[count - 1][0]
-
+                break
+            case "highlight_set":
+                const highlightInfo = a[a.length - 1][0]
                 this.emit("action", Actions.setHighlight(
                     !!highlightInfo.bold,
                     !!highlightInfo.italic,
@@ -369,34 +367,48 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     highlightInfo.foreground,
                     highlightInfo.background,
                 ))
-            } else if (command === "resize") {
+                break
+            case "resize":
                 this.emit("action", Actions.resize(a[0][0], a[0][1]))
-            } else if (command === "set_title") {
+                break
+            case "set_title":
                 this.emit("set-title", a[0][0])
-            } else if (command === "eol_clear") {
+                break
+            case "set_icon":
+                // window title when minimized, no-op
+                break
+            case "eol_clear":
                 this.emit("action", Actions.clearToEndOfLine())
-            } else if (command === "clear") {
+                break
+            case "clear":
                 this.emit("action", Actions.clear())
-            } else if (command === "mouse_on") {
+                break
+            case "mouse_on":
                 // TODO
-            } else if (command === "update_bg") {
+                break
+            case "update_bg":
                 this.emit("action", Actions.updateBackground(a[0][0]))
-            } else if (command === "update_fg") {
+                break
+            case "update_fg":
                 this.emit("action", Actions.updateForeground(a[0][0]))
-            } else if (command === "mode_change") {
+                break
+            case "mode_change":
                 const newMode = a[0][0]
                 this.emit("action", Actions.changeMode(newMode))
                 this.emit("mode-change", newMode)
-            } else if (command === "popupmenu_show") {
+                break
+            case "popupmenu_show":
                 const completions = a[0][0]
                 this.emit("show-popup-menu", completions)
-            } else if (command === "bell") {
+                break
+            case "bell":
                 const bellUrl = this._config.getValue("oni.audio.bellUrl")
                 if (bellUrl) {
                     const audio = new Audio(bellUrl)
                     audio.play()
                 }
-            } else {
+                break
+            default:
                 this.emit("logWarning", "Unhandled command: " + command)
             }
         })
