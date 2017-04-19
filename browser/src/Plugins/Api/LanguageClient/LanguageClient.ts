@@ -18,6 +18,7 @@ import * as Helpers from "./LanguageClientHelpers"
 import { LanguageClientLogger } from "./LanguageClientLogger"
 
 export interface LanguageClientInitializationParams {
+    clientName: string
     rootPath: string
 }
 
@@ -144,7 +145,7 @@ export class LanguageClient {
                 endColumn: d.range.end.character + 1,
             }))
 
-            this._oni.diagnostics.setErrors("language client", Helpers.unwrapFileUriPath(args.uri), oniDiagnostics, "red")
+            this._oni.diagnostics.setErrors(this._initializationParams.clientName, Helpers.unwrapFileUriPath(args.uri), oniDiagnostics, "red")
         })
 
         // Register additional notifications here
