@@ -61,6 +61,8 @@ export interface IConfigValues {
     "editor.errors.slideOnFocus": boolean
     "editor.formatting.formatOnSwitchToNormalMode": boolean // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun
 
+    // If true (default), ligatures are enabled
+    "editor.fontLigatures": boolean
     "editor.fontSize": string
     "editor.fontFamily": string // Platform specific
 
@@ -114,6 +116,7 @@ class Config extends EventEmitter {
         "editor.errors.slideOnFocus": true,
         "editor.formatting.formatOnSwitchToNormalMode": false,
 
+        "editor.fontLigatures": true,
         "editor.fontSize": "14px",
         "editor.fontFamily": "",
 
