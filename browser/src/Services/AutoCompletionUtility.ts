@@ -31,3 +31,45 @@ export function replacePrefixWithCompletion(bufferLine: string, cursorColumn: nu
 
     return before + completion + after
 }
+
+export interface CompletionMeetResult {
+    position: number
+    base: string
+}
+
+/**
+ * Returns the start of the 'completion meet' along with the current base for completion
+ */
+export function getCompletionMeet(line: string, cursorColumn: number, characterMatchRegex: RegExp): CompletionMeetResult {
+
+    if (cursorColumn <= 1) {
+        return null
+    }
+
+    let col = cursorColumn - 2
+    let currentPrefix = ""
+
+    while (col >= 0) {
+        const currentCharacter = line[col]
+
+        if (!currentCharacter.match(characterMatchRegex)) {
+            break
+        }
+
+        currentPrefix = currentCharacter + currentPrefix
+        col--
+    }
+
+    const basePos = col
+
+    // TODO: Refactor this into a 'trigger characters' array
+    if (currentPrefix.length === 0 && line[basePos] !== ".") {
+        return null
+    } else {
+        return {
+            position: basePos,
+            base: currentPrefix,
+        }
+    }
+
+}

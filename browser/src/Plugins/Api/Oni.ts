@@ -7,6 +7,7 @@ import { Diagnostics } from "./Diagnostics"
 import { Editor } from "./Editor"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
+import { InitializationParamsCreator, LanguageClient } from "./LanguageClient/LanguageClient"
 
 /**
  * API instance for interacting with Oni (and vim)
@@ -40,6 +41,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._channel.onRequest((arg: any) => {
             this._handleNotification(arg)
         })
+    }
+
+    public createLanguageClient(initializationCommand: string, initializationParamsCreator: InitializationParamsCreator): LanguageClient {
+        return new LanguageClient(initializationCommand, initializationParamsCreator, this)
     }
 
     public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {

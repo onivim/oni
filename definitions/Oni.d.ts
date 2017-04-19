@@ -1,3 +1,7 @@
+import { EventEmitter } from "events"
+
+import * as types from "vscode-languageserver-types"
+
 declare namespace Oni {
 
     export interface Editor {
@@ -20,6 +24,23 @@ declare namespace Oni {
 
     export interface TextEdit extends Range {
         newValue: string
+    }
+
+    /**
+     * Describes the change of an entire buffer
+     */
+    export interface BufferUpdateContext {
+        bufferLines: string[]
+        eventContext: EventContext
+    }
+
+    /**
+     * Incremental buffer update describes the change for a particular line of a document
+     */
+    export interface IncrementalBufferUpdateContext {
+        lineNumber: number
+        bufferLine: string
+        eventContext: EventContext
     }
 
     export interface EventContext {
@@ -109,7 +130,7 @@ declare namespace Oni {
             edits: TextEdit[]
         }
 
-        export interface Api {
+        export interface Api extends EventEmitter {
             // handleNotification(method: string, args: any[]): void
 
             diagnostics: Diagnostics.Api;
@@ -134,8 +155,6 @@ declare namespace Oni {
 
         export interface SyntaxHighlight {
             highlightKind: string,
-            start: Oni.Position,
-            end: Oni.Position,
             token: string
         }
 

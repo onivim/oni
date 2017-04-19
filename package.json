@@ -32,7 +32,7 @@
       "category": "public.app-category.developer-tools",
       "target": "dmg",
       "files": [
-          "bin/osx/**/*"
+        "bin/osx/**/*"
       ]
     },
     "linux": {
@@ -45,7 +45,10 @@
       ]
     },
     "win": {
-      "target": ["zip", "dir"],
+      "target": [
+        "zip",
+        "dir"
+      ],
       "files": [
         "bin/x86/**/*"
       ]
@@ -83,7 +86,10 @@
     "minimist": "1.2.0",
     "mkdirp": "0.5.1",
     "neovim-client": "2.1.0",
+    "omnisharp-client": "7.0.6",
     "typescript": "2.2.1",
+    "vscode-jsonrpc": "3.2.0",
+    "vscode-languageserver-types": "3.2.0",
     "wcwidth": "1.0.1"
   },
   "devDependencies": {

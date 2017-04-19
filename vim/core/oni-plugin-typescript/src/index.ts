@@ -191,16 +191,6 @@ export const activate = (Oni) => {
                         kind: v.kind,
                     }))
 
-                let ret = []
-
-                // If there is only one result, and it matches exactly,
-                // don't show
-                if (results.length === 1 && results[0].label === currentPrefix) {
-                    ret = []
-                } else {
-                    ret = results
-                }
-
                 return {
                     base: currentPrefix,
                     completions: results,
@@ -276,7 +266,7 @@ export const activate = (Oni) => {
         host.updateFile(bufferFullPath, stringContents)
     }, 50)
 
-    Oni.on("buffer-update", (args) => {
+    Oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
 
         if (!args.eventContext.bufferFullPath) {
             return
@@ -292,7 +282,7 @@ export const activate = (Oni) => {
 
     })
 
-    Oni.on("buffer-update-incremental", (args) => {
+    Oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
         if (!args.eventContext.bufferFullPath) {
             return
         }
@@ -320,8 +310,6 @@ export const activate = (Oni) => {
             spans.forEach((s) => {
                 highlights.push({
                     highlightKind,
-                    start: { line: s.start.line, column: s.start.offset },
-                    end: { line: s.end.line, column: s.end.offset },
                     token: item.text,
                 })
             })
@@ -342,7 +330,7 @@ export const activate = (Oni) => {
                 // debugger
                 getHighlightsFromNavTree(navTree.childItems, highlights)
 
-                Oni.setHighlights(args.bufferFullPath, "derp", highlights)
+                Oni.setHighlights(args.bufferFullPath, "typescript", highlights)
             })
     })
 
@@ -355,7 +343,7 @@ export const activate = (Oni) => {
                 // debugger
                 getHighlightsFromNavTree(navTree.childItems, highlights)
 
-                Oni.setHighlights(args.bufferFullPath, "derp", highlights)
+                Oni.setHighlights(args.bufferFullPath, "typescript", highlights)
             })
     })
 
