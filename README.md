@@ -145,7 +145,7 @@ These are all great plugins - but they all have the same fundamental issue that 
 
 If a [language extension](#language-extensibility) is available for a language, then that language service will be queried as you type, and if there are completions available, those will be presented automatically.
 
-> Out of the box, the only supported languages for rich completion are JavaScript and TypeScript. These leverage the TypeScript Language Service which requires either a tsconfig.json or a jsconfig.json at the root of the project. You can use an empty json file with `{}` to get the rich completion.
+> Out of the box, the only supported languages for rich completion are JavaScript, TypeScript, and C#. JavaScript and TypeScript Language Service which requires either a tsconfig.json or a jsconfig.json at the root of the project. You can use an empty json file with `{}` to get the rich completion. C# uses the [omnisharp](https://github.com/OmniSharp/omnisharp-node-client) service for completion, and will work wherever there is a .csproj file.
 
 ##### Commands
 
