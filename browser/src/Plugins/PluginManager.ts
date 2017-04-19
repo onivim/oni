@@ -151,7 +151,8 @@ export class PluginManager extends EventEmitter {
         // TODO: Refactor these handlers to separate classes
         // - pluginManager.registerResponseHandler("show-quick-info", new QuickInfoHandler())
 
-        if (pluginResponse.type === "show-quick-info") {
+        switch (pluginResponse.type) {
+        case "show-quick-info":
             if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
                 return
             }
@@ -167,7 +168,8 @@ export class PluginManager extends EventEmitter {
             } else {
                 setTimeout(() => UI.Actions.hideQuickInfo())
             }
-        } else if (pluginResponse.type === "goto-definition") {
+            break
+        case "goto-definition":
             if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
                 return
             }
@@ -177,7 +179,8 @@ export class PluginManager extends EventEmitter {
             this._neovimInstance.command("e! " + filePath)
             this._neovimInstance.command(`cal cursor(${line}, ${column})`)
             this._neovimInstance.command("norm zz")
-        } else if (pluginResponse.type === "completion-provider") {
+            break
+        case "completion-provider":
             if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
                 return
             }
@@ -187,25 +190,37 @@ export class PluginManager extends EventEmitter {
             }
 
             setTimeout(() => UI.Actions.showCompletions(pluginResponse.payload))
-        } else if (pluginResponse.type === "completion-provider-item-selected") {
+            break
+        case "completion-provider-item-selected":
             setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
-        } else if (pluginResponse.type === "set-errors") {
+            break
+        case "set-errors":
             this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
-        } else if (pluginResponse.type === "find-all-references") {
+            break
+        case "find-all-references":
             this.emit("find-all-references", pluginResponse.payload.references)
-        } else if (pluginResponse.type === "format") {
+            break
+        case "format":
             this.emit("format", pluginResponse.payload)
-        } else if (pluginResponse.type === "execute-shell-command") {
+            break
+        case "execute-shell-command":
             // TODO: Check plugin permission
             this.emit("execute-shell-command", pluginResponse.payload)
-        } else if (pluginResponse.type === "evaluate-block-result") {
+            break
+        case "evaluate-block-result":
             this.emit("evaluate-block-result", pluginResponse.payload)
-        } else if (pluginResponse.type === "set-syntax-highlights") {
+            break
+        case "set-syntax-highlights":
             this.emit("set-syntax-highlights", pluginResponse.payload)
-        } else if (pluginResponse.type === "clear-syntax-highlights") {
+            break
+        case "clear-syntax-highlights":
             this.emit("clear-syntax-highlights", pluginResponse.payload)
-        } else if (pluginResponse.type === "signature-help-response") {
+            break
+        case "signature-help-response":
             this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
+            break
+        default:
+            this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)
         }
     }
 
