@@ -70,6 +70,8 @@ function createWindow(commandLineArguments, workingDirectory) {
     })
 
     ipcMain.on('rebuild-menu', function(_evt, loadInit) {
+        // ipcMain is a singleton so if there are multiple Oni instances
+        // we may receive an event from a different instance
         if (mainWindow) {
             updateMenu(mainWindow, loadInit)
         }
