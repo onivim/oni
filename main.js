@@ -70,7 +70,9 @@ function createWindow(commandLineArguments, workingDirectory) {
     })
 
     ipcMain.on('rebuild-menu', function(_evt, loadInit) {
-        updateMenu(mainWindow, loadInit)
+        if (mainWindow) {
+            updateMenu(mainWindow, loadInit)
+        }
     })
 
     // and load the index.html of the app.
