@@ -71,10 +71,10 @@ export class LanguageClient {
                     })
             }, false)
 
-            this._enqueuePromise(() => {
-                return this._getHighlights(args)
-                    .then((highlights: Oni.Plugin.SyntaxHighlight[]) => this._oni.setHighlights(args.bufferFullPath, "langservice", highlights))
-            })
+            // this._enqueuePromise(() => {
+            //     return this._getHighlights(args)
+            //         .then((highlights: Oni.Plugin.SyntaxHighlight[]) => this._oni.setHighlights(args.bufferFullPath, "langservice", highlights))
+            // })
         })
 
         this._oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
@@ -244,16 +244,16 @@ export class LanguageClient {
             })
     }
 
-    private _getHighlights(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.SyntaxHighlight[]> {
-        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.DocumentSymbol, {
-            textDocument: {
-                uri: Helpers.wrapPathInFileUri(textDocumentPosition.bufferFullPath),
-            },
-        }).then((/* result: types.SymbolInformation[]*/) => {
-            // TODO
-            return []
-        })
-    }
+    // private _getHighlights(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.SyntaxHighlight[]> {
+    //     return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.DocumentSymbol, {
+    //         textDocument: {
+    //             uri: Helpers.wrapPathInFileUri(textDocumentPosition.bufferFullPath),
+    //         },
+    //     }).then((/* result: types.SymbolInformation[]*/) => {
+    //         // TODO
+    //         return []
+    //     })
+    // }
 
     private _onBufferUpdateIncremental(args: Oni.IncrementalBufferUpdateContext): Thenable<void> {
         if (!args.eventContext.bufferFullPath) {
