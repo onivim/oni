@@ -4,6 +4,7 @@
 
 import * as _ from "lodash"
 import * as React from "react"
+import * as types from "vscode-languageserver-types"
 
 import { connect } from "react-redux"
 
@@ -101,7 +102,7 @@ export class AutoCompletionItem extends React.Component<IAutoCompletionItemProps
 }
 
 export interface IAutoCompletionIconProps {
-    kind: string
+    kind: types.CompletionItemKind
 }
 
 export class AutoCompletionIcon extends React.Component<IAutoCompletionIconProps, void> {
