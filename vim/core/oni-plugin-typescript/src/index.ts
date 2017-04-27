@@ -11,7 +11,7 @@ import * as os from "os"
 import * as path from "path"
 
 import * as _ from "lodash"
-import * as types from "vscode-languageserver-types"
+import { CompletionItemKind } from "vscode-languageserver-types"
 
 import { evaluateBlock, getCommonImports } from "./LiveEvaluation"
 import { QuickInfo } from "./QuickInfo"
@@ -126,8 +126,37 @@ export const activate = (Oni) => {
         return evaluateBlock(id, fileName, code)
     }
 
-    const convertTypeScriptKindToCompletionItemKind = (kind: string): types.CompletionItemKind => {
-        return types.CompletionItemKind.Reference
+    const convertTypeScriptKindToCompletionItemKind = (kind: string): CompletionItemKind => {
+
+        const typeScriptKindToCompletionKind = {
+            "let": CompletionItemKind.Variable,
+            "interface": CompletionItemKind.Interface,
+            "alias": CompletionItemKind.Reference,
+            "color": CompletionItemKind.Color,
+            "const": CompletionItemKind.Value,
+            "constructor": CompletionItemKind.Constructor,
+            "class": CompletionItemKind.Class,
+            "type": CompletionItemKind.Class,
+            "directory": CompletionItemKind.File,
+            "file": CompletionItemKind.File,
+            "script": CompletionItemKind.File,
+            "var": CompletionItemKind.Variable,
+            "property": CompletionItemKind.Property,
+            "parameter": CompletionItemKind.Variable,
+            "module": CompletionItemKind.Module,
+            "external module name": CompletionItemKind.Module,
+            "method": CompletionItemKind.Method,
+            "function": CompletionItemKind.Function,
+            "unit": CompletionItemKind.Unit,
+            "keyword": CompletionItemKind.Keyword,
+            "text": CompletionItemKind.Text,
+        }
+
+        if (kind && typeScriptKindToCompletionKind[kind]) {
+            return typeScriptKindToCompletionKind[kind]
+        } else {
+            return null
+        }
     }
 
     const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {
