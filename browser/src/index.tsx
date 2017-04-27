@@ -25,7 +25,6 @@ import { registerBuiltInCommands } from "./Services/Commands"
 import { Errors } from "./Services/Errors"
 import { Formatter } from "./Services/Formatter"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
-import { MultiProcess } from "./Services/MultiProcess"
 import { OutputWindow } from "./Services/Output"
 import { QuickOpen } from "./Services/QuickOpen"
 import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
@@ -73,7 +72,6 @@ const start = (args: string[]) => {
     const errorService = new Errors(instance)
     const quickOpen = new QuickOpen(instance)
     const windowTitle = new WindowTitle(instance)
-    const multiProcess = new MultiProcess()
     const formatter = new Formatter(instance, pluginManager, bufferUpdates)
     const outputWindow = new OutputWindow(instance, pluginManager)
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
@@ -383,10 +381,8 @@ const start = (args: string[]) => {
             tasks.show()
         } else if (key === "<C-pageup>") {
             commandManager.executeCommand("oni.focusNextInstance", null)
-            multiProcess.focusPreviousInstance()
         } else if (key === "<C-pagedown>") {
             commandManager.executeCommand("oni.focusPreviousInstance", null)
-            multiProcess.focusNextInstance()
         } else {
             instance.input(key)
         }
