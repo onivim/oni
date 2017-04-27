@@ -6,6 +6,8 @@
  *  - Managing completion state
  */
 
+import * as types from "vscode-languageserver-types"
+
 import { IBuffer } from "./../neovim/Buffer"
 import { INeovimInstance } from "./../NeovimInstance"
 
@@ -20,7 +22,7 @@ export class AutoCompletion {
     ) {
         this._neovimInstance.on("show-popup-menu", (completions: any[]) => {
             const c = completions.map((completion) => ({
-                kind: "text",
+                kind: types.CompletionItemKind.Text,
                 label: completion[0],
             }))
 
