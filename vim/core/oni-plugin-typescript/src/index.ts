@@ -11,6 +11,7 @@ import * as os from "os"
 import * as path from "path"
 
 import * as _ from "lodash"
+import { CompletionItemKind } from "vscode-languageserver-types"
 
 import { evaluateBlock, getCommonImports } from "./LiveEvaluation"
 import { QuickInfo } from "./QuickInfo"
@@ -125,6 +126,39 @@ export const activate = (Oni) => {
         return evaluateBlock(id, fileName, code)
     }
 
+    const convertTypeScriptKindToCompletionItemKind = (kind: string): CompletionItemKind => {
+
+        const typeScriptKindToCompletionKind = {
+            "let": CompletionItemKind.Variable,
+            "interface": CompletionItemKind.Interface,
+            "alias": CompletionItemKind.Reference,
+            "color": CompletionItemKind.Color,
+            "const": CompletionItemKind.Value,
+            "constructor": CompletionItemKind.Constructor,
+            "class": CompletionItemKind.Class,
+            "type": CompletionItemKind.Class,
+            "directory": CompletionItemKind.File,
+            "file": CompletionItemKind.File,
+            "script": CompletionItemKind.File,
+            "var": CompletionItemKind.Variable,
+            "property": CompletionItemKind.Property,
+            "parameter": CompletionItemKind.Variable,
+            "module": CompletionItemKind.Module,
+            "external module name": CompletionItemKind.Module,
+            "method": CompletionItemKind.Method,
+            "function": CompletionItemKind.Function,
+            "unit": CompletionItemKind.Unit,
+            "keyword": CompletionItemKind.Keyword,
+            "text": CompletionItemKind.Text,
+        }
+
+        if (kind && typeScriptKindToCompletionKind[kind]) {
+            return typeScriptKindToCompletionKind[kind]
+        } else {
+            return null
+        }
+    }
+
     const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {
 
         if (!textDocumentPosition || !textDocumentPosition.bufferFullPath) {
@@ -140,7 +174,7 @@ export const activate = (Oni) => {
                 }
 
                 return {
-                    kind: entry.kind,
+                    kind: convertTypeScriptKindToCompletionItemKind(entry.kind),
                     label: entry.name,
                     documentation: entry.documentation && entry.documentation.length ? entry.documentation[0].text : null,
                     detail: convertToDisplayString(entry.displayParts),
@@ -188,7 +222,7 @@ export const activate = (Oni) => {
                     .filter((v) => v.name.indexOf(currentPrefix) === 0 || currentPrefix.length === 0)
                     .map((v) => ({
                         label: v.name,
-                        kind: v.kind,
+                        kind: convertTypeScriptKindToCompletionItemKind(v.kind),
                     }))
 
                 return {

@@ -162,7 +162,7 @@ declare namespace Oni {
 
         export interface CompletionInfo {
             highlightColor?: string,
-            kind?: string
+            kind?: types.CompletionItemKind
             label: string
             detail?: string
             documentation?: string
