@@ -83,6 +83,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "javascript-typescript-langserver": "2.0.0-pre.25",
     "minimist": "1.2.0",
     "mkdirp": "0.5.1",
     "neovim-client": "2.1.0",
