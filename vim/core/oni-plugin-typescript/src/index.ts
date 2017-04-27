@@ -11,6 +11,7 @@ import * as os from "os"
 import * as path from "path"
 
 import * as _ from "lodash"
+import * as types from "vscode-languageserver-types"
 
 import { evaluateBlock, getCommonImports } from "./LiveEvaluation"
 import { QuickInfo } from "./QuickInfo"
@@ -125,6 +126,10 @@ export const activate = (Oni) => {
         return evaluateBlock(id, fileName, code)
     }
 
+    const convertTypeScriptKindToCompletionItemKind = (kind: string): types.CompletionItemKind => {
+        return types.CompletionItemKind.Reference
+    }
+
     const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {
 
         if (!textDocumentPosition || !textDocumentPosition.bufferFullPath) {
@@ -140,7 +145,7 @@ export const activate = (Oni) => {
                 }
 
                 return {
-                    kind: entry.kind,
+                    kind: convertTypeScriptKindToCompletionItemKind(entry.kind),
                     label: entry.name,
                     documentation: entry.documentation && entry.documentation.length ? entry.documentation[0].text : null,
                     detail: convertToDisplayString(entry.displayParts),
@@ -188,7 +193,7 @@ export const activate = (Oni) => {
                     .filter((v) => v.name.indexOf(currentPrefix) === 0 || currentPrefix.length === 0)
                     .map((v) => ({
                         label: v.name,
-                        kind: v.kind,
+                        kind: convertTypeScriptKindToCompletionItemKind(v.kind),
                     }))
 
                 return {
