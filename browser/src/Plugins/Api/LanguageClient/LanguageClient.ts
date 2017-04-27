@@ -119,6 +119,11 @@ export class LanguageClient {
             <any>(new rpc.StreamMessageWriter(this._process.stdin)),
             new LanguageClientLogger())
 
+        this._process.stderr.on("data", (msg) => {
+            console.error(msg)
+            debugger
+        })
+
         this._currentOpenDocumentPath = null
 
         this._connection.onNotification(Helpers.ProtocolConstants.Window.LogMessage, (args) => {
