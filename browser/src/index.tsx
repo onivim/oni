@@ -401,6 +401,7 @@ const start = (args: string[]) => {
         instance.resize(width, height)
         renderer.onResize()
     }
+
     window.addEventListener("resize", resize)
 
     window["__neovim"] = instance // tslint:disable-line no-string-literal
