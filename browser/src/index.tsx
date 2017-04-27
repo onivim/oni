@@ -382,8 +382,10 @@ const start = (args: string[]) => {
         } else if (key === "<C-P>" && screen.mode === "normal") {
             tasks.show()
         } else if (key === "<C-pageup>") {
+            commandManager.executeCommand("oni.focusNextInstance", null)
             multiProcess.focusPreviousInstance()
         } else if (key === "<C-pagedown>") {
+            commandManager.executeCommand("oni.focusPreviousInstance", null)
             multiProcess.focusNextInstance()
         } else {
             instance.input(key)
