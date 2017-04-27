@@ -203,7 +203,7 @@ export class LanguageClient {
                     label: i.label,
                     detail: i.detail,
                     documentation: i.documentation,
-                    kind: this._mapCompletionKind(i.kind),
+                    kind: i.kind,
                 }))
 
                 return {
@@ -211,53 +211,6 @@ export class LanguageClient {
                     completions,
                 }
             })
-    }
-
-    private _mapCompletionKind(kind?: types.CompletionItemKind): string {
-
-        if (!kind) {
-            return null
-        }
-
-        switch (kind) {
-            case types.CompletionItemKind.Text:
-                return "text"
-            case types.CompletionItemKind.Method:
-                return "method"
-            case types.CompletionItemKind.Function:
-                return "function"
-            case types.CompletionItemKind.Constructor:
-                return "constructor"
-            case types.CompletionItemKind.Variable:
-            case types.CompletionItemKind.Field:
-                return "var"
-            case types.CompletionItemKind.Class:
-                return "type"
-            case types.CompletionItemKind.Interface:
-                return "interface"
-            case types.CompletionItemKind.Module:
-                return "module"
-            case types.CompletionItemKind.Property:
-                return "property"
-            case types.CompletionItemKind.Unit:
-                return "unit"
-            case types.CompletionItemKind.Value:
-                return "const"
-            case types.CompletionItemKind.Enum:
-                return "type"
-            case types.CompletionItemKind.Keyword:
-                return "keyword"
-            case types.CompletionItemKind.Snippet:
-                return null
-            case types.CompletionItemKind.Color:
-                return "color"
-            case types.CompletionItemKind.File:
-                return "file"
-            case types.CompletionItemKind.Reference:
-                return "module"
-            default:
-                return null
-        }
     }
 
     private _getQuickInfo(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.QuickInfo> {

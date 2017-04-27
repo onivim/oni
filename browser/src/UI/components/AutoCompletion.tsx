@@ -109,35 +109,32 @@ export class AutoCompletionIcon extends React.Component<IAutoCompletionIconProps
 
     public render(): JSX.Element {
 
-        const iconName = {
-            "let": <Icon name="wrench" />,
-            "interface": <Icon name="plug" />,
-            "alias": <Icon name="id-badge" />,
-            "color": <Icon name="paint-brush" />,
-            "const": <Icon name="lock" />,
-            "constructor": <Icon name="building" />,
-            "class": <Icon name="cube" />,
-            "type": <Icon name="sitemap" />,
-            "directory": <Icon name="folder" />,
-            "file": <Icon name="file" />,
-            "script": <Icon name="file" />,
-            "var": <Icon name="code" />,
-            "property": <Icon name="code" />,
-            "parameter": <Icon name="code" />,
-            "module": <Icon name="cubes" />,
-            "external module name": <Icon name="cubes" />,
-            "method": <Icon name="cog" />,
-            "function": <Icon name="cog" />,
-            "unit": <Icon name="tag" />,
-            "keyword": <Icon name="key" />,
-            "text": <Icon name="align-justify" />,
-            "warning": <Icon name="exclamation-triangle" />,
-            "$warning": <Icon name="exclamation-triangle" />,
-            "default": !!this.props.kind ? <Icon name="question-circle" /> : <span>`?${this.props.kind}?`</span>,
+        const icons = {
+            [types.CompletionItemKind.Class]: <Icon name="cube" />,
+            [types.CompletionItemKind.Color]: <Icon name="paint-brush" />,
+            [types.CompletionItemKind.Constructor]: <Icon name="building" />,
+            [types.CompletionItemKind.Enum]: <Icon name="sitemap" />,
+            [types.CompletionItemKind.Field]: <Icon name="var" />,
+            [types.CompletionItemKind.File]: <Icon name="file" />,
+            [types.CompletionItemKind.Function]: <Icon name="function" />,
+            [types.CompletionItemKind.Interface]: <Icon name="plug" />,
+            [types.CompletionItemKind.Keyword]: <Icon name="key" />,
+            [types.CompletionItemKind.Method]: <Icon name="cog" />,
+            [types.CompletionItemKind.Module]: <Icon name="cubes" />,
+            [types.CompletionItemKind.Property]: <Icon name="code" />,
+            [types.CompletionItemKind.References]: <Icon name="cubes" />,
+            [types.CompletionItemKind.Snippet]: <Icon name="align-justify" />,
+            [types.CompletionItemKind.Text]: <Icon name="align-justify" />,
+            [types.CompletionItemKind.Unit]: <Icon name="tag" />,
+            [types.CompletionItemKind.Value]: <Icon name="lock" />,
+            [types.CompletionItemKind.Variable]: <Icon name="var" />,
         }
 
-        const kind = this.props.kind || "default"
-        return iconName[kind] ? iconName[kind] : iconName["default"]
+        if (!this.props.kind || !icons[this.props.kind]) {
+            return <Icon name="default" />
+        } else {
+            return icons[this.props.kind]
+        }
     }
 }
 
