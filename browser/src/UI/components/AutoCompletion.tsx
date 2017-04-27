@@ -119,19 +119,19 @@ export class AutoCompletionIcon extends React.Component<IAutoCompletionIconProps
             [types.CompletionItemKind.Function]: <Icon name="cog" />,
             [types.CompletionItemKind.Interface]: <Icon name="plug" />,
             [types.CompletionItemKind.Keyword]: <Icon name="key" />,
-            [types.CompletionItemKind.Method]: <Icon name="cog" />,
+            [types.CompletionItemKind.Method]: <Icon name="wrench" />,
             [types.CompletionItemKind.Module]: <Icon name="cubes" />,
             [types.CompletionItemKind.Property]: <Icon name="code" />,
-            [types.CompletionItemKind.Reference]: <Icon name="code" />,
+            [types.CompletionItemKind.Reference]: <Icon name="chain" />,
             [types.CompletionItemKind.Snippet]: <Icon name="align-justify" />,
             [types.CompletionItemKind.Text]: <Icon name="align-justify" />,
             [types.CompletionItemKind.Unit]: <Icon name="tag" />,
             [types.CompletionItemKind.Value]: <Icon name="lock" />,
-            [types.CompletionItemKind.Variable]: <Icon name="var" />,
+            [types.CompletionItemKind.Variable]: <Icon name="code" />,
         }
 
         if (!this.props.kind || !icons[this.props.kind]) {
-            return <Icon name="default" />
+            return <Icon name="question" />
         } else {
             return icons[this.props.kind]
         }
