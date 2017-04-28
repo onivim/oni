@@ -25,3 +25,6 @@ Source: "{{SourcePath}}"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 Name: "{group}\{{AppName}}"; Filename: "{app}\{{AppExecutableName}}"
+
+[Run]
+Filename: "{app}\{{AppExecutableName}}"; Flags: postinstall skipifsilent
