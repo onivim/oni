@@ -7,12 +7,14 @@ const rpc = require("vscode-jsonrpc")
 
 const activate = (Oni) => {
 
-    const execCommand = `pyls`
+    // TODO: Remove log file
+    const execCommand = `pyls --log-file C://log.txt`
 
     const client = Oni.createLanguageClient(execCommand, (filePath) => {
         return Promise.resolve({
             clientName: "python",
-            rootPath: path.dirname(filePath),
+            // TODO: Remove hardcoded dependency
+            rootPath: "C:/python-language-server",
             capabilities: {
                 highlightProvider: true
             }

@@ -52,9 +52,7 @@ export const eventContextToTextDocumentPositionParams = (args: Oni.EventContext)
     },
 })
 
-export const bufferUpdateToDidChangeTextDocumentParams = (args: Oni.BufferUpdateContext) => {
-    const lines = args.bufferLines
-    const { bufferFullPath, version } = args.eventContext
+export const createDidChangeTextDocumentParams = (bufferFullPath: string, lines: string[], version: number) => {
     const text = lines.join(os.EOL)
 
     return {

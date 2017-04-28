@@ -268,12 +268,12 @@ export class LanguageClient {
         const changedLine = args.bufferLine
         const lineNumber = args.lineNumber
 
-        const previousLine = this._currentBuffer[lineNumber - 1]
+        // const previousLine = this._currentBuffer[lineNumber - 1]
 
         this._currentBuffer[lineNumber - 1] = changedLine
 
         this._connection.sendNotification(Helpers.ProtocolConstants.TextDocument.DidChange,
-            Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine))
+            Helpers.createDidChangeTextDocumentParams(args.eventContext.bufferFullPath, this._currentBuffer, args.eventContext.version))
 
         return Promise.resolve(null)
     }
@@ -291,7 +291,7 @@ export class LanguageClient {
             })
         } else {
             this._connection.sendNotification(Helpers.ProtocolConstants.TextDocument.DidChange,
-                Helpers.bufferUpdateToDidChangeTextDocumentParams(args))
+                Helpers.createDidChangeTextDocumentParams(bufferFullPath, lines, args.eventContext.version))
         }
 
         return Promise.resolve(null)
