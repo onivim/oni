@@ -119,11 +119,6 @@ export class LanguageClient {
             <any>(new rpc.StreamMessageWriter(this._process.stdin)),
             new LanguageClientLogger())
 
-        this._process.stderr.on("data", (msg) => {
-            console.error(msg)
-            debugger
-        })
-
         this._currentOpenDocumentPath = null
 
         this._connection.onNotification(Helpers.ProtocolConstants.Window.LogMessage, (args) => {
@@ -157,6 +152,9 @@ export class LanguageClient {
         this._connection.listen()
 
         return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, initializationParams)
+                .then((response: any) => {
+                    alert(response)
+                }, (err) => console.error(err))
     }
 
     public end(): Promise<void> {
