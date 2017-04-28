@@ -10,8 +10,8 @@
 [Setup]
 AppName={{AppName}}
 AppVersion={{Version}}
-DefaultDirName={pf}\{{ProdName}}
-DefaultGroupName={{ProdName}}
+DefaultDirName={pf}\{{AppName}}
+DefaultGroupName={{AppName}}
 UninstallDisplayIcon={app}\{{AppExecutableName}}
 Compression=zip
 SolidCompression=yes
@@ -25,3 +25,6 @@ Source: "{{SourcePath}}"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 Name: "{group}\{{AppName}}"; Filename: "{app}\{{AppExecutableName}}"
+
+[Run]
+Filename: "{app}\{{AppExecutableName}}"; Flags: postinstall skipifsilent
