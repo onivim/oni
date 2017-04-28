@@ -1,3 +1,4 @@
+import * as _ from "lodash"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
@@ -23,22 +24,50 @@ export class Errors extends React.Component<IErrorsProps, void> {
     public render(): JSX.Element {
         const errors = this.props.errors || []
 
-        const markers = errors.map((e) => {
-            if (this.props.windowContext.isLineInView(e.lineNumber)) {
-                const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
+        // TODO optimization: Only group errors together that are close enough in terms of startColumn
+        const groupedErrors = _.groupBy(errors, (e) => e.lineNumber)
 
-                const xPos = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn).x
-                const yPos = this.props.windowContext.getWindowRegionForLine(e.lineNumber).y - (padding / 2)
-                const isActive = screenLine === this.props.windowContext.getCurrentWindowLine()
+        const markers = _.map(groupedErrors, (es) => {
+            let startScreenLine: number
+            let xPos: number
+            let yPos: number
+            let text: string[]
+            let color: string
+            if (es.length === 1) {
+                startScreenLine = this.props.windowContext.getStartScreenLineFromBufferLine(es[0].lineNumber)
+                xPos = this.props.windowContext.getWindowPosition(es[0].lineNumber, es[0].startColumn).x
+                yPos = this.props.windowContext.getWindowPosition(es[0].lineNumber, es[0].startColumn).y - (padding / 2)
+                text = [es[0].text]
+                color = es[0].color
+            } else {
+                startScreenLine = this.props.windowContext.getStartScreenLineFromBufferLine(es[0].lineNumber)
+                let firstColumn = _.min(_.map(es, (e) => e.startColumn))
+                xPos = this.props.windowContext.getWindowPosition(es[0].lineNumber, firstColumn).x
+                yPos = this.props.windowContext.getWindowPosition(es[0].lineNumber, firstColumn).y - (padding / 2)
+                text = _.map(es, (e) => "* " + e.text)
+                color = es[0].color
+            }
+            if (this.props.windowContext.isLineInView(es[0].lineNumber)) {
+                // startScreenLine && currentScreenLine can be same windowLine
+                // if the current windowLine is wrapping around
+                const columnsPerScreenLine = this.props.windowContext.getColumnsPerScreenLine()
+                const currentWindowColumn = this.props.windowContext.getCurrentWindowColumn()
+                const linesWrapped = Math.floor(currentWindowColumn / (columnsPerScreenLine + 1))
+                const isActive = startScreenLine + linesWrapped === this.props.windowContext.getCurrentScreenLine()
 
-                const showTooltipTop = this.props.windowContext.dimensions.height - this.props.windowContext.getWindowLine(e.lineNumber) <= 2
+                const windowSizeInPixels = this.props.windowContext.dimensions.height * this.props.windowContext.fontHeightInPixels
+                const showTooltipTop = windowSizeInPixels - yPos < 80
+
+                const windowWidthInPixels = this.props.windowContext.dimensions.width * this.props.windowContext.fontWidthInPixels
+                const showTooltipLeft = windowWidthInPixels - xPos < 250
 
                 return <ErrorMarker isActive={isActive}
                     x={xPos}
                     y={yPos}
                     showTooltipTop={showTooltipTop}
-                    text={e.text}
-                    color={e.color}/>
+                    showTooltipLeft={showTooltipLeft}
+                    text={text}
+                    color={color}/>
             } else {
                 return null
             }
@@ -46,18 +75,17 @@ export class Errors extends React.Component<IErrorsProps, void> {
 
         const squiggles = errors.map((e) => {
             if (this.props.windowContext.isLineInView(e.lineNumber) && e.endColumn) {
-                // const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
-
-                const yPos = this.props.windowContext.getWindowRegionForLine(e.lineNumber).y
-
-                const startX = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn as any).x // FIXME: undefined
+                const startX = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn).x
                 const endX = this.props.windowContext.getWindowPosition(e.lineNumber, e.endColumn).x
+                const width = _.max([endX - startX, 1 * this.props.windowContext.fontWidthInPixels])
+
+                const yPos = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn).y
 
                 return <ErrorSquiggle
                     y={yPos}
                     height={this.props.windowContext.fontHeightInPixels}
                     x={startX}
-                    width={endX - startX}
+                    width={width}
                     color={e.color}/>
             } else {
                 return null
@@ -72,7 +100,8 @@ export interface IErrorMarkerProps {
     x: number
     y: number
     showTooltipTop: boolean
-    text: string
+    showTooltipLeft: boolean
+    text: string[]
     isActive: boolean
     color: string
 }
@@ -87,7 +116,8 @@ export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
             top: this.props.y.toString() + "px",
         }
         const textPositionStyles = {
-            left: this.props.x.toString() + "px",
+            left: this.props.showTooltipLeft ? "initial" : this.props.x.toString() + "px",
+            right: this.props.showTooltipLeft ? "calc(100% - " + this.props.x.toString() + "px" : "initial",
             // Tooltip below line: use top so text grows downward when text gets longer
             // Tooltip above line: use bottom so text grows upward
             top: this.props.showTooltipTop ? "initial" : this.props.y.toString() + "px",
@@ -99,14 +129,17 @@ export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
             "error",
             this.props.isActive ? "active" : "",
             this.props.showTooltipTop ? "top" : "",
+            this.props.showTooltipLeft ? "left" : "",
         ].join(" ")
+
+        const texts = _.map(this.props.text, (t) => {
+            return <div className="text"> {t} </div>
+        })
 
         // TODO change editor.errors.slideOnFocus name
         const errorDescription = this.config.getValue("editor.errors.slideOnFocus") ? (
             <div className={className} style={textPositionStyles}>
-                <div className="text">
-                    {this.props.text}
-                </div>
+                {texts}
             </div>) : null
         const errorIcon = <div style={iconPositionStyles} className="error-marker">
             <div className="icon-container" style={{color: this.props.color}}>

@@ -58,11 +58,11 @@ export class WindowContext {
         return typeof this._lineMapping[line] === "number"
     }
 
-    public getCurrentWindowLine(): number {
+    public getCurrentScreenLine(): number {
         return this._eventContext.winline
     }
 
-    public getWindowLine(bufferLine: number): number {
+    public getStartScreenLineFromBufferLine(bufferLine: number): number {
         return this._lineMapping[bufferLine]
     }
 
@@ -76,13 +76,59 @@ export class WindowContext {
             height: this._fontHeightInPixels, // TODO
         }
     }
+    /**
+     * Returns the amount of columns available for writing (so NOT including the column for eg. line numbers) in the current window/split
+     */
+    public getColumnsPerScreenLine(): number {
+        return this._dimensions.width - this.getColumnOffset()
+    }
 
-    public getWindowPosition(line: number, column: number): Rectangle {
-        const linePosition = this.getWindowRegionForLine(line)
-        const columnPosition = (this._eventContext.wincol - this._eventContext.column + column - 1) * this._fontWidthInPixels
+    /**
+     * Returns the current column of the cursor, based on window lines
+     * This means that if your columns wrap at 80 and your cursor is on column 90 of a line,
+     * this will return 90. This is in contrast to _eventContext.wincol, which would give you 10 + offset
+     */
+    public getCurrentWindowColumn(): number {
+        return this._eventContext.column
+    }
+
+    /**
+     * Returns the columns on the left side that are "lost" (ie you can't write on them) because of eg. numbers, gutter, ...
+     */
+    public getColumnOffset(): number {
+        const currentLineStartsOnScreenLine = this._lineMapping[this._eventContext.line]
+        const currentScreenLine = this._eventContext.winline
+        const wrappedLines = currentScreenLine - currentLineStartsOnScreenLine
+
+        // We have two unknown variables: 
+        // * the linenumbers column offset, named "offset"
+        // * and the amount of columns per line, named "columnsPerScreenLine"
+        // The following 2 equations always hold, so we can use these to determine both variables:
+        // this._eventContext.column - wrappedLines * columnsPerScreenLine = this._eventContext.wincol - offset
+        // offset + columnsPerScreenLine = this._dimensions.width
+        // High school algebra then gets us:
+        const offset = (this._eventContext.wincol - this._eventContext.column + wrappedLines * this._dimensions.width) / (wrappedLines + 1)
+        return offset
+
+        // It would be much easier if we could just ask neovim to give this to say how much the offset is, but I haven't found how so far
+    }
+
+    /**
+     * Returns position of window line + column in pixels on the screen
+     */
+    public getWindowPosition(windowline: number, column: number): Rectangle {
+        const linePosition = this.getWindowRegionForLine(windowline)
+
+        const columnsPerScreenLine = this.getColumnsPerScreenLine()
+        // adding + 1 to columnsPerScreenLine because a page of eg. 85 wraps at 86
+        const linesWrapped = Math.floor(column / (columnsPerScreenLine + 1))
+
+        const columnPosition = (column - (linesWrapped * columnsPerScreenLine) + this.getColumnOffset())
+        const columnPositionInPixels = (columnPosition - 1) * this._fontWidthInPixels // -1 Because it's more natural to indicate an x coordinate in front of it's cell than after it
+
         return {
-            x: linePosition.x + columnPosition,
-            y: linePosition.y,
+            x: columnPositionInPixels,
+            y: linePosition.y + linesWrapped * this._fontHeightInPixels,
             width: this._fontWidthInPixels,
             height: this._fontHeightInPixels,
         }
