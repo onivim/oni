@@ -13,6 +13,13 @@ export class ErrorOverlay implements IOverlay {
     private _currentFileName: string
     private _lastWindowContext: WindowContext
 
+    /**
+     * Whether or not error details should be shown.
+     * In insert mode, we shouldn't show details, because that will overlay completion elements
+     * Some LSP providers push error data while changes are being made, whereas others wait until save.
+     */
+    private _showDetails: boolean
+
     public onVimEvent(_eventName: string, eventContext: Oni.EventContext): void {
 
         if (_eventName === "BufEnter") {
@@ -21,6 +28,16 @@ export class ErrorOverlay implements IOverlay {
 
             this._showErrors()
         }
+    }
+
+    public showDetails(): void {
+        this._showDetails = true
+        this._showErrors()
+    }
+
+    public hideDetails(): void {
+        this._showDetails = false
+        this._showErrors()
     }
 
     public setErrors(key: string, fileName: string, errors: Oni.Plugin.Diagnostics.Error[], color: string): void {
@@ -64,6 +81,7 @@ export class ErrorOverlay implements IOverlay {
         renderErrorMarkers({
             errors: allErrors,
             windowContext: this._lastWindowContext,
+            showDetails: this._showDetails,
         }, this._element)
     }
 }
