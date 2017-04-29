@@ -1,7 +1,7 @@
 {
   "name": "oni",
   "email": "extropy@extropygames.com",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "NeoVim front-end with IDE-style extensibility",
   "keywords": [
     "vim",
