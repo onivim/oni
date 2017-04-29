@@ -15,6 +15,7 @@ export interface IErrorWithColor extends Oni.Plugin.Diagnostics.Error {
 export interface IErrorsProps {
     errors: IErrorWithColor[]
     windowContext: WindowContext
+    showDetails: boolean
 }
 
 const padding = 8
@@ -38,7 +39,8 @@ export class Errors extends React.Component<IErrorsProps, void> {
                     y={yPos}
                     showTooltipTop={showTooltipTop}
                     text={e.text}
-                    color={e.color}/>
+                    color={e.color}
+                    showDetails={this.props.showDetails} />
             } else {
                 return null
             }
@@ -58,7 +60,7 @@ export class Errors extends React.Component<IErrorsProps, void> {
                     height={this.props.windowContext.fontHeightInPixels}
                     x={startX}
                     width={endX - startX}
-                    color={e.color}/>
+                    color={e.color} />
             } else {
                 return null
             }
@@ -75,6 +77,7 @@ export interface IErrorMarkerProps {
     text: string
     isActive: boolean
     color: string
+    showDetails: boolean
 }
 
 export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
@@ -109,14 +112,14 @@ export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
                 </div>
             </div>) : null
         const errorIcon = <div style={iconPositionStyles} className="error-marker">
-            <div className="icon-container" style={{color: this.props.color}}>
+            <div className="icon-container" style={{ color: this.props.color }}>
                 <Icon name="exclamation-circle" />
             </div>
         </div>
 
         return <div>
-         {errorDescription}
-         {errorIcon}
+            {this.props.showDetails ? errorDescription : null}
+            {errorIcon}
         </div>
     }
 }
@@ -132,7 +135,7 @@ export interface IErrorSquiggleProps {
 export class ErrorSquiggle extends React.Component<IErrorSquiggleProps, void> {
     public render(): JSX.Element {
 
-        const {x, y, width, height, color} = this.props
+        const { x, y, width, height, color } = this.props
 
         const style = {
             top: y.toString() + "px",

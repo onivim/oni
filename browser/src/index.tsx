@@ -239,7 +239,13 @@ const start = (args: string[]) => {
             UI.Actions.hideCursorLine()
             UI.Actions.hideCompletions()
             UI.Actions.hideQuickInfo()
+        }
 
+        // Error overlay
+        if (newMode === "insert") {
+            errorOverlay.hideDetails()
+        } else {
+            errorOverlay.showDetails()
         }
     })
 
