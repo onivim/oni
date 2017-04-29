@@ -18,7 +18,7 @@ export class ErrorOverlay implements IOverlay {
      * In insert mode, we shouldn't show details, because that will overlay completion elements
      * Some LSP providers push error data while changes are being made, whereas others wait until save.
      */
-    private _showDetails: boolean;
+    private _showDetails: boolean
 
     public onVimEvent(_eventName: string, eventContext: Oni.EventContext): void {
 
