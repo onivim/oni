@@ -52,8 +52,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._languageService = new DebouncedLanguageService(languageService)
     }
 
-    public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr:string) => void): ChildProcess.ChildProcess {
-
+    public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
         const requiredOptions = {
             env: {
                 ELECTRON_RUN_AS_NODE: 1,
@@ -66,7 +65,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         }
 
         const execOptions = [process.execPath, scriptPath].concat(args)
-        const execString = execOptions.map(s => `"${s}"`).join(" ")
+        const execString = execOptions.map((s) => `"${s}"`).join(" ")
 
         return ChildProcess.exec(execString, opts, callback)
     }
