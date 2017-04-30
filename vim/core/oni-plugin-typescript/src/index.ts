@@ -24,7 +24,7 @@ export interface IDisplayPart {
 
 export const activate = (Oni) => {
 
-    const host = new TypeScriptServerHost()
+    const host = new TypeScriptServerHost(Oni)
     const quickInfo = new QuickInfo(Oni, host)
 
     const lastOpenFile = null
