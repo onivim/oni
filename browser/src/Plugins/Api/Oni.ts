@@ -1,3 +1,4 @@
+import * as ChildProcess from "child_process"
 import { EventEmitter } from "events"
 
 import { IPluginChannel } from "./Channel"
@@ -51,6 +52,44 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._languageService = new DebouncedLanguageService(languageService)
     }
 
+    public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
+        const requiredOptions = {
+            env: {
+                ELECTRON_RUN_AS_NODE: 1,
+            },
+        }
+
+        const opts = {
+            ...options,
+            ...requiredOptions,
+        }
+
+        const execOptions = [process.execPath, scriptPath].concat(args)
+        const execString = execOptions.map((s) => `"${s}"`).join(" ")
+
+        return ChildProcess.exec(execString, opts, callback)
+    }
+
+    /**
+     * Wrapper around `child_process.exec` to run using electron as opposed to node
+     */
+    public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
+        const requiredOptions = {
+            env: {
+                ELECTRON_RUN_AS_NODE: 1,
+            },
+        }
+
+        const opts = {
+            ...options,
+            ...requiredOptions,
+        }
+
+        const allArgs = [scriptPath].concat(args)
+
+        return ChildProcess.spawn(process.execPath, allArgs, opts)
+    }
+
     public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {
         this._channel.send("set-syntax-highlights", null, {
             file,
@@ -65,6 +104,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
             key,
         })
     }
+
     private _handleNotification(arg: any): void {
         if (arg.type === "buffer-update") {
             this.emit("buffer-update", arg.payload)
