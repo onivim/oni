@@ -25,9 +25,9 @@ export const ProtocolConstants = {
     },
 }
 
-export const wrapPathInFileUri = (path: string) => "file:///" + path
+export const wrapPathInFileUri = (path: string) => "file://" + path
 
-export const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split("file:///")[1])
+export const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split("file://")[1])
 
 export const bufferUpdateToTextDocumentItem = (args: Oni.BufferUpdateContext): types.TextDocumentItem => {
     const lines = args.bufferLines

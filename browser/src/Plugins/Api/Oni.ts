@@ -55,6 +55,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
         const requiredOptions = {
             env: {
+                ...process.env,
                 ELECTRON_RUN_AS_NODE: 1,
             },
         }
@@ -76,6 +77,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
         const requiredOptions = {
             env: {
+                ...process.env,
                 ELECTRON_RUN_AS_NODE: 1,
             },
         }

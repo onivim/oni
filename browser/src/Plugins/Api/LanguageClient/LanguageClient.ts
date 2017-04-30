@@ -9,7 +9,7 @@ import * as _ from "lodash"
 import * as rpc from "vscode-jsonrpc"
 import * as types from "vscode-languageserver-types"
 
-import { ChildProcess, exec } from "child_process"
+import { ChildProcess } from "child_process"
 
 import { getCompletionMeet } from "./../../../Services/AutoCompletionUtility"
 import { Oni } from "./../Oni"
@@ -107,12 +107,8 @@ export class LanguageClient {
     public start(initializationParams: LanguageClientInitializationParams): Thenable<any> {
 
         // TODO: Pursue alternate connection mechanisms besides stdio - maybe Node IPC?
-        this._process = exec(`"${process.execPath}" "${this._startCommand}"`, { maxBuffer: 500 * 1024 * 1024, env: { ELECTRON_RUN_AS_NODE: 1 } }, (err) => {
-            if (err) {
-                console.error(err)
-                alert(err)
-            }
-        })
+
+        this._process = this._oni.spawnNodeScript(this._startCommand)
 
         this._connection = rpc.createMessageConnection(
             <any>(new rpc.StreamMessageReader(this._process.stdout)),
