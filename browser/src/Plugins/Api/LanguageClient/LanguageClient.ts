@@ -107,7 +107,7 @@ export class LanguageClient {
     public start(initializationParams: LanguageClientInitializationParams): Thenable<any> {
 
         // TODO: Pursue alternate connection mechanisms besides stdio - maybe Node IPC?
-        this._process = exec(this._startCommand, { maxBuffer: 500 * 1024 * 1024 }, (err) => {
+        this._process = exec(`"${process.execPath}" "${this._startCommand}"`, { maxBuffer: 500 * 1024 * 1024, env: { ELECTRON_RUN_AS_NODE: 1 } }, (err) => {
             if (err) {
                 console.error(err)
                 alert(err)
