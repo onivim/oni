@@ -52,11 +52,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._languageService = new DebouncedLanguageService(languageService)
     }
 
-    /**
-     * Wrapper around `child_process.exec` to run using electron as opposed to node
-     */
-    public execNodeScript(scriptPath: string, options: ChildProcess.ExecOptions, callback?: (error: Error) => void): ChildProcess.ChildProcess {
-        const executionPath = `"${process.execPath}" "${scriptPath}"`
+    public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr:string) => void): ChildProcess.ChildProcess {
 
         const requiredOptions = {
             env: {
@@ -69,7 +65,30 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
             ...requiredOptions,
         }
 
-        return ChildProcess.exec(executionPath, opts, callback)
+        const execOptions = [process.execPath, scriptPath].concat(args)
+        const execString = execOptions.map(s => `"${s}"`).join(" ")
+
+        return ChildProcess.exec(execString, opts, callback)
+    }
+
+    /**
+     * Wrapper around `child_process.exec` to run using electron as opposed to node
+     */
+    public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
+        const requiredOptions = {
+            env: {
+                ELECTRON_RUN_AS_NODE: 1,
+            },
+        }
+
+        const opts = {
+            ...options,
+            ...requiredOptions,
+        }
+
+        const allArgs = [scriptPath].concat(args)
+
+        return ChildProcess.spawn(process.execPath, allArgs, opts)
     }
 
     public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {
