@@ -84,13 +84,9 @@
   "license": "MIT",
   "dependencies": {
     "minimist": "1.2.0",
-    "mkdirp": "0.5.1",
     "neovim-client": "2.1.0",
     "omnisharp-client": "7.0.6",
-    "typescript": "2.2.1",
-    "vscode-jsonrpc": "3.2.0",
-    "vscode-languageserver-types": "3.2.0",
-    "wcwidth": "1.0.1"
+    "typescript": "2.2.1"
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
@@ -125,6 +121,7 @@
     "less-loader": "2.2.3",
     "less-plugin-autoprefix": "1.5.1",
     "lodash": "4.17.0",
+    "mkdirp": "0.5.1",
     "mocha": "3.1.2",
     "optimize-js-plugin": "0.0.4",
     "q": "1.4.1",
@@ -140,7 +137,10 @@
     "style-loader": "0.13.1",
     "ts-loader": "1.2.2",
     "tslint": "4.0.2",
+    "vscode-jsonrpc": "3.2.0",
+    "vscode-languageserver-types": "3.2.0",
     "webpack": "1.13.2",
-    "webpack-dev-server": "1.16.1"
+    "webpack-dev-server": "1.16.1",
+    "wcwidth": "1.0.1"
   }
 }
