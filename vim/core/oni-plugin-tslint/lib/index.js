@@ -131,7 +131,7 @@ const activate = (Oni) => {
                 }, {})
 
                 return errors
-            })
+            }, (err) => console.error(err))
     }
 
     function getCurrentWorkingDirectory(args) {
