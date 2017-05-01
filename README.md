@@ -18,6 +18,9 @@
         - [Code Completion](#code-completion)
         - [Fuzzy Finder](#fuzzy-finder)
         - [Quick Info](#quick-info)
+    - [Languages](#languages)
+        - [JavaScript & TypeScript](#javascript-typescript)
+        - [C#](c)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
@@ -207,6 +210,39 @@ Leave the cursor hovering over an identifier.
 - `oni.quickInfo.enabled` - If set to `true`, the Quick Info feature is enabled. (Default: `true`)
 - `oni.quickInfo.delay` - Delay in milliseconds for the Quick Info window to show. (Default: `500`)
 
+### Languages
+
+#### JavaScript & TypeScript
+
+__Configuration__
+
+JavaScript and TypeScript support is enabled out-of-the-box using the TypeScript Standalone Server [TODO]. No setup and configuration should be necessary, however, you will get better results if you use a `tsconfig.json` or a `jsconfig.json` to structure your project.
+
+__Supported Language features__
+
+| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
+| --- | --- | --- | --- | --- | --- |--- | --- |
+| [x] | [x] | [x] | [x] | [x] | [x] | [x] | [] |
+
+
+#### C#
+
+__Configuration__
+
+C# completion uses the OmniSharp [TODO] service which provides language capabilities for both .NET and Mono. For it to work correctly, you need to have a valid `.csproj` file with any dependent packages (ie, Nuget) installed. The project should also build and compile for the language service to work correctly.
+
+> If you are using the .NET Core CLI, make sure to run `dotnet restore` on your project.
+
+__Supported Language features__
+
+| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
+| --- | --- | --- | --- | --- | --- |--- | --- |
+| [x] | [x] | [] | [] | [x] | [] | [] | [] |
+
+__Known Issues__
+
+- On Windows, you must run Oni as an administrator the first time using the C# language service. This is tracked by issue #423.
+- On all platforms, the C# language service takes time to start up, especially the first time as it is downloading the appropriate runtime environment. You can open up the developer tools (Help -> Developer Tools) to see the logging from the language service. #424 tracks making this logging more visible.
 
 ### Configuration
 
