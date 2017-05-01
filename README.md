@@ -222,7 +222,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| YES | YES | YES | YES | YES | YES | YES | NO |
+| Y | Y | Y | Y | Y | Y | Y | N (#85) |
 
 #### C#
 
@@ -236,7 +236,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| [x] | [x] | [] | [] | [x] | [] | [] | [] |
+| Y | Y | N (#433) | N (#379) | Y | N (#378)  | N | N (#85) |
 
 _Known Issues_
 
