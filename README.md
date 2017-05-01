@@ -236,7 +236,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| Y | Y | N (#433) | N (#379) | Y | N (#378)  | N | N #85 |
+| Y | Y | N (#433) | N (#379) | Y | N (#378)  | N | N extr0py/oni#85 |
 
 _Known Issues_
 
