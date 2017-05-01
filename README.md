@@ -216,7 +216,7 @@ Leave the cursor hovering over an identifier.
 
 __Configuration__
 
-JavaScript and TypeScript support is enabled out-of-the-box using the TypeScript Standalone Server [TODO]. No setup and configuration should be necessary, however, you will get better results if you use a `tsconfig.json` or a `jsconfig.json` to structure your project.
+JavaScript and TypeScript support is enabled out-of-the-box using the [TypeScript Standalone Server](https://github.com/Microsoft/TypeScript/wiki/Standalone-Server-(tsserver)). No setup and configuration should be necessary, however, you will get better results if you use a `tsconfig.json` or a `jsconfig.json` to structure your project.
 
 __Supported Language features__
 
@@ -229,7 +229,7 @@ __Supported Language features__
 
 __Configuration__
 
-C# completion uses the OmniSharp [TODO] service which provides language capabilities for both .NET and Mono. For it to work correctly, you need to have a valid `.csproj` file with any dependent packages (ie, Nuget) installed. The project should also build and compile for the language service to work correctly.
+C# completion uses the [OmniSharp Node Client](https://github.com/OmniSharp/omnisharp-node-client) which provides language capabilities for both .NET and Mono. For it to work correctly, you need to have a valid `.csproj` file with any dependent packages (ie, Nuget) installed. The project should also build and compile for the language service to work correctly.
 
 > If you are using the .NET Core CLI, make sure to run `dotnet restore` on your project.
 
