@@ -222,7 +222,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| Y | Y | Y | Y | Y | Y | Y | N (#85) |
+| Y | Y | Y | Y | Y | Y | Y | N |
 
 #### C#
 
@@ -236,12 +236,12 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| Y | Y | N (#433) | N (#379) | Y | N (#378)  | N | N extr0py/oni#85 |
+| Y | Y | N | N | Y | N | N | N |
 
 _Known Issues_
 
-- On Windows, you must run Oni as an administrator the first time using the C# language service. This is tracked by issue #423.
-- On all platforms, the C# language service takes time to start up, especially the first time as it is downloading the appropriate runtime environment. You can open up the developer tools (Help -> Developer Tools) to see the logging from the language service. #424 tracks making this logging more visible.
+- On Windows, you must run Oni as an administrator the first time using the C# language service. This is tracked by issue [#423](https://github.com/extr0py/oni/issues/423).
+- On all platforms, the C# language service takes time to start up, especially the first time as it is downloading the appropriate runtime environment. You can open up the developer tools (Help -> Developer Tools) to see the logging from the language service. [#424](https://github.com/extr0py/oni/issues/424) tracks making this logging more visible.
 
 ### Configuration
 
