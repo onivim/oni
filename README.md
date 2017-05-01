@@ -19,7 +19,7 @@
         - [Fuzzy Finder](#fuzzy-finder)
         - [Quick Info](#quick-info)
     - [Languages](#languages)
-        - [JavaScript & TypeScript](#javascript-typescript)
+        - [JavaScript and TypeScript](#javascript-and-typescript)
         - [C#](c)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
@@ -212,34 +212,33 @@ Leave the cursor hovering over an identifier.
 
 ### Languages
 
-#### JavaScript & TypeScript
+#### JavaScript and TypeScript
 
-__Configuration__
+_Configuration_
 
-JavaScript and TypeScript support is enabled out-of-the-box using the [TypeScript Standalone Server](https://github.com/Microsoft/TypeScript/wiki/Standalone-Server-(tsserver)). No setup and configuration should be necessary, however, you will get better results if you use a `tsconfig.json` or a `jsconfig.json` to structure your project.
+JavaScript and TypeScript support is enabled out-of-the-box using the [TypeScript Standalone Server](https://github.com/Microsoft/TypeScript/wiki/Standalone-Server-(tsserver)). No setup and configuration is necessary, however, you will get better results if you use a `tsconfig.json` or a `jsconfig.json` to structure your project.
 
-__Supported Language features__
+_Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| [x] | [x] | [x] | [x] | [x] | [x] | [x] | [] |
-
+| YES | YES | YES | YES | YES | YES | YES | NO |
 
 #### C#
 
-__Configuration__
+_Configuration_
 
 C# completion uses the [OmniSharp Node Client](https://github.com/OmniSharp/omnisharp-node-client) which provides language capabilities for both .NET and Mono. For it to work correctly, you need to have a valid `.csproj` file with any dependent packages (ie, Nuget) installed. The project should also build and compile for the language service to work correctly.
 
 > If you are using the .NET Core CLI, make sure to run `dotnet restore` on your project.
 
-__Supported Language features__
+_Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
 | [x] | [x] | [] | [] | [x] | [] | [] | [] |
 
-__Known Issues__
+_Known Issues_
 
 - On Windows, you must run Oni as an administrator the first time using the C# language service. This is tracked by issue #423.
 - On all platforms, the C# language service takes time to start up, especially the first time as it is downloading the appropriate runtime environment. You can open up the developer tools (Help -> Developer Tools) to see the logging from the language service. #424 tracks making this logging more visible.
