@@ -27,9 +27,10 @@ install:
 script:
     - ./build/script/set-travis-display.sh
     - npm run build
-    - npm run test
+    - npm run test:unit
     - npm run lint
     - npm run pack
+    - npm run test:integration
 deploy:
     - provider: releases
       api_key:
