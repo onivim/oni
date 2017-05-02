@@ -3,15 +3,13 @@ import * as path from "path"
 
 import { Application } from "spectron"
 
-describe("application launch", function () {
-
-    this.timeout(10000)
+describe("application launch", () => {
 
     let app: Application
 
     beforeEach(() => {
         app = new Application({
-            path: path.join(__dirname, "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
+            path: path.join(__dirname, "..", "..", "dist", "win-ia32-unpacked", "Oni.exe"),
         })
 
         return app.start()
@@ -22,7 +20,6 @@ describe("application launch", function () {
             return app.stop()
         }
     })
-
 
     it("launches oni", () => {
         return app.client.waitUntilWindowLoaded()
