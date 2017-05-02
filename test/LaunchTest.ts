@@ -3,13 +3,25 @@ import * as path from "path"
 
 import { Application } from "spectron"
 
-describe("application launch", () => {
+const getExecutablePath = () => {
+    switch (process.platform) {
+        case "win32":
+            return path.join(__dirname, "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
+        case "darwin":
+            return path.join(__dirname, "..", "..", "dist", "mac", "Oni.app", "Contents", "MacOS", "Oni")
+        case "linux":
+            return path.join(__dirname, "..", "..", "dist", "linux-ia32-unpacked", "oni")
+        default:
+            throw `Unable to find Oni executable for platform ${process.platform}`
+    }
+}
 
+describe("application launch", () => {
     let app: Application
 
     beforeEach(() => {
         app = new Application({
-            path: path.join(__dirname, "..", "..", "dist", "win-ia32-unpacked", "Oni.exe"),
+            path: getExecutablePath()
         })
 
         return app.start()
