@@ -25,6 +25,7 @@ addons:
 install:
     - npm install
 script:
+    - ./build/script/set-travis-display.sh
     - npm run build
     - npm run test
     - npm run lint
