@@ -18,6 +18,9 @@
         - [Code Completion](#code-completion)
         - [Fuzzy Finder](#fuzzy-finder)
         - [Quick Info](#quick-info)
+    - [Languages](#languages)
+        - [JavaScript and TypeScript](#javascript-and-typescript)
+        - [C#](c)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
@@ -207,6 +210,38 @@ Leave the cursor hovering over an identifier.
 - `oni.quickInfo.enabled` - If set to `true`, the Quick Info feature is enabled. (Default: `true`)
 - `oni.quickInfo.delay` - Delay in milliseconds for the Quick Info window to show. (Default: `500`)
 
+### Languages
+
+#### JavaScript and TypeScript
+
+_Configuration_
+
+JavaScript and TypeScript support is enabled out-of-the-box using the [TypeScript Standalone Server](https://github.com/Microsoft/TypeScript/wiki/Standalone-Server-(tsserver)). No setup and configuration is necessary, however, you will get better results if you use a `tsconfig.json` or a `jsconfig.json` to structure your project.
+
+_Supported Language features_
+
+| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
+| --- | --- | --- | --- | --- | --- |--- | --- |
+| Y | Y | Y | Y | Y | Y | Y | N |
+
+#### C#
+
+_Configuration_
+
+C# completion uses the [OmniSharp Node Client](https://github.com/OmniSharp/omnisharp-node-client) which provides language capabilities for both .NET and Mono. For it to work correctly, you need to have a valid `.csproj` file with any dependent packages (ie, Nuget) installed. The project should also build and compile for the language service to work correctly.
+
+> If you are using the .NET Core CLI, make sure to run `dotnet restore` on your project.
+
+_Supported Language features_
+
+| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
+| --- | --- | --- | --- | --- | --- |--- | --- |
+| Y | Y | N | N | Y | N | N | N |
+
+_Known Issues_
+
+- On Windows, you must run Oni as an administrator the first time using the C# language service. This is tracked by issue [#423](https://github.com/extr0py/oni/issues/423).
+- On all platforms, the C# language service takes time to start up, especially the first time as it is downloading the appropriate runtime environment. You can open up the developer tools (Help -> Developer Tools) to see the logging from the language service. [#424](https://github.com/extr0py/oni/issues/424) tracks making this logging more visible.
 
 ### Configuration
 
