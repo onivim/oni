@@ -8,6 +8,11 @@ function! s:trim(s) abort
   return substitute(a:s, '^\_s*\|\_s*$', '', 'g')
 endfunction
 
+" Convert '\' to '/'. Collapse '//' and '/./'.
+function! s:normalize_path(s) abort
+  return substitute(substitute(a:s, '\', '/', 'g'), '/\./\|/\+', '/', 'g')
+endfunction
+
 " Simple version comparison.
 function! s:version_cmp(a, b) abort
   let a = split(a:a, '\.', 0)
@@ -26,9 +31,9 @@ endfunction
 
 " Handler for s:system() function.
 function! s:system_handler(jobid, data, event) dict abort
-  if a:event == 'stdout' || a:event == 'stderr'
+  if a:event ==# 'stdout' || a:event ==# 'stderr'
     let self.output .= join(a:data, '')
-  elseif a:event == 'exit'
+  elseif a:event ==# 'exit'
     let s:shell_error = a:data
   endif
 endfunction
@@ -50,7 +55,7 @@ function! s:system(cmd, ...) abort
 
   if jobid < 1
     call health#report_error(printf('Command error %d: %s', jobid,
-          \ type(a:cmd) == type([]) ? join(a:cmd) : a:cmd)))
+          \ type(a:cmd) == type([]) ? join(a:cmd) : a:cmd))
     let s:shell_error = 1
     return opts.output
   endif
@@ -65,7 +70,7 @@ function! s:system(cmd, ...) abort
           \ type(a:cmd) == type([]) ? join(a:cmd) : a:cmd))
     call jobstop(jobid)
   elseif s:shell_error != 0 && !ignore_error
-    call health#report_error(printf("Command error (%d) %s: %s", jobid,
+    call health#report_error(printf('Command error (%d) %s: %s', jobid,
           \ type(a:cmd) == type([]) ? join(a:cmd) : a:cmd,
           \ opts.output))
   endif
@@ -106,13 +111,13 @@ endfunction
 
 " Check for clipboard tools.
 function! s:check_clipboard() abort
-  call health#report_start('Clipboard')
+  call health#report_start('Clipboard (optional)')
 
   let clipboard_tool = provider#clipboard#Executable()
   if empty(clipboard_tool)
     call health#report_warn(
-          \ "No clipboard tool found. Clipboard registers will not work.",
-          \ ['See ":help clipboard".'])
+          \ 'No clipboard tool found. Clipboard registers will not work.',
+          \ [':help clipboard'])
   else
     call health#report_ok('Clipboard tool found: '. clipboard_tool)
   endif
@@ -164,7 +169,7 @@ function! s:version_info(python) abort
 
   " Assuming that multiple versions of a package are installed, sort them
   " numerically in descending order.
-  function! s:compare(metapath1, metapath2)
+  function! s:compare(metapath1, metapath2) abort
     let a = matchstr(fnamemodify(a:metapath1, ':p:h:t'), '[0-9.]\+')
     let b = matchstr(fnamemodify(a:metapath2, ':p:h:t'), '[0-9.]\+')
     return a == b ? 0 : a > b ? 1 : -1
@@ -208,7 +213,7 @@ endfunction
 
 " Check the Python interpreter's usability.
 function! s:check_bin(bin) abort
-  if !filereadable(a:bin)
+  if !filereadable(a:bin) && (!has('win32') || !filereadable(a:bin.'.exe'))
     call health#report_error(printf('"%s" was not found.', a:bin))
     return 0
   elseif executable(a:bin) != 1
@@ -219,7 +224,7 @@ function! s:check_bin(bin) abort
 endfunction
 
 function! s:check_python(version) abort
-  call health#report_start('Python ' . a:version . ' provider')
+  call health#report_start('Python ' . a:version . ' provider (optional)')
 
   let pyname = 'python'.(a:version == 2 ? '' : '3')
   let pyenv = resolve(exepath('pyenv'))
@@ -287,8 +292,9 @@ function! s:check_python(version) abort
 
       if exists('$PATH')
         for path in split($PATH, has('win32') ? ';' : ':')
-          let path_bin = path.'/'.pyname
-          if path_bin != python_bin && index(python_multiple, path_bin) == -1
+          let path_bin = s:normalize_path(path.'/'.pyname)
+          if path_bin != s:normalize_path(python_bin)
+                \ && index(python_multiple, path_bin) == -1
                 \ && executable(path_bin)
             call add(python_multiple, path_bin)
           endif
@@ -413,7 +419,7 @@ function! s:check_python(version) abort
 endfunction
 
 function! s:check_ruby() abort
-  call health#report_start('Ruby provider')
+  call health#report_start('Ruby provider (optional)')
 
   let loaded_var = 'g:loaded_ruby_provider'
   if exists(loaded_var) && !exists('*provider#ruby#Call')
@@ -423,8 +429,8 @@ function! s:check_ruby() abort
 
   if !executable('ruby') || !executable('gem')
     call health#report_warn(
-          \ "`ruby` and `gem` must be in $PATH.",
-          \ ["Install Ruby and verify that `ruby` and `gem` commands work."])
+          \ '`ruby` and `gem` must be in $PATH.',
+          \ ['Install Ruby and verify that `ruby` and `gem` commands work.'])
     return
   endif
   call health#report_info('Ruby: '. s:system('ruby -v'))
@@ -439,12 +445,12 @@ function! s:check_ruby() abort
   endif
   call health#report_info('Host: '. host)
 
-  let latest_gem_cmd = 'gem list -ra ^neovim$'
+  let latest_gem_cmd = has('win32') ? 'cmd /c gem list -ra ^^neovim$' : 'gem list -ra ^neovim$'
   let latest_gem = s:system(split(latest_gem_cmd))
   if s:shell_error || empty(latest_gem)
     call health#report_error('Failed to run: '. latest_gem_cmd,
           \ ["Make sure you're connected to the internet.",
-          \  "Are you behind a firewall or proxy?"])
+          \  'Are you behind a firewall or proxy?'])
     return
   endif
   let latest_gem = get(split(latest_gem, ' (\|, \|)$' ), 1, 'not found')
@@ -453,7 +459,7 @@ function! s:check_ruby() abort
   let current_gem = s:system(current_gem_cmd)
   if s:shell_error
     call health#report_error('Failed to run: '. current_gem_cmd,
-          \ ["Report this issue with the output of: ", current_gem_cmd])
+          \ ['Report this issue with the output of: ', current_gem_cmd])
     return
   endif
 
