@@ -10,7 +10,8 @@ const getExecutablePath = () => {
         case "darwin":
             return path.join(__dirname, "..", "..", "dist", "mac", "Oni.app", "Contents", "MacOS", "Oni")
         case "linux":
-            return path.join(__dirname, "..", "..", "dist", "linux-ia32-unpacked", "oni")
+            const archFlag = process.arch === "x64" ? "" : "ia32-"
+            return path.join(__dirname, "..", "..", "dist", `linux-${archFlag}unpacked`, "oni")
         default:
             throw `Unable to find Oni executable for platform ${process.platform}`
     }
