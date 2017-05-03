@@ -34,13 +34,15 @@ test_script:
   # Output useful info for debugging.
   - node --version
   - npm --version
-  # run tests
+  # build
   - npm run build
   - npm run lint
-  - npm run test
+  - npm run test:unit
   # create setup package
   - npm run dist:win
   - npm run pack:win
+  # run integration tests
+  - npm run test:integration
 
 # Don't actually build.
 build: off

@@ -26,10 +26,7 @@ install:
     - npm install
 
 script:
-    - npm run build
-    - npm run test
-    - npm run lint
-    - npm run pack
+    - ./build/script/travis-build.sh
 
 cache:
   directories:
