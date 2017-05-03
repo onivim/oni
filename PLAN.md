@@ -1,6 +1,5 @@
 - Move event to _onVimEvent
 - Refactor log events to helper methods
-- Refactor mode-change to helper method
 - Refactor render function to helper method
 - Refactor the show install help to NeovimEditor
 

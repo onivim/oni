@@ -55,6 +55,9 @@ export class NeovimEditor implements IEditor {
     private _cursorLine: boolean = false
     private _cursorColumn: boolean = false
 
+    private _errorOverlay: ErrorOverlay
+    private _overlayManager: OverlayManager
+
     constructor(
         private _commandManager: CommandManager,
         private _pluginManager: PluginManager,
@@ -97,15 +100,15 @@ export class NeovimEditor implements IEditor {
         services.push(outputWindow)
 
         // Overlays
-        const overlayManager = new OverlayManager(this._screen, this._neovimInstance)
-        const errorOverlay = new ErrorOverlay()
+        this._overlayManager = new OverlayManager(this._screen, this._neovimInstance)
+        this._errorOverlay = new ErrorOverlay()
         const liveEvaluationOverlay = new LiveEvaluationOverlay()
         const scrollbarOverlay = new ScrollBarOverlay()
-        overlayManager.addOverlay("errors", errorOverlay)
-        overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
-        overlayManager.addOverlay("scrollbar", scrollbarOverlay)
+        this._overlayManager.addOverlay("errors", this._errorOverlay)
+        this._overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
+        this._overlayManager.addOverlay("scrollbar", scrollbarOverlay)
 
-        overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.Actions.setActiveWindowDimensions(dimensionsInPixels))
+        this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.Actions.setActiveWindowDimensions(dimensionsInPixels))
 
         this._pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
             if (err) {
@@ -119,7 +122,7 @@ export class NeovimEditor implements IEditor {
             errorService.setErrors(fileName, errors)
 
             color = color || "red"
-            errorOverlay.setErrors(key, fileName, errors, color)
+            this._errorOverlay.setErrors(key, fileName, errors, color)
 
             const errorMarkers = errors.map((e: any) => ({
                 line: e.lineNumber,
@@ -150,7 +153,7 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => {
             // TODO: Can we get rid of these?
-            errorOverlay.onVimEvent(eventName, evt)
+            this._errorOverlay.onVimEvent(eventName, evt)
             liveEvaluationOverlay.onVimEvent(eventName, evt)
             scrollbarOverlay.onVimEvent(eventName, evt)
 
@@ -179,7 +182,7 @@ export class NeovimEditor implements IEditor {
         })
 
         this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any) => {
-            overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
+            this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -217,40 +220,7 @@ export class NeovimEditor implements IEditor {
             })
         })
 
-        this._neovimInstance.on("mode-change", (newMode: string) => {
-            UI.Actions.setMode(newMode)
-
-            if (newMode === "normal") {
-                if (this._cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                    UI.Actions.showCursorLine()
-                }
-                if (this._cursorColumn) {
-                    UI.Actions.showCursorColumn()
-                }
-                UI.Actions.hideCompletions()
-                UI.Actions.hideSignatureHelp()
-            } else if (newMode === "insert") {
-                UI.Actions.hideQuickInfo()
-                if (this._cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                    UI.Actions.showCursorLine()
-                }
-                if (this._cursorColumn) {
-                    UI.Actions.showCursorColumn()
-                }
-            } else if (newMode === "cmdline") {
-                UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
-                UI.Actions.hideCursorLine()
-                UI.Actions.hideCompletions()
-                UI.Actions.hideQuickInfo()
-            }
-
-            // Error overlay
-            if (newMode === "insert") {
-                errorOverlay.hideDetails()
-            } else {
-                errorOverlay.showDetails()
-            }
-        })
+        this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
         const renderFunction = () => {
             if (this._pendingTimeout) {
@@ -351,6 +321,41 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hideCompletions()
             this._neovimInstance.input(mouseInput)
         })
+    }
+
+    private _onModeChanged(newMode: string): void {
+        UI.Actions.setMode(newMode)
+
+        if (newMode === "normal") {
+            if (this._cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
+                UI.Actions.showCursorLine()
+            }
+            if (this._cursorColumn) {
+                UI.Actions.showCursorColumn()
+            }
+            UI.Actions.hideCompletions()
+            UI.Actions.hideSignatureHelp()
+        } else if (newMode === "insert") {
+            UI.Actions.hideQuickInfo()
+            if (this._cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
+                UI.Actions.showCursorLine()
+            }
+            if (this._cursorColumn) {
+                UI.Actions.showCursorColumn()
+            }
+        } else if (newMode === "cmdline") {
+            UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
+            UI.Actions.hideCursorLine()
+            UI.Actions.hideCompletions()
+            UI.Actions.hideQuickInfo()
+        }
+
+        // Error overlay
+        if (newMode === "insert") {
+            this._errorOverlay.hideDetails()
+        } else {
+            this._errorOverlay.showDetails()
+        }
     }
 
     private _onConfigChanged(): void {
