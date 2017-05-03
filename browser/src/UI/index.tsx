@@ -5,7 +5,6 @@ import { Provider } from "react-redux"
 import { applyMiddleware, bindActionCreators, compose, createStore } from "redux"
 import thunk from "redux-thunk"
 
-import { Background } from "./components/Background"
 import { RootComponent } from "./RootComponent"
 import * as State from "./State"
 
@@ -47,7 +46,6 @@ export function init(pluginManager: PluginManager, commandManager: CommandManage
 }
 
 function render(_state: State.IState, pluginManager: PluginManager, commandManager: CommandManager, args: any): void {
-    const backgroundElement = document.getElementById("background")
     const hostElement = document.getElementById("host")
 
     const editor = new NeovimEditor(commandManager, pluginManager)
@@ -57,8 +55,4 @@ function render(_state: State.IState, pluginManager: PluginManager, commandManag
         <Provider store={store}>
             <RootComponent editor={editor}/>
         </Provider>, hostElement)
-    ReactDOM.render(
-        <Provider store={store}>
-            <Background />
-        </Provider>, backgroundElement)
 }

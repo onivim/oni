@@ -52,8 +52,8 @@ export class NeovimEditor implements IEditor {
     private _pendingTimeout: any = null
     private _element: HTMLElement
 
-    public init(args: any): void {
-        this._neovimInstance.start(args)
+    public init(filesToOpen: string[]): void {
+        this._neovimInstance.start(filesToOpen)
     }
 
     constructor(
@@ -65,7 +65,6 @@ export class NeovimEditor implements IEditor {
         let cursorColumn: boolean
         const services: any[] = []
 
-        // TODO: Handle sizing here
         this._neovimInstance = new NeovimInstance(this._pluginManager, 100, 100)
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)

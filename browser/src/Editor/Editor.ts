@@ -5,7 +5,7 @@
  */
 export interface IEditor {
 
-    init(args: any): void
+    init(filesToOpen: string[]): void
 
     render(element: HTMLDivElement): void
 }

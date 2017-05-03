@@ -10,7 +10,6 @@ import { ipcRenderer, remote } from "electron"
 import * as minimist from "minimist"
 import * as Config from "./Config"
 import { PluginManager } from "./Plugins/PluginManager"
-import { DOMRenderer } from "./Renderer/DOMRenderer"
 
 import { CommandManager } from "./Services/CommandManager"
 
@@ -30,10 +29,6 @@ const start = (args: string[]) => {
 
     const commandManager = new CommandManager()
     const pluginManager = new PluginManager(commandManager)
-
-    const editorElement = document.getElementById("oni-text-editor") as HTMLDivElement
-    let renderer = new DOMRenderer()
-    renderer.start(editorElement)
 
     const config = Config.instance()
     config.on("logError", (err: Error) => {

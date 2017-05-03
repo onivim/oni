@@ -2,6 +2,7 @@ import * as React from "react"
 
 import { connect } from "react-redux"
 import { AutoCompletionContainer } from "./components/AutoCompletion"
+import { Background } from "./components/Background"
 import { Cursor } from "./components/Cursor"
 import { CursorLine } from "./components/CursorLine"
 import { EditorHost } from "./components/EditorHost"
@@ -21,25 +22,30 @@ interface IRootComponentProps {
 export class RootComponentRenderer extends React.Component<IRootComponentProps, void> {
     public render() {
 
-        const contents = this.props.showNeovimInstallHelp ?
-        <div className="container full">
+        const installNeovimOverlay = this.props.showNeovimInstallHelp ?
+        <div className="layer">
           <InstallHelp />
-        </div> :
-        <div className="container full">
-            <EditorHost editor={this.props.editor} />
-            <Cursor />
-            <CursorLine lineType={"line"} />
-            <CursorLine lineType={"column"} />
-            <SignatureHelpContainer />
-            <QuickInfoContainer />
-            <SignatureHelpContainer />
-            <MenuContainer />
-            <AutoCompletionContainer />
-            <Logs />
-        </div>
+        </div> : null
 
-        return <div className="container vertical full">
-            {contents}
+        return <div className="container full">
+            <div className="layer">
+                <Background />
+            </div>
+            <div className="layer">
+                <div className="container full">
+                    <EditorHost editor={this.props.editor} />
+                    <Cursor />
+                    <CursorLine lineType={"line"} />
+                    <CursorLine lineType={"column"} />
+                    <SignatureHelpContainer />
+                    <QuickInfoContainer />
+                    <SignatureHelpContainer />
+                    <MenuContainer />
+                    <AutoCompletionContainer />
+                    <Logs />
+                </div>
+            </div>
+            {installNeovimOverlay}
         </div>
 
     }
