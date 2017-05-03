@@ -11,6 +11,8 @@ import { IBuffer } from "./../neovim/Buffer"
 import { INeovimInstance } from "./../NeovimInstance"
 import { PluginManager } from "./../Plugins/PluginManager"
 
+import * as MultiProcess from "./MultiProcess"
+
 import * as UI from "./../UI/index"
 
 import { CallbackCommand, CommandManager } from "./CommandManager"
@@ -58,6 +60,10 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
                             "Show Logs",
                             "Show all logs in the bottom panel",
                             () => UI.Actions.changeLogsVisibility(true)),
+
+        // Inter-process management
+        new CallbackCommand("oni.focusNextInstance", "Focus Next Instance", "Focus the next running instance of Oni", () => MultiProcess.focusNextInstance()),
+        new CallbackCommand("oni.focusPreviousInstance", "Focus Previous Instance", "Focus the previous running instance of Oni", () => MultiProcess.focusPreviousInstance()),
 
         // Add additional commands here
         // ...

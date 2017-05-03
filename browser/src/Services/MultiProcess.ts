@@ -6,12 +6,10 @@
 
 import { ipcRenderer } from "electron"
 
-export class MultiProcess {
-    public focusPreviousInstance(): void {
-        ipcRenderer.send("focus-previous-instance")
-    }
+export const focusPreviousInstance = (): void => {
+    ipcRenderer.send("focus-previous-instance")
+}
 
-    public focusNextInstance(): void {
-        ipcRenderer.send("focus-next-instance")
-    }
+export const focusNextInstance = (): void => {
+    ipcRenderer.send("focus-next-instance")
 }

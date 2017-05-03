@@ -25,7 +25,6 @@ import { registerBuiltInCommands } from "./Services/Commands"
 import { Errors } from "./Services/Errors"
 import { Formatter } from "./Services/Formatter"
 import { LiveEvaluation } from "./Services/LiveEvaluation"
-import { MultiProcess } from "./Services/MultiProcess"
 import { OutputWindow } from "./Services/Output"
 import { QuickOpen } from "./Services/QuickOpen"
 import { SyntaxHighlighter } from "./Services/SyntaxHighlighter"
@@ -73,7 +72,6 @@ const start = (args: string[]) => {
     const errorService = new Errors(instance)
     const quickOpen = new QuickOpen(instance)
     const windowTitle = new WindowTitle(instance)
-    const multiProcess = new MultiProcess()
     const formatter = new Formatter(instance, pluginManager, bufferUpdates)
     const outputWindow = new OutputWindow(instance, pluginManager)
     const liveEvaluation = new LiveEvaluation(instance, pluginManager)
@@ -388,9 +386,9 @@ const start = (args: string[]) => {
         } else if (key === "<C-P>" && screen.mode === "normal") {
             tasks.show()
         } else if (key === "<C-pageup>") {
-            multiProcess.focusPreviousInstance()
+            commandManager.executeCommand("oni.focusNextInstance", null)
         } else if (key === "<C-pagedown>") {
-            multiProcess.focusNextInstance()
+            commandManager.executeCommand("oni.focusPreviousInstance", null)
         } else {
             instance.input(key)
         }
@@ -409,6 +407,7 @@ const start = (args: string[]) => {
         instance.resize(width, height)
         renderer.onResize()
     }
+
     window.addEventListener("resize", resize)
 
     window["__neovim"] = instance // tslint:disable-line no-string-literal
