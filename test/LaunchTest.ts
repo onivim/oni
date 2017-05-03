@@ -21,7 +21,7 @@ describe("application launch", () => {
 
     beforeEach(() => {
         app = new Application({
-            path: getExecutablePath()
+            path: getExecutablePath(),
         })
 
         return app.start()
