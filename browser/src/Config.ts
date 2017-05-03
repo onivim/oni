@@ -84,7 +84,7 @@ export interface IConfigValues {
     "editor.cursorColumnOpacity": number
 }
 
-class Config extends EventEmitter {
+export class Config extends EventEmitter {
 
     public userJsConfig = path.join(this.getUserFolder(), "config.js")
 

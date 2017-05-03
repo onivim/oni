@@ -52,13 +52,15 @@ export class NeovimEditor implements IEditor {
     private _pendingTimeout: any = null
     private _element: HTMLElement
 
+    private _cursorLine: boolean = false
+    private _cursorColumn: boolean = false
+
     constructor(
         private _commandManager: CommandManager,
         private _pluginManager: PluginManager,
         private _renderer: DOMRenderer = new DOMRenderer(),
+        private _config: Config.Config = Config.instance(),
     ) {
-        let cursorLine: boolean
-        let cursorColumn: boolean
         const services: any[] = []
 
         this._neovimInstance = new NeovimInstance(this._pluginManager, 100, 100)
@@ -219,20 +221,20 @@ export class NeovimEditor implements IEditor {
             UI.Actions.setMode(newMode)
 
             if (newMode === "normal") {
-                if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
+                if (this._cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
                     UI.Actions.showCursorLine()
                 }
-                if (cursorColumn) {
+                if (this._cursorColumn) {
                     UI.Actions.showCursorColumn()
                 }
                 UI.Actions.hideCompletions()
                 UI.Actions.hideSignatureHelp()
             } else if (newMode === "insert") {
                 UI.Actions.hideQuickInfo()
-                if (cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
+                if (this._cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
                     UI.Actions.showCursorLine()
                 }
-                if (cursorColumn) {
+                if (this._cursorColumn) {
                     UI.Actions.showCursorColumn()
                 }
             } else if (newMode === "cmdline") {
@@ -264,31 +266,11 @@ export class NeovimEditor implements IEditor {
 
         renderFunction()
 
-        const config = Config.instance()
-        const configChange = () => {
-            cursorLine = config.getValue("editor.cursorLine")
-            cursorColumn = config.getValue("editor.cursorColumn")
-
-            UI.Actions.setCursorLineOpacity(config.getValue("editor.cursorLineOpacity"))
-            UI.Actions.setCursorColumnOpacity(config.getValue("editor.cursorColumnOpacity"))
-
-            if (cursorLine) {
-                UI.Actions.showCursorLine()
-            }
-
-            if (cursorColumn) {
-                UI.Actions.showCursorColumn()
-            }
-
-            this._neovimInstance.setFont(config.getValue("editor.fontFamily"), config.getValue("editor.fontSize"))
-            this._onUpdate()
-        }
-        configChange() // initialize values
-        config.registerListener(configChange)
+        this._onConfigChanged()
+        this._config.registerListener(() => this._onConfigChanged())
 
         const keyboard = new Keyboard()
         keyboard.on("keydown", (key: string) => {
-
             if (key === "<f3>") {
                 formatter.formatBuffer()
                 return
@@ -369,6 +351,25 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hideCompletions()
             this._neovimInstance.input(mouseInput)
         })
+    }
+
+    private _onConfigChanged(): void {
+        this._cursorLine = this._config.getValue("editor.cursorLine")
+        this._cursorColumn = this._config.getValue("editor.cursorColumn")
+
+        UI.Actions.setCursorLineOpacity(this._config.getValue("editor.cursorLineOpacity"))
+        UI.Actions.setCursorColumnOpacity(this._config.getValue("editor.cursorColumnOpacity"))
+
+        if (this._cursorLine) {
+            UI.Actions.showCursorLine()
+        }
+
+        if (this._cursorColumn) {
+            UI.Actions.showCursorColumn()
+        }
+
+        this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
+        this._onUpdate()
     }
 
     private _onUpdate(): void {
