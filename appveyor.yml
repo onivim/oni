@@ -2,6 +2,9 @@
 environment:
   nodejs_version: "6"
 
+cache:
+  - node_modules -> package.json
+
 # Install scripts. (runs after repo cloning)
 install:
   # Get the latest stable version of Node.js or io.js
