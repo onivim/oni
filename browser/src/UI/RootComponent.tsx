@@ -4,24 +4,29 @@ import { connect } from "react-redux"
 import { AutoCompletionContainer } from "./components/AutoCompletion"
 import { Cursor } from "./components/Cursor"
 import { CursorLine } from "./components/CursorLine"
+import { EditorHost } from "./components/EditorHost"
 import { InstallHelp } from "./components/InstallHelp"
 import { Logs } from "./components/Logs"
 import { MenuContainer } from "./components/Menu"
 import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
 import * as State from "./State"
 
+import { IEditor } from "./../Editor/Editor"
+
 interface IRootComponentProps {
+    editor: IEditor
     showNeovimInstallHelp: boolean
 }
 
 export class RootComponentRenderer extends React.Component<IRootComponentProps, void> {
     public render() {
 
-        return this.props.showNeovimInstallHelp ?
-        <div className="ui-overlay">
+        const contents = this.props.showNeovimInstallHelp ?
+        <div className="container full">
           <InstallHelp />
         </div> :
-        <div className="ui-overlay">
+        <div className="container full">
+            <EditorHost editor={this.props.editor} />
             <Cursor />
             <CursorLine lineType={"line"} />
             <CursorLine lineType={"column"} />
@@ -32,12 +37,18 @@ export class RootComponentRenderer extends React.Component<IRootComponentProps, 
             <AutoCompletionContainer />
             <Logs />
         </div>
+
+        return <div className="container vertical full">
+            {contents}
+        </div>
+
     }
 }
 
-const mapStateToProps = (state: State.IState): IRootComponentProps => {
+const mapStateToProps = (state: State.IState, props: Partial<IRootComponentProps>): IRootComponentProps => {
     return {
         showNeovimInstallHelp: state.showNeovimInstallHelp,
+        editor: props.editor,
     }
 }
 

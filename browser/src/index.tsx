@@ -87,7 +87,7 @@ const start = (args: string[]) => {
         pluginManager.notifyCompletionItemSelected(item)
     })
 
-    UI.init()
+    UI.init(pluginManager, commandManager, parsedArgs._)
 
     ipcRenderer.on("execute-command", (_evt, command: string) => {
         commandManager.executeCommand(command, null)

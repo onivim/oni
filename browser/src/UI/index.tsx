@@ -16,9 +16,15 @@ import { reducer } from "./Reducer"
 import * as Events from "./Events"
 import * as UnboundSelectors from "./Selectors"
 
+import { PluginManager } from "./../Plugins/PluginManager"
+import { CommandManager } from "./../Services/CommandManager"
+import { NeovimEditor } from "./../Editor/NeovimEditor"
+
 export const events = Events.events
 
 let defaultState = State.createDefaultState()
+
+require("./components/common.less")
 
 const composeEnhancers = window["__REDUX_DEVTOOLS_EXTENSION__COMPOSE__"] || compose // tslint:disable-line no-string-literal
 const enhancer = composeEnhancers(
@@ -36,17 +42,21 @@ export const Selectors = {
     getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState()),
 }
 
-export function init(): void {
-    render(defaultState)
+export function init(pluginManager: PluginManager, commandManager: CommandManager, args: any): void {
+    render(defaultState, pluginManager, commandManager, args)
 }
 
-function render(_state: State.IState): void {
-    const uiElement = document.getElementById("overlay-ui")
+function render(_state: State.IState, pluginManager: PluginManager, commandManager: CommandManager, args: any): void {
     const backgroundElement = document.getElementById("background")
+    const hostElement = document.getElementById("host")
+
+    const editor = new NeovimEditor(commandManager, pluginManager)
+    editor.init(args)
+
     ReactDOM.render(
         <Provider store={store}>
-            <RootComponent />
-        </Provider>, uiElement)
+            <RootComponent editor={editor}/>
+        </Provider>, hostElement)
     ReactDOM.render(
         <Provider store={store}>
             <Background />
