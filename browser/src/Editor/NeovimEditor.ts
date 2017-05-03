@@ -55,8 +55,14 @@ export class NeovimEditor implements IEditor {
     private _cursorLine: boolean = false
     private _cursorColumn: boolean = false
 
+    // Services
+    private _tasks: Tasks
+
+    // Overlays
     private _errorOverlay: ErrorOverlay
     private _overlayManager: OverlayManager
+    private _liveEvaluationOverlay: LiveEvaluationOverlay
+    private _scrollbarOverlay: ScrollBarOverlay
 
     constructor(
         private _commandManager: CommandManager,
@@ -81,18 +87,17 @@ export class NeovimEditor implements IEditor {
         const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
         const liveEvaluation = new LiveEvaluation(this._neovimInstance, this._pluginManager)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
-        const tasks = new Tasks(outputWindow)
+        this._tasks = new Tasks(outputWindow)
         registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
 
-        tasks.registerTaskProvider(this._commandManager)
-        tasks.registerTaskProvider(errorService)
+        this._tasks.registerTaskProvider(this._commandManager)
+        this._tasks.registerTaskProvider(errorService)
 
         services.push(autoCompletion)
         services.push(bufferUpdates)
         services.push(errorService)
         services.push(quickOpen)
         services.push(windowTitle)
-        services.push(tasks)
         services.push(formatter)
         services.push(liveEvaluation)
         services.push(multiProcess)
@@ -100,16 +105,19 @@ export class NeovimEditor implements IEditor {
         services.push(outputWindow)
 
         // Overlays
+        // TODO: Replace `OverlayManagement` concept and associated window management code with
+        // explicit window management: #362
         this._overlayManager = new OverlayManager(this._screen, this._neovimInstance)
         this._errorOverlay = new ErrorOverlay()
-        const liveEvaluationOverlay = new LiveEvaluationOverlay()
-        const scrollbarOverlay = new ScrollBarOverlay()
+        this._liveEvaluationOverlay = new LiveEvaluationOverlay()
+        this._scrollbarOverlay = new ScrollBarOverlay()
         this._overlayManager.addOverlay("errors", this._errorOverlay)
-        this._overlayManager.addOverlay("live-eval", liveEvaluationOverlay)
-        this._overlayManager.addOverlay("scrollbar", scrollbarOverlay)
+        this._overlayManager.addOverlay("live-eval", this._liveEvaluationOverlay)
+        this._overlayManager.addOverlay("scrollbar", this._scrollbarOverlay)
 
         this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.Actions.setActiveWindowDimensions(dimensionsInPixels))
 
+        // TODO: Refactor `pluginManager` responsibilities outside of this instance
         this._pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
             if (err) {
                 UI.Actions.hideSignatureHelp()
@@ -129,11 +137,11 @@ export class NeovimEditor implements IEditor {
                 height: 1,
                 color,
             }))
-            scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
+            this._scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
         })
 
         liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
-            liveEvaluationOverlay.setLiveEvaluationResult(file, blocks)
+            this._liveEvaluationOverlay.setLiveEvaluationResult(file, blocks)
         })
 
         this._pluginManager.on("find-all-references", (references: Oni.Plugin.ReferencesResult) => {
@@ -151,34 +159,14 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.command(`execute "normal! /${references.tokenName}\\<cr>"`)
         })
 
-        this._neovimInstance.on("event", (eventName: string, evt: any) => {
-            // TODO: Can we get rid of these?
-            this._errorOverlay.onVimEvent(eventName, evt)
-            liveEvaluationOverlay.onVimEvent(eventName, evt)
-            scrollbarOverlay.onVimEvent(eventName, evt)
-
-            tasks.onEvent(evt)
-
-            if (eventName === "BufEnter") {
-                // TODO: More convenient way to hide all UI?
-                UI.Actions.hideCompletions()
-                UI.Actions.hidePopupMenu()
-                UI.Actions.hideSignatureHelp()
-                UI.Actions.hideQuickInfo()
-            }
-
-            if (eventName === "DirChanged") {
-                this._neovimInstance.getCurrentWorkingDirectory()
-                    .then((newDirectory) => process.chdir(newDirectory))
-            }
-        })
+        this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
 
         this._neovimInstance.on("error", (_err: string) => {
             UI.Actions.showNeovimInstallHelp()
         })
 
         this._neovimInstance.on("buffer-update", (context: any, lines: string[]) => {
-            scrollbarOverlay.onBufferUpdate(context, lines)
+            this._scrollbarOverlay.onBufferUpdate(context, lines)
         })
 
         this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any) => {
@@ -222,19 +210,7 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
-        const renderFunction = () => {
-            if (this._pendingTimeout) {
-                UI.Actions.setCursorPosition(this._screen)
-            }
-
-            this._renderer.update(this._screen, this._deltaRegionManager)
-
-            this._deltaRegionManager.cleanUpRenderedCells()
-
-            window.requestAnimationFrame(() => renderFunction())
-        }
-
-        renderFunction()
+        this._render()
 
         this._onConfigChanged()
         this._config.registerListener(() => this._onConfigChanged())
@@ -281,7 +257,7 @@ export class NeovimEditor implements IEditor {
             } else if (key === "<C-p>" && this._screen.mode === "normal") {
                 quickOpen.show()
             } else if (key === "<C-P>" && this._screen.mode === "normal") {
-                tasks.show()
+                this._tasks.show()
             } else if (key === "<C-pageup>") {
                 multiProcess.focusPreviousInstance()
             } else if (key === "<C-pagedown>") {
@@ -358,6 +334,28 @@ export class NeovimEditor implements IEditor {
         }
     }
 
+    private _onVimEvent(eventName: string, evt: any): void {
+        // TODO: Can we get rid of these?
+        this._errorOverlay.onVimEvent(eventName, evt)
+        this._liveEvaluationOverlay.onVimEvent(eventName, evt)
+        this._scrollbarOverlay.onVimEvent(eventName, evt)
+
+        this._tasks.onEvent(evt)
+
+        if (eventName === "BufEnter") {
+            // TODO: More convenient way to hide all UI?
+            UI.Actions.hideCompletions()
+            UI.Actions.hidePopupMenu()
+            UI.Actions.hideSignatureHelp()
+            UI.Actions.hideQuickInfo()
+        }
+
+        if (eventName === "DirChanged") {
+            this._neovimInstance.getCurrentWorkingDirectory()
+                .then((newDirectory) => process.chdir(newDirectory))
+        }
+    }
+
     private _onConfigChanged(): void {
         this._cursorLine = this._config.getValue("editor.cursorLine")
         this._cursorColumn = this._config.getValue("editor.cursorColumn")
@@ -396,5 +394,17 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.resize(width, height)
             this._renderer.onResize()
         }
+    }
+
+    private _render(): void {
+        if (this._pendingTimeout) {
+            UI.Actions.setCursorPosition(this._screen)
+        }
+
+        this._renderer.update(this._screen, this._deltaRegionManager)
+
+        this._deltaRegionManager.cleanUpRenderedCells()
+
+        window.requestAnimationFrame(() => this._render())
     }
 }
