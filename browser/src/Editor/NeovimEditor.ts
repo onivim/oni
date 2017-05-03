@@ -8,8 +8,8 @@ import * as path from "path"
 
 import { ipcRenderer } from "electron"
 
-import { NeovimInstance } from "./../NeovimInstance"
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
+import { NeovimInstance } from "./../NeovimInstance"
 import { DOMRenderer } from "./../Renderer/DOMRenderer"
 import { NeovimScreen } from "./../Screen"
 
@@ -38,8 +38,8 @@ import { OverlayManager } from "./../UI/Overlay/OverlayManager"
 import { ScrollBarOverlay } from "./../UI/Overlay/ScrollBarOverlay"
 import { Rectangle } from "./../UI/Types"
 
-import { Mouse } from "./../Input/Mouse"
 import { Keyboard } from "./../Input/Keyboard"
+import { Mouse } from "./../Input/Mouse"
 
 import { IEditor } from "./Editor"
 
@@ -363,6 +363,8 @@ export class NeovimEditor implements IEditor {
         this._element = element
         this._renderer.start(element)
 
+        this._onResize()
+
         const mouse = new Mouse(element, this._screen)
 
         mouse.on("mouse", (mouseInput: string) => {
@@ -381,12 +383,14 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onResize(): void {
-        let width = document.body.offsetWidth
-        let height = document.body.offsetHeight
+        if (this._element) {
+            const width = this._element.offsetWidth
+            const height = this._element.offsetHeight
 
-        this._deltaRegionManager.dirtyAllCells()
+            this._deltaRegionManager.dirtyAllCells()
 
-        this._neovimInstance.resize(width, height)
-        this._renderer.onResize()
+            this._neovimInstance.resize(width, height)
+            this._renderer.onResize()
+        }
     }
 }
