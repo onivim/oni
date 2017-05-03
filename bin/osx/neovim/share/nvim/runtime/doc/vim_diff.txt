@@ -10,13 +10,7 @@ Throughout the help files, differences between Nvim and Vim are indicated via
 the "{Nvim}" tag.  This document is a complete and centralized list of all
 these differences.
 
-1. Configuration		|nvim-configuration|
-2. Defaults			|nvim-defaults|
-3. New features			|nvim-features|
-4. Changed features		|nvim-features-changed|
-5. Missing legacy features	|nvim-features-missing|
-6. Removed features		|nvim-features-removed|
-
+				      Type <M-]> to see the table of contents.
 
 ==============================================================================
 1. Configuration					    *nvim-configuration*
@@ -45,7 +39,8 @@ these differences.
 - 'history' defaults to 10000 (the maximum)
 - 'hlsearch' is set by default
 - 'incsearch' is set by default
-- 'langnoremap' is set by default
+- 'langnoremap' is enabled by default
+- 'langremap' is disabled by default
 - 'laststatus' defaults to 2 (statusline is always shown)
 - 'listchars' defaults to "tab:> ,trail:-,nbsp:+"
 - 'nocompatible' is always set
@@ -64,7 +59,6 @@ these differences.
 ==============================================================================
 3. New Features						       *nvim-features*
 
-
 MAJOR COMPONENTS ~
 
 Embedded terminal emulator	|terminal-emulator|
@@ -75,7 +69,6 @@ Job control			|job-control|
 Remote plugins			|remote-plugin|
 Python plugins			|provider-python|
 Clipboard integration		|provider-clipboard|
-
 
 USER EXPERIENCE  ~
 
@@ -99,7 +92,7 @@ editor. Even "legacy" Python and Ruby plugins which use the old Vim interfaces
 
 FEATURES ~
 
-|bracketed-paste-mode| is built-in and enabled by default.
+"Outline": Type <M-]> in |:Man| and |:help| pages to see a document outline.
 
 |META| (ALT) chords are recognized, even in the terminal. Any |<M-| mapping
 will work. Some examples: <M-1>, <M-2>, <M-BS>, <M-Del>, <M-Ins>, <M-/>,
@@ -112,6 +105,7 @@ Some `CTRL-SHIFT-...` key chords are distinguished from `CTRL-...` variants
 
 Options:
   'cpoptions' flags: |cpo-_|
+  'guicursor' works in the terminal
   'inccommand' shows interactive results for |:substitute|-like commands
   'statusline' supports unlimited alignment sections
   'tabline' %@Func@foo%X can call any function on mouse-click
@@ -145,6 +139,7 @@ Highlight groups:
   |hl-Substitute|
   |hl-TermCursor|
   |hl-TermCursorNC|
+  |hl-Whitespace| highlights 'listchars' whitespace
 
 ==============================================================================
 4. Changed features					 *nvim-features-changed*
@@ -272,6 +267,11 @@ Nvim is always "non-compatible" with Vi.
 Ed-compatible mode:
   ":set noedcompatible" is ignored
   ":set edcompatible" is an error
+
+	*t_xx* *:set-termcap* *termcap-options* *t_AB* *t_Sb* *t_vb* *t_SI*
+Nvim does not have special `t_XX` options nor <t_XX> keycodes to configure
+terminal capabilities. Instead Nvim treats the terminal as any other UI. For
+example, 'guicursor' sets the terminal cursor style if possible.
 
 'ttyfast':
   ":set ttyfast" is ignored

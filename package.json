@@ -30,7 +30,10 @@
     "mac": {
       "artifactName": "${productName}-${version}-osx.${ext}",
       "category": "public.app-category.developer-tools",
-      "target": "dmg",
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "files": [
         "bin/osx/**/*"
       ]
@@ -60,8 +63,8 @@
     "build:browser": "webpack --config browser/webpack.production.config.js",
     "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
     "build:plugins": "cd vim/core/oni-plugin-typescript && npm run build",
-    "pack": "build",
-    "dist:win": "build --arch ia32",
+    "pack": "build --publish never",
+    "dist:win": "build --arch ia32 --publish never",
     "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
     "test": "npm run test:unit && npm run test:integration",
     "test:integration": "cd test && tsc -p tsconfig.json && mocha -t 30000 --recursive ../lib_test/test",
@@ -95,6 +98,7 @@
     "neovim-client": "2.1.0",
     "omnisharp-client": "7.0.6",
     "q": "1.4.1",
+    "tslint": "4.0.2",
     "typescript": "2.2.1"
   },
   "devDependencies": {
@@ -144,7 +148,6 @@
     "spectron": "3.6.2",
     "style-loader": "0.13.1",
     "ts-loader": "1.2.2",
-    "tslint": "4.0.2",
     "vscode-jsonrpc": "3.2.0",
     "vscode-languageserver-types": "3.2.0",
     "wcwidth": "1.0.1",

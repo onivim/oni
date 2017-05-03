@@ -1,4 +1,4 @@
-*terminal_emulator.txt*    						{Nvim}
+*terminal_emulator.txt*   Nvim
 
 
 		 NVIM REFERENCE MANUAL    by Thiago de Arruda
@@ -14,6 +14,8 @@ Terminal buffers behave mostly like normal 'nomodifiable' buffers, except:
 - Plugins can set 'modifiable' to modify text, but lines cannot be deleted.
 - 'scrollback' controls how many off-screen lines are kept.
 - Terminal output is followed if the cursor is on the last line.
+
+				      Type <M-]> to see the table of contents.
 
 ==============================================================================
 Spawning					  *terminal-emulator-spawning*
