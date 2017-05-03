@@ -6,24 +6,24 @@ import { applyMiddleware, bindActionCreators, compose, createStore } from "redux
 import thunk from "redux-thunk"
 
 import { RootComponent } from "./RootComponent"
-import * as State from "./State"
 
 // import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
-import { reducer } from "./Reducer"
-
 import * as Events from "./Events"
+import { reducer } from "./Reducer"
 import * as UnboundSelectors from "./Selectors"
+import * as State from "./State"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 import { CommandManager } from "./../Services/CommandManager"
+
 import { NeovimEditor } from "./../Editor/NeovimEditor"
 
 export const events = Events.events
 
 let defaultState = State.createDefaultState()
 
-require("./components/common.less")
+require("./components/common.less") // tslint:disable-line no-var-requires
 
 const composeEnhancers = window["__REDUX_DEVTOOLS_EXTENSION__COMPOSE__"] || compose // tslint:disable-line no-string-literal
 const enhancer = composeEnhancers(
@@ -53,6 +53,6 @@ function render(_state: State.IState, pluginManager: PluginManager, commandManag
 
     ReactDOM.render(
         <Provider store={store}>
-            <RootComponent editor={editor}/>
+            <RootComponent editor={editor} />
         </Provider>, hostElement)
 }

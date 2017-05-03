@@ -52,14 +52,10 @@ export class NeovimEditor implements IEditor {
     private _pendingTimeout: any = null
     private _element: HTMLElement
 
-    public init(filesToOpen: string[]): void {
-        this._neovimInstance.start(filesToOpen)
-    }
-
     constructor(
         private _commandManager: CommandManager,
         private _pluginManager: PluginManager,
-        private _renderer: DOMRenderer = new DOMRenderer()
+        private _renderer: DOMRenderer = new DOMRenderer(),
     ) {
         let cursorLine: boolean
         let cursorColumn: boolean
@@ -130,7 +126,6 @@ export class NeovimEditor implements IEditor {
             }))
             scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
         })
-
 
         liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
             liveEvaluationOverlay.setLiveEvaluationResult(file, blocks)
@@ -356,6 +351,10 @@ export class NeovimEditor implements IEditor {
                 this._neovimInstance.command("exec \":normal! " + message + "\"")
             }
         })
+    }
+
+    public init(filesToOpen: string[]): void {
+        this._neovimInstance.start(filesToOpen)
     }
 
     public render(element: HTMLDivElement): void {
