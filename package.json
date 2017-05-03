@@ -30,7 +30,10 @@
     "mac": {
       "artifactName": "${productName}-${version}-osx.${ext}",
       "category": "public.app-category.developer-tools",
-      "target": "dmg",
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "files": [
         "bin/osx/**/*"
       ]
@@ -60,8 +63,8 @@
     "build:browser": "webpack --config browser/webpack.production.config.js",
     "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
     "build:plugins": "cd vim/core/oni-plugin-typescript && npm run build",
-    "pack": "build",
-    "dist:win": "build --arch ia32",
+    "pack": "build --publish never",
+    "dist:win": "build --arch ia32 --publish never",
     "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
     "test": "npm run test:browser && npm run test:plugins:typescript",
     "test:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
