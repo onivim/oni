@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 
-echo Setting display - detected OS is: $TRAVIS_OS_NAME
+echo Travis build - detected OS is: $TRAVIS_OS_NAME
 
-if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-  export DISPLAY=:99.0
-  sh -e /etc/init.d/xvfb start
-  sleep 3
+node --version
+npm --version
+
+npm run build
+npm run test:unit
+npm run lint
+npm run pack
+
+if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    npm run test:integration
 fi
