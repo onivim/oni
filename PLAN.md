@@ -1,4 +1,3 @@
-- Move QuickOpen to separate layer
 - Remove existing status bar: https://unix.stackexchange.com/questions/140898/vim-hide-status-line-in-the-bottom
 - Create API for StatusBar
 - Create state for status bar in redux store
