@@ -1,3 +1,4 @@
+
 - Remove existing status bar: https://unix.stackexchange.com/questions/140898/vim-hide-status-line-in-the-bottom
 - Create API for StatusBar
 - Create state for status bar in redux store
@@ -8,6 +9,7 @@
 - Show line, character
 
 - Priority for status bar tiles
+- Regression in showing logs?
 
 Longer-term:
 - For `NeovimEditor`, make sure it gets disposed on unmount. Perhaps a centralized Neovim process factory for multi-plexing multiple processes.

@@ -1,6 +1,5 @@
 set number
 set noswapfile
-set ruler
 set smartcase
 
 set splitright
@@ -11,6 +10,12 @@ set tabstop=4
 set shiftwidth=4
 set softtabstop=4
 set expandtab
+
+" Turn off statusbar, because it is externalized
+set noshowmode
+set noruler
+set laststatus=0
+set noshowcmd
 
 set list
 set listchars=trail:·
