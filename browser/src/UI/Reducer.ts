@@ -94,10 +94,6 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
             return Object.assign({}, s, {
                 configuration: newConfig,
             })
-        case "SHOW_NEOVIM_INSTALL_HELP":
-            return Object.assign({}, s, {
-                showNeovimInstallHelp: true,
-            })
         case "TOGGLE_LOG_FOLD":
             return Object.assign({}, s, {
                 logs: s.logs.map((n, i) => {

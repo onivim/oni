@@ -38,6 +38,7 @@ const start = (args: string[]) => {
             details: err.stack.split("\n"),
         })
     })
+
     const initialConfigParsingError = config.getParsingError()
     if (initialConfigParsingError) {
         UI.Actions.makeLog({
@@ -46,6 +47,7 @@ const start = (args: string[]) => {
             details: initialConfigParsingError.stack.split("\n"),
         })
     }
+
     let prevConfigValues = config.getValues()
 
     const configChange = () => {

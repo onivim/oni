@@ -422,7 +422,7 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
 
     const noopInitVimPath = path.join(__dirname, "vim", "noop.vim")
 
-    const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
+    const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.ex")
     const nvimMacProcessPath = path.join(__dirname, "bin", "osx", "neovim", "bin", "nvim")
     // For Linux, assume there is a locally installed neovim
     const nvimLinuxPath = "nvim"

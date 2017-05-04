@@ -6,6 +6,9 @@
 
 import * as path from "path"
 
+import * as React from "react"
+import * as ReactDOM from "react-dom"
+
 import { ipcRenderer } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
@@ -43,6 +46,8 @@ import { Mouse } from "./../Input/Mouse"
 
 import { IEditor } from "./Editor"
 
+import { InstallHelp } from "./../UI/components/InstallHelp"
+
 export class NeovimEditor implements IEditor {
 
     private _neovimInstance: NeovimInstance
@@ -63,6 +68,8 @@ export class NeovimEditor implements IEditor {
     private _overlayManager: OverlayManager
     private _liveEvaluationOverlay: LiveEvaluationOverlay
     private _scrollbarOverlay: ScrollBarOverlay
+
+    private _errorStartingNeovim: boolean = false
 
     constructor(
         private _commandManager: CommandManager,
@@ -162,7 +169,8 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
 
         this._neovimInstance.on("error", (_err: string) => {
-            UI.Actions.showNeovimInstallHelp()
+            this._errorStartingNeovim = true
+            ReactDOM.render(<InstallHelp />, this._element)
         })
 
         this._neovimInstance.on("buffer-update", (context: any, lines: string[]) => {
