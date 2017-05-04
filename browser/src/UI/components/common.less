@@ -23,3 +23,30 @@
 @bufferScrollBarSize: 7px;
 
 @component-padding: 10px;
+
+#host, .editor, .layer {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+}
+
+.container {
+    position: relative;
+
+    &.vertical {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &.full {
+        width: 100%;
+        height: 100%;
+        flex: 1 1 auto;
+    }
+
+    &.fixed {
+        flex: 0 0 auto;
+    }
+}

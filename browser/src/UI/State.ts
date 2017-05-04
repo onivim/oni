@@ -1,3 +1,8 @@
+/**
+ * State.ts
+ *
+ * This file describes the Redux state of the app
+ */
 
 import * as Config from  "./../Config"
 import { ILog } from "./Logs"
@@ -22,7 +27,6 @@ export interface IState {
     cursorColumnVisible: boolean
     cursorColumnOpacity: number
     configuration: Config.IConfigValues
-    showNeovimInstallHelp: boolean
 
     logsVisible: boolean
     logs: Array<{
@@ -89,7 +93,6 @@ export const createDefaultState = (): IState => ({
     cursorColumnVisible: false,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
-    showNeovimInstallHelp: false,
     logsVisible: false,
     logs: [],
     configuration: Config.instance().getValues(),

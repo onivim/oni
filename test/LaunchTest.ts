@@ -38,5 +38,7 @@ describe("application launch", () => {
         return app.client.waitUntilWindowLoaded()
             .then(() => app.client.getWindowCount())
             .then((count) => assert.equal(count, 1))
+            .then(() => app.client.getText(".editor"))
+            .then((text) => assert(text && text.length > 0, "Validate editor element is present"))
     })
 })

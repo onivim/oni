@@ -1,44 +1,41 @@
 import * as React from "react"
 
-import { connect } from "react-redux"
 import { AutoCompletionContainer } from "./components/AutoCompletion"
+import { Background } from "./components/Background"
 import { Cursor } from "./components/Cursor"
 import { CursorLine } from "./components/CursorLine"
-import { InstallHelp } from "./components/InstallHelp"
+import { EditorHost } from "./components/EditorHost"
 import { Logs } from "./components/Logs"
 import { MenuContainer } from "./components/Menu"
 import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
-import * as State from "./State"
+
+import { IEditor } from "./../Editor/Editor"
 
 interface IRootComponentProps {
-    showNeovimInstallHelp: boolean
+    editor: IEditor
 }
 
-export class RootComponentRenderer extends React.Component<IRootComponentProps, void> {
+export class RootComponent extends React.Component<IRootComponentProps, void> {
     public render() {
 
-        return this.props.showNeovimInstallHelp ?
-        <div className="ui-overlay">
-          <InstallHelp />
-        </div> :
-        <div className="ui-overlay">
-            <Cursor />
-            <CursorLine lineType={"line"} />
-            <CursorLine lineType={"column"} />
-            <SignatureHelpContainer />
-            <QuickInfoContainer />
-            <SignatureHelpContainer />
-            <MenuContainer />
-            <AutoCompletionContainer />
-            <Logs />
+        return <div className="container full">
+            <div className="layer">
+                <Background />
+            </div>
+            <div className="layer">
+                <div className="container full">
+                    <EditorHost editor={this.props.editor} />
+                    <Cursor />
+                    <CursorLine lineType={"line"} />
+                    <CursorLine lineType={"column"} />
+                    <SignatureHelpContainer />
+                    <QuickInfoContainer />
+                    <SignatureHelpContainer />
+                    <MenuContainer />
+                    <AutoCompletionContainer />
+                    <Logs />
+                </div>
+            </div>
         </div>
     }
 }
-
-const mapStateToProps = (state: State.IState): IRootComponentProps => {
-    return {
-        showNeovimInstallHelp: state.showNeovimInstallHelp,
-    }
-}
-
-export const RootComponent = connect(mapStateToProps)(RootComponentRenderer)
