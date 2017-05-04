@@ -170,7 +170,7 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("error", (_err: string) => {
             this._errorStartingNeovim = true
-            ReactDOM.render(<InstallHelp />, this._element)
+            ReactDOM.render(<InstallHelp />, this._element.parentElement)
         })
 
         this._neovimInstance.on("buffer-update", (context: any, lines: string[]) => {
