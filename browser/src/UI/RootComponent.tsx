@@ -8,6 +8,7 @@ import { EditorHost } from "./components/EditorHost"
 import { Logs } from "./components/Logs"
 import { MenuContainer } from "./components/Menu"
 import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
+import { StatusBar } from "./components/StatusBar"
 
 import { IEditor } from "./../Editor/Editor"
 
@@ -23,18 +24,25 @@ export class RootComponent extends React.Component<IRootComponentProps, void> {
                 <Background />
             </div>
             <div className="layer">
-                <div className="container full">
-                    <EditorHost editor={this.props.editor} />
-                    <Cursor />
-                    <CursorLine lineType={"line"} />
-                    <CursorLine lineType={"column"} />
-                    <SignatureHelpContainer />
-                    <QuickInfoContainer />
-                    <SignatureHelpContainer />
-                    <MenuContainer />
-                    <AutoCompletionContainer />
-                    <Logs />
+                <div className="container vertical full">
+                    <div className="container full">
+                        <EditorHost editor={this.props.editor} />
+                        <Cursor />
+                        <CursorLine lineType={"line"} />
+                        <CursorLine lineType={"column"} />
+                        <SignatureHelpContainer />
+                        <QuickInfoContainer />
+                        <SignatureHelpContainer />
+                        <AutoCompletionContainer />
+                        <Logs />
+                    </div>
+                    <div className="container fixed">
+                        <StatusBar />
+                    </div>
                 </div>
+            </div>
+            <div className="layer">
+                <MenuContainer />
             </div>
         </div>
     }
