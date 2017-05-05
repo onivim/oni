@@ -1,5 +1,9 @@
 import * as React from "react"
 
+import { connect } from "react-redux"
+
+import * as State from "./../State"
+
 require("./StatusBar.less") // tslint:disable-line no-var-requires
 
 import { StatusBarAlignment } from "./../State"
@@ -48,3 +52,10 @@ export class StatusBarItem extends React.PureComponent<StatusBarItemProps, void>
         return <div className="status-bar-item" dangerouslySetInnerHTML={createMarkup(this.props.contentsHTML)} />
     }
 }
+
+const mapStateToProps = (state: State.IState): StatusBarProps => ({
+    items: state.statusBar
+})
+
+export default connect(mapStateToProps)(StatusBar)
+

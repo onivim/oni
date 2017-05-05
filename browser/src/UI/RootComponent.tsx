@@ -8,7 +8,7 @@ import { EditorHost } from "./components/EditorHost"
 import { Logs } from "./components/Logs"
 import { MenuContainer } from "./components/Menu"
 import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
-import { StatusBar } from "./components/StatusBar"
+import StatusBar from "./components/StatusBar"
 
 import { IEditor } from "./../Editor/Editor"
 
