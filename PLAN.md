@@ -1,7 +1,6 @@
 
-- Remove existing status bar: https://unix.stackexchange.com/questions/140898/vim-hide-status-line-in-the-bottom
-- Create API for StatusBar
 - Create state for status bar in redux store
+- Create API for StatusBar
 - Create StatusBar react component as part of external UI
 - Show current git branch
 - Show current filename

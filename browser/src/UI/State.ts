@@ -28,6 +28,8 @@ export interface IState {
     cursorColumnOpacity: number
     configuration: Config.IConfigValues
 
+    statusBar: IStatusBarItem[]
+
     logsVisible: boolean
     logs: Array<{
         log: ILog,
@@ -36,6 +38,18 @@ export interface IState {
 
     // Dimensions of active window, in pixels
     activeWindowDimensions: Rectangle
+}
+
+export enum StatusBarAlignment {
+    Left,
+    Right,
+}
+
+export interface IStatusBarItem {
+    alignment: StatusBarAlignment
+    contentsHTML: string
+    id: string
+    priority: number
 }
 
 export function readConf <K extends keyof Config.IConfigValues>(conf: Config.IConfigValues, k: K): Config.IConfigValues[K] {
@@ -96,4 +110,10 @@ export const createDefaultState = (): IState => ({
     logsVisible: false,
     logs: [],
     configuration: Config.instance().getValues(),
+    statusBar: [{
+        alignment: StatusBarAlignment.Left,
+        contentsHTML: "Test",
+        id: "test_1",
+        priority: 1,
+    }]
 })
