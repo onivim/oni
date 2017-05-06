@@ -103,7 +103,6 @@ const getTextFromMarkedString = (markedString: types.MarkedString): string => {
     }
 }
 
-
 const getFilePrefix = () => {
     if (process.platform === "win32") {
         return "file://"
