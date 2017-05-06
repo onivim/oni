@@ -9,7 +9,7 @@ import * as _ from "lodash"
 import * as rpc from "vscode-jsonrpc"
 import * as types from "vscode-languageserver-types"
 
-import { ChildProcess } from "child_process"
+import { ChildProcess, spawn } from "child_process"
 
 import { getCompletionMeet } from "./../../../Services/AutoCompletionUtility"
 import { Oni } from "./../Oni"
@@ -70,11 +70,6 @@ export class LanguageClient {
                         return null
                     })
             }, false)
-
-            this._enqueuePromise(() => {
-                return this._getHighlights(args)
-                    .then((highlights: Oni.Plugin.SyntaxHighlight[]) => this._oni.setHighlights(args.bufferFullPath, "langservice", highlights))
-            })
         })
 
         this._oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
@@ -108,7 +103,8 @@ export class LanguageClient {
 
         // TODO: Pursue alternate connection mechanisms besides stdio - maybe Node IPC?
 
-        this._process = this._oni.spawnNodeScript(this._startCommand)
+        // this._process = this._oni.spawnNodeScript(this._startCommand)
+        this._process = spawn(this._startCommand)
 
         this._connection = rpc.createMessageConnection(
             <any>(new rpc.StreamMessageReader(this._process.stdout)),
@@ -238,17 +234,6 @@ export class LanguageClient {
                     column: startPos.character + 1,
                 }
             })
-    }
-
-    private _getHighlights(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.SyntaxHighlight[]> {
-        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.DocumentSymbol, {
-            textDocument: {
-                uri: Helpers.wrapPathInFileUri(textDocumentPosition.bufferFullPath),
-            },
-        }).then((/* result: types.SymbolInformation[]*/) => {
-            // TODO
-            return []
-        })
     }
 
     private _onBufferUpdateIncremental(args: Oni.IncrementalBufferUpdateContext): Thenable<void> {
