@@ -20,8 +20,8 @@
         - [Quick Info](#quick-info)
     - [Languages](#languages)
         - [JavaScript and TypeScript](#javascript-and-typescript)
-        - [C#](c)
-        - [Go](go)
+        - [C#](#c)
+        - [Go](#go)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
@@ -248,7 +248,7 @@ _Known Issues_
 
 _Configuration_
 
-Go language support depends on the [Go langserver](https://github.com/sourcegraph/go-langserver) by SourceGraph, which provides language support for Go. Follow their installation instructions as this language server is not bundled out-of-the-box with Oni.
+Go language support depends on the [go-langserver](https://github.com/sourcegraph/go-langserver) by [SourceGraph](https://sourcegraph.com), which provides language support for Go. Follow their installation instructions as this language server is not bundled out-of-the-box with Oni.
 
 > `go-langserver` must be available in your PATH
 
