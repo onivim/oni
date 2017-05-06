@@ -17,6 +17,32 @@ import { Oni } from "./../Oni"
 import * as Helpers from "./LanguageClientHelpers"
 import { LanguageClientLogger } from "./LanguageClientLogger"
 
+/**
+ * Options for starting the Language Server process
+ */
+export interface ServerRunOptions {
+    /**
+     * Specify `command` to use a shell command to spawn a process
+     */
+    command?: string
+
+    /**
+     * Specify `module` to run a JavaScript module
+     */
+    module?: string
+
+    /**
+     * Arguments to pass to the language servicew
+     */
+    args?: string[]
+
+    // TODO: TransportKind option?
+}
+
+/**
+ * Options to send to the `initialize` method of the 
+ * Language Server
+ */
 export interface LanguageClientInitializationParams {
     clientName: string
     rootPath: string
@@ -44,7 +70,7 @@ export class LanguageClient {
     private _initializationParams: LanguageClientInitializationParams
 
     constructor(
-        private _startCommand: string,
+        private _startOptions: ServerRunOptions,
         private _initializationParamsCreator: InitializationParamsCreator,
         private _oni: Oni) {
 
@@ -100,11 +126,15 @@ export class LanguageClient {
     }
 
     public start(initializationParams: LanguageClientInitializationParams): Thenable<any> {
+        const startArgs = this._startOptions.args || []
 
-        // TODO: Pursue alternate connection mechanisms besides stdio - maybe Node IPC?
-
-        // this._process = this._oni.spawnNodeScript(this._startCommand)
-        this._process = spawn(this._startCommand)
+        if (this._startOptions.command) {
+            this._process = spawn(this._startOptions.command, startArgs)
+        } else if (this._startOptions.module) {
+            this._process = this._oni.spawnNodeScript(this._startOptions.module, startArgs)
+        } else {
+            throw "A command or module must be specified to start the server"
+        }
 
         this._connection = rpc.createMessageConnection(
             <any>(new rpc.StreamMessageReader(this._process.stdout)),
@@ -210,13 +240,13 @@ export class LanguageClient {
             Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
             .then((result: types.Hover) => {
                 if (!result || !result.contents) {
-                    throw "No quickinfo available"
+                    return null
                 }
 
                 let contents = result.contents.toString().trim()
 
                 if (contents.length === 0) {
-                    throw "Quickinfo data empty"
+                    return null
                 }
 
                 return { title: contents, description: "" }
@@ -226,10 +256,19 @@ export class LanguageClient {
     private _getDefinition(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.GotoDefinitionResponse> {
         return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.Definition,
             Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
-            .then((result: types.Location) => {
-                const startPos = result.range.start || result.range.end
+            .then((result: types.Location & types.Location[]) => {
+                if (!result) {
+                    return null
+                }
+
+                let location: types.Location = result
+                if (result.length) {
+                    location = result[0]
+                }
+
+                const startPos = location.range.start || location.range.end
                 return {
-                    filePath: Helpers.unwrapFileUriPath(result.uri),
+                    filePath: Helpers.unwrapFileUriPath(location.uri),
                     line: startPos.line + 1,
                     column: startPos.character + 1,
                 }

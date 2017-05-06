@@ -6,7 +6,11 @@ const _ = require("lodash")
 const rpc = require("vscode-jsonrpc")
 
 const activate = (Oni) => {
-    const client = Oni.createLanguageClient("C:/users/bryan/go/bin/go-langserver.exe", (filePath) => {
+    const serverOptions = {
+        command: path.join(process.env.HOME, "go", "bin", "go-langserver")
+    }
+
+    const client = Oni.createLanguageClient(serverOptions, (filePath) => {
                 return Promise.resolve({
                     clientName: "go-langserver",
                     rootPath: "file:///" + path.dirname(filePath).split("\\").join("/"),

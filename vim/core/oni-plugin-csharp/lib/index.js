@@ -9,9 +9,11 @@ const activate = (Oni) => {
 
     const omniSharpLangServerPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", "omnisharp-client", "languageserver", "server.js")
 
-    const execCommand = `${omniSharpLangServerPath}`
+    const startOptions = {
+        module: `${omniSharpLangServerPath}`
+    }
 
-    const client = Oni.createLanguageClient(execCommand, (filePath) => {
+    const client = Oni.createLanguageClient(startOptions, (filePath) => {
         return getRootProjectFileAsync(path.dirname(filePath))
             .then((csprojPath) => {
                 return {
