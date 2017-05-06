@@ -21,6 +21,7 @@
     - [Languages](#languages)
         - [JavaScript and TypeScript](#javascript-and-typescript)
         - [C#](c)
+        - [Go](go)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
@@ -242,6 +243,24 @@ _Known Issues_
 
 - On Windows, you must run Oni as an administrator the first time using the C# language service. This is tracked by issue [#423](https://github.com/extr0py/oni/issues/423).
 - On all platforms, the C# language service takes time to start up, especially the first time as it is downloading the appropriate runtime environment. You can open up the developer tools (Help -> Developer Tools) to see the logging from the language service. [#424](https://github.com/extr0py/oni/issues/424) tracks making this logging more visible.
+
+#### Go
+
+_Configuration_
+
+Go language support depends on the [Go langserver](https://github.com/sourcegraph/go-langserver) by SourceGraph, which provides language support for Go.
+
+> Make sure that `go-langserver` is available in your PATH (accessible from the terminal) in order to leverage the language service in Oni.
+
+_Supported Language features_
+
+| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
+| --- | --- | --- | --- | --- | --- |--- | --- |
+| N | Y | N | N | Y | N | N | N |
+
+_Known Issues_
+
+- There is no Windows support at the moment - this is being tracked by [sourcegraph/go-langserver#113](https://github.com/sourcegraph/go-langserver/issues/113).
 
 ### Configuration
 
