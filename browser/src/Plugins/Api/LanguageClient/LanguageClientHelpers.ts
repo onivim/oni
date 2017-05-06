@@ -25,9 +25,18 @@ export const ProtocolConstants = {
     },
 }
 
-export const wrapPathInFileUri = (path: string) => "file:///" + path
+export const wrapPathInFileUri = (path: string) => getFilePrefix() + path
 
-export const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split("file:///")[1])
+export const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split(getFilePrefix())[1])
+
+export const getTextFromContents = (contents: types.MarkedString | types.MarkedString[]): string[] => {
+    if (contents instanceof Array) {
+        return contents
+                .map((markedString) => getTextFromMarkedString(markedString))
+    } else {
+        return [getTextFromMarkedString(contents)]
+    }
+}
 
 export const bufferUpdateToTextDocumentItem = (args: Oni.BufferUpdateContext): types.TextDocumentItem => {
     const lines = args.bufferLines
@@ -82,5 +91,22 @@ export const incrementalBufferUpdateToDidChangeTextDocumentParams = (args: Oni.I
             range: types.Range.create(lineNumber - 1, 0, lineNumber - 1, previousLineLength),
             text: changedLine,
         }],
+    }
+}
+
+const getTextFromMarkedString = (markedString: types.MarkedString): string => {
+    if (typeof markedString === "string") {
+        return markedString.trim()
+    } else {
+        // TODO: Properly apply syntax highlighting based on the `language` parameter
+        return markedString.value.trim()
+    }
+}
+
+const getFilePrefix = () => {
+    if (process.platform === "win32") {
+        return "file://"
+    } else {
+        return "file:///"
     }
 }
