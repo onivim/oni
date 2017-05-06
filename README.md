@@ -248,9 +248,9 @@ _Known Issues_
 
 _Configuration_
 
-Go language support depends on the [Go langserver](https://github.com/sourcegraph/go-langserver) by SourceGraph, which provides language support for Go.
+Go language support depends on the [Go langserver](https://github.com/sourcegraph/go-langserver) by SourceGraph, which provides language support for Go. Follow their installation instructions as this language server is not bundled out-of-the-box with Oni.
 
-> Make sure that `go-langserver` is available in your PATH (accessible from the terminal) in order to leverage the language service in Oni.
+> `go-langserver` must be available in your PATH
 
 _Supported Language features_
 
