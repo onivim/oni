@@ -7,7 +7,7 @@ const rpc = require("vscode-jsonrpc")
 
 const activate = (Oni) => {
     const serverOptions = {
-        command: path.join(process.env.HOME, "go", "bin", "go-langserver")
+        command: "go-langserver",
     }
 
     const client = Oni.createLanguageClient(serverOptions, (filePath) => {
