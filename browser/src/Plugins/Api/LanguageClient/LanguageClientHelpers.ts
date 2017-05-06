@@ -40,10 +40,10 @@ export const getTextFromContents = (contents: types.MarkedString | types.MarkedS
 
 const getTextFromMarkedString = (markedString: types.MarkedString): string => {
     if (typeof markedString === "string") {
-        return markedString
+        return markedString.trim()
     } else {
         // TODO: Properly apply syntax highlighting based on the `language` parameter
-        return markedString.value
+        return markedString.value.trim()
     }
 }
 

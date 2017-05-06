@@ -248,8 +248,14 @@ export class LanguageClient {
                 if (contents.length === 0) {
                     return null
                 } else if (contents.length === 1) {
+                    const title = contents[0]
+
+                    if (!title) {
+                        return null
+                    }
+
                     return {
-                        title: contents[0],
+                        title,
                         description: "",
                     }
                 } else {
