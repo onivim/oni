@@ -6,6 +6,7 @@ import { IPluginChannel } from "./Channel"
 import { Commands } from "./Commands"
 import { Diagnostics } from "./Diagnostics"
 import { Editor } from "./Editor"
+import { StatusBar } from "./StatusBar"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient } from "./LanguageClient/LanguageClient"
@@ -16,6 +17,7 @@ import { InitializationParamsCreator, LanguageClient } from "./LanguageClient/La
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     private _editor: Oni.Editor
+    private _statusBar: StatusBar
     private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
@@ -32,12 +34,17 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._commands
     }
 
+    public get statusBar(): StatusBar {
+        return this._statusBar
+    }
+
     constructor(private _channel: IPluginChannel) {
         super()
 
         this._diagnostics = new Diagnostics(this._channel)
         this._editor = new Editor(this._channel)
         this._commands = new Commands()
+        this._statusBar = new StatusBar(this._channel)
 
         this._channel.onRequest((arg: any) => {
             this._handleNotification(arg)

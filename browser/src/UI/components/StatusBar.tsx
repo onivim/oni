@@ -21,16 +21,22 @@ export interface StatusBarItemProps {
 
 export class StatusBar extends React.PureComponent<StatusBarProps, void> {
     public render() {
+
+        const statusBarItems = this.props.items || []
+        const leftItems = statusBarItems.filter((item) => item.alignment === StatusBarAlignment.Left)
+        const rightItems = statusBarItems.filter((item) => item.alignment === StatusBarAlignment.Right)
+
         return <div className="status-bar">
             <div className="status-bar-container left">
                 <div className="status-bar-item">
                     <span><i className="fa fa-bolt"></i> typescript</span>
                 </div>
-                {this.props.items.map((item) => <StatusBarItem {...item} />)}
+                {leftItems.map((item) => <StatusBarItem {...item} />)}
             </div>
             <div className="status-bar-container center">
             </div>
             <div className="status-bar-container right">
+                {rightItems.map((item) => <StatusBarItem {...item} />)}
                 <div className="status-bar-item">
                     <span><i className="fa fa-code-fork"></i> master</span>
                 </div>

@@ -17,7 +17,7 @@ export interface IStatusBarItem {
     setContents(element: HTMLElement): void
 }
 
-export class StatusBarItem {
+export class StatusBarItem implements Oni.StatusBarItem {
     private _contents: HTMLElement
 
     constructor(
@@ -46,16 +46,20 @@ export class StatusBarItem {
     public setContents(element: HTMLElement): void {
         this._contents = element
     }
+
+    public dispose(): void {
+        throw "Not implemented"
+    }
 }
 
-export class StatusBar {
+export class StatusBar implements Oni.StatusBar {
     private _id: number = 0
 
     constructor(
         private _channel: IPluginChannel,
     ) { }
 
-    public createItem(alignment: StatusBarAlignment, priority: number = 0): IStatusBarItem {
+    public createItem(alignment: StatusBarAlignment, priority: number = 0): Oni.StatusBarItem {
         this._id++
 
         return new StatusBarItem(this._channel, this._id, alignment, priority)

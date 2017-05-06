@@ -33,5 +33,5 @@ export function error(message: string, errorDetails?: any): void {
         details: errorDetails || null,
     })
 
-    console.error(message) // tslint:disable-line no-console
+    console.error(message, errorDetails) // tslint:disable-line no-console
 }
