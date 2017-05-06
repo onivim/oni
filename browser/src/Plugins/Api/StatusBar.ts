@@ -39,7 +39,7 @@ export class StatusBarItem {
 
     public hide(): void {
         this._channel.send("statusbar-item-hide", null, {
-            id: this._id
+            id: this._id,
         })
     }
 
@@ -52,7 +52,7 @@ export class StatusBar {
     private _id: number = 0
 
     constructor(
-        private _channel: IPluginChannel
+        private _channel: IPluginChannel,
     ) { }
 
     public createItem(alignment: StatusBarAlignment, priority: number = 0): IStatusBarItem {

@@ -54,8 +54,7 @@ export class StatusBarItem extends React.PureComponent<StatusBarItemProps, void>
 }
 
 const mapStateToProps = (state: State.IState): StatusBarProps => ({
-    items: state.statusBar
+    items: state.statusBar,
 })
 
 export default connect(mapStateToProps)(StatusBar)
-

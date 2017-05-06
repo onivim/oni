@@ -115,5 +115,5 @@ export const createDefaultState = (): IState => ({
         contentsHTML: "Test",
         id: "test_1",
         priority: 1,
-    }]
+    }],
 })
