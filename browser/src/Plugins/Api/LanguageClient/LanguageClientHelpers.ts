@@ -29,6 +29,24 @@ export const wrapPathInFileUri = (path: string) => "file://" + path
 
 export const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split("file://")[1])
 
+export const getTextFromContents = (contents: types.MarkedString | types.MarkedString[]): string[] => {
+    if (contents instanceof Array) {
+        return contents
+                .map((markedString) => getTextFromMarkedString(markedString))
+    } else {
+        return [getTextFromMarkedString(contents)]
+    }
+}
+
+const getTextFromMarkedString = (markedString: types.MarkedString): string => {
+    if (typeof markedString === "string") {
+        return markedString
+    } else {
+        // TODO: Properly apply syntax highlighting based on the `language` parameter
+        return markedString.value
+    }
+}
+
 export const bufferUpdateToTextDocumentItem = (args: Oni.BufferUpdateContext): types.TextDocumentItem => {
     const lines = args.bufferLines
     const { bufferFullPath, filetype, version } = args.eventContext

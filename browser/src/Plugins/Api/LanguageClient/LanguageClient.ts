@@ -243,13 +243,22 @@ export class LanguageClient {
                     return null
                 }
 
-                let contents = result.contents.toString().trim()
+                let contents = Helpers.getTextFromContents(result.contents)
 
                 if (contents.length === 0) {
                     return null
+                } else if (contents.length === 1) {
+                    return {
+                        title: contents[0],
+                        description: "",
+                    }
+                } else {
+                    return {
+                        title: contents[0],
+                        description: contents[1],
+                    }
                 }
 
-                return { title: contents, description: "" }
             })
     }
 
