@@ -4,7 +4,7 @@
  * This file describes the Redux state of the app
  */
 
-import * as Config from  "./../Config"
+import * as Config from "./../Config"
 import { ILog } from "./Logs"
 import { Rectangle } from "./Types"
 
@@ -28,7 +28,7 @@ export interface IState {
     cursorColumnOpacity: number
     configuration: Config.IConfigValues
 
-    statusBar: IStatusBarItem[]
+    statusBar: { [id: string]: IStatusBarItem }
 
     logsVisible: boolean
     logs: Array<{
@@ -48,11 +48,11 @@ export enum StatusBarAlignment {
 export interface IStatusBarItem {
     alignment: StatusBarAlignment
     contentsHTML: string
-    id: string
     priority: number
+    visible: boolean
 }
 
-export function readConf <K extends keyof Config.IConfigValues>(conf: Config.IConfigValues, k: K): Config.IConfigValues[K] {
+export function readConf<K extends keyof Config.IConfigValues>(conf: Config.IConfigValues, k: K): Config.IConfigValues[K] {
     return conf[k]
 }
 
@@ -110,15 +110,19 @@ export const createDefaultState = (): IState => ({
     logsVisible: false,
     logs: [],
     configuration: Config.instance().getValues(),
-    statusBar: [{
-        alignment: StatusBarAlignment.Left,
-        contentsHTML: "Test",
-        id: "test_1",
-        priority: 1,
-    }, {
-        alignment: StatusBarAlignment.Right,
-        contentsHTML: "Test-Right",
-        id: "test_2",
-        priority: 1,
-    }],
+
+    statusBar: {
+        "test_1": {
+            alignment: StatusBarAlignment.Left,
+            contentsHTML: "Test",
+            priority: 1,
+            visible: true,
+        },
+        "test_2": {
+            alignment: StatusBarAlignment.Right,
+            contentsHTML: "Test-Right",
+            priority: 1,
+            visible: true,
+        },
+    },
 })

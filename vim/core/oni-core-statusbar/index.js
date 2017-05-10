@@ -6,8 +6,13 @@ const exec = require("child_process").exec
 const activate = (Oni) => {
 
     Oni.on("buffer-enter", () => {
-        alert("Hello from statusbar")
     })
+
+    const statusBarItem = Oni.statusBar.createItem(0, 0)
+    const element = document.createElement("div")
+    element.textContent = "Hello from plugin"
+    statusBarItem.setContents(element)
+    statusBarItem.show()
 }
 
 module.exports = {

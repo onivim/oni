@@ -3,12 +3,12 @@
 .status-bar {
     color: @text-color;
     background-color: @background-color;
-    height: 25px;
-    line-height: 25px;
+    height: 28px;
     box-shadow: 0px 2px 10px black;
 
     display: flex;
     flex-direction: horizontal;
+    align-items: center;
 
     .status-bar-container {
         flex: 1 1 auto;
@@ -34,6 +34,10 @@
 
             &.filler {
                 flex: 1 1 auto;
+            }
+
+            .faded {
+                color: rgb(150, 150, 150);
             }
         }
     }

@@ -19,6 +19,16 @@ import * as Actions from "./Actions"
 import { events } from "./Events"
 import {ILog} from "./Logs"
 
+export const showStatusBarItem = (id: string, contentsHTML: string, alignment?: State.StatusBarAlignment, priority?: number) => ({
+    type: "STATUSBAR_SHOW",
+    payload: {
+        id,
+        contentsHTML,
+        alignment,
+        priority,
+    }
+})
+
 export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: Function, getState: Function) => {
     dispatch(_showAutoCompletion(result.base, result.completions))
 

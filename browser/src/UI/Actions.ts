@@ -9,6 +9,7 @@
 
 import * as Config from "./../Config"
 import { ILog } from "./Logs"
+import { StatusBarAlignment } from "./State"
 import { Rectangle } from "./Types"
 
 export interface ISetCursorPositionAction {
@@ -20,6 +21,23 @@ export interface ISetCursorPositionAction {
         fontPixelHeight: number,
         cursorCharacter: string,
         cursorPixelWidth: number,
+    }
+}
+
+export interface IStatusBarShowAction {
+    type: "STATUSBAR_SHOW",
+    payload: {
+        id: string,
+        contentsHTML: string,
+        alignment: StatusBarAlignment,
+        priority: number,
+    }
+}
+
+export interface IStatusBarHideAction {
+    type: "STATUSBAR_HIDE",
+    payload: {
+        id: string,
     }
 }
 
