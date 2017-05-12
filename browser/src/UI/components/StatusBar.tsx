@@ -1,3 +1,4 @@
+import * as _ from "lodash"
 import * as React from "react"
 
 import { connect } from "react-redux"
@@ -59,8 +60,18 @@ export class StatusBarItem extends React.PureComponent<StatusBarItemProps, void>
     }
 }
 
-const mapStateToProps = (state: State.IState): StatusBarProps => ({
-    items: state.statusBar,
-})
+const mapStateToProps = (state: State.IState): StatusBarProps => {
+
+    const keys = _.keys(state.statusBar)
+
+    const statusBarItems = keys.map((k) => ({
+        id: k,
+        ...state.statusBar[k]
+    }))
+
+    return {
+        items: statusBarItems
+    }
+}
 
 export default connect(mapStateToProps)(StatusBar)

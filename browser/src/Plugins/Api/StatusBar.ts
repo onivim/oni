@@ -6,6 +6,8 @@
 
 import { IPluginChannel } from "./Channel"
 
+import * as ActionCreators from "./../../UI/ActionCreators"
+
 export enum StatusBarAlignment {
     Left,
     Right,
@@ -22,25 +24,17 @@ export class StatusBarItem implements Oni.StatusBarItem {
 
     constructor(
         private _channel: IPluginChannel,
-        private _id: number,
+        private _id: string,
         private _alignment: StatusBarAlignment,
         private _priority: number,
     ) { }
 
     public show(): void {
-        this._channel.send("statusbar-item-show", null, {
-            id: this._id,
-            alignment: this._alignment,
-            // TODO: Does this need to be a string?
-            latestElement: this._contents,
-            priority: this._priority,
-        })
+        this._channel.send("redux-action", null, ActionCreators.showStatusBarItem(this._id, this._contents.outerHTML, this._alignment, this._priority))
     }
 
     public hide(): void {
-        this._channel.send("statusbar-item-hide", null, {
-            id: this._id,
-        })
+        this._channel.send("redux-action", null, ActionCreators.hideStatusBarItem(this._id))
     }
 
     public setContents(element: HTMLElement): void {
@@ -62,6 +56,8 @@ export class StatusBar implements Oni.StatusBar {
     public createItem(alignment: StatusBarAlignment, priority: number = 0): Oni.StatusBarItem {
         this._id++
 
-        return new StatusBarItem(this._channel, this._id, alignment, priority)
+        const statusBarId = `${this._channel.metadata}{this._id.toString()}`
+
+        return new StatusBarItem(this._channel, statusBarId, alignment, priority)
     }
 }
