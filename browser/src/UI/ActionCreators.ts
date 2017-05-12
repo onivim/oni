@@ -26,7 +26,7 @@ export const showStatusBarItem = (id: string, contentsHTML: string, alignment?: 
         contentsHTML,
         alignment,
         priority,
-    }
+    },
 })
 
 export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: Function, getState: Function) => {
