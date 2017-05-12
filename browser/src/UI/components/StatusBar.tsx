@@ -66,11 +66,11 @@ const mapStateToProps = (state: State.IState): StatusBarProps => {
 
     const statusBarItems = keys.map((k) => ({
         id: k,
-        ...state.statusBar[k]
+        ...state.statusBar[k],
     }))
 
     return {
-        items: statusBarItems
+        items: statusBarItems,
     }
 }
 

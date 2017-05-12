@@ -32,8 +32,8 @@ export const showStatusBarItem = (id: string, contentsHTML: string, alignment?: 
 export const hideStatusBarItem = (id: string) => ({
     type: "STATUSBAR_HIDE",
     payload: {
-        id
-    }
+        id,
+    },
 })
 
 export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: Function, getState: Function) => {
