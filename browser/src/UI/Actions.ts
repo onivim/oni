@@ -216,6 +216,8 @@ export type SimpleAction =
     ISetModeAction |
     ISetColorsAction |
     ISetActiveWindowDimensions |
+    IStatusBarHideAction |
+    IStatusBarShowAction |
     IHideCurorLineAction |
     IHideCursorColumnAction |
     IShowCursorLineAction |

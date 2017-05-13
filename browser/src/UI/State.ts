@@ -111,18 +111,5 @@ export const createDefaultState = (): IState => ({
     logs: [],
     configuration: Config.instance().getValues(),
 
-    statusBar: {
-        "test_1": {
-            alignment: StatusBarAlignment.Left,
-            contentsHTML: "Test",
-            priority: 1,
-            visible: true,
-        },
-        "test_2": {
-            alignment: StatusBarAlignment.Right,
-            contentsHTML: "Test-Right",
-            priority: 1,
-            visible: true,
-        },
-    },
+    statusBar: {},
 })

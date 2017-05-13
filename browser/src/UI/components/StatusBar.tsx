@@ -24,15 +24,20 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
     public render() {
 
         const statusBarItems = this.props.items || []
-        const leftItems = statusBarItems.filter((item) => item.alignment === StatusBarAlignment.Left)
-        const rightItems = statusBarItems.filter((item) => item.alignment === StatusBarAlignment.Right)
+        const leftItems = statusBarItems
+                            .filter((item) => item.alignment === StatusBarAlignment.Left)
+                            .sort((a, b) => a.priority - b.priority)
+
+        const rightItems = statusBarItems
+                            .filter((item) => item.alignment === StatusBarAlignment.Right)
+                            .sort((a, b) => b.priority - a.priority)
 
         return <div className="status-bar">
             <div className="status-bar-container left">
+                {leftItems.map((item) => <StatusBarItem {...item} />)}
                 <div className="status-bar-item">
                     <span><i className="fa fa-bolt"></i> typescript</span>
                 </div>
-                {leftItems.map((item) => <StatusBarItem {...item} />)}
             </div>
             <div className="status-bar-container center">
             </div>
@@ -40,9 +45,6 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
                 {rightItems.map((item) => <StatusBarItem {...item} />)}
                 <div className="status-bar-item">
                     <span><i className="fa fa-code-fork"></i> master</span>
-                </div>
-                <div className="status-bar-item">
-                    <span>12, 29</span>
                 </div>
                 <div className="status-bar-item">
                     <span>INSERT</span>

@@ -1,18 +1,35 @@
 const Q = require("q")
 const path = require("path")
-const os = require("os")
-const exec = require("child_process").exec
 
 const activate = (Oni) => {
+    const filePathItem = Oni.statusBar.createItem(0, -1)
+    const lineNumberItem = Oni.statusBar.createItem(1, -1)
 
-    Oni.on("buffer-enter", () => {
+    const setLineNumber = (line, column) => {
+        lineNumberItem.setContents(`${line}, ${column}`)
+    }
+
+    const setFilePath = (filePath) => {
+        if (!filePath) {
+            filePathItem.setContents("[No Name]")
+        } else {
+            filePathItem.setContents(filePath)
+        }
+    }
+
+    Oni.on("cursor-moved", (evt) => {
+        setLineNumber(evt.line, evt.column)
     })
 
-    const statusBarItem = Oni.statusBar.createItem(0, 0)
-    const element = document.createElement("div")
-    element.textContent = "Hello from plugin"
-    statusBarItem.setContents(element)
-    statusBarItem.show()
+    Oni.on("buffer-enter", (evt) => {
+        setFilePath(evt.bufferFullPath)
+    })
+
+    setLineNumber(1, 1)
+    setFilePath(null)
+
+    lineNumberItem.show()
+    filePathItem.show()
 }
 
 module.exports = {

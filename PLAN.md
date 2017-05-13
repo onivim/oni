@@ -1,18 +1,11 @@
-
-- Create state for status bar in redux store
-- Create API for StatusBar
-- Create StatusBar react component as part of external UI
-- Show current git branch
-- Show current filename
 - Show current mode
-- Show line, character
+
+- Switch to pure components to improve rendering speed (due to high volume of actions)
 
 - Priority for status bar tiles
 - Regression in showing logs?
 
+- Debug timing issue where sometimes the status bar does not load immediately
+
 Longer-term:
 - For `NeovimEditor`, make sure it gets disposed on unmount. Perhaps a centralized Neovim process factory for multi-plexing multiple processes.
-
-
-- Does it make sense to directly dispatch redux-actions from the plugins? 
-- This would prevent from having a duplicate / parallel protocol

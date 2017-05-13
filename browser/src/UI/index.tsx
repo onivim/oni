@@ -30,7 +30,7 @@ const enhancer = composeEnhancers(
     applyMiddleware(thunk),
 )
 
-const store = createStore(reducer, defaultState, enhancer)
+export const store = createStore(reducer, defaultState, enhancer)
 
 export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators as any, store.dispatch)
 

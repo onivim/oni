@@ -20,7 +20,8 @@ export interface IStatusBarItem {
 }
 
 export class StatusBarItem implements Oni.StatusBarItem {
-    private _contents: HTMLElement
+    private _contents: string = ""
+    private _visible: boolean = false
 
     constructor(
         private _channel: IPluginChannel,
@@ -30,15 +31,25 @@ export class StatusBarItem implements Oni.StatusBarItem {
     ) { }
 
     public show(): void {
-        this._channel.send("redux-action", null, ActionCreators.showStatusBarItem(this._id, this._contents.outerHTML, this._alignment, this._priority))
+        this._visible = true
+        this._channel.send("redux-action", null, ActionCreators.showStatusBarItem(this._id, this._contents, this._alignment, this._priority))
     }
 
     public hide(): void {
+        this._visible = false
         this._channel.send("redux-action", null, ActionCreators.hideStatusBarItem(this._id))
     }
 
-    public setContents(element: HTMLElement): void {
-        this._contents = element
+    public setContents(element: HTMLElement | string): void {
+        if (typeof element === "string") {
+            this._contents = element
+        } else {
+            this._contents = element.outerHTML
+        }
+
+        if (this._visible) {
+            this.show()
+        }
     }
 
     public dispose(): void {
@@ -56,7 +67,7 @@ export class StatusBar implements Oni.StatusBar {
     public createItem(alignment: StatusBarAlignment, priority: number = 0): Oni.StatusBarItem {
         this._id++
 
-        const statusBarId = `${this._channel.metadata}{this._id.toString()}`
+        const statusBarId = `${this._channel.metadata.name}${this._id.toString()}`
 
         return new StatusBarItem(this._channel, statusBarId, alignment, priority)
     }

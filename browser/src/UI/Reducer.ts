@@ -117,7 +117,24 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
             return Object.assign({}, s, {
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
                 popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
+                statusBar: statusBarReducer(s.statusBar, a),
             })
+    }
+}
+
+export const statusBarReducer = (s: { [key: string]: State.IStatusBarItem }, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "STATUSBAR_SHOW":
+            return {
+                ...s,
+                [a.payload.id]: a.payload,
+            }
+        case "STATUSBAR_HIDE":
+            return {
+                ...s,
+            }
+        default:
+            return s
     }
 }
 
