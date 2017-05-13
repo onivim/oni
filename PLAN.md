@@ -1,3 +1,7 @@
+- Add hover styles for status line
+
+- Use same font for status line as for UI
+
 - Implement rendering for current mode
     - n / i / v / etc (choose colors)
     - Log issue in neovim core to deterministically check mode - would be helpful to have the following autocmds:

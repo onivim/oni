@@ -15,11 +15,16 @@ const activate = (Oni) => {
     }
 
     const setFilePath = (filePath) => {
-        if (!filePath) {
-            filePathItem.setContents("[No Name]")
-        } else {
-            filePathItem.setContents(filePath)
+        let filePathString = filePath
+        if (!filePathString) {
+            filePathString = "[No Name]"
         }
+
+        const wrapperElement = document.createElement("div")
+        wrapperElement.style.color = "rgb(140, 140, 140)"
+        wrapperElement.textContent = filePathString
+
+        filePathItem.setContents(wrapperElement)
     }
 
     Oni.on("mode-changed", (evt) => {
