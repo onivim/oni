@@ -46,9 +46,6 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
                 <div className="status-bar-item">
                     <span><i className="fa fa-code-fork"></i> master</span>
                 </div>
-                <div className="status-bar-item">
-                    <span>INSERT</span>
-                </div>
             </div>
         </div>
     }
