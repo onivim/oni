@@ -199,10 +199,6 @@ export const makeLog = (log: ILog): Actions.IMakeLog => ({
     payload: {log},
 })
 
-export const showNeovimInstallHelp = (): Actions.IShowNeovimInstallHelpAction => ({
-    type: "SHOW_NEOVIM_INSTALL_HELP",
-})
-
 const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
     type: "SET_CURSOR_POSITION",
     payload: {

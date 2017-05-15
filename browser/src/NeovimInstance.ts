@@ -2,6 +2,7 @@ import * as cp from "child_process"
 import { remote } from "electron"
 import { EventEmitter } from "events"
 import * as path from "path"
+
 import * as Q from "q"
 import * as Actions from "./actions"
 import * as Config from "./Config"

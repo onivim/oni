@@ -18,6 +18,10 @@
         - [Code Completion](#code-completion)
         - [Fuzzy Finder](#fuzzy-finder)
         - [Quick Info](#quick-info)
+    - [Languages](#languages)
+        - [JavaScript and TypeScript](#javascript-and-typescript)
+        - [C#](#c)
+        - [Go](#go)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
@@ -66,17 +70,17 @@ Windows & OSX releases come with a bundled Neovim release.
 
 ### Windows
 
-- Download the [Oni installer](https://github.com/extr0py/oni/releases/download/v0.2.2-recovery/Oni-0.2.2-ia32-win.exe) for Windows
+- Download the [Oni installer](https://github.com/extr0py/oni/releases/download/v0.2.3/Oni-0.2.3-ia32-win.exe) for Windows
 - Once it is downloaded, run the installer. This will only take a minute.
 - By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine. 
 
-You can also find install via a [zip archive](https://github.com/extr0py/oni/releases/download/v0.2.2-recovery/Oni-0.2.2-ia32-win.zip)
+You can also find install via a [zip archive](https://github.com/extr0py/oni/releases/download/v0.2.3/Oni-0.2.3-ia32-win.zip)
 
 > You may want to add Oni to your `%PATH%`, so that from the console, you can open Oni via `oni`
 
 ### Mac
 
-- Download [Oni](https://github.com/extr0py/oni/releases/download/v0.2.2-recovery/Oni-0.2.2-osx.dmg) for Mac
+- Download [Oni](https://github.com/extr0py/oni/releases/download/v0.2.3/Oni-0.2.3-osx.dmg) for Mac
 - Double-click on the archive to expand
 - Drag `Oni.app` to the `Applications` folder
 
@@ -86,19 +90,19 @@ You can also find install via a [zip archive](https://github.com/extr0py/oni/rel
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.2-recovery/oni_0.2.2_amd64.deb)
+- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.3/oni_0.2.3_amd64.deb)
 - Install the package with `sudo dpkg -i <file>.deb`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.2-recovery/oni-0.2.2.tar.gz) is also available.
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.3/oni-0.2.3.tar.gz) is also available.
 
 #### Red Hat based distributions (Fedora, CentOS)
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-- Download the [.rpm package](https://github.com/extr0py/oni/releases/download/v0.2.2-recovery/oni-0.2.2.rpm)
+- Download the [.rpm package](https://github.com/extr0py/oni/releases/download/v0.2.3/oni-0.2.3.rpm)
 - Install the package with `sudo dnf install <file>.rpm`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.2-recovery/oni-0.2.2.tar.gz) is also available.
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.3/oni-0.2.3.tar.gz) is also available.
 
 ### Build
 
@@ -207,6 +211,56 @@ Leave the cursor hovering over an identifier.
 - `oni.quickInfo.enabled` - If set to `true`, the Quick Info feature is enabled. (Default: `true`)
 - `oni.quickInfo.delay` - Delay in milliseconds for the Quick Info window to show. (Default: `500`)
 
+### Languages
+
+#### JavaScript and TypeScript
+
+_Configuration_
+
+JavaScript and TypeScript support is enabled out-of-the-box using the [TypeScript Standalone Server](https://github.com/Microsoft/TypeScript/wiki/Standalone-Server-(tsserver)). No setup and configuration is necessary, however, you will get better results if you use a `tsconfig.json` or a `jsconfig.json` to structure your project.
+
+_Supported Language features_
+
+| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
+| --- | --- | --- | --- | --- | --- |--- | --- |
+| Y | Y | Y | Y | Y | Y | Y | N |
+
+#### C#
+
+_Configuration_
+
+C# completion uses the [OmniSharp Node Client](https://github.com/OmniSharp/omnisharp-node-client) which provides language capabilities for both .NET and Mono. For it to work correctly, you need to have a valid `.csproj` file with any dependent packages (ie, Nuget) installed. The project should also build and compile for the language service to work correctly.
+
+> If you are using the .NET Core CLI, make sure to run `dotnet restore` on your project.
+
+_Supported Language features_
+
+| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
+| --- | --- | --- | --- | --- | --- |--- | --- |
+| Y | Y | N | N | Y | N | N | N |
+
+_Known Issues_
+
+- On Windows, you must run Oni as an administrator the first time using the C# language service. This is tracked by issue [#423](https://github.com/extr0py/oni/issues/423).
+- On all platforms, the C# language service takes time to start up, especially the first time as it is downloading the appropriate runtime environment. You can open up the developer tools (Help -> Developer Tools) to see the logging from the language service. [#424](https://github.com/extr0py/oni/issues/424) tracks making this logging more visible.
+
+#### Go
+
+_Configuration_
+
+Go language support depends on the [go-langserver](https://github.com/sourcegraph/go-langserver) by [SourceGraph](https://sourcegraph.com), which provides language support for Go. Follow their installation instructions as this language server is not bundled out-of-the-box with Oni.
+
+> `go-langserver` must be available in your PATH
+
+_Supported Language features_
+
+| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
+| --- | --- | --- | --- | --- | --- |--- | --- |
+| N | Y | N | N | Y | N | N | N |
+
+_Known Issues_
+
+- There is no Windows support at the moment - this is being tracked by [sourcegraph/go-langserver#113](https://github.com/sourcegraph/go-langserver/issues/113).
 
 ### Configuration
 

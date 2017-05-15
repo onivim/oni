@@ -5,20 +5,25 @@ import { Provider } from "react-redux"
 import { applyMiddleware, bindActionCreators, compose, createStore } from "redux"
 import thunk from "redux-thunk"
 
-import { Background } from "./components/Background"
 import { RootComponent } from "./RootComponent"
-import * as State from "./State"
 
 // import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
-import { reducer } from "./Reducer"
-
 import * as Events from "./Events"
+import { reducer } from "./Reducer"
 import * as UnboundSelectors from "./Selectors"
+import * as State from "./State"
+
+import { PluginManager } from "./../Plugins/PluginManager"
+import { CommandManager } from "./../Services/CommandManager"
+
+import { NeovimEditor } from "./../Editor/NeovimEditor"
 
 export const events = Events.events
 
 let defaultState = State.createDefaultState()
+
+require("./components/common.less") // tslint:disable-line no-var-requires
 
 const composeEnhancers = window["__REDUX_DEVTOOLS_EXTENSION__COMPOSE__"] || compose // tslint:disable-line no-string-literal
 const enhancer = composeEnhancers(
@@ -36,19 +41,18 @@ export const Selectors = {
     getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState()),
 }
 
-export function init(): void {
-    render(defaultState)
+export function init(pluginManager: PluginManager, commandManager: CommandManager, args: any): void {
+    render(defaultState, pluginManager, commandManager, args)
 }
 
-function render(_state: State.IState): void {
-    const uiElement = document.getElementById("overlay-ui")
-    const backgroundElement = document.getElementById("background")
+function render(_state: State.IState, pluginManager: PluginManager, commandManager: CommandManager, args: any): void {
+    const hostElement = document.getElementById("host")
+
+    const editor = new NeovimEditor(commandManager, pluginManager)
+    editor.init(args)
+
     ReactDOM.render(
         <Provider store={store}>
-            <RootComponent />
-        </Provider>, uiElement)
-    ReactDOM.render(
-        <Provider store={store}>
-            <Background />
-        </Provider>, backgroundElement)
+            <RootComponent editor={editor} />
+        </Provider>, hostElement)
 }

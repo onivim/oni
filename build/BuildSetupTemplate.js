@@ -23,9 +23,8 @@ const prodName = packageMeta.build.productName
 // Replace template variables
 
 const valuesToReplace = {
-    "AppName": name,
-    "ProdName": prodName,
-    "AppExecutableName": `${name}.exe`,
+    "AppName": prodName,
+    "AppExecutableName": `${prodName}.exe`,
     "AppSetupExecutableName": `${prodName}-${version}-ia32-win`,
     "Version": version,
     "SourcePath": path.join(__dirname, "..", "dist", "win-ia32-unpacked", "*"),

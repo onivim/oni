@@ -79,7 +79,7 @@ function! man#read_page(ref) abort
     let [sect, name, path] = s:verify_exists(sect, name)
     let page = s:get_page(path)
   catch
-    " call to s:error() is unnecessary
+    call s:error(v:exception)
     return
   endtry
   let b:man_sect = sect
@@ -149,6 +149,31 @@ function! s:put_page(page) abort
     silent keepjumps 1delete _
   endwhile
   setlocal filetype=man
+endfunction
+
+function! man#show_toc() abort
+  let bufname = bufname('%')
+  let info = getloclist(0, {'winid': 1})
+  if !empty(info) && getwinvar(info.winid, 'qf_toc') ==# bufname
+    lopen
+    return
+  endif
+
+  let toc = []
+  let lnum = 2
+  let last_line = line('$') - 1
+  while lnum && lnum < last_line
+    let text = getline(lnum)
+    if text =~# '^\%( \{3\}\)\=\S.*$'
+      call add(toc, {'bufnr': bufnr('%'), 'lnum': lnum, 'text': text})
+    endif
+    let lnum = nextnonblank(lnum + 1)
+  endwhile
+
+  call setloclist(0, toc, ' ')
+  call setloclist(0, [], 'a', {'title': 'Man TOC'})
+  lopen
+  let w:qf_toc = bufname
 endfunction
 
 " attempt to extract the name and sect out of 'name(sect)'
