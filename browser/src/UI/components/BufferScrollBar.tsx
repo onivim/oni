@@ -22,7 +22,7 @@ export interface IBufferScrollState {
     measuredHeight: number
 }
 
-export class BufferScrollBar extends React.Component<IBufferScrollBarProps, IBufferScrollState> {
+export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, IBufferScrollState> {
 
     constructor(props: any) {
         super(props)

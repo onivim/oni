@@ -13,7 +13,7 @@ export interface IQuickInfoProps {
     elements: JSX.Element[]
 }
 
-export class QuickInfo extends React.Component<IQuickInfoProps, void> {
+export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
 
     public render(): null | JSX.Element {
         if (!this.props.elements || !this.props.elements.length) {

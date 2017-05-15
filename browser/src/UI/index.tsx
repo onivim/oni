@@ -56,3 +56,8 @@ function render(_state: State.IState, pluginManager: PluginManager, commandManag
             <RootComponent editor={editor} />
         </Provider>, hostElement)
 }
+
+if (process.env.NODE_ENV === "development") {
+    const Perf = require("react-addons-perf")
+    window["ReactPerf"] = Perf
+}
