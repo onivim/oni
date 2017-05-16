@@ -1,6 +1,5 @@
 import * as React from "react"
 import { connect } from "react-redux"
-import { createSelector } from "reselect"
 
 import { QuickInfo, QuickInfoDocumentation, SelectedText, Text } from "./../components/QuickInfo"
 
