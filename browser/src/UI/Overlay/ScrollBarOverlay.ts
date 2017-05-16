@@ -39,6 +39,8 @@ export class ScrollBarOverlay implements IOverlay {
         }
 
         this.setMarkers(<string> eventContext.bufferFullPath, "cursor", [cursorMarker])
+
+        this._updateScrollBar()
     }
 
     public setMarkers(file: string, key: string, markers: IScrollBarMarker[]): void {
