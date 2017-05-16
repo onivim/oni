@@ -73,6 +73,7 @@ export class ScrollBarOverlay implements IOverlay {
 
         renderBufferScrollBar({
             markers,
+            height: this._element.offsetHeight,
             bufferSize: this._lastEvent.bufferTotalLines,
             windowTopLine: this._lastEvent.windowTopLine,
             windowBottomLine: this._lastEvent.windowBottomLine,

@@ -24,8 +24,8 @@ export class BufferScrollBar extends React.Component<IBufferScrollBarProps, void
     }
 
     public render(): JSX.Element {
-        const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine + 1) / this.props.bufferSize) * this.state.measuredHeight
-        const windowTop = ((this.props.windowTopLine - 1) / this.props.bufferSize) * this.state.measuredHeight
+        const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine + 1) / this.props.bufferSize) * this.props.height
+        const windowTop = ((this.props.windowTopLine - 1) / this.props.bufferSize) * this.props.height
 
         const windowStyle = {
             top: windowTop + "px",
@@ -36,7 +36,7 @@ export class BufferScrollBar extends React.Component<IBufferScrollBarProps, void
 
         const markerElements = markers.map((m) => {
             const line = m.line - 1
-            const pos = (line / this.props.bufferSize) * this.state.measuredHeight
+            const pos = (line / this.props.bufferSize) * this.props.height
             const size = "2px"
 
             const markerStyle = {
@@ -54,12 +54,6 @@ export class BufferScrollBar extends React.Component<IBufferScrollBarProps, void
                 <div className="scroll-window" style={windowStyle}></div>
                 {markerElements}
             </div>
-    }
-
-    private _onMeasure(dimensions: any): void {
-        this.setState({
-            measuredHeight: dimensions.height,
-        })
     }
 }
 
