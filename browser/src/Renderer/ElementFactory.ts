@@ -11,8 +11,11 @@ export interface IElementFactory {
  * new elements all the time, which is an expensive operation
  */
 export class RecycleElementFactory {
+    private _elementsPendingCleanup: HTMLSpanElement[] = []
     private _recycledElements: HTMLSpanElement[] = []
     private _rootElement: HTMLElement
+
+    private _pendingCleanupTimeout: any
 
     constructor(rootElement: HTMLElement) {
         this._rootElement = rootElement
@@ -23,6 +26,7 @@ export class RecycleElementFactory {
         if (this._recycledElements.length > 0) {
             let val = this._recycledElements.pop()
             if (val) {
+                val.style.display = ""
                 return val
             }
         }
@@ -33,9 +37,25 @@ export class RecycleElementFactory {
     }
 
     public recycle(element: HTMLSpanElement): void {
+        element.style.left = "-10000px"
+        this._elementsPendingCleanup.push(element)
+
+        if (!!this._pendingCleanupTimeout) {
+            this._pendingCleanupTimeout = setTimeout(() => this._cleanupPendingElements, 0)
+        }
+    }
+
+    private _cleanupPendingElements(): void {
+        this._elementsPendingCleanup.forEach((elem) => {
+            this._cleanupElement(elem)
+        })
+        this._elementsPendingCleanup = []
+        this._pendingCleanupTimeout = null
+    }
+
+    private _cleanupElement(element: HTMLElement): void {
         element.className = ""
         element.textContent = ""
-        element.style.left = "-10000px"
         element.style.backgroundColor = ""
         element.style.color = ""
         this._recycledElements.push(element)
