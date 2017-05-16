@@ -1,12 +1,11 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-import * as Measure from "react-measure"
-
 require("./BufferScrollBar.less") // tslint:disable-line no-var-requires
 
 export interface IBufferScrollBarProps {
     bufferSize: number
+    height: number
     windowTopLine: number
     windowBottomLine: number
     markers: IScrollBarMarker[]
@@ -18,18 +17,10 @@ export interface IScrollBarMarker {
     color: string
 }
 
-export interface IBufferScrollState {
-    measuredHeight: number
-}
-
-export class BufferScrollBar extends React.Component<IBufferScrollBarProps, IBufferScrollState> {
+export class BufferScrollBar extends React.Component<IBufferScrollBarProps, void> {
 
     constructor(props: any) {
         super(props)
-
-        this.state = {
-            measuredHeight: -1,
-        }
     }
 
     public render(): JSX.Element {
@@ -59,12 +50,10 @@ export class BufferScrollBar extends React.Component<IBufferScrollBarProps, IBuf
             return <div style={markerStyle} />
         })
 
-        return <Measure onMeasure={(dimensions) => this._onMeasure(dimensions)}>
-            <div className="scroll-bar-container">
+        return <div className="scroll-bar-container">
                 <div className="scroll-window" style={windowStyle}></div>
                 {markerElements}
             </div>
-        </Measure>
     }
 
     private _onMeasure(dimensions: any): void {
