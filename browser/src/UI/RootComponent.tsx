@@ -7,7 +7,9 @@ import { CursorLine } from "./components/CursorLine"
 import { EditorHost } from "./components/EditorHost"
 import { Logs } from "./components/Logs"
 import { MenuContainer } from "./components/Menu"
-import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
+
+import { QuickInfoContainer } from "./containers/QuickInfoContainer"
+import { SignatureHelpContainer } from "./containers/SignatureHelpContainer"
 
 import { IEditor } from "./../Editor/Editor"
 
@@ -28,7 +30,6 @@ export class RootComponent extends React.Component<IRootComponentProps, void> {
                     <Cursor />
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
-                    <SignatureHelpContainer />
                     <QuickInfoContainer />
                     <SignatureHelpContainer />
                     <MenuContainer />
