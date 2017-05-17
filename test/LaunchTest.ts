@@ -19,7 +19,10 @@ const getExecutablePath = () => {
 
 const LongTimeout = 5000
 
-describe("application launch", () => {
+describe("application launch", function () {
+    // Retry up to two times
+    this.retries(2);
+
     let app: Application
 
     beforeEach(() => {
