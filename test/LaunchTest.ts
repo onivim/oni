@@ -19,9 +19,9 @@ const getExecutablePath = () => {
 
 const LongTimeout = 5000
 
-describe("application launch", function () {
+describe("application launch", function () { // tslint:disable-line only-arrow-functions
     // Retry up to two times
-    this.retries(2);
+    this.retries(2)
 
     let app: Application
 
