@@ -17,6 +17,8 @@ const getExecutablePath = () => {
     }
 }
 
+const LongTimeout = 5000
+
 describe("application launch", () => {
     let app: Application
 
@@ -38,6 +40,7 @@ describe("application launch", () => {
         return app.client.waitUntilWindowLoaded()
             .then(() => app.client.getWindowCount())
             .then((count) => assert.equal(count, 1))
+            .then(() => app.client.waitForExist(".editor", LongTimeout))
             .then(() => app.client.getText(".editor"))
             .then((text) => assert(text && text.length > 0, "Validate editor element is present"))
     })
