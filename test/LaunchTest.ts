@@ -17,7 +17,12 @@ const getExecutablePath = () => {
     }
 }
 
-describe("application launch", () => {
+const LongTimeout = 5000
+
+describe("application launch", function () { // tslint:disable-line only-arrow-functions
+    // Retry up to two times
+    this.retries(2)
+
     let app: Application
 
     beforeEach(() => {
@@ -38,6 +43,7 @@ describe("application launch", () => {
         return app.client.waitUntilWindowLoaded()
             .then(() => app.client.getWindowCount())
             .then((count) => assert.equal(count, 1))
+            .then(() => app.client.waitForExist(".editor", LongTimeout))
             .then(() => app.client.getText(".editor"))
             .then((text) => assert(text && text.length > 0, "Validate editor element is present"))
     })
