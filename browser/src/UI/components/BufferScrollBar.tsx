@@ -17,7 +17,7 @@ export interface IScrollBarMarker {
     color: string
 }
 
-export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, IBufferScrollState> {
+export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, void> {
     constructor(props: any) {
         super(props)
     }
