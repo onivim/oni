@@ -21,6 +21,9 @@ export class ScrollBarOverlay implements IOverlay {
     private _lastWindowContext: WindowContext
     private _lastEvent: Oni.EventContext
 
+    private _lastLine: number | null = null
+    private _lastBuffer: string | null = null
+
     private _fileToMarkers: IFileToAllMarkers = {}
 
     public onBufferUpdate(_eventContext: Oni.EventContext, lines: string[]): void {
@@ -32,15 +35,21 @@ export class ScrollBarOverlay implements IOverlay {
 
         this._lastEvent = eventContext
 
+        if (this._lastLine === eventContext.line
+            && this._lastBuffer === eventContext.bufferFullPath) {
+            return
+        }
+
+        this._lastLine = eventContext.line
+        this._lastBuffer = eventContext.bufferFullPath
+
         const cursorMarker: IScrollBarMarker = {
             line: eventContext.line,
             height: 1,
             color: "rgb(200, 200, 200)",
         }
 
-        this.setMarkers(<string> eventContext.bufferFullPath, "cursor", [cursorMarker])
-
-        this._updateScrollBar()
+        this.setMarkers(<string>eventContext.bufferFullPath, "cursor", [cursorMarker])
     }
 
     public setMarkers(file: string, key: string, markers: IScrollBarMarker[]): void {
@@ -75,6 +84,7 @@ export class ScrollBarOverlay implements IOverlay {
 
         renderBufferScrollBar({
             markers,
+            height: this._element.offsetHeight,
             bufferSize: this._lastEvent.bufferTotalLines,
             windowTopLine: this._lastEvent.windowTopLine,
             windowBottomLine: this._lastEvent.windowBottomLine,

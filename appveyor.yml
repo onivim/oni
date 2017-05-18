@@ -2,8 +2,11 @@
 environment:
   nodejs_version: "6"
 
-cache:
-  - node_modules -> package.json
+os: unstable
+
+platform:
+    - x86
+    - x64
 
 # Install scripts. (runs after repo cloning)
 install:
