@@ -7,9 +7,7 @@ import { CursorLine } from "./components/CursorLine"
 import { EditorHost } from "./components/EditorHost"
 import { Logs } from "./components/Logs"
 import { MenuContainer } from "./components/Menu"
-
-import { QuickInfoContainer } from "./containers/QuickInfoContainer"
-import { SignatureHelpContainer } from "./containers/SignatureHelpContainer"
+import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
 
 import { IEditor } from "./../Editor/Editor"
 
@@ -27,6 +25,18 @@ export class RootComponent extends React.Component<IRootComponentProps, void> {
             <div className="layer">
                 <div className="container full">
                     <EditorHost editor={this.props.editor} />
+<<<<<<< HEAD
+=======
+                    <Cursor />
+                    <CursorLine lineType={"line"} />
+                    <CursorLine lineType={"column"} />
+                    <SignatureHelpContainer />
+                    <QuickInfoContainer />
+                    <SignatureHelpContainer />
+                    <MenuContainer />
+                    <AutoCompletionContainer />
+                    <Logs />
+>>>>>>> parent of 17bad69... Refactor containers to separate files
                 </div>
             </div>
             <div className="layer">
