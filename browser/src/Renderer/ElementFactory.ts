@@ -37,7 +37,7 @@ export class RecycleElementFactory {
     }
 
     public recycle(element: HTMLSpanElement): void {
-        element.style.left = "-10000px"
+        element.style.display = "none"
         this._elementsPendingCleanup.push(element)
 
         if (!!this._pendingCleanupTimeout) {
