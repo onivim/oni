@@ -1,10 +1,7 @@
 import * as React from "react"
-<<<<<<< HEAD
-=======
 import { connect } from "react-redux"
 
 import { IState } from "./../State"
->>>>>>> parent of 17bad69... Refactor containers to separate files
 
 require("./QuickInfo.less") // tslint:disable-line no-var-requires
 
@@ -16,7 +13,7 @@ export interface IQuickInfoProps {
     elements: JSX.Element[]
 }
 
-export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
+export class QuickInfo extends React.Component<IQuickInfoProps, void> {
 
     public render(): null | JSX.Element {
         if (!this.props.elements || !this.props.elements.length) {
@@ -76,8 +73,6 @@ export class SelectedText extends TextComponent {
         return <span className="selected">{this.props.text}</span>
     }
 }
-<<<<<<< HEAD
-=======
 
 const mapStateToQuickInfoProps = (state: IState) => {
     if (!state.quickInfo) {
@@ -152,4 +147,3 @@ const mapStateToSignatureHelpProps = (state: IState) => {
 
 export const QuickInfoContainer = connect(mapStateToQuickInfoProps)(QuickInfo)
 export const SignatureHelpContainer = connect(mapStateToSignatureHelpProps)(QuickInfo)
->>>>>>> parent of 17bad69... Refactor containers to separate files
