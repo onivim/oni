@@ -414,7 +414,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 }
 
-import * as msgpack5 from "msgpack5"
 import * as msgpackLite from "msgpack-lite"
 
 export class NeovimSession {
@@ -429,15 +428,9 @@ export class NeovimSession {
 
         // const codec = msgpack.createCodec(codecOptions)
 
-        //msgpack5
-        const opts = {header: false}
-        const msgpack = msgpack5()
-        this._encoder = msgpack.encoder(opts)
-        // this._decoder = msgpack.decoder(opts)
-
         // msgpack-lite
 
-        // this._encoder = msgpack.createEncodeStream()
+        this._encoder = msgpackLite.createEncodeStream()
         this._decoder = msgpackLite.createDecodeStream()
         this._encoder.pipe(writer)
         reader.pipe(this._decoder)
@@ -463,13 +456,14 @@ export class NeovimSession {
     public request(methodName: string, args: any) {
         this._requestId++
         this._encoder.write([0, this._requestId, methodName, args])
+
+        this._encoder.end()
     }
 
     public notify(methodName: string, args: any) {
         this._encoder.write([2, methodName, args])
     }
 }
-
 
 function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
 
