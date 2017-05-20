@@ -14,9 +14,6 @@ import { IWindow, Window } from "./neovim/Window"
 import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./Screen"
-import { nodeRequire } from "./Utility"
-
-const attach = nodeRequire("neovim-client")
 
 export interface INeovimInstance {
     cursorPosition: IPosition
@@ -105,10 +102,32 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 // nv.input("<ESC>")
 
                 this._neovim = nv
+                // Workaround for bug in neovim/node-client
+                // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
+                const startupOptions = {
+                    rgb: true,
+                    popupmenu_external: true,
+                }
+
+                const size = this._getSize()
+                this._rows = size.rows
+                this._cols = size.cols
+
+                this._neovim.request("nvim_ui_attach", [size.rows, size.cols, startupOptions], (_err?: Error) => {
+                    this.emit("logInfo", "Attach success")
+
+                    performance.mark("NeovimInstance.Plugins.Start")
+                    this._pluginManager.startPlugins(this)
+                    performance.mark("NeovimInstance.Plugins.End")
+
+                    // set title after attaching listeners so we can get the initial title
+                    this.command("set title")
+                    this.callFunction("OniApiInfo", [])
+                })
                 this._sessionWrapper = new SessionWrapper(this._neovim._session)
 
                 // Override completeopt so Oni works correctly with external popupmenu
-                this.command("set completeopt=longest,menu")
+                // this.command("set completeopt=longest,menu")
 
                 this._neovim.on("error", (err: Error) => {
                     this.emit("logError", err)
@@ -157,28 +176,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     remote.app.quit()
                 })
 
-                const startupOptions = {
-                    rgb: true,
-                    popupmenu_external: true,
-                }
 
-                const size = this._getSize()
-                this._rows = size.rows
-                this._cols = size.cols
-
-                // Workaround for bug in neovim/node-client
-                // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
-                this._neovim._session.request("nvim_ui_attach", [size.cols, size.rows, startupOptions], (_err?: Error) => {
-                    this.emit("logInfo", "Attach success")
-
-                    performance.mark("NeovimInstance.Plugins.Start")
-                    this._pluginManager.startPlugins(this)
-                    performance.mark("NeovimInstance.Plugins.End")
-
-                    // set title after attaching listeners so we can get the initial title
-                    this.command("set title")
-                    this.callFunction("OniApiInfo", [])
-                })
             }, (err) => {
                 this.emit("error", err)
             })
@@ -324,13 +322,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             return
         }
 
-        this._initPromise.then(() => {
-            this._neovim.uiTryResize(columns, rows, (err?: Error) => {
-                if (err) {
-                    this.emit("logError", err)
-                }
-            })
-        })
+        // this._initPromise.then(() => {
+        //     this._neovim.uiTryResize(columns, rows, (err?: Error) => {
+        //         if (err) {
+        //             this.emit("logError", err)
+        //         }
+        //     })
+        // })
     }
 
     private _getSize() {
@@ -416,7 +414,62 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 }
 
-const attachAsPromise = Q.denodeify(attach)
+import * as msgpack5 from "msgpack5"
+import * as msgpackLite from "msgpack-lite"
+
+export class NeovimSession {
+
+    private _encoder: any
+    private _decoder: any
+    private _requestId: number = 0
+
+    constructor(writer: NodeJS.WritableStream, reader: NodeJS.ReadableStream) {
+
+        // const codecOptions: any = {preset: true}
+
+        // const codec = msgpack.createCodec(codecOptions)
+
+        //msgpack5
+        const opts = {header: false}
+        const msgpack = msgpack5()
+        this._encoder = msgpack.encoder(opts)
+        // this._decoder = msgpack.decoder(opts)
+
+        // msgpack-lite
+
+        // this._encoder = msgpack.createEncodeStream()
+        this._decoder = msgpackLite.createDecodeStream()
+        this._encoder.pipe(writer)
+        reader.pipe(this._decoder)
+
+        this._decoder.on("data", (data: any) => {
+            console.dir(data)
+        })
+
+        this._decoder.on("end", () => {
+            console.warn("DECODER END")
+        })
+
+        this._decoder.on("error", (err: Error) => {
+            console.error("Decoder error!", err)
+        })
+    } 
+
+    public on(message: string, callback: any): void {
+        console.log("hooking message: " + message + callback.toString())
+
+    }
+
+    public request(methodName: string, args: any) {
+        this._requestId++
+        this._encoder.write([0, this._requestId, methodName, args])
+    }
+
+    public notify(methodName: string, args: any) {
+        this._encoder.write([2, methodName, args])
+    }
+}
+
 
 function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
 
@@ -442,5 +495,5 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
 
     const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
 
-    return attachAsPromise(nvimProc.stdin, nvimProc.stdout)
+    return Q(new NeovimSession(nvimProc.stdin, nvimProc.stdout))
 }
