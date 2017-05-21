@@ -29,6 +29,7 @@
 - [License](#license)
 - [Contributing](#contributing)
 - [Thanks](#thanks)
+    - [Sponsors](#sponsors)
 
 ## Introduction
 
@@ -355,20 +356,30 @@ MIT License. Copyright (c) extropygames
 
 The bundled plugins have their own license terms, along with the bundled Neovim binary
 
+There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
+
+Windows and OSX have a bundled version of Neovim, which is covered under [Neovim's license](https://github.com/neovim/neovim/blob/master/LICENSE)
+
 ## Contributing
 
 Contributions are very much welcome :)
 
 If you're interested in helping out, check out [CONTRIBUTING.md](./CONTRIBUTING.md) for tips and tricks for working with ONI.
 
-# Thanks
+## Thanks
 
 Big thanks to the NeoVim team - without their work, this project would not be possible. The deep integration with VIM would not be possible without the incredible work that was done to enable the msgpack-RPC interface. Thanks!
 
-Also, big thanks to our [contributors](https://github.com/extr0py/oni/graphs/contributors) for helping out!
+### Sponsors
+
+A big THANK YOU to our current monthly sponsors. Your contributions help keep this project alive!
+
+- [Mike Hartington](https://github.com/mhartington)
+
+### Other Contributions
 
 In addition, there are several other great NeoVim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) that served as great reference points and learning opportunities.
 
-There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
+Also, thanks to our [contributors](https://github.com/extr0py/oni/graphs/contributors) for helping out!
 
 Special thanks to [Till Arnold](https://github.com/tillarnold) for handing over the `oni` NPM package name.
