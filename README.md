@@ -374,7 +374,7 @@ Big thanks to the NeoVim team - without their work, this project would not be po
 
 A big THANK YOU to our current monthly sponsors. Your contributions help keep this project alive!
 
-- Mike Hartington
+- [Mike Hartington](https://github.com/mhartington)
 
 ### Other Contributions
 
