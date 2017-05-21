@@ -366,17 +366,17 @@ Contributions are very much welcome :)
 
 If you're interested in helping out, check out [CONTRIBUTING.md](./CONTRIBUTING.md) for tips and tricks for working with ONI.
 
-# Thanks
+## Thanks
 
 Big thanks to the NeoVim team - without their work, this project would not be possible. The deep integration with VIM would not be possible without the incredible work that was done to enable the msgpack-RPC interface. Thanks!
 
-## Sponsors
+### Sponsors
 
 A big THANK YOU to our current monthly sponsors. Your contributions help keep this project alive!
 
 - Mike Hartington
 
-## Other Contributions
+### Other Contributions
 
 In addition, there are several other great NeoVim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) that served as great reference points and learning opportunities.
 
