@@ -372,11 +372,9 @@ Big thanks to the NeoVim team - without their work, this project would not be po
 
 ## Sponsors
 
-A big thank you to our first monthly sponsor:
+A big THANK YOU to our current monthly sponsors. Your contributions help keep this project alive!
 
 - Mike Hartington
-
-Sponshorships help keep the project alive!
 
 ## Other Contributions
 
