@@ -6,7 +6,7 @@ const activate = (Oni) => {
 
     // TODO: Remove log file
     const serverOptions = {
-        command: "pyls --log-file C://log.txt",
+        command: "pyls",
     }
 
     const client = Oni.createLanguageClient(serverOptions, (filePath) => {
