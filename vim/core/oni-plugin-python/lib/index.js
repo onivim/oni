@@ -13,7 +13,7 @@ const activate = (Oni) => {
         return Promise.resolve({
             clientName: "python",
             // TODO: Remove hardcoded dependency
-            rootPath: "C:/python-language-server",
+            rootPath: "file:///" + filePath,
             capabilities: {
                 highlightProvider: true
             }
