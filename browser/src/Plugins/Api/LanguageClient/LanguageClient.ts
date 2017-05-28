@@ -5,6 +5,8 @@
  * https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md
  */
 
+import * as os from "os"
+
 import * as _ from "lodash"
 import * as rpc from "vscode-jsonrpc"
 import * as types from "vscode-languageserver-types"
@@ -255,8 +257,8 @@ export class LanguageClient {
 
                 if (contents.length === 0) {
                     return null
-                } else if (contents.length === 1) {
-                    const title = contents[0]
+                } else if (contents.length === 1 && contents[0]) {
+                    const title = contents[0].trim()
 
                     if (!title) {
                         return null
@@ -267,12 +269,16 @@ export class LanguageClient {
                         description: "",
                     }
                 } else {
+
+                    const description = [...contents]
+                    description.shift()
+                    const descriptionContent = description.join(os.EOL)
+
                     return {
                         title: contents[0],
-                        description: contents[1],
+                        description: descriptionContent,
                     }
                 }
-
             })
     }
 

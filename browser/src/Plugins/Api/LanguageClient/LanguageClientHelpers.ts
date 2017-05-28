@@ -4,6 +4,7 @@
 
 import * as os from "os"
 
+import * as _ from "lodash"
 import * as types from "vscode-languageserver-types"
 
 export const ProtocolConstants = {
@@ -43,10 +44,9 @@ export const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split
 
 export const getTextFromContents = (contents: types.MarkedString | types.MarkedString[]): string[] => {
     if (contents instanceof Array) {
-        return contents
-                .map((markedString) => getTextFromMarkedString(markedString))
+        return _.flatMap(contents, (markedString) => getTextFromMarkedString(markedString))
     } else {
-        return [getTextFromMarkedString(contents)]
+        return getTextFromMarkedString(contents)
     }
 }
 
@@ -104,13 +104,20 @@ export const incrementalBufferUpdateToDidChangeTextDocumentParams = (args: Oni.I
     }
 }
 
-const getTextFromMarkedString = (markedString: types.MarkedString): string => {
+const getTextFromMarkedString = (markedString: types.MarkedString): string[] => {
     if (typeof markedString === "string") {
-        return markedString.trim()
+        return splitByNewlines(markedString)
     } else {
         // TODO: Properly apply syntax highlighting based on the `language` parameter
-        return markedString.value.trim()
+        return splitByNewlines(markedString.value)
     }
+}
+
+const splitByNewlines = (str: string) => {
+    // Remove '/r'
+    return str.split("\r")
+        .join("")
+        .split("\n")
 }
 
 const getFilePrefix = () => "file:///"
