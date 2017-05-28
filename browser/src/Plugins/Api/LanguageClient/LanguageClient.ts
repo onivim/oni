@@ -177,7 +177,7 @@ export class LanguageClient {
 
         return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, initializationParams)
             .then((response: any) => {
-                console.dir(response)
+                console.log(`[LANGUAGE CLIENT: ${initializationParams.clientName}]: Initialized`) // tslint:disable-line no-console
                 if (response && response.capabilities) {
                     this._serverCapabilities = response.capabilities
                 }
