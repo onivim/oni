@@ -13,14 +13,12 @@
 }
 
 .menu {
+    .box-shadow;
+
     margin-top: 16px;
     background-color: @background-color;
     color: @text-color;
-
-    border: 1px solid rgb(60, 60, 60);
     padding: 8px;
-
-    box-shadow: 4px 4px @shadow-color;
     width: 600px;
     max-height: 400px;
 
@@ -56,6 +54,7 @@
                 background-color: fade(@background-color-highlight, 10%);
             }
             &.selected {
+                .box-shadow;
                 background-color: @background-color-highlight;
             }
 

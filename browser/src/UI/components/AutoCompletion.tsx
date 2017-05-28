@@ -74,7 +74,6 @@ export class AutoCompletionItem extends React.Component<IAutoCompletionItemProps
             className += " selected"
         }
 
-        const detailToShow = this.props.isSelected ? this.props.detail : ""
         const documentation = this.props.isSelected ? this.props.documentation : ""
 
         const highlightColor = this.props.highlightColor || this._getDefaultHighlightColor(this.props.kind as any) // FIXME: undefined
@@ -89,7 +88,7 @@ export class AutoCompletionItem extends React.Component<IAutoCompletionItemProps
                     <AutoCompletionIcon kind={this.props.kind as any /* FIXME: undefined */} />
                 </span>
                 <HighlightText className="label" highlightClassName="highlight" highlightText={this.props.base} text={this.props.label} />
-                <span className="detail">{detailToShow}</span>
+                <span className="detail">{this.props.detail}</span>
             </div>
             <div className="documentation">{documentation}</div>
         </div>

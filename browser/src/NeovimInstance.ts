@@ -154,7 +154,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 })
 
                 this._neovim.on("disconnect", () => {
-                    remote.app.quit()
+                    remote.getCurrentWindow().close()
                 })
 
                 const startupOptions = {
