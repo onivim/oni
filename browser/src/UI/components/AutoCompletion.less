@@ -1,8 +1,9 @@
 @import (reference) "./common.less";
 
 .autocompletion {
+    .box-shadow;
+
     background-color: @background-color;
-    box-shadow: 4px 4px @shadow-color;
     color: @text-color;
     max-width: 800px;
     max-height: 300px;
@@ -13,8 +14,8 @@
 
     .entry {
         &.selected {
+            .box-shadow;
             background-color: rgb(60, 60, 60);
-            box-shadow: 4px 4px @shadow-color;
 
             .main {
                 opacity: 1;
