@@ -314,7 +314,7 @@ export class LanguageClient {
             let changeTextDocumentParams
 
             if (this._serverCapabilities.textDocumentSync === Helpers.TextDocumentSyncKind.Full) {
-                changeTextDocumentParams = Helpers.createDidChangeTextDocumentParams(args.eventContext.bufferFullPath, this._currentBuffer, args.eventContext.version))
+                changeTextDocumentParams = Helpers.createDidChangeTextDocumentParams(args.eventContext.bufferFullPath, this._currentBuffer, args.eventContext.version)
             } else {
                 changeTextDocumentParams = Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine)
             }
