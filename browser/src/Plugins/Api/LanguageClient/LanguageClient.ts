@@ -68,6 +68,7 @@ export class LanguageClient {
     private _currentOpenDocumentPath: string
     private _currentBuffer: string[] = []
     private _initializationParams: LanguageClientInitializationParams
+    private _serverCapabilities: Helpers.ServerCapabilities
 
     constructor(
         private _startOptions: ServerRunOptions,
@@ -142,6 +143,7 @@ export class LanguageClient {
             new LanguageClientLogger())
 
         this._currentOpenDocumentPath = null
+        this._serverCapabilities = null
 
         this._connection.onNotification(Helpers.ProtocolConstants.Window.LogMessage, (args) => {
             console.log(JSON.stringify(args)) // tslint:disable-line no-console
@@ -174,9 +176,13 @@ export class LanguageClient {
         this._connection.listen()
 
         return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, initializationParams)
-                .then((response: any) => {
-                    alert(response)
-                }, (err) => console.error(err))
+            .then((response: any) => {
+                console.dir(response)
+                if (response && response.capabilities) {
+                    this._serverCapabilities = response.capabilities
+                }
+                debugger
+            }, (err) => console.error(err))
     }
 
     public end(): Promise<void> {
@@ -301,12 +307,20 @@ export class LanguageClient {
         const changedLine = args.bufferLine
         const lineNumber = args.lineNumber
 
-        // const previousLine = this._currentBuffer[lineNumber - 1]
-
+        const previousLine = this._currentBuffer[lineNumber - 1]
         this._currentBuffer[lineNumber - 1] = changedLine
 
-        this._connection.sendNotification(Helpers.ProtocolConstants.TextDocument.DidChange,
-            Helpers.createDidChangeTextDocumentParams(args.eventContext.bufferFullPath, this._currentBuffer, args.eventContext.version))
+        if (this._serverCapabilities && this._serverCapabilities.textDocumentSync) {
+            let changeTextDocumentParams
+
+            if (this._serverCapabilities.textDocumentSync === Helpers.TextDocumentSyncKind.Full) {
+                changeTextDocumentParams = Helpers.createDidChangeTextDocumentParams(args.eventContext.bufferFullPath, this._currentBuffer, args.eventContext.version))
+            } else {
+                changeTextDocumentParams = Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine)
+            }
+
+            this._connection.sendNotification(Helpers.ProtocolConstants.TextDocument.DidChange, changeTextDocumentParams)
+        }
 
         return Promise.resolve(null)
     }

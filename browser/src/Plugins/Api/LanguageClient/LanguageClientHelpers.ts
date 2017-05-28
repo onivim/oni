@@ -25,6 +25,18 @@ export const ProtocolConstants = {
     },
 }
 
+export namespace TextDocumentSyncKind {
+    export const None = 0;
+    export const Full = 1;
+    export const Incremental = 2;
+}
+
+// ServerCapabilities
+// Defined in the LSP protocol: https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md
+export interface ServerCapabilities {
+    textDocumentSync?: number
+}
+
 export const wrapPathInFileUri = (path: string) => getFilePrefix() + path
 
 export const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split(getFilePrefix())[1])
