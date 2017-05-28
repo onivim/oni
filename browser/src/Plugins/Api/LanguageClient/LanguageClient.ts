@@ -181,7 +181,6 @@ export class LanguageClient {
                 if (response && response.capabilities) {
                     this._serverCapabilities = response.capabilities
                 }
-                debugger
             }, (err) => console.error(err))
     }
 
