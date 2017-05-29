@@ -11,6 +11,7 @@ export interface IQuickInfoProps {
     x: number
     y: number
     elements: JSX.Element[]
+    openFromTop?: boolean
 }
 
 export class QuickInfo extends React.Component<IQuickInfoProps, void> {
@@ -20,19 +21,32 @@ export class QuickInfo extends React.Component<IQuickInfoProps, void> {
             return null
         }
 
+        const openFromTop = this.props.openFromTop || false
+
         const containerStyle = {
             position: "absolute",
             top: this.props.y.toString() + "px",
             left: this.props.x.toString() + "px",
         }
 
-        const innerStyle = {
+        const innerCommonStyle = {
             "position": "absolute",
-            "bottom": "0px",
             "opacity": this.props.visible ? 1 : 0,
             "whiteSpace": this.props.wrap ? "normal" : "nowrap",
             "max-width": (document.body.offsetWidth - this.props.x - 40) + "px",
         }
+
+        const openFromTopStyle = {
+            ...innerCommonStyle,
+            "top": "0px",
+        }
+
+        const openFromBottomStyle = {
+            ...innerCommonStyle,
+            "bottom": "0px",
+        }
+
+        const innerStyle = openFromTop ? openFromTopStyle : openFromBottomStyle
 
         return <div key={"quickinfo-container"} className="quickinfo-container" style={containerStyle}>
             <div key={"quickInfo"} style={innerStyle} className="quickinfo">
@@ -74,21 +88,30 @@ export class SelectedText extends TextComponent {
     }
 }
 
-const mapStateToQuickInfoProps = (state: IState) => {
+const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
+    const openFromTopPosition = state.cursorPixelY + (state.fontPixelHeight * 2)
+    const openFromBottomPosition = state.cursorPixelY - state.fontPixelHeight
+
+    const openFromTop = state.cursorPixelY < 50
+
+    const yPos = openFromTop ? openFromTopPosition : openFromBottomPosition
+
     if (!state.quickInfo) {
         return {
             wrap: true,
             visible: false,
             x: state.cursorPixelX,
-            y: state.cursorPixelY - (state.fontPixelHeight),
+            y: yPos,
             elements: [],
+            openFromTop,
         }
     } else {
         return {
             wrap: true,
             visible: true,
             x: state.cursorPixelX,
-            y: state.cursorPixelY - (state.fontPixelHeight),
+            y: yPos,
+            openFromTop,
             elements: [
                 <QuickInfoTitle text={state.quickInfo.title} />,
                 <QuickInfoDocumentation text={state.quickInfo.description} />,
@@ -97,7 +120,7 @@ const mapStateToQuickInfoProps = (state: IState) => {
     }
 }
 
-const mapStateToSignatureHelpProps = (state: IState) => {
+const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
 
     if (!state.signatureHelp) {
         return {
