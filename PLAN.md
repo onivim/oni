@@ -8,9 +8,9 @@
         - `VisualEnter`
         - `VisualLeave`
 
-- Change font color of file item
-
 - Debug timing issue where sometimes the status bar does not load immediately
+
+- Add github icon?
 
 - Switch to pure components to improve rendering speed (due to high volume of actions)
 

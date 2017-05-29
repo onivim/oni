@@ -20,32 +20,30 @@ export class RootComponent extends React.Component<IRootComponentProps, void> {
     public render() {
 
         return <div className="container full">
-            <div className="layer">
+            <div className="stack layer">
                 <Background />
             </div>
-            <div className="container full">
-                <div className="container vertical full">
-                    <div className="container full">
-                        <div className="layer">
-                            <MenuContainer />
-                            <div className="container full">
-                                <EditorHost editor={this.props.editor} />
-                            </div>
-                        </div>
-                        <div className="layer">
-                            <Cursor />
-                            <CursorLine lineType={"line"} />
-                            <CursorLine lineType={"column"} />
-                            <QuickInfoContainer />
-                            <SignatureHelpContainer />
-                            <MenuContainer />
-                            <AutoCompletionContainer />
-                            <Logs />
+            <div className="stack">
+                <div className="container full">
+                    <div className="layer">
+                        <MenuContainer />
+                        <div className="container full">
+                            <EditorHost editor={this.props.editor} />
                         </div>
                     </div>
-                    <div className="container fixed">
-                        <StatusBar />
+                    <div className="layer">
+                        <Cursor />
+                        <CursorLine lineType={"line"} />
+                        <CursorLine lineType={"column"} />
+                        <QuickInfoContainer />
+                        <SignatureHelpContainer />
+                        <MenuContainer />
+                        <AutoCompletionContainer />
+                        <Logs />
                     </div>
+                </div>
+                <div className="container fixed layer">
+                    <StatusBar />
                 </div>
             </div>
         </div>
