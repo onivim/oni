@@ -27,9 +27,9 @@ export const ProtocolConstants = {
 }
 
 export namespace TextDocumentSyncKind {
-    export const None = 0;
-    export const Full = 1;
-    export const Incremental = 2;
+    export const None = 0
+    export const Full = 1
+    export const Incremental = 2
 }
 
 // ServerCapabilities
