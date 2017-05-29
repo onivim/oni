@@ -29,6 +29,7 @@
 - [License](#license)
 - [Contributing](#contributing)
 - [Thanks](#thanks)
+    - [Sponsors](#sponsors)
 
 ## Introduction
 
@@ -70,17 +71,17 @@ Windows & OSX releases come with a bundled Neovim release.
 
 ### Windows
 
-- Download the [Oni installer](https://github.com/extr0py/oni/releases/download/v0.2.3/Oni-0.2.3-ia32-win.exe) for Windows
+- Download the [Oni installer](https://github.com/extr0py/oni/releases/download/v0.2.4/Oni-0.2.4-ia32-win.exe) for Windows
 - Once it is downloaded, run the installer. This will only take a minute.
 - By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine. 
 
-You can also find install via a [zip archive](https://github.com/extr0py/oni/releases/download/v0.2.3/Oni-0.2.3-ia32-win.zip)
+You can also find install via a [zip archive](https://github.com/extr0py/oni/releases/download/v0.2.4/Oni-0.2.4-ia32-win.zip)
 
 > You may want to add Oni to your `%PATH%`, so that from the console, you can open Oni via `oni`
 
 ### Mac
 
-- Download [Oni](https://github.com/extr0py/oni/releases/download/v0.2.3/Oni-0.2.3-osx.dmg) for Mac
+- Download [Oni](https://github.com/extr0py/oni/releases/download/v0.2.4/Oni-0.2.4-osx.dmg) for Mac
 - Double-click on the archive to expand
 - Drag `Oni.app` to the `Applications` folder
 
@@ -90,19 +91,19 @@ You can also find install via a [zip archive](https://github.com/extr0py/oni/rel
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.3/oni_0.2.3_amd64.deb)
+- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.4/oni_0.2.4_amd64.deb)
 - Install the package with `sudo dpkg -i <file>.deb`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.3/oni-0.2.3.tar.gz) is also available.
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.4/oni-0.2.4.tar.gz) is also available.
 
 #### Red Hat based distributions (Fedora, CentOS)
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-- Download the [.rpm package](https://github.com/extr0py/oni/releases/download/v0.2.3/oni-0.2.3.rpm)
+- Download the [.rpm package](https://github.com/extr0py/oni/releases/download/v0.2.4/oni-0.2.4.rpm)
 - Install the package with `sudo dnf install <file>.rpm`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.3/oni-0.2.3.tar.gz) is also available.
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.4/oni-0.2.4.tar.gz) is also available.
 
 ### Build
 
@@ -355,20 +356,30 @@ MIT License. Copyright (c) extropygames
 
 The bundled plugins have their own license terms, along with the bundled Neovim binary
 
+There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
+
+Windows and OSX have a bundled version of Neovim, which is covered under [Neovim's license](https://github.com/neovim/neovim/blob/master/LICENSE)
+
 ## Contributing
 
 Contributions are very much welcome :)
 
 If you're interested in helping out, check out [CONTRIBUTING.md](./CONTRIBUTING.md) for tips and tricks for working with ONI.
 
-# Thanks
+## Thanks
 
 Big thanks to the NeoVim team - without their work, this project would not be possible. The deep integration with VIM would not be possible without the incredible work that was done to enable the msgpack-RPC interface. Thanks!
 
-Also, big thanks to our [contributors](https://github.com/extr0py/oni/graphs/contributors) for helping out!
+### Sponsors
+
+A big THANK YOU to our current monthly sponsors. Your contributions help keep this project alive!
+
+- [Mike Hartington](https://github.com/mhartington)
+
+### Other Contributions
 
 In addition, there are several other great NeoVim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) that served as great reference points and learning opportunities.
 
-There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
+Also, thanks to our [contributors](https://github.com/extr0py/oni/graphs/contributors) for helping out!
 
 Special thanks to [Till Arnold](https://github.com/tillarnold) for handing over the `oni` NPM package name.

@@ -23,26 +23,30 @@ export class RootComponent extends React.Component<IRootComponentProps, void> {
             <div className="layer">
                 <Background />
             </div>
-            <div className="layer">
+            <div className="container full">
                 <div className="container vertical full">
                     <div className="container full">
-                        <EditorHost editor={this.props.editor} />
-                        <Cursor />
-                        <CursorLine lineType={"line"} />
-                        <CursorLine lineType={"column"} />
-                        <SignatureHelpContainer />
-                        <QuickInfoContainer />
-                        <SignatureHelpContainer />
-                        <AutoCompletionContainer />
-                        <Logs />
+                        <div className="layer">
+                            <MenuContainer />
+                            <div className="container full">
+                                <EditorHost editor={this.props.editor} />
+                            </div>
+                        </div>
+                        <div className="layer">
+                            <Cursor />
+                            <CursorLine lineType={"line"} />
+                            <CursorLine lineType={"column"} />
+                            <QuickInfoContainer />
+                            <SignatureHelpContainer />
+                            <MenuContainer />
+                            <AutoCompletionContainer />
+                            <Logs />
+                        </div>
                     </div>
                     <div className="container fixed">
                         <StatusBar />
                     </div>
                 </div>
-            </div>
-            <div className="layer">
-                <MenuContainer />
             </div>
         </div>
     }
