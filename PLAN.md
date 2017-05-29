@@ -1,4 +1,5 @@
 - Add hover styles for status line
+- Investigate repaint issue - seems like there is a performance regression here
 
 - Use same font for status line as for UI
 

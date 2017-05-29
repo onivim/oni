@@ -24,7 +24,7 @@
 
 @component-padding: 10px;
 
-#host, .editor, .layer, .stack {
+#host, .editor, .stack {
     position: absolute;
     top: 0px;
     left: 0px;
@@ -32,6 +32,8 @@
     bottom: 0px;
 }
 
+/* Layer is used to force webkit to promote the element to an individual layer.
+    This is used to tweak and control rendering performance, and not for layout */
 .layer {
     will-change: transform;
 }
