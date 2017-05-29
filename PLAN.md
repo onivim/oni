@@ -1,5 +1,6 @@
 - Add hover styles for status line
 - Investigate repaint issue - seems like there is a performance regression here
+    - Looks like there is a layer overlap issue, where updating the status bar causes the whole UI to repaint
 
 - Use same font for status line as for UI
 

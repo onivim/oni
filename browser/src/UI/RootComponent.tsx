@@ -20,7 +20,7 @@ export class RootComponent extends React.Component<IRootComponentProps, void> {
     public render() {
 
         return <div className="stack">
-            <div className="stack layer">
+            <div className="stack">
                 <Background />
             </div>
             <div className="stack">
