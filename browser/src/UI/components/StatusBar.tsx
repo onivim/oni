@@ -47,7 +47,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
                     <span><i className="fa fa-code-fork"></i> master</span>
                 </div>
                 <div className="status-bar-item">
-                    <span><i className="fa fa-github" /></span>
+                    <span><span>0.2.5</span><i className="fa fa-github" /></span>
                 </div>
             </div>
         </div>
