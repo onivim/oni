@@ -28,7 +28,7 @@ export interface IStatusBarShowAction {
     type: "STATUSBAR_SHOW",
     payload: {
         id: string,
-        contentsHTML: string,
+        contents: JSX.Element,
         alignment: StatusBarAlignment,
         priority: number,
     }

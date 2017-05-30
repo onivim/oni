@@ -15,7 +15,7 @@ export interface StatusBarProps {
 
 export interface StatusBarItemProps {
     alignment: StatusBarAlignment
-    contentsHTML: string
+    contents: JSX.Element
     id: string
     priority: number
 }
@@ -54,11 +54,10 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
     }
 }
 
-const createMarkup = (html: string) => ({ __html: html })
 
 export class StatusBarItem extends React.PureComponent<StatusBarItemProps, void> {
     public render() {
-        return <div className="status-bar-item" dangerouslySetInnerHTML={createMarkup(this.props.contentsHTML)} />
+        return <div className="status-bar-item">{this.props.contents}</div>
     }
 }
 

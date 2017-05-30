@@ -2,16 +2,21 @@ const Q = require("q")
 const path = require("path")
 
 const activate = (Oni) => {
+    const React = Oni.dependencies.React
+
     const filePathItem = Oni.statusBar.createItem(0, -1)
     const lineNumberItem = Oni.statusBar.createItem(1, -1)
     const modeItem = Oni.statusBar.createItem(1, -2)
 
     const setMode = (mode) => {
-        modeItem.setContents(mode)
+        // modeItem.setContents(mode)
     }
 
     const setLineNumber = (line, column) => {
-        lineNumberItem.setContents(`${line}, ${column}`)
+        // lineNumberItem.setContents(`${line}, ${column}`)
+
+        const element = React.createElement("div", null, `${line}, ${column}`)
+        lineNumberItem.setContents(element)
     }
 
     const setFilePath = (filePath) => {
@@ -20,11 +25,9 @@ const activate = (Oni) => {
             filePathString = "[No Name]"
         }
 
-        const wrapperElement = document.createElement("div")
-        wrapperElement.style.color = "rgb(140, 140, 140)"
-        wrapperElement.textContent = filePathString
+        const element = React.createElement("div", { style: { color: "rgb(140, 140, 140)" } }, filePathString)
 
-        filePathItem.setContents(wrapperElement)
+        filePathItem.setContents(element)
     }
 
     Oni.on("mode-changed", (evt) => {

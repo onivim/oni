@@ -47,7 +47,7 @@ export enum StatusBarAlignment {
 
 export interface IStatusBarItem {
     alignment: StatusBarAlignment
-    contentsHTML: string
+    contents: JSX.Element
     priority: number
     visible: boolean
 }

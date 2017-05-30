@@ -19,11 +19,11 @@ import * as Actions from "./Actions"
 import { events } from "./Events"
 import {ILog} from "./Logs"
 
-export const showStatusBarItem = (id: string, contentsHTML: string, alignment?: State.StatusBarAlignment, priority?: number) => ({
+export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => ({
     type: "STATUSBAR_SHOW",
     payload: {
         id,
-        contentsHTML,
+        contents,
         alignment,
         priority,
     },

@@ -11,11 +11,20 @@ import { StatusBar } from "./StatusBar"
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient } from "./LanguageClient/LanguageClient"
 
+const react = require("react")
+
+export class Dependencies {
+    public get React(): any {
+        return react
+    }
+}
+
 /**
  * API instance for interacting with Oni (and vim)
  */
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
+    private _dependencies: Dependencies
     private _editor: Oni.Editor
     private _statusBar: StatusBar
     private _commands: Commands
@@ -25,6 +34,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     public get diagnostics(): Oni.Plugin.Diagnostics.Api {
         return this._diagnostics
+    }
+
+    public get dependencies(): Dependencies {
+        return this._dependencies
     }
 
     public get editor(): Oni.Editor {
@@ -43,6 +56,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         super()
 
         this._diagnostics = new Diagnostics(this._channel)
+        this._dependencies = new Dependencies()
         this._editor = new Editor(this._channel)
         this._commands = new Commands()
         this._statusBar = new StatusBar(this._channel)

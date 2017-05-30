@@ -16,11 +16,11 @@ export enum StatusBarAlignment {
 export interface IStatusBarItem {
     show(): void
     hide(): void
-    setContents(element: HTMLElement): void
+    setContents(element: any): void
 }
 
 export class StatusBarItem implements Oni.StatusBarItem {
-    private _contents: string = ""
+    private _contents: JSX.Element
     private _visible: boolean = false
 
     constructor(
@@ -40,12 +40,13 @@ export class StatusBarItem implements Oni.StatusBarItem {
         this._channel.send("redux-action", null, ActionCreators.hideStatusBarItem(this._id))
     }
 
-    public setContents(element: HTMLElement | string): void {
-        if (typeof element === "string") {
-            this._contents = element
-        } else {
-            this._contents = element.outerHTML
-        }
+    public setContents(element: any): void {
+        this._contents = element
+        // if (typeof element === "string") {
+        //     this._contents = element
+        // } else {
+        //     this._contents = element.outerHTML
+        // }
 
         if (this._visible) {
             this.show()
