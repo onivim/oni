@@ -86,12 +86,12 @@ const start = (args: string[]) => {
 
     UI.init(pluginManager, commandManager, parsedArgs._)
 
-    ipcRenderer.on("execute-command", (_evt, command: string) => {
+    ipcRenderer.on("execute-command", (_evt: any, command: string) => {
         commandManager.executeCommand(command, null)
     })
 }
 
-ipcRenderer.on("init", (_evt, message) => {
+ipcRenderer.on("init", (_evt: any, message: any) => {
     process.chdir(message.workingDirectory)
     start(message.args)
 })
