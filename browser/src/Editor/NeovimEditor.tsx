@@ -287,6 +287,15 @@ export class NeovimEditor implements IEditor {
                 this._neovimInstance.command("exec \":normal! " + message + "\"")
             }
         })
+
+        // enable opening a file via drag-drop
+        document.ondragover = (ev) => {
+            ev.preventDefault()
+        }
+        document.body.ondrop = (ev) => {
+            this._neovimInstance.open(ev.dataTransfer.files[0].path)
+            ev.preventDefault()
+        }
     }
 
     public init(filesToOpen: string[]): void {
