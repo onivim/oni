@@ -280,7 +280,7 @@ export class NeovimEditor implements IEditor {
 
         window.addEventListener("resize", () => this._onResize())
 
-        ipcRenderer.on("menu-item-click", (_evt, message: string) => {
+        ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
             if (message.startsWith(":")) {
                 this._neovimInstance.command("exec \"" + message + "\"")
             } else {
