@@ -103,7 +103,6 @@
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
-    "@types/electron": "1.4.27",
     "@types/glob": "5.0.30",
     "@types/jsdom": "2.0.29",
     "@types/lodash": "4.14.38",
