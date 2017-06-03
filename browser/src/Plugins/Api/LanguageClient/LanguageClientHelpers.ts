@@ -120,4 +120,10 @@ const splitByNewlines = (str: string) => {
         .split("\n")
 }
 
-const getFilePrefix = () => "file://"
+const getFilePrefix = () => {
+     if (process.platform === "win32") {
+         return "file:///"
+     } else {
+         return "file://"
+     }
+ }
