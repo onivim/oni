@@ -293,8 +293,17 @@ export class NeovimEditor implements IEditor {
             ev.preventDefault()
         }
         document.body.ondrop = (ev) => {
-            this._neovimInstance.open(ev.dataTransfer.files[0].path)
             ev.preventDefault()
+
+            let files = ev.dataTransfer.files
+            if (files.length === 1) {
+                this._neovimInstance.open(files[0].path.split("\\").join("/"))
+            } else {
+                // apparently FileList doesn't support iterators so I have to manually iterate
+                for (let i = 0; i < files.length; i++) {
+                    this._neovimInstance.command("exec \":tabe " + files.item(i).path.split("\\").join("/") + "\"")
+                }
+            }
         }
     }
 
