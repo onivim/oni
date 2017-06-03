@@ -54,7 +54,6 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
     }
 }
 
-
 export class StatusBarItem extends React.PureComponent<StatusBarItemProps, void> {
     public render() {
         return <div className="status-bar-item">{this.props.contents}</div>

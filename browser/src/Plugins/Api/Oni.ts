@@ -11,7 +11,7 @@ import { StatusBar } from "./StatusBar"
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient } from "./LanguageClient/LanguageClient"
 
-const react = require("react")
+const react = require("react") // tslint:disable-line no-var-requires
 
 export class Dependencies {
     public get React(): any {
