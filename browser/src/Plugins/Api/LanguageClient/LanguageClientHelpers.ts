@@ -120,4 +120,4 @@ const splitByNewlines = (str: string) => {
         .split("\n")
 }
 
-const getFilePrefix = () => "file:///"
+const getFilePrefix = () => "file://"
