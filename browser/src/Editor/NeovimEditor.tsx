@@ -280,13 +280,29 @@ export class NeovimEditor implements IEditor {
 
         window.addEventListener("resize", () => this._onResize())
 
-        ipcRenderer.on("menu-item-click", (_evt, message: string) => {
+        ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
             if (message.startsWith(":")) {
                 this._neovimInstance.command("exec \"" + message + "\"")
             } else {
                 this._neovimInstance.command("exec \":normal! " + message + "\"")
             }
         })
+
+        // enable opening a file via drag-drop
+        document.ondragover = (ev) => {
+            ev.preventDefault()
+        }
+        document.body.ondrop = (ev) => {
+            ev.preventDefault()
+
+            let files = ev.dataTransfer.files
+            // open first file in current editor
+            this._neovimInstance.open(files[0].path.split("\\").join("/"))
+            // open any subsequent files in new tabs
+            for (let i = 1; i < files.length; i++) {
+                this._neovimInstance.command("exec \":tabe " + files.item(i).path.split("\\").join("/") + "\"")
+            }
+        }
     }
 
     public init(filesToOpen: string[]): void {

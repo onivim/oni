@@ -32,6 +32,7 @@ export class RecycleElementFactory {
         }
 
         const elem = document.createElement("span")
+        elem.style.whiteSpace = "nowrap"
         this._rootElement.appendChild(elem)
         return elem
     }

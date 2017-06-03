@@ -8,10 +8,10 @@ export function getCompletionStart(bufferLine: string, cursorColumn: number, com
 
     cursorColumn = Math.min(cursorColumn, bufferLine.length)
 
-    let x = cursorColumn - 1
+    let x = cursorColumn
     while (x >= 0) {
 
-        const subWord = bufferLine.substring(x, cursorColumn)
+        const subWord = bufferLine.substring(x, cursorColumn + 1)
 
         if (completion.indexOf(subWord) === -1) {
             break
