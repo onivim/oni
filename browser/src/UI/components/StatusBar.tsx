@@ -33,21 +33,23 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
                             .sort((a, b) => b.priority - a.priority)
 
         return <div className="status-bar">
-            <div className="status-bar-container left">
-                {leftItems.map((item) => <StatusBarItem {...item} />)}
-                <div className="status-bar-item">
-                    <span><i className="fa fa-bolt"></i> typescript</span>
+            <div className="status-bar-inner">
+                <div className="status-bar-container left">
+                    {leftItems.map((item) => <StatusBarItem {...item} />)}
+                    <div className="status-bar-item">
+                        <span><i className="fa fa-bolt"></i> typescript</span>
+                    </div>
                 </div>
-            </div>
-            <div className="status-bar-container center">
-            </div>
-            <div className="status-bar-container right">
-                {rightItems.map((item) => <StatusBarItem {...item} />)}
-                <div className="status-bar-item">
-                    <span><i className="fa fa-code-fork"></i> master</span>
+                <div className="status-bar-container center">
                 </div>
-                <div className="status-bar-item">
-                    <span><i className="fa fa-github" /></span>
+                <div className="status-bar-container right">
+                    {rightItems.map((item) => <StatusBarItem {...item} />)}
+                    <div className="status-bar-item">
+                        <span><i className="fa fa-code-fork"></i> master</span>
+                    </div>
+                    <div className="status-bar-item">
+                        <span><i className="fa fa-github" /></span>
+                    </div>
                 </div>
             </div>
         </div>
