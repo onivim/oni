@@ -1,3 +1,6 @@
+
+import * as electron from "electron"
+
 import * as _ from "lodash"
 import * as React from "react"
 
@@ -36,23 +39,22 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
             <div className="status-bar-inner">
                 <div className="status-bar-container left">
                     {leftItems.map((item) => <StatusBarItem {...item} />)}
-                    <div className="status-bar-item">
-                        <span><i className="fa fa-bolt"></i> typescript</span>
-                    </div>
                 </div>
                 <div className="status-bar-container center">
                 </div>
                 <div className="status-bar-container right">
                     {rightItems.map((item) => <StatusBarItem {...item} />)}
-                    <div className="status-bar-item">
-                        <span><i className="fa fa-code-fork"></i> master</span>
-                    </div>
-                    <div className="status-bar-item">
+                    <div className="status-bar-item" onClick={() => this._openGithub()}>
                         <span><i className="fa fa-github" /></span>
                     </div>
                 </div>
             </div>
         </div>
+    }
+
+    private _openGithub(): void {
+        // TODO: Open this in an internal window once that capability is available
+        electron.shell.openExternal("https://www.github.com/extr0py/oni")
     }
 }
 

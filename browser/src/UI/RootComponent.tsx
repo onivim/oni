@@ -37,13 +37,11 @@ export class RootComponent extends React.Component<IRootComponentProps, void> {
                             <SignatureHelpContainer />
                             <AutoCompletionContainer />
                             <Logs />
+                            <MenuContainer />
                         </div>
                     </div>
                     <div className="container fixed">
                         <StatusBar />
-                    </div>
-                    <div className="stack">
-                        <MenuContainer />
                     </div>
                 </div>
             </div>
