@@ -4,6 +4,7 @@
 
 import * as os from "os"
 
+import * as _ from "lodash"
 import * as types from "vscode-languageserver-types"
 
 export const ProtocolConstants = {
@@ -25,16 +26,27 @@ export const ProtocolConstants = {
     },
 }
 
+export namespace TextDocumentSyncKind {
+    export const None = 0
+    export const Full = 1
+    export const Incremental = 2
+}
+
+// ServerCapabilities
+// Defined in the LSP protocol: https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md
+export interface ServerCapabilities {
+    textDocumentSync?: number
+}
+
 export const wrapPathInFileUri = (path: string) => getFilePrefix() + path
 
 export const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split(getFilePrefix())[1])
 
 export const getTextFromContents = (contents: types.MarkedString | types.MarkedString[]): string[] => {
     if (contents instanceof Array) {
-        return contents
-                .map((markedString) => getTextFromMarkedString(markedString))
+        return _.flatMap(contents, (markedString) => getTextFromMarkedString(markedString))
     } else {
-        return [getTextFromMarkedString(contents)]
+        return getTextFromMarkedString(contents)
     }
 }
 
@@ -61,9 +73,7 @@ export const eventContextToTextDocumentPositionParams = (args: Oni.EventContext)
     },
 })
 
-export const bufferUpdateToDidChangeTextDocumentParams = (args: Oni.BufferUpdateContext) => {
-    const lines = args.bufferLines
-    const { bufferFullPath, version } = args.eventContext
+export const createDidChangeTextDocumentParams = (bufferFullPath: string, lines: string[], version: number) => {
     const text = lines.join(os.EOL)
 
     return {
@@ -94,19 +104,26 @@ export const incrementalBufferUpdateToDidChangeTextDocumentParams = (args: Oni.I
     }
 }
 
-const getTextFromMarkedString = (markedString: types.MarkedString): string => {
+const getTextFromMarkedString = (markedString: types.MarkedString): string[] => {
     if (typeof markedString === "string") {
-        return markedString.trim()
+        return splitByNewlines(markedString)
     } else {
         // TODO: Properly apply syntax highlighting based on the `language` parameter
-        return markedString.value.trim()
+        return splitByNewlines(markedString.value)
     }
 }
 
-const getFilePrefix = () => {
-    if (process.platform === "win32") {
-        return "file://"
-    } else {
-        return "file:///"
-    }
+const splitByNewlines = (str: string) => {
+    // Remove '/r'
+    return str.split("\r")
+        .join("")
+        .split("\n")
 }
+
+const getFilePrefix = () => {
+     if (process.platform === "win32") {
+         return "file:///"
+     } else {
+         return "file://"
+     }
+ }

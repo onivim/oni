@@ -5,6 +5,8 @@
  * https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md
  */
 
+import * as os from "os"
+
 import * as _ from "lodash"
 import * as rpc from "vscode-jsonrpc"
 import * as types from "vscode-languageserver-types"
@@ -68,6 +70,7 @@ export class LanguageClient {
     private _currentOpenDocumentPath: string
     private _currentBuffer: string[] = []
     private _initializationParams: LanguageClientInitializationParams
+    private _serverCapabilities: Helpers.ServerCapabilities
 
     constructor(
         private _startOptions: ServerRunOptions,
@@ -142,6 +145,7 @@ export class LanguageClient {
             new LanguageClientLogger())
 
         this._currentOpenDocumentPath = null
+        this._serverCapabilities = null
 
         this._connection.onNotification(Helpers.ProtocolConstants.Window.LogMessage, (args) => {
             console.log(JSON.stringify(args)) // tslint:disable-line no-console
@@ -174,6 +178,12 @@ export class LanguageClient {
         this._connection.listen()
 
         return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, initializationParams)
+            .then((response: any) => {
+                console.log(`[LANGUAGE CLIENT: ${initializationParams.clientName}]: Initialized`) // tslint:disable-line no-console
+                if (response && response.capabilities) {
+                    this._serverCapabilities = response.capabilities
+                }
+            }, (err) => console.error(err))
     }
 
     public end(): Promise<void> {
@@ -247,8 +257,8 @@ export class LanguageClient {
 
                 if (contents.length === 0) {
                     return null
-                } else if (contents.length === 1) {
-                    const title = contents[0]
+                } else if (contents.length === 1 && contents[0]) {
+                    const title = contents[0].trim()
 
                     if (!title) {
                         return null
@@ -259,12 +269,16 @@ export class LanguageClient {
                         description: "",
                     }
                 } else {
+
+                    const description = [...contents]
+                    description.shift()
+                    const descriptionContent = description.join(os.EOL)
+
                     return {
                         title: contents[0],
-                        description: contents[1],
+                        description: descriptionContent,
                     }
                 }
-
             })
     }
 
@@ -299,11 +313,19 @@ export class LanguageClient {
         const lineNumber = args.lineNumber
 
         const previousLine = this._currentBuffer[lineNumber - 1]
-
         this._currentBuffer[lineNumber - 1] = changedLine
 
-        this._connection.sendNotification(Helpers.ProtocolConstants.TextDocument.DidChange,
-            Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine))
+        if (this._serverCapabilities && this._serverCapabilities.textDocumentSync) {
+            let changeTextDocumentParams
+
+            if (this._serverCapabilities.textDocumentSync === Helpers.TextDocumentSyncKind.Full) {
+                changeTextDocumentParams = Helpers.createDidChangeTextDocumentParams(args.eventContext.bufferFullPath, this._currentBuffer, args.eventContext.version)
+            } else {
+                changeTextDocumentParams = Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine)
+            }
+
+            this._connection.sendNotification(Helpers.ProtocolConstants.TextDocument.DidChange, changeTextDocumentParams)
+        }
 
         return Promise.resolve(null)
     }
@@ -321,7 +343,7 @@ export class LanguageClient {
             })
         } else {
             this._connection.sendNotification(Helpers.ProtocolConstants.TextDocument.DidChange,
-                Helpers.bufferUpdateToDidChangeTextDocumentParams(args))
+                Helpers.createDidChangeTextDocumentParams(bufferFullPath, lines, args.eventContext.version))
         }
 
         return Promise.resolve(null)

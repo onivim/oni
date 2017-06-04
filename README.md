@@ -22,6 +22,7 @@
         - [JavaScript and TypeScript](#javascript-and-typescript)
         - [C#](#c)
         - [Go](#go)
+        - [Python](#python)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
@@ -262,6 +263,24 @@ _Supported Language features_
 _Known Issues_
 
 - There is no Windows support at the moment - this is being tracked by [sourcegraph/go-langserver#113](https://github.com/sourcegraph/go-langserver/issues/113).
+
+#### Python
+
+_Configuration_
+
+Python language support depends on [pyls](https://github.com/palantir/python-language-server) by [Palantir](https://www.palantir.com/), which provides language support for Python. Follow their installation instructions as this language server is not bundled out-of-the-box with Oni.
+
+> `pyls` must be available in your PATH
+
+_Supported Language features_
+
+| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
+| --- | --- | --- | --- | --- | --- |--- | --- |
+| Y | Y | N | N | Y | N | N | N |
+
+_Known Issues_
+
+- Windows support is blocked by this issue: [palantir/python-language-server#53](https://github.com/palantir/python-language-server/issues/53).
 
 ### Configuration
 

@@ -1,3 +1,5 @@
+import * as os from "os"
+
 import * as React from "react"
 import { connect } from "react-redux"
 
@@ -72,7 +74,11 @@ export class QuickInfoTitle extends TextComponent {
 
 export class QuickInfoDocumentation extends TextComponent {
     public render(): JSX.Element {
-        return <div className="documentation">{this.props.text}</div>
+
+        const lines = this.props.text.split(os.EOL)
+        const divs = lines.map((l) => <div>{l}</div>)
+
+        return <div className="documentation">{divs}</div>
     }
 }
 
