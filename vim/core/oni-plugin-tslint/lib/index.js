@@ -3,7 +3,7 @@ const path = require("path")
 const os = require("os")
 const exec = require("child_process").exec
 
-const findParentDir = require("find-parent-dir")
+const findUp = require("find-up")
 
 const tslintPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", "tslint", "lib", "tslint-cli.js")
 
@@ -53,11 +53,11 @@ const activate = (Oni) => {
             return
         }
 
-        const project = findParentDir.sync(currentWorkingDirectory, "tsconfig.json")
+        const project = findUp.sync("tsconfig.json", { cwd: currentWorkingDirectory })
         let processArgs = []
 
         if (project) {
-            processArgs.push("--project", path.join(project, "tsconfig.json"))
+            processArgs.push("--project", project)
         } else {
             processArgs.push(arg.bufferFullPath)
         }
@@ -97,7 +97,7 @@ const activate = (Oni) => {
 
         processArgs = processArgs.concat(["--force", "--format", "json"])
 
-        processArgs = processArgs.concat(["--config", path.join(configPath, "tslint.json")])
+        processArgs = processArgs.concat(["--config", configPath])
         processArgs = processArgs.concat(args)
 
         return Q.nfcall(Oni.execNodeScript, tslintPath, processArgs, { cwd: workingDirectory })
@@ -139,7 +139,7 @@ const activate = (Oni) => {
     }
 
     function getLintConfig(workingDirectory) {
-        return findParentDir.sync(workingDirectory, "tslint.json")
+        return findUp.sync("tslint.json", { cwd: workingDirectory })
     }
 }
 

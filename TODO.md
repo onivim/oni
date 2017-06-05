@@ -120,7 +120,7 @@
 - LaunchService
     - Create test plugin to exercise this functionality
     - Launch command: editor.launch
-    - Use find-parent-dir module to search upward
+    - Use find-up module to search upward
     - Implement this functionality in a plugin
     - Oni.registerCommand("editor.launch", () => { Oni.editor.executeShellCommand(...) })
     - Use mapping to bind to editor.launch
