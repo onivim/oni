@@ -30,21 +30,20 @@ export class Plugin {
         const packageJsonPath = path.join(this._pluginRootDirectory, "package.json")
         this._channel = channel
 
-        if (fs.existsSync(packageJsonPath)) {
-            this._oniPluginMetadata = PackageMetadataParser.parseFromString(fs.readFileSync(packageJsonPath, "utf8"))
+        fs.readFile(packageJsonPath, "utf8", (err, data) => {
+            if ( ! err) {
+                this._oniPluginMetadata = PackageMetadataParser.parseFromString(data)
 
-            if (!this._oniPluginMetadata) {
-                Log.error(`[PLUGIN] Aborting plugin load, invalid package.json: ${packageJsonPath}`)
-            } else {
-                if (this._oniPluginMetadata.main) {
-
+                if (!this._oniPluginMetadata) {
+                    Log.error(`[PLUGIN] Aborting plugin load, invalid package.json: ${packageJsonPath}`)
+                } else if (this._oniPluginMetadata.main) {
                     this._oni = new Oni(this._channel.createPluginChannel(this._oniPluginMetadata,
                         () => this._onActivate()))
 
                     this._commands = PackageMetadataParser.getAllCommandsFromMetadata(this._oniPluginMetadata)
                 }
             }
-        }
+        })
     }
 
     private _onActivate(): void {
