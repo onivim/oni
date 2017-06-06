@@ -1,4 +1,4 @@
-- Investigate overlay issue (other `stack` element blocking click / mouse events)
+- Configuration value to enable statusbar
 
 - Implement rendering for current mode
     - n / i / v / etc (choose colors)
@@ -9,8 +9,13 @@
 - Add language server status bar item (separate WI?)
 - Add git branch status bar item (separate WI?)
 
-- Add click handlers for status bar items
 - Use same font for status line as for UI
 
+- Test on OSX, Linux
+
 - Debug timing issue where sometimes the status bar does not load immediately
-    - General plugin issue, if file is opened directly
+    - Reproduces even without a file
+    - Seems to reproduce if hitting "refresh" in dev tools
+    - Would be interesting to see what events are occurring
+
+- Debug issue where opening a file directly does not load
