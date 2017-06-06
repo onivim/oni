@@ -103,10 +103,6 @@ export class InProcessChannel implements IChannel {
         let potentialPlugins = this._pluginChannels
             .filter((p) => Capabilities.doesMetadataMatchFilter(p.metadata, filter))
 
-        if (filter.singlePlugin) {
-            potentialPlugins = _.take(potentialPlugins, 1)
-        }
-
         return potentialPlugins
     }
 }
