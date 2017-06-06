@@ -4,8 +4,6 @@
  * Export utility types / functions for working with plugin capabilities
  */
 
-import * as _ from "lodash"
-
 /**
  * ActivationMode describes the policy in which the plugin should be activated.
  * `immediate` means the plugin will be executed at startup,
@@ -84,7 +82,7 @@ export const doesMetadataMatchFilter = (metadata: IPluginMetadata, filter: IPlug
         return true
     }
 
-    return doCapabilitiesMeetRequirements(metadata.oni, requiredCapabilities)
+    return doCapabilitiesMeetRequirements()
 }
 
 export const doesPluginSupportFiletype = (pluginCapabilities: IPluginCapabilities, fileType: string) => {
@@ -100,33 +98,6 @@ export const doesPluginSupportFiletype = (pluginCapabilities: IPluginCapabilitie
     return matches.length > 0
 }
 
-export const doCapabilitiesMeetRequirements = (capabilities: Capabilities, requiredCapabilities: Capabilities) => {
-    if (requiredCapabilities.languageService) {
-
-        if (!capabilities.languageService) {
-            return false
-        }
-
-        if (!!requiredCapabilities.languageService.find((v) => capabilities.languageService.indexOf(v) === -1)) {
-            return false
-        }
-    }
-
-    if (requiredCapabilities.commands) {
-
-        if (!capabilities.commands) {
-            return false
-        }
-
-        const requiredCommands = _.keys(requiredCapabilities.commands)
-        const allCommands = _.keys(capabilities.commands)
-
-        const hasAllRequiredCommands = requiredCommands.every((s) => allCommands.indexOf(s) >= 0)
-
-        if (!hasAllRequiredCommands) {
-            return false
-        }
-    }
-
+export const doCapabilitiesMeetRequirements = () => {
     return true
 }
