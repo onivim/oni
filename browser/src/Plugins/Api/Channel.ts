@@ -10,8 +10,6 @@
 
 import { EventEmitter } from "events"
 
-import * as _ from "lodash"
-
 import * as Capabilities from "./Capabilities"
 
 /**
