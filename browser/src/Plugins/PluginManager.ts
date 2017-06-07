@@ -11,6 +11,7 @@ import * as UI from "./../UI/index"
 import * as Capabilities from "./Api/Capabilities"
 import * as Channel from "./Api/Channel"
 import { Plugin } from "./Plugin"
+import { AnonymousPlugin } from "./AnonymousPlugin"
 
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
@@ -30,6 +31,7 @@ export class PluginManager extends EventEmitter {
     private _plugins: Plugin[] = []
     private _neovimInstance: INeovimInstance
     private _lastEventContext: any
+    private _anonymousPlugin: AnonymousPlugin
 
     private _channel: Channel.IChannel = new Channel.InProcessChannel()
 
@@ -86,6 +88,8 @@ export class PluginManager extends EventEmitter {
 
         const allPlugins = this._getAllPluginPaths()
         this._plugins = allPlugins.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
+
+        this._anonymousPlugin = new AnonymousPlugin(this._channel)
     }
 
     public getAllRuntimePaths(): string[] {
