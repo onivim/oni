@@ -1,11 +1,5 @@
 - Configuration value to enable statusbar
 
-- Implement rendering for current mode
-    - n / i / v / etc (choose colors)
-    - Log issue in neovim core to deterministically check mode - would be helpful to have the following autocmds:
-        - `VisualEnter`
-        - `VisualLeave`
-
 - Add language server status bar item (separate WI?)
 - Add git branch status bar item (separate WI?)
 
