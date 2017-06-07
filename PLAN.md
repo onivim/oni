@@ -1,10 +1,7 @@
-- Configuration value to enable statusbar
-
 - Add language server status bar item (separate WI?)
 - Add git branch status bar item (separate WI?)
 
 - Use same font for status line as for UI
-
 - Test on OSX, Linux
 
 - Debug timing issue where sometimes the status bar does not load immediately

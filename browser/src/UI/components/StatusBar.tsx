@@ -14,6 +14,7 @@ import { StatusBarAlignment } from "./../State"
 
 export interface StatusBarProps {
     items: StatusBarItemProps[]
+    enabled: boolean
 }
 
 export interface StatusBarItemProps {
@@ -24,16 +25,20 @@ export interface StatusBarItemProps {
 }
 
 export class StatusBar extends React.PureComponent<StatusBarProps, void> {
+
     public render() {
+        if (!this.props.enabled) {
+            return null
+        }
 
         const statusBarItems = this.props.items || []
         const leftItems = statusBarItems
-                            .filter((item) => item.alignment === StatusBarAlignment.Left)
-                            .sort((a, b) => a.priority - b.priority)
+            .filter((item) => item.alignment === StatusBarAlignment.Left)
+            .sort((a, b) => a.priority - b.priority)
 
         const rightItems = statusBarItems
-                            .filter((item) => item.alignment === StatusBarAlignment.Right)
-                            .sort((a, b) => b.priority - a.priority)
+            .filter((item) => item.alignment === StatusBarAlignment.Right)
+            .sort((a, b) => b.priority - a.priority)
 
         return <div className="status-bar">
             <div className="status-bar-inner">
@@ -75,6 +80,7 @@ const mapStateToProps = (state: State.IState): StatusBarProps => {
 
     return {
         items: statusBarItems,
+        enabled: state.configuration["statusbar.enabled"],
     }
 }
 
