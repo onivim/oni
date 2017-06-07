@@ -9,10 +9,6 @@ import * as Capabilities from "./Api/Capabilities"
 import { IChannel } from "./Api/Channel"
 import { Oni } from "./Api/Oni"
 
-/**
- * AnomymousPlugin - globally available, immediately actived plugin
- * that provides a direct interface to the Oni object
- */
 export class AnonymousPlugin {
     private _channel: IChannel
     private _oni: Oni
@@ -32,8 +28,8 @@ export class AnonymousPlugin {
             },
         }
 
-        this._oni = new Oni(this._channel.createPluginChannel(metadata, () => {}))
+        this._oni = new Oni(this._channel.createPluginChannel(metadata, () => {})) // tslint:disable-line no-empty
 
-        window["Oni"] = this._oni
+        window["Oni"] = this._oni // tslint:disable-line no-string-literal
     }
 }

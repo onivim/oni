@@ -10,7 +10,7 @@ import * as Capabilities from "./Api/Capabilities"
 
 export const PluginDefaults: Partial<Capabilities.IPluginCapabilities> = {
     commands: {},
-    activationMode: "on-demand"
+    activationMode: "on-demand",
 }
 
 export const parseFromString = (packageJson: string): Capabilities.IPluginMetadata | null => {

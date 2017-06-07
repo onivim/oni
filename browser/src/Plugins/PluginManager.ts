@@ -8,10 +8,10 @@ import { INeovimInstance } from "./../NeovimInstance"
 import { CallbackCommand, CommandManager } from "./../Services/CommandManager"
 import * as UI from "./../UI/index"
 
+import { AnonymousPlugin } from "./AnonymousPlugin"
 import * as Capabilities from "./Api/Capabilities"
 import * as Channel from "./Api/Channel"
 import { Plugin } from "./Plugin"
-import { AnonymousPlugin } from "./AnonymousPlugin"
 
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
