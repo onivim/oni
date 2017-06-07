@@ -39,27 +39,27 @@ const DefaultConfiguration: IProjectConfiguration = {
  * Search upward for the relevant .oni folder
  */
 export function getProjectConfiguration(filePath: string): Q.Promise<IProjectConfiguration> {
-    const oniDir = findUp.sync(".oni", { cwd: filePath })
-
-    if (!oniDir) {
-        return Q(DefaultConfiguration)
-    }
-
-    return loadConfigurationFromFolder(oniDir)
+    return findUp(".oni", { cwd: filePath })
+    .then((oniDir: string) => {
+        if (!oniDir) {
+            return DefaultConfiguration
+        }
+        return loadConfigurationFromFolder(oniDir)
+    })
 }
 
-function loadConfigurationFromFolder(folder: string): Q.Promise<IProjectConfiguration> {
+function loadConfigurationFromFolder(folder: string): IProjectConfiguration {
 
     const launchPath = path.join(folder, "launch.json")
 
     if (!fs.existsSync(launchPath)) {
-        return Q(DefaultConfiguration)
+        return DefaultConfiguration
     } else {
        const launchInfo: ILaunchConfiguration = JSON.parse(fs.readFileSync(launchPath, "utf8"))
        const config = {...DefaultConfiguration, ...{
            launchConfigurations: [launchInfo],
        }}
 
-       return Q(config)
+       return config
     }
 }
