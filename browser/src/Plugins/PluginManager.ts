@@ -101,7 +101,7 @@ export class PluginManager extends EventEmitter {
                 eventContext,
                 bufferLines,
             },
-        }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update"] }, false))
+        }, Capabilities.createPluginFilter(eventContext.filetype))
     }
 
     public notifyBufferUpdateIncremental(eventContext: Oni.EventContext, lineNumber: number, bufferLine: string): void {
@@ -112,7 +112,7 @@ export class PluginManager extends EventEmitter {
                 lineNumber,
                 bufferLine,
             },
-        }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update"] }, false))
+        }, Capabilities.createPluginFilter(eventContext.filetype))
     }
 
     private _createPlugin(pluginRootDirectory: string): Plugin {
@@ -233,7 +233,7 @@ export class PluginManager extends EventEmitter {
                 name: eventName,
                 context: eventContext,
             },
-        }, Capabilities.createPluginFilter(this._lastEventContext.filetype, { subscriptions: ["vim-events"] }, false))
+        }, Capabilities.createPluginFilter(this._lastEventContext.filetype))
 
         if (eventName === "CursorMoved" && this._config.getValue("editor.quickInfo.enabled")) {
             this._sendLanguageServiceRequest("quick-info", eventContext)
@@ -258,7 +258,7 @@ export class PluginManager extends EventEmitter {
         this._channel.host.send({
             type: "request",
             payload,
-        }, Capabilities.createPluginFilter(eventContext.filetype, { languageService: [languageServiceCapability] }, true))
+        }, Capabilities.createPluginFilter(eventContext.filetype))
     }
 
     private _sendCommand(command: string, args?: any): void {

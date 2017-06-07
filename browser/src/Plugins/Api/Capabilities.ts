@@ -26,13 +26,11 @@ export interface ICommandInfo {
 export interface IPluginFilter {
     fileType: string
     requiredCapabilities: Capabilities
-    singlePlugin?: boolean
 }
 
-export const createPluginFilter = (fileType: string, requiredCapabilities?: Capabilities, isSinglePlugin?: boolean) => ({
+export const createPluginFilter = (fileType: string, requiredCapabilities?: Capabilities) => ({
     fileType,
     requiredCapabilities,
-    singlePlugin: isSinglePlugin,
 })
 
 export const createPluginFilterForCommand = (fileType: string, command: string) => {
@@ -40,7 +38,7 @@ export const createPluginFilterForCommand = (fileType: string, command: string) 
     commands[command] = null
     return createPluginFilter(fileType, {
         commands,
-    }, true)
+    })
 }
 
 export interface IPluginMetadata {
@@ -50,7 +48,7 @@ export interface IPluginMetadata {
     oni: IPluginCapabilities
 }
 
-export interface IPluginCapabilities {
+export interface IPluginCapabilities extends Capabilities {
     activationMode?: ActivationMode
     supportedFileTypes?: string[]
 }
@@ -74,13 +72,7 @@ export const doesMetadataMatchFilter = (metadata: IPluginMetadata, filter: IPlug
         return false
     }
 
-    const requiredCapabilities = filter.requiredCapabilities
-
-    if (!requiredCapabilities) {
-        return true
-    }
-
-    return doCapabilitiesMeetRequirements()
+    return true
 }
 
 export const doesPluginSupportFiletype = (pluginCapabilities: IPluginCapabilities, fileType: string) => {
@@ -94,8 +86,4 @@ export const doesPluginSupportFiletype = (pluginCapabilities: IPluginCapabilitie
     })
 
     return matches.length > 0
-}
-
-export const doCapabilitiesMeetRequirements = () => {
-    return true
 }
