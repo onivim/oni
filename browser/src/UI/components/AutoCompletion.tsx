@@ -96,7 +96,7 @@ export class AutoCompletionItem extends React.Component<IAutoCompletionItemProps
 
     private _getDefaultHighlightColor(_kind: string): string {
         // TODO: Extend this logic for better defaults per kind
-        return "rgb(32, 232, 38)"
+        return "rgb(0, 255, 100)"
     }
 }
 

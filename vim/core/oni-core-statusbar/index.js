@@ -17,7 +17,7 @@ const activate = (Oni) => {
                 case "insert":
                    return rgb(0, 200, 100)
                 case "operator":
-                    return rgb(250, 250, 0)
+                    return rgb(255, 100, 0)
                 default:
                     return rgb(0, 100, 255)
             }
