@@ -1,6 +1,8 @@
 const Q = require("q")
 const path = require("path")
 
+const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
+
 const activate = (Oni) => {
     const React = Oni.dependencies.React
 
@@ -9,12 +11,45 @@ const activate = (Oni) => {
     const modeItem = Oni.statusBar.createItem(1, -2)
 
     const setMode = (mode) => {
-        // modeItem.setContents(mode)
+
+        const getColorForMode = (m) => {
+            switch (m) {
+                case "insert":
+                   return rgb(0, 200, 100)
+                case "operator":
+                    return rgb(250, 250, 0)
+                default:
+                    return rgb(0, 100, 255)
+            }
+        }
+
+        const parseMode = (m) => {
+
+            // Need to change modes like `cmdline_insert`
+            if (m.indexOf("_") >= 0) {
+                return m.split("_")[1]
+            } else {
+                return m
+            }
+        }
+
+        const style = {
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            "align-items": "center",
+            "padding-left": "8px",
+            "padding-right": "8px",
+            "text-transform": "uppercase",
+            color: rgb(220, 220, 220),
+            backgroundColor: getColorForMode(mode)
+        }
+
+        const modeElement  = React.createElement("div", { style }, parseMode(mode))
+        modeItem.setContents(modeElement)
     }
 
     const setLineNumber = (line, column) => {
-        // lineNumberItem.setContents(`${line}, ${column}`)
-
         const element = React.createElement("div", null, `${line}, ${column}`)
         lineNumberItem.setContents(element)
     }
@@ -30,7 +65,7 @@ const activate = (Oni) => {
         filePathItem.setContents(element)
     }
 
-    Oni.on("mode-changed", (evt) => {
+    Oni.on("mode-change", (evt) => {
         setMode(evt)
     })
 

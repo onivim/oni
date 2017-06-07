@@ -30,7 +30,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
-    private _lastMode: string = "normal"
 
     public get diagnostics(): Oni.Plugin.Diagnostics.Api {
         return this._diagnostics
@@ -136,11 +135,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
             this.emit("buffer-update-incremental", arg.payload)
         } else if (arg.type === "event") {
 
-            if (this._lastMode !== arg.payload.context.mode) {
-                this._lastMode = arg.payload.context.mode
-                this.emit("mode-changed", this._lastMode)
-            }
-
             if (arg.payload.name === "CursorMoved") {
                 this.emit("cursor-moved", arg.payload.context)
                 this.emit("CursorMoved", arg.payload.context)
@@ -153,6 +147,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
             } else if (arg.payload.name === "BufEnter") {
                 this.emit("buffer-enter", arg.payload.context)
                 this.emit("BufEnter", arg.payload.context)
+            } else {
+                this.emit(arg.payload.name, arg.payload.context)
             }
         } else if (arg.type === "command") {
             this._commands.onCommand(arg.payload.command, arg.payload.args)

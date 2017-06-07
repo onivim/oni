@@ -84,6 +84,10 @@ export class PluginManager extends EventEmitter {
             this._onEvent(eventName, context)
         })
 
+        this._neovimInstance.on("mode-change", (newMode: string) => {
+            this._onModeChanged(newMode)
+        })
+
         const allPlugins = this._getAllPluginPaths()
         this._plugins = allPlugins.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
     }
@@ -225,6 +229,19 @@ export class PluginManager extends EventEmitter {
         default:
             this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)
         }
+    }
+
+    private _onModeChanged(newMode: string): void {
+
+        const filetype = this._lastEventContext ? this._lastEventContext.filetype : ""
+
+        this._channel.host.send({
+            type: "event",
+            payload: {
+                name: "mode-change",
+                context: newMode,
+            }
+        }, Capabilities.createPluginFilter(filetype, { subscriptions: ["vim-events"] }, false))
     }
 
     private _onEvent(eventName: string, eventContext: Oni.EventContext): void {
