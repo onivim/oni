@@ -11,7 +11,13 @@
         "supportedFileTypes": [
             "javascript",
             "typescript"
-        ]
+        ],
+          "commands": {
+              "tslint.fix": {
+                "name": "TSLint: Fix",
+                "details": "Automatically fix lint issues for certain rules"
+              }
+          }
     },
     "dependencies": {
     },

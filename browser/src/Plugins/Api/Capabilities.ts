@@ -12,8 +12,6 @@
 export type ActivationMode = "immediate" | "on-demand"
 
 export interface Capabilities {
-    languageService?: string[]
-    subscriptions?: string[]
     commands?: { [commandName: string]: ICommandInfo }
 }
 
@@ -52,7 +50,7 @@ export interface IPluginMetadata {
     oni: IPluginCapabilities
 }
 
-export interface IPluginCapabilities extends Capabilities {
+export interface IPluginCapabilities {
     activationMode?: ActivationMode
     supportedFileTypes?: string[]
 }
