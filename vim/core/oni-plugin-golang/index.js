@@ -6,8 +6,11 @@ const _ = require("lodash")
 const rpc = require("vscode-jsonrpc")
 
 const activate = (Oni) => {
+
+    const command = Oni.configuration.getValue("golang.langServerCommand", "go-langserver")
+
     const serverOptions = {
-        command: "go-langserver",
+        command,
     }
 
     const client = Oni.createLanguageClient(serverOptions, (filePath) => {
