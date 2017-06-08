@@ -22,6 +22,9 @@ export class EditorHost extends React.Component<IEditorHostProps, void> {
     }
 
     public render(): JSX.Element {
-        return <div ref={ (elem) => this._element = elem } className="editor"></div>
+        return <div>
+                <div>hi</div>
+                <div ref={ (elem) => this._element = elem } className="editor"></div>
+                </div>
     }
 }

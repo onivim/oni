@@ -1,0 +1,3 @@
+- Start tab component
+- Fit into editor (expose API like 'open files', 'onOpenFilesChanged' on editor host)
+- Just put directly into <Editor /> component for now
