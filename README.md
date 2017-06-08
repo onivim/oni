@@ -252,7 +252,7 @@ _Configuration_
 
 Go language support depends on the [go-langserver](https://github.com/sourcegraph/go-langserver) by [SourceGraph](https://sourcegraph.com), which provides language support for Go. Follow their installation instructions as this language server is not bundled out-of-the-box with Oni.
 
-> `go-langserver` must be available in your PATH
+> `go-langserver` must be available in your PATH. You can override this by setting the `golang.langServerCommand` configuration value.
 
 _Supported Language features_
 
@@ -270,7 +270,7 @@ _Configuration_
 
 Python language support depends on [pyls](https://github.com/palantir/python-language-server) by [Palantir](https://www.palantir.com/), which provides language support for Python. Follow their installation instructions as this language server is not bundled out-of-the-box with Oni.
 
-> `pyls` must be available in your PATH
+> `pyls` must be available in your PATH. You can override this by setting the `python.langServerCommand` configuration value.
 
 _Supported Language features_
 
