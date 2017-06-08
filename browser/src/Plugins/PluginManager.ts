@@ -236,7 +236,6 @@ export class PluginManager extends EventEmitter {
     }
 
     private _onModeChanged(newMode: string): void {
-
         const filetype = this._lastEventContext ? this._lastEventContext.filetype : ""
 
         this._channel.host.send({
@@ -245,7 +244,7 @@ export class PluginManager extends EventEmitter {
                 name: "mode-change",
                 context: newMode,
             }
-        }, Capabilities.createPluginFilter(filetype, { subscriptions: ["vim-events"] }, false))
+        }, Capabilities.createPluginFilter(filetype))
     }
 
     private _onEvent(eventName: string, eventContext: Oni.EventContext): void {
