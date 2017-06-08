@@ -243,7 +243,7 @@ export class PluginManager extends EventEmitter {
             payload: {
                 name: "mode-change",
                 context: newMode,
-            }
+            },
         }, Capabilities.createPluginFilter(filetype))
     }
 
