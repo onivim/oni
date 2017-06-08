@@ -15,6 +15,7 @@ const activate = (Oni) => {
         const getColorForMode = (m) => {
             switch (m) {
                 case "insert":
+                case "replace":
                    return rgb(0, 200, 100)
                 case "operator":
                     return rgb(255, 100, 0)
@@ -24,7 +25,6 @@ const activate = (Oni) => {
         }
 
         const parseMode = (m) => {
-
             // Need to change modes like `cmdline_insert`
             if (m.indexOf("_") >= 0) {
                 return m.split("_")[1]
