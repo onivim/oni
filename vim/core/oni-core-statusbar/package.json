@@ -9,10 +9,6 @@
     },
     "oni": {
         "supportedFileTypes": ["*"],
-        "subscriptions": [
-            "buffer-update",
-            "vim-events"
-        ]
     },
     "dependencies": {
     },
