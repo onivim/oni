@@ -72,17 +72,17 @@ Windows & OSX releases come with a bundled Neovim release.
 
 ### Windows
 
-- Download the [Oni installer](https://github.com/extr0py/oni/releases/download/v0.2.4/Oni-0.2.4-ia32-win.exe) for Windows
+- Download the [Oni installer](https://github.com/extr0py/oni/releases/download/v0.2.5/Oni-0.2.5-ia32-win.exe) for Windows
 - Once it is downloaded, run the installer. This will only take a minute.
 - By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine. 
 
-You can also find install via a [zip archive](https://github.com/extr0py/oni/releases/download/v0.2.4/Oni-0.2.4-ia32-win.zip)
+You can also find install via a [zip archive](https://github.com/extr0py/oni/releases/download/v0.2.5/Oni-0.2.5-ia32-win.zip)
 
 > You may want to add Oni to your `%PATH%`, so that from the console, you can open Oni via `oni`
 
 ### Mac
 
-- Download [Oni](https://github.com/extr0py/oni/releases/download/v0.2.4/Oni-0.2.4-osx.dmg) for Mac
+- Download [Oni](https://github.com/extr0py/oni/releases/download/v0.2.5/Oni-0.2.5-osx.dmg) for Mac
 - Double-click on the archive to expand
 - Drag `Oni.app` to the `Applications` folder
 
@@ -92,19 +92,19 @@ You can also find install via a [zip archive](https://github.com/extr0py/oni/rel
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.4/oni_0.2.4_amd64.deb)
+- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.5/oni_0.2.5_amd64.deb)
 - Install the package with `sudo dpkg -i <file>.deb`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.4/oni-0.2.4.tar.gz) is also available.
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.5/oni-0.2.5.tar.gz) is also available.
 
 #### Red Hat based distributions (Fedora, CentOS)
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-- Download the [.rpm package](https://github.com/extr0py/oni/releases/download/v0.2.4/oni-0.2.4.rpm)
+- Download the [.rpm package](https://github.com/extr0py/oni/releases/download/v0.2.5/oni-0.2.5.rpm)
 - Install the package with `sudo dnf install <file>.rpm`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.4/oni-0.2.4.tar.gz) is also available.
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.5/oni-0.2.5.tar.gz) is also available.
 
 ### Build
 
@@ -252,7 +252,7 @@ _Configuration_
 
 Go language support depends on the [go-langserver](https://github.com/sourcegraph/go-langserver) by [SourceGraph](https://sourcegraph.com), which provides language support for Go. Follow their installation instructions as this language server is not bundled out-of-the-box with Oni.
 
-> `go-langserver` must be available in your PATH
+> `go-langserver` must be available in your PATH. You can override this by setting the `golang.langServerCommand` configuration value.
 
 _Supported Language features_
 
@@ -270,7 +270,7 @@ _Configuration_
 
 Python language support depends on [pyls](https://github.com/palantir/python-language-server) by [Palantir](https://www.palantir.com/), which provides language support for Python. Follow their installation instructions as this language server is not bundled out-of-the-box with Oni.
 
-> `pyls` must be available in your PATH
+> `pyls` must be available in your PATH. You can override this by setting the `python.langServerCommand` configuration value.
 
 _Supported Language features_
 

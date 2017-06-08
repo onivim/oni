@@ -4,6 +4,19 @@ import * as types from "vscode-languageserver-types"
 
 declare namespace Oni {
 
+    export interface EventCallback<T> {
+        (val: T): void
+    }
+
+    export interface Event<T> {
+        subscribe(callback: EventCallback<T>)
+    }
+
+    export interface Configuration {
+        onConfigurationChangedEvent: Event<void>
+        getValue<T>(configValue: string, defaultValue?: T): T
+    }
+
     export interface Editor {
         executeShellCommand(shellCommand: string): void
     }
@@ -142,8 +155,7 @@ declare namespace Oni {
         }
 
         export interface Api extends EventEmitter {
-            // handleNotification(method: string, args: any[]): void
-
+            configuration: Configuration
             diagnostics: Diagnostics.Api
             editor: Editor
             statusBar: StatusBar

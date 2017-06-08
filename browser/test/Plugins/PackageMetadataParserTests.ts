@@ -33,7 +33,6 @@ describe("PackageMetadataParser", () => {
             const metadata = { ...blankMetadataWithOniEngine }
             metadata.oni = {
                 supportedFileTypes: ["typescript"],
-                languageService: ["quick-info"],
             }
 
             const metadataString = JSON.stringify(metadata)

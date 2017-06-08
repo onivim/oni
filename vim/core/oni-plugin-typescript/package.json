@@ -13,21 +13,7 @@
         "supportedFileTypes": [
             "javascript",
             "typescript"
-        ],
-        "subscriptions": [
-            "buffer-update",
-            "vim-events"
-        ],
-        "languageService": [
-            "quick-info",
-            "goto-definition",
-            "completion-provider",
-            "find-all-references",
-            "formatting",
-            "evaluate-block",
-            "signature-help"
-        ],
-        "diagnosticsService": []
+        ]
     },
     "dependencies": {
     },

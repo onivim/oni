@@ -4,6 +4,7 @@ import { EventEmitter } from "events"
 import { IPluginChannel } from "./Channel"
 
 import { Commands } from "./Commands"
+import { Configuration } from "./Configuration"
 import { Diagnostics } from "./Diagnostics"
 import { Editor } from "./Editor"
 import { StatusBar } from "./StatusBar"
@@ -24,12 +25,21 @@ export class Dependencies {
  */
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
+    private _configuration: Oni.Configuration
     private _dependencies: Dependencies
     private _editor: Oni.Editor
     private _statusBar: StatusBar
     private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
+
+    public get commands(): Oni.Commands {
+        return this._commands
+    }
+
+    public get configuration(): Oni.Configuration {
+        return this._configuration
+    }
 
     public get diagnostics(): Oni.Plugin.Diagnostics.Api {
         return this._diagnostics
@@ -43,10 +53,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._editor
     }
 
-    public get commands(): Oni.Commands {
-        return this._commands
-    }
-
     public get statusBar(): StatusBar {
         return this._statusBar
     }
@@ -54,6 +60,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     constructor(private _channel: IPluginChannel) {
         super()
 
+        this._configuration = new Configuration()
         this._diagnostics = new Diagnostics(this._channel)
         this._dependencies = new Dependencies()
         this._editor = new Editor(this._channel)

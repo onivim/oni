@@ -11,9 +11,6 @@ import * as Capabilities from "./Api/Capabilities"
 export const PluginDefaults: Partial<Capabilities.IPluginCapabilities> = {
     commands: {},
     activationMode: "on-demand",
-    languageService: [],
-    supportedFileTypes: [],
-    subscriptions: [],
 }
 
 export const parseFromString = (packageJson: string): Capabilities.IPluginMetadata | null => {
