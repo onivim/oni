@@ -8,7 +8,7 @@
     "scripts": {
     },
     "oni": {
-        "supportedFileTypes": ["*"],
+        "supportedFileTypes": ["*"]
     },
     "dependencies": {
     },
