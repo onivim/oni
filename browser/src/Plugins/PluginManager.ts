@@ -8,6 +8,7 @@ import { INeovimInstance } from "./../NeovimInstance"
 import { CallbackCommand, CommandManager } from "./../Services/CommandManager"
 import * as UI from "./../UI/index"
 
+import { AnonymousPlugin } from "./AnonymousPlugin"
 import * as Capabilities from "./Api/Capabilities"
 import * as Channel from "./Api/Channel"
 import { Plugin } from "./Plugin"
@@ -30,6 +31,7 @@ export class PluginManager extends EventEmitter {
     private _plugins: Plugin[] = []
     private _neovimInstance: INeovimInstance
     private _lastEventContext: any
+    private _anonymousPlugin: AnonymousPlugin
 
     private _channel: Channel.IChannel = new Channel.InProcessChannel()
 
@@ -86,6 +88,8 @@ export class PluginManager extends EventEmitter {
 
         const allPlugins = this._getAllPluginPaths()
         this._plugins = allPlugins.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
+
+        this._anonymousPlugin = new AnonymousPlugin(this._channel)
     }
 
     public getAllRuntimePaths(): string[] {
@@ -101,7 +105,7 @@ export class PluginManager extends EventEmitter {
                 eventContext,
                 bufferLines,
             },
-        }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update"] }, false))
+        }, Capabilities.createPluginFilter(eventContext.filetype))
     }
 
     public notifyBufferUpdateIncremental(eventContext: Oni.EventContext, lineNumber: number, bufferLine: string): void {
@@ -112,7 +116,7 @@ export class PluginManager extends EventEmitter {
                 lineNumber,
                 bufferLine,
             },
-        }, Capabilities.createPluginFilter(eventContext.filetype, { subscriptions: ["buffer-update"] }, false))
+        }, Capabilities.createPluginFilter(eventContext.filetype))
     }
 
     private _createPlugin(pluginRootDirectory: string): Plugin {
@@ -152,75 +156,75 @@ export class PluginManager extends EventEmitter {
         // - pluginManager.registerResponseHandler("show-quick-info", new QuickInfoHandler())
 
         switch (pluginResponse.type) {
-        case "show-quick-info":
-            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                return
-            }
+            case "show-quick-info":
+                if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                    return
+                }
 
-            if (!pluginResponse.error) {
-                UI.Actions.hideQuickInfo()
-                setTimeout(() => {
-                    if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                        return
-                    }
-                    UI.Actions.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation)
-                }, this._config.getValue("editor.quickInfo.delay"))
-            } else {
-                setTimeout(() => UI.Actions.hideQuickInfo())
-            }
-            break
-        case "goto-definition":
-            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                return
-            }
+                if (!pluginResponse.error) {
+                    UI.Actions.hideQuickInfo()
+                    setTimeout(() => {
+                        if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                            return
+                        }
+                        UI.Actions.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation)
+                    }, this._config.getValue("editor.quickInfo.delay"))
+                } else {
+                    setTimeout(() => UI.Actions.hideQuickInfo())
+                }
+                break
+            case "goto-definition":
+                if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                    return
+                }
 
-            // TODO: Refactor to 'Service', break remaining NeoVim dependencies
-            const { filePath, line, column } = pluginResponse.payload
-            this._neovimInstance.command("e! " + filePath)
-            this._neovimInstance.command(`cal cursor(${line}, ${column})`)
-            this._neovimInstance.command("norm zz")
-            break
-        case "completion-provider":
-            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                return
-            }
+                // TODO: Refactor to 'Service', break remaining NeoVim dependencies
+                const { filePath, line, column } = pluginResponse.payload
+                this._neovimInstance.command("e! " + filePath)
+                this._neovimInstance.command(`cal cursor(${line}, ${column})`)
+                this._neovimInstance.command("norm zz")
+                break
+            case "completion-provider":
+                if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                    return
+                }
 
-            if (!pluginResponse.payload) {
-                return
-            }
+                if (!pluginResponse.payload) {
+                    return
+                }
 
-            setTimeout(() => UI.Actions.showCompletions(pluginResponse.payload))
-            break
-        case "completion-provider-item-selected":
-            setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
-            break
-        case "set-errors":
-            this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
-            break
-        case "find-all-references":
-            this.emit("find-all-references", pluginResponse.payload.references)
-            break
-        case "format":
-            this.emit("format", pluginResponse.payload)
-            break
-        case "execute-shell-command":
-            // TODO: Check plugin permission
-            this.emit("execute-shell-command", pluginResponse.payload)
-            break
-        case "evaluate-block-result":
-            this.emit("evaluate-block-result", pluginResponse.payload)
-            break
-        case "set-syntax-highlights":
-            this.emit("set-syntax-highlights", pluginResponse.payload)
-            break
-        case "clear-syntax-highlights":
-            this.emit("clear-syntax-highlights", pluginResponse.payload)
-            break
-        case "signature-help-response":
-            this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
-            break
-        default:
-            this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)
+                setTimeout(() => UI.Actions.showCompletions(pluginResponse.payload))
+                break
+            case "completion-provider-item-selected":
+                setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
+                break
+            case "set-errors":
+                this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
+                break
+            case "find-all-references":
+                this.emit("find-all-references", pluginResponse.payload.references)
+                break
+            case "format":
+                this.emit("format", pluginResponse.payload)
+                break
+            case "execute-shell-command":
+                // TODO: Check plugin permission
+                this.emit("execute-shell-command", pluginResponse.payload)
+                break
+            case "evaluate-block-result":
+                this.emit("evaluate-block-result", pluginResponse.payload)
+                break
+            case "set-syntax-highlights":
+                this.emit("set-syntax-highlights", pluginResponse.payload)
+                break
+            case "clear-syntax-highlights":
+                this.emit("clear-syntax-highlights", pluginResponse.payload)
+                break
+            case "signature-help-response":
+                this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
+                break
+            default:
+                this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)
         }
     }
 
@@ -233,7 +237,7 @@ export class PluginManager extends EventEmitter {
                 name: eventName,
                 context: eventContext,
             },
-        }, Capabilities.createPluginFilter(this._lastEventContext.filetype, { subscriptions: ["vim-events"] }, false))
+        }, Capabilities.createPluginFilter(this._lastEventContext.filetype))
 
         if (eventName === "CursorMoved" && this._config.getValue("editor.quickInfo.enabled")) {
             this._sendLanguageServiceRequest("quick-info", eventContext)
@@ -258,7 +262,7 @@ export class PluginManager extends EventEmitter {
         this._channel.host.send({
             type: "request",
             payload,
-        }, Capabilities.createPluginFilter(eventContext.filetype, { languageService: [languageServiceCapability] }, true))
+        }, Capabilities.createPluginFilter(eventContext.filetype))
     }
 
     private _sendCommand(command: string, args?: any): void {

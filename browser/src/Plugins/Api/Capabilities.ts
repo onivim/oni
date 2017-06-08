@@ -4,8 +4,6 @@
  * Export utility types / functions for working with plugin capabilities
  */
 
-import * as _ from "lodash"
-
 /**
  * ActivationMode describes the policy in which the plugin should be activated.
  * `immediate` means the plugin will be executed at startup,
@@ -14,8 +12,6 @@ import * as _ from "lodash"
 export type ActivationMode = "immediate" | "on-demand"
 
 export interface Capabilities {
-    languageService?: string[]
-    subscriptions?: string[]
     commands?: { [commandName: string]: ICommandInfo }
 }
 
@@ -30,13 +26,11 @@ export interface ICommandInfo {
 export interface IPluginFilter {
     fileType: string
     requiredCapabilities: Capabilities
-    singlePlugin?: boolean
 }
 
-export const createPluginFilter = (fileType: string, requiredCapabilities?: Capabilities, isSinglePlugin?: boolean) => ({
+export const createPluginFilter = (fileType: string, requiredCapabilities?: Capabilities) => ({
     fileType,
     requiredCapabilities,
-    singlePlugin: isSinglePlugin,
 })
 
 export const createPluginFilterForCommand = (fileType: string, command: string) => {
@@ -44,7 +38,7 @@ export const createPluginFilterForCommand = (fileType: string, command: string) 
     commands[command] = null
     return createPluginFilter(fileType, {
         commands,
-    }, true)
+    })
 }
 
 export interface IPluginMetadata {
@@ -78,13 +72,7 @@ export const doesMetadataMatchFilter = (metadata: IPluginMetadata, filter: IPlug
         return false
     }
 
-    const requiredCapabilities = filter.requiredCapabilities
-
-    if (!requiredCapabilities) {
-        return true
-    }
-
-    return doCapabilitiesMeetRequirements(metadata.oni, requiredCapabilities)
+    return true
 }
 
 export const doesPluginSupportFiletype = (pluginCapabilities: IPluginCapabilities, fileType: string) => {
@@ -98,35 +86,4 @@ export const doesPluginSupportFiletype = (pluginCapabilities: IPluginCapabilitie
     })
 
     return matches.length > 0
-}
-
-export const doCapabilitiesMeetRequirements = (capabilities: Capabilities, requiredCapabilities: Capabilities) => {
-    if (requiredCapabilities.languageService) {
-
-        if (!capabilities.languageService) {
-            return false
-        }
-
-        if (!!requiredCapabilities.languageService.find((v) => capabilities.languageService.indexOf(v) === -1)) {
-            return false
-        }
-    }
-
-    if (requiredCapabilities.commands) {
-
-        if (!capabilities.commands) {
-            return false
-        }
-
-        const requiredCommands = _.keys(requiredCapabilities.commands)
-        const allCommands = _.keys(capabilities.commands)
-
-        const hasAllRequiredCommands = requiredCommands.every((s) => allCommands.indexOf(s) >= 0)
-
-        if (!hasAllRequiredCommands) {
-            return false
-        }
-    }
-
-    return true
 }

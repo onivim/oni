@@ -10,8 +10,6 @@
 
 import { EventEmitter } from "events"
 
-import * as _ from "lodash"
-
 import * as Capabilities from "./Capabilities"
 
 /**
@@ -102,10 +100,6 @@ export class InProcessChannel implements IChannel {
     private _getChannelsForRequestFromHost(filter: Capabilities.IPluginFilter): InProcessPluginInfo[] {
         let potentialPlugins = this._pluginChannels
             .filter((p) => Capabilities.doesMetadataMatchFilter(p.metadata, filter))
-
-        if (filter.singlePlugin) {
-            potentialPlugins = _.take(potentialPlugins, 1)
-        }
 
         return potentialPlugins
     }

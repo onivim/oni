@@ -4,8 +4,10 @@ const childProcess = require("child_process")
 
 const activate = (Oni) => {
 
+    const command = Oni.configuration.getValue("python.langServerCommand", "pyls")
+
     const serverOptions = {
-        command: "pyls",
+        command,
     }
 
     const getInitializationOptionsAsync = (filePath) => {
