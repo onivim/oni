@@ -24,9 +24,16 @@ export class EditorHost extends React.Component<IEditorHostProps, void> {
     public render(): JSX.Element {
         return <div className="container vertical full">
             <div className="container fixed">
-                <div className="tabs">
+                <div className="tabs horizontal">
                     <div className="tab">
+                        <div className="tab-filler" />
+                        <div className="tab-inner box-shadow-up" />
                     </div>
+                    <div className="tab">
+                        <div className="tab-filler" />
+                        <div className="tab-inner" />
+                    </div>
+
                 </div>
             </div>
             <div className="container full">

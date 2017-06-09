@@ -34,14 +34,28 @@
 
 .tabs {
     width: 100%;
-    height: 30px;
+    height: 32px;
     background-color: rgba(0, 0, 0, 0.2);
 }
 
 .tab {
-    width: 200px;
-    height: 20px;
-    // background-color: gray;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .tab-filler {
+        width: 200px;
+        height: 100%;
+        flex: 1 1 auto;
+        // background-color: red;
+    }
+
+    .tab-inner {
+        flex: 0 0 auto;
+        width: 200px;
+        height: 24px;
+        background-color: gray;
+    }
 }
 
 .layer {
@@ -56,6 +70,11 @@
         flex-direction: column;
     }
 
+    &.horizontal {
+        display: flex;
+        flex-direction: row;
+    }
+
     &.full {
         width: 100%;
         height: 100%;
@@ -67,6 +86,9 @@
     }
 }
 
+.box-shadow-up {
+  box-shadow: 0 -4px 8px 2px rgba(0, 0, 0, 0.2), 0 -6px 20px 0 rgba(0, 0, 0, 0.19);
+}
 .box-shadow {
   box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
