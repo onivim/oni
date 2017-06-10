@@ -1,13 +1,14 @@
 {
-    "name": "oni-plugin-python",
+    "name": "oni-plugin-ocaml",
     "version": "0.0.1",
     "main": "lib/index.js",
     "engines": {
-        "oni": "^0.2.2"
+        "oni": "^0.2.6"
     },
     "oni": {
         "supportedFileTypes": [
-            "python"
+            "ocaml",
+            "reason"
         ]
     },
     "dependencies": {
