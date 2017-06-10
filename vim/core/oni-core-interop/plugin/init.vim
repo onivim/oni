@@ -116,6 +116,17 @@ function OniUpdateWindowDisplayMap()
     call OniNotify(["window_display_update", context, mapping])
 endfunction
 
+function OniConnect()
+    call OniApiInfo()
+
+    " Force BufEnter and buffer update events to be dispatched on connection
+    " Otherwise, there can be race conditions where the buffer is loaded
+    " prior to the UI attaching. See #122
+    call OniNotifyEvent("BufEnter")
+    call OniNotifyBufferUpdate()
+endfunction
+
+
 function OniApiInfo()
     if (has_key(api_info(),'version'))
         call OniNotify(["api_info",api_info()["version"]])
