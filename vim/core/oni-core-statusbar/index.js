@@ -77,7 +77,7 @@ const activate = (Oni) => {
         setFilePath(evt.bufferFullPath)
     })
 
-    setMode("n")
+    setMode("normal")
     setLineNumber(1, 1)
     setFilePath(null)
 
