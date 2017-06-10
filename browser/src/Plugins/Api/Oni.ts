@@ -7,9 +7,18 @@ import { Commands } from "./Commands"
 import { Configuration } from "./Configuration"
 import { Diagnostics } from "./Diagnostics"
 import { Editor } from "./Editor"
+import { StatusBar } from "./StatusBar"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient } from "./LanguageClient/LanguageClient"
+
+const react = require("react") // tslint:disable-line no-var-requires
+
+export class Dependencies {
+    public get React(): any {
+        return react
+    }
+}
 
 /**
  * API instance for interacting with Oni (and vim)
@@ -17,7 +26,9 @@ import { InitializationParamsCreator, LanguageClient } from "./LanguageClient/La
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     private _configuration: Oni.Configuration
+    private _dependencies: Dependencies
     private _editor: Oni.Editor
+    private _statusBar: StatusBar
     private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
@@ -34,8 +45,16 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._diagnostics
     }
 
+    public get dependencies(): Dependencies {
+        return this._dependencies
+    }
+
     public get editor(): Oni.Editor {
         return this._editor
+    }
+
+    public get statusBar(): StatusBar {
+        return this._statusBar
     }
 
     constructor(private _channel: IPluginChannel) {
@@ -43,8 +62,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
         this._configuration = new Configuration()
         this._diagnostics = new Diagnostics(this._channel)
+        this._dependencies = new Dependencies()
         this._editor = new Editor(this._channel)
         this._commands = new Commands()
+        this._statusBar = new StatusBar(this._channel)
 
         this._channel.onRequest((arg: any) => {
             this._handleNotification(arg)
@@ -120,15 +141,21 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         } else if (arg.type === "buffer-update-incremental") {
             this.emit("buffer-update-incremental", arg.payload)
         } else if (arg.type === "event") {
+
             if (arg.payload.name === "CursorMoved") {
                 this.emit("cursor-moved", arg.payload.context)
                 this.emit("CursorMoved", arg.payload.context)
+            } else if (arg.payload.name === "CursorMovedI") {
+                this.emit("cursor-moved", arg.payload.context)
+                this.emit("CursorMovedI", arg.payload.context)
             } else if (arg.payload.name === "BufWritePost") {
                 this.emit("buffer-saved", arg.payload.context)
                 this.emit("BufWritePost", arg.payload.context)
             } else if (arg.payload.name === "BufEnter") {
                 this.emit("buffer-enter", arg.payload.context)
                 this.emit("BufEnter", arg.payload.context)
+            } else {
+                this.emit(arg.payload.name, arg.payload.context)
             }
         } else if (arg.type === "command") {
             this._commands.onCommand(arg.payload.command, arg.payload.args)

@@ -4,7 +4,7 @@
  * This file describes the Redux state of the app
  */
 
-import * as Config from  "./../Config"
+import * as Config from "./../Config"
 import { ILog } from "./Logs"
 import { Rectangle } from "./Types"
 
@@ -28,6 +28,8 @@ export interface IState {
     cursorColumnOpacity: number
     configuration: Config.IConfigValues
 
+    statusBar: { [id: string]: IStatusBarItem }
+
     logsVisible: boolean
     logs: Array<{
         log: ILog,
@@ -38,7 +40,19 @@ export interface IState {
     activeWindowDimensions: Rectangle
 }
 
-export function readConf <K extends keyof Config.IConfigValues>(conf: Config.IConfigValues, k: K): Config.IConfigValues[K] {
+export enum StatusBarAlignment {
+    Left,
+    Right,
+}
+
+export interface IStatusBarItem {
+    alignment: StatusBarAlignment
+    contents: JSX.Element
+    priority: number
+    visible: boolean
+}
+
+export function readConf<K extends keyof Config.IConfigValues>(conf: Config.IConfigValues, k: K): Config.IConfigValues[K] {
     return conf[k]
 }
 
@@ -96,4 +110,6 @@ export const createDefaultState = (): IState => ({
     logsVisible: false,
     logs: [],
     configuration: Config.instance().getValues(),
+
+    statusBar: {},
 })

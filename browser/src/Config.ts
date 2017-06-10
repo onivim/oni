@@ -82,6 +82,8 @@ export interface IConfigValues {
 
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
+
+    "statusbar.enabled": boolean
 }
 
 export class Config extends EventEmitter {
@@ -129,6 +131,8 @@ export class Config extends EventEmitter {
 
         "editor.cursorColumn": false,
         "editor.cursorColumnOpacity": 0.1,
+
+        "statusbar.enabled": true,
     }
 
     private MacConfig: Partial<IConfigValues> = {

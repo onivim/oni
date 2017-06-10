@@ -1,5 +1,6 @@
 import * as assert from "assert"
 
+import * as Capabilities from "./../../../src/Plugins/Api/Capabilities"
 import { IPluginChannel } from "./../../../src/Plugins/Api/Channel"
 import { Diagnostics } from "./../../../src/Plugins/Api/Diagnostics"
 
@@ -47,6 +48,11 @@ describe("Diagnostics", () => {
 class MockPluginChannel implements IPluginChannel {
     private _sentMessages: any[] = []
     private _sentErrors: any[] = []
+    private _metadata: Capabilities.IPluginMetadata
+
+    public get metadata(): Capabilities.IPluginMetadata {
+        return this._metadata
+    }
 
     public get sentMessages(): any[] {
         return this._sentMessages

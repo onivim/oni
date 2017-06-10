@@ -18,6 +18,7 @@
         - [Code Completion](#code-completion)
         - [Fuzzy Finder](#fuzzy-finder)
         - [Quick Info](#quick-info)
+        - [Status Bar](#status-bar)
     - [Languages](#languages)
         - [JavaScript and TypeScript](#javascript-and-typescript)
         - [C#](#c)
@@ -63,6 +64,10 @@ ONI brings several IDE-like integrations to NeoVim:
 - **Live Evaluation**
 
 ![live-eval-demo](http://i.imgur.com/XenTrdC.gif)
+
+- **Status Bar**
+
+![status-bar-demo](http://i.imgur.com/2grzeN1.gif)
 
 ## Installation
 
@@ -212,6 +217,20 @@ Leave the cursor hovering over an identifier.
 
 - `oni.quickInfo.enabled` - If set to `true`, the Quick Info feature is enabled. (Default: `true`)
 - `oni.quickInfo.delay` - Delay in milliseconds for the Quick Info window to show. (Default: `500`)
+
+#### Status Bar
+
+Oni features a rich status bar, designed as a replacement for vim-powerline and vim-airline.
+
+##### API
+
+Oni provides a `StatusBar` API for adding new items to the status bar.
+
+##### Options
+
+- `oni.statusbar.enabled` - If set to `true`, the status bar feature is enabled. (Default: `true`)
+
+> Users that are coming from Neovim and have highly customized status bars may want to set `oni.statusbar.enabled` to false, along with setting the `oni.loadInitVim` to `true` and `oni.useDefaultConfig` to `false`.
 
 ### Languages
 

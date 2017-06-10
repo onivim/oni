@@ -24,7 +24,7 @@
 
 @component-padding: 10px;
 
-#host, .editor, .layer {
+#host, .editor, .stack {
     position: absolute;
     top: 0px;
     left: 0px;
@@ -32,6 +32,8 @@
     bottom: 0px;
 }
 
+/* Layer is used to force webkit to promote the element to an individual layer.
+    This is used to tweak and control rendering performance, and not for layout */
 .layer {
     will-change: transform;
 }
@@ -57,4 +59,8 @@
 
 .box-shadow {
   box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.box-shadow-up {
+  box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
 }

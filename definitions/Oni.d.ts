@@ -25,6 +25,17 @@ declare namespace Oni {
         registerCommand(commandName: string, callback: (args?: any) => void): void
     }
 
+    export interface StatusBar {
+        createItem(alignment: number, priority: number): StatusBarItem
+    }
+
+    export interface StatusBarItem {
+        show(): void
+        hide(): void
+        setContents(element: HTMLElement): void
+        dispose(): void
+    }
+
     export interface Position {
         line: number
         column: number
@@ -144,11 +155,10 @@ declare namespace Oni {
         }
 
         export interface Api extends EventEmitter {
-            // handleNotification(method: string, args: any[]): void
-
             configuration: Configuration
             diagnostics: Diagnostics.Api
             editor: Editor
+            statusBar: StatusBar
 
             registerLanguageService(languageType: string, languageService: LanguageService)
 
