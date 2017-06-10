@@ -33,6 +33,8 @@
 }
 
 .tabs {
+    display: flex;
+    flex-direction: row;
     width: 100%;
     height: 32px;
     background-color: rgba(0, 0, 0, 0.2);
@@ -52,9 +54,17 @@
 
     .tab-inner {
         flex: 0 0 auto;
-        width: 200px;
-        height: 24px;
-        background-color: gray;
+        width: 250px;
+        height: 28px;
+        background-color: rgb(40, 44, 52);
+        margin-left: 8px;
+        opacity: 0.7;
+        box-shadow: insert 0 -4px 10px 0 rgba(0, 0, 0, 0.1);
+
+        &.selected {
+            .box-shadow-up();
+            opacity: 1.0;
+        }
     }
 }
 
@@ -88,9 +98,6 @@
     }
 }
 
-.box-shadow-up {
-  box-shadow: 0 -4px 8px 2px rgba(0, 0, 0, 0.2), 0 -6px 20px 0 rgba(0, 0, 0, 0.19);
-}
 .box-shadow {
   box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }

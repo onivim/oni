@@ -27,7 +27,7 @@ export class EditorHost extends React.Component<IEditorHostProps, void> {
                 <div className="tabs horizontal">
                     <div className="tab">
                         <div className="tab-filler" />
-                        <div className="tab-inner box-shadow-up" />
+                        <div className="tab-inner selected" />
                     </div>
                     <div className="tab">
                         <div className="tab-filler" />
