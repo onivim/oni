@@ -1,3 +1,5 @@
+- Add close / modified icons to tab
+- Factor cursorline and UI pieces into editor
 - Start tab component
 - Fit into editor (expose API like 'open files', 'onOpenFilesChanged' on editor host)
 - Just put directly into <Editor /> component for now
