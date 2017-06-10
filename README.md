@@ -50,7 +50,7 @@ ONI brings several IDE-like integrations to NeoVim:
 
 - **[Code Completion](#code-completion)**
 
-![completion-demo](http://i.imgur.com/DVkaIBI.gif)
+![completion-demo](http://i.imgur.com/exdasXs.gif)
 
 - **Syntax / Compilation Errors**
 
