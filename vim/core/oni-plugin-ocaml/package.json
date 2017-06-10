@@ -1,0 +1,17 @@
+{
+    "name": "oni-plugin-python",
+    "version": "0.0.1",
+    "main": "lib/index.js",
+    "engines": {
+        "oni": "^0.2.2"
+    },
+    "oni": {
+        "supportedFileTypes": [
+            "python"
+        ]
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
+    }
+}
