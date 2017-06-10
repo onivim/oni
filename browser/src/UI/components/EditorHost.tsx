@@ -25,15 +25,12 @@ export class EditorHost extends React.Component<IEditorHostProps, void> {
         return <div className="container vertical full">
             <div className="container fixed">
                 <div className="tabs horizontal">
-                    <div className="tab">
-                        <div className="tab-filler" />
-                        <div className="tab-inner selected" />
+                    <div className="tab selected">
+                        <div className="name">App.ts</div>
                     </div>
-                    <div className="tab">
-                        <div className="tab-filler" />
-                        <div className="tab-inner" />
+                    <div className="tab not-selected">
+                        <div className="name">Test.ts</div>
                     </div>
-
                 </div>
             </div>
             <div className="container full">
