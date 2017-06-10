@@ -17,6 +17,9 @@ import * as Capabilities from "./Capabilities"
  * to the main process from the plugin
  */
 export interface IPluginChannel {
+
+    metadata: Capabilities.IPluginMetadata
+
     send(type: string, originalEventContext: any, payload: any): void
     sendError(type: string, originalEventContext: any, error: string): void
 
@@ -40,7 +43,6 @@ export interface IChannel {
 
 export interface InProcessPluginInfo {
     channel: InProcessPluginChannel
-    metadata: Capabilities.IPluginMetadata
     activationFunction: PluginActivationFunction
     isActivated?: boolean
 }
@@ -70,11 +72,10 @@ export class InProcessChannel implements IChannel {
     }
 
     public createPluginChannel(metadata: Capabilities.IPluginMetadata, onActivate: PluginActivationFunction): IPluginChannel {
-        const channel = new InProcessPluginChannel()
+        const channel = new InProcessPluginChannel(metadata)
 
         this._pluginChannels.push({
             channel,
-            metadata,
             isActivated: false,
             activationFunction: onActivate,
         })
@@ -99,7 +100,7 @@ export class InProcessChannel implements IChannel {
 
     private _getChannelsForRequestFromHost(filter: Capabilities.IPluginFilter): InProcessPluginInfo[] {
         let potentialPlugins = this._pluginChannels
-            .filter((p) => Capabilities.doesMetadataMatchFilter(p.metadata, filter))
+            .filter((p) => Capabilities.doesMetadataMatchFilter(p.channel.metadata, filter))
 
         return potentialPlugins
     }
@@ -116,6 +117,17 @@ export class InProcessHostChannel extends EventEmitter implements IHostChannel {
 }
 
 export class InProcessPluginChannel extends EventEmitter implements IPluginChannel {
+
+    constructor(
+        private _metadata: Capabilities.IPluginMetadata,
+    ) {
+        super()
+    }
+
+    public get metadata(): Capabilities.IPluginMetadata {
+        return this._metadata
+    }
+
     public onRequest(requestCallback: (arg: any) => void): void {
         this.on("host-request", requestCallback)
     }
