@@ -46,7 +46,7 @@ ONI brings several IDE-like integrations to NeoVim:
 
 - **[Quick Info](#quick-info)**
 
-![quick-info-demo](http://i.imgur.com/TlIH97w.gif)
+![quick-info-demo](http://i.imgur.com/0vJ8KgU.gif)
 
 - **[Code Completion](#code-completion)**
 
