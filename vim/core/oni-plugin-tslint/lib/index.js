@@ -59,9 +59,8 @@ const activate = (Oni) => {
                 }
                 tslint = filepath
             })
-            .then(() => {
-                let project = findUp.sync("tsconfig.json", { cwd: currentWorkingDirectory })
-
+            .then(() => findUp.sync("tsconfig.json", { cwd: currentWorkingDirectory }))
+            .then((project) => {
                 let processArgs = []
                 if (project) {
                     processArgs.push("--project", project)
