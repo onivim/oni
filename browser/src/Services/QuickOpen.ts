@@ -52,7 +52,7 @@ export class QuickOpen {
         if (overriddenCommand) {
             try {
                 // replace placeholder ${search} with "" for initial case
-                const files = execSync(overriddenCommand.replace("${search}", '""'), { cwd: process.cwd() })
+                const files = execSync(overriddenCommand.replace("${search}", ""), { cwd: process.cwd() })
                     .toString("utf8")
                     .split("\n")
                 this._showMenuFromFiles(files)
