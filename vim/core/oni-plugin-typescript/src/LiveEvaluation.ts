@@ -3,7 +3,7 @@ import * as path from "path"
 
 import * as _ from "lodash"
 
-const findParentDir = require("find-parent-dir") // tslint:disable-line no-var-requires
+const findUp = require("find-up") // tslint:disable-line no-var-requires
 
 declare var Oni
 
@@ -53,10 +53,10 @@ export const evaluateBlock = (id: string, fileName: string, code: string) => {
                 const path = require("path")
                 // See if this is a 'node_modules' dependency:
 
-                const modulePath = findParentDir.sync(__dirname, path.join("node_modules", requirePath))
+                const modulePath = findUp.sync(path.join("node_modules", requirePath), { cwd: __dirname })
 
                 if (modulePath) {
-                    requirePath = path.join(modulePath, "node_modules", requirePath)
+                    requirePath = modulePath
                 }
 
                 return mod.require(requirePath)

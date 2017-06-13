@@ -92,7 +92,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "find-parent-dir": "0.3.0",
+    "find-up": "2.1.0",
     "lodash": "4.17.0",
     "minimist": "1.2.0",
     "neovim-client": "2.1.0",

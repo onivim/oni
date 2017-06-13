@@ -9,7 +9,7 @@ import * as path from "path"
 
 import * as Q from "q"
 
-const findParentDir = require("find-parent-dir") // tslint:disable-line no-var-requires
+const findUp = require("find-up") // tslint:disable-line no-var-requires
 
 export type LaunchType = "execute"
 export type Request = "launch" // attach later
@@ -39,27 +39,27 @@ const DefaultConfiguration: IProjectConfiguration = {
  * Search upward for the relevant .oni folder
  */
 export function getProjectConfiguration(filePath: string): Q.Promise<IProjectConfiguration> {
-    const oniDir = findParentDir.sync(filePath, ".oni")
-
-    if (!oniDir) {
-        return Q(DefaultConfiguration)
-    }
-
-    return loadConfigurationFromFolder(path.join(oniDir, ".oni"))
+    return findUp(".oni", { cwd: filePath })
+    .then((oniDir: string) => {
+        if (!oniDir) {
+            return DefaultConfiguration
+        }
+        return loadConfigurationFromFolder(oniDir)
+    })
 }
 
-function loadConfigurationFromFolder(folder: string): Q.Promise<IProjectConfiguration> {
+function loadConfigurationFromFolder(folder: string): IProjectConfiguration {
 
     const launchPath = path.join(folder, "launch.json")
 
     if (!fs.existsSync(launchPath)) {
-        return Q(DefaultConfiguration)
+        return DefaultConfiguration
     } else {
        const launchInfo: ILaunchConfiguration = JSON.parse(fs.readFileSync(launchPath, "utf8"))
        const config = {...DefaultConfiguration, ...{
            launchConfigurations: [launchInfo],
        }}
 
-       return Q(config)
+       return config
     }
 }
