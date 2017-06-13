@@ -185,27 +185,33 @@ export function popupMenuReducer (s: State.IMenu | null, a: Actions.SimpleAction
 
 export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string, id: string): State.IMenuOptionWithHighlights[] {
 
-    const config = Config.instance()
-    const overrriddenCommand = config.getValue("editor.quickOpen.execCommand")
     // if filtering files (not tasks) and overriddenCommand defined
-    if (id === "quickOpen" && overrriddenCommand) {
-        const files = execSync(overrriddenCommand.replace("${search}", searchString), { cwd: process.cwd() })
-            .toString("utf8")
-            .split("\n")
-        const opt: State.IMenuOptionWithHighlights[]  = files.map((untrimmedFile) => {
-            const f = untrimmedFile.trim()
-            const file = path.basename(f)
-            const folder = path.dirname(f)
-            return {
-                icon: "file-text-o",
-                label: file,
-                detail: folder,
-                pinned: false,
-                detailHighlights: [],
-                labelHighlights: [],
+    if (id === "quickOpen") {
+        const config = Config.instance()
+        const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
+        if (overriddenCommand) {
+            try {
+                const files = execSync(overriddenCommand.replace("${search}", searchString), { cwd: process.cwd() })
+                    .toString("utf8")
+                    .split("\n")
+                const opt: State.IMenuOptionWithHighlights[]  = files.map((untrimmedFile) => {
+                    const f = untrimmedFile.trim()
+                    const file = path.basename(f)
+                    const folder = path.dirname(f)
+                    return {
+                        icon: "file-text-o",
+                        label: file,
+                        detail: folder,
+                        pinned: false,
+                        detailHighlights: [],
+                        labelHighlights: [],
+                    }
+                })
+                return opt
+            } catch (e) {
+                console.warn(`'${overriddenCommand}' returned an error: ${e.message}\nUsing default filtering`)
             }
-        })
-        return opt
+        }
     }
 
     if (!searchString) {
