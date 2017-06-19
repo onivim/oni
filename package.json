@@ -104,7 +104,7 @@
   "devDependencies": {
     "@types/classnames": "0.0.32",
     "@types/glob": "5.0.30",
-    "@types/jsdom": "2.0.29",
+    "@types/jsdom": "11.0.0",
     "@types/lodash": "4.14.38",
     "@types/minimist": "1.1.29",
     "@types/mkdirp": "0.3.29",
@@ -127,7 +127,7 @@
     "fuse.js": "2.6.2",
     "glob": "7.1.1",
     "innosetup-compiler": "5.5.9",
-    "jsdom": "9.9.1",
+    "jsdom": "11.0.0",
     "less": "2.7.1",
     "less-loader": "2.2.3",
     "less-plugin-autoprefix": "1.5.1",
