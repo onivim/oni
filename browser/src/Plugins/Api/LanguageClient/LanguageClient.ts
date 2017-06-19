@@ -147,6 +147,10 @@ export class LanguageClient {
         this._currentOpenDocumentPath = null
         this._serverCapabilities = null
 
+        this._connection.onNotification("reason.client.giveWordAtPosition", () => { debugger });
+
+        this._connection.onRequest("reason.client.giveWordAtPosition", () => { debugger });
+
         this._connection.onNotification(Helpers.ProtocolConstants.Window.LogMessage, (args) => {
             console.log(JSON.stringify(args)) // tslint:disable-line no-console
         })
@@ -221,6 +225,10 @@ export class LanguageClient {
         return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.Completion,
             Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
             .then((result: types.CompletionList) => {
+
+                if (!result || !result.items) {
+                    return { base: "", completions: [] }
+                }
 
                 const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
                 const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, /[_a-z]/i)
