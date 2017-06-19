@@ -4,10 +4,11 @@ const childProcess = require("child_process")
 
 const activate = (Oni) => {
 
-    const command = Oni.configuration.getValue("ocaml.langServerCommand", "ocaml-language-server --stdio")
+    const command = Oni.configuration.getValue("ocaml.langServerCommand", "ocaml-language-server")
 
     const serverOptions = {
         command,
+        args: ["--stdio"],
     }
 
     const getInitializationOptionsAsync = (filePath) => {
