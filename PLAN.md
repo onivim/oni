@@ -7,9 +7,12 @@
 
 - Possibilities for visualizing typings? The typing resolution in VSCode is very helpful, but intrusive. I wonder if there is another UX that would be helpful here.
 
+- Port to Bucklescript
+
 - Windows: Show error message
 - Linux: Need to test
 
 - Log issue for live evaluation
-	- Configurable "export" to use as live evaluation - ie, let live => ...
+    - Configurable "export" to use as live evaluation - ie, let live => ...
+
 - Log issue for playground
