@@ -92,6 +92,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@types/jsdom": "11.0.0",
     "find-up": "2.1.0",
     "lodash": "4.17.0",
     "minimist": "1.2.0",
