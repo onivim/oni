@@ -61,17 +61,18 @@
     transition: opacity 0.5s, transform 0.5s;
 
     &.not-selected {
+        .box-shadow-up-inset();
+
         &:hover {
             opacity: 0.9;
             .box-shadow-up();
-            transform: translateY(0px);
         }
     }
 
     &.selected {
         .box-shadow-up();
+        z-index: 1;
         opacity: 1.0;
-        transform: translateY(0px);
     }
 }
 
@@ -103,6 +104,10 @@
     &.fixed {
         flex: 0 0 auto;
     }
+}
+
+.box-shadow-up-inset {
+    box-shadow: 0px -4px 20px 0px rgba(0, 0, 0, 0.2) inset;
 }
 
 .box-shadow {
