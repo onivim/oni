@@ -177,7 +177,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                     // set title after attaching listeners so we can get the initial title
                     this.command("set title")
-                    this.callFunction("OniApiInfo", [])
+                    this.callFunction("OniConnect", [])
                 })
             }, (err) => {
                 this.emit("error", err)

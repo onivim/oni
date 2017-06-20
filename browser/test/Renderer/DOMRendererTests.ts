@@ -23,7 +23,7 @@ describe("DOMRenderer", () => {
         beforeEach(() => {
             deltaRegionTracker = new IncrementalDeltaRegionTracker()
             screen = new NeovimScreen(deltaRegionTracker)
-            document = jsdom.jsdom("")
+            document = new jsdom.JSDOM("").window.document
 
             editorElement = document.createElement("div")
             elementFactory = new TestElementFactory(editorElement, document)

@@ -37,6 +37,8 @@
 
 ONI is a [NeoVim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
 
+![screenshot](http://i.imgur.com/qAFSg7y.jpg)
+
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
 Check out [Releases](https://github.com/extr0py/oni/releases) for the latest binaries, or [Build Oni](#build) from source.
@@ -55,7 +57,7 @@ ONI brings several IDE-like integrations to NeoVim:
 
 - **Syntax / Compilation Errors**
 
-![syntax-error-demo](http://i.imgur.com/3ErOKYI.gif)
+![syntax-error-demo](http://i.imgur.com/GUBhRhG.gif)
 
 - **[Fuzzy Finding](#fuzzy-finder)**
 
