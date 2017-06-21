@@ -329,6 +329,7 @@ A few interesting configuration options to set:
 - `editor.fontLigatures` - (default: `true`). If true, ligatures are enabled.
 - `editor.backgroundImageUrl` - specific a custom background image
 - `editor.backgroundImageSize` - specific a custom background size (cover, contain)
+- `editor.scrollBar.visible` - (default: `true`) sets whether the buffer scrollbar is visible
 
 See the `Config.ts` file for other interesting values to set.
 

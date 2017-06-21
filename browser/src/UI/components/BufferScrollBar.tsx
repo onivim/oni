@@ -1,6 +1,10 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
+import { connect, Provider } from "react-redux"
+import { store } from "./../index"
+import * as State from "./../State"
+
 require("./BufferScrollBar.less") // tslint:disable-line no-var-requires
 
 export interface IBufferScrollBarProps {
@@ -9,6 +13,7 @@ export interface IBufferScrollBarProps {
     windowTopLine: number
     windowBottomLine: number
     markers: IScrollBarMarker[]
+    visible: boolean
 }
 
 export interface IScrollBarMarker {
@@ -17,13 +22,18 @@ export interface IScrollBarMarker {
     color: string
 }
 
-export class BufferScrollBar extends React.Component<IBufferScrollBarProps, void> {
+export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, void> {
 
     constructor(props: any) {
         super(props)
     }
 
     public render(): JSX.Element {
+
+        if (!this.props.visible) {
+            return null
+        }
+
         const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine + 1) / this.props.bufferSize) * this.props.height
         const windowTop = ((this.props.windowTopLine - 1) / this.props.bufferSize) * this.props.height
 
@@ -57,6 +67,27 @@ export class BufferScrollBar extends React.Component<IBufferScrollBarProps, void
     }
 }
 
-export function renderBufferScrollBar(props: IBufferScrollBarProps, element: HTMLElement) {
-    ReactDOM.render(<BufferScrollBar {...props} />, element)
+export interface IRenderBufferScrollBarArgs {
+    bufferSize: number
+    height: number
+    windowTopLine: number
+    windowBottomLine: number
+    markers: IScrollBarMarker[]
+}
+
+const mapStateToProps = (state: State.IState, inProps: IRenderBufferScrollBarArgs): IBufferScrollBarProps => {
+    const visible = state.configuration["editor.scrollBar.visible"]
+
+    return {
+        ...inProps,
+        visible,
+    }
+}
+
+const ConnectedBufferScrollBar = connect(mapStateToProps)(BufferScrollBar)
+
+export function renderBufferScrollBar(props: IRenderBufferScrollBarArgs, element: HTMLElement) {
+    ReactDOM.render(<Provider store={store}>
+                        <ConnectedBufferScrollBar {...props} />
+                    </Provider>, element)
 }
