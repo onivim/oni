@@ -7,7 +7,6 @@
 - Does 'workspace/didChangeWathcedFiles' need to be supported?
 
 - Update README with support instructions
-- Investigate why JS types aren't being resolved (like "Js.Promise.resolve") - is this a general issue for `ocaml-language-server` or Oni specific?
 - Port to Bucklescript
 
 - Windows: Show error message
