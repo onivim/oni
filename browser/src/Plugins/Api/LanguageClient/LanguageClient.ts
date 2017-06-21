@@ -139,6 +139,16 @@ export class LanguageClient {
             throw "A command or module must be specified to start the server"
         }
 
+        console.log(`[LANGUAGE CLIENT]: Started process ${this._process.pid}`) // tslint:disable-line no-console
+
+        this._process.on("close", (code: number, signal: string) => {
+            console.warn(`[LANGUAGE CLIENT]: Process closed with exit code ${code} and signal ${signal}`) // tslint:disable-line no-console
+        })
+
+        this._process.stderr.on("data", (msg) => {
+            console.error(`[LANGUAGE CLIENT - ERROR]: ${msg}`) // tslint:disable-line no-console
+        })
+
         this._connection = rpc.createMessageConnection(
             <any>(new rpc.StreamMessageReader(this._process.stdout)),
             <any>(new rpc.StreamMessageWriter(this._process.stdin)),
@@ -146,10 +156,6 @@ export class LanguageClient {
 
         this._currentOpenDocumentPath = null
         this._serverCapabilities = null
-
-        this._connection.onNotification("reason.client.giveWordAtPosition", () => { debugger });
-
-        this._connection.onRequest("reason.client.giveWordAtPosition", () => { debugger });
 
         this._connection.onNotification(Helpers.ProtocolConstants.Window.LogMessage, (args) => {
             console.log(JSON.stringify(args)) // tslint:disable-line no-console
