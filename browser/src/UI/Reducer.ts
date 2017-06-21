@@ -1,3 +1,5 @@
+import { execSync } from "child_process"
+import * as path from "path"
 import * as State from "./State"
 
 import * as Fuse from "fuse.js"
@@ -187,7 +189,7 @@ export function popupMenuReducer (s: State.IMenu | null, a: Actions.SimpleAction
             // If we already had search results, and this search is a superset of the previous,
             // just filter the already-pruned subset
             const optionsToSearch = a.payload.filter.indexOf(s.filter) === 0 ? s.filteredOptions : s.options
-            const filteredOptionsSorted = filterMenuOptions(optionsToSearch, a.payload.filter)
+            const filteredOptionsSorted = filterMenuOptions(optionsToSearch, a.payload.filter, s.id)
 
             return Object.assign({}, s, {
                 filter: a.payload.filter,
@@ -198,7 +200,36 @@ export function popupMenuReducer (s: State.IMenu | null, a: Actions.SimpleAction
     }
 }
 
-export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string): State.IMenuOptionWithHighlights[] {
+export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string, id: string): State.IMenuOptionWithHighlights[] {
+
+    // if filtering files (not tasks) and overriddenCommand defined
+    if (id === "quickOpen") {
+        const config = Config.instance()
+        const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
+        if (overriddenCommand) {
+            try {
+                const files = execSync(overriddenCommand.replace("${search}", searchString), { cwd: process.cwd() })
+                    .toString("utf8")
+                    .split("\n")
+                const opt: State.IMenuOptionWithHighlights[]  = files.map((untrimmedFile) => {
+                    const f = untrimmedFile.trim()
+                    const file = path.basename(f)
+                    const folder = path.dirname(f)
+                    return {
+                        icon: "file-text-o",
+                        label: file,
+                        detail: folder,
+                        pinned: false,
+                        detailHighlights: [],
+                        labelHighlights: [],
+                    }
+                })
+                return opt
+            } catch (e) {
+                console.warn(`'${overriddenCommand}' returned an error: ${e.message}\nUsing default filtering`)
+            }
+        }
+    }
 
     if (!searchString) {
         const opt = options.map((o) => {

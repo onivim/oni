@@ -6,6 +6,7 @@
 
 import { execSync } from "child_process"
 import * as path from "path"
+import * as Log from "./../Log"
 
 import * as glob from "glob"
 import * as _ from "lodash"
@@ -37,7 +38,7 @@ export class QuickOpen {
 
     public show(): void {
         const config = Config.instance()
-        const overrriddenCommand = config.getValue("editor.quickOpen.execCommand")
+        const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
         const exclude = config.getValue("oni.exclude")
 
         UI.Actions.showPopupMenu("quickOpen", [{
@@ -48,12 +49,17 @@ export class QuickOpen {
         }])
 
         // Overridden strategy
-        if (overrriddenCommand) {
-            const files = execSync(overrriddenCommand)
-                .toString("utf8")
-                .split("\n")
-            this._showMenuFromFiles(files)
-            return
+        if (overriddenCommand) {
+            try {
+                // replace placeholder ${search} with "" for initial case
+                const files = execSync(overriddenCommand.replace("${search}", ""), { cwd: process.cwd() })
+                    .toString("utf8")
+                    .split("\n")
+                this._showMenuFromFiles(files)
+                return
+            } catch (e) {
+                Log.warn(`'${overriddenCommand}' returned an error: ${e.message}\nUsing default file list`)
+            }
         }
 
         // Default strategy

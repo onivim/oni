@@ -3,7 +3,7 @@ const path = require("path")
 const os = require("os")
 const exec = require("child_process").exec
 
-const findParentDir = require("find-parent-dir")
+const findUp = require("find-up")
 
 const tslintPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", "tslint", "lib", "tslint-cli.js")
 
@@ -18,14 +18,16 @@ const activate = (Oni) => {
         }
 
         const currentWorkingDirectory = getCurrentWorkingDirectory(args)
-        const tslint = getLintConfig(currentWorkingDirectory)
-
-        if (!tslint) {
-            console.warn("No tslint.json found; not running tslint.")
-            return
-        }
-
-        executeTsLint(tslint, [args.bufferFullPath], currentWorkingDirectory)
+        getLintConfig(currentWorkingDirectory)
+            .then((filepath) => {
+                if (!filepath) {
+                    throw new Error("No tslint.json found; not running tslint.")
+                }
+                return filepath
+            })
+            .then((tslint) => {
+                return executeTsLint(tslint, [args.bufferFullPath], currentWorkingDirectory)
+            })
             .then((errors) => {
                 Object.keys(errors).forEach(f => {
                     Oni.diagnostics.setErrors("tslint-ts", f, errors[f], "yellow")
@@ -35,6 +37,9 @@ const activate = (Oni) => {
                     Oni.diagnostics.setErrors("tslint-ts", args.bufferFullPath, [], "yellow")
                     lastErrors[args.bufferFullPath] = null
                 }
+            })
+            .catch((error) => {
+                console.warn(error.message)
             })
     }
 
@@ -46,23 +51,27 @@ const activate = (Oni) => {
         lastArgs = args
 
         const currentWorkingDirectory = getCurrentWorkingDirectory(args)
-        const tslint = getLintConfig(currentWorkingDirectory)
-
-        if (!tslint) {
-            console.warn("No tslint.json found; not running tslint.")
-            return
-        }
-
-        const project = findParentDir.sync(currentWorkingDirectory, "tsconfig.json")
-        let processArgs = []
-
-        if (project) {
-            processArgs.push("--project", path.join(project, "tsconfig.json"))
-        } else {
-            processArgs.push(arg.bufferFullPath)
-        }
-
-        executeTsLint(tslint, processArgs, currentWorkingDirectory, autoFix)
+        let tslint = null
+        getLintConfig(currentWorkingDirectory)
+            .then((filepath) => {
+                if (!filepath) {
+                    throw new Error("No tslint.json found; not running tslint.")
+                }
+                tslint = filepath
+            })
+            .then(() => findUp.sync("tsconfig.json", { cwd: currentWorkingDirectory }))
+            .then((project) => {
+                let processArgs = []
+                if (project) {
+                    processArgs.push("--project", project)
+                } else {
+                    processArgs.push(arg.bufferFullPath)
+                }
+                return processArgs
+            })
+            .then((processArgs) => {
+                return executeTsLint(tslint, processArgs, currentWorkingDirectory, autoFix)
+            })
             .then((errors) => {
                 // Send all updated errors
                 Object.keys(errors).forEach(f => {
@@ -77,6 +86,9 @@ const activate = (Oni) => {
                 })
 
                 lastErrors = errors
+            })
+            .catch((error) => {
+                console.warn(error.message)
             })
     }
 
@@ -97,7 +109,7 @@ const activate = (Oni) => {
 
         processArgs = processArgs.concat(["--force", "--format", "json"])
 
-        processArgs = processArgs.concat(["--config", path.join(configPath, "tslint.json")])
+        processArgs = processArgs.concat(["--config", configPath])
         processArgs = processArgs.concat(args)
 
         return Q.nfcall(Oni.execNodeScript, tslintPath, processArgs, { cwd: workingDirectory })
@@ -139,7 +151,7 @@ const activate = (Oni) => {
     }
 
     function getLintConfig(workingDirectory) {
-        return findParentDir.sync(workingDirectory, "tslint.json")
+        return findUp("tslint.json", { cwd: workingDirectory })
     }
 }
 

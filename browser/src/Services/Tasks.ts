@@ -10,7 +10,6 @@
  */
 
 import * as _ from "lodash"
-import * as path from "path"
 import * as Q from "q"
 
 import * as Parser from "./../Parser"
@@ -19,7 +18,7 @@ import * as UI from "./../UI/index"
 
 import { OutputWindow } from "./Output"
 
-const findParentDir = require("find-parent-dir") // tslint:disable-line no-var-requires
+const findUp = require("find-up") // tslint:disable-line no-var-requires
 
 export interface ITask {
     name: string
@@ -73,34 +72,30 @@ export class PackageJsonTasksProvider implements ITaskProvider {
     public getTasks(): Q.Promise<ITask[]> {
         const defer = Q.defer<ITask[]>()
 
-        findParentDir(this._currentPath, "package.json", (err: Error, dir: string) => {
-            if (err) {
-                defer.reject(err)
-                return
-            }
+        findUp("package.json", { cwd: this._currentPath })
+            .then( (filepath: string) => {
+                if ( ! filepath) {
+                    defer.resolve([])
+                    return
+                }
 
-            if (!dir ) {
-                defer.resolve([])
-                return
-            }
+                const packageJson = Parser.parseJsonFromFile<any>(filepath)
 
-            const packageJson = Parser.parseJsonFromFile<any>(path.join(dir, "package.json"))
+                if (!packageJson.scripts) {
+                    defer.resolve([])
+                    return
+                }
 
-            if (!packageJson.scripts) {
-                defer.resolve([])
-                return
-            }
+                const scripts = packageJson.scripts
+                const tasks = Object.keys(scripts)
+                    .map((key) => ({
+                        name: key,
+                        detail: scripts[key],
+                        callback: () => this._output.execute(`npm run ${key}`),
+                    }))
 
-            const scripts = packageJson.scripts
-            const tasks = Object.keys(scripts)
-                .map((key) => ({
-                    name: key,
-                    detail: scripts[key],
-                    callback: () => this._output.execute(`npm run ${key}`),
-                }))
-
-            defer.resolve(tasks)
-        })
+                defer.resolve(tasks)
+            })
 
         return defer.promise
     }
