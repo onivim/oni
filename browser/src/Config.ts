@@ -66,6 +66,9 @@ export interface IConfigValues {
     "editor.fontSize": string
     "editor.fontFamily": string // Platform specific
 
+    // If true (default), the buffer scroll bar will be visible
+    "editor.scrollBar.visible": boolean
+
     // Command to list files for 'quick open'
     // For example, to use 'ag': ag --nocolor -l .
     //
@@ -123,6 +126,8 @@ export class Config extends EventEmitter {
         "editor.fontFamily": "",
 
         "editor.quickOpen.execCommand": null,
+
+        "editor.scrollBar.visible": true,
 
         "editor.fullScreenOnStart" : false,
 
