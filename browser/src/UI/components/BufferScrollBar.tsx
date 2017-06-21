@@ -80,7 +80,7 @@ const mapStateToProps = (state: State.IState, inProps: IRenderBufferScrollBarArg
 
     return {
         ...inProps,
-        visible
+        visible,
     }
 }
 
