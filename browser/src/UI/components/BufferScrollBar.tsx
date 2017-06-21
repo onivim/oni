@@ -1,6 +1,10 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
+import { connect, Provider } from "react-redux"
+
+import { store } from "./../index"
+
 require("./BufferScrollBar.less") // tslint:disable-line no-var-requires
 
 export interface IBufferScrollBarProps {
@@ -9,6 +13,7 @@ export interface IBufferScrollBarProps {
     windowTopLine: number
     windowBottomLine: number
     markers: IScrollBarMarker[]
+    visible: boolean
 }
 
 export interface IScrollBarMarker {
@@ -24,6 +29,11 @@ export class BufferScrollBar extends React.Component<IBufferScrollBarProps, void
     }
 
     public render(): JSX.Element {
+
+        if (!this.props.visible) {
+            return null
+        }
+
         const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine + 1) / this.props.bufferSize) * this.props.height
         const windowTop = ((this.props.windowTopLine - 1) / this.props.bufferSize) * this.props.height
 
@@ -56,6 +66,8 @@ export class BufferScrollBar extends React.Component<IBufferScrollBarProps, void
             </div>
     }
 }
+
+export class Connected
 
 export function renderBufferScrollBar(props: IBufferScrollBarProps, element: HTMLElement) {
     ReactDOM.render(<BufferScrollBar {...props} />, element)
