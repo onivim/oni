@@ -226,13 +226,27 @@ export class LanguageClient {
         return newPromise
     }
 
+    private _getCompletionItems(items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[] {
+        if (!items) {
+            return []
+        }
+
+        if (Array.isArray(items)) {
+            return items
+        } else {
+            return items.items || []
+        }
+    }
+
     private _getCompletions(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.CompletionResult> {
 
         return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.Completion,
             Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
             .then((result: types.CompletionList) => {
 
-                if (!result || !result.items) {
+                const items = this._getCompletionItems(result)
+
+                if (!items) {
                     return { base: "", completions: [] }
                 }
 
@@ -243,7 +257,7 @@ export class LanguageClient {
                     return { base: "", completions: [] }
                 }
 
-                const filteredItems = result.items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
+                const filteredItems = items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
 
                 const completions = filteredItems.map((i) => ({
                     label: i.label,
