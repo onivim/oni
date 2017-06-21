@@ -1,9 +1,9 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-import { connect, Provider } from "react-redux"
+// import { connect, Provider } from "react-redux"
 
-import { store } from "./../index"
+// import { store } from "./../index"
 
 require("./BufferScrollBar.less") // tslint:disable-line no-var-requires
 
@@ -66,8 +66,6 @@ export class BufferScrollBar extends React.Component<IBufferScrollBarProps, void
             </div>
     }
 }
-
-export class Connected
 
 export function renderBufferScrollBar(props: IBufferScrollBarProps, element: HTMLElement) {
     ReactDOM.render(<BufferScrollBar {...props} />, element)

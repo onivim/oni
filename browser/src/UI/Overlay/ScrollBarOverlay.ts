@@ -26,6 +26,19 @@ export class ScrollBarOverlay implements IOverlay {
 
     private _fileToMarkers: IFileToAllMarkers = {}
 
+    private _lastVisible: boolean = true
+    private _visible: boolean = true
+
+    public show(): void {
+        this._visible = true
+        this._updateScrollBar()
+    }
+
+    public hide(): void {
+        this._visible = false
+        this._updateScrollBar()
+    }
+
     public onBufferUpdate(_eventContext: Oni.EventContext, lines: string[]): void {
         this._currentFileLength = lines.length
     }
@@ -74,6 +87,11 @@ export class ScrollBarOverlay implements IOverlay {
             return
         }
 
+        if (this._lastVisible !== this._visible) {
+            
+        }
+
+
         if (!this._lastEvent) {
             return
         }
@@ -88,6 +106,7 @@ export class ScrollBarOverlay implements IOverlay {
             bufferSize: this._lastEvent.bufferTotalLines,
             windowTopLine: this._lastEvent.windowTopLine,
             windowBottomLine: this._lastEvent.windowBottomLine,
+            visible: false,
         }, this._element)
     }
 }
