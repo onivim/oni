@@ -1,9 +1,9 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-// import { connect, Provider } from "react-redux"
-
-// import { store } from "./../index"
+import { connect, Provider } from "react-redux"
+import { store } from "./../index"
+import * as State from "./../State"
 
 require("./BufferScrollBar.less") // tslint:disable-line no-var-requires
 
@@ -67,6 +67,27 @@ export class BufferScrollBar extends React.Component<IBufferScrollBarProps, void
     }
 }
 
-export function renderBufferScrollBar(props: IBufferScrollBarProps, element: HTMLElement) {
-    ReactDOM.render(<BufferScrollBar {...props} />, element)
+export interface IRenderBufferScrollBarArgs {
+    bufferSize: number
+    height: number
+    windowTopLine: number
+    windowBottomLine: number
+    markers: IScrollBarMarker[]
+}
+
+const mapStateToProps = (state: State.IState, inProps: IRenderBufferScrollBarArgs): IBufferScrollBarProps => {
+    const visible = state.configuration["editor.scrollBar.visible"]
+
+    return {
+        ...inProps,
+        visible
+    }
+}
+
+const ConnectedBufferScrollBar = connect(mapStateToProps)(BufferScrollBar)
+
+export function renderBufferScrollBar(props: IRenderBufferScrollBarArgs, element: HTMLElement) {
+    ReactDOM.render(<Provider store={store}>
+                        <ConnectedBufferScrollBar {...props} />
+                    </Provider>, element)
 }

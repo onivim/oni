@@ -106,7 +106,6 @@ export class ScrollBarOverlay implements IOverlay {
             bufferSize: this._lastEvent.bufferTotalLines,
             windowTopLine: this._lastEvent.windowTopLine,
             windowBottomLine: this._lastEvent.windowBottomLine,
-            visible: false,
         }, this._element)
     }
 }
