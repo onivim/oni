@@ -1,10 +1,8 @@
 - Syntax highlighting
     - Support document symbol
 
-- Full document sync - why is it not working?
-
 - Completion: Why are details not showing?
-- Does 'workspace/didChangeWathcedFiles' need to be supported?
+- Does 'workspace/didChangeWatchedFiles' need to be supported?
 
 - Update README with support instructions
 - Port to Bucklescript
