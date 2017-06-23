@@ -42,11 +42,30 @@ import { ScrollBarOverlay } from "./../UI/Overlay/ScrollBarOverlay"
 import { Rectangle } from "./../UI/Types"
 
 import { Keyboard } from "./../Input/Keyboard"
-import { Mouse } from "./../Input/Mouse"
+// import { Mouse } from "./../Input/Mouse"
 
 import { IEditor } from "./Editor"
 
 import { InstallHelp } from "./../UI/components/InstallHelp"
+
+export interface INeovimRendererProps {
+    renderer: DOMRenderer
+}
+
+export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, void> {
+
+    private _element: HTMLDivElement
+
+    public componentDidMount(): void {
+        if (this._element) {
+            this.props.renderer.start(this._element)
+        }
+    }
+
+    public render(): JSX.Element {
+        return <div ref={ (elem) => this._element = elem } className="editor"></div>
+    }
+}
 
 export class NeovimEditor implements IEditor {
 
@@ -309,18 +328,18 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.start(filesToOpen)
     }
 
-    public render(element: HTMLDivElement): void {
-        this._element = element
-        this._renderer.start(element)
+    public render(): JSX.Element {
 
         this._onResize()
 
-        const mouse = new Mouse(element, this._screen)
+        // const mouse = new Mouse(element, this._screen)
 
-        mouse.on("mouse", (mouseInput: string) => {
-            UI.Actions.hideCompletions()
-            this._neovimInstance.input(mouseInput)
-        })
+        // mouse.on("mouse", (mouseInput: string) => {
+        //     UI.Actions.hideCompletions()
+        //     this._neovimInstance.input(mouseInput)
+        // })
+
+        return <NeovimRenderer renderer={this._renderer} />
     }
 
     private _onModeChanged(newMode: string): void {
