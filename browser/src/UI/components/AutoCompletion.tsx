@@ -57,7 +57,7 @@ export class AutoCompletion extends React.Component<IAutoCompletionProps, void> 
 
         const selectedItemDocumentation = getDocumentationFromItems(firstTenEntries, this.props.selectedIndex)
 
-        return (<div style={containerStyle} className="autocompletion" onMouseDown={(evt)=>this._preventDefault(evt)} onMouseUp={(evt)=>this._preventDefault(evt)}>
+        return (<div style={containerStyle} className="autocompletion" onMouseDown={(evt) => this._preventDefault(evt)} onMouseUp={(evt) => this._preventDefault(evt)}>
             <div className="entries">
                 {entries}
             </div>
