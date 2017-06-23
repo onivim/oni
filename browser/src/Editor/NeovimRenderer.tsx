@@ -9,9 +9,6 @@ import * as React from "react"
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance } from "./../NeovimInstance"
 import { DOMRenderer } from "./../Renderer/DOMRenderer"
-import { NeovimScreen } from "./../Screen"
-
-import * as UI from "./../UI/index"
 
 export interface INeovimRendererProps {
     neovimInstance: NeovimInstance

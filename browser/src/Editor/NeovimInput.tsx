@@ -11,7 +11,7 @@ import { NeovimScreen } from "./../Screen"
 
 import * as UI from "./../UI/index"
 
-import { Keyboard } from "./../Input/Keyboard"
+// import { Keyboard } from "./../Input/Keyboard"
 import { Mouse } from "./../Input/Mouse"
 
 export interface INeovimInputProps {
