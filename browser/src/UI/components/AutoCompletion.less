@@ -6,7 +6,6 @@
     background-color: @background-color;
     color: @text-color;
     max-width: 800px;
-    max-height: 300px;
     overflow-x: hidden;
     overflow-y: auto;
     animation-name: appear;
@@ -75,11 +74,13 @@
             font-size: 11px;
             visibility: hidden;
         }
+    }
 
-        .documentation {
-            font-size: 10px;
-            color: @text-color-highlight;
-        }
+    .documentation {
+        .box-shadow-inset;
+        padding: 8px;
+        font-size: 10px;
+        color: @text-color-dark;
     }
 }
 
