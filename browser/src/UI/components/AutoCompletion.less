@@ -1,6 +1,9 @@
 @import (reference) "./common.less";
 
 .autocompletion {
+    /* Promote to a layer, to improve paint performance when autocomplete is open */
+    .layer;
+
     .box-shadow;
 
     background-color: @background-color;
