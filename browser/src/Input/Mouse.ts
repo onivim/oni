@@ -16,6 +16,8 @@ export class Mouse extends EventEmitter {
         this._screen = screen
 
 
+        // MUSTFIX: Temporary hack to remove mouse handling to prototype completion handler.
+
         document.body.addEventListener("mousedown1", (evt: MouseEvent) => {
             const { line, column } = this._convertEventToPosition(evt)
 
