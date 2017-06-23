@@ -6,8 +6,7 @@
     background-color: @background-color;
     color: @text-color;
     max-width: 800px;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
     animation-name: appear;
     animation-duration: 0.1s;
 
@@ -80,6 +79,8 @@
         .box-shadow-inset;
         padding: 8px;
         font-size: 10px;
+        max-height: 48px;
+        overflow-y: auto;
         color: @text-color-dark;
     }
 }
