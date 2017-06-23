@@ -35,22 +35,20 @@
 
 ::-webkit-scrollbar-track
 {
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-  border-radius: 10px;
-  background-color: rgb(100, 100, 100);
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: @background-color;
 }
 
 ::-webkit-scrollbar
 {
-  width: 12px;
-  background-color: #F5F5F5;
+    width: 12px;
+    background-color: rgb(0, 0, 0);
 }
 
 ::-webkit-scrollbar-thumb
 {
-  border-radius: 10px;
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,1);
- background-color: rgb(150, 150, 150)
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: @background-color-lighter;
 }
 
 /* Layer is used to force webkit to promote the element to an individual layer.

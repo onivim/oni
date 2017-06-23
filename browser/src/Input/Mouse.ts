@@ -15,14 +15,15 @@ export class Mouse extends EventEmitter {
         this._editorElement = editorElement
         this._screen = screen
 
-        document.body.addEventListener("mousedown", (evt: MouseEvent) => {
+
+        document.body.addEventListener("mousedown1", (evt: MouseEvent) => {
             const { line, column } = this._convertEventToPosition(evt)
 
             this.emit("mouse", `<LeftMouse><${line},${column}>`)
             this._isDragging = true
         })
 
-        document.body.addEventListener("mousemove", (evt: MouseEvent) => {
+        document.body.addEventListener("mousemove1", (evt: MouseEvent) => {
             const { line, column } = this._convertEventToPosition(evt)
 
             if (this._isDragging) {
@@ -30,7 +31,7 @@ export class Mouse extends EventEmitter {
             }
         })
 
-        document.body.addEventListener("mouseup", (evt: MouseEvent) => {
+        document.body.addEventListener("mouseup1", (evt: MouseEvent) => {
             const { line, column } = this._convertEventToPosition(evt)
 
             this.emit("mouse", `<LeftRelease><${line},${column}>`)
@@ -38,7 +39,7 @@ export class Mouse extends EventEmitter {
         })
 
         // The internet told me 'mousewheel' is deprecated and use this.
-        document.body.addEventListener("wheel", (evt: WheelEvent) => {
+        document.body.addEventListener("wheel1", (evt: WheelEvent) => {
             const { line, column } = this._convertEventToPosition(evt)
             let scrollcmdY = `<`
             let scrollcmdX = `<`
