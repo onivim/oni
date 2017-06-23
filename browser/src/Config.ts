@@ -141,7 +141,8 @@ export class Config extends EventEmitter {
     }
 
     private MacConfig: Partial<IConfigValues> = {
-        "editor.fontFamily": "Monaco",
+        "editor.fontFamily": "Menlo",
+        "editor.fontSize": "12px",
     }
 
     private WindowsConfig: Partial<IConfigValues> = {
