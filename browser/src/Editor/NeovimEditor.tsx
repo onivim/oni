@@ -42,30 +42,12 @@ import { ScrollBarOverlay } from "./../UI/Overlay/ScrollBarOverlay"
 import { Rectangle } from "./../UI/Types"
 
 import { Keyboard } from "./../Input/Keyboard"
-// import { Mouse } from "./../Input/Mouse"
-
 import { IEditor } from "./Editor"
 
 import { InstallHelp } from "./../UI/components/InstallHelp"
 
-export interface INeovimRendererProps {
-    renderer: DOMRenderer
-}
-
-export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, void> {
-
-    private _element: HTMLDivElement
-
-    public componentDidMount(): void {
-        if (this._element) {
-            this.props.renderer.start(this._element)
-        }
-    }
-
-    public render(): JSX.Element {
-        return <div ref={ (elem) => this._element = elem } className="editor"></div>
-    }
-}
+import { NeovimInput } from "./NeovimInput"
+import { NeovimRenderer } from "./NeovimRenderer"
 
 export class NeovimEditor implements IEditor {
 
@@ -297,8 +279,6 @@ export class NeovimEditor implements IEditor {
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
         window["__screen"] = screen // tslint:disable-line no-string-literal
 
-        window.addEventListener("resize", () => this._onResize())
-
         ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
             if (message.startsWith(":")) {
                 this._neovimInstance.command("exec \"" + message + "\"")
@@ -330,16 +310,13 @@ export class NeovimEditor implements IEditor {
 
     public render(): JSX.Element {
 
-        this._onResize()
-
-        // const mouse = new Mouse(element, this._screen)
-
-        // mouse.on("mouse", (mouseInput: string) => {
-        //     UI.Actions.hideCompletions()
-        //     this._neovimInstance.input(mouseInput)
-        // })
-
-        return <NeovimRenderer renderer={this._renderer} />
+        return <div className="editor">
+            <NeovimRenderer renderer={this._renderer}
+                neovimInstance={this._neovimInstance}
+                deltaRegionTracker={this._deltaRegionManager} />
+            <NeovimInput neovimInstance={this._neovimInstance}
+                screen={this._screen} />
+        </div>
     }
 
     private _onModeChanged(newMode: string): void {
@@ -424,18 +401,6 @@ export class NeovimEditor implements IEditor {
         if (!!this._pendingTimeout) {
             clearTimeout(this._pendingTimeout) // FIXME: null
             this._pendingTimeout = null
-        }
-    }
-
-    private _onResize(): void {
-        if (this._element) {
-            const width = this._element.offsetWidth
-            const height = this._element.offsetHeight
-
-            this._deltaRegionManager.dirtyAllCells()
-
-            this._neovimInstance.resize(width, height)
-            this._renderer.onResize()
         }
     }
 
