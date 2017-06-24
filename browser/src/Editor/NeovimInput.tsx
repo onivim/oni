@@ -35,6 +35,6 @@ export class NeovimInput extends React.PureComponent<INeovimInputProps, void> {
     }
 
     public render(): JSX.Element {
-        return <div ref={ (elem) => this._element = elem } className="stack enable-mouse-events"></div>
+        return <div ref={ (elem) => this._element = elem } className="stack enable-mouse"></div>
     }
 }
