@@ -43,6 +43,11 @@ class CursorLineRenderer extends React.Component<ICursorLineRendererProps, void>
 }
 
 const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
+
+
+    const opacitySetting = props.lineType === "line" ? "editor.cursorLineOpacity" : "editor.cursorColumnOpacity"
+    const opacity = state.configuration[opacitySetting]
+
     return {
         x: props.lineType === "line" ? state.activeWindowDimensions.x : state.cursorPixelX,
         y: props.lineType === "line" ? state.cursorPixelY : state.activeWindowDimensions.y,
@@ -50,7 +55,7 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
         height: props.lineType === "line" ? state.fontPixelHeight : state.activeWindowDimensions.height,
         color: state.foregroundColor,
         visible: props.lineType === "line" ? state.cursorLineVisible : state.cursorColumnVisible,
-        opacity: props.lineType === "line" ? state.cursorLineOpacity : state.cursorColumnOpacity,
+        opacity
     }
 }
 

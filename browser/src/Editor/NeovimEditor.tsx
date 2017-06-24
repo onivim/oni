@@ -375,9 +375,6 @@ export class NeovimEditor implements IEditor {
         this._cursorLine = this._config.getValue("editor.cursorLine")
         this._cursorColumn = this._config.getValue("editor.cursorColumn")
 
-        UI.Actions.setCursorLineOpacity(this._config.getValue("editor.cursorLineOpacity"))
-        UI.Actions.setCursorColumnOpacity(this._config.getValue("editor.cursorColumnOpacity"))
-
         if (this._cursorLine) {
             UI.Actions.showCursorLine()
         }
