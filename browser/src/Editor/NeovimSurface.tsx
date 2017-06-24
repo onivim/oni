@@ -11,6 +11,9 @@ import { NeovimInstance } from "./../NeovimInstance"
 import { DOMRenderer } from "./../Renderer/DOMRenderer"
 import { NeovimScreen } from "./../Screen"
 
+import { Cursor } from "./../UI/components/Cursor"
+import { CursorLine } from "./../UI/components/CursorLine"
+
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
 
@@ -27,6 +30,11 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
             <NeovimRenderer renderer={this.props.renderer}
                 neovimInstance={this.props.neovimInstance}
                 deltaRegionTracker={this.props.deltaRegionTracker} />
+            <div className="stack layer">
+                <Cursor />
+                <CursorLine lineType={"line"} />
+                <CursorLine lineType={"column"} />
+            </div>
             <NeovimInput neovimInstance={this.props.neovimInstance}
                 screen={this.props.screen} />
         </div>

@@ -44,7 +44,7 @@ export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, vo
     }
 
     public render(): JSX.Element {
-        return <div ref={ (elem) => this._element = elem } className="stack"></div>
+        return <div ref={ (elem) => this._element = elem } className="stack layer"></div>
     }
 
     private _onResize(): void {

@@ -1,4 +1,3 @@
-- Refactor surface out
 - Move cursor/cursorline/cursorrow to surface
 - Fix pointer events by defaulting stack to `pointer-events: none`
 - Mouse-enabled elements will need to specify .enable-mouse (`pointer-events: auto`)

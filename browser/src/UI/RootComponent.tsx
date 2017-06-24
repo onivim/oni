@@ -2,8 +2,6 @@ import * as React from "react"
 
 import { AutoCompletionContainer } from "./components/AutoCompletion"
 import { Background } from "./components/Background"
-import { Cursor } from "./components/Cursor"
-import { CursorLine } from "./components/CursorLine"
 import { EditorHost } from "./components/EditorHost"
 import { Logs } from "./components/Logs"
 import { MenuContainer } from "./components/Menu"
@@ -26,13 +24,10 @@ export class RootComponent extends React.Component<IRootComponentProps, void> {
             <div className="stack">
                 <div className="container vertical full">
                     <div className="container full">
-                        <div className="stack layer">
+                        <div className="stack">
                             <EditorHost editor={this.props.editor} />
                         </div>
                         <div className="stack layer">
-                            <Cursor />
-                            <CursorLine lineType={"line"} />
-                            <CursorLine lineType={"column"} />
                             <QuickInfoContainer />
                             <SignatureHelpContainer />
                             <AutoCompletionContainer />
