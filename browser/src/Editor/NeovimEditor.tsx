@@ -57,9 +57,6 @@ export class NeovimEditor implements IEditor {
     private _pendingTimeout: any = null
     private _element: HTMLElement
 
-    private _cursorLine: boolean = false
-    private _cursorColumn: boolean = false
-
     // Services
     private _tasks: Tasks
 
@@ -318,25 +315,14 @@ export class NeovimEditor implements IEditor {
         UI.Actions.setMode(newMode)
 
         if (newMode === "normal") {
-            if (this._cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                UI.Actions.showCursorLine()
-            }
-            if (this._cursorColumn) {
-                UI.Actions.showCursorColumn()
-            }
+            UI.Actions.showCursorColumn()
             UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
         } else if (newMode === "insert") {
             UI.Actions.hideQuickInfo()
-            if (this._cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                UI.Actions.showCursorLine()
-            }
-            if (this._cursorColumn) {
-                UI.Actions.showCursorColumn()
-            }
-        } else if (newMode === "cmdline") {
+            UI.Actions.showCursorColumn()
+        } else if (newMode.indexOf("cmdline") >= 0) {
             UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
-            UI.Actions.hideCursorLine()
             UI.Actions.hideCompletions()
             UI.Actions.hideQuickInfo()
         }
@@ -372,17 +358,6 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onConfigChanged(): void {
-        this._cursorLine = this._config.getValue("editor.cursorLine")
-        this._cursorColumn = this._config.getValue("editor.cursorColumn")
-
-        if (this._cursorLine) {
-            UI.Actions.showCursorLine()
-        }
-
-        if (this._cursorColumn) {
-            UI.Actions.showCursorColumn()
-        }
-
         this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
         this._onUpdate()
     }

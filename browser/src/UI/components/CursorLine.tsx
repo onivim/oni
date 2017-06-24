@@ -48,13 +48,18 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
     const opacitySetting = props.lineType === "line" ? "editor.cursorLineOpacity" : "editor.cursorColumnOpacity"
     const opacity = state.configuration[opacitySetting]
 
+    const enabledSetting = props.lineType === "line" ? "editor.cursorLine" : "editor.cursorColumn"
+    const enabled = state.configuration[enabledSetting]
+
+    const isVisible = props.lineType === "line" ? state.cursorLineVisible : state.cursorColumnVisible
+
     return {
         x: props.lineType === "line" ? state.activeWindowDimensions.x : state.cursorPixelX,
         y: props.lineType === "line" ? state.cursorPixelY : state.activeWindowDimensions.y,
         width: props.lineType === "line" ? state.activeWindowDimensions.width : state.cursorPixelWidth,
         height: props.lineType === "line" ? state.fontPixelHeight : state.activeWindowDimensions.height,
         color: state.foregroundColor,
-        visible: props.lineType === "line" ? state.cursorLineVisible : state.cursorColumnVisible,
+        visible: isVisible && enabled,
         opacity
     }
 }
