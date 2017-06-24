@@ -46,27 +46,7 @@ import { IEditor } from "./Editor"
 
 import { InstallHelp } from "./../UI/components/InstallHelp"
 
-import { NeovimInput } from "./NeovimInput"
-import { NeovimRenderer } from "./NeovimRenderer"
-
-export interface INeovimSurfaceProps {
-    neovimInstance: NeovimInstance
-    deltaRegionTracker: IncrementalDeltaRegionTracker
-    renderer: DOMRenderer
-    screen: NeovimScreen
-}
-
-export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
-    public render(): JSX.Element {
-        return <div className="editor">
-            <NeovimRenderer renderer={this.props.renderer}
-                neovimInstance={this.props.neovimInstance}
-                deltaRegionTracker={this.props.deltaRegionTracker} />
-            <NeovimInput neovimInstance={this.props.neovimInstance}
-                screen={this.props.screen} />
-        </div>
-    }
-}
+import { NeovimSurface } from "./NeovimSurface"
 
 export class NeovimEditor implements IEditor {
 
