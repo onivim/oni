@@ -40,7 +40,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
             .filter((item) => item.alignment === StatusBarAlignment.Right)
             .sort((a, b) => b.priority - a.priority)
 
-        return <div className="status-bar">
+        return <div className="status-bar enable-mouse">
             <div className="status-bar-inner">
                 <div className="status-bar-container left">
                     {leftItems.map((item) => <StatusBarItem {...item} />)}
