@@ -13,15 +13,10 @@ export interface IEditorHostProps {
 }
 
 export class EditorHost extends React.Component<IEditorHostProps, void> {
-    private _element: HTMLDivElement
-
-    public componentDidMount(): void {
-        if (this._element) {
-            this.props.editor.render(this._element)
-        }
-    }
 
     public render(): JSX.Element {
-        return <div ref={ (elem) => this._element = elem } className="editor"></div>
+        return <div className="editor">
+            {this.props.editor.render()}
+        </div>
     }
 }

@@ -154,20 +154,6 @@ export interface IHideCursorColumnAction {
     type: "HIDE_CURSOR_COLUMN"
 }
 
-export interface ISetCursorLineOpacityAction {
-    type: "SET_CURSOR_LINE_OPACITY"
-    payload: {
-        opacity: number,
-    }
-}
-
-export interface ISetCursorColumnOpacityAction {
-    type: "SET_CURSOR_COLUMN_OPACITY"
-    payload: {
-        opacity: number,
-    }
-}
-
 export interface ISetConfigurationValue<K extends keyof Config.IConfigValues> {
     type: "SET_CONFIGURATION_VALUE"
     payload: {
@@ -222,8 +208,6 @@ export type SimpleAction =
     IHideCursorColumnAction |
     IShowCursorLineAction |
     IShowCursorColumnAction |
-    ISetCursorColumnOpacityAction |
-    ISetCursorLineOpacityAction |
     IToggleLogFold |
     IChangeLogsVisibility |
     IMakeLog
