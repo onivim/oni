@@ -7,5 +7,5 @@ export interface IEditor {
 
     init(filesToOpen: string[]): void
 
-    render(element: HTMLDivElement): void
+    render(): JSX.Element
 }

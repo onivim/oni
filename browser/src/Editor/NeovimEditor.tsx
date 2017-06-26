@@ -42,11 +42,11 @@ import { ScrollBarOverlay } from "./../UI/Overlay/ScrollBarOverlay"
 import { Rectangle } from "./../UI/Types"
 
 import { Keyboard } from "./../Input/Keyboard"
-import { Mouse } from "./../Input/Mouse"
-
 import { IEditor } from "./Editor"
 
 import { InstallHelp } from "./../UI/components/InstallHelp"
+
+import { NeovimSurface } from "./NeovimSurface"
 
 export class NeovimEditor implements IEditor {
 
@@ -56,9 +56,6 @@ export class NeovimEditor implements IEditor {
 
     private _pendingTimeout: any = null
     private _element: HTMLElement
-
-    private _cursorLine: boolean = false
-    private _cursorColumn: boolean = false
 
     // Services
     private _tasks: Tasks
@@ -278,8 +275,6 @@ export class NeovimEditor implements IEditor {
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
         window["__screen"] = screen // tslint:disable-line no-string-literal
 
-        window.addEventListener("resize", () => this._onResize())
-
         ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
             if (message.startsWith(":")) {
                 this._neovimInstance.command("exec \"" + message + "\"")
@@ -309,43 +304,25 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.start(filesToOpen)
     }
 
-    public render(element: HTMLDivElement): void {
-        this._element = element
-        this._renderer.start(element)
-
-        this._onResize()
-
-        const mouse = new Mouse(element, this._screen)
-
-        mouse.on("mouse", (mouseInput: string) => {
-            UI.Actions.hideCompletions()
-            this._neovimInstance.input(mouseInput)
-        })
+    public render(): JSX.Element {
+        return <NeovimSurface renderer={this._renderer}
+                neovimInstance={this._neovimInstance}
+                deltaRegionTracker={this._deltaRegionManager}
+                screen={this._screen} />
     }
 
     private _onModeChanged(newMode: string): void {
         UI.Actions.setMode(newMode)
 
         if (newMode === "normal") {
-            if (this._cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                UI.Actions.showCursorLine()
-            }
-            if (this._cursorColumn) {
-                UI.Actions.showCursorColumn()
-            }
+            UI.Actions.showCursorColumn()
             UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
         } else if (newMode === "insert") {
             UI.Actions.hideQuickInfo()
-            if (this._cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                UI.Actions.showCursorLine()
-            }
-            if (this._cursorColumn) {
-                UI.Actions.showCursorColumn()
-            }
-        } else if (newMode === "cmdline") {
+            UI.Actions.showCursorColumn()
+        } else if (newMode.indexOf("cmdline") >= 0) {
             UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
-            UI.Actions.hideCursorLine()
             UI.Actions.hideCompletions()
             UI.Actions.hideQuickInfo()
         }
@@ -381,20 +358,6 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onConfigChanged(): void {
-        this._cursorLine = this._config.getValue("editor.cursorLine")
-        this._cursorColumn = this._config.getValue("editor.cursorColumn")
-
-        UI.Actions.setCursorLineOpacity(this._config.getValue("editor.cursorLineOpacity"))
-        UI.Actions.setCursorColumnOpacity(this._config.getValue("editor.cursorColumnOpacity"))
-
-        if (this._cursorLine) {
-            UI.Actions.showCursorLine()
-        }
-
-        if (this._cursorColumn) {
-            UI.Actions.showCursorColumn()
-        }
-
         this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
         this._onUpdate()
     }
@@ -405,18 +368,6 @@ export class NeovimEditor implements IEditor {
         if (!!this._pendingTimeout) {
             clearTimeout(this._pendingTimeout) // FIXME: null
             this._pendingTimeout = null
-        }
-    }
-
-    private _onResize(): void {
-        if (this._element) {
-            const width = this._element.offsetWidth
-            const height = this._element.offsetHeight
-
-            this._deltaRegionManager.dirtyAllCells()
-
-            this._neovimInstance.resize(width, height)
-            this._renderer.onResize()
         }
     }
 

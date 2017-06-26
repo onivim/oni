@@ -47,7 +47,7 @@ export class Menu extends React.Component<IMenuProps, void> {
             onClick={() => this.props.onSelect(false, index)}
             />)
 
-        return <div className="menu-background">
+        return <div className="menu-background enable-mouse">
             <div className="menu">
                 <input type="text"
                     ref={(inputElement) => {

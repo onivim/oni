@@ -1,14 +1,15 @@
 @import (reference) "./common.less";
 
 .autocompletion {
+    /* Promote to a layer, to improve paint performance when autocomplete is open */
+    .layer;
+
     .box-shadow;
 
     background-color: @background-color;
     color: @text-color;
-    max-width: 800px;
-    max-height: 300px;
-    overflow-x: hidden;
-    overflow-y: auto;
+    width: 600px;
+    overflow: hidden;
     animation-name: appear;
     animation-duration: 0.1s;
 
@@ -55,7 +56,6 @@
 
             .highlight {
                 font-weight: bold;
-                font-style: italic;
                 color: @text-color-highlight;
             }
         }
@@ -75,11 +75,15 @@
             font-size: 11px;
             visibility: hidden;
         }
+    }
 
-        .documentation {
-            font-size: 10px;
-            color: @text-color-highlight;
-        }
+    .documentation {
+        .box-shadow-inset;
+        padding: 8px;
+        font-size: 10px;
+        max-height: 48px;
+        overflow-y: auto;
+        color: @text-color-dark;
     }
 }
 

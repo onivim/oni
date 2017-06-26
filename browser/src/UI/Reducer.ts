@@ -81,14 +81,6 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
              return Object.assign({}, s, {
                  cursorColumnVisible: true,
             })
-        case "SET_CURSOR_LINE_OPACITY":
-            return Object.assign({}, s, {
-                cursorLineOpacity: a.payload.opacity,
-            })
-        case "SET_CURSOR_COLUMN_OPACITY":
-            return Object.assign({}, s, {
-                cursorLineOpacity: a.payload.opacity,
-            })
         case "SET_CONFIGURATION_VALUE":
             let obj: Partial<Config.IConfigValues> = {}
             obj[a.payload.key] = a.payload.value

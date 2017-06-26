@@ -60,6 +60,8 @@ const start = (args: string[]) => {
         }
         prevConfigValues = newConfigValues
 
+        document.body.style.fontFamily = config.getValue("editor.fontFamily")
+        document.body.style.fontSize = config.getValue("editor.fontSize")
         document.body.style.fontVariant = config.getValue("editor.fontLigatures") ? "normal" : "none"
 
         const window = remote.getCurrentWindow()
