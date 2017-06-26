@@ -5,7 +5,8 @@
 
 // Colors
 @text-color: rgb(200, 200, 200);
-@text-color-highlight: rgb(50, 200, 255);
+@text-color-dark: rgb(150, 150, 150);
+@text-color-highlight: rgb(240, 240, 240);
 @text-color-detail: rgb(100, 100, 100);
 
 @text-color-info: #6494ed;
@@ -30,6 +31,24 @@
     left: 0px;
     right: 0px;
     bottom: 0px;
+}
+
+::-webkit-scrollbar-track
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: @background-color;
+}
+
+::-webkit-scrollbar
+{
+    width: 12px;
+    background-color: rgb(0, 0, 0);
+}
+
+::-webkit-scrollbar-thumb
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: @background-color-lighter;
 }
 
 .disable-mouse {
@@ -71,4 +90,8 @@
 
 .box-shadow-up {
   box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
+}
+
+.box-shadow-inset {
+  box-shadow: inset 0 4px 8px 2px rgba(0, 0, 0, 0.2)
 }

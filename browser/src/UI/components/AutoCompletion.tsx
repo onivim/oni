@@ -55,10 +55,27 @@ export class AutoCompletion extends React.Component<IAutoCompletionProps, void> 
             return <AutoCompletionItem {...s} isSelected={isSelected} base={this.props.base} />
         })
 
-        return (<div style={containerStyle} className="autocompletion">
-            {entries}
+        const selectedItemDocumentation = getDocumentationFromItems(firstTenEntries, this.props.selectedIndex)
+
+        return (<div style={containerStyle} className="autocompletion enable-mouse">
+            <div className="entries">
+                {entries}
+            </div>
+            <AutoCompletionDocumentation documentation={selectedItemDocumentation} />
         </div>)
     }
+}
+
+const getDocumentationFromItems = (items: Oni.Plugin.CompletionInfo[], selectedIndex: number): string => {
+    if (!items || !items.length) {
+        return null
+    }
+
+    if (selectedIndex >= items.length) {
+        return null
+    }
+
+    return items[selectedIndex].documentation
 }
 
 export interface IAutoCompletionItemProps extends Oni.Plugin.CompletionInfo {
@@ -74,8 +91,6 @@ export class AutoCompletionItem extends React.Component<IAutoCompletionItemProps
             className += " selected"
         }
 
-        const documentation = this.props.isSelected ? this.props.documentation : ""
-
         const highlightColor = this.props.highlightColor || this._getDefaultHighlightColor(this.props.kind as any) // FIXME: undefined
 
         const iconContainerStyle = {
@@ -90,7 +105,6 @@ export class AutoCompletionItem extends React.Component<IAutoCompletionItemProps
                 <HighlightText className="label" highlightClassName="highlight" highlightText={this.props.base} text={this.props.label} />
                 <span className="detail">{this.props.detail}</span>
             </div>
-            <div className="documentation">{documentation}</div>
         </div>
     }
 
@@ -98,6 +112,20 @@ export class AutoCompletionItem extends React.Component<IAutoCompletionItemProps
         // TODO: Extend this logic for better defaults per kind
         return "rgb(0, 255, 100)"
     }
+}
+
+export interface IAutoCompletionDocumentationProps {
+    documentation: string
+}
+
+export const AutoCompletionDocumentation = (props: IAutoCompletionDocumentationProps) => {
+    const { documentation } = props
+
+    if (!documentation) {
+        return null
+    }
+
+    return <div className="documentation">{documentation}</div>
 }
 
 export interface IAutoCompletionIconProps {
