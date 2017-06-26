@@ -104,7 +104,10 @@ export class LanguageClient {
         this._oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdate(args))
                     .then(() => {
-                        this._connection.sendRequest("textDocument/documentSymbol", Helpers.eventContextToTextDocumentIdentifierParams(args)).then((args) => { console.log(args); debugger; })
+                        this._connection.sendRequest("textDocument/documentSymbol", Helpers.eventContextToTextDocumentIdentifierParams(args))
+                            .then(() => {
+                                console.log("TODO: IMPLEMENT") // tslint:disable-line no-console
+                            })
                     })
         })
 

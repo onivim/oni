@@ -66,7 +66,7 @@ export const bufferUpdateToTextDocumentItem = (args: Oni.BufferUpdateContext): t
 export const eventContextToTextDocumentIdentifierParams = (args: Oni.BufferUpdateContext) => ({
     textDocument: {
         uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
-    }
+    },
 })
 
 export const eventContextToTextDocumentPositionParams = (args: Oni.EventContext) => ({
