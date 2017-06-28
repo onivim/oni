@@ -96,7 +96,6 @@ export class LanguageClient {
                                 .then(() => this.start(newParams))
                         }
 
-                        this._updateHighlights(args.bufferFullPath)
                         return null
                     })
             }, false)
@@ -279,8 +278,9 @@ export class LanguageClient {
     private _updateHighlights(bufferFullPath: string) {
         return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.DocumentSymbol,
                                     Helpers.pathToTextDocumentIdentifierParms(bufferFullPath))
-                        .then(() => {
-                            debugger
+                        .then((symbolInformation: types.SymbolInformation[]) => {
+                            const oniHighlights: Oni.Plugin.SyntaxHighlight[] = symbolInformation.map((v) => ({ highlightKind: v.kind, token: v.name }))
+                            this._oni.setHighlights(bufferFullPath, "language-client", oniHighlights)
                         })
 
     }
