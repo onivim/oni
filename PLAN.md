@@ -1,6 +1,7 @@
 - Syntax highlighting
     - Fix regression / change in highlighting
     - Support document symbol
+    - Only update symbol if the LS supports it
 
 - How to express keyword from language server plugin?
 

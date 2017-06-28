@@ -96,6 +96,7 @@ export class LanguageClient {
                                 .then(() => this.start(newParams))
                         }
 
+                        this._updateHighlights(args.bufferFullPath)
                         return null
                     })
             }, false)
@@ -103,16 +104,12 @@ export class LanguageClient {
 
         this._oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdate(args))
-                    .then(() => {
-                        this._connection.sendRequest("textDocument/documentSymbol", Helpers.eventContextToTextDocumentIdentifierParams(args))
-                            .then(() => {
-                                console.log("TODO: IMPLEMENT") // tslint:disable-line no-console
-                            })
-                    })
+                    .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
         })
 
         this._oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdateIncremental(args))
+                    .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
         })
 
         const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
@@ -277,6 +274,15 @@ export class LanguageClient {
                     completions,
                 }
             })
+    }
+
+    private _updateHighlights(bufferFullPath: string) {
+        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.DocumentSymbol,
+                                    Helpers.pathToTextDocumentIdentifierParms(bufferFullPath))
+                        .then(() => {
+                            debugger
+                        })
+
     }
 
     private _getQuickInfo(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.QuickInfo> {
