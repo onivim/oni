@@ -1,8 +1,6 @@
 const fs = require("fs")
 const path = require("path")
-const childProcess = require("child_process")
 
-const _ = require("lodash")
 const rpc = require("vscode-jsonrpc")
 
 const activate = (Oni) => {

@@ -23,7 +23,7 @@ const symbolKindToHighlightString = (kind: SymbolKind): string => {
         case SymbolKind.Constructor:
         case SymbolKind.Method:
         case SymbolKind.Function:
-            return "Macro"
+            return "Function"
         case SymbolKind.Property:
         case SymbolKind.Array:
             return "Special"
@@ -36,8 +36,8 @@ const symbolKindToHighlightString = (kind: SymbolKind): string => {
             return "Number"
         case SymbolKind.String:
             return "String"
-        case SymbolKind.Number:
-            return "Number"
+        case SymbolKind.Boolean:
+            return "Boolean"
         default:
             return "Identifier"
     }
@@ -67,23 +67,23 @@ export class SyntaxHighlighter {
                     const highlightKindToKeywords = {}
 
                     highlights.forEach((h) => {
-
-                        if (h.highlightKind !== <SymbolKind>0 && !h.highlightKind) {
+                        if (!h.highlightKind) {
                             console.warn("Undefined highlight: ", h)
                             return
                         }
 
-                        const currentValue = highlightKindToKeywords[h.highlightKind] || ""
-                        highlightKindToKeywords[h.highlightKind] = currentValue + " " + h.token
+                        const highlightKind = symbolKindToHighlightString(h.highlightKind)
 
+                        const currentValue = highlightKindToKeywords[highlightKind] || ""
+                        highlightKindToKeywords[highlightKind] = currentValue + " " + h.token
                     })
 
                     return highlightKindToKeywords
                 })
                 .then((highlightDictionary) => {
-                    Object.keys(highlightDictionary).forEach((k: any) => {
+                    Object.keys(highlightDictionary).forEach((k) => {
 
-                        const highlight = symbolKindToHighlightString(<SymbolKind>k)
+                        const highlight = k
                         const keywords = highlightDictionary[k]
                         this._neovimInstance.command("syntax keyword " + highlight + keywords)
                     })
