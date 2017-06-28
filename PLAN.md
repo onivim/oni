@@ -1,4 +1,5 @@
 - Syntax highlighting
+    - Fix regression / change in highlighting
     - Support document symbol
 
 - How to express keyword from language server plugin?
