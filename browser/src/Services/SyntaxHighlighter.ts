@@ -6,6 +6,43 @@ import { IBuffer } from "./../neovim/Buffer"
 import { INeovimInstance } from "./../NeovimInstance"
 import { PluginManager } from "./../Plugins/PluginManager"
 
+import { SymbolKind } from "vscode-languageserver-types"
+
+
+const symbolKindToHighlightString = (kind: SymbolKind): string => {
+    switch (kind) {
+        case SymbolKind.File:
+        case SymbolKind.Module:
+        case SymbolKind.Namespace:
+        case SymbolKind.Package:
+            return "Include"
+        case SymbolKind.Class:
+        case SymbolKind.Interface:
+        case SymbolKind.Enum:
+            return "Type"
+        case SymbolKind.Constructor:
+        case SymbolKind.Method:
+        case SymbolKind.Function:
+            return "Macro"
+        case SymbolKind.Property:
+        case SymbolKind.Array:
+            return "Special"
+        case SymbolKind.Variable:
+        case SymbolKind.Field:
+            return "Identifier"
+        case SymbolKind.Constant:
+            return "Constant"
+        case SymbolKind.Number:
+            return "Number"
+        case SymbolKind.String:
+            return "String"
+        case SymbolKind.Number:
+            return "Number"
+        default:
+            return "Identifier"
+    }
+}
+
 export class SyntaxHighlighter {
     private _neovimInstance: INeovimInstance
     private _pluginManager: PluginManager
@@ -31,7 +68,7 @@ export class SyntaxHighlighter {
 
                     highlights.forEach((h) => {
 
-                        if (!h.highlightKind) {
+                        if (h.highlightKind !== <SymbolKind>0 && !h.highlightKind) {
                             console.warn("Undefined highlight: ", h)
                             return
                         }
@@ -44,9 +81,9 @@ export class SyntaxHighlighter {
                     return highlightKindToKeywords
                 })
                 .then((highlightDictionary) => {
-                    Object.keys(highlightDictionary).forEach((k) => {
+                    Object.keys(highlightDictionary).forEach((k: any) => {
 
-                        const highlight = k
+                        const highlight = symbolKindToHighlightString(<SymbolKind>k)
                         const keywords = highlightDictionary[k]
                         this._neovimInstance.command("syntax keyword " + highlight + keywords)
                     })
