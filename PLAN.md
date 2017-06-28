@@ -1,6 +1,8 @@
 - Syntax highlighting
     - Support document symbol
 
+- How to express keyword from language server plugin?
+
 - Completion: Why are details not showing?
 - Does 'workspace/didChangeWatchedFiles' need to be supported?
 
