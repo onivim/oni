@@ -8,7 +8,6 @@ import { PluginManager } from "./../Plugins/PluginManager"
 
 import { SymbolKind } from "vscode-languageserver-types"
 
-
 const symbolKindToHighlightString = (kind: SymbolKind): string => {
     switch (kind) {
         case SymbolKind.File:

@@ -330,7 +330,12 @@ export class LanguageClient {
                     return null
                 }
 
+                if (result.length === 0) {
+                    return null
+                }
+
                 let location: types.Location = result
+
                 if (result.length) {
                     location = result[0]
                 }
