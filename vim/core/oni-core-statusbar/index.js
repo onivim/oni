@@ -6,6 +6,7 @@ const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
 const activate = (Oni) => {
     const React = Oni.dependencies.React
 
+    const gitBranchItem = Oni.statusBar.createItem(0, -2)
     const filePathItem = Oni.statusBar.createItem(0, -1)
     const lineNumberItem = Oni.statusBar.createItem(1, -1)
     const modeItem = Oni.statusBar.createItem(1, -2)
@@ -65,6 +66,11 @@ const activate = (Oni) => {
         filePathItem.setContents(element)
     }
 
+    const setBranch = (branchName) => {
+        branchElement = React.createElement("div", null , branchName)
+        gitBranchItem.setContents(branchElement)
+    }
+
     Oni.on("mode-change", (evt) => {
         setMode(evt)
     })
@@ -77,10 +83,13 @@ const activate = (Oni) => {
         setFilePath(evt.bufferFullPath)
     })
 
+
     setMode("normal")
     setLineNumber(1, 1)
     setFilePath(null)
+    setBranch("meme")
 
+    gitBranchItem.show()
     modeItem.show()
     lineNumberItem.show()
     filePathItem.show()

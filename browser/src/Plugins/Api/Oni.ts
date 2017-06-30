@@ -2,11 +2,11 @@ import * as ChildProcess from "child_process"
 import { EventEmitter } from "events"
 
 import { IPluginChannel } from "./Channel"
-
 import { Commands } from "./Commands"
 import { Configuration } from "./Configuration"
 import { Diagnostics } from "./Diagnostics"
 import { Editor } from "./Editor"
+import { Git } from "./Git"
 import { StatusBar } from "./StatusBar"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
@@ -25,6 +25,7 @@ export class Dependencies {
  */
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
+    private _git: Oni.Git
     private _configuration: Oni.Configuration
     private _dependencies: Dependencies
     private _editor: Oni.Editor
@@ -56,6 +57,9 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     public get statusBar(): StatusBar {
         return this._statusBar
     }
+    public get git(): Oni.Git {
+        return this._git
+    }
 
     constructor(private _channel: IPluginChannel) {
         super()
@@ -66,6 +70,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._editor = new Editor(this._channel)
         this._commands = new Commands()
         this._statusBar = new StatusBar(this._channel)
+        this._git = new Git()
 
         this._channel.onRequest((arg: any) => {
             this._handleNotification(arg)
