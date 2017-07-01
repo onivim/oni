@@ -6,12 +6,12 @@
 - How to express keyword from language server plugin?
 
 - Completion: Why are details not showing?
-- Does 'workspace/didChangeWatchedFiles' need to be supported?
 
 - Update README with support instructions
 - Port to Bucklescript
 
 - Test with larger bucklescript project
+    - reason-of-life
 
 - Windows: Show error message
 - Linux: Need to test
