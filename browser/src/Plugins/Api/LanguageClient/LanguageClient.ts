@@ -275,14 +275,17 @@ export class LanguageClient {
             })
     }
 
-    private _updateHighlights(bufferFullPath: string) {
-        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.DocumentSymbol,
-                                    Helpers.pathToTextDocumentIdentifierParms(bufferFullPath))
-                        .then((symbolInformation: types.SymbolInformation[]) => {
-                            const oniHighlights: Oni.Plugin.SyntaxHighlight[] = symbolInformation.map((v) => ({ highlightKind: v.kind, token: v.name }))
-                            this._oni.setHighlights(bufferFullPath, "language-client", oniHighlights)
-                        })
+    private async _updateHighlights(bufferFullPath: string): Promise<void> {
+        if (!this._serverCapabilities || !this._serverCapabilities.documentSymbolProvider) {
+            return null
+        }
 
+        let symbolInformation =  await this._connection.sendRequest<types.SymbolInformation[]>(
+                                    Helpers.ProtocolConstants.TextDocument.DocumentSymbol,
+                                    Helpers.pathToTextDocumentIdentifierParms(bufferFullPath))
+
+        const oniHighlights: Oni.Plugin.SyntaxHighlight[] = symbolInformation.map((v) => ({ highlightKind: v.kind, token: v.name }))
+        this._oni.setHighlights(bufferFullPath, "language-client", oniHighlights)
     }
 
     private _getQuickInfo(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.QuickInfo> {

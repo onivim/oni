@@ -36,6 +36,7 @@ export namespace TextDocumentSyncKind {
 // Defined in the LSP protocol: https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md
 export interface ServerCapabilities {
     textDocumentSync?: number
+    documentSymbolProvider?: boolean
 }
 
 export const wrapPathInFileUri = (path: string) => getFilePrefix() + path
