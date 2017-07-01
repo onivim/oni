@@ -75,6 +75,10 @@ export class QuickInfoTitle extends TextComponent {
 export class QuickInfoDocumentation extends TextComponent {
     public render(): JSX.Element {
 
+        if (!this.props.text) {
+            return null
+        }
+
         const lines = this.props.text.split(os.EOL)
         const divs = lines.map((l) => <div>{l}</div>)
 
@@ -154,9 +158,11 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
           parameters.splice(i, 0, <Text text={currentItem.separator + " "} />)
         }
 
-        let elements = [<Text text={currentItem.prefix} />]
+        let titleContents = [<Text text={currentItem.prefix} />]
             .concat(parameters)
             .concat([<Text text={currentItem.suffix} />])
+
+        let elements = [<div className="title">{titleContents}</div>]
 
         const selectedIndex = Math.min(currentItem.parameters.length, state.signatureHelp.argumentIndex)
         const selectedArgument = currentItem.parameters[selectedIndex]
