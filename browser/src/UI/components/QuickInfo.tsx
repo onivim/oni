@@ -50,7 +50,7 @@ export class QuickInfo extends React.Component<IQuickInfoProps, void> {
 
         const innerStyle = openFromTop ? openFromTopStyle : openFromBottomStyle
 
-        return <div key={"quickinfo-container"} className="quickinfo-container" style={containerStyle}>
+        return <div key={"quickinfo-container"} className="quickinfo-container enable-mouse" style={containerStyle}>
             <div key={"quickInfo"} style={innerStyle} className="quickinfo">
                 {this.props.elements}
             </div>
@@ -74,6 +74,10 @@ export class QuickInfoTitle extends TextComponent {
 
 export class QuickInfoDocumentation extends TextComponent {
     public render(): JSX.Element {
+
+        if (!this.props.text) {
+            return null
+        }
 
         const lines = this.props.text.split(os.EOL)
         const divs = lines.map((l) => <div>{l}</div>)
@@ -154,9 +158,11 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
           parameters.splice(i, 0, <Text text={currentItem.separator + " "} />)
         }
 
-        let elements = [<Text text={currentItem.prefix} />]
+        let titleContents = [<Text text={currentItem.prefix} />]
             .concat(parameters)
             .concat([<Text text={currentItem.suffix} />])
+
+        let elements = [<div className="title">{titleContents}</div>]
 
         const selectedIndex = Math.min(currentItem.parameters.length, state.signatureHelp.argumentIndex)
         const selectedArgument = currentItem.parameters[selectedIndex]
