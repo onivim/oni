@@ -50,7 +50,7 @@ export class QuickInfo extends React.Component<IQuickInfoProps, void> {
 
         const innerStyle = openFromTop ? openFromTopStyle : openFromBottomStyle
 
-        return <div key={"quickinfo-container"} className="quickinfo-container" style={containerStyle}>
+        return <div key={"quickinfo-container"} className="quickinfo-container enable-mouse" style={containerStyle}>
             <div key={"quickInfo"} style={innerStyle} className="quickinfo">
                 {this.props.elements}
             </div>
