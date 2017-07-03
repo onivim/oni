@@ -2,6 +2,8 @@
     - Switching between workspace files causes crash as new language service is instantiated - can the root project be used?
     - reason-of-life - good example
 
+- Bring over default highlighting & indent behavior from vim-reason
+
 - Python - syntax highlighting issue
     - Investigate error in python language service - is it due to our LSP client or general issue with the language server?
 
@@ -14,6 +16,8 @@
     - Windows: no tooling
     - Linux
     - Test with no `ocaml-language-server` in path
+
+- Test with OCaml as well (.ml/.mli)
 
 ### Dependent issues:
     - Notification issue
