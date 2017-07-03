@@ -1,7 +1,7 @@
 {
   "name": "oni",
   "email": "extropy@extropygames.com",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "NeoVim front-end with IDE-style extensibility",
   "keywords": [
     "vim",
@@ -39,7 +39,7 @@
       ]
     },
     "linux": {
-      "artifactName": "${productName}-${version}-linux.${ext}",
+      "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
       "maintainer": "extropy@extropygames.com",
       "target": [
         "tar.gz",
@@ -146,8 +146,8 @@
     "spectron": "3.6.2",
     "style-loader": "0.13.1",
     "ts-loader": "1.2.2",
-    "vscode-jsonrpc": "3.2.0",
-    "vscode-languageserver-types": "3.2.0",
+    "vscode-jsonrpc": "3.3.1",
+    "vscode-languageserver-types": "3.3.0",
     "wcwidth": "1.0.1",
     "webpack": "1.13.2",
     "webpack-dev-server": "1.16.1"

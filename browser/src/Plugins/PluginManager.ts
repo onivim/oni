@@ -158,80 +158,82 @@ export class PluginManager extends EventEmitter {
 
         // TODO: Refactor these handlers to separate classes
         // - pluginManager.registerResponseHandler("show-quick-info", new QuickInfoHandler())
-
         switch (pluginResponse.type) {
-        case "show-quick-info":
-            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                return
-            }
-
-            if (!pluginResponse.error) {
+            case "clear-quick-info":
                 UI.Actions.hideQuickInfo()
-                setTimeout(() => {
-                    if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                        return
-                    }
-                    UI.Actions.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation)
-                }, this._config.getValue("editor.quickInfo.delay"))
-            } else {
-                setTimeout(() => UI.Actions.hideQuickInfo())
-            }
-            break
-        case "goto-definition":
-            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                return
-            }
+                break
+            case "show-quick-info":
+                if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                    return
+                }
 
-            // TODO: Refactor to 'Service', break remaining NeoVim dependencies
-            const { filePath, line, column } = pluginResponse.payload
-            this._neovimInstance.command("e! " + filePath)
-            this._neovimInstance.command(`cal cursor(${line}, ${column})`)
-            this._neovimInstance.command("norm zz")
-            break
-        case "completion-provider":
-            if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                return
-            }
+                if (!pluginResponse.error) {
+                    UI.Actions.hideQuickInfo()
+                    setTimeout(() => {
+                        if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                            return
+                        }
+                        UI.Actions.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation)
+                    }, this._config.getValue("editor.quickInfo.delay"))
+                } else {
+                    setTimeout(() => UI.Actions.hideQuickInfo())
+                }
+                break
+            case "goto-definition":
+                if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                    return
+                }
 
-            if (!pluginResponse.payload) {
-                return
-            }
+                // TODO: Refactor to 'Service', break remaining NeoVim dependencies
+                const { filePath, line, column } = pluginResponse.payload
+                this._neovimInstance.command("e! " + filePath)
+                this._neovimInstance.command(`cal cursor(${line}, ${column})`)
+                this._neovimInstance.command("norm zz")
+                break
+            case "completion-provider":
+                if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                    return
+                }
 
-            setTimeout(() => UI.Actions.showCompletions(pluginResponse.payload))
-            break
-        case "completion-provider-item-selected":
-            setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
-            break
-        case "set-errors":
-            this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
-            break
-        case "find-all-references":
-            this.emit("find-all-references", pluginResponse.payload.references)
-            break
-        case "format":
-            this.emit("format", pluginResponse.payload)
-            break
-        case "execute-shell-command":
-            // TODO: Check plugin permission
-            this.emit("execute-shell-command", pluginResponse.payload)
-            break
-        case "evaluate-block-result":
-            this.emit("evaluate-block-result", pluginResponse.payload)
-            break
-        case "set-syntax-highlights":
-            this.emit("set-syntax-highlights", pluginResponse.payload)
-            break
-        case "clear-syntax-highlights":
-            this.emit("clear-syntax-highlights", pluginResponse.payload)
-            break
-        case "signature-help-response":
-            this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
-            break
-        case "redux-action":
-            UI.store.dispatch(pluginResponse.payload)
-            break
-        default:
-            this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)
+                if (!pluginResponse.payload) {
+                    return
+                }
+
+                setTimeout(() => UI.Actions.showCompletions(pluginResponse.payload))
+                break
+            case "completion-provider-item-selected":
+                setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
+                break
+            case "set-errors":
+                this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
+                break
+            case "find-all-references":
+                this.emit("find-all-references", pluginResponse.payload.references)
+                break
+            case "format":
+                this.emit("format", pluginResponse.payload)
+                break
+            case "execute-shell-command":
+                // TODO: Check plugin permission
+                this.emit("execute-shell-command", pluginResponse.payload)
+                break
+            case "evaluate-block-result":
+                this.emit("evaluate-block-result", pluginResponse.payload)
+                break
+            case "set-syntax-highlights":
+                this.emit("set-syntax-highlights", pluginResponse.payload)
+                break
+            case "clear-syntax-highlights":
+                this.emit("clear-syntax-highlights", pluginResponse.payload)
+                break
+            case "signature-help-response":
+                this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
+                break
+            case "redux-action":
+                UI.store.dispatch(pluginResponse.payload)
+                break
+            default:
+                this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)
         }
     }
 

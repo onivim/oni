@@ -178,6 +178,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                                     info: quickInfo.title,
                                     documentation: quickInfo.description,
                                 })
+                            } else {
+                                this._channel.send("clear-quick-info", originalContext, null)
                             }
                         }, (err) => {
                             this._channel.sendError("show-quick-info", originalContext, err)

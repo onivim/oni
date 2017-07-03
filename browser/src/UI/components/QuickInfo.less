@@ -4,12 +4,13 @@
     transition: all 0.5s;
     animation-name: appear;
     animation-duration: 0.5s;
+    -webkit-user-select: none;
+    cursor: default;
 
     .quickinfo {
         .box-shadow;
 
         background-color: @background-color;
-        padding: 4px;
         color: @text-color;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -17,13 +18,16 @@
         .title {
             width: 100%;
             white-space: nowrap;
-            margin: 4px;
+            margin: 8px;
         }
 
         .documentation {
-            margin: 4px;
+            .box-shadow-inset;
+            padding: 8px;
             color: @text-color-detail;
             font-size: @font-size-small;
+            max-height: 48px;
+            overflow-y: auto;
         }
 
         .selected {
