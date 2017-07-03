@@ -126,7 +126,7 @@ app.on('activate', function() {
 })
 
 function updateMenu(mainWindow, loadInit) {
-    const menu = buildMenu(mainWindow, loadInit)
+    const menu = buildMenu(() => mainWindow, loadInit)
     if (process.platform === 'darwin') {
         //all osx windows share the same menu
         Menu.setApplicationMenu(menu)
