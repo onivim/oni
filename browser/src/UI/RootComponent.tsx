@@ -8,6 +8,8 @@ import { MenuContainer } from "./components/Menu"
 import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
 import StatusBar from "./components/StatusBar"
 
+import { Message } from "./components/Message"
+
 import { IEditor } from "./../Editor/Editor"
 
 interface IRootComponentProps {
@@ -33,6 +35,7 @@ export class RootComponent extends React.Component<IRootComponentProps, void> {
                             <AutoCompletionContainer />
                             <Logs />
                             <MenuContainer />
+                            <Message />
                         </div>
                     </div>
                     <div className="container fixed">
