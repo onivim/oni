@@ -7,9 +7,6 @@
         - foregroundColor
     - Detail
 
-- Create redux store state
-- State
-
 - Actions:
     - UI.showMessage(type, text, options, detail?)
     - UI.hideMessage()

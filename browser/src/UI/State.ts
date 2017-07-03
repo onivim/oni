@@ -52,6 +52,7 @@ export interface IMessageDialog {
     messageType: MessageType
     text: string
     buttons: IMessageDialogButton[]
+    details?: string
 }
 
 export interface Color {

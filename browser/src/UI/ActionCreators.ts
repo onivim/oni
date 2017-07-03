@@ -17,7 +17,22 @@ import * as State from "./State"
 import * as Config from "./../Config"
 import * as Actions from "./Actions"
 import { events } from "./Events"
-import {ILog} from "./Logs"
+import { ILog } from "./Logs"
+
+
+export const showMessageDialog = (messageType: State.MessageType, text: string, buttons: State.IMessageDialogButton[], details?: string): Actions.IShowMessageDialog => ({
+    type: "SHOW_MESSAGE_DIALOG",
+    payload: {
+        messageType,
+        text,
+        buttons,
+        details,
+    }
+})
+
+export const hideMessageDialog = (): Actions.IHideMessageDialog => ({
+    type: "HIDE_MESSAGE_DIALOG",
+})
 
 export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => ({
     type: "STATUSBAR_SHOW",
@@ -205,15 +220,15 @@ export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Co
 }
 export const toggleLogFold = (index: number): Actions.IToggleLogFold => ({
     type: "TOGGLE_LOG_FOLD",
-    payload: {index},
+    payload: { index },
 })
 export const changeLogsVisibility = (visibility: boolean): Actions.IChangeLogsVisibility => ({
     type: "CHANGE_LOGS_VISIBILITY",
-    payload: {visibility},
+    payload: { visibility },
 })
 export const makeLog = (log: ILog): Actions.IMakeLog => ({
     type: "MAKE_LOG",
-    payload: {log},
+    payload: { log },
 })
 
 const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
