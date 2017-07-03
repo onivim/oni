@@ -60,7 +60,7 @@ const buildMenu = (mainWindow, loadInit) => {
                 label: 'Split Open...',
                 click: (item, focusedWindow) => {
                     dialog.showOpenDialog(mainWindow, {properties: ['openFile', 'multiSelections']}, (files) => {
-                        executeVimCommandForMultipleFiles(":sp", files)
+                        executeVimCommandForMultipleFiles(":sp ", files)
                     })
                 }
             },
@@ -68,7 +68,7 @@ const buildMenu = (mainWindow, loadInit) => {
                 label: 'Tab Open...',
                 click: (item, focusedWindow) => {
                     dialog.showOpenDialog(mainWindow, {properties: ['openFile', 'multiSelections']}, (files) => {
-                        executeVimCommandForMultipleFiles(":tabnew", files)
+                        executeVimCommandForMultipleFiles(":tabnew ", files)
                     })
                 }
             },

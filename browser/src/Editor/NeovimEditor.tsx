@@ -283,7 +283,27 @@ export class NeovimEditor implements IEditor {
             }
         })
 
+        const normalizePath = (fileName: string) => fileName.split("\\").join("/")
+
         ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
+
+            // Open the first file.
+            // If the current buffer is named, then open in a new tab or split.
+            // If the current buffer has modifications pending, then open in a new tab or split.
+            // If the current buffer had no modification and is a new file, open in the current buffer.
+
+            this._neovimInstance.command("if bufname('%') != ''\n" +
+                        "    exec \"" + message + normalizePath(files[0]) + "\"\n" +
+                        "elseif &modified\n" +
+                        "    exec \"" + message + normalizePath(files[0]) + "\"\n" +
+                        "else\n" +
+                        "    exec \":e " + normalizePath(files[0]) + "\"\n" + 
+                        "endif")
+
+            // Open any subsequent files in a tab or split.
+            for (let i = 1; i < files.length; i++) {
+                this._neovimInstance.command("exec \"" + message + " " + normalizePath(files[i]) + "\"")
+            }
 
         })
 
@@ -296,10 +316,10 @@ export class NeovimEditor implements IEditor {
 
             let files = ev.dataTransfer.files
             // open first file in current editor
-            this._neovimInstance.open(files[0].path.split("\\").join("/"))
+            this._neovimInstance.open(normalizePath(files[0].path))
             // open any subsequent files in new tabs
             for (let i = 1; i < files.length; i++) {
-                this._neovimInstance.command("exec \":tabe " + files.item(i).path.split("\\").join("/") + "\"")
+                this._neovimInstance.command("exec \":tabe " + normalizePath(files.item(i).path) + "\"")
             }
         }
     }
