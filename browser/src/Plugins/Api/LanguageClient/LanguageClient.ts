@@ -216,33 +216,35 @@ export class LanguageClient {
         return newPromise
     }
 
-    private _getCompletions(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.CompletionResult> {
+    private async _getCompletions(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.CompletionResult> {
 
-        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.Completion,
+        if (!this._serverCapabilities || !this._serverCapabilities.completionProvider) {
+            return null
+        }
+
+        let result = await this._connection.sendRequest<types.CompletionList>(Helpers.ProtocolConstants.TextDocument.Completion,
             Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
-            .then((result: types.CompletionList) => {
 
-                const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
-                const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, /[_a-z]/i)
+        const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
+        const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, /[_a-z]/i)
 
-                if (!meetInfo) {
-                    return { base: "", completions: [] }
-                }
+        if (!meetInfo) {
+            return { base: "", completions: [] }
+        }
 
-                const filteredItems = result.items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
+        const filteredItems = result.items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
 
-                const completions = filteredItems.map((i) => ({
-                    label: i.label,
-                    detail: i.detail,
-                    documentation: i.documentation,
-                    kind: i.kind,
-                }))
+        const completions = filteredItems.map((i) => ({
+            label: i.label,
+            detail: i.detail,
+            documentation: i.documentation,
+            kind: i.kind,
+        }))
 
-                return {
-                    base: meetInfo.base,
-                    completions,
-                }
-            })
+        return {
+            base: meetInfo.base,
+            completions,
+        }
     }
 
     private _getQuickInfo(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.QuickInfo> {
