@@ -1,12 +1,6 @@
 - Add icon to main row
-- Create props
-    - MessageType (Warning, Info, Error)
-    - Text
-    - Options
-        - backgroundColor
-        - foregroundColor
-    - Detail
+- Bind to redux store
 
-- Actions:
-    - UI.showMessage(type, text, options, detail?)
-    - UI.hideMessage()
+- Add LSP status bar
+    - "In-progress notification"
+    - "Error" notification
