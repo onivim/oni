@@ -1,0 +1,1 @@
+- Update Menu.js to get the currently active window, and create a new window if not created
