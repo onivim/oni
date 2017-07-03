@@ -39,7 +39,7 @@
       ]
     },
     "linux": {
-      "artifactName": "${productName}-${version}-linux.${ext}",
+      "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
       "maintainer": "extropy@extropygames.com",
       "target": [
         "tar.gz",
