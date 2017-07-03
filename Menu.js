@@ -15,6 +15,8 @@ const buildMenu = (mainWindow, loadInit) => {
 
     const executeVimCommand = (command) => mainWindow.webContents.send("menu-item-click", command)
 
+    const executeVimCommandForMultipleFiles = (command, files) => mainWindow.webContents.send("open-files", command, files)
+
     const executeOniCommand = (command) => mainWindow.webContents.send("execute-command", command)
 
     const executeVimCommandForFiles = (command, files) => {
@@ -58,7 +60,7 @@ const buildMenu = (mainWindow, loadInit) => {
                 label: 'Split Open...',
                 click: (item, focusedWindow) => {
                     dialog.showOpenDialog(mainWindow, {properties: ['openFile', 'multiSelections']}, (files) => {
-                        executeVimCommandForFiles(":sp", files)
+                        executeVimCommandForMultipleFiles(":sp", files)
                     })
                 }
             },
@@ -66,7 +68,7 @@ const buildMenu = (mainWindow, loadInit) => {
                 label: 'Tab Open...',
                 click: (item, focusedWindow) => {
                     dialog.showOpenDialog(mainWindow, {properties: ['openFile', 'multiSelections']}, (files) => {
-                        executeVimCommandForFiles(":tabnew", files)
+                        executeVimCommandForMultipleFiles(":tabnew", files)
                     })
                 }
             },
