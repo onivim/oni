@@ -33,16 +33,16 @@ export namespace TextDocumentSyncKind {
 }
 
 export interface CompletionOptions {
-	/**
-	 * The server provides support to resolve additional
-	 * information for a completion item.
-	 */
-	resolveProvider?: boolean;
+    /**
+     * The server provides support to resolve additional
+     * information for a completion item.
+     */
+    resolveProvider?: boolean
 
-	/**
-	 * The characters that trigger completion automatically.
-	 */
-	triggerCharacters?: string[];
+    /**
+     * The characters that trigger completion automatically.
+     */
+    triggerCharacters?: string[]
 }
 
 // ServerCapabilities
@@ -135,9 +135,9 @@ const splitByNewlines = (str: string) => {
 }
 
 const getFilePrefix = () => {
-     if (process.platform === "win32") {
-         return "file:///"
-     } else {
-         return "file://"
-     }
+    if (process.platform === "win32") {
+        return "file:///"
+    } else {
+        return "file://"
+    }
  }
