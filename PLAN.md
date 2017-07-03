@@ -1,9 +1,9 @@
 - Switching files between workspace
+    - Switching between workspace files causes crash as new language service is instantiated - can the root project be used?
     - reason-of-life - good example
 
-- Semicolon issue? Why is there always a semicolon error, even though examples compile fine without it?
-- Syntax highlighting: Only update symbol if the LS supports it
-- How to express keyword from language server plugin?
+- Python - syntax highlighting issue
+    - Investigate error in python language service - is it due to our LSP client or general issue with the language server?
 
 - Completion: Why are details not showing?
 - Does 'workspace/didChangeWatchedFiles' need to be supported?
@@ -11,16 +11,16 @@
 - Update README with support instructions
 - Port to Bucklescript
 
-- Test with larger bucklescript project
-
-- Windows: Show error message
-- Linux: Need to test
-- Test with no `ocaml-language-server` in path
+- Error cases
+    - Windows: no tooling
+    - Linux
+    - Test with no `ocaml-language-server` in path
 
 ### Dependent issues:
     - Notification issue
 
 ### Separate issues:
+    - How to express keyword from language server plugin?
     - Hook up show message
     - Possibilities for visualizing typings? The typing resolution in VSCode is very helpful, but intrusive. I wonder if there is another UX that would be helpful here.
 
