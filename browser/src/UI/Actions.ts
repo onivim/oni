@@ -9,7 +9,7 @@
 
 import * as Config from "./../Config"
 import { ILog } from "./Logs"
-import { StatusBarAlignment } from "./State"
+import { IMessageDialog, StatusBarAlignment } from "./State"
 import { Rectangle } from "./Types"
 
 export interface ISetCursorPositionAction {
@@ -22,6 +22,15 @@ export interface ISetCursorPositionAction {
         cursorCharacter: string,
         cursorPixelWidth: number,
     }
+}
+
+export interface IShowMessageDialog {
+    type: "SHOW_MESSAGE_DIALOG",
+    payload: IMessageDialog,
+}
+
+export interface IHideMessageDialog {
+    type: "HIDE_MESSAGE_DIALOG"
 }
 
 export interface IStatusBarShowAction {
@@ -196,6 +205,8 @@ export type SimpleAction =
     ISetAutoCompletionDetails |
     IShowMenuAction |
     IHideMenuAction |
+    IShowMessageDialog |
+    IHideMessageDialog |
     IPreviousMenuAction |
     INextMenuAction |
     IFilterMenuAction |

@@ -107,6 +107,16 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
             return Object.assign({}, s, {
                 logs: _.concat(s.logs, newLog),
             })
+        case "SHOW_MESSAGE_DIALOG":
+            return {
+                ...s,
+                activeMessageDialog: a.payload,
+            }
+        case "HIDE_MESSAGE_DIALOG":
+            return {
+                ...s,
+                activeMessageDialog: null,
+            }
         default:
             return Object.assign({}, s, {
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null

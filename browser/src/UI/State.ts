@@ -38,6 +38,34 @@ export interface IState {
 
     // Dimensions of active window, in pixels
     activeWindowDimensions: Rectangle
+
+    activeMessageDialog: IMessageDialog
+}
+
+export enum MessageType {
+    Info = 0,
+    Warning,
+    Error,
+}
+
+export interface IMessageDialog {
+    messageType: MessageType
+    text: string
+    buttons: IMessageDialogButton[]
+}
+
+export interface Color {
+    r: number
+    g: number
+    b: number
+    a: number
+}
+
+export interface IMessageDialogButton {
+    text: string
+    backgroundColor?: Color
+    foregroundColor?: Color
+    callback?: () => void
 }
 
 export enum StatusBarAlignment {
@@ -112,4 +140,5 @@ export const createDefaultState = (): IState => ({
     configuration: Config.instance().getValues(),
 
     statusBar: {},
+    activeMessageDialog: null,
 })
