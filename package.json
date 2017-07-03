@@ -116,6 +116,7 @@
     "@types/react-redux": "4.4.38",
     "@types/sinon": "1.16.32",
     "autoprefixer": "6.4.0",
+    "bs-platform": "1.8.0",
     "classnames": "2.2.5",
     "concurrently": "3.1.0",
     "cross-env": "3.1.3",
