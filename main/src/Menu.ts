@@ -2,7 +2,11 @@ import * as os from "os"
 
 import { app, dialog, Menu, shell } from "electron"
 
-export const buildMenu = (mainWindow, loadInit) => {
+export interface BrowserWindowFunction {
+    (): Promise<any>
+}
+
+export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) => {
     let menu = []
 
     // On Windows, both the forward slash `/` and the backward slash `\` are accepted as path delimiters.
@@ -10,9 +14,15 @@ export const buildMenu = (mainWindow, loadInit) => {
     // for VIM as it sees escape keys.
     const normalizePath = (fileName) => fileName.split("\\").join("/")
 
-    const executeVimCommand = (command) => mainWindow.webContents.send("menu-item-click", command)
+    const executeVimCommand = async (command) => {
+        let mainWindow = await mainWindowFunction()
+        mainWindow.webContents.send("menu-item-click", command)
+    }
 
-    const executeOniCommand = (command) => mainWindow.webContents.send("execute-command", command)
+    const executeOniCommand = async (command) => {
+        let mainWindow = await mainWindowFunction()
+        mainWindow.webContents.send("execute-command", command)
+    }
 
     const executeVimCommandForFiles = (command, files) => {
         if (!files || !files.length) {
