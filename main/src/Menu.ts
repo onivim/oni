@@ -32,6 +32,22 @@ export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) =
         files.forEach((fileName) => executeVimCommand(`${command} ${normalizePath(fileName)}`))
     }
 
+    const showOpenDialogAndExecuteCommandForFiles = async (command) => {
+        let mainWindow = await mainWindowFunction()
+        dialog.showOpenDialog(mainWindow, ["openFile"], (files) => {
+            executeVimCommandForFiles(":e", files)
+        })
+    }
+
+    const showSaveDialogAndExecuteCommandForFile = async (command) => {
+            let mainWindow = await mainWindowFunction()
+            dialog.showSaveDialog(mainWindow, {}, (name) => {
+                if (name) {
+                    executeVimCommand(command + " " + name)
+                }
+            })
+    }
+
     let preferences = {
         label: "Preferences",
         submenu: [
@@ -57,25 +73,19 @@ export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) =
             {
                 label: "Open...",
                 click: (item, focusedWindow) => {
-                    dialog.showOpenDialog(mainWindow, ["openFile"], (files) => {
-                        executeVimCommandForFiles(":e", files)
-                    })
+                    showOpenDialogAndExecuteCommandForFiles(":e")
                 },
             },
             {
                 label: "Split Open...",
                 click: (item, focusedWindow) => {
-                    dialog.showOpenDialog(mainWindow, ["openFile"], (files) => {
-                        executeVimCommandForFiles(":sp", files)
-                    })
+                    showOpenDialogAndExecuteCommandForFiles(":sp")
                 },
             },
             {
                 label: "Tab Open...",
                 click: (item, focusedWindow) => {
-                    dialog.showOpenDialog(mainWindow, ["openFile"], (files) => {
-                        executeVimCommandForFiles(":tabnew", files)
-                    })
+                    showOpenDialogAndExecuteCommandForFiles(":tabnew")
                 },
             },
             {
@@ -100,11 +110,7 @@ export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) =
             {
                 label: "Save As...",
                 click: (item, focusedWindow) => {
-                    dialog.showSaveDialog(mainWindow, {}, (name) => {
-                        if (name) {
-                            executeVimCommand(":save " + name)
-                        }
-                    })
+                    showSaveDialogAndExecuteCommandForFile(":save")
                 },
             },
             {
