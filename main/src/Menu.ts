@@ -1,6 +1,6 @@
 import * as os from "os"
 
-import { Menu, app, shell, dialog } from "electron";
+import { app, dialog, Menu, shell } from "electron"
 
 export const buildMenu = (mainWindow, loadInit) => {
     let menu = []
@@ -28,18 +28,18 @@ export const buildMenu = (mainWindow, loadInit) => {
                 label: "Edit Oni config",
                 click: () => executeOniCommand("oni.config.openConfigJs"),
             },
-        ]
+        ],
     }
 
     if (loadInit) {
         preferences.submenu.push(
         {
             label: "Edit Neovim config",
-            click: () => executeOniCommand("oni.config.openInitVim")
+            click: () => executeOniCommand("oni.config.openInitVim"),
         })
     }
 
-    let firstMenu = os.platform() == "win32" ? 'File' : 'Oni';
+    let firstMenu = os.platform() == "win32" ? 'File' : 'Oni'
     menu.unshift({
         label: firstMenu,
         submenu: [
@@ -49,7 +49,7 @@ export const buildMenu = (mainWindow, loadInit) => {
                     dialog.showOpenDialog(mainWindow, ['openFile'], (files) => {
                         executeVimCommandForFiles(":e", files)
                     })
-                }
+                },
             },
             {
                 label: 'Split Open...',
@@ -57,7 +57,7 @@ export const buildMenu = (mainWindow, loadInit) => {
                     dialog.showOpenDialog(mainWindow, ['openFile'], (files) => {
                         executeVimCommandForFiles(":sp", files)
                     })
-                }
+                },
             },
             {
                 label: 'Tab Open...',
@@ -65,26 +65,26 @@ export const buildMenu = (mainWindow, loadInit) => {
                     dialog.showOpenDialog(mainWindow, ['openFile'], (files) => {
                         executeVimCommandForFiles(":tabnew", files)
                     })
-                }
+                },
             },
             {
                 label: 'New',
-                click: (item, focusedWindow) => executeVimCommand(":enew")
+                click: (item, focusedWindow) => executeVimCommand(":enew"),
             },
             {
                 label: 'Close',
-                click: (item, focusedWindow) => executeVimCommand(":close")
+                click: (item, focusedWindow) => executeVimCommand(":close"),
             },
             {
-                type: 'separator'
+                type: 'separator',
             },
             preferences,
             {
-                type: 'separator'
+                type: 'separator',
             },
             {
                 label: 'Save',
-                click: (item, focusedWindow) => executeVimCommand(":w")
+                click: (item, focusedWindow) => executeVimCommand(":w"),
             },
             {
                 label: 'Save As...',
@@ -94,22 +94,22 @@ export const buildMenu = (mainWindow, loadInit) => {
                             executeVimCommand(":save " + name)
                         }
                     })
-                }
+                },
             },
             {
                 label: 'Save All',
-                click: (item, focusedWindow) => executeVimCommand(":wall")
+                click: (item, focusedWindow) => executeVimCommand(":wall"),
             },
             {
-                type: 'separator'
+                type: 'separator',
             },
             {
                 label: 'Quit',
                 click: (item, focusedWindow) => {
                     app.quit()
-                }
-            }
-        ]
+                },
+            },
+        ],
     })
 
     // Edit menu
@@ -119,43 +119,43 @@ export const buildMenu = (mainWindow, loadInit) => {
 
        {
            label: 'Undo',
-           click: (item, focusedWindow) => executeVimCommand("u")
+           click: (item, focusedWindow) => executeVimCommand("u"),
        },
        {
            label: 'Redo',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-r>")
+           click: (item, focusedWindow) => executeVimCommand("\\<C-r>"),
        },
        {
            label: 'Repeat',
-           click: (item, focusedWindow) => executeVimCommand(".")
+           click: (item, focusedWindow) => executeVimCommand("."),
        },
        {
-           type: 'separator'
+           type: 'separator',
        },
        {
            label: 'Cut',
-           click: (item, focusedWindow) => executeVimCommand('\\"+x')
+           click: (item, focusedWindow) => executeVimCommand('\\"+x'),
        },
        {
            label: 'Copy',
-           click: (item, focusedWindow) => executeVimCommand('\\"+y')
+           click: (item, focusedWindow) => executeVimCommand('\\"+y'),
        },
        {
            label: 'Paste',
-           click: (item, focusedWindow) => executeVimCommand('\\"+gP')
+           click: (item, focusedWindow) => executeVimCommand('\\"+gP'),
        },
        {
            label: 'Paste Line Before',
-           click: (item, focusedWindow) => executeVimCommand("[p")
+           click: (item, focusedWindow) => executeVimCommand("[p"),
        },
        {
            label: 'Paste Line After',
-           click: (item, focusedWindow) => executeVimCommand("]p")
+           click: (item, focusedWindow) => executeVimCommand("]p"),
        },
        {
            label: 'Select All',
-           click: (item, focusedWindow) => executeVimCommand("ggVG")
-       }
+           click: (item, focusedWindow) => executeVimCommand("ggVG"),
+       },
     ]})
 
     // Window menu
@@ -165,85 +165,85 @@ export const buildMenu = (mainWindow, loadInit) => {
     submenu : [
         {
            label: 'New Horizontal Split',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-w>n")
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>n"),
         },
         {
            label: 'Split File Horizontally',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-w>s")
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>s"),
         },
         {
            label: 'Split File Vertically',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-w>v")
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>v"),
         },
         {
            label: 'File Explorer Split',
-           click: (item, focusedWindow) => executeVimCommand(":Lexplore | vertical resize 30")
+           click: (item, focusedWindow) => executeVimCommand(":Lexplore | vertical resize 30"),
         },
         {
-            type: 'separator'
+            type: 'separator',
         },
         {
            label: 'Close',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-w>c")
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>c"),
         },
         {
            label: 'Close Other Split(s)',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-w>o")
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>o"),
         },
         {
-            type: 'separator'
+            type: 'separator',
         },
         {
            label: 'Move To',
            submenu: [
            {
                 label: 'Top',
-                click: (item, focusedWindow) => executeVimCommand("\\<C-w>K")
+                click: (item, focusedWindow) => executeVimCommand("\\<C-w>K"),
             },
             {
                 label: 'Bottom',
-                click: (item, focusedWindow) => executeVimCommand("\\<C-w>J")
+                click: (item, focusedWindow) => executeVimCommand("\\<C-w>J"),
             },
             {
                 label: 'Left Side',
-                click: (item, focusedWindow) => executeVimCommand("\\<C-w>H")
+                click: (item, focusedWindow) => executeVimCommand("\\<C-w>H"),
             },
             {
                 label: 'Right Side',
-                click: (item, focusedWindow) => executeVimCommand("\\<C-w>L")
-            }]
+                click: (item, focusedWindow) => executeVimCommand("\\<C-w>L"),
+            }],
         },
         {
            label: 'Rotate Up',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-w>R")
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>R"),
         },
         {
            label: 'Rotate Down',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-w>r")
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>r"),
         },
         {
-            type: 'separator'
+            type: 'separator',
         },
         {
            label: 'Equal Size',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-w>=")
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>="),
         },
         {
            label: 'Max Height',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-w>_")
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>_"),
         },
         {
            label: 'Min Height',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-w>1_")
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>1_"),
         },
         {
            label: 'Max Width',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-w>|")
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>|"),
         },
         {
            label: 'Min Width',
-           click: (item, focusedWindow) => executeVimCommand("\\<C-w>1|")
-        }
+           click: (item, focusedWindow) => executeVimCommand("\\<C-w>1|"),
+        },
     ]})
 
     // Help menu
@@ -253,28 +253,28 @@ export const buildMenu = (mainWindow, loadInit) => {
         {
             label: 'Learn more',
             click: (item, focusedWindow) => {
-                shell.openExternal('https://github.com/extr0py/oni#introduction');
-            }
+                shell.openExternal('https://github.com/extr0py/oni#introduction')
+            },
         },
         {
             label: 'Issues',
             click: (item, focusedWindow) => {
-                shell.openExternal('https://github.com/extr0py/oni/issues');
-            }
+                shell.openExternal('https://github.com/extr0py/oni/issues')
+            },
         },
         {
             label: 'Github',
             click: (item, focusedWindow) => {
-                shell.openExternal('https://github.com/extr0py/oni');
-            }
+                shell.openExternal('https://github.com/extr0py/oni')
+            },
         },
         {
-            type: 'separator'
+            type: 'separator',
         },
         {
             label: 'Developer Tools',
-            click: () => executeOniCommand('oni.debug.openDevTools')
-        }
+            click: () => executeOniCommand('oni.debug.openDevTools'),
+        },
     ]})
 
     return Menu.buildFromTemplate(menu)

@@ -2,12 +2,12 @@
 import * as path from "path"
 
 // Module to control application life.
-import { BrowserWindow, Menu, app, ipcMain, webContents } from "electron"
+import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
 const isDevelopment = process.env.NODE_ENV === "development" 
 
-const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
-const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length >0
+const isVerbose = process.argv.filter((arg) => arg.indexOf("--verbose") >= 0).length > 0
+const isDebug = process.argv.filter((arg) => arg.indexOf("--debug") >= 0).length >0
 
 import { buildMenu } from "./Menu"
 
@@ -59,7 +59,7 @@ function createWindow(commandLineArguments, workingDirectory) {
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
             args: commandLineArguments,
-            workingDirectory: workingDirectory
+            workingDirectory: workingDirectory,
         })
     })
 
@@ -83,7 +83,7 @@ function createWindow(commandLineArguments, workingDirectory) {
         // Dereference the window object, usually you would store windows
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
-        windows = windows.filter(m => m !== mainWindow)
+        windows = windows.filter((m) => m !== mainWindow)
         mainWindow = null
 
     })
@@ -126,12 +126,12 @@ function updateMenu(mainWindow, loadInit) {
         Menu.setApplicationMenu(menu)
     } else {
         //on windows and linux, set menu per window
-        mainWindow.setMenu(menu);
+        mainWindow.setMenu(menu)
     }
 }
 
 function focusNextInstance(direction) {
-    const currentFocusedWindows = windows.filter(f => f.isFocused())
+    const currentFocusedWindows = windows.filter((f) => f.isFocused())
 
     if (currentFocusedWindows.length === 0) {
         log("No window currently focused")
