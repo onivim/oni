@@ -2,12 +2,10 @@ import * as os from "os"
 
 import { app, dialog, Menu, shell } from "electron"
 
-export interface BrowserWindowFunction {
-    (): Promise<any>
-}
+export type BrowserWindowFunction = () => Promise<any>
 
 export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) => {
-    let menu = []
+    const menu = []
 
     // On Windows, both the forward slash `/` and the backward slash `\` are accepted as path delimiters.
     // The node APIs only return the backward slash, ie: `C:\\oni\\README.md`, but this causes problems
@@ -15,12 +13,12 @@ export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) =
     const normalizePath = (fileName) => fileName.split("\\").join("/")
 
     const executeVimCommand = async (command) => {
-        let mainWindow = await mainWindowFunction()
+        const mainWindow = await mainWindowFunction()
         mainWindow.webContents.send("menu-item-click", command)
     }
 
     const executeOniCommand = async (command) => {
-        let mainWindow = await mainWindowFunction()
+        const mainWindow = await mainWindowFunction()
         mainWindow.webContents.send("execute-command", command)
     }
 
@@ -33,14 +31,14 @@ export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) =
     }
 
     const showOpenDialogAndExecuteCommandForFiles = async (command) => {
-        let mainWindow = await mainWindowFunction()
+        const mainWindow = await mainWindowFunction()
         dialog.showOpenDialog(mainWindow, ["openFile"], (files) => {
             executeVimCommandForFiles(":e", files)
         })
     }
 
     const showSaveDialogAndExecuteCommandForFile = async (command) => {
-        let mainWindow = await mainWindowFunction()
+        const mainWindow = await mainWindowFunction()
         dialog.showSaveDialog(mainWindow, {}, (name) => {
             if (name) {
                 executeVimCommand(command + " " + name)
@@ -48,7 +46,7 @@ export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) =
         })
     }
 
-    let preferences = {
+    const preferences = {
         label: "Preferences",
         submenu: [
             {
@@ -66,7 +64,7 @@ export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) =
             })
     }
 
-    let firstMenu = os.platform() === "win32" ? "File" : "Oni"
+    const firstMenu = os.platform() === "win32" ? "File" : "Oni"
     menu.unshift({
         label: firstMenu,
         submenu: [
@@ -173,8 +171,8 @@ export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) =
                 label: "Select All",
                 click: (item, focusedWindow) => executeVimCommand("ggVG"),
             },
-        ]    
-})
+        ],
+    })
 
     // Window menu
     menu.push({
@@ -261,7 +259,7 @@ export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) =
                 label: "Min Width",
                 click: (item, focusedWindow) => executeVimCommand("\\<C-w>1|"),
             },
-        ]
+        ],
     })
 
     // Help menu
@@ -293,7 +291,7 @@ export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) =
                 label: "Developer Tools",
                 click: () => executeOniCommand("oni.debug.openDevTools"),
             },
-        ]
+        ],
     })
 
     return Menu.buildFromTemplate(menu)
