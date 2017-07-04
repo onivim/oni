@@ -240,39 +240,41 @@ export class LanguageClient {
         }
     }
 
-    private _getCompletions(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.CompletionResult> {
+    private async _getCompletions(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.CompletionResult> {
+        if (!this._serverCapabilities || !this._serverCapabilities.completionProvider) {
+            return null
+        }
 
-        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.Completion,
+        let result = await this._connection.sendRequest<types.CompletionList>(
+            Helpers.ProtocolConstants.TextDocument.Completion,
             Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
-            .then((result: types.CompletionList) => {
 
-                const items = this._getCompletionItems(result)
+        const items = this._getCompletionItems(result)
 
-                if (!items) {
-                    return { base: "", completions: [] }
-                }
+        if (!items) {
+            return { base: "", completions: [] }
+        }
 
-                const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
-                const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, /[_a-z]/i)
+        const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
+        const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, /[_a-z]/i)
 
-                if (!meetInfo) {
-                    return { base: "", completions: [] }
-                }
+        if (!meetInfo) {
+            return { base: "", completions: [] }
+        }
 
-                const filteredItems = items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
+        const filteredItems = items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
 
-                const completions = filteredItems.map((i) => ({
-                    label: i.label,
-                    detail: i.detail,
-                    documentation: i.documentation,
-                    kind: i.kind,
-                }))
+        const completions = filteredItems.map((i) => ({
+            label: i.label,
+            detail: i.detail,
+            documentation: i.documentation,
+            kind: i.kind,
+        }))
 
-                return {
-                    base: meetInfo.base,
-                    completions,
-                }
-            })
+        return {
+            base: meetInfo.base,
+            completions,
+        }
     }
 
     private async _updateHighlights(bufferFullPath: string): Promise<void> {
