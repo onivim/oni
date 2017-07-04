@@ -177,9 +177,8 @@ export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) =
 
     // Window menu
     menu.push({
-
         label:  "Split",
-    submenu : [
+        submenu : [
         {
            label: "New Horizontal Split",
            click: (item, focusedWindow) => executeVimCommand("\\<C-w>n"),
