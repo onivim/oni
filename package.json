@@ -11,7 +11,7 @@
     "ide",
     "vim"
   ],
-  "main": "lib/main/main.js",
+  "main": "lib/main/src/main.js",
   "bin": {
     "oni": "./cli/oni",
     "oni-vim": "./cli/oni"
@@ -79,8 +79,8 @@
     "lint:browser": "tslint --project browser/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
     "lint:test": "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
     "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
-    "start-hot": "cross-env NODE_ENV=development electron main.js",
-    "start-not-dev": "cross-env electron main.js",
+    "start-hot": "cross-env NODE_ENV=development electron lib/main/src/main.js",
+    "start-not-dev": "cross-env electron lib/main/src/main.js",
     "watch:browser": "webpack-dev-server --config browser/webpack.hotreload.config.js --inline --hot --host localhost --port 8191",
     "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch",
     "uninstall-global": "npm rm -g oni-vim",

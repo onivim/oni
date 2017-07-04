@@ -12,7 +12,7 @@ processOptions.stdio = ["ignore", null, null]
 var isWindows = os.platform() === "win32";
 
 var args = process.argv.slice(2);
-args.unshift(path.resolve(path.join(__dirname, "..", "main.js")))
+args.unshift(path.resolve(path.join(__dirname, "..", "lib", "main", "src", "main.js")))
 
 // In Windows, directly call into the electron executable - otherwise we"ll end up with a floating node console
 var nonWindowsElectronPath = path.join(__dirname, "..", "node_modules", ".bin", "electron")

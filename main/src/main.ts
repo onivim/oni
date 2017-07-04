@@ -46,11 +46,13 @@ if (!isDevelopment && !isDebug) {
     }
 }
 
+const rootDir = path.join(__dirname, "..", "..", "..")
+
 function createWindow(commandLineArguments, workingDirectory) {
     log(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
 
     // Create the browser window.
-    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png") })
+    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(rootDir, "images", "Oni_128.png") })
 
     updateMenu(mainWindow, false)
 
@@ -70,7 +72,7 @@ function createWindow(commandLineArguments, workingDirectory) {
     })
 
     // and load the index.html of the app.
-    mainWindow.loadURL(`file://${__dirname}/index.html`)
+    mainWindow.loadURL(`file://${rootDir}/index.html`)
 
     // Open the DevTools.
     if (process.env.NODE_ENV === "development")
