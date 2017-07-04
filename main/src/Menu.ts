@@ -1,11 +1,8 @@
-const electron = require('electron')
-const os = require('os')
+import * as os from "os"
 
-// Module to control application life.
-const { Menu, app, shell, dialog } = electron;
+import { Menu, app, shell, dialog } from "electron";
 
-
-const buildMenu = (mainWindow, loadInit) => {
+export const buildMenu = (mainWindow, loadInit) => {
     let menu = []
 
     // On Windows, both the forward slash `/` and the backward slash `\` are accepted as path delimiters.
@@ -29,7 +26,7 @@ const buildMenu = (mainWindow, loadInit) => {
         submenu: [
             {
                 label: "Edit Oni config",
-                click: () => executeOniCommand("oni.config.openConfigJs")
+                click: () => executeOniCommand("oni.config.openConfigJs"),
             },
         ]
     }
@@ -281,8 +278,4 @@ const buildMenu = (mainWindow, loadInit) => {
     ]})
 
     return Menu.buildFromTemplate(menu)
-}
-
-module.exports = {
-    buildMenu: buildMenu
 }

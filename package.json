@@ -11,7 +11,7 @@
     "ide",
     "vim"
   ],
-  "main": "main.js",
+  "main": "lib/main/main.js",
   "bin": {
     "oni": "./cli/oni",
     "oni-vim": "./cli/oni"
@@ -63,6 +63,7 @@
     "build:browser": "webpack --config browser/webpack.production.config.js",
     "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
     "build:plugins": "cd vim/core/oni-plugin-typescript && npm run build",
+    "build:main": "cd main && tsc -p tsconfig.src.json",
     "pack": "build --publish never",
     "dist:win": "build --arch ia32 --publish never",
     "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",

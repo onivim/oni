@@ -1,23 +1,15 @@
-const electron = require('electron')
-const path = require("path")
-// Module to control application life.
-const { Menu, app, shell, dialog } = electron;
-const os = require('os');
 
-const ipcMain = electron.ipcMain
+import * as path from "path"
+
+// Module to control application life.
+import { BrowserWindow, Menu, app, ipcMain, webContents } from "electron"
 
 const isDevelopment = process.env.NODE_ENV === "development" 
 
 const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length >0
 
-const { buildMenu } = require("./Menu")
-
-// import * as derp from "./installDevTools"
-
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow
-const webContents = electron.webContents
+import { buildMenu } from "./Menu"
 
 ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
@@ -50,7 +42,7 @@ if (!isDevelopment && !isDebug) {
 
     if (shouldQuit) {
         app.quit()
-        return
+        process.exit()
     }
 }
 
