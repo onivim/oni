@@ -4,8 +4,8 @@
  * Helper to install the redux & react devtools
  */
 
-
 import electronDevToolsInstaller from "electron-devtools-installer"
+
 try {
     electronDevToolsInstaller(electronDevToolsInstaller.REDUX_DEVTOOLS)
         .then((name) => console.log(`Added extension: ${name}`)) // tslint:disable-line no-console
@@ -13,4 +13,3 @@ try {
 } catch (ex) {
     console.warn("Unable to install developer tools. `electron-devtools-installer` may not be available in this environment")
 }
-
