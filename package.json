@@ -102,7 +102,7 @@
     "omnisharp-client": "7.0.6",
     "q": "1.4.1",
     "tslint": "5.4.3",
-    "typescript": "2.4.1"
+    "typescript": "2.2.1"
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
