@@ -1,4 +1,3 @@
-
 import * as path from "path"
 
 // Module to control application life.
