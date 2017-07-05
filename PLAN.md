@@ -1,6 +1,3 @@
-- Upgrade to latest version of typescript?
-- Upgrade to latest version of tslint?
-
 - Update codepath when all browser windows are closed, to wait for creation of a window
 
 - Update `createWindow` to return a promise once the window is fully initialized
