@@ -24,5 +24,4 @@ module Oni = {
     external createLanguageClient: t => runOptions => initializationFunction => LanguageClient.t = "" [@@bs.send];
 
     external configuration: t => Configuration.t = "" [@@bs.get];
-
 };
