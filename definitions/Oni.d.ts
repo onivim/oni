@@ -32,7 +32,7 @@ declare namespace Oni {
     export interface StatusBarItem {
         show(): void
         hide(): void
-        setContents(element: HTMLElement): void
+        setContents(element: JSX.Element): void
         dispose(): void
     }
 

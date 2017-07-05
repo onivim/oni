@@ -58,6 +58,8 @@ export interface InitializationParamsCreator {
     (filePath: string): Promise<LanguageClientInitializationParams>
 }
 
+import { LanguageClientStatusBar } from "./LanguageClientStatusBar"
+
 /**
  * Implementation of a client that talks to a server 
  * implementing the Language Server Protocol:
@@ -72,12 +74,16 @@ export class LanguageClient {
     private _initializationParams: LanguageClientInitializationParams
     private _serverCapabilities: Helpers.ServerCapabilities
 
+    private _statusBar: LanguageClientStatusBar
+
     constructor(
         private _startOptions: ServerRunOptions,
         private _initializationParamsCreator: InitializationParamsCreator,
         private _oni: Oni) {
 
         this._currentPromise = Promise.resolve(null)
+
+        this._statusBar = new LanguageClientStatusBar(this._oni)
 
         this._oni.on("buffer-enter", (args: Oni.EventContext) => {
             this._enqueuePromise(() => {
