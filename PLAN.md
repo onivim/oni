@@ -1,13 +1,12 @@
-- README.md - fix license section & update
 - Completion: Why are details not showing?
+
+- README.md - fix license section & update
 - Update README with support instructions
 
 - Python - syntax highlighting issue
     - Investigate error in python language service - is it due to our LSP client or general issue with the language server?
 
 - Port to Bucklescript
-
-- Test go to definition
 
 - Error cases
     - Windows: no tooling
