@@ -113,6 +113,10 @@ export class LanguageClient {
             return this._enqueuePromise(() => this._onBufferUpdate(args))
         })
 
+        this._oni.on("buffer-leave", (args: Oni.EventContext) => {
+            this._statusBar.hide()
+        })
+
         this._oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdateIncremental(args))
         })

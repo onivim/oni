@@ -45,7 +45,7 @@ export enum LanguageClientState {
     Active,
 }
 
-// const SpinnerIcon = "circle-o-notch"
+const SpinnerIcon = "circle-o-notch"
 const ConnectedIcon = "bolt"
 
 interface StatusBarRendererProps {
@@ -53,14 +53,35 @@ interface StatusBarRendererProps {
     language: string
 }
 
+const getIconFromStatus = (status: LanguageClientState) => {
+    switch (status) {
+        case LanguageClientState.Initializing:
+            return SpinnerIcon
+        default:
+            return ConnectedIcon
+    }
+}
+
 const StatusBarRenderer = (props: StatusBarRendererProps) => {
-        const style = {
+        const containerStyle: React.CSSProperties = {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             height: "100%",
-            backgroundColor: "black",
-            color: "white"
+            backgroundColor: "rgb(30, 30, 30)",
+            color: "white",
+            paddingRight: "8px",
+            paddingLeft: "8px"
         }
-        return <div style={style}>
-            <Icon name={ConnectedIcon} />
-            <span>python</span>
+
+        const iconStyle: React.CSSProperties = {
+            paddingRight: "8px"
+        }
+
+        return <div style={containerStyle}>
+            <span style={iconStyle}>
+                <Icon name={getIconFromStatus(props.state)}/>
+            </span>
+            <span>{props.language}</span>
             </div>
 }
