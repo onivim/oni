@@ -32,9 +32,23 @@ export namespace TextDocumentSyncKind {
     export const Incremental = 2
 }
 
+export interface CompletionOptions {
+    /**
+     * The server provides support to resolve additional
+     * information for a completion item.
+     */
+    resolveProvider?: boolean
+
+    /**
+     * The characters that trigger completion automatically.
+     */
+    triggerCharacters?: string[]
+}
+
 // ServerCapabilities
 // Defined in the LSP protocol: https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md
 export interface ServerCapabilities {
+    completionProvider?: CompletionOptions
     textDocumentSync?: number
 }
 
@@ -121,9 +135,9 @@ const splitByNewlines = (str: string) => {
 }
 
 const getFilePrefix = () => {
-     if (process.platform === "win32") {
-         return "file:///"
-     } else {
-         return "file://"
-     }
+    if (process.platform === "win32") {
+        return "file:///"
+    } else {
+        return "file://"
+    }
  }
