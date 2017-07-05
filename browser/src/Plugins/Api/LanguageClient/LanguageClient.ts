@@ -58,7 +58,7 @@ export interface InitializationParamsCreator {
     (filePath: string): Promise<LanguageClientInitializationParams>
 }
 
-import { LanguageClientStatusBar } from "./LanguageClientStatusBar"
+import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
 
 /**
  * Implementation of a client that talks to a server 
@@ -86,6 +86,8 @@ export class LanguageClient {
         this._statusBar = new LanguageClientStatusBar(this._oni)
 
         this._oni.on("buffer-enter", (args: Oni.EventContext) => {
+            this._statusBar.show("python")
+            this._statusBar.setStatus(LanguageClientState.Initializing)
             this._enqueuePromise(() => {
                 return this._initializationParamsCreator(args.bufferFullPath)
                     .then((newParams: LanguageClientInitializationParams) => {
@@ -185,6 +187,7 @@ export class LanguageClient {
 
         return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, initializationParams)
             .then((response: any) => {
+                this._statusBar.setStatus(LanguageClientState.Initialized)
                 console.log(`[LANGUAGE CLIENT: ${initializationParams.clientName}]: Initialized`) // tslint:disable-line no-console
                 if (response && response.capabilities) {
                     this._serverCapabilities = response.capabilities
