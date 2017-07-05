@@ -101,7 +101,7 @@
     "neovim-client": "2.1.0",
     "omnisharp-client": "7.0.6",
     "q": "1.4.1",
-    "tslint": "5.4.3",
+    "tslint": "4.0.2",
     "typescript": "2.2.1"
   },
   "devDependencies": {
