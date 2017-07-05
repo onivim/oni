@@ -395,11 +395,12 @@ See [roadmap](ROADMAP.md)
 
 MIT License. Copyright (c) extropygames
 
-The bundled plugins have their own license terms, along with the bundled Neovim binary
-
 There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
 
 Windows and OSX have a bundled version of Neovim, which is covered under [Neovim's license](https://github.com/neovim/neovim/blob/master/LICENSE)
+
+Bundled plugins have their own license terms:
+- TODO
 
 ## Contributing
 
