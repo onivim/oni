@@ -75,12 +75,14 @@ const StatusBarRenderer = (props: StatusBarRendererProps) => {
         }
 
         const iconStyle: React.CSSProperties = {
-            paddingRight: "8px"
+            paddingRight: "6px",
+            minWidth: "14px",
+            textAlign: "center",
         }
 
         return <div style={containerStyle}>
             <span style={iconStyle}>
-                <Icon name={getIconFromStatus(props.state)}/>
+                <Icon name={getIconFromStatus(props.state)} className={"rotate-animation"}/>
             </span>
             <span>{props.language}</span>
             </div>

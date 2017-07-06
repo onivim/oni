@@ -86,7 +86,7 @@ export class LanguageClient {
         this._statusBar = new LanguageClientStatusBar(this._oni)
 
         this._oni.on("buffer-enter", (args: Oni.EventContext) => {
-            this._statusBar.show("python")
+            this._statusBar.show(args.filetype)
             this._statusBar.setStatus(LanguageClientState.Initializing)
             this._enqueuePromise(() => {
                 return this._initializationParamsCreator(args.bufferFullPath)

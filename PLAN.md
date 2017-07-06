@@ -1,8 +1,9 @@
 - Spinner - make spin
-- Remove on buffer leave (only single status bar)
 
 - Language client name -> filetype
 - Remove unnecessary capabilities from LanguageClient
+
+- Configuration to show in status bar
 
 - oni.shell.fontFamily
 - oni.shell.fontSize
