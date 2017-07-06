@@ -78,8 +78,8 @@ const activate = (Oni) => {
             alignItems: "center",
             justifyContent: "center",
             height: "100%",
-            backgroundColor: "rgb(30, 30, 30)",
-            color: "white",
+            backgroundColor: "rgb(35, 35, 35)",
+            color: "rgb(200, 200, 200)",
             paddingRight: "8px",
             paddingLeft: "8px"
         }

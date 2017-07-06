@@ -5,6 +5,7 @@
  */
 
 import * as React from "react"
+import * as electron from "electron"
 
 import { Icon } from "./../../../UI/Icon"
 
@@ -44,6 +45,7 @@ export enum LanguageClientState {
 
 const SpinnerIcon = "circle-o-notch"
 const ConnectedIcon = "bolt"
+const ErrorIcon = "exclamation-circle"
 
 interface StatusBarRendererProps {
     state: LanguageClientState
@@ -54,6 +56,8 @@ const getIconFromStatus = (status: LanguageClientState) => {
     switch (status) {
         case LanguageClientState.Initializing:
             return SpinnerIcon
+        case LanguageClientState.Error:
+            return ErrorIcon
         default:
             return ConnectedIcon
     }
@@ -74,8 +78,8 @@ const StatusBarRenderer = (props: StatusBarRendererProps) => {
         alignItems: "center",
         justifyContent: "center",
         height: "100%",
-        backgroundColor: "rgb(30, 30, 30)",
-        color: "white",
+        backgroundColor: "rgb(35, 35, 35)",
+        color: "rgb(200, 200, 200)",
         paddingRight: "8px",
         paddingLeft: "8px",
     }
@@ -86,7 +90,13 @@ const StatusBarRenderer = (props: StatusBarRendererProps) => {
         textAlign: "center",
     }
 
-    return <div style={containerStyle}>
+    const openDevTools = () => {
+        electron.remote.getCurrentWindow().webContents.openDevTools()
+    }
+
+    const onClick = props.state === LanguageClientState.Error ? openDevTools : null
+
+    return <div style={containerStyle} onClick={onClick}>
         <span style={iconStyle}>
             <Icon name={getIconFromStatus(props.state)} className={getClassNameFromstatus(props.state)} />
         </span>
