@@ -26,7 +26,8 @@ declare namespace Oni {
     }
 
     export interface StatusBar {
-        createItem(alignment: number, priority: number): StatusBarItem
+        getItem(globalId?: string): StatusBarItem
+        createItem(alignment: number, priority: number, globalId?: string): StatusBarItem
     }
 
     export interface StatusBarItem {

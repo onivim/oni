@@ -7,11 +7,12 @@ const activate = (Oni) => {
     const React = Oni.dependencies.React
 
     const filePathItem = Oni.statusBar.createItem(0, -1)
+
+
     const lineNumberItem = Oni.statusBar.createItem(1, -1)
     const modeItem = Oni.statusBar.createItem(1, -2)
 
     const setMode = (mode) => {
-
         const getColorForMode = (m) => {
             switch (m) {
                 case "insert":

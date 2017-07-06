@@ -1,3 +1,6 @@
+- Hook up global ids
+- Move core status bar to status bar plugin
+
 - Spinner - make spin
     - Only for notch
 

@@ -32,10 +32,6 @@ export class LanguageClientStatusBar {
     hide(): void {
         this._item.hide()
     }
-
-    // setStatus(): void {
-
-    // }
 }
 
 export enum LanguageClientState {
