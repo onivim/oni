@@ -1,15 +1,5 @@
-- Move core status bar to status bar plugin
-
-- Spinner - make spin
-    - Only for notch
-
-- Exclamation circle
+- Error handling
+    - Exclamation circle
+    - Testing - go lang server
 
 - Remove unnecessary capabilities from LanguageClient
-
-- Configuration to show in status bar
-
-- oni.shell.fontFamily
-- oni.shell.fontSize
-
-- Error handling
