@@ -129,9 +129,15 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
 export const statusBarReducer = (s: { [key: string]: State.IStatusBarItem }, a: Actions.SimpleAction) => {
     switch (a.type) {
         case "STATUSBAR_SHOW":
+            const existingItem = s[a.payload.id] || {}
+            const newItem = {
+                ...existingItem,
+                ...a.payload,
+            }
+
             return {
                 ...s,
-                [a.payload.id]: a.payload,
+                [a.payload.id]: newItem,
             }
         case "STATUSBAR_HIDE":
             return {

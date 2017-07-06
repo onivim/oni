@@ -6,11 +6,11 @@ const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
 const activate = (Oni) => {
     const React = Oni.dependencies.React
 
-    const filePathItem = Oni.statusBar.createItem(0, -1)
+    const filePathItem = Oni.statusBar.createItem(0, -1, "oni.status.filePath")
+    const fileTypeItem = Oni.statusBar.createItem(0, 0, "oni.status.fileTypeItem")
+    const lineNumberItem = Oni.statusBar.createItem(1, -1, "oni.status.lineNumber")
+    const modeItem = Oni.statusBar.createItem(1, -2, "oni.status.mode")
 
-
-    const lineNumberItem = Oni.statusBar.createItem(1, -1)
-    const modeItem = Oni.statusBar.createItem(1, -2)
 
     const setMode = (mode) => {
         const getColorForMode = (m) => {
@@ -66,6 +66,10 @@ const activate = (Oni) => {
         filePathItem.setContents(element)
     }
 
+    const setFileType = (fileType) => {
+        fileTypeItem.setContents(fileType)
+    }
+
     Oni.on("mode-change", (evt) => {
         setMode(evt)
     })
@@ -75,16 +79,19 @@ const activate = (Oni) => {
     })
 
     Oni.on("buffer-enter", (evt) => {
+        setFileType(evt.filetype)
         setFilePath(evt.bufferFullPath)
     })
 
     setMode("normal")
     setLineNumber(1, 1)
     setFilePath(null)
+    setFileType(null)
 
     modeItem.show()
     lineNumberItem.show()
     filePathItem.show()
+    fileTypeItem.show()
 }
 
 module.exports = {
