@@ -136,6 +136,7 @@ export const statusBarReducer = (s: { [key: string]: State.IStatusBarItem }, a: 
         case "STATUSBAR_HIDE":
             return {
                 ...s,
+                [a.payload.id]: null,
             }
         default:
             return s
