@@ -67,6 +67,12 @@ const activate = (Oni) => {
     }
 
     const setFileType = (fileType) => {
+
+        if (!fileType) {
+            fileTypeItem.hide()
+            return
+        }
+
         const fileTypeStyle = {
             display: "flex",
             alignItems: "center",
@@ -81,6 +87,7 @@ const activate = (Oni) => {
         const element = React.createElement("div", { style: fileTypeStyle }, fileType)
 
         fileTypeItem.setContents(element)
+        fileTypeItem.show()
     }
 
     Oni.on("mode-change", (evt) => {
@@ -104,7 +111,6 @@ const activate = (Oni) => {
     modeItem.show()
     lineNumberItem.show()
     filePathItem.show()
-    fileTypeItem.show()
 }
 
 module.exports = {
