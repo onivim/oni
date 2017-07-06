@@ -196,7 +196,10 @@ export class LanguageClient {
                 if (response && response.capabilities) {
                     this._serverCapabilities = response.capabilities
                 }
-            }, (err) => console.error(err))
+            }, (err) => {
+                this._statusBar.setStatus(LanguageClientState.Error)
+                console.error(err)
+            })
     }
 
     public end(): Promise<void> {
@@ -222,6 +225,7 @@ export class LanguageClient {
             .then(() => promiseExecutor(),
             (err) => {
                 console.error(err)
+                this._statusBar.setStatus(LanguageClientState.Error)
                 return promiseExecutor()
             })
 

@@ -39,6 +39,7 @@ export enum LanguageClientState {
     Initializing,
     Initialized,
     Active,
+    Error,
 }
 
 const SpinnerIcon = "circle-o-notch"
