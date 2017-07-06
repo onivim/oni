@@ -7,7 +7,7 @@ const activate = (Oni) => {
     const React = Oni.dependencies.React
 
     const filePathItem = Oni.statusBar.createItem(0, -1, "oni.status.filePath")
-    const fileTypeItem = Oni.statusBar.createItem(0, 0, "oni.status.fileTypeItem")
+    const fileTypeItem = Oni.statusBar.createItem(0, 0, "oni.status.fileType")
     const lineNumberItem = Oni.statusBar.createItem(1, -1, "oni.status.lineNumber")
     const modeItem = Oni.statusBar.createItem(1, -2, "oni.status.mode")
 
@@ -67,7 +67,20 @@ const activate = (Oni) => {
     }
 
     const setFileType = (fileType) => {
-        fileTypeItem.setContents(fileType)
+        const fileTypeStyle = {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            backgroundColor: "rgb(30, 30, 30)",
+            color: "white",
+            paddingRight: "8px",
+            paddingLeft: "8px"
+        }
+
+        const element = React.createElement("div", { style: fileTypeStyle }, fileType)
+
+        fileTypeItem.setContents(element)
     }
 
     Oni.on("mode-change", (evt) => {

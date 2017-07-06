@@ -1,4 +1,3 @@
-- Hook up global ids
 - Move core status bar to status bar plugin
 
 - Spinner - make spin
@@ -14,7 +13,3 @@
 - oni.shell.fontSize
 
 - Error handling
-
-- Add LSP status bar
-    - "In-progress notification"
-    - "Error" notification

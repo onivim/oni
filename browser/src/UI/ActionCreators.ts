@@ -19,7 +19,6 @@ import * as Actions from "./Actions"
 import { events } from "./Events"
 import { ILog } from "./Logs"
 
-
 export const showMessageDialog = (messageType: State.MessageType, text: string, buttons: State.IMessageDialogButton[], details?: string): Actions.IShowMessageDialog => ({
     type: "SHOW_MESSAGE_DIALOG",
     payload: {
@@ -27,22 +26,32 @@ export const showMessageDialog = (messageType: State.MessageType, text: string, 
         text,
         buttons,
         details,
-    }
+    },
 })
 
 export const hideMessageDialog = (): Actions.IHideMessageDialog => ({
     type: "HIDE_MESSAGE_DIALOG",
 })
 
-export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => ({
-    type: "STATUSBAR_SHOW",
-    payload: {
-        id,
-        contents,
-        alignment,
-        priority,
-    },
-})
+export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => (dispatch: Function, getState: Function) => {
+
+    const currentStatusBarItem = getState().statusBar[id]
+
+    if (currentStatusBarItem) {
+        alignment = alignment || currentStatusBarItem.alignment
+        priority = priority || currentStatusBarItem.priority
+    }
+
+    dispatch({
+        type: "STATUSBAR_SHOW",
+        payload: {
+            id,
+            contents,
+            alignment,
+            priority,
+        },
+    })
+}
 
 export const hideStatusBarItem = (id: string) => ({
     type: "STATUSBAR_HIDE",

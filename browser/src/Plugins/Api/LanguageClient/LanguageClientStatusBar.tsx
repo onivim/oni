@@ -16,7 +16,7 @@ export class LanguageClientStatusBar {
     private _fileType: string
 
     constructor(private _oni: Oni) {
-        this._item = this._oni.statusBar.createItem(0, 0)
+        this._item = this._oni.statusBar.getItem("oni.status.fileType")
     }
 
     public show(fileType: string): void {
@@ -58,28 +58,37 @@ const getIconFromStatus = (status: LanguageClientState) => {
     }
 }
 
+const getClassNameFromstatus = (status: LanguageClientState) => {
+    switch (status) {
+        case LanguageClientState.Initializing:
+            return "rotate-animation"
+        default:
+            return ""
+    }
+}
+
 const StatusBarRenderer = (props: StatusBarRendererProps) => {
-        const containerStyle: React.CSSProperties = {
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100%",
-            backgroundColor: "rgb(30, 30, 30)",
-            color: "white",
-            paddingRight: "8px",
-            paddingLeft: "8px"
-        }
+    const containerStyle: React.CSSProperties = {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+        backgroundColor: "rgb(30, 30, 30)",
+        color: "white",
+        paddingRight: "8px",
+        paddingLeft: "8px",
+    }
 
-        const iconStyle: React.CSSProperties = {
-            paddingRight: "6px",
-            minWidth: "14px",
-            textAlign: "center",
-        }
+    const iconStyle: React.CSSProperties = {
+        paddingRight: "6px",
+        minWidth: "14px",
+        textAlign: "center",
+    }
 
-        return <div style={containerStyle}>
-            <span style={iconStyle}>
-                <Icon name={getIconFromStatus(props.state)} className={"rotate-animation"}/>
-            </span>
-            <span>{props.language}</span>
-            </div>
+    return <div style={containerStyle}>
+        <span style={iconStyle}>
+            <Icon name={getIconFromStatus(props.state)} className={getClassNameFromstatus(props.state)} />
+        </span>
+        <span>{props.language}</span>
+    </div>
 }
