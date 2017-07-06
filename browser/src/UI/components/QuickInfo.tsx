@@ -9,7 +9,6 @@ require("./QuickInfo.less") // tslint:disable-line no-var-requires
 
 export interface IQuickInfoProps {
     visible: boolean
-    wrap: boolean
     x: number
     y: number
     elements: JSX.Element[]
@@ -34,7 +33,6 @@ export class QuickInfo extends React.Component<IQuickInfoProps, void> {
         const innerCommonStyle = {
             "position": "absolute",
             "opacity": this.props.visible ? 1 : 0,
-            "whiteSpace": this.props.wrap ? "normal" : "nowrap",
             "max-width": (document.body.offsetWidth - this.props.x - 40) + "px",
         }
 
@@ -108,7 +106,6 @@ const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
 
     if (!state.quickInfo) {
         return {
-            wrap: true,
             visible: false,
             x: state.cursorPixelX,
             y: yPos,
@@ -117,7 +114,6 @@ const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
         }
     } else {
         return {
-            wrap: true,
             visible: true,
             x: state.cursorPixelX,
             y: yPos,
@@ -134,7 +130,6 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
 
     if (!state.signatureHelp) {
         return {
-            wrap: false,
             visible: false,
             x: state.cursorPixelX,
             y: state.cursorPixelY - (state.fontPixelHeight),
@@ -171,7 +166,6 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
         }
 
         return {
-            wrap: false,
             visible: true,
             x: state.cursorPixelX,
             y: state.cursorPixelY - (state.fontPixelHeight),
