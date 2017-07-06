@@ -1,6 +1,8 @@
 - README.md - fix license section & update
 - Update README with support instructions
 
+- Warnings?
+
 - Python - syntax highlighting issue
     - Investigate error in python language service - is it due to our LSP client or general issue with the language server?
 
