@@ -1,5 +1,3 @@
-- Completion: Why are details not showing?
-
 - README.md - fix license section & update
 - Update README with support instructions
 

@@ -240,6 +240,16 @@ export class LanguageClient {
         }
     }
 
+    private _getCompletionDocumentation(item: types.CompletionItem): string | null {
+        if (item.documentation) {
+            return item.documentation
+        } else if(item.data && item.data.documentation) {
+            return item.data.documentation
+        } else {
+            return null
+        }
+    }
+
     private async _getCompletions(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.CompletionResult> {
         if (!this._serverCapabilities || !this._serverCapabilities.completionProvider) {
             return null
@@ -267,7 +277,7 @@ export class LanguageClient {
         const completions = filteredItems.map((i) => ({
             label: i.label,
             detail: i.detail,
-            documentation: i.documentation,
+            documentation: this._getCompletionDocumentation(i),
             kind: i.kind,
         }))
 
