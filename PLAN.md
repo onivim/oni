@@ -13,5 +13,4 @@
     - Preliminary "snippet" behavior could provide these for autocompletion
 
 ### Separate issues:
-    - 485 - error handling story for LSP
     - Log issue for playground / preview
