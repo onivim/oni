@@ -1,11 +1,3 @@
-- README.md - fix license section & update
-- Update README with support instructions
-
-- Warnings?
-
-- Python - syntax highlighting issue
-    - Investigate error in python language service - is it due to our LSP client or general issue with the language server?
-
 - Port to Bucklescript
 
 - Error cases
@@ -14,9 +6,6 @@
 
 - Test with OCaml as well (.ml/.mli)
 
-- How to express keyword from language server plugin?
-    - Preliminary "snippet" behavior could provide these for autocompletion
-
 ### Separate issues:
-    - 485 - error handling story for LSP
     - Log issue for playground / preview
+    - Preliminary "snippet" behavior could provide these for autocompletion

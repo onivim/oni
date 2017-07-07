@@ -19,9 +19,6 @@ const activate = (Oni) => {
                 return {
                     clientName: "omnisharp",
                     rootPath: csprojPath,
-                    capabilities: {
-                        highlightProvider: true
-                    }
                 }
             })
     })

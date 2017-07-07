@@ -48,6 +48,10 @@ export interface ServerRunOptions {
 export interface LanguageClientInitializationParams {
     clientName: string
     rootPath: string
+
+    // Disable `textDocument/documentSymbol` requests, even if the LSP
+    // supports it.
+    disableDocumentSymbol?: boolean
 }
 
 /**
@@ -103,12 +107,12 @@ export class LanguageClient {
 
         this._oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdate(args))
-                    .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
+                .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
         })
 
         this._oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdateIncremental(args))
-                    .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
+                .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
         })
 
         const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
@@ -189,7 +193,17 @@ export class LanguageClient {
         // Register additional notifications here
         this._connection.listen()
 
-        return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, initializationParams)
+        const { clientName, rootPath } = initializationParams
+
+        const oniLanguageClientParams = {
+            clientName,
+            rootPath,
+            capabilities: {
+                highlightProvider: true,
+            },
+        }
+
+        return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, oniLanguageClientParams)
             .then((response: any) => {
                 console.log(`[LANGUAGE CLIENT: ${initializationParams.clientName}]: Initialized`) // tslint:disable-line no-console
                 if (response && response.capabilities) {
@@ -243,7 +257,7 @@ export class LanguageClient {
     private _getCompletionDocumentation(item: types.CompletionItem): string | null {
         if (item.documentation) {
             return item.documentation
-        } else if(item.data && item.data.documentation) {
+        } else if (item.data && item.data.documentation) {
             return item.data.documentation
         } else {
             return null
@@ -292,9 +306,13 @@ export class LanguageClient {
             return null
         }
 
-        let symbolInformation =  await this._connection.sendRequest<types.SymbolInformation[]>(
-                                    Helpers.ProtocolConstants.TextDocument.DocumentSymbol,
-                                    Helpers.pathToTextDocumentIdentifierParms(bufferFullPath))
+        if (!this._initializationParams || this._initializationParams.disableDocumentSymbol) {
+            return null
+        }
+
+        let symbolInformation = await this._connection.sendRequest<types.SymbolInformation[]>(
+            Helpers.ProtocolConstants.TextDocument.DocumentSymbol,
+            Helpers.pathToTextDocumentIdentifierParms(bufferFullPath))
 
         const oniHighlights: Oni.Plugin.SyntaxHighlight[] = symbolInformation.map((v) => ({ highlightKind: v.kind, token: v.name }))
         this._oni.setHighlights(bufferFullPath, "language-client", oniHighlights)
