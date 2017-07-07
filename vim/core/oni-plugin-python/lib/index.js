@@ -14,9 +14,10 @@ const activate = (Oni) => {
         return Promise.resolve({
             clientName: "python",
             rootPath: "file:///" + filePath,
-            capabilities: {
-                highlightProvider: true
-            }
+
+            // workaround for:
+            // https://github.com/palantir/python-language-server/issues/73
+            disableDocumentSymbol: true,
         })
     }
 
