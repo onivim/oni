@@ -399,8 +399,14 @@ There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS
 
 Windows and OSX have a bundled version of Neovim, which is covered under [Neovim's license](https://github.com/neovim/neovim/blob/master/LICENSE)
 
-Bundled plugins have their own license terms:
-- TODO
+#### Bundled Plugins
+
+Bundled plugins have their own license terms. These include:
+- [typescript-vim](https://github.com/leafgarland/typescript-vim) (`oni/vim/core/typescript.vim`)
+- [targets.vim](https://github.com/wellle/targets.vim) (`oni/vim/default/bundle/targets.vim`)
+- [vim-commentary](https://github.com/tpope/vim-commentary) (`oni/vim/default/bundle/vim-commentary`)
+- [vim-unimpaired](https://github.com/tpope/vim-unimpaired) (`oni/vim/default/bundle/vim-unimpaired`)
+- [vim-reasonml](https://github.com/reasonml-editor/vim-reason) (`.vim` files in `oni/vim/core/oni-plugin-reasonml`)
 
 ## Contributing
 
