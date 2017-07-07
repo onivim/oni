@@ -102,7 +102,7 @@ const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
     const openFromTopPosition = state.cursorPixelY + (state.fontPixelHeight * 2)
     const openFromBottomPosition = state.cursorPixelY - state.fontPixelHeight
 
-    const openFromTop = state.cursorPixelY < 50
+    const openFromTop = state.cursorPixelY < 75
 
     const yPos = openFromTop ? openFromTopPosition : openFromBottomPosition
 
