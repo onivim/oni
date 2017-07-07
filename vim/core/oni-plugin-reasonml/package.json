@@ -1,7 +1,7 @@
 {
     "name": "oni-plugin-ocaml",
     "version": "0.0.1",
-    "main": "lib/index.js",
+    "main": "lib/js/src/test.js",
     "engines": {
         "oni": "^0.2.6"
     },

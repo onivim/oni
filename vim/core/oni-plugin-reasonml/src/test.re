@@ -6,19 +6,19 @@ let activate oni: Oni.LanguageClient.t => {
 
     open Oni;
 
-    let startOptions: runOptions = {
+    let startOptions: runOptions = [%bs.obj {
         command: startCommand,
-        args: ["a", "b"]
-    };
+        args: ["--stdio"]
+    }];
 
     let getInitializationOptions filePath => {
-        let opts: initializationOptions = {
+        let opts: initializationOptions = [%bs.obj {
             clientName: "ocaml",
             rootPath: filePath
-        };
+        }];
         Js.Promise.resolve opts;
     };
 
     let client = Oni.createLanguageClient oni startOptions getInitializationOptions;
-    client;
+    client
 };

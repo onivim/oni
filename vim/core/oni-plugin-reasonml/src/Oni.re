@@ -2,11 +2,9 @@
 module Oni = {
     type t;
 
-    type runOptions = 
-        { command: string, args: list string};
+    type runOptions = Js.t {. command: string, args: list string};
 
-    type initializationOptions = 
-        { clientName: string, rootPath: string };
+    type initializationOptions = Js.t {. clientName: string, rootPath: string };
 
     type initializationPromise = Js.Promise.t initializationOptions;
     type initializationFunction = string => initializationPromise;
@@ -25,3 +23,9 @@ module Oni = {
 
     external configuration: t => Configuration.t = "" [@@bs.get];
 };
+
+let a x => x + 1;
+
+let b x => a(x) * 2;
+
+let c x => a(x) * 3;
