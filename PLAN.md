@@ -1,4 +1,3 @@
-- README.md - fix license section & update
 - Update README with support instructions
 
 - Python - syntax highlighting issue

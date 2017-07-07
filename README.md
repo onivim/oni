@@ -24,6 +24,7 @@
         - [C#](#c)
         - [Go](#go)
         - [Python](#python)
+        - [Reason and OCaml](#reason-and-ocaml)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
@@ -302,6 +303,23 @@ _Supported Language features_
 _Known Issues_
 
 - Windows support is blocked by this issue: [palantir/python-language-server#53](https://github.com/palantir/python-language-server/issues/53).
+
+#### Reason and OCaml
+
+_Configuration_
+
+Reason and OCaml supports depends on [ocaml-language-server](https://github.com/freebroccolo/ocaml-language-server) by @freebroccolo. 
+
+You can use `npm install -g ocaml-language-server` to use the language server.
+
+Make sure that the proper [Requirements](https://github.com/freebroccolo/ocaml-language-server#requirements) are installed.
+
+_Supported Language features_
+
+| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
+| --- | --- | --- | --- | --- | --- |--- | --- |
+| Y | Y | Y | Y | Y | N | N | N |
+
 
 ### Configuration
 
