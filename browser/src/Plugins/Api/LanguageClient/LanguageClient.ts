@@ -222,9 +222,16 @@ export class LanguageClient {
     }
 
     private async _getReferences(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.ReferencesResult> {
-        let result = await this._connection.sendRequest<types.Location[]>(
-            Helpers.ProtocolConstants.TextDocument.Completion,
-            Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
+        const args = {
+            ...Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition),
+            context: {
+                includeDeclaration: true,
+            }
+        }
+
+        const result = await this._connection.sendRequest<types.Location[]>(
+            Helpers.ProtocolConstants.TextDocument.References,
+            args)
 
         const locationToReferences = (location: types.Location): Oni.Plugin.ReferencesResultItem => ({
             fullPath: Helpers.unwrapFileUriPath(location.uri),
@@ -233,7 +240,7 @@ export class LanguageClient {
         })
 
         return {
-           items: result.map((l) => locationToReferences(l)),
+            items: result.map((l) => locationToReferences(l)),
         }
     }
 
