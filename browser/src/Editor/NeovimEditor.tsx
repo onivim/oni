@@ -9,6 +9,8 @@ import * as path from "path"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
+import * as types from "vscode-languageserver-types"
+
 import { ipcRenderer } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
@@ -130,15 +132,18 @@ export class NeovimEditor implements IEditor {
             }
         })
 
-        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: any[]) => {
+        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: types.Diagnostic[]) => {
             errorService.setErrors(fileName, errors)
 
-            this._errorOverlay.setErrors(key, fileName, errors)
+            // this._errorOverlay.setErrors(key, fileName, errors)
 
-            const errorMarkers = errors.map((e: any) => ({
-                line: e.lineNumber,
+            errors = errors || []
+            errors = errors.filter((e) => e.range && e.range && e.range.start)
+
+            const errorMarkers = errors.map((e: types.Diagnostic) => ({
+                line: e.range.start.line || 0,
                 height: 1,
-                "red",
+                color: "red",
             }))
             this._scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
         })
