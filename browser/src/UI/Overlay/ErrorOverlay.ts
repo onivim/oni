@@ -1,10 +1,12 @@
 import * as _ from "lodash"
 import * as path from "path"
 
-import { IErrorWithColor, renderErrorMarkers } from "./../components/Error"
+import { renderErrorMarkers } from "./../components/Error"
 
 import { IOverlay } from "./OverlayManager"
 import { WindowContext } from "./WindowContext"
+
+import * as types from "vscode-languageserver-types"
 
 export class ErrorOverlay implements IOverlay {
 
@@ -40,11 +42,10 @@ export class ErrorOverlay implements IOverlay {
         this._showErrors()
     }
 
-    public setErrors(key: string, fileName: string, errors: Oni.Plugin.Diagnostics.Error[], color: string): void {
+    public setErrors(key: string, fileName: string, errors: types.Diagnostic): void {
         fileName = path.normalize(fileName)
-        color = color || "red"
         this._errors[fileName] = this._errors[fileName] || {}
-        this._errors[fileName][key] = errors.map((e) => ({...e, color }))
+        this._errors[fileName][key] = errors
 
         this._showErrors()
     }
@@ -72,10 +73,10 @@ export class ErrorOverlay implements IOverlay {
         }
 
         const errors = this._errors[this._currentFileName]
-        let allErrors: IErrorWithColor[] = []
+        let allErrors: types.Diagnostic[] = []
 
         if (errors) {
-            allErrors = _.flatten<IErrorWithColor>(_.values<IErrorWithColor>(errors))
+            allErrors = _.flatten<types.Diagnostic>(_.values<types.Diagnostic>(errors))
         }
 
         renderErrorMarkers({

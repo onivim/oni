@@ -6,6 +6,8 @@
 
 import { IPluginChannel } from "./Channel"
 
+import * as types from "vscode-languageserver-types"
+
 /**
  * API instance for interacting with Oni (and vim)
  */
@@ -15,8 +17,7 @@ export class Diagnostics implements Oni.Plugin.Diagnostics.Api {
     constructor(private _channel: IPluginChannel) {
     }
 
-    public setErrors(key: string, fileName: string, errors: Oni.Plugin.Diagnostics.Error[], color?: string): void {
-
+    public setErrors(key: string, fileName: string, errors: types.Diagnostic[]): void {
         if (!errors) {
             return
         }
@@ -31,7 +32,6 @@ export class Diagnostics implements Oni.Plugin.Diagnostics.Api {
             key,
             fileName,
             errors,
-            color,
         })
     }
 

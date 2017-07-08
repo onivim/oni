@@ -130,16 +130,15 @@ export class NeovimEditor implements IEditor {
             }
         })
 
-        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: any[], color: string) => {
+        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: any[]) => {
             errorService.setErrors(fileName, errors)
 
-            color = color || "red"
-            this._errorOverlay.setErrors(key, fileName, errors, color)
+            this._errorOverlay.setErrors(key, fileName, errors)
 
             const errorMarkers = errors.map((e: any) => ({
                 line: e.lineNumber,
                 height: 1,
-                color,
+                "red",
             }))
             this._scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
         })
