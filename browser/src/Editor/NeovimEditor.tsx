@@ -158,7 +158,7 @@ export class NeovimEditor implements IEditor {
 
             const quickFixItems = references.items.map((item) => convertToQuickFixItem(item))
 
-            this._neovimInstance.quickFix.setqflist(quickFixItems, ` Find All References`)
+            this._neovimInstance.quickFix.setqflist(quickFixItems, ` Find All References: ${references.tokenName}`)
             this._neovimInstance.command("copen")
             this._neovimInstance.command(`execute "normal! /${references.tokenName}\\<cr>"`)
         })
