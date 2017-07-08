@@ -19,6 +19,7 @@ import { Oni } from "./../Oni"
 import * as Helpers from "./LanguageClientHelpers"
 import { LanguageClientLogger } from "./LanguageClientLogger"
 
+const characterMatchRegex = /[_a-z]/i
 /**
  * Options for starting the Language Server process
  */
@@ -121,7 +122,12 @@ export class LanguageClient {
             return this._enqueuePromise(() => this._getCompletions(textDocumentPosition))
         }
 
+        const findAllReferences = (textDocumentPosition: Oni.EventContext) => {
+            return this._enqueuePromise(() => this._getReferences(textDocumentPosition))
+        }
+
         this._oni.registerLanguageService({
+            findAllReferences,
             getCompletions,
             getDefinition,
             getQuickInfo,
@@ -216,6 +222,51 @@ export class LanguageClient {
         return newPromise
     }
 
+    private async _getReferences(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.ReferencesResult> {
+        const args = {
+            ...Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition),
+            context: {
+                includeDeclaration: true,
+            },
+        }
+
+        const result = await this._connection.sendRequest<types.Location[]>(
+            Helpers.ProtocolConstants.TextDocument.References,
+            args)
+
+        const getToken = (buffer: string[], line: number, character: number): string => {
+            const lineContents = buffer[line]
+
+            const tokenStart = getLastMatchingCharacter(lineContents, character, -1, characterMatchRegex)
+            const tokenEnd = getLastMatchingCharacter(lineContents, character, 1, characterMatchRegex)
+
+            return lineContents.substring(tokenStart, tokenEnd + 1)
+        }
+
+        const getLastMatchingCharacter = (lineContents: string, character: number, dir: number, regex: RegExp) => {
+            while (character >= 0 && character < lineContents.length) {
+                if (!lineContents[character].match(regex)) {
+                    return character - dir
+                }
+
+                character += dir
+            }
+
+            return character
+        }
+
+        const locationToReferences = (location: types.Location): Oni.Plugin.ReferencesResultItem => ({
+            fullPath: Helpers.unwrapFileUriPath(location.uri),
+            line: location.range.start.line,
+            column: location.range.start.character,
+        })
+
+        return {
+            tokenName: getToken(this._currentBuffer, textDocumentPosition.line - 1, textDocumentPosition.column - 1),
+            items: result.map((l) => locationToReferences(l)),
+        }
+    }
+
     private async _getCompletions(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.CompletionResult> {
 
         if (!this._serverCapabilities || !this._serverCapabilities.completionProvider) {
@@ -226,7 +277,7 @@ export class LanguageClient {
             Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
 
         const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
-        const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, /[_a-z]/i)
+        const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, characterMatchRegex)
 
         if (!meetInfo) {
             return { base: "", completions: [] }

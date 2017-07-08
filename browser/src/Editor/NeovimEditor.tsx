@@ -153,7 +153,7 @@ export class NeovimEditor implements IEditor {
                 filename: item.fullPath,
                 lnum: item.line,
                 col: item.column,
-                text: item.lineText,
+                text: item.lineText || references.tokenName,
             })
 
             const quickFixItems = references.items.map((item) => convertToQuickFixItem(item))
