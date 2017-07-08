@@ -228,7 +228,6 @@ declare namespace Oni {
         }
 
         export interface ReferencesResult {
-            tokenName: string
             items: ReferencesResultItem[]
         }
 

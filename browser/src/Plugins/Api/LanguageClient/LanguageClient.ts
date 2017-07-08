@@ -121,7 +121,12 @@ export class LanguageClient {
             return this._enqueuePromise(() => this._getCompletions(textDocumentPosition))
         }
 
+        const findAllReferences = (textDocumentPosition: Oni.EventContext) => {
+            return this._enqueuePromise(() => this._getReferences(textDocumentPosition))
+        }
+
         this._oni.registerLanguageService({
+            findAllReferences,
             getCompletions,
             getDefinition,
             getQuickInfo,
@@ -214,6 +219,22 @@ export class LanguageClient {
 
         this._currentPromise = newPromise
         return newPromise
+    }
+
+    private async _getReferences(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.ReferencesResult> {
+        let result = await this._connection.sendRequest<types.Location[]>(
+            Helpers.ProtocolConstants.TextDocument.Completion,
+            Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
+
+        const locationToReferences = (location: types.Location): Oni.Plugin.ReferencesResultItem => ({
+            fullPath: Helpers.unwrapFileUriPath(location.uri),
+            line: location.range.start.line,
+            column: location.range.start.character,
+        })
+
+        return {
+           items: result.map((l) => locationToReferences(l)),
+        }
     }
 
     private async _getCompletions(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.CompletionResult> {
