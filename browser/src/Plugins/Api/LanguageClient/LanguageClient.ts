@@ -240,7 +240,7 @@ export class LanguageClient {
             const tokenStart = getLastMatchingCharacter(lineContents, character, -1, characterMatchRegex)
             const tokenEnd = getLastMatchingCharacter(lineContents, character, 1, characterMatchRegex)
 
-            return lineContents.substring(tokenStart, tokenEnd)
+            return lineContents.substring(tokenStart, tokenEnd + 1)
         }
 
         const getLastMatchingCharacter = (lineContents: string, character: number, dir: number, regex: RegExp) => {
