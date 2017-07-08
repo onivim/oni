@@ -246,7 +246,7 @@ export class LanguageClient {
         const getLastMatchingCharacter = (lineContents: string, character: number, dir: number, regex: RegExp) => {
             while (character >= 0 && character < lineContents.length) {
                 if (!lineContents[character].match(regex)) {
-                    return character + dir
+                    return character - dir
                 }
 
                 character += dir
