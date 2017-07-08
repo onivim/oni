@@ -1,23 +1,14 @@
-const electron = require('electron')
-const path = require("path")
+import * as path from "path"
+
 // Module to control application life.
-const { Menu, app, shell, dialog } = electron;
-const os = require('os');
+import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
-const ipcMain = electron.ipcMain
+const isDevelopment = process.env.NODE_ENV === "development"
 
-const isDevelopment = process.env.NODE_ENV === "development" 
+const isVerbose = process.argv.filter((arg) => arg.indexOf("--verbose") >= 0).length > 0
+const isDebug = process.argv.filter((arg) => arg.indexOf("--debug") >= 0).length > 0
 
-const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
-const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length >0
-
-const { buildMenu } = require("./Menu")
-
-// import * as derp from "./installDevTools"
-
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow
-const webContents = electron.webContents
+import { buildMenu } from "./Menu"
 
 ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
@@ -50,26 +41,28 @@ if (!isDevelopment && !isDebug) {
 
     if (shouldQuit) {
         app.quit()
-        return
+        process.exit()
     }
 }
+
+const rootDir = path.join(__dirname, "..", "..", "..")
 
 function createWindow(commandLineArguments, workingDirectory) {
     log(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
 
     // Create the browser window.
-    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png") })
+    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(rootDir, "images", "Oni_128.png") })
 
     updateMenu(mainWindow, false)
 
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
             args: commandLineArguments,
-            workingDirectory: workingDirectory
+            workingDirectory,
         })
     })
 
-    ipcMain.on('rebuild-menu', function(_evt, loadInit) {
+    ipcMain.on("rebuild-menu", (evt, loadInit) => {
         // ipcMain is a singleton so if there are multiple Oni instances
         // we may receive an event from a different instance
         if (mainWindow) {
@@ -78,18 +71,19 @@ function createWindow(commandLineArguments, workingDirectory) {
     })
 
     // and load the index.html of the app.
-    mainWindow.loadURL(`file://${__dirname}/index.html`)
+    mainWindow.loadURL(`file://${rootDir}/index.html`)
 
     // Open the DevTools.
-    if (process.env.NODE_ENV === "development")
+    if (process.env.NODE_ENV === "development") {
         mainWindow.webContents.openDevTools()
+    }
 
     // Emitted when the window is closed.
-    mainWindow.on('closed', function() {
+    mainWindow.on("closed", () => {
         // Dereference the window object, usually you would store windows
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
-        windows = windows.filter(m => m !== mainWindow)
+        windows = windows.filter((m) => m !== mainWindow)
         mainWindow = null
 
     })
@@ -100,7 +94,7 @@ function createWindow(commandLineArguments, workingDirectory) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', () => {
+app.on("ready", () => {
     if (isDebug || isDevelopment) {
         require("./installDevTools")
     }
@@ -109,35 +103,35 @@ app.on('ready', () => {
 })
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
+app.on("window-all-closed", () => {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
+    if (process.platform !== "darwin") {
         app.quit()
     }
 })
 
-app.on('activate', function() {
+app.on("activate", () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (windows.length === 0) {
-        createWindow()
+        createWindow([], process.cwd())
     }
 })
 
 function updateMenu(mainWindow, loadInit) {
-    const menu = buildMenu(mainWindow, loadInit)
-    if (process.platform === 'darwin') {
-        //all osx windows share the same menu
+    const menu = buildMenu(() => mainWindow, loadInit)
+    if (process.platform === "darwin") {
+        // all osx windows share the same menu
         Menu.setApplicationMenu(menu)
     } else {
-        //on windows and linux, set menu per window
-        mainWindow.setMenu(menu);
+        // on windows and linux, set menu per window
+        mainWindow.setMenu(menu)
     }
 }
 
 function focusNextInstance(direction) {
-    const currentFocusedWindows = windows.filter(f => f.isFocused())
+    const currentFocusedWindows = windows.filter((f) => f.isFocused())
 
     if (currentFocusedWindows.length === 0) {
         log("No window currently focused")
@@ -148,8 +142,9 @@ function focusNextInstance(direction) {
     const currentWindowIdx = windows.indexOf(currentFocusedWindow)
     let newFocusWindowIdx = (currentWindowIdx + direction) % windows.length
 
-    if (newFocusWindowIdx < 0)
+    if (newFocusWindowIdx < 0) {
         newFocusWindowIdx = windows.length - 1
+    }
 
     log(`Focusing index: ${newFocusWindowIdx}`)
     windows[newFocusWindowIdx].focus()
@@ -157,7 +152,7 @@ function focusNextInstance(direction) {
 
 function log(message) {
     if (isVerbose) {
-        console.log(message)
+        console.log(message) // tslint:disable-line no-console
     }
 }
 // In this file you can include the rest of your app's specific main process
