@@ -18,6 +18,7 @@ export const ProtocolConstants = {
         Definition: "textDocument/definition",
         DocumentSymbol: "textDocument/documentSymbol",
         DidChange: "textDocument/didChange",
+        References: "textDocument/references",
         PublishDiagnostics: "textDocument/publishDiagnostics",
     },
     Window: {
