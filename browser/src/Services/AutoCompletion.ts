@@ -31,6 +31,10 @@ export class AutoCompletion {
                 completions: c,
             })
         })
+
+        this._neovimInstance.on("hide-popup-menu", () => {
+            UI.Actions.hideCompletions()
+        })
     }
 
     public complete(): void {
