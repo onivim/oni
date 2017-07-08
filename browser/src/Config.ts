@@ -110,8 +110,8 @@ export class Config extends EventEmitter {
 
         "oni.exclude": ["**/node_modules/**"],
 
-        "editor.backgroundOpacity": 0.7,
-        "editor.backgroundImageUrl": "images/background.png",
+        "editor.backgroundOpacity": 1.0,
+        "editor.backgroundImageUrl": null,
         "editor.backgroundImageSize": "initial",
 
         "editor.quickInfo.enabled": true,
