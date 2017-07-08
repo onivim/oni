@@ -6,14 +6,12 @@ import { Icon } from "./../Icon"
 
 import { WindowContext } from "./../Overlay/WindowContext"
 
+import * as types from "vscode-languageserver-types"
+
 require("./Error.less") // tslint:disable-line no-var-requires
 
-export interface IErrorWithColor extends Oni.Plugin.Diagnostics.Error {
-    color: string
-}
-
 export interface IErrorsProps {
-    errors: IErrorWithColor[]
+    errors: types.Diagnostic[]
     windowContext: WindowContext
     showDetails: boolean
 }
@@ -25,42 +23,48 @@ export class Errors extends React.Component<IErrorsProps, void> {
         const errors = this.props.errors || []
 
         const markers = errors.map((e) => {
-            if (this.props.windowContext.isLineInView(e.lineNumber)) {
-                const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
+            const lineNumber = e.range.start.line
+            const column = e.range.start.character
+            if (this.props.windowContext.isLineInView(lineNumber)) {
+                const screenLine = this.props.windowContext.getWindowLine(lineNumber)
 
-                const xPos = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn).x
-                const yPos = this.props.windowContext.getWindowRegionForLine(e.lineNumber).y - (padding / 2)
+                const xPos = this.props.windowContext.getWindowPosition(lineNumber, column).x
+                const yPos = this.props.windowContext.getWindowRegionForLine(lineNumber).y - (padding / 2)
                 const isActive = screenLine === this.props.windowContext.getCurrentWindowLine()
 
-                const showTooltipTop = this.props.windowContext.dimensions.height - this.props.windowContext.getWindowLine(e.lineNumber) <= 2
+                const showTooltipTop = this.props.windowContext.dimensions.height - this.props.windowContext.getWindowLine(lineNumber) <= 2
 
                 return <ErrorMarker isActive={isActive}
                     x={xPos}
                     y={yPos}
                     showTooltipTop={showTooltipTop}
-                    text={e.text}
-                    color={e.color}
+                    text={e.message}
+                    color={"red"}
                     showDetails={this.props.showDetails} />
             } else {
                 return null
             }
         })
 
-        const squiggles = errors.map((e) => {
-            if (this.props.windowContext.isLineInView(e.lineNumber) && e.endColumn) {
-                // const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
+        const squiggles = errors
+            .filter((e) => e && e.range && e.range.start && e.range.end) 
+            .map((e) => {
+            const lineNumber = e.range.start.line
+            const column = e.range.start.character
+            const endColumn = e.range.end.character
 
-                const yPos = this.props.windowContext.getWindowRegionForLine(e.lineNumber).y
+            if (this.props.windowContext.isLineInView(lineNumber)) {
+                const yPos = this.props.windowContext.getWindowRegionForLine(lineNumber).y
 
-                const startX = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn as any).x // FIXME: undefined
-                const endX = this.props.windowContext.getWindowPosition(e.lineNumber, e.endColumn).x
+                const startX = this.props.windowContext.getWindowPosition(lineNumber, column).x // FIXME: undefined
+                const endX = this.props.windowContext.getWindowPosition(lineNumber, endColumn).x
 
                 return <ErrorSquiggle
                     y={yPos}
                     height={this.props.windowContext.fontHeightInPixels}
                     x={startX}
                     width={endX - startX}
-                    color={e.color} />
+                    color={"red"} />
             } else {
                 return null
             }

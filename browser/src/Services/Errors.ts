@@ -6,13 +6,15 @@ import * as Performance from "./../Performance"
 
 import { ITask, ITaskProvider } from "./Tasks"
 
+import * as types from "vscode-languageserver-types"
+
 /**
  * Window that shows terminal output
  */
 
 export class Errors implements ITaskProvider {
     private _neovimInstance: INeovimInstance
-    private _errors: { [fileName: string]: Oni.Plugin.Diagnostics.Error[] } = {}
+    private _errors: { [fileName: string]: types.Diagnostic[] } = {}
     private _debouncedSetQuickFix: () => void
 
     constructor(neovimInstance: INeovimInstance) {
@@ -25,7 +27,7 @@ export class Errors implements ITaskProvider {
         }, 250)
     }
 
-    public setErrors(fileName: string, errors: Oni.Plugin.Diagnostics.Error[]) {
+    public setErrors(fileName: string, errors: types.Diagnostic[]) {
         this._errors[fileName] = errors
 
         this._debouncedSetQuickFix()
@@ -53,9 +55,9 @@ export class Errors implements ITaskProvider {
         const flattenedErrors = _.flatten(arrayOfErrors)
         const errors = flattenedErrors.map((e) => <any>({
             filename: e.filename,
-            col: e.startColumn || 0,
-            lnum: e.lineNumber,
-            text: e.text,
+            col: e.range.start.character || 0,
+            lnum: e.range.start.line,
+            text: e.message,
         }))
 
         this._neovimInstance.quickFix.setqflist(errors, "Errors", " ")
