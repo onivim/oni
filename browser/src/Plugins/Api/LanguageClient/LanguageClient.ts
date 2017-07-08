@@ -19,6 +19,7 @@ import { Oni } from "./../Oni"
 import * as Helpers from "./LanguageClientHelpers"
 import { LanguageClientLogger } from "./LanguageClientLogger"
 
+const characterMatchRegex = /[_a-z]/i
 /**
  * Options for starting the Language Server process
  */
@@ -226,12 +227,33 @@ export class LanguageClient {
             ...Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition),
             context: {
                 includeDeclaration: true,
-            }
+            },
         }
 
         const result = await this._connection.sendRequest<types.Location[]>(
             Helpers.ProtocolConstants.TextDocument.References,
             args)
+
+        const getToken = (buffer: string[], line: number, character: number): string => {
+            const lineContents = buffer[line]
+
+            const tokenStart = getLastMatchingCharacter(lineContents, character + 1, -1, characterMatchRegex)
+            const tokenEnd = getLastMatchingCharacter(lineContents, character + 1, 1, characterMatchRegex)
+
+            return lineContents.substring(tokenStart, tokenEnd)
+        }
+
+        const getLastMatchingCharacter = (lineContents: string, character: number, dir: number, regex: RegExp) => {
+            while (character >= 0 && character < lineContents.length) {
+                if (!lineContents[character].match(regex)) {
+                    break
+                }
+
+                character += dir
+            }
+
+            return character
+        }
 
         const locationToReferences = (location: types.Location): Oni.Plugin.ReferencesResultItem => ({
             fullPath: Helpers.unwrapFileUriPath(location.uri),
@@ -240,6 +262,7 @@ export class LanguageClient {
         })
 
         return {
+            tokenName: getToken(this._currentBuffer, textDocumentPosition.line, textDocumentPosition.column),
             items: result.map((l) => locationToReferences(l)),
         }
     }
@@ -254,7 +277,7 @@ export class LanguageClient {
             Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
 
         const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
-        const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, /[_a-z]/i)
+        const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, characterMatchRegex)
 
         if (!meetInfo) {
             return { base: "", completions: [] }

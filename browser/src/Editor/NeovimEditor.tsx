@@ -160,7 +160,7 @@ export class NeovimEditor implements IEditor {
 
             this._neovimInstance.quickFix.setqflist(quickFixItems, ` Find All References`)
             this._neovimInstance.command("copen")
-            // this._neovimInstance.command(`execute "normal! /${references.tokenName}\\<cr>"`)
+            this._neovimInstance.command(`execute "normal! /${references.tokenName}\\<cr>"`)
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
