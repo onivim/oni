@@ -237,8 +237,8 @@ export class LanguageClient {
         const getToken = (buffer: string[], line: number, character: number): string => {
             const lineContents = buffer[line]
 
-            const tokenStart = getLastMatchingCharacter(lineContents, character + 1, -1, characterMatchRegex)
-            const tokenEnd = getLastMatchingCharacter(lineContents, character + 1, 1, characterMatchRegex)
+            const tokenStart = getLastMatchingCharacter(lineContents, character, -1, characterMatchRegex)
+            const tokenEnd = getLastMatchingCharacter(lineContents, character, 1, characterMatchRegex)
 
             return lineContents.substring(tokenStart, tokenEnd)
         }
@@ -246,7 +246,7 @@ export class LanguageClient {
         const getLastMatchingCharacter = (lineContents: string, character: number, dir: number, regex: RegExp) => {
             while (character >= 0 && character < lineContents.length) {
                 if (!lineContents[character].match(regex)) {
-                    break
+                    return character + dir
                 }
 
                 character += dir
@@ -262,7 +262,7 @@ export class LanguageClient {
         })
 
         return {
-            tokenName: getToken(this._currentBuffer, textDocumentPosition.line, textDocumentPosition.column),
+            tokenName: getToken(this._currentBuffer, textDocumentPosition.line - 1, textDocumentPosition.column - 1),
             items: result.map((l) => locationToReferences(l)),
         }
     }
