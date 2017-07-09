@@ -285,26 +285,17 @@ export class NeovimEditor implements IEditor {
 
         const normalizePath = (fileName: string) => fileName.split("\\").join("/")
 
-        ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
+        const openFiles = async (files: string[], action: string) => {
 
-            // Open the first file.
-            // If the current buffer is named, then open in a new tab or split.
-            // If the current buffer has modifications pending, then open in a new tab or split.
-            // If the current buffer had no modification and is a new file, open in the current buffer.
+            await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
 
-            this._neovimInstance.command("if bufname('%') != ''\n" +
-                        "    exec \"" + message + normalizePath(files[0]) + "\"\n" +
-                        "elseif &modified\n" +
-                        "    exec \"" + message + normalizePath(files[0]) + "\"\n" +
-                        "else\n" +
-                        "    exec \":e " + normalizePath(files[0]) + "\"\n" + 
-                        "endif")
-
-            // Open any subsequent files in a tab or split.
             for (let i = 1; i < files.length; i++) {
-                this._neovimInstance.command("exec \"" + message + " " + normalizePath(files[i]) + "\"")
+                this._neovimInstance.command("exec \"" + action + " " + normalizePath(files[i]) + "\"")
             }
+        }
 
+        ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
+            openFiles(files, message)
         })
 
         // enable opening a file via drag-drop
