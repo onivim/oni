@@ -59,8 +59,8 @@ const buildMenu = (mainWindow, loadInit) => {
             {
                 label: 'Split Open...',
                 click: (item, focusedWindow) => {
-                    dialog.showOpenDialog(mainWindow, {properties: ['openFile', 'multiSelections']}, (files) => {
-                        executeVimCommandForMultipleFiles(":sp ", files)
+                    dialog.showOpenDialog(mainWindow, 'openFile', (files) => {
+                        executeVimCommandForFiles(":sp", files)
                     })
                 }
             },
