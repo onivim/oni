@@ -2,8 +2,6 @@ import * as _ from "lodash"
 import * as Q from "q"
 
 import { INeovimInstance } from "./../NeovimInstance"
-import * as Performance from "./../Performance"
-
 import { ITask, ITaskProvider } from "./Tasks"
 
 import * as types from "vscode-languageserver-types"
@@ -15,29 +13,23 @@ import * as types from "vscode-languageserver-types"
 export class Errors implements ITaskProvider {
     private _neovimInstance: INeovimInstance
     private _errors: { [fileName: string]: types.Diagnostic[] } = {}
-    private _debouncedSetQuickFix: () => void
 
     constructor(neovimInstance: INeovimInstance) {
         this._neovimInstance = neovimInstance
-
-        this._debouncedSetQuickFix = _.debounce(() => {
-            Performance.mark("_setQuickFixErrors - begin")
-            this._setQuickFixErrors()
-            Performance.mark("_setQuickFixErrors - end")
-        }, 250)
     }
 
     public setErrors(fileName: string, errors: types.Diagnostic[]) {
         this._errors[fileName] = errors
-
-        this._debouncedSetQuickFix()
     }
 
     public getTasks(): Q.Promise<ITask[]> {
         const showErrorTask: ITask = {
             name: "Show Errors",
             detail: "Open quickfix window and show error details",
-            callback: () => this._neovimInstance.command("copen"),
+            callback: () => {
+                this._setQuickFixErrors()
+                this._neovimInstance.command("copen")
+            },
         }
 
         const tasks = [showErrorTask]

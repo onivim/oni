@@ -8,6 +8,8 @@ import { WindowContext } from "./WindowContext"
 
 import * as types from "vscode-languageserver-types"
 
+derp
+
 export class ErrorOverlay implements IOverlay {
 
     private _element: HTMLElement
