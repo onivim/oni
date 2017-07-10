@@ -135,7 +135,7 @@ export class NeovimEditor implements IEditor {
         this._pluginManager.on("set-errors", (key: string, fileName: string, errors: types.Diagnostic[]) => {
             errorService.setErrors(fileName, errors)
 
-            // this._errorOverlay.setErrors(key, fileName, errors)
+            this._errorOverlay.setErrors(key, fileName, errors)
 
             errors = errors || []
             errors = errors.filter((e) => e.range && e.range && e.range.start)

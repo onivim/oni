@@ -42,7 +42,7 @@ export class ErrorOverlay implements IOverlay {
         this._showErrors()
     }
 
-    public setErrors(key: string, fileName: string, errors: types.Diagnostic): void {
+    public setErrors(key: string, fileName: string, errors: types.Diagnostic[]): void {
         fileName = path.normalize(fileName)
         this._errors[fileName] = this._errors[fileName] || {}
         this._errors[fileName][key] = errors
