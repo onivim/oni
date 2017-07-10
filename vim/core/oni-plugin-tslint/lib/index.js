@@ -123,9 +123,16 @@ const activate = (Oni) => {
                     type: null,
                     file: path.normalize(e.name),
                     text: `[${e.ruleName}] ${e.failure}`,
-                    lineNumber: e.startPosition.line,
-                    startColumn: e.startPosition.character,
-                    endColumn: e.endPosition.character,
+                    range: {
+                        start: {
+                            line: e.startPosition.line + 1,
+                            offset: e.startPosition.character + 1,
+                        },
+                        end: {
+                            line: e.endPosition.line + 1,
+                            offset: e.endPosition.character
+                        }
+                    }
                 }))
 
                 const errors = errorsWithFileName.reduce((prev, curr) => {
@@ -134,9 +141,7 @@ const activate = (Oni) => {
                     prev[curr.file].push({
                         type: curr.type,
                         text: curr.text,
-                        lineNumber: curr.lineNumber + 1,
-                        startColumn: curr.startColumn + 1,
-                        endColumn: curr.endColumn
+                        range: curr.range,
                     })
 
                     return prev
