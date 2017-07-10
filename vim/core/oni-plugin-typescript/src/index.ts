@@ -281,7 +281,7 @@ export const activate = (Oni) => {
 
             return {
                 type: null,
-                text: d.text,
+                message: d.text,
                 range,
             }
         })

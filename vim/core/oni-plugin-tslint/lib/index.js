@@ -122,15 +122,15 @@ const activate = (Oni) => {
                 const errorsWithFileName = lintErrors.map(e => ({
                     type: null,
                     file: path.normalize(e.name),
-                    text: `[${e.ruleName}] ${e.failure}`,
+                    message: `[${e.ruleName}] ${e.failure}`,
                     range: {
                         start: {
                             line: e.startPosition.line + 1,
-                            offset: e.startPosition.character + 1,
+                            character: e.startPosition.character + 1,
                         },
                         end: {
                             line: e.endPosition.line + 1,
-                            offset: e.endPosition.character
+                            character: e.endPosition.character
                         }
                     }
                 }))
@@ -140,7 +140,7 @@ const activate = (Oni) => {
 
                     prev[curr.file].push({
                         type: curr.type,
-                        text: curr.text,
+                        message: curr.message,
                         range: curr.range,
                     })
 
