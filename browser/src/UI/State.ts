@@ -38,7 +38,7 @@ export interface IState {
         folded: boolean,
     }>
 
-    errors: { [file: string]: { [key: string]: types.Diagnostic[] } },
+    errors: { [file: string]: { [key: string]: types.Diagnostic[] } }
 
 // Dimensions of active window, in pixels
 activeWindowDimensions: Rectangle
@@ -115,6 +115,6 @@ export const createDefaultState = (): IState => ({
     logs: [],
     configuration: Config.instance().getValues(),
 
-    errors: {}
+    errors: {},
     statusBar: {},
 })

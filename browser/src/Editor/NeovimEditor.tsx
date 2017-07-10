@@ -133,6 +133,9 @@ export class NeovimEditor implements IEditor {
         })
 
         this._pluginManager.on("set-errors", (key: string, fileName: string, errors: types.Diagnostic[]) => {
+
+            UI.Actions.setErrors(fileName, key, errors)
+
             errorService.setErrors(fileName, errors)
 
             this._errorOverlay.setErrors(key, fileName, errors)

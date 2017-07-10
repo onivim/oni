@@ -1,6 +1,8 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
+import { Provider } from "react-redux"
+
 import * as Config from "./../../Config"
 import { Icon } from "./../Icon"
 
@@ -8,6 +10,8 @@ import { getColorFromSeverity } from "./../../Services/Errors"
 import { WindowContext } from "./../Overlay/WindowContext"
 
 import * as types from "vscode-languageserver-types"
+
+import { store } from "./../index"
 
 require("./Error.less") // tslint:disable-line no-var-requires
 
@@ -155,5 +159,7 @@ export class ErrorSquiggle extends React.Component<IErrorSquiggleProps, void> {
 }
 
 export function renderErrorMarkers(props: IErrorsProps, element: HTMLElement) {
-    ReactDOM.render(<Errors {...props} />, element)
+    ReactDOM.render(<Provider store={store}>
+                        <Errors {...props} />
+                    </Provider>, element)
 }
