@@ -4,6 +4,7 @@ import * as ReactDOM from "react-dom"
 import * as Config from "./../../Config"
 import { Icon } from "./../Icon"
 
+import { getColorFromSeverity } from "./../../Services/Errors"
 import { WindowContext } from "./../Overlay/WindowContext"
 
 import * as types from "vscode-languageserver-types"
@@ -39,7 +40,7 @@ export class Errors extends React.Component<IErrorsProps, void> {
                     y={yPos}
                     showTooltipTop={showTooltipTop}
                     text={e.message}
-                    color={"red"}
+                    color={getColorFromSeverity(e.severity)}
                     showDetails={this.props.showDetails} />
             } else {
                 return null
@@ -64,7 +65,7 @@ export class Errors extends React.Component<IErrorsProps, void> {
                     height={this.props.windowContext.fontHeightInPixels}
                     x={startX}
                     width={endX - startX}
-                    color={"red"} />
+                    color={getColorFromSeverity(e.severity)} />
             } else {
                 return null
             }

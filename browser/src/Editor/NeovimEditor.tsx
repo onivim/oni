@@ -26,7 +26,7 @@ import { AutoCompletion } from "./../Services/AutoCompletion"
 import { BufferUpdates } from "./../Services/BufferUpdates"
 import { CommandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
-import { Errors } from "./../Services/Errors"
+import { Errors, getColorFromSeverity } from "./../Services/Errors"
 import { Formatter } from "./../Services/Formatter"
 import { LiveEvaluation } from "./../Services/LiveEvaluation"
 import { MultiProcess } from "./../Services/MultiProcess"
@@ -143,8 +143,9 @@ export class NeovimEditor implements IEditor {
             const errorMarkers = errors.map((e: types.Diagnostic) => ({
                 line: e.range.start.line || 0,
                 height: 1,
-                color: "red",
+                color: getColorFromSeverity(e.severity),
             }))
+
             this._scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
         })
 

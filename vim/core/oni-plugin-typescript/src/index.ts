@@ -283,6 +283,7 @@ export const activate = (Oni) => {
                 type: null,
                 message: d.text,
                 range,
+                severity: 1,
             }
         })
 

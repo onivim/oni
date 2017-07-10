@@ -123,6 +123,7 @@ const activate = (Oni) => {
                     type: null,
                     file: path.normalize(e.name),
                     message: `[${e.ruleName}] ${e.failure}`,
+                    severity: 2 /* Warning */,
                     range: {
                         start: {
                             line: e.startPosition.line + 1,
@@ -139,9 +140,10 @@ const activate = (Oni) => {
                     prev[curr.file] = prev[curr.file] || []
 
                     prev[curr.file].push({
-                        type: curr.type,
                         message: curr.message,
                         range: curr.range,
+                        severity: curr.severity,
+                        type: curr.type,
                     })
 
                     return prev
