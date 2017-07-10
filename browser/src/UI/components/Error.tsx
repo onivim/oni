@@ -1,9 +1,14 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
+import { connect } from "react-redux"
+
 import { Provider } from "react-redux"
 
 import * as Config from "./../../Config"
+import * as Selectors from "./../Selectors"
+import * as State from "./../State"
+
 import { Icon } from "./../Icon"
 
 import { getColorFromSeverity } from "./../../Services/Errors"
@@ -23,7 +28,7 @@ export interface IErrorsProps {
 
 const padding = 8
 
-export class Errors extends React.Component<IErrorsProps, void> {
+export class Errors extends React.PureComponent<IErrorsProps, void> {
     public render(): JSX.Element {
         const errors = this.props.errors || []
 
@@ -52,7 +57,7 @@ export class Errors extends React.Component<IErrorsProps, void> {
         })
 
         const squiggles = errors
-            .filter((e) => e && e.range && e.range.start && e.range.end) 
+            .filter((e) => e && e.range && e.range.start && e.range.end)
             .map((e) => {
             const lineNumber = e.range.start.line
             const column = e.range.start.character
@@ -158,8 +163,26 @@ export class ErrorSquiggle extends React.Component<IErrorSquiggleProps, void> {
     }
 }
 
-export function renderErrorMarkers(props: IErrorsProps, element: HTMLElement) {
+export interface IErrorContainerProps {
+    fileName: string
+    windowContext: WindowContext
+}
+
+const mapStateToProps = (state: State.IState, inputProps: IErrorContainerProps): IErrorsProps => {
+    const errors = Selectors.getAllErrorsForFile(inputProps.fileName, state)
+
+    return {
+        errors,
+        windowContext: inputProps.windowContext,
+        showDetails: true,
+    }
+}
+
+export const ErrorsContainer = connect(mapStateToProps)(Errors)
+
+
+export function renderErrorMarkers(currentFileName: string, windowContext: WindowContext, element: HTMLElement) {
     ReactDOM.render(<Provider store={store}>
-                        <Errors {...props} />
+                        <ErrorsContainer fileName={currentFileName} windowContext={windowContext}/>
                     </Provider>, element)
 }

@@ -1,12 +1,7 @@
-import * as _ from "lodash"
-import * as path from "path"
-
 import { renderErrorMarkers } from "./../components/Error"
 
 import { IOverlay } from "./OverlayManager"
 import { WindowContext } from "./WindowContext"
-
-import * as types from "vscode-languageserver-types"
 
 export class ErrorOverlay implements IOverlay {
 
@@ -42,11 +37,7 @@ export class ErrorOverlay implements IOverlay {
         this._showErrors()
     }
 
-    public setErrors(key: string, fileName: string, errors: types.Diagnostic[]): void {
-        fileName = path.normalize(fileName)
-        this._errors[fileName] = this._errors[fileName] || {}
-        this._errors[fileName][key] = errors
-
+    public setErrors(): void {
         this._showErrors()
     }
 
@@ -72,17 +63,6 @@ export class ErrorOverlay implements IOverlay {
             return
         }
 
-        const errors = this._errors[this._currentFileName]
-        let allErrors: types.Diagnostic[] = []
-
-        if (errors) {
-            allErrors = _.flatten<types.Diagnostic>(_.values<types.Diagnostic>(errors))
-        }
-
-        renderErrorMarkers({
-            errors: allErrors,
-            windowContext: this._lastWindowContext,
-            showDetails: this._showDetails,
-        }, this._element)
+        renderErrorMarkers(this._currentFileName, this._lastWindowContext, this._element)
     }
 }
