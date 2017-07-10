@@ -12,6 +12,25 @@ import { ILog } from "./Logs"
 import { StatusBarAlignment } from "./State"
 import { Rectangle } from "./Types"
 
+import * as types from "vscode-languageserver-types"
+
+export interface ISetErrorsAction {
+    type: "SET_ERRORS",
+    payload: {
+        file: string,
+        key: string,
+        errors: types.Diagnostic[],
+    }
+}
+
+export interface IClearErrorsAction {
+    type: "CLEAR_ERRORS",
+    payload: {
+        file: string,
+        key: string,
+    }
+}
+
 export interface ISetCursorPositionAction {
     type: "SET_CURSOR_POSITION",
     payload: {
@@ -206,6 +225,8 @@ export type SimpleAction =
     IStatusBarShowAction |
     IHideCurorLineAction |
     IHideCursorColumnAction |
+    ISetErrorsAction |
+    IClearErrorsAction |
     IShowCursorLineAction |
     IShowCursorColumnAction |
     IToggleLogFold |
