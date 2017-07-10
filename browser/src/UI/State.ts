@@ -8,6 +8,8 @@ import * as Config from "./../Config"
 import { ILog } from "./Logs"
 import { Rectangle } from "./Types"
 
+import * as types from "vscode-languageserver-types"
+
 export interface IState {
     cursorPixelX: number
     cursorPixelY: number
@@ -36,8 +38,10 @@ export interface IState {
         folded: boolean,
     }>
 
-    // Dimensions of active window, in pixels
-    activeWindowDimensions: Rectangle
+    errors: { [file: string]: { [key: string]: types.Diagnostic[] } },
+
+// Dimensions of active window, in pixels
+activeWindowDimensions: Rectangle
 }
 
 export enum StatusBarAlignment {
@@ -111,5 +115,6 @@ export const createDefaultState = (): IState => ({
     logs: [],
     configuration: Config.instance().getValues(),
 
+    errors: {}
     statusBar: {},
 })
