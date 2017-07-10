@@ -10,8 +10,6 @@ import * as State from "./State"
 
 import * as _ from "lodash"
 
-import * as types from "vscode-languageserver-types"
-
 export const isPopupMenuOpen = (state: State.IState) => {
     const popupMenu = state.popupMenu
     return !!popupMenu
@@ -44,12 +42,12 @@ export const getAllErrorsForFile = (fileName: string, state: State.IState) => {
         return []
     }
 
-    const allErrorsByKey = state[fileName]
+    const allErrorsByKey = state.errors[fileName]
 
     if (!allErrorsByKey) {
         return []
     }
 
     const arrayOfErrorsArray = Object.values(allErrorsByKey)
-    return _.flatten<types.Diagnostic>(arrayOfErrorsArray)
+    return _.flatten(arrayOfErrorsArray)
 }
