@@ -9,6 +9,8 @@ import * as Actions from "./Actions"
 
 import * as _ from "lodash"
 
+import * as types from "vscode-languageserver-types"
+
 export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, a: Actions.Action<K>) {
 
     if (!s) {
@@ -109,10 +111,25 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
             })
         default:
             return Object.assign({}, s, {
+                errors: errorsReducer(s.errors, a),
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
                 popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
                 statusBar: statusBarReducer(s.statusBar, a),
             })
+    }
+}
+
+export const errorsReducer = (s: { [file: string]: { [key: string]: types.Diagnostic[] } }, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "SET_ERRORS":
+            return {
+                ...s,
+                [a.payload.file]: {
+                    [a.payload.key]: [...a.payload.errors]
+                }
+            }
+        default:
+            return s
     }
 }
 
