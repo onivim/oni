@@ -19,6 +19,25 @@ import * as Actions from "./Actions"
 import { events } from "./Events"
 import {ILog} from "./Logs"
 
+import * as types from "vscode-languageserver-types"
+
+export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({
+    type: "SET_ERRORS",
+    payload: {
+        file,
+        key,
+        errors,
+    },
+})
+
+export const clearErrors = (file: string, key: string) => ({
+    type: "CLEAR_ERRORS",
+    payload: {
+        file,
+        key,
+    },
+})
+
 export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => ({
     type: "STATUSBAR_SHOW",
     payload: {
