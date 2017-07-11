@@ -43,12 +43,11 @@ export class ActiveWindow extends React.PureComponent<IActiveWindowProps, void> 
             top: px(this.props.dimensions.y),
             width: px(this.props.dimensions.width),
             height: px(this.props.dimensions.height),
-            backgroundColor: "rgba(255, 0, 0, 0.4)",
         }
 
         return <div style={style}>
-                    {this.props.children}
-               </div>
+            {this.props.children}
+        </div>
     }
 }
 
