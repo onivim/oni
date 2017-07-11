@@ -8,6 +8,8 @@
 
 import * as State from "./State"
 
+import { Rectangle } from "./Types"
+
 import * as _ from "lodash"
 
 export const isPopupMenuOpen = (state: State.IState) => {
@@ -37,7 +39,6 @@ export const getSelectedCompletion = (state: State.IState) => {
 }
 
 export const getAllErrorsForFile = (fileName: string, state: State.IState) => {
-
     if (!fileName) {
         return []
     }
@@ -50,4 +51,20 @@ export const getAllErrorsForFile = (fileName: string, state: State.IState) => {
 
     const arrayOfErrorsArray = Object.values(allErrorsByKey)
     return _.flatten(arrayOfErrorsArray)
+}
+
+export const getActiveWindowDimensions = (state: State.IState): Rectangle => {
+    const emptyRectangle = {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+    }
+
+    if (state.windowState.activeWindow === null) {
+        return emptyRectangle
+    }
+
+    const activeWindow = state.windowState.activeWindow
+    return state.windowState.windows[activeWindow].dimensions || emptyRectangle
 }

@@ -24,6 +24,19 @@ export interface INeovimSurfaceProps {
     screen: NeovimScreen
 }
 
+import { Rectangle } from "./../UI/Types"
+
+export interface IActiveWindowProps {
+    dimensions: Rectangle
+}
+export class ActiveWindow extends React.PureComponent<IActiveWindowProps, void> {
+    public render(): JSX.Element {
+        return <div>
+                    {this.props.children}
+               </div>
+    }
+}
+
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
     public render(): JSX.Element {
         return <div className="editor">
@@ -34,6 +47,11 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                 <Cursor />
                 <CursorLine lineType={"line"} />
                 <CursorLine lineType={"column"} />
+            </div>
+            <div className="stack layer">
+                <ActiveWindow>
+                    <div>hi</div>
+                </ActiveWindow>
             </div>
             <NeovimInput neovimInstance={this.props.neovimInstance}
                 screen={this.props.screen} />
