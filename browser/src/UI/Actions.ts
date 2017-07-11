@@ -9,33 +9,33 @@
 
 import * as Config from "./../Config"
 import { ILog } from "./Logs"
-import { StatusBarAlignment } from "./State"
+import { StatusBarAlignment, WindowLineMap } from "./State"
 import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
 
 export interface ISetWindowState {
-    type: "WINDOW_UPDATE_STATE",
+    type: "SET_WINDOW_STATE",
     payload: {
         windowId: number,
         file: string,
-        column: string,
-        line: string,
-        winline: string,
-        wincolumn: string,
+        column: number,
+        line: number,
+        winline: number,
+        wincolumn: number,
     }
 }
 
 export interface ISetWindowLineMapping {
-    type: "WINDOW_UPDATE_LINE_MAP",
+    type: "SET_WINDOW_LINE_MAP",
     payload: {
         windowId: number,
-        lineMapping: { [key: number]: number },
+        lineMapping: WindowLineMap,
     }
 }
 
 export interface ISetWindowDimensions {
-    type: "WINDOW_UPDATE_DIMENSIONS",
+    type: "SET_WINDOW_DIMENSIONS",
     payload: {
         windowId: number,
         dimensions: Rectangle,

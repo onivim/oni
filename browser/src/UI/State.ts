@@ -10,6 +10,8 @@ import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
 
+export type WindowLineMap = { [key: number]: number }
+
 export interface IState {
     cursorPixelX: number
     cursorPixelY: number
@@ -53,7 +55,7 @@ export interface IWindow {
     line: number
     winline: number
     wincolumn: number
-    lineMapping: { [key: number]: number }
+    lineMapping: WindowLineMap
     dimensions: Rectangle
 }
 

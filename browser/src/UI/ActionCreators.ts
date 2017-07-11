@@ -21,6 +21,34 @@ import {ILog} from "./Logs"
 
 import * as types from "vscode-languageserver-types"
 
+export const setWindowState = (windowId: number, file: string, column: number, line: number, winline: number, wincolumn: number) => ({
+    type: "SET_WINDOW_STATE",
+    payload: {
+        windowId,
+        file,
+        column,
+        line,
+        winline,
+        wincolumn,
+    },
+})
+
+export const setWindowLineMapping = (windowId: number, lineMapping: State.WindowLineMap) => ({
+    type: "SET_WINDOW_LINE_MAP",
+    payload: {
+        windowId,
+        lineMapping,
+    },
+})
+
+export const setWindowDimensions = (windowId: number, dimensions: Rectangle) => ({
+    type: "SET_WINDOW_DIMENSIONS",
+    payload: {
+        windowId,
+        dimensions,
+    },
+})
+
 export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({
     type: "SET_ERRORS",
     payload: {
