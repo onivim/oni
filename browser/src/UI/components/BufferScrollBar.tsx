@@ -89,7 +89,15 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
 
     const dimensions = Selectors.getActiveWindowDimensions(state)
 
-    const errors = Selectors.getAllErrorsForFile(activeWindow.file, state)
+    const file = activeWindow.file
+
+    if (!file || !state.buffers[file]) {
+        return NoScrollBar
+    }
+
+    const errors = Selectors.getAllErrorsForFile(file, state)
+    const bufferSize = state.buffers[file].totalLines
+
     const errorMarkers = errors.map((e: types.Diagnostic) => ({
         line: e.range.start.line || 0,
         height: 1,
@@ -105,7 +113,7 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
     return {
         windowTopLine: activeWindow.windowTopLine,
         windowBottomLine: activeWindow.windowBottomLine,
-        bufferSize: 100, // TODO
+        bufferSize,
         markers: [...errorMarkers, cursorMarker],
         height: dimensions.height,
         visible,

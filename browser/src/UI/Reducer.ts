@@ -111,6 +111,7 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
             })
         default:
             return Object.assign({}, s, {
+                buffers: buffersReducer(s.buffers, a),
                 errors: errorsReducer(s.errors, a),
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
                 popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
