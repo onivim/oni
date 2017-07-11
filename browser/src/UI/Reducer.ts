@@ -115,6 +115,7 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
                 popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
                 statusBar: statusBarReducer(s.statusBar, a),
+                windowState: windowStateReducer(s.windowState, a),
             })
     }
 }
@@ -319,15 +320,17 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
             currentWindow = s.windows[a.payload.windowId] || null
 
             return {
-                ...s,
                 activeWindow: a.payload.windowId,
-                [a.payload.windowId]: {
-                    ...currentWindow,
-                    file: a.payload.file,
-                    column: a.payload.column,
-                    line: a.payload.line,
-                    winline: a.payload.winline,
-                    wincolumn: a.payload.wincolumn,
+                windows: {
+                    ...s.windows,
+                    [a.payload.windowId]: {
+                        ...currentWindow,
+                        file: a.payload.file,
+                        column: a.payload.column,
+                        line: a.payload.line,
+                        winline: a.payload.winline,
+                        wincolumn: a.payload.wincolumn,
+                    },
                 },
             }
         case "SET_WINDOW_DIMENSIONS":
@@ -335,9 +338,12 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
 
             return {
                 ...s,
-                [a.payload.windowId]: {
-                    ...currentWindow,
-                    dimensions: a.payload.dimensions,
+                windows: {
+                    ...s.windows,
+                    [a.payload.windowId]: {
+                        ...currentWindow,
+                        dimensions: a.payload.dimensions,
+                    },
                 },
             }
         case "SET_WINDOW_LINE_MAP":
@@ -345,9 +351,12 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
 
             return {
                 ...s,
-                [a.payload.windowId]: {
-                    ...currentWindow,
-                    lineMapping: a.payload.lineMapping,
+                windows: {
+                    ...s.windows,
+                    [a.payload.windowId]: {
+                        ...currentWindow,
+                        lineMapping: a.payload.lineMapping,
+                    },
                 },
             }
         default:

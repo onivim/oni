@@ -121,7 +121,10 @@ export class NeovimEditor implements IEditor {
         this._overlayManager.addOverlay("live-eval", this._liveEvaluationOverlay)
         this._overlayManager.addOverlay("scrollbar", this._scrollbarOverlay)
 
-        this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.Actions.setActiveWindowDimensions(dimensionsInPixels))
+        this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
+            UI.Actions.setActiveWindowDimensions(dimensionsInPixels)
+            UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
+        })
 
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
         this._pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
@@ -184,6 +187,8 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any) => {
             this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
+
+            UI.Actions.setWindowLineMapping(eventContext.windowNumber, lineMapping)
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -343,11 +348,13 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    private _onVimEvent(eventName: string, evt: any): void {
+    private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
         // TODO: Can we get rid of these?
         this._errorOverlay.onVimEvent(eventName, evt)
         this._liveEvaluationOverlay.onVimEvent(eventName, evt)
         this._scrollbarOverlay.onVimEvent(eventName, evt)
+
+        UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.column)
 
         this._tasks.onEvent(evt)
 
