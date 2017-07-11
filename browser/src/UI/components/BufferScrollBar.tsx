@@ -1,10 +1,13 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
+import * as types from "vscode-languageserver-types"
 
 import { connect, Provider } from "react-redux"
 import { store } from "./../index"
 import * as Selectors from "./../Selectors"
 import * as State from "./../State"
+
+import { getColorFromSeverity } from "./../../Services/Errors"
 
 require("./BufferScrollBar.less") // tslint:disable-line no-var-requires
 
@@ -82,11 +85,18 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
     const activeWindow = Selectors.getActiveWindow(state)
     const dimensions = Selectors.getActiveWindowDimensions(state)
 
+    const errors = Selectors.getAllErrorsForFile(activeWindow.file, state)
+    const errorMarkers = errors.map((e: types.Diagnostic) => ({
+        line: e.range.start.line || 0,
+        height: 1,
+        color: getColorFromSeverity(e.severity),
+    }))
+
     return {
         windowTopLine: activeWindow.windowTopLine,
         windowBottomLine: activeWindow.windowBottomLine,
         bufferSize: 100, // TODO
-        markers: [],
+        markers: errorMarkers,
         height: dimensions.height,
         visible,
     }
