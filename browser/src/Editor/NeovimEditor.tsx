@@ -37,7 +37,6 @@ import { Tasks } from "./../Services/Tasks"
 import { WindowTitle } from "./../Services/WindowTitle"
 
 import * as UI from "./../UI/index"
-import { ErrorOverlay } from "./../UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./../UI/Overlay/LiveEvaluationOverlay"
 import { OverlayManager } from "./../UI/Overlay/OverlayManager"
 import { ScrollBarOverlay } from "./../UI/Overlay/ScrollBarOverlay"
@@ -63,7 +62,6 @@ export class NeovimEditor implements IEditor {
     private _tasks: Tasks
 
     // Overlays
-    private _errorOverlay: ErrorOverlay
     private _overlayManager: OverlayManager
     private _liveEvaluationOverlay: LiveEvaluationOverlay
     private _scrollbarOverlay: ScrollBarOverlay
@@ -114,10 +112,8 @@ export class NeovimEditor implements IEditor {
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
         this._overlayManager = new OverlayManager(this._screen, this._neovimInstance)
-        this._errorOverlay = new ErrorOverlay()
         this._liveEvaluationOverlay = new LiveEvaluationOverlay()
         this._scrollbarOverlay = new ScrollBarOverlay()
-        this._overlayManager.addOverlay("errors", this._errorOverlay)
         this._overlayManager.addOverlay("live-eval", this._liveEvaluationOverlay)
         this._overlayManager.addOverlay("scrollbar", this._scrollbarOverlay)
 
@@ -140,8 +136,6 @@ export class NeovimEditor implements IEditor {
             UI.Actions.setErrors(fileName, key, errors)
 
             errorService.setErrors(fileName, errors)
-
-            this._errorOverlay.setErrors()
 
             errors = errors || []
             errors = errors.filter((e) => e.range && e.range && e.range.start)
@@ -339,18 +333,10 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hideCompletions()
             UI.Actions.hideQuickInfo()
         }
-
-        // Error overlay
-        if (newMode === "insert") {
-            this._errorOverlay.hideDetails()
-        } else {
-            this._errorOverlay.showDetails()
-        }
     }
 
     private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
         // TODO: Can we get rid of these?
-        this._errorOverlay.onVimEvent(eventName, evt)
         this._liveEvaluationOverlay.onVimEvent(eventName, evt)
         this._scrollbarOverlay.onVimEvent(eventName, evt)
 

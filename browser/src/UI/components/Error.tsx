@@ -12,13 +12,11 @@ import * as State from "./../State"
 import { Icon } from "./../Icon"
 
 import { getColorFromSeverity } from "./../../Services/Errors"
-import { WindowContext } from "./../Overlay/WindowContext"
+import { WindowContext, WindowContext2 } from "./../Overlay/WindowContext"
 
 import * as types from "vscode-languageserver-types"
 
 import { store } from "./../index"
-
-import * as State from "./../State"
 
 require("./Error.less") // tslint:disable-line no-var-requires
 
@@ -26,7 +24,7 @@ export interface IErrorsProps {
     errors: types.Diagnostic[]
     fontWidthInPixels: number
     fontHeightInPixels: number
-    windowState: State.IWindow
+    window: State.IWindow
     showDetails: boolean
 }
 
@@ -36,7 +34,7 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
     public render(): JSX.Element {
         const errors = this.props.errors || []
 
-        const windowContext = new WindowContext2(this.props.fontWidthInPixels, this.props.fontHeightInPixels, this.props.windowState)
+        const windowContext = new WindowContext2(this.props.fontWidthInPixels, this.props.fontHeightInPixels, this.props.window)
 
         const markers = errors.map((e) => {
             const lineNumber = e.range.start.line
@@ -169,28 +167,17 @@ export class ErrorSquiggle extends React.Component<IErrorSquiggleProps, void> {
     }
 }
 
-export interface IErrorContainerProps {
-    fileName: string
-    windowContext: WindowContext
-}
-
-const mapStateToProps = (state: State.IState, inputProps: IErrorContainerProps): IErrorsProps => {
-    const errors = Selectors.getAllErrorsForFile(inputProps.fileName, state)
+const mapStateToProps = (state: State.IState): IErrorsProps => {
+    const window = Selectors.getActiveWindow(state)
+    const errors = Selectors.getAllErrorsForFile(window.file, state)
 
     return {
         errors,
         fontWidthInPixels: state.fontPixelWidth,
         fontHeightInPixels: state.fontPixelHeight,
-        windowContext: inputProps.windowContext,
+        window: file,
         showDetails: true,
     }
 }
 
 export const ErrorsContainer = connect(mapStateToProps)(Errors)
-
-
-export function renderErrorMarkers(currentFileName: string, windowContext: WindowContext, element: HTMLElement) {
-    ReactDOM.render(<Provider store={store}>
-                        <ErrorsContainer fileName={currentFileName} windowContext={windowContext}/>
-                    </Provider>, element)
-}

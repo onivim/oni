@@ -29,6 +29,8 @@ import * as State from "./../UI/State"
 import * as Selectors from "./../UI/Selectors"
 import { connect } from "react-redux"
 
+import { ErrorsContainer } from "./../UI/components/Error"
+
 export interface IActiveWindowProps {
     dimensions: Rectangle
 }
@@ -72,6 +74,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
             </div>
             <div className="stack layer">
                 <ActiveWindowContainer>
+                    <ErrorsContainer />
                 </ActiveWindowContainer>
             </div>
             <NeovimInput neovimInstance={this.props.neovimInstance}

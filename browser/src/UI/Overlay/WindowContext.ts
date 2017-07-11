@@ -20,6 +20,10 @@ export class WindowContext2 {
         private _windowState: State.IWindow) {
     }
 
+    public get dimensions(): Rectangle {
+        return this._windowState.dimensions
+    }
+
     public get startLine(): number {
         return -1 // TODO
     }
@@ -69,7 +73,7 @@ export class WindowContext2 {
 
     public getWindowPosition(line: number, column: number): Rectangle {
         const linePosition = this.getWindowRegionForLine(line)
-        const columnPosition = (this._windowState.wincol - this._windowState.column + column - 1) * this._fontWidthInPixels
+        const columnPosition = (this._windowState.wincolumn - this._windowState.column + column - 1) * this._fontWidthInPixels
         return {
             x: linePosition.x + columnPosition,
             y: linePosition.y,
