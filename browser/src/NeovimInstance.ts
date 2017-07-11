@@ -18,9 +18,6 @@ import { nodeRequire } from "./Utility"
 
 const attach = nodeRequire("neovim-client")
 
-
-            derp
-
 export interface INeovimInstance {
     cursorPosition: IPosition
     quickFix: IQuickFixList

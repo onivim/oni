@@ -32,6 +32,9 @@ export interface IState {
 
     statusBar: { [id: string]: IStatusBarItem }
 
+    activeWindow: number,
+    windows: { [windowId: number]: IWindow }
+
     logsVisible: boolean
     logs: Array<{
         log: ILog,
@@ -40,8 +43,18 @@ export interface IState {
 
     errors: { [file: string]: { [key: string]: types.Diagnostic[] } }
 
-// Dimensions of active window, in pixels
-activeWindowDimensions: Rectangle
+    // Dimensions of active window, in pixels
+    activeWindowDimensions: Rectangle
+}
+
+export interface IWindow {
+    file: string
+    column: number
+    line: number
+    winline: number
+    wincolumn: number
+    lineMapping: { [key: number]: number }
+    dimensions: Rectangle
 }
 
 export enum StatusBarAlignment {
@@ -114,6 +127,9 @@ export const createDefaultState = (): IState => ({
     logsVisible: false,
     logs: [],
     configuration: Config.instance().getValues(),
+
+    activeWindow: null,
+    windows: {},
 
     errors: {},
     statusBar: {},

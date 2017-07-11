@@ -14,6 +14,34 @@ import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
 
+export interface ISetWindowState {
+    type: "WINDOW_UPDATE_STATE",
+    payload: {
+        windowId: number,
+        file: string,
+        column: string,
+        line: string,
+        winline: string,
+        wincolumn: string,
+    }
+}
+
+export interface ISetWindowLineMapping {
+    type: "WINDOW_UPDATE_LINE_MAP",
+    payload: {
+        windowId: number,
+        lineMapping: { [key: number]: number },
+    }
+}
+
+export interface ISetWindowDimensions {
+    type: "WINDOW_UPDATE_DIMENSIONS",
+    payload: {
+        windowId: number,
+        dimensions: Rectangle,
+    }
+}
+
 export interface ISetErrorsAction {
     type: "SET_ERRORS",
     payload: {
