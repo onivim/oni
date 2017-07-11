@@ -259,7 +259,10 @@ export type SimpleAction =
     IShowCursorColumnAction |
     IToggleLogFold |
     IChangeLogsVisibility |
-    IMakeLog
+    IMakeLog |
+    ISetWindowDimensions |
+    ISetWindowLineMapping |
+    ISetWindowState
 
 export type ActionWithGeneric<K extends keyof Config.IConfigValues> =
     ISetConfigurationValue<K>

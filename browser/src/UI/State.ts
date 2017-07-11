@@ -34,8 +34,7 @@ export interface IState {
 
     statusBar: { [id: string]: IStatusBarItem }
 
-    activeWindow: number,
-    windows: { [windowId: number]: IWindow }
+    windowState: IWindowState
 
     logsVisible: boolean
     logs: Array<{
@@ -47,6 +46,11 @@ export interface IState {
 
     // Dimensions of active window, in pixels
     activeWindowDimensions: Rectangle
+}
+
+export interface IWindowState {
+    activeWindow: number,
+    windows: { [windowId: number]: IWindow },
 }
 
 export interface IWindow {
@@ -130,8 +134,10 @@ export const createDefaultState = (): IState => ({
     logs: [],
     configuration: Config.instance().getValues(),
 
-    activeWindow: null,
-    windows: {},
+    windowState: {
+        activeWindow: null,
+        windows: {},
+    },
 
     errors: {},
     statusBar: {},

@@ -311,6 +311,50 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
     return highlightOptions
 }
 
+export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleAction): State.IWindowState => {
+
+    let currentWindow
+    switch (a.type) {
+        case "SET_WINDOW_STATE":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                ...s,
+                activeWindow: a.payload.windowId,
+                [a.payload.windowId]: {
+                    ...currentWindow,
+                    file: a.payload.file,
+                    column: a.payload.column,
+                    line: a.payload.line,
+                    winline: a.payload.winline,
+                    wincolumn: a.payload.wincolumn,
+                },
+            }
+        case "SET_WINDOW_DIMENSIONS":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                ...s,
+                [a.payload.windowId]: {
+                    ...currentWindow,
+                    dimensions: a.payload.dimensions,
+                },
+            }
+        case "SET_WINDOW_LINE_MAP":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                ...s,
+                [a.payload.windowId]: {
+                    ...currentWindow,
+                    lineMapping: a.payload.lineMapping,
+                },
+            }
+        default:
+            return s
+    }
+}
+
 export function autoCompletionReducer (s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) {
     if (!s) {
         return s
