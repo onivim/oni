@@ -11,13 +11,14 @@ import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
 import { IScreen } from "./../Screen"
+import { normalizePath } from "./../Utility"
 
 import * as State from "./State"
 
 import * as Config from "./../Config"
 import * as Actions from "./Actions"
 import { events } from "./Events"
-import {ILog} from "./Logs"
+import { ILog } from "./Logs"
 
 import * as types from "vscode-languageserver-types"
 
@@ -25,7 +26,7 @@ export const setWindowState = (windowId: number, file: string, column: number, l
     type: "SET_WINDOW_STATE",
     payload: {
         windowId,
-        file,
+        file: normalizePath(file),
         column,
         line,
         winline,
@@ -52,7 +53,7 @@ export const setWindowDimensions = (windowId: number, dimensions: Rectangle) => 
 export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({
     type: "SET_ERRORS",
     payload: {
-        file,
+        file: normalizePath(file),
         key,
         errors,
     },

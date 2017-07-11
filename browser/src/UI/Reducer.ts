@@ -123,9 +123,13 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
 export const errorsReducer = (s: { [file: string]: { [key: string]: types.Diagnostic[] } }, a: Actions.SimpleAction) => {
     switch (a.type) {
         case "SET_ERRORS":
+
+            const currentFile = s[a.payload.file] || null
+
             return {
                 ...s,
                 [a.payload.file]: {
+                    ...currentFile,
                     [a.payload.key]: [...a.payload.errors]
                 }
             }
