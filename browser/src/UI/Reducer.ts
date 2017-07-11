@@ -120,6 +120,20 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
     }
 }
 
+export const buffersReducer = (s: State.Buffers, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "SET_BUFFER_STATE":
+            return {
+                ...s,
+                [a.payload.file]: {
+                    totalLines: a.payload.totalLines,
+                },
+            }
+        default:
+            return s
+    }
+}
+
 export const errorsReducer = (s: { [file: string]: { [key: string]: types.Diagnostic[] } }, a: Actions.SimpleAction) => {
     switch (a.type) {
         case "SET_ERRORS":

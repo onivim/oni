@@ -319,6 +319,7 @@ export class NeovimEditor implements IEditor {
         this._liveEvaluationOverlay.onVimEvent(eventName, evt)
 
         UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
+        UI.Actions.setBufferState(evt.bufferFullPath, evt.bufferTotalLines)
 
         this._tasks.onEvent(evt)
 

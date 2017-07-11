@@ -10,6 +10,8 @@ import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
 
+export type Buffers = { [filePath: string]: IBuffer }
+
 export type WindowLineMap = { [key: number]: number }
 
 export interface IState {

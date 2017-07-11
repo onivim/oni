@@ -14,6 +14,14 @@ import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
 
+export interface ISetBufferState {
+    type: "SET_BUFFER_STATE",
+    payload: {
+        file: string,
+        totalLines: number,
+    }
+}
+
 export interface ISetWindowState {
     type: "SET_WINDOW_STATE",
     payload: {
@@ -262,6 +270,7 @@ export type SimpleAction =
     IToggleLogFold |
     IChangeLogsVisibility |
     IMakeLog |
+    ISetBufferState |
     ISetWindowDimensions |
     ISetWindowLineMapping |
     ISetWindowState
