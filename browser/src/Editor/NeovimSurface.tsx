@@ -29,6 +29,7 @@ import * as State from "./../UI/State"
 import * as Selectors from "./../UI/Selectors"
 import { connect } from "react-redux"
 
+import { ConnectedBufferScrollBar } from "./../UI/components/BufferScrollBar"
 import { ErrorsContainer } from "./../UI/components/Error"
 
 export interface IActiveWindowProps {
@@ -75,6 +76,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
             <div className="stack layer">
                 <ActiveWindowContainer>
                     <ErrorsContainer />
+                    <ConnectedBufferScrollBar />
                 </ActiveWindowContainer>
             </div>
             <NeovimInput neovimInstance={this.props.neovimInstance}

@@ -4,8 +4,6 @@
  * IEditor implementation for Neovim
  */
 
-import * as path from "path"
-
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
@@ -26,7 +24,7 @@ import { AutoCompletion } from "./../Services/AutoCompletion"
 import { BufferUpdates } from "./../Services/BufferUpdates"
 import { CommandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
-import { Errors, getColorFromSeverity } from "./../Services/Errors"
+import { Errors } from "./../Services/Errors"
 import { Formatter } from "./../Services/Formatter"
 import { LiveEvaluation } from "./../Services/LiveEvaluation"
 import { MultiProcess } from "./../Services/MultiProcess"
@@ -39,7 +37,6 @@ import { WindowTitle } from "./../Services/WindowTitle"
 import * as UI from "./../UI/index"
 import { LiveEvaluationOverlay } from "./../UI/Overlay/LiveEvaluationOverlay"
 import { OverlayManager } from "./../UI/Overlay/OverlayManager"
-import { ScrollBarOverlay } from "./../UI/Overlay/ScrollBarOverlay"
 import { Rectangle } from "./../UI/Types"
 
 import { Keyboard } from "./../Input/Keyboard"
@@ -64,7 +61,6 @@ export class NeovimEditor implements IEditor {
     // Overlays
     private _overlayManager: OverlayManager
     private _liveEvaluationOverlay: LiveEvaluationOverlay
-    private _scrollbarOverlay: ScrollBarOverlay
 
     private _errorStartingNeovim: boolean = false
 
@@ -113,9 +109,7 @@ export class NeovimEditor implements IEditor {
         // explicit window management: #362
         this._overlayManager = new OverlayManager(this._screen, this._neovimInstance)
         this._liveEvaluationOverlay = new LiveEvaluationOverlay()
-        this._scrollbarOverlay = new ScrollBarOverlay()
         this._overlayManager.addOverlay("live-eval", this._liveEvaluationOverlay)
-        this._overlayManager.addOverlay("scrollbar", this._scrollbarOverlay)
 
         this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
             UI.Actions.setActiveWindowDimensions(dimensionsInPixels)
@@ -136,17 +130,6 @@ export class NeovimEditor implements IEditor {
             UI.Actions.setErrors(fileName, key, errors)
 
             errorService.setErrors(fileName, errors)
-
-            errors = errors || []
-            errors = errors.filter((e) => e.range && e.range && e.range.start)
-
-            const errorMarkers = errors.map((e: types.Diagnostic) => ({
-                line: e.range.start.line || 0,
-                height: 1,
-                color: getColorFromSeverity(e.severity),
-            }))
-
-            this._scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
         })
 
         liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
@@ -173,10 +156,6 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.on("error", (_err: string) => {
             this._errorStartingNeovim = true
             ReactDOM.render(<InstallHelp />, this._element.parentElement)
-        })
-
-        this._neovimInstance.on("buffer-update", (context: any, lines: string[]) => {
-            this._scrollbarOverlay.onBufferUpdate(context, lines)
         })
 
         this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any) => {
@@ -338,7 +317,6 @@ export class NeovimEditor implements IEditor {
     private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
         // TODO: Can we get rid of these?
         this._liveEvaluationOverlay.onVimEvent(eventName, evt)
-        this._scrollbarOverlay.onVimEvent(eventName, evt)
 
         UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
 

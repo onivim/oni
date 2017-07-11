@@ -1,9 +1,7 @@
 import * as React from "react"
-import * as ReactDOM from "react-dom"
 import * as types from "vscode-languageserver-types"
 
-import { connect, Provider } from "react-redux"
-import { store } from "./../index"
+import { connect } from "react-redux"
 import * as Selectors from "./../Selectors"
 import * as State from "./../State"
 
@@ -71,18 +69,24 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
     }
 }
 
-export interface IRenderBufferScrollBarArgs {
-    bufferSize: number
-    height: number
-    windowTopLine: number
-    windowBottomLine: number
-    markers: IScrollBarMarker[]
+const NoScrollBar: IBufferScrollBarProps = {
+    windowTopLine: 0,
+    windowBottomLine: 0,
+    bufferSize: 0,
+    markers: [],
+    height: 0,
+    visible: false,
 }
 
 const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
     const visible = state.configuration["editor.scrollBar.visible"]
 
     const activeWindow = Selectors.getActiveWindow(state)
+
+    if (!activeWindow) {
+        return NoScrollBar
+    }
+
     const dimensions = Selectors.getActiveWindowDimensions(state)
 
     const errors = Selectors.getAllErrorsForFile(activeWindow.file, state)
@@ -108,10 +112,4 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
     }
 }
 
-const ConnectedBufferScrollBar = connect(mapStateToProps)(BufferScrollBar)
-
-export function renderBufferScrollBar(props: IRenderBufferScrollBarArgs, element: HTMLElement) {
-    ReactDOM.render(<Provider store={store}>
-                        <ConnectedBufferScrollBar {...props} />
-                    </Provider>, element)
-}
+export const ConnectedBufferScrollBar = connect(mapStateToProps)(BufferScrollBar)
