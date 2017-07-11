@@ -92,11 +92,17 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
         color: getColorFromSeverity(e.severity),
     }))
 
+    const cursorMarker: IScrollBarMarker = {
+        line: activeWindow.line,
+        height: 1,
+        color: "rgb(200, 200, 200)",
+    }
+
     return {
         windowTopLine: activeWindow.windowTopLine,
         windowBottomLine: activeWindow.windowBottomLine,
         bufferSize: 100, // TODO
-        markers: errorMarkers,
+        markers: [...errorMarkers, cursorMarker],
         height: dimensions.height,
         visible,
     }
