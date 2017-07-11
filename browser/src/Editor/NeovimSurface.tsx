@@ -25,17 +25,40 @@ export interface INeovimSurfaceProps {
 }
 
 import { Rectangle } from "./../UI/Types"
+import * as State from "./../UI/State"
+import * as Selectors from "./../UI/Selectors"
+import { connect } from "react-redux"
 
 export interface IActiveWindowProps {
     dimensions: Rectangle
 }
 export class ActiveWindow extends React.PureComponent<IActiveWindowProps, void> {
     public render(): JSX.Element {
-        return <div>
+
+        const px = (str: number): string => `${str}px`
+
+        const style = {
+            position: "absolute",
+            left: px(this.props.dimensions.x),
+            top: px(this.props.dimensions.y),
+            width: px(this.props.dimensions.width),
+            height: px(this.props.dimensions.height),
+            backgroundColor: "rgba(255, 0, 0, 0.4)",
+        }
+
+        return <div style={style}>
                     {this.props.children}
                </div>
     }
 }
+
+const mapStateToProps = (state: State.IState): IActiveWindowProps => {
+    return {
+        dimensions: Selectors.getActiveWindowDimensions(state),
+    }
+}
+
+export const ActiveWindowContainer = connect(mapStateToProps)(ActiveWindow)
 
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
     public render(): JSX.Element {
@@ -49,9 +72,9 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                 <CursorLine lineType={"column"} />
             </div>
             <div className="stack layer">
-                <ActiveWindow>
+                <ActiveWindowContainer>
                     <div>hi</div>
-                </ActiveWindow>
+                </ActiveWindowContainer>
             </div>
             <NeovimInput neovimInstance={this.props.neovimInstance}
                 screen={this.props.screen} />
