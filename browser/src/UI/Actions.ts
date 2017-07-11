@@ -23,6 +23,8 @@ export interface ISetWindowState {
         line: number,
         winline: number,
         wincolumn: number,
+        windowTopLine: number,
+        windowBottomLine: number,
     }
 }
 

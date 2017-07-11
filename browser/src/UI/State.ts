@@ -34,6 +34,8 @@ export interface IState {
 
     statusBar: { [id: string]: IStatusBarItem }
 
+    buffers: { [filePath: string]: IBuffer }
+
     windowState: IWindowState
 
     logsVisible: boolean
@@ -46,6 +48,10 @@ export interface IState {
 
     // Dimensions of active window, in pixels
     activeWindowDimensions: Rectangle
+}
+
+export interface IBuffer {
+    totalLines: number
 }
 
 export interface IWindowState {
@@ -61,6 +67,8 @@ export interface IWindow {
     wincolumn: number
     lineMapping: WindowLineMap
     dimensions: Rectangle
+    windowTopLine: number
+    windowBottomLine: number
 }
 
 export enum StatusBarAlignment {
@@ -133,6 +141,8 @@ export const createDefaultState = (): IState => ({
     logsVisible: false,
     logs: [],
     configuration: Config.instance().getValues(),
+
+    buffers: {},
 
     windowState: {
         activeWindow: null,

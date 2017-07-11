@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom"
 
 import { connect, Provider } from "react-redux"
 import { store } from "./../index"
+import * as Selectors from "./../Selectors"
 import * as State from "./../State"
 
 require("./BufferScrollBar.less") // tslint:disable-line no-var-requires
@@ -75,11 +76,18 @@ export interface IRenderBufferScrollBarArgs {
     markers: IScrollBarMarker[]
 }
 
-const mapStateToProps = (state: State.IState, inProps: IRenderBufferScrollBarArgs): IBufferScrollBarProps => {
+const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
     const visible = state.configuration["editor.scrollBar.visible"]
 
+    const activeWindow = Selectors.getActiveWindow(state)
+    const dimensions = Selectors.getActiveWindowDimensions(state)
+
     return {
-        ...inProps,
+        windowTopLine: activeWindow.windowTopLine,
+        windowBottomLine: activeWindow.windowBottomLine,
+        bufferSize: 100, // TODO
+        markers: [],
+        height: dimensions.height,
         visible,
     }
 }

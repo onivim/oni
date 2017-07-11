@@ -334,6 +334,8 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                         line: a.payload.line,
                         winline: a.payload.winline,
                         wincolumn: a.payload.wincolumn,
+                        windowBottomLine: a.payload.windowBottomLine,
+                        windowTopLine: a.payload.windowTopLine,
                     },
                 },
             }

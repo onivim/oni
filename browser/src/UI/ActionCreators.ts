@@ -22,7 +22,7 @@ import { ILog } from "./Logs"
 
 import * as types from "vscode-languageserver-types"
 
-export const setWindowState = (windowId: number, file: string, column: number, line: number, winline: number, wincolumn: number) => ({
+export const setWindowState = (windowId: number, file: string, column: number, line: number, winline: number, wincolumn: number, windowTopLine: number, windowBottomLine: number) => ({
     type: "SET_WINDOW_STATE",
     payload: {
         windowId,
@@ -31,6 +31,8 @@ export const setWindowState = (windowId: number, file: string, column: number, l
         line,
         winline,
         wincolumn,
+        windowTopLine,
+        windowBottomLine,
     },
 })
 
