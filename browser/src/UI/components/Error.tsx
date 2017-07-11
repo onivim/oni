@@ -18,11 +18,15 @@ import * as types from "vscode-languageserver-types"
 
 import { store } from "./../index"
 
+import * as State from "./../State"
+
 require("./Error.less") // tslint:disable-line no-var-requires
 
 export interface IErrorsProps {
     errors: types.Diagnostic[]
-    windowContext: WindowContext
+    fontWidthInPixels: number
+    fontHeightInPixels: number
+    windowState: State.IWindow
     showDetails: boolean
 }
 
@@ -32,17 +36,19 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
     public render(): JSX.Element {
         const errors = this.props.errors || []
 
+        const windowContext = new WindowContext2(this.props.fontWidthInPixels, this.props.fontHeightInPixels, this.props.windowState)
+
         const markers = errors.map((e) => {
             const lineNumber = e.range.start.line
             const column = e.range.start.character
-            if (this.props.windowContext.isLineInView(lineNumber)) {
-                const screenLine = this.props.windowContext.getWindowLine(lineNumber)
+            if (windowContext.isLineInView(lineNumber)) {
+                const screenLine = windowContext.getWindowLine(lineNumber)
 
-                const xPos = this.props.windowContext.getWindowPosition(lineNumber, column).x
-                const yPos = this.props.windowContext.getWindowRegionForLine(lineNumber).y - (padding / 2)
-                const isActive = screenLine === this.props.windowContext.getCurrentWindowLine()
+                const xPos = windowContext.getWindowPosition(lineNumber, column).x
+                const yPos = windowContext.getWindowRegionForLine(lineNumber).y - (padding / 2)
+                const isActive = screenLine === windowContext.getCurrentWindowLine()
 
-                const showTooltipTop = this.props.windowContext.dimensions.height - this.props.windowContext.getWindowLine(lineNumber) <= 2
+                const showTooltipTop = windowContext.dimensions.height - windowContext.getWindowLine(lineNumber) <= 2
 
                 return <ErrorMarker isActive={isActive}
                     x={xPos}
@@ -63,15 +69,15 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
             const column = e.range.start.character
             const endColumn = e.range.end.character
 
-            if (this.props.windowContext.isLineInView(lineNumber)) {
-                const yPos = this.props.windowContext.getWindowRegionForLine(lineNumber).y
+            if (windowContext.isLineInView(lineNumber)) {
+                const yPos = windowContext.getWindowRegionForLine(lineNumber).y
 
-                const startX = this.props.windowContext.getWindowPosition(lineNumber, column).x // FIXME: undefined
-                const endX = this.props.windowContext.getWindowPosition(lineNumber, endColumn).x
+                const startX = windowContext.getWindowPosition(lineNumber, column).x // FIXME: undefined
+                const endX = windowContext.getWindowPosition(lineNumber, endColumn).x
 
                 return <ErrorSquiggle
                     y={yPos}
-                    height={this.props.windowContext.fontHeightInPixels}
+                    height={windowContext.fontHeightInPixels}
                     x={startX}
                     width={endX - startX}
                     color={getColorFromSeverity(e.severity)} />
@@ -173,6 +179,8 @@ const mapStateToProps = (state: State.IState, inputProps: IErrorContainerProps):
 
     return {
         errors,
+        fontWidthInPixels: state.fontPixelWidth,
+        fontHeightInPixels: state.fontPixelHeight,
         windowContext: inputProps.windowContext,
         showDetails: true,
     }

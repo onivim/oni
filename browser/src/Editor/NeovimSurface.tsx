@@ -72,7 +72,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
             </div>
             <div className="stack layer">
                 <ActiveWindowContainer>
-                    <div>hi</div>
                 </ActiveWindowContainer>
             </div>
             <NeovimInput neovimInstance={this.props.neovimInstance}

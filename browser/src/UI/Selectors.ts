@@ -53,6 +53,15 @@ export const getAllErrorsForFile = (fileName: string, state: State.IState) => {
     return _.flatten(arrayOfErrorsArray)
 }
 
+export const getActiveWindow = (state: State.IState): State.IWindow => {
+    if (state.windowState.activeWindow === null) {
+        return null
+    }
+
+    const activeWindow = state.windowState.activeWindow
+    return state.windowState.windows[activeWindow]
+}
+
 export const getActiveWindowDimensions = (state: State.IState): Rectangle => {
     const emptyRectangle = {
         x: 0,
@@ -61,10 +70,10 @@ export const getActiveWindowDimensions = (state: State.IState): Rectangle => {
         height: 0,
     }
 
-    if (state.windowState.activeWindow === null) {
+    const window = getActiveWindow(state)
+    if (!window) {
         return emptyRectangle
     }
 
-    const activeWindow = state.windowState.activeWindow
-    return state.windowState.windows[activeWindow].dimensions || emptyRectangle
+    return window.dimensions || emptyRectangle
 }
