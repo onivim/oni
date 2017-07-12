@@ -14,9 +14,6 @@ import { IWindow, Window } from "./neovim/Window"
 import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./Screen"
-import { nodeRequire } from "./Utility"
-
-const attach = nodeRequire("neovim-client")
 
 export interface INeovimInstance {
     cursorPosition: IPosition
@@ -105,10 +102,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 // nv.input("<ESC>")
 
                 this._neovim = nv
-                this._sessionWrapper = new SessionWrapper(this._neovim._session)
+
+                this._sessionWrapper = new SessionWrapper(this._neovim)
 
                 // Override completeopt so Oni works correctly with external popupmenu
-                this.command("set completeopt=longest,menu")
+                //this.command("set completeopt=longest,menu")
 
                 this._neovim.on("error", (err: Error) => {
                     this.emit("logError", err)
@@ -168,7 +166,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                 // Workaround for bug in neovim/node-client
                 // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
-                this._neovim._session.request("nvim_ui_attach", [size.cols, size.rows, startupOptions], (_err?: Error) => {
+                this._neovim.request("nvim_ui_attach", [size.cols, size.rows, startupOptions])
+                    .then(() => {
                     this.emit("logInfo", "Attach success")
 
                     performance.mark("NeovimInstance.Plugins.Start")
@@ -324,13 +323,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             return
         }
 
-        this._initPromise.then(() => {
-            this._neovim.uiTryResize(columns, rows, (err?: Error) => {
-                if (err) {
-                    this.emit("logError", err)
-                }
-            })
-        })
+        // this._initPromise.then(() => {
+        //     this._neovim.uiTryResize(columns, rows, (err?: Error) => {
+        //         if (err) {
+        //             this.emit("logError", err)
+        //         }
+        //     })
+        // })
     }
 
     private _getSize() {
@@ -419,7 +418,102 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 }
 
-const attachAsPromise = Q.denodeify(attach)
+// const attachAsPromise = Q.denodeify(attach)
+//
+
+import * as msgpackLite from "msgpack-lite"
+
+
+export class NeovimSession {
+    private _encoder: any
+    private _decoder: any
+    private _requestId: number = 0
+
+    private _pendingRequests: { [key: number]: Function } = {}
+
+    constructor(writer: NodeJS.WritableStream, reader: NodeJS.ReadableStream) {
+        this._encoder = msgpackLite.createEncodeStream()
+        this._decoder = msgpackLite.createDecodeStream()
+
+        // reader.on("end", () => {
+        //     console.warn("READER END")
+        // })
+
+        this._encoder.pipe(writer)
+        
+        reader.pipe(this._decoder)
+
+        // pipey.on("data", (data: any) => {
+        //     console.log("PIPEY--")
+        //     console.dir(data)
+        //     console.log("--PIPEY")
+        // })
+
+        // pipey.on("end", () => {
+        //     console.warn("PIPEY END")
+        // })
+
+        this._decoder.on("data", (data: any) => {
+
+
+            const type = data[0]
+
+            switch(type) {
+
+                case 0:
+                    console.warn("Unhandled request")
+                    break
+                case 1 /* Response */:
+                    this._pendingRequests[data[1]](data[2])
+                    break
+                case 2:
+                    console.warn("Unhandled notification---")
+                    console.dir(data)
+                    console.warn("--Unhandled notification")
+                    break
+
+            }
+        })
+
+        this._decoder.on("end", () => {
+            console.warn("DECODER END")
+        })
+
+        this._decoder.on("error", (err: Error) => {
+            console.error("Decoder error!", err)
+        })
+    }
+
+    public on(message: string, callback: any): void {
+        console.log("hooking message: " + message + callback.toString())
+    }
+
+    public request(methodName: string, args: any): Promise<any> {
+        console.log("request")
+        this._requestId++
+            const requestId = this._requestId
+        let r
+        const promise = new Promise((resolve) => {
+            r = (val: any) => {
+                console.log(`Completed request ${requestId} for ${methodName}`)
+                resolve(val)
+            }
+        })
+
+        this._pendingRequests[this._requestId] = r
+        this._encoder.write([0, this._requestId, methodName, args])
+        this._encoder._flush()
+
+        return promise
+        // this._encoder.end()
+    }
+
+    public notify(methodName: string, args: any) {
+        console.log("notify")
+        this._encoder.write([2, methodName, args])
+        this._encoder._flush()
+    }
+}
 
 function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
 
@@ -444,6 +538,9 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
         .concat(args)
 
     const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
+    console.log("NVIM PID: " + nvimProc.pid)
 
-    return attachAsPromise(nvimProc.stdin, nvimProc.stdout)
+    return Q(new NeovimSession(nvimProc.stdin, nvimProc.stdout))
+
+    // return attachAsPromise(nvimProc.stdin, nvimProc.stdout)
 }
