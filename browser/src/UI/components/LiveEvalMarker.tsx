@@ -49,7 +49,7 @@ export class LiveEvalMarker extends React.Component<ILiveEvalMarkerProps, void> 
 
         const cssClasses = classNames("live-eval-marker", { "evaluating": this._isEvaluating() }, { "error": this._hasError() })
 
-        const positionDivStyles = {
+        const positionDivStyles: React.CSSProperties = {
             position: "absolute",
             top: this.props.y.toString() + "px",
             right: "0px",
