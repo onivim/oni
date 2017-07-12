@@ -4,4 +4,3 @@
 
 - Test with OCaml as well (.ml/.mli)
 
-- Quick info on whitespace?
