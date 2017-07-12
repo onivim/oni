@@ -311,14 +311,14 @@ _Configuration_
 Reason and OCaml supports depends on [ocaml-language-server](https://github.com/freebroccolo/ocaml-language-server) by @freebroccolo. 
 
 You will need to build the language server locally, as the currently published NPM package is out-of-date:
-- Ensure all [requirements](https://github.com/freebroccolo/ocaml-language-server#requirements) are installed.
-- `git clone https://github.com/freebroccolo/ocaml-language-server.git`
-- `cd ocaml-language-server`
-- `yarn install`
-- `yarn run compile`
-- `npm link`
+1. Install [requirements](https://github.com/freebroccolo/ocaml-language-server#requirements)
+2. `git clone https://github.com/freebroccolo/ocaml-language-server.git`
+3. `cd ocaml-language-server`
+4. `yarn install`
+5. `yarn run compile`
+6. `npm link`
 
-> __NOTE:__ Once the NPM package is updated with a fix for [#22](https://github.com/freebroccolo/ocaml-language-server/issues/22), you'll be able to use `npm install -g ocaml-language-server` to use the language server.
+> __NOTE:__ Once the NPM package is updated with a fix for [#22](https://github.com/freebroccolo/ocaml-language-server/issues/22), steps 2-6 can be replaced with `npm install -g ocaml-language-server`.
 
 _Supported Language features_
 
