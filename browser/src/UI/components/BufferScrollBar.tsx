@@ -91,7 +91,7 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
 
     const file = activeWindow.file
 
-    if (!file || !state.buffers[file]) {
+    if (file === null || !state.buffers[file]) {
         return NoScrollBar
     }
 

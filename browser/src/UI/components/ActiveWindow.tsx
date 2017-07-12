@@ -12,9 +12,6 @@ import * as Selectors from "./../Selectors"
 import * as State from "./../State"
 import { Rectangle } from "./../Types"
 
-import { ConnectedBufferScrollBar } from "./BufferScrollBar"
-import { ErrorsContainer } from "./Error"
-
 export interface IActiveWindowProps {
     dimensions: Rectangle
 }
