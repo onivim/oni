@@ -98,13 +98,6 @@ export interface IStatusBarHideAction {
     }
 }
 
-export interface ISetActiveWindowDimensions {
-    type: "SET_ACTIVE_WINDOW_DIMENSIONS",
-    payload: {
-        dimensions: Rectangle,
-    }
-}
-
 export interface ISetModeAction {
     type: "SET_MODE",
     payload: {
@@ -258,7 +251,6 @@ export type SimpleAction =
     IFilterMenuAction |
     ISetModeAction |
     ISetColorsAction |
-    ISetActiveWindowDimensions |
     IStatusBarHideAction |
     IStatusBarShowAction |
     IHideCurorLineAction |

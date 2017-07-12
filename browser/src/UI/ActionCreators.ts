@@ -141,11 +141,6 @@ export const setColors = (foregroundColor: string, backgroundColor: string) => (
     dispatch(_setColors(foregroundColor, backgroundColor))
 }
 
-export const setActiveWindowDimensions = (dimensions: Rectangle) => ({
-    type: "SET_ACTIVE_WINDOW_DIMENSIONS",
-    payload: { dimensions },
-})
-
 export const setMode = (mode: string) => ({
     type: "SET_MODE",
     payload: { mode },

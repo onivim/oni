@@ -112,7 +112,6 @@ export class NeovimEditor implements IEditor {
         this._overlayManager.addOverlay("live-eval", this._liveEvaluationOverlay)
 
         this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
-            UI.Actions.setActiveWindowDimensions(dimensionsInPixels)
             UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
         })
 

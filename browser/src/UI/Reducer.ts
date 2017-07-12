@@ -27,8 +27,6 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
                 cursorCharacter: a.payload.cursorCharacter,
                 cursorPixelWidth: a.payload.cursorPixelWidth,
             })
-        case "SET_ACTIVE_WINDOW_DIMENSIONS":
-            return { ...s, ...{ activeWindowDimensions: a.payload.dimensions } }
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }
         case "SET_COLORS":
