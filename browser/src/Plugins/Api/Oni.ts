@@ -10,7 +10,7 @@ import { Editor } from "./Editor"
 import { StatusBar } from "./StatusBar"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
-import { InitializationParamsCreator, LanguageClient } from "./LanguageClient/LanguageClient"
+import { InitializationParamsCreator, LanguageClient, ServerRunOptions } from "./LanguageClient/LanguageClient"
 
 const react = require("react") // tslint:disable-line no-var-requires
 
@@ -72,8 +72,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         })
     }
 
-    public createLanguageClient(initializationCommand: string, initializationParamsCreator: InitializationParamsCreator): LanguageClient {
-        return new LanguageClient(initializationCommand, initializationParamsCreator, this)
+    public createLanguageClient(startOptions: ServerRunOptions, initializationParamsCreator: InitializationParamsCreator): LanguageClient {
+        return new LanguageClient(startOptions, initializationParamsCreator, this)
     }
 
     public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {
