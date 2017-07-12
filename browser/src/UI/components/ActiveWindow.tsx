@@ -15,6 +15,7 @@ import { Rectangle } from "./../Types"
 export interface IActiveWindowProps {
     dimensions: Rectangle
 }
+
 export class ActiveWindow extends React.PureComponent<IActiveWindowProps, void> {
     public render(): JSX.Element {
 

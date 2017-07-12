@@ -171,12 +171,14 @@ const mapStateToProps = (state: State.IState): IErrorsProps => {
 
     const errors = (window && window.file) ? Selectors.getAllErrorsForFile(window.file, state) : []
 
+    const showDetails = state.mode !== "insert"
+
     return {
         errors,
         fontWidthInPixels: state.fontPixelWidth,
         fontHeightInPixels: state.fontPixelHeight,
-        window: window,
-        showDetails: true,
+        window,
+        showDetails,
     }
 }
 
