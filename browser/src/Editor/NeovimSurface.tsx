@@ -11,8 +11,11 @@ import { NeovimInstance } from "./../NeovimInstance"
 import { DOMRenderer } from "./../Renderer/DOMRenderer"
 import { NeovimScreen } from "./../Screen"
 
+import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
+import { ConnectedBufferScrollBar } from "./../UI/components/BufferScrollBar"
 import { Cursor } from "./../UI/components/Cursor"
 import { CursorLine } from "./../UI/components/CursorLine"
+import { ErrorsContainer } from "./../UI/components/Error"
 
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -23,44 +26,6 @@ export interface INeovimSurfaceProps {
     renderer: DOMRenderer
     screen: NeovimScreen
 }
-
-import { Rectangle } from "./../UI/Types"
-import * as State from "./../UI/State"
-import * as Selectors from "./../UI/Selectors"
-import { connect } from "react-redux"
-
-import { ConnectedBufferScrollBar } from "./../UI/components/BufferScrollBar"
-import { ErrorsContainer } from "./../UI/components/Error"
-
-export interface IActiveWindowProps {
-    dimensions: Rectangle
-}
-export class ActiveWindow extends React.PureComponent<IActiveWindowProps, void> {
-    public render(): JSX.Element {
-
-        const px = (str: number): string => `${str}px`
-
-        const style = {
-            position: "absolute",
-            left: px(this.props.dimensions.x),
-            top: px(this.props.dimensions.y),
-            width: px(this.props.dimensions.width),
-            height: px(this.props.dimensions.height),
-        }
-
-        return <div style={style}>
-            {this.props.children}
-        </div>
-    }
-}
-
-const mapStateToProps = (state: State.IState): IActiveWindowProps => {
-    return {
-        dimensions: Selectors.getActiveWindowDimensions(state),
-    }
-}
-
-export const ActiveWindowContainer = connect(mapStateToProps)(ActiveWindow)
 
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
     public render(): JSX.Element {
