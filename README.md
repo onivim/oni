@@ -308,7 +308,7 @@ _Known Issues_
 
 _Configuration_
 
-Reason and OCaml supports depends on [ocaml-language-server](https://github.com/freebroccolo/ocaml-language-server) by @freebroccolo. 
+Reason and OCaml support depends on [ocaml-language-server](https://github.com/freebroccolo/ocaml-language-server) by @freebroccolo.
 
 You will need to build the language server locally, as the currently published NPM package is out-of-date:
 1. Install [requirements](https://github.com/freebroccolo/ocaml-language-server#requirements)
