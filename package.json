@@ -95,7 +95,7 @@
     "find-up": "2.1.0",
     "lodash": "4.17.0",
     "minimist": "1.2.0",
-    "neovim-client": "2.1.0",
+    "msgpack-lite": "0.1.26",
     "omnisharp-client": "7.0.6",
     "q": "1.4.1",
     "tslint": "4.0.2",
