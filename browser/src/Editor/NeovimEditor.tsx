@@ -283,6 +283,21 @@ export class NeovimEditor implements IEditor {
             }
         })
 
+        const normalizePath = (fileName: string) => fileName.split("\\").join("/")
+
+        const openFiles = async (files: string[], action: string) => {
+
+            await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
+
+            for (let i = 1; i < files.length; i++) {
+                this._neovimInstance.command("exec \"" + action + " " + normalizePath(files[i]) + "\"")
+            }
+        }
+
+        ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
+            openFiles(files, message)
+        })
+
         // enable opening a file via drag-drop
         document.ondragover = (ev) => {
             ev.preventDefault()
@@ -292,10 +307,10 @@ export class NeovimEditor implements IEditor {
 
             let files = ev.dataTransfer.files
             // open first file in current editor
-            this._neovimInstance.open(files[0].path.split("\\").join("/"))
+            this._neovimInstance.open(normalizePath(files[0].path))
             // open any subsequent files in new tabs
             for (let i = 1; i < files.length; i++) {
-                this._neovimInstance.command("exec \":tabe " + files.item(i).path.split("\\").join("/") + "\"")
+                this._neovimInstance.command("exec \":tabe " + normalizePath(files.item(i).path) + "\"")
             }
         }
     }
