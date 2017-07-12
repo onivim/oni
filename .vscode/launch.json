@@ -9,6 +9,9 @@
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/main.js",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+            "windows": {
+                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+            },
             "runtimeArgs": [
                 "--enable-logging"
             ],
@@ -21,6 +24,9 @@
             "type": "chrome", // <-- requires Extension "Debugger for Chrome"
             "request": "launch",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+            "windows": {
+                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+            },
             "runtimeArgs": [
                 "--enable-logging",
                 "${workspaceRoot}/main.js"

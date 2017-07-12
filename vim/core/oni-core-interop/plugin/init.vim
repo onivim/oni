@@ -30,6 +30,16 @@ function OniNotifyEvent(eventName)
     call OniNotify(["event", a:eventName, context])
 endfunction
 
+function OniOpenFile(strategy, file)
+    if bufname('%') != ''
+        exec a:strategy . a:file
+    elseif &modified
+        exec a:strategy . a:file
+    else
+        exec ":e " . a:file
+    endif
+endfunction
+
 augroup OniNotifyBufferUpdates
     autocmd!
     autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
