@@ -30,18 +30,18 @@ export class QuickInfo extends React.Component<IQuickInfoProps, void> {
             left: this.props.x.toString() + "px",
         }
 
-        const innerCommonStyle = {
+        const innerCommonStyle: React.CSSProperties = {
             "position": "absolute",
             "opacity": this.props.visible ? 1 : 0,
             "max-width": (document.body.offsetWidth - this.props.x - 40) + "px",
         }
 
-        const openFromTopStyle = {
+        const openFromTopStyle: React.CSSProperties = {
             ...innerCommonStyle,
             "top": "0px",
         }
 
-        const openFromBottomStyle = {
+        const openFromBottomStyle: React.CSSProperties = {
             ...innerCommonStyle,
             "bottom": "0px",
         }
