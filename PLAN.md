@@ -5,7 +5,3 @@
 - Test with OCaml as well (.ml/.mli)
 
 - Quick info on whitespace?
-
-### Separate issues:
-    - Log issue for playground / preview
-    - Preliminary "snippet" behavior could provide these for autocompletion
