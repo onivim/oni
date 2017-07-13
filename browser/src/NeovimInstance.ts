@@ -248,15 +248,16 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public eval<T>(expression: string): Q.Promise<T> {
-        return Q.ninvoke<T>(this._neovim, "eval", expression)
+        return this._neovim.request("nvim_eval", [expression])
     }
 
     public command(command: string): Q.Promise<void> {
-        return Q.ninvoke<void>(this._neovim, "command", command)
+        return this._neovim.request("nvim_command", [command])
     }
 
     public callFunction(functionName: string, args: any[]): Q.Promise<void> {
-        return this._sessionWrapper.invoke<void>("nvim_call_function", [functionName, args])
+        return this._neovim.request("nvim_call_function", [functionName, args])
+        // return this._sessionWrapper.invoke<void>("nvim_call_function", [functionName, args])
     }
 
     public getCurrentBuffer(): Q.Promise<IBuffer> {
@@ -467,11 +468,14 @@ export class NeovimSession {
                     console.warn("Unhandled request")
                     break
                 case 1 /* Response */:
+                    performance.mark("neovim.request." + data[1])
                     this._pendingRequests[data[1]](data[2])
                     break
                 case 2:
                     const message = data[1]
                     const payload = data[2]
+
+                    performance.mark("neovim.notification." + message)
                     
                     if (this._messageHandlers["notification"]) {
                         const handlers = this._messageHandlers["notification"]
@@ -551,6 +555,4 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
     console.log("NVIM PID: " + nvimProc.pid)
 
     return Q(new NeovimSession(nvimProc.stdin, nvimProc.stdout))
-
-    // return attachAsPromise(nvimProc.stdin, nvimProc.stdout)
 }

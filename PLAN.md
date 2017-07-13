@@ -5,7 +5,7 @@
     - Buffer calls?
     - Windows calls?
 
-- Quit?
-
 - React perf profiling?
 - Refactor out so that other node-based RPC clients can use it
+
+- Get quit working
