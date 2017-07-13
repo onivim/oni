@@ -24,6 +24,7 @@
         - [C#](#c)
         - [Go](#go)
         - [Python](#python)
+        - [Reason and OCaml](#reason-and-ocaml)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
@@ -303,6 +304,29 @@ _Known Issues_
 
 - Windows support is blocked by this issue: [palantir/python-language-server#53](https://github.com/palantir/python-language-server/issues/53).
 
+#### Reason and OCaml
+
+_Configuration_
+
+Reason and OCaml support depends on [ocaml-language-server](https://github.com/freebroccolo/ocaml-language-server) by @freebroccolo.
+
+You will need to build the language server locally, as the currently published NPM package is out-of-date:
+1. Install [requirements](https://github.com/freebroccolo/ocaml-language-server#requirements)
+2. `git clone https://github.com/freebroccolo/ocaml-language-server.git`
+3. `cd ocaml-language-server`
+4. `yarn install`
+5. `yarn run compile`
+6. `npm link`
+
+> __NOTE:__ Once the NPM package is updated with a fix for [#22](https://github.com/freebroccolo/ocaml-language-server/issues/22), steps 2-6 can be replaced with `npm install -g ocaml-language-server`.
+
+_Supported Language features_
+
+| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
+| --- | --- | --- | --- | --- | --- |--- | --- |
+| Y | Y | N | Y | Y | N | N | N |
+
+
 ### Configuration
 
 > ONI is configurable via a 'config.js' located in $HOME/.oni
@@ -395,11 +419,18 @@ See [roadmap](ROADMAP.md)
 
 MIT License. Copyright (c) extropygames
 
-The bundled plugins have their own license terms, along with the bundled Neovim binary
-
 There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
 
 Windows and OSX have a bundled version of Neovim, which is covered under [Neovim's license](https://github.com/neovim/neovim/blob/master/LICENSE)
+
+#### Bundled Plugins
+
+Bundled plugins have their own license terms. These include:
+- [typescript-vim](https://github.com/leafgarland/typescript-vim) (`oni/vim/core/typescript.vim`)
+- [targets.vim](https://github.com/wellle/targets.vim) (`oni/vim/default/bundle/targets.vim`)
+- [vim-commentary](https://github.com/tpope/vim-commentary) (`oni/vim/default/bundle/vim-commentary`)
+- [vim-unimpaired](https://github.com/tpope/vim-unimpaired) (`oni/vim/default/bundle/vim-unimpaired`)
+- [vim-reasonml](https://github.com/reasonml-editor/vim-reason) (`.vim` files in `oni/vim/core/oni-plugin-reasonml`)
 
 ## Contributing
 
