@@ -289,7 +289,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public input(inputString: string): Q.Promise<void> {
-        return Q.ninvoke<void>(this._neovim, "input", inputString)
+        this._neovim.request("nvim_input", [inputString])
+        return Q(null)
     }
 
     public resize(widthInPixels: number, heightInPixels: number): void {
@@ -431,6 +432,8 @@ export class NeovimSession {
 
     private _pendingRequests: { [key: number]: Function } = {}
 
+    private _messageHandlers: { [message: string]: Function[] } = {}
+
     constructor(writer: NodeJS.WritableStream, reader: NodeJS.ReadableStream) {
         this._encoder = msgpackLite.createEncodeStream()
         this._decoder = msgpackLite.createDecodeStream()
@@ -467,9 +470,15 @@ export class NeovimSession {
                     this._pendingRequests[data[1]](data[2])
                     break
                 case 2:
-                    console.warn("Unhandled notification---")
-                    console.dir(data)
-                    console.warn("--Unhandled notification")
+                    const message = data[1]
+                    const payload = data[2]
+                    
+                    if (this._messageHandlers["notification"]) {
+                        const handlers = this._messageHandlers["notification"]
+                        handlers.forEach(handler => handler(message, payload))
+                    } else {
+                        console.warn("Unhandled notification: " + message)
+                    }
                     break
 
             }
@@ -485,17 +494,18 @@ export class NeovimSession {
     }
 
     public on(message: string, callback: any): void {
-        console.log("hooking message: " + message + callback.toString())
+        const currentHandlers = this._messageHandlers[message] || []
+        this._messageHandlers[message] = currentHandlers.concat(callback)
     }
 
     public request(methodName: string, args: any): Promise<any> {
-        console.log("request")
+        // console.log("request")
         this._requestId++
-            const requestId = this._requestId
+            // const requestId = this._requestId
         let r
         const promise = new Promise((resolve) => {
             r = (val: any) => {
-                console.log(`Completed request ${requestId} for ${methodName}`)
+                // console.log(`Completed request ${requestId} for ${methodName}`)
                 resolve(val)
             }
         })
@@ -509,7 +519,7 @@ export class NeovimSession {
     }
 
     public notify(methodName: string, args: any) {
-        console.log("notify")
+        // console.log("notify")
         this._encoder.write([2, methodName, args])
         this._encoder._flush()
     }
