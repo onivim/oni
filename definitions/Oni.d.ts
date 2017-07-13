@@ -3,6 +3,9 @@ import { EventEmitter } from "events"
 import * as types from "vscode-languageserver-types"
 
 declare namespace Oni {
+    export interface Git {
+        getBranch(): Q.Promise<String>
+    }
 
     export interface EventCallback<T> {
         (val: T): void
