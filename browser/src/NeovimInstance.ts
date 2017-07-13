@@ -42,7 +42,7 @@ export interface INeovimInstance {
     setFont(fontFamily: string, fontSize: string): void
 
     getCurrentBuffer(): Q.Promise<IBuffer>
-    getCurrentWindow(): Q.Promise<IWindow>
+    getCurrentWindow(): Promise<IWindow>
 
     getCursorColumn(): Q.Promise<number>
     getCursorRow(): Q.Promise<number>
@@ -282,9 +282,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 .then((currentWorkingDirectory: string) => path.normalize(currentWorkingDirectory))
     }
 
-    public getCurrentWindow(): Q.Promise<IWindow> {
-        return this._neovim.request("nvim_get_current_buf", [])
-            .then(() => {
+    public getCurrentWindow(): Promise<IWindow> {
+        return this._neovim.request("nvim_get_current_win", [])
+            .then((args1: any, args2: any) => {
+                console.log(args1, args2)
                 debugger
             })
 
@@ -433,11 +434,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 }
 
-// const attachAsPromise = Q.denodeify(attach)
-//
+import * as msgpack from "./neovim/MsgPack"
 
 import * as msgpackLite from "msgpack-lite"
-
 
 export class NeovimSession {
     private _encoder: any
@@ -449,8 +448,14 @@ export class NeovimSession {
     private _messageHandlers: { [message: string]: Function[] } = {}
 
     constructor(writer: NodeJS.WritableStream, reader: NodeJS.ReadableStream) {
-        this._encoder = msgpackLite.createEncodeStream()
-        this._decoder = msgpackLite.createDecodeStream()
+
+        const codec = msgpackLite.createCodec()
+
+        codec.addExtPacker(0x01, msgpack.NeovimWindowReference, msgpack.Pack)
+        codec.addExtUnpacker(0x01, msgpack.UnpackWindow)
+
+        this._encoder = msgpackLite.createEncodeStream({ codec })
+        this._decoder = msgpackLite.createDecodeStream({ codec })
 
         // reader.on("end", () => {
         //     console.warn("READER END")
@@ -480,8 +485,9 @@ export class NeovimSession {
                     console.warn("Unhandled request")
                     break
                 case 1 /* Response */:
+                    const result = data[2] || data[3]
                     console["timeStamp"]("neovim.request." + data[1])
-                    this._pendingRequests[data[1]](data[2])
+                    this._pendingRequests[data[1]](result)
                     break
                 case 2:
                     const message = data[1]
@@ -514,12 +520,12 @@ export class NeovimSession {
         this._messageHandlers[message] = currentHandlers.concat(callback)
     }
 
-    public request(methodName: string, args: any): Promise<any> {
+    public request<T>(methodName: string, args: any): Promise<T> {
         // console.log("request")
         this._requestId++
             // const requestId = this._requestId
         let r
-        const promise = new Promise((resolve) => {
+        const promise = new Promise<T>((resolve) => {
             r = (val: any) => {
                 // console.log(`Completed request ${requestId} for ${methodName}`)
                 resolve(val)

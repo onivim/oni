@@ -27,7 +27,7 @@ export class OutputWindow {
         this._outputCount++
         let buffer: IBuffer
         return this._neovimInstance.command("rightbelow 20new OUTPUT" + this._outputCount.toString())
-            .then(() => this._neovimInstance.getCurrentWindow())
+            .then(() => Q(this._neovimInstance.getCurrentWindow()))
             .then(() => this._neovimInstance.getCurrentBuffer())
             .then((buf) => buffer = buf)
             .then(() => buffer.setOption("buftype", "nofile"))
