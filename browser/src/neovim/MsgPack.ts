@@ -21,6 +21,7 @@ export const Pack = (reference: MsgPackObjectReference) => {
 export const Unpack = (rawData: any, msgPackObject: MsgPackObjectReference) => {
     const id = msgpackLite.decode(rawData)
     msgPackObject.id = id
+    return msgPackObject
 }
 
 export const UnpackWindow = (rawData: any) => Unpack(rawData, new NeovimWindowReference())
