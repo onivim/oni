@@ -7,10 +7,10 @@ import * as Q from "q"
 import * as Actions from "./actions"
 import * as Config from "./Config"
 import { measureFont } from "./Font"
-import { Buffer, IBuffer } from "./neovim/Buffer"
+import { /*Buffer,*/ IBuffer } from "./neovim/Buffer"
 import { IQuickFixList, QuickFixList } from "./neovim/QuickFix"
 import { SessionWrapper } from "./neovim/SessionWrapper"
-import { IWindow, Window } from "./neovim/Window"
+import { IWindow/*, Window*/ } from "./neovim/Window"
 import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./Screen"
@@ -106,7 +106,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 this._sessionWrapper = new SessionWrapper(this._neovim)
 
                 // Override completeopt so Oni works correctly with external popupmenu
-                //this.command("set completeopt=longest,menu")
+                this.command("set completeopt=longest,menu")
 
                 this._neovim.on("error", (err: Error) => {
                     this.emit("logError", err)
@@ -166,21 +166,27 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                 // Workaround for bug in neovim/node-client
                 // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
-                this._neovim.request("nvim_ui_attach", [size.cols, size.rows, startupOptions])
+                return this._neovim.request("vim_get_api_info", [])
+                    .then((results?: any) => {
+                        console.log(results)
+                        debugger
+                    })
+                    .then(() => this._neovim.request("nvim_ui_attach", [size.cols, size.rows, startupOptions]))
                     .then(() => {
-                    this.emit("logInfo", "Attach success")
+                        this.emit("logInfo", "Attach success")
 
-                    performance.mark("NeovimInstance.Plugins.Start")
-                    this._pluginManager.startPlugins(this)
-                    performance.mark("NeovimInstance.Plugins.End")
+                        performance.mark("NeovimInstance.Plugins.Start")
+                        this._pluginManager.startPlugins(this)
+                        performance.mark("NeovimInstance.Plugins.End")
 
-                    // set title after attaching listeners so we can get the initial title
-                    this.command("set title")
-                    this.callFunction("OniConnect", [])
-                })
-            }, (err) => {
-                this.emit("error", err)
-            })
+                        // set title after attaching listeners so we can get the initial title
+                        this.command("set title")
+                        this.callFunction("OniConnect", [])
+                    },
+                    (err: any) => {
+                        this.emit("error", err)
+                    })
+        })
     }
 
     public getMode(): Q.Promise<string> {
@@ -261,8 +267,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public getCurrentBuffer(): Q.Promise<IBuffer> {
-        return this._sessionWrapper.invoke<any>("nvim_get_current_buf", [])
-            .then((buf: any) => new Buffer(buf))
+        return this._neovim.request("nvim_get_current_buf", [])
+            .then((...args: any[]) => {
+                console.log(args)
+                debugger
+            })
+
+        // return this._sessionWrapper.invoke<any>("nvim_get_current_buf", [])
+        //     .then((buf: any) => new Buffer(buf))
     }
 
     public getCurrentWorkingDirectory(): Q.Promise<string> {
@@ -271,8 +283,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public getCurrentWindow(): Q.Promise<IWindow> {
-        return this._sessionWrapper.invoke<any>("nvim_get_current_win", [])
-            .then((win: any) => new Window(win))
+        return this._neovim.request("nvim_get_current_buf", [])
+            .then(() => {
+                debugger
+            })
+
+        // return this._sessionWrapper.invoke<any>("nvim_get_current_win", [])
+        //     .then((win: any) => new Window(win))
     }
 
     public get cursorPosition(): IPosition {
@@ -325,13 +342,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             return
         }
 
-        // this._initPromise.then(() => {
-        //     this._neovim.uiTryResize(columns, rows, (err?: Error) => {
-        //         if (err) {
-        //             this.emit("logError", err)
-        //         }
-        //     })
-        // })
+        this._initPromise.then(() => {
+            return this._neovim.request("nvim_ui_try_resize", [columns, rows])
+        })
     }
 
     private _getSize() {
@@ -463,19 +476,18 @@ export class NeovimSession {
             const type = data[0]
 
             switch(type) {
-
                 case 0:
                     console.warn("Unhandled request")
                     break
                 case 1 /* Response */:
-                    performance.mark("neovim.request." + data[1])
+                    console["timeStamp"]("neovim.request." + data[1])
                     this._pendingRequests[data[1]](data[2])
                     break
                 case 2:
                     const message = data[1]
                     const payload = data[2]
 
-                    performance.mark("neovim.notification." + message)
+                    console["timeStamp"]("neovim.notification." + message)
                     
                     if (this._messageHandlers["notification"]) {
                         const handlers = this._messageHandlers["notification"]
