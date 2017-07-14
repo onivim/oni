@@ -66,8 +66,18 @@ endfunction
 function OniNotifyEvent(eventName)
     let context = OniGetContext()
     call OniNotify(["event", a:eventName, context])
-endfunction
 
+endfunction
+function OniOpenFile(strategy, file)		
+     if bufname('%') != ''		
+         exec a:strategy . a:file		
+     elseif &modified		
+         exec a:strategy . a:file		
+     else		
+         exec ":e " . a:file		
+     endif		
+ endfunction		
+ 
 augroup OniNotifyBufferUpdates
     autocmd!
     autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
