@@ -404,8 +404,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 this.emit("action", Actions.changeMode(newMode))
                 this.emit("mode-change", newMode)
                 break
-            case "popupmenu_hide":		
-                this.emit("hide-popup-menu")		
+            case "popupmenu_hide":
+                this.emit("hide-popup-menu")
                 break
             case "popupmenu_show":
                 const completions = a[0][0]
