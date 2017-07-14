@@ -65,9 +65,9 @@ endfunction
 
 function OniNotifyEvent(eventName)
     let context = OniGetContext()
-    call OniNotify(["event", a:eventName, context])
-
+    call OniNotify(["event", a:eventName, context]) 
 endfunction
+
 function OniOpenFile(strategy, file)		
      if bufname('%') != ''		
          exec a:strategy . a:file		
