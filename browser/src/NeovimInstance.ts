@@ -10,7 +10,7 @@ import { measureFont } from "./Font"
 import { /*Buffer,*/ IBuffer } from "./neovim/Buffer"
 import { IQuickFixList, QuickFixList } from "./neovim/QuickFix"
 import { SessionWrapper } from "./neovim/SessionWrapper"
-import { IWindow/*, Window*/ } from "./neovim/Window"
+import { IWindow, Window } from "./neovim/Window"
 import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./Screen"
@@ -284,9 +284,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public getCurrentWindow(): Promise<IWindow> {
         return this._neovim.request("nvim_get_current_win", [])
-            .then((args1: any, args2: any) => {
-                console.log(args1, args2)
-                debugger
+            .then((args1: msgpack.NeovimWindowReference) => {
+                console.log(args1)
+                return new Window(args1, this._neovim)
             })
 
         // return this._sessionWrapper.invoke<any>("nvim_get_current_win", [])
@@ -494,7 +494,7 @@ export class NeovimSession {
                     const payload = data[2]
 
                     console["timeStamp"]("neovim.notification." + message)
-                    
+
                     if (this._messageHandlers["notification"]) {
                         const handlers = this._messageHandlers["notification"]
                         handlers.forEach(handler => handler(message, payload))

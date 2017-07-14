@@ -1,6 +1,6 @@
 - Look into more advanced RPC calls
+    - Return the typed Window object
     - Buffer calls?
-    - Windows calls?
 
 - Syntax highlighting?
 - Autocompletion not working?
