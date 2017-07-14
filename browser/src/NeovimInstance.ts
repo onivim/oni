@@ -19,6 +19,9 @@ export interface INeovimInstance {
     quickFix: IQuickFixList
     screenToPixels(row: number, col: number): IPixelPosition
 
+    /**
+     * Supply input (keyboard/mouse) to Neovim
+     */
     input(inputString: string): void
 
     /**
@@ -45,8 +48,6 @@ export interface INeovimInstance {
 
     getCursorColumn(): Promise<number>
     getCursorRow(): Promise<number>
-
-    getSelectionRange(): Promise<null | Oni.Range>
 
     open(fileName: string): Promise<void>
 }
@@ -206,34 +207,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.eval<number>("line('.')")
     }
 
-    public getSelectionRange(): Promise<null | Oni.Range> {
-
-        let buffer: null | IBuffer = null
-        let start: any = null
-        let end: any = null
-
-        // FIXME: deal with nulls
-        return this.getMode()
-            .then((mode) => {
-
-                if (mode !== "v" && mode !== "V") {
-                    throw "Not in visual mode"
-                }
-            })
-            .then(() => this.input("<esc>"))
-            .then(() => this.getCurrentBuffer())
-            .then((buf) => buffer = buf)
-            .then(() => buffer && buffer.getMark("<") as any)
-            .then((s) => start = s)
-            .then(() => buffer && buffer.getMark(">") as any)
-            .then((e) => end = e)
-            .then(() => this.command("normal! gv"))
-            .then(() => ({
-                start,
-                end,
-            })) as any
-    }
-
     public setFont(fontFamily: string, fontSize: string): void {
         this._fontFamily = fontFamily
         this._fontSize = fontSize
@@ -262,7 +235,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public callFunction(functionName: string, args: any[]): Promise<void> {
         return this._neovim.request("nvim_call_function", [functionName, args])
-        // return this._sessionWrapper.invoke<void>("nvim_call_function", [functionName, args])
     }
 
     public getCurrentBuffer(): Promise<IBuffer> {
@@ -270,9 +242,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             .then((bufferReference: msgpack.NeovimBufferReference) => {
                 return new Buffer(bufferReference, this._neovim)
             })
-
-        // return this._sessionWrapper.invoke<any>("nvim_get_current_buf", [])
-        //     .then((buf: any) => new Buffer(buf))
     }
 
     public getCurrentWorkingDirectory(): Promise<string> {
@@ -286,9 +255,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 console.log(args1)
                 return new Window(args1, this._neovim)
             })
-
-        // return this._sessionWrapper.invoke<any>("nvim_get_current_win", [])
-        //     .then((win: any) => new Window(win))
     }
 
     public get cursorPosition(): IPosition {
