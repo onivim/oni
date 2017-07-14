@@ -37,7 +37,7 @@ export class Buffer implements IBuffer {
         // return Q.ninvoke<void>(this._bufferInstance, "clearHighlight", highlightId, startLine, endLine)
     }
 
-    public setLines(start: number, end: number, useStrictIndexing: boolean, lines: string[]): Promise<void {
+    public setLines(start: number, end: number, useStrictIndexing: boolean, lines: string[]): Promise<void> {
         return this._session.request<void>("nvim_buf_set_lines", [this._bufferReference, start, end, useStrictIndexing, lines])
         // return Q.ninvoke(this._bufferInstance, "setLines", start, end, useStrictIndexing, lines)
     }

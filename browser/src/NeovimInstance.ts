@@ -3,7 +3,6 @@ import { remote } from "electron"
 import { EventEmitter } from "events"
 import * as path from "path"
 
-import * as Q from "q"
 import * as Actions from "./actions"
 import * as Config from "./Config"
 import { measureFont } from "./Font"
@@ -25,31 +24,31 @@ export interface INeovimInstance {
     /**
      * Call a VimL function
      */
-    callFunction(functionName: string, args: any[]): Q.Promise<any>
+    callFunction(functionName: string, args: any[]): Promise<any>
 
     /**
      * Execute a VimL command
      */
-    command(command: string): Q.Promise<any>
+    command(command: string): Promise<any>
 
     /**
      * Evaluate a VimL block
      */
-    eval(expression: string): Q.Promise<any>
+    eval(expression: string): Promise<any>
 
     on(event: string, handler: Function): void
 
     setFont(fontFamily: string, fontSize: string): void
 
-    getCurrentBuffer(): Q.Promise<IBuffer>
+    getCurrentBuffer(): Promise<IBuffer>
     getCurrentWindow(): Promise<IWindow>
 
-    getCursorColumn(): Q.Promise<number>
-    getCursorRow(): Q.Promise<number>
+    getCursorColumn(): Promise<number>
+    getCursorRow(): Promise<number>
 
-    getSelectionRange(): Q.Promise<null | Oni.Range>
+    getSelectionRange(): Promise<null | Oni.Range>
 
-    open(fileName: string): Q.Promise<void>
+    open(fileName: string): Promise<void>
 }
 
 /**
@@ -189,25 +188,25 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         })
     }
 
-    public getMode(): Q.Promise<string> {
+    public getMode(): Promise<string> {
         return this.eval<string>("mode()")
     }
 
     /**
      * Returns the current cursor column in buffer-space
      */
-    public getCursorColumn(): Q.Promise<number> {
+    public getCursorColumn(): Promise<number> {
         return this.eval<number>("col('.')")
     }
 
     /**
      * Returns the current cursor row in buffer-space
      */
-    public getCursorRow(): Q.Promise<number> {
+    public getCursorRow(): Promise<number> {
         return this.eval<number>("line('.')")
     }
 
-    public getSelectionRange(): Q.Promise<null | Oni.Range> {
+    public getSelectionRange(): Promise<null | Oni.Range> {
 
         let buffer: null | IBuffer = null
         let start: any = null
@@ -249,24 +248,24 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
     }
 
-    public open(fileName: string): Q.Promise<void> {
+    public open(fileName: string): Promise<void> {
         return this.command(`e! ${fileName}`)
     }
 
-    public eval<T>(expression: string): Q.Promise<T> {
+    public eval<T>(expression: string): Promise<T> {
         return this._neovim.request("nvim_eval", [expression])
     }
 
-    public command(command: string): Q.Promise<void> {
+    public command(command: string): Promise<void> {
         return this._neovim.request("nvim_command", [command])
     }
 
-    public callFunction(functionName: string, args: any[]): Q.Promise<void> {
+    public callFunction(functionName: string, args: any[]): Promise<void> {
         return this._neovim.request("nvim_call_function", [functionName, args])
         // return this._sessionWrapper.invoke<void>("nvim_call_function", [functionName, args])
     }
 
-    public getCurrentBuffer(): Q.Promise<IBuffer> {
+    public getCurrentBuffer(): Promise<IBuffer> {
         return this._neovim.request("nvim_get_current_buf", [])
             .then((...args: any[]) => {
                 console.log(args)
@@ -277,7 +276,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         //     .then((buf: any) => new Buffer(buf))
     }
 
-    public getCurrentWorkingDirectory(): Q.Promise<string> {
+    public getCurrentWorkingDirectory(): Promise<string> {
         return this.eval("getcwd()")
                 .then((currentWorkingDirectory: string) => path.normalize(currentWorkingDirectory))
     }
@@ -307,9 +306,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         }
     }
 
-    public input(inputString: string): Q.Promise<void> {
+    public input(inputString: string): Promise<void> {
         this._neovim.request("nvim_input", [inputString])
-        return Q(null)
+        return Promise.resolve(null)
     }
 
     public resize(widthInPixels: number, heightInPixels: number): void {
@@ -547,7 +546,7 @@ export class NeovimSession {
     }
 }
 
-function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
+function startNeovim(runtimePaths: string[], args: any): Promise<any> {
 
     const noopInitVimPath = path.join(__dirname, "vim", "noop.vim")
 
@@ -572,5 +571,5 @@ function startNeovim(runtimePaths: string[], args: any): Q.IPromise<any> {
     const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
     console.log("NVIM PID: " + nvimProc.pid)
 
-    return Q(new NeovimSession(nvimProc.stdin, nvimProc.stdout))
+    return Promise.resolve(new NeovimSession(nvimProc.stdin, nvimProc.stdout))
 }

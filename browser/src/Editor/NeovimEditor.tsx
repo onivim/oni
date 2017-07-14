@@ -28,6 +28,7 @@ import { Errors } from "./../Services/Errors"
 import { Formatter } from "./../Services/Formatter"
 import { LiveEvaluation } from "./../Services/LiveEvaluation"
 import { MultiProcess } from "./../Services/MultiProcess"
+import { OutputWindow } from "./../Services/Output"
 import { QuickOpen } from "./../Services/QuickOpen"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { Tasks } from "./../Services/Tasks"
@@ -89,6 +90,7 @@ export class NeovimEditor implements IEditor {
         const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
         const liveEvaluation = new LiveEvaluation(this._neovimInstance, this._pluginManager)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
+        const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
         this._tasks = new Tasks(outputWindow)
         registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
 
