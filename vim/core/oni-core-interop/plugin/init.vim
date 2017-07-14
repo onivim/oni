@@ -12,6 +12,44 @@ function OniNotify(args)
 endfunction
 
 function OniNotifyBufferUpdate()
+    if !exists("b:last_change_tick")
+
+        let b:last_change_tick = -1
+        " Initial Send of whole buffer
+        let b:last_change_tick = b:changedtick
+        let buffer_lines = getline(1,"$")
+        let context = OniGetContext()
+        call OniNotify(["buffer_update", context, buffer_lines])
+    endif
+
+    if !exists("b:last_cursor_line")
+        let b:last_cursor_line = 1
+        let b:last_change_tick = b:changedtick
+        let buffer_lines = getline(1,"$")
+        let context = OniGetContext()
+        call OniNotify(["buffer_update", context, buffer_lines])
+    endif
+    if b:changedtick > b:last_change_tick
+        let b:last_change_tick = b:changedtick
+        if mode() == 'i'
+            if b:last_cursor_line < line(".")
+                let buffer_lines = getline(b:last_cursor_line, line("."))
+            elseif b:last_cursor_line > line(".")
+            let buffer_lines = getline(line("."),b:last_cursor_line)
+            elseif b:last_cursor_line == line(".")
+                let buffer_lines = [getline(".")]
+            endif
+
+            let context = OniGetContext()
+            call OniNotify(["incremental_buffer_update", context, buffer_lines, line(".")])
+        else
+            let buffer_lines = getline(1,"$")
+            let context = OniGetContext()
+            call OniNotify(["buffer_update", context, buffer_lines])
+        endif
+        let b:last_cursor_line = line(".")
+    endif
+endfunction
 
     if !exists("b:last_change_tick")
         let b:last_change_tick = -1
@@ -28,16 +66,6 @@ endfunction
 function OniNotifyEvent(eventName)
     let context = OniGetContext()
     call OniNotify(["event", a:eventName, context])
-endfunction
-
-function OniOpenFile(strategy, file)
-    if bufname('%') != ''
-        exec a:strategy . a:file
-    elseif &modified
-        exec a:strategy . a:file
-    else
-        exec ":e " . a:file
-    endif
 endfunction
 
 augroup OniNotifyBufferUpdates
