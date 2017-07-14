@@ -8,7 +8,6 @@ import * as Config from "./Config"
 import { measureFont } from "./Font"
 import { Buffer, IBuffer } from "./neovim/Buffer"
 import { IQuickFixList, QuickFixList } from "./neovim/QuickFix"
-import { SessionWrapper } from "./neovim/SessionWrapper"
 import { IWindow, Window } from "./neovim/Window"
 import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
@@ -73,7 +72,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _cols: number
 
     private _pluginManager: PluginManager
-    private _sessionWrapper: SessionWrapper
     private _quickFix: QuickFixList
 
     public get quickFix(): IQuickFixList {
@@ -102,8 +100,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 // nv.input("<ESC>")
 
                 this._neovim = nv
-
-                this._sessionWrapper = new SessionWrapper(this._neovim)
 
                 // Override completeopt so Oni works correctly with external popupmenu
                 this.command("set completeopt=longest,menu")

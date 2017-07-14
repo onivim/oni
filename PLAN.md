@@ -1,9 +1,13 @@
 - Create `Neovim` class that handles starting neovim and bubbling out events
-    - Remove `SessionWrapper`
+    - Refactor `NeovimSession` to `NeovimSession.ts`
     - Type `_neovim` in `NeovimInstnace` and use `NeovimSession`
+    - Remove `SessionWrapper`
+
+    - Refactor `startNeovimProcess` to `NeovimProcessSpawner.ts`
 
     - Set up `request` event
     - Set up `disconnect` event
+
 
     - export Neovim.start()
     - export `INeovimInstance`
