@@ -174,8 +174,10 @@ export class NeovimEditor implements IEditor {
             this._scrollbarOverlay.onBufferUpdate(context, lines)
         })
 
-        this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any) => {
-            this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
+        this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any, shouldMeasure: boolean) => {
+            if (shouldMeasure) {
+                this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
+            }
         })
 
         this._neovimInstance.on("action", (action: any) => {
