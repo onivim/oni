@@ -1,4 +1,4 @@
-import { NeovimSession } from "./../NeovimInstance"
+import { Session } from "./Session"
 import * as msgpack from "./MsgPack"
 
 export interface IWindow {
@@ -20,7 +20,7 @@ export class Window implements IWindow {
 
     constructor(
         private _windowReference: msgpack.NeovimWindowReference,
-        private _session: NeovimSession
+        private _session: Session
     ) { }
 
     public isValid(): Promise<boolean> {

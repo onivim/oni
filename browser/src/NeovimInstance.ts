@@ -1,7 +1,8 @@
-import * as cp from "child_process"
 import { remote } from "electron"
 import { EventEmitter } from "events"
 import * as path from "path"
+
+import * as neovim from "./neovim"
 
 import * as Actions from "./actions"
 import * as Config from "./Config"
@@ -9,7 +10,6 @@ import { measureFont } from "./Font"
 import { Buffer, IBuffer } from "./neovim/Buffer"
 import { IQuickFixList, QuickFixList } from "./neovim/QuickFix"
 import { IWindow, Window } from "./neovim/Window"
-import * as Platform from "./Platform"
 import { PluginManager } from "./Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./Screen"
 
@@ -55,8 +55,8 @@ export interface INeovimInstance {
  * Integration with NeoVim API
  */
 export class NeovimInstance extends EventEmitter implements INeovimInstance {
-    private _neovim: any
-    private _initPromise: any
+    private _neovim: neovim.Session
+    private _initPromise: Promise<void>
 
     private _config = Config.instance()
 
@@ -91,7 +91,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public start(filesToOpen?: string[]): void {
         filesToOpen = filesToOpen || []
 
-        this._initPromise = startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen)
+        this._initPromise = Promise.resolve(neovim.startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen))
             .then((nv) => {
                 this.emit("logInfo", "NeovimInstance: Neovim started")
 
@@ -235,7 +235,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public getCurrentBuffer(): Promise<IBuffer> {
         return this._neovim.request("nvim_get_current_buf", [])
-            .then((bufferReference: msgpack.NeovimBufferReference) => {
+            .then((bufferReference: neovim.NeovimBufferReference) => {
                 return new Buffer(bufferReference, this._neovim)
             })
     }
@@ -247,7 +247,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public getCurrentWindow(): Promise<IWindow> {
         return this._neovim.request("nvim_get_current_win", [])
-            .then((args1: msgpack.NeovimWindowReference) => {
+            .then((args1: neovim.NeovimWindowReference) => {
                 console.log(args1)
                 return new Window(args1, this._neovim)
             })
@@ -392,145 +392,4 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             }
         })
     }
-}
-
-import * as msgpack from "./neovim/MsgPack"
-
-import * as msgpackLite from "msgpack-lite"
-
-export class NeovimSession {
-    private _encoder: any
-    private _decoder: any
-    private _requestId: number = 0
-
-    private _pendingRequests: { [key: number]: Function } = {}
-
-    private _messageHandlers: { [message: string]: Function[] } = {}
-
-    constructor(writer: NodeJS.WritableStream, reader: NodeJS.ReadableStream) {
-
-        const codec = msgpackLite.createCodec()
-
-        codec.addExtPacker(0x01, msgpack.NeovimWindowReference, msgpack.Pack)
-        codec.addExtUnpacker(0x01, msgpack.UnpackWindow)
-
-        this._encoder = msgpackLite.createEncodeStream({ codec })
-        this._decoder = msgpackLite.createDecodeStream({ codec })
-
-        // reader.on("end", () => {
-        //     console.warn("READER END")
-        // })
-
-        this._encoder.pipe(writer)
-        
-        reader.pipe(this._decoder)
-
-        // pipey.on("data", (data: any) => {
-        //     console.log("PIPEY--")
-        //     console.dir(data)
-        //     console.log("--PIPEY")
-        // })
-
-        // pipey.on("end", () => {
-        //     console.warn("PIPEY END")
-        // })
-
-        this._decoder.on("data", (data: any) => {
-
-
-            const type = data[0]
-
-            switch(type) {
-                case 0:
-                    console.warn("Unhandled request")
-                    break
-                case 1 /* Response */:
-                    const result = data[2] || data[3]
-                    console["timeStamp"]("neovim.request." + data[1])
-                    this._pendingRequests[data[1]](result)
-                    break
-                case 2:
-                    const message = data[1]
-                    const payload = data[2]
-
-                    console["timeStamp"]("neovim.notification." + message)
-
-                    if (this._messageHandlers["notification"]) {
-                        const handlers = this._messageHandlers["notification"]
-                        handlers.forEach(handler => handler(message, payload))
-                    } else {
-                        console.warn("Unhandled notification: " + message)
-                    }
-                    break
-
-            }
-        })
-
-        this._decoder.on("end", () => {
-            console.warn("DECODER END")
-        })
-
-        this._decoder.on("error", (err: Error) => {
-            console.error("Decoder error!", err)
-        })
-    }
-
-    public on(message: string, callback: any): void {
-        const currentHandlers = this._messageHandlers[message] || []
-        this._messageHandlers[message] = currentHandlers.concat(callback)
-    }
-
-    public request<T>(methodName: string, args: any): Promise<T> {
-        // console.log("request")
-        this._requestId++
-            // const requestId = this._requestId
-        let r
-        const promise = new Promise<T>((resolve) => {
-            r = (val: any) => {
-                // console.log(`Completed request ${requestId} for ${methodName}`)
-                resolve(val)
-            }
-        })
-
-        this._pendingRequests[this._requestId] = r
-        this._encoder.write([0, this._requestId, methodName, args])
-        this._encoder._flush()
-
-        return promise
-        // this._encoder.end()
-    }
-
-    public notify(methodName: string, args: any) {
-        // console.log("notify")
-        this._encoder.write([2, methodName, args])
-        this._encoder._flush()
-    }
-}
-
-function startNeovim(runtimePaths: string[], args: any): Promise<any> {
-
-    const noopInitVimPath = path.join(__dirname, "vim", "noop.vim")
-
-    const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
-    const nvimMacProcessPath = path.join(__dirname, "bin", "osx", "neovim", "bin", "nvim")
-    // For Linux, assume there is a locally installed neovim
-    const nvimLinuxPath = "nvim"
-
-    const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
-
-    const joinedRuntimePaths = runtimePaths.join(",")
-
-    const shouldLoadInitVim = Config.instance().getValue("oni.loadInitVim")
-    const useDefaultConfig = Config.instance().getValue("oni.useDefaultConfig")
-
-    const vimRcArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
-
-    const argsToPass = vimRcArg
-        .concat(["--cmd", `let &rtp.='${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
-        .concat(args)
-
-    const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
-    console.log("NVIM PID: " + nvimProc.pid)
-
-    return Promise.resolve(new NeovimSession(nvimProc.stdin, nvimProc.stdout))
 }

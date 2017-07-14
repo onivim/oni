@@ -1,4 +1,5 @@
 - Create `Neovim` class that handles starting neovim and bubbling out events
+    - Use barrel export for Neovim
     - Hook up `quit` event
     - Refactor `NeovimSession` to `NeovimSession.ts`
     - `awaitify` `NeovimInstance`
@@ -19,5 +20,7 @@
 
 - React perf profiling?
 - Refactor out so that other node-based RPC clients can use it
+
+- Load time - lazy load some dependencies?
 
 - Get quit working
