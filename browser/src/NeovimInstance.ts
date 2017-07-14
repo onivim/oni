@@ -6,7 +6,7 @@ import * as path from "path"
 import * as Actions from "./actions"
 import * as Config from "./Config"
 import { measureFont } from "./Font"
-import { /*Buffer,*/ IBuffer } from "./neovim/Buffer"
+import { Buffer, IBuffer } from "./neovim/Buffer"
 import { IQuickFixList, QuickFixList } from "./neovim/QuickFix"
 import { SessionWrapper } from "./neovim/SessionWrapper"
 import { IWindow, Window } from "./neovim/Window"
@@ -267,9 +267,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public getCurrentBuffer(): Promise<IBuffer> {
         return this._neovim.request("nvim_get_current_buf", [])
-            .then((...args: any[]) => {
-                console.log(args)
-                debugger
+            .then((bufferReference: msgpack.NeovimBufferReference) => {
+                return new Buffer(bufferReference, this._neovim)
             })
 
         // return this._sessionWrapper.invoke<any>("nvim_get_current_buf", [])

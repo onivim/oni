@@ -55,7 +55,6 @@ augroup OniNotifyWindowDisplayUpdate
     autocmd! BufWinEnter * :call OniUpdateWindowDisplayMap()
     autocmd! WinEnter * :call OniUpdateWindowDisplayMap()
     autocmd! VimResized * :call OniUpdateWindowDisplayMap()
-    autocmd! CursorMoved * :call OniUpdateWindowDisplayMap()
     autocmd! InsertLeave * :call OniUpdateWindowDisplayMap()
     autocmd! InsertEnter * :call OniUpdateWindowDisplayMap()
 augroup END
