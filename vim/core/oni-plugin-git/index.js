@@ -22,13 +22,15 @@ const activate = (Oni) => {
         getGitBranch({ cwd: path.dirname(evt.bufferFullPath) })
         .then((branchName) => {
             const React = Oni.dependencies.React;
-            const gitBranch  = React.createElement("div", null, branchName);
+            const branchIcon = Oni.ui.createIcon({ name: "code-fork", size: Oni.ui.IconSize.Large });
+            const gitBranch  = React.createElement("div", null, branchIcon, " " + branchName);
             gitBranchIndicator.setContents(gitBranch);
             gitBranchIndicator.show();
         })
         .fail((error) => {
             gitBranchIndicator.hide();
-        });
+        })
+        .done();
     };
 
     Oni.on("buffer-enter", updateBranchIndicator);
