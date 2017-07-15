@@ -7,6 +7,10 @@
 import { exec, execSync } from "child_process"
 import * as Q from "q"
 
+interface IExecOptions {
+    cwd?: string
+}
+
 export function isGitRepository(): Q.Promise<any> {
     const deferred = Q.defer<boolean>()
 
@@ -31,3 +35,20 @@ export function getUntrackedFiles(exclude: string[]): Q.Promise<string[]> {
     const untrackedFiles = execSync(cmd).toString("utf8").split("\n")
     return Q.resolve(untrackedFiles)
 }
+
+export function getBranch(path?: string): Q.Promise<string> {
+        const options: IExecOptions = {}
+        if (path) {
+            options.cwd = path
+        }
+
+        const deferred = Q.defer<string>()
+        exec("git rev-parse --abbrev-ref HEAD", options, (error: any, stdout: string, stderr: string) => {
+            if (error && error.code) {
+                deferred.reject(new Error(stderr))
+            } else {
+                deferred.resolve(stdout)
+            }
+        })
+        return deferred.promise
+    };
