@@ -179,7 +179,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     (err: any) => {
                         this.emit("error", err)
                     })
-        })
+            })
     }
 
     public getMode(): Promise<string> {
@@ -204,7 +204,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._fontFamily = fontFamily
         this._fontSize = fontSize
 
-        const {width, height} = measureFont(this._fontFamily, this._fontSize)
+        const { width, height } = measureFont(this._fontFamily, this._fontSize)
 
         this._fontWidthInPixels = width
         this._fontHeightInPixels = height
@@ -230,24 +230,19 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request("nvim_call_function", [functionName, args])
     }
 
-    public getCurrentBuffer(): Promise<IBuffer> {
-        return this._neovim.request("nvim_get_current_buf", [])
-            .then((bufferReference: NeovimBufferReference) => {
-                return new Buffer(bufferReference, this._neovim)
-            })
+    public async getCurrentBuffer(): Promise<IBuffer> {
+        const bufferReference = await this._neovim.request<NeovimBufferReference>("nvim_get_current_buf", [])
+        return new Buffer(bufferReference, this._neovim)
     }
 
-    public getCurrentWorkingDirectory(): Promise<string> {
-        return this.eval("getcwd()")
-                .then((currentWorkingDirectory: string) => path.normalize(currentWorkingDirectory))
+    public async getCurrentWorkingDirectory(): Promise<string> {
+        const currentWorkingDirectory = await this.eval<string>("getcwd()")
+        return path.normalize(currentWorkingDirectory)
     }
 
-    public getCurrentWindow(): Promise<IWindow> {
-        return this._neovim.request("nvim_get_current_win", [])
-            .then((args1: NeovimWindowReference) => {
-                console.log(args1)
-                return new Window(args1, this._neovim)
-            })
+    public async getCurrentWindow(): Promise<IWindow> {
+        let windowReference = await this._neovim.request<NeovimWindowReference>("nvim_get_current_win", [])
+        return new Window(windowReference, this._neovim)
     }
 
     public get cursorPosition(): IPosition {
@@ -315,77 +310,77 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         args.forEach((a: any[]) => {
             const command = a.shift()
             switch (command) {
-            case "cursor_goto":
-                this.emit("action", Actions.createCursorGotoAction(a[0][0], a[0][1]))
-                break
-            case "put":
-                const charactersToPut = a.map((v) => v[0])
-                this.emit("action", Actions.put(charactersToPut))
-                break
-            case "set_scroll_region":
-                const param = a[0]
-                this.emit("action", Actions.setScrollRegion(param[0], param[1], param[2], param[3]))
-                break
-            case "scroll":
-                this.emit("action", Actions.scroll(a[0][0]))
-                break
-            case "highlight_set":
-                const highlightInfo = a[a.length - 1][0]
-                this.emit("action", Actions.setHighlight(
-                    !!highlightInfo.bold,
-                    !!highlightInfo.italic,
-                    !!highlightInfo.reverse,
-                    !!highlightInfo.underline,
-                    !!highlightInfo.undercurl,
-                    highlightInfo.foreground,
-                    highlightInfo.background,
-                ))
-                break
-            case "resize":
-                this.emit("action", Actions.resize(a[0][0], a[0][1]))
-                break
-            case "set_title":
-                this.emit("set-title", a[0][0])
-                break
-            case "set_icon":
-                // window title when minimized, no-op
-                break
-            case "eol_clear":
-                this.emit("action", Actions.clearToEndOfLine())
-                break
-            case "clear":
-                this.emit("action", Actions.clear())
-                break
-            case "mouse_on":
-                // TODO
-                break
-            case "update_bg":
-                this.emit("action", Actions.updateBackground(a[0][0]))
-                break
-            case "update_fg":
-                this.emit("action", Actions.updateForeground(a[0][0]))
-                break
-            case "mode_change":
-                const newMode = a[a.length - 1][0]
-                this.emit("action", Actions.changeMode(newMode))
-                this.emit("mode-change", newMode)
-                break
-            case "popupmenu_hide":
-                this.emit("hide-popup-menu")
-                break
-            case "popupmenu_show":
-                const completions = a[0][0]
-                this.emit("show-popup-menu", completions)
-                break
-            case "bell":
-                const bellUrl = this._config.getValue("oni.audio.bellUrl")
-                if (bellUrl) {
-                    const audio = new Audio(bellUrl)
-                    audio.play()
-                }
-                break
-            default:
-                this.emit("logWarning", "Unhandled command: " + command)
+                case "cursor_goto":
+                    this.emit("action", Actions.createCursorGotoAction(a[0][0], a[0][1]))
+                    break
+                case "put":
+                    const charactersToPut = a.map((v) => v[0])
+                    this.emit("action", Actions.put(charactersToPut))
+                    break
+                case "set_scroll_region":
+                    const param = a[0]
+                    this.emit("action", Actions.setScrollRegion(param[0], param[1], param[2], param[3]))
+                    break
+                case "scroll":
+                    this.emit("action", Actions.scroll(a[0][0]))
+                    break
+                case "highlight_set":
+                    const highlightInfo = a[a.length - 1][0]
+                    this.emit("action", Actions.setHighlight(
+                        !!highlightInfo.bold,
+                        !!highlightInfo.italic,
+                        !!highlightInfo.reverse,
+                        !!highlightInfo.underline,
+                        !!highlightInfo.undercurl,
+                        highlightInfo.foreground,
+                        highlightInfo.background,
+                    ))
+                    break
+                case "resize":
+                    this.emit("action", Actions.resize(a[0][0], a[0][1]))
+                    break
+                case "set_title":
+                    this.emit("set-title", a[0][0])
+                    break
+                case "set_icon":
+                    // window title when minimized, no-op
+                    break
+                case "eol_clear":
+                    this.emit("action", Actions.clearToEndOfLine())
+                    break
+                case "clear":
+                    this.emit("action", Actions.clear())
+                    break
+                case "mouse_on":
+                    // TODO
+                    break
+                case "update_bg":
+                    this.emit("action", Actions.updateBackground(a[0][0]))
+                    break
+                case "update_fg":
+                    this.emit("action", Actions.updateForeground(a[0][0]))
+                    break
+                case "mode_change":
+                    const newMode = a[a.length - 1][0]
+                    this.emit("action", Actions.changeMode(newMode))
+                    this.emit("mode-change", newMode)
+                    break
+                case "popupmenu_hide":
+                    this.emit("hide-popup-menu")
+                    break
+                case "popupmenu_show":
+                    const completions = a[0][0]
+                    this.emit("show-popup-menu", completions)
+                    break
+                case "bell":
+                    const bellUrl = this._config.getValue("oni.audio.bellUrl")
+                    if (bellUrl) {
+                        const audio = new Audio(bellUrl)
+                        audio.play()
+                    }
+                    break
+                default:
+                    this.emit("logWarning", "Unhandled command: " + command)
             }
         })
     }

@@ -30,7 +30,7 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
 
     const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
 
-    console.log(`Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console-log
+    console.log(`Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console
 
     return new Session(nvimProc.stdin, nvimProc.stdout)
 }
