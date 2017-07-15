@@ -40,7 +40,7 @@ export class Session extends EventEmitter {
                     this._pendingRequests[responseMessage](result)
                     break
                 case 2 /* Notification */:
-                    const [notificationMessage, payload] = data
+                    const [notificationMessage, payload] = remaining
 
                     this.emit("notification", notificationMessage, payload)
                     break
