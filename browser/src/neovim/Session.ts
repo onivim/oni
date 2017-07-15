@@ -1,19 +1,21 @@
-import * as msgpack from "./MsgPack"
 import * as msgpackLite from "msgpack-lite"
+
+import { EventEmitter } from "events"
+
+import * as msgpack from "./MsgPack"
 
 /**
  * Session is responsible for the Neovim msgpack session
  */
-export class Session {
-    private _encoder: any
-    private _decoder: any
+export class Session extends EventEmitter {
+    private _encoder: msgpackLite.EncodeStream
+    private _decoder: msgpackLite.DecodeStream
     private _requestId: number = 0
 
     private _pendingRequests: { [key: number]: Function } = {}
 
-    private _messageHandlers: { [message: string]: Function[] } = {}
-
     constructor(writer: NodeJS.WritableStream, reader: NodeJS.ReadableStream) {
+        super()
 
         const codec = msgpackLite.createCodec()
 
@@ -23,27 +25,10 @@ export class Session {
         this._encoder = msgpackLite.createEncodeStream({ codec })
         this._decoder = msgpackLite.createDecodeStream({ codec })
 
-        // reader.on("end", () => {
-        //     console.warn("READER END")
-        // })
-
         this._encoder.pipe(writer)
-
         reader.pipe(this._decoder)
 
-        // pipey.on("data", (data: any) => {
-        //     console.log("PIPEY--")
-        //     console.dir(data)
-        //     console.log("--PIPEY")
-        // })
-
-        // pipey.on("end", () => {
-        //     console.warn("PIPEY END")
-        // })
-
         this._decoder.on("data", (data: any) => {
-
-
             const type = data[0]
 
             switch(type) {
@@ -61,19 +46,14 @@ export class Session {
 
                     console["timeStamp"]("neovim.notification." + message)
 
-                    if (this._messageHandlers["notification"]) {
-                        const handlers = this._messageHandlers["notification"]
-                        handlers.forEach(handler => handler(message, payload))
-                    } else {
-                        console.warn("Unhandled notification: " + message)
-                    }
+                    this.emit("notification", message, payload)
                     break
 
             }
         })
 
         this._decoder.on("end", () => {
-            console.warn("DECODER END")
+            this.emit("disconnect")
         })
 
         this._decoder.on("error", (err: Error) => {
@@ -81,34 +61,31 @@ export class Session {
         })
     }
 
-    public on(message: string, callback: any): void {
-        const currentHandlers = this._messageHandlers[message] || []
-        this._messageHandlers[message] = currentHandlers.concat(callback)
-    }
-
     public request<T>(methodName: string, args: any): Promise<T> {
-        // console.log("request")
         this._requestId++
-            // const requestId = this._requestId
-        let r
+        let r = null
         const promise = new Promise<T>((resolve) => {
             r = (val: any) => {
-                // console.log(`Completed request ${requestId} for ${methodName}`)
                 resolve(val)
             }
         })
 
+        if (!r) {
+            return Promise.reject(null)
+        }
+
         this._pendingRequests[this._requestId] = r
-        this._encoder.write([0, this._requestId, methodName, args])
-        this._encoder._flush()
+        this._writeImmediate([0, this._requestId, methodName, args])
 
         return promise
-        // this._encoder.end()
     }
 
     public notify(methodName: string, args: any) {
-        // console.log("notify")
-        this._encoder.write([2, methodName, args])
-        this._encoder._flush()
+        this._writeImmediate([2, methodName, args])
+    }
+
+    private _writeImmediate(args: any[]) {
+        (this._encoder as any).write(args);
+        (this._encoder as any)._flush();
     }
 }
