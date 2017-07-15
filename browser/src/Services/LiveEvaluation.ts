@@ -4,7 +4,7 @@
 
 import { EventEmitter } from "events"
 import * as os from "os"
-import { INeovimInstance } from "./../NeovimInstance"
+import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 /// <live>
