@@ -6,7 +6,7 @@
 
 import * as React from "react"
 
-import { NeovimInstance } from "./../NeovimInstance"
+import { NeovimInstance } from "./../neovim"
 import { NeovimScreen } from "./../Screen"
 
 import * as UI from "./../UI/index"

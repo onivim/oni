@@ -13,7 +13,7 @@ import * as _ from "lodash"
 import * as Q from "q"
 
 import * as Config from "./../Config"
-import { INeovimInstance } from "./../NeovimInstance"
+import { INeovimInstance } from "./../neovim"
 import * as PromiseHelper from "./../PromiseHelper"
 import * as UI from "./../UI/index"
 import * as Git from "./Git"

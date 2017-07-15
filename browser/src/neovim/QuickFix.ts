@@ -1,4 +1,4 @@
-import { INeovimInstance } from "../NeovimInstance"
+import { INeovimInstance } from "./NeovimInstance"
 
 export type Action = "a" | " "
 

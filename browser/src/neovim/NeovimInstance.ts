@@ -2,16 +2,18 @@ import { remote } from "electron"
 import { EventEmitter } from "events"
 import * as path from "path"
 
-import * as neovim from "./neovim"
+import { Buffer, IBuffer } from "./Buffer"
+import { NeovimBufferReference, NeovimWindowReference } from "./MsgPack"
+import { startNeovim } from "./NeovimProcessSpawner"
+import { IQuickFixList, QuickFixList } from "./QuickFix"
+import { Session } from "./Session"
+import { IWindow, Window } from "./Window"
 
-import * as Actions from "./actions"
-import * as Config from "./Config"
-import { measureFont } from "./Font"
-import { Buffer, IBuffer } from "./neovim/Buffer"
-import { IQuickFixList, QuickFixList } from "./neovim/QuickFix"
-import { IWindow, Window } from "./neovim/Window"
-import { PluginManager } from "./Plugins/PluginManager"
-import { IPixelPosition, IPosition } from "./Screen"
+import * as Actions from "./../actions"
+import * as Config from "./../Config"
+import { measureFont } from "./../Font"
+import { PluginManager } from "./../Plugins/PluginManager"
+import { IPixelPosition, IPosition } from "./../Screen"
 
 export interface INeovimInstance {
     cursorPosition: IPosition
@@ -55,7 +57,7 @@ export interface INeovimInstance {
  * Integration with NeoVim API
  */
 export class NeovimInstance extends EventEmitter implements INeovimInstance {
-    private _neovim: neovim.Session
+    private _neovim: Session
     private _initPromise: Promise<void>
 
     private _config = Config.instance()
@@ -91,7 +93,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public start(filesToOpen?: string[]): void {
         filesToOpen = filesToOpen || []
 
-        this._initPromise = Promise.resolve(neovim.startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen))
+        this._initPromise = Promise.resolve(startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen))
             .then((nv) => {
                 this.emit("logInfo", "NeovimInstance: Neovim started")
 
@@ -235,7 +237,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public getCurrentBuffer(): Promise<IBuffer> {
         return this._neovim.request("nvim_get_current_buf", [])
-            .then((bufferReference: neovim.NeovimBufferReference) => {
+            .then((bufferReference: NeovimBufferReference) => {
                 return new Buffer(bufferReference, this._neovim)
             })
     }
@@ -247,7 +249,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public getCurrentWindow(): Promise<IWindow> {
         return this._neovim.request("nvim_get_current_win", [])
-            .then((args1: neovim.NeovimWindowReference) => {
+            .then((args1: NeovimWindowReference) => {
                 console.log(args1)
                 return new Window(args1, this._neovim)
             })

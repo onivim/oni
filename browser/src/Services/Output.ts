@@ -1,6 +1,5 @@
 import { exec } from "child_process"
-import { IBuffer } from "./../neovim/Buffer"
-import { INeovimInstance } from "./../NeovimInstance"
+import { IBuffer, INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 /**

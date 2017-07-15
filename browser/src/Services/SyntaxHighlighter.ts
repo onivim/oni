@@ -2,8 +2,7 @@
  * SyntaxHighlighter.ts
  */
 
-import { IBuffer } from "./../neovim/Buffer"
-import { INeovimInstance } from "./../NeovimInstance"
+import { IBuffer, INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 export class SyntaxHighlighter {

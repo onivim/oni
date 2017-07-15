@@ -12,7 +12,7 @@ import * as ReactDOM from "react-dom"
 import { ipcRenderer } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
-import { NeovimInstance } from "./../NeovimInstance"
+import { NeovimInstance } from "./../neovim"
 import { DOMRenderer } from "./../Renderer/DOMRenderer"
 import { NeovimScreen } from "./../Screen"
 
