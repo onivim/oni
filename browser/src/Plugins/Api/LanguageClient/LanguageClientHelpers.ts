@@ -51,6 +51,7 @@ export interface CompletionOptions {
 export interface ServerCapabilities {
     completionProvider?: CompletionOptions
     textDocumentSync?: number
+    documentSymbolProvider?: boolean
 }
 
 export const wrapPathInFileUri = (path: string) => getFilePrefix() + path
@@ -77,6 +78,18 @@ export const bufferUpdateToTextDocumentItem = (args: Oni.BufferUpdateContext): t
         text,
     }
 }
+
+export const eventContextToTextDocumentIdentifierParams = (args: Oni.BufferUpdateContext) => ({
+    textDocument: {
+        uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
+    },
+})
+
+export const pathToTextDocumentIdentifierParms = (path: string) => ({
+    textDocument: {
+        uri: wrapPathInFileUri(path),
+    },
+})
 
 export const eventContextToTextDocumentPositionParams = (args: Oni.EventContext) => ({
     textDocument: {

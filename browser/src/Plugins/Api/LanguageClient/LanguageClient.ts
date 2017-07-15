@@ -49,6 +49,10 @@ export interface ServerRunOptions {
 export interface LanguageClientInitializationParams {
     clientName: string
     rootPath: string
+
+    // Disable `textDocument/documentSymbol` requests, even if the LSP
+    // supports it.
+    disableDocumentSymbol?: boolean
 }
 
 /**
@@ -104,10 +108,12 @@ export class LanguageClient {
 
         this._oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdate(args))
+                .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
         })
 
         this._oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdateIncremental(args))
+                .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
         })
 
         const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
@@ -144,6 +150,16 @@ export class LanguageClient {
         } else {
             throw "A command or module must be specified to start the server"
         }
+
+        console.log(`[LANGUAGE CLIENT]: Started process ${this._process.pid}`) // tslint:disable-line no-console
+
+        this._process.on("close", (code: number, signal: string) => {
+            console.warn(`[LANGUAGE CLIENT]: Process closed with exit code ${code} and signal ${signal}`) // tslint:disable-line no-console
+        })
+
+        this._process.stderr.on("data", (msg) => {
+            console.error(`[LANGUAGE CLIENT - ERROR]: ${msg}`) // tslint:disable-line no-console
+        })
 
         this._connection = rpc.createMessageConnection(
             <any>(new rpc.StreamMessageReader(this._process.stdout)),
@@ -183,7 +199,17 @@ export class LanguageClient {
         // Register additional notifications here
         this._connection.listen()
 
-        return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, initializationParams)
+        const { clientName, rootPath } = initializationParams
+
+        const oniLanguageClientParams = {
+            clientName,
+            rootPath,
+            capabilities: {
+                highlightProvider: true,
+            },
+        }
+
+        return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, oniLanguageClientParams)
             .then((response: any) => {
                 console.log(`[LANGUAGE CLIENT: ${initializationParams.clientName}]: Initialized`) // tslint:disable-line no-console
                 if (response && response.capabilities) {
@@ -220,6 +246,28 @@ export class LanguageClient {
 
         this._currentPromise = newPromise
         return newPromise
+    }
+
+    private _getCompletionItems(items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[] {
+        if (!items) {
+            return []
+        }
+
+        if (Array.isArray(items)) {
+            return items
+        } else {
+            return items.items || []
+        }
+    }
+
+    private _getCompletionDocumentation(item: types.CompletionItem): string | null {
+        if (item.documentation) {
+            return item.documentation
+        } else if (item.data && item.data.documentation) {
+            return item.data.documentation
+        } else {
+            return null
+        }
     }
 
     private async _getReferences(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.ReferencesResult> {
@@ -268,13 +316,19 @@ export class LanguageClient {
     }
 
     private async _getCompletions(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.CompletionResult> {
-
         if (!this._serverCapabilities || !this._serverCapabilities.completionProvider) {
             return null
         }
 
-        let result = await this._connection.sendRequest<types.CompletionList>(Helpers.ProtocolConstants.TextDocument.Completion,
+        let result = await this._connection.sendRequest<types.CompletionList>(
+            Helpers.ProtocolConstants.TextDocument.Completion,
             Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
+
+        const items = this._getCompletionItems(result)
+
+        if (!items) {
+            return { base: "", completions: [] }
+        }
 
         const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
         const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, characterMatchRegex)
@@ -283,12 +337,12 @@ export class LanguageClient {
             return { base: "", completions: [] }
         }
 
-        const filteredItems = result.items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
+        const filteredItems = items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
 
         const completions = filteredItems.map((i) => ({
             label: i.label,
             detail: i.detail,
-            documentation: i.documentation,
+            documentation: this._getCompletionDocumentation(i),
             kind: i.kind,
         }))
 
@@ -296,6 +350,23 @@ export class LanguageClient {
             base: meetInfo.base,
             completions,
         }
+    }
+
+    private async _updateHighlights(bufferFullPath: string): Promise<void> {
+        if (!this._serverCapabilities || !this._serverCapabilities.documentSymbolProvider) {
+            return null
+        }
+
+        if (!this._initializationParams || this._initializationParams.disableDocumentSymbol) {
+            return null
+        }
+
+        let symbolInformation = await this._connection.sendRequest<types.SymbolInformation[]>(
+            Helpers.ProtocolConstants.TextDocument.DocumentSymbol,
+            Helpers.pathToTextDocumentIdentifierParms(bufferFullPath))
+
+        const oniHighlights: Oni.Plugin.SyntaxHighlight[] = symbolInformation.map((v) => ({ highlightKind: v.kind, token: v.name }))
+        this._oni.setHighlights(bufferFullPath, "language-client", oniHighlights)
     }
 
     private _getQuickInfo(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.QuickInfo> {
@@ -343,7 +414,12 @@ export class LanguageClient {
                     return null
                 }
 
+                if (result.length === 0) {
+                    return null
+                }
+
                 let location: types.Location = result
+
                 if (result.length) {
                     location = result[0]
                 }
