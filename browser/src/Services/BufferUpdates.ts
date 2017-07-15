@@ -52,12 +52,11 @@ export class BufferUpdates {
                 this._pluginManager.notifyBufferUpdate(args, bufferLines)
             }
         })
-        
+
         this._neovimInstance.on("buffer-update-incremental", (args: Oni.EventContext, bufferLine: string, lineNumber: number) => {
-            // const lastLine = args.line
-            // this._lastArgs = args
+            this._lastArgs = args
             // this._lastBufferLines = bufferLine
-            // this._lastBufferVersion = args.version
+            this._lastBufferVersion = args.version
 
             // If we can send incremental updates, and the line hasn't changed, just send the incremental change
             this._pluginManager.notifyBufferUpdateIncremental(args, lineNumber, bufferLine)

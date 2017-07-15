@@ -12,54 +12,23 @@ function OniNotify(args)
 endfunction
 
 function OniNotifyBufferUpdate()
+
     if !exists("b:last_change_tick")
-
         let b:last_change_tick = -1
-        " Initial Send of whole buffer
-        let b:last_change_tick = b:changedtick
-        let buffer_lines = getline(1,"$")
-        let context = OniGetContext()
-        call OniNotify(["buffer_update", context, buffer_lines])
     endif
 
-    if !exists("b:last_cursor_line")
-        let b:last_cursor_line = 1
-        let b:last_change_tick = b:changedtick
-        let buffer_lines = getline(1,"$")
-        let context = OniGetContext()
-        call OniNotify(["buffer_update", context, buffer_lines])
-    endif
     if b:changedtick > b:last_change_tick
         let b:last_change_tick = b:changedtick
         if mode() == 'i'
-            if b:last_cursor_line < line(".")
-                let buffer_lines = getline(b:last_cursor_line, line("."))
-            elseif b:last_cursor_line > line(".")
-            let buffer_lines = getline(line("."),b:last_cursor_line)
-            elseif b:last_cursor_line == line(".")
-                let buffer_lines = [getline(".")]
-            endif
-
+            let buffer_line = [getline(".")]
             let context = OniGetContext()
-            call OniNotify(["incremental_buffer_update", context, buffer_lines, line(".")])
+            call OniNotify(["incremental_buffer_update", context, buffer_line, line(".")])
         else
             let buffer_lines = getline(1,"$")
             let context = OniGetContext()
             call OniNotify(["buffer_update", context, buffer_lines])
         endif
         let b:last_cursor_line = line(".")
-    endif
-endfunction
-
-    if !exists("b:last_change_tick")
-        let b:last_change_tick = -1
-    endif
-
-    if b:changedtick > b:last_change_tick
-        let b:last_change_tick = b:changedtick
-        let buffer_lines = getline(1, '$')
-        let context = OniGetContext()
-        call OniNotify(["buffer_update", context, buffer_lines])
     endif
 endfunction
 
