@@ -38,7 +38,7 @@ export class OutputWindow {
     public async executeCommands(shellCommands: string[]): Promise<void[]> {
         const buf = await this.open()
 
-        let promises = shellCommands.map(async (command) => {
+        let promises = shellCommands.map(async ((command)) => {
             return await this._executeInBuffer(command, buf)
         })
 

@@ -1,5 +1,5 @@
-import { Session } from "./Session"
 import * as msgpack from "./MsgPack"
+import { Session } from "./Session"
 
 export interface IBuffer {
     getLines(start: number, end: number, useStrictIndexing: boolean): Promise<string[]>
@@ -18,7 +18,7 @@ export class Buffer implements IBuffer {
 
     constructor(
         private _bufferReference: msgpack.NeovimBufferReference,
-        private _session: Session
+        private _session: Session,
     ) { }
 
     public getLineCount(): Promise<number> {

@@ -1,5 +1,5 @@
-import { Session } from "./Session"
 import * as msgpack from "./MsgPack"
+import { Session } from "./Session"
 
 export interface IWindow {
     isValid(): Promise<boolean>
@@ -20,7 +20,7 @@ export class Window implements IWindow {
 
     constructor(
         private _windowReference: msgpack.NeovimWindowReference,
-        private _session: Session
+        private _session: Session,
     ) { }
 
     public isValid(): Promise<boolean> {

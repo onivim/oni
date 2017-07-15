@@ -2,7 +2,7 @@ import { EventEmitter } from "events"
 
 import * as _ from "lodash"
 
-import { NeovimInstance, IWindow } from "./../../neovim"
+import { IWindow, NeovimInstance } from "./../../neovim"
 import { IScreen } from "./../../Screen"
 import { WindowContext } from "./WindowContext"
 

@@ -1,4 +1,6 @@
 
+- Why aren't errors showing up?
+
 - Is `Map.set` slow in DOMRenderer?
 - What other things can be optimized in DOMRenderer?
 - Factor out line numbers?
