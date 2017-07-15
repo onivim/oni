@@ -28,7 +28,6 @@ function OniNotifyBufferUpdate()
             let context = OniGetContext()
             call OniNotify(["buffer_update", context, buffer_lines])
         endif
-        let b:last_cursor_line = line(".")
     endif
 endfunction
 
