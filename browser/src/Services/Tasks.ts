@@ -146,7 +146,7 @@ export class Tasks {
         taskProviders.push(new OniLaunchTasksProvider(rootPath, this._output))
         taskProviders.push(new PackageJsonTasksProvider(rootPath, this._output))
 
-        const allTasks = await Promise.all(taskProviders.map(async ((t: ITaskProvider)) => await t.getTasks() || []))
+        const allTasks = await Promise.all(taskProviders.map(async (t: ITaskProvider) => await t.getTasks() || []))
 
         this._lastTasks = _.flatten(allTasks)
     }

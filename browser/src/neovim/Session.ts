@@ -44,7 +44,8 @@ export class Session extends EventEmitter {
 
                     this.emit("notification", notificationMessage, payload)
                     break
-
+                default:
+                    console.warn("Unhandled message")
             }
         })
 

@@ -164,12 +164,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                 // Workaround for bug in neovim/node-client
                 // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
-                return this._neovim.request("vim_get_api_info", [])
-                    .then((results?: any) => {
-                        console.log(results)
-                        debugger
-                    })
-                    .then(() => this._neovim.request("nvim_ui_attach", [size.cols, size.rows, startupOptions]))
+                return this._neovim.request("nvim_ui_attach", [size.cols, size.rows, startupOptions])
                     .then(() => {
                         this.emit("logInfo", "Attach success")
 
