@@ -12,6 +12,9 @@ import { StatusBar } from "./StatusBar"
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient, ServerRunOptions } from "./LanguageClient/LanguageClient"
 
+import { Services } from "./Services"
+import { Ui } from "./Ui"
+
 const react = require("react") // tslint:disable-line no-var-requires
 
 export class Dependencies {
@@ -32,6 +35,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
+    private _ui: Ui
+    private _services: Services
 
     public get commands(): Oni.Commands {
         return this._commands
@@ -57,6 +62,14 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._statusBar
     }
 
+    public get ui(): Ui {
+        return this._ui
+    }
+
+    public get services(): Services {
+        return this._services
+    }
+
     constructor(private _channel: IPluginChannel) {
         super()
 
@@ -66,6 +79,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._editor = new Editor(this._channel)
         this._commands = new Commands()
         this._statusBar = new StatusBar(this._channel)
+        this._ui = new Ui(react)
+        this._services = new Services()
 
         this._channel.onRequest((arg: any) => {
             this._handleNotification(arg)
