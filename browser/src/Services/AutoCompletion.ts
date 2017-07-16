@@ -8,8 +8,7 @@
 
 import * as types from "vscode-languageserver-types"
 
-import { IBuffer } from "./../neovim/Buffer"
-import { INeovimInstance } from "./../NeovimInstance"
+import { IBuffer, INeovimInstance } from "./../neovim"
 
 import * as Utility from "./AutoCompletionUtility"
 
@@ -30,6 +29,10 @@ export class AutoCompletion {
                 base: "",
                 completions: c,
             })
+        })
+
+        this._neovimInstance.on("hide-popup-menu", () => {
+            UI.Actions.hideCompletions()
         })
     }
 

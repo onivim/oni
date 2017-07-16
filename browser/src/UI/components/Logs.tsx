@@ -26,7 +26,7 @@ export class LogsRenderer extends React.Component<ILogsProps, void> {
         // TODO copy details to clipboard
         if (!this.props.visible) { return null }
 
-        const maxHeightStyle = {
+        const maxHeightStyle: React.CSSProperties = {
             "height": "25vh",
             "maxHeight": "25vh",
             "overflow": "auto",

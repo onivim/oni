@@ -24,29 +24,29 @@ export class QuickInfo extends React.Component<IQuickInfoProps, void> {
 
         const openFromTop = this.props.openFromTop || false
 
-        const containerStyle = {
+        const containerStyle: React.CSSProperties = {
             position: "absolute",
             top: this.props.y.toString() + "px",
             left: this.props.x.toString() + "px",
         }
 
-        const innerCommonStyle = {
+        const innerCommonStyle: React.CSSProperties = {
             "position": "absolute",
             "opacity": this.props.visible ? 1 : 0,
             "max-width": (document.body.offsetWidth - this.props.x - 40) + "px",
         }
 
-        const openFromTopStyle = {
+        const openFromTopStyle: React.CSSProperties = {
             ...innerCommonStyle,
             "top": "0px",
         }
 
-        const openFromBottomStyle = {
+        const openFromBottomStyle: React.CSSProperties = {
             ...innerCommonStyle,
             "bottom": "0px",
         }
 
-        const innerStyle = openFromTop ? openFromTopStyle : openFromBottomStyle
+        const innerStyle: React.CSSProperties = openFromTop ? openFromTopStyle : openFromBottomStyle
 
         return <div key={"quickinfo-container"} className="quickinfo-container enable-mouse" style={containerStyle}>
             <div key={"quickInfo"} style={innerStyle} className="quickinfo">
@@ -96,28 +96,34 @@ export class SelectedText extends TextComponent {
     }
 }
 
-const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
+const getOpenPosition = (state: IState): { x: number, y: number, openFromTop: boolean } => {
     const openFromTopPosition = state.cursorPixelY + (state.fontPixelHeight * 2)
     const openFromBottomPosition = state.cursorPixelY - state.fontPixelHeight
 
-    const openFromTop = state.cursorPixelY < 50
+    const openFromTop = state.cursorPixelY < 75
 
     const yPos = openFromTop ? openFromTopPosition : openFromBottomPosition
 
-    if (!state.quickInfo) {
+    return {
+        x: state.cursorPixelX,
+        y: yPos,
+        openFromTop,
+    }
+}
+
+const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
+    const openPosition = getOpenPosition(state)
+
+    if (!state.quickInfo || !state.cursorCharacter) {
         return {
+            ...openPosition,
             visible: false,
-            x: state.cursorPixelX,
-            y: yPos,
             elements: [],
-            openFromTop,
         }
     } else {
         return {
+            ...openPosition,
             visible: true,
-            x: state.cursorPixelX,
-            y: yPos,
-            openFromTop,
             elements: [
                 <QuickInfoTitle text={state.quickInfo.title} />,
                 <QuickInfoDocumentation text={state.quickInfo.description} />,
@@ -127,12 +133,12 @@ const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
 }
 
 const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
+    const openPosition = getOpenPosition(state)
 
     if (!state.signatureHelp) {
         return {
+            ...openPosition,
             visible: false,
-            x: state.cursorPixelX,
-            y: state.cursorPixelY - (state.fontPixelHeight),
             elements: [],
         }
     } else {
@@ -166,9 +172,8 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
         }
 
         return {
+            ...openPosition,
             visible: true,
-            x: state.cursorPixelX,
-            y: state.cursorPixelY - (state.fontPixelHeight),
             elements,
         }
     }

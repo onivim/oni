@@ -12,7 +12,7 @@ import * as ReactDOM from "react-dom"
 import { ipcRenderer } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
-import { NeovimInstance } from "./../NeovimInstance"
+import { NeovimInstance } from "./../neovim"
 import { DOMRenderer } from "./../Renderer/DOMRenderer"
 import { NeovimScreen } from "./../Screen"
 
@@ -88,9 +88,9 @@ export class NeovimEditor implements IEditor {
         const windowTitle = new WindowTitle(this._neovimInstance)
         const multiProcess = new MultiProcess()
         const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
-        const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
         const liveEvaluation = new LiveEvaluation(this._neovimInstance, this._pluginManager)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
+        const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
         this._tasks = new Tasks(outputWindow)
         registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
 
@@ -153,7 +153,7 @@ export class NeovimEditor implements IEditor {
                 filename: item.fullPath,
                 lnum: item.line,
                 col: item.column,
-                text: item.lineText,
+                text: item.lineText || references.tokenName,
             })
 
             const quickFixItems = references.items.map((item) => convertToQuickFixItem(item))
@@ -174,8 +174,10 @@ export class NeovimEditor implements IEditor {
             this._scrollbarOverlay.onBufferUpdate(context, lines)
         })
 
-        this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any) => {
-            this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
+        this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any, shouldMeasure: boolean) => {
+            if (shouldMeasure) {
+                this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
+            }
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -283,6 +285,21 @@ export class NeovimEditor implements IEditor {
             }
         })
 
+        const normalizePath = (fileName: string) => fileName.split("\\").join("/")
+
+        const openFiles = async (files: string[], action: string) => {
+
+            await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
+
+            for (let i = 1; i < files.length; i++) {
+                this._neovimInstance.command("exec \"" + action + " " + normalizePath(files[i]) + "\"")
+            }
+        }
+
+        ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
+            openFiles(files, message)
+        })
+
         // enable opening a file via drag-drop
         document.ondragover = (ev) => {
             ev.preventDefault()
@@ -292,10 +309,10 @@ export class NeovimEditor implements IEditor {
 
             let files = ev.dataTransfer.files
             // open first file in current editor
-            this._neovimInstance.open(files[0].path.split("\\").join("/"))
+            this._neovimInstance.open(normalizePath(files[0].path))
             // open any subsequent files in new tabs
             for (let i = 1; i < files.length; i++) {
-                this._neovimInstance.command("exec \":tabe " + files.item(i).path.split("\\").join("/") + "\"")
+                this._neovimInstance.command("exec \":tabe " + normalizePath(files.item(i).path) + "\"")
             }
         }
     }

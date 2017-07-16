@@ -4,7 +4,7 @@
  * Manages the window title
  */
 
-import { INeovimInstance } from "./../NeovimInstance"
+import { INeovimInstance } from "./../neovim"
 
 export class WindowTitle {
 

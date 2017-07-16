@@ -161,7 +161,7 @@ declare namespace Oni {
             editor: Editor
             statusBar: StatusBar
 
-            registerLanguageService(languageType: string, languageService: LanguageService)
+            registerLanguageService(languageService: LanguageService)
 
             clearHighlights(file: string, key: string)
             setHighlights(file: string, key: string, highlights: SyntaxHighlight[])
@@ -179,7 +179,7 @@ declare namespace Oni {
         }
 
         export interface SyntaxHighlight {
-            highlightKind: string,
+            highlightKind: types.SymbolKind
             token: string
         }
 

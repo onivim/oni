@@ -1,6 +1,4 @@
-import * as Q from "q"
-
-import { INeovimInstance } from "../NeovimInstance"
+import { INeovimInstance } from "./NeovimInstance"
 
 export type Action = "a" | " "
 
@@ -12,7 +10,7 @@ export interface IQuickListEntry {
 }
 
 export interface IQuickFixList {
-    setqflist(list: IQuickListEntry[], title: string, action?: Action): Q.Promise<void>
+    setqflist(list: IQuickListEntry[], title: string, action?: Action): Promise<void>
 }
 
 export class QuickFixList implements IQuickFixList {
@@ -22,7 +20,7 @@ export class QuickFixList implements IQuickFixList {
         this._neovimInstance = neovimInstance
     }
 
-    public setqflist(list: IQuickListEntry[], title: string, action?: Action): Q.Promise<void> {
+    public setqflist(list: IQuickListEntry[], title: string, action?: Action): Promise<void> {
         action = action || " "
         return this._neovimInstance.callFunction("setqflist", [list, action, title])
     }

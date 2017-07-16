@@ -37,7 +37,7 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
         const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine + 1) / this.props.bufferSize) * this.props.height
         const windowTop = ((this.props.windowTopLine - 1) / this.props.bufferSize) * this.props.height
 
-        const windowStyle = {
+        const windowStyle: React.CSSProperties  = {
             top: windowTop + "px",
             height: windowHeight + "px",
         }
@@ -49,7 +49,7 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
             const pos = (line / this.props.bufferSize) * this.props.height
             const size = "2px"
 
-            const markerStyle = {
+            const markerStyle: React.CSSProperties = {
                 position: "absolute",
                 top: pos + "px",
                 height: size,
