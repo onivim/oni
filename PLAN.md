@@ -1,4 +1,7 @@
 - Add setting `experimental.editor.renderer` = `canvas` | `dom`
+- Create stub canvas renderer
+- Validate switching back/forth between the strategies
+
 - Create prototype canvas renderer, reviving canvas renderer from before
 
 - Bring back `INeovimRenderer` interface
