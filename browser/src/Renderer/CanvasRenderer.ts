@@ -95,8 +95,7 @@ export class CanvasRenderer implements INeovimRenderer {
             const cell = screenInfo.getCell(x, y)
 
             if (cell.foregroundColor !== foregroundColor) {
-                this._canvasContext.fillStyle = foregroundColor
-                this._canvasContext.fillText(currentString, startX * fontWidth, y * fontHeight)
+                this._renderText(currentString, startX * fontWidth, y * fontHeight, foregroundColor)
 
                 foregroundColor = cell.foregroundColor
                 currentString = cell.character
@@ -106,9 +105,16 @@ export class CanvasRenderer implements INeovimRenderer {
             }
         }
 
-        this._canvasContext.fillStyle = foregroundColor
-        this._canvasContext.fillText(currentString, startX * fontWidth, y * fontHeight)
+        this._renderText(currentString, startX * fontWidth, y * fontHeight, foregroundColor)
+    }
 
+    private _renderText(text: string, x: number, y: number, foregroundColor: string, backgroundColor?: string): void {
+
+        if (text.trim().length === 0)
+            return
+
+        this._canvasContext.fillStyle = foregroundColor
+        this._canvasContext.fillText(text, x, y)
     }
 
     private _setContextDimensions(): void {
