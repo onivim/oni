@@ -85,11 +85,29 @@ export class CanvasRenderer implements INeovimRenderer {
 
         this._canvasContext.clearRect(span.startX * fontWidth, y * fontHeight, (span.endX - span.startX) * fontWidth, fontHeight)
 
+        let currentString = ""
+        let startX = span.startX
+
+
+        let foregroundColor = screenInfo.currentForegroundColor
+
         for (let x = span.startX; x < span.endX; x++) {
             const cell = screenInfo.getCell(x, y)
 
-            this._canvasContext.fillText(cell.character, x * fontWidth, y * fontHeight)
+            if (cell.foregroundColor !== foregroundColor) {
+                this._canvasContext.fillStyle = foregroundColor
+                this._canvasContext.fillText(currentString, startX * fontWidth, y * fontHeight)
+
+                foregroundColor = cell.foregroundColor
+                currentString = cell.character
+                startX = x
+            } else {
+                currentString += cell.character
+            }
         }
+
+        this._canvasContext.fillStyle = foregroundColor
+        this._canvasContext.fillText(currentString, startX * fontWidth, y * fontHeight)
 
     }
 
