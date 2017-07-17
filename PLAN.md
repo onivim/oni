@@ -1,3 +1,3 @@
-- create `combineSpansAtBoundary`, which can return a new span if it combines with the current spans in the grid
-- the rendering takes the final, returned span, and re-renders
-- per-word + foreground + background render style
+- Handle ligatures in insert mode (re-render whole span)
+- Handle background color
+- Test out multibyte characters

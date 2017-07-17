@@ -1,4 +1,4 @@
-import {  IDeltaCellPosition,  IDeltaRegionTracker } from "./../DeltaRegionTracker"
+import { IDeltaCellPosition, IDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
 import * as Performance from "./../Performance"
 import { IScreen } from "./../Screen"
@@ -12,6 +12,8 @@ export class CanvasRenderer implements INeovimRenderer {
     private _canvasContext: CanvasRenderingContext2D
     private _grid: Grid<ISpan> = new Grid<ISpan>()
 
+    private _devicePixelRatio: number
+
     public start(element: HTMLDivElement): void {
         this._editorElement = element
 
@@ -24,6 +26,8 @@ export class CanvasRenderer implements INeovimRenderer {
         this._editorElement.appendChild(this._canvasElement)
 
         this._setContextDimensions()
+
+        this._devicePixelRatio = window.devicePixelRatio
     }
 
     public onAction(_action: any): void {
@@ -88,16 +92,19 @@ export class CanvasRenderer implements INeovimRenderer {
         let currentString = ""
         let startX = span.startX
 
-
-        let foregroundColor = screenInfo.currentForegroundColor
+        let foregroundColor = screenInfo.foregroundColor
+        let backgroundColor = screenInfo.backgroundColor
 
         for (let x = span.startX; x < span.endX; x++) {
             const cell = screenInfo.getCell(x, y)
 
-            if (cell.foregroundColor !== foregroundColor) {
-                this._renderText(currentString, startX * fontWidth, y * fontHeight, foregroundColor)
+            if (cell.foregroundColor !== foregroundColor
+                || cell.backgroundColor !== backgroundColor) {
+
+                this._renderText(currentString, startX * fontWidth, y * fontHeight, screenInfo, foregroundColor, backgroundColor)
 
                 foregroundColor = cell.foregroundColor
+                backgroundColor = cell.backgroundColor
                 currentString = cell.character
                 startX = x
             } else {
@@ -105,13 +112,20 @@ export class CanvasRenderer implements INeovimRenderer {
             }
         }
 
-        this._renderText(currentString, startX * fontWidth, y * fontHeight, foregroundColor)
+        this._renderText(currentString, startX * fontWidth, y * fontHeight, screenInfo, foregroundColor, backgroundColor)
     }
 
-    private _renderText(text: string, x: number, y: number, foregroundColor: string, backgroundColor?: string): void {
+    private _renderText(text: string, x: number, y: number, screenInfo: IScreen, foregroundColor: string, backgroundColor?: string): void {
 
         if (text.trim().length === 0)
             return
+
+        if (backgroundColor && backgroundColor !== screenInfo.currentBackgroundColor) {
+
+            this._canvasContext.fillStyle = backgroundColor
+            // TODO: Width of non-english characters
+            this._canvasContext.fillRect(x, y, text.length * screenInfo.fontWidthInPixels, screenInfo.fontHeightInPixels)
+        }
 
         this._canvasContext.fillStyle = foregroundColor
         this._canvasContext.fillText(text, x, y)
@@ -125,14 +139,14 @@ export class CanvasRenderer implements INeovimRenderer {
     private _getPixelRatio(): number {
         // TODO: Does the `backingStoreContext` need to be taken into account?
         // I believe this value should be consistent - at least on the electron platform
-        return window.devicePixelRatio
+        return this._devicePixelRatio
     }
 }
 
 export type RowMap = { [key: number]: ISpan[] }
 
 export function getSpansToEdit2(grid: Grid<ISpan>, cells: IDeltaCellPosition[]): RowMap {
-    const rowToSpans: RowMap = { }
+    const rowToSpans: RowMap = {}
     cells.forEach((cell) => {
         const { x, y } = cell
 
@@ -159,7 +173,7 @@ export function getSpansToEdit2(grid: Grid<ISpan>, cells: IDeltaCellPosition[]):
 }
 
 export function collapseSpanMap2(currentSpanMap: RowMap): RowMap {
-    const outMap = { }
+    const outMap = {}
     for (let k of Object.keys(currentSpanMap)) {
         outMap[k] = collapseSpans(currentSpanMap[k])
     }
