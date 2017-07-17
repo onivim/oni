@@ -6,7 +6,7 @@ export interface INeovimRenderer {
 
     update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void
 
-    onAction(action: any, deltaRegionTracker: IDeltaRegionTracker): void
+    onAction(action: any): void
 
     onResize(): void
 }
