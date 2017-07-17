@@ -1,8 +1,5 @@
-- Add setting `experimental.editor.renderer` = `canvas` | `dom`
-- Create stub canvas renderer
-- Validate switching back/forth between the strategies
-
 - Create prototype canvas renderer, reviving canvas renderer from before
+    - Previous strategy lives here: https://github.com/extr0py/oni/commit/efc687c8420a55002dcad12ca92bb29125d98a8b
 
 - Bring back `INeovimRenderer` interface
     - .start
