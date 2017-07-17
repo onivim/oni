@@ -20,7 +20,7 @@ function OniNotifyBufferUpdate()
     if b:changedtick > b:last_change_tick
         let b:last_change_tick = b:changedtick
         if mode() == 'i'
-            let buffer_line = [getline(".")]
+            let buffer_line = getline(".")
             let context = OniGetContext()
             call OniNotify(["incremental_buffer_update", context, buffer_line, line(".")])
         else
@@ -33,19 +33,19 @@ endfunction
 
 function OniNotifyEvent(eventName)
     let context = OniGetContext()
-    call OniNotify(["event", a:eventName, context]) 
+    call OniNotify(["event", a:eventName, context])
 endfunction
 
-function OniOpenFile(strategy, file)		
-     if bufname('%') != ''		
-         exec a:strategy . a:file		
-     elseif &modified		
-         exec a:strategy . a:file		
-     else		
-         exec ":e " . a:file		
-     endif		
- endfunction		
- 
+function OniOpenFile(strategy, file)
+     if bufname('%') != ''
+         exec a:strategy . a:file
+     elseif &modified
+         exec a:strategy . a:file
+     else
+         exec ":e " . a:file
+     endif
+ endfunction
+
 augroup OniNotifyBufferUpdates
     autocmd!
     autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
