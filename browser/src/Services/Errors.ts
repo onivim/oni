@@ -1,7 +1,6 @@
 import * as _ from "lodash"
 
 import { INeovimInstance } from "./../neovim"
-import * as Performance from "./../Performance"
 
 import { ITask, ITaskProvider } from "./Tasks"
 

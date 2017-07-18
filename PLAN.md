@@ -1,0 +1,10 @@
+- QuickInfo
+    - Fixed size - 400px if showing details, otherwise max-width
+    - Fix placement (left/right)
+        - Calculate xPos based on screen width and width
+    - errors / warnings in quick info
+        - Remove errors from error marker
+        - Test out UI
+- does Vim support error level? source?
+    - just "type" parameter
+- bind LiveEvalOverlay to redux store?
