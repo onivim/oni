@@ -7,8 +7,6 @@
 import * as fs from "fs"
 import * as path from "path"
 
-import * as Q from "q"
-
 const findUp = require("find-up") // tslint:disable-line no-var-requires
 
 export type LaunchType = "execute"
@@ -38,7 +36,7 @@ const DefaultConfiguration: IProjectConfiguration = {
  * Get the project configuration for a particular file
  * Search upward for the relevant .oni folder
  */
-export function getProjectConfiguration(filePath: string): Q.Promise<IProjectConfiguration> {
+export function getProjectConfiguration(filePath: string): Promise<IProjectConfiguration> {
     return findUp(".oni", { cwd: filePath })
     .then((oniDir: string) => {
         if (!oniDir) {

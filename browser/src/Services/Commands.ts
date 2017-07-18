@@ -7,8 +7,7 @@
 import { remote } from "electron"
 
 import * as Config from "./../Config"
-import { IBuffer } from "./../neovim/Buffer"
-import { INeovimInstance } from "./../NeovimInstance"
+import { IBuffer, INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import * as UI from "./../UI/index"

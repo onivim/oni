@@ -4,7 +4,7 @@ import * as mkdirp from "mkdirp"
 import * as os from "os"
 import * as path from "path"
 import * as Config from "./../Config"
-import { INeovimInstance } from "./../NeovimInstance"
+import { INeovimInstance } from "./../neovim"
 import { CallbackCommand, CommandManager } from "./../Services/CommandManager"
 import * as UI from "./../UI/index"
 

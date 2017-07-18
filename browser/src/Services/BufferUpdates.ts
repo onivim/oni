@@ -5,7 +5,7 @@
  * to the plugins. Sanitizes and manages incrementental state.
  */
 
-import { INeovimInstance } from "./../NeovimInstance"
+import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 export class BufferUpdates {

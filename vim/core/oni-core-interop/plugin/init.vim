@@ -57,13 +57,13 @@ augroup END
 
 augroup OniNotifyWindowDisplayUpdate
     autocmd!
-    autocmd! BufEnter * :call OniUpdateWindowDisplayMap()
-    autocmd! BufWinEnter * :call OniUpdateWindowDisplayMap()
-    autocmd! WinEnter * :call OniUpdateWindowDisplayMap()
-    autocmd! VimResized * :call OniUpdateWindowDisplayMap()
-    autocmd! CursorMoved * :call OniUpdateWindowDisplayMap()
-    autocmd! InsertLeave * :call OniUpdateWindowDisplayMap()
-    autocmd! InsertEnter * :call OniUpdateWindowDisplayMap()
+    autocmd! BufEnter * :call OniUpdateWindowDisplayMap(1)
+    autocmd! BufWinEnter * :call OniUpdateWindowDisplayMap(1)
+    autocmd! WinEnter * :call OniUpdateWindowDisplayMap(1)
+    autocmd! VimResized * :call OniUpdateWindowDisplayMap(1)
+    autocmd! CursorMoved * :call OniUpdateWindowDisplayMap(0)
+    autocmd! InsertLeave * :call OniUpdateWindowDisplayMap(0)
+    autocmd! InsertEnter * :call OniUpdateWindowDisplayMap(0)
 augroup END
 
 augroup OniEventListeners
@@ -104,7 +104,7 @@ endif
 return context
 endfunction
 
-function OniUpdateWindowDisplayMap()
+function OniUpdateWindowDisplayMap(shouldMeasure)
     let currentWindowNumber = winnr()
     let pos = getpos(".")
     let bufNum = pos[0]
@@ -129,7 +129,7 @@ function OniUpdateWindowDisplayMap()
 
     let context = OniGetContext()
 
-    call OniNotify(["window_display_update", context, mapping])
+    call OniNotify(["window_display_update", context, mapping, a:shouldMeasure])
 endfunction
 
 function OniConnect()

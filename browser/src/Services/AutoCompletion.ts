@@ -8,8 +8,7 @@
 
 import * as types from "vscode-languageserver-types"
 
-import { IBuffer } from "./../neovim/Buffer"
-import { INeovimInstance } from "./../NeovimInstance"
+import { IBuffer, INeovimInstance } from "./../neovim"
 
 import * as Utility from "./AutoCompletionUtility"
 
