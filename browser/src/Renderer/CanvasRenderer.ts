@@ -78,12 +78,6 @@ export class CanvasRenderer implements INeovimRenderer {
             row.forEach((span: ISpan) => {
                 // All spans that have changed in current rendering pass
                 this._renderSpan(span, Number.parseInt(y), screenInfo)
-
-                // // check if beginning boundary can be combined
-                // combineSpansAtBoundary(span.startX, y, screenInfo.fontWidthInPixels, this._grid, this._elementFactory)
-
-                // // check if following boundary can be combined
-                // combineSpansAtBoundary(span.endX, y, screenInfo.fontWidthInPixels, this._grid, this._elementFactory)
             })
         }
 
@@ -105,7 +99,7 @@ export class CanvasRenderer implements INeovimRenderer {
             text: "",
             startX: span.startX,
             y,
-            width: 0
+            width: 0,
         }
 
         for (let x = span.startX; x < span.endX; x++) {
