@@ -31,7 +31,7 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     public onAction(_action: any): void {
-        // No-op
+        // In the future, something like scrolling could be potentially optimized here
     }
 
     public onResize(): void {
