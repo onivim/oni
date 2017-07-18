@@ -27,7 +27,7 @@ export const setBufferState = (file: string, totalLines: number) => ({
     payload: {
         file: normalizePath(file),
         totalLines,
-    }
+    },
 })
 
 export const setWindowState = (windowId: number, file: string, column: number, line: number, winline: number, wincolumn: number, windowTopLine: number, windowBottomLine: number) => ({

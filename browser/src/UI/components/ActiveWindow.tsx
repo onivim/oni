@@ -12,8 +12,6 @@ import * as Selectors from "./../Selectors"
 import * as State from "./../State"
 import { Rectangle } from "./../Types"
 
-derp
-
 export interface IActiveWindowProps {
     dimensions: Rectangle
 }

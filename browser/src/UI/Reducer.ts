@@ -143,8 +143,8 @@ export const errorsReducer = (s: { [file: string]: { [key: string]: types.Diagno
                 ...s,
                 [a.payload.file]: {
                     ...currentFile,
-                    [a.payload.key]: [...a.payload.errors]
-                }
+                    [a.payload.key]: [...a.payload.errors],
+                },
             }
         default:
             return s
