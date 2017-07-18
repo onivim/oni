@@ -1,7 +1,3 @@
-- Error handling
-    - Exclamation circle
-    - Testing - go lang server
-
+- Incorporate icon API from git change
 - Bump status line down even more
-
 - Remove unnecessary capabilities from LanguageClient

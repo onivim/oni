@@ -145,15 +145,17 @@ export class Config extends EventEmitter {
     private MacConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "Menlo",
         "editor.fontSize": "12px",
-        "statusbar.fontSize": "11px",
+        "statusbar.fontSize": "10px",
     }
 
     private WindowsConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "Consolas",
+        "statusbar.fontSize": "11px",
     }
 
     private LinuxConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "DejaVu Sans Mono",
+        "statusbar.fontSize": "11px",
     }
 
     private DefaultPlatformConfig = Platform.isWindows() ? this.WindowsConfig : Platform.isLinux() ? this.LinuxConfig : this.MacConfig
