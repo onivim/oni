@@ -7,7 +7,7 @@
 import * as React from "react"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
-import { NeovimInstance } from "./../NeovimInstance"
+import { NeovimInstance } from "./../neovim"
 import { DOMRenderer } from "./../Renderer/DOMRenderer"
 import { NeovimScreen } from "./../Screen"
 

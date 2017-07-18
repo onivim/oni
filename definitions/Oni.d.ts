@@ -169,7 +169,7 @@ declare namespace Oni {
         }
 
         export interface SyntaxHighlight {
-            highlightKind: string,
+            highlightKind: types.SymbolKind
             token: string
         }
 

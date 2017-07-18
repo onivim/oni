@@ -11,7 +11,7 @@ import * as os from "os"
 import * as path from "path"
 
 import * as _ from "lodash"
-import { CompletionItemKind, Diagnostic, Position, Range } from "vscode-languageserver-types"
+import { CompletionItemKind, Diagnostic, Position, Range, SymbolKind } from "vscode-languageserver-types"
 
 import { evaluateBlock, getCommonImports } from "./LiveEvaluation"
 import { QuickInfo } from "./QuickInfo"
@@ -376,15 +376,15 @@ export const activate = (Oni) => {
     })
 
     const kindToHighlightGroup = {
-        let: "Identifier",
-        const: "Constant",
-        var: "Identifier",
-        alias: "Include",
-        function: "Macro",
-        method: "Function",
-        property: "Special",
-        class: "Type",
-        interface: "Type",
+        let: SymbolKind.Variable,
+        const: SymbolKind.Constant,
+        var: SymbolKind.Variable,
+        alias: SymbolKind.Package,
+        function: SymbolKind.Method,
+        method: SymbolKind.Function,
+        property: SymbolKind.Property,
+        class: SymbolKind.Class,
+        interface: SymbolKind.Interface,
     }
 
     // TODO: Refactor to separate file

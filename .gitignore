@@ -132,4 +132,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-
+# OCaml / Reason
+.merlin

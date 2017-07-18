@@ -1,7 +1,5 @@
 import { exec } from "child_process"
-import * as Q from "q"
-import { IBuffer } from "./../neovim/Buffer"
-import { INeovimInstance } from "./../NeovimInstance"
+import { IBuffer, INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 /**
@@ -23,7 +21,7 @@ export class OutputWindow {
         })
     }
 
-    public open(): Q.Promise<IBuffer> {
+    public open(): Promise<IBuffer> {
         this._outputCount++
         let buffer: IBuffer
         return this._neovimInstance.command("rightbelow 20new OUTPUT" + this._outputCount.toString())
@@ -37,39 +35,39 @@ export class OutputWindow {
             .then(() => buffer)
     }
 
-    public executeCommands(shellCommands: string[]): Q.Promise<void> {
-        return this.open()
-            .then((buf) => {
-                let p = Q<any>(null)
+    public async executeCommands(shellCommands: string[]): Promise<void[]> {
+        const buf = await this.open()
 
-                shellCommands.forEach((command) => {
-                    p = p.then(() => this._executeInBuffer(command, buf))
-                })
+        let promises = shellCommands.map(async (command) => {
+            return await this._executeInBuffer(command, buf)
+        })
 
-                return p
-            })
+        return await Promise.all(promises)
     }
 
-    public execute(shellCommand: string): Q.Promise<void> {
-        return this.open()
-            .then((buf) => {
-                return this._executeInBuffer(shellCommand, buf)
-            })
+    public async execute(shellCommand: string): Promise<void> {
+        const buf = await this.open()
+        return this._executeInBuffer(shellCommand, buf)
     }
 
-    public write(val: string[], buffer: IBuffer): Q.Promise<void> {
+    public write(val: string[], buffer: IBuffer): Promise<void> {
         return buffer.appendLines(val)
     }
 
-    private _executeInBuffer(shellCommand: string, buf: IBuffer): Q.Promise<void> {
-        const deferred = Q.defer<void>()
+    private async _executeInBuffer(shellCommand: string, buf: IBuffer): Promise<void> {
 
+        let resolve: any
+        let reject: any
+        const promise = new Promise<void>((res, rej) => {
+            resolve = res
+            reject = rej
+        })
         this.write([shellCommand], buf)
 
         const proc = exec(shellCommand, (err: any, _stdout: any, _stderr: any) => {
             if (err) {
                 console.error(err)
-                deferred.reject(err)
+                reject(err)
             }
         })
 
@@ -77,9 +75,9 @@ export class OutputWindow {
         proc.stderr.on("data", (data) => this.write(data.toString().split("\n"), buf))
         proc.on("close", (data) => {
             this.write([`process excited with code ${data}`], buf)
-            deferred.resolve()
+            resolve()
         })
 
-        return deferred.promise
+        return promise
     }
 }

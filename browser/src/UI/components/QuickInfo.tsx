@@ -114,7 +114,7 @@ const getOpenPosition = (state: IState): { x: number, y: number, openFromTop: bo
 const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
     const openPosition = getOpenPosition(state)
 
-    if (!state.quickInfo) {
+    if (!state.quickInfo || !state.cursorCharacter) {
         return {
             ...openPosition,
             visible: false,

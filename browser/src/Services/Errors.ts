@@ -1,7 +1,8 @@
 import * as _ from "lodash"
-import * as Q from "q"
 
-import { INeovimInstance } from "./../NeovimInstance"
+import { INeovimInstance } from "./../neovim"
+import * as Performance from "./../Performance"
+
 import { ITask, ITaskProvider } from "./Tasks"
 
 import * as types from "vscode-languageserver-types"
@@ -35,7 +36,7 @@ export class Errors implements ITaskProvider {
         this._errors[fileName] = errors
     }
 
-    public getTasks(): Q.Promise<ITask[]> {
+    public getTasks(): Promise<ITask[]> {
         const showErrorTask: ITask = {
             name: "Show Errors",
             detail: "Open quickfix window and show error details",
@@ -46,7 +47,7 @@ export class Errors implements ITaskProvider {
         }
 
         const tasks = [showErrorTask]
-        return Q(tasks)
+        return Promise.resolve(tasks)
     }
 
     private _setQuickFixErrors(): void {
