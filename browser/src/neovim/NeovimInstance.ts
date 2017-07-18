@@ -129,6 +129,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             const eventContext = args[0][1]
 
                             this.emit("event", eventName, eventContext)
+                        } else if (pluginMethod === "incremental_buffer_update") {
+                            const eventContext = args[0][0]
+                            const bufferLine = args[0][1]
+                            const lineNumber = args[0][2]
+
+                            this.emit("buffer-update-incremental", eventContext, bufferLine, lineNumber)
                         } else if (pluginMethod === "window_display_update") {
                             this.emit("window-display-update", args[0][0], args[0][1], args[0][2])
                         } else if (pluginMethod === "api_info") {
