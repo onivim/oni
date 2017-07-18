@@ -1,3 +1,2 @@
 - Incorporate icon API from git change
-- Bump status line down even more
 - Remove unnecessary capabilities from LanguageClient
