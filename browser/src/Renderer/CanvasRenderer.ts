@@ -1,10 +1,20 @@
 import { IDeltaCellPosition, IDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
 import * as Performance from "./../Performance"
-import { IScreen } from "./../Screen"
+import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
 
 import { /*combineSpansAtBoundary,*/ collapseSpans, ISpan } from "./Span"
+
+export interface IRenderState {
+    isWhitespace: boolean
+    foregroundColor: string
+    backgroundColor: string
+    text: string
+    startX: number
+    y: number
+    width: number
+}
 
 export class CanvasRenderer implements INeovimRenderer {
     private _editorElement: HTMLDivElement
@@ -35,7 +45,6 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     public onResize(): void {
-        // No-op
         this._setContextDimensions()
     }
 
@@ -89,33 +98,53 @@ export class CanvasRenderer implements INeovimRenderer {
 
         this._canvasContext.clearRect(span.startX * fontWidth, y * fontHeight, (span.endX - span.startX) * fontWidth, fontHeight)
 
-        let currentString = ""
-        let startX = span.startX
-
-        let foregroundColor = screenInfo.foregroundColor
-        let backgroundColor = screenInfo.backgroundColor
+        let prevState: IRenderState = { 
+            isWhitespace: false,
+            foregroundColor: screenInfo.foregroundColor,
+            backgroundColor: screenInfo.backgroundColor,
+            text: "",
+            startX: span.startX,
+            y,
+            width: 0
+        }
 
         for (let x = span.startX; x < span.endX; x++) {
             const cell = screenInfo.getCell(x, y)
 
-            if (cell.foregroundColor !== foregroundColor
-                || cell.backgroundColor !== backgroundColor) {
+            const nextRenderState = this._getNextRenderState(cell, x, y, prevState)
 
-                this._renderText(currentString, startX * fontWidth, y * fontHeight, screenInfo, foregroundColor, backgroundColor)
+            if (this._isNewState(prevState, nextRenderState)) {
 
-                foregroundColor = cell.foregroundColor
-                backgroundColor = cell.backgroundColor
-                currentString = cell.character
-                startX = x
-            } else {
-                currentString += cell.character
+                this._renderText(prevState, screenInfo)
+                prevState = nextRenderState
             }
         }
 
-        this._renderText(currentString, startX * fontWidth, y * fontHeight, screenInfo, foregroundColor, backgroundColor)
+        this._renderText(prevState, screenInfo)
     }
 
-    private _renderText(text: string, x: number, y: number, screenInfo: IScreen, foregroundColor: string, backgroundColor?: string): void {
+    private _getNextRenderState(cell: ICell, x: number, y: number, currentState: IRenderState) {
+        return {
+            isWhitespace: false,
+            foregroundColor: cell.foregroundColor,
+            backgroundColor: cell.backgroundColor,
+            text: cell.character,
+            width: cell.characterWidth,
+            startX: x,
+            y,
+        }
+    }
+
+    private _isNewState(oldState: IRenderState, newState: IRenderState) {
+        return true
+    }
+
+    private _renderText(state: IRenderState, screenInfo: IScreen): void {
+
+        const { backgroundColor, foregroundColor, text, startX, y } = state
+
+        const fontWidth = screenInfo.fontWidthInPixels
+        const fontHeight = screenInfo.fontHeightInPixels
 
         if (text.trim().length === 0)
             return
@@ -124,11 +153,11 @@ export class CanvasRenderer implements INeovimRenderer {
 
             this._canvasContext.fillStyle = backgroundColor
             // TODO: Width of non-english characters
-            this._canvasContext.fillRect(x, y, text.length * screenInfo.fontWidthInPixels, screenInfo.fontHeightInPixels)
+            this._canvasContext.fillRect(startX * fontWidth, y * fontHeight, text.length * screenInfo.fontWidthInPixels, screenInfo.fontHeightInPixels)
         }
 
         this._canvasContext.fillStyle = foregroundColor
-        this._canvasContext.fillText(text, x, y)
+        this._canvasContext.fillText(text, startX * fontWidth, y * fontHeight)
     }
 
     private _setContextDimensions(): void {
