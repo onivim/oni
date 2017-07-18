@@ -60,6 +60,7 @@ export class CanvasRenderer implements INeovimRenderer {
 
         this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
         this._canvasContext.textBaseline = "top"
+        this._canvasContext.setTransform(this._getPixelRatio(), 0, 0, this._getPixelRatio(), 0, 0)
 
         this._editorElement.style.fontFamily = screenInfo.fontFamily
         this._editorElement.style.fontSize = screenInfo.fontSize
@@ -85,14 +86,14 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     private _renderSpan(span: ISpan, y: number, screenInfo: IScreen): void {
-        const fontWidth = screenInfo.fontWidthInPixels * this._getPixelRatio()
-        const fontHeight = screenInfo.fontHeightInPixels * this._getPixelRatio()
+        const fontWidth = screenInfo.fontWidthInPixels
+        const fontHeight = screenInfo.fontHeightInPixels
 
         this._canvasContext.fillStyle = "white"
 
         this._canvasContext.clearRect(span.startX * fontWidth, y * fontHeight, (span.endX - span.startX) * fontWidth, fontHeight)
 
-        let prevState: IRenderState = { 
+        let prevState: IRenderState = {
             isWhitespace: false,
             foregroundColor: screenInfo.foregroundColor,
             backgroundColor: screenInfo.backgroundColor,
@@ -162,7 +163,8 @@ export class CanvasRenderer implements INeovimRenderer {
     private _getPixelRatio(): number {
         // TODO: Does the `backingStoreContext` need to be taken into account?
         // I believe this value should be consistent - at least on the electron platform
-        return this._devicePixelRatio
+        return window.devicePixelRatio
+        //return this._devicePixelRatio
     }
 }
 
