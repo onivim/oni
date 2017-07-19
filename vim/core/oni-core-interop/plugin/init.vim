@@ -132,6 +132,10 @@ function OniUpdateWindowDisplayMap(shouldMeasure)
     call OniNotify(["window_display_update", context, mapping, a:shouldMeasure])
 endfunction
 
+function OniForceWindowMeasurement()
+    call OniUpdateWindowDisplayMap(1)
+endfunction
+
 function OniConnect()
     call OniApiInfo()
 
