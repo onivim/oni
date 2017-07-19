@@ -109,7 +109,7 @@ export class OverlayManager extends EventEmitter {
                     overlayInfo.overlay.update(overlayInfo.element, windowContext)
                 })
 
-                this.emit("current-window-size-changed", dimensionsInPixels)
+                this.emit("current-window-size-changed", dimensionsInPixels, this._lastEventContext.windowNumber)
             })
     }
 }

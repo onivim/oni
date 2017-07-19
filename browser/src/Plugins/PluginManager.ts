@@ -205,7 +205,7 @@ export class PluginManager extends EventEmitter {
                 setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
                 break
             case "set-errors":
-                this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
+                this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors)
                 break
             case "find-all-references":
                 this.emit("find-all-references", pluginResponse.payload.references)

@@ -11,7 +11,7 @@ import * as os from "os"
 import * as path from "path"
 
 import * as _ from "lodash"
-import { CompletionItemKind, SymbolKind } from "vscode-languageserver-types"
+import { CompletionItemKind, Diagnostic, Position, Range, SymbolKind } from "vscode-languageserver-types"
 
 import { evaluateBlock, getCommonImports } from "./LiveEvaluation"
 import { QuickInfo } from "./QuickInfo"
@@ -275,25 +275,19 @@ export const activate = (Oni) => {
         const diags = diagnostics.diagnostics || []
 
         const errors = diags.map((d) => {
-            const lineNumber = d.start.line
-            let startColumn = null
-            let endColumn = null
-
-            if (d.start.line === d.end.line) {
-                startColumn = d.start.offset
-                endColumn = d.end.offset
-            }
+            const startPosition = Position.create(d.start.line, d.start.offset)
+            const endPosition = Position.create(d.end.line, d.end.offset)
+            const range = Range.create(startPosition, endPosition)
 
             return {
                 type: null,
-                text: d.text,
-                lineNumber,
-                startColumn,
-                endColumn,
+                message: d.text,
+                range,
+                severity: 1,
             }
         })
 
-        Oni.diagnostics.setErrors("typescript-compiler", fileName, errors, "red")
+        Oni.diagnostics.setErrors("typescript-compiler", fileName, errors)
     })
 
     const updateFile = _.throttle((bufferFullPath, stringContents) => {

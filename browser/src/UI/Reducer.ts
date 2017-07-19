@@ -9,6 +9,8 @@ import * as Actions from "./Actions"
 
 import * as _ from "lodash"
 
+import * as types from "vscode-languageserver-types"
+
 export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, a: Actions.Action<K>) {
 
     if (!s) {
@@ -25,8 +27,6 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
                 cursorCharacter: a.payload.cursorCharacter,
                 cursorPixelWidth: a.payload.cursorPixelWidth,
             })
-        case "SET_ACTIVE_WINDOW_DIMENSIONS":
-            return { ...s, ...{ activeWindowDimensions: a.payload.dimensions } }
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }
         case "SET_COLORS":
@@ -109,10 +109,45 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
             })
         default:
             return Object.assign({}, s, {
+                buffers: buffersReducer(s.buffers, a),
+                errors: errorsReducer(s.errors, a),
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
                 popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
                 statusBar: statusBarReducer(s.statusBar, a),
+                windowState: windowStateReducer(s.windowState, a),
             })
+    }
+}
+
+export const buffersReducer = (s: State.Buffers, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "SET_BUFFER_STATE":
+            return {
+                ...s,
+                [a.payload.file]: {
+                    totalLines: a.payload.totalLines,
+                },
+            }
+        default:
+            return s
+    }
+}
+
+export const errorsReducer = (s: { [file: string]: { [key: string]: types.Diagnostic[] } }, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "SET_ERRORS":
+
+            const currentFile = s[a.payload.file] || null
+
+            return {
+                ...s,
+                [a.payload.file]: {
+                    ...currentFile,
+                    [a.payload.key]: [...a.payload.errors],
+                },
+            }
+        default:
+            return s
     }
 }
 
@@ -292,6 +327,60 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
     })
 
     return highlightOptions
+}
+
+export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleAction): State.IWindowState => {
+
+    let currentWindow
+    switch (a.type) {
+        case "SET_WINDOW_STATE":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                activeWindow: a.payload.windowId,
+                windows: {
+                    ...s.windows,
+                    [a.payload.windowId]: {
+                        ...currentWindow,
+                        file: a.payload.file,
+                        column: a.payload.column,
+                        line: a.payload.line,
+                        winline: a.payload.winline,
+                        wincolumn: a.payload.wincolumn,
+                        windowBottomLine: a.payload.windowBottomLine,
+                        windowTopLine: a.payload.windowTopLine,
+                    },
+                },
+            }
+        case "SET_WINDOW_DIMENSIONS":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                ...s,
+                windows: {
+                    ...s.windows,
+                    [a.payload.windowId]: {
+                        ...currentWindow,
+                        dimensions: a.payload.dimensions,
+                    },
+                },
+            }
+        case "SET_WINDOW_LINE_MAP":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                ...s,
+                windows: {
+                    ...s.windows,
+                    [a.payload.windowId]: {
+                        ...currentWindow,
+                        lineMapping: a.payload.lineMapping,
+                    },
+                },
+            }
+        default:
+            return s
+    }
 }
 
 export function autoCompletionReducer (s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) {

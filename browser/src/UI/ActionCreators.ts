@@ -11,13 +11,71 @@ import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
 import { IScreen } from "./../Screen"
+import { normalizePath } from "./../Utility"
 
 import * as State from "./State"
 
 import * as Config from "./../Config"
 import * as Actions from "./Actions"
 import { events } from "./Events"
-import {ILog} from "./Logs"
+import { ILog } from "./Logs"
+
+import * as types from "vscode-languageserver-types"
+
+export const setBufferState = (file: string, totalLines: number) => ({
+    type: "SET_BUFFER_STATE",
+    payload: {
+        file: normalizePath(file),
+        totalLines,
+    },
+})
+
+export const setWindowState = (windowId: number, file: string, column: number, line: number, winline: number, wincolumn: number, windowTopLine: number, windowBottomLine: number) => ({
+    type: "SET_WINDOW_STATE",
+    payload: {
+        windowId,
+        file: normalizePath(file),
+        column,
+        line,
+        winline,
+        wincolumn,
+        windowTopLine,
+        windowBottomLine,
+    },
+})
+
+export const setWindowLineMapping = (windowId: number, lineMapping: State.WindowLineMap) => ({
+    type: "SET_WINDOW_LINE_MAP",
+    payload: {
+        windowId,
+        lineMapping,
+    },
+})
+
+export const setWindowDimensions = (windowId: number, dimensions: Rectangle) => ({
+    type: "SET_WINDOW_DIMENSIONS",
+    payload: {
+        windowId,
+        dimensions,
+    },
+})
+
+export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({
+    type: "SET_ERRORS",
+    payload: {
+        file: normalizePath(file),
+        key,
+        errors,
+    },
+})
+
+export const clearErrors = (file: string, key: string) => ({
+    type: "CLEAR_ERRORS",
+    payload: {
+        file,
+        key,
+    },
+})
 
 export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => ({
     type: "STATUSBAR_SHOW",
@@ -82,11 +140,6 @@ export const setColors = (foregroundColor: string, backgroundColor: string) => (
 
     dispatch(_setColors(foregroundColor, backgroundColor))
 }
-
-export const setActiveWindowDimensions = (dimensions: Rectangle) => ({
-    type: "SET_ACTIVE_WINDOW_DIMENSIONS",
-    payload: { dimensions },
-})
 
 export const setMode = (mode: string) => ({
     type: "SET_MODE",
