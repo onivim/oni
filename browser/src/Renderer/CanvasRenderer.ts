@@ -173,7 +173,7 @@ export class CanvasRenderer implements INeovimRenderer {
         if (text.trim().length === 0)
             return
 
-        if (backgroundColor && backgroundColor !== screenInfo.currentBackgroundColor) {
+        if (backgroundColor && backgroundColor !== screenInfo.backgroundColor) {
 
             this._canvasContext.fillStyle = backgroundColor
             // TODO: Width of non-english characters
