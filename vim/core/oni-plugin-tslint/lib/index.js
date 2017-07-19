@@ -122,21 +122,28 @@ const activate = (Oni) => {
                 const errorsWithFileName = lintErrors.map(e => ({
                     type: null,
                     file: path.normalize(e.name),
-                    text: `[${e.ruleName}] ${e.failure}`,
-                    lineNumber: e.startPosition.line,
-                    startColumn: e.startPosition.character,
-                    endColumn: e.endPosition.character,
+                    message: `[${e.ruleName}] ${e.failure}`,
+                    severity: 2 /* Warning */,
+                    range: {
+                        start: {
+                            line: e.startPosition.line + 1,
+                            character: e.startPosition.character + 1,
+                        },
+                        end: {
+                            line: e.endPosition.line + 1,
+                            character: e.endPosition.character
+                        }
+                    }
                 }))
 
                 const errors = errorsWithFileName.reduce((prev, curr) => {
                     prev[curr.file] = prev[curr.file] || []
 
                     prev[curr.file].push({
+                        message: curr.message,
+                        range: curr.range,
+                        severity: curr.severity,
                         type: curr.type,
-                        text: curr.text,
-                        lineNumber: curr.lineNumber + 1,
-                        startColumn: curr.startColumn + 1,
-                        endColumn: curr.endColumn
                     })
 
                     return prev

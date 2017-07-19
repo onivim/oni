@@ -1,66 +1,83 @@
 import * as React from "react"
-import * as ReactDOM from "react-dom"
+
+import { connect } from "react-redux"
 
 import * as Config from "./../../Config"
+import * as Selectors from "./../Selectors"
+import * as State from "./../State"
+
 import { Icon } from "./../Icon"
 
-import { WindowContext } from "./../Overlay/WindowContext"
+import { getColorFromSeverity } from "./../../Services/Errors"
+import { WindowContext2 } from "./../Overlay/WindowContext"
+
+import * as types from "vscode-languageserver-types"
 
 require("./Error.less") // tslint:disable-line no-var-requires
 
-export interface IErrorWithColor extends Oni.Plugin.Diagnostics.Error {
-    color: string
-}
-
 export interface IErrorsProps {
-    errors: IErrorWithColor[]
-    windowContext: WindowContext
+    errors: types.Diagnostic[]
+    fontWidthInPixels: number
+    fontHeightInPixels: number
+    window: State.IWindow
     showDetails: boolean
 }
 
 const padding = 8
 
-export class Errors extends React.Component<IErrorsProps, void> {
+export class Errors extends React.PureComponent<IErrorsProps, void> {
     public render(): JSX.Element {
         const errors = this.props.errors || []
 
+        if (!this.props.window || !this.props.window.dimensions) {
+            return null
+        }
+
+        const windowContext = new WindowContext2(this.props.fontWidthInPixels, this.props.fontHeightInPixels, this.props.window)
+
         const markers = errors.map((e) => {
-            if (this.props.windowContext.isLineInView(e.lineNumber)) {
-                const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
+            const lineNumber = e.range.start.line
+            const column = e.range.start.character
+            if (windowContext.isLineInView(lineNumber)) {
+                const screenLine = windowContext.getWindowLine(lineNumber)
 
-                const xPos = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn).x
-                const yPos = this.props.windowContext.getWindowRegionForLine(e.lineNumber).y - (padding / 2)
-                const isActive = screenLine === this.props.windowContext.getCurrentWindowLine()
+                const xPos = windowContext.getWindowPosition(lineNumber, column).x
+                const yPos = windowContext.getWindowRegionForLine(lineNumber).y - (padding / 2)
+                const isActive = screenLine === windowContext.getCurrentWindowLine()
 
-                const showTooltipTop = this.props.windowContext.dimensions.height - this.props.windowContext.getWindowLine(e.lineNumber) <= 2
+                const showTooltipTop = windowContext.dimensions.height - windowContext.getWindowLine(lineNumber) <= 2
 
                 return <ErrorMarker isActive={isActive}
                     x={xPos}
                     y={yPos}
                     showTooltipTop={showTooltipTop}
-                    text={e.text}
-                    color={e.color}
+                    text={e.message}
+                    color={getColorFromSeverity(e.severity)}
                     showDetails={this.props.showDetails} />
             } else {
                 return null
             }
         })
 
-        const squiggles = errors.map((e) => {
-            if (this.props.windowContext.isLineInView(e.lineNumber) && e.endColumn) {
-                // const screenLine = this.props.windowContext.getWindowLine(e.lineNumber)
+        const squiggles = errors
+            .filter((e) => e && e.range && e.range.start && e.range.end)
+            .map((e) => {
+            const lineNumber = e.range.start.line
+            const column = e.range.start.character
+            const endColumn = e.range.end.character
 
-                const yPos = this.props.windowContext.getWindowRegionForLine(e.lineNumber).y
+            if (windowContext.isLineInView(lineNumber)) {
+                const yPos = windowContext.getWindowRegionForLine(lineNumber).y
 
-                const startX = this.props.windowContext.getWindowPosition(e.lineNumber, e.startColumn as any).x // FIXME: undefined
-                const endX = this.props.windowContext.getWindowPosition(e.lineNumber, e.endColumn).x
+                const startX = windowContext.getWindowPosition(lineNumber, column).x // FIXME: undefined
+                const endX = windowContext.getWindowPosition(lineNumber, endColumn).x
 
                 return <ErrorSquiggle
                     y={yPos}
-                    height={this.props.windowContext.fontHeightInPixels}
+                    height={windowContext.fontHeightInPixels}
                     x={startX}
                     width={endX - startX}
-                    color={e.color} />
+                    color={getColorFromSeverity(e.severity)} />
             } else {
                 return null
             }
@@ -149,6 +166,20 @@ export class ErrorSquiggle extends React.Component<IErrorSquiggleProps, void> {
     }
 }
 
-export function renderErrorMarkers(props: IErrorsProps, element: HTMLElement) {
-    ReactDOM.render(<Errors {...props} />, element)
+const mapStateToProps = (state: State.IState): IErrorsProps => {
+    const window = Selectors.getActiveWindow(state)
+
+    const errors = (window && window.file) ? Selectors.getAllErrorsForFile(window.file, state) : []
+
+    const showDetails = state.mode !== "insert"
+
+    return {
+        errors,
+        fontWidthInPixels: state.fontPixelWidth,
+        fontHeightInPixels: state.fontPixelHeight,
+        window,
+        showDetails,
+    }
 }
+
+export const ErrorsContainer = connect(mapStateToProps)(Errors)

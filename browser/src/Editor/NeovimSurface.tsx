@@ -11,8 +11,11 @@ import { NeovimInstance } from "./../neovim"
 import { DOMRenderer } from "./../Renderer/DOMRenderer"
 import { NeovimScreen } from "./../Screen"
 
+import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
+import { ConnectedBufferScrollBar } from "./../UI/components/BufferScrollBar"
 import { Cursor } from "./../UI/components/Cursor"
 import { CursorLine } from "./../UI/components/CursorLine"
+import { ErrorsContainer } from "./../UI/components/Error"
 
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -34,6 +37,12 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                 <Cursor />
                 <CursorLine lineType={"line"} />
                 <CursorLine lineType={"column"} />
+            </div>
+            <div className="stack layer">
+                <ActiveWindowContainer>
+                    <ErrorsContainer />
+                    <ConnectedBufferScrollBar />
+                </ActiveWindowContainer>
             </div>
             <NeovimInput neovimInstance={this.props.neovimInstance}
                 screen={this.props.screen} />

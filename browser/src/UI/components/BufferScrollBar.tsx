@@ -1,9 +1,11 @@
 import * as React from "react"
-import * as ReactDOM from "react-dom"
+import * as types from "vscode-languageserver-types"
 
-import { connect, Provider } from "react-redux"
-import { store } from "./../index"
+import { connect } from "react-redux"
+import * as Selectors from "./../Selectors"
 import * as State from "./../State"
+
+import { getColorFromSeverity } from "./../../Services/Errors"
 
 require("./BufferScrollBar.less") // tslint:disable-line no-var-requires
 
@@ -67,27 +69,55 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
     }
 }
 
-export interface IRenderBufferScrollBarArgs {
-    bufferSize: number
-    height: number
-    windowTopLine: number
-    windowBottomLine: number
-    markers: IScrollBarMarker[]
+const NoScrollBar: IBufferScrollBarProps = {
+    windowTopLine: 0,
+    windowBottomLine: 0,
+    bufferSize: 0,
+    markers: [],
+    height: 0,
+    visible: false,
 }
 
-const mapStateToProps = (state: State.IState, inProps: IRenderBufferScrollBarArgs): IBufferScrollBarProps => {
+const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
     const visible = state.configuration["editor.scrollBar.visible"]
 
+    const activeWindow = Selectors.getActiveWindow(state)
+
+    if (!activeWindow) {
+        return NoScrollBar
+    }
+
+    const dimensions = Selectors.getActiveWindowDimensions(state)
+
+    const file = activeWindow.file
+
+    if (file === null || !state.buffers[file]) {
+        return NoScrollBar
+    }
+
+    const errors = Selectors.getAllErrorsForFile(file, state)
+    const bufferSize = state.buffers[file].totalLines
+
+    const errorMarkers = errors.map((e: types.Diagnostic) => ({
+        line: e.range.start.line || 0,
+        height: 1,
+        color: getColorFromSeverity(e.severity),
+    }))
+
+    const cursorMarker: IScrollBarMarker = {
+        line: activeWindow.line,
+        height: 1,
+        color: "rgb(200, 200, 200)",
+    }
+
     return {
-        ...inProps,
+        windowTopLine: activeWindow.windowTopLine,
+        windowBottomLine: activeWindow.windowBottomLine,
+        bufferSize,
+        markers: [...errorMarkers, cursorMarker],
+        height: dimensions.height,
         visible,
     }
 }
 
-const ConnectedBufferScrollBar = connect(mapStateToProps)(BufferScrollBar)
-
-export function renderBufferScrollBar(props: IRenderBufferScrollBarArgs, element: HTMLElement) {
-    ReactDOM.render(<Provider store={store}>
-                        <ConnectedBufferScrollBar {...props} />
-                    </Provider>, element)
-}
+export const ConnectedBufferScrollBar = connect(mapStateToProps)(BufferScrollBar)

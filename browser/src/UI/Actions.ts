@@ -9,8 +9,65 @@
 
 import * as Config from "./../Config"
 import { ILog } from "./Logs"
-import { StatusBarAlignment } from "./State"
+import { StatusBarAlignment, WindowLineMap } from "./State"
 import { Rectangle } from "./Types"
+
+import * as types from "vscode-languageserver-types"
+
+export interface ISetBufferState {
+    type: "SET_BUFFER_STATE",
+    payload: {
+        file: string,
+        totalLines: number,
+    }
+}
+
+export interface ISetWindowState {
+    type: "SET_WINDOW_STATE",
+    payload: {
+        windowId: number,
+        file: string,
+        column: number,
+        line: number,
+        winline: number,
+        wincolumn: number,
+        windowTopLine: number,
+        windowBottomLine: number,
+    }
+}
+
+export interface ISetWindowLineMapping {
+    type: "SET_WINDOW_LINE_MAP",
+    payload: {
+        windowId: number,
+        lineMapping: WindowLineMap,
+    }
+}
+
+export interface ISetWindowDimensions {
+    type: "SET_WINDOW_DIMENSIONS",
+    payload: {
+        windowId: number,
+        dimensions: Rectangle,
+    }
+}
+
+export interface ISetErrorsAction {
+    type: "SET_ERRORS",
+    payload: {
+        file: string,
+        key: string,
+        errors: types.Diagnostic[],
+    }
+}
+
+export interface IClearErrorsAction {
+    type: "CLEAR_ERRORS",
+    payload: {
+        file: string,
+        key: string,
+    }
+}
 
 export interface ISetCursorPositionAction {
     type: "SET_CURSOR_POSITION",
@@ -38,13 +95,6 @@ export interface IStatusBarHideAction {
     type: "STATUSBAR_HIDE",
     payload: {
         id: string,
-    }
-}
-
-export interface ISetActiveWindowDimensions {
-    type: "SET_ACTIVE_WINDOW_DIMENSIONS",
-    payload: {
-        dimensions: Rectangle,
     }
 }
 
@@ -201,16 +251,21 @@ export type SimpleAction =
     IFilterMenuAction |
     ISetModeAction |
     ISetColorsAction |
-    ISetActiveWindowDimensions |
     IStatusBarHideAction |
     IStatusBarShowAction |
     IHideCurorLineAction |
     IHideCursorColumnAction |
+    ISetErrorsAction |
+    IClearErrorsAction |
     IShowCursorLineAction |
     IShowCursorColumnAction |
     IToggleLogFold |
     IChangeLogsVisibility |
-    IMakeLog
+    IMakeLog |
+    ISetBufferState |
+    ISetWindowDimensions |
+    ISetWindowLineMapping |
+    ISetWindowState
 
 export type ActionWithGeneric<K extends keyof Config.IConfigValues> =
     ISetConfigurationValue<K>
