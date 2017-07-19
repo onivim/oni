@@ -185,6 +185,7 @@ export class NeovimEditor implements IEditor {
             this._screen.dispatch(action)
 
             if (action.type === "SET_SCROLL_REGION") {
+                this._isScrolling = true
             }
 
             UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
@@ -388,6 +389,7 @@ export class NeovimEditor implements IEditor {
         UI.Actions.setCursorPosition(this._screen)
 
         if (this._isScrolling) {
+            this._neovimInstance.forceWindowMeasurement()
             this._isScrolling = false
         }
 
