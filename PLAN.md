@@ -1,8 +1,4 @@
 - Errors - are error issues specific to this branch? Or on master too?
 - Handle ligatures in insert mode (re-render whole span)
 
-- Bring back render cache
-    - Hook up and handle multiple character strings
-
-- Handle background color
-- Test out multibyte characters
+- Issue with highlight when searching
