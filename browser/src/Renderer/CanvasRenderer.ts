@@ -170,9 +170,6 @@ export class CanvasRenderer implements INeovimRenderer {
         const fontWidth = screenInfo.fontWidthInPixels
         const fontHeight = screenInfo.fontHeightInPixels
 
-        if (text.trim().length === 0)
-            return
-
         if (backgroundColor && backgroundColor !== screenInfo.backgroundColor) {
 
             this._canvasContext.fillStyle = backgroundColor
