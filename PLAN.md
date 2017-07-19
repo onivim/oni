@@ -1,2 +1,1 @@
-- Incorporate icon API from git change
-- Remove unnecessary capabilities from LanguageClient
+- Add setting to turn on/off language service info
