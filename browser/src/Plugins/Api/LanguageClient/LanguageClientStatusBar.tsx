@@ -4,8 +4,8 @@
  * Implements status bar for Oni
  */
 
-import * as React from "react"
 import * as electron from "electron"
+import * as React from "react"
 
 import { Icon } from "./../../../UI/Icon"
 
@@ -30,7 +30,7 @@ export class LanguageClientStatusBar {
         this._item.setContents(<StatusBarRenderer state={status} language={this._fileType} />)
     }
 
-    hide(): void {
+    public hide(): void {
         this._item.hide()
     }
 }

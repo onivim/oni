@@ -42,7 +42,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
             .sort((a, b) => b.priority - a.priority)
 
         const statusBarStyle = {
-            "fontSize": this.props.fontSize
+            "fontSize": this.props.fontSize,
         }
 
         return <div className="status-bar enable-mouse" style={statusBarStyle}>
