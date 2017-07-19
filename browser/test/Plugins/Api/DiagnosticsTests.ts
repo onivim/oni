@@ -1,5 +1,7 @@
 import * as assert from "assert"
 
+import * as types from "vscode-languageserver-types"
+
 import * as Capabilities from "./../../../src/Plugins/Api/Capabilities"
 import { IPluginChannel } from "./../../../src/Plugins/Api/Channel"
 import { Diagnostics } from "./../../../src/Plugins/Api/Diagnostics"
@@ -15,32 +17,28 @@ describe("Diagnostics", () => {
 
     it("sends errors for a file", () => {
         diagnostics.setErrors("test-plugin", "someFile.ts", [{
-            lineNumber: 1,
-            startColumn: 0,
-            endColumn: 1,
-            type: "error",
-            text: "some error",
-        }], "red")
+            range: types.Range.create(1, 0, 1, 1),
+            severity: types.DiagnosticSeverity.Error,
+            message: "some error",
+        }])
 
         assert.strictEqual(mockChannel.sentMessages.length, 1)
     })
 
     it("does not send errors for a file if there have never been any errors", () => {
-        diagnostics.setErrors("test-plugin", "someFile.ts", [], "red")
+        diagnostics.setErrors("test-plugin", "someFile.ts", [])
 
         assert.strictEqual(mockChannel.sentMessages.length, 0)
     })
 
     it("does send empty errors array, if there have been errors previously", () => {
         diagnostics.setErrors("test-plugin", "someFile.ts", [{
-            lineNumber: 1,
-            startColumn: 0,
-            endColumn: 1,
-            type: "error",
-            text: "some error",
-        }], "red")
+            range: types.Range.create(1, 0, 1, 1),
+            severity: types.DiagnosticSeverity.Error,
+            message: "some error",
+        }])
 
-        diagnostics.setErrors("test-plugin", "someFile.ts", [], "red")
+        diagnostics.setErrors("test-plugin", "someFile.ts", [])
         assert.strictEqual(mockChannel.sentMessages.length, 2)
     })
 })
