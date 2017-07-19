@@ -6,6 +6,8 @@ import { INeovimRenderer } from "./INeovimRenderer"
 
 import { /*combineSpansAtBoundary,*/ collapseSpans, ISpan } from "./Span"
 
+import { CanvasTextRenderCache } from "./CanvasTextRenderCache"
+
 export interface IRenderState {
     isWhitespace: boolean
     foregroundColor: string
@@ -24,6 +26,8 @@ export class CanvasRenderer implements INeovimRenderer {
 
     private _devicePixelRatio: number
 
+    private _canvasRenderCache: CanvasTextRenderCache
+
     public start(element: HTMLDivElement): void {
         this._editorElement = element
 
@@ -38,6 +42,7 @@ export class CanvasRenderer implements INeovimRenderer {
         this._setContextDimensions()
 
         this._devicePixelRatio = window.devicePixelRatio
+        this._canvasRenderCache = new CanvasTextRenderCache(this._canvasContext, this._devicePixelRatio)
     }
 
     public onAction(_action: any): void {
@@ -109,29 +114,52 @@ export class CanvasRenderer implements INeovimRenderer {
             const nextRenderState = this._getNextRenderState(cell, x, y, prevState)
 
             if (this._isNewState(prevState, nextRenderState)) {
-
                 this._renderText(prevState, screenInfo)
-                prevState = nextRenderState
             }
+
+            prevState = nextRenderState
         }
 
         this._renderText(prevState, screenInfo)
     }
 
-    private _getNextRenderState(cell: ICell, x: number, y: number, currentState: IRenderState) {
-        return {
-            isWhitespace: false,
-            foregroundColor: cell.foregroundColor,
-            backgroundColor: cell.backgroundColor,
-            text: cell.character,
-            width: cell.characterWidth,
-            startX: x,
-            y,
-        }
+    private _getNextRenderState(cell: ICell, x: number, y: number, currentState: IRenderState): IRenderState {
+
+        const isWhiteSpace = (text: string) => text === null || text === "" || text === " "
+
+        const isCurrentCellWhiteSpace = isWhiteSpace(cell.character)
+
+        if (cell.foregroundColor !== currentState.foregroundColor
+            || cell.backgroundColor !== currentState.backgroundColor
+            || cell.characterWidth > 1
+            || isCurrentCellWhiteSpace !== currentState.isWhitespace) {
+                return {
+                    isWhitespace: isCurrentCellWhiteSpace,
+                    foregroundColor: cell.foregroundColor,
+                    backgroundColor: cell.backgroundColor,
+                    text: cell.character,
+                    width: cell.characterWidth,
+                    startX: x,
+                    y,
+                }
+            } else {
+                // Not using spread (...) operator, which would simplify this,
+                // because this is a hot-path for rendering and `Object.assign`
+                // has some overhead that showed up in the profile.
+                return {
+                    isWhitespace: currentState.isWhitespace,
+                    foregroundColor: cell.foregroundColor,
+                    backgroundColor: cell.backgroundColor,
+                    text: currentState.text + cell.character,
+                    width: currentState.width + cell.characterWidth,
+                    startX: currentState.startX,
+                    y: currentState.y,
+                }
+            }
     }
 
     private _isNewState(oldState: IRenderState, newState: IRenderState) {
-        return true
+        return oldState.startX !== newState.startX
     }
 
     private _renderText(state: IRenderState, screenInfo: IScreen): void {
@@ -148,11 +176,13 @@ export class CanvasRenderer implements INeovimRenderer {
 
             this._canvasContext.fillStyle = backgroundColor
             // TODO: Width of non-english characters
-            this._canvasContext.fillRect(startX * fontWidth, y * fontHeight, text.length * screenInfo.fontWidthInPixels, screenInfo.fontHeightInPixels)
+            this._canvasContext.fillRect(startX * fontWidth, y * fontHeight, state.width * fontWidth, fontHeight)
         }
 
-        this._canvasContext.fillStyle = foregroundColor
-        this._canvasContext.fillText(text, startX * fontWidth, y * fontHeight)
+        if (!state.isWhitespace) {
+            this._canvasContext.fillStyle = foregroundColor
+            this._canvasContext.fillText(text, startX * fontWidth, y * fontHeight)
+        }
     }
 
     private _setContextDimensions(): void {
