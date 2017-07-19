@@ -15,21 +15,20 @@ export class CanvasTextRenderCache {
         this._pixelRatio = pixelRatio
     }
 
-    public drawText(character: string, backgroundColor: string, color: string, x: number, y: number, fontFamily: string, fontSize: string, fontWidth: number, fontHeight: number): void {
+    public drawText(character: string, color: string, x: number, y: number, fontFamily: string, fontSize: string, totalWidth: number, totalHeight: number): void {
 
-        const keyString = character + "_" + backgroundColor + "_" + color + "_" + fontFamily + "_" + fontSize
+        const keyString = "|" + character + "|_"+ color + "_" + fontFamily + "_" + fontSize
 
         if (!this._renderCache[keyString]) {
             const canvas = document.createElement("canvas")
-            canvas.width = fontWidth
-            canvas.height = fontHeight
+            canvas.width = totalWidth * this._pixelRatio
+            canvas.height = totalHeight * this._pixelRatio
             const canvasContext = <any> canvas.getContext("2d") // FIXME: null
             canvasContext.setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0)
+            canvasContext.imageSmoothingEnabled = false
 
             canvasContext.font = `normal normal lighter ${fontSize} ${fontFamily},${FallbackFonts}`
             canvasContext.textBaseline = "top"
-            canvasContext.fillStyle = backgroundColor
-            canvasContext.fillRect(0, 0, fontWidth, fontHeight)
 
             canvasContext.fillStyle = color
             canvasContext.fillText(character, 0, 0)

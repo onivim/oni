@@ -66,6 +66,7 @@ export class CanvasRenderer implements INeovimRenderer {
         this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
         this._canvasContext.textBaseline = "top"
         this._canvasContext.setTransform(this._getPixelRatio(), 0, 0, this._getPixelRatio(), 0, 0)
+        this._canvasContext.imageSmoothingEnabled = false
 
         this._editorElement.style.fontFamily = screenInfo.fontFamily
         this._editorElement.style.fontSize = screenInfo.fontSize
@@ -133,29 +134,29 @@ export class CanvasRenderer implements INeovimRenderer {
             || cell.backgroundColor !== currentState.backgroundColor
             || cell.characterWidth > 1
             || isCurrentCellWhiteSpace !== currentState.isWhitespace) {
-                return {
-                    isWhitespace: isCurrentCellWhiteSpace,
-                    foregroundColor: cell.foregroundColor,
-                    backgroundColor: cell.backgroundColor,
-                    text: cell.character,
-                    width: cell.characterWidth,
-                    startX: x,
-                    y,
-                }
-            } else {
-                // Not using spread (...) operator, which would simplify this,
-                // because this is a hot-path for rendering and `Object.assign`
-                // has some overhead that showed up in the profile.
-                return {
-                    isWhitespace: currentState.isWhitespace,
-                    foregroundColor: cell.foregroundColor,
-                    backgroundColor: cell.backgroundColor,
-                    text: currentState.text + cell.character,
-                    width: currentState.width + cell.characterWidth,
-                    startX: currentState.startX,
-                    y: currentState.y,
-                }
+            return {
+                isWhitespace: isCurrentCellWhiteSpace,
+                foregroundColor: cell.foregroundColor,
+                backgroundColor: cell.backgroundColor,
+                text: cell.character,
+                width: cell.characterWidth,
+                startX: x,
+                y,
             }
+        } else {
+            // Not using spread (...) operator, which would simplify this,
+            // because this is a hot-path for rendering and `Object.assign`
+            // has some overhead that showed up in the profile.
+            return {
+                isWhitespace: currentState.isWhitespace,
+                foregroundColor: cell.foregroundColor,
+                backgroundColor: cell.backgroundColor,
+                text: currentState.text + cell.character,
+                width: currentState.width + cell.characterWidth,
+                startX: currentState.startX,
+                y: currentState.y,
+            }
+        }
     }
 
     private _isNewState(oldState: IRenderState, newState: IRenderState) {
@@ -180,6 +181,14 @@ export class CanvasRenderer implements INeovimRenderer {
         }
 
         if (!state.isWhitespace) {
+            // this._canvasRenderCache.drawText(text, 
+            //                                  foregroundColor, 
+            //                                  startX * fontWidth, 
+            //                                  y * fontHeight,
+            //                                  screenInfo.fontFamily,
+            //                                  screenInfo.fontSize,
+            //                                  state.width * fontWidth,
+            //                                  fontHeight)
             this._canvasContext.fillStyle = foregroundColor
             this._canvasContext.fillText(text, startX * fontWidth, y * fontHeight)
         }
