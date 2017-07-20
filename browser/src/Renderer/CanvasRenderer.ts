@@ -4,7 +4,7 @@ import * as Performance from "./../Performance"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
 
-import { /*combineSpansAtBoundary,*/ collapseSpans, ISpan } from "./Span"
+import { collapseSpans, ISpan } from "./Span"
 
 import { CanvasTextRenderCache } from "./CanvasTextRenderCache"
 
@@ -35,13 +35,13 @@ export class CanvasRenderer implements INeovimRenderer {
         this._canvasElement.style.width = "100%"
         this._canvasElement.style.height = "100%"
 
+        this._devicePixelRatio = window.devicePixelRatio
         this._canvasContext = this._canvasElement.getContext("2d")
 
         this._editorElement.appendChild(this._canvasElement)
 
         this._setContextDimensions()
 
-        this._devicePixelRatio = window.devicePixelRatio
         this._canvasRenderCache = new CanvasTextRenderCache(this._canvasContext, this._devicePixelRatio)
     }
 
@@ -65,7 +65,7 @@ export class CanvasRenderer implements INeovimRenderer {
 
         this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
         this._canvasContext.textBaseline = "top"
-        this._canvasContext.setTransform(this._getPixelRatio(), 0, 0, this._getPixelRatio(), 0, 0)
+        this._canvasContext.setTransform(this._devicePixelRatio, 0, 0, this._devicePixelRatio, 0, 0)
         this._canvasContext.imageSmoothingEnabled = false
 
         this._editorElement.style.fontFamily = screenInfo.fontFamily
@@ -178,29 +178,14 @@ export class CanvasRenderer implements INeovimRenderer {
         }
 
         if (!state.isWhitespace) {
-            // this._canvasRenderCache.drawText(text, 
-            //                                  foregroundColor, 
-            //                                  startX * fontWidth, 
-            //                                  y * fontHeight,
-            //                                  screenInfo.fontFamily,
-            //                                  screenInfo.fontSize,
-            //                                  state.width * fontWidth,
-            //                                  fontHeight)
             this._canvasContext.fillStyle = foregroundColor
             this._canvasContext.fillText(text, startX * fontWidth, y * fontHeight)
         }
     }
 
     private _setContextDimensions(): void {
-        this._canvasElement.width = this._canvasElement.offsetWidth * this._getPixelRatio()
-        this._canvasElement.height = this._canvasElement.offsetHeight * this._getPixelRatio()
-    }
-
-    private _getPixelRatio(): number {
-        // TODO: Does the `backingStoreContext` need to be taken into account?
-        // I believe this value should be consistent - at least on the electron platform
-        return window.devicePixelRatio
-        //return this._devicePixelRatio
+        this._canvasElement.width = this._canvasElement.offsetWidth * this._devicePixelRatio
+        this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
     }
 }
 
