@@ -6,8 +6,6 @@ import { INeovimRenderer } from "./INeovimRenderer"
 
 import { collapseSpans, ISpan } from "./Span"
 
-import { CanvasTextRenderCache } from "./CanvasTextRenderCache"
-
 export interface IRenderState {
     isWhitespace: boolean
     foregroundColor: string
@@ -26,8 +24,6 @@ export class CanvasRenderer implements INeovimRenderer {
 
     private _devicePixelRatio: number
 
-    private _canvasRenderCache: CanvasTextRenderCache
-
     public start(element: HTMLDivElement): void {
         this._editorElement = element
 
@@ -41,8 +37,6 @@ export class CanvasRenderer implements INeovimRenderer {
         this._editorElement.appendChild(this._canvasElement)
 
         this._setContextDimensions()
-
-        this._canvasRenderCache = new CanvasTextRenderCache(this._canvasContext, this._devicePixelRatio)
     }
 
     public onAction(_action: any): void {
@@ -226,4 +220,3 @@ export function collapseSpanMap2(currentSpanMap: RowMap): RowMap {
 
     return outMap
 }
-
