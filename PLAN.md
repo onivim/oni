@@ -1,1 +1,0 @@
-- Add setting to turn on/off language service info
