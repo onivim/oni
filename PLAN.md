@@ -1,2 +1,2 @@
-- Errors - are error issues specific to this branch? Or on master too?
+- Test background
 - Handle ligatures in insert mode (re-render whole span)
