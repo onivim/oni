@@ -7,6 +7,8 @@ import * as path from "path"
 import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
+export type RenderStrategy = "canvas" | "dom"
+
 export interface IConfigValues {
     // Debug settings
     "debug.incrementalRenderRegions": boolean
@@ -65,6 +67,8 @@ export interface IConfigValues {
     "editor.fontLigatures": boolean
     "editor.fontSize": string
     "editor.fontFamily": string // Platform specific
+
+    "editor.renderer": RenderStrategy
 
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
@@ -126,6 +130,8 @@ export class Config extends EventEmitter {
         "editor.fontFamily": "",
 
         "editor.quickOpen.execCommand": null,
+
+        "editor.renderer": "canvas",
 
         "editor.scrollBar.visible": true,
 
