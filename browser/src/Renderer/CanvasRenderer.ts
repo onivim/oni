@@ -28,7 +28,6 @@ const cellsAreTheSame = (cell1: ICell, cell2: ICell): boolean => {
         && cell1.characterWidth === 1 && cell2.characterWidth === 1
 }
 
-
 export class CanvasRenderer implements INeovimRenderer {
     private _editorElement: HTMLDivElement
     private _canvasElement: HTMLCanvasElement
@@ -225,7 +224,7 @@ export class CanvasRenderer implements INeovimRenderer {
 
         const spanInfoToCommit: ISpan = {
             startX: state.startX,
-            endX: state.startX + state.width
+            endX: state.startX + state.width,
         }
 
         for (let x = state.startX; x < state.startX + state.width; x++) {
