@@ -31,7 +31,7 @@ export class AutoCompletion extends React.Component<IAutoCompletionProps, void> 
             return null
         }
 
-        const containerStyle: React.CSSProperties = {
+        const containerStyle = {
             position: "absolute",
             top: this.props.y.toString() + "px",
             left: this.props.x.toString() + "px",
