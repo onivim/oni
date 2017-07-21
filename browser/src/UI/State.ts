@@ -8,6 +8,12 @@ import * as Config from "./../Config"
 import { ILog } from "./Logs"
 import { Rectangle } from "./Types"
 
+import * as types from "vscode-languageserver-types"
+
+export type Buffers = { [filePath: string]: IBuffer }
+
+export type WindowLineMap = { [key: number]: number }
+
 export interface IState {
     cursorPixelX: number
     cursorPixelY: number
@@ -30,11 +36,17 @@ export interface IState {
 
     statusBar: { [id: string]: IStatusBarItem }
 
+    buffers: { [filePath: string]: IBuffer }
+
+    windowState: IWindowState
+
     logsVisible: boolean
     logs: Array<{
         log: ILog,
         folded: boolean,
     }>
+
+    errors: { [file: string]: { [key: string]: types.Diagnostic[] } }
 
     // Dimensions of active window, in pixels
     activeWindowDimensions: Rectangle
@@ -67,6 +79,27 @@ export interface IMessageDialogButton {
     backgroundColor?: Color
     foregroundColor?: Color
     callback?: () => void
+}
+
+export interface IBuffer {
+    totalLines: number
+}
+
+export interface IWindowState {
+    activeWindow: number,
+    windows: { [windowId: number]: IWindow },
+}
+
+export interface IWindow {
+    file: string
+    column: number
+    line: number
+    winline: number
+    wincolumn: number
+    lineMapping: WindowLineMap
+    dimensions: Rectangle
+    windowTopLine: number
+    windowBottomLine: number
 }
 
 export enum StatusBarAlignment {
@@ -140,6 +173,14 @@ export const createDefaultState = (): IState => ({
     logs: [],
     configuration: Config.instance().getValues(),
 
+    buffers: {},
+
+    windowState: {
+        activeWindow: null,
+        windows: {},
+    },
+
+    errors: {},
     statusBar: {},
     activeMessageDialog: null,
 })

@@ -13,3 +13,5 @@
 export function nodeRequire(moduleName: string): any {
     return window["require"](moduleName) // tslint:disable-line
 }
+
+export const normalizePath = (fileName: string) => fileName.split("\\").join("/")

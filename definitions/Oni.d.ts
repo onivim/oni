@@ -123,17 +123,8 @@ declare namespace Oni {
 
     export namespace Plugin {
         export namespace Diagnostics {
-            export interface Error {
-                type: string
-                text: string
-
-                lineNumber: number
-                startColumn?: number
-                endColumn?: number
-            }
-
             export interface Api {
-                setErrors(key: string, fileName: string, errors: Error[], color?: string)
+                setErrors(key: string, fileName: string, errors: types.Diagnostic[])
                 clearErrors(key: string)
             }
         }
@@ -161,7 +152,7 @@ declare namespace Oni {
             editor: Editor
             statusBar: StatusBar
 
-            registerLanguageService(languageService: LanguageService)
+            registerLanguageService(languageType: string, languageService: LanguageService)
 
             clearHighlights(file: string, key: string)
             setHighlights(file: string, key: string, highlights: SyntaxHighlight[])

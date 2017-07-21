@@ -4,10 +4,10 @@
  * IEditor implementation for Neovim
  */
 
-import * as path from "path"
-
 import * as React from "react"
 import * as ReactDOM from "react-dom"
+
+import * as types from "vscode-languageserver-types"
 
 import { ipcRenderer } from "electron"
 
@@ -35,10 +35,8 @@ import { Tasks } from "./../Services/Tasks"
 import { WindowTitle } from "./../Services/WindowTitle"
 
 import * as UI from "./../UI/index"
-import { ErrorOverlay } from "./../UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./../UI/Overlay/LiveEvaluationOverlay"
 import { OverlayManager } from "./../UI/Overlay/OverlayManager"
-import { ScrollBarOverlay } from "./../UI/Overlay/ScrollBarOverlay"
 import { Rectangle } from "./../UI/Types"
 
 import { Keyboard } from "./../Input/Keyboard"
@@ -61,10 +59,8 @@ export class NeovimEditor implements IEditor {
     private _tasks: Tasks
 
     // Overlays
-    private _errorOverlay: ErrorOverlay
     private _overlayManager: OverlayManager
     private _liveEvaluationOverlay: LiveEvaluationOverlay
-    private _scrollbarOverlay: ScrollBarOverlay
 
     private _errorStartingNeovim: boolean = false
 
@@ -112,14 +108,12 @@ export class NeovimEditor implements IEditor {
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
         this._overlayManager = new OverlayManager(this._screen, this._neovimInstance)
-        this._errorOverlay = new ErrorOverlay()
         this._liveEvaluationOverlay = new LiveEvaluationOverlay()
-        this._scrollbarOverlay = new ScrollBarOverlay()
-        this._overlayManager.addOverlay("errors", this._errorOverlay)
         this._overlayManager.addOverlay("live-eval", this._liveEvaluationOverlay)
-        this._overlayManager.addOverlay("scrollbar", this._scrollbarOverlay)
 
-        this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.Actions.setActiveWindowDimensions(dimensionsInPixels))
+        this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
+            UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
+        })
 
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
         this._pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
@@ -130,18 +124,11 @@ export class NeovimEditor implements IEditor {
             }
         })
 
-        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: any[], color: string) => {
+        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: types.Diagnostic[]) => {
+
+            UI.Actions.setErrors(fileName, key, errors)
+
             errorService.setErrors(fileName, errors)
-
-            color = color || "red"
-            this._errorOverlay.setErrors(key, fileName, errors, color)
-
-            const errorMarkers = errors.map((e: any) => ({
-                line: e.lineNumber,
-                height: 1,
-                color,
-            }))
-            this._scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
         })
 
         liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
@@ -170,14 +157,12 @@ export class NeovimEditor implements IEditor {
             ReactDOM.render(<InstallHelp />, this._element.parentElement)
         })
 
-        this._neovimInstance.on("buffer-update", (context: any, lines: string[]) => {
-            this._scrollbarOverlay.onBufferUpdate(context, lines)
-        })
-
         this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any, shouldMeasure: boolean) => {
             if (shouldMeasure) {
                 this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
             }
+
+            UI.Actions.setWindowLineMapping(eventContext.windowNumber, lineMapping)
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -332,31 +317,28 @@ export class NeovimEditor implements IEditor {
         UI.Actions.setMode(newMode)
 
         if (newMode === "normal") {
+            UI.Actions.showCursorLine()
             UI.Actions.showCursorColumn()
             UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
         } else if (newMode === "insert") {
             UI.Actions.hideQuickInfo()
             UI.Actions.showCursorColumn()
+            UI.Actions.showCursorLine()
         } else if (newMode.indexOf("cmdline") >= 0) {
+            UI.Actions.hideCursorLine()
             UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
             UI.Actions.hideCompletions()
             UI.Actions.hideQuickInfo()
         }
-
-        // Error overlay
-        if (newMode === "insert") {
-            this._errorOverlay.hideDetails()
-        } else {
-            this._errorOverlay.showDetails()
-        }
     }
 
-    private _onVimEvent(eventName: string, evt: any): void {
+    private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
         // TODO: Can we get rid of these?
-        this._errorOverlay.onVimEvent(eventName, evt)
         this._liveEvaluationOverlay.onVimEvent(eventName, evt)
-        this._scrollbarOverlay.onVimEvent(eventName, evt)
+
+        UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
+        UI.Actions.setBufferState(evt.bufferFullPath, evt.bufferTotalLines)
 
         this._tasks.onEvent(evt)
 

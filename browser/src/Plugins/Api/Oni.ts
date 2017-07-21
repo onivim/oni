@@ -10,7 +10,7 @@ import { Editor } from "./Editor"
 import { StatusBar } from "./StatusBar"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
-import { InitializationParamsCreator, LanguageClient, ServerRunOptions } from "./LanguageClient/LanguageClient"
+import { InitializationParamsCreator, LanguageClient } from "./LanguageClient/LanguageClient"
 
 import { Services } from "./Services"
 import { Ui } from "./Ui"
@@ -87,8 +87,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         })
     }
 
-    public createLanguageClient(startOptions: ServerRunOptions, initializationParamsCreator: InitializationParamsCreator): LanguageClient {
-        return new LanguageClient(startOptions, initializationParamsCreator, this)
+    public createLanguageClient(initializationCommand: string, initializationParamsCreator: InitializationParamsCreator): LanguageClient {
+        return new LanguageClient(initializationCommand, initializationParamsCreator, this)
     }
 
     public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {
