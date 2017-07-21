@@ -151,7 +151,7 @@ declare namespace Oni {
             editor: Editor
             statusBar: StatusBar
 
-            registerLanguageService(languageService: LanguageService)
+            registerLanguageService(languageType: string, languageService: LanguageService)
 
             clearHighlights(file: string, key: string)
             setHighlights(file: string, key: string, highlights: SyntaxHighlight[])
