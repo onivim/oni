@@ -1,2 +1,0 @@
-- Test background
-- Handle ligatures in insert mode (re-render whole span)

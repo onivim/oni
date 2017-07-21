@@ -16,6 +16,19 @@ export interface IRenderState {
     width: number
 }
 
+const isWhiteSpace = (text: string) => text === null || text === "" || text === " "
+
+const cellsAreTheSame = (cell1: ICell, cell2: ICell): boolean => {
+    if (!cell1 || !cell2) {
+        return false
+    }
+
+    return cell1.backgroundColor === cell2.backgroundColor
+        && cell1.foregroundColor === cell2.foregroundColor
+        && cell1.characterWidth === 1 && cell2.characterWidth === 1
+}
+
+
 export class CanvasRenderer implements INeovimRenderer {
     private _editorElement: HTMLDivElement
     private _canvasElement: HTMLCanvasElement
@@ -78,7 +91,41 @@ export class CanvasRenderer implements INeovimRenderer {
 
             row.forEach((span: ISpan) => {
                 // All spans that have changed in current rendering pass
-                this._renderSpan(span, Number.parseInt(y), screenInfo)
+
+                const row = Number.parseInt(y)
+
+                const currentCell = screenInfo.getCell(span.startX, row)
+
+                // Check spans before & after, to see if they can be merged
+                // (In other words, if they should be re-rendered together)
+                // This is important for ligature cases.
+                const gridCellBefore = screenInfo.getCell(span.startX - 1, row)
+                const gridCellAfter = screenInfo.getCell(span.endX + 1, row)
+
+                let updatedStartX = span.startX
+                let updatedEndX = span.endX
+
+                if (cellsAreTheSame(currentCell, gridCellBefore)) {
+                    const previousCell = this._grid.getCell(span.startX - 1, row)
+                    if (previousCell) {
+                        updatedStartX = previousCell.startX
+                    }
+                }
+
+                if (cellsAreTheSame(currentCell, gridCellAfter)) {
+                    const afterCell = this._grid.getCell(span.endX + 1, row)
+
+                    if (afterCell) {
+                        updatedEndX = afterCell.endX
+                    }
+                }
+
+                const updatedSpan: ISpan = {
+                    startX: updatedStartX,
+                    endX: updatedEndX,
+                }
+
+                this._renderSpan(updatedSpan, row, screenInfo)
             })
         }
 
@@ -119,8 +166,6 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     private _getNextRenderState(cell: ICell, x: number, y: number, currentState: IRenderState): IRenderState {
-
-        const isWhiteSpace = (text: string) => text === null || text === "" || text === " "
 
         const isCurrentCellWhiteSpace = isWhiteSpace(cell.character)
 
@@ -174,6 +219,17 @@ export class CanvasRenderer implements INeovimRenderer {
         if (!state.isWhitespace) {
             this._canvasContext.fillStyle = foregroundColor
             this._canvasContext.fillText(text, startX * fontWidth, y * fontHeight)
+        }
+
+        // Commit span dimensions to grid
+
+        const spanInfoToCommit: ISpan = {
+            startX: state.startX,
+            endX: state.startX + state.width
+        }
+
+        for (let x = state.startX; x < state.startX + state.width; x++) {
+            this._grid.setCell(x, state.y, spanInfoToCommit)
         }
     }
 
