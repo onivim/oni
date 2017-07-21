@@ -131,7 +131,7 @@ export class Config extends EventEmitter {
 
         "editor.quickOpen.execCommand": null,
 
-        "editor.renderer": "dom",
+        "editor.renderer": "canvas",
 
         "editor.scrollBar.visible": true,
 
