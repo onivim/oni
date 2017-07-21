@@ -9,8 +9,7 @@
 
 import * as Config from "./../Config"
 import { ILog } from "./Logs"
-import { IMessageDialog, StatusBarAlignment } from "./State"
-import { StatusBarAlignment, WindowLineMap } from "./State"
+import { IMessageDialog, StatusBarAlignment, WindowLineMap } from "./State"
 import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
