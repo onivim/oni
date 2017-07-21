@@ -13,7 +13,7 @@ import { ipcRenderer } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance } from "./../neovim"
-import { DOMRenderer } from "./../Renderer/DOMRenderer"
+import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import * as Config from "./../Config"
@@ -50,6 +50,7 @@ export class NeovimEditor implements IEditor {
 
     private _neovimInstance: NeovimInstance
     private _deltaRegionManager: IncrementalDeltaRegionTracker
+    private _renderer: INeovimRenderer
     private _screen: NeovimScreen
 
     private _pendingTimeout: any = null
@@ -67,7 +68,6 @@ export class NeovimEditor implements IEditor {
     constructor(
         private _commandManager: CommandManager,
         private _pluginManager: PluginManager,
-        private _renderer: DOMRenderer = new DOMRenderer(),
         private _config: Config.Config = Config.instance(),
     ) {
         const services: any[] = []
@@ -75,6 +75,8 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance = new NeovimInstance(this._pluginManager, 100, 100)
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
+
+        this._renderer = this._config.getValue("editor.renderer") === "canvas" ? new CanvasRenderer() : new DOMRenderer()
 
         // Services
         const autoCompletion = new AutoCompletion(this._neovimInstance)
