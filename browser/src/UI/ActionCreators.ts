@@ -7,19 +7,19 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
+import * as types from "vscode-languageserver-types"
+
 import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
-import { IScreen } from "./../Screen"
-import { normalizePath } from "./../Utility"
-
 import * as Actions from "./Actions"
-import * as Config from "./../Config"
 import { events } from "./Events"
 import { ILog } from "./Logs"
 import * as State from "./State"
 
-import * as types from "vscode-languageserver-types"
+import * as Config from "./../Config"
+import { IScreen } from "./../Screen"
+import { normalizePath } from "./../Utility"
 
 export const setBufferState = (file: string, totalLines: number) => ({
     type: "SET_BUFFER_STATE",
