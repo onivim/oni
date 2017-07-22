@@ -61,7 +61,7 @@ export class Errors implements ITaskProvider {
         const errors = flattenedErrors.map((e) => <any>({
             filename: e.filename,
             col: e.range.start.character || 0,
-            lnum: e.range.start.line,
+            lnum: e.range.start.line + 1,
             text: e.message,
         }))
 

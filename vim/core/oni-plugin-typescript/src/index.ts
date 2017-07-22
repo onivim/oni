@@ -269,14 +269,14 @@ export const activate = (Oni) => {
     })
 
     host.on("semanticDiag", (diagnostics) => {
-
         const fileName = diagnostics.file
 
         const diags = diagnostics.diagnostics || []
 
         const errors = diags.map((d) => {
-            const startPosition = Position.create(d.start.line, d.start.offset)
-            const endPosition = Position.create(d.end.line, d.end.offset)
+            // Convert lines to zero-based to accomodate protocol
+            const startPosition = Position.create(d.start.line - 1, d.start.offset)
+            const endPosition = Position.create(d.end.line - 1, d.end.offset)
             const range = Range.create(startPosition, endPosition)
 
             return {

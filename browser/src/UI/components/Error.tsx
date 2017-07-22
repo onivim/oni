@@ -36,8 +36,8 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
         const windowContext = new WindowContext2(this.props.fontWidthInPixels, this.props.fontHeightInPixels, this.props.window)
 
         const markers = errors.map((e) => {
-            const lineNumber = e.range.start.line
-            const column = e.range.start.character
+            const lineNumber = e.range.start.line + 1
+            const column = e.range.start.character + 1
             if (windowContext.isLineInView(lineNumber)) {
                 const screenLine = windowContext.getWindowLine(lineNumber)
 
@@ -62,9 +62,9 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
         const squiggles = errors
             .filter((e) => e && e.range && e.range.start && e.range.end)
             .map((e) => {
-            const lineNumber = e.range.start.line
-            const column = e.range.start.character
-            const endColumn = e.range.end.character
+            const lineNumber = e.range.start.line + 1
+            const column = e.range.start.character + 1
+            const endColumn = e.range.end.character + 1
 
             if (windowContext.isLineInView(lineNumber)) {
                 const yPos = windowContext.getWindowRegionForLine(lineNumber).y
