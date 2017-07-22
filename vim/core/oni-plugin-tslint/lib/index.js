@@ -126,11 +126,11 @@ const activate = (Oni) => {
                     severity: 2 /* Warning */,
                     range: {
                         start: {
-                            line: e.startPosition.line + 1,
-                            character: e.startPosition.character + 1,
+                            line: e.startPosition.line,
+                            character: e.startPosition.character,
                         },
                         end: {
-                            line: e.endPosition.line + 1,
+                            line: e.endPosition.line,
                             character: e.endPosition.character
                         }
                     }

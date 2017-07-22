@@ -15,6 +15,8 @@ import { measureFont } from "./../Font"
 import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
 
+derp
+
 export interface INeovimInstance {
     cursorPosition: IPosition
     quickFix: IQuickFixList
