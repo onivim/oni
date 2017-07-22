@@ -166,7 +166,7 @@ export class LanguageClient {
         }
 
         if (!this._process || !this._process.pid) {
-            console.error("[LANGUAGE CLIENT]: Unable to start language server process. Scroll up for logs.")
+            console.error("[LANGUAGE CLIENT]: Unable to start language server process.")
             this._statusBar.setStatus(LanguageClientState.Error)
             return Promise.reject(null)
         }
