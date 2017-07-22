@@ -156,17 +156,17 @@ export class LanguageClient {
         const startArgs = this._startOptions.args || []
 
         if (this._startOptions.command) {
-            console.log(`[LANGUAGE CLIENT]: Starting process via '${this._startOptions.command}`)
+            console.log(`[LANGUAGE CLIENT]: Starting process via '${this._startOptions.command}`) // tslint:disable-line no-console
             this._process = spawn(this._startOptions.command, startArgs)
         } else if (this._startOptions.module) {
-            console.log(`[LANGUAGE CLIENT]: Starting process via node script '${this._startOptions.module}`)
+            console.log(`[LANGUAGE CLIENT]: Starting process via node script '${this._startOptions.module}`) // tslint:disable-line no-console
             this._process = this._oni.spawnNodeScript(this._startOptions.module, startArgs)
         } else {
             throw "A command or module must be specified to start the server"
         }
 
         if (!this._process || !this._process.pid) {
-            console.error("[LANGUAGE CLIENT]: Unable to start language server process.")
+            console.error("[LANGUAGE CLIENT]: Unable to start language server process.") // tslint:disable-line no-console
             this._statusBar.setStatus(LanguageClientState.Error)
             return Promise.reject(null)
         }
