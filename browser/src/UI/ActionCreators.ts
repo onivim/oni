@@ -7,20 +7,19 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
+import * as types from "vscode-languageserver-types"
+
 import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
-import { IScreen } from "./../Screen"
-import { normalizePath } from "./../Utility"
-
-import * as State from "./State"
-
-import * as Config from "./../Config"
 import * as Actions from "./Actions"
 import { events } from "./Events"
 import { ILog } from "./Logs"
+import * as State from "./State"
 
-import * as types from "vscode-languageserver-types"
+import * as Config from "./../Config"
+import { IScreen } from "./../Screen"
+import { normalizePath } from "./../Utility"
 
 export const setBufferState = (file: string, totalLines: number) => ({
     type: "SET_BUFFER_STATE",
@@ -77,15 +76,39 @@ export const clearErrors = (file: string, key: string) => ({
     },
 })
 
-export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => ({
-    type: "STATUSBAR_SHOW",
+export const showMessageDialog = (messageType: State.MessageType, text: string, buttons: State.IMessageDialogButton[], details?: string): Actions.IShowMessageDialog => ({
+    type: "SHOW_MESSAGE_DIALOG",
     payload: {
-        id,
-        contents,
-        alignment,
-        priority,
+        messageType,
+        text,
+        buttons,
+        details,
     },
 })
+
+export const hideMessageDialog = (): Actions.IHideMessageDialog => ({
+    type: "HIDE_MESSAGE_DIALOG",
+})
+
+export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => (dispatch: Function, getState: Function) => {
+
+    const currentStatusBarItem = getState().statusBar[id]
+
+    if (currentStatusBarItem) {
+        alignment = alignment || currentStatusBarItem.alignment
+        priority = priority || currentStatusBarItem.priority
+    }
+
+    dispatch({
+        type: "STATUSBAR_SHOW",
+        payload: {
+            id,
+            contents,
+            alignment,
+            priority,
+        },
+    })
+}
 
 export const hideStatusBarItem = (id: string) => ({
     type: "STATUSBAR_HIDE",
@@ -258,15 +281,15 @@ export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Co
 }
 export const toggleLogFold = (index: number): Actions.IToggleLogFold => ({
     type: "TOGGLE_LOG_FOLD",
-    payload: {index},
+    payload: { index },
 })
 export const changeLogsVisibility = (visibility: boolean): Actions.IChangeLogsVisibility => ({
     type: "CHANGE_LOGS_VISIBILITY",
-    payload: {visibility},
+    payload: { visibility },
 })
 export const makeLog = (log: ILog): Actions.IMakeLog => ({
     type: "MAKE_LOG",
-    payload: {log},
+    payload: { log },
 })
 
 const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({

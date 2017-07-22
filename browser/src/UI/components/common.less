@@ -95,3 +95,14 @@
 .box-shadow-inset {
   box-shadow: inset 0 4px 8px 2px rgba(0, 0, 0, 0.2)
 }
+
+@keyframes rotate {
+    from { transform: rotateZ(0deg); }
+    to { transform: rotateZ(360deg); }
+}
+
+.rotate-animation {
+    animation-name: rotate;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+}

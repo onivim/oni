@@ -91,6 +91,7 @@ export interface IConfigValues {
     "editor.cursorColumnOpacity": number
 
     "statusbar.enabled": boolean
+    "statusbar.fontSize": string
 }
 
 export class Config extends EventEmitter {
@@ -144,19 +145,23 @@ export class Config extends EventEmitter {
         "editor.cursorColumnOpacity": 0.1,
 
         "statusbar.enabled": true,
+        "statusbar.fontSize": "12px",
     }
 
     private MacConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "Menlo",
         "editor.fontSize": "12px",
+        "statusbar.fontSize": "10px",
     }
 
     private WindowsConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "Consolas",
+        "statusbar.fontSize": "11px",
     }
 
     private LinuxConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "DejaVu Sans Mono",
+        "statusbar.fontSize": "11px",
     }
 
     private DefaultPlatformConfig = Platform.isWindows() ? this.WindowsConfig : Platform.isLinux() ? this.LinuxConfig : this.MacConfig

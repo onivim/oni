@@ -9,7 +9,7 @@
 
 import * as Config from "./../Config"
 import { ILog } from "./Logs"
-import { StatusBarAlignment, WindowLineMap } from "./State"
+import { IMessageDialog, StatusBarAlignment, WindowLineMap } from "./State"
 import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
@@ -79,6 +79,15 @@ export interface ISetCursorPositionAction {
         cursorCharacter: string,
         cursorPixelWidth: number,
     }
+}
+
+export interface IShowMessageDialog {
+    type: "SHOW_MESSAGE_DIALOG",
+    payload: IMessageDialog,
+}
+
+export interface IHideMessageDialog {
+    type: "HIDE_MESSAGE_DIALOG"
 }
 
 export interface IStatusBarShowAction {
@@ -246,6 +255,8 @@ export type SimpleAction =
     ISetAutoCompletionDetails |
     IShowMenuAction |
     IHideMenuAction |
+    IShowMessageDialog |
+    IHideMessageDialog |
     IPreviousMenuAction |
     INextMenuAction |
     IFilterMenuAction |

@@ -63,6 +63,8 @@ export interface InitializationParamsCreator {
     (filePath: string): Promise<LanguageClientInitializationParams>
 }
 
+import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
+
 /**
  * Implementation of a client that talks to a server 
  * implementing the Language Server Protocol:
@@ -77,6 +79,8 @@ export class LanguageClient {
     private _initializationParams: LanguageClientInitializationParams
     private _serverCapabilities: Helpers.ServerCapabilities
 
+    private _statusBar: LanguageClientStatusBar
+
     constructor(
         private _startOptions: ServerRunOptions,
         private _initializationParamsCreator: InitializationParamsCreator,
@@ -84,7 +88,11 @@ export class LanguageClient {
 
         this._currentPromise = Promise.resolve(null)
 
+        this._statusBar = new LanguageClientStatusBar(this._oni)
+
         this._oni.on("buffer-enter", (args: Oni.EventContext) => {
+            this._statusBar.show(args.filetype)
+            this._statusBar.setStatus(LanguageClientState.Initializing)
             this._enqueuePromise(() => {
                 return this._initializationParamsCreator(args.bufferFullPath)
                     .then((newParams: LanguageClientInitializationParams) => {
@@ -109,6 +117,10 @@ export class LanguageClient {
         this._oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdate(args))
                 .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
+        })
+
+        this._oni.on("buffer-leave", (args: Oni.EventContext) => {
+            this._statusBar.hide()
         })
 
         this._oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
@@ -144,11 +156,19 @@ export class LanguageClient {
         const startArgs = this._startOptions.args || []
 
         if (this._startOptions.command) {
+            console.log(`[LANGUAGE CLIENT]: Starting process via '${this._startOptions.command}`) // tslint:disable-line no-console
             this._process = spawn(this._startOptions.command, startArgs)
         } else if (this._startOptions.module) {
+            console.log(`[LANGUAGE CLIENT]: Starting process via node script '${this._startOptions.module}`) // tslint:disable-line no-console
             this._process = this._oni.spawnNodeScript(this._startOptions.module, startArgs)
         } else {
             throw "A command or module must be specified to start the server"
+        }
+
+        if (!this._process || !this._process.pid) {
+            console.error("[LANGUAGE CLIENT]: Unable to start language server process.") // tslint:disable-line no-console
+            this._statusBar.setStatus(LanguageClientState.Error)
+            return Promise.reject(null)
         }
 
         console.log(`[LANGUAGE CLIENT]: Started process ${this._process.pid}`) // tslint:disable-line no-console
@@ -159,6 +179,7 @@ export class LanguageClient {
 
         this._process.stderr.on("data", (msg) => {
             console.error(`[LANGUAGE CLIENT - ERROR]: ${msg}`) // tslint:disable-line no-console
+            this._statusBar.setStatus(LanguageClientState.Error)
         })
 
         this._connection = rpc.createMessageConnection(
@@ -203,11 +224,15 @@ export class LanguageClient {
 
         return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, oniLanguageClientParams)
             .then((response: any) => {
+                this._statusBar.setStatus(LanguageClientState.Initialized)
                 console.log(`[LANGUAGE CLIENT: ${initializationParams.clientName}]: Initialized`) // tslint:disable-line no-console
                 if (response && response.capabilities) {
                     this._serverCapabilities = response.capabilities
                 }
-            }, (err) => console.error(err))
+            }, (err) => {
+                this._statusBar.setStatus(LanguageClientState.Error)
+                console.error(err)
+            })
     }
 
     public end(): Promise<void> {
@@ -233,6 +258,7 @@ export class LanguageClient {
             .then(() => promiseExecutor(),
             (err) => {
                 console.error(err)
+                this._statusBar.setStatus(LanguageClientState.Error)
                 return promiseExecutor()
             })
 

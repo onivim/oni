@@ -50,6 +50,35 @@ export interface IState {
 
     // Dimensions of active window, in pixels
     activeWindowDimensions: Rectangle
+
+    activeMessageDialog: IMessageDialog
+}
+
+export enum MessageType {
+    Info = 0,
+    Warning,
+    Error,
+}
+
+export interface IMessageDialog {
+    messageType: MessageType
+    text: string
+    buttons: IMessageDialogButton[]
+    details?: string
+}
+
+export interface Color {
+    r: number
+    g: number
+    b: number
+    a: number
+}
+
+export interface IMessageDialogButton {
+    text: string
+    backgroundColor?: Color
+    foregroundColor?: Color
+    callback?: () => void
 }
 
 export interface IBuffer {
@@ -153,4 +182,5 @@ export const createDefaultState = (): IState => ({
 
     errors: {},
     statusBar: {},
+    activeMessageDialog: null,
 })

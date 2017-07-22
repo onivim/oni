@@ -6,12 +6,13 @@ const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
 const activate = (Oni) => {
     const React = Oni.dependencies.React
 
-    const filePathItem = Oni.statusBar.createItem(0, -1)
-    const lineNumberItem = Oni.statusBar.createItem(1, -1)
-    const modeItem = Oni.statusBar.createItem(1, -2)
+    const filePathItem = Oni.statusBar.createItem(0, -1, "oni.status.filePath")
+    const fileTypeItem = Oni.statusBar.createItem(0, 0, "oni.status.fileType")
+    const lineNumberItem = Oni.statusBar.createItem(1, -1, "oni.status.lineNumber")
+    const modeItem = Oni.statusBar.createItem(1, -2, "oni.status.mode")
+
 
     const setMode = (mode) => {
-
         const getColorForMode = (m) => {
             switch (m) {
                 case "insert":
@@ -65,6 +66,30 @@ const activate = (Oni) => {
         filePathItem.setContents(element)
     }
 
+    const setFileType = (fileType) => {
+
+        if (!fileType) {
+            fileTypeItem.hide()
+            return
+        }
+
+        const fileTypeStyle = {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            backgroundColor: "rgb(35, 35, 35)",
+            color: "rgb(200, 200, 200)",
+            paddingRight: "8px",
+            paddingLeft: "8px"
+        }
+
+        const element = React.createElement("div", { style: fileTypeStyle }, fileType)
+
+        fileTypeItem.setContents(element)
+        fileTypeItem.show()
+    }
+
     Oni.on("mode-change", (evt) => {
         setMode(evt)
     })
@@ -74,12 +99,14 @@ const activate = (Oni) => {
     })
 
     Oni.on("buffer-enter", (evt) => {
+        setFileType(evt.filetype)
         setFilePath(evt.bufferFullPath)
     })
 
     setMode("normal")
     setLineNumber(1, 1)
     setFilePath(null)
+    setFileType(null)
 
     modeItem.show()
     lineNumberItem.show()

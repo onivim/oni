@@ -15,6 +15,7 @@ import { StatusBarAlignment } from "./../State"
 export interface StatusBarProps {
     items: StatusBarItemProps[]
     enabled: boolean
+    fontSize: string
 }
 
 export interface StatusBarItemProps {
@@ -40,7 +41,11 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
             .filter((item) => item.alignment === StatusBarAlignment.Right)
             .sort((a, b) => b.priority - a.priority)
 
-        return <div className="status-bar enable-mouse">
+        const statusBarStyle = {
+            "fontSize": this.props.fontSize,
+        }
+
+        return <div className="status-bar enable-mouse" style={statusBarStyle}>
             <div className="status-bar-inner">
                 <div className="status-bar-container left">
                     {leftItems.map((item) => <StatusBarItem {...item} />)}
@@ -79,6 +84,7 @@ const mapStateToProps = (state: State.IState): StatusBarProps => {
     }))
 
     return {
+        fontSize: state.configuration["statusbar.fontSize"],
         items: statusBarItems,
         enabled: state.configuration["statusbar.enabled"],
     }
