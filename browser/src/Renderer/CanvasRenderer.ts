@@ -132,13 +132,6 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     private _renderSpan(span: ISpan, y: number, screenInfo: IScreen): void {
-        const fontWidth = screenInfo.fontWidthInPixels
-        const fontHeight = screenInfo.fontHeightInPixels
-
-        this._canvasContext.fillStyle = "white"
-
-        this._canvasContext.clearRect(span.startX * fontWidth, y * fontHeight, (span.endX - span.startX) * fontWidth, fontHeight)
-
         let prevState: IRenderState = {
             isWhitespace: false,
             foregroundColor: screenInfo.foregroundColor,
@@ -213,6 +206,8 @@ export class CanvasRenderer implements INeovimRenderer {
             this._canvasContext.fillStyle = backgroundColor
             // TODO: Width of non-english characters
             this._canvasContext.fillRect(startX * fontWidth, y * fontHeight, state.width * fontWidth, fontHeight)
+        } else {
+            this._canvasContext.clearRect(startX * fontWidth, y * fontHeight, state.width * fontWidth, fontHeight)
         }
 
         if (!state.isWhitespace) {
