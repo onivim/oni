@@ -204,8 +204,9 @@ export class CanvasRenderer implements INeovimRenderer {
         // Spans can have a width of 0 if they are placeholders for cells
         // after a multibyte character. In this case, we don't need to bother
         // rendering or clearing, because that occurs with the multibyte character.
-        if (state.width === 0)
+        if (state.width === 0) {
             return
+        }
 
         const { backgroundColor, foregroundColor, text, startX, y } = state
 
