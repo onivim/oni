@@ -118,21 +118,35 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
      * Wrapper around `child_process.exec` to run using electron as opposed to node
      */
     public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
+
+        const spawnOptions = this._mergeSpawnOptions(options)
+
+        // Need to merge in `ELECTRON_RUN_AS_NODE` environment variable
         const requiredOptions = {
             env: {
-                ...process.env,
+                ...spawnOptions.env,
                 ELECTRON_RUN_AS_NODE: 1,
             },
         }
 
-        const opts = {
-            ...options,
+        const finalOpts = {
+            ...spawnOptions,
             ...requiredOptions,
         }
 
         const allArgs = [scriptPath].concat(args)
 
-        return ChildProcess.spawn(process.execPath, allArgs, opts)
+        return ChildProcess.spawn(process.execPath, allArgs, finalOpts)
+    }
+
+    /**
+     * Spawn process - wrapper around `child_process.spawn`
+     */
+    public spawnProcess(startCommand: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
+
+        const spawnOptions = this._mergeSpawnOptions(options)
+
+        return ChildProcess.spawn(startCommand, args, spawnOptions)
     }
 
     public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {
@@ -148,6 +162,20 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
             file,
             key,
         })
+    }
+
+    private _mergeSpawnOptions(originalSpawnOptions: ChildProcess.SpawnOptions): ChildProcess.SpawnOptions {
+        // TODO: Append environment variables
+        const requiredOptions = {
+            env: {
+                ...process.env,
+            },
+        }
+
+        return {
+            ...requiredOptions,
+            ...originalSpawnOptions,
+        }
     }
 
     private _handleNotification(arg: any): void {

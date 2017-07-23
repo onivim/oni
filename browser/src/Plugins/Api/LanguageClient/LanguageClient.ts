@@ -11,7 +11,7 @@ import * as _ from "lodash"
 import * as rpc from "vscode-jsonrpc"
 import * as types from "vscode-languageserver-types"
 
-import { ChildProcess, spawn } from "child_process"
+import { ChildProcess } from "child_process"
 
 import { getCompletionMeet } from "./../../../Services/AutoCompletionUtility"
 import { Oni } from "./../Oni"
@@ -157,7 +157,7 @@ export class LanguageClient {
 
         if (this._startOptions.command) {
             console.log(`[LANGUAGE CLIENT]: Starting process via '${this._startOptions.command}`) // tslint:disable-line no-console
-            this._process = spawn(this._startOptions.command, startArgs)
+            this._process = this._oni.spawnProcess(this._startOptions.command, startArgs)
         } else if (this._startOptions.module) {
             console.log(`[LANGUAGE CLIENT]: Starting process via node script '${this._startOptions.module}`) // tslint:disable-line no-console
             this._process = this._oni.spawnNodeScript(this._startOptions.module, startArgs)
