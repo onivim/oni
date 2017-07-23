@@ -164,14 +164,9 @@ export class CanvasRenderer implements INeovimRenderer {
     private _getNextRenderState(cell: ICell, x: number, y: number, currentState: IRenderState): IRenderState {
         const isCurrentCellWhiteSpace = isWhiteSpace(cell.character)
 
-        // If the current cell is a multibyte character, or a placeholder character,
-        // always create a new state
-        const forceNewState = currentState.width === 0 || cell.characterWidth > 1
-
         if (cell.foregroundColor !== currentState.foregroundColor
             || cell.backgroundColor !== currentState.backgroundColor
-            || isCurrentCellWhiteSpace !== currentState.isWhitespace
-            || forceNewState) {
+            || isCurrentCellWhiteSpace !== currentState.isWhitespace) {
             return {
                 isWhitespace: isCurrentCellWhiteSpace,
                 foregroundColor: cell.foregroundColor,
