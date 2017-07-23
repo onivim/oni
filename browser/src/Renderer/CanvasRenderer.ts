@@ -142,7 +142,8 @@ export class CanvasRenderer implements INeovimRenderer {
             width: 0,
         }
 
-        for (let x = span.startX; x < span.endX; x++) {
+        let x = span.startX
+        while (x < span.endX) {
             const cell = screenInfo.getCell(x, y)
 
             const nextRenderState = this._getNextRenderState(cell, x, y, prevState)
@@ -152,6 +153,9 @@ export class CanvasRenderer implements INeovimRenderer {
             }
 
             prevState = nextRenderState
+
+            const increment = nextRenderState.startX + nextRenderState.width
+            x = increment
         }
 
         this._renderText(prevState, screenInfo)
@@ -162,7 +166,7 @@ export class CanvasRenderer implements INeovimRenderer {
 
         // If the current cell is a multibyte character, or a placeholder character,
         // always create a new state
-        const forceNewState = currentState.width !== 1
+        const forceNewState = currentState.width === 0 || cell.characterWidth > 1
 
         if (cell.foregroundColor !== currentState.foregroundColor
             || cell.backgroundColor !== currentState.backgroundColor
@@ -178,6 +182,9 @@ export class CanvasRenderer implements INeovimRenderer {
                 y,
             }
         } else {
+
+            const adjustedCharacterWidth = isCurrentCellWhiteSpace ? 1 : cell.characterWidth
+
             // Not using spread (...) operator, which would simplify this,
             // because this is a hot-path for rendering and `Object.assign`
             // has some overhead that showed up in the profile.
@@ -186,7 +193,7 @@ export class CanvasRenderer implements INeovimRenderer {
                 foregroundColor: cell.foregroundColor,
                 backgroundColor: cell.backgroundColor,
                 text: currentState.text + cell.character,
-                width: currentState.width + cell.characterWidth,
+                width: currentState.width + adjustedCharacterWidth,
                 startX: currentState.startX,
                 y: currentState.y,
             }
