@@ -158,13 +158,16 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     private _getNextRenderState(cell: ICell, x: number, y: number, currentState: IRenderState): IRenderState {
-
         const isCurrentCellWhiteSpace = isWhiteSpace(cell.character)
+
+        // If the current cell is a multibyte character, or a placeholder character,
+        // always create a new state
+        const forceNewState = currentState.width !== 1
 
         if (cell.foregroundColor !== currentState.foregroundColor
             || cell.backgroundColor !== currentState.backgroundColor
-            || cell.characterWidth > 1
-            || isCurrentCellWhiteSpace !== currentState.isWhitespace) {
+            || isCurrentCellWhiteSpace !== currentState.isWhitespace
+            || forceNewState) {
             return {
                 isWhitespace: isCurrentCellWhiteSpace,
                 foregroundColor: cell.foregroundColor,
@@ -196,6 +199,12 @@ export class CanvasRenderer implements INeovimRenderer {
 
     private _renderText(state: IRenderState, screenInfo: IScreen): void {
 
+        // Spans can have a width of 0 if they are placeholders for cells
+        // after a multibyte character. In this case, we don't need to bother
+        // rendering or clearing, because that occurs with the multibyte character.
+        if (state.width === 0)
+            return
+
         const { backgroundColor, foregroundColor, text, startX, y } = state
 
         const fontWidth = screenInfo.fontWidthInPixels
@@ -216,7 +225,6 @@ export class CanvasRenderer implements INeovimRenderer {
         }
 
         // Commit span dimensions to grid
-
         const spanInfoToCommit: ISpan = {
             startX: state.startX,
             endX: state.startX + state.width,
