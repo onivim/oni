@@ -1,3 +1,4 @@
+import * as ChildProcess from "child_process"
 import { EventEmitter } from "events"
 
 import * as types from "vscode-languageserver-types"
@@ -28,6 +29,12 @@ declare namespace Oni {
     export interface StatusBar {
         getItem(globalId?: string): StatusBarItem
         createItem(alignment: number, priority: number, globalId?: string): StatusBarItem
+    }
+
+    export interface Process {
+        execNodeScript(scriptPath: string, args?: string[], options?: ChildProcess.ExecOptions, callback?: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess
+        spawnNodeScript(scriptPath: string, args?: string[], options?: ChildProcess.SpawnOptions): ChildProcess.ChildProcess
+        spawnProcess(startCommand: string, args?: string[], options?: ChildProcess.SpawnOptions): ChildProcess.ChildProcess
     }
 
     export interface StatusBarItem {
@@ -150,6 +157,7 @@ declare namespace Oni {
             configuration: Configuration
             diagnostics: Diagnostics.Api
             editor: Editor
+            process: Process
             statusBar: StatusBar
 
             registerLanguageService(languageType: string, languageService: LanguageService)
