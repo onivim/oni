@@ -172,6 +172,10 @@ export class Config extends EventEmitter {
     private LinuxConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "DejaVu Sans Mono",
         "statusbar.fontSize": "11px",
+        "environment.additionalPaths": [
+            "/usr/bin",
+            "/usr/local/bin",
+        ],
     }
 
     private DefaultPlatformConfig = Platform.isWindows() ? this.WindowsConfig : Platform.isLinux() ? this.LinuxConfig : this.MacConfig
