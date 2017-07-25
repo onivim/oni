@@ -160,10 +160,10 @@ export class LanguageClient {
         }
 
         if (this._startOptions.command) {
-            console.log(`[LANGUAGE CLIENT]: Starting process via '${this._startOptions.command}`) // tslint:disable-line no-console
+            console.log(`[LANGUAGE CLIENT]: Starting process via '${this._startOptions.command}'`) // tslint:disable-line no-console
             this._process = this._oni.process.spawnProcess(this._startOptions.command, startArgs, options)
         } else if (this._startOptions.module) {
-            console.log(`[LANGUAGE CLIENT]: Starting process via node script '${this._startOptions.module}`) // tslint:disable-line no-console
+            console.log(`[LANGUAGE CLIENT]: Starting process via node script '${this._startOptions.module}'`) // tslint:disable-line no-console
             this._process = this._oni.process.spawnNodeScript(this._startOptions.module, startArgs, options)
         } else {
             throw "A command or module must be specified to start the server"

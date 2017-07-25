@@ -19,26 +19,25 @@ const mergePathEnvironmentVariable = (currentPath: string, pathsToAdd: string[])
     return currentPath + separator + joinedPathsToAdd + separator
 }
 
-
 const mergeSpawnOptions = (originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions): any => {
-
     const requiredOptions = {
         env: {
             ...process.env,
-            ...originalSpawnOptions,
+            ...originalSpawnOptions.env,
         },
     }
-
 
     let pathEnvironmentVariableName = "PATH"
     if (!process.env.PATH) {
         pathEnvironmentVariableName = "Path"
     }
 
-
     requiredOptions.env[pathEnvironmentVariableName] = mergePathEnvironmentVariable(requiredOptions.env[pathEnvironmentVariableName], Config.instance().getValue("environment.additionalPaths"))
 
-    return requiredOptions
+    return {
+        ...originalSpawnOptions,
+        ...requiredOptions,
+    }
 }
 
 /**
