@@ -1,3 +1,4 @@
+import * as ChildProcess from "child_process"
 import { EventEmitter } from "events"
 
 import * as types from "vscode-languageserver-types"
@@ -31,9 +32,9 @@ declare namespace Oni {
     }
 
     export interface Process {
-        execNodeScript(scriptPath: string, args: string[], options: ChildProcess.ExecOptions, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess
-        spawnNodeScript(scriptPath: string, args: string[], options: ChildProcess.SpawnOptions): ChildProcess.ChildProcess
-        spawnProcess(startCommand: string, args: string[], options: ChildProcess.SpawnOptions): ChildProcess.ChildProcess
+        execNodeScript(scriptPath: string, args?: string[], options?: ChildProcess.ExecOptions, callback?: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess
+        spawnNodeScript(scriptPath: string, args?: string[], options?: ChildProcess.SpawnOptions): ChildProcess.ChildProcess
+        spawnProcess(startCommand: string, args?: string[], options?: ChildProcess.SpawnOptions): ChildProcess.ChildProcess
     }
 
     export interface StatusBarItem {

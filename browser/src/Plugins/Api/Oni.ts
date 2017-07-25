@@ -60,6 +60,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._editor
     }
 
+    public get process(): Oni.Process {
+        return this._process
+    }
+
     public get statusBar(): StatusBar {
         return this._statusBar
     }
@@ -99,7 +103,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
-        console.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead) // tslint:disable-line no-console-log
+        console.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead") // tslint:disable-line no-console-log
 
         return this._process.execNodeScript(scriptPath, args, options, callback)
     }
@@ -109,7 +113,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
      */
     public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
 
-        console.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead) // tslint:disable-line no-console-log
+        console.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead") // tslint:disable-line no-console-log
 
         return this._process.spawnNodeScript(scriptPath, args, options)
     }

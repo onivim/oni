@@ -354,6 +354,7 @@ A few interesting configuration options to set:
 - `editor.backgroundImageUrl` - specific a custom background image
 - `editor.backgroundImageSize` - specific a custom background size (cover, contain)
 - `editor.scrollBar.visible` - (default: `true`) sets whether the buffer scrollbar is visible
+- `environment.additionalPaths` - (default: `[] on Windows, ['/usr/bin', '/usr/local/bin'] on OSX and Linux`). Sets additional paths for binaries. This may be necessary to configure, if using plugins or a Language Server that is not in the default set of runtime paths. Note that depending on where you launch Oni, there may be a different set of runtime paths sent to it - you can always check by opening the developer tools and running `process.env.PATH` in the console.
 
 See the `Config.ts` file for other interesting values to set.
 
