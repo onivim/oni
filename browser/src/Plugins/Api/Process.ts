@@ -1,5 +1,46 @@
 import * as ChildProcess from "child_process"
 
+import * as Config from "./../../Config"
+import * as Platform from "./../../Platform"
+
+const getPathSeparator = () => {
+    return Platform.isWindows() ? ";" : ":"
+}
+
+const mergePathEnvironmentVariable = (currentPath: string, pathsToAdd: string[]): string => {
+    if (!pathsToAdd || !pathsToAdd.length) {
+        return currentPath
+    }
+
+    const separator = getPathSeparator()
+
+    const joinedPathsToAdd = pathsToAdd.join(separator)
+
+    return currentPath + separator + joinedPathsToAdd + separator
+}
+
+
+const mergeSpawnOptions = (originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions): any => {
+
+    const requiredOptions = {
+        env: {
+            ...process.env,
+            ...originalSpawnOptions,
+        },
+    }
+
+
+    let pathEnvironmentVariableName = "PATH"
+    if (!process.env.PATH) {
+        pathEnvironmentVariableName = "Path"
+    }
+
+
+    requiredOptions.env[pathEnvironmentVariableName] = mergePathEnvironmentVariable(requiredOptions.env[pathEnvironmentVariableName], Config.instance().getValue("environment.additionalPaths"))
+
+    return requiredOptions
+}
+
 /**
  * API surface area responsible for handling process-related tasks
  * (spawning processes, managing running process, etc)
@@ -7,70 +48,33 @@ import * as ChildProcess from "child_process"
 export class Process {
 
     public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
-        const requiredOptions = {
-            env: {
-                ...process.env,
-                ELECTRON_RUN_AS_NODE: 1,
-            },
-        }
-
-        const opts = {
-            ...options,
-            ...requiredOptions,
-        }
+        const spawnOptions = mergeSpawnOptions(options)
+        spawnOptions.env.ELECTRON_RUN_AS_NODE = 1
 
         const execOptions = [process.execPath, scriptPath].concat(args)
         const execString = execOptions.map((s) => `"${s}"`).join(" ")
 
-        return ChildProcess.exec(execString, opts, callback)
+        return ChildProcess.exec(execString, spawnOptions, callback)
     }
 
     /**
      * Wrapper around `child_process.exec` to run using electron as opposed to node
      */
     public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
-
-        const spawnOptions = this._mergeSpawnOptions(options)
-
-        // Need to merge in `ELECTRON_RUN_AS_NODE` environment variable
-        const requiredOptions = {
-            env: {
-                ...spawnOptions.env,
-                ELECTRON_RUN_AS_NODE: 1,
-            },
-        }
-
-        const finalOpts = {
-            ...spawnOptions,
-            ...requiredOptions,
-        }
+        const spawnOptions = mergeSpawnOptions(options)
+        spawnOptions.env.ELECTRON_RUN_AS_NODE = 1
 
         const allArgs = [scriptPath].concat(args)
 
-        return ChildProcess.spawn(process.execPath, allArgs, finalOpts)
+        return ChildProcess.spawn(process.execPath, allArgs, spawnOptions)
     }
 
     /**
      * Spawn process - wrapper around `child_process.spawn`
      */
     public spawnProcess(startCommand: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
-
-        const spawnOptions = this._mergeSpawnOptions(options)
+        const spawnOptions = mergeSpawnOptions(options)
 
         return ChildProcess.spawn(startCommand, args, spawnOptions)
-    }
-
-    private _mergeSpawnOptions(originalSpawnOptions: ChildProcess.SpawnOptions): ChildProcess.SpawnOptions {
-        // TODO: Append environment variables
-        const requiredOptions = {
-            env: {
-                ...process.env,
-            },
-        }
-
-        return {
-            ...requiredOptions,
-            ...originalSpawnOptions,
-        }
     }
 }
