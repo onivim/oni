@@ -156,7 +156,7 @@ export class LanguageClient {
         const startArgs = this._startOptions.args || []
 
         const options = {
-            cwd: process.cwd()
+            cwd: process.cwd(),
         }
 
         if (this._startOptions.command) {
