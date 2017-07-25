@@ -27,12 +27,9 @@ const mergeSpawnOptions = (originalSpawnOptions: ChildProcess.ExecOptions | Chil
         },
     }
 
-    let pathEnvironmentVariableName = "PATH"
-    if (!process.env.PATH) {
-        pathEnvironmentVariableName = "Path"
-    }
+    const existingPath = process.env.Path || process.env.PATH
 
-    requiredOptions.env[pathEnvironmentVariableName] = mergePathEnvironmentVariable(requiredOptions.env[pathEnvironmentVariableName], Config.instance().getValue("environment.additionalPaths"))
+    requiredOptions.env.PATH = mergePathEnvironmentVariable(existingPath, Config.instance().getValue("environment.additionalPaths"))
 
     return {
         ...originalSpawnOptions,
