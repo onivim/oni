@@ -7,27 +7,108 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
+import * as types from "vscode-languageserver-types"
+
 import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
-import { IScreen } from "./../Screen"
-
+import * as Actions from "./Actions"
+import { events } from "./Events"
+import { ILog } from "./Logs"
 import * as State from "./State"
 
 import * as Config from "./../Config"
-import * as Actions from "./Actions"
-import { events } from "./Events"
-import {ILog} from "./Logs"
+import { IScreen } from "./../Screen"
+import { normalizePath } from "./../Utility"
 
-export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => ({
-    type: "STATUSBAR_SHOW",
+export const setBufferState = (file: string, totalLines: number) => ({
+    type: "SET_BUFFER_STATE",
     payload: {
-        id,
-        contents,
-        alignment,
-        priority,
+        file: normalizePath(file),
+        totalLines,
     },
 })
+
+export const setWindowState = (windowId: number, file: string, column: number, line: number, winline: number, wincolumn: number, windowTopLine: number, windowBottomLine: number) => ({
+    type: "SET_WINDOW_STATE",
+    payload: {
+        windowId,
+        file: normalizePath(file),
+        column,
+        line,
+        winline,
+        wincolumn,
+        windowTopLine,
+        windowBottomLine,
+    },
+})
+
+export const setWindowLineMapping = (windowId: number, lineMapping: State.WindowLineMap) => ({
+    type: "SET_WINDOW_LINE_MAP",
+    payload: {
+        windowId,
+        lineMapping,
+    },
+})
+
+export const setWindowDimensions = (windowId: number, dimensions: Rectangle) => ({
+    type: "SET_WINDOW_DIMENSIONS",
+    payload: {
+        windowId,
+        dimensions,
+    },
+})
+
+export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({
+    type: "SET_ERRORS",
+    payload: {
+        file: normalizePath(file),
+        key,
+        errors,
+    },
+})
+
+export const clearErrors = (file: string, key: string) => ({
+    type: "CLEAR_ERRORS",
+    payload: {
+        file,
+        key,
+    },
+})
+
+export const showMessageDialog = (messageType: State.MessageType, text: string, buttons: State.IMessageDialogButton[], details?: string): Actions.IShowMessageDialog => ({
+    type: "SHOW_MESSAGE_DIALOG",
+    payload: {
+        messageType,
+        text,
+        buttons,
+        details,
+    },
+})
+
+export const hideMessageDialog = (): Actions.IHideMessageDialog => ({
+    type: "HIDE_MESSAGE_DIALOG",
+})
+
+export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => (dispatch: Function, getState: Function) => {
+
+    const currentStatusBarItem = getState().statusBar[id]
+
+    if (currentStatusBarItem) {
+        alignment = alignment || currentStatusBarItem.alignment
+        priority = priority || currentStatusBarItem.priority
+    }
+
+    dispatch({
+        type: "STATUSBAR_SHOW",
+        payload: {
+            id,
+            contents,
+            alignment,
+            priority,
+        },
+    })
+}
 
 export const hideStatusBarItem = (id: string) => ({
     type: "STATUSBAR_HIDE",
@@ -82,11 +163,6 @@ export const setColors = (foregroundColor: string, backgroundColor: string) => (
 
     dispatch(_setColors(foregroundColor, backgroundColor))
 }
-
-export const setActiveWindowDimensions = (dimensions: Rectangle) => ({
-    type: "SET_ACTIVE_WINDOW_DIMENSIONS",
-    payload: { dimensions },
-})
 
 export const setMode = (mode: string) => ({
     type: "SET_MODE",
@@ -205,15 +281,15 @@ export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Co
 }
 export const toggleLogFold = (index: number): Actions.IToggleLogFold => ({
     type: "TOGGLE_LOG_FOLD",
-    payload: {index},
+    payload: { index },
 })
 export const changeLogsVisibility = (visibility: boolean): Actions.IChangeLogsVisibility => ({
     type: "CHANGE_LOGS_VISIBILITY",
-    payload: {visibility},
+    payload: { visibility },
 })
 export const makeLog = (log: ILog): Actions.IMakeLog => ({
     type: "MAKE_LOG",
-    payload: {log},
+    payload: { log },
 })
 
 const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({

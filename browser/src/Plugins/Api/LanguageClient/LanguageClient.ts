@@ -11,7 +11,7 @@ import * as _ from "lodash"
 import * as rpc from "vscode-jsonrpc"
 import * as types from "vscode-languageserver-types"
 
-import { ChildProcess, spawn } from "child_process"
+import { ChildProcess } from "child_process"
 
 import { getCompletionMeet } from "./../../../Services/AutoCompletionUtility"
 import { Oni } from "./../Oni"
@@ -19,6 +19,7 @@ import { Oni } from "./../Oni"
 import * as Helpers from "./LanguageClientHelpers"
 import { LanguageClientLogger } from "./LanguageClientLogger"
 
+const characterMatchRegex = /[_a-z]/i
 /**
  * Options for starting the Language Server process
  */
@@ -48,6 +49,10 @@ export interface ServerRunOptions {
 export interface LanguageClientInitializationParams {
     clientName: string
     rootPath: string
+
+    // Disable `textDocument/documentSymbol` requests, even if the LSP
+    // supports it.
+    disableDocumentSymbol?: boolean
 }
 
 /**
@@ -57,6 +62,8 @@ export interface LanguageClientInitializationParams {
 export interface InitializationParamsCreator {
     (filePath: string): Promise<LanguageClientInitializationParams>
 }
+
+import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
 
 /**
  * Implementation of a client that talks to a server 
@@ -72,6 +79,8 @@ export class LanguageClient {
     private _initializationParams: LanguageClientInitializationParams
     private _serverCapabilities: Helpers.ServerCapabilities
 
+    private _statusBar: LanguageClientStatusBar
+
     constructor(
         private _startOptions: ServerRunOptions,
         private _initializationParamsCreator: InitializationParamsCreator,
@@ -79,7 +88,11 @@ export class LanguageClient {
 
         this._currentPromise = Promise.resolve(null)
 
+        this._statusBar = new LanguageClientStatusBar(this._oni)
+
         this._oni.on("buffer-enter", (args: Oni.EventContext) => {
+            this._statusBar.show(args.filetype)
+            this._statusBar.setStatus(LanguageClientState.Initializing)
             this._enqueuePromise(() => {
                 return this._initializationParamsCreator(args.bufferFullPath)
                     .then((newParams: LanguageClientInitializationParams) => {
@@ -103,10 +116,16 @@ export class LanguageClient {
 
         this._oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdate(args))
+                .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
+        })
+
+        this._oni.on("buffer-leave", (args: Oni.EventContext) => {
+            this._statusBar.hide()
         })
 
         this._oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdateIncremental(args))
+                .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
         })
 
         const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
@@ -121,7 +140,12 @@ export class LanguageClient {
             return this._enqueuePromise(() => this._getCompletions(textDocumentPosition))
         }
 
+        const findAllReferences = (textDocumentPosition: Oni.EventContext) => {
+            return this._enqueuePromise(() => this._getReferences(textDocumentPosition))
+        }
+
         this._oni.registerLanguageService({
+            findAllReferences,
             getCompletions,
             getDefinition,
             getQuickInfo,
@@ -131,13 +155,36 @@ export class LanguageClient {
     public start(initializationParams: LanguageClientInitializationParams): Thenable<any> {
         const startArgs = this._startOptions.args || []
 
+        const options = {
+            cwd: process.cwd(),
+        }
+
         if (this._startOptions.command) {
-            this._process = spawn(this._startOptions.command, startArgs)
+            console.log(`[LANGUAGE CLIENT]: Starting process via '${this._startOptions.command}'`) // tslint:disable-line no-console
+            this._process = this._oni.process.spawnProcess(this._startOptions.command, startArgs, options)
         } else if (this._startOptions.module) {
-            this._process = this._oni.spawnNodeScript(this._startOptions.module, startArgs)
+            console.log(`[LANGUAGE CLIENT]: Starting process via node script '${this._startOptions.module}'`) // tslint:disable-line no-console
+            this._process = this._oni.process.spawnNodeScript(this._startOptions.module, startArgs, options)
         } else {
             throw "A command or module must be specified to start the server"
         }
+
+        if (!this._process || !this._process.pid) {
+            console.error("[LANGUAGE CLIENT]: Unable to start language server process.") // tslint:disable-line no-console
+            this._statusBar.setStatus(LanguageClientState.Error)
+            return Promise.reject(null)
+        }
+
+        console.log(`[LANGUAGE CLIENT]: Started process ${this._process.pid}`) // tslint:disable-line no-console
+
+        this._process.on("close", (code: number, signal: string) => {
+            console.warn(`[LANGUAGE CLIENT]: Process closed with exit code ${code} and signal ${signal}`) // tslint:disable-line no-console
+        })
+
+        this._process.stderr.on("data", (msg) => {
+            console.error(`[LANGUAGE CLIENT - ERROR]: ${msg}`) // tslint:disable-line no-console
+            this._statusBar.setStatus(LanguageClientState.Error)
+        })
 
         this._connection = rpc.createMessageConnection(
             <any>(new rpc.StreamMessageReader(this._process.stdout)),
@@ -163,27 +210,33 @@ export class LanguageClient {
         this._connection.onNotification(Helpers.ProtocolConstants.TextDocument.PublishDiagnostics, (args) => {
             const diagnostics: types.Diagnostic[] = args.diagnostics
 
-            const oniDiagnostics = diagnostics.map((d) => ({
-                type: null,
-                text: d.message,
-                lineNumber: d.range.start.line + 1,
-                startColumn: d.range.start.character + 1,
-                endColumn: d.range.end.character + 1,
-            }))
-
-            this._oni.diagnostics.setErrors(this._initializationParams.clientName, Helpers.unwrapFileUriPath(args.uri), oniDiagnostics, "red")
+            this._oni.diagnostics.setErrors(this._initializationParams.clientName, Helpers.unwrapFileUriPath(args.uri), diagnostics)
         })
 
         // Register additional notifications here
         this._connection.listen()
 
-        return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, initializationParams)
+        const { clientName, rootPath } = initializationParams
+
+        const oniLanguageClientParams = {
+            clientName,
+            rootPath,
+            capabilities: {
+                highlightProvider: true,
+            },
+        }
+
+        return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, oniLanguageClientParams)
             .then((response: any) => {
+                this._statusBar.setStatus(LanguageClientState.Initialized)
                 console.log(`[LANGUAGE CLIENT: ${initializationParams.clientName}]: Initialized`) // tslint:disable-line no-console
                 if (response && response.capabilities) {
                     this._serverCapabilities = response.capabilities
                 }
-            }, (err) => console.error(err))
+            }, (err) => {
+                this._statusBar.setStatus(LanguageClientState.Error)
+                console.error(err)
+            })
     }
 
     public end(): Promise<void> {
@@ -209,6 +262,7 @@ export class LanguageClient {
             .then(() => promiseExecutor(),
             (err) => {
                 console.error(err)
+                this._statusBar.setStatus(LanguageClientState.Error)
                 return promiseExecutor()
             })
 
@@ -216,33 +270,125 @@ export class LanguageClient {
         return newPromise
     }
 
-    private _getCompletions(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.CompletionResult> {
+    private _getCompletionItems(items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[] {
+        if (!items) {
+            return []
+        }
 
-        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.Completion,
+        if (Array.isArray(items)) {
+            return items
+        } else {
+            return items.items || []
+        }
+    }
+
+    private _getCompletionDocumentation(item: types.CompletionItem): string | null {
+        if (item.documentation) {
+            return item.documentation
+        } else if (item.data && item.data.documentation) {
+            return item.data.documentation
+        } else {
+            return null
+        }
+    }
+
+    private async _getReferences(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.ReferencesResult> {
+        const args = {
+            ...Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition),
+            context: {
+                includeDeclaration: true,
+            },
+        }
+
+        const result = await this._connection.sendRequest<types.Location[]>(
+            Helpers.ProtocolConstants.TextDocument.References,
+            args)
+
+        const getToken = (buffer: string[], line: number, character: number): string => {
+            const lineContents = buffer[line]
+
+            const tokenStart = getLastMatchingCharacter(lineContents, character, -1, characterMatchRegex)
+            const tokenEnd = getLastMatchingCharacter(lineContents, character, 1, characterMatchRegex)
+
+            return lineContents.substring(tokenStart, tokenEnd + 1)
+        }
+
+        const getLastMatchingCharacter = (lineContents: string, character: number, dir: number, regex: RegExp) => {
+            while (character >= 0 && character < lineContents.length) {
+                if (!lineContents[character].match(regex)) {
+                    return character - dir
+                }
+
+                character += dir
+            }
+
+            return character
+        }
+
+        const locationToReferences = (location: types.Location): Oni.Plugin.ReferencesResultItem => ({
+            fullPath: Helpers.unwrapFileUriPath(location.uri),
+            line: location.range.start.line,
+            column: location.range.start.character,
+        })
+
+        return {
+            tokenName: getToken(this._currentBuffer, textDocumentPosition.line - 1, textDocumentPosition.column - 1),
+            items: result.map((l) => locationToReferences(l)),
+        }
+    }
+
+    private async _getCompletions(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.CompletionResult> {
+        if (!this._serverCapabilities || !this._serverCapabilities.completionProvider) {
+            return null
+        }
+
+        let result = await this._connection.sendRequest<types.CompletionList>(
+            Helpers.ProtocolConstants.TextDocument.Completion,
             Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
-            .then((result: types.CompletionList) => {
 
-                const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
-                const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, /[_a-z]/i)
+        const items = this._getCompletionItems(result)
 
-                if (!meetInfo) {
-                    return { base: "", completions: [] }
-                }
+        if (!items) {
+            return { base: "", completions: [] }
+        }
 
-                const filteredItems = result.items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
+        const currentLine = this._currentBuffer[textDocumentPosition.line - 1]
+        const meetInfo = getCompletionMeet(currentLine, textDocumentPosition.column, characterMatchRegex)
 
-                const completions = filteredItems.map((i) => ({
-                    label: i.label,
-                    detail: i.detail,
-                    documentation: i.documentation,
-                    kind: i.kind,
-                }))
+        if (!meetInfo) {
+            return { base: "", completions: [] }
+        }
 
-                return {
-                    base: meetInfo.base,
-                    completions,
-                }
-            })
+        const filteredItems = items.filter((item) => item.label.indexOf(meetInfo.base) === 0)
+
+        const completions = filteredItems.map((i) => ({
+            label: i.label,
+            detail: i.detail,
+            documentation: this._getCompletionDocumentation(i),
+            kind: i.kind,
+        }))
+
+        return {
+            base: meetInfo.base,
+            completions,
+        }
+    }
+
+    private async _updateHighlights(bufferFullPath: string): Promise<void> {
+        if (!this._serverCapabilities || !this._serverCapabilities.documentSymbolProvider) {
+            return null
+        }
+
+        if (!this._initializationParams || this._initializationParams.disableDocumentSymbol) {
+            return null
+        }
+
+        let symbolInformation = await this._connection.sendRequest<types.SymbolInformation[]>(
+            Helpers.ProtocolConstants.TextDocument.DocumentSymbol,
+            Helpers.pathToTextDocumentIdentifierParms(bufferFullPath))
+
+        const oniHighlights: Oni.Plugin.SyntaxHighlight[] = symbolInformation.map((v) => ({ highlightKind: v.kind, token: v.name }))
+        this._oni.setHighlights(bufferFullPath, "language-client", oniHighlights)
     }
 
     private _getQuickInfo(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.QuickInfo> {
@@ -290,7 +436,12 @@ export class LanguageClient {
                     return null
                 }
 
+                if (result.length === 0) {
+                    return null
+                }
+
                 let location: types.Location = result
+
                 if (result.length) {
                     location = result[0]
                 }

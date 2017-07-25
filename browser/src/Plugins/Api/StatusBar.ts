@@ -26,8 +26,8 @@ export class StatusBarItem implements Oni.StatusBarItem {
     constructor(
         private _channel: IPluginChannel,
         private _id: string,
-        private _alignment: StatusBarAlignment,
-        private _priority: number,
+        private _alignment?: StatusBarAlignment | null,
+        private _priority?: number | null,
     ) { }
 
     public show(): void {
@@ -42,11 +42,6 @@ export class StatusBarItem implements Oni.StatusBarItem {
 
     public setContents(element: any): void {
         this._contents = element
-        // if (typeof element === "string") {
-        //     this._contents = element
-        // } else {
-        //     this._contents = element.outerHTML
-        // }
 
         if (this._visible) {
             this.show()
@@ -65,10 +60,14 @@ export class StatusBar implements Oni.StatusBar {
         private _channel: IPluginChannel,
     ) { }
 
-    public createItem(alignment: StatusBarAlignment, priority: number = 0): Oni.StatusBarItem {
+    public getItem(globalId: string): Oni.StatusBarItem {
+        return new StatusBarItem(this._channel, globalId)
+    }
+
+    public createItem(alignment: StatusBarAlignment, priority: number = 0, globalId?: string): Oni.StatusBarItem {
         this._id++
 
-        const statusBarId = `${this._channel.metadata.name}${this._id.toString()}`
+        const statusBarId = globalId || `${this._channel.metadata.name}${this._id.toString()}`
 
         return new StatusBarItem(this._channel, statusBarId, alignment, priority)
     }

@@ -2,8 +2,6 @@ import * as React from "react"
 
 import { AutoCompletionContainer } from "./components/AutoCompletion"
 import { Background } from "./components/Background"
-import { Cursor } from "./components/Cursor"
-import { CursorLine } from "./components/CursorLine"
 import { EditorHost } from "./components/EditorHost"
 import { Logs } from "./components/Logs"
 import { MenuContainer } from "./components/Menu"
@@ -19,20 +17,17 @@ interface IRootComponentProps {
 export class RootComponent extends React.Component<IRootComponentProps, void> {
     public render() {
 
-        return <div className="stack">
+        return <div className="stack disable-mouse">
             <div className="stack">
                 <Background />
             </div>
             <div className="stack">
                 <div className="container vertical full">
                     <div className="container full">
-                        <div className="stack layer">
+                        <div className="stack">
                             <EditorHost editor={this.props.editor} />
                         </div>
                         <div className="stack layer">
-                            <Cursor />
-                            <CursorLine lineType={"line"} />
-                            <CursorLine lineType={"column"} />
                             <QuickInfoContainer />
                             <SignatureHelpContainer />
                             <AutoCompletionContainer />

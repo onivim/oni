@@ -24,6 +24,7 @@
         - [C#](#c)
         - [Go](#go)
         - [Python](#python)
+        - [Reason and OCaml](#reason-and-ocaml)
     - [Configuration](#configuration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
@@ -79,17 +80,17 @@ Windows & OSX releases come with a bundled Neovim release.
 
 ### Windows
 
-- Download the [Oni installer](https://github.com/extr0py/oni/releases/download/v0.2.5/Oni-0.2.5-ia32-win.exe) for Windows
+- Download the [Oni installer](https://github.com/extr0py/oni/releases/download/v0.2.6/Oni-0.2.6-ia32-win.exe) for Windows
 - Once it is downloaded, run the installer. This will only take a minute.
 - By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine. 
 
-You can also find install via a [zip archive](https://github.com/extr0py/oni/releases/download/v0.2.5/Oni-0.2.5-ia32-win.zip)
+You can also find install via a [zip archive](https://github.com/extr0py/oni/releases/download/v0.2.6/Oni-0.2.6-ia32-win.zip)
 
 > You may want to add Oni to your `%PATH%`, so that from the console, you can open Oni via `oni`
 
 ### Mac
 
-- Download [Oni](https://github.com/extr0py/oni/releases/download/v0.2.5/Oni-0.2.5-osx.dmg) for Mac
+- Download [Oni](https://github.com/extr0py/oni/releases/download/v0.2.6/Oni-0.2.6-osx.dmg) for Mac
 - Double-click on the archive to expand
 - Drag `Oni.app` to the `Applications` folder
 
@@ -99,19 +100,19 @@ You can also find install via a [zip archive](https://github.com/extr0py/oni/rel
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.5/oni_0.2.5_amd64.deb)
+- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.6/oni_0.2.6_amd64.deb)
 - Install the package with `sudo dpkg -i <file>.deb`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.5/oni-0.2.5.tar.gz) is also available.
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.6/oni-0.2.6.tar.gz) is also available.
 
 #### Red Hat based distributions (Fedora, CentOS)
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-- Download the [.rpm package](https://github.com/extr0py/oni/releases/download/v0.2.5/oni-0.2.5.rpm)
+- Download the [.rpm package](https://github.com/extr0py/oni/releases/download/v0.2.6/oni-0.2.6.rpm)
 - Install the package with `sudo dnf install <file>.rpm`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.5/oni-0.2.5.tar.gz) is also available.
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.6/oni-0.2.6.tar.gz) is also available.
 
 ### Build
 
@@ -303,6 +304,29 @@ _Known Issues_
 
 - Windows support is blocked by this issue: [palantir/python-language-server#53](https://github.com/palantir/python-language-server/issues/53).
 
+#### Reason and OCaml
+
+_Configuration_
+
+Reason and OCaml support depends on [ocaml-language-server](https://github.com/freebroccolo/ocaml-language-server) by @freebroccolo.
+
+You will need to build the language server locally, as the currently published NPM package is out-of-date:
+1. Install [requirements](https://github.com/freebroccolo/ocaml-language-server#requirements)
+2. `git clone https://github.com/freebroccolo/ocaml-language-server.git`
+3. `cd ocaml-language-server`
+4. `yarn install`
+5. `yarn run compile`
+6. `npm link`
+
+> __NOTE:__ Once the NPM package is updated with a fix for [#22](https://github.com/freebroccolo/ocaml-language-server/issues/22), steps 2-6 can be replaced with `npm install -g ocaml-language-server`.
+
+_Supported Language features_
+
+| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
+| --- | --- | --- | --- | --- | --- |--- | --- |
+| Y | Y | N | Y | Y | N | N | N |
+
+
 ### Configuration
 
 > ONI is configurable via a 'config.js' located in $HOME/.oni
@@ -329,6 +353,8 @@ A few interesting configuration options to set:
 - `editor.fontLigatures` - (default: `true`). If true, ligatures are enabled.
 - `editor.backgroundImageUrl` - specific a custom background image
 - `editor.backgroundImageSize` - specific a custom background size (cover, contain)
+- `editor.scrollBar.visible` - (default: `true`) sets whether the buffer scrollbar is visible
+- `environment.additionalPaths` - (default: `[] on Windows, ['/usr/bin', '/usr/local/bin'] on OSX and Linux`). Sets additional paths for binaries. This may be necessary to configure, if using plugins or a Language Server that is not in the default set of runtime paths. Note that depending on where you launch Oni, there may be a different set of runtime paths sent to it - you can always check by opening the developer tools and running `process.env.PATH` in the console.
 
 See the `Config.ts` file for other interesting values to set.
 
@@ -394,11 +420,18 @@ See [roadmap](ROADMAP.md)
 
 MIT License. Copyright (c) extropygames
 
-The bundled plugins have their own license terms, along with the bundled Neovim binary
-
 There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
 
 Windows and OSX have a bundled version of Neovim, which is covered under [Neovim's license](https://github.com/neovim/neovim/blob/master/LICENSE)
+
+#### Bundled Plugins
+
+Bundled plugins have their own license terms. These include:
+- [typescript-vim](https://github.com/leafgarland/typescript-vim) (`oni/vim/core/typescript.vim`)
+- [targets.vim](https://github.com/wellle/targets.vim) (`oni/vim/default/bundle/targets.vim`)
+- [vim-commentary](https://github.com/tpope/vim-commentary) (`oni/vim/default/bundle/vim-commentary`)
+- [vim-unimpaired](https://github.com/tpope/vim-unimpaired) (`oni/vim/default/bundle/vim-unimpaired`)
+- [vim-reasonml](https://github.com/reasonml-editor/vim-reason) (`.vim` files in `oni/vim/core/oni-plugin-reasonml`)
 
 ## Contributing
 

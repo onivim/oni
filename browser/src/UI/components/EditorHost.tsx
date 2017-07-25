@@ -13,18 +13,11 @@ export interface IEditorHostProps {
 }
 
 export class EditorHost extends React.Component<IEditorHostProps, void> {
-    private _element: HTMLDivElement
-
-    public componentDidMount(): void {
-        if (this._element) {
-            this.props.editor.render(this._element)
-        }
-    }
 
     public render(): JSX.Element {
         return <div className="container vertical full">
             <div className="container fixed">
-                <div className="tabs horizontal">
+                <div className="tabs horizontal enable-mouse">
                     <div className="tab not-selected">
                         <div className="name">App.ts</div>
                     </div>
@@ -37,7 +30,9 @@ export class EditorHost extends React.Component<IEditorHostProps, void> {
                 </div>
             </div>
             <div className="container full">
-                <div ref={(elem) => this._element = elem} className="editor"></div>
+                <div className="editor">
+                    {this.props.editor.render()}
+                </div>
             </div>
         </div>
     }

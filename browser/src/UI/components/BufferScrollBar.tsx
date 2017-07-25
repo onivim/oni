@@ -1,5 +1,11 @@
 import * as React from "react"
-import * as ReactDOM from "react-dom"
+import * as types from "vscode-languageserver-types"
+
+import { connect } from "react-redux"
+import * as Selectors from "./../Selectors"
+import * as State from "./../State"
+
+import { getColorFromSeverity } from "./../../Services/Errors"
 
 require("./BufferScrollBar.less") // tslint:disable-line no-var-requires
 
@@ -9,6 +15,7 @@ export interface IBufferScrollBarProps {
     windowTopLine: number
     windowBottomLine: number
     markers: IScrollBarMarker[]
+    visible: boolean
 }
 
 export interface IScrollBarMarker {
@@ -17,13 +24,18 @@ export interface IScrollBarMarker {
     color: string
 }
 
-export class BufferScrollBar extends React.Component<IBufferScrollBarProps, void> {
+export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, void> {
 
     constructor(props: any) {
         super(props)
     }
 
     public render(): JSX.Element {
+
+        if (!this.props.visible) {
+            return null
+        }
+
         const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine + 1) / this.props.bufferSize) * this.props.height
         const windowTop = ((this.props.windowTopLine - 1) / this.props.bufferSize) * this.props.height
 
@@ -57,6 +69,55 @@ export class BufferScrollBar extends React.Component<IBufferScrollBarProps, void
     }
 }
 
-export function renderBufferScrollBar(props: IBufferScrollBarProps, element: HTMLElement) {
-    ReactDOM.render(<BufferScrollBar {...props} />, element)
+const NoScrollBar: IBufferScrollBarProps = {
+    windowTopLine: 0,
+    windowBottomLine: 0,
+    bufferSize: 0,
+    markers: [],
+    height: 0,
+    visible: false,
 }
+
+const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
+    const visible = state.configuration["editor.scrollBar.visible"]
+
+    const activeWindow = Selectors.getActiveWindow(state)
+
+    if (!activeWindow) {
+        return NoScrollBar
+    }
+
+    const dimensions = Selectors.getActiveWindowDimensions(state)
+
+    const file = activeWindow.file
+
+    if (file === null || !state.buffers[file]) {
+        return NoScrollBar
+    }
+
+    const errors = Selectors.getAllErrorsForFile(file, state)
+    const bufferSize = state.buffers[file].totalLines
+
+    const errorMarkers = errors.map((e: types.Diagnostic) => ({
+        line: e.range.start.line || 0,
+        height: 1,
+        color: getColorFromSeverity(e.severity),
+    }))
+
+    const cursorMarker: IScrollBarMarker = {
+        line: activeWindow.line,
+        height: 1,
+        color: "rgb(200, 200, 200)",
+    }
+
+    return {
+        windowTopLine: activeWindow.windowTopLine,
+        windowBottomLine: activeWindow.windowBottomLine,
+        bufferSize,
+        markers: [...errorMarkers, cursorMarker],
+        height: dimensions.height,
+        visible,
+    }
+}
+
+export const ConnectedBufferScrollBar = connect(mapStateToProps)(BufferScrollBar)

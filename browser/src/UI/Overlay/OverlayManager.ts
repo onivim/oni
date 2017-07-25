@@ -2,8 +2,7 @@ import { EventEmitter } from "events"
 
 import * as _ from "lodash"
 
-import { IWindow } from "./../../neovim/Window"
-import { NeovimInstance } from "./../../NeovimInstance"
+import { IWindow, NeovimInstance } from "./../../neovim"
 import { IScreen } from "./../../Screen"
 import { WindowContext } from "./WindowContext"
 
@@ -110,7 +109,7 @@ export class OverlayManager extends EventEmitter {
                     overlayInfo.overlay.update(overlayInfo.element, windowContext)
                 })
 
-                this.emit("current-window-size-changed", dimensionsInPixels)
+                this.emit("current-window-size-changed", dimensionsInPixels, this._lastEventContext.windowNumber)
             })
     }
 }

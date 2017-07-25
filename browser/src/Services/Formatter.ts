@@ -6,7 +6,7 @@
 
 import * as _ from "lodash"
 import * as Config from "./../Config"
-import { INeovimInstance } from "./../NeovimInstance"
+import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { BufferUpdates } from "./BufferUpdates"

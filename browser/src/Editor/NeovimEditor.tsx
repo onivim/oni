@@ -4,16 +4,16 @@
  * IEditor implementation for Neovim
  */
 
-import * as path from "path"
-
 import * as React from "react"
 import * as ReactDOM from "react-dom"
+
+import * as types from "vscode-languageserver-types"
 
 import { ipcRenderer } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
-import { NeovimInstance } from "./../NeovimInstance"
-import { DOMRenderer } from "./../Renderer/DOMRenderer"
+import { NeovimInstance } from "./../neovim"
+import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import * as Config from "./../Config"
@@ -35,46 +35,39 @@ import { Tasks } from "./../Services/Tasks"
 import { WindowTitle } from "./../Services/WindowTitle"
 
 import * as UI from "./../UI/index"
-import { ErrorOverlay } from "./../UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./../UI/Overlay/LiveEvaluationOverlay"
 import { OverlayManager } from "./../UI/Overlay/OverlayManager"
-import { ScrollBarOverlay } from "./../UI/Overlay/ScrollBarOverlay"
 import { Rectangle } from "./../UI/Types"
 
 import { Keyboard } from "./../Input/Keyboard"
-import { Mouse } from "./../Input/Mouse"
-
 import { IEditor } from "./Editor"
 
 import { InstallHelp } from "./../UI/components/InstallHelp"
+
+import { NeovimSurface } from "./NeovimSurface"
 
 export class NeovimEditor implements IEditor {
 
     private _neovimInstance: NeovimInstance
     private _deltaRegionManager: IncrementalDeltaRegionTracker
+    private _renderer: INeovimRenderer
     private _screen: NeovimScreen
 
     private _pendingTimeout: any = null
     private _element: HTMLElement
 
-    private _cursorLine: boolean = false
-    private _cursorColumn: boolean = false
-
     // Services
     private _tasks: Tasks
 
     // Overlays
-    private _errorOverlay: ErrorOverlay
     private _overlayManager: OverlayManager
     private _liveEvaluationOverlay: LiveEvaluationOverlay
-    private _scrollbarOverlay: ScrollBarOverlay
 
     private _errorStartingNeovim: boolean = false
 
     constructor(
         private _commandManager: CommandManager,
         private _pluginManager: PluginManager,
-        private _renderer: DOMRenderer = new DOMRenderer(),
         private _config: Config.Config = Config.instance(),
     ) {
         const services: any[] = []
@@ -82,6 +75,8 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance = new NeovimInstance(this._pluginManager, 100, 100)
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
+
+        this._renderer = this._config.getValue("editor.renderer") === "canvas" ? new CanvasRenderer() : new DOMRenderer()
 
         // Services
         const autoCompletion = new AutoCompletion(this._neovimInstance)
@@ -91,9 +86,9 @@ export class NeovimEditor implements IEditor {
         const windowTitle = new WindowTitle(this._neovimInstance)
         const multiProcess = new MultiProcess()
         const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
-        const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
         const liveEvaluation = new LiveEvaluation(this._neovimInstance, this._pluginManager)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
+        const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
         this._tasks = new Tasks(outputWindow)
         registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
 
@@ -115,14 +110,12 @@ export class NeovimEditor implements IEditor {
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
         this._overlayManager = new OverlayManager(this._screen, this._neovimInstance)
-        this._errorOverlay = new ErrorOverlay()
         this._liveEvaluationOverlay = new LiveEvaluationOverlay()
-        this._scrollbarOverlay = new ScrollBarOverlay()
-        this._overlayManager.addOverlay("errors", this._errorOverlay)
         this._overlayManager.addOverlay("live-eval", this._liveEvaluationOverlay)
-        this._overlayManager.addOverlay("scrollbar", this._scrollbarOverlay)
 
-        this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.Actions.setActiveWindowDimensions(dimensionsInPixels))
+        this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
+            UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
+        })
 
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
         this._pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
@@ -133,18 +126,11 @@ export class NeovimEditor implements IEditor {
             }
         })
 
-        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: any[], color: string) => {
+        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: types.Diagnostic[]) => {
+
+            UI.Actions.setErrors(fileName, key, errors)
+
             errorService.setErrors(fileName, errors)
-
-            color = color || "red"
-            this._errorOverlay.setErrors(key, fileName, errors, color)
-
-            const errorMarkers = errors.map((e: any) => ({
-                line: e.lineNumber,
-                height: 1,
-                color,
-            }))
-            this._scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
         })
 
         liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
@@ -156,7 +142,7 @@ export class NeovimEditor implements IEditor {
                 filename: item.fullPath,
                 lnum: item.line,
                 col: item.column,
-                text: item.lineText,
+                text: item.lineText || references.tokenName,
             })
 
             const quickFixItems = references.items.map((item) => convertToQuickFixItem(item))
@@ -173,12 +159,12 @@ export class NeovimEditor implements IEditor {
             ReactDOM.render(<InstallHelp />, this._element.parentElement)
         })
 
-        this._neovimInstance.on("buffer-update", (context: any, lines: string[]) => {
-            this._scrollbarOverlay.onBufferUpdate(context, lines)
-        })
+        this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any, shouldMeasure: boolean) => {
+            if (shouldMeasure) {
+                this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
+            }
 
-        this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any) => {
-            this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
+            UI.Actions.setWindowLineMapping(eventContext.windowNumber, lineMapping)
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -278,14 +264,27 @@ export class NeovimEditor implements IEditor {
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
         window["__screen"] = screen // tslint:disable-line no-string-literal
 
-        window.addEventListener("resize", () => this._onResize())
-
         ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
             if (message.startsWith(":")) {
                 this._neovimInstance.command("exec \"" + message + "\"")
             } else {
                 this._neovimInstance.command("exec \":normal! " + message + "\"")
             }
+        })
+
+        const normalizePath = (fileName: string) => fileName.split("\\").join("/")
+
+        const openFiles = async (files: string[], action: string) => {
+
+            await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
+
+            for (let i = 1; i < files.length; i++) {
+                this._neovimInstance.command("exec \"" + action + " " + normalizePath(files[i]) + "\"")
+            }
+        }
+
+        ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
+            openFiles(files, message)
         })
 
         // enable opening a file via drag-drop
@@ -297,10 +296,10 @@ export class NeovimEditor implements IEditor {
 
             let files = ev.dataTransfer.files
             // open first file in current editor
-            this._neovimInstance.open(files[0].path.split("\\").join("/"))
+            this._neovimInstance.open(normalizePath(files[0].path))
             // open any subsequent files in new tabs
             for (let i = 1; i < files.length; i++) {
-                this._neovimInstance.command("exec \":tabe " + files.item(i).path.split("\\").join("/") + "\"")
+                this._neovimInstance.command("exec \":tabe " + normalizePath(files.item(i).path) + "\"")
             }
         }
     }
@@ -309,60 +308,39 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.start(filesToOpen)
     }
 
-    public render(element: HTMLDivElement): void {
-        this._element = element
-        this._renderer.start(element)
-
-        this._onResize()
-
-        const mouse = new Mouse(element, this._screen)
-
-        mouse.on("mouse", (mouseInput: string) => {
-            UI.Actions.hideCompletions()
-            this._neovimInstance.input(mouseInput)
-        })
+    public render(): JSX.Element {
+        return <NeovimSurface renderer={this._renderer}
+                neovimInstance={this._neovimInstance}
+                deltaRegionTracker={this._deltaRegionManager}
+                screen={this._screen} />
     }
 
     private _onModeChanged(newMode: string): void {
         UI.Actions.setMode(newMode)
 
         if (newMode === "normal") {
-            if (this._cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                UI.Actions.showCursorLine()
-            }
-            if (this._cursorColumn) {
-                UI.Actions.showCursorColumn()
-            }
+            UI.Actions.showCursorLine()
+            UI.Actions.showCursorColumn()
             UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
         } else if (newMode === "insert") {
             UI.Actions.hideQuickInfo()
-            if (this._cursorLine) { // TODO: Add "unhide" i.e. only show if previously visible
-                UI.Actions.showCursorLine()
-            }
-            if (this._cursorColumn) {
-                UI.Actions.showCursorColumn()
-            }
-        } else if (newMode === "cmdline") {
-            UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
+            UI.Actions.showCursorColumn()
+            UI.Actions.showCursorLine()
+        } else if (newMode.indexOf("cmdline") >= 0) {
             UI.Actions.hideCursorLine()
+            UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
             UI.Actions.hideCompletions()
             UI.Actions.hideQuickInfo()
         }
-
-        // Error overlay
-        if (newMode === "insert") {
-            this._errorOverlay.hideDetails()
-        } else {
-            this._errorOverlay.showDetails()
-        }
     }
 
-    private _onVimEvent(eventName: string, evt: any): void {
+    private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
         // TODO: Can we get rid of these?
-        this._errorOverlay.onVimEvent(eventName, evt)
         this._liveEvaluationOverlay.onVimEvent(eventName, evt)
-        this._scrollbarOverlay.onVimEvent(eventName, evt)
+
+        UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
+        UI.Actions.setBufferState(evt.bufferFullPath, evt.bufferTotalLines)
 
         this._tasks.onEvent(evt)
 
@@ -381,20 +359,6 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onConfigChanged(): void {
-        this._cursorLine = this._config.getValue("editor.cursorLine")
-        this._cursorColumn = this._config.getValue("editor.cursorColumn")
-
-        UI.Actions.setCursorLineOpacity(this._config.getValue("editor.cursorLineOpacity"))
-        UI.Actions.setCursorColumnOpacity(this._config.getValue("editor.cursorColumnOpacity"))
-
-        if (this._cursorLine) {
-            UI.Actions.showCursorLine()
-        }
-
-        if (this._cursorColumn) {
-            UI.Actions.showCursorColumn()
-        }
-
         this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
         this._onUpdate()
     }
@@ -405,18 +369,6 @@ export class NeovimEditor implements IEditor {
         if (!!this._pendingTimeout) {
             clearTimeout(this._pendingTimeout) // FIXME: null
             this._pendingTimeout = null
-        }
-    }
-
-    private _onResize(): void {
-        if (this._element) {
-            const width = this._element.offsetWidth
-            const height = this._element.offsetHeight
-
-            this._deltaRegionManager.dirtyAllCells()
-
-            this._neovimInstance.resize(width, height)
-            this._renderer.onResize()
         }
     }
 

@@ -18,6 +18,7 @@ export const ProtocolConstants = {
         Definition: "textDocument/definition",
         DocumentSymbol: "textDocument/documentSymbol",
         DidChange: "textDocument/didChange",
+        References: "textDocument/references",
         PublishDiagnostics: "textDocument/publishDiagnostics",
     },
     Window: {
@@ -32,10 +33,25 @@ export namespace TextDocumentSyncKind {
     export const Incremental = 2
 }
 
+export interface CompletionOptions {
+    /**
+     * The server provides support to resolve additional
+     * information for a completion item.
+     */
+    resolveProvider?: boolean
+
+    /**
+     * The characters that trigger completion automatically.
+     */
+    triggerCharacters?: string[]
+}
+
 // ServerCapabilities
 // Defined in the LSP protocol: https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md
 export interface ServerCapabilities {
+    completionProvider?: CompletionOptions
     textDocumentSync?: number
+    documentSymbolProvider?: boolean
 }
 
 export const wrapPathInFileUri = (path: string) => getFilePrefix() + path
@@ -62,6 +78,18 @@ export const bufferUpdateToTextDocumentItem = (args: Oni.BufferUpdateContext): t
         text,
     }
 }
+
+export const eventContextToTextDocumentIdentifierParams = (args: Oni.BufferUpdateContext) => ({
+    textDocument: {
+        uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
+    },
+})
+
+export const pathToTextDocumentIdentifierParms = (path: string) => ({
+    textDocument: {
+        uri: wrapPathInFileUri(path),
+    },
+})
 
 export const eventContextToTextDocumentPositionParams = (args: Oni.EventContext) => ({
     textDocument: {
@@ -121,9 +149,9 @@ const splitByNewlines = (str: string) => {
 }
 
 const getFilePrefix = () => {
-     if (process.platform === "win32") {
-         return "file:///"
-     } else {
-         return "file://"
-     }
+    if (process.platform === "win32") {
+        return "file:///"
+    } else {
+        return "file://"
+    }
  }

@@ -2,9 +2,44 @@
  * SyntaxHighlighter.ts
  */
 
-import { IBuffer } from "./../neovim/Buffer"
-import { INeovimInstance } from "./../NeovimInstance"
+import { IBuffer, INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
+
+import { SymbolKind } from "vscode-languageserver-types"
+
+const symbolKindToHighlightString = (kind: SymbolKind): string => {
+    switch (kind) {
+        case SymbolKind.File:
+        case SymbolKind.Module:
+        case SymbolKind.Namespace:
+        case SymbolKind.Package:
+            return "Include"
+        case SymbolKind.Class:
+        case SymbolKind.Interface:
+        case SymbolKind.Enum:
+            return "Type"
+        case SymbolKind.Constructor:
+        case SymbolKind.Method:
+        case SymbolKind.Function:
+            return "Function"
+        case SymbolKind.Property:
+        case SymbolKind.Array:
+            return "Special"
+        case SymbolKind.Variable:
+        case SymbolKind.Field:
+            return "Identifier"
+        case SymbolKind.Constant:
+            return "Constant"
+        case SymbolKind.Number:
+            return "Number"
+        case SymbolKind.String:
+            return "String"
+        case SymbolKind.Boolean:
+            return "Boolean"
+        default:
+            return "Identifier"
+    }
+}
 
 export class SyntaxHighlighter {
     private _neovimInstance: INeovimInstance
@@ -30,15 +65,15 @@ export class SyntaxHighlighter {
                     const highlightKindToKeywords = {}
 
                     highlights.forEach((h) => {
-
                         if (!h.highlightKind) {
                             console.warn("Undefined highlight: ", h)
                             return
                         }
 
-                        const currentValue = highlightKindToKeywords[h.highlightKind] || ""
-                        highlightKindToKeywords[h.highlightKind] = currentValue + " " + h.token
+                        const highlightKind = symbolKindToHighlightString(h.highlightKind)
 
+                        const currentValue = highlightKindToKeywords[highlightKind] || ""
+                        highlightKindToKeywords[highlightKind] = currentValue + " " + h.token
                     })
 
                     return highlightKindToKeywords

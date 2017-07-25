@@ -12,6 +12,10 @@ import { StatusBar } from "./StatusBar"
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient } from "./LanguageClient/LanguageClient"
 
+import { Process } from "./Process"
+import { Services } from "./Services"
+import { Ui } from "./Ui"
+
 const react = require("react") // tslint:disable-line no-var-requires
 
 export class Dependencies {
@@ -32,6 +36,9 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
+    private _ui: Ui
+    private _services: Services
+    private _process: Process
 
     public get commands(): Oni.Commands {
         return this._commands
@@ -53,8 +60,20 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._editor
     }
 
+    public get process(): Oni.Process {
+        return this._process
+    }
+
     public get statusBar(): StatusBar {
         return this._statusBar
+    }
+
+    public get ui(): Ui {
+        return this._ui
+    }
+
+    public get services(): Services {
+        return this._services
     }
 
     constructor(private _channel: IPluginChannel) {
@@ -66,6 +85,9 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._editor = new Editor(this._channel)
         this._commands = new Commands()
         this._statusBar = new StatusBar(this._channel)
+        this._ui = new Ui(react)
+        this._services = new Services()
+        this._process = new Process()
 
         this._channel.onRequest((arg: any) => {
             this._handleNotification(arg)
@@ -81,43 +103,19 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
-        const requiredOptions = {
-            env: {
-                ...process.env,
-                ELECTRON_RUN_AS_NODE: 1,
-            },
-        }
+        console.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead") // tslint:disable-line no-console-log
 
-        const opts = {
-            ...options,
-            ...requiredOptions,
-        }
-
-        const execOptions = [process.execPath, scriptPath].concat(args)
-        const execString = execOptions.map((s) => `"${s}"`).join(" ")
-
-        return ChildProcess.exec(execString, opts, callback)
+        return this._process.execNodeScript(scriptPath, args, options, callback)
     }
 
     /**
      * Wrapper around `child_process.exec` to run using electron as opposed to node
      */
     public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
-        const requiredOptions = {
-            env: {
-                ...process.env,
-                ELECTRON_RUN_AS_NODE: 1,
-            },
-        }
 
-        const opts = {
-            ...options,
-            ...requiredOptions,
-        }
+        console.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead") // tslint:disable-line no-console-log
 
-        const allArgs = [scriptPath].concat(args)
-
-        return ChildProcess.spawn(process.execPath, allArgs, opts)
+        return this._process.spawnNodeScript(scriptPath, args, options)
     }
 
     public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {
@@ -144,19 +142,17 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
             if (arg.payload.name === "CursorMoved") {
                 this.emit("cursor-moved", arg.payload.context)
-                this.emit("CursorMoved", arg.payload.context)
             } else if (arg.payload.name === "CursorMovedI") {
                 this.emit("cursor-moved", arg.payload.context)
-                this.emit("CursorMovedI", arg.payload.context)
             } else if (arg.payload.name === "BufWritePost") {
                 this.emit("buffer-saved", arg.payload.context)
-                this.emit("BufWritePost", arg.payload.context)
             } else if (arg.payload.name === "BufEnter") {
                 this.emit("buffer-enter", arg.payload.context)
-                this.emit("BufEnter", arg.payload.context)
-            } else {
-                this.emit(arg.payload.name, arg.payload.context)
+            } else if (arg.payload.name === "BufLeave") {
+                this.emit("buffer-leave", arg.payload.context)
             }
+
+            this.emit(arg.payload.name, arg.payload.context)
         } else if (arg.type === "command") {
             this._commands.onCommand(arg.payload.command, arg.payload.args)
         } else if (arg.type === "request") {
@@ -178,6 +174,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                                     info: quickInfo.title,
                                     documentation: quickInfo.description,
                                 })
+                            } else {
+                                this._channel.send("clear-quick-info", originalContext, null)
                             }
                         }, (err) => {
                             this._channel.sendError("show-quick-info", originalContext, err)

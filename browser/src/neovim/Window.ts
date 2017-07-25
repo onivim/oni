@@ -1,10 +1,9 @@
-import * as Q from "q"
-
-import { SessionWrapper } from "./SessionWrapper"
+import * as msgpack from "./MsgPack"
+import { Session } from "./Session"
 
 export interface IWindow {
-    isValid(): Q.Promise<boolean>
-    getDimensions(): Q.Promise<IWindowDimensions>
+    isValid(): Promise<boolean>
+    getDimensions(): Promise<IWindowDimensions>
 }
 
 export interface IWindowPosition {
@@ -18,36 +17,34 @@ export interface IWindowDimensions extends IWindowPosition {
 }
 
 export class Window implements IWindow {
-    private _windowInstance: any
-    private _sessionWrapper: SessionWrapper
 
-    constructor(windowInstance: any) {
-        this._windowInstance = windowInstance
-        this._sessionWrapper = new SessionWrapper(this._windowInstance._session)
+    constructor(
+        private _windowReference: msgpack.NeovimWindowReference,
+        private _session: Session,
+    ) { }
+
+    public isValid(): Promise<boolean> {
+        return this._session.request<boolean>("nvim_win_is_valid", [this._windowReference])
     }
 
-    public isValid(): Q.Promise<boolean> {
-        return this._sessionWrapper.invoke<boolean>("nvim_win_is_valid", [this._windowInstance])
-    }
-
-    public getPosition(): Q.Promise<IWindowPosition> {
-        return this._sessionWrapper.invoke<number[]>("nvim_win_get_position", [this._windowInstance])
+    public getPosition(): Promise<IWindowPosition> {
+        return this._session.request<number[]>("nvim_win_get_position", [this._windowReference])
             .then((pos: number[]) => ({
                 row: pos[0],
                 col: pos[1],
             }))
     }
 
-    public getWidth(): Q.Promise<number> {
-        return this._sessionWrapper.invoke<number>("nvim_win_get_width", [this._windowInstance])
+    public getWidth(): Promise<number> {
+        return this._session.request<number>("nvim_win_get_width", [this._windowReference])
     }
 
-    public getHeight(): Q.Promise<number> {
-        return this._sessionWrapper.invoke<number>("nvim_win_get_height", [this._windowInstance])
+    public getHeight(): Promise<number> {
+        return this._session.request<number>("nvim_win_get_height", [this._windowReference])
     }
 
-    public getDimensions(): Q.Promise<IWindowDimensions> {
-        return Q.all([this.getPosition(), this.getWidth(), this.getHeight()])
+    public getDimensions(): Promise<IWindowDimensions> {
+        return Promise.all([this.getPosition(), this.getWidth(), this.getHeight()])
             .then((val: any) => {
                 return {
                     row: val[0].row,

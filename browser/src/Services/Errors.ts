@@ -1,45 +1,52 @@
 import * as _ from "lodash"
-import * as Q from "q"
 
-import { INeovimInstance } from "./../NeovimInstance"
-import * as Performance from "./../Performance"
+import { INeovimInstance } from "./../neovim"
 
 import { ITask, ITaskProvider } from "./Tasks"
+
+import * as types from "vscode-languageserver-types"
 
 /**
  * Window that shows terminal output
  */
 
+export const getColorFromSeverity = (severity: types.DiagnosticSeverity): string => {
+    switch (severity) {
+        case types.DiagnosticSeverity.Error:
+            return "red"
+        case types.DiagnosticSeverity.Warning:
+            return "yellow"
+        case types.DiagnosticSeverity.Information:
+        case types.DiagnosticSeverity.Hint:
+        default:
+            return "gray"
+    }
+}
+
 export class Errors implements ITaskProvider {
     private _neovimInstance: INeovimInstance
-    private _errors: { [fileName: string]: Oni.Plugin.Diagnostics.Error[] } = {}
-    private _debouncedSetQuickFix: () => void
+    private _errors: { [fileName: string]: types.Diagnostic[] } = {}
 
     constructor(neovimInstance: INeovimInstance) {
         this._neovimInstance = neovimInstance
-
-        this._debouncedSetQuickFix = _.debounce(() => {
-            Performance.mark("_setQuickFixErrors - begin")
-            this._setQuickFixErrors()
-            Performance.mark("_setQuickFixErrors - end")
-        }, 250)
     }
 
-    public setErrors(fileName: string, errors: Oni.Plugin.Diagnostics.Error[]) {
+    public setErrors(fileName: string, errors: types.Diagnostic[]) {
         this._errors[fileName] = errors
-
-        this._debouncedSetQuickFix()
     }
 
-    public getTasks(): Q.Promise<ITask[]> {
+    public getTasks(): Promise<ITask[]> {
         const showErrorTask: ITask = {
             name: "Show Errors",
             detail: "Open quickfix window and show error details",
-            callback: () => this._neovimInstance.command("copen"),
+            callback: () => {
+                this._setQuickFixErrors()
+                this._neovimInstance.command("copen")
+            },
         }
 
         const tasks = [showErrorTask]
-        return Q(tasks)
+        return Promise.resolve(tasks)
     }
 
     private _setQuickFixErrors(): void {
@@ -53,9 +60,9 @@ export class Errors implements ITaskProvider {
         const flattenedErrors = _.flatten(arrayOfErrors)
         const errors = flattenedErrors.map((e) => <any>({
             filename: e.filename,
-            col: e.startColumn || 0,
-            lnum: e.lineNumber,
-            text: e.text,
+            col: e.range.start.character || 0,
+            lnum: e.range.start.line + 1,
+            text: e.message,
         }))
 
         this._neovimInstance.quickFix.setqflist(errors, "Errors", " ")

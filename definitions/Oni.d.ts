@@ -1,3 +1,4 @@
+import * as ChildProcess from "child_process"
 import { EventEmitter } from "events"
 
 import * as types from "vscode-languageserver-types"
@@ -26,13 +27,20 @@ declare namespace Oni {
     }
 
     export interface StatusBar {
-        createItem(alignment: number, priority: number): StatusBarItem
+        getItem(globalId?: string): StatusBarItem
+        createItem(alignment: number, priority: number, globalId?: string): StatusBarItem
+    }
+
+    export interface Process {
+        execNodeScript(scriptPath: string, args?: string[], options?: ChildProcess.ExecOptions, callback?: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess
+        spawnNodeScript(scriptPath: string, args?: string[], options?: ChildProcess.SpawnOptions): ChildProcess.ChildProcess
+        spawnProcess(startCommand: string, args?: string[], options?: ChildProcess.SpawnOptions): ChildProcess.ChildProcess
     }
 
     export interface StatusBarItem {
         show(): void
         hide(): void
-        setContents(element: HTMLElement): void
+        setContents(element: JSX.Element): void
         dispose(): void
     }
 
@@ -122,17 +130,8 @@ declare namespace Oni {
 
     export namespace Plugin {
         export namespace Diagnostics {
-            export interface Error {
-                type: string
-                text: string
-
-                lineNumber: number
-                startColumn?: number
-                endColumn?: number
-            }
-
             export interface Api {
-                setErrors(key: string, fileName: string, errors: Error[], color?: string)
+                setErrors(key: string, fileName: string, errors: types.Diagnostic[])
                 clearErrors(key: string)
             }
         }
@@ -158,6 +157,7 @@ declare namespace Oni {
             configuration: Configuration
             diagnostics: Diagnostics.Api
             editor: Editor
+            process: Process
             statusBar: StatusBar
 
             registerLanguageService(languageType: string, languageService: LanguageService)
@@ -178,7 +178,7 @@ declare namespace Oni {
         }
 
         export interface SyntaxHighlight {
-            highlightKind: string,
+            highlightKind: types.SymbolKind
             token: string
         }
 

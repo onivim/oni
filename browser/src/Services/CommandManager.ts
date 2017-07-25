@@ -5,9 +5,8 @@
  */
 
 import * as _ from "lodash"
-import * as Q from "q"
 
-import { INeovimInstance } from "./../NeovimInstance"
+import { INeovimInstance } from "./../neovim"
 
 import { ITask, ITaskProvider } from "./Tasks"
 
@@ -66,13 +65,13 @@ export class CommandManager implements ITaskProvider {
         command.execute(args)
     }
 
-    public getTasks(): Q.Promise<ITask[]> {
+    public getTasks(): Promise<ITask[]> {
         const commands = _.values(this._commandDictionary)
         const tasks = commands.map((c) => ({
             name: c.name,
             detail: c.detail,
             callback: () => c.execute(),
         }))
-        return Q(tasks)
+        return Promise.resolve(tasks)
     }
 }

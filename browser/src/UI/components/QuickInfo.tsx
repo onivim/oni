@@ -9,7 +9,6 @@ require("./QuickInfo.less") // tslint:disable-line no-var-requires
 
 export interface IQuickInfoProps {
     visible: boolean
-    wrap: boolean
     x: number
     y: number
     elements: JSX.Element[]
@@ -34,7 +33,6 @@ export class QuickInfo extends React.Component<IQuickInfoProps, void> {
         const innerCommonStyle = {
             "position": "absolute",
             "opacity": this.props.visible ? 1 : 0,
-            "whiteSpace": this.props.wrap ? "normal" : "nowrap",
             "max-width": (document.body.offsetWidth - this.props.x - 40) + "px",
         }
 
@@ -50,7 +48,7 @@ export class QuickInfo extends React.Component<IQuickInfoProps, void> {
 
         const innerStyle = openFromTop ? openFromTopStyle : openFromBottomStyle
 
-        return <div key={"quickinfo-container"} className="quickinfo-container" style={containerStyle}>
+        return <div key={"quickinfo-container"} className="quickinfo-container enable-mouse" style={containerStyle}>
             <div key={"quickInfo"} style={innerStyle} className="quickinfo">
                 {this.props.elements}
             </div>
@@ -75,6 +73,10 @@ export class QuickInfoTitle extends TextComponent {
 export class QuickInfoDocumentation extends TextComponent {
     public render(): JSX.Element {
 
+        if (!this.props.text) {
+            return null
+        }
+
         const lines = this.props.text.split(os.EOL)
         const divs = lines.map((l) => <div>{l}</div>)
 
@@ -94,30 +96,34 @@ export class SelectedText extends TextComponent {
     }
 }
 
-const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
+const getOpenPosition = (state: IState): { x: number, y: number, openFromTop: boolean } => {
     const openFromTopPosition = state.cursorPixelY + (state.fontPixelHeight * 2)
     const openFromBottomPosition = state.cursorPixelY - state.fontPixelHeight
 
-    const openFromTop = state.cursorPixelY < 50
+    const openFromTop = state.cursorPixelY < 75
 
     const yPos = openFromTop ? openFromTopPosition : openFromBottomPosition
 
-    if (!state.quickInfo) {
+    return {
+        x: state.cursorPixelX,
+        y: yPos,
+        openFromTop,
+    }
+}
+
+const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
+    const openPosition = getOpenPosition(state)
+
+    if (!state.quickInfo || !state.cursorCharacter) {
         return {
-            wrap: true,
+            ...openPosition,
             visible: false,
-            x: state.cursorPixelX,
-            y: yPos,
             elements: [],
-            openFromTop,
         }
     } else {
         return {
-            wrap: true,
+            ...openPosition,
             visible: true,
-            x: state.cursorPixelX,
-            y: yPos,
-            openFromTop,
             elements: [
                 <QuickInfoTitle text={state.quickInfo.title} />,
                 <QuickInfoDocumentation text={state.quickInfo.description} />,
@@ -127,13 +133,12 @@ const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
 }
 
 const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
+    const openPosition = getOpenPosition(state)
 
     if (!state.signatureHelp) {
         return {
-            wrap: false,
+            ...openPosition,
             visible: false,
-            x: state.cursorPixelX,
-            y: state.cursorPixelY - (state.fontPixelHeight),
             elements: [],
         }
     } else {
@@ -154,9 +159,11 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
           parameters.splice(i, 0, <Text text={currentItem.separator + " "} />)
         }
 
-        let elements = [<Text text={currentItem.prefix} />]
+        let titleContents = [<Text text={currentItem.prefix} />]
             .concat(parameters)
             .concat([<Text text={currentItem.suffix} />])
+
+        let elements = [<div className="title">{titleContents}</div>]
 
         const selectedIndex = Math.min(currentItem.parameters.length, state.signatureHelp.argumentIndex)
         const selectedArgument = currentItem.parameters[selectedIndex]
@@ -165,10 +172,8 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
         }
 
         return {
-            wrap: false,
+            ...openPosition,
             visible: true,
-            x: state.cursorPixelX,
-            y: state.cursorPixelY - (state.fontPixelHeight),
             elements,
         }
     }
