@@ -30,6 +30,12 @@ declare namespace Oni {
         createItem(alignment: number, priority: number, globalId?: string): StatusBarItem
     }
 
+    export interface Process {
+        execNodeScript(scriptPath: string, args: string[], options: ChildProcess.ExecOptions, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess
+        spawnNodeScript(scriptPath: string, args: string[], options: ChildProcess.SpawnOptions): ChildProcess.ChildProcess
+        spawnProcess(startCommand: string, args: string[], options: ChildProcess.SpawnOptions): ChildProcess.ChildProcess
+    }
+
     export interface StatusBarItem {
         show(): void
         hide(): void
@@ -150,6 +156,7 @@ declare namespace Oni {
             configuration: Configuration
             diagnostics: Diagnostics.Api
             editor: Editor
+            process: Process
             statusBar: StatusBar
 
             registerLanguageService(languageType: string, languageService: LanguageService)
