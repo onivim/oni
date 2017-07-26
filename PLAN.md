@@ -1,8 +1,16 @@
-- Merge some of the styling from `buffer-list-tabs` even though that isn't the primary PR
+- Add border / padding
+- Cursor: pointer
+- Slower transition
+- IN PARALLEL
+    - Externalize tabline
+        - Add ext_tabline option
+        - Add redux store state
+    - Refactor to tab component
+    - Refactor completion / quickinfo to inside editor
+        - `OniSurface` that wraps `NeovimSurface`?
 
 - Start tab component
 - Add 'B'/'T' options in corner
-- Add color to drop shadow overlay for highlight ?
 - Add close / modified icons to tab
 - Get screenshot for feedback
 
@@ -26,22 +34,6 @@
         </div>
         <div className="container full">
             <OniSurface ... />
-        </div>
-    </div>
-
-    - `OniSurface` - will we need to bind the `provider`?
-    <div className="container full">
-        <div className="stack layer">
-            <NeovimSurface ... />
-        </div>
-        <div className="stack layer">
-            <Cursor />
-            <CursorLine lineType={"line"} />
-            <CursorLine lineType={"column"} />
-            <QuickInfoContainer />
-            <SignatureHelpContainer />
-            <AutoCompletionContainer />
-            <Logs />
         </div>
     </div>
 

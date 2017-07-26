@@ -16,7 +16,6 @@ interface IRootComponentProps {
 
 export class RootComponent extends React.Component<IRootComponentProps, void> {
     public render() {
-
         return <div className="stack disable-mouse">
             <div className="stack">
                 <Background />
