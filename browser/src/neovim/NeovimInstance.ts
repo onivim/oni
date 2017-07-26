@@ -162,6 +162,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 const startupOptions = {
                     rgb: true,
                     popupmenu_external: true,
+                    ext_tabline: true,
                 }
 
                 const size = this._getSize()
@@ -377,6 +378,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 case "popupmenu_show":
                     const completions = a[0][0]
                     this.emit("show-popup-menu", completions)
+                    break
+                case "tabline_update":
+                    const [currentTab, tabs] = a[0]
+                    console.warn("Tabs: " + currentTab + "|" + tabs)
                     break
                 case "bell":
                     const bellUrl = this._config.getValue("oni.audio.bellUrl")
