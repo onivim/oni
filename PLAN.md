@@ -1,3 +1,5 @@
+- Merge some of the styling from `buffer-list-tabs` even though that isn't the primary PR
+
 - Start tab component
 - Add 'B'/'T' options in corner
 - Add color to drop shadow overlay for highlight ?
