@@ -120,6 +120,7 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
         default:
             return Object.assign({}, s, {
                 buffers: buffersReducer(s.buffers, a),
+                tabState: tabStateReducer(s.tabState, a),
                 errors: errorsReducer(s.errors, a),
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
                 popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
@@ -128,6 +129,18 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
             })
     }
 }
+
+export const tabStateReducer = (s: State.ITabState, a: Actions.SimpleAction): State.ITabState => {
+    switch (a.type) {
+        case "SET_TABS":
+            return {
+                ...s,
+                ...a.payload,
+            }
+        default:
+            return s
+    }
+})
 
 export const buffersReducer = (s: State.Buffers, a: Actions.SimpleAction) => {
     switch (a.type) {
