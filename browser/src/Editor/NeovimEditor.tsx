@@ -178,6 +178,10 @@ export class NeovimEditor implements IEditor {
             }
         })
 
+        this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
+            UI.Actions.setTabs(currentTabId, tabs)
+        })
+
         this._neovimInstance.on("logInfo", (info: string) => {
             UI.Actions.makeLog({
                 type: "info",

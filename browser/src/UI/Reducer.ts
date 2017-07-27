@@ -140,7 +140,7 @@ export const tabStateReducer = (s: State.ITabState, a: Actions.SimpleAction): St
         default:
             return s
     }
-})
+}
 
 export const buffersReducer = (s: State.Buffers, a: Actions.SimpleAction) => {
     switch (a.type) {

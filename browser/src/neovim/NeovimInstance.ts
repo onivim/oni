@@ -381,7 +381,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     break
                 case "tabline_update":
                     const [currentTab, tabs] = a[0]
-                    console.warn("Tabs: " + currentTab + "|" + tabs)
+                    const mappedTabs: any = tabs.map((t: any) => ({
+                        id: t.tab.id,
+                        name: t.name,
+                    }))
+                    this.emit("tabline-update", currentTab.id, mappedTabs)
                     break
                 case "bell":
                     const bellUrl = this._config.getValue("oni.audio.bellUrl")
