@@ -18,7 +18,7 @@ import { Cursor } from "./../UI/components/Cursor"
 import { CursorLine } from "./../UI/components/CursorLine"
 import { ErrorsContainer } from "./../UI/components/Error"
 import { QuickInfoContainer, SignatureHelpContainer } from "./../UI/components/QuickInfo"
-import { Tabs } from "./../UI/components/Tabs"
+import { TabsContainer } from "./../UI/components/Tabs"
 
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -35,7 +35,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
 
         return <div className="container vertical full">
             <div className="container fixed">
-                <Tabs />
+                <TabsContainer />
             </div>
             <div className="container full">
                 <div className="stack layer">

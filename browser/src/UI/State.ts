@@ -91,7 +91,7 @@ export interface IBuffer {
 }
 
 export interface ITab {
-    id: string
+    id: number
     name: string
 }
 

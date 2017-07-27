@@ -2,36 +2,44 @@
  * Tabs.tsx
  */
 
+import * as path from "path"
+
 import * as React from "react"
-// import { connect } from "react-redux"
+import { connect } from "react-redux"
+
+import * as State from "./../State"
 
 // import * as Selectors from "./../Selectors"
 
-export class Tabs extends React.PureComponent<void, void> {
+export class Tabs extends React.PureComponent<State.ITabState, void> {
     public render(): JSX.Element {
 
         const tabBorderStyle = {
             "borderBottom": "4px solid rgb(40, 44, 52)",
         }
 
+        const tabs = this.props.tabs.map((t) => {
+
+            const isSelected = t.id === this.props.selectedTabId
+
+            const className = isSelected ? "tab selected" : "tab not-selected"
+
+            const normalizedName = path.basename(t.name)
+
+            return <div className={className}>
+                <div className="name">{normalizedName}</div>
+            </div>
+
+        })
+
         return <div className="tabs horizontal enable-mouse" style={tabBorderStyle}>
-            <div className="tab not-selected">
-                <div className="name">App.ts</div>
-            </div>
-            <div className="tab selected">
-                <div className="name">NeovimInstance.ts</div>
-            </div>
-            <div className="tab not-selected">
-                <div className="name">Test.ts</div>
-            </div>
+            {tabs}
         </div>
     }
 }
 
-// const mapStateToProps = (state: State.IState): IActiveWindowProps => {
-//     return {
-//         dimensions: Selectors.getActiveWindowDimensions(state),
-//     }
-// }
+const mapStateToProps = (state: State.IState): State.ITabState => {
+    return state.tabState
+}
 
-// export const ActiveWindowContainer = connect(mapStateToProps)(ActiveWindow)
+export const TabsContainer = connect(mapStateToProps)(Tabs)
