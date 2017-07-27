@@ -7,6 +7,11 @@
         - Add redux store state
     - Refactor to tab component
         - Bind to state and bring in background
+    - Buffer state
+        - Add buffer number
+        - savedTick
+        - changeTick
+        - isDirty selector
 
 - Start tab component
 - Add 'B'/'T' options in corner
