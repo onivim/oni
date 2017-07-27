@@ -31,9 +31,14 @@ export interface INeovimSurfaceProps {
 
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
     public render(): JSX.Element {
+
+        const tabBorderStyle = {
+            "borderBottom": "4px solid rgb(40, 44, 52)",
+        }
+
         return <div className="container vertical full">
             <div className="container fixed">
-                <div className="tabs horizontal enable-mouse">
+                <div className="tabs horizontal enable-mouse" style={tabBorderStyle}>
                     <div className="tab not-selected">
                         <div className="name">App.ts</div>
                     </div>
