@@ -18,6 +18,7 @@ import { Cursor } from "./../UI/components/Cursor"
 import { CursorLine } from "./../UI/components/CursorLine"
 import { ErrorsContainer } from "./../UI/components/Error"
 import { QuickInfoContainer, SignatureHelpContainer } from "./../UI/components/QuickInfo"
+import { Tabs } from "./../UI/components/Tabs"
 
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -32,23 +33,9 @@ export interface INeovimSurfaceProps {
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
     public render(): JSX.Element {
 
-        const tabBorderStyle = {
-            "borderBottom": "4px solid rgb(40, 44, 52)",
-        }
-
         return <div className="container vertical full">
             <div className="container fixed">
-                <div className="tabs horizontal enable-mouse" style={tabBorderStyle}>
-                    <div className="tab not-selected">
-                        <div className="name">App.ts</div>
-                    </div>
-                    <div className="tab selected">
-                        <div className="name">NeovimInstance.ts</div>
-                    </div>
-                    <div className="tab not-selected">
-                        <div className="name">Test.ts</div>
-                    </div>
-                </div>
+                <Tabs />
             </div>
             <div className="container full">
                 <div className="stack layer">
