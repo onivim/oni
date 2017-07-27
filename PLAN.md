@@ -6,8 +6,7 @@
         - Add ext_tabline option
         - Add redux store state
     - Refactor to tab component
-    - Refactor completion / quickinfo to inside editor
-        - `OniSurface` that wraps `NeovimSurface`?
+        - Bind to state and bring in background
 
 - Start tab component
 - Add 'B'/'T' options in corner

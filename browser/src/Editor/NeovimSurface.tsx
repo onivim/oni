@@ -12,10 +12,12 @@ import { INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
+import { AutoCompletionContainer } from "./../UI/components/AutoCompletion"
 import { ConnectedBufferScrollBar } from "./../UI/components/BufferScrollBar"
 import { Cursor } from "./../UI/components/Cursor"
 import { CursorLine } from "./../UI/components/CursorLine"
 import { ErrorsContainer } from "./../UI/components/Error"
+import { QuickInfoContainer, SignatureHelpContainer } from "./../UI/components/QuickInfo"
 
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -46,6 +48,11 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
             </div>
             <NeovimInput neovimInstance={this.props.neovimInstance}
                 screen={this.props.screen} />
+            <div className="stack layer">
+                <QuickInfoContainer />
+                <SignatureHelpContainer />
+                <AutoCompletionContainer />
+            </div>
         </div>
     }
 }

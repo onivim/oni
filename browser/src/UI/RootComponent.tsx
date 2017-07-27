@@ -1,11 +1,9 @@
 import * as React from "react"
 
-import { AutoCompletionContainer } from "./components/AutoCompletion"
 import { Background } from "./components/Background"
 import { EditorHost } from "./components/EditorHost"
 import { Logs } from "./components/Logs"
 import { MenuContainer } from "./components/Menu"
-import { QuickInfoContainer, SignatureHelpContainer } from "./components/QuickInfo"
 import StatusBar from "./components/StatusBar"
 
 import { IEditor } from "./../Editor/Editor"
@@ -27,9 +25,6 @@ export class RootComponent extends React.Component<IRootComponentProps, void> {
                             <EditorHost editor={this.props.editor} />
                         </div>
                         <div className="stack layer">
-                            <QuickInfoContainer />
-                            <SignatureHelpContainer />
-                            <AutoCompletionContainer />
                             <Logs />
                             <MenuContainer />
                         </div>
