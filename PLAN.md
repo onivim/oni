@@ -3,15 +3,20 @@
 - Slower transition
 - IN PARALLEL
     - Externalize tabline
-        - Add ext_tabline option
         - Add redux store state
+            - Tab object
+            - Buffer id?
     - Refactor to tab component
         - Bind to state and bring in background
     - Buffer state
-        - Add buffer number
+        - Add buffer id
         - savedTick
         - changeTick
         - isDirty selector
+
+- Alt text?
+- Overflow?
+- Scrollbar?
 
 - Start tab component
 - Add 'B'/'T' options in corner
