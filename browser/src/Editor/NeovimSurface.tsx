@@ -31,27 +31,44 @@ export interface INeovimSurfaceProps {
 
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
     public render(): JSX.Element {
-        return <div className="editor">
-            <NeovimRenderer renderer={this.props.renderer}
-                neovimInstance={this.props.neovimInstance}
-                deltaRegionTracker={this.props.deltaRegionTracker} />
-            <div className="stack layer">
-                <Cursor />
-                <CursorLine lineType={"line"} />
-                <CursorLine lineType={"column"} />
+        return <div className="container vertical full">
+            <div className="container fixed">
+                <div className="tabs horizontal enable-mouse">
+                    <div className="tab not-selected">
+                        <div className="name">App.ts</div>
+                    </div>
+                    <div className="tab selected">
+                        <div className="name">NeovimInstance.ts</div>
+                    </div>
+                    <div className="tab not-selected">
+                        <div className="name">Test.ts</div>
+                    </div>
+                </div>
             </div>
-            <div className="stack layer">
-                <ActiveWindowContainer>
-                    <ErrorsContainer />
-                    <ConnectedBufferScrollBar />
-                </ActiveWindowContainer>
-            </div>
-            <NeovimInput neovimInstance={this.props.neovimInstance}
-                screen={this.props.screen} />
-            <div className="stack layer">
-                <QuickInfoContainer />
-                <SignatureHelpContainer />
-                <AutoCompletionContainer />
+            <div className="container full">
+                <div className="stack layer">
+                    <NeovimRenderer renderer={this.props.renderer}
+                        neovimInstance={this.props.neovimInstance}
+                        deltaRegionTracker={this.props.deltaRegionTracker} />
+                </div>
+                <div className="stack layer">
+                    <Cursor />
+                    <CursorLine lineType={"line"} />
+                    <CursorLine lineType={"column"} />
+                </div>
+                <div className="stack layer">
+                    <ActiveWindowContainer>
+                        <ErrorsContainer />
+                        <ConnectedBufferScrollBar />
+                    </ActiveWindowContainer>
+                </div>
+                <NeovimInput neovimInstance={this.props.neovimInstance}
+                    screen={this.props.screen} />
+                <div className="stack layer">
+                    <QuickInfoContainer />
+                    <SignatureHelpContainer />
+                    <AutoCompletionContainer />
+                </div>
             </div>
         </div>
     }
