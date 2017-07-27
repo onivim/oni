@@ -9,7 +9,7 @@
 
 import * as Config from "./../Config"
 import { ILog } from "./Logs"
-import { IMessageDialog, StatusBarAlignment, WindowLineMap } from "./State"
+import { IMessageDialog, ITab, StatusBarAlignment, WindowLineMap } from "./State"
 import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
@@ -19,6 +19,14 @@ export interface ISetBufferState {
     payload: {
         file: string,
         totalLines: number,
+    }
+}
+
+export interface ISetTabs {
+    type: "SET_TABS",
+    payload: {
+        selectedTabId: number
+        tabs: ITab[],
     }
 }
 
@@ -274,6 +282,7 @@ export type SimpleAction =
     IChangeLogsVisibility |
     IMakeLog |
     ISetBufferState |
+    ISetTabs |
     ISetWindowDimensions |
     ISetWindowLineMapping |
     ISetWindowState

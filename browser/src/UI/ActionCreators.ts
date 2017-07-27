@@ -29,6 +29,14 @@ export const setBufferState = (file: string, totalLines: number) => ({
     },
 })
 
+export const setTabs = (selectedTabId: number, tabs: State.ITab[]): Actions.ISetTabs => ({
+    type: "SET_TABS",
+    payload: {
+        selectedTabId,
+        tabs,
+    },
+})
+
 export const setWindowState = (windowId: number, file: string, column: number, line: number, winline: number, wincolumn: number, windowTopLine: number, windowBottomLine: number) => ({
     type: "SET_WINDOW_STATE",
     payload: {
