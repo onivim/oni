@@ -38,6 +38,11 @@ export interface IState {
 
     buffers: { [filePath: string]: IBuffer }
 
+    /**
+     * Tabs refer to the Vim-concept of tabs
+     */
+    tabs: { [id: number]: ITab }
+
     windowState: IWindowState
 
     logsVisible: boolean
@@ -83,6 +88,11 @@ export interface IMessageDialogButton {
 
 export interface IBuffer {
     totalLines: number
+}
+
+export interface ITab {
+    id: string
+    name: string
 }
 
 export interface IWindowState {
@@ -174,6 +184,7 @@ export const createDefaultState = (): IState => ({
     configuration: Config.instance().getValues(),
 
     buffers: {},
+    tabs: {},
 
     windowState: {
         activeWindow: null,
