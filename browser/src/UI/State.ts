@@ -41,7 +41,7 @@ export interface IState {
     /**
      * Tabs refer to the Vim-concept of tabs
      */
-    tabs: { [id: number]: ITab }
+    tabState: ITabState
 
     windowState: IWindowState
 
@@ -93,6 +93,11 @@ export interface IBuffer {
 export interface ITab {
     id: string
     name: string
+}
+
+export interface ITabState {
+    selectedTabId: number | null,
+    tabs: ITab[]
 }
 
 export interface IWindowState {
@@ -184,7 +189,10 @@ export const createDefaultState = (): IState => ({
     configuration: Config.instance().getValues(),
 
     buffers: {},
-    tabs: {},
+    tabState: {
+        selectedTabId: null,
+        tabs: [],
+    },
 
     windowState: {
         activeWindow: null,
