@@ -9,7 +9,7 @@ import { connect } from "react-redux"
 
 import * as State from "./../State"
 
-// import * as Selectors from "./../Selectors"
+require("./Tabs.less") // tslinst:disable-line no-var-requires
 
 export class Tabs extends React.PureComponent<State.ITabState, void> {
     public render(): JSX.Element {
@@ -21,21 +21,27 @@ export class Tabs extends React.PureComponent<State.ITabState, void> {
         const tabs = this.props.tabs.map((t) => {
 
             const isSelected = t.id === this.props.selectedTabId
-
-            const className = isSelected ? "tab selected" : "tab not-selected"
-
             const normalizedName = path.basename(t.name)
 
-            return <div className={className}>
-                <div className="name">{normalizedName}</div>
-            </div>
-
+            return <Tab isSelected={isSelected} name={normalizedName} />
         })
 
         return <div className="tabs horizontal enable-mouse" style={tabBorderStyle}>
             {tabs}
         </div>
     }
+}
+
+export interface ITabProps {
+    name: string
+    isSelected: boolean
+}
+
+export const Tab = (props: ITabProps) => {
+    const className = props.isSelected ? "tab selected" : "tab not-selected"
+    return <div className={className}>
+        <div className="name">{props.name}</div>
+    </div>
 }
 
 const mapStateToProps = (state: State.IState): State.ITabState => {

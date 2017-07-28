@@ -87,6 +87,9 @@ export interface IMessageDialogButton {
 }
 
 export interface IBuffer {
+    id: number
+    lastSaveVersion?: number
+    version?: number
     totalLines: number
 }
 

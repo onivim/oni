@@ -1,0 +1,42 @@
+@import (reference) "./common.less";
+
+.tabs {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+
+    width: 100%;
+    height: 32px;
+    color: #c8c8c8;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.tab {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    height: 32px;
+    flex: 0 0 auto;
+
+    width: 175px;
+    background-color: rgb(40, 44, 52);
+    opacity: 0.6;
+    transition: opacity 0.75s;
+
+    &.not-selected {
+        .box-shadow-up-inset();
+
+        &:hover {
+            opacity: 0.9;
+        }
+    }
+
+    &.selected {
+        .box-shadow-up();
+        opacity: 1.0;
+    }
+}
+
