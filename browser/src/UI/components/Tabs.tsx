@@ -2,7 +2,7 @@
  * Tabs.tsx
  */
 
-// import * as path from "path"
+import * as path from "path"
 
 import * as React from "react"
 import { connect } from "react-redux"
@@ -63,13 +63,13 @@ const mapStateToProps = (state: State.IState): ITabsProps => {
     const buffers = Selectors.getAllBuffers(state)
 
     const tabs = buffers.map((buf) => ({
-        id: buf.id.toString(),
-        name: buf.name,
+        id: "",
+        name: path.basename(buf.name),
         isSelected: true,
     }))
 
     return {
-        tabs: tabs,
+        tabs,
     }
     // return state.tabState
 }

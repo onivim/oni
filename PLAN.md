@@ -2,6 +2,9 @@
 - Slower transition
 - IN PARALLEL
     - Buffer state
+        - Create `IBufferState`
+            - selected buffer id
+            - buffer id -> buffer info
         - Add buffer id
         - savedTick
         - changeTick
