@@ -24,7 +24,38 @@
     width: 175px;
     background-color: rgb(40, 44, 52);
     opacity: 0.6;
-    transition: opacity 0.75s;
+    transition: opacity 0.25s;
+
+    .name {
+        flex: 1 1 auto;
+        text-align: center;
+        padding-top: 2px;
+    }
+
+    .corner {
+        flex: 0 0 auto;
+        width: 32px;
+        height: 100%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            background-color: rgba(0, 100, 240, 0.1);
+        }
+
+        .close {
+            display: none;
+        }
+
+        .circle {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background-color: #c8c8c8;
+        }
+    }
 
     &.not-selected {
         .box-shadow-up-inset();

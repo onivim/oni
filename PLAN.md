@@ -1,17 +1,14 @@
-- Cursor: pointer
+- Issues with mouse with wrong line
 - Slower transition
 - IN PARALLEL
-    - Externalize tabline
-        - Add border / padding to state
-        - Add redux store state
-    - Tab component
-        - Add spot for dirty/close icon
-        - Add close / modified icons to tab
     - Buffer state
         - Add buffer id
         - savedTick
         - changeTick
         - isDirty selector
+    - Externalize tabline
+        - Add border / padding to state
+        - Add redux store state
     - Add configuration for disabling / enabling tabs in entirety `tabs.enabled`
     - Add configuration for buffers vs vim-style tabs (`tabs.useVimTabs`)
     - Hook up `close` action

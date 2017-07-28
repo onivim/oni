@@ -9,7 +9,9 @@ import { connect } from "react-redux"
 
 import * as State from "./../State"
 
-require("./Tabs.less") // tslinst:disable-line no-var-requires
+import { Icon } from "./../Icon"
+
+require("./Tabs.less") // tslint:disable-line no-var-requires
 
 export class Tabs extends React.PureComponent<State.ITabState, void> {
     public render(): JSX.Element {
@@ -41,6 +43,14 @@ export const Tab = (props: ITabProps) => {
     const className = props.isSelected ? "tab selected" : "tab not-selected"
     return <div className={className}>
         <div className="name">{props.name}</div>
+        <div className="corner">
+            <div className="close">
+                <Icon name="times" />
+            </div>
+            <div className="dirty">
+                <div className="circle" />
+            </div>
+        </div>
     </div>
 }
 
