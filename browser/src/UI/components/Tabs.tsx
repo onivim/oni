@@ -2,18 +2,29 @@
  * Tabs.tsx
  */
 
-import * as path from "path"
+// import * as path from "path"
 
 import * as React from "react"
 import { connect } from "react-redux"
 
+import * as Selectors from "./../Selectors"
 import * as State from "./../State"
 
 import { Icon } from "./../Icon"
 
 require("./Tabs.less") // tslint:disable-line no-var-requires
 
-export class Tabs extends React.PureComponent<State.ITabState, void> {
+export interface ITabProps {
+    id: string
+    name: string
+    isSelected: boolean
+}
+
+export interface ITabsProps {
+    tabs: ITabProps[]
+}
+
+export class Tabs extends React.PureComponent<ITabsProps, void> {
     public render(): JSX.Element {
 
         const tabBorderStyle = {
@@ -21,22 +32,16 @@ export class Tabs extends React.PureComponent<State.ITabState, void> {
         }
 
         const tabs = this.props.tabs.map((t) => {
+            // const isSelected = t.id === this.props.selectedTabId
+            // const normalizedName = path.basename(t.name)
 
-            const isSelected = t.id === this.props.selectedTabId
-            const normalizedName = path.basename(t.name)
-
-            return <Tab isSelected={isSelected} name={normalizedName} />
+            return <Tab {...t}/>
         })
 
         return <div className="tabs horizontal enable-mouse" style={tabBorderStyle}>
             {tabs}
         </div>
     }
-}
-
-export interface ITabProps {
-    name: string
-    isSelected: boolean
 }
 
 export const Tab = (props: ITabProps) => {
@@ -54,8 +59,19 @@ export const Tab = (props: ITabProps) => {
     </div>
 }
 
-const mapStateToProps = (state: State.IState): State.ITabState => {
-    return state.tabState
+const mapStateToProps = (state: State.IState): ITabsProps => {
+    const buffers = Selectors.getAllBuffers(state)
+
+    const tabs = buffers.map((buf) => ({
+        id: buf.id.toString(),
+        name: buf.name,
+        isSelected: true,
+    }))
+
+    return {
+        tabs: tabs,
+    }
+    // return state.tabState
 }
 
 export const TabsContainer = connect(mapStateToProps)(Tabs)
