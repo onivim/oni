@@ -142,15 +142,37 @@ export const tabStateReducer = (s: State.ITabState, a: Actions.SimpleAction): St
     }
 }
 
-export const buffersReducer = (s: State.Buffers, a: Actions.SimpleAction) => {
+export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): State.IBufferState => {
     switch (a.type) {
-        case "SET_BUFFER_STATE":
-            return {
-                ...s,
-                [a.payload.file]: {
+        case "BUFFER_ENTER":
+            var byId = {
+                ...s.byId,
+                [a.payload.id]: <State.IBuffer>{
+                    id: a.payload.id,
+                    file: a.payload.file,
+                    version: a.payload.version,
+                    lastSaveVersion: a.payload.version,
                     totalLines: a.payload.totalLines,
                 },
             }
+
+            var allIds = [...s.allIds, a.payload.id]
+
+            return {
+                activeBufferId: a.payload.id,
+                byId,
+                allIds,
+            }
+        // case "BUFFER_LEAVE":
+        //     var bufferLeftId = a.payload.id
+        //     var byId2 = _.omit(s.byId, bufferLeftId)
+        //     var allIds = s.allIds.filter((id) => id !== bufferLeftId)
+
+        //     return <State.IBufferState>{
+        //         activeBufferId: null,
+        //         byId: byId2,
+        //         allIds,
+        //     }
         default:
             return s
     }

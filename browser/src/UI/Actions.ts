@@ -277,6 +277,10 @@ export type Action<K extends keyof Config.IConfigValues> =
     SimpleAction | ActionWithGeneric<K>
 
 export type SimpleAction =
+    IBufferEnterAction |
+    IBufferLeaveAction |
+    IBufferSaveAction |
+    IBufferUpdateAction |
     ISetCursorPositionAction |
     IShowSignatureHelpAction |
     IHideSignatureHelpAction |
@@ -307,7 +311,6 @@ export type SimpleAction =
     IToggleLogFold |
     IChangeLogsVisibility |
     IMakeLog |
-    ISetBufferState |
     ISetTabs |
     ISetWindowDimensions |
     ISetWindowLineMapping |

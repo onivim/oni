@@ -41,7 +41,7 @@ export interface IState {
      */
     tabState: ITabState
 
-    bufferState: IBufferState
+    buffers: IBufferState
 
     windowState: IWindowState
 
@@ -88,11 +88,13 @@ export interface IMessageDialogButton {
 
 export interface IBufferState {
     activeBufferId: number
-    buffers: { [id: number]: IBuffer }
+    byId: { [id: number]: IBuffer }
+    allIds: number[]
 }
 
 export interface IBuffer {
-    name: string
+    id: number
+    file: string
     lastSaveVersion?: number
     version?: number
     totalLines: number
@@ -196,9 +198,10 @@ export const createDefaultState = (): IState => ({
     logs: [],
     configuration: Config.instance().getValues(),
 
-    bufferState: {
+    buffers: {
         activeBufferId: null,
-        buffers: {},
+        byId: {},
+        allIds: [],
     },
 
     tabState: {
