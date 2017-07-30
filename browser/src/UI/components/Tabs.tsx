@@ -7,6 +7,8 @@ import * as path from "path"
 import * as React from "react"
 import { connect } from "react-redux"
 
+import * as classNames from "classnames"
+
 import * as Selectors from "./../Selectors"
 import * as State from "./../State"
 
@@ -18,6 +20,7 @@ export interface ITabProps {
     id: string
     name: string
     isSelected: boolean
+    isDirty: boolean
 }
 
 export interface ITabsProps {
@@ -35,7 +38,7 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
             // const isSelected = t.id === this.props.selectedTabId
             // const normalizedName = path.basename(t.name)
 
-            return <Tab {...t}/>
+            return <Tab {...t} />
         })
 
         return <div className="tabs horizontal enable-mouse" style={tabBorderStyle}>
@@ -45,14 +48,21 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
 }
 
 export const Tab = (props: ITabProps) => {
-    const className = props.isSelected ? "tab selected" : "tab not-selected"
-    return <div className={className}>
+
+    const cssClasses = classNames("tab", {
+        "selected": props.isSelected,
+        "not-selected": !props.isSelected,
+        "is-dirty": props.isDirty,
+        "not-dirty": !props.isDirty,
+    })
+
+    return <div className={cssClasses}>
         <div className="name">{props.name}</div>
         <div className="corner">
-            <div className="close">
+            <div className="x-icon-container">
                 <Icon name="times" />
             </div>
-            <div className="dirty">
+            <div className="circle-icon-container">
                 <div className="circle" />
             </div>
         </div>
@@ -62,16 +72,16 @@ export const Tab = (props: ITabProps) => {
 const mapStateToProps = (state: State.IState): ITabsProps => {
     const buffers = Selectors.getAllBuffers(state)
 
-    const tabs = buffers.map((buf) => ({
+    const tabs = buffers.map((buf): ITabProps => ({
         id: "",
         name: path.basename(buf.file),
         isSelected: buf.id === state.buffers.activeBufferId,
+        isDirty: buf.version > buf.lastSaveVersion,
     }))
 
     return {
         tabs,
     }
-    // return state.tabState
 }
 
 export const TabsContainer = connect(mapStateToProps)(Tabs)

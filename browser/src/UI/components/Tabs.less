@@ -35,6 +35,20 @@
         padding-top: 2px;
     }
 
+    .x-icon-container {
+        display: none;
+    }
+
+    .circle-icon-container {
+        display: none;
+    }
+
+    &.is-dirty {
+        .circle-icon-container {
+            display: block;
+        }
+    }
+
     .corner {
         flex: 0 0 auto;
         width: 32px;
@@ -46,10 +60,12 @@
 
         &:hover {
             background-color: rgba(0, 100, 240, 0.1);
-        }
 
-        .close {
-            display: none;
+            .not-dirty {
+                .x-icon-container {
+                    display: block;
+                }
+            }
         }
 
         .circle {

@@ -360,7 +360,8 @@ export class NeovimEditor implements IEditor {
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.version, evt.bufferFullPath, evt.bufferTotalLines)
         } else if (eventName === "BufWritePost") {
-            UI.Actions.bufferSave(evt.bufferNumber, evt.version)
+            // After save, there is always an additional change tick bump, so the `+1` is needed to account for that.
+            UI.Actions.bufferSave(evt.bufferNumber, evt.version + 1)
         } else if (eventName === "BufDelete") {
             UI.Actions.bufferDelete(evt.bufferNumber)
         }

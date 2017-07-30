@@ -149,13 +149,15 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
 
     switch (a.type) {
         case "BUFFER_ENTER":
+            let currentItem1 = s.byId[a.payload.id] || {}
+
             byId = {
                 ...s.byId,
                 [a.payload.id]: <State.IBuffer>{
+                    ...currentItem1,
                     id: a.payload.id,
                     file: a.payload.file,
                     version: a.payload.version,
-                    lastSaveVersion: a.payload.version,
                     totalLines: a.payload.totalLines,
                 },
             }
@@ -168,6 +170,35 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 activeBufferId: a.payload.id,
                 byId,
                 allIds,
+            }
+        case "BUFFER_SAVE":
+            const currentItem = s.byId[a.payload.id] || {}
+            byId = {
+                ...s.byId,
+                [a.payload.id]: <State.IBuffer>{
+                    ...currentItem,
+                    lastSaveVersion: a.payload.version,
+                },
+            }
+
+            return {
+                ...s,
+                byId,
+            }
+        case "BUFFER_UPDATE":
+            const currentItem3 = s.byId[a.payload.id] || {}
+            byId = {
+                ...s.byId,
+                [a.payload.id]: <State.IBuffer>{
+                    ...currentItem3,
+                    version: a.payload.version,
+                    totalLines: a.payload.totalLines,
+                },
+            }
+
+            return {
+                ...s,
+                byId,
             }
         case "BUFFER_DELETE":
             const bufferLeftId = a.payload.id
