@@ -48,8 +48,8 @@ export const bufferSave = (id: number, version: number) => ({
     },
 })
 
-export const bufferLeave = (id: number) => ({
-    type: "BUFFER_LEAVE",
+export const bufferDelete = (id: number) => ({
+    type: "BUFFER_DELETE",
     payload: {
         id,
     },

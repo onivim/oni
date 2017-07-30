@@ -143,9 +143,13 @@ export const tabStateReducer = (s: State.ITabState, a: Actions.SimpleAction): St
 }
 
 export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): State.IBufferState => {
+
+    let byId = s.byId
+    let allIds = s.allIds
+
     switch (a.type) {
         case "BUFFER_ENTER":
-            var byId = {
+            byId = {
                 ...s.byId,
                 [a.payload.id]: <State.IBuffer>{
                     id: a.payload.id,
@@ -156,23 +160,25 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 },
             }
 
-            var allIds = [...s.allIds, a.payload.id]
+            if (allIds.indexOf(a.payload.id) === -1) {
+                allIds = [...s.allIds, a.payload.id]
+            }
 
             return {
                 activeBufferId: a.payload.id,
                 byId,
                 allIds,
             }
-        // case "BUFFER_LEAVE":
-        //     var bufferLeftId = a.payload.id
-        //     var byId2 = _.omit(s.byId, bufferLeftId)
-        //     var allIds = s.allIds.filter((id) => id !== bufferLeftId)
+        case "BUFFER_DELETE":
+            const bufferLeftId = a.payload.id
+            byId = <any>_.omit(s.byId, bufferLeftId)
+            allIds = s.allIds.filter((id) => id !== bufferLeftId)
 
-        //     return <State.IBufferState>{
-        //         activeBufferId: null,
-        //         byId: byId2,
-        //         allIds,
-        //     }
+            return <State.IBufferState>{
+                activeBufferId: null,
+                byId,
+                allIds,
+            }
         default:
             return s
     }

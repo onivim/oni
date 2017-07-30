@@ -41,8 +41,8 @@ export interface IBufferSaveAction {
     }
 }
 
-export interface IBufferLeaveAction {
-    type: "BUFFER_LEAVE",
+export interface IBufferDeleteAction {
+    type: "BUFFER_DELETE",
     payload: {
         id: number,
     }
@@ -277,8 +277,8 @@ export type Action<K extends keyof Config.IConfigValues> =
     SimpleAction | ActionWithGeneric<K>
 
 export type SimpleAction =
+    IBufferDeleteAction |
     IBufferEnterAction |
-    IBufferLeaveAction |
     IBufferSaveAction |
     IBufferUpdateAction |
     ISetCursorPositionAction |

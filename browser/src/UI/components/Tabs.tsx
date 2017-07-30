@@ -65,7 +65,7 @@ const mapStateToProps = (state: State.IState): ITabsProps => {
     const tabs = buffers.map((buf) => ({
         id: "",
         name: path.basename(buf.file),
-        isSelected: true,
+        isSelected: buf.id === state.buffers.activeBufferId,
     }))
 
     return {

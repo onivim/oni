@@ -361,8 +361,8 @@ export class NeovimEditor implements IEditor {
             UI.Actions.bufferEnter(evt.bufferNumber, evt.version, evt.bufferFullPath, evt.bufferTotalLines)
         } else if (eventName === "BufWritePost") {
             UI.Actions.bufferSave(evt.bufferNumber, evt.version)
-        } else if (eventName === "BufLeave") {
-            UI.Actions.bufferLeave(evt.bufferNumber)
+        } else if (eventName === "BufDelete") {
+            UI.Actions.bufferDelete(evt.bufferNumber)
         }
 
         if (eventName === "DirChanged") {
