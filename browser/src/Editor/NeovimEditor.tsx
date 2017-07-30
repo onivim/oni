@@ -208,6 +208,10 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
+        this._neovimInstance.on("buffer-update", (args: Oni.EventContext) => {
+            UI.Actions.bufferUpdate(args.bufferNumber, args.version, args.bufferTotalLines)
+        })
+
         this._render()
 
         this._onConfigChanged()
@@ -314,9 +318,9 @@ export class NeovimEditor implements IEditor {
 
     public render(): JSX.Element {
         return <NeovimSurface renderer={this._renderer}
-                neovimInstance={this._neovimInstance}
-                deltaRegionTracker={this._deltaRegionManager}
-                screen={this._screen} />
+            neovimInstance={this._neovimInstance}
+            deltaRegionTracker={this._deltaRegionManager}
+            screen={this._screen} />
     }
 
     private _onModeChanged(newMode: string): void {
@@ -344,7 +348,6 @@ export class NeovimEditor implements IEditor {
         this._liveEvaluationOverlay.onVimEvent(eventName, evt)
 
         UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
-        UI.Actions.setBufferState(evt.bufferFullPath, evt.bufferTotalLines)
 
         this._tasks.onEvent(evt)
 
@@ -354,6 +357,12 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hidePopupMenu()
             UI.Actions.hideSignatureHelp()
             UI.Actions.hideQuickInfo()
+
+            UI.Actions.bufferEnter(evt.bufferNumber, evt.version, evt.bufferFullPath, evt.bufferTotalLines)
+        } else if (eventName === "BufWritePost") {
+            UI.Actions.bufferSave(evt.bufferNumber, evt.version)
+        } else if (eventName === "BufLeave") {
+            UI.Actions.bufferLeave(evt.bufferNumber)
         }
 
         if (eventName === "DirChanged") {

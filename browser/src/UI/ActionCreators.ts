@@ -21,11 +21,37 @@ import * as Config from "./../Config"
 import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
 
-export const setBufferState = (file: string, totalLines: number) => ({
-    type: "SET_BUFFER_STATE",
+export const bufferEnter = (id: number, version: number, file: string, totalLines: number) => ({
+    type: "BUFFER_ENTER",
     payload: {
+        id,
+        version,
         file: normalizePath(file),
         totalLines,
+    },
+})
+
+export const bufferUpdate = (id: number, version: number, totalLines: number) => ({
+    type: "BUFFER_UPDATE",
+    payload: {
+        id,
+        version,
+        totalLines,
+    },
+})
+
+export const bufferSave = (id: number, version: number) => ({
+    type: "BUFFER_SAVE",
+    payload: {
+        id,
+        version,
+    },
+})
+
+export const bufferLeave = (id: number) => ({
+    type: "BUFFER_LEAVE",
+    payload: {
+        id,
     },
 })
 

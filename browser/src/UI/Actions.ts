@@ -14,11 +14,37 @@ import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
 
-export interface ISetBufferState {
-    type: "SET_BUFFER_STATE",
+export interface IBufferEnterAction {
+    type: "BUFFER_ENTER",
     payload: {
+        id: number,
+        version: number,
         file: string,
         totalLines: number,
+    }
+}
+
+export interface IBufferUpdateAction {
+    type: "BUFFER_UPDATE",
+    payload: {
+        id: number,
+        version: number,
+        totalLines: number,
+    }
+}
+
+export interface IBufferSaveAction {
+    type: "BUFFER_SAVE",
+    payload: {
+        id: number,
+        version: number,
+    }
+}
+
+export interface IBufferLeaveAction {
+    type: "BUFFER_LEAVE",
+    payload: {
+        id: number,
     }
 }
 

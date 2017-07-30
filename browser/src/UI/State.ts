@@ -36,12 +36,12 @@ export interface IState {
 
     statusBar: { [id: string]: IStatusBarItem }
 
-    buffers: { [filePath: string]: IBuffer }
-
     /**
      * Tabs refer to the Vim-concept of tabs
      */
     tabState: ITabState
+
+    bufferState: IBufferState
 
     windowState: IWindowState
 
@@ -86,8 +86,13 @@ export interface IMessageDialogButton {
     callback?: () => void
 }
 
+export interface IBufferState {
+    activeBufferId: number
+    buffers: { [id: number]: IBuffer }
+}
+
 export interface IBuffer {
-    id: number
+    name: string
     lastSaveVersion?: number
     version?: number
     totalLines: number
@@ -191,7 +196,11 @@ export const createDefaultState = (): IState => ({
     logs: [],
     configuration: Config.instance().getValues(),
 
-    buffers: {},
+    bufferState: {
+        activeBufferId: null,
+        buffers: {},
+    },
+
     tabState: {
         selectedTabId: null,
         tabs: [],
