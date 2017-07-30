@@ -1,4 +1,3 @@
-
 - Remove version arg from buffer_enter command since it isn't set up anyway
 
 - Handle `bd` command on different buffer
