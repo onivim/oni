@@ -1,20 +1,16 @@
+
+- Handle `bd` command on different buffer
+    - Have deletion send invalidation / list of whole set of buffers
+    - Can use `nvim_list_bufs` to get the full list of buffers?
+
+- Hook up save / changed show dirty icon
+- Hook up'close' action to mouse click
+
+- Add configuration for disabling / enabling tabs in entirety `tabs.enabled`
+- Add configuration for buffers vs vim-style tabs (`tabs.useVimTabs`)
+
 - Issues with mouse with wrong line
 - Slower transition
-- IN PARALLEL
-    - Buffer state
-        - Create `IBufferState`
-            - selected buffer id
-            - buffer id -> buffer info
-        - Add buffer id
-        - savedTick
-        - changeTick
-        - isDirty selector
-    - Externalize tabline
-        - Add border / padding to state
-        - Add redux store state
-    - Add configuration for disabling / enabling tabs in entirety `tabs.enabled`
-    - Add configuration for buffers vs vim-style tabs (`tabs.useVimTabs`)
-    - Hook up `close` action
 
 - Alt text?
 - Overflow / Scrollbar if too many tabs?
