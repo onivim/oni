@@ -132,13 +132,6 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     private _renderSpan(span: ISpan, y: number, screenInfo: IScreen): void {
-        const fontWidth = screenInfo.fontWidthInPixels
-        const fontHeight = screenInfo.fontHeightInPixels
-
-        this._canvasContext.fillStyle = "white"
-
-        this._canvasContext.clearRect(span.startX * fontWidth, y * fontHeight, (span.endX - span.startX) * fontWidth, fontHeight)
-
         let prevState: IRenderState = {
             isWhitespace: false,
             foregroundColor: screenInfo.foregroundColor,
@@ -149,7 +142,8 @@ export class CanvasRenderer implements INeovimRenderer {
             width: 0,
         }
 
-        for (let x = span.startX; x < span.endX; x++) {
+        let x = span.startX
+        while (x < span.endX) {
             const cell = screenInfo.getCell(x, y)
 
             const nextRenderState = this._getNextRenderState(cell, x, y, prevState)
@@ -159,18 +153,19 @@ export class CanvasRenderer implements INeovimRenderer {
             }
 
             prevState = nextRenderState
+
+            const increment = nextRenderState.startX + nextRenderState.width
+            x = increment
         }
 
         this._renderText(prevState, screenInfo)
     }
 
     private _getNextRenderState(cell: ICell, x: number, y: number, currentState: IRenderState): IRenderState {
-
         const isCurrentCellWhiteSpace = isWhiteSpace(cell.character)
 
         if (cell.foregroundColor !== currentState.foregroundColor
             || cell.backgroundColor !== currentState.backgroundColor
-            || cell.characterWidth > 1
             || isCurrentCellWhiteSpace !== currentState.isWhitespace) {
             return {
                 isWhitespace: isCurrentCellWhiteSpace,
@@ -182,6 +177,9 @@ export class CanvasRenderer implements INeovimRenderer {
                 y,
             }
         } else {
+
+            const adjustedCharacterWidth = isCurrentCellWhiteSpace ? 1 : cell.characterWidth
+
             // Not using spread (...) operator, which would simplify this,
             // because this is a hot-path for rendering and `Object.assign`
             // has some overhead that showed up in the profile.
@@ -190,7 +188,7 @@ export class CanvasRenderer implements INeovimRenderer {
                 foregroundColor: cell.foregroundColor,
                 backgroundColor: cell.backgroundColor,
                 text: currentState.text + cell.character,
-                width: currentState.width + cell.characterWidth,
+                width: currentState.width + adjustedCharacterWidth,
                 startX: currentState.startX,
                 y: currentState.y,
             }
@@ -203,6 +201,13 @@ export class CanvasRenderer implements INeovimRenderer {
 
     private _renderText(state: IRenderState, screenInfo: IScreen): void {
 
+        // Spans can have a width of 0 if they are placeholders for cells
+        // after a multibyte character. In this case, we don't need to bother
+        // rendering or clearing, because that occurs with the multibyte character.
+        if (state.width === 0) {
+            return
+        }
+
         const { backgroundColor, foregroundColor, text, startX, y } = state
 
         const fontWidth = screenInfo.fontWidthInPixels
@@ -213,6 +218,8 @@ export class CanvasRenderer implements INeovimRenderer {
             this._canvasContext.fillStyle = backgroundColor
             // TODO: Width of non-english characters
             this._canvasContext.fillRect(startX * fontWidth, y * fontHeight, state.width * fontWidth, fontHeight)
+        } else {
+            this._canvasContext.clearRect(startX * fontWidth, y * fontHeight, state.width * fontWidth, fontHeight)
         }
 
         if (!state.isWhitespace) {
@@ -221,7 +228,6 @@ export class CanvasRenderer implements INeovimRenderer {
         }
 
         // Commit span dimensions to grid
-
         const spanInfoToCommit: ISpan = {
             startX: state.startX,
             endX: state.startX + state.width,

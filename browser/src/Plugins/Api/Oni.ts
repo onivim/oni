@@ -12,6 +12,7 @@ import { StatusBar } from "./StatusBar"
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient } from "./LanguageClient/LanguageClient"
 
+import { Process } from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
@@ -37,6 +38,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     private _diagnostics: Oni.Plugin.Diagnostics.Api
     private _ui: Ui
     private _services: Services
+    private _process: Process
 
     public get commands(): Oni.Commands {
         return this._commands
@@ -56,6 +58,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     public get editor(): Oni.Editor {
         return this._editor
+    }
+
+    public get process(): Oni.Process {
+        return this._process
     }
 
     public get statusBar(): StatusBar {
@@ -81,6 +87,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._statusBar = new StatusBar(this._channel)
         this._ui = new Ui(react)
         this._services = new Services()
+        this._process = new Process()
 
         this._channel.onRequest((arg: any) => {
             this._handleNotification(arg)
@@ -96,43 +103,19 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
-        const requiredOptions = {
-            env: {
-                ...process.env,
-                ELECTRON_RUN_AS_NODE: 1,
-            },
-        }
+        console.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead") // tslint:disable-line no-console-log
 
-        const opts = {
-            ...options,
-            ...requiredOptions,
-        }
-
-        const execOptions = [process.execPath, scriptPath].concat(args)
-        const execString = execOptions.map((s) => `"${s}"`).join(" ")
-
-        return ChildProcess.exec(execString, opts, callback)
+        return this._process.execNodeScript(scriptPath, args, options, callback)
     }
 
     /**
      * Wrapper around `child_process.exec` to run using electron as opposed to node
      */
     public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
-        const requiredOptions = {
-            env: {
-                ...process.env,
-                ELECTRON_RUN_AS_NODE: 1,
-            },
-        }
 
-        const opts = {
-            ...options,
-            ...requiredOptions,
-        }
+        console.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead") // tslint:disable-line no-console-log
 
-        const allArgs = [scriptPath].concat(args)
-
-        return ChildProcess.spawn(process.execPath, allArgs, opts)
+        return this._process.spawnNodeScript(scriptPath, args, options)
     }
 
     public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {

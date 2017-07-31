@@ -112,7 +112,7 @@ const activate = (Oni) => {
         processArgs = processArgs.concat(["--config", configPath])
         processArgs = processArgs.concat(args)
 
-        return Q.nfcall(Oni.execNodeScript, tslintPath, processArgs, { cwd: workingDirectory })
+        return Q.nfcall(Oni.process.execNodeScript, tslintPath, processArgs, { cwd: workingDirectory })
             .then((stdout, stderr) => {
 
                 const errorOutput = stdout.join(os.EOL).trim()

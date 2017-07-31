@@ -11,7 +11,7 @@ import * as _ from "lodash"
 import * as rpc from "vscode-jsonrpc"
 import * as types from "vscode-languageserver-types"
 
-import { ChildProcess, spawn } from "child_process"
+import { ChildProcess } from "child_process"
 
 import { getCompletionMeet } from "./../../../Services/AutoCompletionUtility"
 import { Oni } from "./../Oni"
@@ -155,12 +155,16 @@ export class LanguageClient {
     public start(initializationParams: LanguageClientInitializationParams): Thenable<any> {
         const startArgs = this._startOptions.args || []
 
+        const options = {
+            cwd: process.cwd(),
+        }
+
         if (this._startOptions.command) {
-            console.log(`[LANGUAGE CLIENT]: Starting process via '${this._startOptions.command}`) // tslint:disable-line no-console
-            this._process = spawn(this._startOptions.command, startArgs)
+            console.log(`[LANGUAGE CLIENT]: Starting process via '${this._startOptions.command}'`) // tslint:disable-line no-console
+            this._process = this._oni.process.spawnProcess(this._startOptions.command, startArgs, options)
         } else if (this._startOptions.module) {
-            console.log(`[LANGUAGE CLIENT]: Starting process via node script '${this._startOptions.module}`) // tslint:disable-line no-console
-            this._process = this._oni.spawnNodeScript(this._startOptions.module, startArgs)
+            console.log(`[LANGUAGE CLIENT]: Starting process via node script '${this._startOptions.module}'`) // tslint:disable-line no-console
+            this._process = this._oni.process.spawnNodeScript(this._startOptions.module, startArgs, options)
         } else {
             throw "A command or module must be specified to start the server"
         }

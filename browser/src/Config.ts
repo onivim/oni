@@ -73,6 +73,10 @@ export interface IConfigValues {
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
 
+    // Additional paths to include when launching sub-process from Oni
+    // (and available in terminal integration, later)
+    "environment.additionalPaths": string[]
+
     // Command to list files for 'quick open'
     // For example, to use 'ag': ag --nocolor -l .
     //
@@ -144,6 +148,8 @@ export class Config extends EventEmitter {
         "editor.cursorColumn": false,
         "editor.cursorColumnOpacity": 0.1,
 
+        "environment.additionalPaths": [],
+
         "statusbar.enabled": true,
         "statusbar.fontSize": "12px",
     }
@@ -152,6 +158,10 @@ export class Config extends EventEmitter {
         "editor.fontFamily": "Menlo",
         "editor.fontSize": "12px",
         "statusbar.fontSize": "10px",
+        "environment.additionalPaths": [
+            "/usr/bin",
+            "/usr/local/bin",
+        ],
     }
 
     private WindowsConfig: Partial<IConfigValues> = {
@@ -162,6 +172,10 @@ export class Config extends EventEmitter {
     private LinuxConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "DejaVu Sans Mono",
         "statusbar.fontSize": "11px",
+        "environment.additionalPaths": [
+            "/usr/bin",
+            "/usr/local/bin",
+        ],
     }
 
     private DefaultPlatformConfig = Platform.isWindows() ? this.WindowsConfig : Platform.isLinux() ? this.LinuxConfig : this.MacConfig
