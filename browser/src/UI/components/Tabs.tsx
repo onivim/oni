@@ -69,12 +69,20 @@ export const Tab = (props: ITabProps) => {
     </div>
 }
 
+const getTabName = (name: string): string => {
+    if (!name) {
+        return "[No Name]"
+    }
+
+    return path.basename(name)
+}
+
 const mapStateToProps = (state: State.IState): ITabsProps => {
     const buffers = Selectors.getAllBuffers(state)
 
     const tabs = buffers.map((buf): ITabProps => ({
         id: "",
-        name: path.basename(buf.file),
+        name: getTabName(buf.file),
         isSelected: buf.id === state.buffers.activeBufferId,
         isDirty: buf.version > buf.lastSaveVersion,
     }))
