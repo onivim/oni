@@ -18,7 +18,6 @@ export interface IBufferEnterAction {
     type: "BUFFER_ENTER",
     payload: {
         id: number,
-        version: number,
         file: string,
         totalLines: number,
     }

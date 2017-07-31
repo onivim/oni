@@ -154,7 +154,6 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 [a.payload.id]: <State.IBuffer>{
                     id: a.payload.id,
                     file: a.payload.file,
-                    version: a.payload.version,
                     totalLines: a.payload.totalLines,
                 },
             }

@@ -212,6 +212,10 @@ export class NeovimEditor implements IEditor {
             UI.Actions.bufferUpdate(args.bufferNumber, args.version, args.bufferTotalLines)
         })
 
+        this._neovimInstance.on("buffer-update-incremental", (args: Oni.EventContext) => {
+            UI.Actions.bufferUpdate(args.bufferNumber, args.version, args.bufferTotalLines)
+        })
+
         this._render()
 
         this._onConfigChanged()
@@ -358,7 +362,7 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hideSignatureHelp()
             UI.Actions.hideQuickInfo()
 
-            UI.Actions.bufferEnter(evt.bufferNumber, evt.version, evt.bufferFullPath, evt.bufferTotalLines)
+            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines)
         } else if (eventName === "BufWritePost") {
             // After save, there is always an additional change tick bump, so the `+1` is needed to account for that.
             UI.Actions.bufferSave(evt.bufferNumber, evt.version + 1)

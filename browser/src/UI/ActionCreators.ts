@@ -21,11 +21,10 @@ import * as Config from "./../Config"
 import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
 
-export const bufferEnter = (id: number, version: number, file: string, totalLines: number) => ({
+export const bufferEnter = (id: number, file: string, totalLines: number) => ({
     type: "BUFFER_ENTER",
     payload: {
         id,
-        version,
         file: normalizePath(file),
         totalLines,
     },
