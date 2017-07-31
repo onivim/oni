@@ -80,10 +80,8 @@ const NoScrollBar: IBufferScrollBarProps = {
 
 import { createSelector } from "reselect"
 
-export const getErrors = (state: State.IState) => state.errors
-
 export const getMarkers = createSelector(
-    [Selectors.getActiveWindow, getErrors],
+    [Selectors.getActiveWindow, Selectors.getErrors],
     (activeWindow, errors) => {
 
         const file = activeWindow.file
