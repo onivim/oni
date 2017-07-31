@@ -19,6 +19,7 @@ require("./Tabs.less") // tslint:disable-line no-var-requires
 export interface ITabProps {
     id: string
     name: string
+    description: string
     isSelected: boolean
     isDirty: boolean
 }
@@ -35,9 +36,6 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
         }
 
         const tabs = this.props.tabs.map((t) => {
-            // const isSelected = t.id === this.props.selectedTabId
-            // const normalizedName = path.basename(t.name)
-
             return <Tab {...t} />
         })
 
@@ -56,7 +54,7 @@ export const Tab = (props: ITabProps) => {
         "not-dirty": !props.isDirty,
     })
 
-    return <div className={cssClasses}>
+    return <div className={cssClasses} title={props.description}>
         <div className="name">{props.name}</div>
         <div className="corner">
             <div className="x-icon-container">
@@ -85,6 +83,7 @@ const mapStateToProps = (state: State.IState): ITabsProps => {
         name: getTabName(buf.file),
         isSelected: buf.id === state.buffers.activeBufferId,
         isDirty: buf.version > buf.lastSaveVersion,
+        description: buf.file,
     }))
 
     return {
