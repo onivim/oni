@@ -74,14 +74,26 @@ export class StatusBarItem extends React.PureComponent<StatusBarItemProps, void>
     }
 }
 
+import { createSelector } from "reselect"
+
+const getStatusBar = (state: State.IState) => state.statusBar
+
+const getStatusBarItems = createSelector(
+    [getStatusBar],
+    (statusBar) => {
+        const keys = _.keys(statusBar)
+
+        const statusBarItems = keys.map((k) => ({
+            id: k,
+            ...statusBar[k],
+        }))
+
+        return statusBarItems
+    })
+
 const mapStateToProps = (state: State.IState): StatusBarProps => {
 
-    const keys = _.keys(state.statusBar)
-
-    const statusBarItems = keys.map((k) => ({
-        id: k,
-        ...state.statusBar[k],
-    }))
+    const statusBarItems = getStatusBarItems(state)
 
     return {
         fontSize: state.configuration["statusbar.fontSize"],

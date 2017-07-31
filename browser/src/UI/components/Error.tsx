@@ -169,7 +169,7 @@ export class ErrorSquiggle extends React.Component<IErrorSquiggleProps, void> {
 const mapStateToProps = (state: State.IState): IErrorsProps => {
     const window = Selectors.getActiveWindow(state)
 
-    const errors = (window && window.file) ? Selectors.getAllErrorsForFile(window.file, state) : []
+    const errors = (window && window.file) ? Selectors.getAllErrorsForFile(window.file, state.errors) : []
 
     const showDetails = state.mode !== "insert"
 

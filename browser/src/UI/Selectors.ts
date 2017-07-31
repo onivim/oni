@@ -38,12 +38,12 @@ export const getSelectedCompletion = (state: State.IState) => {
     return autoCompletion ? autoCompletion.entries[autoCompletion.selectedIndex].label : null
 }
 
-export const getAllErrorsForFile = (fileName: string, state: State.IState) => {
-    if (!fileName) {
+export const getAllErrorsForFile = (fileName: string, errors: State.Errors) => {
+    if (!fileName || !errors) {
         return []
     }
 
-    const allErrorsByKey = state.errors[fileName]
+    const allErrorsByKey = errors[fileName]
 
     if (!allErrorsByKey) {
         return []
