@@ -38,7 +38,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                 <TabsContainer />
             </div>
             <div className="container full">
-                <div className="stack layer">
+                <div className="stack">
                     <NeovimRenderer renderer={this.props.renderer}
                         neovimInstance={this.props.neovimInstance}
                         deltaRegionTracker={this.props.deltaRegionTracker} />

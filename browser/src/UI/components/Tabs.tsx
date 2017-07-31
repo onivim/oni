@@ -41,7 +41,7 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
             return <Tab {...t} />
         })
 
-        return <div className="tabs horizontal enable-mouse" style={tabBorderStyle}>
+        return <div className="tabs horizontal enable-mouse layer" style={tabBorderStyle}>
             {tabs}
         </div>
     }
