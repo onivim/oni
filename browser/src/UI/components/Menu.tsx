@@ -91,7 +91,6 @@ const mapStateToProps = (state: State.IState) => {
 }
 
 const mapDispatchToProps = (dispatch: any) => {
-
     const dispatchFilterText = (text: string) => {
         dispatch(ActionCreators.filterMenu(text))
     }
