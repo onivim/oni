@@ -33,12 +33,10 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
             <NeovimRenderer renderer={this.props.renderer}
                 neovimInstance={this.props.neovimInstance}
                 deltaRegionTracker={this.props.deltaRegionTracker} />
-            <div className="stack layer">
+            <div className="stack">
                 <Cursor />
                 <CursorLine lineType={"line"} />
                 <CursorLine lineType={"column"} />
-            </div>
-            <div className="stack layer">
                 <ActiveWindowContainer>
                     <ErrorsContainer />
                     <ConnectedBufferScrollBar />
