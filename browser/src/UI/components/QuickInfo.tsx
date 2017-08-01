@@ -117,12 +117,14 @@ const getQuickInfo = (state: IState) => state.quickInfo
 
 const getCursorCharacter = (state: IState) => state.cursorCharacter
 
+const EmptyArray: JSX.Element[] = []
+
 const getQuickInfoElement = createSelector(
     [getQuickInfo, getCursorCharacter],
     (quickInfo, cursorCharacter) => {
 
         if (!quickInfo || !cursorCharacter) {
-            return []
+            return EmptyArray
         } else {
             return [
                 <QuickInfoTitle text={quickInfo.title} />,
@@ -158,7 +160,7 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
         return {
             ...openPosition,
             visible: false,
-            elements: [],
+            elements: EmptyArray,
         }
     } else {
         const currentItem = state.signatureHelp.items[state.signatureHelp.selectedItemIndex]

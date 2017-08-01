@@ -38,8 +38,8 @@ export const getSelectedCompletion = (state: State.IState) => {
     return autoCompletion ? autoCompletion.entries[autoCompletion.selectedIndex].label : null
 }
 
-export const getAllBuffers = (state: State.IState): State.IBuffer[] => {
-    return state.buffers.allIds.map((id) => state.buffers.byId[id])
+export const getAllBuffers = (buffers: State.IBufferState): State.IBuffer[] => {
+    return buffers.allIds.map((id) => buffers.byId[id])
 }
 
 export const getErrors = (state: State.IState) => state.errors

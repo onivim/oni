@@ -36,7 +36,7 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
         }
 
         const tabs = this.props.tabs.map((t) => {
-            return <Tab {...t} />
+            return <Tab key={t.id} {...t} />
         })
 
         return <div className="tabs horizontal enable-mouse layer" style={tabBorderStyle}>
@@ -75,16 +75,26 @@ const getTabName = (name: string): string => {
     return path.basename(name)
 }
 
-const mapStateToProps = (state: State.IState): ITabsProps => {
-    const buffers = Selectors.getAllBuffers(state)
+import { createSelector } from "reselect"
 
-    const tabs = buffers.map((buf): ITabProps => ({
-        id: "",
-        name: getTabName(buf.file),
-        isSelected: buf.id === state.buffers.activeBufferId,
-        isDirty: buf.version > buf.lastSaveVersion,
-        description: buf.file,
-    }))
+const getBufferState = (state: State.IState) => state.buffers
+
+const getTabsFromBuffers = createSelector(
+    [getBufferState],
+    (buffers) => {
+        const allBuffers = Selectors.getAllBuffers(buffers)
+        const tabs = allBuffers.map((buf): ITabProps => ({
+            id: buf.file,
+            name: getTabName(buf.file),
+            isSelected: buf.id === buffers.activeBufferId,
+            isDirty: buf.version > buf.lastSaveVersion,
+            description: buf.file,
+        }))
+        return tabs
+    })
+
+const mapStateToProps = (state: State.IState): ITabsProps => {
+    const tabs = getTabsFromBuffers(state)
 
     return {
         tabs,
