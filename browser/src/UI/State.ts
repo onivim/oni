@@ -11,7 +11,7 @@ import { Rectangle } from "./Types"
 import * as types from "vscode-languageserver-types"
 
 export type Buffers = { [filePath: string]: IBuffer }
-
+export type Errors = { [file: string]: { [key: string]: types.Diagnostic[] } }
 export type WindowLineMap = { [key: number]: number }
 
 export interface IState {
@@ -46,7 +46,7 @@ export interface IState {
         folded: boolean,
     }>
 
-    errors: { [file: string]: { [key: string]: types.Diagnostic[] } }
+    errors: Errors
 
     // Dimensions of active window, in pixels
     activeWindowDimensions: Rectangle

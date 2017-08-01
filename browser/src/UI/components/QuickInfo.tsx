@@ -15,7 +15,7 @@ export interface IQuickInfoProps {
     openFromTop?: boolean
 }
 
-export class QuickInfo extends React.Component<IQuickInfoProps, void> {
+export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
 
     public render(): null | JSX.Element {
         if (!this.props.elements || !this.props.elements.length) {
@@ -111,23 +111,42 @@ const getOpenPosition = (state: IState): { x: number, y: number, openFromTop: bo
     }
 }
 
+import { createSelector } from "reselect"
+
+const getQuickInfo = (state: IState) => state.quickInfo
+
+const getCursorCharacter = (state: IState) => state.cursorCharacter
+
+const getQuickInfoElement = createSelector(
+    [getQuickInfo, getCursorCharacter],
+    (quickInfo, cursorCharacter) => {
+
+        if (!quickInfo || !cursorCharacter) {
+            return []
+        } else {
+            return [
+                <QuickInfoTitle text={quickInfo.title} />,
+                <QuickInfoDocumentation text={quickInfo.description} />,
+            ]
+        }
+    })
+
 const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
     const openPosition = getOpenPosition(state)
+
+    const elements = getQuickInfoElement(state)
 
     if (!state.quickInfo || !state.cursorCharacter) {
         return {
             ...openPosition,
             visible: false,
-            elements: [],
+            elements,
         }
     } else {
         return {
             ...openPosition,
             visible: true,
-            elements: [
-                <QuickInfoTitle text={state.quickInfo.title} />,
-                <QuickInfoDocumentation text={state.quickInfo.description} />,
-            ],
+            elements,
         }
     }
 }

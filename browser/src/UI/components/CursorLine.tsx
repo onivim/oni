@@ -19,7 +19,7 @@ export interface ICursorLineProps {
 
 // require("./Cursor.less") // tslint:disable-line no-var-requires
 
-class CursorLineRenderer extends React.Component<ICursorLineRendererProps, void> {
+class CursorLineRenderer extends React.PureComponent<ICursorLineRendererProps, void> {
 
     public render(): null |  JSX.Element {
         if (!this.props.visible) {

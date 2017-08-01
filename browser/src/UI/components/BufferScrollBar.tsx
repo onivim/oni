@@ -78,6 +78,30 @@ const NoScrollBar: IBufferScrollBarProps = {
     visible: false,
 }
 
+import { createSelector } from "reselect"
+
+export const getMarkers = createSelector(
+    [Selectors.getActiveWindow, Selectors.getErrors],
+    (activeWindow, errors) => {
+
+        const file = activeWindow.file
+        const fileErrors = Selectors.getAllErrorsForFile(file, errors)
+
+        const errorMarkers = fileErrors.map((e: types.Diagnostic) => ({
+            line: e.range.start.line || 0,
+            height: 1,
+            color: getColorFromSeverity(e.severity),
+        }))
+
+        const cursorMarker: IScrollBarMarker = {
+            line: activeWindow.line,
+            height: 1,
+            color: "rgb(200, 200, 200)",
+        }
+
+        return [...errorMarkers, cursorMarker]
+    })
+
 const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
     const visible = state.configuration["editor.scrollBar.visible"]
 
@@ -95,26 +119,15 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
         return NoScrollBar
     }
 
-    const errors = Selectors.getAllErrorsForFile(file, state)
     const bufferSize = state.buffers[file].totalLines
 
-    const errorMarkers = errors.map((e: types.Diagnostic) => ({
-        line: e.range.start.line || 0,
-        height: 1,
-        color: getColorFromSeverity(e.severity),
-    }))
-
-    const cursorMarker: IScrollBarMarker = {
-        line: activeWindow.line,
-        height: 1,
-        color: "rgb(200, 200, 200)",
-    }
+    const markers = getMarkers(state)
 
     return {
         windowTopLine: activeWindow.windowTopLine,
         windowBottomLine: activeWindow.windowBottomLine,
         bufferSize,
-        markers: [...errorMarkers, cursorMarker],
+        markers,
         height: dimensions.height,
         visible,
     }

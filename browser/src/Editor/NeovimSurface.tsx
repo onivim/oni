@@ -37,8 +37,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                 <Cursor />
                 <CursorLine lineType={"line"} />
                 <CursorLine lineType={"column"} />
-            </div>
-            <div className="stack layer">
                 <ActiveWindowContainer>
                     <ErrorsContainer />
                     <ConnectedBufferScrollBar />

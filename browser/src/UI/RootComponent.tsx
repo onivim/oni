@@ -35,7 +35,7 @@ export class RootComponent extends React.Component<IRootComponentProps, void> {
                             <MenuContainer />
                         </div>
                     </div>
-                    <div className="container fixed">
+                    <div className="container fixed layer">
                         <StatusBar />
                     </div>
                 </div>
