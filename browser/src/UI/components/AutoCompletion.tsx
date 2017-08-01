@@ -23,7 +23,7 @@ export interface IAutoCompletionProps {
 
 require("./AutoCompletion.less") // tslint:disable-line no-var-requires
 
-export class AutoCompletion extends React.Component<IAutoCompletionProps, void> {
+export class AutoCompletion extends React.PureComponent<IAutoCompletionProps, void> {
 
     public render(): null | JSX.Element {
 
