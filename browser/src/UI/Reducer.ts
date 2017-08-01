@@ -193,7 +193,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 [a.payload.id]: <State.IBuffer>{
                     ...currentItem3,
                     version: a.payload.version,
-                    lastSaveVersion: lastSaveVersion,
+                    lastSaveVersion,
                     totalLines: a.payload.totalLines,
                 },
             }

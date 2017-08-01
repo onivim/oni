@@ -321,10 +321,16 @@ export class NeovimEditor implements IEditor {
     }
 
     public render(): JSX.Element {
+
+        const onBufferClose = (bufferId: number) => {
+            this._neovimInstance.command(`bd ${bufferId}`)
+        }
+
         return <NeovimSurface renderer={this._renderer}
             neovimInstance={this._neovimInstance}
             deltaRegionTracker={this._deltaRegionManager}
-            screen={this._screen} />
+            screen={this._screen}
+            onBufferClose={onBufferClose}/>
     }
 
     private _onModeChanged(newMode: string): void {

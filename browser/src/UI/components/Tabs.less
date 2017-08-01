@@ -32,8 +32,8 @@
     .name {
         flex: 1 1 auto;
         text-align: center;
+        padding-right: 4px;
         padding-top: 2px;
-        padding-left: 16px;
     }
 
     .x-icon-container {
@@ -50,6 +50,14 @@
         }
     }
 
+    &.not-dirty {
+        .corner:hover {
+            .x-icon-container {
+                display: block;
+            }
+        }
+    }
+
     .corner {
         flex: 0 0 auto;
         width: 32px;
@@ -59,21 +67,17 @@
         align-items: center;
         justify-content: center;
 
-        &:hover {
-            background-color: rgba(0, 100, 240, 0.1);
-
-            .not-dirty {
-                .x-icon-container {
-                    display: block;
-                }
-            }
-        }
-
         .circle {
             width: 8px;
             height: 8px;
             border-radius: 4px;
             background-color: #c8c8c8;
+        }
+    }
+
+    .corner.enable-hover {
+        &:hover {
+            background-color: rgba(0, 100, 240, 0.1);
         }
     }
 

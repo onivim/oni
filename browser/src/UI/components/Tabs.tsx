@@ -17,14 +17,18 @@ import { Icon } from "./../Icon"
 require("./Tabs.less") // tslint:disable-line no-var-requires
 
 export interface ITabProps {
-    id: string
+    id: number
     name: string
     description: string
     isSelected: boolean
     isDirty: boolean
 }
 
-export interface ITabsProps {
+export interface ITabContainerProps {
+    onBufferClose?: (bufferId: number) => void
+}
+
+export interface ITabsProps extends ITabContainerProps {
     tabs: ITabProps[]
 }
 
@@ -36,17 +40,24 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
         }
 
         const tabs = this.props.tabs.map((t) => {
-            return <Tab key={t.id} {...t} />
+            return <Tab key={t.id} {...t} onClick={() => this._onClick(t.id)}/>
         })
 
         return <div className="tabs horizontal enable-mouse layer" style={tabBorderStyle}>
             {tabs}
         </div>
     }
+
+    private _onClick(id: number): void {
+        this.props.onBufferClose(id)
+    }
 }
 
-export const Tab = (props: ITabProps) => {
+export interface ITabPropsWithClick extends ITabProps {
+    onClick: React.EventHandler<React.MouseEvent<HTMLDivElement>>
+}
 
+export const Tab = (props: ITabPropsWithClick) => {
     const cssClasses = classNames("tab", {
         "selected": props.isSelected,
         "not-selected": !props.isSelected,
@@ -54,9 +65,10 @@ export const Tab = (props: ITabProps) => {
         "not-dirty": !props.isDirty,
     })
 
-    return <div className={cssClasses} title={props.description}>
+    return <div className={cssClasses} title={props.description} onClick={props.onClick}>
+        <div className="corner"></div>
         <div className="name">{props.name}</div>
-        <div className="corner">
+        <div className="corner enable-hover">
             <div className="x-icon-container">
                 <Icon name="times" />
             </div>
@@ -84,7 +96,7 @@ const getTabsFromBuffers = createSelector(
     (buffers) => {
         const allBuffers = Selectors.getAllBuffers(buffers)
         const tabs = allBuffers.map((buf): ITabProps => ({
-            id: buf.file,
+            id: buf.id,
             name: getTabName(buf.file),
             isSelected: buf.id === buffers.activeBufferId,
             isDirty: buf.version > buf.lastSaveVersion,
@@ -93,10 +105,11 @@ const getTabsFromBuffers = createSelector(
         return tabs
     })
 
-const mapStateToProps = (state: State.IState): ITabsProps => {
+const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITabsProps => {
     const tabs = getTabsFromBuffers(state)
 
     return {
+        ...ownProps,
         tabs,
     }
 }
