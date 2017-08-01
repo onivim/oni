@@ -26,7 +26,7 @@ export interface IMenuProps {
     items: State.IMenuOptionWithHighlights[]
 }
 
-export class Menu extends React.Component<IMenuProps, void> {
+export class Menu extends React.PureComponent<IMenuProps, void> {
 
     private _inputElement: HTMLInputElement = null as any // FIXME: null
 
