@@ -18,6 +18,9 @@ export class Session extends EventEmitter {
 
         const codec = msgpackLite.createCodec()
 
+        codec.addExtPacker(0x00, msgpack.NeovimBufferReference, msgpack.Pack)
+        codec.addExtUnpacker(0x00, msgpack.UnpackBuffer)
+
         codec.addExtPacker(0x01, msgpack.NeovimWindowReference, msgpack.Pack)
         codec.addExtUnpacker(0x01, msgpack.UnpackWindow)
 

@@ -44,6 +44,8 @@ export interface INeovimInstance {
 
     setFont(fontFamily: string, fontSize: string): void
 
+    getBufferIds(): Promise<number[]>
+
     getCurrentBuffer(): Promise<IBuffer>
     getCurrentWindow(): Promise<IWindow>
 
@@ -240,6 +242,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public async getCurrentBuffer(): Promise<IBuffer> {
         const bufferReference = await this._neovim.request<NeovimBufferReference>("nvim_get_current_buf", [])
         return new Buffer(bufferReference, this._neovim)
+    }
+
+    public async getBufferIds(): Promise<number[]> {
+        const buffers = await this._neovim.request<NeovimBufferReference[]>("nvim_list_bufs", [])
+
+        return buffers.map((b) => <any>b.id)
     }
 
     public async getCurrentWorkingDirectory(): Promise<string> {
