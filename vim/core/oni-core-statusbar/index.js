@@ -1,4 +1,3 @@
-const Q = require("q")
 const path = require("path")
 
 const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
