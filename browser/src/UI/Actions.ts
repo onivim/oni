@@ -14,6 +14,13 @@ import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
 
+export interface ISetCurrentBuffersAction {
+    type: "SET_CURRENT_BUFFERS",
+    payload: {
+        bufferIds: number[],
+    }
+}
+
 export interface IBufferEnterAction {
     type: "BUFFER_ENTER",
     payload: {
@@ -310,6 +317,7 @@ export type SimpleAction =
     IToggleLogFold |
     IChangeLogsVisibility |
     IMakeLog |
+    ISetCurrentBuffersAction |
     ISetTabs |
     ISetWindowDimensions |
     ISetWindowLineMapping |

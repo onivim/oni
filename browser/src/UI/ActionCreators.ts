@@ -47,6 +47,13 @@ export const bufferSave = (id: number, version: number) => ({
     },
 })
 
+export const setCurrentBuffers = (bufferIds: number[]) => ({
+    type: "SET_CURRENT_BUFFERS",
+    payload: {
+        bufferIds,
+    },
+})
+
 export const bufferDelete = (id: number) => ({
     type: "BUFFER_DELETE",
     payload: {

@@ -10,7 +10,6 @@ const activate = (Oni) => {
     const lineNumberItem = Oni.statusBar.createItem(1, -1, "oni.status.lineNumber")
     const modeItem = Oni.statusBar.createItem(1, -2, "oni.status.mode")
 
-
     const setMode = (mode) => {
         const getColorForMode = (m) => {
             switch (m) {

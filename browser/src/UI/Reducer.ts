@@ -202,6 +202,23 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 ...s,
                 byId,
             }
+        case "SET_CURRENT_BUFFERS":
+            allIds = s.allIds.filter((id) => a.payload.bufferIds.indexOf(id) >= 0)
+
+            let activeBufferId = s.activeBufferId
+
+            if (a.payload.bufferIds.indexOf(activeBufferId) === -1)) {
+                activeBufferId = null
+            }
+
+            let newById = _.pick(s.byId, a.payload.bufferIds)
+
+            return <State.IBufferState>{
+                activeBufferId,
+                byId: newById,
+                allIds,
+            }
+
         case "BUFFER_DELETE":
             const bufferLeftId = a.payload.id
             byId = <any>_.omit(s.byId, bufferLeftId)
