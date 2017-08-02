@@ -323,7 +323,7 @@ export class NeovimEditor implements IEditor {
     public render(): JSX.Element {
 
         const onBufferClose = (bufferId: number) => {
-            this._neovimInstance.command(`bd ${bufferId}`)
+            this._neovimInstance.command(`bw ${bufferId}`)
         }
 
         return <NeovimSurface renderer={this._renderer}
