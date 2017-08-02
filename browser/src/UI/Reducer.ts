@@ -207,7 +207,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
 
             let activeBufferId = s.activeBufferId
 
-            if (a.payload.bufferIds.indexOf(activeBufferId) === -1)) {
+            if (a.payload.bufferIds.indexOf(activeBufferId) === -1) {
                 activeBufferId = null
             }
 

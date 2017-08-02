@@ -373,7 +373,9 @@ export class NeovimEditor implements IEditor {
             // After save, there is always an additional change tick bump, so the `+1` is needed to account for that.
             UI.Actions.bufferSave(evt.bufferNumber, evt.version + 1)
         } else if (eventName === "BufDelete") {
-            UI.Actions.bufferDelete(evt.bufferNumber)
+
+            this._neovimInstance.getBufferIds()
+                .then((ids) => UI.Actions.setCurrentBuffers(ids))
         }
 
         if (eventName === "DirChanged") {

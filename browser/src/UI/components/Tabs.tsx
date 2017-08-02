@@ -65,10 +65,10 @@ export const Tab = (props: ITabPropsWithClick) => {
         "not-dirty": !props.isDirty,
     })
 
-    return <div className={cssClasses} title={props.description} onClick={props.onClick}>
+    return <div className={cssClasses} title={props.description}>
         <div className="corner"></div>
         <div className="name">{props.name}</div>
-        <div className="corner enable-hover">
+        <div className="corner enable-hover" onClick={props.onClick}>
             <div className="x-icon-container">
                 <Icon name="times" />
             </div>
