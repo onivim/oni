@@ -1,4 +1,4 @@
-- Toggling tabs via `tabs.enabled` should resize canvas
+- Config - saving on blank does not redraw
 
 - Add configuration for buffers vs vim-style tabs (`tabs.useVimTabs`)
 - Hook up 'close' action to mouse click for tabs mode

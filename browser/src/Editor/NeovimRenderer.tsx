@@ -6,6 +6,8 @@
 
 import * as React from "react"
 
+import * as Config from "./../Config"
+
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance } from "./../neovim"
 import { INeovimRenderer } from "./../Renderer"
@@ -27,6 +29,8 @@ export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, vo
 
             this._onResize()
         }
+
+        Config.instance().registerListener(() => this._onResize())
 
         if (!this._boundOnResizeMethod) {
             this._boundOnResizeMethod = this._onResize.bind(this)
