@@ -47,13 +47,6 @@ export interface IBufferSaveAction {
     }
 }
 
-export interface IBufferDeleteAction {
-    type: "BUFFER_DELETE",
-    payload: {
-        id: number,
-    }
-}
-
 export interface ISetTabs {
     type: "SET_TABS",
     payload: {

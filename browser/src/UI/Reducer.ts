@@ -218,17 +218,6 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 byId: newById,
                 allIds,
             }
-
-        case "BUFFER_DELETE":
-            const bufferLeftId = a.payload.id
-            byId = <any>_.omit(s.byId, bufferLeftId)
-            allIds = s.allIds.filter((id) => id !== bufferLeftId)
-
-            return <State.IBufferState>{
-                activeBufferId: null,
-                byId,
-                allIds,
-            }
         default:
             return s
     }

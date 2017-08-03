@@ -54,13 +54,6 @@ export const setCurrentBuffers = (bufferIds: number[]) => ({
     },
 })
 
-export const bufferDelete = (id: number) => ({
-    type: "BUFFER_DELETE",
-    payload: {
-        id,
-    },
-})
-
 export const setTabs = (selectedTabId: number, tabs: State.ITab[]): Actions.ISetTabs => ({
     type: "SET_TABS",
     payload: {

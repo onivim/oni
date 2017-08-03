@@ -1,7 +1,3 @@
-- Remove BUFFER_DELETE action
-
-- Hook up click name to activate buffer
-
 - Add configuration for disabling / enabling tabs in entirety `tabs.enabled`
 - Add configuration for buffers vs vim-style tabs (`tabs.useVimTabs`)
 
