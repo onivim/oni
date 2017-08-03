@@ -25,6 +25,7 @@ export interface ITabProps {
 }
 
 export interface ITabContainerProps {
+    onBufferSelect?: (bufferId: number) => void
     onBufferClose?: (bufferId: number) => void
 }
 
@@ -40,7 +41,7 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
         }
 
         const tabs = this.props.tabs.map((t) => {
-            return <Tab key={t.id} {...t} onClick={() => this._onClick(t.id)}/>
+            return <Tab key={t.id} {...t} onClickName={() => this._onSelect(t.id)} onClickClose={() => this._onClickClose(t.id)}/>
         })
 
         return <div className="tabs horizontal enable-mouse layer" style={tabBorderStyle}>
@@ -48,13 +49,18 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
         </div>
     }
 
-    private _onClick(id: number): void {
+    private _onSelect(id: number): void {
+        this.props.onBufferSelect(id)
+    }
+
+    private _onClickClose(id: number): void {
         this.props.onBufferClose(id)
     }
 }
 
 export interface ITabPropsWithClick extends ITabProps {
-    onClick: React.EventHandler<React.MouseEvent<HTMLDivElement>>
+    onClickName: React.EventHandler<React.MouseEvent<HTMLDivElement>>
+    onClickClose: React.EventHandler<React.MouseEvent<HTMLDivElement>>
 }
 
 export const Tab = (props: ITabPropsWithClick) => {
@@ -67,8 +73,8 @@ export const Tab = (props: ITabPropsWithClick) => {
 
     return <div className={cssClasses} title={props.description}>
         <div className="corner"></div>
-        <div className="name">{props.name}</div>
-        <div className="corner enable-hover" onClick={props.onClick}>
+        <div className="name" onClick={props.onClickName}>{props.name}</div>
+        <div className="corner enable-hover" onClick={props.onClickClose}>
             <div className="x-icon-container">
                 <Icon name="times" />
             </div>

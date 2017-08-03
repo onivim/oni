@@ -29,13 +29,16 @@ export interface INeovimSurfaceProps {
     renderer: INeovimRenderer
     screen: NeovimScreen
     onBufferClose?: (bufferId: number) => void
+    onBufferSelect?: (bufferId: number) => void
 }
 
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
     public render(): JSX.Element {
         return <div className="container vertical full">
             <div className="container fixed">
-                <TabsContainer onBufferClose={this.props.onBufferClose}/>
+                <TabsContainer
+                    onBufferSelect={this.props.onBufferSelect}
+                    onBufferClose={this.props.onBufferClose}/>
             </div>
             <div className="container full">
                 <div className="stack">
