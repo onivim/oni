@@ -276,7 +276,6 @@ export type Action<K extends keyof Config.IConfigValues> =
     SimpleAction | ActionWithGeneric<K>
 
 export type SimpleAction =
-    IBufferDeleteAction |
     IBufferEnterAction |
     IBufferSaveAction |
     IBufferUpdateAction |

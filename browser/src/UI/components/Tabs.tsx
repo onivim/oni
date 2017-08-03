@@ -30,11 +30,15 @@ export interface ITabContainerProps {
 }
 
 export interface ITabsProps extends ITabContainerProps {
+    visible: boolean
     tabs: ITabProps[]
 }
 
 export class Tabs extends React.PureComponent<ITabsProps, void> {
     public render(): JSX.Element {
+        if (!this.props.visible) {
+            return null
+        }
 
         const tabBorderStyle = {
             "borderBottom": "4px solid rgb(40, 44, 52)",
@@ -114,8 +118,11 @@ const getTabsFromBuffers = createSelector(
 const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITabsProps => {
     const tabs = getTabsFromBuffers(state)
 
+    const visible = state.configuration["tabs.enabled"]
+
     return {
         ...ownProps,
+        visible,
         tabs,
     }
 }

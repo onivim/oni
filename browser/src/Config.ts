@@ -96,6 +96,8 @@ export interface IConfigValues {
 
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
+
+    "tabs.enabled": boolean
 }
 
 export class Config extends EventEmitter {
@@ -152,6 +154,8 @@ export class Config extends EventEmitter {
 
         "statusbar.enabled": true,
         "statusbar.fontSize": "12px",
+
+        "tabs.enabled": true,
     }
 
     private MacConfig: Partial<IConfigValues> = {
