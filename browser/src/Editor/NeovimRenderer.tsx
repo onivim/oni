@@ -6,8 +6,6 @@
 
 import * as React from "react"
 
-import * as Config from "./../Config"
-
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance } from "./../neovim"
 import { INeovimRenderer } from "./../Renderer"
@@ -22,6 +20,7 @@ export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, vo
 
     private _element: HTMLDivElement
     private _boundOnResizeMethod: any
+    private _resizeObserver: any
 
     public componentDidMount(): void {
         if (this._element) {
@@ -30,19 +29,26 @@ export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, vo
             this._onResize()
         }
 
-        Config.instance().registerListener(() => this._onResize())
-
         if (!this._boundOnResizeMethod) {
             this._boundOnResizeMethod = this._onResize.bind(this)
-            window.addEventListener("resize", this._boundOnResizeMethod)
+            this._resizeObserver = new window["ResizeObserver"]((entries: any) => { // tslint:disable-line no-string-literal
+                if (this._boundOnResizeMethod) {
+                    this._boundOnResizeMethod()
+                }
+            })
+            this._resizeObserver.observe(this._element)
         }
     }
 
     public componentWillUnmount(): void {
         // TODO: Stop renderer
 
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect()
+            this._resizeObserver = null
+        }
+
         if (this._boundOnResizeMethod) {
-            window.removeEventListener("resize", this._boundOnResizeMethod)
             this._boundOnResizeMethod = null
         }
     }
