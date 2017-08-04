@@ -178,6 +178,10 @@ export class NeovimEditor implements IEditor {
             }
         })
 
+        this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
+            UI.Actions.setTabs(currentTabId, tabs)
+        })
+
         this._neovimInstance.on("logInfo", (info: string) => {
             UI.Actions.makeLog({
                 type: "info",
@@ -203,6 +207,14 @@ export class NeovimEditor implements IEditor {
         })
 
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
+
+        this._neovimInstance.on("buffer-update", (args: Oni.EventContext) => {
+            UI.Actions.bufferUpdate(args.bufferNumber, args.version, args.bufferTotalLines)
+        })
+
+        this._neovimInstance.on("buffer-update-incremental", (args: Oni.EventContext) => {
+            UI.Actions.bufferUpdate(args.bufferNumber, args.version, args.bufferTotalLines)
+        })
 
         this._render()
 
@@ -309,10 +321,31 @@ export class NeovimEditor implements IEditor {
     }
 
     public render(): JSX.Element {
+
+        const onBufferClose = (bufferId: number) => {
+            this._neovimInstance.command(`bw ${bufferId}`)
+        }
+
+        const onBufferSelect = (bufferId: number) => {
+            this._neovimInstance.command(`buf ${bufferId}`)
+        }
+
+        const onTabClose = (tabId: number) => {
+            this._neovimInstance.command(`tabclose ${tabId}`)
+        }
+
+        const onTabSelect = (tabId: number) => {
+            this._neovimInstance.command(`tabn ${tabId}`)
+        }
+
         return <NeovimSurface renderer={this._renderer}
-                neovimInstance={this._neovimInstance}
-                deltaRegionTracker={this._deltaRegionManager}
-                screen={this._screen} />
+            neovimInstance={this._neovimInstance}
+            deltaRegionTracker={this._deltaRegionManager}
+            screen={this._screen}
+            onBufferClose={onBufferClose}
+            onBufferSelect={onBufferSelect}
+            onTabClose={onTabClose}
+            onTabSelect={onTabSelect}/>
     }
 
     private _onModeChanged(newMode: string): void {
@@ -340,7 +373,6 @@ export class NeovimEditor implements IEditor {
         this._liveEvaluationOverlay.onVimEvent(eventName, evt)
 
         UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
-        UI.Actions.setBufferState(evt.bufferFullPath, evt.bufferTotalLines)
 
         this._tasks.onEvent(evt)
 
@@ -350,6 +382,15 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hidePopupMenu()
             UI.Actions.hideSignatureHelp()
             UI.Actions.hideQuickInfo()
+
+            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines)
+        } else if (eventName === "BufWritePost") {
+            // After save, there is always an additional change tick bump, so the `+1` is needed to account for that.
+            UI.Actions.bufferSave(evt.bufferNumber, evt.version + 1)
+        } else if (eventName === "BufDelete") {
+
+            this._neovimInstance.getBufferIds()
+                .then((ids) => UI.Actions.setCurrentBuffers(ids))
         }
 
         if (eventName === "DirChanged") {

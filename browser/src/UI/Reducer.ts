@@ -120,6 +120,7 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
         default:
             return Object.assign({}, s, {
                 buffers: buffersReducer(s.buffers, a),
+                tabState: tabStateReducer(s.tabState, a),
                 errors: errorsReducer(s.errors, a),
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
                 popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
@@ -129,14 +130,93 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
     }
 }
 
-export const buffersReducer = (s: State.Buffers, a: Actions.SimpleAction) => {
+export const tabStateReducer = (s: State.ITabState, a: Actions.SimpleAction): State.ITabState => {
     switch (a.type) {
-        case "SET_BUFFER_STATE":
+        case "SET_TABS":
             return {
                 ...s,
-                [a.payload.file]: {
+                ...a.payload,
+            }
+        default:
+            return s
+    }
+}
+
+export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): State.IBufferState => {
+
+    let byId = s.byId
+    let allIds = s.allIds
+
+    switch (a.type) {
+        case "BUFFER_ENTER":
+            byId = {
+                ...s.byId,
+                [a.payload.id]: <State.IBuffer>{
+                    id: a.payload.id,
+                    file: a.payload.file,
                     totalLines: a.payload.totalLines,
                 },
+            }
+
+            if (allIds.indexOf(a.payload.id) === -1) {
+                allIds = [...s.allIds, a.payload.id]
+            }
+
+            return {
+                activeBufferId: a.payload.id,
+                byId,
+                allIds,
+            }
+        case "BUFFER_SAVE":
+            const currentItem = s.byId[a.payload.id] || {}
+            byId = {
+                ...s.byId,
+                [a.payload.id]: <State.IBuffer>{
+                    ...currentItem,
+                    lastSaveVersion: a.payload.version,
+                },
+            }
+
+            return {
+                ...s,
+                byId,
+            }
+        case "BUFFER_UPDATE":
+            const currentItem3: any = s.byId[a.payload.id] || {}
+
+            // If the last save version hasn't been set, this means it is the first update,
+            // and should clamp to the incoming version
+            const lastSaveVersion = currentItem3.lastSaveVersion || a.payload.version
+
+            byId = {
+                ...s.byId,
+                [a.payload.id]: <State.IBuffer>{
+                    ...currentItem3,
+                    version: a.payload.version,
+                    lastSaveVersion,
+                    totalLines: a.payload.totalLines,
+                },
+            }
+
+            return {
+                ...s,
+                byId,
+            }
+        case "SET_CURRENT_BUFFERS":
+            allIds = s.allIds.filter((id) => a.payload.bufferIds.indexOf(id) >= 0)
+
+            let activeBufferId = s.activeBufferId
+
+            if (a.payload.bufferIds.indexOf(activeBufferId) === -1) {
+                activeBufferId = null
+            }
+
+            let newById = _.pick(s.byId, a.payload.bufferIds)
+
+            return <State.IBufferState>{
+                activeBufferId,
+                byId: newById,
+                allIds,
             }
         default:
             return s

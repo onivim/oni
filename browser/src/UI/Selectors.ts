@@ -38,6 +38,10 @@ export const getSelectedCompletion = (state: State.IState) => {
     return autoCompletion ? autoCompletion.entries[autoCompletion.selectedIndex].label : null
 }
 
+export const getAllBuffers = (buffers: State.IBufferState): State.IBuffer[] => {
+    return buffers.allIds.map((id) => buffers.byId[id])
+}
+
 export const getErrors = (state: State.IState) => state.errors
 
 export const getAllErrorsForFile = (fileName: string, errors: State.Errors) => {

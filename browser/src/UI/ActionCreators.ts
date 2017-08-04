@@ -21,11 +21,44 @@ import * as Config from "./../Config"
 import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
 
-export const setBufferState = (file: string, totalLines: number) => ({
-    type: "SET_BUFFER_STATE",
+export const bufferEnter = (id: number, file: string, totalLines: number) => ({
+    type: "BUFFER_ENTER",
     payload: {
+        id,
         file: normalizePath(file),
         totalLines,
+    },
+})
+
+export const bufferUpdate = (id: number, version: number, totalLines: number) => ({
+    type: "BUFFER_UPDATE",
+    payload: {
+        id,
+        version,
+        totalLines,
+    },
+})
+
+export const bufferSave = (id: number, version: number) => ({
+    type: "BUFFER_SAVE",
+    payload: {
+        id,
+        version,
+    },
+})
+
+export const setCurrentBuffers = (bufferIds: number[]) => ({
+    type: "SET_CURRENT_BUFFERS",
+    payload: {
+        bufferIds,
+    },
+})
+
+export const setTabs = (selectedTabId: number, tabs: State.ITab[]): Actions.ISetTabs => ({
+    type: "SET_TABS",
+    payload: {
+        selectedTabId,
+        tabs,
     },
 })
 

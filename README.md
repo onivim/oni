@@ -19,6 +19,7 @@
         - [Fuzzy Finder](#fuzzy-finder)
         - [Quick Info](#quick-info)
         - [Status Bar](#status-bar)
+        - [Tabs](#tabs)
     - [Languages](#languages)
         - [JavaScript and TypeScript](#javascript-and-typescript)
         - [C#](#c)
@@ -38,7 +39,7 @@
 
 ONI is a [NeoVim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
 
-![screenshot](http://i.imgur.com/qAFSg7y.jpg)
+![screenshot](https://user-images.githubusercontent.com/13532591/28976286-25779704-78f2-11e7-967f-72cb438d77f6.png)
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
@@ -234,6 +235,15 @@ Oni provides a `StatusBar` API for adding new items to the status bar.
 - `oni.statusbar.enabled` - If set to `true`, the status bar feature is enabled. (Default: `true`)
 
 > Users that are coming from Neovim and have highly customized status bars may want to set `oni.statusbar.enabled` to false, along with setting the `oni.loadInitVim` to `true` and `oni.useDefaultConfig` to `false`.
+
+#### Tabs
+
+Oni features a buffer tab bar, like many common IDEs. VIM has its own definition of a "Tab", which is really a set of windows and buffers. By default, the tabs in Oni correspond to open files (buffers). You can override this, and show vim-defined tabs, by setting the `tabs.showVimTabs` setting to `true`
+
+##### Options
+
+- `tabs.enabled` - If set to `true`, the tabs are visible. (Default: `true`)
+- `tabs.showVimTabs` - If set to `true`, shows vim tabs. Otherwise, shows open buffers. (Default: `false`)
 
 ### Languages
 

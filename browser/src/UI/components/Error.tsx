@@ -168,10 +168,12 @@ export class ErrorSquiggle extends React.Component<IErrorSquiggleProps, void> {
 
 import { createSelector } from "reselect"
 
+const EmptyArray: any[] = []
+
 export const getErrorsForFile = createSelector(
     [Selectors.getActiveWindow, Selectors.getErrors],
     (window, errors) => {
-        const errorsForFile = (window && window.file) ? Selectors.getAllErrorsForFile(window.file, errors) : []
+        const errorsForFile = (window && window.file) ? Selectors.getAllErrorsForFile(window.file, errors) : EmptyArray
         return errorsForFile
     })
 

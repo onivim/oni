@@ -1,4 +1,3 @@
-const Q = require("q")
 const path = require("path")
 
 const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
@@ -10,7 +9,6 @@ const activate = (Oni) => {
     const fileTypeItem = Oni.statusBar.createItem(0, 0, "oni.status.fileType")
     const lineNumberItem = Oni.statusBar.createItem(1, -1, "oni.status.lineNumber")
     const modeItem = Oni.statusBar.createItem(1, -2, "oni.status.mode")
-
 
     const setMode = (mode) => {
         const getColorForMode = (m) => {

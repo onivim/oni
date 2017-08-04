@@ -71,13 +71,15 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
     }
 }
 
+const EmptyArray: any[] = []
+
 const mapStateToProps = (state: State.IState) => {
     if (!state.popupMenu) {
         return {
             visible: false,
             selectedIndex: 0,
             filterText: "",
-            items: [],
+            items: EmptyArray,
         }
     } else {
         const popupMenu = state.popupMenu

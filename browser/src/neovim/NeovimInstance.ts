@@ -44,6 +44,8 @@ export interface INeovimInstance {
 
     setFont(fontFamily: string, fontSize: string): void
 
+    getBufferIds(): Promise<number[]>
+
     getCurrentBuffer(): Promise<IBuffer>
     getCurrentWindow(): Promise<IWindow>
 
@@ -162,6 +164,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 const startupOptions = {
                     rgb: true,
                     popupmenu_external: true,
+                    ext_tabline: true,
                 }
 
                 const size = this._getSize()
@@ -239,6 +242,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public async getCurrentBuffer(): Promise<IBuffer> {
         const bufferReference = await this._neovim.request<NeovimBufferReference>("nvim_get_current_buf", [])
         return new Buffer(bufferReference, this._neovim)
+    }
+
+    public async getBufferIds(): Promise<number[]> {
+        const buffers = await this._neovim.request<NeovimBufferReference[]>("nvim_list_bufs", [])
+
+        return buffers.map((b) => <any>b.id)
     }
 
     public async getCurrentWorkingDirectory(): Promise<string> {
@@ -377,6 +386,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 case "popupmenu_show":
                     const completions = a[0][0]
                     this.emit("show-popup-menu", completions)
+                    break
+                case "tabline_update":
+                    const [currentTab, tabs] = a[0]
+                    const mappedTabs: any = tabs.map((t: any) => ({
+                        id: t.tab.id,
+                        name: t.name,
+                    }))
+                    this.emit("tabline-update", currentTab.id, mappedTabs)
                     break
                 case "bell":
                     const bellUrl = this._config.getValue("oni.audio.bellUrl")

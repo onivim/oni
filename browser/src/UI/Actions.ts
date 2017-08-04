@@ -9,16 +9,49 @@
 
 import * as Config from "./../Config"
 import { ILog } from "./Logs"
-import { IMessageDialog, StatusBarAlignment, WindowLineMap } from "./State"
+import { IMessageDialog, ITab, StatusBarAlignment, WindowLineMap } from "./State"
 import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
 
-export interface ISetBufferState {
-    type: "SET_BUFFER_STATE",
+export interface ISetCurrentBuffersAction {
+    type: "SET_CURRENT_BUFFERS",
     payload: {
+        bufferIds: number[],
+    }
+}
+
+export interface IBufferEnterAction {
+    type: "BUFFER_ENTER",
+    payload: {
+        id: number,
         file: string,
         totalLines: number,
+    }
+}
+
+export interface IBufferUpdateAction {
+    type: "BUFFER_UPDATE",
+    payload: {
+        id: number,
+        version: number,
+        totalLines: number,
+    }
+}
+
+export interface IBufferSaveAction {
+    type: "BUFFER_SAVE",
+    payload: {
+        id: number,
+        version: number,
+    }
+}
+
+export interface ISetTabs {
+    type: "SET_TABS",
+    payload: {
+        selectedTabId: number
+        tabs: ITab[],
     }
 }
 
@@ -243,6 +276,9 @@ export type Action<K extends keyof Config.IConfigValues> =
     SimpleAction | ActionWithGeneric<K>
 
 export type SimpleAction =
+    IBufferEnterAction |
+    IBufferSaveAction |
+    IBufferUpdateAction |
     ISetCursorPositionAction |
     IShowSignatureHelpAction |
     IHideSignatureHelpAction |
@@ -273,7 +309,8 @@ export type SimpleAction =
     IToggleLogFold |
     IChangeLogsVisibility |
     IMakeLog |
-    ISetBufferState |
+    ISetCurrentBuffersAction |
+    ISetTabs |
     ISetWindowDimensions |
     ISetWindowLineMapping |
     ISetWindowState
