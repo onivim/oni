@@ -27,9 +27,15 @@ export interface ITabProps {
 export interface ITabContainerProps {
     onBufferSelect?: (bufferId: number) => void
     onBufferClose?: (bufferId: number) => void
+
+    onTabSelect?: (tabId: number) => void
+    onTabClose?: (tabId: number) => void
 }
 
-export interface ITabsProps extends ITabContainerProps {
+export interface ITabsProps {
+    onSelect?: (id: number) => void
+    onClose?: (id: number) => void
+
     visible: boolean
     tabs: ITabProps[]
 }
@@ -54,11 +60,11 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
     }
 
     private _onSelect(id: number): void {
-        this.props.onBufferSelect(id)
+        this.props.onSelect(id)
     }
 
     private _onClickClose(id: number): void {
-        this.props.onBufferClose(id)
+        this.props.onClose(id)
     }
 }
 
@@ -115,13 +121,36 @@ const getTabsFromBuffers = createSelector(
         return tabs
     })
 
+const getTabsFromVimTabs = (state: State.IState): any[] => {
+    return state.tabState.tabs.map((t) => ({
+        id: t.id,
+        name: getTabName(t.name),
+        isSelected: t.id === state.tabState.selectedTabId,
+        isDirty: false,
+        description: t.name,
+    }))
+}
+
 const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITabsProps => {
-    const tabs = getTabsFromBuffers(state)
+
+    const shouldUseVimTabs = state.configuration["tabs.showVimTabs"]
+
+    let tabs: ITabProps[]
+
+    if (shouldUseVimTabs) {
+        tabs = getTabsFromVimTabs(state)
+    } else {
+        tabs = getTabsFromBuffers(state)
+    }
 
     const visible = state.configuration["tabs.enabled"]
 
+    const selectFunc = shouldUseVimTabs ? ownProps.onTabSelect : ownProps.onBufferSelect
+    const closeFunc = shouldUseVimTabs ? ownProps.onTabClose : ownProps.onBufferClose
+
     return {
-        ...ownProps,
+        onSelect: selectFunc,
+        onClose: closeFunc,
         visible,
         tabs,
     }

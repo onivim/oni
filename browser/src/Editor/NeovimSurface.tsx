@@ -30,6 +30,8 @@ export interface INeovimSurfaceProps {
     screen: NeovimScreen
     onBufferClose?: (bufferId: number) => void
     onBufferSelect?: (bufferId: number) => void
+    onTabClose?: (tabId: number) => void
+    onTabSelect?: (tabId: number) => void
 }
 
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
@@ -38,7 +40,9 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
             <div className="container fixed">
                 <TabsContainer
                     onBufferSelect={this.props.onBufferSelect}
-                    onBufferClose={this.props.onBufferClose}/>
+                    onBufferClose={this.props.onBufferClose}
+                    onTabClose={this.props.onTabClose}
+                    onTabSelect={this.props.onTabSelect}/>
             </div>
             <div className="container full">
                 <div className="stack">

@@ -330,12 +330,22 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.command(`buf ${bufferId}`)
         }
 
+        const onTabClose = (tabId: number) => {
+            this._neovimInstance.command(`tabclose ${tabId}`)
+        }
+
+        const onTabSelect = (tabId: number) => {
+            this._neovimInstance.command(`tabn ${tabId}`)
+        }
+
         return <NeovimSurface renderer={this._renderer}
             neovimInstance={this._neovimInstance}
             deltaRegionTracker={this._deltaRegionManager}
             screen={this._screen}
             onBufferClose={onBufferClose}
-            onBufferSelect={onBufferSelect}/>
+            onBufferSelect={onBufferSelect}
+            onTabClose={onTabClose}
+            onTabSelect={onTabSelect}/>
     }
 
     private _onModeChanged(newMode: string): void {
