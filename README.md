@@ -38,7 +38,7 @@
 
 ONI is a [NeoVim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
 
-![screenshot](http://i.imgur.com/qAFSg7y.jpg)
+![screenshot](https://user-images.githubusercontent.com/13532591/28976286-25779704-78f2-11e7-967f-72cb438d77f6.png)
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
