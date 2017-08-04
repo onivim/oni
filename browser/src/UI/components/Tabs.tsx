@@ -107,6 +107,8 @@ import { createSelector } from "reselect"
 
 const getBufferState = (state: State.IState) => state.buffers
 
+const getTabState = (state: State.IState) => state.tabState
+
 const getTabsFromBuffers = createSelector(
     [getBufferState],
     (buffers) => {
@@ -121,15 +123,17 @@ const getTabsFromBuffers = createSelector(
         return tabs
     })
 
-const getTabsFromVimTabs = (state: State.IState): any[] => {
-    return state.tabState.tabs.map((t) => ({
-        id: t.id,
-        name: getTabName(t.name),
-        isSelected: t.id === state.tabState.selectedTabId,
-        isDirty: false,
-        description: t.name,
-    }))
-}
+const getTabsFromVimTabs = createSelector(
+    [getTabState],
+    (tabState) => {
+        return tabState.tabs.map((t) => ({
+            id: t.id,
+            name: getTabName(t.name),
+            isSelected: t.id === tabState.selectedTabId,
+            isDirty: false,
+            description: t.name,
+        }))
+    })
 
 const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITabsProps => {
 

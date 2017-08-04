@@ -1,5 +1,7 @@
 - Optimize selector for tab
 
+- Click height of name
+
 - Check layer performance
 
 ## Separate issue
