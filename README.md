@@ -240,6 +240,9 @@ Oni provides a `StatusBar` API for adding new items to the status bar.
 
 Oni features a buffer tab bar, like many common IDEs. VIM has its own definition of a "Tab", which is really a set of windows and buffers. By default, the tabs in Oni correspond to open files (buffers). You can override this, and show vim-defined tabs, by setting the `tabs.showVimTabs` setting to `true`
 
+##### Commands
+- `[b` and `]b` will cycle through buffers, which has the effect of moving through the tabs.
+
 ##### Options
 
 - `tabs.enabled` - If set to `true`, the tabs are visible. (Default: `true`)
