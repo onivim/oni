@@ -83,7 +83,11 @@ export const Tab = (props: ITabPropsWithClick) => {
 
     return <div className={cssClasses} title={props.description}>
         <div className="corner"></div>
-        <div className="name" onClick={props.onClickName}>{props.name}</div>
+        <div className="name" onClick={props.onClickName}>
+            <span className="name-inner">
+                {props.name}
+            </span>
+        </div>
         <div className="corner enable-hover" onClick={props.onClickClose}>
             <div className="x-icon-container">
                 <Icon name="times" />
