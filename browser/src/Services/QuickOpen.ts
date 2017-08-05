@@ -24,6 +24,12 @@ export class QuickOpen {
     constructor(neovimInstance: INeovimInstance) {
         UI.events.on("menu-item-selected:quickOpen", (selectedItem: any) => {
             const arg = selectedItem.selectedOption
+
+            // If we are loading don't open this
+            if (arg.icon === "refresh fa-spin fa-fw") {
+                return
+            }
+
             const fullPath = path.join(arg.detail, arg.label)
 
             this._seenItems.push(fullPath)
@@ -37,7 +43,7 @@ export class QuickOpen {
             // TODO If we export the icon, change from arg.icon to whatever
             // Or have modes
             if (arg.icon === "chain") {
-                neovimInstance.command("cd! " + arg.detail)
+                neovimInstance.chdir(arg.detail)
             }
 
         })
@@ -55,6 +61,13 @@ export class QuickOpen {
             pinned: false,
         }])
 
+        //  If in exec directory or home, show bookmarks to change cwd to
+        if (this._isInstallDirectoryOrHome()) {
+            const bookmarks = config.getValue("oni.bookmarks")
+            this._showMenuFromFiles(bookmarks, "chain")
+            return
+        }
+
         // Overridden strategy
         if (overriddenCommand) {
             try {
@@ -70,16 +83,10 @@ export class QuickOpen {
         }
 
         // Default strategy
-        //  If in exec directory, show bookmarks to change cwd to
         //  Otherwise, If git repo, use git ls-files
         //  Otherwise, find all files recursively
         const openPromise = Git.isGitRepository()
             .then((isGit) => {
-                if (process.execPath === process.cwd()) {
-                    const bookmarks = config.getValue("oni.bookmarks")
-                    this._showMenuFromFiles(bookmarks, "chain")
-                    return
-                }
                 if (isGit) {
                     return Q.all([Git.getTrackedFiles(), Git.getUntrackedFiles(exclude)])
                         .then((values: [string[], string[]]) => {
@@ -100,6 +107,10 @@ export class QuickOpen {
         PromiseHelper.wrapPromiseAndNotifyError("editor.quickOpen.show", openPromise)
     }
 
+    private _isInstallDirectoryOrHome() {
+        return path.dirname(process.execPath) === process.cwd() ||
+               process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"] === process.cwd()
+    }
     // Show menu based on files given
     // In some cases such as bookmarks we actually send a directory
     // Since opening in vim is the same essentially, this is nice.
