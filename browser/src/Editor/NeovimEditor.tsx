@@ -274,7 +274,7 @@ export class NeovimEditor implements IEditor {
         })
 
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
-        window["__screen"] = screen // tslint:disable-line no-string-literal
+        window["__screen"] = this._screen // tslint:disable-line no-string-literal
 
         ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
             if (message.startsWith(":")) {
