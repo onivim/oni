@@ -79,7 +79,6 @@ const openFolder = (neovimInstance: INeovimInstance) => {
         }
 
         const folderToOpen = folder[0]
-
         neovimInstance.chdir(folderToOpen)
     })
 }
