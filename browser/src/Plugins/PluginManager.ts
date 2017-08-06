@@ -207,6 +207,9 @@ export class PluginManager extends EventEmitter {
             case "set-errors":
                 this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors)
                 break
+            case "execute-command":
+                this._commandManager.executeCommand(pluginResponse.payload.commandName, pluginResponse.payload.args)
+                break
             case "find-all-references":
                 this.emit("find-all-references", pluginResponse.payload.references)
                 break

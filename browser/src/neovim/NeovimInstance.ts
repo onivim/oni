@@ -139,7 +139,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             const eventName = args[0][0]
                             const eventContext = args[0][1]
 
+                            if (eventName === "DirChanged") {
+                                this._updateProcessDirectory()
+                            }
+
                             this.emit("event", eventName, eventContext)
+
                         } else if (pluginMethod === "incremental_buffer_update") {
                             const eventContext = args[0][0]
                             const bufferLine = args[0][1]
@@ -416,4 +421,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             }
         })
     }
+
+    private async _updateProcessDirectory(): Promise<void> {
+        const newDirectory = await this.getCurrentWorkingDirectory()
+        process.chdir(newDirectory)
+        this.emit("event", "directory-changed", newDirectory)
+    }
+
 }
