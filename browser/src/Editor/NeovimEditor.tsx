@@ -54,6 +54,7 @@ export class NeovimEditor implements IEditor {
     private _screen: NeovimScreen
 
     private _pendingTimeout: any = null
+    private _pendingAnimationFrame: boolean = false
     private _element: HTMLElement
 
     // Services
@@ -170,6 +171,8 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.on("action", (action: any) => {
             this._renderer.onAction(action)
             this._screen.dispatch(action)
+
+            this._scheduleRender()
 
             UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
 
@@ -402,6 +405,7 @@ export class NeovimEditor implements IEditor {
     private _onConfigChanged(): void {
         this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
         this._onUpdate()
+        this._scheduleRender()
     }
 
     private _onUpdate(): void {
@@ -413,15 +417,23 @@ export class NeovimEditor implements IEditor {
         }
     }
 
+    private _scheduleRender(): void {
+        if (this._pendingAnimationFrame) {
+            return
+        }
+
+        this._pendingAnimationFrame = true
+        window.requestAnimationFrame(() => this._render())
+    }
+
     private _render(): void {
+        this._pendingAnimationFrame = false
+
         if (this._pendingTimeout) {
             UI.Actions.setCursorPosition(this._screen)
         }
 
         this._renderer.update(this._screen, this._deltaRegionManager)
-
         this._deltaRegionManager.cleanUpRenderedCells()
-
-        window.requestAnimationFrame(() => this._render())
     }
 }
