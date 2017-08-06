@@ -434,9 +434,6 @@ export class NeovimEditor implements IEditor {
         }
 
         this._renderer.update(this._screen, this._deltaRegionManager)
-
         this._deltaRegionManager.cleanUpRenderedCells()
-
-        // window.requestAnimationFrame(() => this._render())
     }
 }
