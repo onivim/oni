@@ -425,7 +425,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private async _updateProcessDirectory(): Promise<void> {
         const newDirectory = await this.getCurrentWorkingDirectory()
         process.chdir(newDirectory)
-        this.emit("event", "directory-changed", newDirectory)
+        this.emit("directory-changed", newDirectory)
     }
 
 }
