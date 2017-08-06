@@ -429,3 +429,4 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
 }
+
