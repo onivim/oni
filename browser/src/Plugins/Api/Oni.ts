@@ -83,7 +83,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._diagnostics = new Diagnostics(this._channel)
         this._dependencies = new Dependencies()
         this._editor = new Editor(this._channel)
-        this._commands = new Commands()
+        this._commands = new Commands(this._channel)
         this._statusBar = new StatusBar(this._channel)
         this._ui = new Ui(react)
         this._services = new Services()

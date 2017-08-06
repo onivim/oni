@@ -395,11 +395,6 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.getBufferIds()
                 .then((ids) => UI.Actions.setCurrentBuffers(ids))
         }
-
-        if (eventName === "DirChanged") {
-            this._neovimInstance.getCurrentWorkingDirectory()
-                .then((newDirectory) => process.chdir(newDirectory))
-        }
     }
 
     private _onConfigChanged(): void {

@@ -31,6 +31,11 @@ export interface INeovimInstance {
     callFunction(functionName: string, args: any[]): Promise<any>
 
     /**
+     * Change the working directory of Neovim
+     */
+    chdir(directoryPath: string): Promise<any>
+
+    /**
      * Execute a VimL command
      */
     command(command: string): Promise<any>
@@ -92,6 +97,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._quickFix = new QuickFixList(this)
     }
 
+    public async chdir(directoryPath: string): Promise<void> {
+        await this.command(`cd! ${directoryPath}`)
+    }
+
     public start(filesToOpen?: string[]): void {
         filesToOpen = filesToOpen || []
 
@@ -130,7 +139,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             const eventName = args[0][0]
                             const eventContext = args[0][1]
 
+                            if (eventName === "DirChanged") {
+                                this._updateProcessDirectory()
+                            }
+
                             this.emit("event", eventName, eventContext)
+
                         } else if (pluginMethod === "incremental_buffer_update") {
                             const eventContext = args[0][0]
                             const bufferLine = args[0][1]
@@ -407,4 +421,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             }
         })
     }
+
+    private async _updateProcessDirectory(): Promise<void> {
+        const newDirectory = await this.getCurrentWorkingDirectory()
+        process.chdir(newDirectory)
+        this.emit("directory-changed", newDirectory)
+    }
+
 }

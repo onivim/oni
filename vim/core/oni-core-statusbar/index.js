@@ -5,7 +5,7 @@ const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
 const activate = (Oni) => {
     const React = Oni.dependencies.React
 
-    const filePathItem = Oni.statusBar.createItem(0, -1, "oni.status.filePath")
+    const workingDirectoryItem = Oni.statusBar.createItem(0, -1, "oni.status.workingDirectory")
     const fileTypeItem = Oni.statusBar.createItem(0, 0, "oni.status.fileType")
     const lineNumberItem = Oni.statusBar.createItem(1, -1, "oni.status.lineNumber")
     const modeItem = Oni.statusBar.createItem(1, -2, "oni.status.mode")
@@ -53,15 +53,17 @@ const activate = (Oni) => {
         lineNumberItem.setContents(element)
     }
 
-    const setFilePath = (filePath) => {
-        let filePathString = filePath
-        if (!filePathString) {
-            filePathString = "[No Name]"
+    const setWorkingDirectory = (workingDirectory) => {
+        if (!workingDirectory) {
+            workingDirectory = ""
         }
 
-        const element = React.createElement("div", { style: { color: "rgb(140, 140, 140)" } }, filePathString)
+        const openFolderCommand = () => {
+            Oni.commands.executeCommand("oni.openFolder")
+        }
 
-        filePathItem.setContents(element)
+        const element = React.createElement("div", { style: { color: "rgb(140, 140, 140)" }, onClick: openFolderCommand }, workingDirectory)
+        workingDirectoryItem.setContents(element)
     }
 
     const setFileType = (fileType) => {
@@ -98,17 +100,20 @@ const activate = (Oni) => {
 
     Oni.on("buffer-enter", (evt) => {
         setFileType(evt.filetype)
-        setFilePath(evt.bufferFullPath)
+    })
+
+    Oni.on("directory-changed", (newDirectory) => {
+        setWorkingDirectory(newDirectory)
     })
 
     setMode("normal")
     setLineNumber(1, 1)
-    setFilePath(null)
-    setFileType(null)
+    setWorkingDirectory(null)
+    setWorkingDirectory(process.cwd())
 
     modeItem.show()
     lineNumberItem.show()
-    filePathItem.show()
+    workingDirectoryItem.show()
 }
 
 module.exports = {

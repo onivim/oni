@@ -4,7 +4,6 @@ const os = require('os')
 // Module to control application life.
 const { Menu, app, shell, dialog } = electron;
 
-
 const buildMenu = (mainWindow, loadInit) => {
     let menu = []
 
@@ -54,6 +53,12 @@ const buildMenu = (mainWindow, loadInit) => {
                     dialog.showOpenDialog(mainWindow, ['openFile'], (files) => {
                         executeVimCommandForFiles(":e", files)
                     })
+                }
+            },
+            {
+                label: 'Open Folder...',
+                click: (item, focusedWindow) => {
+                    executeOniCommand("oni.openFolder")
                 }
             },
             {
