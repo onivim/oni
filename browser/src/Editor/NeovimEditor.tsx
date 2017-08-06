@@ -83,7 +83,7 @@ export class NeovimEditor implements IEditor {
         const autoCompletion = new AutoCompletion(this._neovimInstance)
         const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
         const errorService = new Errors(this._neovimInstance)
-        const quickOpen = new QuickOpen(this._neovimInstance)
+        const quickOpen = new QuickOpen(this._neovimInstance, this)
         const windowTitle = new WindowTitle(this._neovimInstance)
         const multiProcess = new MultiProcess()
         const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
@@ -265,6 +265,8 @@ export class NeovimEditor implements IEditor {
                 this._commandManager.executeCommand("oni.editor.gotoDefinition", null)
             } else if (key === "<C-p>" && this._screen.mode === "normal") {
                 quickOpen.show()
+            } else if (key === "<C-=>" && this._screen.mode === "normal") {
+                quickOpen.show(true)
             } else if (key === "<C-P>" && this._screen.mode === "normal") {
                 this._tasks.show()
             } else if (key === "<C-pageup>") {
@@ -317,6 +319,10 @@ export class NeovimEditor implements IEditor {
                 this._neovimInstance.command("exec \":tabe " + normalizePath(files.item(i).path) + "\"")
             }
         }
+    }
+
+    public executeCommand(command: string): void{
+        this._commandManager.executeCommand(command, null)
     }
 
     public init(filesToOpen: string[]): void {
