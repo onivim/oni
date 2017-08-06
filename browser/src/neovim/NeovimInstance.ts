@@ -98,7 +98,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public async chdir(directoryPath: string): Promise<void> {
-        await this.command(`cd ${directoryPath}`)
+        await this.command(`cd! ${directoryPath}`)
     }
 
     public start(filesToOpen?: string[]): void {
