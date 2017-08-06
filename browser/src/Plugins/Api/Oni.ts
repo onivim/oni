@@ -150,6 +150,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                 this.emit("buffer-enter", arg.payload.context)
             } else if (arg.payload.name === "BufLeave") {
                 this.emit("buffer-leave", arg.payload.context)
+            } else if (arg.payload.name === "DirChanged") {
+                this.emit("directory-changed", arg.payload.context)
             }
 
             this.emit(arg.payload.name, arg.payload.context)
