@@ -22,6 +22,8 @@ import * as Git from "./Git"
 export class QuickOpen {
     private _seenItems: string[] = []
 
+    // TODO If we export the icon, change from arg.icon to whatever
+    // Or have modes
     constructor(neovimInstance: INeovimInstance, neovimEditor: NeovimEditor) {
         UI.events.on("menu-item-selected:quickOpen", (selectedItem: any) => {
             const arg = selectedItem.selectedOption
@@ -30,6 +32,7 @@ export class QuickOpen {
             if (arg.icon === "refresh fa-spin fa-fw") {
                 return
             } else if (arg.icon === "info") {
+                // If we are info it means we need to open the config
                 neovimEditor.executeCommand("oni.config.openConfigJs")
                 return
             }
@@ -44,10 +47,8 @@ export class QuickOpen {
                 neovimInstance.command("vsp! " + fullPath)
             }
 
-            // TODO If we export the icon, change from arg.icon to whatever
-            // Or have modes
             if (arg.icon === "chain") {
-                neovimInstance.chdir(arg.detail)
+                neovimInstance.chdir(fullPath)
             }
 
         })
@@ -72,9 +73,9 @@ export class QuickOpen {
             const helpMessage = "No bookmarks yet! Select this to open config! (shows example)"
             let noPush = false
 
-            // If bookmarks are null so a help message and open config on selection
+            // If bookmarks are null show a help message and open config on selection
             // If we have already pushed, don't push again
-            // Disable lint to prevent duplicate checks
+            // Disable lint to prevent duplicate ifs
             if (bookmarks.length === 0 || (noPush = bookmarks[0] === helpMessage)) { // tslint:disable-line no-conditional-assignment
                 icon = "info"
                 if (!noPush) {
