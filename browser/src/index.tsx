@@ -50,6 +50,8 @@ const start = (args: string[]) => {
 
     let prevConfigValues = config.getValues()
 
+    const browserWindow = remote.getCurrentWindow()
+
     const configChange = () => {
         let newConfigValues = config.getValues()
         let prop: keyof Config.IConfigValues
@@ -64,10 +66,9 @@ const start = (args: string[]) => {
         document.body.style.fontSize = config.getValue("editor.fontSize")
         document.body.style.fontVariant = config.getValue("editor.fontLigatures") ? "normal" : "none"
 
-        const window = remote.getCurrentWindow()
         const hideMenu: boolean = config.getValue("oni.hideMenu")
-        window.setAutoHideMenuBar(hideMenu)
-        window.setMenuBarVisibility(!hideMenu)
+        browserWindow.setAutoHideMenuBar(hideMenu)
+        browserWindow.setMenuBarVisibility(!hideMenu)
 
         const loadInit: boolean = config.getValue("oni.loadInitVim")
         if (loadInit !== loadInitVim) {
@@ -76,7 +77,7 @@ const start = (args: string[]) => {
             loadInitVim = loadInit
         }
 
-        window.setFullScreen(config.getValue("editor.fullScreenOnStart"))
+        browserWindow.setFullScreen(config.getValue("editor.fullScreenOnStart"))
     }
 
     configChange() // initialize values

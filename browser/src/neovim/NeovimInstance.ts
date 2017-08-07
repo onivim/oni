@@ -58,6 +58,8 @@ export interface INeovimInstance {
     getCursorRow(): Promise<number>
 
     open(fileName: string): Promise<void>
+
+    executeAutoCommand(autoCommand: string): Promise<void>
 }
 
 /**
@@ -99,6 +101,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public async chdir(directoryPath: string): Promise<void> {
         await this.command(`cd! ${directoryPath}`)
+    }
+
+    public async executeAutoCommand(autoCommand: string): Promise<void> {
+        await this.command(`doautocmd <nomodeline> ${autoCommand}`)
     }
 
     public start(filesToOpen?: string[]): void {
