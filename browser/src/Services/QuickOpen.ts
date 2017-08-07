@@ -53,7 +53,7 @@ export class QuickOpen {
         })
     }
 
-    public show(forceBookmark : boolean = false): void {
+    public show(forceBookmark: boolean = false): void {
         const config = Config.instance()
         const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
         const exclude = config.getValue("oni.exclude")
@@ -69,7 +69,7 @@ export class QuickOpen {
         if (forceBookmark || this._isInstallDirectoryOrHome()) {
             const bookmarks = config.getValue("oni.bookmarks")
             let icon = "chain"
-            let helpMessage = "No bookmarks yet! Select this to open config! (shows example)"
+            const helpMessage = "No bookmarks yet! Select this to open config! (shows example)"
             let noPush = false
 
             // If bookmarks are null so a help message and open config on selection

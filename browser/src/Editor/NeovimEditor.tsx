@@ -321,7 +321,7 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    public executeCommand(command: string): void{
+    public executeCommand(command: string): void {
         this._commandManager.executeCommand(command, null)
     }
 
