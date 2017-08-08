@@ -207,34 +207,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             })
     }
 
-    private async _attachUI(columns: number, rows: number): Promise<void> {
-        const version = await this.getApiVersion()
-        console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`)
-
-        const startupOptions = this._getStartupOptionsForVersion(version.major, version.minor, version.patch)
-
-        await this._neovim.request("nvim_ui_attach", [columns, rows, startupOptions])
-    }
-
-    private _getStartupOptionsForVersion(major: number, minor: number, patch: number) {
-        if (major >= 0 && minor >= 2 && patch >= 1) {
-            return {
-                rgb: true,
-                popupmenu_external: true,
-                ext_tabline: true,
-            }
-        } else if (major === 0 && minor === 2) {
-            // 0.1 and below does not support external tabline
-            // See #579 for more info on the manifestation.
-            return {
-                rgb: true,
-                popupmenu_external: true,
-            }
-        } else {
-            throw "Unsupported version of Neovim."
-        }
-    }
-
     public getMode(): Promise<string> {
         return this.eval<string>("mode()")
     }
@@ -462,4 +434,31 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this.emit("directory-changed", newDirectory)
     }
 
+    private async _attachUI(columns: number, rows: number): Promise<void> {
+        const version = await this.getApiVersion()
+        console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`) // tslint:disable-line no-console-log
+
+        const startupOptions = this._getStartupOptionsForVersion(version.major, version.minor, version.patch)
+
+        await this._neovim.request("nvim_ui_attach", [columns, rows, startupOptions])
+    }
+
+    private _getStartupOptionsForVersion(major: number, minor: number, patch: number) {
+        if (major >= 0 && minor >= 2 && patch >= 1) {
+            return {
+                rgb: true,
+                popupmenu_external: true,
+                ext_tabline: true,
+            }
+        } else if (major === 0 && minor === 2) {
+            // 0.1 and below does not support external tabline
+            // See #579 for more info on the manifestation.
+            return {
+                rgb: true,
+                popupmenu_external: true,
+            }
+        } else {
+            throw "Unsupported version of Neovim."
+        }
+    }
 }
