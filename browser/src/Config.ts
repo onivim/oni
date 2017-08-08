@@ -157,7 +157,7 @@ export class Config extends EventEmitter {
         "statusbar.fontSize": "12px",
 
         "tabs.enabled": true,
-        "tabs.showVimTabs": true,
+        "tabs.showVimTabs": false,
     }
 
     private MacConfig: Partial<IConfigValues> = {
