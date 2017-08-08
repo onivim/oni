@@ -57,7 +57,14 @@ export interface INeovimInstance {
     getCursorColumn(): Promise<number>
     getCursorRow(): Promise<number>
 
+    getApiVersion(): Promise<INeovimApiVersion>
+
     open(fileName: string): Promise<void>
+}
+
+export interface INeovimApiVersion {
+    major: number
+    minor: number
 }
 
 /**
@@ -175,21 +182,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     remote.getCurrentWindow().close()
                 })
 
-                const startupOptions = {
-                    rgb: true,
-                    popupmenu_external: true,
-                    ext_tabline: true,
-                }
-
                 const size = this._getSize()
                 this._rows = size.rows
                 this._cols = size.cols
 
                 // Workaround for bug in neovim/node-client
                 // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
-                return this._neovim.request("nvim_get_api_info", [])
-                    .then((info) => { debugger })
-                    .then(() => this._neovim.request("nvim_ui_attach", [size.cols, size.rows, startupOptions]))
+                return this._attachUI(size.cols, size.rows)
                     .then(() => {
                         this.emit("logInfo", "Attach success")
 
@@ -207,6 +206,32 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             })
     }
 
+    private async _attachUI(columns: number, rows: number): Promise<void> {
+        const version = await this.getApiVersion()
+        const startupOptions = this._getStartupOptionsForVersion(version.major, version.minor)
+
+        await this._neovim.request("nvim_ui_attach", [columns, rows, startupOptions])
+    }
+
+    private _getStartupOptionsForVersion(major: number, minor: number) {
+        if (major >= 0 && minor >= 2) {
+            return {
+                rgb: true,
+                popupmenu_external: true,
+                ext_tabline: true,
+            }
+        } else if (major === 0 && minor === 1) {
+            // 0.1 and below does not support external tabline
+            // See #579 for more info on the manifestation.
+            return {
+                rgb: true,
+                popupmenu_external: true,
+            }
+        } else {
+            throw "Unsupported version of Neovim."
+        }
+    }
+
     public getMode(): Promise<string> {
         return this.eval<string>("mode()")
     }
@@ -218,8 +243,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.eval<number>("col('.')")
     }
 
-    /**
-     * Returns the current cursor row in buffer-space
+    /** Returns the current cursor row in buffer-space
      */
     public getCursorRow(): Promise<number> {
         return this.eval<number>("line('.')")
@@ -302,6 +326,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         const size = this._getSize()
 
         this._resizeInternal(size.rows, size.cols)
+    }
+
+    public async getApiVersion(): Promise<INeovimApiVersion> {
+        const versionInfo = await this._neovim.request("nvim_get_api_info", [])
+        return <any>versionInfo[1].version
     }
 
     private _resizeInternal(rows: number, columns: number): void {
