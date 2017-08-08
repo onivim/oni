@@ -246,7 +246,7 @@ Oni features a buffer tab bar, like many common IDEs. VIM has its own definition
 ##### Options
 
 - `tabs.enabled` - If set to `true`, the tabs are visible. (Default: `true`)
-- `tabs.showVimTabs` - If set to `true`, shows vim tabs. Otherwise, shows open buffers. (Default: `false`)
+- `tabs.showVimTabs` - If set to `true`, shows vim tabs. Otherwise, shows open buffers. (Default: `false`. Requires Neovim 0.2.1+)
 
 ### Languages
 
