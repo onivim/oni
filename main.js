@@ -85,7 +85,7 @@ function createWindow(commandLineArguments, workingDirectory) {
     mainWindow.loadURL(`file://${__dirname}/index.html`)
 
     // Open the DevTools.
-    if (process.env.NODE_ENV === "development")
+    if (process.env.NODE_ENV === "development" || commandLineArguments.indexOf("--debug") >= 0)
         mainWindow.webContents.openDevTools()
 
     // Emitted when the window is closed.

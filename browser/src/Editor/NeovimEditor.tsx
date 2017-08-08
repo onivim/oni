@@ -9,7 +9,7 @@ import * as ReactDOM from "react-dom"
 
 import * as types from "vscode-languageserver-types"
 
-import { ipcRenderer } from "electron"
+import { ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance } from "./../neovim"
@@ -220,6 +220,16 @@ export class NeovimEditor implements IEditor {
         })
 
         this._render()
+
+        const browserWindow = remote.getCurrentWindow()
+
+        browserWindow.on("blur", () => {
+            this._neovimInstance.executeAutoCommand("FocusLost")
+        })
+
+        browserWindow.on("focus", () => {
+            this._neovimInstance.executeAutoCommand("FocusGained")
+        })
 
         this._onConfigChanged()
         this._config.registerListener(() => this._onConfigChanged())
