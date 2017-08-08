@@ -209,6 +209,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private async _attachUI(columns: number, rows: number): Promise<void> {
         const version = await this.getApiVersion()
+        console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`)
+
         const startupOptions = this._getStartupOptionsForVersion(version.major, version.minor, version.patch)
 
         await this._neovim.request("nvim_ui_attach", [columns, rows, startupOptions])
