@@ -15,7 +15,7 @@ export interface IQuickInfoProps {
     openFromTop?: boolean
 }
 
-export class QuickInfo extends React.Component<IQuickInfoProps, void> {
+export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
 
     public render(): null | JSX.Element {
         if (!this.props.elements || !this.props.elements.length) {
@@ -24,29 +24,29 @@ export class QuickInfo extends React.Component<IQuickInfoProps, void> {
 
         const openFromTop = this.props.openFromTop || false
 
-        const containerStyle: React.CSSProperties = {
+        const containerStyle = {
             position: "absolute",
             top: this.props.y.toString() + "px",
             left: this.props.x.toString() + "px",
         }
 
-        const innerCommonStyle: React.CSSProperties = {
+        const innerCommonStyle = {
             "position": "absolute",
             "opacity": this.props.visible ? 1 : 0,
             "max-width": (document.body.offsetWidth - this.props.x - 40) + "px",
         }
 
-        const openFromTopStyle: React.CSSProperties = {
+        const openFromTopStyle = {
             ...innerCommonStyle,
             "top": "0px",
         }
 
-        const openFromBottomStyle: React.CSSProperties = {
+        const openFromBottomStyle = {
             ...innerCommonStyle,
             "bottom": "0px",
         }
 
-        const innerStyle: React.CSSProperties = openFromTop ? openFromTopStyle : openFromBottomStyle
+        const innerStyle = openFromTop ? openFromTopStyle : openFromBottomStyle
 
         return <div key={"quickinfo-container"} className="quickinfo-container enable-mouse" style={containerStyle}>
             <div key={"quickInfo"} style={innerStyle} className="quickinfo">
@@ -111,23 +111,44 @@ const getOpenPosition = (state: IState): { x: number, y: number, openFromTop: bo
     }
 }
 
+import { createSelector } from "reselect"
+
+const getQuickInfo = (state: IState) => state.quickInfo
+
+const getCursorCharacter = (state: IState) => state.cursorCharacter
+
+const EmptyArray: JSX.Element[] = []
+
+const getQuickInfoElement = createSelector(
+    [getQuickInfo, getCursorCharacter],
+    (quickInfo, cursorCharacter) => {
+
+        if (!quickInfo || !cursorCharacter) {
+            return EmptyArray
+        } else {
+            return [
+                <QuickInfoTitle text={quickInfo.title} />,
+                <QuickInfoDocumentation text={quickInfo.description} />,
+            ]
+        }
+    })
+
 const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
     const openPosition = getOpenPosition(state)
+
+    const elements = getQuickInfoElement(state)
 
     if (!state.quickInfo || !state.cursorCharacter) {
         return {
             ...openPosition,
             visible: false,
-            elements: [],
+            elements,
         }
     } else {
         return {
             ...openPosition,
             visible: true,
-            elements: [
-                <QuickInfoTitle text={state.quickInfo.title} />,
-                <QuickInfoDocumentation text={state.quickInfo.description} />,
-            ],
+            elements,
         }
     }
 }
@@ -139,7 +160,7 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
         return {
             ...openPosition,
             visible: false,
-            elements: [],
+            elements: EmptyArray,
         }
     } else {
         const currentItem = state.signatureHelp.items[state.signatureHelp.selectedItemIndex]

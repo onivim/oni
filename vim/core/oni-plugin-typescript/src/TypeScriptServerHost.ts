@@ -39,7 +39,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
         // This has some info on using eventPort: https://github.com/Microsoft/TypeScript/blob/master/src/server/server.ts
         // which might be more reliable
         // Can create the port using this here: https://github.com/Microsoft/TypeScript/blob/master/src/server/server.ts
-        this._tssProcess = Oni.spawnNodeScript(tssPath)
+        this._tssProcess = Oni.process.spawnNodeScript(tssPath)
         console.log("Process ID: " + this._tssProcess.pid) // tslint:disable-line no-console
 
         this._rl = readline.createInterface({

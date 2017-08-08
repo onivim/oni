@@ -8,6 +8,10 @@
 
 import * as State from "./State"
 
+import { Rectangle } from "./Types"
+
+import * as _ from "lodash"
+
 export const isPopupMenuOpen = (state: State.IState) => {
     const popupMenu = state.popupMenu
     return !!popupMenu
@@ -32,4 +36,50 @@ export const areCompletionsVisible = (state: State.IState) => {
 export const getSelectedCompletion = (state: State.IState) => {
     const autoCompletion = state.autoCompletion
     return autoCompletion ? autoCompletion.entries[autoCompletion.selectedIndex].label : null
+}
+
+export const getAllBuffers = (buffers: State.IBufferState): State.IBuffer[] => {
+    return buffers.allIds.map((id) => buffers.byId[id])
+}
+
+export const getErrors = (state: State.IState) => state.errors
+
+export const getAllErrorsForFile = (fileName: string, errors: State.Errors) => {
+    if (!fileName || !errors) {
+        return []
+    }
+
+    const allErrorsByKey = errors[fileName]
+
+    if (!allErrorsByKey) {
+        return []
+    }
+
+    const arrayOfErrorsArray = Object.values(allErrorsByKey)
+    return _.flatten(arrayOfErrorsArray)
+}
+
+export const getActiveWindow = (state: State.IState): State.IWindow => {
+    if (state.windowState.activeWindow === null) {
+        return null
+    }
+
+    const activeWindow = state.windowState.activeWindow
+    return state.windowState.windows[activeWindow]
+}
+
+export const getActiveWindowDimensions = (state: State.IState): Rectangle => {
+    const emptyRectangle = {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+    }
+
+    const window = getActiveWindow(state)
+    if (!window) {
+        return emptyRectangle
+    }
+
+    return window.dimensions || emptyRectangle
 }

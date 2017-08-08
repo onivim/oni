@@ -23,7 +23,7 @@ export interface IAutoCompletionProps {
 
 require("./AutoCompletion.less") // tslint:disable-line no-var-requires
 
-export class AutoCompletion extends React.Component<IAutoCompletionProps, void> {
+export class AutoCompletion extends React.PureComponent<IAutoCompletionProps, void> {
 
     public render(): null | JSX.Element {
 
@@ -31,7 +31,7 @@ export class AutoCompletion extends React.Component<IAutoCompletionProps, void> 
             return null
         }
 
-        const containerStyle: React.CSSProperties = {
+        const containerStyle = {
             position: "absolute",
             top: this.props.y.toString() + "px",
             left: this.props.x.toString() + "px",
@@ -165,6 +165,8 @@ export class AutoCompletionIcon extends React.Component<IAutoCompletionIconProps
     }
 }
 
+const EmptyArray: any[] = []
+
 const mapStateToProps = (state: IState) => {
     if (!state.autoCompletion) {
         return {
@@ -172,7 +174,7 @@ const mapStateToProps = (state: IState) => {
             x: state.cursorPixelX,
             y: state.cursorPixelY + state.fontPixelHeight,
             base: "",
-            entries: [],
+            entries: EmptyArray,
             selectedIndex: 0,
         }
     } else {

@@ -26,7 +26,7 @@ export interface IMenuProps {
     items: State.IMenuOptionWithHighlights[]
 }
 
-export class Menu extends React.Component<IMenuProps, void> {
+export class Menu extends React.PureComponent<IMenuProps, void> {
 
     private _inputElement: HTMLInputElement = null as any // FIXME: null
 
@@ -71,13 +71,15 @@ export class Menu extends React.Component<IMenuProps, void> {
     }
 }
 
+const EmptyArray: any[] = []
+
 const mapStateToProps = (state: State.IState) => {
     if (!state.popupMenu) {
         return {
             visible: false,
             selectedIndex: 0,
             filterText: "",
-            items: [],
+            items: EmptyArray,
         }
     } else {
         const popupMenu = state.popupMenu
@@ -91,7 +93,6 @@ const mapStateToProps = (state: State.IState) => {
 }
 
 const mapDispatchToProps = (dispatch: any) => {
-
     const dispatchFilterText = (text: string) => {
         dispatch(ActionCreators.filterMenu(text))
     }

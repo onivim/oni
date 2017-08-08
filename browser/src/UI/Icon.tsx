@@ -19,12 +19,15 @@ export enum IconSize {
 export interface IconProps {
     name: string
     size?: IconSize
+    className?: string
 }
 
 export class Icon extends React.Component<IconProps, void> {
     public render(): JSX.Element {
+
         const className = "fa fa-" + this.props.name + " " + this._getClassForIconSize(this.props.size as any) // FIXME: undefined
-        return <i className={className} aria-hidden="true"></i>
+        const additionalClass = this.props.className || ""
+        return <i className={className + additionalClass} aria-hidden="true"></i>
     }
 
     private _getClassForIconSize(size: IconSize): string {

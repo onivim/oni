@@ -24,4 +24,6 @@ export const Unpack = (rawData: any, msgPackObject: MsgPackObjectReference) => {
     return msgPackObject
 }
 
+export const UnpackBuffer = (rawData: any) => Unpack(rawData, new NeovimBufferReference())
+export const UnpackTab = (rawData: any) => Unpack(rawData, new NeovimTabReference())
 export const UnpackWindow = (rawData: any) => Unpack(rawData, new NeovimWindowReference())

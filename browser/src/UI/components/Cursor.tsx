@@ -28,14 +28,13 @@ class CursorRenderer extends React.Component<ICursorProps, void> {
         const width = isNormalMode ? this.props.width : this.props.width / 4
         const characterToShow = isNormalMode ? this.props.character : ""
 
-        const cursorStyle: React.CSSProperties = {
+        const cursorStyle = {
             position: "absolute",
             left: this.props.x.toString() + "px",
             top: this.props.y.toString() + "px",
             width: width.toString() + "px",
             height: this.props.height.toString() + "px",
             backgroundColor: this.props.color,
-            opacity: 0.5,
             fontFamily,
             fontSize,
         }

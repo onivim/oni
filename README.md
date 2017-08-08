@@ -19,6 +19,7 @@
         - [Fuzzy Finder](#fuzzy-finder)
         - [Quick Info](#quick-info)
         - [Status Bar](#status-bar)
+        - [Tabs](#tabs)
     - [Languages](#languages)
         - [JavaScript and TypeScript](#javascript-and-typescript)
         - [C#](#c)
@@ -38,7 +39,7 @@
 
 ONI is a [NeoVim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
 
-![screenshot](http://i.imgur.com/qAFSg7y.jpg)
+![screenshot](https://user-images.githubusercontent.com/13532591/28976286-25779704-78f2-11e7-967f-72cb438d77f6.png)
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
@@ -80,17 +81,17 @@ Windows & OSX releases come with a bundled Neovim release.
 
 ### Windows
 
-- Download the [Oni installer](https://github.com/extr0py/oni/releases/download/v0.2.6/Oni-0.2.6-ia32-win.exe) for Windows
+- Download the [Oni installer](https://github.com/extr0py/oni/releases/download/v0.2.7/Oni-0.2.7-ia32-win.exe) for Windows
 - Once it is downloaded, run the installer. This will only take a minute.
 - By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine. 
 
-You can also find install via a [zip archive](https://github.com/extr0py/oni/releases/download/v0.2.6/Oni-0.2.6-ia32-win.zip)
+You can also find install via a [zip archive](https://github.com/extr0py/oni/releases/download/v0.2.7/Oni-0.2.7-ia32-win.zip)
 
 > You may want to add Oni to your `%PATH%`, so that from the console, you can open Oni via `oni`
 
 ### Mac
 
-- Download [Oni](https://github.com/extr0py/oni/releases/download/v0.2.6/Oni-0.2.6-osx.dmg) for Mac
+- Download [Oni](https://github.com/extr0py/oni/releases/download/v0.2.7/Oni-0.2.7-osx.dmg) for Mac
 - Double-click on the archive to expand
 - Drag `Oni.app` to the `Applications` folder
 
@@ -100,19 +101,19 @@ You can also find install via a [zip archive](https://github.com/extr0py/oni/rel
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.6/oni_0.2.6_amd64.deb)
+- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.7/oni_0.2.7_amd64.deb)
 - Install the package with `sudo dpkg -i <file>.deb`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.6/oni-0.2.6.tar.gz) is also available.
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.7/oni-0.2.7.tar.gz) is also available.
 
 #### Red Hat based distributions (Fedora, CentOS)
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.0` is required..
 
-- Download the [.rpm package](https://github.com/extr0py/oni/releases/download/v0.2.6/oni-0.2.6.rpm)
+- Download the [.rpm package](https://github.com/extr0py/oni/releases/download/v0.2.7/oni-0.2.7.rpm)
 - Install the package with `sudo dnf install <file>.rpm`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.6/oni-0.2.6.tar.gz) is also available.
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.7/oni-0.2.7.tar.gz) is also available.
 
 ### Build
 
@@ -235,6 +236,18 @@ Oni provides a `StatusBar` API for adding new items to the status bar.
 
 > Users that are coming from Neovim and have highly customized status bars may want to set `oni.statusbar.enabled` to false, along with setting the `oni.loadInitVim` to `true` and `oni.useDefaultConfig` to `false`.
 
+#### Tabs
+
+Oni features a buffer tab bar, like many common IDEs. VIM has its own definition of a "Tab", which is really a set of windows and buffers. By default, the tabs in Oni correspond to open files (buffers). You can override this, and show vim-defined tabs, by setting the `tabs.showVimTabs` setting to `true`
+
+##### Commands
+- `[b` and `]b` will cycle through buffers, which has the effect of moving through the tabs.
+
+##### Options
+
+- `tabs.enabled` - If set to `true`, the tabs are visible. (Default: `true`)
+- `tabs.showVimTabs` - If set to `true`, shows vim tabs. Otherwise, shows open buffers. (Default: `false`)
+
 ### Languages
 
 #### JavaScript and TypeScript
@@ -354,6 +367,7 @@ A few interesting configuration options to set:
 - `editor.backgroundImageUrl` - specific a custom background image
 - `editor.backgroundImageSize` - specific a custom background size (cover, contain)
 - `editor.scrollBar.visible` - (default: `true`) sets whether the buffer scrollbar is visible
+- `environment.additionalPaths` - (default: `[] on Windows, ['/usr/bin', '/usr/local/bin'] on OSX and Linux`). Sets additional paths for binaries. This may be necessary to configure, if using plugins or a Language Server that is not in the default set of runtime paths. Note that depending on where you launch Oni, there may be a different set of runtime paths sent to it - you can always check by opening the developer tools and running `process.env.PATH` in the console.
 
 See the `Config.ts` file for other interesting values to set.
 

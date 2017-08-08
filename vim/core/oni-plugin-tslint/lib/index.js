@@ -112,7 +112,7 @@ const activate = (Oni) => {
         processArgs = processArgs.concat(["--config", configPath])
         processArgs = processArgs.concat(args)
 
-        return Q.nfcall(Oni.execNodeScript, tslintPath, processArgs, { cwd: workingDirectory })
+        return Q.nfcall(Oni.process.execNodeScript, tslintPath, processArgs, { cwd: workingDirectory })
             .then((stdout, stderr) => {
 
                 const errorOutput = stdout.join(os.EOL).trim()
@@ -122,21 +122,28 @@ const activate = (Oni) => {
                 const errorsWithFileName = lintErrors.map(e => ({
                     type: null,
                     file: path.normalize(e.name),
-                    text: `[${e.ruleName}] ${e.failure}`,
-                    lineNumber: e.startPosition.line,
-                    startColumn: e.startPosition.character,
-                    endColumn: e.endPosition.character,
+                    message: `[${e.ruleName}] ${e.failure}`,
+                    severity: 2 /* Warning */,
+                    range: {
+                        start: {
+                            line: e.startPosition.line,
+                            character: e.startPosition.character,
+                        },
+                        end: {
+                            line: e.endPosition.line,
+                            character: e.endPosition.character
+                        }
+                    }
                 }))
 
                 const errors = errorsWithFileName.reduce((prev, curr) => {
                     prev[curr.file] = prev[curr.file] || []
 
                     prev[curr.file].push({
+                        message: curr.message,
+                        range: curr.range,
+                        severity: curr.severity,
                         type: curr.type,
-                        text: curr.text,
-                        lineNumber: curr.lineNumber + 1,
-                        startColumn: curr.startColumn + 1,
-                        endColumn: curr.endColumn
                     })
 
                     return prev

@@ -58,9 +58,27 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
                             "Show all logs in the bottom panel",
                             () => UI.Actions.changeLogsVisibility(true)),
 
+        new CallbackCommand("oni.openFolder", "Open Folder", "", () => openFolder(neovimInstance)),
+
         // Add additional commands here
         // ...
     ]
 
     commands.forEach((c) => commandManager.registerCommand(c))
+}
+
+const openFolder = (neovimInstance: INeovimInstance) => {
+    const dialogOptions: any = {
+        title: "Open Folder",
+        properties: ["openDirectory"],
+    }
+
+    remote.dialog.showOpenDialog(remote.getCurrentWindow(), dialogOptions, (folder: string[]) => {
+        if (!folder || !folder[0]) {
+            return
+        }
+
+        const folderToOpen = folder[0]
+        neovimInstance.chdir(folderToOpen)
+    })
 }

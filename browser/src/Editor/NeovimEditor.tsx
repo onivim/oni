@@ -4,16 +4,16 @@
  * IEditor implementation for Neovim
  */
 
-import * as path from "path"
-
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-import { ipcRenderer } from "electron"
+import * as types from "vscode-languageserver-types"
+
+import { ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance } from "./../neovim"
-import { DOMRenderer } from "./../Renderer/DOMRenderer"
+import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import * as Config from "./../Config"
@@ -35,10 +35,8 @@ import { Tasks } from "./../Services/Tasks"
 import { WindowTitle } from "./../Services/WindowTitle"
 
 import * as UI from "./../UI/index"
-import { ErrorOverlay } from "./../UI/Overlay/ErrorOverlay"
 import { LiveEvaluationOverlay } from "./../UI/Overlay/LiveEvaluationOverlay"
 import { OverlayManager } from "./../UI/Overlay/OverlayManager"
-import { ScrollBarOverlay } from "./../UI/Overlay/ScrollBarOverlay"
 import { Rectangle } from "./../UI/Types"
 
 import { Keyboard } from "./../Input/Keyboard"
@@ -52,26 +50,25 @@ export class NeovimEditor implements IEditor {
 
     private _neovimInstance: NeovimInstance
     private _deltaRegionManager: IncrementalDeltaRegionTracker
+    private _renderer: INeovimRenderer
     private _screen: NeovimScreen
 
     private _pendingTimeout: any = null
+    private _pendingAnimationFrame: boolean = false
     private _element: HTMLElement
 
     // Services
     private _tasks: Tasks
 
     // Overlays
-    private _errorOverlay: ErrorOverlay
     private _overlayManager: OverlayManager
     private _liveEvaluationOverlay: LiveEvaluationOverlay
-    private _scrollbarOverlay: ScrollBarOverlay
 
     private _errorStartingNeovim: boolean = false
 
     constructor(
         private _commandManager: CommandManager,
         private _pluginManager: PluginManager,
-        private _renderer: DOMRenderer = new DOMRenderer(),
         private _config: Config.Config = Config.instance(),
     ) {
         const services: any[] = []
@@ -79,6 +76,8 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance = new NeovimInstance(this._pluginManager, 100, 100)
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
+
+        this._renderer = this._config.getValue("editor.renderer") === "canvas" ? new CanvasRenderer() : new DOMRenderer()
 
         // Services
         const autoCompletion = new AutoCompletion(this._neovimInstance)
@@ -112,14 +111,12 @@ export class NeovimEditor implements IEditor {
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
         this._overlayManager = new OverlayManager(this._screen, this._neovimInstance)
-        this._errorOverlay = new ErrorOverlay()
         this._liveEvaluationOverlay = new LiveEvaluationOverlay()
-        this._scrollbarOverlay = new ScrollBarOverlay()
-        this._overlayManager.addOverlay("errors", this._errorOverlay)
         this._overlayManager.addOverlay("live-eval", this._liveEvaluationOverlay)
-        this._overlayManager.addOverlay("scrollbar", this._scrollbarOverlay)
 
-        this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle) => UI.Actions.setActiveWindowDimensions(dimensionsInPixels))
+        this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
+            UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
+        })
 
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
         this._pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
@@ -130,18 +127,11 @@ export class NeovimEditor implements IEditor {
             }
         })
 
-        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: any[], color: string) => {
+        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: types.Diagnostic[]) => {
+
+            UI.Actions.setErrors(fileName, key, errors)
+
             errorService.setErrors(fileName, errors)
-
-            color = color || "red"
-            this._errorOverlay.setErrors(key, fileName, errors, color)
-
-            const errorMarkers = errors.map((e: any) => ({
-                line: e.lineNumber,
-                height: 1,
-                color,
-            }))
-            this._scrollbarOverlay.setMarkers(path.resolve(fileName), key, errorMarkers)
         })
 
         liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
@@ -170,14 +160,12 @@ export class NeovimEditor implements IEditor {
             ReactDOM.render(<InstallHelp />, this._element.parentElement)
         })
 
-        this._neovimInstance.on("buffer-update", (context: any, lines: string[]) => {
-            this._scrollbarOverlay.onBufferUpdate(context, lines)
-        })
-
         this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any, shouldMeasure: boolean) => {
             if (shouldMeasure) {
                 this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
             }
+
+            UI.Actions.setWindowLineMapping(eventContext.windowNumber, lineMapping)
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -187,12 +175,17 @@ export class NeovimEditor implements IEditor {
             if (action.type === "SET_SCROLL_REGION") {
                 this._isScrolling = true
             }
+            this._scheduleRender()
 
             UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
 
             if (!this._pendingTimeout) {
                 this._pendingTimeout = setTimeout(() => this._onUpdate(), 0)
             }
+        })
+
+        this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
+            UI.Actions.setTabs(currentTabId, tabs)
         })
 
         this._neovimInstance.on("logInfo", (info: string) => {
@@ -221,7 +214,25 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
+        this._neovimInstance.on("buffer-update", (args: Oni.EventContext) => {
+            UI.Actions.bufferUpdate(args.bufferNumber, args.version, args.bufferTotalLines)
+        })
+
+        this._neovimInstance.on("buffer-update-incremental", (args: Oni.EventContext) => {
+            UI.Actions.bufferUpdate(args.bufferNumber, args.version, args.bufferTotalLines)
+        })
+
         this._render()
+
+        const browserWindow = remote.getCurrentWindow()
+
+        browserWindow.on("blur", () => {
+            this._neovimInstance.executeAutoCommand("FocusLost")
+        })
+
+        browserWindow.on("focus", () => {
+            this._neovimInstance.executeAutoCommand("FocusGained")
+        })
 
         this._onConfigChanged()
         this._config.registerListener(() => this._onConfigChanged())
@@ -279,7 +290,7 @@ export class NeovimEditor implements IEditor {
         })
 
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
-        window["__screen"] = screen // tslint:disable-line no-string-literal
+        window["__screen"] = this._screen // tslint:disable-line no-string-literal
 
         ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
             if (message.startsWith(":")) {
@@ -326,41 +337,58 @@ export class NeovimEditor implements IEditor {
     }
 
     public render(): JSX.Element {
+
+        const onBufferClose = (bufferId: number) => {
+            this._neovimInstance.command(`bw ${bufferId}`)
+        }
+
+        const onBufferSelect = (bufferId: number) => {
+            this._neovimInstance.command(`buf ${bufferId}`)
+        }
+
+        const onTabClose = (tabId: number) => {
+            this._neovimInstance.command(`tabclose ${tabId}`)
+        }
+
+        const onTabSelect = (tabId: number) => {
+            this._neovimInstance.command(`tabn ${tabId}`)
+        }
+
         return <NeovimSurface renderer={this._renderer}
-                neovimInstance={this._neovimInstance}
-                deltaRegionTracker={this._deltaRegionManager}
-                screen={this._screen} />
+            neovimInstance={this._neovimInstance}
+            deltaRegionTracker={this._deltaRegionManager}
+            screen={this._screen}
+            onBufferClose={onBufferClose}
+            onBufferSelect={onBufferSelect}
+            onTabClose={onTabClose}
+            onTabSelect={onTabSelect}/>
     }
 
     private _onModeChanged(newMode: string): void {
         UI.Actions.setMode(newMode)
 
         if (newMode === "normal") {
+            UI.Actions.showCursorLine()
             UI.Actions.showCursorColumn()
             UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
         } else if (newMode === "insert") {
             UI.Actions.hideQuickInfo()
             UI.Actions.showCursorColumn()
+            UI.Actions.showCursorLine()
         } else if (newMode.indexOf("cmdline") >= 0) {
+            UI.Actions.hideCursorLine()
             UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
             UI.Actions.hideCompletions()
             UI.Actions.hideQuickInfo()
         }
-
-        // Error overlay
-        if (newMode === "insert") {
-            this._errorOverlay.hideDetails()
-        } else {
-            this._errorOverlay.showDetails()
-        }
     }
 
-    private _onVimEvent(eventName: string, evt: any): void {
+    private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
         // TODO: Can we get rid of these?
-        this._errorOverlay.onVimEvent(eventName, evt)
         this._liveEvaluationOverlay.onVimEvent(eventName, evt)
-        this._scrollbarOverlay.onVimEvent(eventName, evt)
+
+        UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
 
         this._tasks.onEvent(evt)
 
@@ -370,17 +398,22 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hidePopupMenu()
             UI.Actions.hideSignatureHelp()
             UI.Actions.hideQuickInfo()
-        }
 
-        if (eventName === "DirChanged") {
-            this._neovimInstance.getCurrentWorkingDirectory()
-                .then((newDirectory) => process.chdir(newDirectory))
+            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines)
+        } else if (eventName === "BufWritePost") {
+            // After save, there is always an additional change tick bump, so the `+1` is needed to account for that.
+            UI.Actions.bufferSave(evt.bufferNumber, evt.version + 1)
+        } else if (eventName === "BufDelete") {
+
+            this._neovimInstance.getBufferIds()
+                .then((ids) => UI.Actions.setCurrentBuffers(ids))
         }
     }
 
     private _onConfigChanged(): void {
         this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
         this._onUpdate()
+        this._scheduleRender()
     }
 
     private _isScrolling = false
@@ -399,15 +432,23 @@ export class NeovimEditor implements IEditor {
         }
     }
 
+    private _scheduleRender(): void {
+        if (this._pendingAnimationFrame) {
+            return
+        }
+
+        this._pendingAnimationFrame = true
+        window.requestAnimationFrame(() => this._render())
+    }
+
     private _render(): void {
+        this._pendingAnimationFrame = false
+
         if (this._pendingTimeout) {
             UI.Actions.setCursorPosition(this._screen)
         }
 
         this._renderer.update(this._screen, this._deltaRegionManager)
-
         this._deltaRegionManager.cleanUpRenderedCells()
-
-        window.requestAnimationFrame(() => this._render())
     }
 }

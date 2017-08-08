@@ -57,8 +57,12 @@ if (!isDevelopment && !isDebug) {
 function createWindow(commandLineArguments, workingDirectory) {
     log(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
 
+    const webPreferences = {
+        blinkFeatures: "ResizeObserver",
+    }
+
     // Create the browser window.
-    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png") })
+    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "Oni_128.png"), webPreferences })
 
     updateMenu(mainWindow, false)
 
@@ -81,7 +85,7 @@ function createWindow(commandLineArguments, workingDirectory) {
     mainWindow.loadURL(`file://${__dirname}/index.html`)
 
     // Open the DevTools.
-    if (process.env.NODE_ENV === "development")
+    if (process.env.NODE_ENV === "development" || commandLineArguments.indexOf("--debug") >= 0)
         mainWindow.webContents.openDevTools()
 
     // Emitted when the window is closed.
@@ -121,7 +125,7 @@ app.on('activate', function() {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (windows.length === 0) {
-        createWindow()
+        createWindow([], process.cwd())
     }
 })
 

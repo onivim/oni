@@ -31,6 +31,11 @@ export interface INeovimInstance {
     callFunction(functionName: string, args: any[]): Promise<any>
 
     /**
+     * Change the working directory of Neovim
+     */
+    chdir(directoryPath: string): Promise<any>
+
+    /**
      * Execute a VimL command
      */
     command(command: string): Promise<any>
@@ -44,6 +49,8 @@ export interface INeovimInstance {
 
     setFont(fontFamily: string, fontSize: string): void
 
+    getBufferIds(): Promise<number[]>
+
     getCurrentBuffer(): Promise<IBuffer>
     getCurrentWindow(): Promise<IWindow>
 
@@ -51,6 +58,8 @@ export interface INeovimInstance {
     getCursorRow(): Promise<number>
 
     open(fileName: string): Promise<void>
+
+    executeAutoCommand(autoCommand: string): Promise<void>
 }
 
 /**
@@ -88,6 +97,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
         this._quickFix = new QuickFixList(this)
+    }
+
+    public async chdir(directoryPath: string): Promise<void> {
+        await this.command(`cd! ${directoryPath}`)
+    }
+
+    public async executeAutoCommand(autoCommand: string): Promise<void> {
+        await this.command(`doautocmd <nomodeline> ${autoCommand}`)
     }
 
     public start(filesToOpen?: string[]): void {
@@ -128,7 +145,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             const eventName = args[0][0]
                             const eventContext = args[0][1]
 
+                            if (eventName === "DirChanged") {
+                                this._updateProcessDirectory()
+                            }
+
                             this.emit("event", eventName, eventContext)
+
                         } else if (pluginMethod === "incremental_buffer_update") {
                             const eventContext = args[0][0]
                             const bufferLine = args[0][1]
@@ -162,6 +184,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 const startupOptions = {
                     rgb: true,
                     popupmenu_external: true,
+                    ext_tabline: true,
                 }
 
                 const size = this._getSize()
@@ -228,7 +251,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request("nvim_eval", [expression])
     }
 
-    public command(command: string): Promise<void> {
+    public command(command: string): Promise<any> {
         return this._neovim.request("nvim_command", [command])
     }
 
@@ -240,14 +263,19 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.callFunction("OniForceWindowMeasurement", [])
     }
 
-
-    public callFunction(functionName: string, args: any[]): Promise<void> {
+    public callFunction(functionName: string, args: any[]): Promise<any> {
         return this._neovim.request("nvim_call_function", [functionName, args])
     }
 
     public async getCurrentBuffer(): Promise<IBuffer> {
         const bufferReference = await this._neovim.request<NeovimBufferReference>("nvim_get_current_buf", [])
         return new Buffer(bufferReference, this._neovim)
+    }
+
+    public async getBufferIds(): Promise<number[]> {
+        const buffers = await this._neovim.request<NeovimBufferReference[]>("nvim_list_bufs", [])
+
+        return buffers.map((b) => <any>b.id)
     }
 
     public async getCurrentWorkingDirectory(): Promise<string> {
@@ -387,6 +415,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     const completions = a[0][0]
                     this.emit("show-popup-menu", completions)
                     break
+                case "tabline_update":
+                    const [currentTab, tabs] = a[0]
+                    const mappedTabs: any = tabs.map((t: any) => ({
+                        id: t.tab.id,
+                        name: t.name,
+                    }))
+                    this.emit("tabline-update", currentTab.id, mappedTabs)
+                    break
                 case "bell":
                     const bellUrl = this._config.getValue("oni.audio.bellUrl")
                     if (bellUrl) {
@@ -399,4 +435,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             }
         })
     }
+
+    private async _updateProcessDirectory(): Promise<void> {
+        const newDirectory = await this.getCurrentWorkingDirectory()
+        process.chdir(newDirectory)
+        this.emit("directory-changed", newDirectory)
+    }
+
 }

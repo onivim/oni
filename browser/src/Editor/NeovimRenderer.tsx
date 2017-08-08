@@ -8,18 +8,19 @@ import * as React from "react"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance } from "./../neovim"
-import { DOMRenderer } from "./../Renderer/DOMRenderer"
+import { INeovimRenderer } from "./../Renderer"
 
 export interface INeovimRendererProps {
     neovimInstance: NeovimInstance
     deltaRegionTracker: IncrementalDeltaRegionTracker
-    renderer: DOMRenderer
+    renderer: INeovimRenderer
 }
 
 export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, void> {
 
     private _element: HTMLDivElement
     private _boundOnResizeMethod: any
+    private _resizeObserver: any
 
     public componentDidMount(): void {
         if (this._element) {
@@ -30,15 +31,24 @@ export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, vo
 
         if (!this._boundOnResizeMethod) {
             this._boundOnResizeMethod = this._onResize.bind(this)
-            window.addEventListener("resize", this._boundOnResizeMethod)
+            this._resizeObserver = new window["ResizeObserver"]((entries: any) => { // tslint:disable-line no-string-literal
+                if (this._boundOnResizeMethod) {
+                    this._boundOnResizeMethod()
+                }
+            })
+            this._resizeObserver.observe(this._element)
         }
     }
 
     public componentWillUnmount(): void {
         // TODO: Stop renderer
 
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect()
+            this._resizeObserver = null
+        }
+
         if (this._boundOnResizeMethod) {
-            window.removeEventListener("resize", this._boundOnResizeMethod)
             this._boundOnResizeMethod = null
         }
     }

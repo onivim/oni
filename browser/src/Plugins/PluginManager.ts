@@ -90,6 +90,10 @@ export class PluginManager extends EventEmitter {
             this._onModeChanged(newMode)
         })
 
+        this._neovimInstance.on("directory-changed", (newDirectory: string) => {
+            this._onWorkingDirectoryChanged(newDirectory)
+        })
+
         const allPlugins = this._getAllPluginPaths()
         this._plugins = allPlugins.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
 
@@ -205,7 +209,10 @@ export class PluginManager extends EventEmitter {
                 setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
                 break
             case "set-errors":
-                this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors, pluginResponse.payload.color)
+                this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors)
+                break
+            case "execute-command":
+                this._commandManager.executeCommand(pluginResponse.payload.commandName, pluginResponse.payload.args)
                 break
             case "find-all-references":
                 this.emit("find-all-references", pluginResponse.payload.references)
@@ -237,6 +244,17 @@ export class PluginManager extends EventEmitter {
         }
     }
 
+    private _onWorkingDirectoryChanged(newDirectory: string): void {
+        const filetype = this._lastEventContext ? this._lastEventContext.filetype : ""
+
+        this._channel.host.send({
+            type: "event",
+            payload: {
+                name: "directory-changed",
+                context: newDirectory,
+            },
+        }, Capabilities.createPluginFilter(filetype))
+    }
     private _onModeChanged(newMode: string): void {
         const filetype = this._lastEventContext ? this._lastEventContext.filetype : ""
 

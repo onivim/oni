@@ -9,6 +9,8 @@ import * as Actions from "./Actions"
 
 import * as _ from "lodash"
 
+import * as types from "vscode-languageserver-types"
+
 export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, a: Actions.Action<K>) {
 
     if (!s) {
@@ -25,8 +27,6 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
                 cursorCharacter: a.payload.cursorCharacter,
                 cursorPixelWidth: a.payload.cursorPixelWidth,
             })
-        case "SET_ACTIVE_WINDOW_DIMENSIONS":
-            return { ...s, ...{ activeWindowDimensions: a.payload.dimensions } }
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }
         case "SET_COLORS":
@@ -107,25 +107,157 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
             return Object.assign({}, s, {
                 logs: _.concat(s.logs, newLog),
             })
+        case "SHOW_MESSAGE_DIALOG":
+            return {
+                ...s,
+                activeMessageDialog: a.payload,
+            }
+        case "HIDE_MESSAGE_DIALOG":
+            return {
+                ...s,
+                activeMessageDialog: null,
+            }
         default:
             return Object.assign({}, s, {
+                buffers: buffersReducer(s.buffers, a),
+                tabState: tabStateReducer(s.tabState, a),
+                errors: errorsReducer(s.errors, a),
                 autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
                 popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
                 statusBar: statusBarReducer(s.statusBar, a),
+                windowState: windowStateReducer(s.windowState, a),
             })
+    }
+}
+
+export const tabStateReducer = (s: State.ITabState, a: Actions.SimpleAction): State.ITabState => {
+    switch (a.type) {
+        case "SET_TABS":
+            return {
+                ...s,
+                ...a.payload,
+            }
+        default:
+            return s
+    }
+}
+
+export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): State.IBufferState => {
+
+    let byId = s.byId
+    let allIds = s.allIds
+
+    switch (a.type) {
+        case "BUFFER_ENTER":
+            byId = {
+                ...s.byId,
+                [a.payload.id]: <State.IBuffer>{
+                    id: a.payload.id,
+                    file: a.payload.file,
+                    totalLines: a.payload.totalLines,
+                },
+            }
+
+            if (allIds.indexOf(a.payload.id) === -1) {
+                allIds = [...s.allIds, a.payload.id]
+            }
+
+            return {
+                activeBufferId: a.payload.id,
+                byId,
+                allIds,
+            }
+        case "BUFFER_SAVE":
+            const currentItem = s.byId[a.payload.id] || {}
+            byId = {
+                ...s.byId,
+                [a.payload.id]: <State.IBuffer>{
+                    ...currentItem,
+                    lastSaveVersion: a.payload.version,
+                },
+            }
+
+            return {
+                ...s,
+                byId,
+            }
+        case "BUFFER_UPDATE":
+            const currentItem3: any = s.byId[a.payload.id] || {}
+
+            // If the last save version hasn't been set, this means it is the first update,
+            // and should clamp to the incoming version
+            const lastSaveVersion = currentItem3.lastSaveVersion || a.payload.version
+
+            byId = {
+                ...s.byId,
+                [a.payload.id]: <State.IBuffer>{
+                    ...currentItem3,
+                    version: a.payload.version,
+                    lastSaveVersion,
+                    totalLines: a.payload.totalLines,
+                },
+            }
+
+            return {
+                ...s,
+                byId,
+            }
+        case "SET_CURRENT_BUFFERS":
+            allIds = s.allIds.filter((id) => a.payload.bufferIds.indexOf(id) >= 0)
+
+            let activeBufferId = s.activeBufferId
+
+            if (a.payload.bufferIds.indexOf(activeBufferId) === -1) {
+                activeBufferId = null
+            }
+
+            let newById = _.pick(s.byId, a.payload.bufferIds)
+
+            return <State.IBufferState>{
+                activeBufferId,
+                byId: newById,
+                allIds,
+            }
+        default:
+            return s
+    }
+}
+
+export const errorsReducer = (s: { [file: string]: { [key: string]: types.Diagnostic[] } }, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "SET_ERRORS":
+
+            const currentFile = s[a.payload.file] || null
+
+            return {
+                ...s,
+                [a.payload.file]: {
+                    ...currentFile,
+                    [a.payload.key]: [...a.payload.errors],
+                },
+            }
+        default:
+            return s
     }
 }
 
 export const statusBarReducer = (s: { [key: string]: State.IStatusBarItem }, a: Actions.SimpleAction) => {
     switch (a.type) {
         case "STATUSBAR_SHOW":
+            const existingItem = s[a.payload.id] || {}
+            const newItem = {
+                ...existingItem,
+                ...a.payload,
+            }
+
             return {
                 ...s,
-                [a.payload.id]: a.payload,
+                [a.payload.id]: newItem,
             }
         case "STATUSBAR_HIDE":
             return {
                 ...s,
+                [a.payload.id]: null,
             }
         default:
             return s
@@ -292,6 +424,60 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
     })
 
     return highlightOptions
+}
+
+export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleAction): State.IWindowState => {
+
+    let currentWindow
+    switch (a.type) {
+        case "SET_WINDOW_STATE":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                activeWindow: a.payload.windowId,
+                windows: {
+                    ...s.windows,
+                    [a.payload.windowId]: {
+                        ...currentWindow,
+                        file: a.payload.file,
+                        column: a.payload.column,
+                        line: a.payload.line,
+                        winline: a.payload.winline,
+                        wincolumn: a.payload.wincolumn,
+                        windowBottomLine: a.payload.windowBottomLine,
+                        windowTopLine: a.payload.windowTopLine,
+                    },
+                },
+            }
+        case "SET_WINDOW_DIMENSIONS":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                ...s,
+                windows: {
+                    ...s.windows,
+                    [a.payload.windowId]: {
+                        ...currentWindow,
+                        dimensions: a.payload.dimensions,
+                    },
+                },
+            }
+        case "SET_WINDOW_LINE_MAP":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                ...s,
+                windows: {
+                    ...s.windows,
+                    [a.payload.windowId]: {
+                        ...currentWindow,
+                        lineMapping: a.payload.lineMapping,
+                    },
+                },
+            }
+        default:
+            return s
+    }
 }
 
 export function autoCompletionReducer (s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) {

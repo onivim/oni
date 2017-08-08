@@ -15,8 +15,10 @@ export interface IEditorHostProps {
 export class EditorHost extends React.Component<IEditorHostProps, void> {
 
     public render(): JSX.Element {
-        return <div className="editor">
-            {this.props.editor.render()}
+        return <div className="container vertical full">
+                <div className="editor">
+                    {this.props.editor.render()}
+                </div>
         </div>
     }
 }

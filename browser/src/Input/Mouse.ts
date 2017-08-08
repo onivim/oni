@@ -65,8 +65,8 @@ export class Mouse extends EventEmitter {
     }
 
     private _convertEventToPosition(evt: MouseEvent): { line: number; column: number } {
-        const mouseX = evt.clientX
-        const mouseY = evt.clientY
+        const mouseX = evt.offsetX
+        const mouseY = evt.offsetY
 
         return {
             line: Math.floor(mouseX / this._screen.fontWidthInPixels),

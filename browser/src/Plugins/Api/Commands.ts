@@ -4,6 +4,8 @@
  * Implementation of command registration / callback for plugins
  */
 
+import { IPluginChannel } from "./Channel"
+
 interface ICommandCallback {
     (args?: any): void
 }
@@ -12,8 +14,9 @@ interface ICommandCallback {
  * API instance for interacting with Oni (and vim)
  */
 export class Commands {
-
     private _commandToCallback: { [command: string]: ICommandCallback } = { }
+
+    constructor(private _channel: IPluginChannel) { }
 
     public registerCommand(commandName: string, callback: ICommandCallback): void {
         this._commandToCallback[commandName] = callback
@@ -28,5 +31,12 @@ export class Commands {
          }
 
          command(args)
+    }
+
+    public executeCommand(commandName: string, args?: any) {
+        this._channel.send("execute-command", null, {
+            commandName,
+            args,
+        })
     }
 }

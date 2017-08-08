@@ -17,6 +17,9 @@ set noruler
 set laststatus=0
 set noshowcmd
 
+" Enable GUI mouse behavior
+set mouse=a
+
 set list
 set listchars=trail:·
 
