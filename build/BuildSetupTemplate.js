@@ -29,7 +29,7 @@ const valuesToReplace = {
     "Version": version,
     "SourcePath": path.join(__dirname, "..", "dist", "win-ia32-unpacked", "*"),
     "WizardImageFilePath": path.join(__dirname, "..", "images", "setup", "Oni_128.bmp"),
-    "WizardSmallImageFilePath": path.join(__dirname, "..", "images", "setup", "Oni_64.bmp")
+    "WizardSmallImageFilePath": path.join(__dirname, "..", "images", "setup", "Oni_54.bmp")
 }
 
 _.keys(valuesToReplace).forEach((key) => {

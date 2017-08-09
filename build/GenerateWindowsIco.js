@@ -1,4 +1,4 @@
-// BuildSetupTemplate.js
+// GenerateWindowsIco.js
 //
 // Helper script to insert template variables into the setup template
 
