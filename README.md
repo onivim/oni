@@ -1,10 +1,12 @@
+![alt text](./assets/oni-header.png)
+
 [![Build Status](https://travis-ci.org/extr0py/oni.svg?branch=master)](https://travis-ci.org/extr0py/oni)
 [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/extr0py/oni/branch/master)
 [![Join the chat at https://gitter.im/extr0py/Lobby](https://badges.gitter.im/extr0py/Lobby.svg)](https://gitter.im/extr0py/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 
-![alt text](./assets/oni-header.png)
-### A new way to Vim - an IDE powered by Neovim / React / Electron
+### Oni: A new way to Vim
+#### IDE powered by Neovim / React / Electron
 
 - [Introduction](#introduction)
 - [Features](#features)
