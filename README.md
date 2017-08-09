@@ -4,7 +4,7 @@
 [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 # Oni
 ![alt text](./assets/oni-header.png)
-## Neovim + JavaScript powered IDE
+### A new way to Vim: Neovim + React + Electron IDE
 
 - [Introduction](#introduction)
 - [Features](#features)
