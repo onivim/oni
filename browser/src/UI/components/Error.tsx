@@ -97,7 +97,7 @@ export interface IErrorMarkerProps {
     showDetails: boolean
 }
 
-export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
+export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, void> {
 
     private config = Config.instance()
 
@@ -149,7 +149,7 @@ export interface IErrorSquiggleProps {
     color: string,
 }
 
-export class ErrorSquiggle extends React.Component<IErrorSquiggleProps, void> {
+export class ErrorSquiggle extends React.PureComponent<IErrorSquiggleProps, void> {
     public render(): JSX.Element {
 
         const { x, y, width, height, color } = this.props

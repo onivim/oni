@@ -10,7 +10,7 @@ export interface IBackgroundProps {
     backgroundOpacity: number
 }
 
-export class BackgroundRenderer extends React.Component<IBackgroundProps, void> {
+export class BackgroundRenderer extends React.PureComponent<IBackgroundProps, void> {
     public render(): JSX.Element {
         const imageStyle = {
             backgroundImage: "url(" + this.props.backgroundImageUrl + ")",

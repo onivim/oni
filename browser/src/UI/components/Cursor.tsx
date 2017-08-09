@@ -18,7 +18,7 @@ export interface ICursorProps {
 
 require("./Cursor.less") // tslint:disable-line no-var-requires
 
-class CursorRenderer extends React.Component<ICursorProps, void> {
+class CursorRenderer extends React.PureComponent<ICursorProps, void> {
 
     public render(): JSX.Element {
 
