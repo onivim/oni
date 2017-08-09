@@ -160,7 +160,6 @@
     "sinon": "1.17.6",
     "spectron": "3.6.2",
     "style-loader": "0.13.1",
-    "to-ico-sync": "1.0.6",
     "ts-loader": "1.2.2",
     "vscode-jsonrpc": "3.3.1",
     "vscode-languageserver-types": "3.3.0",
