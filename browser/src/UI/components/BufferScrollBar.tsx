@@ -114,12 +114,13 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
     const dimensions = Selectors.getActiveWindowDimensions(state)
 
     const file = activeWindow.file
+    const buffer = Selectors.getBufferByFilename(file, state.buffers)
 
-    if (file === null || !state.buffers[file]) {
+    if (file === null || !buffer) {
         return NoScrollBar
     }
 
-    const bufferSize = state.buffers[file].totalLines
+    const bufferSize = buffer.totalLines
 
     const markers = getMarkers(state)
 

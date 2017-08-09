@@ -1,10 +1,11 @@
+![alt text](./assets/oni-header.png)
+
+### IDE powered by Neovim + React + Electron
+
 [![Build Status](https://travis-ci.org/extr0py/oni.svg?branch=master)](https://travis-ci.org/extr0py/oni)
 [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/extr0py/oni/branch/master)
 [![Join the chat at https://gitter.im/extr0py/Lobby](https://badges.gitter.im/extr0py/Lobby.svg)](https://gitter.im/extr0py/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
-# Oni
-![alt text](./images/Oni_128.png)
-## Neovim + JavaScript powered IDE
 
 - [Introduction](#introduction)
 - [Features](#features)
@@ -246,7 +247,7 @@ Oni features a buffer tab bar, like many common IDEs. VIM has its own definition
 ##### Options
 
 - `tabs.enabled` - If set to `true`, the tabs are visible. (Default: `true`)
-- `tabs.showVimTabs` - If set to `true`, shows vim tabs. Otherwise, shows open buffers. (Default: `false`)
+- `tabs.showVimTabs` - If set to `true`, shows vim tabs. Otherwise, shows open buffers. (Default: `false`. Requires Neovim 0.2.1+)
 
 ### Languages
 

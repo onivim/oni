@@ -10,6 +10,7 @@ export interface ICursorProps {
     height: number
     mode: string
     color: string
+    textColor: string
     character: string
     fontFamily: string
     fontSize: string
@@ -35,6 +36,7 @@ class CursorRenderer extends React.Component<ICursorProps, void> {
             width: width.toString() + "px",
             height: this.props.height.toString() + "px",
             backgroundColor: this.props.color,
+            color: this.props.textColor,
             fontFamily,
             fontSize,
         }
@@ -51,6 +53,7 @@ const mapStateToProps = (state: State.IState): ICursorProps => {
         height: state.fontPixelHeight,
         mode: state.mode,
         color: state.foregroundColor,
+        textColor: state.backgroundColor,
         character: state.cursorCharacter,
         fontFamily: State.readConf(state.configuration, "editor.fontFamily"),
         fontSize: State.readConf(state.configuration, "editor.fontSize"),

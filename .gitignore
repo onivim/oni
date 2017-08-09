@@ -41,6 +41,7 @@ coverage
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
+build/*.ico
 
 # Dependency directories
 node_modules

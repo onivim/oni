@@ -28,8 +28,8 @@ const valuesToReplace = {
     "AppSetupExecutableName": `${prodName}-${version}-ia32-win`,
     "Version": version,
     "SourcePath": path.join(__dirname, "..", "dist", "win-ia32-unpacked", "*"),
-    "WizardImageFilePath": path.join(__dirname, "..", "images", "setup", "Oni_128.bmp"),
-    "WizardSmallImageFilePath": path.join(__dirname, "..", "images", "setup", "Oni_64.bmp")
+    "WizardImageFilePath": path.join(__dirname, "setup", "Oni_128.bmp"),
+    "WizardSmallImageFilePath": path.join(__dirname, "setup", "Oni_54.bmp")
 }
 
 _.keys(valuesToReplace).forEach((key) => {

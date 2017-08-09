@@ -42,6 +42,7 @@ test_script:
   - npm run lint
   - npm run test:unit
   # create setup package
+  - npm run copy-icons
   - npm run dist:win
   - npm run pack:win
   # run integration tests
