@@ -3,7 +3,7 @@
 [![Join the chat at https://gitter.im/extr0py/Lobby](https://badges.gitter.im/extr0py/Lobby.svg)](https://gitter.im/extr0py/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 # Oni
-![alt text](./images/oni-header.png)
+![alt text](./assets/oni-header.png)
 ## Neovim + JavaScript powered IDE
 
 - [Introduction](#introduction)

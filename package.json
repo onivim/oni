@@ -23,6 +23,7 @@
       "**/*",
       "!**/*.oni",
       "!**/*.vscode",
+      "!assets",
       "!bin",
       "!lib_test"
     ],
