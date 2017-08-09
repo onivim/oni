@@ -1,6 +1,6 @@
 ![alt text](./assets/oni-header.png)
 
-### A new way to Vim: IDE powered by Neovim + React + Electron
+### IDE powered by Neovim + React + Electron
 
 [![Build Status](https://travis-ci.org/extr0py/oni.svg?branch=master)](https://travis-ci.org/extr0py/oni)
 [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/extr0py/oni/branch/master)
