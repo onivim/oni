@@ -33,7 +33,7 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
             return null
         }
 
-        const windowContext = new WindowContext2(this.props.fontWidthInPixels, this.props.fontHeightInPixels, this.props.window)
+        const windowContext = new WindowContext(this.props.fontWidthInPixels, this.props.fontHeightInPixels, this.props.window)
 
         const markers = errors.map((e) => {
             const lineNumber = e.range.start.line + 1
