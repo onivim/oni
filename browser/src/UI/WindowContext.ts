@@ -11,7 +11,7 @@ export interface IWindowMappingData {
     mapping: any
 }
 
-export class WindowContext2 {
+export class WindowContext {
     constructor(
         private _fontWidthInPixels: number,
         private _fontHeightInPixels: number,
