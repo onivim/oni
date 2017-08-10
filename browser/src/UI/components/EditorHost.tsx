@@ -12,7 +12,7 @@ export interface IEditorHostProps {
     editor: IEditor
 }
 
-export class EditorHost extends React.Component<IEditorHostProps, void> {
+export class EditorHost extends React.PureComponent<IEditorHostProps, void> {
 
     public render(): JSX.Element {
         return <div className="container vertical full">

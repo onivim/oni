@@ -60,7 +60,7 @@ export interface ITextProps {
     text: string
 }
 
-export class TextComponent extends React.Component<ITextProps, void> {
+export class TextComponent extends React.PureComponent<ITextProps, void> {
 
 }
 

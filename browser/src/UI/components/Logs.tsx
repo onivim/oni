@@ -21,7 +21,7 @@ export interface ILogsProps {
     hide: () => void
 }
 
-export class LogsRenderer extends React.Component<ILogsProps, void> {
+export class LogsRenderer extends React.PureComponent<ILogsProps, void> {
     public render(): JSX.Element {
         // TODO copy details to clipboard
         if (!this.props.visible) { return null }
