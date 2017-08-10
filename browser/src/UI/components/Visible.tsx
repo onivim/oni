@@ -4,7 +4,7 @@ export interface IVisibleProps {
     visible: boolean
 }
 
-export class Visible extends React.Component<IVisibleProps, void> {
+export class Visible extends React.PureComponent<IVisibleProps, void> {
 
     public render(): null | JSX.Element {
         if (this.props.visible) {
