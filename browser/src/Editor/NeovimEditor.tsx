@@ -12,7 +12,7 @@ import * as types from "vscode-languageserver-types"
 import { ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
-import { NeovimInstance } from "./../neovim"
+import { NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
@@ -26,7 +26,6 @@ import { CommandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Errors } from "./../Services/Errors"
 import { Formatter } from "./../Services/Formatter"
-import { LiveEvaluation } from "./../Services/LiveEvaluation"
 import { MultiProcess } from "./../Services/MultiProcess"
 import { OutputWindow } from "./../Services/Output"
 import { QuickOpen } from "./../Services/QuickOpen"
@@ -35,8 +34,6 @@ import { Tasks } from "./../Services/Tasks"
 import { WindowTitle } from "./../Services/WindowTitle"
 
 import * as UI from "./../UI/index"
-import { LiveEvaluationOverlay } from "./../UI/Overlay/LiveEvaluationOverlay"
-import { OverlayManager } from "./../UI/Overlay/OverlayManager"
 import { Rectangle } from "./../UI/Types"
 
 import { Keyboard } from "./../Input/Keyboard"
@@ -61,8 +58,7 @@ export class NeovimEditor implements IEditor {
     private _tasks: Tasks
 
     // Overlays
-    private _overlayManager: OverlayManager
-    private _liveEvaluationOverlay: LiveEvaluationOverlay
+    private _windowManager: NeovimWindowManager
 
     private _errorStartingNeovim: boolean = false
 
@@ -87,7 +83,6 @@ export class NeovimEditor implements IEditor {
         const windowTitle = new WindowTitle(this._neovimInstance)
         const multiProcess = new MultiProcess()
         const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
-        const liveEvaluation = new LiveEvaluation(this._neovimInstance, this._pluginManager)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
         const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
         this._tasks = new Tasks(outputWindow)
@@ -102,7 +97,6 @@ export class NeovimEditor implements IEditor {
         services.push(quickOpen)
         services.push(windowTitle)
         services.push(formatter)
-        services.push(liveEvaluation)
         services.push(multiProcess)
         services.push(syntaxHighlighter)
         services.push(outputWindow)
@@ -110,11 +104,9 @@ export class NeovimEditor implements IEditor {
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
-        this._overlayManager = new OverlayManager(this._screen, this._neovimInstance)
-        this._liveEvaluationOverlay = new LiveEvaluationOverlay()
-        this._overlayManager.addOverlay("live-eval", this._liveEvaluationOverlay)
+        this._windowManager = new NeovimWindowManager(this._screen, this._neovimInstance)
 
-        this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
+        this._windowManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
             UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
         })
 
@@ -132,10 +124,6 @@ export class NeovimEditor implements IEditor {
             UI.Actions.setErrors(fileName, key, errors)
 
             errorService.setErrors(fileName, errors)
-        })
-
-        liveEvaluation.on("evaluate-block-result", (file: string, blocks: any[]) => {
-            this._liveEvaluationOverlay.setLiveEvaluationResult(file, blocks)
         })
 
         this._pluginManager.on("find-all-references", (references: Oni.Plugin.ReferencesResult) => {
@@ -162,7 +150,7 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any, shouldMeasure: boolean) => {
             if (shouldMeasure) {
-                this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
+                this._windowManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
             }
 
             UI.Actions.setWindowLineMapping(eventContext.windowNumber, lineMapping)
@@ -382,9 +370,6 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
-        // TODO: Can we get rid of these?
-        this._liveEvaluationOverlay.onVimEvent(eventName, evt)
-
         UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
 
         this._tasks.onEvent(evt)
