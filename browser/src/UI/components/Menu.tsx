@@ -121,7 +121,7 @@ export interface IMenuItemProps {
     onClick: Function
 }
 
-export class MenuItem extends React.Component<IMenuItemProps, void> {
+export class MenuItem extends React.PureComponent<IMenuItemProps, void> {
 
     public render(): JSX.Element {
         let className = "item"

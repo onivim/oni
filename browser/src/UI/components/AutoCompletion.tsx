@@ -83,7 +83,7 @@ export interface IAutoCompletionItemProps extends Oni.Plugin.CompletionInfo {
     isSelected: boolean
 }
 
-export class AutoCompletionItem extends React.Component<IAutoCompletionItemProps, void> {
+export class AutoCompletionItem extends React.PureComponent<IAutoCompletionItemProps, void> {
     public render(): JSX.Element {
 
         let className = "entry"
@@ -132,7 +132,7 @@ export interface IAutoCompletionIconProps {
     kind: types.CompletionItemKind
 }
 
-export class AutoCompletionIcon extends React.Component<IAutoCompletionIconProps, void> {
+export class AutoCompletionIcon extends React.PureComponent<IAutoCompletionIconProps, void> {
 
     public render(): JSX.Element {
 

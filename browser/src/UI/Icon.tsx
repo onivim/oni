@@ -22,7 +22,7 @@ export interface IconProps {
     className?: string
 }
 
-export class Icon extends React.Component<IconProps, void> {
+export class Icon extends React.PureComponent<IconProps, void> {
     public render(): JSX.Element {
 
         const className = "fa fa-" + this.props.name + " " + this._getClassForIconSize(this.props.size as any) // FIXME: undefined

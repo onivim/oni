@@ -12,7 +12,7 @@ interface IRootComponentProps {
     editor: IEditor
 }
 
-export class RootComponent extends React.Component<IRootComponentProps, void> {
+export class RootComponent extends React.PureComponent<IRootComponentProps, void> {
     public render() {
         return <div className="stack disable-mouse">
             <div className="stack">
