@@ -165,6 +165,8 @@ export class NeovimEditor implements IEditor {
                 this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
             }
 
+            const evt = eventContext
+            UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
             UI.Actions.setWindowLineMapping(eventContext.windowNumber, lineMapping)
         })
 
