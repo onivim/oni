@@ -1,5 +1,26 @@
 @import (reference) "./common.less";
 
+@keyframes appear {
+    0% { 
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    75% {
+        transform: scale(1.25);
+    }
+    100% 
+    { 
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animation-appear {
+    animation-name: appear;
+    animation-duration: 0.5s;
+    animation-function: ease-in;
+}
+
 .tabs {
     display: flex;
     flex-direction: row;
@@ -53,6 +74,7 @@
 
     &.is-dirty {
         .circle-icon-container {
+            .animation-appear;
             display: block;
         }
     }
@@ -60,6 +82,7 @@
     &.not-dirty:hover {
         .corner {
             .x-icon-container {
+                .animation-appear;
                 display: block;
             }
         }
