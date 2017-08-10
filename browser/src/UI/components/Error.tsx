@@ -9,7 +9,7 @@ import * as State from "./../State"
 import { Icon } from "./../Icon"
 
 import { getColorFromSeverity } from "./../../Services/Errors"
-import { WindowContext2 } from "./../Overlay/WindowContext"
+import { WindowContext2 } from "./../WindowContext"
 
 import * as types from "vscode-languageserver-types"
 

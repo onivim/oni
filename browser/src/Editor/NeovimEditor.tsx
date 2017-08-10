@@ -12,7 +12,7 @@ import * as types from "vscode-languageserver-types"
 import { ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
-import { NeovimInstance } from "./../neovim"
+import { NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
@@ -34,7 +34,6 @@ import { Tasks } from "./../Services/Tasks"
 import { WindowTitle } from "./../Services/WindowTitle"
 
 import * as UI from "./../UI/index"
-import { OverlayManager } from "./../UI/Overlay/OverlayManager"
 import { Rectangle } from "./../UI/Types"
 
 import { Keyboard } from "./../Input/Keyboard"
@@ -59,7 +58,7 @@ export class NeovimEditor implements IEditor {
     private _tasks: Tasks
 
     // Overlays
-    private _overlayManager: OverlayManager
+    private _windowManager: NeovimWindowManager
 
     private _errorStartingNeovim: boolean = false
 
@@ -105,9 +104,9 @@ export class NeovimEditor implements IEditor {
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
-        this._overlayManager = new OverlayManager(this._screen, this._neovimInstance)
+        this._windowManager = new NeovimWindowManager(this._screen, this._neovimInstance)
 
-        this._overlayManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
+        this._windowManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
             UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
         })
 
@@ -151,7 +150,7 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any, shouldMeasure: boolean) => {
             if (shouldMeasure) {
-                this._overlayManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
+                this._windowManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
             }
 
             UI.Actions.setWindowLineMapping(eventContext.windowNumber, lineMapping)

@@ -1,9 +1,10 @@
 import { EventEmitter } from "events"
 
-import { IWindow, NeovimInstance } from "./../../neovim"
-import { IScreen } from "./../../Screen"
+import { IScreen } from "./../Screen"
 
-export class OverlayManager extends EventEmitter {
+import { IWindow, NeovimInstance } from "./index"
+
+export class NeovimWindowManager extends EventEmitter {
 
     private _screen: IScreen
     private _neovimInstance: NeovimInstance
