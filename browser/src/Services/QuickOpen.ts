@@ -29,7 +29,7 @@ export class QuickOpen {
             this._seenItems.push(fullPath)
 
             if (!selectedItem.openInSplit) {
-                neovimInstance.command("e! " + fullPath)
+                neovimInstance.command("tabnew! " + fullPath)
             } else {
                 neovimInstance.command("vsp! " + fullPath)
             }
