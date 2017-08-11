@@ -24,29 +24,29 @@ export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
 
         const openFromTop = this.props.openFromTop || false
 
-        const containerStyle = {
+        const containerStyle: React.CSSProperties = {
             position: "absolute",
             top: this.props.y.toString() + "px",
             left: this.props.x.toString() + "px",
         }
 
-        const innerCommonStyle = {
+        const innerCommonStyle: React.CSSProperties = {
             "position": "absolute",
             "opacity": this.props.visible ? 1 : 0,
             "max-width": (document.body.offsetWidth - this.props.x - 40) + "px",
         }
 
-        const openFromTopStyle = {
+        const openFromTopStyle: React.CSSProperties = {
             ...innerCommonStyle,
             "top": "0px",
         }
 
-        const openFromBottomStyle = {
+        const openFromBottomStyle: React.CSSProperties = {
             ...innerCommonStyle,
             "bottom": "0px",
         }
 
-        const innerStyle = openFromTop ? openFromTopStyle : openFromBottomStyle
+        const innerStyle: React.CSSProperties = openFromTop ? openFromTopStyle : openFromBottomStyle
 
         return <div key={"quickinfo-container"} className="quickinfo-container enable-mouse" style={containerStyle}>
             <div key={"quickInfo"} style={innerStyle} className="quickinfo">
