@@ -128,7 +128,7 @@
     "@types/react-redux": "4.4.38",
     "@types/sinon": "1.16.32",
     "autoprefixer": "6.4.0",
-    "babili-webpack-plugin": "^0.1.2",
+    "babili-webpack-plugin": "0.1.2",
     "bs-platform": "1.8.0",
     "classnames": "2.2.5",
     "concurrently": "3.1.0",
@@ -165,6 +165,6 @@
     "vscode-languageserver-types": "3.3.0",
     "wcwidth": "1.0.1",
     "webpack": "3.5.3",
-    "webpack-dev-server": "^2.7.1"
+    "webpack-dev-server": "2.7.1"
   }
 }
