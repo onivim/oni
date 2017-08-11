@@ -1,22 +1,20 @@
-const childProcess = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const Q = require("q");
 
 const activate = (Oni) => {
 
     const gitBranchIndicator = Oni.statusBar.createItem(0, -3);
 
     const pathIsDir = (p) => {
-        const deferred = Q.defer();
-        fs.stat(p, (error, stats) => {
-            if (error) {
-                deferred.reject(error);
-            } else {
-                deferred.resolve(stats.isDirectory());
-            }
-        });
-        return deferred.promise;
+        return new Promise((resolve, reject) => {
+            fs.stat(p, (error, stats) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(stats.isDirectory());
+                }
+            });
+        })
     };
 
     const updateBranchIndicator = (evt) => {
