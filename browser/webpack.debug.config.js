@@ -8,6 +8,9 @@ module.exports = {
         path.join(__dirname, "src/index.tsx")
     ],
     target: "electron-renderer",
+    externals: {
+        "vscode-languageserver-types": "require('vscode-languageserver-types')"
+    },
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".less"]
     },
