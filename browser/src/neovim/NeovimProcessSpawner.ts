@@ -12,10 +12,13 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
 
     const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
     const nvimMacProcessPath = path.join(__dirname, "bin", "osx", "neovim", "bin", "nvim")
+
     // For Linux, assume there is a locally installed neovim
     const nvimLinuxPath = "nvim"
 
-    const nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
+    let nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
+
+    nvimProcessPath = nvimProcessPath.split("app.asar").join("app.asar.unpacked")
 
     const joinedRuntimePaths = runtimePaths.join(",")
 

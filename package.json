@@ -17,6 +17,10 @@
     "oni-vim": "./cli/oni"
   },
   "build": {
+    "asar": true,
+    "asarUnpack": [
+        "bin"
+    ],
     "productName": "Oni",
     "appId": "com.extropy.oni",
     "files": [
