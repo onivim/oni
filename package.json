@@ -107,7 +107,6 @@
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",
     "omnisharp-client": "7.0.6",
-    "q": "1.4.1",
     "tslint": "4.0.2",
     "typescript": "2.4.2"
   },
@@ -121,7 +120,6 @@
     "@types/mocha": "2.2.33",
     "@types/msgpack-lite": "0.1.4",
     "@types/node": "6.0.48",
-    "@types/q": "0.0.32",
     "@types/react": "15.0.30",
     "@types/react-addons-perf": "0.14.18",
     "@types/react-dom": "0.14.18",
