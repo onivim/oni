@@ -2,8 +2,6 @@ import * as React from "react"
 
 // import { connect } from "react-redux"
 
-// import * as _ from "lodash"
-
 // import * as ActionCreators from "./../ActionCreators"
 // import * as State from "./../State"
 

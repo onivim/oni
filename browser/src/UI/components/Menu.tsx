@@ -2,7 +2,7 @@ import * as React from "react"
 
 import { connect } from "react-redux"
 
-import * as _ from "lodash"
+import * as take from "lodash/take"
 
 import * as ActionCreators from "./../ActionCreators"
 import * as State from "./../State"
@@ -37,7 +37,7 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
         }
 
         // TODO: sync max display items (10) with value in Reducer.popupMenuReducer() (Reducer.ts)
-        const initialItems = _.take(this.props.items, 10)
+        const initialItems = take(this.props.items, 10)
 
         // const pinnedItems = initialItems.filter(f => f.pinned)
         // const unpinnedItems = initialItems.filter(f => !f.pinned)
