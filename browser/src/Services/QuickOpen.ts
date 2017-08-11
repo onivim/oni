@@ -144,3 +144,4 @@ export class QuickOpen {
         UI.Actions.showPopupMenu("quickOpen", options)
     }
 }
+
