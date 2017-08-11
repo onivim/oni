@@ -4,7 +4,7 @@
  * Responsible for parsing and normalizing package.json for ONI plugins
  */
 
-import * as _ from "lodash"
+import * as keys from "lodash/keys"
 
 import * as Capabilities from "./Api/Capabilities"
 
@@ -42,7 +42,7 @@ export const getAllCommandsFromMetadata = (metadata: Capabilities.IPluginMetadat
         return []
     }
 
-    const commandNames = _.keys(commands)
+    const commandNames = keys(commands)
     return commandNames.map((command) => ({
         command,
         name: commands[command].name,

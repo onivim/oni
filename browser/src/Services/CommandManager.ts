@@ -4,7 +4,7 @@
  * Manages Oni commands. These commands show up in the command palette, and are exposed to plugins.
  */
 
-import * as _ from "lodash"
+import * as values from "lodash/values"
 
 import { INeovimInstance } from "./../neovim"
 
@@ -66,7 +66,7 @@ export class CommandManager implements ITaskProvider {
     }
 
     public getTasks(): Promise<ITask[]> {
-        const commands = _.values(this._commandDictionary)
+        const commands = values(this._commandDictionary)
         const tasks = commands.map((c) => ({
             name: c.name,
             detail: c.detail,

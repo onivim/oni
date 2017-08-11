@@ -4,7 +4,7 @@
 
 import * as os from "os"
 
-import * as _ from "lodash"
+import * as flatMap from "lodash/flatMap"
 import * as types from "vscode-languageserver-types"
 
 export const ProtocolConstants = {
@@ -60,7 +60,7 @@ export const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split
 
 export const getTextFromContents = (contents: types.MarkedString | types.MarkedString[]): string[] => {
     if (contents instanceof Array) {
-        return _.flatMap(contents, (markedString) => getTextFromMarkedString(markedString))
+        return flatMap(contents, (markedString) => getTextFromMarkedString(markedString))
     } else {
         return getTextFromMarkedString(contents)
     }

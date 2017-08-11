@@ -10,7 +10,7 @@ import * as State from "./State"
 
 import { Rectangle } from "./Types"
 
-import * as _ from "lodash"
+import * as flatten from "lodash/flatten"
 
 export const isPopupMenuOpen = (state: State.IState) => {
     const popupMenu = state.popupMenu
@@ -56,7 +56,7 @@ export const getAllErrorsForFile = (fileName: string, errors: State.Errors) => {
     }
 
     const arrayOfErrorsArray = Object.values(allErrorsByKey)
-    return _.flatten(arrayOfErrorsArray)
+    return flatten(arrayOfErrorsArray)
 }
 
 export const getActiveWindow = (state: State.IState): State.IWindow => {

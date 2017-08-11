@@ -7,7 +7,9 @@ import * as Fuse from "fuse.js"
 import * as Config from "./../Config"
 import * as Actions from "./Actions"
 
-import * as _ from "lodash"
+import * as concat from "lodash/concat"
+import * as pick from "lodash/pick"
+import * as sortBy from "lodash/sortBy"
 
 import * as types from "vscode-languageserver-types"
 
@@ -105,7 +107,7 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
                 folded: true,
             }
             return Object.assign({}, s, {
-                logs: _.concat(s.logs, newLog),
+                logs: concat(s.logs, newLog),
             })
         case "SHOW_MESSAGE_DIALOG":
             return {
@@ -211,7 +213,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 activeBufferId = null
             }
 
-            let newById = _.pick(s.byId, a.payload.bufferIds)
+            let newById = pick(s.byId, a.payload.bufferIds)
 
             return <State.IBufferState>{
                 activeBufferId,
@@ -271,7 +273,7 @@ export function popupMenuReducer (s: State.IMenu | null, a: Actions.SimpleAction
 
     switch (a.type) {
         case "SHOW_MENU":
-            const sortedOptions = _.sortBy(a.payload.options, (f) => f.pinned ? 0 : 1).map((o) => ({
+            const sortedOptions = sortBy(a.payload.options, (f) => f.pinned ? 0 : 1).map((o) => ({
                 icon: o.icon,
                 detail: o.detail,
                 label: o.label,
@@ -367,7 +369,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
             }
         })
 
-        return _.sortBy(opt, (o) => o.pinned ? 0 : 1)
+        return sortBy(opt, (o) => o.pinned ? 0 : 1)
     }
 
     let fuseOptions = {

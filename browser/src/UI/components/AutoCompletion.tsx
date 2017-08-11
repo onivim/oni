@@ -2,7 +2,7 @@
  * AutoCompletion.tsx
  */
 
-import * as _ from "lodash"
+import * as take from "lodash/take"
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
@@ -47,7 +47,7 @@ export class AutoCompletion extends React.PureComponent<IAutoCompletionProps, vo
         }
 
         // TODO: sync max display items (10) with value in Reducer.autoCompletionReducer() (Reducer.ts)
-        const firstTenEntries = _.take(this.props.entries, 10)
+        const firstTenEntries = take(this.props.entries, 10)
 
         const entries = firstTenEntries.map((s, i) => {
             const isSelected = i === this.props.selectedIndex

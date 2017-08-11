@@ -9,7 +9,8 @@
  *  - NPM tasks
  */
 
-import * as _ from "lodash"
+import * as find from "lodash/find"
+import * as flatten from "lodash/flatten"
 
 import * as Parser from "./../Parser"
 import { getProjectConfiguration } from "./../ProjectConfig"
@@ -107,7 +108,7 @@ export class Tasks {
         UI.events.on("menu-item-selected:tasks", (selectedItem: any) => {
             const {label, detail} = selectedItem.selectedOption
 
-            const selectedTask = _.find(this._lastTasks, (t) => t.name === label && t.detail === detail)
+            const selectedTask = find(this._lastTasks, (t) => t.name === label && t.detail === detail)
 
             if (selectedTask) {
                 selectedTask.callback()
@@ -148,6 +149,6 @@ export class Tasks {
 
         const allTasks = await Promise.all(taskProviders.map(async (t: ITaskProvider) => await t.getTasks() || []))
 
-        this._lastTasks = _.flatten(allTasks)
+        this._lastTasks = flatten(allTasks)
     }
 }
