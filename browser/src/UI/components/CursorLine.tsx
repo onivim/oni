@@ -28,7 +28,7 @@ class CursorLineRenderer extends React.PureComponent<ICursorLineRendererProps, v
 
         const width = this.props.width
 
-        const cursorStyle = {
+        const cursorStyle: React.CSSProperties = {
             position: "absolute",
             left: this.props.x.toString() + "px", // Window Start
             top: this.props.y.toString() + "px", // Same as cursor

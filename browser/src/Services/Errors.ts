@@ -1,4 +1,5 @@
-import * as _ from "lodash"
+import * as flatten from "lodash/flatten"
+import * as keys from "lodash/keys"
 
 import { INeovimInstance } from "./../neovim"
 
@@ -50,14 +51,14 @@ export class Errors implements ITaskProvider {
     }
 
     private _setQuickFixErrors(): void {
-        const arrayOfErrors = _.keys(this._errors).map((filename) => {
+        const arrayOfErrors = keys(this._errors).map((filename) => {
             return this._errors[filename].map((e) => ({
                 ...e,
                 filename,
             }))
         })
 
-        const flattenedErrors = _.flatten(arrayOfErrors)
+        const flattenedErrors = flatten(arrayOfErrors)
         const errors = flattenedErrors.map((e) => <any>({
             filename: e.filename,
             col: e.range.start.character || 0,
