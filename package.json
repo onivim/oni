@@ -19,8 +19,10 @@
   "build": {
     "asar": true,
     "asarUnpack": [
-        "bin"
+        "bin",
+        "vim"
     ],
+    "compression": "maximum",
     "productName": "Oni",
     "appId": "com.extropy.oni",
     "files": [
