@@ -13,7 +13,6 @@ import * as path from "path"
 import * as _ from "lodash"
 import { CompletionItemKind, Diagnostic, Position, Range, SymbolKind } from "vscode-languageserver-types"
 
-import { evaluateBlock, getCommonImports } from "./LiveEvaluation"
 import { QuickInfo } from "./QuickInfo"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
 
@@ -30,20 +29,6 @@ export const activate = (Oni) => {
     const lastOpenFile = null
 
     let lastBuffer: string[] = []
-
-    // Testing Live evaluation
-    //
-    // Simple case
-    // 1+2+3
-
-    // Requiring node modules + absolute paths
-    //
-    // var path = require("path")
-    // var derp = require(path.join(__dirname, "..", "lib", "TypeScriptServerHost"))
-    // var object = new derp.TypeScriptServerHost()
-    // object.openFile("D:/oni/browser/src/NeovimInstance.ts")
-    // object.getNavTree("D:/oni/browser/src/NeovimInstance.ts", 10, 1)
-    // object.getCompletions("D:/oni/browser/src/NeovimInstance.ts", 10, 1)
 
     const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
         return host.getQuickInfo(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
@@ -115,15 +100,6 @@ export const activate = (Oni) => {
                     edits,
                 }
             })
-    }
-
-    const liveEvaluation = (context: Oni.EventContext, id: string, fileName: string, code: string) => {
-
-        const commonImports = getCommonImports(lastBuffer)
-
-        code = commonImports.join(os.EOL) + code
-
-        return evaluateBlock(id, fileName, code)
     }
 
     const convertTypeScriptKindToCompletionItemKind = (kind: string): CompletionItemKind => {
@@ -258,7 +234,6 @@ export const activate = (Oni) => {
     }
 
     Oni.registerLanguageService({
-        evaluateBlock: liveEvaluation,
         findAllReferences,
         getCompletionDetails,
         getCompletions,

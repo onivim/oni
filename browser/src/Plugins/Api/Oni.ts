@@ -221,12 +221,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                             this._channel.send("format", originalContext, formattingResponse)
                         })
                     break
-                case "evaluate-block":
-                    languageService.evaluateBlock(arg.payload.context, arg.payload.id, arg.payload.fileName, arg.payload.code)
-                        .then((val) => {
-                            this._channel.send("evaluate-block-result", originalContext, val)
-                        })
-                    break
                 case "signature-help":
                     languageService.getSignatureHelp(arg.payload.context)
                         .then((val) => {

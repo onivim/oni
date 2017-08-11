@@ -2,8 +2,6 @@ import * as React from "react"
 
 // import { connect } from "react-redux"
 
-// import * as _ from "lodash"
-
 // import * as ActionCreators from "./../ActionCreators"
 // import * as State from "./../State"
 
@@ -19,7 +17,7 @@ require("./Message.less") // tslint:disable-line no-var-requires
 //     items: string[]
 // }
 
-export class Message extends React.Component<void, void> {
+export class Message extends React.PureComponent<void, void> {
 
     public render(): null | JSX.Element {
         return <Visible visible={true}>

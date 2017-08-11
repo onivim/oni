@@ -1,7 +1,7 @@
 
 import * as electron from "electron"
 
-import * as _ from "lodash"
+import * as keys from "lodash/keys"
 import * as React from "react"
 
 import { connect } from "react-redux"
@@ -81,9 +81,9 @@ const getStatusBar = (state: State.IState) => state.statusBar
 const getStatusBarItems = createSelector(
     [getStatusBar],
     (statusBar) => {
-        const keys = _.keys(statusBar)
+        const statusKeys = keys(statusBar)
 
-        const statusBarItems = keys.map((k) => ({
+        const statusBarItems = statusKeys.map((k) => ({
             id: k,
             ...statusBar[k],
         }))
