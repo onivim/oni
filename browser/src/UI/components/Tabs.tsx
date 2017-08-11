@@ -38,6 +38,9 @@ export interface ITabsProps {
 
     visible: boolean
     tabs: ITabProps[]
+
+    backgroundColor: string
+    foregroundColor: string
 }
 
 export class Tabs extends React.PureComponent<ITabsProps, void> {
@@ -47,11 +50,18 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
         }
 
         const tabBorderStyle = {
-            "borderBottom": "4px solid rgb(40, 44, 52)",
+            "borderBottom": `4px solid ${this.props.backgroundColor}`,
         }
 
         const tabs = this.props.tabs.map((t) => {
-            return <Tab key={t.id} {...t} onClickName={() => this._onSelect(t.id)} onClickClose={() => this._onClickClose(t.id)}/>
+            return <Tab
+                key={t.id}
+                {...t}
+                onClickName={() => this._onSelect(t.id)}
+                onClickClose={() => this._onClickClose(t.id)}
+                backgroundColor={this.props.backgroundColor}
+                foregroundColor={this.props.foregroundColor}
+            />
         })
 
         return <div className="tabs horizontal enable-mouse layer" style={tabBorderStyle}>
@@ -71,6 +81,9 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
 export interface ITabPropsWithClick extends ITabProps {
     onClickName: React.EventHandler<React.MouseEvent<HTMLDivElement>>
     onClickClose: React.EventHandler<React.MouseEvent<HTMLDivElement>>
+
+    backgroundColor: string
+    foregroundColor: string
 }
 
 export const Tab = (props: ITabPropsWithClick) => {
@@ -81,7 +94,12 @@ export const Tab = (props: ITabPropsWithClick) => {
         "not-dirty": !props.isDirty,
     })
 
-    return <div className={cssClasses} title={props.description}>
+    const style = {
+        backgroundColor: props.backgroundColor,
+        color: props.foregroundColor,
+    }
+
+    return <div className={cssClasses} title={props.description} style={style}>
         <div className="corner"></div>
         <div className="name" onClick={props.onClickName}>
             <span className="name-inner">
@@ -157,6 +175,8 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
     const closeFunc = shouldUseVimTabs ? ownProps.onTabClose : ownProps.onBufferClose
 
     return {
+        backgroundColor: state.backgroundColor,
+        foregroundColor: state.foregroundColor,
         onSelect: selectFunc,
         onClose: closeFunc,
         visible,

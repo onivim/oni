@@ -160,7 +160,7 @@ declare namespace Oni {
             process: Process
             statusBar: StatusBar
 
-            registerLanguageService(languageType: string, languageService: LanguageService)
+            registerLanguageService(languageService: LanguageService)
 
             clearHighlights(file: string, key: string)
             setHighlights(file: string, key: string, highlights: SyntaxHighlight[])
@@ -246,7 +246,6 @@ declare namespace Oni {
             getFormattingEdits?(position: EventContext): Promise<FormattingEditsResponse>
 
             evaluateBlock?(context: EventContext, id: string, fileName: string, code: string): Promise<EvaluationResult>
-            // liveEvaluate(): LiveEvaluationResult[]
         }
     }
 }

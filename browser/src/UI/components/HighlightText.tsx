@@ -7,7 +7,7 @@ export interface IHighlightTextProps {
     className: string
 }
 
-export class HighlightText extends React.Component<IHighlightTextProps, void> {
+export class HighlightText extends React.PureComponent<IHighlightTextProps, void> {
 
     public render(): JSX.Element {
 
@@ -38,7 +38,7 @@ export interface IHighlightTextByIndexProps {
     className: string
 }
 
-export class HighlightTextByIndex extends React.Component<IHighlightTextByIndexProps, void> {
+export class HighlightTextByIndex extends React.PureComponent<IHighlightTextByIndexProps, void> {
     public render(): JSX.Element {
 
         const childNodes: JSX.Element[] = []

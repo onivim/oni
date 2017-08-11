@@ -7,7 +7,7 @@
 
 import * as os from "os"
 
-import * as _ from "lodash"
+import * as isEqual from "lodash/isEqual"
 import * as rpc from "vscode-jsonrpc"
 import * as types from "vscode-languageserver-types"
 
@@ -102,7 +102,7 @@ export class LanguageClient {
                             return this.start(newParams)
                         }
 
-                        if (!_.isEqual(this._initializationParams, newParams)) {
+                        if (!isEqual(this._initializationParams, newParams)) {
                             this._initializationParams = newParams
 
                             return this.end()

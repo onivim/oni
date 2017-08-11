@@ -2,7 +2,7 @@
  * AutoCompletion.tsx
  */
 
-import * as _ from "lodash"
+import * as take from "lodash/take"
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
@@ -31,7 +31,7 @@ export class AutoCompletion extends React.PureComponent<IAutoCompletionProps, vo
             return null
         }
 
-        const containerStyle = {
+        const containerStyle: React.CSSProperties = {
             position: "absolute",
             top: this.props.y.toString() + "px",
             left: this.props.x.toString() + "px",
@@ -47,7 +47,7 @@ export class AutoCompletion extends React.PureComponent<IAutoCompletionProps, vo
         }
 
         // TODO: sync max display items (10) with value in Reducer.autoCompletionReducer() (Reducer.ts)
-        const firstTenEntries = _.take(this.props.entries, 10)
+        const firstTenEntries = take(this.props.entries, 10)
 
         const entries = firstTenEntries.map((s, i) => {
             const isSelected = i === this.props.selectedIndex
@@ -83,7 +83,7 @@ export interface IAutoCompletionItemProps extends Oni.Plugin.CompletionInfo {
     isSelected: boolean
 }
 
-export class AutoCompletionItem extends React.Component<IAutoCompletionItemProps, void> {
+export class AutoCompletionItem extends React.PureComponent<IAutoCompletionItemProps, void> {
     public render(): JSX.Element {
 
         let className = "entry"
@@ -132,7 +132,7 @@ export interface IAutoCompletionIconProps {
     kind: types.CompletionItemKind
 }
 
-export class AutoCompletionIcon extends React.Component<IAutoCompletionIconProps, void> {
+export class AutoCompletionIcon extends React.PureComponent<IAutoCompletionIconProps, void> {
 
     public render(): JSX.Element {
 

@@ -10,7 +10,7 @@ import { Editor } from "./Editor"
 import { StatusBar } from "./StatusBar"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
-import { InitializationParamsCreator, LanguageClient } from "./LanguageClient/LanguageClient"
+import { InitializationParamsCreator, LanguageClient, ServerRunOptions } from "./LanguageClient/LanguageClient"
 
 import { Process } from "./Process"
 import { Services } from "./Services"
@@ -94,8 +94,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         })
     }
 
-    public createLanguageClient(initializationCommand: string, initializationParamsCreator: InitializationParamsCreator): LanguageClient {
-        return new LanguageClient(initializationCommand, initializationParamsCreator, this)
+    public createLanguageClient(startOptions: ServerRunOptions, initializationParamsCreator: InitializationParamsCreator): LanguageClient {
+        return new LanguageClient(startOptions, initializationParamsCreator, this)
     }
 
     public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {
@@ -219,12 +219,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                     languageService.getFormattingEdits(arg.payload.context)
                         .then((formattingResponse) => {
                             this._channel.send("format", originalContext, formattingResponse)
-                        })
-                    break
-                case "evaluate-block":
-                    languageService.evaluateBlock(arg.payload.context, arg.payload.id, arg.payload.fileName, arg.payload.code)
-                        .then((val) => {
-                            this._channel.send("evaluate-block-result", originalContext, val)
                         })
                     break
                 case "signature-help":

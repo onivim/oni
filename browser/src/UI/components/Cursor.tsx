@@ -18,7 +18,7 @@ export interface ICursorProps {
 
 require("./Cursor.less") // tslint:disable-line no-var-requires
 
-class CursorRenderer extends React.Component<ICursorProps, void> {
+class CursorRenderer extends React.PureComponent<ICursorProps, void> {
 
     public render(): JSX.Element {
 
@@ -29,7 +29,7 @@ class CursorRenderer extends React.Component<ICursorProps, void> {
         const width = isNormalMode ? this.props.width : this.props.width / 4
         const characterToShow = isNormalMode ? this.props.character : ""
 
-        const cursorStyle = {
+        const cursorStyle: React.CSSProperties = {
             position: "absolute",
             left: this.props.x.toString() + "px",
             top: this.props.y.toString() + "px",

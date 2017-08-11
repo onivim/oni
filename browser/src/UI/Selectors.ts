@@ -10,7 +10,7 @@ import * as State from "./State"
 
 import { Rectangle } from "./Types"
 
-import * as _ from "lodash"
+import * as flatten from "lodash/flatten"
 
 export const isPopupMenuOpen = (state: State.IState) => {
     const popupMenu = state.popupMenu
@@ -42,6 +42,17 @@ export const getAllBuffers = (buffers: State.IBufferState): State.IBuffer[] => {
     return buffers.allIds.map((id) => buffers.byId[id])
 }
 
+export const getBufferByFilename = (fileName: string, buffers: State.IBufferState): State.IBuffer => {
+    const allBuffers = getAllBuffers(buffers)
+    const matchingBuffers = allBuffers.filter((buf) => buf.file === fileName)
+
+    if (matchingBuffers.length > 0) {
+        return matchingBuffers[0]
+    } else {
+        return null
+    }
+}
+
 export const getErrors = (state: State.IState) => state.errors
 
 export const getAllErrorsForFile = (fileName: string, errors: State.Errors) => {
@@ -56,7 +67,7 @@ export const getAllErrorsForFile = (fileName: string, errors: State.Errors) => {
     }
 
     const arrayOfErrorsArray = Object.values(allErrorsByKey)
-    return _.flatten(arrayOfErrorsArray)
+    return flatten(arrayOfErrorsArray)
 }
 
 export const getActiveWindow = (state: State.IState): State.IWindow => {

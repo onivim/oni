@@ -9,7 +9,7 @@ import * as State from "./../State"
 import { Icon } from "./../Icon"
 
 import { getColorFromSeverity } from "./../../Services/Errors"
-import { WindowContext2 } from "./../Overlay/WindowContext"
+import { WindowContext } from "./../WindowContext"
 
 import * as types from "vscode-languageserver-types"
 
@@ -33,7 +33,7 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
             return null
         }
 
-        const windowContext = new WindowContext2(this.props.fontWidthInPixels, this.props.fontHeightInPixels, this.props.window)
+        const windowContext = new WindowContext(this.props.fontWidthInPixels, this.props.fontHeightInPixels, this.props.window)
 
         const markers = errors.map((e) => {
             const lineNumber = e.range.start.line + 1
@@ -97,7 +97,7 @@ export interface IErrorMarkerProps {
     showDetails: boolean
 }
 
-export class ErrorMarker extends React.Component<IErrorMarkerProps, void> {
+export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, void> {
 
     private config = Config.instance()
 
@@ -149,7 +149,7 @@ export interface IErrorSquiggleProps {
     color: string,
 }
 
-export class ErrorSquiggle extends React.Component<IErrorSquiggleProps, void> {
+export class ErrorSquiggle extends React.PureComponent<IErrorSquiggleProps, void> {
     public render(): JSX.Element {
 
         const { x, y, width, height, color } = this.props

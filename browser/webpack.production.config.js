@@ -1,24 +1,18 @@
 var webpack = require("webpack");
-var OptimizeJsPlugin = require("optimize-js-plugin")
 
 const baseConfig = require("./webpack.debug.config.js")
+
+const OptimizeJsPlugin = require("optimize-js-plugin")
+const BabiliPlugin = require("babili-webpack-plugin")
 
 const productionConfig = Object.assign({}, baseConfig, {
     plugins: [
         new webpack.DefinePlugin({
             "process.env.NODE_ENV":'"production"'
         }),
-        // Unfortunately, the packaged version of UglifyJS doesn't support ES6
-        // https://github.com/mishoo/UglifyJS2/issues/448
-        //
-        // This could help the app load performance, because a non-trivial amount of time 
-        // is spent loading & parsing the script
-        //
-        // new webpack.optimize.UglifyJsPlugin({
-        //     minimize: true,
-        //     sourceMap: false
+        new BabiliPlugin(),
         new OptimizeJsPlugin({
-            sourcemap: false
+            sourceMap: false
         })
     ],
 })
