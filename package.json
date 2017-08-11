@@ -32,7 +32,6 @@
       "!lib_test",
       "!test"
     ],
-    "asar": false,
     "mac": {
       "artifactName": "${productName}-${version}-osx.${ext}",
       "category": "public.app-category.developer-tools",
