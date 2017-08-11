@@ -4,7 +4,7 @@
  * Manages the quick open menu
  */
 
-import * as _ from "lodash"
+import * as orderBy from "lodash/orderBy"
 import * as Config from "./../Config"
 import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
@@ -42,7 +42,7 @@ export class Formatter {
             // another edit referenced at column 8 would now apply at column 7.
             // Long-term, there needs to be a strategy to map / re-map edits, but for now,
             // this can be worked around by sorting the edits in reverse - applying later column edits first
-            const sortedEdits = _.orderBy(response.edits, [(e) => e.start.line, (e) => e.start.column], ["asc", "desc"])
+            const sortedEdits = orderBy(response.edits, [(e) => e.start.line, (e) => e.start.column], ["asc", "desc"])
 
             sortedEdits.forEach((edit) => {
 

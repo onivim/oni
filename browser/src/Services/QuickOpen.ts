@@ -9,7 +9,7 @@ import * as path from "path"
 import * as Log from "./../Log"
 
 import * as glob from "glob"
-import * as _ from "lodash"
+import * as flatten from "lodash/flatten"
 import * as Q from "q"
 
 import * as Config from "./../Config"
@@ -70,7 +70,7 @@ export class QuickOpen {
                 if (isGit) {
                     return Q.all([Git.getTrackedFiles(), Git.getUntrackedFiles(exclude)])
                         .then((values: [string[], string[]]) => {
-                            const allFiles = _.flatten(values)
+                            const allFiles = flatten(values)
                             this._showMenuFromFiles(allFiles)
                         })
                 } else {

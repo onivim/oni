@@ -1,7 +1,8 @@
 import { EventEmitter } from "events"
 
 import * as fs from "fs"
-import * as _ from "lodash"
+import * as cloneDeep from "lodash/cloneDeep"
+import * as isError from "lodash/isError"
 import * as path from "path"
 
 import * as Performance from "./Performance"
@@ -226,7 +227,7 @@ export class Config extends EventEmitter {
     }
 
     public getValues(): IConfigValues {
-        return _.cloneDeep(this.Config)
+        return cloneDeep(this.Config)
     }
 
     public getUserFolder(): string {
@@ -244,12 +245,12 @@ export class Config extends EventEmitter {
     // so we can't emit the parsing error to anyone when it happens
     public getParsingError(): Error | null {
         const maybeError = this.getUserRuntimeConfig()
-        return _.isError(maybeError) ? maybeError : null
+        return isError(maybeError) ? maybeError : null
     }
 
     private applyConfig(): void {
         let userRuntimeConfigOrError = this.getUserRuntimeConfig()
-        if (_.isError(userRuntimeConfigOrError)) {
+        if (isError(userRuntimeConfigOrError)) {
             this.emit("logError", userRuntimeConfigOrError)
             this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig}
         } else {

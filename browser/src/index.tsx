@@ -13,7 +13,7 @@ import { PluginManager } from "./Plugins/PluginManager"
 
 import { CommandManager } from "./Services/CommandManager"
 
-import * as _ from "lodash"
+import * as isEqual from "lodash/isEqual"
 
 import * as UI from "./UI/index"
 
@@ -56,7 +56,7 @@ const start = (args: string[]) => {
         let newConfigValues = config.getValues()
         let prop: keyof Config.IConfigValues
         for (prop in newConfigValues) {
-            if (!_.isEqual(newConfigValues[prop], prevConfigValues[prop])) {
+            if (!isEqual(newConfigValues[prop], prevConfigValues[prop])) {
                 UI.Actions.setConfigValue(prop, newConfigValues[prop])
             }
         }
