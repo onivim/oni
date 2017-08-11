@@ -1,7 +1,5 @@
 var path = require("path");
 var webpack = require("webpack");
-// var lessPluginAutoPrefix = require("less-plugin-autoprefix");
-// var OptimizeJsPlugin = require("optimize-js-plugin")
 
 module.exports = {
     entry: [
@@ -41,6 +39,11 @@ module.exports = {
             }
         ]
     },
+    plugins: [
+        new webpack.DefinePlugin({
+            "process.env.NODE_ENV":'"development"'
+        }),
+    ],
     output: {
         path: path.join(__dirname, "..", "lib", "browser"),
         publicPath: "/",
