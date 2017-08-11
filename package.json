@@ -109,7 +109,7 @@
     "omnisharp-client": "7.0.6",
     "q": "1.4.1",
     "tslint": "4.0.2",
-    "typescript": "2.2.1"
+    "typescript": "2.4.2"
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
@@ -122,7 +122,7 @@
     "@types/msgpack-lite": "0.1.4",
     "@types/node": "6.0.48",
     "@types/q": "0.0.32",
-    "@types/react": "0.14.48",
+    "@types/react": "15.0.30",
     "@types/react-addons-perf": "0.14.18",
     "@types/react-dom": "0.14.18",
     "@types/react-redux": "4.4.38",
