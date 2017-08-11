@@ -4,23 +4,20 @@
  * Manages the quick open menu
  */
 
-import { execSync } from "child_process"
-import * as path from "path"
-import * as Log from "./../Log"
+import { spawn } from "child_process"
 
 import * as glob from "glob"
-import * as _ from "lodash"
-import * as Q from "q"
+import * as path from "path"
+import * as Log from "./../Log"
 
 import * as Config from "./../Config"
 import { NeovimEditor } from "./../Editor/NeovimEditor"
 import { INeovimInstance } from "./../neovim"
-import * as PromiseHelper from "./../PromiseHelper"
 import * as UI from "./../UI/index"
-import * as Git from "./Git"
 
 export class QuickOpen {
     private _seenItems: string[] = []
+    private _loadedItems: string[] = []
 
     // TODO If we export the icon, change from arg.icon to whatever
     // Or have modes
@@ -54,20 +51,15 @@ export class QuickOpen {
         })
     }
 
-    public show(forceBookmark: boolean = false): void {
+    public async show() {
+        this._loadedItems.splice(0, this._loadedItems.length - 1)
+
         const config = Config.instance()
         const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
-        const exclude = config.getValue("oni.exclude")
-
-        UI.Actions.showPopupMenu("quickOpen", [{
-            icon: "refresh fa-spin fa-fw",
-            label: "Loading Files...",
-            detail: "",
-            pinned: false,
-        }])
+        // const exclude = config.getValue("oni.exclude")
 
         //  If in exec directory or home, show bookmarks to change cwd to
-        if (forceBookmark || this._isInstallDirectoryOrHome()) {
+        if (this._isInstallDirectoryOrHome()) {
             const bookmarks = config.getValue("oni.bookmarks")
             let icon = "chain"
             const helpMessage = "No bookmarks yet! Select this to open config! (shows example)"
@@ -86,56 +78,54 @@ export class QuickOpen {
             return
         }
 
+        let icon = "file-text-o"
+
         // Overridden strategy
         if (overriddenCommand) {
-            try {
-                // replace placeholder ${search} with "" for initial case
-                const files = execSync(overriddenCommand.replace("${search}", ""), { cwd: process.cwd() })
-                    .toString("utf8")
-                    .split("\n")
-                this._showMenuFromFiles(files, "file-text-o")
-                return
-            } catch (e) {
-                Log.warn(`'${overriddenCommand}' returned an error: ${e.message}\nUsing default file list`)
-            }
+            // replace placeholder ${search} with "" for initial case
+            this.loadMenu(overriddenCommand.replace("${search}", ""), icon)
+            return
         }
 
         // Default strategy
-        //  Otherwise, If git repo, use git ls-files
-        //  Otherwise, find all files recursively
-        const openPromise = Git.isGitRepository()
-            .then((isGit) => {
-                if (isGit) {
-                    return Q.all([Git.getTrackedFiles(), Git.getUntrackedFiles(exclude)])
-                        .then((values: [string[], string[]]) => {
-                            const allFiles = _.flatten(values)
-                            this._showMenuFromFiles(allFiles, "file-text-o")
-                        })
-                } else {
-                    // TODO: This async call is being dropped, if we happen to use the promise
-                    return glob("**/*", {
-                        nodir: true,
-                        ignore: exclude,
-                    }, (_err: any, files: string[]) => {
-                        this._showMenuFromFiles(files, "file-text-o")
-                    })
-                }
+        this.loadMenu("git", icon, ["ls-files", "--others", "--exclude-standard", "--cached"])
+
+    }
+
+    // Overridden strategy
+    // If git repo, use git ls-files
+    private async loadMenu (command: string, icon: string, args: string[] = []) {
+        const filer = spawn(command, args)
+
+        filer.stdout.on("data", (data) => {
+            data.toString().split("\n").forEach( (d: string) => {
+                this._loadedItems.push(d)
             })
 
-        PromiseHelper.wrapPromiseAndNotifyError("editor.quickOpen.show", openPromise)
+            this._showMenuFromFiles(this._loadedItems, icon)
+        })
+
+        // Otherwise, find all files recursively
+        filer.stderr.on("data", (data) => {
+            Log.error(data.toString())
+
+            // FIXME : Convert to an async function like the ones above.
+            // TODO: This async call is being dropped, if we happen to use the promise
+            return glob("**/*", {
+                nodir: true,
+                ignore: Config.instance().getValue("oni.exclude"),
+            }, (_err: any, files: string[]) => {
+                this._showMenuFromFiles(files, icon)
+            })
+        })
     }
 
     private _isInstallDirectoryOrHome() {
         return path.dirname(process.execPath) === process.cwd() ||
                process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"] === process.cwd()
     }
+
     // Show menu based on files given
-    // In some cases such as bookmarks we actually send a directory
-    // Since opening in vim is the same essentially, this is nice.
-    // TODO export icon instead of having it for EACH item...?
-    // Will there ever be a case we show items of different icon type?
-    // If not implement modes?
-    // We can also use quick open to open folders once we implement that?
     private _showMenuFromFiles(files: string[], icon: string): void {
         const options = files.map((untrimmedFile) => {
             const f = untrimmedFile.trim()
@@ -150,6 +140,7 @@ export class QuickOpen {
                 pinned: this._seenItems.indexOf(fullPath) >= 0,
             }
         })
+
         UI.Actions.showPopupMenu("quickOpen", options)
     }
 }

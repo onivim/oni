@@ -275,8 +275,6 @@ export class NeovimEditor implements IEditor {
                 this._commandManager.executeCommand("oni.editor.gotoDefinition", null)
             } else if (key === "<C-p>" && this._screen.mode === "normal") {
                 quickOpen.show()
-            } else if (key === "<C-0>" && this._screen.mode === "normal") {
-                quickOpen.show(true)
             } else if (key === "<C-P>" && this._screen.mode === "normal") {
                 this._tasks.show()
             } else if (key === "<C-pageup>") {
