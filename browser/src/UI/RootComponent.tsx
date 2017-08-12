@@ -9,6 +9,7 @@ import StatusBar from "./components/StatusBar"
 import { IEditor } from "./../Editor/Editor"
 
 interface IRootComponentProps {
+    fileExplorerEditor: IEditor
     editor: IEditor
 }
 
@@ -24,10 +25,10 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
                         <div className="stack">
                             <div className="container horizontal full">
                                 <div className="container full">
-                                    <EditorHost editor={this.props.editor} />
+                                    <EditorHost editor={this.props.fileExplorerEditor} />
                                 </div>
                                 <div className="container full">
-                                    test
+                                    <EditorHost editor={this.props.editor} />
                                 </div>
                             </div>
 

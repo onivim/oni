@@ -18,6 +18,7 @@ import { PluginManager } from "./../Plugins/PluginManager"
 import { CommandManager } from "./../Services/CommandManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
+import { SimpleNeovimEditor } from "./../Editor/SimpleNeovimEditor"
 
 export const events = Events.events
 
@@ -48,7 +49,7 @@ export function init(pluginManager: PluginManager, commandManager: CommandManage
 function render(_state: State.IState, pluginManager: PluginManager, commandManager: CommandManager, args: any): void {
     const hostElement = document.getElementById("host")
 
-    const fileExplorerEditor = new NeovimEditor(commandManager, pluginManager)
+    const fileExplorerEditor = new SimpleNeovimEditor()
     fileExplorerEditor.init([])
 
     const editor = new NeovimEditor(commandManager, pluginManager)
@@ -56,7 +57,7 @@ function render(_state: State.IState, pluginManager: PluginManager, commandManag
 
     ReactDOM.render(
         <Provider store={store}>
-            <RootComponent editor={editor} />
+            <RootComponent editor={editor} fileExplorerEditor={fileExplorerEditor}/>
         </Provider>, hostElement)
 }
 

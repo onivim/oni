@@ -12,7 +12,6 @@ import { IWindow, Window } from "./Window"
 import * as Actions from "./../actions"
 import * as Config from "./../Config"
 import { measureFont } from "./../Font"
-import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
 
 export interface INeovimInstance {
@@ -70,6 +69,12 @@ export interface INeovimApiVersion {
     patch: number
 }
 
+export interface IPluginManager {
+    getAllRuntimePaths(): string[]
+
+    startPlugins(neovimInstance: INeovimInstance): void
+}
+
 /**
  * Integration with NeoVim API
  */
@@ -90,14 +95,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _rows: number
     private _cols: number
 
-    private _pluginManager: PluginManager
+    private _pluginManager: IPluginManager
     private _quickFix: QuickFixList
 
     public get quickFix(): IQuickFixList {
         return this._quickFix
     }
 
-    constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
+    constructor(pluginManager: IPluginManager, widthInPixels: number, heightInPixels: number) {
         super()
 
         this._pluginManager = pluginManager
