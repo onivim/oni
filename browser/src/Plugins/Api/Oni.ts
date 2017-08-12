@@ -16,12 +16,18 @@ import { Process } from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
+import * as throttle from "lodash/throttle"
+
 const react = require("react") // tslint:disable-line no-var-requires
 
 export class Dependencies {
     public get React(): any {
         return react
     }
+}
+
+const helpers = {
+    throttle,
 }
 
 /**
@@ -74,6 +80,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     public get services(): Services {
         return this._services
+    }
+
+    public get helpers(): any {
+        return helpers
     }
 
     constructor(private _channel: IPluginChannel) {
