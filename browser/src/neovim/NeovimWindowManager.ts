@@ -14,9 +14,15 @@ export class NeovimWindowManager extends EventEmitter {
 
         this._screen = screen
         this._neovimInstance = neovimInstance
+
+        this._neovimInstance.on("window-display-update", (evt: Oni.EventContext, data: any, shouldMeasure: boolean) => {
+            if (shouldMeasure) {
+                this._notifyWindowDimensionsChanged(evt)
+            }
+        })
     }
 
-    public notifyWindowDimensionsChanged(eventContext: Oni.EventContext, data: any) {
+    private _notifyWindowDimensionsChanged(eventContext: Oni.EventContext) {
 
         let win: IWindow
 

@@ -148,12 +148,9 @@ export class NeovimEditor implements IEditor {
             ReactDOM.render(<InstallHelp />, this._element.parentElement)
         })
 
-        this._neovimInstance.on("window-display-update", (eventContext: Oni.EventContext, lineMapping: any, shouldMeasure: boolean) => {
-            if (shouldMeasure) {
-                this._windowManager.notifyWindowDimensionsChanged(eventContext, lineMapping)
-            }
-
-            UI.Actions.setWindowLineMapping(eventContext.windowNumber, lineMapping)
+        this._neovimInstance.on("window-display-update", (evt: Oni.EventContext, lineMapping: any) => {
+            UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
+            UI.Actions.setWindowLineMapping(evt.windowNumber, lineMapping)
         })
 
         this._neovimInstance.on("action", (action: any) => {
