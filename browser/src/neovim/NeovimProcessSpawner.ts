@@ -15,7 +15,7 @@ const remapPathToUnpackedAsar = (originalPath: string) => {
 
 export const startNeovim = (runtimePaths: string[], args: string[]): Session => {
 
-    const noopInitVimPath = path.join(__dirname, "vim", "noop.vim")
+    const noopInitVimPath = remapPathToUnpackedAsar(path.join(__dirname, "vim", "noop.vim"))
 
     const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
     const nvimMacProcessPath = path.join(__dirname, "bin", "osx", "neovim", "bin", "nvim")
