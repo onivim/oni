@@ -26,4 +26,5 @@ export function getBranch(path?: string): Q.Promise<string> {
             }
         })
         return deferred.promise
-    };
+};
+
