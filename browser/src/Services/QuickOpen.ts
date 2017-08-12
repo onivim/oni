@@ -12,14 +12,18 @@ import * as Log from "./../Log"
 
 import * as Config from "./../Config"
 import { NeovimEditor } from "./../Editor/NeovimEditor"
-import { INeovimInstance } from "./../neovim"
+import { IBuffer, INeovimInstance } from "./../neovim"
 import * as UI from "./../UI/index"
 
 export class QuickOpen {
     private _seenItems: string[] = []
     private _loadedItems: QuickOpenItem[] = []
+    private _cachedBufferLines: QuickOpenItem[] = []
+    private _neovimInstance: INeovimInstance
 
     constructor(neovimInstance: INeovimInstance, neovimEditor: NeovimEditor) {
+        this._neovimInstance = neovimInstance
+
         UI.events.on("menu-item-selected:quickOpen", (selectedItem: any) => {
             // If we are info it means we need to open the config
             // else If we are folder help, show open folder
@@ -31,6 +35,8 @@ export class QuickOpen {
                 neovimEditor.executeCommand("oni.config.openConfigJs")
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
                 neovimEditor.executeCommand("oni.openFolder")
+            } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.buffer)) {
+                neovimInstance.command(`${arg.label}`)
             } else {
                 const fullPath = path.join(arg.detail, arg.label)
 
@@ -93,7 +99,7 @@ export class QuickOpen {
 
             // TODO consider adding folders as well (recursive async with ignores/excludes)
             // For now, sync call bookmarks and open folder, it's so few it's not going to matter
-            await this._showMenuFromFiles(this._loadedItems)
+            await this._showMenuFromQuickOpenItems(this._loadedItems)
             return
         }
 
@@ -108,16 +114,50 @@ export class QuickOpen {
         this.loadMenu("git", ["ls-files", "--others", "--exclude-standard", "--cached"])
     }
 
+    public async showBufferLines() {
+        this._showMenuFromQuickOpenItems(this._cachedBufferLines)
+    }
+
+    public async cacheLines() {
+        this._cachedBufferLines.splice(0, this._cachedBufferLines.length)
+
+        let currentBuffer: IBuffer
+        let lineCount: number
+        let lineNu: number = 0
+        this._neovimInstance.getCurrentBuffer()
+            // get current buffer
+            .then((buffer) => currentBuffer = buffer)
+
+            // get line count
+            .then(() => currentBuffer.getLineCount())
+            .then((lc) => lineCount = lc)
+
+            // get all the line
+            .then(() => currentBuffer.getLines(0, lineCount, true) )
+            .then((lines) => lines.forEach(
+                (l: string) => {
+                    lineNu++
+                    if (l.length !== 0) {
+                        this._cachedBufferLines.push(new QuickOpenItem(l, QuickOpenType.buffer, lineNu))
+                        if (UI.Selectors.isPopupMenuOpen()) {
+                            this.showBufferLines()
+                        }
+                    }
+                },
+            ))
+
+    }
+
     // Overridden strategy
     // If git repo, use git ls-files
-    private loadMenu (command: string, args: string[] = []) {
+    private async loadMenu (command: string, args: string[] = []) {
         const filer = spawn(command, args)
 
         filer.stdout.on("data", (data) => {
             data.toString().split("\n").forEach( (d: string) => {
                 this._loadedItems.push(new QuickOpenItem(d, QuickOpenType.file))
             })
-            this._showMenuFromFiles(this._loadedItems)
+            this._showMenuFromQuickOpenItems(this._loadedItems)
         })
 
         // Otherwise, find all files recursively
@@ -133,7 +173,7 @@ export class QuickOpen {
                 files.forEach( (f: string) => {
                     this._loadedItems.push(new QuickOpenItem(f, QuickOpenType.file))
                 })
-                this._showMenuFromFiles(this._loadedItems)
+                this._showMenuFromQuickOpenItems(this._loadedItems)
             })
         })
     }
@@ -145,18 +185,23 @@ export class QuickOpen {
     }
 
     // Show menu based on items given
-    private _showMenuFromFiles(items: QuickOpenItem[]): void {
+    private _showMenuFromQuickOpenItems(items: QuickOpenItem[]): void {
         const options = items.map((qitem) => {
             const f = qitem.item.trim()
-            const file = path.basename(f)
-            const folder = path.dirname(f)
-            const fullPath = path.join(folder, file)
+            let file = path.basename(f)
+            let folder = path.dirname(f)
+
+            // if we are of type somthing with a lineNu, we want it to be focused
+            if (qitem.lineNu !== undefined) {
+                folder = file
+                file = "" + qitem.lineNu
+            }
 
             return {
                 icon: qitem.icon,
                 label: file,
                 detail: folder,
-                pinned: this._seenItems.indexOf(fullPath) >= 0,
+                pinned: this._seenItems.indexOf(f) >= 0,
             }
         })
 
@@ -174,6 +219,7 @@ enum QuickOpenType {
     file,
     folder,
     folderHelp,
+    buffer,
 }
 
 // Wrapper around quick open items, this not only allows us to show multiple icons
@@ -183,7 +229,7 @@ class QuickOpenItem {
     public static convertTypeToIcon(type: QuickOpenType): string {
         switch (type) {
             case QuickOpenType.bookmark:
-                return "chain"
+                return "star-o"
             case QuickOpenType.bookmarkHelp:
                 return "info"
             case QuickOpenType.file:
@@ -192,6 +238,8 @@ class QuickOpenItem {
                 return "folder-o"
             case QuickOpenType.folderHelp:
                 return "folder-open-o"
+            case QuickOpenType.buffer:
+                return "angle-right"
             default:
                 return "question-circle-o"
         }
@@ -200,6 +248,7 @@ class QuickOpenItem {
     // Each has an item, and an icon
     private _item: string
     private _icon: string
+    private _lineNu: number
 
     public get item(): string {
         return this._item
@@ -209,9 +258,14 @@ class QuickOpenItem {
         return this._icon
     }
 
-    constructor(item: string, type: QuickOpenType) {
+    public get lineNu(): number {
+        return this._lineNu
+    }
+
+    constructor(item: string, type: QuickOpenType, num?: number) {
         this._item = item
         this._icon = QuickOpenItem.convertTypeToIcon(type)
+        this._lineNu = num
     }
 }
 

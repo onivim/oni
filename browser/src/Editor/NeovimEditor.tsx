@@ -56,6 +56,7 @@ export class NeovimEditor implements IEditor {
 
     // Services
     private _tasks: Tasks
+    private _quickOpen: QuickOpen
 
     // Overlays
     private _windowManager: NeovimWindowManager
@@ -79,12 +80,12 @@ export class NeovimEditor implements IEditor {
         const autoCompletion = new AutoCompletion(this._neovimInstance)
         const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
         const errorService = new Errors(this._neovimInstance)
-        const quickOpen = new QuickOpen(this._neovimInstance, this)
         const windowTitle = new WindowTitle(this._neovimInstance)
         const multiProcess = new MultiProcess()
         const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
         const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
+        this._quickOpen = new QuickOpen(this._neovimInstance, this)
         this._tasks = new Tasks(outputWindow)
         registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
 
@@ -94,7 +95,7 @@ export class NeovimEditor implements IEditor {
         services.push(autoCompletion)
         services.push(bufferUpdates)
         services.push(errorService)
-        services.push(quickOpen)
+        services.push(this._quickOpen)
         services.push(windowTitle)
         services.push(formatter)
         services.push(multiProcess)
@@ -264,7 +265,9 @@ export class NeovimEditor implements IEditor {
             if (key === "<f12>") {
                 this._commandManager.executeCommand("oni.editor.gotoDefinition", null)
             } else if (key === "<C-p>" && this._screen.mode === "normal") {
-                quickOpen.show()
+                this._quickOpen.show()
+            } else if (key === "<C-/>" && this._screen.mode === "normal") {
+                this._quickOpen.showBufferLines()
             } else if (key === "<C-P>" && this._screen.mode === "normal") {
                 this._tasks.show()
             } else if (key === "<C-pageup>") {
@@ -381,6 +384,9 @@ export class NeovimEditor implements IEditor {
         this._tasks.onEvent(evt)
 
         if (eventName === "BufEnter") {
+            // cache buffer lines
+            this._quickOpen.cacheLines()
+
             // TODO: More convenient way to hide all UI?
             UI.Actions.hideCompletions()
             UI.Actions.hidePopupMenu()
