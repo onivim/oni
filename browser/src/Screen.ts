@@ -76,7 +76,7 @@ export class NeovimScreen implements IScreen {
     private _fontHeightInPixels: number
     private _fontSize: null | string = null
     private _fontWidthInPixels: number
-    private _foregroundColor: string = "#00FF00"
+    private _foregroundColor: string = "#000000"
     private _grid: Grid<ICell> = new Grid<ICell>()
     private _height: number = 40
     private _mode: Mode = "normal"
