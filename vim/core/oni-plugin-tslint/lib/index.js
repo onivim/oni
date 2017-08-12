@@ -121,7 +121,7 @@ const activate = (Oni) => {
                     return
                 }
 
-                const errorOutput = stdout.join(os.EOL).trim()
+                const errorOutput = stdout.trim()
 
                 const lintErrors = JSON.parse(errorOutput)
 

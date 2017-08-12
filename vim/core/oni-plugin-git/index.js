@@ -35,10 +35,9 @@ const activate = (Oni) => {
             gitBranchIndicator.setContents(gitBranch);
             gitBranchIndicator.show();
         })
-        .fail((error) => {
+        .catch((error) => {
             gitBranchIndicator.hide();
-        })
-        .done();
+        });
     };
 
     Oni.on("buffer-enter", updateBranchIndicator);
