@@ -16,7 +16,7 @@ import { Process } from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
-import { throttle } from "lodash/throttle"
+import * as throttle from "lodash/throttle"
 
 const react = require("react") // tslint:disable-line no-var-requires
 
