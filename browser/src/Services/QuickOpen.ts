@@ -268,4 +268,3 @@ class QuickOpenItem {
         this._lineNu = num
     }
 }
-
