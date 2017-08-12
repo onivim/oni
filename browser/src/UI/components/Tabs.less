@@ -1,5 +1,26 @@
 @import (reference) "./common.less";
 
+@keyframes tab-icon-appear {
+    0% {
+        transform: scale(0.5);
+    }
+    50% {
+        transform: scale(1.25);
+    }
+    100%
+    {
+        transform: scale(1);
+    }
+}
+
+.tab-icon-appear-animation {
+    animation-name: tab-icon-appear;
+    animation-duration: 0.5s;
+    animation-function: ease-in;
+    animation-fill-mode: forwards;
+    opacity: 1;
+}
+
 .tabs {
     display: flex;
     flex-direction: row;
@@ -37,30 +58,45 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        margin: 0px 4px;
 
         .name-inner {
             padding-top: 2px;
         }
     }
 
+    .icon-container {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        transition: opacity 0.25s ease-out;
+    }
+
     .x-icon-container {
-        display: none;
+        opacity: 0;
     }
 
     .circle-icon-container {
-        display: none;
+        opacity: 0;
     }
 
     &.is-dirty {
         .circle-icon-container {
-            display: block;
+            .tab-icon-appear-animation;
         }
     }
 
     &.not-dirty:hover {
         .corner {
             .x-icon-container {
-                display: block;
+                .tab-icon-appear-animation;
             }
         }
     }
@@ -74,6 +110,8 @@
         align-items: center;
         justify-content: center;
 
+        position: relative;
+
         .circle {
             width: 8px;
             height: 8px;
@@ -84,7 +122,7 @@
 
     .corner.enable-hover {
         &:hover {
-            background-color: rgba(0, 100, 240, 0.1);
+            background-color: rgba(100, 100, 100, 0.1);
         }
     }
 

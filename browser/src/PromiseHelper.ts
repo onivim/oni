@@ -1,12 +1,10 @@
 
-import * as Q from "q"
-
 import * as Performance from "./Performance"
 
 /**
  * Thin wrapper around browser performance API
  */
-export function wrapPromiseAndNotifyError<T>(operationName: string, promise: Q.Promise<T>): void {
+export function wrapPromiseAndNotifyError<T>(operationName: string, promise: Promise<T>): void {
     Performance.mark(operationName + ".start")
 
     promise.then(() => {

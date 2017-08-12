@@ -4,51 +4,67 @@
  * Utilities around Git
  */
 
-import { exec, execSync } from "child_process"
-import * as Q from "q"
+import { exec } from "child_process"
 
 interface IExecOptions {
     cwd?: string
 }
 
-export function isGitRepository(): Q.Promise<any> {
-    const deferred = Q.defer<boolean>()
-
-    exec("git log --oneline -n1", (err: any) => {
-        if (err && err.code) {
-            deferred.resolve(false)
-        } else {
-            deferred.resolve(true)
-        }
+export function isGitRepository(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+        exec("git log --oneline -n1", (err: any) => {
+            if (err && err.code) {
+                resolve(false)
+            } else {
+                resolve(true)
+            }
+        })
     })
-
-    return deferred.promise
 }
 
-export function getTrackedFiles(): Q.Promise<string[]> {
-    const trackedFiles = execSync("git ls-files").toString("utf8").split("\n")
-    return Q.resolve(trackedFiles)
+export function getTrackedFiles(): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+        exec("git ls-files", (error, stdout) => {
+            if (error) {
+                reject(error)
+                return
+            }
+
+            const output = stdout.split("\n")
+            resolve(output)
+        })
+    })
 }
 
-export function getUntrackedFiles(exclude: string[]): Q.Promise<string[]> {
-    let cmd = "git ls-files --others --exclude-standard" + exclude.map((dir) => " -x " + dir).join("")
-    const untrackedFiles = execSync(cmd).toString("utf8").split("\n")
-    return Q.resolve(untrackedFiles)
+export function getUntrackedFiles(exclude: string[]): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+        let cmd = "git ls-files --others --exclude-standard" + exclude.map((dir) => " -x " + dir).join("")
+
+        exec(cmd, (error, stdout) => {
+            if (error) {
+                reject(error)
+                return
+            }
+
+            const output = stdout.split("\n")
+            resolve(output)
+        })
+    })
 }
 
-export function getBranch(path?: string): Q.Promise<string> {
+export function getBranch(path?: string): Promise<string> {
+    return new Promise((resolve, reject) => {
         const options: IExecOptions = {}
         if (path) {
             options.cwd = path
         }
 
-        const deferred = Q.defer<string>()
         exec("git rev-parse --abbrev-ref HEAD", options, (error: any, stdout: string, stderr: string) => {
             if (error && error.code) {
-                deferred.reject(new Error(stderr))
+                reject(new Error(stderr))
             } else {
-                deferred.resolve(stdout)
+                resolve(stdout)
             }
         })
-        return deferred.promise
-    };
+    })
+}

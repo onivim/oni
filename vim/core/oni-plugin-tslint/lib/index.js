@@ -1,4 +1,3 @@
-const Q = require("q")
 const path = require("path")
 const os = require("os")
 const exec = require("child_process").exec
@@ -112,10 +111,17 @@ const activate = (Oni) => {
         processArgs = processArgs.concat(["--config", configPath])
         processArgs = processArgs.concat(args)
 
-        return Q.nfcall(Oni.process.execNodeScript, tslintPath, processArgs, { cwd: workingDirectory })
-            .then((stdout, stderr) => {
+        return new Promise((resolve, reject) => {
+            Oni.process.execNodeScript(tslintPath, processArgs, { cwd: workingDirectory },
+                (err, stdout, stderr) => {
 
-                const errorOutput = stdout.join(os.EOL).trim()
+                if (err) {
+                    console.error(err)
+                    reject(err)
+                    return
+                }
+
+                const errorOutput = stdout.trim()
 
                 const lintErrors = JSON.parse(errorOutput)
 
@@ -149,8 +155,10 @@ const activate = (Oni) => {
                     return prev
                 }, {})
 
-                return errors
-            }, (err) => console.error(err))
+                resolve(errors)
+            })
+
+        })
     }
 
     function getCurrentWorkingDirectory(args) {
