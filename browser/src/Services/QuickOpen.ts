@@ -214,3 +214,4 @@ class QuickOpenItem {
         this._icon = QuickOpenItem.convertTypeToIcon(type)
     }
 }
+
