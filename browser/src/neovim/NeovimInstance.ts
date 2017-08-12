@@ -252,7 +252,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request("nvim_eval", [expression])
     }
 
-    public command(command: string): Promise<any> {
+    public command(command: string): Promise<void> {
         return this._neovim.request("nvim_command", [command])
     }
 
@@ -264,8 +264,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.callFunction("OniForceWindowMeasurement", [])
     }
 
-    public callFunction(functionName: string, args: any[]): Promise<any> {
-        return this._neovim.request("nvim_call_function", [functionName, args])
+    public callFunction(functionName: string, args: any[]): Promise<void> {
+        return this._neovim.request<void>("nvim_call_function", [functionName, args])
     }
 
     public async getCurrentBuffer(): Promise<IBuffer> {

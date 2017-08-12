@@ -10,7 +10,6 @@ import * as Log from "./../Log"
 
 import * as glob from "glob"
 import * as flatten from "lodash/flatten"
-import * as Q from "q"
 
 import * as Config from "./../Config"
 import { INeovimInstance } from "./../neovim"
@@ -29,7 +28,7 @@ export class QuickOpen {
             this._seenItems.push(fullPath)
 
             if (!selectedItem.openInSplit) {
-                neovimInstance.command("tabnew! " + fullPath)
+                neovimInstance.command("e! " + fullPath)
             } else {
                 neovimInstance.command("vsp! " + fullPath)
             }
@@ -68,7 +67,7 @@ export class QuickOpen {
         const openPromise = Git.isGitRepository()
             .then((isGit) => {
                 if (isGit) {
-                    return Q.all([Git.getTrackedFiles(), Git.getUntrackedFiles(exclude)])
+                    return Promise.all([Git.getTrackedFiles(), Git.getUntrackedFiles(exclude)])
                         .then((values: [string[], string[]]) => {
                             const allFiles = flatten(values)
                             this._showMenuFromFiles(allFiles)
