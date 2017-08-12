@@ -17,6 +17,12 @@
     "oni-vim": "./cli/oni"
   },
   "build": {
+    "asar": true,
+    "asarUnpack": [
+        "bin",
+        "vim/**/*.vim"
+    ],
+    "compression": "store",
     "productName": "Oni",
     "appId": "com.extropy.oni",
     "files": [
@@ -32,7 +38,6 @@
       "!lib_test",
       "!test"
     ],
-    "asar": false,
     "mac": {
       "artifactName": "${productName}-${version}-osx.${ext}",
       "category": "public.app-category.developer-tools",
