@@ -107,10 +107,10 @@ export const Tab = (props: ITabPropsWithClick) => {
             </span>
         </div>
         <div className="corner enable-hover" onClick={props.onClickClose}>
-            <div className="x-icon-container">
+            <div className="icon-container x-icon-container">
                 <Icon name="times" />
             </div>
-            <div className="circle-icon-container">
+            <div className="icon-container circle-icon-container">
                 <div className="circle" />
             </div>
         </div>
