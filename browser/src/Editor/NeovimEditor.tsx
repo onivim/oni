@@ -61,6 +61,7 @@ export class NeovimEditor implements IEditor {
     private _windowManager: NeovimWindowManager
 
     private _errorStartingNeovim: boolean = false
+    private _isScrolling = false
 
     constructor(
         private _commandManager: CommandManager,
@@ -397,8 +398,6 @@ export class NeovimEditor implements IEditor {
         this._onUpdate()
         this._scheduleRender()
     }
-
-    private _isScrolling = false
 
     private _onUpdate(): void {
         UI.Actions.setCursorPosition(this._screen)
