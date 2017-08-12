@@ -48,6 +48,9 @@ export function init(pluginManager: PluginManager, commandManager: CommandManage
 function render(_state: State.IState, pluginManager: PluginManager, commandManager: CommandManager, args: any): void {
     const hostElement = document.getElementById("host")
 
+    const fileExplorerEditor = new NeovimEditor(commandManager, pluginManager)
+    fileExplorerEditor.init([])
+
     const editor = new NeovimEditor(commandManager, pluginManager)
     editor.init(args)
 

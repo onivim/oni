@@ -22,7 +22,15 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
                 <div className="container vertical full">
                     <div className="container full">
                         <div className="stack">
-                            <EditorHost editor={this.props.editor} />
+                            <div className="container horizontal full">
+                                <div className="container full">
+                                    <EditorHost editor={this.props.editor} />
+                                </div>
+                                <div className="container full">
+                                    test
+                                </div>
+                            </div>
+
                         </div>
                         <div className="stack layer">
                             <Logs />
