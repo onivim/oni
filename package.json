@@ -22,7 +22,7 @@
         "bin",
         "vim/**/*.vim"
     ],
-    "compression": "maximum",
+    "compression": "store",
     "productName": "Oni",
     "appId": "com.extropy.oni",
     "files": [
