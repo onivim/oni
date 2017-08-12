@@ -238,7 +238,7 @@ export const nextMenuItem = () => ({
     type: "NEXT_MENU",
 })
 
-export const selectMenuItem = (openInSplit: boolean, index?: number) => (dispatch: Function, getState: Function) => {
+export const selectMenuItem = (openInSplit: number, index?: number) => (dispatch: Function, getState: Function) => {
 
     const state = getState()
 

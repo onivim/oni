@@ -36,10 +36,12 @@ export class QuickOpen {
 
                 this._seenItems.push(fullPath)
 
-                if (!selectedItem.openInSplit) {
+                if (selectedItem.openInSplit === 0) {
                     neovimInstance.command("e! " + fullPath)
-                } else {
+                } else if (selectedItem.openInSplit === 1) {
                     neovimInstance.command("vsp! " + fullPath)
+                } else if (selectedItem.openInSplit === 2) {
+                    neovimInstance.command("sp! " + fullPath)
                 }
 
                 if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmark) ||
