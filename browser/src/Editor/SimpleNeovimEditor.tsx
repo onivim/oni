@@ -16,8 +16,6 @@ import * as Config from "./../Config"
 
 // import { PluginManager } from "./../Plugins/PluginManager"
 
-import * as UI from "./../UI/index"
-
 // import { Keyboard } from "./../Input/Keyboard"
 import { IEditor } from "./Editor"
 
@@ -55,7 +53,6 @@ export class SimpleNeovimEditor implements IEditor {
 
         this._render()
 
-        this._onConfigChanged()
         this._config.registerListener(() => this._onConfigChanged())
 
         this._neovimInstance.on("action", (action: any) => {
@@ -68,6 +65,8 @@ export class SimpleNeovimEditor implements IEditor {
                 this._pendingTimeout = setTimeout(() => this._onUpdate(), 0)
             }
         })
+
+        this._onConfigChanged()
     }
 
     public init(filesToOpen: string[]): void {
@@ -107,7 +106,7 @@ export class SimpleNeovimEditor implements IEditor {
         this._pendingAnimationFrame = false
 
         if (this._pendingTimeout) {
-            UI.Actions.setCursorPosition(this._screen)
+            // UI.Actions.setCursorPosition(this._screen)
         }
 
         this._renderer.update(this._screen, this._deltaRegionManager)
