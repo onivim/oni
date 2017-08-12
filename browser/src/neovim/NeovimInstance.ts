@@ -256,14 +256,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request("nvim_command", [command])
     }
 
-    /**
-     * Remeasures the current window, and provides the measurement
-     * through the `window_display_update` event
-     */
-    public forceWindowMeasurement(): Promise<void> {
-        return this.callFunction("OniForceWindowMeasurement", [])
-    }
-
     public callFunction(functionName: string, args: any[]): Promise<void> {
         return this._neovim.request<void>("nvim_call_function", [functionName, args])
     }

@@ -61,7 +61,6 @@ export class NeovimEditor implements IEditor {
     private _windowManager: NeovimWindowManager
 
     private _errorStartingNeovim: boolean = false
-    private _isScrolling = false
 
     constructor(
         private _commandManager: CommandManager,
@@ -158,9 +157,6 @@ export class NeovimEditor implements IEditor {
             this._renderer.onAction(action)
             this._screen.dispatch(action)
 
-            if (action.type === "SET_SCROLL_REGION") {
-                this._isScrolling = true
-            }
             this._scheduleRender()
 
             UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
@@ -401,11 +397,6 @@ export class NeovimEditor implements IEditor {
 
     private _onUpdate(): void {
         UI.Actions.setCursorPosition(this._screen)
-
-        if (this._isScrolling) {
-            this._neovimInstance.forceWindowMeasurement()
-            this._isScrolling = false
-        }
 
         if (!!this._pendingTimeout) {
             clearTimeout(this._pendingTimeout) // FIXME: null
