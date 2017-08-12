@@ -257,7 +257,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public callFunction(functionName: string, args: any[]): Promise<void> {
-        return this._neovim.request("nvim_call_function", [functionName, args])
+        return this._neovim.request<void>("nvim_call_function", [functionName, args])
     }
 
     public async getCurrentBuffer(): Promise<IBuffer> {
