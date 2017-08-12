@@ -6,6 +6,13 @@ import * as Platform from "./../Platform"
 
 import { Session } from "./Session"
 
+// Most of the paths coming in the packaged binary reference the `app.asar`,
+// but the binaries (Neovim) as well as the .vim files are unpacked,
+// so these need to be mapped to the `app.asar.unpacked` directory
+const remapPathToUnpackedAsar = (originalPath: string) => {
+    return originalPath.split("app.asar").join("app.asar.unpacked")
+}
+
 export const startNeovim = (runtimePaths: string[], args: string[]): Session => {
 
     const noopInitVimPath = path.join(__dirname, "vim", "noop.vim")
@@ -18,9 +25,11 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
 
     let nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
 
-    nvimProcessPath = nvimProcessPath.split("app.asar").join("app.asar.unpacked")
+    nvimProcessPath = remapPathToUnpackedAsar(nvimProcessPath)
 
-    const joinedRuntimePaths = runtimePaths.join(",")
+    const joinedRuntimePaths = runtimePaths
+                                    .map((p) => remapPathToUnpackedAsar(p))
+                                    .join(",")
 
     const shouldLoadInitVim = Config.instance().getValue("oni.loadInitVim")
     const useDefaultConfig = Config.instance().getValue("oni.useDefaultConfig")

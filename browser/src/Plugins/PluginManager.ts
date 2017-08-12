@@ -13,8 +13,8 @@ import * as Capabilities from "./Api/Capabilities"
 import * as Channel from "./Api/Channel"
 import { Plugin } from "./Plugin"
 
-const corePluginsRoot = path.join(__dirname, "vim", "core").split("app.asar").join("app.asar.unpacked")
-const defaultPluginsRoot = path.join(__dirname, "vim", "default").split("app.asar").join("app.asar.unpacked")
+const corePluginsRoot = path.join(__dirname, "vim", "core")
+const defaultPluginsRoot = path.join(__dirname, "vim", "default")
 
 export interface IEventContext {
     bufferFullPath: string
@@ -39,7 +39,6 @@ export class PluginManager extends EventEmitter {
         private _commandManager: CommandManager,
     ) {
         super()
-
 
         this._rootPluginPaths.push(corePluginsRoot)
 

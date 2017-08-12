@@ -20,7 +20,7 @@
     "asar": true,
     "asarUnpack": [
         "bin",
-        "vim"
+        "vim/**/*.vim"
     ],
     "compression": "maximum",
     "productName": "Oni",
