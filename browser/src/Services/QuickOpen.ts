@@ -133,7 +133,7 @@ export class QuickOpen {
             .then((lc) => lineCount = lc)
 
             // get all the line
-            .then(() => currentBuffer.getLines(0, lineCount, true) )
+            .then(() => currentBuffer.getLines(0, lineCount, false) )
             .then((lines) => lines.forEach(
                 (l: string) => {
                     lineNu++
@@ -193,7 +193,7 @@ export class QuickOpen {
 
             // if we are of type somthing with a lineNu, we want it to be focused
             if (qitem.lineNu !== undefined) {
-                folder = file
+                folder = f
                 file = "" + qitem.lineNu
             }
 
