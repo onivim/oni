@@ -401,6 +401,9 @@ export class NeovimEditor implements IEditor {
 
             this._neovimInstance.getBufferIds()
                 .then((ids) => UI.Actions.setCurrentBuffers(ids))
+        } else if (eventName === "InsertLeave") {
+            // cache buffer lines
+            this._quickOpen.cacheLines()
         }
     }
 
