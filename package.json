@@ -59,12 +59,8 @@
         "dir"
       ],
       "files": [
-        "bin/x86/**/*",
-        "images/**/*"
-      ],
-      "asarUnpack": [
-        "images"
-    ]
+        "bin/x86/**/*"
+      ]
   }
   },
   "scripts": {
