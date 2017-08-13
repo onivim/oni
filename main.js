@@ -45,7 +45,7 @@ let windows = []
 // Otherwise, all other open instances will also pick up the webpack bundle
 if (!isDevelopment && !isDebug) {
     const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
-        createWindow(commandLine.slice(2), workingDirectory)
+        loadFileFromArguments(commandLine, workingDirectory)
     })
 
     if (shouldQuit) {
@@ -110,15 +110,7 @@ app.on('ready', () => {
         require("./installDevTools")
     }
 
-    const windowsOpenWith = process.platform === 'win32' &&
-                            process.argv.length === 2 && 
-                            process.argv[0].split('\\').pop() === "Oni.exe"
-    
-    if (windowsOpenWith) {
-        createWindow(process.argv.slice(1), process.cwd())
-    } else {
-        createWindow(process.argv.slice(2), process.cwd())
-    }
+    loadFileFromArguments(process, process.cwd())
 })
 
 // Quit when all windows are closed.
@@ -171,6 +163,17 @@ function focusNextInstance(direction) {
 function log(message) {
     if (isVerbose) {
         console.log(message)
+    }
+}
+
+function loadFileFromArguments(commandLine, workingDirectory) {
+    const windowsOpenWith = commandLine.platform === 'win32' &&
+                            commandLine.argv[0].split("\\").pop() === "Oni.exe"
+    
+    if (windowsOpenWith) {
+        createWindow(commandLine.argv.slice(1), workingDirectory)
+    } else {
+        createWindow(commandLine.argv.slice(2), workingDirectory)
     }
 }
 // In this file you can include the rest of your app's specific main process
