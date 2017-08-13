@@ -39,7 +39,7 @@ const fileExtensions = {
 }
 
 const addToEnv = `
-Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}\\"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}\\bin'))`
+Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}'))`
 
 function replaceForRegKeys(ext, desc) {
 
