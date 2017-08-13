@@ -35,31 +35,36 @@ const valuesToReplace = {
 const fileExtensions = {
     ".txt": "Text Files",
     ".ts": "TypeScript Files",
-    ".js": "JavaScript Files"
+    ".js": "JavaScript Files",
+    ".tsx": "TypeScript Files",
+    ".jsx": "JavaScript Files",
+    ".md": "Markdown Files"
 }
 
 const addToEnv = `
 Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}'))`
 
-function replaceForRegKeys(ext, desc) {
+function getFileRegKey(ext, desc) {
 
-    const addFileEditor = `
+    return `
 Root: HKCR; Subkey: "${ext}\\OpenWithProgids"; ValueType: none; ValueName: "${prodName}"; Flags: deletevalue uninsdeletevalue; Tasks: registerAsEditor;
 Root: HKCR; Subkey: "${ext}\\OpenWithProgids"; ValueType: string; ValueName: "${prodName}${ext}"; ValueData: ""; Flags: uninsdeletevalue; Tasks: registerAsEditor;
 Root: HKCR; Subkey: "${prodName}${ext}"; ValueType: string; ValueName: ""; ValueData: "${desc}"; Flags: uninsdeletekey; Tasks: registerAsEditor;
-Root: HKCR; Subkey: "${prodName}${ext}\\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\\resources\\images\\oni.ico"; Tasks: registerAsEditor;
+Root: HKCR; Subkey: "${prodName}${ext}\\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\\resources\\app\\images\\oni.ico"; Tasks: registerAsEditor;
 Root: HKCR; Subkey: "${prodName}${ext}\\shell\\open\\command"; ValueType: string; ValueName: ""; ValueData: """{app}\\${prodName}.exe"" ""%1"""; Tasks: registerAsEditor;
-{{RegistryKey}}
 `
-    shelljs.sed("-i", "{{RegistryKey}}", addFileEditor, destFile)
 }
 
 _.keys(valuesToReplace).forEach((key) => {
     shelljs.sed("-i", "{{" + key + "}}", valuesToReplace[key], destFile)
 })
 
+let allFilesToAddRegKeysFor = ""
+
 _.keys(fileExtensions).forEach((key) => {
-    replaceForRegKeys(key, fileExtensions[key])
+    allFilesToAddRegKeysFor += getFileRegKey(key, fileExtensions[key])
 })
 
-shelljs.sed("-i", "{{RegistryKey}}", addToEnv, destFile)
+allFilesToAddRegKeysFor += addToEnv
+
+shelljs.sed("-i", "{{RegistryKey}}", allFilesToAddRegKeysFor, destFile)
