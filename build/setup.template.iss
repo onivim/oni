@@ -24,13 +24,14 @@ WizardSmallImageFile={{WizardSmallImageFilePath}}
 Source: "{{SourcePath}}"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Tasks]
-Name: "addtopath"; Description: "Add Oni to %PATH%"; GroupDescription: "Other"
+Name: "addtopath"; Description: "Add {{AppName}} to %PATH%"; GroupDescription: "Other"
+Name: "registerAsEditor"; Description: "Register {{AppName}} as an editor"; GroupDescription: "Other"
 
 [Icons]
 Name: "{group}\{{AppName}}"; Filename: "{app}\{{AppExecutableName}}"
 
 [Run]
-Filename: "{app}\{{AppExecutableName}}"; Flags: postinstall skipifsilent
+Filename: "{app}\{{AppName}}"; Flags: postinstall skipifsilent
 
 [Code]
 function NeedsAddPath(Param: string): boolean;
