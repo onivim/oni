@@ -1,3 +1,6 @@
+- Create own directory plugin?
+    - netrw not lightweight, pollutes clipboard history
+
 - Override window navigation commands
     - File explorer window
         - Fixed window to the left
