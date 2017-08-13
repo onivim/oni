@@ -19,6 +19,7 @@ OutputBaseFilename={{AppSetupExecutableName}}
 WizardImageFile={{WizardImageFilePath}}
 WizardImageStretch=no
 WizardSmallImageFile={{WizardSmallImageFilePath}}
+ChangesAssociations=yes
 
 [Files]
 Source: "{{SourcePath}}"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs

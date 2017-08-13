@@ -44,11 +44,11 @@ Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; Value
 function replaceForRegKeys(ext, desc) {
 
     const addFileEditor = `
-Root: HKCR; Subkey: "${ext}\\OpenWithProgids"; ValueType: none; ValueName: "${prodName}.exe"; Flags: deletevalue uninsdeletevalue; Tasks: registerAsEditor;
-Root: HKCR; Subkey: "${ext}\\OpenWithProgids"; ValueType: string; ValueName: "${prodName}.exe"; ValueData: ""; Flags: uninsdeletevalue; Tasks: registerAsEditor;
-Root: HKCR; Subkey: "${prodName}.exe\\${ext}"; ValueType: string; ValueName: ""; ValueData: "${desc}"; Flags: uninsdeletekey; Tasks: registerAsEditor;
-Root: HKCR; Subkey: "${prodName}.exe\\${ext}\\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\\images\\oni.ico"; Tasks: registerAsEditor;
-Root: HKCR; Subkey: "${prodName}.exe\\${ext}\\shell\\open\\command"; ValueType: string; ValueName: ""; ValueData: """{app}\\${prodName}.exe"" ""%1"""; Tasks: registerAsEditor;
+Root: HKCR; Subkey: "${ext}\\OpenWithProgids"; ValueType: none; ValueName: "${prodName}"; Flags: deletevalue uninsdeletevalue; Tasks: registerAsEditor;
+Root: HKCR; Subkey: "${ext}\\OpenWithProgids"; ValueType: string; ValueName: "${prodName}${ext}"; ValueData: ""; Flags: uninsdeletevalue; Tasks: registerAsEditor;
+Root: HKCR; Subkey: "${prodName}${ext}"; ValueType: string; ValueName: ""; ValueData: "${desc}"; Flags: uninsdeletekey; Tasks: registerAsEditor;
+Root: HKCR; Subkey: "${prodName}${ext}\\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\\images\\oni.ico"; Tasks: registerAsEditor;
+Root: HKCR; Subkey: "${prodName}${ext}\\shell\\open\\command"; ValueType: string; ValueName: ""; ValueData: """{app}\\${prodName}.exe"" ""%1"""; Tasks: registerAsEditor;
 {{RegistryKey}}
 `
     shelljs.sed("-i", "{{RegistryKey}}", addFileEditor, destFile)
