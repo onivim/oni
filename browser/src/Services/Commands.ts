@@ -19,8 +19,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
     const commands = [
 
         // Debug
-        new CallbackCommand("oni.debug.openDevTools", "Open DevTools", "Debug ONI and any running plugins using the Chrome developer tools", () => remote.getCurrentWindow().webContents.openDevTools()),
-        new CallbackCommand("oni.debug.reload", "Reload ONI", "Reloads the ONI instance. You will lose all unsaved changes.", () => remote.getCurrentWindow().reload()),
+        new CallbackCommand("oni.debug.openDevTools", "Open DevTools", "Debug Oni and any running plugins using the Chrome developer tools", () => remote.getCurrentWindow().webContents.openDevTools()),
+        new CallbackCommand("oni.debug.reload", "Reload Oni", "Reloads the Oni instance. You will lose all unsaved changes", () => remote.getCurrentWindow().reload()),
 
         new CallbackCommand("oni.editor.maximize", "Maximize Window", "Maximize the current window", () => remote.getCurrentWindow().maximize()),
 
@@ -29,7 +29,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("oni.editor.findAllReferences", "Find All References", "Find all references using a language service", () => pluginManager.findAllReferences()),
 
         // Menu commands
-        new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for ONI", () => {
+        new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for Oni", () => {
             let buffer: null | IBuffer = null
             neovimInstance.open(config.userJsConfig)
                 .then(() => neovimInstance.getCurrentBuffer())
@@ -58,7 +58,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
                             "Show all logs in the bottom panel",
                             () => UI.Actions.changeLogsVisibility(true)),
 
-        new CallbackCommand("oni.openFolder", "Open Folder", "", () => openFolder(neovimInstance)),
+        new CallbackCommand("oni.openFolder", "Open Folder", "Set a folder as the working directory for Oni", () => openFolder(neovimInstance)),
 
         // Add additional commands here
         // ...
