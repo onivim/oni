@@ -157,7 +157,7 @@ These are all great plugins - but they all have the same fundamental issue that 
 
 If a [language extension](#language-extensibility) is available for a language, then that language service will be queried as you type, and if there are completions available, those will be presented automatically.
 
-> Out of the box, the only supported languages for rich completion are JavaScript, TypeScript, and C#. JavaScript and TypeScript Language Service which requires either a tsconfig.json or a jsconfig.json at the root of the project. You can use an empty json file with `{}` to get the rich completion. C# uses the [omnisharp](https://github.com/OmniSharp/omnisharp-node-client) service for completion, and will work wherever there is a .csproj file.
+> Out of the box, the supported languages for rich completion are JavaScript & TypeScript. There is no special setup required for JavaScript & TypeScript language completion, but you will get best results by having a `jsconfig.json` or `tsconfig.json` at the root of your project.. You can use an empty json file with `{}` to get the rich completion.
 
 ##### Commands
 
@@ -263,20 +263,15 @@ _Supported Language features_
 
 _Configuration_
 
-C# completion uses the [OmniSharp Node Client](https://github.com/OmniSharp/omnisharp-node-client) which provides language capabilities for both .NET and Mono. For it to work correctly, you need to have a valid `.csproj` file with any dependent packages (ie, Nuget) installed. The project should also build and compile for the language service to work correctly.
+C# language support requires the [oni-language-csharp](https://github.com/extr0py/oni-language-csharp) plugin, which provides langauge capabilities for both .NET and Mono.
 
-> If you are using the .NET Core CLI, make sure to run `dotnet restore` on your project.
+Follow the [installation instructions](https://github.com/extr0py/oni-language-csharp#usage) to get started.
 
 _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
 | Y | Y | N | N | Y | N | N | N |
-
-_Known Issues_
-
-- On Windows, you must run Oni as an administrator the first time using the C# language service. This is tracked by issue [#423](https://github.com/extr0py/oni/issues/423).
-- On all platforms, the C# language service takes time to start up, especially the first time as it is downloading the appropriate runtime environment. You can open up the developer tools (Help -> Developer Tools) to see the logging from the language service. [#424](https://github.com/extr0py/oni/issues/424) tracks making this logging more visible.
 
 #### Go
 

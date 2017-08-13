@@ -110,9 +110,10 @@
     "find-up": "2.1.0",
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",
-    "omnisharp-client": "7.0.6",
     "tslint": "4.0.2",
-    "typescript": "2.4.2"
+    "typescript": "2.4.2",
+    "vscode-jsonrpc": "3.3.1",
+    "vscode-languageserver-types": "3.3.0"
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
@@ -164,8 +165,6 @@
     "spectron": "3.6.2",
     "style-loader": "0.18.2",
     "ts-loader": "2.3.2",
-    "vscode-jsonrpc": "3.3.1",
-    "vscode-languageserver-types": "3.3.0",
     "wcwidth": "1.0.1",
     "webpack": "3.5.3",
     "webpack-dev-server": "2.7.1"

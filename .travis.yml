@@ -28,10 +28,6 @@ install:
 script:
     - ./build/script/travis-build.sh
 
-cache:
-  directories:
-    - node_modules
-
 deploy:
     - provider: releases
       api_key:

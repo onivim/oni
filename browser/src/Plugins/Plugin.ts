@@ -55,7 +55,7 @@ export class Plugin {
         moduleEntryPoint = moduleEntryPoint.split("\\").join("/")
 
         try {
-            vm.runInNewContext(`debugger; require('${moduleEntryPoint}').activate(Oni); `, {
+            vm.runInNewContext(`debugger; const pluginEntryPoint = require('${moduleEntryPoint}').activate; if (!pluginEntryPoint) { console.warn('No activate method found for: ${moduleEntryPoint}'); } else { pluginEntryPoint(Oni); } `, {
                 Oni: this._oni,
                 require: window["require"], // tslint:disable-line no-string-literal
                 console,
