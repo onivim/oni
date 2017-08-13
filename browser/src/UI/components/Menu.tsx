@@ -22,7 +22,7 @@ export interface IMenuProps {
     selectedIndex: number
     filterText: string
     onChangeFilterText: (text: string) => void
-    onSelect: (openInSplit: number, selectedIndex?: number, horizontal?: boolean) => void
+    onSelect: (openInSplit: string, selectedIndex?: number) => void
     items: State.IMenuOptionWithHighlights[]
 }
 
@@ -44,7 +44,7 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
         const items = initialItems.map((menuItem, index) => <MenuItem {...menuItem as any} // FIXME: undefined
             filterText={this.props.filterText}
             isSelected={index === this.props.selectedIndex}
-            onClick={() => this.props.onSelect(0, index)}
+            onClick={() => this.props.onSelect("e", index)}
             />)
 
         return <div className="menu-background enable-mouse">
@@ -97,7 +97,7 @@ const mapDispatchToProps = (dispatch: any) => {
         dispatch(ActionCreators.filterMenu(text))
     }
 
-    const selectItem = (openInSplit: number, selectedIndex: number) => {
+    const selectItem = (openInSplit: string, selectedIndex: number) => {
         dispatch(ActionCreators.selectMenuItem(openInSplit, selectedIndex))
     }
 

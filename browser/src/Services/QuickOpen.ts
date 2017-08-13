@@ -36,19 +36,16 @@ export class QuickOpen {
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
                 neovimEditor.executeCommand("oni.openFolder")
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.buffer)) {
+                if (selectedItem.openInSplit !== "e") {
+                    neovimInstance.command(selectedItem.openInSplit + "!")
+                }
                 neovimInstance.command(`${arg.label}`)
             } else {
                 const fullPath = path.join(arg.detail, arg.label)
 
                 this._seenItems.push(fullPath)
 
-                if (selectedItem.openInSplit === 0) {
-                    neovimInstance.command("e! " + fullPath)
-                } else if (selectedItem.openInSplit === 1) {
-                    neovimInstance.command("vsp! " + fullPath)
-                } else if (selectedItem.openInSplit === 2) {
-                    neovimInstance.command("sp! " + fullPath)
-                }
+                neovimInstance.command(selectedItem.openInSplit + "! " + fullPath)
 
                 if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmark) ||
                     arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folder)) {

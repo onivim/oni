@@ -234,11 +234,11 @@ export class NeovimEditor implements IEditor {
                 if (key === "<esc>") {
                     UI.Actions.hidePopupMenu()
                 } else if (key === "<enter>") {
-                    UI.Actions.selectMenuItem(0)
+                    UI.Actions.selectMenuItem("e")
                 } else if (key === "<C-v>") {
-                    UI.Actions.selectMenuItem(1)
+                    UI.Actions.selectMenuItem("vsp")
                 } else if (key === "<C-s>") {
-                    UI.Actions.selectMenuItem(2)
+                    UI.Actions.selectMenuItem("sp")
                 } else if (key === "<C-n>") {
                     UI.Actions.nextMenuItem()
                 } else if (key === "<C-p>") {
