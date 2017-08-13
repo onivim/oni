@@ -100,7 +100,7 @@ export const Tab = (props: ITabPropsWithClick) => {
     }
 
     return <div className={cssClasses} title={props.description} style={style}>
-        <div className="corner"></div>
+        <div className="corner" onClick={props.onClickName}></div>
         <div className="name" onClick={props.onClickName}>
             <span className="name-inner">
                 {props.name}
