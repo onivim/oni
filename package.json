@@ -19,8 +19,8 @@
   "build": {
     "asar": true,
     "asarUnpack": [
-        "bin",
-        "vim/**/*.vim"
+      "bin",
+      "vim/**/*.vim"
     ],
     "compression": "store",
     "productName": "Oni",
@@ -64,9 +64,13 @@
         "dir"
       ],
       "files": [
-        "bin/x86/**/*"
-      ]
-    }
+        "bin/x86/**/*",
+        "images/**/*"
+      ],
+      "asarUnpack": [
+        "images"
+    ]
+  }
   },
   "scripts": {
     "build": "npm run build:browser && npm run build:plugins",
