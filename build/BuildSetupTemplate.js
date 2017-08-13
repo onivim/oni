@@ -32,6 +32,34 @@ const valuesToReplace = {
     "WizardSmallImageFilePath": path.join(__dirname, "setup", "Oni_54.bmp")
 }
 
+const fileExtensions = {
+    ".txt": "Text Files",
+    ".ts": "TypeScript Files",
+    ".js": "JavaScript Files"
+}
+
+const addToEnv = `
+Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}\\"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}\\bin'))`
+
+function replaceForRegKeys(ext, desc) {
+
+    const addFileEditor = `
+Root: HKCR; Subkey: "${ext}\\OpenWithProgids"; ValueType: none; ValueName: "${prodName}.exe"; Flags: deletevalue uninsdeletevalue;
+Root: HKCR; Subkey: "${ext}\\OpenWithProgids"; ValueType: string; ValueName: "${prodName}.exe"; ValueData: ""; Flags: uninsdeletevalue;
+Root: HKCR; Subkey: "${prodName}.exe\\${ext}"; ValueType: string; ValueName: ""; ValueData: "${desc}"; Flags: uninsdeletekey;
+Root: HKCR; Subkey: "${prodName}.exe\\${ext}\\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\\images\\oni.ico";
+Root: HKCR; Subkey: "${prodName}.exe\\${ext}\\shell\\open\\command"; ValueType: string; ValueName: ""; ValueData: """{app}\\${prodName}.exe"" ""%1""";
+{{RegistryKey}}
+`
+    shelljs.sed("-i", "{{RegistryKey}}", addFileEditor, destFile)
+}
+
 _.keys(valuesToReplace).forEach((key) => {
     shelljs.sed("-i", "{{" + key + "}}", valuesToReplace[key], destFile)
 })
+
+_.keys(fileExtensions).forEach((key) => {
+    replaceForRegKeys(key, fileExtensions[key])
+})
+
+shelljs.sed("-i", "{{RegistryKey}}", addToEnv, destFile)

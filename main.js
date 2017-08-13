@@ -110,7 +110,11 @@ app.on('ready', () => {
         require("./installDevTools")
     }
 
-    createWindow(process.argv.slice(2), process.cwd())
+    if (process.platform === 'win32' && process.argv.length === 2) {
+        createWindow(process.argv.slice(1), process.cwd())
+    } else {
+        createWindow(process.argv.slice(2), process.cwd())
+    }
 })
 
 // Quit when all windows are closed.
