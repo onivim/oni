@@ -24,7 +24,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
                     <div className="container full">
                         <div className="stack">
                             <div className="container horizontal full">
-                                <div className="container full">
+                                <div className="container fixed" style={{width: "250px", height: "100%"}}>
                                     <EditorHost editor={this.props.fileExplorerEditor} />
                                 </div>
                                 <div className="container full">

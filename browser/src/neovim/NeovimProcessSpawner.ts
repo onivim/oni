@@ -13,7 +13,7 @@ const remapPathToUnpackedAsar = (originalPath: string) => {
     return originalPath.split("app.asar").join("app.asar.unpacked")
 }
 
-export const startNeovim = (runtimePaths: string[], args: string[]): Session => {
+export const startNeovim = (runtimePaths: string[], args: string[], customInitVim?: string): Session => {
 
     const noopInitVimPath = remapPathToUnpackedAsar(path.join(__dirname, "vim", "noop.vim"))
 
@@ -34,8 +34,13 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
     const shouldLoadInitVim = Config.instance().getValue("oni.loadInitVim")
     const useDefaultConfig = Config.instance().getValue("oni.useDefaultConfig")
 
-    const vimRcArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
+    let vimRcArg: string[] = ["-u", noopInitVimPath]
 
+    if (customInitVim) {
+        vimRcArg = ["-u", customInitVim]
+    } else if (shouldLoadInitVim || !useDefaultConfig) {
+        vimRcArg = []
+    }
     const argsToPass = vimRcArg
         .concat(["--cmd", `let &rtp.='${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
         .concat(args)

@@ -267,7 +267,7 @@ export class NeovimEditor implements IEditor {
             } else if (key === "<C-pagedown>") {
                 multiProcess.focusNextInstance()
             } else {
-                this._neovimInstance.input(key)
+                // this._neovimInstance.input(key)
             }
         })
 

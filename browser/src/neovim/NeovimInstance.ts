@@ -98,6 +98,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _pluginManager: IPluginManager
     private _quickFix: QuickFixList
 
+    private _initVimPath: string | null = null
+
     public get quickFix(): IQuickFixList {
         return this._quickFix
     }
@@ -120,10 +122,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         await this.command(`doautocmd <nomodeline> ${autoCommand}`)
     }
 
+    public setInitVim(initVimPath: string): void {
+        this._initVimPath = initVimPath
+    }
+
     public start(filesToOpen?: string[]): void {
         filesToOpen = filesToOpen || []
 
-        this._initPromise = Promise.resolve(startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen))
+        this._initPromise = Promise.resolve(startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen, this._initVimPath))
             .then((nv) => {
                 this.emit("logInfo", "NeovimInstance: Neovim started")
 

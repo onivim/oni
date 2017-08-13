@@ -15,7 +15,7 @@ import * as Config from "./../Config"
 
 // import { PluginManager } from "./../Plugins/PluginManager"
 
-// import { Keyboard } from "./../Input/Keyboard"
+import { Keyboard } from "./../Input/Keyboard"
 import { IEditor } from "./Editor"
 
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -45,6 +45,7 @@ export class SimpleNeovimEditor implements IEditor {
     ) {
         // TODO: How to get rid of this?
         this._neovimInstance = new NeovimInstance(new DummyPluginManager(), 100, 100)
+        this._neovimInstance.setInitVim("C:/oni/test.vim")
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
 
@@ -63,6 +64,11 @@ export class SimpleNeovimEditor implements IEditor {
             if (!this._pendingTimeout) {
                 this._pendingTimeout = setTimeout(() => this._onUpdate(), 0)
             }
+        })
+
+        const keyboard = new Keyboard()
+        keyboard.on("keydown", (key: string) => {
+            this._neovimInstance.input(key)
         })
 
         this._onConfigChanged()
