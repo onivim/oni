@@ -46,6 +46,11 @@ function OniOpenFile(strategy, file)
      endif
  endfunction
 
+augroup OniClipboard
+    autocmd!
+    autocmd! TextYankPost * :call OniNotifyYank(v:event)
+augroup end
+
 augroup OniNotifyBufferUpdates
     autocmd!
     autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
@@ -141,6 +146,10 @@ function OniConnect()
     " prior to the UI attaching. See #122
     call OniNotifyEvent("BufEnter")
     call OniNotifyBufferUpdate()
+endfunction
+
+function OniNotifyYank(yankEvent)
+    call OniNotify(["oni_yank", a:yankEvent])
 endfunction
 
 
