@@ -75,4 +75,8 @@ export class AutoCompletion {
 
         UI.Actions.hideCompletions()
     }
+
+    public hide(): void {
+        UI.Actions.hideCompletions()
+    }
 }
