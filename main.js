@@ -166,7 +166,7 @@ function log(message) {
     }
 }
 
-function loadFileFromArguments(platform, commandLine, workingDirectory) {
+function loadFileFromArguments(platform, args, workingDirectory) {
     const windowsOpenWith = platform === 'win32' &&
                             args[0].split("\\").pop() === "Oni.exe"
     
