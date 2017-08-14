@@ -1,6 +1,12 @@
 import { AbstractConfig, ITypeValues } from "./AbstractConfig"
 
+<<<<<<< Updated upstream
+import * as fs from "fs"
 import * as cloneDeep from "lodash/cloneDeep"
+import * as isError from "lodash/isError"
+=======
+import * as _ from "lodash"
+>>>>>>> Stashed changes
 import * as path from "path"
 import * as Platform from "./Platform"
 
@@ -45,9 +51,6 @@ export interface IConfigValues extends ITypeValues {
 
     // glob pattern of files to exclude from fuzzy finder (Ctrl-P)
     "oni.exclude": string[]
-
-    // bookmarks to open if opened in install dir
-    "oni.bookmarks": string[]
 
     // Editor settings
 
@@ -102,6 +105,8 @@ export interface IConfigValues extends ITypeValues {
 }
 
 export class Config extends AbstractConfig {
+    public static instance: Config
+
     public userJsConfig: string = path.join(this.getUserFolder(), "config.js")
 
     protected configFileName: string = "config.js"
@@ -124,7 +129,6 @@ export class Config extends AbstractConfig {
         "oni.hideMenu": false,
 
         "oni.exclude": ["**/node_modules/**"],
-        "oni.bookmarks": [],
 
         "editor.backgroundOpacity": 1.0,
         "editor.backgroundImageUrl": null,
@@ -204,7 +208,8 @@ export class Config extends AbstractConfig {
     }
 
     public getValues(): IConfigValues {
-        return cloneDeep(this.ConfigValue)
+<<<<<<< Updated upstream
+        return cloneDeep(this.Config)
     }
 
     public getUserFolder(): string {
@@ -218,7 +223,44 @@ export class Config extends AbstractConfig {
     public unregisterListener(callback: Function): void {
         this.configChanged.removeListener("config-change", callback)
     }
+    // Emitting event is not enough, at startup nobody's listening yet
+    // so we can't emit the parsing error to anyone when it happens
+    public getParsingError(): Error | null {
+        const maybeError = this.getUserRuntimeConfig()
+        return isError(maybeError) ? maybeError : null
+    }
 
+    private applyConfig(): void {
+        let userRuntimeConfigOrError = this.getUserRuntimeConfig()
+        if (isError(userRuntimeConfigOrError)) {
+            this.emit("logError", userRuntimeConfigOrError)
+            this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig}
+        } else {
+            this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfigOrError}
+        }
+    }
+    private getUserRuntimeConfig(): IConfigValues | Error {
+        let userRuntimeConfig: IConfigValues | null = null
+        let error: Error | null = null
+        if (fs.existsSync(this.userJsConfig)) {
+            try {
+                userRuntimeConfig = global["require"](this.userJsConfig) // tslint:disable-line no-string-literal
+            } catch (e) {
+                e.message = "Failed to parse " + this.userJsConfig + ":\n" + (<Error>e).message
+                error = e
+            }
+        }
+        return error ? error : userRuntimeConfig
+    }
+
+    private notifyListeners(): void {
+        this.configChanged.emit("config-change")
+    }
+
+=======
+        return _.cloneDeep(this.ConfigValue)
+    }
+>>>>>>> Stashed changes
 }
 
 const _config = new Config()

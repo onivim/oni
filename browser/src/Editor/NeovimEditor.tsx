@@ -17,6 +17,7 @@ import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import * as Config from "./../Config"
+import * as KeyBindings from "./../KeyBindings"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
@@ -56,6 +57,7 @@ export class NeovimEditor implements IEditor {
 
     // Services
     private _tasks: Tasks
+    private _quickOpen: QuickOpen
 
     // Overlays
     private _windowManager: NeovimWindowManager
@@ -66,6 +68,7 @@ export class NeovimEditor implements IEditor {
         private _commandManager: CommandManager,
         private _pluginManager: PluginManager,
         private _config: Config.Config = Config.instance(),
+        private _keybindings: KeyBindings.KeyBindings = KeyBindings.instance(),
     ) {
         const services: any[] = []
 
@@ -79,12 +82,12 @@ export class NeovimEditor implements IEditor {
         const autoCompletion = new AutoCompletion(this._neovimInstance)
         const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
         const errorService = new Errors(this._neovimInstance)
-        const quickOpen = new QuickOpen(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
         const multiProcess = new MultiProcess()
         const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
         const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
+        this._quickOpen = new QuickOpen(this._neovimInstance, this)
         this._tasks = new Tasks(outputWindow)
         registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
 
@@ -94,7 +97,7 @@ export class NeovimEditor implements IEditor {
         services.push(autoCompletion)
         services.push(bufferUpdates)
         services.push(errorService)
-        services.push(quickOpen)
+        services.push(this._quickOpen)
         services.push(windowTitle)
         services.push(formatter)
         services.push(multiProcess)
@@ -221,21 +224,21 @@ export class NeovimEditor implements IEditor {
 
         const keyboard = new Keyboard()
         keyboard.on("keydown", (key: string) => {
-            if (key === "<f3>") {
+            if (this._keybindings.isAny("keybindings.formatter.formatBuffer", key)) {
                 formatter.formatBuffer()
                 return
             }
 
             if (UI.Selectors.isPopupMenuOpen()) {
-                if (key === "<esc>") {
+                if (this._keybindings.isAny("keybindings.openedMenu.close", key)) {
                     UI.Actions.hidePopupMenu()
-                } else if (key === "<enter>") {
+                } else if (this._keybindings.isAny("keybindings.openedMenu.select", key)) {
                     UI.Actions.selectMenuItem(false)
-                } else if (key === "<C-v>") {
+                } else if (this._keybindings.isAny("keybindings.openedMenu.selectVertical", key)) {
                     UI.Actions.selectMenuItem(true)
-                } else if (key === "<C-n>") {
+                } else if (this._keybindings.isAny("keybindings.openedMenu.nextMenuItem", key)) {
                     UI.Actions.nextMenuItem()
-                } else if (key === "<C-p>") {
+                } else if (this._keybindings.isAny("keybindings.openedMenu.previousMenuItem", key)) {
                     UI.Actions.previousMenuItem()
                 }
 
@@ -243,28 +246,29 @@ export class NeovimEditor implements IEditor {
             }
 
             if (UI.Selectors.areCompletionsVisible()) {
-
-                if (key === "<enter>") {
+                if (this._keybindings.isAny("keybindings.autoCompletion.close", key)) {
+                    autoCompletion.hide()
+                } else if (this._keybindings.isAny("keybindings.autoCompletion.select", key)) {
                     autoCompletion.complete()
                     return
-                } else if (key === "<C-n>") {
+                } else if (this._keybindings.isAny("keybindings.autoCompletion.nextMenuItem", key)) {
                     UI.Actions.nextCompletion()
                     return
-                } else if (key === "<C-p>") {
+                } else if (this._keybindings.isAny("keybindings.autoCompletion.previousMenuItem", key)) {
                     UI.Actions.previousCompletion()
                     return
                 }
             }
 
-            if (key === "<f12>") {
+            if (this._keybindings.isAny("keybindings.oni.gotoDefinition", key)) {
                 this._commandManager.executeCommand("oni.editor.gotoDefinition", null)
-            } else if (key === "<C-p>" && this._screen.mode === "normal") {
+            } else if (this._keybindings.isAny("keybindings.oni.showQuickOpen", key) && this._screen.mode === "normal") {
                 quickOpen.show()
-            } else if (key === "<C-P>" && this._screen.mode === "normal") {
+            } else if (this._keybindings.isAny("keybindings.oni.showTasks", key) && this._screen.mode === "normal") {
                 this._tasks.show()
-            } else if (key === "<C-pageup>") {
+            } else if (this._keybindings.isAny("keybindings.oni.focusPreviousInstance", key)) {
                 multiProcess.focusPreviousInstance()
-            } else if (key === "<C-pagedown>") {
+            } else if (this._keybindings.isAny("keybindings.oni.focusNextInstance", key)) {
                 multiProcess.focusNextInstance()
             } else {
                 this._neovimInstance.input(key)
@@ -312,6 +316,10 @@ export class NeovimEditor implements IEditor {
                 this._neovimInstance.command("exec \":tabe " + normalizePath(files.item(i).path) + "\"")
             }
         }
+    }
+
+    public executeCommand(command: string): void {
+        this._commandManager.executeCommand(command, null)
     }
 
     public init(filesToOpen: string[]): void {
@@ -372,6 +380,9 @@ export class NeovimEditor implements IEditor {
         this._tasks.onEvent(evt)
 
         if (eventName === "BufEnter") {
+            // cache buffer lines
+            this._quickOpen.cacheLines()
+
             // TODO: More convenient way to hide all UI?
             UI.Actions.hideCompletions()
             UI.Actions.hidePopupMenu()
@@ -386,6 +397,9 @@ export class NeovimEditor implements IEditor {
 
             this._neovimInstance.getBufferIds()
                 .then((ids) => UI.Actions.setCurrentBuffers(ids))
+        } else if (eventName === "InsertLeave") {
+            // cache buffer lines
+            this._quickOpen.cacheLines()
         }
     }
 
