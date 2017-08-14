@@ -17,6 +17,7 @@ import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import * as Config from "./../Config"
+import * as KeyBindings from "./../KeyBindings"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
@@ -67,6 +68,7 @@ export class NeovimEditor implements IEditor {
         private _commandManager: CommandManager,
         private _pluginManager: PluginManager,
         private _config: Config.Config = Config.instance(),
+        private _keybindings: KeyBindings.KeyBindings = KeyBindings.instance(),
     ) {
         const services: any[] = []
 
@@ -222,23 +224,21 @@ export class NeovimEditor implements IEditor {
 
         const keyboard = new Keyboard()
         keyboard.on("keydown", (key: string) => {
-            if (key === "<f3>") {
+            if (this._keybindings.isAny("keybindings.formatter.formatBuffer", key)) {
                 formatter.formatBuffer()
                 return
             }
 
             if (UI.Selectors.isPopupMenuOpen()) {
-                if (key === "<esc>") {
+                if (this._keybindings.isAny("keybindings.openedMenu.close", key)) {
                     UI.Actions.hidePopupMenu()
-                } else if (key === "<enter>") {
-                    UI.Actions.selectMenuItem("e")
-                } else if (key === "<C-v>") {
-                    UI.Actions.selectMenuItem("vsp")
-                } else if (key === "<C-s>") {
-                    UI.Actions.selectMenuItem("sp")
-                } else if (key === "<C-n>") {
+                } else if (this._keybindings.isAny("keybindings.openedMenu.select", key)) {
+                    UI.Actions.selectMenuItem(false)
+                } else if (this._keybindings.isAny("keybindings.openedMenu.selectVertical", key)) {
+                    UI.Actions.selectMenuItem(true)
+                } else if (this._keybindings.isAny("keybindings.openedMenu.nextMenuItem", key)) {
                     UI.Actions.nextMenuItem()
-                } else if (key === "<C-p>") {
+                } else if (this._keybindings.isAny("keybindings.openedMenu.previousMenuItem", key)) {
                     UI.Actions.previousMenuItem()
                 }
 
@@ -246,30 +246,30 @@ export class NeovimEditor implements IEditor {
             }
 
             if (UI.Selectors.areCompletionsVisible()) {
-
-                if (key === "<enter>") {
+                if (this._keybindings.isAny("keybindings.autoCompletion.close", key)) {
+                    autoCompletion.hide()
+                    return
+                } else if (this._keybindings.isAny("keybindings.autoCompletion.select", key)) {
                     autoCompletion.complete()
                     return
-                } else if (key === "<C-n>") {
+                } else if (this._keybindings.isAny("keybindings.autoCompletion.nextMenuItem", key)) {
                     UI.Actions.nextCompletion()
                     return
-                } else if (key === "<C-p>") {
+                } else if (this._keybindings.isAny("keybindings.autoCompletion.previousMenuItem", key)) {
                     UI.Actions.previousCompletion()
                     return
                 }
             }
 
-            if (key === "<f12>") {
+            if (this._keybindings.isAny("keybindings.oni.gotoDefinition", key)) {
                 this._commandManager.executeCommand("oni.editor.gotoDefinition", null)
-            } else if (key === "<C-p>" && this._screen.mode === "normal") {
-                this._quickOpen.show()
-            } else if (key === "<C-/>" && this._screen.mode === "normal") {
-                this._quickOpen.showBufferLines()
-            } else if (key === "<C-P>" && this._screen.mode === "normal") {
+            } else if (this._keybindings.isAny("keybindings.oni.showQuickOpen", key) && this._screen.mode === "normal") {
+                quickOpen.show()
+            } else if (this._keybindings.isAny("keybindings.oni.showTasks", key) && this._screen.mode === "normal") {
                 this._tasks.show()
-            } else if (key === "<C-pageup>") {
+            } else if (this._keybindings.isAny("keybindings.oni.focusPreviousInstance", key)) {
                 multiProcess.focusPreviousInstance()
-            } else if (key === "<C-pagedown>") {
+            } else if (this._keybindings.isAny("keybindings.oni.focusNextInstance", key)) {
                 multiProcess.focusNextInstance()
             } else {
                 this._neovimInstance.input(key)
