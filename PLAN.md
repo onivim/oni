@@ -1,0 +1,11 @@
+- Create `editor.clipboard.enabled` setting?
+    - If true, yank automatically puts in clipboard too
+    - If true, 'paste' in menu pastes from system clipboard
+    - Windows / Linux
+        - Ctrl-v in insert mode pastes from clipboard
+        - Ctrl-c in visual mode copies from clipboard
+    - OSX
+        - Cmd-v in other modes pastes in other modes
+        - Cmd-c in visual mode copies from clipboard
+
+- Document setting + clipboard integration behavior
