@@ -248,7 +248,6 @@ export class NeovimEditor implements IEditor {
             if (UI.Selectors.areCompletionsVisible()) {
                 if (this._keybindings.isAny("keybindings.autoCompletion.close", key)) {
                     autoCompletion.hide()
-                    return
                 } else if (this._keybindings.isAny("keybindings.autoCompletion.select", key)) {
                     autoCompletion.complete()
                     return

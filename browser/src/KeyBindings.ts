@@ -40,18 +40,18 @@ export class KeyBindings extends AbstractConfig {
     protected DefaultPlatformConfig: Partial<IKeybindingsValues> = {}
     protected DefaultConfig: IKeybindingsValues = {
         // Opened menu keys
-        "keybindings.openedMenu.nextMenuItem"         : ["<C-n>", "<C-j>", "<down>"],
-        "keybindings.openedMenu.previousMenuItem"     : ["<C-p>", "<C-k>", "<up>"],
-        "keybindings.openedMenu.select"               : ["<enter>"],
-        "keybindings.openedMenu.close"                : ["<esc>", "<C-c>"],
-        "keybindings.openedMenu.selectVertical"       : ["<c-v>"],
-        "keybindings.openedMenu.selectHorizontal"     : ["<c-s>"],
+        "keybindings.openedMenu.nextMenuItem"         : ["<C-n>"    , "<C-j>"  , "<down>"] ,
+        "keybindings.openedMenu.previousMenuItem"     : ["<C-p>"    , "<C-k>"  , "<up>"]   ,
+        "keybindings.openedMenu.select"               : ["<enter>"] ,
+        "keybindings.openedMenu.close"                : ["<esc>"    , "<C-c>"] ,
+        "keybindings.openedMenu.selectVertical"       : ["<C-v>"]   ,
+        "keybindings.openedMenu.selectHorizontal"     : ["<C-s>"]   ,
 
         // AutoCompletion keys
-        "keybindings.autoCompletion.nextMenuItem"     : ["<C-n>, <C-j>, <down>"],
-        "keybindings.autoCompletion.previousMenuItem" : ["<C-p>, <C-k>, <up>"],
-        "keybindings.autoCompletion.select"           : ["<enter>, <tab>"],
-        "keybindings.autoCompletion.close"            : ["<esc>", "<C-c>"],
+        "keybindings.autoCompletion.nextMenuItem"     : ["<C-n>"   , "<C-j>"  , "<down>"] ,
+        "keybindings.autoCompletion.previousMenuItem" : ["<C-p>"   , "<C-k>"  , "<up>"]   ,
+        "keybindings.autoCompletion.select"           : ["<enter>" , "<tab>"] ,
+        "keybindings.autoCompletion.close"            : ["<esc>"   , "<C-c>"] ,
 
         // Formatter keys
         "keybindings.formatter.formatBuffer"          : ["<f3>"],
