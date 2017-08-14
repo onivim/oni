@@ -43,6 +43,8 @@ import { InstallHelp } from "./../UI/components/InstallHelp"
 
 import { NeovimSurface } from "./NeovimSurface"
 
+import { clipboard} from "electron"
+
 export class NeovimEditor implements IEditor {
 
     private _neovimInstance: NeovimInstance
@@ -108,6 +110,10 @@ export class NeovimEditor implements IEditor {
 
         this._windowManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
             UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
+        })
+
+        this._neovimInstance.onYank.subscribe((yankInfo) => {
+                clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
         })
 
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
@@ -254,6 +260,12 @@ export class NeovimEditor implements IEditor {
                     UI.Actions.previousCompletion()
                     return
                 }
+            }
+
+            if (key === "<C-v>" && this._screen.mode === "insert") {
+                const textToPaste = clipboard.readText()
+                this._neovimInstance.input(textToPaste)
+                return
             }
 
             if (key === "<f12>") {

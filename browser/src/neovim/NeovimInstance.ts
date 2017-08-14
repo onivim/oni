@@ -24,6 +24,12 @@ export interface INeovimYankInfo {
     regtype: string
 }
 
+export interface INeovimApiVersion {
+    major: number
+    minor: number
+    patch: number
+}
+
 export interface INeovimInstance {
     cursorPosition: IPosition
     quickFix: IQuickFixList
@@ -77,12 +83,6 @@ export interface INeovimInstance {
     open(fileName: string): Promise<void>
 
     executeAutoCommand(autoCommand: string): Promise<void>
-}
-
-export interface INeovimApiVersion {
-    major: number
-    minor: number
-    patch: number
 }
 
 /**
