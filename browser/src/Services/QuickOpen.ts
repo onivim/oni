@@ -5,6 +5,7 @@
  */
 
 import { spawn } from "child_process"
+import { lstatSync } from "fs"
 
 import * as glob from "glob"
 import * as path from "path"
@@ -41,15 +42,27 @@ export class QuickOpen {
                 }
                 neovimInstance.command(`${arg.label}`)
             } else {
-                const fullPath = path.join(arg.detail, arg.label)
+                let fullPath = path.join(arg.detail, arg.label)
 
                 this._seenItems.push(fullPath)
 
                 neovimInstance.command(selectedItem.openInSplit + "! " + fullPath)
 
-                if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmark) ||
-                    arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folder)) {
+                if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folder)) {
                     neovimInstance.chdir(fullPath)
+                }
+
+                // If we are bookmark, and we open a file, the open it's dirname
+                // If we are a directory, open it.
+                if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmark)) {
+                    // If I use this one more place I'm going to make a function >.>
+                    fullPath = fullPath.replace("~", process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"])
+
+                    if (lstatSync(fullPath).isDirectory()) {
+                        neovimInstance.chdir(fullPath)
+                    } else {
+                        neovimInstance.chdir(arg.detail)
+                    }
                 }
             }
         })
@@ -65,6 +78,12 @@ export class QuickOpen {
 
         //  If in exec directory or home, show bookmarks to change cwd to
         if (this._isInstallDirectoryOrHome()) {
+            // Open folder help at top
+            this._loadedItems.push(new QuickOpenItem(
+                "Open Folder",
+                QuickOpenType.folderHelp,
+            ))
+
             // Get bookmarks, if we added remove them all so we don't think we have length
             const bookmarks = config.getValue("oni.bookmarks")
             let type = QuickOpenType.bookmark
@@ -87,12 +106,6 @@ export class QuickOpen {
             if (type === QuickOpenType.bookmarkHelp) {
                 bookmarks.splice(0, bookmarks.length)
             }
-
-            // Open folder help
-            this._loadedItems.push(new QuickOpenItem(
-                "Open Folder",
-                QuickOpenType.folderHelp,
-            ))
 
             // TODO consider adding folders as well (recursive async with ignores/excludes)
             // For now, sync call bookmarks and open folder, it's so few it's not going to matter
