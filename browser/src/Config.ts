@@ -143,7 +143,7 @@ export class Config extends EventEmitter {
         "editor.formatting.formatOnSwitchToNormalMode": false,
 
         "editor.fontLigatures": true,
-        "editor.fontSize": "14px",
+        "editor.fontSize": "12px",
         "editor.fontFamily": "",
 
         "editor.quickOpen.execCommand": null,
@@ -163,7 +163,7 @@ export class Config extends EventEmitter {
         "environment.additionalPaths": [],
 
         "statusbar.enabled": true,
-        "statusbar.fontSize": "12px",
+        "statusbar.fontSize": "11px",
 
         "tabs.enabled": true,
         "tabs.showVimTabs": false,
@@ -171,7 +171,6 @@ export class Config extends EventEmitter {
 
     private MacConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "Menlo",
-        "editor.fontSize": "12px",
         "statusbar.fontSize": "10px",
         "environment.additionalPaths": [
             "/usr/bin",
