@@ -20,12 +20,16 @@ import { BufferUpdates } from "./BufferUpdates"
 export class QuickOpen {
     private _seenItems: string[] = []
     private _loadedItems: QuickOpenItem[] = []
+    // private _loadedColors: QuickOpenItem[] = []
     private _neovimInstance: INeovimInstance
     private _bufferUpdates: BufferUpdates
+    // private _doneLoadingColors: boolean
+    // private _needToLoadColors: boolean
 
     constructor(neovimInstance: INeovimInstance, neovimEditor: NeovimEditor, bufferUpdates: BufferUpdates) {
         this._neovimInstance = neovimInstance
         this._bufferUpdates = bufferUpdates
+        // this._loadColors()
 
         UI.events.on("menu-item-selected:quickOpen", (selectedItem: any) => {
             const arg = selectedItem.selectedOption
@@ -34,6 +38,8 @@ export class QuickOpen {
                 return
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
                 neovimEditor.executeCommand("oni.config.openConfigJs")
+            } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.color)) {
+                neovimInstance.command(`colo ${arg.label}`)
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
                 neovimEditor.executeCommand("oni.openFolder")
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
@@ -67,6 +73,30 @@ export class QuickOpen {
             }
         })
     }
+
+    // public async showColors() {
+    //     this._showLoading()
+    //     if (this._doneLoadingColors) {
+    //         this._showMenuFromQuickOpenItems(this._loadedColors)
+    //     } else if (this._needToLoadColors) {
+    //         this._loadColors()
+    //     }
+    // }
+
+    // private async _loadColors() {
+    //     this._needToLoadColors = true
+    //     this._neovimInstance.eval(`map(split(globpath(&rtp, "colors/*.vim"), "\n"), "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')")`)
+    //         .then((colors) => {
+    //             colors.forEach( (d: string) => {
+    //                 d = d.substring(0, d.length - 4)
+    //                 this._loadedColors.push(new QuickOpenItem(d, QuickOpenType.color))
+    //                 this._doneLoadingColors = true
+    //                 if (UI.Selectors.isPopupMenuOpen()) {
+    //                     this._showMenuFromQuickOpenItems(this._loadedColors)
+    //                 }
+    //             })
+    //         })
+    // }
 
     public async show() {
         // reset list and show loading indicator
@@ -200,7 +230,7 @@ export class QuickOpen {
     private _showLoading(): void {
         UI.Actions.showPopupMenu("quickOpen", [{
             icon: QuickOpenItem.convertTypeToIcon(QuickOpenType.loading),
-            label: "Loading Files...",
+            label: "Loading ...",
             detail: "",
             pinned: false,
         }])
@@ -219,6 +249,7 @@ enum QuickOpenType {
     folderHelp,
     bufferLine,
     loading,
+    color,
 }
 
 // Wrapper around quick open items, this not only allows us to show multiple icons
@@ -241,6 +272,8 @@ class QuickOpenItem {
                 return "angle-right"
             case QuickOpenType.loading:
                 return "refresh fa-spin fa-fw"
+            case QuickOpenType.color:
+                return "paint-brush"
             default:
                 return "question-circle-o"
         }
