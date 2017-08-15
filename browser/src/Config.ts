@@ -11,6 +11,10 @@ import * as Platform from "./Platform"
 export type RenderStrategy = "canvas" | "dom"
 
 export interface IConfigValues {
+
+    "activate": (oni: Oni.Plugin.Api) => void
+    "deactivate": () => void
+
     // Debug settings
     "debug.incrementalRenderRegions": boolean
     "debug.maxCellsToRender": number
@@ -107,6 +111,10 @@ export class Config extends EventEmitter {
     public userJsConfig = path.join(this.getUserFolder(), "config.js")
 
     private DefaultConfig: IConfigValues = {
+
+        activate: () => { },
+        deactivate: () => { },
+
         "debug.incrementalRenderRegions": false,
         "debug.maxCellsToRender": 12000,
         "debug.fixedSize": null,
@@ -189,6 +197,8 @@ export class Config extends EventEmitter {
 
     private configChanged: EventEmitter = new EventEmitter()
 
+    private _oniApi: Oni.Plugin.Api = null
+
     private Config: IConfigValues = null
 
     constructor() {
@@ -248,6 +258,12 @@ export class Config extends EventEmitter {
         return isError(maybeError) ? maybeError : null
     }
 
+    public activate(oni: Oni.Plugin.Api): void {
+        this._oniApi = oni
+
+        this._activateIfOniObjectIsAvailable()
+    }
+
     private applyConfig(): void {
         let userRuntimeConfigOrError = this.getUserRuntimeConfig()
         if (isError(userRuntimeConfigOrError)) {
@@ -256,7 +272,23 @@ export class Config extends EventEmitter {
         } else {
             this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfigOrError}
         }
+
+        this._deactivate()
+        this._activateIfOniObjectIsAvailable()
     }
+
+    private _activateIfOniObjectIsAvailable(): void {
+        if (this.Config && this.Config.activate && this._oniApi) {
+            this.Config.activate(this._oniApi)
+        }
+    }
+
+    private _deactivate(): void {
+        if (this.Config && this.Config.deactivate) {
+            this.Config.deactivate()
+        }
+    }
+
     private getUserRuntimeConfig(): IConfigValues | Error {
         let userRuntimeConfig: IConfigValues | null = null
         let error: Error | null = null
