@@ -13,30 +13,30 @@ import * as Log from "./../Log"
 
 import * as Config from "./../Config"
 import { NeovimEditor } from "./../Editor/NeovimEditor"
-import { IBuffer, INeovimInstance } from "./../neovim"
+import { INeovimInstance } from "./../neovim"
 import * as UI from "./../UI/index"
+import { BufferUpdates } from "./BufferUpdates"
 
 export class QuickOpen {
     private _seenItems: string[] = []
     private _loadedItems: QuickOpenItem[] = []
-    private _cachedBufferLines: QuickOpenItem[] = []
     private _neovimInstance: INeovimInstance
+    private _bufferUpdates: BufferUpdates
 
-    constructor(neovimInstance: INeovimInstance, neovimEditor: NeovimEditor) {
+    constructor(neovimInstance: INeovimInstance, neovimEditor: NeovimEditor, bufferUpdates: BufferUpdates) {
         this._neovimInstance = neovimInstance
+        this._bufferUpdates = bufferUpdates
 
         UI.events.on("menu-item-selected:quickOpen", (selectedItem: any) => {
-            // If we are info it means we need to open the config
-            // else If we are folder help, show open folder
-            // else we are file/folder/bookmark so open it
-            //      If we are bookmark or folder, change dir too
             const arg = selectedItem.selectedOption
 
-            if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
+            if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.loading)) {
+                return
+            } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
                 neovimEditor.executeCommand("oni.config.openConfigJs")
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
                 neovimEditor.executeCommand("oni.openFolder")
-            } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.buffer)) {
+            } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
                 if (selectedItem.openInSplit !== "e") {
                     neovimInstance.command(selectedItem.openInSplit + "!")
                 }
@@ -70,7 +70,7 @@ export class QuickOpen {
 
     public async show() {
         // reset list
-        this._loadedItems.splice(0, this._loadedItems.length)
+        this._loadedItems = []
 
         const config = Config.instance()
         const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
@@ -125,37 +125,18 @@ export class QuickOpen {
     }
 
     public async showBufferLines() {
-        this._showMenuFromQuickOpenItems(this._cachedBufferLines)
-    }
+        let nu = 0
 
-    public async cacheLines() {
-        this._cachedBufferLines.splice(0, this._cachedBufferLines.length)
+        const options = this._bufferUpdates.lines.map((line: string) => {
+            return {
+                icon: QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine),
+                label: String(++nu),
+                detail: line,
+                // I don't think I want to pin these... pinned: false,
+            }
+        })
 
-        let currentBuffer: IBuffer
-        let lineCount: number
-        let lineNu: number = 0
-        this._neovimInstance.getCurrentBuffer()
-            // get current buffer
-            .then((buffer) => currentBuffer = buffer)
-
-            // get line count
-            .then(() => currentBuffer.getLineCount())
-            .then((lc) => lineCount = lc)
-
-            // get all the line
-            .then(() => currentBuffer.getLines(0, lineCount, false) )
-            .then((lines) => lines.forEach(
-                (l: string) => {
-                    lineNu++
-                    if (l.length !== 0) {
-                        this._cachedBufferLines.push(new QuickOpenItem(l, QuickOpenType.buffer, lineNu))
-                        if (UI.Selectors.isPopupMenuOpen()) {
-                            this.showBufferLines()
-                        }
-                    }
-                },
-            ))
-
+        UI.Actions.showPopupMenu("quickOpen", options)
     }
 
     // Overridden strategy
@@ -172,6 +153,8 @@ export class QuickOpen {
 
         // Otherwise, find all files recursively
         filer.stderr.on("data", (data) => {
+            this._showLoading()
+
             Log.error(data.toString())
 
             // FIXME : Convert to an async function like the ones above.
@@ -201,12 +184,6 @@ export class QuickOpen {
             let file = path.basename(f)
             let folder = path.dirname(f)
 
-            // if we are of type somthing with a lineNu, we want it to be focused
-            if (qitem.lineNu !== undefined) {
-                folder = f
-                file = "" + qitem.lineNu
-            }
-
             return {
                 icon: qitem.icon,
                 label: file,
@@ -216,6 +193,15 @@ export class QuickOpen {
         })
 
         UI.Actions.showPopupMenu("quickOpen", options)
+    }
+
+    private _showLoading(): void {
+        UI.Actions.showPopupMenu("quickOpen", [{
+            icon: QuickOpenItem.convertTypeToIcon(QuickOpenType.loading),
+            label: "Loading Files...",
+            detail: "",
+            pinned: false,
+        }])
     }
 
 }
@@ -229,7 +215,8 @@ enum QuickOpenType {
     file,
     folder,
     folderHelp,
-    buffer,
+    bufferLine,
+    loading,
 }
 
 // Wrapper around quick open items, this not only allows us to show multiple icons
@@ -248,8 +235,10 @@ class QuickOpenItem {
                 return "folder-o"
             case QuickOpenType.folderHelp:
                 return "folder-open-o"
-            case QuickOpenType.buffer:
+            case QuickOpenType.bufferLine:
                 return "angle-right"
+            case QuickOpenType.loading:
+                return "refresh fa-spin fa-fw"
             default:
                 return "question-circle-o"
         }
