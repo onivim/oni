@@ -1,16 +1,12 @@
-import { EventEmitter } from "events"
+import { AbstractConfig, ITypeValues } from "./AbstractConfig"
 
-import * as fs from "fs"
 import * as cloneDeep from "lodash/cloneDeep"
-import * as isError from "lodash/isError"
 import * as path from "path"
-
-import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
 export type RenderStrategy = "canvas" | "dom"
 
-export interface IConfigValues {
+export interface IConfigValues extends ITypeValues {
     // Debug settings
     "debug.incrementalRenderRegions": boolean
     "debug.maxCellsToRender": number
@@ -102,11 +98,14 @@ export interface IConfigValues {
     "tabs.showVimTabs": boolean
 }
 
-export class Config extends EventEmitter {
+export class Config extends AbstractConfig {
+    public userJsConfig: string = path.join(this.getUserFolder(), "config.js")
 
-    public userJsConfig = path.join(this.getUserFolder(), "config.js")
-
-    private DefaultConfig: IConfigValues = {
+    protected configFileName: string = "config.js"
+    protected configEventName: string = "config-change"
+    protected performanceName: string = "Config"
+    protected ConfigValue: IConfigValues = null
+    protected DefaultConfig: IConfigValues = {
         "debug.incrementalRenderRegions": false,
         "debug.maxCellsToRender": 12000,
         "debug.fixedSize": null,
@@ -185,37 +184,11 @@ export class Config extends EventEmitter {
         ],
     }
 
-    private DefaultPlatformConfig = Platform.isWindows() ? this.WindowsConfig : Platform.isLinux() ? this.LinuxConfig : this.MacConfig
-
-    private configChanged: EventEmitter = new EventEmitter()
-
-    private Config: IConfigValues = null
+    protected DefaultPlatformConfig = Platform.isWindows() ? this.WindowsConfig : Platform.isLinux() ? this.LinuxConfig : this.MacConfig // tslint:disable-line member-ordering
 
     constructor() {
         super()
-
-        Performance.mark("Config.load.start")
-
-        this.applyConfig()
-        // use watch() on the directory rather than on config.js because it watches
-        // file references and changing a file in Vim typically saves a tmp file
-        // then moves it over to the original filename, causing watch() to lose its
-        // reference. Instead, watch() can watch the folder for the file changes
-        // and continue to fire when file references are swapped out.
-        // Unfortunately, this also means the 'change' event fires twice.
-        // I could use watchFile() but that polls every 5 seconds.  Not ideal.
-        if (fs.existsSync(this.getUserFolder())) {
-            fs.watch(this.getUserFolder(), (event, filename) => {
-                if (event === "change" && filename === "config.js") {
-                    // invalidate the Config currently stored in cache
-                    delete global["require"].cache[global["require"].resolve(this.userJsConfig)] // tslint:disable-line no-string-literal
-                    this.applyConfig()
-                    this.notifyListeners()
-                }
-            })
-        }
-
-        Performance.mark("Config.load.end")
+        this.loadConfig()
     }
 
     public hasValue(configValue: keyof IConfigValues): boolean {
@@ -223,11 +196,11 @@ export class Config extends EventEmitter {
     }
 
     public getValue<K extends keyof IConfigValues>(configValue: K) {
-        return this.Config[configValue]
+        return this.ConfigValue[configValue]
     }
 
     public getValues(): IConfigValues {
-        return cloneDeep(this.Config)
+        return cloneDeep(this.ConfigValue)
     }
 
     public getUserFolder(): string {
@@ -240,39 +213,6 @@ export class Config extends EventEmitter {
 
     public unregisterListener(callback: Function): void {
         this.configChanged.removeListener("config-change", callback)
-    }
-    // Emitting event is not enough, at startup nobody's listening yet
-    // so we can't emit the parsing error to anyone when it happens
-    public getParsingError(): Error | null {
-        const maybeError = this.getUserRuntimeConfig()
-        return isError(maybeError) ? maybeError : null
-    }
-
-    private applyConfig(): void {
-        let userRuntimeConfigOrError = this.getUserRuntimeConfig()
-        if (isError(userRuntimeConfigOrError)) {
-            this.emit("logError", userRuntimeConfigOrError)
-            this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig}
-        } else {
-            this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfigOrError}
-        }
-    }
-    private getUserRuntimeConfig(): IConfigValues | Error {
-        let userRuntimeConfig: IConfigValues | null = null
-        let error: Error | null = null
-        if (fs.existsSync(this.userJsConfig)) {
-            try {
-                userRuntimeConfig = global["require"](this.userJsConfig) // tslint:disable-line no-string-literal
-            } catch (e) {
-                e.message = "Failed to parse " + this.userJsConfig + ":\n" + (<Error>e).message
-                error = e
-            }
-        }
-        return error ? error : userRuntimeConfig
-    }
-
-    private notifyListeners(): void {
-        this.configChanged.emit("config-change")
     }
 
 }
