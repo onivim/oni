@@ -69,8 +69,9 @@ export class QuickOpen {
     }
 
     public async show() {
-        // reset list
+        // reset list and show loading indicator
         this._loadedItems = []
+        this._showLoading()
 
         const config = Config.instance()
         const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
@@ -125,6 +126,7 @@ export class QuickOpen {
     }
 
     public async showBufferLines() {
+        this._showLoading()
         let nu = 0
 
         const options = this._bufferUpdates.lines.map((line: string) => {
