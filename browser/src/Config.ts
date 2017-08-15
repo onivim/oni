@@ -106,14 +106,16 @@ export interface IConfigValues {
     "tabs.showVimTabs": boolean
 }
 
+const noop = () => { } // tslint:disable-line no-empty
+
 export class Config extends EventEmitter {
 
     public userJsConfig = path.join(this.getUserFolder(), "config.js")
 
     private DefaultConfig: IConfigValues = {
 
-        activate: () => { },
-        deactivate: () => { },
+        activate: noop,
+        deactivate: noop,
 
         "debug.incrementalRenderRegions": false,
         "debug.maxCellsToRender": 12000,
