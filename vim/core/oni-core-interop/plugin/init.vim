@@ -11,6 +11,10 @@ function OniNotify(args)
     call rpcnotify(1, "oni_plugin_notify", a:args)
 endfunction
 
+function OniNoop()
+
+endfunction
+
 function OniNotifyBufferUpdate()
 
     if !exists("b:last_change_tick")
@@ -45,6 +49,14 @@ function OniOpenFile(strategy, file)
          exec ":e " . a:file
      endif
  endfunction
+
+" Prevent 'no matching autocommand' message if FocusLost/FocusGained
+" aren't registered
+augroup OniNoop
+    autocmd!
+    autocmd! FocusLost * :call OniNoop()
+    autocmd! FocusGained * :call OniNoop()
+augroup END
 
 augroup OniNotifyBufferUpdates
     autocmd!
