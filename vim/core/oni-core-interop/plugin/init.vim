@@ -49,6 +49,7 @@ function OniOpenFile(strategy, file)
 augroup OniNotifyBufferUpdates
     autocmd!
     autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
+    autocmd! BufEnter * :call OniNotifyBufferUpdate()
     autocmd! CursorMoved * :call OniNotifyBufferUpdate()
     autocmd! InsertLeave * :call OniNotifyBufferUpdate()
     autocmd! InsertChange * :call OniNotifyBufferUpdate()
