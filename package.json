@@ -61,7 +61,7 @@
       "files": [
         "bin/x86/**/*"
       ]
-    }
+  }
   },
   "scripts": {
     "build": "npm run build:browser && npm run build:plugins",
