@@ -51,7 +51,7 @@ const buildMenu = (mainWindow, loadInit) => {
                 label: 'Open File...',
                 click: (item, focusedWindow) => {
                     dialog.showOpenDialog(mainWindow, { properties: ['openFile', 'multiSelections'] }, (files) => {
-                        executeVimCommandForMultipleFiles(":tabnew", files)
+                        executeVimCommandForMultipleFiles(":tabnew ", files)
                     })
                 }
             },

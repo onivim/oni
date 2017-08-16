@@ -11,6 +11,10 @@ function OniNotify(args)
     call rpcnotify(1, "oni_plugin_notify", a:args)
 endfunction
 
+function OniNoop()
+
+endfunction
+
 function OniNotifyBufferUpdate()
 
     if !exists("b:last_change_tick")
@@ -51,9 +55,18 @@ augroup OniClipboard
     autocmd! TextYankPost * :call OniNotifyYank(v:event)
 augroup end
 
+" Prevent 'no matching autocommand' message if FocusLost/FocusGained
+" aren't registered
+augroup OniNoop
+    autocmd!
+    autocmd! FocusLost * :call OniNoop()
+    autocmd! FocusGained * :call OniNoop()
+augroup END
+
 augroup OniNotifyBufferUpdates
     autocmd!
     autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
+    autocmd! BufEnter * :call OniNotifyBufferUpdate()
     autocmd! CursorMoved * :call OniNotifyBufferUpdate()
     autocmd! InsertLeave * :call OniNotifyBufferUpdate()
     autocmd! InsertChange * :call OniNotifyBufferUpdate()
