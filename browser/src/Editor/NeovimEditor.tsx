@@ -79,12 +79,12 @@ export class NeovimEditor implements IEditor {
         const autoCompletion = new AutoCompletion(this._neovimInstance)
         const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
         const errorService = new Errors(this._neovimInstance)
-        const quickOpen = new QuickOpen(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
         const multiProcess = new MultiProcess()
         const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
         const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
+        const quickOpen = new QuickOpen(this._neovimInstance, this, bufferUpdates)
         this._tasks = new Tasks(outputWindow)
         registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
 
@@ -230,9 +230,11 @@ export class NeovimEditor implements IEditor {
                 if (key === "<esc>") {
                     UI.Actions.hidePopupMenu()
                 } else if (key === "<enter>") {
-                    UI.Actions.selectMenuItem(false)
+                    UI.Actions.selectMenuItem("e")
                 } else if (key === "<C-v>") {
-                    UI.Actions.selectMenuItem(true)
+                    UI.Actions.selectMenuItem("vsp")
+                } else if (key === "<C-s>") {
+                    UI.Actions.selectMenuItem("sp")
                 } else if (key === "<C-n>") {
                     UI.Actions.nextMenuItem()
                 } else if (key === "<C-p>") {
@@ -260,6 +262,8 @@ export class NeovimEditor implements IEditor {
                 this._commandManager.executeCommand("oni.editor.gotoDefinition", null)
             } else if (key === "<C-p>" && this._screen.mode === "normal") {
                 quickOpen.show()
+            } else if (key === "<C-/>" && this._screen.mode === "normal") {
+                quickOpen.showBufferLines()
             } else if (key === "<C-P>" && this._screen.mode === "normal") {
                 this._tasks.show()
             } else if (key === "<C-pageup>") {
@@ -312,6 +316,10 @@ export class NeovimEditor implements IEditor {
                 this._neovimInstance.command("exec \":tabe " + normalizePath(files.item(i).path) + "\"")
             }
         }
+    }
+
+    public executeCommand(command: string): void {
+        this._commandManager.executeCommand(command, null)
     }
 
     public init(filesToOpen: string[]): void {
