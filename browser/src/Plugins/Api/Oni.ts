@@ -16,6 +16,8 @@ import { Process } from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
+import { editorManager } from "./../../Services/EditorManager"
+
 import * as throttle from "lodash/throttle"
 
 const react = require("react") // tslint:disable-line no-var-requires
@@ -37,7 +39,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     private _configuration: Oni.Configuration
     private _dependencies: Dependencies
-    private _editor: Oni.Editor
     private _statusBar: StatusBar
     private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
@@ -62,8 +63,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._dependencies
     }
 
-    public get editor(): Oni.Editor {
-        return this._editor
+    public get editors(): Oni.EditorManager {
+        return editorManager
     }
 
     public get process(): Oni.Process {

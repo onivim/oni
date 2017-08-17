@@ -8,7 +8,16 @@
  * to the active editor, and managing transitions between editors.
  */
 
-export class EditorManager {
+export class EditorManager implements Oni.EditorManager {
+    private _activeEditor: Oni.Editor = null
+
+    public get activeEditor(): Oni.Editor {
+        return this._activeEditor
+    }
+
+    public setActiveEditor(editor: Oni.Editor) {
+        this._activeEditor = editor
+    }
 }
 
-export const editorManager = new EditorManager()
+export const editorManager: EditorManager = new EditorManager()
