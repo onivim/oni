@@ -15,3 +15,13 @@ export function nodeRequire(moduleName: string): any {
 }
 
 export const normalizePath = (fileName: string) => fileName.split("\\").join("/")
+
+// String methods
+
+// ReplaceAll adapted from SO:
+// https://stackoverflow.com/questions/15604140/replace-multiple-strings-with-multiple-other-strings
+export const replaceAll = (str: string, wordsToReplace: { [key: string]: string }) => {
+    const re = new RegExp(Object.keys(wordsToReplace).join("|"), "gi")
+
+    return str.replace(re, (matched) => wordsToReplace[matched.toLowerCase()])
+}
