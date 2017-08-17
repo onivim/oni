@@ -17,6 +17,7 @@ import { CallbackCommand, CommandManager } from "./CommandManager"
 export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance) => {
     const config = Config.instance()
     const commands = [
+        new CallbackCommand("editor.clipboard.paste", "Clipboard: Paste", "Paste clipboard contents into active text", () => pasteContents(neovimInstance)),
 
         // Debug
         new CallbackCommand("oni.debug.openDevTools", "Open DevTools", "Debug Oni and any running plugins using the Chrome developer tools", () => remote.getCurrentWindow().webContents.openDevTools()),
@@ -66,6 +67,19 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
     ]
 
     commands.forEach((c) => commandManager.registerCommand(c))
+}
+
+import { clipboard} from "electron"
+
+const pasteContents = (neovimInstance: INeovimInstance) => {
+    const textToPaste = clipboard.readText()
+    // TODO: Fix this
+    const sanitizedText = textToPaste
+                            .split("<")
+                            .join("<lt>")
+                            .split(">")
+                            .join("<gt>")
+    neovimInstance.input(sanitizedText)
 }
 
 const openFolder = (neovimInstance: INeovimInstance) => {

@@ -113,7 +113,9 @@ export class NeovimEditor implements IEditor {
         })
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
+            if (Config.instance().getValue("editor.clipboard.enabled")) {
                 clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+            }
         })
 
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
@@ -264,10 +266,11 @@ export class NeovimEditor implements IEditor {
                 }
             }
 
-            if (key === "<C-v>" && this._screen.mode === "insert") {
-                const textToPaste = clipboard.readText()
-                this._neovimInstance.input(textToPaste)
-                return
+            if (Config.instance().getValue("editor.clipboard.enabled")) {
+                if (key === "<C-v>" && this._screen.mode === "insert") {
+                    this._commandManager.executeCommand("editor.clipboard.paste", null)
+                    return
+                }
             }
 
             if (key === "<f12>") {
