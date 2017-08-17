@@ -1,6 +1,47 @@
+import { IDeltaCellPosition } from "./../DeltaRegionTracker"
+import { Grid } from "./../Grid"
+
 export interface ISpan {
     startX: number
     endX: number
+}
+
+export type RowMap = { [key: number]: ISpan[] }
+
+export function getSpansToEdit(grid: Grid<ISpan>, cells: IDeltaCellPosition[]): RowMap {
+    const rowToSpans: RowMap = {}
+    cells.forEach((cell) => {
+        const { x, y } = cell
+
+        const info = grid.getCell(x, y)
+        const currentRow = rowToSpans[y] || []
+
+        if (!info) {
+            currentRow.push({
+                startX: x,
+                endX: x + 1,
+            })
+        } else {
+            currentRow.push({
+                startX: info.startX,
+                endX: info.endX,
+            })
+
+            grid.setRegion(info.startX, y, info.endX - info.startX, 1, null)
+        }
+
+        rowToSpans[y] = currentRow
+    })
+    return collapseSpanMap(rowToSpans)
+}
+
+export function collapseSpanMap(currentSpanMap: RowMap): RowMap {
+    const outMap = {}
+    for (let k of Object.keys(currentSpanMap)) {
+        outMap[k] = collapseSpans(currentSpanMap[k])
+    }
+
+    return outMap
 }
 
 export function collapseSpans(spans: ISpan[] | undefined): ISpan[] {
