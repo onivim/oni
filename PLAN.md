@@ -1,1 +1,0 @@
-- Document setting + clipboard integration behavior
