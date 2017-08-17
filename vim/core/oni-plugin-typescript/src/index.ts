@@ -10,7 +10,6 @@
 import * as os from "os"
 import * as path from "path"
 
-import * as _ from "lodash"
 import { CompletionItemKind, Diagnostic, Position, Range, SymbolKind } from "vscode-languageserver-types"
 
 import { QuickInfo } from "./QuickInfo"
@@ -265,7 +264,7 @@ export const activate = (Oni) => {
         Oni.diagnostics.setErrors("typescript-compiler", fileName, errors)
     })
 
-    const updateFile = _.throttle((bufferFullPath, stringContents) => {
+    const updateFile = Oni.helpers.throttle((bufferFullPath, stringContents) => {
         host.updateFile(bufferFullPath, stringContents)
     }, 50)
 
