@@ -12,9 +12,9 @@ import { PluginManager } from "./../Plugins/PluginManager"
 
 import * as UI from "./../UI/index"
 
-import { replaceAll } from "./../Utility"
-
 import { CallbackCommand, CommandManager } from "./CommandManager"
+
+import { replaceAll } from "./../Utility"
 
 export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance) => {
     const config = Config.instance()
@@ -75,7 +75,7 @@ import { clipboard} from "electron"
 
 const pasteContents = (neovimInstance: INeovimInstance) => {
     const textToPaste = clipboard.readText()
-    const sanitizedText = replaceAll(textToPaste, { "<": "<lt>", ">": "<gt>" })
+    const sanitizedText = replaceAll(textToPaste, { "<": "<lt>" })
     neovimInstance.input(sanitizedText)
 }
 
