@@ -8,12 +8,8 @@ import * as path from "path"
 import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
-export type RenderStrategy = "canvas" | "dom"
-
 export interface IConfigValues {
     // Debug settings
-    "debug.incrementalRenderRegions": boolean
-    "debug.maxCellsToRender": number
     "debug.fixedSize": {
         rows: number,
         columns: number,
@@ -72,8 +68,6 @@ export interface IConfigValues {
     "editor.fontSize": string
     "editor.fontFamily": string // Platform specific
 
-    "editor.renderer": RenderStrategy
-
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
 
@@ -110,8 +104,6 @@ export class Config extends EventEmitter {
     public userJsConfig = path.join(this.getUserFolder(), "config.js")
 
     private DefaultConfig: IConfigValues = {
-        "debug.incrementalRenderRegions": false,
-        "debug.maxCellsToRender": 12000,
         "debug.fixedSize": null,
 
         "oni.audio.bellUrl": path.join(__dirname, "audio", "beep.wav"),
@@ -143,8 +135,6 @@ export class Config extends EventEmitter {
         "editor.fontFamily": "",
 
         "editor.quickOpen.execCommand": null,
-
-        "editor.renderer": "canvas",
 
         "editor.scrollBar.visible": true,
 
