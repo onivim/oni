@@ -110,10 +110,7 @@ let context.windowTopLine = line("w0")
 let context.windowBottomLine = line("w$")
 let context.byte = line2byte(line(".")) + col(".")
 let context.filetype = eval("&filetype")
-
-if exists("b:last_change_tick")
-    let context.version = b:last_change_tick
-endif
+let context.modified = &modified
 
 return context
 endfunction

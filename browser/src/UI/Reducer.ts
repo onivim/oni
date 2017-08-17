@@ -175,7 +175,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 ...s.byId,
                 [a.payload.id]: <State.IBuffer>{
                     ...currentItem,
-                    lastSaveVersion: a.payload.version,
+                    modified: a.payload.modified,
                 },
             }
 
@@ -186,16 +186,11 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
         case "BUFFER_UPDATE":
             const currentItem3: any = s.byId[a.payload.id] || {}
 
-            // If the last save version hasn't been set, this means it is the first update,
-            // and should clamp to the incoming version
-            const lastSaveVersion = currentItem3.lastSaveVersion || a.payload.version
-
             byId = {
                 ...s.byId,
                 [a.payload.id]: <State.IBuffer>{
                     ...currentItem3,
-                    version: a.payload.version,
-                    lastSaveVersion,
+                    modified: a.payload.modified,
                     totalLines: a.payload.totalLines,
                 },
             }
