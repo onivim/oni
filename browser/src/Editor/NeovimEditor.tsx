@@ -13,7 +13,7 @@ import { ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance, NeovimWindowManager } from "./../neovim"
-import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
+import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import * as Config from "./../Config"
@@ -73,7 +73,7 @@ export class NeovimEditor implements IEditor {
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
 
-        this._renderer = this._config.getValue("editor.renderer") === "canvas" ? new CanvasRenderer() : new DOMRenderer()
+        this._renderer = new CanvasRenderer()
 
         // Services
         const autoCompletion = new AutoCompletion(this._neovimInstance)
