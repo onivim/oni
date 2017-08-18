@@ -46,7 +46,7 @@ export class EditorManager implements Oni.EditorManager {
  */
 export class ActiveEditor implements Oni.Editor {
     private _activeEditor: Oni.Editor
-    private _onModeChanged: Event<string>
+    private _onModeChanged: Event<string> = new Event<string>()
     private _subscriptions: IDisposable[] = []
 
     /**

@@ -3,15 +3,14 @@ import { EventEmitter } from "events"
 
 import * as types from "vscode-languageserver-types"
 
-export interface EventCallback<T> {
-    (value: T): void
-}
-
-export interface IEvent<T> {
-    subscribe(callback: EventCallback<T>): IDisposable
-}
-
 declare namespace Oni {
+    export interface IDisposable {
+        dispose(): void
+    }
+
+    export interface IEvent<T> {
+        subscribe(callback: EventCallback<T>): IDisposable
+    }
 
     export interface EventCallback<T> {
         (val: T): void
