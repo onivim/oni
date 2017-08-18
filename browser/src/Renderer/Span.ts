@@ -1,92 +1,44 @@
+import { IDeltaCellPosition } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
-import { IElementFactory } from "./ElementFactory"
 
 export interface ISpan {
     startX: number
     endX: number
 }
 
-export interface ISpanElementInfo extends ISpan {
-    element?: HTMLElement | null
-    foregroundColor?: string | undefined
-    backgroundColor?: string | undefined
-    canCombine: boolean
+export type RowMap = { [key: number]: ISpan[] }
+
+export function getSpansToEdit(grid: Grid<ISpan>, cells: IDeltaCellPosition[]): RowMap {
+    const rowToSpans: RowMap = {}
+    cells.forEach((cell) => {
+        const { x, y } = cell
+
+        const info = grid.getCell(x, y)
+        const currentRow = rowToSpans[y] || []
+
+        if (!info) {
+            currentRow.push({
+                startX: x,
+                endX: x + 1,
+            })
+        } else {
+            currentRow.push({
+                startX: info.startX,
+                endX: info.endX,
+            })
+
+            grid.setRegion(info.startX, y, info.endX - info.startX, 1, null)
+        }
+
+        rowToSpans[y] = currentRow
+    })
+    return collapseSpanMap(rowToSpans)
 }
 
-/**
- * Checks if it is possible to combine spans at a boundary. Spans can be combined if they have
- * they have the same styling (foreground color and background color). The location will be checked
- * against the span before it
- */
-export function combineSpansAtBoundary(x: number, y: number, fontWidthInPixels: number, grid: Grid<ISpanElementInfo>, elementFactory: IElementFactory): void {
-
-    const prevCellX = x - 1
-
-    if (prevCellX < 0) {
-        return
-    }
-
-    const previousSpan = grid.getCell(prevCellX, y)
-    const currentSpan = grid.getCell(x, y)
-
-    // If there isn't a span already at one of the positions, it can't be combined
-    if (!previousSpan || !currentSpan) {
-        return
-    }
-
-    if (!previousSpan.canCombine || !currentSpan.canCombine) {
-        return
-    }
-
-    // Check if already combined..
-    if (previousSpan.element === currentSpan.element) {
-        return
-    }
-
-    const previousElement = previousSpan.element
-    const currentElement = currentSpan.element
-
-    if (!previousElement || !currentElement) {
-        return
-    }
-
-    if ((previousSpan.foregroundColor !== currentSpan.foregroundColor)
-        || (previousSpan.backgroundColor !== currentSpan.backgroundColor)) {
-        return
-    }
-
-    if (previousElement.className !== currentElement.className) {
-        return
-    }
-
-    // At this point, we have a candidate to combine
-
-    const previousText = previousElement.textContent
-    const currentText = currentElement.textContent
-
-    const combinedText = previousText + currentText
-    previousElement.textContent = combinedText
-
-    elementFactory.recycle(currentElement)
-
-    previousElement.style.width = (fontWidthInPixels * combinedText.length) + "px"
-
-    const updatedSpan = {
-        startX: previousSpan.startX,
-        endX: currentSpan.endX,
-        element: previousElement,
-        backgroundColor: previousSpan.backgroundColor,
-        foregroundColor: previousSpan.foregroundColor,
-        canCombine: true,
-    }
-
-    grid.setRegion(previousSpan.startX, y, currentSpan.endX - previousSpan.startX, 1, updatedSpan)
-}
-
-export function collapseSpanMap(currentSpanMap: Map<number, ISpan[]>): Map<number, ISpan[]> {
-    const outMap = new Map<number, ISpan[]>()
-    for (let k of currentSpanMap.keys()) {
-        outMap.set(k, collapseSpans(currentSpanMap.get(k)))
+export function collapseSpanMap(currentSpanMap: RowMap): RowMap {
+    const outMap = {}
+    for (let k of Object.keys(currentSpanMap)) {
+        outMap[k] = collapseSpans(currentSpanMap[k])
     }
 
     return outMap

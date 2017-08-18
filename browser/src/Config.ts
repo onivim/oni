@@ -8,16 +8,12 @@ import * as path from "path"
 import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
-export type RenderStrategy = "canvas" | "dom"
-
 export interface IConfigValues {
 
     "activate": (oni: Oni.Plugin.Api) => void
     "deactivate": () => void
 
     // Debug settings
-    "debug.incrementalRenderRegions": boolean
-    "debug.maxCellsToRender": number
     "debug.fixedSize": {
         rows: number,
         columns: number,
@@ -54,6 +50,9 @@ export interface IConfigValues {
     // glob pattern of files to exclude from fuzzy finder (Ctrl-P)
     "oni.exclude": string[]
 
+    // bookmarks to open if opened in install dir
+    "oni.bookmarks": string[]
+
     // Editor settings
 
     "editor.backgroundOpacity": number
@@ -72,8 +71,6 @@ export interface IConfigValues {
     "editor.fontLigatures": boolean
     "editor.fontSize": string
     "editor.fontFamily": string // Platform specific
-
-    "editor.renderer": RenderStrategy
 
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
@@ -113,12 +110,9 @@ export class Config extends EventEmitter {
     public userJsConfig = path.join(this.getUserFolder(), "config.js")
 
     private DefaultConfig: IConfigValues = {
-
         activate: noop,
         deactivate: noop,
 
-        "debug.incrementalRenderRegions": false,
-        "debug.maxCellsToRender": 12000,
         "debug.fixedSize": null,
 
         "oni.audio.bellUrl": path.join(__dirname, "audio", "beep.wav"),
@@ -132,6 +126,7 @@ export class Config extends EventEmitter {
         "oni.hideMenu": false,
 
         "oni.exclude": ["**/node_modules/**"],
+        "oni.bookmarks": [],
 
         "editor.backgroundOpacity": 1.0,
         "editor.backgroundImageUrl": null,
@@ -149,8 +144,6 @@ export class Config extends EventEmitter {
         "editor.fontFamily": "",
 
         "editor.quickOpen.execCommand": null,
-
-        "editor.renderer": "canvas",
 
         "editor.scrollBar.visible": true,
 
