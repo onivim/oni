@@ -164,3 +164,29 @@ function OniApiInfo()
         call OniNotify(["api_info",{"api_level":0}])
     endif
 endfunction
+
+function! s:GotoNextWindow( direction )
+  let l:prevWinNr = winnr()
+  execute 'wincmd' a:direction
+  return winnr() != l:prevWinNr
+endfunction
+
+function! OniNextWindow( direction )
+  if ! s:GotoNextWindow(a:direction)
+    if a:direction == 'h'
+      echo "left"
+    elseif a:direction == 'j'
+      echo "down"
+    elseif a:direction == 'k'
+      echo "up"
+    elseif a:direction == 'l'
+      echo "right"
+    endif
+    execute 'wincmd' a:direction
+  endif
+endfunction
+
+nnoremap <silent> <C-w><C-h> :<C-u>call OniNextWindow('h')<CR>
+nnoremap <silent> <C-w>j :<C-u>call <SID>OniNextWindow('j')<CR>
+nnoremap <silent> <C-w>k :<C-u>call <SID>OniNextWindow('k')<CR>
+nnoremap <silent> <C-w>l :<C-u>call <SID>OniNextWindow('l')<CR>
