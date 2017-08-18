@@ -68,14 +68,13 @@ export const getTextFromContents = (contents: types.MarkedString | types.MarkedS
 
 export const bufferUpdateToTextDocumentItem = (args: Oni.BufferUpdateContext): types.TextDocumentItem => {
     const lines = args.bufferLines
-    const { bufferFullPath, filetype/* , modified  */} = args.eventContext
+    const { bufferFullPath, filetype, version } = args.eventContext
     const text = lines.join(os.EOL)
 
     return {
         uri: wrapPathInFileUri(bufferFullPath),
         languageId: filetype,
-        // modified,
-        version: 0,
+        version,
         text,
     }
 }
@@ -102,13 +101,13 @@ export const eventContextToTextDocumentPositionParams = (args: Oni.EventContext)
     },
 })
 
-export const createDidChangeTextDocumentParams = (bufferFullPath: string, lines: string[], modified: number) => {
+export const createDidChangeTextDocumentParams = (bufferFullPath: string, lines: string[], version: number) => {
     const text = lines.join(os.EOL)
 
     return {
         textDocument: {
             uri: wrapPathInFileUri(bufferFullPath),
-            // modified,
+            version
         },
         contentChanges: [{
             text,
@@ -124,7 +123,7 @@ export const incrementalBufferUpdateToDidChangeTextDocumentParams = (args: Oni.I
     return {
         textDocument: {
             uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
-            // modified: args.eventContext.modified,
+            version: args.eventContext.version
         },
         contentChanges: [{
             range: types.Range.create(lineNumber - 1, 0, lineNumber - 1, previousLineLength),

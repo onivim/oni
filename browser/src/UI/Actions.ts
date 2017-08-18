@@ -34,7 +34,8 @@ export interface IBufferUpdateAction {
     type: "BUFFER_UPDATE",
     payload: {
         id: number,
-        modified: number,
+        modified: boolean,
+        version: number,
         totalLines: number,
     }
 }
@@ -43,7 +44,8 @@ export interface IBufferSaveAction {
     type: "BUFFER_SAVE",
     payload: {
         id: number,
-        modified: number,
+        modified: boolean,
+        version: number
     }
 }
 

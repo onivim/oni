@@ -470,7 +470,7 @@ export class LanguageClient {
             let changeTextDocumentParams
 
             if (this._serverCapabilities.textDocumentSync === Helpers.TextDocumentSyncKind.Full) {
-                changeTextDocumentParams = Helpers.createDidChangeTextDocumentParams(args.eventContext.bufferFullPath, this._currentBuffer, args.eventContext.modified)
+                changeTextDocumentParams = Helpers.createDidChangeTextDocumentParams(args.eventContext.bufferFullPath, this._currentBuffer, args.eventContext.version)
             } else {
                 changeTextDocumentParams = Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine)
             }
@@ -494,7 +494,7 @@ export class LanguageClient {
             })
         } else {
             this._connection.sendNotification(Helpers.ProtocolConstants.TextDocument.DidChange,
-                Helpers.createDidChangeTextDocumentParams(bufferFullPath, lines, args.eventContext.modified))
+                Helpers.createDidChangeTextDocumentParams(bufferFullPath, lines, args.eventContext.version))
         }
 
         return Promise.resolve(null)

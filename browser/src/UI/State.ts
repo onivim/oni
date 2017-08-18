@@ -95,7 +95,9 @@ export interface IBufferState {
 export interface IBuffer {
     id: number
     file: string
-    modified: number
+    modified: boolean
+    lastSaveVersion?: number
+    version?: number
     totalLines: number
 }
 

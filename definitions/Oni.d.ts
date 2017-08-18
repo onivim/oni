@@ -80,7 +80,8 @@ declare namespace Oni {
         bufferTotalLines: number
         bufferNumber: number
 
-        modified: number
+        modified: boolean
+        version: number
         line: number
 
         /**

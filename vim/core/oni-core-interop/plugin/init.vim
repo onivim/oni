@@ -112,6 +112,10 @@ let context.byte = line2byte(line(".")) + col(".")
 let context.filetype = eval("&filetype")
 let context.modified = &modified
 
+if exists("b:last_change_tick")
+    let context.version = b:last_change_tick
+endif
+
 return context
 endfunction
 

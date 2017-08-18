@@ -30,20 +30,22 @@ export const bufferEnter = (id: number, file: string, totalLines: number) => ({
     },
 })
 
-export const bufferUpdate = (id: number, modified: number, totalLines: number) => ({
+export const bufferUpdate = (id: number, modified: boolean, version:number, totalLines: number) => ({
     type: "BUFFER_UPDATE",
     payload: {
         id,
         modified,
+        version,
         totalLines,
     },
 })
 
-export const bufferSave = (id: number, modified: number) => ({
+export const bufferSave = (id: number, modified: boolean, version: number) => ({
     type: "BUFFER_SAVE",
     payload: {
         id,
         modified,
+        version,
     },
 })
 

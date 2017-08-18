@@ -12,12 +12,16 @@ export class BufferUpdates {
 
     private _lastArgs: Oni.EventContext
     private _lastBufferLines: string[] = []
-    private _modified: number = 0
+    private _modified: boolean = false
+    private _lastBufferVersion: number = -1
     private _canSendIncrementalUpdates: boolean = false
 
-    // if 1 we have been modified, 0 means we aren't
-    public get modified(): number {
+    public get modified(): boolean {
         return this._modified
+    }
+
+    public get version(): number {
+        return this._lastBufferVersion
     }
 
     public get lines(): string[] {
@@ -44,6 +48,7 @@ export class BufferUpdates {
             this._lastArgs = args
             this._lastBufferLines = bufferLines
             this._modified = args.modified
+            this._lastBufferVersion = args.version
 
             // If we can send incremental updates, and the line hasn't changed, just send the incremental change
             if (this._canSendIncrementalUpdates && lastLine === args.line) {
@@ -58,6 +63,7 @@ export class BufferUpdates {
             this._lastArgs = args
             this._lastBufferLines[lineNumber - 1] = bufferLine
             this._modified = args.modified
+            this._lastBufferVersion = args.version
 
             this._pluginManager.notifyBufferUpdateIncremental(args, lineNumber, bufferLine)
         })
