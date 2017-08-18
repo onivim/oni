@@ -43,6 +43,10 @@ import { InstallHelp } from "./../UI/components/InstallHelp"
 
 import { NeovimSurface } from "./NeovimSurface"
 
+import { clipboard} from "electron"
+
+import * as Platform from "./../Platform"
+
 export class NeovimEditor implements IEditor {
 
     private _neovimInstance: NeovimInstance
@@ -108,6 +112,12 @@ export class NeovimEditor implements IEditor {
 
         this._windowManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
             UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
+        })
+
+        this._neovimInstance.onYank.subscribe((yankInfo) => {
+            if (Config.instance().getValue("editor.clipboard.enabled")) {
+                clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+            }
         })
 
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
@@ -255,6 +265,32 @@ export class NeovimEditor implements IEditor {
                 } else if (key === "<C-p>") {
                     UI.Actions.previousCompletion()
                     return
+                }
+            }
+
+            // TODO: Untangle these nested conditionals to use our new input-binding strategy :)
+            if (Config.instance().getValue("editor.clipboard.enabled")) {
+
+                // Handling the platform-default cases should be done when we initialize
+                // default key bindings, prior to loading hte config
+                if (Platform.isLinux() || Platform.isWindows()) {
+                    if (key === "<C-c>" && this._screen.mode === "visual") {
+                        this._neovimInstance.input("y")
+                        return
+                    } else if (key === "<C-v>" && this._screen.mode === "insert") {
+                        this._commandManager.executeCommand("editor.clipboard.paste", null)
+                        return
+                    }
+                } else {
+                    if (key === "<M-c>" && this._screen.mode === "visual") {
+                        // Make the <M-c> case work the same as <C-c> case on Windows..
+                        // execute out of visual mode, but yank
+                        this._neovimInstance.input("y")
+                        return
+                    } else if (key === "<M-v>" && this._screen.mode === "insert") {
+                        this._commandManager.executeCommand("editor.clipboard.paste", null)
+                        return
+                    }
                 }
             }
 

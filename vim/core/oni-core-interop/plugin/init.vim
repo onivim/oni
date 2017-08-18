@@ -50,6 +50,11 @@ function OniOpenFile(strategy, file)
      endif
  endfunction
 
+augroup OniClipboard
+    autocmd!
+    autocmd! TextYankPost * :call OniNotifyYank(v:event)
+augroup end
+
 " Prevent 'no matching autocommand' message if FocusLost/FocusGained
 " aren't registered
 augroup OniNoop
@@ -154,6 +159,10 @@ function OniConnect()
     " prior to the UI attaching. See #122
     call OniNotifyEvent("BufEnter")
     call OniNotifyBufferUpdate()
+endfunction
+
+function OniNotifyYank(yankEvent)
+    call OniNotify(["oni_yank", a:yankEvent])
 endfunction
 
 

@@ -11,12 +11,6 @@ export class Keyboard extends EventEmitter {
             if (mappedKey) {
                 this.emit("keydown", mappedKey)
             }
-
-            // Temporary workaround to block closing Window
-            // The default electron menu maps C-w to close the window,
-            // so we need to stop that.
-            //
-            // Later, the menu should be customized to fix this.
         })
     }
 
@@ -42,6 +36,7 @@ export class Keyboard extends EventEmitter {
         }
 
         if (evt.metaKey) {
+            mappedKey = "M-" + mappedKey
             evt.preventDefault()
         }
 

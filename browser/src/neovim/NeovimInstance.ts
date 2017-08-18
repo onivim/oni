@@ -2,6 +2,8 @@ import { remote } from "electron"
 import { EventEmitter } from "events"
 import * as path from "path"
 
+import { Event, IEvent } from "./../Event"
+
 import { Buffer, IBuffer } from "./Buffer"
 import { NeovimBufferReference, NeovimWindowReference } from "./MsgPack"
 import { startNeovim } from "./NeovimProcessSpawner"
@@ -15,9 +17,26 @@ import { measureFont } from "./../Font"
 import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
 
+export interface INeovimYankInfo {
+    operator: string
+    regcontents: string[]
+    regname: string
+    regtype: string
+}
+
+export interface INeovimApiVersion {
+    major: number
+    minor: number
+    patch: number
+}
+
 export interface INeovimInstance {
     cursorPosition: IPosition
     quickFix: IQuickFixList
+
+    // Events
+    onYank: IEvent<INeovimYankInfo>
+
     screenToPixels(row: number, col: number): IPixelPosition
 
     /**
@@ -45,6 +64,8 @@ export interface INeovimInstance {
      */
     eval(expression: string): Promise<any>
 
+    // TODO:
+    // - Refactor remaining events into strongly typed events, as part of the interface
     on(event: string, handler: Function): void
 
     setFont(fontFamily: string, fontSize: string): void
@@ -62,12 +83,6 @@ export interface INeovimInstance {
     open(fileName: string): Promise<void>
 
     executeAutoCommand(autoCommand: string): Promise<void>
-}
-
-export interface INeovimApiVersion {
-    major: number
-    minor: number
-    patch: number
 }
 
 /**
@@ -93,8 +108,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _pluginManager: PluginManager
     private _quickFix: QuickFixList
 
+    private _onYank: Event<INeovimYankInfo> = new Event<INeovimYankInfo>()
+
     public get quickFix(): IQuickFixList {
         return this._quickFix
+    }
+
+    public get onYank(): IEvent<INeovimYankInfo> {
+        return this._onYank
     }
 
     constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
@@ -149,6 +170,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             const bufferLines = args[0][1]
 
                             this.emit("buffer-update", eventContext, bufferLines)
+                        } else if (pluginMethod === "oni_yank") {
+                            this._onYank.dispatch(args[0][0])
                         } else if (pluginMethod === "event") {
                             const eventName = args[0][0]
                             const eventContext = args[0][1]

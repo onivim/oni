@@ -55,6 +55,14 @@ export interface IConfigValues {
     "editor.backgroundImageUrl": string
     "editor.backgroundImageSize": string
 
+    // Setting this to true enables yank integration with Oni
+    // When true, and text is yanked / deleted, that text will
+    // automatically be put on the clipboard.
+    //
+    // In addition, this enables <C-v> and <Cmd-v> behavior
+    // in paste from clipboard in insert mode.
+    "editor.clipboard.enabled": boolean
+
     "editor.quickInfo.enabled": boolean
     // Delay (in ms) for showing QuickInfo, when the cursor is on a term
     "editor.quickInfo.delay": number
@@ -122,6 +130,8 @@ export class Config extends EventEmitter {
         "editor.backgroundOpacity": 1.0,
         "editor.backgroundImageUrl": null,
         "editor.backgroundImageSize": "initial",
+
+        "editor.clipboard.enabled": true,
 
         "editor.quickInfo.enabled": true,
         "editor.quickInfo.delay": 500,

@@ -28,6 +28,7 @@
         - [Python](#python)
         - [Reason and OCaml](#reason-and-ocaml)
     - [Configuration](#configuration)
+        - [Clipboard Integration](#clipboard-integration)
     - [Extensibility](#extensibility)
     - [FAQ](#faq)
 - [Roadmap](#roadmap)
@@ -353,6 +354,7 @@ A few interesting configuration options to set:
 - `oni.loadInitVim` - This determines whether the user's `init.vim` is loaded. Use caution when setting this to `true` and setting `oni.useDefaultConfig` to true, as there could be conflicts with the default configuration.
 - `oni.exclude` - Glob pattern of files to exclude from Fuzzy Finder (Ctrl-P).  Defaults to `["**/node_modules/**"]`
 - `oni.hideMenu` - (default: `false`) If true, hide menu bar.  When hidden, menu bar can still be displayed with `Alt`.
+- `editor.clipboard.enabled` - (default: `true`) Enables / disables system [clipboard integration](#clipboard-integration).
 - `editor.fontSize` - Font size
 - `editor.fontFamily` - Font family
 - `editor.fontLigatures` - (default: `true`). If true, ligatures are enabled.
@@ -364,6 +366,17 @@ A few interesting configuration options to set:
 See the `Config.ts` file for other interesting values to set.
 
 In VimL, the `g:gui_oni` variable will be set to `1`, and can be validated with `if exists("g:gui_oni")` in VimL.
+
+#### Clipboard Integration
+
+Oni, by default, integrates with the system clipboard. This is controlled by the `editor.clipboard.enabled` option.
+
+The behavior is as follows:
+- All _yanks or deletes_ will be pushed to the system clipboard.
+- Pressing <C-c> on Windows/Linux (<M-c> on OSX) in _visual mode_ will copy the selected text to the system clipboard.
+- Pressing <C-v> on Windows/Linux (<M-v> on OSX) in _insert mode_ will paste the text from the system clipboard.
+
+If you have custom behavior or functionality bound to `<C-c>`, `<C-v>` (or `<M-c>`, `<M-v>` on OSX), you may wish to disable this behavior by setting `editor.clipboard.enabled` to `false`.
 
 ### Extensibility
 
