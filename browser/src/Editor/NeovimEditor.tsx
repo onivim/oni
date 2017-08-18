@@ -16,6 +16,7 @@ import { NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
+import { Event, IEvent } from "./../Event"
 import * as Config from "./../Config"
 
 import { PluginManager } from "./../Plugins/PluginManager"
@@ -54,6 +55,9 @@ export class NeovimEditor implements IEditor {
     private _pendingAnimationFrame: boolean = false
     private _element: HTMLElement
 
+    private _currentMode: string
+    private _onModeChangedEvent: Event<string> = new Event<string>()
+
     // Services
     private _tasks: Tasks
 
@@ -61,6 +65,14 @@ export class NeovimEditor implements IEditor {
     private _windowManager: NeovimWindowManager
 
     private _errorStartingNeovim: boolean = false
+
+    public get mode(): string {
+        return this._currentMode
+    }
+
+    public get onModeChanged(): IEvent<string> {
+        return this._onModeChangedEvent
+    }
 
     constructor(
         private _commandManager: CommandManager,
@@ -356,6 +368,9 @@ export class NeovimEditor implements IEditor {
 
     private _onModeChanged(newMode: string): void {
         UI.Actions.setMode(newMode)
+
+        this._currentMode = newMode
+        this._onModeChangedEvent.dispatch(newMode)
 
         if (newMode === "normal") {
             UI.Actions.showCursorLine()

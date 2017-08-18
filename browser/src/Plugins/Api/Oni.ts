@@ -6,7 +6,6 @@ import { IPluginChannel } from "./Channel"
 import { Commands } from "./Commands"
 import { Configuration } from "./Configuration"
 import { Diagnostics } from "./Diagnostics"
-import { Editor } from "./Editor"
 import { StatusBar } from "./StatusBar"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
@@ -93,7 +92,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._configuration = new Configuration()
         this._diagnostics = new Diagnostics(this._channel)
         this._dependencies = new Dependencies()
-        this._editor = new Editor(this._channel)
         this._commands = new Commands(this._channel)
         this._statusBar = new StatusBar(this._channel)
         this._ui = new Ui(react)

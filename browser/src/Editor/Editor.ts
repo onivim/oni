@@ -1,3 +1,5 @@
+import { IEvent } from "./../Event"
+
 /**
  * Interface that describes an Editor -
  * an editor handles rendering and input
@@ -5,7 +7,13 @@
  */
 export interface IEditor {
 
-    init(filesToOpen: string[]): void
+    // Members
+    mode: string
 
+    // Events
+    onModeChanged: IEvent<string>
+
+    // Methods
+    init(filesToOpen: string[]): void
     render(): JSX.Element
 }
