@@ -165,6 +165,10 @@ function OniApiInfo()
     endif
 endfunction
 
+
+" Window navigation excerpt from:
+" http://blog.paulrugelhiatt.com/vim/2014/10/31/vim-tip-automatically-create-window-splits-with-movement.html
+
 function! s:GotoNextWindow( direction )
   let l:prevWinNr = winnr()
   execute 'wincmd' a:direction
