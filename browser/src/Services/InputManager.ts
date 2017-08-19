@@ -25,6 +25,9 @@ export class InputManager implements Oni.InputManager {
      */
     public bind(keyChord: string, action: ActionOrCommand, filterFunction?: () => boolean) {
         // tslint:disable-line no-empty-block
+
+        // TODO: add to existing binding
+        this.rebind(keyChord, action, filterFunction)
     }
 
     public rebind(keyChord: string, action: ActionOrCommand, filterFunction?: () => boolean) {

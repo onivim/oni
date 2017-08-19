@@ -19,7 +19,8 @@ declare namespace Oni {
     }
 
     export interface InputManager {
-        bind(keyChord: string, actionFunction: any, filterFunction: () => boolean)
+        bind(keyChord: string, actionFunction: any, filterFunction?: () => boolean)
+        rebind(keyChord: string, actionFunction: any, filterFunction?: () => boolean)
         unbind(keyChord: string)
         unbindAll()
     }

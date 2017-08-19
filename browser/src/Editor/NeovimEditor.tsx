@@ -25,9 +25,7 @@ import { BufferUpdates } from "./../Services/BufferUpdates"
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Errors } from "./../Services/Errors"
-import { Formatter } from "./../Services/Formatter"
 import { OutputWindow } from "./../Services/Output"
-import { QuickOpen } from "./../Services/QuickOpen"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { Tasks } from "./../Services/Tasks"
 import { WindowTitle } from "./../Services/WindowTitle"
@@ -84,12 +82,10 @@ export class NeovimEditor implements IEditor {
         const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
         const errorService = new Errors(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
-        const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
         const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
-        const quickOpen = new QuickOpen(this._neovimInstance, this, bufferUpdates)
         this._tasks = new Tasks(outputWindow)
-        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance)
+        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance, bufferUpdates)
 
         this._tasks.registerTaskProvider(commandManager)
         this._tasks.registerTaskProvider(errorService)
@@ -97,9 +93,7 @@ export class NeovimEditor implements IEditor {
         services.push(autoCompletion)
         services.push(bufferUpdates)
         services.push(errorService)
-        services.push(quickOpen)
         services.push(windowTitle)
-        services.push(formatter)
         services.push(syntaxHighlighter)
         services.push(outputWindow)
 
@@ -234,11 +228,6 @@ export class NeovimEditor implements IEditor {
                 return
             }
 
-            if (key === "<f3>") {
-                formatter.formatBuffer()
-                return
-            }
-
             if (UI.Selectors.isPopupMenuOpen()) {
                 if (key === "<esc>") {
                     UI.Actions.hidePopupMenu()
@@ -297,11 +286,7 @@ export class NeovimEditor implements IEditor {
                 }
             }
 
-            if (key === "<C-p>" && this._screen.mode === "normal") {
-                quickOpen.show()
-            } else if (key === "<C-/>" && this._screen.mode === "normal") {
-                quickOpen.showBufferLines()
-            } else if (key === "<C-P>" && this._screen.mode === "normal") {
+            if (key === "<C-P>" && this._screen.mode === "normal") {
                 this._tasks.show()
             } else {
                 this._neovimInstance.input(key)

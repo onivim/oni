@@ -8,8 +8,6 @@ import * as path from "path"
 import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
-import { inputManager } from "./Services/InputManager"
-
 export interface IConfigValues {
 
     "activate": (oni: Oni.Plugin.Api) => void
@@ -271,11 +269,14 @@ export class Config extends EventEmitter {
     }
 
     private _applyDefaultKeyBindings(oni: Oni.Plugin.Api): void {
-        inputManager.unbindAll()
+        oni.input.unbindAll()
 
-        inputManager.bind("<f12>", "oni.editor.gotoDefinition")
-        inputManager.bind("<C-pageup>", "oni.process.cyclePrevious")
-        inputManager.bind("<C-pagedown>", "oni.process.cycleNext")
+        oni.input.bind("<f3>", "language.formatter.formatDocument")
+        oni.input.bind("<f12>", "oni.editor.gotoDefinition")
+        oni.input.bind("<C-p>", "quickOpen.show" /* TODO: Normal mode filter */)
+        oni.input.bind("<C-/>", "quickOpen.showBufferLines" /* TODO: Normal mode filter */)
+        oni.input.bind("<C-pageup>", "oni.process.cyclePrevious")
+        oni.input.bind("<C-pagedown>", "oni.process.cycleNext")
     }
 
     private applyConfig(): void {

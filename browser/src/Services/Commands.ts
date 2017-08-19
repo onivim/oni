@@ -10,7 +10,10 @@ import * as Config from "./../Config"
 import { IBuffer, INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
+import { BufferUpdates } from "./../Services/BufferUpdates"
+import { Formatter } from "./../Services/Formatter"
 import { multiProcess } from "./../Services/MultiProcess"
+import { QuickOpen } from "./../Services/QuickOpen"
 
 import * as UI from "./../UI/index"
 
@@ -18,8 +21,12 @@ import { CallbackCommand, CommandManager } from "./CommandManager"
 
 import { replaceAll } from "./../Utility"
 
-export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance) => {
+export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance, bufferUpdates: BufferUpdates) => {
     const config = Config.instance()
+
+    const quickOpen = new QuickOpen(neovimInstance, bufferUpdates)
+    const formatter = new Formatter(neovimInstance, pluginManager, bufferUpdates)
+
     const commands = [
         new CallbackCommand("editor.clipboard.paste", "Clipboard: Paste", "Paste clipboard contents into active text", () => pasteContents(neovimInstance)),
 
@@ -81,6 +88,11 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         new CallbackCommand("oni.process.cycleNext", "Focus Next Oni", "Switch to the next running instance of Oni", () => multiProcess.focusNextInstance()),
         new CallbackCommand("oni.process.cyclePrevious", "Focus Previous Oni", "Switch to the previous running instance of Oni", () => multiProcess.focusPreviousInstance()),
+
+        new CallbackCommand("language.formatter.formatDocument", "Format Document", "Use the language service to auto-format the document", () => formatter.formatBuffer()),
+
+        new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show()),
+        new CallbackCommand("quickOpen.showBufferLines", null, null, () => quickOpen.showBufferLines()),
 
         // Add additional commands here
         // ...
