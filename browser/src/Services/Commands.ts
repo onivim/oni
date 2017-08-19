@@ -41,7 +41,20 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
                 .then((count) => {
                     if (count === 1) {
                         let lines = [
+                            // TODO: Export this to a file that we load, if the current config does not exist
+                            // That way, we don't have to duplicate defaults between this file and Config.ts
+
+                            "const activate = (Oni) => {",
+                            "   console.log(\"config activated\")",
+                            "}",
+                            "",
+                            "const deactivate = () => {",
+                            "   console.log(\"config deactivated\")",
+                            "}",
+                            "",
                             "module.exports = {",
+                            "   activate,",
+                            "   deactivate,",
                             "  //add custom config here, such as",
                             "  //\"oni.useDefaultConfig\": true,",
                             "  //\"oni.bookmarks\": [\"~/Documents\",]",

@@ -11,7 +11,11 @@ import { Oni } from "./Api/Oni"
 
 export class AnonymousPlugin {
     private _channel: IChannel
-    private _oni: Oni
+    private _oni: Oni.Plugin.Api
+
+    public get oni(): Oni.Plugin.Api {
+        return this._oni
+    }
 
     constructor(
         channel: IChannel,

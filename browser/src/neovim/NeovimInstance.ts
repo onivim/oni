@@ -223,8 +223,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         this.emit("logInfo", "Attach success")
 
                         performance.mark("NeovimInstance.Plugins.Start")
-                        this._pluginManager.startPlugins(this)
+                        const api = this._pluginManager.startPlugins(this)
                         performance.mark("NeovimInstance.Plugins.End")
+
+                        Config.instance().activate(api)
 
                         // set title after attaching listeners so we can get the initial title
                         this.command("set title")

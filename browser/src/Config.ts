@@ -9,6 +9,10 @@ import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
 export interface IConfigValues {
+
+    "activate": (oni: Oni.Plugin.Api) => void
+    "deactivate": () => void
+
     // Debug settings
     "debug.fixedSize": {
         rows: number,
@@ -107,11 +111,16 @@ export interface IConfigValues {
     "tabs.showVimTabs": boolean
 }
 
+const noop = () => { } // tslint:disable-line no-empty
+
 export class Config extends EventEmitter {
 
     public userJsConfig = path.join(this.getUserFolder(), "config.js")
 
     private DefaultConfig: IConfigValues = {
+        activate: noop,
+        deactivate: noop,
+
         "debug.fixedSize": null,
 
         "oni.audio.bellUrl": path.join(__dirname, "audio", "beep.wav"),
@@ -141,7 +150,7 @@ export class Config extends EventEmitter {
         "editor.formatting.formatOnSwitchToNormalMode": false,
 
         "editor.fontLigatures": true,
-        "editor.fontSize": "14px",
+        "editor.fontSize": "12px",
         "editor.fontFamily": "",
 
         "editor.quickOpen.execCommand": null,
@@ -159,7 +168,7 @@ export class Config extends EventEmitter {
         "environment.additionalPaths": [],
 
         "statusbar.enabled": true,
-        "statusbar.fontSize": "12px",
+        "statusbar.fontSize": "11px",
 
         "tabs.enabled": true,
         "tabs.showVimTabs": false,
@@ -167,7 +176,6 @@ export class Config extends EventEmitter {
 
     private MacConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "Menlo",
-        "editor.fontSize": "12px",
         "statusbar.fontSize": "10px",
         "environment.additionalPaths": [
             "/usr/bin",
@@ -192,6 +200,8 @@ export class Config extends EventEmitter {
     private DefaultPlatformConfig = Platform.isWindows() ? this.WindowsConfig : Platform.isLinux() ? this.LinuxConfig : this.MacConfig
 
     private configChanged: EventEmitter = new EventEmitter()
+
+    private _oniApi: Oni.Plugin.Api = null
 
     private Config: IConfigValues = null
 
@@ -252,6 +262,12 @@ export class Config extends EventEmitter {
         return isError(maybeError) ? maybeError : null
     }
 
+    public activate(oni: Oni.Plugin.Api): void {
+        this._oniApi = oni
+
+        this._activateIfOniObjectIsAvailable()
+    }
+
     private applyConfig(): void {
         let userRuntimeConfigOrError = this.getUserRuntimeConfig()
         if (isError(userRuntimeConfigOrError)) {
@@ -260,7 +276,23 @@ export class Config extends EventEmitter {
         } else {
             this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfigOrError}
         }
+
+        this._deactivate()
+        this._activateIfOniObjectIsAvailable()
     }
+
+    private _activateIfOniObjectIsAvailable(): void {
+        if (this.Config && this.Config.activate && this._oniApi) {
+            this.Config.activate(this._oniApi)
+        }
+    }
+
+    private _deactivate(): void {
+        if (this.Config && this.Config.deactivate) {
+            this.Config.deactivate()
+        }
+    }
+
     private getUserRuntimeConfig(): IConfigValues | Error {
         let userRuntimeConfig: IConfigValues | null = null
         let error: Error | null = null
