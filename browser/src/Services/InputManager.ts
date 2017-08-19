@@ -1,10 +1,12 @@
 
 export type ActionFunction = () => boolean
 
+export type ActionOrCommand = string | ActionFunction
+
 export type FilterFunction = () => boolean
 
 export interface KeyBinding {
-    action: ActionFunction
+    action: ActionOrCommand
     filter?: FilterFunction
 }
 
@@ -19,16 +21,16 @@ export class InputManager implements Oni.InputManager {
     /**
      * API Methods
      */
-    public bind(keyChord: string, actionFunction: any, filterFunction: () => boolean) {
+    public bind(keyChord: string, actionFunction: ActionOrCommand, filterFunction: () => boolean) {
 
     }
 
-    public rebind(keyChord: string, actionFunction: any, filterFunction: () => boolean) {
+    public rebind(keyChord: string, actionFunction: ActionOrCommand, filterFunction: () => boolean) {
         this._boundKeys[keyChord] = [{ action: actionFunction, filter: filterFunction }]
     }
 
     public unbind(keyChord: string) {
-
+        this._boundKeys[keyChord] = []
     }
 
     public unbindAll() {
