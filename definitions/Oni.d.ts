@@ -4,6 +4,13 @@ import { EventEmitter } from "events"
 import * as types from "vscode-languageserver-types"
 
 declare namespace Oni {
+    export interface IDisposable {
+        dispose(): void
+    }
+
+    export interface IEvent<T> {
+        subscribe(callback: EventCallback<T>): IDisposable
+    }
 
     export interface EventCallback<T> {
         (val: T): void
@@ -18,8 +25,13 @@ declare namespace Oni {
         getValue<T>(configValue: string, defaultValue?: T): T
     }
 
+    export interface EditorManager {
+        activeEditor: Editor
+    }
+
     export interface Editor {
-        executeShellCommand(shellCommand: string): void
+        mode: string
+        onModeChanged: IEvent<string>
     }
 
     export interface Commands {
@@ -156,7 +168,7 @@ declare namespace Oni {
         export interface Api extends EventEmitter {
             configuration: Configuration
             diagnostics: Diagnostics.Api
-            editor: Editor
+            editors: EditorManager
             process: Process
             statusBar: StatusBar
 

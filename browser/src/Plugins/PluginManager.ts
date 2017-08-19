@@ -222,10 +222,6 @@ export class PluginManager extends EventEmitter {
             case "format":
                 this.emit("format", pluginResponse.payload)
                 break
-            case "execute-shell-command":
-                // TODO: Check plugin permission
-                this.emit("execute-shell-command", pluginResponse.payload)
-                break
             case "evaluate-block-result":
                 this.emit("evaluate-block-result", pluginResponse.payload)
                 break
