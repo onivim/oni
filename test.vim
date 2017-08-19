@@ -13,6 +13,4 @@ set noruler
 set laststatus=0
 set noshowcmd
 
-au VimEnter * :Ex
-
 echo "hi"

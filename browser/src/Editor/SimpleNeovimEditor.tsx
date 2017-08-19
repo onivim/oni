@@ -74,8 +74,17 @@ export class SimpleNeovimEditor implements IEditor {
         this._onConfigChanged()
     }
 
+    public async setDummyText(): Promise<void> {
+        console.log("getting buffer")
+        const buf = await this._neovimInstance.getCurrentBuffer()
+        console.log("got buffer")
+        await buf.setLines(0, 1, false, ["a", "b", "c"])
+        console.log("set lines")
+    }
+
     public init(filesToOpen: string[]): void {
         this._neovimInstance.start(filesToOpen)
+            .then(() => this.setDummyText())
     }
 
     public render(): JSX.Element {
