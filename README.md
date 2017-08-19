@@ -29,10 +29,12 @@
         - [Reason and OCaml](#reason-and-ocaml)
     - [Configuration](#configuration)
         - [Clipboard Integration](#clipboard-integration)
-    - [Extensibility](#extensibility)
-        - [Plugins](#plugins)
-            - [Installing a Vim Plugin](#installing-a-vim-plugin)
-            - [Installing an Oni Plugin](#installing-an-oni-plugin)
+    - [Plugins](#plugins)
+        - [Installing a Vim Plugin](#installing-a-vim-plugin)
+        - [Installing an Oni Plugin](#installing-an-oni-plugin)
+        - Recommended
+            - [C# Language Plugin](http://github.com/extr0py/oni-language-csharp)
+            - [TSLint Language Plugin](http://github.com/extr0py/oni-plugin-tslint)
         - [API](#api)
     - [FAQ](#faq)
 - [Roadmap](#roadmap)
@@ -382,9 +384,9 @@ The behavior is as follows:
 
 If you have custom behavior or functionality bound to `<C-c>`, `<C-v>` (or `<M-c>`, `<M-v>` on OSX), you may wish to disable this behavior by setting `editor.clipboard.enabled` to `false`.
 
-### Extensibility
+### Plugins
 
-#### Plugins
+#### Installation
 
 Oni does not require the use of a plugin-manager such as pathogen or vundle (although you may use one if you wish, and this will be necessary if you are sharing a configuration between Neovim and Oni).
 
