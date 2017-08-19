@@ -13,7 +13,7 @@ import { ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance, NeovimWindowManager } from "./../neovim"
-import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
+import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import * as Config from "./../Config"
@@ -45,6 +45,10 @@ import { NeovimSurface } from "./NeovimSurface"
 
 import { inputManager } from "../Services/InputManager"
 
+import { clipboard} from "electron"
+
+import * as Platform from "./../Platform"
+
 export class NeovimEditor implements IEditor {
 
     private _neovimInstance: NeovimInstance
@@ -75,7 +79,7 @@ export class NeovimEditor implements IEditor {
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
 
-        this._renderer = this._config.getValue("editor.renderer") === "canvas" ? new CanvasRenderer() : new DOMRenderer()
+        this._renderer = new CanvasRenderer()
 
         // Services
         const autoCompletion = new AutoCompletion(this._neovimInstance)
@@ -110,6 +114,12 @@ export class NeovimEditor implements IEditor {
 
         this._windowManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
             UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
+        })
+
+        this._neovimInstance.onYank.subscribe((yankInfo) => {
+            if (Config.instance().getValue("editor.clipboard.enabled")) {
+                clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+            }
         })
 
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
@@ -262,6 +272,32 @@ export class NeovimEditor implements IEditor {
                 } else if (key === "<C-p>") {
                     UI.Actions.previousCompletion()
                     return
+                }
+            }
+
+            // TODO: Untangle these nested conditionals to use our new input-binding strategy :)
+            if (Config.instance().getValue("editor.clipboard.enabled")) {
+
+                // Handling the platform-default cases should be done when we initialize
+                // default key bindings, prior to loading hte config
+                if (Platform.isLinux() || Platform.isWindows()) {
+                    if (key === "<C-c>" && this._screen.mode === "visual") {
+                        this._neovimInstance.input("y")
+                        return
+                    } else if (key === "<C-v>" && this._screen.mode === "insert") {
+                        this._commandManager.executeCommand("editor.clipboard.paste", null)
+                        return
+                    }
+                } else {
+                    if (key === "<M-c>" && this._screen.mode === "visual") {
+                        // Make the <M-c> case work the same as <C-c> case on Windows..
+                        // execute out of visual mode, but yank
+                        this._neovimInstance.input("y")
+                        return
+                    } else if (key === "<M-v>" && this._screen.mode === "insert") {
+                        this._commandManager.executeCommand("editor.clipboard.paste", null)
+                        return
+                    }
                 }
             }
 

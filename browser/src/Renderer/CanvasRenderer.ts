@@ -1,10 +1,10 @@
-import { IDeltaCellPosition, IDeltaRegionTracker } from "./../DeltaRegionTracker"
+import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
 import * as Performance from "./../Performance"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
 
-import { collapseSpans, ISpan } from "./Span"
+import { getSpansToEdit, ISpan } from "./Span"
 
 export interface IRenderState {
     isWhitespace: boolean
@@ -77,7 +77,7 @@ export class CanvasRenderer implements INeovimRenderer {
         this._editorElement.style.fontFamily = screenInfo.fontFamily
         this._editorElement.style.fontSize = screenInfo.fontSize
 
-        const rowsToEdit = getSpansToEdit2(this._grid, modifiedCells)
+        const rowsToEdit = getSpansToEdit(this._grid, modifiedCells)
 
         modifiedCells.forEach((c) => deltaRegionTracker.notifyCellRendered(c.x, c.y))
 
@@ -242,42 +242,4 @@ export class CanvasRenderer implements INeovimRenderer {
         this._canvasElement.width = this._canvasElement.offsetWidth * this._devicePixelRatio
         this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
     }
-}
-
-export type RowMap = { [key: number]: ISpan[] }
-
-export function getSpansToEdit2(grid: Grid<ISpan>, cells: IDeltaCellPosition[]): RowMap {
-    const rowToSpans: RowMap = {}
-    cells.forEach((cell) => {
-        const { x, y } = cell
-
-        const info = grid.getCell(x, y)
-        const currentRow = rowToSpans[y] || []
-
-        if (!info) {
-            currentRow.push({
-                startX: x,
-                endX: x + 1,
-            })
-        } else {
-            currentRow.push({
-                startX: info.startX,
-                endX: info.endX,
-            })
-
-            grid.setRegion(info.startX, y, info.endX - info.startX, 1, null)
-        }
-
-        rowToSpans[y] = currentRow
-    })
-    return collapseSpanMap2(rowToSpans)
-}
-
-export function collapseSpanMap2(currentSpanMap: RowMap): RowMap {
-    const outMap = {}
-    for (let k of Object.keys(currentSpanMap)) {
-        outMap[k] = collapseSpans(currentSpanMap[k])
-    }
-
-    return outMap
 }
