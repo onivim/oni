@@ -274,6 +274,8 @@ export class Config extends EventEmitter {
         inputManager.unbindAll()
 
         inputManager.bind("<f12>", "oni.editor.gotoDefinition")
+        inputManager.bind("<C-pageup>", "oni.process.cyclePrevious")
+        inputManager.bind("<C-pagedown>", "oni.process.cycleNext")
     }
 
     private applyConfig(): void {

@@ -10,6 +10,8 @@ import * as Config from "./../Config"
 import { IBuffer, INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
+import { multiProcess } from "./../Services/MultiProcess"
+
 import * as UI from "./../UI/index"
 
 import { CallbackCommand, CommandManager } from "./CommandManager"
@@ -77,6 +79,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         new CallbackCommand("oni.openFolder", "Open Folder", "Set a folder as the working directory for Oni", () => openFolder(neovimInstance)),
 
+        new CallbackCommand("oni.process.cycleNext", "Focus Next Oni", "Switch to the next running instance of Oni", () => multiProcess.focusNextInstance()),
+        new CallbackCommand("oni.process.cyclePrevious", "Focus Previous Oni", "Switch to the previous running instance of Oni", () => multiProcess.focusPreviousInstance()),
         // Add additional commands here
         // ...
     ]

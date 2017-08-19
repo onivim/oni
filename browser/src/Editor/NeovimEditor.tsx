@@ -26,7 +26,6 @@ import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Errors } from "./../Services/Errors"
 import { Formatter } from "./../Services/Formatter"
-import { MultiProcess } from "./../Services/MultiProcess"
 import { OutputWindow } from "./../Services/Output"
 import { QuickOpen } from "./../Services/QuickOpen"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
@@ -85,7 +84,6 @@ export class NeovimEditor implements IEditor {
         const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
         const errorService = new Errors(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
-        const multiProcess = new MultiProcess()
         const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
         const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
@@ -102,7 +100,6 @@ export class NeovimEditor implements IEditor {
         services.push(quickOpen)
         services.push(windowTitle)
         services.push(formatter)
-        services.push(multiProcess)
         services.push(syntaxHighlighter)
         services.push(outputWindow)
 
@@ -306,10 +303,6 @@ export class NeovimEditor implements IEditor {
                 quickOpen.showBufferLines()
             } else if (key === "<C-P>" && this._screen.mode === "normal") {
                 this._tasks.show()
-            } else if (key === "<C-pageup>") {
-                multiProcess.focusPreviousInstance()
-            } else if (key === "<C-pagedown>") {
-                multiProcess.focusNextInstance()
             } else {
                 this._neovimInstance.input(key)
             }
