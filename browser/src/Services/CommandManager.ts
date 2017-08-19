@@ -54,7 +54,7 @@ export class CommandManager implements ITaskProvider {
         this._commandDictionary[command.command] = command
     }
 
-    public executeCommand(name: string, args: any): void {
+    public executeCommand(name: string, args?: any): void {
         const command = this._commandDictionary[name]
 
         if (!command) {

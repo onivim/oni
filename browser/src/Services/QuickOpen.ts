@@ -12,10 +12,11 @@ import * as path from "path"
 import * as Log from "./../Log"
 
 import * as Config from "./../Config"
-import { NeovimEditor } from "./../Editor/NeovimEditor"
 import { INeovimInstance } from "./../neovim"
 import * as UI from "./../UI/index"
 import { BufferUpdates } from "./BufferUpdates"
+
+import { commandManager } from "./../Services/CommandManager"
 
 export class QuickOpen {
     private _seenItems: string[] = []
@@ -26,7 +27,7 @@ export class QuickOpen {
     // private _doneLoadingColors: boolean
     // private _needToLoadColors: boolean
 
-    constructor(neovimInstance: INeovimInstance, neovimEditor: NeovimEditor, bufferUpdates: BufferUpdates) {
+    constructor(neovimInstance: INeovimInstance, bufferUpdates: BufferUpdates) {
         this._neovimInstance = neovimInstance
         this._bufferUpdates = bufferUpdates
         // this._loadColors()
@@ -37,11 +38,11 @@ export class QuickOpen {
             if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.loading)) {
                 return
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
-                neovimEditor.executeCommand("oni.config.openConfigJs")
+                commandManager.executeCommand("oni.config.openConfigJs")
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.color)) {
                 neovimInstance.command(`colo ${arg.label}`)
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
-                neovimEditor.executeCommand("oni.openFolder")
+                commandManager.executeCommand("oni.openFolder")
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
                 if (selectedItem.openInSplit !== "e") {
                     neovimInstance.command(selectedItem.openInSplit + "!")
