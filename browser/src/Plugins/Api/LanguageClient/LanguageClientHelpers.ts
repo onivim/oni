@@ -107,7 +107,7 @@ export const createDidChangeTextDocumentParams = (bufferFullPath: string, lines:
     return {
         textDocument: {
             uri: wrapPathInFileUri(bufferFullPath),
-            version
+            version,
         },
         contentChanges: [{
             text,
@@ -123,7 +123,7 @@ export const incrementalBufferUpdateToDidChangeTextDocumentParams = (args: Oni.I
     return {
         textDocument: {
             uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
-            version: args.eventContext.version
+            version: args.eventContext.version,
         },
         contentChanges: [{
             range: types.Range.create(lineNumber - 1, 0, lineNumber - 1, previousLineLength),
