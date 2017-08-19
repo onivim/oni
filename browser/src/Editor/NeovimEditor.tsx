@@ -28,7 +28,6 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { Errors } from "./../Services/Errors"
 import { Formatter } from "./../Services/Formatter"
 import { MultiProcess } from "./../Services/MultiProcess"
-import { OutputWindow } from "./../Services/Output"
 import { QuickOpen } from "./../Services/QuickOpen"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { Tasks } from "./../Services/Tasks"
@@ -95,9 +94,8 @@ export class NeovimEditor implements IEditor {
         const multiProcess = new MultiProcess()
         const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
-        const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
         const quickOpen = new QuickOpen(this._neovimInstance, this, bufferUpdates)
-        this._tasks = new Tasks(outputWindow)
+        this._tasks = new Tasks()
         registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
 
         this._tasks.registerTaskProvider(this._commandManager)
@@ -111,7 +109,6 @@ export class NeovimEditor implements IEditor {
         services.push(formatter)
         services.push(multiProcess)
         services.push(syntaxHighlighter)
-        services.push(outputWindow)
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
