@@ -16,8 +16,8 @@ import { NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
-import { Event, IEvent } from "./../Event"
 import * as Config from "./../Config"
+import { Event, IEvent } from "./../Event"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
