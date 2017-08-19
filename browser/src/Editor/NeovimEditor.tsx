@@ -300,9 +300,7 @@ export class NeovimEditor implements IEditor {
                 }
             }
 
-            if (key === "<f12>") {
-                commandManager.executeCommand("oni.editor.gotoDefinition", null)
-            } else if (key === "<C-p>" && this._screen.mode === "normal") {
+            if (key === "<C-p>" && this._screen.mode === "normal") {
                 quickOpen.show()
             } else if (key === "<C-/>" && this._screen.mode === "normal") {
                 quickOpen.showBufferLines()

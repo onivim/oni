@@ -23,11 +23,11 @@ export class InputManager implements Oni.InputManager {
     /**
      * API Methods
      */
-    public bind(keyChord: string, action: ActionOrCommand, filterFunction: () => boolean) {
+    public bind(keyChord: string, action: ActionOrCommand, filterFunction?: () => boolean) {
         // tslint:disable-line no-empty-block
     }
 
-    public rebind(keyChord: string, action: ActionOrCommand, filterFunction: () => boolean) {
+    public rebind(keyChord: string, action: ActionOrCommand, filterFunction?: () => boolean) {
         this._boundKeys[keyChord] = [{ action, filter: filterFunction }]
     }
 

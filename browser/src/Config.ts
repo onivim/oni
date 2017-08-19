@@ -8,6 +8,8 @@ import * as path from "path"
 import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
+import { inputManager } from "./Services/InputManager"
+
 export interface IConfigValues {
 
     "activate": (oni: Oni.Plugin.Api) => void
@@ -268,6 +270,12 @@ export class Config extends EventEmitter {
         this._activateIfOniObjectIsAvailable()
     }
 
+    private _applyDefaultKeyBindings(oni: Oni.Plugin.Api): void {
+        inputManager.unbindAll()
+
+        inputManager.bind("<f12>", "oni.editor.gotoDefinition")
+    }
+
     private applyConfig(): void {
         let userRuntimeConfigOrError = this.getUserRuntimeConfig()
         if (isError(userRuntimeConfigOrError)) {
@@ -283,6 +291,7 @@ export class Config extends EventEmitter {
 
     private _activateIfOniObjectIsAvailable(): void {
         if (this.Config && this.Config.activate && this._oniApi) {
+            this._applyDefaultKeyBindings(this._oniApi)
             this.Config.activate(this._oniApi)
         }
     }
