@@ -75,3 +75,5 @@ export class CommandManager implements ITaskProvider {
         return Promise.resolve(tasks)
     }
 }
+
+export const commandManager = new CommandManager()
