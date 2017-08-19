@@ -18,6 +18,12 @@ declare namespace Oni {
         getValue<T>(configValue: string, defaultValue?: T): T
     }
 
+    export interface InputManager {
+        bind(keyChord: string, actionFunction: any, filterFunction: () => boolean)
+        unbind(keyChord: string)
+        unbindAll()
+    }
+
     export interface Editor {
         executeShellCommand(shellCommand: string): void
     }
@@ -157,6 +163,7 @@ declare namespace Oni {
             configuration: Configuration
             diagnostics: Diagnostics.Api
             editor: Editor
+            input: InputManager
             process: Process
             statusBar: StatusBar
 
