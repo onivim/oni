@@ -30,6 +30,10 @@
     - [Configuration](#configuration)
         - [Clipboard Integration](#clipboard-integration)
     - [Extensibility](#extensibility)
+        - [Plugins](#plugins)
+            - [Installing a Vim Plugin](#installing-a-vim-plugin)
+            - [Installing an Oni Plugin](#installing-an-oni-plugin)
+        - [API](#api)
     - [FAQ](#faq)
 - [Roadmap](#roadmap)
 - [License](#license)
@@ -380,9 +384,51 @@ If you have custom behavior or functionality bound to `<C-c>`, `<C-v>` (or `<M-c
 
 ### Extensibility
 
-ONI offers several rich extensibility points, with the focus being on various UI integrations as well as IDE-like capabilities.
+#### Plugins
 
-#### Language Extensibility
+Oni does not require the use of a plugin-manager such as pathogen or vundle (although you may use one if you wish, and this will be necessary if you are sharing a configuration between Neovim and Oni).
+
+Oni will, by default, load all plugins in the `$HOME/.oni/plugins` directory.
+
+##### Installing a Vim Plugin
+
+To install a Vim plugin, you just need to create a directory inside `$HOME/.oni/plugins`.
+
+`git clone` will usually do this for you, so for example, if you wanted to install this [Solarized Theme](https://github.com/lifepillar/vim-solarized8) by lifepillar, you'd run:
+
+> NOTE: On Windows, use your home directory (ie, `C:/users/<your username`) instead of `~`
+
+- `cd ~/.oni`
+- `mkdir -p plugins`
+- `cd plugins`
+- `git clone https://github.com/lifepillar/vim-solarized8`
+
+This will clone the `vim-solarized8` plugin and create an `~/.oni/plugins/vim-solarized8` folder.
+
+Restart Oni, and execute `:colorscheme solarized8_light`, and enjoy your new theme!
+
+##### Installing an Oni Plugin
+
+Installing an Oni plugin is much the same as installing a Vim plugin. However, because they potentially have JavaScript extension code in addition to VimL, you often need to install NPM dependencies.
+
+> Prerequisite: Make sure the `npm` command is available. If not, install the [latest node](https://nodejs.org/en/download/)
+
+As above, you just need to create a folder hosting the plugin, and install the dependencies. As an example, here's how you'd install the [oni-plugin-tslint](https://github.com/extr0py/oni-plugin-tslint) extension.
+
+- `cd ~/.oni`
+- `mkdir -p plugins`
+- `cd plugins`
+- `git clone https://github.com/extr0py/oni-plugin-tslint`
+- `cd oni-plugin-tslint`
+- `npm install`
+
+Restart Oni, and linting should now be enabled when you open up a TypeScript (`.ts`) file.
+
+#### API
+
+Oni offers several rich extensibility points, with the focus being on various UI integrations as well as IDE-like capabilities.
+
+> NOTE: The API will be in-flux until v1.0.
 
 Language extenders given ONI rich integration with languages, offering services like:
 
@@ -395,6 +441,12 @@ Language extenders given ONI rich integration with languages, offering services 
 - Enhanced syntax highlighting
 
 To see the in-progress API, check out the [Oni.d.ts](https://github.com/extr0py/oni/blob/master/definitions/Oni.d.ts) definition file as well as the [typescript language plugin](https://github.com/extr0py/oni/tree/master/vim/core/oni-plugin-typescript), which demonstrates several of these features:
+
+You can explore the Oni API during runtime by doing the following:
+- Press `<C-P>` (open Command Palette)
+- Select "Open Dev Tools"
+- You can access the Oni object directly, ie:
+
 
 #### Background
 
