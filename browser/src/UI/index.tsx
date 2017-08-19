@@ -14,6 +14,9 @@ import { reducer } from "./Reducer"
 import * as UnboundSelectors from "./Selectors"
 import * as State from "./State"
 
+import { CommandManager } from "./../Services/CommandManager"
+import { editorManager } from "./../Services/EditorManager"
+
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
@@ -49,6 +52,8 @@ function render(_state: State.IState, pluginManager: PluginManager, args: any): 
 
     const editor = new NeovimEditor(pluginManager)
     editor.init(args)
+
+    editorManager.setActiveEditor(editor)
 
     ReactDOM.render(
         <Provider store={store}>

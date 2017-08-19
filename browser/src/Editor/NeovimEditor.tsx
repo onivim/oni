@@ -17,6 +17,7 @@ import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import * as Config from "./../Config"
+import { Event, IEvent } from "./../Event"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
@@ -25,7 +26,6 @@ import { BufferUpdates } from "./../Services/BufferUpdates"
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Errors } from "./../Services/Errors"
-import { OutputWindow } from "./../Services/Output"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { Tasks } from "./../Services/Tasks"
 import { WindowTitle } from "./../Services/WindowTitle"
@@ -57,6 +57,9 @@ export class NeovimEditor implements IEditor {
     private _pendingAnimationFrame: boolean = false
     private _element: HTMLElement
 
+    private _currentMode: string
+    private _onModeChangedEvent: Event<string> = new Event<string>()
+
     // Services
     private _tasks: Tasks
 
@@ -64,6 +67,14 @@ export class NeovimEditor implements IEditor {
     private _windowManager: NeovimWindowManager
 
     private _errorStartingNeovim: boolean = false
+
+    public get mode(): string {
+        return this._currentMode
+    }
+
+    public get onModeChanged(): IEvent<string> {
+        return this._onModeChangedEvent
+    }
 
     constructor(
         private _pluginManager: PluginManager,
@@ -83,8 +94,8 @@ export class NeovimEditor implements IEditor {
         const errorService = new Errors(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
-        const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
-        this._tasks = new Tasks(outputWindow)
+
+        this._tasks = new Tasks()
         registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance, bufferUpdates)
 
         this._tasks.registerTaskProvider(commandManager)
@@ -95,7 +106,6 @@ export class NeovimEditor implements IEditor {
         services.push(errorService)
         services.push(windowTitle)
         services.push(syntaxHighlighter)
-        services.push(outputWindow)
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
@@ -374,6 +384,9 @@ export class NeovimEditor implements IEditor {
 
     private _onModeChanged(newMode: string): void {
         UI.Actions.setMode(newMode)
+
+        this._currentMode = newMode
+        this._onModeChangedEvent.dispatch(newMode)
 
         if (newMode === "normal") {
             UI.Actions.showCursorLine()

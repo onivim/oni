@@ -6,7 +6,6 @@ import { IPluginChannel } from "./Channel"
 import { Commands } from "./Commands"
 import { Configuration } from "./Configuration"
 import { Diagnostics } from "./Diagnostics"
-import { Editor } from "./Editor"
 import { StatusBar } from "./StatusBar"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
@@ -16,6 +15,7 @@ import { Process } from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
+import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 
 import * as throttle from "lodash/throttle"
@@ -39,7 +39,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     private _configuration: Oni.Configuration
     private _dependencies: Dependencies
-    private _editor: Oni.Editor
     private _statusBar: StatusBar
     private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
@@ -64,8 +63,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._dependencies
     }
 
-    public get editor(): Oni.Editor {
-        return this._editor
+    public get editors(): Oni.EditorManager {
+        return editorManager
     }
 
     public get input(): Oni.InputManager {
@@ -98,7 +97,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._configuration = new Configuration()
         this._diagnostics = new Diagnostics(this._channel)
         this._dependencies = new Dependencies()
-        this._editor = new Editor(this._channel)
         this._commands = new Commands(this._channel)
         this._statusBar = new StatusBar(this._channel)
         this._ui = new Ui(react)
