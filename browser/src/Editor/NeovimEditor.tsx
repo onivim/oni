@@ -43,6 +43,8 @@ import { InstallHelp } from "./../UI/components/InstallHelp"
 
 import { NeovimSurface } from "./NeovimSurface"
 
+import { inputManager } from "../Services/InputManager"
+
 export class NeovimEditor implements IEditor {
 
     private _neovimInstance: NeovimInstance
@@ -221,6 +223,11 @@ export class NeovimEditor implements IEditor {
 
         const keyboard = new Keyboard()
         keyboard.on("keydown", (key: string) => {
+
+            if (inputManager.handleKey(key)) {
+                return
+            }
+
             if (key === "<f3>") {
                 formatter.formatBuffer()
                 return
