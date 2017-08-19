@@ -271,6 +271,19 @@ export class Config extends EventEmitter {
     private _applyDefaultKeyBindings(oni: Oni.Plugin.Api): void {
         oni.input.unbindAll()
 
+        if (Platform.isLinux() || Platform.isWindows()) {
+
+            if (this.getValue("editor.clipboard.enabled")) {
+                oni.input.bind("<C-c>", "editor.clipboard.yank", () => oni.editors.activeEditor.mode === "visual")
+                oni.input.bind("<C-v>", "editor.clipboard.paste", () => oni.editors.activeEditor.mode === "insert")
+            }
+        } else {
+            if (this.getValue("editor.clipboard.enabled")) {
+                oni.input.bind("<M-c>", "editor.clipboard.yank", () => oni.editors.activeEditor.mode === "visual")
+                oni.input.bind("<M-v>", "editor.clipboard.paste", () => oni.editors.activeEditor.mode === "insert")
+            }
+        }
+
         oni.input.bind("<f3>", "language.formatter.formatDocument")
         oni.input.bind("<f12>", "oni.editor.gotoDefinition")
         oni.input.bind("<C-p>", "quickOpen.show" /* TODO: Normal mode filter */)
