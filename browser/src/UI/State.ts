@@ -99,6 +99,8 @@ export interface IBuffer {
     lastSaveVersion?: number
     version?: number
     totalLines: number
+    hidden: boolean
+    listed: boolean
 }
 
 export interface ITab {
