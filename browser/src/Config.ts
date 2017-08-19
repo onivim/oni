@@ -272,7 +272,6 @@ export class Config extends EventEmitter {
         oni.input.unbindAll()
 
         if (Platform.isLinux() || Platform.isWindows()) {
-
             if (this.getValue("editor.clipboard.enabled")) {
                 oni.input.bind("<C-c>", "editor.clipboard.yank", () => oni.editors.activeEditor.mode === "visual")
                 oni.input.bind("<C-v>", "editor.clipboard.paste", () => oni.editors.activeEditor.mode === "insert")
