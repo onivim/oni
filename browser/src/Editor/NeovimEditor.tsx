@@ -27,7 +27,6 @@ import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Errors } from "./../Services/Errors"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
-import { Tasks } from "./../Services/Tasks"
 import { WindowTitle } from "./../Services/WindowTitle"
 
 import * as UI from "./../UI/index"
@@ -40,9 +39,10 @@ import { InstallHelp } from "./../UI/components/InstallHelp"
 
 import { NeovimSurface } from "./NeovimSurface"
 
-import { inputManager } from "../Services/InputManager"
+import { inputManager } from "./../Services/InputManager"
+import { tasks } from "./../Services/Tasks"
 
-import { clipboard} from "electron"
+import { clipboard } from "electron"
 
 import * as Platform from "./../Platform"
 
@@ -59,9 +59,6 @@ export class NeovimEditor implements IEditor {
 
     private _currentMode: string
     private _onModeChangedEvent: Event<string> = new Event<string>()
-
-    // Services
-    private _tasks: Tasks
 
     // Overlays
     private _windowManager: NeovimWindowManager
@@ -95,11 +92,10 @@ export class NeovimEditor implements IEditor {
         const windowTitle = new WindowTitle(this._neovimInstance)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
 
-        this._tasks = new Tasks()
         registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance, bufferUpdates)
 
-        this._tasks.registerTaskProvider(commandManager)
-        this._tasks.registerTaskProvider(errorService)
+        tasks.registerTaskProvider(commandManager)
+        tasks.registerTaskProvider(errorService)
 
         services.push(autoCompletion)
         services.push(bufferUpdates)
@@ -277,30 +273,24 @@ export class NeovimEditor implements IEditor {
                 // default key bindings, prior to loading hte config
                 if (Platform.isLinux() || Platform.isWindows()) {
                     if (key === "<C-c>" && this._screen.mode === "visual") {
-                        this._neovimInstance.input("y")
+                        commandManager.executeCommand("editor.clipboard.yank")
                         return
                     } else if (key === "<C-v>" && this._screen.mode === "insert") {
-                        commandManager.executeCommand("editor.clipboard.paste", null)
+                        commandManager.executeCommand("editor.clipboard.paste")
                         return
                     }
                 } else {
                     if (key === "<M-c>" && this._screen.mode === "visual") {
-                        // Make the <M-c> case work the same as <C-c> case on Windows..
-                        // execute out of visual mode, but yank
-                        this._neovimInstance.input("y")
+                        commandManager.executeCommand("editor.clipboard.yank")
                         return
                     } else if (key === "<M-v>" && this._screen.mode === "insert") {
-                        commandManager.executeCommand("editor.clipboard.paste", null)
+                        commandManager.executeCommand("editor.clipboard.paste")
                         return
                     }
                 }
             }
 
-            if (key === "<C-P>" && this._screen.mode === "normal") {
-                this._tasks.show()
-            } else {
-                this._neovimInstance.input(key)
-            }
+            this._neovimInstance.input(key)
         })
 
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
@@ -379,7 +369,7 @@ export class NeovimEditor implements IEditor {
             onBufferClose={onBufferClose}
             onBufferSelect={onBufferSelect}
             onTabClose={onTabClose}
-            onTabSelect={onTabSelect}/>
+            onTabSelect={onTabSelect} />
     }
 
     private _onModeChanged(newMode: string): void {
@@ -408,7 +398,7 @@ export class NeovimEditor implements IEditor {
     private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
         UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
 
-        this._tasks.onEvent(evt)
+        tasks.onEvent(evt)
 
         if (eventName === "BufEnter") {
             // TODO: More convenient way to hide all UI?

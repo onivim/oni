@@ -274,6 +274,7 @@ export class Config extends EventEmitter {
         oni.input.bind("<f3>", "language.formatter.formatDocument")
         oni.input.bind("<f12>", "oni.editor.gotoDefinition")
         oni.input.bind("<C-p>", "quickOpen.show" /* TODO: Normal mode filter */)
+        oni.input.bind("<C-P>", "commands.show" /* TODO: Normal mode filter */)
         oni.input.bind("<C-/>", "quickOpen.showBufferLines" /* TODO: Normal mode filter */)
         oni.input.bind("<C-pageup>", "oni.process.cyclePrevious")
         oni.input.bind("<C-pagedown>", "oni.process.cycleNext")

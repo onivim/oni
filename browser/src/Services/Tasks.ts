@@ -30,17 +30,10 @@ export class Tasks {
 
     private _providers: ITaskProvider[] = []
 
-    constructor() {
-        UI.events.on("menu-item-selected:tasks", (selectedItem: any) => {
-            const {label, detail} = selectedItem.selectedOption
-
-            const selectedTask = find(this._lastTasks, (t) => t.name === label && t.detail === detail)
-
-            if (selectedTask) {
-                selectedTask.callback()
-            }
-        })
-    }
+    // TODO: This should be refactored, as it is simply
+    // a timing dependency on when the object is created versus when 
+    // it is shown.
+    private _initialized = false
 
     public registerTaskProvider(taskProvider: ITaskProvider): void {
         this._providers.push(taskProvider)
@@ -51,6 +44,8 @@ export class Tasks {
     }
 
     public show(): void {
+        this._init()
+
         this._refreshTasks().then(() => {
             const options = this._lastTasks.map((f) => {
                 return {
@@ -64,6 +59,21 @@ export class Tasks {
         })
     }
 
+    private _init(): void {
+        if (!this._initialized) {
+            UI.events.on("menu-item-selected:tasks", (selectedItem: any) => {
+                const {label, detail} = selectedItem.selectedOption
+
+                const selectedTask = find(this._lastTasks, (t) => t.name === label && t.detail === detail)
+
+                if (selectedTask) {
+                    selectedTask.callback()
+                }
+            })
+            this._initialized = true
+        }
+    }
+
     private async _refreshTasks(): Promise<void> {
         this._lastTasks = []
 
@@ -73,3 +83,5 @@ export class Tasks {
         this._lastTasks = flatten(allTasks)
     }
 }
+
+export const tasks = new Tasks()

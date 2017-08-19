@@ -14,6 +14,7 @@ import { BufferUpdates } from "./../Services/BufferUpdates"
 import { Formatter } from "./../Services/Formatter"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
+import { tasks } from "./../Services/Tasks"
 
 import * as UI from "./../UI/index"
 
@@ -29,6 +30,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
     const commands = [
         new CallbackCommand("editor.clipboard.paste", "Clipboard: Paste", "Paste clipboard contents into active text", () => pasteContents(neovimInstance)),
+        new CallbackCommand("editor.clipboard.yank", "Clipboard: Yank", "Yank contents to clipboard", () => neovimInstance.input("y")),
 
         // Debug
         new CallbackCommand("oni.debug.openDevTools", "Open DevTools", "Debug Oni and any running plugins using the Chrome developer tools", () => remote.getCurrentWindow().webContents.openDevTools()),
@@ -93,6 +95,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show()),
         new CallbackCommand("quickOpen.showBufferLines", null, null, () => quickOpen.showBufferLines()),
+
+        new CallbackCommand("commands.show", null, null, () => tasks.show()),
 
         // Add additional commands here
         // ...

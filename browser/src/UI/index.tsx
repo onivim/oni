@@ -14,7 +14,6 @@ import { reducer } from "./Reducer"
 import * as UnboundSelectors from "./Selectors"
 import * as State from "./State"
 
-import { CommandManager } from "./../Services/CommandManager"
 import { editorManager } from "./../Services/EditorManager"
 
 import { PluginManager } from "./../Plugins/PluginManager"
