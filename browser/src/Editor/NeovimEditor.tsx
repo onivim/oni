@@ -22,7 +22,7 @@ import { PluginManager } from "./../Plugins/PluginManager"
 
 import { AutoCompletion } from "./../Services/AutoCompletion"
 import { BufferUpdates } from "./../Services/BufferUpdates"
-import { CommandManager } from "./../Services/CommandManager"
+import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Errors } from "./../Services/Errors"
 import { Formatter } from "./../Services/Formatter"
@@ -69,7 +69,6 @@ export class NeovimEditor implements IEditor {
     private _errorStartingNeovim: boolean = false
 
     constructor(
-        private _commandManager: CommandManager,
         private _pluginManager: PluginManager,
         private _config: Config.Config = Config.instance(),
     ) {
@@ -92,9 +91,9 @@ export class NeovimEditor implements IEditor {
         const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
         const quickOpen = new QuickOpen(this._neovimInstance, this, bufferUpdates)
         this._tasks = new Tasks(outputWindow)
-        registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
+        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance)
 
-        this._tasks.registerTaskProvider(this._commandManager)
+        this._tasks.registerTaskProvider(commandManager)
         this._tasks.registerTaskProvider(errorService)
 
         services.push(autoCompletion)
@@ -285,7 +284,7 @@ export class NeovimEditor implements IEditor {
                         this._neovimInstance.input("y")
                         return
                     } else if (key === "<C-v>" && this._screen.mode === "insert") {
-                        this._commandManager.executeCommand("editor.clipboard.paste", null)
+                        commandManager.executeCommand("editor.clipboard.paste", null)
                         return
                     }
                 } else {
@@ -295,14 +294,14 @@ export class NeovimEditor implements IEditor {
                         this._neovimInstance.input("y")
                         return
                     } else if (key === "<M-v>" && this._screen.mode === "insert") {
-                        this._commandManager.executeCommand("editor.clipboard.paste", null)
+                        commandManager.executeCommand("editor.clipboard.paste", null)
                         return
                     }
                 }
             }
 
             if (key === "<f12>") {
-                this._commandManager.executeCommand("oni.editor.gotoDefinition", null)
+                commandManager.executeCommand("oni.editor.gotoDefinition", null)
             } else if (key === "<C-p>" && this._screen.mode === "normal") {
                 quickOpen.show()
             } else if (key === "<C-/>" && this._screen.mode === "normal") {
@@ -362,7 +361,7 @@ export class NeovimEditor implements IEditor {
     }
 
     public executeCommand(command: string): void {
-        this._commandManager.executeCommand(command, null)
+        commandManager.executeCommand(command, null)
     }
 
     public init(filesToOpen: string[]): void {
