@@ -27,6 +27,8 @@ export interface IBufferEnterAction {
         id: number,
         file: string,
         totalLines: number,
+        hidden: boolean,
+        listed: boolean,
     }
 }
 
@@ -34,6 +36,7 @@ export interface IBufferUpdateAction {
     type: "BUFFER_UPDATE",
     payload: {
         id: number,
+        modified: boolean,
         version: number,
         totalLines: number,
     }
@@ -43,6 +46,7 @@ export interface IBufferSaveAction {
     type: "BUFFER_SAVE",
     payload: {
         id: number,
+        modified: boolean,
         version: number,
     }
 }

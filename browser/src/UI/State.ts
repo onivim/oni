@@ -95,9 +95,12 @@ export interface IBufferState {
 export interface IBuffer {
     id: number
     file: string
+    modified: boolean
     lastSaveVersion?: number
     version?: number
     totalLines: number
+    hidden: boolean
+    listed: boolean
 }
 
 export interface ITab {
