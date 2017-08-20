@@ -299,6 +299,14 @@ export function popupMenuReducer (s: State.IMenu | null, a: Actions.SimpleAction
             return Object.assign({}, s, {
                 selectedIndex: (s.selectedIndex + 1) % size,
             })
+        case "INCREMENT_MENU":
+            if (!s) {
+                return s
+            }
+
+            return Object.assign({}, s, {
+                incrementedIndex: (s.selectedIndex),
+            })
         case "PREVIOUS_MENU":
             if (!s) {
                 return s

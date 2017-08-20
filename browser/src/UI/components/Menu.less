@@ -19,7 +19,8 @@
     background-color: @background-color;
     color: @text-color;
     padding: 8px;
-    width: 600px;
+    width: 70%;
+    max-width: 600px;
     max-height: 400px;
 
     input {
@@ -58,6 +59,16 @@
                 background-color: @background-color-highlight;
             }
 
+            &.incremented {
+                .box-shadow;
+                background-color: @background-color-incremented;
+            }
+
+            &.selmented {
+                .box-shadow;
+                background-color: rgba(100,255,255,.5);
+            }
+
             .label {
                 margin: 4px;
                 padding-right: 8px;
@@ -72,6 +83,7 @@
                 font-size: @font-size-small;
                 color: @text-color-detail;
                 flex: 1 1 auto;
+                overflow-x:hidden;
 
                 .highlight {
                     color: @text-color-highlight;

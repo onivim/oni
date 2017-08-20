@@ -148,7 +148,8 @@ export interface IMenu {
     filter: string,
     filteredOptions: IMenuOptionWithHighlights[],
     options: Oni.Menu.MenuOption[],
-    selectedIndex: number
+    selectedIndex: number,
+    incrementedIndex: number
 }
 
 export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {

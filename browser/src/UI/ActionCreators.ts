@@ -238,6 +238,10 @@ export const nextMenuItem = () => ({
     type: "NEXT_MENU",
 })
 
+export const incrementMenuItem = () => ({
+    type: "INCREMENT_MENU",
+})
+
 export const selectMenuItem = (openInSplit: string, index?: number) => (dispatch: Function, getState: Function) => {
 
     const state = getState()

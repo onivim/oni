@@ -187,6 +187,10 @@ export interface INextMenuAction {
     type: "NEXT_MENU"
 }
 
+export interface IIncrementMenuAction {
+    type: "INCREMENT_MENU"
+}
+
 export interface IPreviousMenuAction {
     type: "PREVIOUS_MENU"
 }
@@ -295,6 +299,7 @@ export type SimpleAction =
     IHideMessageDialog |
     IPreviousMenuAction |
     INextMenuAction |
+    IIncrementMenuAction |
     IFilterMenuAction |
     ISetModeAction |
     ISetColorsAction |
