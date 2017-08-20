@@ -24,14 +24,10 @@ export class InputManager implements Oni.InputManager {
      * API Methods
      */
     public bind(keyChord: string, action: ActionOrCommand, filterFunction?: () => boolean) {
-        // tslint:disable-line no-empty-block
+        const currentBinding = this._boundKeys[keyChord] || []
+        const newBinding = { action, filter: filterFunction }
 
-        // TODO: add to existing binding
-        this.rebind(keyChord, action, filterFunction)
-    }
-
-    public rebind(keyChord: string, action: ActionOrCommand, filterFunction?: () => boolean) {
-        this._boundKeys[keyChord] = [{ action, filter: filterFunction }]
+        this._boundKeys[keyChord] = [...currentBinding, newBinding]
     }
 
     public unbind(keyChord: string) {

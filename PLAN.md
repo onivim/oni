@@ -1,4 +1,3 @@
-- `activeEditor.mode` isn't working correctly
 - Add `neovim` capability to activeEditor, that can be queried
 
 - Add option to hide commands in screen
