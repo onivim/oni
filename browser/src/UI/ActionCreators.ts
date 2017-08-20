@@ -21,28 +21,32 @@ import * as Config from "./../Config"
 import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
 
-export const bufferEnter = (id: number, file: string, totalLines: number) => ({
+export const bufferEnter = (id: number, file: string, totalLines: number, hidden: boolean, listed: boolean) => ({
     type: "BUFFER_ENTER",
     payload: {
         id,
         file: normalizePath(file),
         totalLines,
+        hidden,
+        listed,
     },
 })
 
-export const bufferUpdate = (id: number, version: number, totalLines: number) => ({
+export const bufferUpdate = (id: number, modified: boolean, version: number, totalLines: number) => ({
     type: "BUFFER_UPDATE",
     payload: {
         id,
+        modified,
         version,
         totalLines,
     },
 })
 
-export const bufferSave = (id: number, version: number) => ({
+export const bufferSave = (id: number, modified: boolean, version: number) => ({
     type: "BUFFER_SAVE",
     payload: {
         id,
+        modified,
         version,
     },
 })

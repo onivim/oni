@@ -32,7 +32,7 @@ export class Formatter {
 
         this._pluginManager.on("format", (response: Oni.Plugin.FormattingEditsResponse) => {
 
-            if (response.version !== this._bufferUpdates.version) {
+            if (!this._bufferUpdates.modified) {
                 return
             }
 

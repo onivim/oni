@@ -13,10 +13,11 @@ import { ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance, NeovimWindowManager } from "./../neovim"
-import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
+import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import * as Config from "./../Config"
+import { Event, IEvent } from "./../Event"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
@@ -27,7 +28,6 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { Errors } from "./../Services/Errors"
 import { Formatter } from "./../Services/Formatter"
 import { MultiProcess } from "./../Services/MultiProcess"
-import { OutputWindow } from "./../Services/Output"
 import { QuickOpen } from "./../Services/QuickOpen"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { Tasks } from "./../Services/Tasks"
@@ -43,6 +43,10 @@ import { InstallHelp } from "./../UI/components/InstallHelp"
 
 import { NeovimSurface } from "./NeovimSurface"
 
+import { clipboard} from "electron"
+
+import * as Platform from "./../Platform"
+
 export class NeovimEditor implements IEditor {
 
     private _neovimInstance: NeovimInstance
@@ -54,6 +58,9 @@ export class NeovimEditor implements IEditor {
     private _pendingAnimationFrame: boolean = false
     private _element: HTMLElement
 
+    private _currentMode: string
+    private _onModeChangedEvent: Event<string> = new Event<string>()
+
     // Services
     private _tasks: Tasks
 
@@ -61,6 +68,14 @@ export class NeovimEditor implements IEditor {
     private _windowManager: NeovimWindowManager
 
     private _errorStartingNeovim: boolean = false
+
+    public get mode(): string {
+        return this._currentMode
+    }
+
+    public get onModeChanged(): IEvent<string> {
+        return this._onModeChangedEvent
+    }
 
     constructor(
         private _commandManager: CommandManager,
@@ -73,7 +88,7 @@ export class NeovimEditor implements IEditor {
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
 
-        this._renderer = this._config.getValue("editor.renderer") === "canvas" ? new CanvasRenderer() : new DOMRenderer()
+        this._renderer = new CanvasRenderer()
 
         // Services
         const autoCompletion = new AutoCompletion(this._neovimInstance)
@@ -83,9 +98,8 @@ export class NeovimEditor implements IEditor {
         const multiProcess = new MultiProcess()
         const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
-        const outputWindow = new OutputWindow(this._neovimInstance, this._pluginManager)
         const quickOpen = new QuickOpen(this._neovimInstance, this, bufferUpdates)
-        this._tasks = new Tasks(outputWindow)
+        this._tasks = new Tasks()
         registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
 
         this._tasks.registerTaskProvider(this._commandManager)
@@ -99,7 +113,6 @@ export class NeovimEditor implements IEditor {
         services.push(formatter)
         services.push(multiProcess)
         services.push(syntaxHighlighter)
-        services.push(outputWindow)
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
@@ -108,6 +121,12 @@ export class NeovimEditor implements IEditor {
 
         this._windowManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
             UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
+        })
+
+        this._neovimInstance.onYank.subscribe((yankInfo) => {
+            if (Config.instance().getValue("editor.clipboard.enabled")) {
+                clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+            }
         })
 
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
@@ -197,11 +216,11 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
         this._neovimInstance.on("buffer-update", (args: Oni.EventContext) => {
-            UI.Actions.bufferUpdate(args.bufferNumber, args.version, args.bufferTotalLines)
+            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
         })
 
         this._neovimInstance.on("buffer-update-incremental", (args: Oni.EventContext) => {
-            UI.Actions.bufferUpdate(args.bufferNumber, args.version, args.bufferTotalLines)
+            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
         })
 
         this._render()
@@ -255,6 +274,32 @@ export class NeovimEditor implements IEditor {
                 } else if (key === "<C-p>") {
                     UI.Actions.previousCompletion()
                     return
+                }
+            }
+
+            // TODO: Untangle these nested conditionals to use our new input-binding strategy :)
+            if (Config.instance().getValue("editor.clipboard.enabled")) {
+
+                // Handling the platform-default cases should be done when we initialize
+                // default key bindings, prior to loading hte config
+                if (Platform.isLinux() || Platform.isWindows()) {
+                    if (key === "<C-c>" && this._screen.mode === "visual") {
+                        this._neovimInstance.input("y")
+                        return
+                    } else if (key === "<C-v>" && this._screen.mode === "insert") {
+                        this._commandManager.executeCommand("editor.clipboard.paste", null)
+                        return
+                    }
+                } else {
+                    if (key === "<M-c>" && this._screen.mode === "visual") {
+                        // Make the <M-c> case work the same as <C-c> case on Windows..
+                        // execute out of visual mode, but yank
+                        this._neovimInstance.input("y")
+                        return
+                    } else if (key === "<M-v>" && this._screen.mode === "insert") {
+                        this._commandManager.executeCommand("editor.clipboard.paste", null)
+                        return
+                    }
                 }
             }
 
@@ -357,6 +402,9 @@ export class NeovimEditor implements IEditor {
     private _onModeChanged(newMode: string): void {
         UI.Actions.setMode(newMode)
 
+        this._currentMode = newMode
+        this._onModeChangedEvent.dispatch(newMode)
+
         if (newMode === "normal") {
             UI.Actions.showCursorLine()
             UI.Actions.showCursorColumn()
@@ -386,10 +434,10 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hideSignatureHelp()
             UI.Actions.hideQuickInfo()
 
-            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines)
+            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
         } else if (eventName === "BufWritePost") {
-            // After save, there is always an additional change tick bump, so the `+1` is needed to account for that.
-            UI.Actions.bufferSave(evt.bufferNumber, evt.version + 1)
+            // After we save we aren't modified... but we can pass it in just to be safe
+            UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
         } else if (eventName === "BufDelete") {
 
             this._neovimInstance.getBufferIds()

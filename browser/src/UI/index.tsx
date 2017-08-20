@@ -16,6 +16,7 @@ import * as State from "./State"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 import { CommandManager } from "./../Services/CommandManager"
+import { editorManager } from "./../Services/EditorManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
 
@@ -50,6 +51,8 @@ function render(_state: State.IState, pluginManager: PluginManager, commandManag
 
     const editor = new NeovimEditor(commandManager, pluginManager)
     editor.init(args)
+
+    editorManager.setActiveEditor(editor)
 
     ReactDOM.render(
         <Provider store={store}>

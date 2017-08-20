@@ -14,9 +14,12 @@ import * as UI from "./../UI/index"
 
 import { CallbackCommand, CommandManager } from "./CommandManager"
 
+import { replaceAll } from "./../Utility"
+
 export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance) => {
     const config = Config.instance()
     const commands = [
+        new CallbackCommand("editor.clipboard.paste", "Clipboard: Paste", "Paste clipboard contents into active text", () => pasteContents(neovimInstance)),
 
         // Debug
         new CallbackCommand("oni.debug.openDevTools", "Open DevTools", "Debug Oni and any running plugins using the Chrome developer tools", () => remote.getCurrentWindow().webContents.openDevTools()),
@@ -38,7 +41,20 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
                 .then((count) => {
                     if (count === 1) {
                         let lines = [
+                            // TODO: Export this to a file that we load, if the current config does not exist
+                            // That way, we don't have to duplicate defaults between this file and Config.ts
+
+                            "const activate = (Oni) => {",
+                            "   console.log(\"config activated\")",
+                            "}",
+                            "",
+                            "const deactivate = () => {",
+                            "   console.log(\"config deactivated\")",
+                            "}",
+                            "",
                             "module.exports = {",
+                            "   activate,",
+                            "   deactivate,",
                             "  //add custom config here, such as",
                             "  //\"oni.useDefaultConfig\": true,",
                             "  //\"oni.bookmarks\": [\"~/Documents\",]",
@@ -66,6 +82,14 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
     ]
 
     commands.forEach((c) => commandManager.registerCommand(c))
+}
+
+import { clipboard} from "electron"
+
+const pasteContents = (neovimInstance: INeovimInstance) => {
+    const textToPaste = clipboard.readText()
+    const sanitizedText = replaceAll(textToPaste, { "<": "<lt>" })
+    neovimInstance.input(sanitizedText)
 }
 
 const openFolder = (neovimInstance: INeovimInstance) => {
