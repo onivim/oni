@@ -139,7 +139,7 @@ const getTabsFromBuffers = createSelector(
             id: buf.id,
             name: getTabName(buf.file),
             isSelected: buf.id === buffers.activeBufferId,
-            isDirty: buf.version > buf.lastSaveVersion,
+            isDirty: buf.modified,
             description: buf.file,
         }))
         return tabs

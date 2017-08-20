@@ -216,11 +216,11 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
         this._neovimInstance.on("buffer-update", (args: Oni.EventContext) => {
-            UI.Actions.bufferUpdate(args.bufferNumber, args.version, args.bufferTotalLines)
+            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
         })
 
         this._neovimInstance.on("buffer-update-incremental", (args: Oni.EventContext) => {
-            UI.Actions.bufferUpdate(args.bufferNumber, args.version, args.bufferTotalLines)
+            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
         })
 
         this._render()
@@ -434,10 +434,10 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hideSignatureHelp()
             UI.Actions.hideQuickInfo()
 
-            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines)
+            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
         } else if (eventName === "BufWritePost") {
-            // After save, there is always an additional change tick bump, so the `+1` is needed to account for that.
-            UI.Actions.bufferSave(evt.bufferNumber, evt.version + 1)
+            // After we save we aren't modified... but we can pass it in just to be safe
+            UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
         } else if (eventName === "BufDelete") {
 
             this._neovimInstance.getBufferIds()

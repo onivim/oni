@@ -157,6 +157,8 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                     id: a.payload.id,
                     file: a.payload.file,
                     totalLines: a.payload.totalLines,
+                    hidden: a.payload.hidden,
+                    listed: a.payload.listed,
                 },
             }
 
@@ -175,6 +177,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 ...s.byId,
                 [a.payload.id]: <State.IBuffer>{
                     ...currentItem,
+                    modified: a.payload.modified,
                     lastSaveVersion: a.payload.version,
                 },
             }
@@ -194,9 +197,10 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 ...s.byId,
                 [a.payload.id]: <State.IBuffer>{
                     ...currentItem3,
+                    modified: a.payload.modified,
                     version: a.payload.version,
-                    lastSaveVersion,
                     totalLines: a.payload.totalLines,
+                    lastSaveVersion,
                 },
             }
 

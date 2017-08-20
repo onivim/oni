@@ -115,6 +115,9 @@ let context.windowTopLine = line("w0")
 let context.windowBottomLine = line("w$")
 let context.byte = line2byte(line(".")) + col(".")
 let context.filetype = eval("&filetype")
+let context.modified = &modified
+let context.hidden = &hidden
+let context.listed = &buflisted
 
 if exists("b:last_change_tick")
     let context.version = b:last_change_tick

@@ -12,8 +12,13 @@ export class BufferUpdates {
 
     private _lastArgs: Oni.EventContext
     private _lastBufferLines: string[] = []
+    private _modified: boolean = false
     private _lastBufferVersion: number = -1
     private _canSendIncrementalUpdates: boolean = false
+
+    public get modified(): boolean {
+        return this._modified
+    }
 
     public get version(): number {
         return this._lastBufferVersion
@@ -42,6 +47,7 @@ export class BufferUpdates {
             const lastLine = args.line
             this._lastArgs = args
             this._lastBufferLines = bufferLines
+            this._modified = args.modified
             this._lastBufferVersion = args.version
 
             // If we can send incremental updates, and the line hasn't changed, just send the incremental change
@@ -56,6 +62,7 @@ export class BufferUpdates {
         this._neovimInstance.on("buffer-update-incremental", (args: Oni.EventContext, bufferLine: string, lineNumber: number) => {
             this._lastArgs = args
             this._lastBufferLines[lineNumber - 1] = bufferLine
+            this._modified = args.modified
             this._lastBufferVersion = args.version
 
             this._pluginManager.notifyBufferUpdateIncremental(args, lineNumber, bufferLine)

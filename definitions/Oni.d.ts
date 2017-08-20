@@ -92,6 +92,9 @@ declare namespace Oni {
         bufferTotalLines: number
         bufferNumber: number
 
+        modified: boolean
+        hidden: boolean
+        listed: boolean
         version: number
         line: number
 
