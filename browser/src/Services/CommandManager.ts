@@ -14,7 +14,7 @@ export interface ICommand {
     command: string
     name: string
     detail: string
-    execute: (args?: any) => void
+    execute: (args?: any) => boolean | void
 }
 
 export class CallbackCommand implements ICommand {
@@ -54,15 +54,15 @@ export class CommandManager implements ITaskProvider {
         this._commandDictionary[command.command] = command
     }
 
-    public executeCommand(name: string, args?: any): void {
+    public executeCommand(name: string, args?: any): boolean | void {
         const command = this._commandDictionary[name]
 
         if (!command) {
             console.error(`Unable to find command: ${name}`)
-            return
+            return false
         }
 
-        command.execute(args)
+        return command.execute(args)
     }
 
     public getTasks(): Promise<ITask[]> {

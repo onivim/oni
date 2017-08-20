@@ -61,13 +61,16 @@ export class InputManager implements Oni.InputManager {
 
             // Does the binding pass filter?
             if (binding.filter && !binding.filter()) {
-                return false
+                continue
             }
 
             const action = binding.action
             if (typeof action === "string") {
-                commandManager.executeCommand(action, null)
-                return true
+                const result = commandManager.executeCommand(action, null)
+
+                if (result !== false) {
+                    return true
+                }
             } else {
                 const result = action()
 

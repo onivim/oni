@@ -7,13 +7,15 @@
 
 quickOpen.show/quickOpen.show.files
 quickOpen.show.bufferLines
-quickOpen.close
 quickOpen.select.open
 quickOpen.select.openSplitHorizontal
 quickOpen.select.openSplitVertical
 
 completion.complete
+completion.next (for completion too)
+completion.previous (for completion too)
 
+menu.close
 menu.next
 menu.previous
 
