@@ -69,6 +69,7 @@ export class ActiveEditor implements Oni.Editor {
      */
 
     public setActiveEditor(newEditor: Oni.Editor) {
+        this._activeEditor = newEditor
         this._subscriptions.forEach((d) => d.dispose())
         this._subscriptions = []
         this._subscriptions.push(newEditor.onModeChanged.subscribe((val) => this._onModeChanged.dispatch(val)))
