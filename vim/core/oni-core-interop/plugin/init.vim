@@ -202,7 +202,11 @@ function! OniNextWindow( direction )
   endif
 endfunction
 
+nnoremap <silent> <C-w>h :<C-u>call OniNextWindow('h')<CR>
+nnoremap <silent> <C-w>j :<C-u>call OniNextWindow('j')<CR>
+nnoremap <silent> <C-w>k :<C-u>call OniNextWindow('k')<CR>
+nnoremap <silent> <C-w>l :<C-u>call OniNextWindow('l')<CR>
 nnoremap <silent> <C-w><C-h> :<C-u>call OniNextWindow('h')<CR>
-nnoremap <silent> <C-w>j :<C-u>call <SID>OniNextWindow('j')<CR>
-nnoremap <silent> <C-w>k :<C-u>call <SID>OniNextWindow('k')<CR>
-nnoremap <silent> <C-w>l :<C-u>call <SID>OniNextWindow('l')<CR>
+nnoremap <silent> <C-w><C-j> :<C-u>call OniNextWindow('j')<CR>
+nnoremap <silent> <C-w><C-k> :<C-u>call OniNextWindow('k')<CR>
+nnoremap <silent> <C-w><C-l> :<C-u>call OniNextWindow('l')<CR>
