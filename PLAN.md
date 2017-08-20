@@ -22,7 +22,12 @@
     - Lightweight editor
 
 - Custom renderer
-    - Custom renderer
+    - Use React rendering strategy
+        - Props:
+            - string[]
+            - lineSize
+            - selectedLine
+    - Add file / folder icons
 
 - Share common code between SimpleEditor / OniEditor
 

@@ -4,12 +4,15 @@
  * IEditor implementation for Neovim
  */
 
+import * as fs from "fs"
+
 import * as React from "react"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance } from "./../neovim"
-import { CanvasRenderer, DOMRenderer, INeovimRenderer } from "./../Renderer"
-import { NeovimScreen } from "./../Screen"
+import { INeovimRenderer } from "./../Renderer"
+import { IScreen, NeovimScreen } from "./../Screen"
+import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
 
 import * as Config from "./../Config"
 
@@ -27,6 +30,56 @@ export class DummyPluginManager {
 
     public startPlugins(neovimInstance: NeovimInstance): void {
         // no-op
+    }
+}
+
+export class FileExplorerRenderer implements INeovimRenderer {
+    private _element: HTMLElement
+    public start(element: HTMLElement): void {
+        element.innerHTML = "hello world"
+        this._element = element
+
+    }
+
+    public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
+        if (!this._element)
+            return
+
+        this._element.innerHTML = ""
+
+        const getTextFromRow = (y: number) => {
+            let str =""
+            for(let x = 0; x < screenInfo.width; x++) {
+                const cell = screenInfo.getCell(x, y)
+                const character = cell.character
+
+                str = str + character
+            }
+
+            return str
+        }
+
+        for (let y = 0; y < screenInfo.height; y++) {
+            const text = getTextFromRow(y)
+            const elem = document.createElement("div")
+            elem.textContent = text
+
+            elem.style.color = screenInfo.foregroundColor
+            elem.style.backgroundColor = screenInfo.backgroundColor
+
+            if (y === screenInfo.cursorRow) {
+                elem.style.color = screenInfo.backgroundColor
+                elem.style.backgroundColor = screenInfo.foregroundColor
+            }
+
+            this._element.appendChild(elem)
+        }
+    }
+
+    public onAction(action: any): void {
+    }
+
+    public onResize(): void {
     }
 }
 
@@ -49,7 +102,7 @@ export class SimpleNeovimEditor implements IEditor {
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
 
-        this._renderer = this._config.getValue("editor.renderer") === "canvas" ? new CanvasRenderer() : new DOMRenderer()
+        this._renderer = new FileExplorerRenderer()
 
         this._render()
 
@@ -78,7 +131,9 @@ export class SimpleNeovimEditor implements IEditor {
         console.log("getting buffer")
         const buf = await this._neovimInstance.getCurrentBuffer()
         console.log("got buffer")
-        await buf.setLines(0, 1, false, ["a", "b", "c"])
+        
+        const files = fs.readdirSync(process.cwd())
+        await buf.setLines(0, 1, false, files)
         console.log("set lines")
     }
 
