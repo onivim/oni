@@ -44,6 +44,8 @@ import { tasks } from "./../Services/Tasks"
 
 import { clipboard } from "electron"
 
+import { normalizePath } from "./../Utility"
+
 export class NeovimEditor implements IEditor {
 
     private _neovimInstance: NeovimInstance
@@ -277,8 +279,6 @@ export class NeovimEditor implements IEditor {
                 this._neovimInstance.command("exec \":normal! " + message + "\"")
             }
         })
-
-        const normalizePath = (fileName: string) => fileName.split("\\").join("/")
 
         const openFiles = async (files: string[], action: string) => {
 
