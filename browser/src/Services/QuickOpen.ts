@@ -5,9 +5,9 @@
  */
 
 import { spawn } from "child_process"
-import { lstatSync } from "fs"
+import { lstat, readdir, lstatSync, readFileSync } from "fs"
 
-import * as glob from "glob"
+const ignore = require('ignore')
 import * as path from "path"
 import * as Log from "./../Log"
 
@@ -25,10 +25,27 @@ export class QuickOpen {
     private _cachedBuffers: QuickOpenItem[] = []
     private _neovimInstance: INeovimInstance
     private _bufferUpdates: BufferUpdates
+    private _ignore: any
 
     constructor(neovimInstance: INeovimInstance, neovimEditor: NeovimEditor, bufferUpdates: BufferUpdates) {
         this._neovimInstance = neovimInstance
         this._bufferUpdates = bufferUpdates
+
+        const config = Config.instance()
+        // respect global ~/.gitignore, oniconfig/.oniignore
+        // TODO make a .oniignore
+        // TODO take out .gitignore in current directory unless this is ideal for some people.
+        let ig = config.getValue("oni.ignore").join("\n")
+        let g = "~/.gitignore".replace("~", process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"])
+        if (lstatSync(g).isFile()) {
+            ig += readFileSync(g).toString()
+        }
+
+        if ( "jojosaysdoit" === "jojosaysdoit" ) {
+            ig += readFileSync(".gitignore").toString()
+        }
+
+        this._ignore = ignore().add(ig)
 
         UI.events.on("menu-item-selected:quickOpen", (selectedItem: any) => {
             const arg = selectedItem.selectedOption
@@ -100,6 +117,7 @@ export class QuickOpen {
         // reset list, reset increments and show loading indicator
         this._loadedItems = []
         this._showLoading()
+        this._loadManual(process.cwd())
 
         const config = Config.instance()
         // const exclude = config.getValue("oni.exclude")
@@ -141,6 +159,11 @@ export class QuickOpen {
             return
         }
 
+        // for testing purposes, I want to use my method.
+        if ("jojooverride" === "jojooverride") {
+            return
+        }
+
         const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
         // Overridden strategy
         if (overriddenCommand) {
@@ -174,23 +197,12 @@ export class QuickOpen {
         this._showMenuFromQuickOpenItems(this._cachedBuffers)
     }
 
-    // public async cacheBuffers(buffer: State.IBufferState) {
-    //     this._cachedBuffers = []
-    //     let buffers = Selectors.getAllBuffers(buffer)
-    //     buffers.forEach((buf: State.IBuffer) => {
-    //         this._cachedBuffers.push(new QuickOpenItem(buf.file, QuickOpenType.buffer, buf.id))
-    //     })
-
-    //     if (UI.Selectors.isPopupMenuOpen()) {
-    //         this._showMenuFromQuickOpenItems(this._cachedBuffers)
-    //     }
-    // }
-
     // Overridden strategy
     // If git repo, use git ls-files
     private async _loadMenu (command: string, args: string[] = []) {
         const filer = spawn(command, args)
 
+        // for every 100 reload a list, don't do it EVERY time...thrashes fuse
         filer.stdout.on("data", (data) => {
             data.toString().split("\n").forEach( (d: string) => {
                 this._loadedItems.push(new QuickOpenItem(d, QuickOpenType.file))
@@ -204,18 +216,35 @@ export class QuickOpen {
 
             Log.error(data.toString())
 
-            // FIXME : Convert to an async function like the ones above.
-            // TODO: This async call is being dropped, if we happen to use the promise
-            return glob("**/*", {
-                nodir: true,
-                ignore: Config.instance().getValue("oni.exclude"),
-            }, (_err: any, files: string[]) => {
-                files.forEach( (f: string) => {
-                    this._loadedItems.push(new QuickOpenItem(f, QuickOpenType.file))
-                })
-                this._showMenuFromQuickOpenItems(this._loadedItems)
-            })
+            // send of manual loading
+            this._loadManual(process.cwd())
         })
+    }
+
+    // manually load files >.> todo, recache fuse when load a new batch
+    // TODO fix fuse for large directories...
+    private async _loadManual(dir: string) {
+        const dathis = this
+
+        lstat(dir, function (err, stat) {
+            if (err !== null) {
+                return
+            }
+
+            if (stat.isDirectory()) {
+                readdir(dir, function (err, files) {
+                    files.forEach( (fi: string) => {
+                        let full = path.join(dir,fi)
+                        if (!dathis._ignore.ignores(full)) {
+                            dathis._loadedItems.push(new QuickOpenItem(full, QuickOpenType.file))
+                            dathis._loadManual(full)
+                        }
+                    })
+                    // load after we read a directory, don't load for EACH file.
+                    dathis._showMenuFromQuickOpenItems(dathis._loadedItems)
+                });
+            }
+        });
     }
 
     // If we are in home or install dir offer to open folder/bookmark (Basically user hasn't opened a folder yet)
@@ -256,7 +285,7 @@ export class QuickOpen {
 // We use basename/dirname for label/detail
 // So let's say you want the label YO with detail a greeting
 // you would make file = "a greeting/YO"
-enum QuickOpenType {
+export enum QuickOpenType {
     bookmark,
     bookmarkHelp,
     file,
@@ -270,7 +299,7 @@ enum QuickOpenType {
 
 // Wrapper around quick open items, this not only allows us to show multiple icons
 // It also allows us to distinguish what happens once we know their icon
-class QuickOpenItem {
+export class QuickOpenItem {
     // We take a type, and then give an fa icon
     public static convertTypeToIcon(type: QuickOpenType): string {
         switch (type) {

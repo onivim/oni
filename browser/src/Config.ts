@@ -48,7 +48,8 @@ export interface IConfigValues {
     "oni.hideMenu": boolean
 
     // glob pattern of files to exclude from fuzzy finder (Ctrl-P)
-    "oni.exclude": string[]
+    // "oni.exclude": string[]
+    "oni.ignore": string[]
 
     // bookmarks to open if opened in install dir
     "oni.bookmarks": string[]
@@ -133,7 +134,8 @@ export class Config extends EventEmitter {
 
         "oni.hideMenu": false,
 
-        "oni.exclude": ["**/node_modules/**"],
+        // "oni.exclude": ["**/node_modules/**"],
+        "oni.ignore" : [".git", ".svn" ],
         "oni.bookmarks": [],
 
         "editor.backgroundOpacity": 1.0,
