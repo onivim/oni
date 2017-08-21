@@ -16,6 +16,7 @@ import { Services } from "./Services"
 import { Ui } from "./Ui"
 
 import { editorManager } from "./../../Services/EditorManager"
+import { windowManager, WindowManager } from "./../../Services/WindowManager"
 
 import * as throttle from "lodash/throttle"
 
@@ -80,6 +81,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     public get services(): Services {
         return this._services
+    }
+
+    public get windows(): WindowManager {
+        return windowManager
     }
 
     public get helpers(): any {

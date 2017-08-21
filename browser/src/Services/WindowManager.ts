@@ -10,8 +10,6 @@
 
 import { Event, IEvent } from "./../Event"
 
-import { IEditor } from "./../Editor/Editor"
-
 export enum Split {
     Right = 0,
     Bottom = 1,
@@ -35,31 +33,51 @@ export interface ISplitInfo {
 
 export interface ISplitLeaf {
     type: "Leaf"
-    size: string
-    editor: IEditor
+    editor: Oni.Editor
 }
 
 const createSplitRoot = (direction: SplitDirection, parent?: ISplitInfo): ISplitInfo => ({
     type: "Split",
     splits: [],
     direction: SplitDirection.Horizontal,
-    parent: parent || null
+    parent: parent || null,
 })
 
+const createSplitLeaf = (editor: Oni.Editor): ISplitLeaf => ({
+    type: "Leaf",
+    editor,
+})
 
+const applySplit = (originalSplit: ISplitInfo, direction: SplitDirection, leaf: ISplitLeaf): ISplitInfo => {
+
+    if (!originalSplit.splits || !originalSplit.splits.length) {
+        return {
+            ...originalSplit,
+            splits: [leaf],
+        }
+    } else if (originalSplit.splits.length === 1) {
+        return {
+            ...originalSplit,
+            splits: [...originalSplit.splits, leaf],
+            direction,
+        }
+    } else {
+        return originalSplit
+    }
+}
 
 export class WindowManager {
     private _activeSplit: ISplitLeaf
     private _splitRoot: ISplitInfo
 
-    private _onSplitChanged: IEvent<ISplitInfo> = new Event<ISplitInfo>()
-    private _onFocusChanged: IEvent<IEditor> = new Event<IEditor>()
+    private _onSplitChanged: Event<ISplitInfo> = new Event<ISplitInfo>()
+    private _onFocusChanged: Event<Oni.Editor> = new Event<Oni.Editor>()
 
     public get onSplitChanged(): IEvent<ISplitInfo> {
         return this._onSplitChanged
     }
 
-    public get onFocusChanged(): IEvent<IEditor> {
+    public get onFocusChanged(): IEvent<Oni.Editor> {
         return this._onFocusChanged
     }
 
@@ -72,25 +90,29 @@ export class WindowManager {
         this._activeSplit = null
     }
 
-    public split(direction: SplitDirection, newEditor: Oni.Editor, sourceEditor?: Oni.Editor) {
+    public split(direction: SplitDirection, newEditor: Oni.Editor) {
 
+        const newLeaf = createSplitLeaf(newEditor)
+        this._splitRoot = applySplit(this._splitRoot, direction, newLeaf)
+
+        this._onSplitChanged.dispatch(this._splitRoot)
     }
 
-    public moveLeft(): void {
+    // public moveLeft(): void {
 
-    }
+    // }
 
-    public moveRight(): void {
+    // public moveRight(): void {
 
-    }
+    // }
 
-    public moveUp(): void {
+    // public moveUp(): void {
 
-    }
+    // }
 
-    public moveDown(): void {
+    // public moveDown(): void {
 
-    }
+    // }
 
     public close(editor: Oni.Editor) {
 

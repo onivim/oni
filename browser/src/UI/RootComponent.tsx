@@ -6,10 +6,70 @@ import { Logs } from "./components/Logs"
 import { MenuContainer } from "./components/Menu"
 import StatusBar from "./components/StatusBar"
 
-import { IEditor } from "./../Editor/Editor"
+// import { IEditor } from "./../Editor/Editor"
+
+import * as WindowManager from "./../Services/WindowManager"
 
 interface IRootComponentProps {
-    editor: IEditor
+    windowManager: WindowManager.WindowManager
+}
+
+export interface IWindowManagerProps {
+    windowManager: WindowManager.WindowManager
+}
+
+export interface IWindowManagerState {
+    splitRoot: WindowManager.ISplitInfo
+}
+
+export class WindowManagerComponent extends React.PureComponent<IWindowManagerProps, IWindowManagerState> {
+
+    constructor(props: IWindowManagerProps) {
+        super(props)
+
+        this.state = {
+            splitRoot: props.windowManager.splitRoot,
+        }
+    }
+
+    public componentDidMount(): void {
+        this.props.windowManager.onSplitChanged.subscribe((newSplit) => {
+            this.setState({
+                splitRoot: newSplit,
+            })
+        })
+    }
+
+    public render() {
+        if (!this.state.splitRoot) {
+            return null
+        }
+
+        const containerStyle = {
+            "display": "flex",
+            "flex-direction": "row",
+            "width": " 100%",
+            "height": " 100%",
+        }
+
+        const editors = this.state.splitRoot.splits.map((split) => {
+            if (split.type === "Split") {
+                return null
+            } else {
+                const anyEditor: any = split.editor
+
+                if (!anyEditor) {
+                    return <div className="container vertical full">test</div>
+                } else {
+                    return <EditorHost editor={anyEditor} />
+                }
+            }
+        })
+
+        return <div style={containerStyle}>
+                    {editors}
+                </div>
+    }
 }
 
 export class RootComponent extends React.PureComponent<IRootComponentProps, void> {
@@ -22,7 +82,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
                 <div className="container vertical full">
                     <div className="container full">
                         <div className="stack">
-                            <EditorHost editor={this.props.editor} />
+                            <WindowManagerComponent windowManager={this.props.windowManager} />
                         </div>
                         <div className="stack layer">
                             <Logs />
