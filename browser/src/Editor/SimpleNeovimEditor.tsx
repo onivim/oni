@@ -7,6 +7,7 @@
 import * as fs from "fs"
 
 import * as React from "react"
+import * as ReactDOM from "react-dom"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance } from "./../neovim"
@@ -33,6 +34,25 @@ export class DummyPluginManager {
     }
 }
 
+export interface IFileExplorerProps {
+    lines: string[]
+    backgroundColor: string
+    foregroundColor: string
+}
+
+export const FileExplorerComponent = (props: IFileExplorerProps): JSX.Element => {
+
+    const style = {
+        color: props.foregroundColor,
+        backgroundColor: props.backgroundColor,
+    }
+
+    const contents = props.lines.map((l) => <div>{l}</div>)
+    return <div style={style}>
+        {contents}
+    </div>
+}
+
 export class FileExplorerRenderer implements INeovimRenderer {
     private _element: HTMLElement
     public start(element: HTMLElement): void {
@@ -44,8 +64,6 @@ export class FileExplorerRenderer implements INeovimRenderer {
     public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
         if (!this._element)
             return
-
-        this._element.innerHTML = ""
 
         const getTextFromRow = (y: number) => {
             let str =""
@@ -59,8 +77,11 @@ export class FileExplorerRenderer implements INeovimRenderer {
             return str
         }
 
+        let lines: string[] = []
+
         for (let y = 0; y < screenInfo.height; y++) {
             const text = getTextFromRow(y)
+            lines = lines.concat(text)
             const elem = document.createElement("div")
             elem.textContent = text
 
@@ -71,9 +92,11 @@ export class FileExplorerRenderer implements INeovimRenderer {
                 elem.style.color = screenInfo.backgroundColor
                 elem.style.backgroundColor = screenInfo.foregroundColor
             }
-
-            this._element.appendChild(elem)
         }
+
+        console.dir(lines)
+
+        ReactDOM.render(<FileExplorerComponent lines={lines} backgroundColor={screenInfo.backgroundColor} foregroundColor={screenInfo.foregroundColor}/>, this._element)
     }
 
     public onAction(action: any): void {
