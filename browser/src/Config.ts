@@ -47,8 +47,7 @@ export interface IConfigValues {
     // (can still be activated by pressing 'Alt')
     "oni.hideMenu": boolean
 
-    // glob pattern of files to exclude from fuzzy finder (Ctrl-P)
-    // "oni.exclude": string[]
+    // Ignore patterns following .gitignore rules for QuickOpen/Fuzzy Finding (Ctrl-P)
     "oni.ignore": string[]
 
     // bookmarks to open if opened in install dir
@@ -135,7 +134,11 @@ export class Config extends EventEmitter {
         "oni.hideMenu": false,
 
         // "oni.exclude": ["**/node_modules/**"],
-        "oni.ignore" : [".git", ".svn" ],
+        "oni.ignore" : [
+            ".git", ".svn",
+            // If you want oni to ignore hidden files, keep this in your ignore
+            ".*"
+        ],
         "oni.bookmarks": [],
 
         "editor.backgroundOpacity": 1.0,

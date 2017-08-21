@@ -26,6 +26,7 @@ export class QuickOpen {
     private _neovimInstance: INeovimInstance
     private _bufferUpdates: BufferUpdates
     private _ignore: any
+    private _binaryExtension: string[] = [ "*.4", "*.7", "*.7z", "*.AAA", "*.DIC", "*.DLL", "*.Dll", "*.EXE", "*.Exe", "*.FIL", "*.LNK", "*.SYS", "*.XRS", "*.acm", "*.asi", "*.awk", "*.ax", "*.cdl", "*.cgi", "*.com", "*.cpl", "*.d", "*.dLL", "*.dat", "*.dic", "*.dll", "*.drv", "*.ds", "*.e32", "*.efi", "*.exe", "*.flt", "*.fon", "*.foo", "*.gnu", "*.iec", "*.ime", "*.in", "*.js", "*.js~", "*.lex", "*.lnk", "*.ml", "*.mod", "*.mui", "*.nak", "*.nfs", "*.ocx", "*.odf", "*.olb", "*.old", "*.pl", "*.pm", "*.py", "*.pyd", "*.pyw", "*.rb", "*.rll", "*.rs", "*.scr", "*.sed", "*.sfx", "*.sh", "*.so", "*.sub", "*.sys", "*.t32", "*.t64", "*.tcl", "*.tlb", "*.tmp", "*.tpl", "*.tsp", "*.txt", "*.vdm", "*.ver", "*.zsh", ]
 
     constructor(neovimInstance: INeovimInstance, neovimEditor: NeovimEditor, bufferUpdates: BufferUpdates) {
         this._neovimInstance = neovimInstance
@@ -36,6 +37,7 @@ export class QuickOpen {
         // TODO make a .oniignore
         // TODO take out .gitignore in current directory unless this is ideal for some people.
         let ig = config.getValue("oni.ignore").join("\n")
+        ig += this._binaryExtension.join("\n")
         let g = "~/.gitignore".replace("~", process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"])
         if (lstatSync(g).isFile()) {
             ig += readFileSync(g).toString()
@@ -202,9 +204,9 @@ export class QuickOpen {
     private async _loadMenu (command: string, args: string[] = []) {
         const filer = spawn(command, args)
 
-        // for every 100 reload a list, don't do it EVERY time...thrashes fuse
+        // consult the user ignore
         filer.stdout.on("data", (data) => {
-            data.toString().split("\n").forEach( (d: string) => {
+            this._ignore.filter(data.toString()).split("\n").forEach( (d: string) => {
                 this._loadedItems.push(new QuickOpenItem(d, QuickOpenType.file))
             })
             this._showMenuFromQuickOpenItems(this._loadedItems)
@@ -222,7 +224,8 @@ export class QuickOpen {
     }
 
     // manually load files >.> todo, recache fuse when load a new batch
-    // TODO fix fuse for large directories...
+    // TODO fix fuse for async, files load and it shows in menu BUT, it doesn't matter
+    // because the input field won't let you type, will NEED to fix this..
     // ALSO have an exit flag, if the user says GOODBYE with esc, do NOT keep loading files
     private async _loadManual(dir: string) {
         const dathis = this
@@ -236,9 +239,15 @@ export class QuickOpen {
                 readdir(dir, function (err, files) {
                     files.forEach( (fi: string) => {
                         let full = path.join(dir,fi)
-                        if (!dathis._ignore.ignores(full)) {
-                            dathis._loadedItems.push(new QuickOpenItem(full, QuickOpenType.file))
-                            dathis._loadManual(full)
+                        let rela = path.join(dir.replace(process.cwd(), "."), fi)
+                        if (!dathis._ignore.ignores(rela)) {
+                            if(lstatSync(full).isFile()) {
+                                console.log(rela)
+                                dathis._loadedItems.push(new QuickOpenItem(rela, QuickOpenType.file))
+                            }
+                            else if (lstatSync(full).isDirectory()) {
+                                dathis._loadManual(full)
+                            }
                         }
                     })
                     // load after we read a directory, don't load for EACH file.
