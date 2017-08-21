@@ -223,6 +223,7 @@ export class QuickOpen {
 
     // manually load files >.> todo, recache fuse when load a new batch
     // TODO fix fuse for large directories...
+    // ALSO have an exit flag, if the user says GOODBYE with esc, do NOT keep loading files
     private async _loadManual(dir: string) {
         const dathis = this
 
