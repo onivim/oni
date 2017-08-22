@@ -12,8 +12,7 @@ export const getUserHome = () =>
     isWindows() ? process.env["USERPROFILE"] : process.env["HOME"] // tslint:disable-line no-string-literal
 
 export const getLinkPath = () => isMac() ? "/usr/local/bin/oni" : "" // TODO: windows + linux
-
-export const pathIsLinked = () => {
+export const isAddedToPath = () => {
   if (isMac()) {
     try { fs.lstatSync(getLinkPath()) } catch (_) { return false }
     return true
