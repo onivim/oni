@@ -15,6 +15,8 @@ import { INeovimRenderer } from "./../Renderer"
 import { IScreen, NeovimScreen } from "./../Screen"
 import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
 
+import { Icon } from "./../UI/Icon"
+
 import * as Config from "./../Config"
 
 // import { PluginManager } from "./../Plugins/PluginManager"
@@ -36,6 +38,7 @@ export class DummyPluginManager {
 
 export interface IFileExplorerProps {
     lines: string[]
+    selectedLine: number
     backgroundColor: string
     foregroundColor: string
 }
@@ -47,7 +50,17 @@ export const FileExplorerComponent = (props: IFileExplorerProps): JSX.Element =>
         backgroundColor: props.backgroundColor,
     }
 
-    const contents = props.lines.map((l) => <div>{l}</div>)
+    const selectedStyle = {
+        color: props.backgroundColor,
+        backgroundColor: props.foregroundColor,
+    }
+
+    const contents = props.lines.map((l, i) => {
+
+        const itemStyle = i === props.selectedLine ? selectedStyle : null
+
+        return <div style={itemStyle}><Icon name={"file-o"} /><span>{l}</span></div>
+    })
     return <div style={style}>
         {contents}
     </div>
@@ -96,7 +109,7 @@ export class FileExplorerRenderer implements INeovimRenderer {
 
         console.dir(lines)
 
-        ReactDOM.render(<FileExplorerComponent lines={lines} backgroundColor={screenInfo.backgroundColor} foregroundColor={screenInfo.foregroundColor}/>, this._element)
+        ReactDOM.render(<FileExplorerComponent lines={lines} selectedLine={screenInfo.cursorRow} backgroundColor={screenInfo.backgroundColor} foregroundColor={screenInfo.foregroundColor}/>, this._element)
     }
 
     public onAction(action: any): void {
