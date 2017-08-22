@@ -7,7 +7,6 @@
 import * as values from "lodash/values"
 
 import { INeovimInstance } from "./../neovim"
-
 import { ITask, ITaskProvider } from "./Tasks"
 
 export interface ICommand {
@@ -44,8 +43,11 @@ export class CommandManager implements ITaskProvider {
 
     private _commandDictionary: { [key: string]: ICommand } = {}
 
-    public registerCommand(command: ICommand): void {
+    public clearCommands(): void {
+      this._commandDictionary = {}
+    }
 
+    public registerCommand(command: ICommand): void {
         if (this._commandDictionary[command.command]) {
             console.error(`Tried to register multiple commands for: ${command.name}`)
             return
@@ -70,8 +72,10 @@ export class CommandManager implements ITaskProvider {
         const tasks = commands.map((c) => ({
             name: c.name,
             detail: c.detail,
+            command: c.command,
             callback: () => c.execute(),
         }))
+
         return Promise.resolve(tasks)
     }
 }

@@ -129,6 +129,16 @@ export class NeovimEditor implements IEditor {
             }
         })
 
+        // Tasks Executed
+
+        // TODO: use constants for the built-in commands
+        this._tasks.on("task-executed", (command:String) => {
+          // reload the commands if the path has been modified
+          if (command == "oni.editor.removeFromPath" || command == "oni.editor.addToPath") {
+            registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
+          }
+        });
+
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
         this._pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
             if (err) {
