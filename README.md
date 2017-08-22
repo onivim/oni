@@ -264,7 +264,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| Y | Y | Y | Y | Y | Y | Y | N |
+| __+__ | __+__ | __+__ | __+__ | __+__ | __+__ | __+__ | - |
 
 #### C#
 
@@ -278,7 +278,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| Y | Y | N | N | Y | N | N | N |
+| __+__ | __+__ | - | - | __+__ | - | - | - |
 
 #### Go
 
@@ -292,7 +292,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| N | Y | N | N | Y | N | N | N |
+| - | __+__ | - | - | __+__ | - | - | - |
 
 _Known Issues_
 
@@ -310,7 +310,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| Y | Y | N | N | Y | N | N | N |
+| __+__ | __+__ | - | - | __+__ | - | - | - |
 
 _Known Issues_
 
@@ -336,7 +336,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| Y | Y | N | Y | Y | N | N | N |
+| __+__ | __+__ | - | __+__ | __+__ | - | - | - |
 
 
 ### Configuration
