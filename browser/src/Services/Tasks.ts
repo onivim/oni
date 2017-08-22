@@ -41,7 +41,7 @@ export class Tasks extends EventEmitter {
 
             if (selectedTask) {
                 await selectedTask.callback()
-                this.emit("task-executed", selectedTask.command);
+                this.emit("task-executed", selectedTask.command)
             }
         })
     }
@@ -71,7 +71,7 @@ export class Tasks extends EventEmitter {
     private async _refreshTasks(): Promise<void> {
         this._lastTasks = []
 
-        let initialProviders: ITaskProvider[] = []
+        const initialProviders: ITaskProvider[] = []
         const taskProviders = initialProviders.concat(this._providers)
         const allTasks = await Promise.all(taskProviders.map(async (t: ITaskProvider) => await t.getTasks() || []))
         this._lastTasks = flatten(allTasks)

@@ -1,6 +1,8 @@
+/// <reference path="./../../definitions/sudo-prompt.d.ts"/>
+
+import * as fs from "fs"
 import * as os from "os"
-import * as fs from 'fs'
-const sudo = require("sudo-prompt")
+import * as sudo from "sudo-prompt"
 
 export const isWindows = () => os.platform() === "win32"
 export const isMac = () => os.platform() === "darwin"
@@ -13,27 +15,27 @@ export const getLinkPath = () => isMac() ? "/usr/local/bin/oni" : "" // TODO: wi
 
 export const pathIsLinked = () => {
   if (isMac()) {
-    try { fs.lstatSync(getLinkPath()) } catch(_) { return false }
+    try { fs.lstatSync(getLinkPath()) } catch (_) { return false }
     return true
   }
 
   return false
 }
-export const removeFromPath = () => isMac () ? fs.unlinkSync(getLinkPath()) : false; // TODO: windows + other
+export const removeFromPath = () => isMac () ? fs.unlinkSync(getLinkPath()) : false // TODO: windows + other
 
-export const addToPath = async() => {
+export const addToPath = async () => {
   if (isMac()) {
-    const appDirectory = '/Applications/Oni.app/Contents/'
-    const options = {name: 'Oni', icns: `${appDirectory}Resources/Oni.icns` };
+    const appDirectory = "/Applications/Oni.app/Contents/"
+    const options = {name: "Oni", icns: `${appDirectory}Resources/Oni.icns` }
     const linkPath = `${appDirectory}MacOS/Oni`
     await _runSudoCommand(`ln -s ${linkPath} ${getLinkPath()}`, options)
   }
 }
 
-const _runSudoCommand = async (command:string, options:any) => {
+const _runSudoCommand = async (command: string, options: any) => {
   return new Promise(resolve => {
     sudo.exec(command, options, (error: Error, stdout: string, stderr: string) => {
       resolve({error, stdout, stderr})
     })
-  });
+  })
 }

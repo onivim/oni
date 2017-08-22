@@ -14,8 +14,8 @@ import * as UI from "./../UI/index"
 
 import { CallbackCommand, CommandManager } from "./CommandManager"
 
-import { replaceAll } from "./../Utility"
 import * as Platform from "./../Platform"
+import { replaceAll } from "./../Utility"
 
 export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance) => {
     const config = Config.instance()
@@ -86,8 +86,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
     if (Platform.pathIsLinked()) {
       commands.push( new CallbackCommand("oni.editor.removeFromPath", "Remove from PATH", "Disable executing 'oni' from terminal", Platform.removeFromPath ))
-    }
-    else {
+    } else {
       commands.push( new CallbackCommand("oni.editor.addToPath", "Add to PATH", "Enable executing 'oni' from terminal", Platform.addToPath ))
     }
 
