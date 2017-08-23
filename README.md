@@ -179,7 +179,7 @@ If a [language extension](#language-extensibility) is available for a language, 
 
 #### Fuzzy Finder
 
-Fuzzy Finder is a quick and easy way to switch between files. It's similiar in goal to the Ctrl-P plugin, and the built-in functionality editors like VSCode and Atom provide.
+Fuzzy Finder is a quick and easy way to switch between files. It's similar in goal to the Ctrl-P plugin, and the built-in functionality editors like VSCode and Atom provide.
 
 ##### Entry point
 - `<C-p>` - show the Fuzzy Finder menu
