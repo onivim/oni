@@ -3,6 +3,7 @@
 import * as fs from "fs"
 import * as os from "os"
 import * as sudo from "sudo-prompt"
+import * as path from "path"
 
 export const isWindows = () => os.platform() === "win32"
 export const isMac = () => os.platform() === "darwin"
@@ -24,7 +25,7 @@ export const removeFromPath = () => isMac () ? fs.unlinkSync(getLinkPath()) : fa
 
 export const addToPath = async () => {
   if (isMac()) {
-    const appDirectory = "/Applications/Oni.app/Contents/"
+    const appDirectory = `${path.dirname(process.mainModule.filename)}../../`
     const options = {name: "Oni", icns: `${appDirectory}Resources/Oni.icns` }
     const linkPath = `${appDirectory}MacOS/Oni`
     await _runSudoCommand(`ln -s ${linkPath} ${getLinkPath()}`, options)
