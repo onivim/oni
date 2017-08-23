@@ -30,9 +30,6 @@ export class CallbackCommand implements ICommand {
 }
 
 export class VimCommand implements ICommand {
-    public messageSuccess: string
-    public messageFail: string
-
     constructor(
         public command: string,
         public name: string, public detail: string,
