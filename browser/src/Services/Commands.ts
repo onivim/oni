@@ -86,11 +86,17 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
     // TODO: once implementations of this command work on all platforms, remove the exclusive check for OSX
     if (Platform.isMac()) {
+      let pathCommand: CallbackCommand
+
       if (Platform.isAddedToPath()) {
-        commands.push( new CallbackCommand("oni.editor.removeFromPath", "Remove from PATH", "Disable executing 'oni' from terminal", Platform.removeFromPath ))
+        pathCommand = new CallbackCommand("oni.editor.removeFromPath", "Remove from PATH", "Disable executing 'oni' from terminal", Platform.removeFromPath )
+        pathCommand.messageSuccess = "Oni has been removed from the $PATH"
       } else {
-        commands.push( new CallbackCommand("oni.editor.addToPath", "Add to PATH", "Enable executing 'oni' from terminal", Platform.addToPath ))
+        pathCommand = new CallbackCommand("oni.editor.addToPath", "Add to PATH", "Enable executing 'oni' from terminal", Platform.addToPath )
+        pathCommand.messageSuccess = "Oni has been added to the $PATH"
       }
+
+      commands.push(pathCommand)
     }
 
     commands.forEach((c) => commandManager.registerCommand(c))

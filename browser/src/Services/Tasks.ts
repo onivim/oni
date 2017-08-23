@@ -9,16 +9,18 @@
  *  - NPM tasks
  */
 
+import { remote } from "electron"
 import {EventEmitter} from "events"
 import * as find from "lodash/find"
 import * as flatten from "lodash/flatten"
-
 import * as UI from "./../UI/index"
 
 export interface ITask {
     name: string
     detail: string
     command: string
+    messageSuccess?: string
+    messageFail?: string // TODO: implement callbacks to return boolean
     callback: () => void
 }
 
@@ -42,6 +44,11 @@ export class Tasks extends EventEmitter {
             if (selectedTask) {
                 await selectedTask.callback()
                 this.emit("task-executed", selectedTask.command)
+
+                // TODO: we should make the callback return a bool so we can display either success/fail messages
+                if (selectedTask.messageSuccess != null) {
+                  remote.dialog.showMessageBox({type: "info", title: "Success", message: selectedTask.messageSuccess})
+                }
             }
         })
     }

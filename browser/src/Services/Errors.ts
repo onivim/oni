@@ -41,6 +41,7 @@ export class Errors implements ITaskProvider {
             name: "Show Errors",
             detail: "Open quickfix window and show error details",
             command: "oni.editor.showErrors",
+
             callback: () => {
                 this._setQuickFixErrors()
                 this._neovimInstance.command("copen")
