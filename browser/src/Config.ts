@@ -286,6 +286,8 @@ export class Config extends EventEmitter {
             }
         }
 
+        // TODO: Refactor <C-p> / <C-P> to <M-p>/<M-P> for Mac?
+
         oni.input.bind("<f3>", "language.formatter.formatDocument")
         oni.input.bind("<f12>", "oni.editor.gotoDefinition")
         oni.input.bind("<C-p>", "quickOpen.show" /* TODO: Normal mode filter */)
@@ -293,6 +295,10 @@ export class Config extends EventEmitter {
         oni.input.bind("<C-/>", "quickOpen.showBufferLines" /* TODO: Normal mode filter */)
         oni.input.bind("<C-pageup>", "oni.process.cyclePrevious")
         oni.input.bind("<C-pagedown>", "oni.process.cycleNext")
+
+        oni.input.bind("<enter>", "completion.complete")
+        oni.input.bind("<C-n>", "completion.next")
+        oni.input.bind("<C-p>", "completion.previous")
     }
 
     private applyConfig(): void {

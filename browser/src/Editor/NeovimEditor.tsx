@@ -21,7 +21,6 @@ import { Event, IEvent } from "./../Event"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
-import { AutoCompletion } from "./../Services/AutoCompletion"
 import { BufferUpdates } from "./../Services/BufferUpdates"
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
@@ -86,7 +85,6 @@ export class NeovimEditor implements IEditor {
         this._renderer = new CanvasRenderer()
 
         // Services
-        const autoCompletion = new AutoCompletion(this._neovimInstance)
         const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
         const errorService = new Errors(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
@@ -97,7 +95,6 @@ export class NeovimEditor implements IEditor {
         tasks.registerTaskProvider(commandManager)
         tasks.registerTaskProvider(errorService)
 
-        services.push(autoCompletion)
         services.push(bufferUpdates)
         services.push(errorService)
         services.push(windowTitle)
@@ -250,20 +247,6 @@ export class NeovimEditor implements IEditor {
                 }
 
                 return
-            }
-
-            if (UI.Selectors.areCompletionsVisible()) {
-
-                if (key === "<enter>") {
-                    autoCompletion.complete()
-                    return
-                } else if (key === "<C-n>") {
-                    UI.Actions.nextCompletion()
-                    return
-                } else if (key === "<C-p>") {
-                    UI.Actions.previousCompletion()
-                    return
-                }
             }
 
             this._neovimInstance.input(key)

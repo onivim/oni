@@ -10,6 +10,7 @@ import * as Config from "./../Config"
 import { IBuffer, INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
+import { AutoCompletion } from "./../Services/AutoCompletion"
 import { BufferUpdates } from "./../Services/BufferUpdates"
 import { Formatter } from "./../Services/Formatter"
 import { multiProcess } from "./../Services/MultiProcess"
@@ -18,13 +19,14 @@ import { tasks } from "./../Services/Tasks"
 
 import * as UI from "./../UI/index"
 
-import { CallbackCommand, CommandManager } from "./CommandManager"
+import { ICommandCallback, CallbackCommand, CommandManager } from "./CommandManager"
 
 import { replaceAll } from "./../Utility"
 
 export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance, bufferUpdates: BufferUpdates) => {
     const config = Config.instance()
 
+    const autoCompletion = new AutoCompletion(neovimInstance)
     const quickOpen = new QuickOpen(neovimInstance, bufferUpdates)
     const formatter = new Formatter(neovimInstance, pluginManager, bufferUpdates)
 
@@ -98,6 +100,11 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         new CallbackCommand("commands.show", null, null, () => tasks.show()),
 
+        // Autocompletion
+        new CallbackCommand("completion.complete", null, null, autoCompletionCommand(() => autoCompletion.complete())),
+        new CallbackCommand("completion.next", null, null, nextCompletionItem),
+        new CallbackCommand("completion.previous", null, null, previousCompletionItem),
+
         // Add additional commands here
         // ...
     ]
@@ -106,6 +113,29 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 }
 
 import { clipboard} from "electron"
+
+/**
+ * Higher-order function for commands dealing with completion
+ * - checks that the completion menu is open
+ */
+const autoCompletionCommand = (innerCommand: ICommandCallback) => {
+    return () => {
+        if (UI.Selectors.areCompletionsVisible()) {
+            return innerCommand()
+        }
+
+        return false
+    }
+}
+
+const nextCompletionItem = autoCompletionCommand(() => {
+    UI.Actions.nextCompletion()
+})
+
+const previousCompletionItem = autoCompletionCommand(() => {
+    UI.Actions.previousCompletion()
+})
+
 
 const pasteContents = (neovimInstance: INeovimInstance) => {
     const textToPaste = clipboard.readText()

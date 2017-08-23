@@ -10,11 +10,13 @@ import { INeovimInstance } from "./../neovim"
 
 import { ITask, ITaskProvider } from "./Tasks"
 
+export type ICommandCallback = (args?: any) => any
+
 export interface ICommand {
     command: string
     name: string
     detail: string
-    execute: (args?: any) => boolean | void
+    execute: ICommandCallback
 }
 
 export class CallbackCommand implements ICommand {
@@ -22,7 +24,8 @@ export class CallbackCommand implements ICommand {
         public command: string,
         public name: string,
         public detail: string,
-        public execute: (args?: any) => void) { }
+        public execute: ICommandCallback) {
+        }
 }
 
 export class VimCommand implements ICommand {
