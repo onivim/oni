@@ -35,6 +35,11 @@ export class Keyboard extends EventEmitter {
             evt.preventDefault()
         }
 
+        if (evt.shiftKey) {
+            mappedKey = "S-" + mappedKey
+            evt.preventDefault()
+        }
+
         if (evt.metaKey) {
             mappedKey = "M-" + mappedKey
             evt.preventDefault()
