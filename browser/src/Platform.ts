@@ -25,9 +25,9 @@ export const removeFromPath = () => isMac () ? fs.unlinkSync(getLinkPath()) : fa
 
 export const addToPath = async () => {
   if (isMac()) {
-    const appDirectory = `${path.dirname(process.mainModule.filename)}../../`
-    const options = {name: "Oni", icns: `${appDirectory}Resources/Oni.icns` }
-    const linkPath = `${appDirectory}MacOS/Oni`
+    const appDirectory = path.join(path.dirname(process.mainModule.filename), "..", "..")
+    const options = {name: "Oni", icns: path.join(appDirectory, "Resources", "Oni.icns")}
+    const linkPath = path.join(appDirectory, "MacOS", "Oni")
     await _runSudoCommand(`ln -s ${linkPath} ${getLinkPath()}`, options)
   }
 }
