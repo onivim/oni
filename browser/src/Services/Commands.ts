@@ -95,9 +95,6 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         new CallbackCommand("language.formatter.formatDocument", "Format Document", "Use the language service to auto-format the document", () => formatter.formatBuffer()),
 
-        new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show()),
-        new CallbackCommand("quickOpen.showBufferLines", null, null, () => quickOpen.showBufferLines()),
-
         new CallbackCommand("commands.show", null, null, () => tasks.show()),
 
         // Autocompletion
@@ -111,9 +108,11 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("menu.previous", null, null, popupMenuPrevious)
 
         // QuickOpen
-        new CallbackCommand("quickopen.open", null null, quickOpen),
-        new CallbackCommand("quickopen.openVertical", null null, quickOpenVertical),
-        new CallbackCommand("quickopen.openHorizontal", null null, quickOpenHorizontal),
+        new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show()),
+        new CallbackCommand("quickOpen.showBufferLines", null, null, () => quickOpen.showBufferLines()),
+        new CallbackCommand("quickopen.openFile", null null, quickOpenFile),
+        new CallbackCommand("quickopen.openFileVertical", null null, quickOpenFileVertical),
+        new CallbackCommand("quickopen.openFileHorizontal", null null, quickOpenFileHorizontal),
 
         // Add additional commands here
         // ...
@@ -160,9 +159,9 @@ const popupMenuClose = popupMenuCommand(() => UI.Actions.hidePopupMenu())
 const popupMenuNext = popupMenuCommand(() => UI.Actions.nextMenuItem())
 const popupMenuPrevious = popupMenuCommand(() => UI.Actions.previousMenuItem())
 
-const quickOpen = popupMenuCommand(() => UI.Actions.selectMenuItem("e"))
-const quickOpenHorizontal = popupMenuCommand(() => UI.Actions.selectMenuItem("sp"))
-const quickOpenVertical = popupMenuCommand(() => UI.Actions.selectMenuItem("vsp"))
+const quickOpenFile = popupMenuCommand(() => UI.Actions.selectMenuItem("e"))
+const quickOpenFileHorizontal = popupMenuCommand(() => UI.Actions.selectMenuItem("sp"))
+const quickOpenFileVertical = popupMenuCommand(() => UI.Actions.selectMenuItem("vsp"))
 
 const pasteContents = (neovimInstance: INeovimInstance) => {
     const textToPaste = clipboard.readText()
