@@ -137,7 +137,7 @@ export class Config extends EventEmitter {
         "oni.ignore" : [
             ".git", ".svn",
             // If you want oni to ignore hidden files, keep this in your ignore
-            ".*"
+            ".*",
         ],
         "oni.bookmarks": [],
 
