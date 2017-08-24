@@ -105,6 +105,16 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("completion.next", null, null, nextCompletionItem),
         new CallbackCommand("completion.previous", null, null, previousCompletionItem),
 
+        // Menu
+        new CallbackCommand("menu.close", null, null, popupMenuClose),
+        new CallbackCommand("menu.next", null, null, popupMenuNext),
+        new CallbackCommand("menu.previous", null, null, popupMenuPrevious)
+
+        // QuickOpen
+        new CallbackCommand("quickopen.open", null null, quickOpen),
+        new CallbackCommand("quickopen.openVertical", null null, quickOpenVertical),
+        new CallbackCommand("quickopen.openHorizontal", null null, quickOpenHorizontal),
+
         // Add additional commands here
         // ...
     ]
@@ -136,6 +146,23 @@ const previousCompletionItem = autoCompletionCommand(() => {
     UI.Actions.previousCompletion()
 })
 
+const popupMenuCommand = (innerCommand: ICommandCallback) => {
+    return () => {
+        if (UI.Selectors.isPopupMenuOpen()) {
+            return innerCommand()
+        }
+
+        return false
+    }
+}
+
+const popupMenuClose = popupMenuCommand(() => UI.Actions.hidePopupMenu())
+const popupMenuNext = popupMenuCommand(() => UI.Actions.nextMenuItem())
+const popupMenuPrevious = popupMenuCommand(() => UI.Actions.previousMenuItem())
+
+const quickOpen = popupMenuCommand(() => UI.Actions.selectMenuItem("e"))
+const quickOpenHorizontal = popupMenuCommand(() => UI.Actions.selectMenuItem("sp"))
+const quickOpenVertical = popupMenuCommand(() => UI.Actions.selectMenuItem("vsp"))
 
 const pasteContents = (neovimInstance: INeovimInstance) => {
     const textToPaste = clipboard.readText()
