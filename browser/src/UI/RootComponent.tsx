@@ -22,6 +22,10 @@ export interface IWindowManagerState {
     splitRoot: WindowManager.ISplitInfo
 }
 
+import * as marked from "marked"
+
+console.log(marked("**Hello**"))
+
 export class WindowManagerComponent extends React.PureComponent<IWindowManagerProps, IWindowManagerState> {
 
     constructor(props: IWindowManagerProps) {
