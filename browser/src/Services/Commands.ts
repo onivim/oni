@@ -105,14 +105,14 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         // Menu
         new CallbackCommand("menu.close", null, null, popupMenuClose),
         new CallbackCommand("menu.next", null, null, popupMenuNext),
-        new CallbackCommand("menu.previous", null, null, popupMenuPrevious)
+        new CallbackCommand("menu.previous", null, null, popupMenuPrevious),
 
         // QuickOpen
         new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show()),
         new CallbackCommand("quickOpen.showBufferLines", null, null, () => quickOpen.showBufferLines()),
-        new CallbackCommand("quickopen.openFile", null null, quickOpenFile),
-        new CallbackCommand("quickopen.openFileVertical", null null, quickOpenFileVertical),
-        new CallbackCommand("quickopen.openFileHorizontal", null null, quickOpenFileHorizontal),
+        new CallbackCommand("quickopen.openFile", null, null, quickOpenFile),
+        new CallbackCommand("quickopen.openFileVertical", null, null, quickOpenFileVertical),
+        new CallbackCommand("quickopen.openFileHorizontal", null, null, quickOpenFileHorizontal),
 
         // Add additional commands here
         // ...

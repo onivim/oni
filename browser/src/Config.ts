@@ -272,33 +272,43 @@ export class Config extends EventEmitter {
         oni.input.unbindAll()
 
         const isVisualMode = () => oni.editors.activeEditor.mode === "visual"
-        const isInsertMode = () => oni.editors.activeEditor.mode === "insert" || oni.editors.activeEditor.mode === "cmdline_normal"
+        const isNormalMode = () => oni.editors.activeEditor.mode === "normal"
+        const isInsertOrCommandMode = () => oni.editors.activeEditor.mode === "insert" || oni.editors.activeEditor.mode === "cmdline_normal"
 
         if (Platform.isLinux() || Platform.isWindows()) {
             if (this.getValue("editor.clipboard.enabled")) {
                 oni.input.bind("<C-c>", "editor.clipboard.yank", isVisualMode)
-                oni.input.bind("<C-v>", "editor.clipboard.paste", isInsertMode)
+                oni.input.bind("<C-v>", "editor.clipboard.paste", isInsertOrCommandMode)
             }
         } else {
             if (this.getValue("editor.clipboard.enabled")) {
                 oni.input.bind("<M-c>", "editor.clipboard.yank", isVisualMode)
-                oni.input.bind("<M-v>", "editor.clipboard.paste", isInsertMode)
+                oni.input.bind("<M-v>", "editor.clipboard.paste", isInsertOrCommandMode)
             }
         }
 
-        // TODO: Refactor <C-p> / <C-P> to <M-p>/<M-P> for Mac?
-
         oni.input.bind("<f3>", "language.formatter.formatDocument")
         oni.input.bind("<f12>", "oni.editor.gotoDefinition")
-        oni.input.bind("<C-p>", "quickOpen.show" /* TODO: Normal mode filter */)
-        oni.input.bind("<C-P>", "commands.show" /* TODO: Normal mode filter */)
-        oni.input.bind("<C-/>", "quickOpen.showBufferLines" /* TODO: Normal mode filter */)
+        oni.input.bind("<C-P>", "commands.show", isNormalMode)
         oni.input.bind("<C-pageup>", "oni.process.cyclePrevious")
         oni.input.bind("<C-pagedown>", "oni.process.cycleNext")
 
+        // QuickOpen
+        oni.input.bind("<C-p>", "quickOpen.show", isNormalMode)
+        oni.input.bind("<C-/>", "quickOpen.showBufferLines", isNormalMode)
+        oni.input.bind("<enter>", "quickOpen.openFile")
+        oni.input.bind("<C-v>", "quickOpen.openFileVertical")
+        oni.input.bind("<C-s>", "quickOpen.openFileHorizontal")
+
+        // Completion
         oni.input.bind("<enter>", "completion.complete")
         oni.input.bind("<C-n>", "completion.next")
         oni.input.bind("<C-p>", "completion.previous")
+
+        // Menu
+        oni.input.bind("<C-n>", "menu.next")
+        oni.input.bind("<C-p>", "menu.previous")
+        oni.input.bind("<esc>", "menu.close")
     }
 
     private applyConfig(): void {

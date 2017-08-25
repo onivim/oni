@@ -4,7 +4,7 @@ export class Keyboard extends EventEmitter {
     constructor() {
         super()
 
-        document.addEventListener("keydown", (evt) => {
+        document.body.addEventListener("keydown", (evt) => {
             const vimKey = this._convertKeyEventToVimKey(evt)
             const mappedKey = this._wrapWithBracketsAndModifiers(vimKey, evt)
 
