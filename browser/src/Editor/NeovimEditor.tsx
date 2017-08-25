@@ -290,13 +290,15 @@ export class NeovimEditor implements IEditor {
             // TODO: Untangle these nested conditionals to use our new input-binding strategy :)
             if (Config.instance().getValue("editor.clipboard.enabled")) {
 
+                const isInsertMode = this._screen.mode === "insert" || this._screen.mode === "cmdline_normal"
+
                 // Handling the platform-default cases should be done when we initialize
                 // default key bindings, prior to loading hte config
                 if (Platform.isLinux() || Platform.isWindows()) {
                     if (key === "<C-c>" && this._screen.mode === "visual") {
                         this._neovimInstance.input("y")
                         return
-                    } else if (key === "<C-v>" && this._screen.mode === "insert") {
+                    } else if (key === "<C-v>" && isInsertMode) {
                         this._commandManager.executeCommand("editor.clipboard.paste", null)
                         return
                     }
@@ -306,7 +308,7 @@ export class NeovimEditor implements IEditor {
                         // execute out of visual mode, but yank
                         this._neovimInstance.input("y")
                         return
-                    } else if (key === "<M-v>" && this._screen.mode === "insert") {
+                    } else if (key === "<M-v>" && isInsertMode) {
                         this._commandManager.executeCommand("editor.clipboard.paste", null)
                         return
                     }
