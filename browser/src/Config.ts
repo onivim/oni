@@ -272,7 +272,7 @@ export class Config extends EventEmitter {
         oni.input.unbindAll()
 
         const isVisualMode = () => oni.editors.activeEditor.mode === "visual"
-        const isInsertMode = () => oni.editors.activeEditor.mode === "insert"
+        const isInsertMode = () => oni.editors.activeEditor.mode === "insert" || oni.editors.activeEditor.mode === "cmdline_normal"
 
         if (Platform.isLinux() || Platform.isWindows()) {
             if (this.getValue("editor.clipboard.enabled")) {
