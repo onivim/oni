@@ -5,12 +5,13 @@
  */
 
 import { spawn } from "child_process"
-import { lstatSync } from "fs"
+import { lstat, lstatSync, readdir, readFileSync } from "fs"
 
-import * as glob from "glob"
+import ignore = require("ignore")
 import * as path from "path"
 import * as Log from "./../Log"
 
+import { MenuItem } from "../UI/components/Menu"
 import * as Config from "./../Config"
 import { NeovimEditor } from "./../Editor/NeovimEditor"
 import { INeovimInstance } from "./../neovim"
@@ -18,18 +19,56 @@ import * as UI from "./../UI/index"
 import { BufferUpdates } from "./BufferUpdates"
 
 export class QuickOpen {
-    private _seenItems: string[] = []
-    private _loadedItems: QuickOpenItem[] = []
-    // private _loadedColors: QuickOpenItem[] = []
+    // quick hack until input/editor abstraction is done.
+    public static get isColor() : boolean {
+        return QuickOpen._isColor
+    }
+    private static _isColor: boolean;
+
+    // quick hack until input/editor abstraction is done.
+    public static get isIncrementable() : boolean {
+        return QuickOpen._isIncrementable
+    }
+    private static _isIncrementable: boolean;
+
+    private _seenFiles: QuickOpenItem[] = []
+    private _loadedFiles: QuickOpenItem[] = []
+    private _loadedBookHelp: QuickOpenItem[] = []
+    private _seenBufferLines: QuickOpenItem[] = []
+    private _seenColors: QuickOpenItem[] = []
+    private _loadedColors: QuickOpenItem[] = []
+
+    // private _cachedBuffers: QuickOpenItem[] = []
     private _neovimInstance: INeovimInstance
     private _bufferUpdates: BufferUpdates
-    // private _doneLoadingColors: boolean
-    // private _needToLoadColors: boolean
+    private _ignore: any
+    private _binaryExtensions: string[] = [ "*.4", "*.7", "*.7z", "*.AAA", "*.DIC", "*.DLL", "*.Dll", "*.EXE", "*.Exe", "*.FIL", "*.LNK", "*.SYS", "*.XRS", "*.acm", "*.asi", "*.awk", "*.ax", "*.cdl", "*.cgi", "*.com", "*.cpl", "*.d", "*.dLL", "*.dat", "*.dic", "*.dll", "*.drv", "*.ds", "*.e32", "*.efi", "*.exe", "*.flt", "*.fon", "*.foo", "*.gnu", "*.iec", "*.ime", "*.in", "*.js", "*.js~", "*.lex", "*.lnk", "*.ml", "*.mod", "*.mui", "*.nak", "*.nfs", "*.ocx", "*.odf", "*.olb", "*.old", "*.pl", "*.pm", "*.py", "*.pyd", "*.pyw", "*.rb", "*.rll", "*.rs", "*.scr", "*.sed", "*.sfx", "*.sh", "*.so", "*.sub", "*.sys", "*.t32", "*.t64", "*.tcl", "*.tlb", "*.tmp", "*.tpl", "*.tsp", "*.txt", "*.vdm", "*.ver", "*.zsh" ]
+    private _imageExtensions: string[] = ["*.tif", "*.tiff", "*.gif", "*.jpeg", "*jpg", "*.jif", "*.jfif", "*.jp2", "*.jpx", "*.j2k", "*.j2c", "*.fpx", "*.pcd", "*.png", "*.pdf"]
 
     constructor(neovimInstance: INeovimInstance, neovimEditor: NeovimEditor, bufferUpdates: BufferUpdates) {
         this._neovimInstance = neovimInstance
         this._bufferUpdates = bufferUpdates
-        // this._loadColors()
+
+        this._neovimInstance.on("directory-changed", (eventName: string, evt: any) => this._onVimEventCheckDir(eventName, evt))
+        this._loadFiles()
+
+        const config = Config.instance()
+        // respect global ~/.gitignore, oniconfig/.oniignore
+        // TODO make a .oniignore
+        // TODO take out .gitignore in current directory unless this is ideal for some people.
+        let ig = config.getValue("oni.ignore").join("\n")
+        ig += this._binaryExtensions.join("\n")
+        ig += this._imageExtensions.join("\n")
+        let g = "~/.gitignore".replace("~", process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"])
+        if (lstatSync(g).isFile()) {
+            ig += readFileSync(g).toString()
+        }
+
+        if ( "jojosaysdoit" === "jojosaysdoit" ) {
+            ig += readFileSync(".gitignore").toString()
+        }
+
+        this._ignore = ignore().add(ig)
 
         UI.events.on("menu-item-selected:quickOpen", (selectedItem: any) => {
             const arg = selectedItem.selectedOption
@@ -50,7 +89,17 @@ export class QuickOpen {
             } else {
                 let fullPath = path.join(arg.detail, arg.label)
 
-                this._seenItems.push(fullPath)
+                if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.file)) {
+                    const incs = MenuItem.incrementedItems
+                    let openThis = ""
+                    incs.forEach((f: string) => {
+                        this._addToSeen(f, QuickOpenType.file)
+                        openThis += "e! " + f + " | "
+                    })
+                    neovimInstance.command(openThis)
+                }
+
+                this._addToSeen(fullPath, QuickOpenType.file)
 
                 neovimInstance.command(selectedItem.openInSplit + "! " + fullPath)
 
@@ -74,43 +123,36 @@ export class QuickOpen {
         })
     }
 
-    // public async showColors() {
-    //     this._showLoading()
-    //     if (this._doneLoadingColors) {
-    //         this._showMenuFromQuickOpenItems(this._loadedColors)
-    //     } else if (this._needToLoadColors) {
-    //         this._loadColors()
-    //     }
-    // }
+    public async showColors() {
+        this._loadedColors = []
+        QuickOpen._isColor = true
+        QuickOpen._isIncrementable = false
+        this._showLoading()
+        this._neovimInstance.eval(`map(split(globpath(&rtp, "colors/*.vim"), "\n"), "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')")`)
+        .then((colors) => {
+            colors.forEach( (d: string) => {
+                d = d.substring(0, d.length - 4)
+                this._loadedColors.push(new QuickOpenItem(d, QuickOpenType.color))
+            })
+            this._showMenuFromQuickOpenItems(this._loadedColors, this._seenColors)
+        })
+    }
 
-    // private async _loadColors() {
-    //     this._needToLoadColors = true
-    //     this._neovimInstance.eval(`map(split(globpath(&rtp, "colors/*.vim"), "\n"), "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')")`)
-    //         .then((colors) => {
-    //             colors.forEach( (d: string) => {
-    //                 d = d.substring(0, d.length - 4)
-    //                 this._loadedColors.push(new QuickOpenItem(d, QuickOpenType.color))
-    //                 this._doneLoadingColors = true
-    //                 if (UI.Selectors.isPopupMenuOpen()) {
-    //                     this._showMenuFromQuickOpenItems(this._loadedColors)
-    //                 }
-    //             })
-    //         })
-    // }
+    public async show(forceBookmark: boolean = false) {
+        QuickOpen._isColor = false
+        QuickOpen._isIncrementable = true
 
-    public async show() {
-        // reset list and show loading indicator
-        this._loadedItems = []
+        // reset list, reset increments and show loading indicator
         this._showLoading()
 
         const config = Config.instance()
-        const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
         // const exclude = config.getValue("oni.exclude")
 
         //  If in exec directory or home, show bookmarks to change cwd to
-        if (this._isInstallDirectoryOrHome()) {
+        if (this._isInstallDirectoryOrHome() || forceBookmark) {
+            this._loadedBookHelp = []
             // Open folder help at top
-            this._loadedItems.push(new QuickOpenItem(
+            this._loadedBookHelp.push(new QuickOpenItem(
                 "Open Folder",
                 QuickOpenType.folderHelp,
             ))
@@ -129,7 +171,7 @@ export class QuickOpen {
 
             // Either way we need to map to quick open item
             bookmarks.forEach( ( f: string) => {
-                this._loadedItems.push(new QuickOpenItem(f, type))
+                this._loadedBookHelp.push(new QuickOpenItem(f, type))
             })
 
             // reset bookmarks because javascript doesn't respect local garbace collection IF
@@ -140,22 +182,17 @@ export class QuickOpen {
 
             // TODO consider adding folders as well (recursive async with ignores/excludes)
             // For now, sync call bookmarks and open folder, it's so few it's not going to matter
-            await this._showMenuFromQuickOpenItems(this._loadedItems)
+            await this._showMenuFromQuickOpenItems(this._loadedBookHelp, [])
             return
         }
 
-        // Overridden strategy
-        if (overriddenCommand) {
-            // replace placeholder ${search} with "" for initial case
-            this.loadMenu(overriddenCommand.replace("${search}", ""))
-            return
-        }
-
-        // Default strategy
-        this.loadMenu("git", ["ls-files", "--others", "--exclude-standard", "--cached"])
+        await this._showMenuFromQuickOpenItems(this._loadedFiles, this._seenFiles)
     }
 
     public async showBufferLines() {
+        QuickOpen._isColor = false
+        // QuickOpen._isIncrementable = false
+
         this._showLoading()
         let nu = 0
 
@@ -164,42 +201,98 @@ export class QuickOpen {
                 icon: QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine),
                 label: String(++nu),
                 detail: line,
-                // I don't think I want to pin these... pinned: false,
+                pinned: this._seenBufferLines.indexOf(new QuickOpenItem(line, QuickOpenType.bufferLine, nu)) >= 0,
             }
         })
 
         UI.Actions.showPopupMenu("quickOpen", options)
     }
 
+    public async showBuffers() {
+        QuickOpen._isColor = false
+
+        this._showLoading()
+        // this._showMenuFromQuickOpenItems(this._cachedBuffers, )
+    }
+
     // Overridden strategy
     // If git repo, use git ls-files
-    private async loadMenu (command: string, args: string[] = []) {
+    private async _loadFiles () {
+        this._loadedFiles = []
+        // No clue why this isn't working
+        // const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
+        // // Overridden strategy
+        // if (overriddenCommand) {
+        //     // replace placeholder ${search} with "" for initial case
+        //     let strSplit: string[] = overriddenCommand.split(" ")
+        //     let main = strSplit.shift()
+        //     console.log(main + " " + strSplit)
+        //     this._loadMenu("ag", strSplit)
+        //     return
+        // }
+
+        // Default strategy
+        let command = "git"
+        let args = ["ls-files", "--others", "--exclude-standard", "--cached"]
         const filer = spawn(command, args)
 
         filer.stdout.on("data", (data) => {
+            // consult the user ignore, TODO possibly I might extract this check...
             data.toString().split("\n").forEach( (d: string) => {
-                this._loadedItems.push(new QuickOpenItem(d, QuickOpenType.file))
+                if (!this._ignore.ignores(d)) {
+                    this._loadedFiles.push(new QuickOpenItem(d, QuickOpenType.file))
+                }
             })
-            this._showMenuFromQuickOpenItems(this._loadedItems)
+            this._showMenuFromQuickOpenItems(this._loadedFiles, this._seenFiles)
         })
 
         // Otherwise, find all files recursively
         filer.stderr.on("data", (data) => {
-            this._showLoading()
+            Log.error(data.toString() + "\nLoading Manually")
 
-            Log.error(data.toString())
+            // send of manual loading
+            this._loadManual(process.cwd())
+        })
 
-            // FIXME : Convert to an async function like the ones above.
-            // TODO: This async call is being dropped, if we happen to use the promise
-            return glob("**/*", {
-                nodir: true,
-                ignore: Config.instance().getValue("oni.exclude"),
-            }, (_err: any, files: string[]) => {
-                files.forEach( (f: string) => {
-                    this._loadedItems.push(new QuickOpenItem(f, QuickOpenType.file))
+        // filer.on("close", (code) => {
+        //       console.log(`child process exited with code ${code}`)
+        // })
+    }
+
+    // manually load files >.> todo, recache fuse when load a new batch
+    // TODO fix fuse for async, files load and it shows in menu BUT, it doesn't matter
+    // because fuse won't let you type...
+    // ALSO have an exit flag, if the user says GOODBYE with esc, do NOT keep loading files
+    private async _loadManual(dir: string) {
+        const dathis = this
+
+        lstat(dir, (err: NodeJS.ErrnoException, stat: any) => {
+            if (err !== null) {
+                return
+            }
+
+            if (stat.isDirectory()) {
+                readdir(dir, (err2: NodeJS.ErrnoException, files: string[]) => {
+                    if (err !== null) {
+                        return
+                    }
+                    files.forEach( (fi: string) => {
+                        let full = path.join(dir, fi)
+                        let rela = path.join(dir.replace(process.cwd(), "."), fi)
+
+                        if (!dathis._ignore.ignores(rela)) {
+                            if (lstatSync(full).isFile()) {
+                                dathis._loadedFiles.push(new QuickOpenItem(rela, QuickOpenType.file))
+                            } else if (lstatSync(full).isDirectory()) {
+                                dathis._loadManual(full)
+                            }
+                        }
+
+                    })
+                    // load after we read a directory, don't load for EACH file.
+                    dathis._showMenuFromQuickOpenItems(dathis._loadedFiles, dathis._seenFiles)
                 })
-                this._showMenuFromQuickOpenItems(this._loadedItems)
-            })
+            }
         })
     }
 
@@ -210,7 +303,11 @@ export class QuickOpen {
     }
 
     // Show menu based on items given
-    private _showMenuFromQuickOpenItems(items: QuickOpenItem[]): void {
+    private _showMenuFromQuickOpenItems(items: QuickOpenItem[], seenItems: QuickOpenItem[]): void {
+        if (!UI.Selectors.isPopupMenuOpen()) {
+            return
+        }
+
         const options = items.map((qitem) => {
             const f = qitem.item.trim()
             let file = path.basename(f)
@@ -220,7 +317,7 @@ export class QuickOpen {
                 icon: qitem.icon,
                 label: file,
                 detail: folder,
-                pinned: this._seenItems.indexOf(f) >= 0,
+                pinned: seenItems.indexOf(qitem) >= 0,
             }
         })
 
@@ -232,8 +329,35 @@ export class QuickOpen {
             icon: QuickOpenItem.convertTypeToIcon(QuickOpenType.loading),
             label: "Loading ...",
             detail: "",
-            pinned: false,
         }])
+    }
+
+    private _addToSeen(f: string, type: QuickOpenType, lineNu?: number): void {
+        let temp = new QuickOpenItem(f, type, lineNu)
+
+        switch (type) {
+            case QuickOpenType.color:
+                if (this._seenColors.indexOf(temp) < 0) {
+                    this._seenColors.push(temp)
+                }
+                break
+            case QuickOpenType.bufferLine:
+                if (this._seenBufferLines.indexOf(temp) < 0) {
+                    this._seenBufferLines.push(temp)
+                }
+                break
+            case QuickOpenType.file:
+                if (this._seenFiles.indexOf(temp) < 0) {
+                    this._seenFiles.push(temp)
+                }
+                break
+            default:
+                break
+        }
+    }
+
+    private _onVimEventCheckDir(eventName: string, evt: Oni.EventContext): void {
+        this._loadFiles()
     }
 
 }
@@ -241,20 +365,21 @@ export class QuickOpen {
 // We use basename/dirname for label/detail
 // So let's say you want the label YO with detail a greeting
 // you would make file = "a greeting/YO"
-enum QuickOpenType {
+export enum QuickOpenType {
     bookmark,
     bookmarkHelp,
     file,
     folder,
     folderHelp,
     bufferLine,
+    buffer,
     loading,
     color,
 }
 
 // Wrapper around quick open items, this not only allows us to show multiple icons
 // It also allows us to distinguish what happens once we know their icon
-class QuickOpenItem {
+export class QuickOpenItem {
     // We take a type, and then give an fa icon
     public static convertTypeToIcon(type: QuickOpenType): string {
         switch (type) {
@@ -269,6 +394,8 @@ class QuickOpenItem {
             case QuickOpenType.folderHelp:
                 return "folder-open-o"
             case QuickOpenType.bufferLine:
+                return "angle-right"
+            case QuickOpenType.buffer:
                 return "angle-right"
             case QuickOpenType.loading:
                 return "refresh fa-spin fa-fw"

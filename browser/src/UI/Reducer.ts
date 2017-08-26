@@ -286,12 +286,25 @@ export function popupMenuReducer (s: State.IMenu | null, a: Actions.SimpleAction
                 labelHighlights: [],
             }))
 
-            return {
-                id: a.payload.id,
-                filter: "",
-                filteredOptions: sortedOptions,
-                options: a.payload.options,
-                selectedIndex: 0,
+            // Load WHILE typing AND loading files
+            if (s) {
+                const filter = s.filter
+                const filteredOptionsSorted = filterMenuOptions(sortedOptions, filter, s.id)
+                return {
+                    id: a.payload.id,
+                    filter,
+                    filteredOptions: filteredOptionsSorted,
+                    options: a.payload.options,
+                    selectedIndex: 0,
+                }
+            } else {
+                return {
+                    id: a.payload.id,
+                    filter: "",
+                    filteredOptions: sortedOptions,
+                    options: a.payload.options,
+                    selectedIndex: 0,
+                }
             }
         case "HIDE_MENU":
             return null
@@ -302,6 +315,14 @@ export function popupMenuReducer (s: State.IMenu | null, a: Actions.SimpleAction
 
             return Object.assign({}, s, {
                 selectedIndex: (s.selectedIndex + 1) % size,
+            })
+        case "INCREMENT_MENU":
+            if (!s) {
+                return s
+            }
+
+            return Object.assign({}, s, {
+                incrementedIndex: (s.selectedIndex),
             })
         case "PREVIOUS_MENU":
             if (!s) {
@@ -379,9 +400,11 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
     let fuseOptions = {
         keys: [{
             name: "label",
+            findAllMatches: true,
             weight: 0.6,
         }, {
             name: "detail",
+            findAllMatches: true,
             weight: 0.4,
         }],
         include: ["matches"],

@@ -260,14 +260,31 @@ export class NeovimEditor implements IEditor {
                     UI.Actions.hidePopupMenu()
                 } else if (key === "<enter>") {
                     UI.Actions.selectMenuItem("e")
+                } else if (key === "<C-i>") {
+                    if (QuickOpen.isIncrementable) {
+                        UI.Actions.incrementMenuItem()
+                        UI.Actions.nextMenuItem()
+                    }
+                } else if (key === "<C-I>") {
+                    if (QuickOpen.isIncrementable) {
+                        UI.Actions.incrementMenuItem()
+                        UI.Actions.previousMenuItem()
+                    }
                 } else if (key === "<C-v>") {
                     UI.Actions.selectMenuItem("vsp")
                 } else if (key === "<C-s>") {
                     UI.Actions.selectMenuItem("sp")
                 } else if (key === "<C-n>") {
                     UI.Actions.nextMenuItem()
+                    if (QuickOpen.isColor) {
+                        UI.Actions.selectMenuItem("", false)
+                    }
                 } else if (key === "<C-p>") {
                     UI.Actions.previousMenuItem()
+
+                    if (QuickOpen.isColor) {
+                        UI.Actions.selectMenuItem("", false)
+                    }
                 }
 
                 return
@@ -319,8 +336,14 @@ export class NeovimEditor implements IEditor {
                 this._commandManager.executeCommand("oni.editor.gotoDefinition", null)
             } else if (key === "<C-p>" && this._screen.mode === "normal") {
                 quickOpen.show()
+            } else if (key === "<C-B>" && this._screen.mode === "normal") {
+                quickOpen.show(true)
             } else if (key === "<C-/>" && this._screen.mode === "normal") {
                 quickOpen.showBufferLines()
+            } else if (key === "<C-0>" && this._screen.mode === "normal") {
+                quickOpen.showColors()
+            } else if (key === "<C-+>" && this._screen.mode === "normal") {
+                quickOpen.showBuffers()
             } else if (key === "<C-P>" && this._screen.mode === "normal") {
                 this._tasks.show()
             } else if (key === "<C-pageup>") {
