@@ -114,7 +114,7 @@ const mapDispatchToProps = (dispatch: any) => {
     }
 
     const selectItem = (openInSplit: string, selectedIndex: number) => {
-        dispatch(ActionCreators.selectMenuItem(openInSplit, selectedIndex))
+        dispatch(ActionCreators.selectMenuItem(openInSplit, true, selectedIndex))
     }
 
     return {

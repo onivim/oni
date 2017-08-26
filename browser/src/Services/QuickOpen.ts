@@ -19,6 +19,18 @@ import * as UI from "./../UI/index"
 import { BufferUpdates } from "./BufferUpdates"
 
 export class QuickOpen {
+    // quick hack until input/editor abstraction is done.
+    public static get isColor() : boolean {
+        return QuickOpen._isColor
+    }
+    private static _isColor: boolean;
+
+    // quick hack until input/editor abstraction is done.
+    public static get isIncrementable() : boolean {
+        return QuickOpen._isIncrementable
+    }
+    private static _isIncrementable: boolean;
+
     private _seenFiles: QuickOpenItem[] = []
     private _loadedFiles: QuickOpenItem[] = []
     private _loadedBookHelp: QuickOpenItem[] = []
@@ -113,6 +125,8 @@ export class QuickOpen {
 
     public async showColors() {
         this._loadedColors = []
+        QuickOpen._isColor = true
+        QuickOpen._isIncrementable = false
         this._showLoading()
         this._neovimInstance.eval(`map(split(globpath(&rtp, "colors/*.vim"), "\n"), "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')")`)
         .then((colors) => {
@@ -125,6 +139,9 @@ export class QuickOpen {
     }
 
     public async show(forceBookmark: boolean = false) {
+        QuickOpen._isColor = false
+        QuickOpen._isIncrementable = true
+
         // reset list, reset increments and show loading indicator
         this._showLoading()
 
@@ -173,6 +190,9 @@ export class QuickOpen {
     }
 
     public async showBufferLines() {
+        QuickOpen._isColor = false
+        // QuickOpen._isIncrementable = false
+
         this._showLoading()
         let nu = 0
 
@@ -189,6 +209,8 @@ export class QuickOpen {
     }
 
     public async showBuffers() {
+        QuickOpen._isColor = false
+
         this._showLoading()
         // this._showMenuFromQuickOpenItems(this._cachedBuffers, )
     }

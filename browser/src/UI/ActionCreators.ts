@@ -242,8 +242,7 @@ export const incrementMenuItem = () => ({
     type: "INCREMENT_MENU",
 })
 
-export const selectMenuItem = (openInSplit: string, index?: number) => (dispatch: Function, getState: Function) => {
-
+export const selectMenuItem = (openInSplit: string, hide: boolean = true, index?: number) => (dispatch: Function, getState: Function) => {
     const state = getState()
 
     if (!state || !state.popupMenu) {
@@ -255,7 +254,9 @@ export const selectMenuItem = (openInSplit: string, index?: number) => (dispatch
 
     Events.events.emit("menu-item-selected:" + state.popupMenu.id, { selectedOption, openInSplit })
 
-    dispatch(hidePopupMenu())
+    if (hide) {
+        dispatch(hidePopupMenu())
+    }
 }
 
 export const showQuickInfo = (title: string, description: string) => ({

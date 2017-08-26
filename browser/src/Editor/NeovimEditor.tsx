@@ -251,19 +251,30 @@ export class NeovimEditor implements IEditor {
                 } else if (key === "<enter>") {
                     UI.Actions.selectMenuItem("e")
                 } else if (key === "<C-i>") {
-                    UI.Actions.incrementMenuItem()
-                    UI.Actions.nextMenuItem()
+                    if (QuickOpen.isIncrementable) {
+                        UI.Actions.incrementMenuItem()
+                        UI.Actions.nextMenuItem()
+                    }
                 } else if (key === "<C-I>") {
-                    UI.Actions.incrementMenuItem()
-                    UI.Actions.previousMenuItem()
+                    if (QuickOpen.isIncrementable) {
+                        UI.Actions.incrementMenuItem()
+                        UI.Actions.previousMenuItem()
+                    }
                 } else if (key === "<C-v>") {
                     UI.Actions.selectMenuItem("vsp")
                 } else if (key === "<C-s>") {
                     UI.Actions.selectMenuItem("sp")
                 } else if (key === "<C-n>") {
                     UI.Actions.nextMenuItem()
+                    if (QuickOpen.isColor) {
+                        UI.Actions.selectMenuItem("", false)
+                    }
                 } else if (key === "<C-p>") {
                     UI.Actions.previousMenuItem()
+
+                    if (QuickOpen.isColor) {
+                        UI.Actions.selectMenuItem("", false)
+                    }
                 }
 
                 return
