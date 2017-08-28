@@ -19,18 +19,37 @@ export interface KeyBindingMap {
 export class InputManager implements Oni.InputManager {
 
     private _boundKeys: KeyBindingMap = {}
+    private _isCapturing: boolean = false
+
+    public stopCapture(): void {
+        this._isCapturing = false
+    }
+
+    public startCapture(): void {
+        this._isCapturing = true
+    }
 
     /**
      * API Methods
      */
-    public bind(keyChord: string, action: ActionOrCommand, filterFunction?: () => boolean) {
+    public bind(keyChord: string | string[], action: ActionOrCommand, filterFunction?: () => boolean) {
+        if (Array.isArray(keyChord)) {
+            keyChord.forEach((key) => this.bind(key, action, filterFunction))
+            return
+        }
+
         const currentBinding = this._boundKeys[keyChord] || []
         const newBinding = { action, filter: filterFunction }
 
         this._boundKeys[keyChord] = [...currentBinding, newBinding]
     }
 
-    public unbind(keyChord: string) {
+    public unbind(keyChord: string | string[]) {
+        if (Array.isArray(keyChord)) {
+            keyChord.forEach((key) => this.unbind(keyChord))
+            return
+        }
+
         this._boundKeys[keyChord] = []
     }
 
@@ -76,7 +95,11 @@ export class InputManager implements Oni.InputManager {
             }
         }
 
-        return false
+        if (this._isCapturing) {
+            return true
+        } else {
+            return false
+        }
     }
 }
 

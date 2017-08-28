@@ -301,13 +301,13 @@ export class Config extends EventEmitter {
         oni.input.bind("<C-s>", "quickOpen.openFileHorizontal")
 
         // Completion
-        oni.input.bind("<enter>", "completion.complete")
-        oni.input.bind("<C-n>", "completion.next")
-        oni.input.bind("<C-p>", "completion.previous")
+        oni.input.bind(["<enter>", "<tab>"], "completion.complete")
+        oni.input.bind(["<down>", "<C-n>"], "completion.next")
+        oni.input.bind(["<up>", "<C-p>"], "completion.previous")
 
         // Menu
-        oni.input.bind("<C-n>", "menu.next")
-        oni.input.bind("<C-p>", "menu.previous")
+        oni.input.bind(["<down>", "<C-n>"], "menu.next")
+        oni.input.bind(["up", "<C-p>"], "menu.previous")
         oni.input.bind("<esc>", "menu.close")
     }
 

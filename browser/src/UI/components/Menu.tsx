@@ -12,6 +12,8 @@ import { Icon } from "./../Icon"
 import { HighlightTextByIndex } from "./HighlightText"
 import { Visible } from "./Visible"
 
+import { inputManager } from "./../../Services/InputManager"
+
 /**
  * Popup menu
  */
@@ -30,15 +32,17 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
 
     private _inputElement: HTMLInputElement = null as any // FIXME: null
 
-    componentDidMount(): void {
+    public componentDidMount(): void {
+        inputManager.startCapture()
         console.log("mount")
     }
 
-    componentWillUnmount(): void {
+    public componentWillUnmount(): void {
+        inputManager.stopCapture()
         console.log("unmount")
     }
 
-    componentWillUpdate(): void {
+    public componentWillUpdate(newProps: Readonly<IMenuProps>): void {
         console.log("update")
     }
 
