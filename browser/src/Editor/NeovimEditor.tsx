@@ -264,9 +264,9 @@ export class NeovimEditor implements IEditor {
                     UI.Actions.selectMenuItem("vsp")
                 } else if (key === "<C-s>") {
                     UI.Actions.selectMenuItem("sp")
-                } else if (key === "<C-n>") {
+                } else if (key === "<C-n>" || key === "<down>") {
                     UI.Actions.nextMenuItem()
-                } else if (key === "<C-p>") {
+                } else if (key === "<C-p>" || key === "<up>") {
                     UI.Actions.previousMenuItem()
                 }
 
