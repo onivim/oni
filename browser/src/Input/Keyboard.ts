@@ -32,7 +32,6 @@ export class Keyboard extends EventEmitter {
 
         if (evt.shiftKey) {
             mappedKey = "S-" + mappedKey
-            evt.preventDefault()
         }
 
         if (evt.altKey) {
