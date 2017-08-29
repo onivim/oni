@@ -98,6 +98,13 @@ A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.8/oni-0.2.8.tar
 
 A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.8/oni-0.2.8.tar.gz) is also available.
 
+#### Arch based distributions
+
+- Available via the [AUR](https://aur.archlinux.org/packages/oni/)
+- Install the package with `yaourt -S oni`
+
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.8/oni-0.2.8.tar.gz) is also available.
+
 ### Build
 
 1) Clone the repository: `git clone https://github.com/extr0py/oni.git`
