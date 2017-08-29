@@ -110,9 +110,9 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         // QuickOpen
         new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show()),
         new CallbackCommand("quickOpen.showBufferLines", null, null, () => quickOpen.showBufferLines()),
-        new CallbackCommand("quickopen.openFile", null, null, quickOpenFile),
-        new CallbackCommand("quickopen.openFileVertical", null, null, quickOpenFileVertical),
-        new CallbackCommand("quickopen.openFileHorizontal", null, null, quickOpenFileHorizontal),
+        new CallbackCommand("quickOpen.openFile", null, null, quickOpenFile),
+        new CallbackCommand("quickOpen.openFileVertical", null, null, quickOpenFileVertical),
+        new CallbackCommand("quickOpen.openFileHorizontal", null, null, quickOpenFileHorizontal),
 
         // Add additional commands here
         // ...
