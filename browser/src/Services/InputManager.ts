@@ -25,6 +25,13 @@ export class InputManager implements Oni.InputManager {
         this._isCapturing = false
     }
 
+    /**
+     * Capture in this case means to prevent
+     * events from bubbling up to Neovim / active editor.
+     *
+     * This should be called when a UI element needs
+     * exclusive control of input (ie, a separate textbox)
+     */
     public startCapture(): void {
         this._isCapturing = true
     }
@@ -66,7 +73,7 @@ export class InputManager implements Oni.InputManager {
     // false otherwise.
     public handleKey(keyChord: string): boolean {
         if (!this._boundKeys[keyChord]) {
-            return false
+            return this._isCapturing
         }
 
         const boundKey = this._boundKeys[keyChord]

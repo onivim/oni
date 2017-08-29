@@ -307,7 +307,7 @@ export class Config extends EventEmitter {
 
         // Menu
         oni.input.bind(["<down>", "<C-n>"], "menu.next")
-        oni.input.bind(["up", "<C-p>"], "menu.previous")
+        oni.input.bind(["<up>", "<C-p>"], "menu.previous")
         oni.input.bind("<esc>", "menu.close")
     }
 

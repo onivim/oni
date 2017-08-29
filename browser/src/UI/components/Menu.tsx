@@ -32,18 +32,14 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
 
     private _inputElement: HTMLInputElement = null as any // FIXME: null
 
-    public componentDidMount(): void {
-        inputManager.startCapture()
-        console.log("mount")
-    }
-
-    public componentWillUnmount(): void {
-        inputManager.stopCapture()
-        console.log("unmount")
-    }
-
     public componentWillUpdate(newProps: Readonly<IMenuProps>): void {
-        console.log("update")
+        if (newProps.visible !== this.props.visible) {
+            if (newProps.visible) {
+                inputManager.startCapture()
+            } else {
+                inputManager.stopCapture()
+            }
+        }
     }
 
     public render(): null | JSX.Element {
