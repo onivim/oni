@@ -321,7 +321,7 @@ export class NeovimEditor implements IEditor {
                 quickOpen.show()
             } else if (key === "<C-/>" && this._screen.mode === "normal") {
                 quickOpen.showBufferLines()
-            } else if (key === "<C-P>" && this._screen.mode === "normal") {
+            } else if (key === "<S-C-P>" && this._screen.mode === "normal") {
                 this._tasks.show()
             } else if (key === "<C-pageup>") {
                 multiProcess.focusPreviousInstance()
