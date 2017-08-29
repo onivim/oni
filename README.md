@@ -36,11 +36,11 @@ Check out [Releases](https://github.com/extr0py/oni/releases) for the latest bin
 
 ONI brings several IDE-like integrations to NeoVim:
 
-- **[Quick Info](#quick-info)**
+- **[Quick Info](https://github.com/extr0py/oni/wiki/Usage#quick-info)**
 
 ![quick-info-demo](http://i.imgur.com/0vJ8KgU.gif)
 
-- **[Code Completion](#code-completion)**
+- **[Code Completion](https://github.com/extr0py/oni/wiki/Usage#code-completion)**
 
 ![completion-demo](http://i.imgur.com/exdasXs.gif)
 
@@ -48,11 +48,11 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ![syntax-error-demo](http://i.imgur.com/GUBhRhG.gif)
 
-- **[Fuzzy Finding](#fuzzy-finder)**
+- **[Fuzzy Finding](https://github.com/extr0py/oni/wiki/Usage#fuzzy-finder)**
 
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
-- **Status Bar**
+- **[Status Bar](https://github.com/extr0py/oni/wiki/Usage#status-bar)**
 
 ![status-bar-demo](http://i.imgur.com/2grzeN1.gif)
 
