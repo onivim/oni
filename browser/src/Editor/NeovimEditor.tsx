@@ -129,6 +129,16 @@ export class NeovimEditor implements IEditor {
             }
         })
 
+        // Tasks Executed
+
+        // TODO: use constants for the built-in commands
+        this._tasks.on("task-executed", (command: String) => {
+          // reload the commands if the path has been modified
+          if (command === "oni.editor.removeFromPath" || command === "oni.editor.addToPath") {
+            registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
+          }
+        })
+
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
         this._pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
             if (err) {
@@ -254,9 +264,9 @@ export class NeovimEditor implements IEditor {
                     UI.Actions.selectMenuItem("vsp")
                 } else if (key === "<C-s>") {
                     UI.Actions.selectMenuItem("sp")
-                } else if (key === "<C-n>") {
+                } else if (key === "<C-n>" || key === "<down>") {
                     UI.Actions.nextMenuItem()
-                } else if (key === "<C-p>") {
+                } else if (key === "<C-p>" || key === "<up>") {
                     UI.Actions.previousMenuItem()
                 }
 
@@ -280,13 +290,15 @@ export class NeovimEditor implements IEditor {
             // TODO: Untangle these nested conditionals to use our new input-binding strategy :)
             if (Config.instance().getValue("editor.clipboard.enabled")) {
 
+                const isInsertMode = this._screen.mode === "insert" || this._screen.mode === "cmdline_normal"
+
                 // Handling the platform-default cases should be done when we initialize
                 // default key bindings, prior to loading hte config
                 if (Platform.isLinux() || Platform.isWindows()) {
                     if (key === "<C-c>" && this._screen.mode === "visual") {
                         this._neovimInstance.input("y")
                         return
-                    } else if (key === "<C-v>" && this._screen.mode === "insert") {
+                    } else if (key === "<C-v>" && isInsertMode) {
                         this._commandManager.executeCommand("editor.clipboard.paste", null)
                         return
                     }
@@ -296,7 +308,7 @@ export class NeovimEditor implements IEditor {
                         // execute out of visual mode, but yank
                         this._neovimInstance.input("y")
                         return
-                    } else if (key === "<M-v>" && this._screen.mode === "insert") {
+                    } else if (key === "<M-v>" && isInsertMode) {
                         this._commandManager.executeCommand("editor.clipboard.paste", null)
                         return
                     }
@@ -353,7 +365,7 @@ export class NeovimEditor implements IEditor {
         document.body.ondrop = (ev) => {
             ev.preventDefault()
 
-            let files = ev.dataTransfer.files
+            const files = ev.dataTransfer.files
             // open first file in current editor
             this._neovimInstance.open(normalizePath(files[0].path))
             // open any subsequent files in new tabs

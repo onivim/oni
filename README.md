@@ -179,7 +179,7 @@ If a [language extension](#language-extensibility) is available for a language, 
 
 #### Fuzzy Finder
 
-Fuzzy Finder is a quick and easy way to switch between files. It's similiar in goal to the Ctrl-P plugin, and the built-in functionality editors like VSCode and Atom provide.
+Fuzzy Finder is a quick and easy way to switch between files. It's similar in goal to the Ctrl-P plugin, and the built-in functionality editors like VSCode and Atom provide.
 
 ##### Entry point
 - `<C-p>` - show the Fuzzy Finder menu
@@ -264,7 +264,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| Y | Y | Y | Y | Y | Y | Y | N |
+| __+__ | __+__ | __+__ | __+__ | __+__ | __+__ | __+__ | - |
 
 #### C#
 
@@ -278,7 +278,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| Y | Y | N | N | Y | N | N | N |
+| __+__ | __+__ | - | - | __+__ | - | - | - |
 
 #### Go
 
@@ -292,7 +292,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| N | Y | N | N | Y | N | N | N |
+| - | __+__ | - | - | __+__ | - | - | - |
 
 _Known Issues_
 
@@ -310,7 +310,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| Y | Y | N | N | Y | N | N | N |
+| __+__ | __+__ | - | - | __+__ | - | - | - |
 
 _Known Issues_
 
@@ -336,7 +336,7 @@ _Supported Language features_
 
 | Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
 | --- | --- | --- | --- | --- | --- |--- | --- |
-| Y | Y | N | Y | Y | N | N | N |
+| __+__ | __+__ | - | __+__ | __+__ | - | - | - |
 
 
 ### Configuration
@@ -468,7 +468,7 @@ ONI currently supports the setting of a background image as well as background o
 
 By default, Oni has an opinionated, prescribed set of plugins, in order to facilitate a predictable out-of-box experience that highlights the additional UI integration points. However, this will likely have conflicts with a Vim/Neovim veteran's finely-honed configuration.
 
-To avoid loading the Oni defaults, and instead use your `init.vim`, set this configuration value to false in $HOME/.oni/config.json.
+To avoid loading the Oni defaults, and instead use your `init.vim`, set this configuration value to false in `$HOME/.oni/config.js`.
 
 ### Included VIM Plugins
 
