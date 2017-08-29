@@ -141,7 +141,7 @@ Please see the [Wiki](https://github.com/extr0py/oni/wiki) for documentation on 
 
 By default, Oni has an opinionated, prescribed set of plugins, in order to facilitate a predictable out-of-box experience that highlights the additional UI integration points. However, this will likely have conflicts with a Vim/Neovim veteran's finely-honed configuration.
 
-To avoid loading the Oni defaults, and instead use your `init.vim`, set this configuration value to false in `$HOME/.oni/config.js`.
+To avoid loading the Oni defaults, and instead use your `init.vim`, set `oni.useDefaultConfig` to false in `$HOME/.oni/config.js`.  See [Configuration](https://github.com/extr0py/oni/wiki/Configuration) for more details on configuring Oni.
 
 ### Included VIM Plugins
 
