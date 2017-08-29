@@ -19,7 +19,7 @@ import { tasks } from "./../Services/Tasks"
 
 import * as UI from "./../UI/index"
 
-import { ICommandCallback, CallbackCommand, CommandManager } from "./CommandManager"
+import { CallbackCommand, CommandManager, ICommandCallback } from "./CommandManager"
 
 import { replaceAll } from "./../Utility"
 
