@@ -15,28 +15,7 @@
     - [Linux](#linux)
     - [Build](#build)
 - [Documentation](#documentation)
-    - [Usage](#usage)
-        - [Code Completion](#code-completion)
-        - [Fuzzy Finder](#fuzzy-finder)
-        - [Quick Info](#quick-info)
-        - [Status Bar](#status-bar)
-        - [Tabs](#tabs)
-    - [Languages](#languages)
-        - [JavaScript and TypeScript](#javascript-and-typescript)
-        - [C#](#c)
-        - [Go](#go)
-        - [Python](#python)
-        - [Reason and OCaml](#reason-and-ocaml)
-    - [Configuration](#configuration)
-        - [Clipboard Integration](#clipboard-integration)
-    - [Plugins](#plugins)
-        - [Installing a Vim Plugin](#installing-a-vim-plugin)
-        - [Installing an Oni Plugin](#installing-an-oni-plugin)
-        - Recommended
-            - [C# Language Plugin](http://github.com/extr0py/oni-language-csharp)
-            - [TSLint Language Plugin](http://github.com/extr0py/oni-plugin-tslint)
-        - [API](#api)
-    - [FAQ](#faq)
+- [FAQ](#faq)
 - [Roadmap](#roadmap)
 - [License](#license)
 - [Contributing](#contributing)
@@ -57,11 +36,11 @@ Check out [Releases](https://github.com/extr0py/oni/releases) for the latest bin
 
 ONI brings several IDE-like integrations to NeoVim:
 
-- **[Quick Info](#quick-info)**
+- **[Quick Info](https://github.com/extr0py/oni/wiki/Usage#quick-info)**
 
 ![quick-info-demo](http://i.imgur.com/0vJ8KgU.gif)
 
-- **[Code Completion](#code-completion)**
+- **[Code Completion](https://github.com/extr0py/oni/wiki/Usage#code-completion)**
 
 ![completion-demo](http://i.imgur.com/exdasXs.gif)
 
@@ -69,11 +48,11 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ![syntax-error-demo](http://i.imgur.com/GUBhRhG.gif)
 
-- **[Fuzzy Finding](#fuzzy-finder)**
+- **[Fuzzy Finding](https://github.com/extr0py/oni/wiki/Usage#fuzzy-finder)**
 
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
-- **Status Bar**
+- **[Status Bar](https://github.com/extr0py/oni/wiki/Usage#status-bar)**
 
 ![status-bar-demo](http://i.imgur.com/2grzeN1.gif)
 
@@ -119,6 +98,13 @@ A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.8/oni-0.2.8.tar
 
 A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.8/oni-0.2.8.tar.gz) is also available.
 
+#### Arch based distributions
+
+- Available via the [AUR](https://aur.archlinux.org/packages/oni/)
+- Install the package with `yaourt -S oni`
+
+A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.8/oni-0.2.8.tar.gz) is also available.
+
 ### Build
 
 1) Clone the repository: `git clone https://github.com/extr0py/oni.git`
@@ -152,313 +138,7 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 ## Documentation
 
-### Usage
-
-#### Code Completion
-
-Code completion is a commonly requested add-on to Vim, and the most common solutions are to use a plugin like [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), [deoplete](https://github.com/Shougo/deoplete.nvim), or [AutoComplPop](https://github.com/vim-scripts/AutoComplPop).
-
-These are all great plugins - but they all have the same fundamental issue that they are bounded by the limitations of the Vim terminal UI, and as such, can never be quite up-to-par with new editors that do not have such limitations. In addition, some require an involved installation process. The goal of code completion in ONI is to be able to break free of these restrictions, and provide the same richness that modern editors like Atom or VSCode provide for completion.
-
-##### Entry point
-
-If a [language extension](#language-extensibility) is available for a language, then that language service will be queried as you type, and if there are completions available, those will be presented automatically.
-
-> Out of the box, the supported languages for rich completion are JavaScript & TypeScript. There is no special setup required for JavaScript & TypeScript language completion, but you will get best results by having a `jsconfig.json` or `tsconfig.json` at the root of your project.. You can use an empty json file with `{}` to get the rich completion.
-
-##### Commands
-
-- `<C-n>` - navigate to next entry in the completion menu
-- `<C-p>` - navigate to previous entry in the completion menu
-- `<Enter>` - selected completion item
-- `<Esc>` - close the completion menu
-
-##### Options
-
-- `oni.useExternalPopupMenu` - if set to _true_, will render the Vim popupmenu in the same UI as the language extension menu, so that it has a consistent look and feel. If set to _false_, will fallback to allow Neovim to render the menu.
-
-#### Fuzzy Finder
-
-Fuzzy Finder is a quick and easy way to switch between files. It's similar in goal to the Ctrl-P plugin, and the built-in functionality editors like VSCode and Atom provide.
-
-##### Entry point
-- `<C-p>` - show the Fuzzy Finder menu
-
-##### Commands
-- `<C-n>` - navigate to next entry in the Fuzzy Finder menu
-- `<C-p>` - navigate to previous entry in the Fuzzy Finder menu
-- `<Enter>` - select a Fuzzy Finder item
-- `<Esc>` - close the Fuzzy Finder menu
-
-By default, Fuzzy Finder uses `git ls-files` to get the available files in the directory, but if git is not present, it will fallback to a non-git strategy.
-
-The Fuzzy Finder strategy can be configured by the `editor.quickOpen.execCommand`, and must be a shell command that returns a list of files, separated by newlines.
-
-#### Command Palette
-
-The Command Palette offers another command-line based interface to Oni. 
-
-##### Entry point 
- - `<C-P>`
-
-##### Commands
-- `<C-n>` - navigate to next entry in the Command Palette menu
-- `<C-p>` - navigate to previous entry in the Command Palette menu
-- `<Enter>` - select a Command Palette item
-- `<Esc>` - close the Command Palette menu
-
-Currently, the Command Palette includes items from: 
-  - a few commonly used menu items
-  - NPM package.json `scripts`
-  - Plugin commands
-  - Launch parameters from the `.oni` folder
-
-#### Quick Info
-
-Quick Info gives a quick summary of an identifier when the cursor is held on it. JavaScript and TypeScript is supported out of the box.
-
-##### Entry point
-
-Leave the cursor hovering over an identifier.
-
-##### Options
-
-- `oni.quickInfo.enabled` - If set to `true`, the Quick Info feature is enabled. (Default: `true`)
-- `oni.quickInfo.delay` - Delay in milliseconds for the Quick Info window to show. (Default: `500`)
-
-#### Status Bar
-
-Oni features a rich status bar, designed as a replacement for vim-powerline and vim-airline.
-
-##### API
-
-Oni provides a `StatusBar` API for adding new items to the status bar.
-
-##### Options
-
-- `oni.statusbar.enabled` - If set to `true`, the status bar feature is enabled. (Default: `true`)
-
-> Users that are coming from Neovim and have highly customized status bars may want to set `oni.statusbar.enabled` to false, along with setting the `oni.loadInitVim` to `true` and `oni.useDefaultConfig` to `false`.
-
-#### Tabs
-
-Oni features a buffer tab bar, like many common IDEs. VIM has its own definition of a "Tab", which is really a set of windows and buffers. By default, the tabs in Oni correspond to open files (buffers). You can override this, and show vim-defined tabs, by setting the `tabs.showVimTabs` setting to `true`
-
-##### Commands
-- `[b` and `]b` will cycle through buffers, which has the effect of moving through the tabs.
-
-##### Options
-
-- `tabs.enabled` - If set to `true`, the tabs are visible. (Default: `true`)
-- `tabs.showVimTabs` - If set to `true`, shows vim tabs. Otherwise, shows open buffers. (Default: `false`. Requires Neovim 0.2.1+)
-
-### Languages
-
-#### JavaScript and TypeScript
-
-_Configuration_
-
-JavaScript and TypeScript support is enabled out-of-the-box using the [TypeScript Standalone Server](https://github.com/Microsoft/TypeScript/wiki/Standalone-Server-(tsserver)). No setup and configuration is necessary, however, you will get better results if you use a `tsconfig.json` or a `jsconfig.json` to structure your project.
-
-_Supported Language features_
-
-| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
-| --- | --- | --- | --- | --- | --- |--- | --- |
-| __+__ | __+__ | __+__ | __+__ | __+__ | __+__ | __+__ | - |
-
-#### C#
-
-_Configuration_
-
-C# language support requires the [oni-language-csharp](https://github.com/extr0py/oni-language-csharp) plugin, which provides langauge capabilities for both .NET and Mono.
-
-Follow the [installation instructions](https://github.com/extr0py/oni-language-csharp#usage) to get started.
-
-_Supported Language features_
-
-| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
-| --- | --- | --- | --- | --- | --- |--- | --- |
-| __+__ | __+__ | - | - | __+__ | - | - | - |
-
-#### Go
-
-_Configuration_
-
-Go language support depends on the [go-langserver](https://github.com/sourcegraph/go-langserver) by [SourceGraph](https://sourcegraph.com), which provides language support for Go. Follow their installation instructions as this language server is not bundled out-of-the-box with Oni.
-
-> `go-langserver` must be available in your PATH. You can override this by setting the `golang.langServerCommand` configuration value.
-
-_Supported Language features_
-
-| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
-| --- | --- | --- | --- | --- | --- |--- | --- |
-| - | __+__ | - | - | __+__ | - | - | - |
-
-_Known Issues_
-
-- There is no Windows support at the moment - this is being tracked by [sourcegraph/go-langserver#113](https://github.com/sourcegraph/go-langserver/issues/113).
-
-#### Python
-
-_Configuration_
-
-Python language support depends on [pyls](https://github.com/palantir/python-language-server) by [Palantir](https://www.palantir.com/), which provides language support for Python. Follow their installation instructions as this language server is not bundled out-of-the-box with Oni.
-
-> `pyls` must be available in your PATH. You can override this by setting the `python.langServerCommand` configuration value.
-
-_Supported Language features_
-
-| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
-| --- | --- | --- | --- | --- | --- |--- | --- |
-| __+__ | __+__ | - | - | __+__ | - | - | - |
-
-_Known Issues_
-
-- Windows support is blocked by this issue: [palantir/python-language-server#53](https://github.com/palantir/python-language-server/issues/53).
-
-#### Reason and OCaml
-
-_Configuration_
-
-Reason and OCaml support depends on [ocaml-language-server](https://github.com/freebroccolo/ocaml-language-server) by @freebroccolo.
-
-You will need to build the language server locally, as the currently published NPM package is out-of-date:
-1. Install [requirements](https://github.com/freebroccolo/ocaml-language-server#requirements)
-2. `git clone https://github.com/freebroccolo/ocaml-language-server.git`
-3. `cd ocaml-language-server`
-4. `yarn install`
-5. `yarn run compile`
-6. `npm link`
-
-> __NOTE:__ Once the NPM package is updated with a fix for [#22](https://github.com/freebroccolo/ocaml-language-server/issues/22), steps 2-6 can be replaced with `npm install -g ocaml-language-server`.
-
-_Supported Language features_
-
-| Completion | Goto Definition | Formatting | Enhanced Syntax Highlighting | Quick Info | Signature Help | Live Evaluation | Debugging |
-| --- | --- | --- | --- | --- | --- |--- | --- |
-| __+__ | __+__ | - | __+__ | __+__ | - | - | - |
-
-
-### Configuration
-
-> ONI is configurable via a 'config.js' located in $HOME/.oni
-
-Here's an example config.js:
-```
-module.exports = {
-    "oni.useDefaultConfig": true,
-    "oni.loadInitVim": true,
-    "editor.fontSize": "14px",
-    "editor.fontFamily": "Monaco",
-    "editor.completions.enabled": true
-}
-```
-
-A few interesting configuration options to set:
-- `oni.audio.bellUrl` - Set a custom sound effect for the `bell` (`:help bell`). The value should be an _absolute path_ to a supported audio file, such as a WAV file.
-- `oni.useDefaultConfig` - ONI comes with an opinionated default set of plugins for a predictable out-of-box experience. This will be great for newcomes to ONI or Vim, but for Vim/Neovim veterans, this will likely conflict. Set this to `false` to avoid loading the default config, and to load settings from `init.vim` instead (If this is false, it implies `oni.loadInitVim` is true)
-- `oni.loadInitVim` - This determines whether the user's `init.vim` is loaded. Use caution when setting this to `true` and setting `oni.useDefaultConfig` to true, as there could be conflicts with the default configuration.
-- `oni.exclude` - Glob pattern of files to exclude from Fuzzy Finder (Ctrl-P).  Defaults to `["**/node_modules/**"]`
-- `oni.hideMenu` - (default: `false`) If true, hide menu bar.  When hidden, menu bar can still be displayed with `Alt`.
-- `editor.clipboard.enabled` - (default: `true`) Enables / disables system [clipboard integration](#clipboard-integration).
-- `editor.fontSize` - Font size
-- `editor.fontFamily` - Font family
-- `editor.fontLigatures` - (default: `true`). If true, ligatures are enabled.
-- `editor.backgroundImageUrl` - specific a custom background image
-- `editor.backgroundImageSize` - specific a custom background size (cover, contain)
-- `editor.scrollBar.visible` - (default: `true`) sets whether the buffer scrollbar is visible
-- `environment.additionalPaths` - (default: `[] on Windows, ['/usr/bin', '/usr/local/bin'] on OSX and Linux`). Sets additional paths for binaries. This may be necessary to configure, if using plugins or a Language Server that is not in the default set of runtime paths. Note that depending on where you launch Oni, there may be a different set of runtime paths sent to it - you can always check by opening the developer tools and running `process.env.PATH` in the console.
-
-See the `Config.ts` file for other interesting values to set.
-
-In VimL, the `g:gui_oni` variable will be set to `1`, and can be validated with `if exists("g:gui_oni")` in VimL.
-
-#### Clipboard Integration
-
-Oni, by default, integrates with the system clipboard. This is controlled by the `editor.clipboard.enabled` option.
-
-The behavior is as follows:
-- All _yanks or deletes_ will be pushed to the system clipboard.
-- Pressing <C-c> on Windows/Linux (<M-c> on OSX) in _visual mode_ will copy the selected text to the system clipboard.
-- Pressing <C-v> on Windows/Linux (<M-v> on OSX) in _insert mode_ will paste the text from the system clipboard.
-
-If you have custom behavior or functionality bound to `<C-c>`, `<C-v>` (or `<M-c>`, `<M-v>` on OSX), you may wish to disable this behavior by setting `editor.clipboard.enabled` to `false`.
-
-### Plugins
-
-#### Installation
-
-Oni does not require the use of a plugin-manager such as pathogen or vundle (although you may use one if you wish, and this will be necessary if you are sharing a configuration between Neovim and Oni).
-
-Oni will, by default, load all plugins in the `$HOME/.oni/plugins` directory.
-
-##### Installing a Vim Plugin
-
-To install a Vim plugin, you just need to create a directory inside `$HOME/.oni/plugins`.
-
-`git clone` will usually do this for you, so for example, if you wanted to install this [Solarized Theme](https://github.com/lifepillar/vim-solarized8) by lifepillar, you'd run:
-
-> NOTE: On Windows, use your home directory (ie, `C:/users/<your username`) instead of `~`
-
-- `cd ~/.oni`
-- `mkdir -p plugins`
-- `cd plugins`
-- `git clone https://github.com/lifepillar/vim-solarized8`
-
-This will clone the `vim-solarized8` plugin and create an `~/.oni/plugins/vim-solarized8` folder.
-
-Restart Oni, and execute `:colorscheme solarized8_light`, and enjoy your new theme!
-
-##### Installing an Oni Plugin
-
-Installing an Oni plugin is much the same as installing a Vim plugin. However, because they potentially have JavaScript extension code in addition to VimL, you often need to install NPM dependencies.
-
-> Prerequisite: Make sure the `npm` command is available. If not, install the [latest node](https://nodejs.org/en/download/)
-
-As above, you just need to create a folder hosting the plugin, and install the dependencies. As an example, here's how you'd install the [oni-plugin-tslint](https://github.com/extr0py/oni-plugin-tslint) extension.
-
-- `cd ~/.oni`
-- `mkdir -p plugins`
-- `cd plugins`
-- `git clone https://github.com/extr0py/oni-plugin-tslint`
-- `cd oni-plugin-tslint`
-- `npm install`
-
-Restart Oni, and linting should now be enabled when you open up a TypeScript (`.ts`) file.
-
-#### API
-
-Oni offers several rich extensibility points, with the focus being on various UI integrations as well as IDE-like capabilities.
-
-> NOTE: The API will be in-flux until v1.0.
-
-Language extenders given ONI rich integration with languages, offering services like:
-
-- Code Completion
-- Quick Info
-- Goto Definition
-- Formatting
-- Live code evaluation
-- Unit test integration
-- Enhanced syntax highlighting
-
-To see the in-progress API, check out the [Oni.d.ts](https://github.com/extr0py/oni/blob/master/definitions/Oni.d.ts) definition file as well as the [typescript language plugin](https://github.com/extr0py/oni/tree/master/vim/core/oni-plugin-typescript), which demonstrates several of these features:
-
-You can explore the Oni API during runtime by doing the following:
-- Press `<C-P>` (open Command Palette)
-- Select "Open Dev Tools"
-- You can access the Oni object directly, ie:
-
-
-#### Background
-
-ONI currently supports the setting of a background image as well as background opacity.
-
-#### Debuggers
-
-#### Project Templates
-
-#### Snippets
+Please see the [Wiki](https://github.com/extr0py/oni/wiki) for documentation on how to use and modify Oni.
 
 ### FAQ
 
@@ -468,7 +148,7 @@ ONI currently supports the setting of a background image as well as background o
 
 By default, Oni has an opinionated, prescribed set of plugins, in order to facilitate a predictable out-of-box experience that highlights the additional UI integration points. However, this will likely have conflicts with a Vim/Neovim veteran's finely-honed configuration.
 
-To avoid loading the Oni defaults, and instead use your `init.vim`, set this configuration value to false in `$HOME/.oni/config.js`.
+To avoid loading the Oni defaults, and instead use your `init.vim`, set `oni.useDefaultConfig` to false in `$HOME/.oni/config.js`.  See [Configuration](https://github.com/extr0py/oni/wiki/Configuration) for more details on configuring Oni.
 
 ### Included VIM Plugins
 
@@ -486,7 +166,7 @@ As well as some color-schemes:
 
 ## Roadmap
 
-See [roadmap](ROADMAP.md)
+See [Roadmap](https://github.com/extr0py/oni/wiki/Roadmap)
 
 ## License
 
@@ -509,7 +189,7 @@ Bundled plugins have their own license terms. These include:
 
 Contributions are very much welcome :)
 
-If you're interested in helping out, check out [CONTRIBUTING.md](./CONTRIBUTING.md) for tips and tricks for working with ONI.
+If you're interested in helping out, check out our [Debugging Page](https://github.com/extr0py/oni/wiki/Debugging) for tips and tricks for working with ONI.
 
 ## Thanks
 
