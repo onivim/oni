@@ -82,7 +82,8 @@ export class ActiveEditor implements Oni.Editor {
         this._subscriptions.forEach((d) => d.dispose())
         this._subscriptions = []
         this._subscriptions.push(newEditor.onModeChanged.subscribe((val) => this._onModeChanged.dispatch(val)))
-        this._subscriptions.push(newEditor.onModeChanged.subscribe((val) => this._onModeChanged.dispatch(val)))
+        this._subscriptions.push(newEditor.onBufferEntered.subscribe((val) => this._onBufferEnteredEvent.dispatch(val)))
+        this._subscriptions.push(newEditor.onBufferChanged.subscribe((val) => this._onBufferChangedEvent.dispatch(val)))
     }
 
     public getUnderlyingEditor(): Oni.Editor {
