@@ -9,6 +9,7 @@
  */
 
 import { Event, IEvent } from "./../Event"
+import { IBufferChangedEventInfo, IBufferEnteredEventInfo } from './../Editor/Editor'
 import { IDisposable } from "./../IDisposable"
 
 export class EditorManager implements Oni.EditorManager {
@@ -46,6 +47,8 @@ export class EditorManager implements Oni.EditorManager {
  */
 export class ActiveEditor implements Oni.Editor {
     private _activeEditor: Oni.Editor
+    private _onBufferEnteredEvent: Event<IBufferEnteredEventInfo> = new Event<IBufferEnteredEventInfo>()
+    private _onBufferChangedEvent: Event<IBufferChangedEventInfo> = new Event<IBufferChangedEventInfo>()
     private _onModeChanged: Event<string> = new Event<string>()
     private _subscriptions: IDisposable[] = []
 
@@ -64,6 +67,13 @@ export class ActiveEditor implements Oni.Editor {
         return this._onModeChanged
     }
 
+    public get onBufferEntered(): IEvent<IBufferEnteredEventInfo> {
+        return this._onBufferEnteredEvent
+    }
+
+    public get onBufferChanged(): IEvent<IBufferChangedEventInfo> {
+        return this._onBufferChangedEvent
+    }
     /** 
      * Internal methods
      */
@@ -71,6 +81,7 @@ export class ActiveEditor implements Oni.Editor {
     public setActiveEditor(newEditor: Oni.Editor) {
         this._subscriptions.forEach((d) => d.dispose())
         this._subscriptions = []
+        this._subscriptions.push(newEditor.onModeChanged.subscribe((val) => this._onModeChanged.dispatch(val)))
         this._subscriptions.push(newEditor.onModeChanged.subscribe((val) => this._onModeChanged.dispatch(val)))
     }
 

@@ -42,6 +42,8 @@ declare namespace Oni {
     export interface Editor {
         mode: string
         onModeChanged: IEvent<string>
+        onBufferEntered: IEvent<IBufferEnteredEventInfo>
+        onBufferChanged: IEvent<IBufferChangedEventInfo>
     }
 
     export interface Commands {
