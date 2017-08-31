@@ -37,7 +37,7 @@ import * as UI from "./../UI/index"
 import { Rectangle } from "./../UI/Types"
 
 import { Keyboard } from "./../Input/Keyboard"
-import { IEditor } from "./Editor"
+import { IBufferChangedEventInfo, IBufferEnteredEventInfo, IEditor } from "./Editor"
 
 import { InstallHelp } from "./../UI/components/InstallHelp"
 
@@ -60,11 +60,12 @@ export class NeovimEditor implements IEditor {
 
     private _currentMode: string
     private _onModeChangedEvent: Event<string> = new Event<string>()
+    private _onBufferEnteredEvent: Event<IBufferEnteredEventInfo> = new Event<IBufferEnteredEventInfo>()
+    private _onBufferChangedEvent: Event<IBufferChangedEventInfo> = new Event<IBufferChangedEventInfo>()
 
     // Services
     private _tasks: Tasks
 
-    // Overlays
     private _windowManager: NeovimWindowManager
 
     private _errorStartingNeovim: boolean = false
@@ -73,8 +74,17 @@ export class NeovimEditor implements IEditor {
         return this._currentMode
     }
 
+    // Events
     public get onModeChanged(): IEvent<string> {
         return this._onModeChangedEvent
+    }
+
+    public get onBufferEntered(): IEvent<IBufferEnteredEventInfo> {
+        return this._onBufferEnteredEvent
+    }
+
+    public get onBufferChanged(): IEvent<IBufferChangedEventInfo> {
+        return this._onBufferChangedEvent
     }
 
     constructor(
