@@ -73,7 +73,7 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
-- **Status Bar**
+- [**Status Bar**](#status-bar)
 
 ![status-bar-demo](http://i.imgur.com/2grzeN1.gif)
 
