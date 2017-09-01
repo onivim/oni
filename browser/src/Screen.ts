@@ -2,7 +2,7 @@ import * as Actions from "./actions"
 import { IDeltaRegionTracker } from "./DeltaRegionTracker"
 import { Grid } from "./Grid"
 
-export type Mode = "insert" | "normal" | "visual"
+export type Mode = "insert" | "normal" | "visual" | "cmdline_normal"
 
 const wcwidth = require("wcwidth") // tslint:disable-line no-var-requires
 

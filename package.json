@@ -61,7 +61,7 @@
       "files": [
         "bin/x86/**/*"
       ]
-  }
+    }
   },
   "scripts": {
     "build": "npm run build:browser && npm run build:plugins",
@@ -158,6 +158,7 @@
     "sinon": "1.17.6",
     "spectron": "3.6.2",
     "style-loader": "0.18.2",
+    "sudo-prompt": "7.1.1",
     "ts-loader": "2.3.2",
     "tslint": "4.0.2",
     "wcwidth": "1.0.1",

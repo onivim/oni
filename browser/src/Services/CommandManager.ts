@@ -7,7 +7,6 @@
 import * as values from "lodash/values"
 
 import { INeovimInstance } from "./../neovim"
-
 import { ITask, ITaskProvider } from "./Tasks"
 
 export type ICommandCallback = (args?: any) => any
@@ -16,10 +15,15 @@ export interface ICommand {
     command: string
     name: string
     detail: string
+    messageSuccess?: string
+    messageFail?: string
     execute: ICommandCallback
 }
 
 export class CallbackCommand implements ICommand {
+    public messageSuccess?: string
+    public messageFail?: string
+
     constructor(
         public command: string,
         public name: string,
@@ -29,7 +33,6 @@ export class CallbackCommand implements ICommand {
 }
 
 export class VimCommand implements ICommand {
-
     constructor(
         public command: string,
         public name: string, public detail: string,
@@ -47,8 +50,11 @@ export class CommandManager implements ITaskProvider {
 
     private _commandDictionary: { [key: string]: ICommand } = {}
 
-    public registerCommand(command: ICommand): void {
+    public clearCommands(): void {
+      this._commandDictionary = {}
+    }
 
+    public registerCommand(command: ICommand): void {
         if (this._commandDictionary[command.command]) {
             console.error(`Tried to register multiple commands for: ${command.name}`)
             return
@@ -73,8 +79,12 @@ export class CommandManager implements ITaskProvider {
         const tasks = commands.map((c) => ({
             name: c.name,
             detail: c.detail,
+            command: c.command,
+            messageSuccess: c.messageSuccess,
+            messageFail: c.messageFail,
             callback: () => c.execute(),
         }))
+
         return Promise.resolve(tasks)
     }
 }
