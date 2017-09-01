@@ -7,6 +7,10 @@ import { MarkdownPreview } from "./MarkdownPreview"
 
 export class MarkdownPreviewEditor implements Oni.Editor {
 
+    constructor(
+        private _oni: any
+    ) {}
+
     public get mode(): string {
         return "external"
     }
@@ -25,10 +29,10 @@ export class MarkdownPreviewEditor implements Oni.Editor {
     }
 }
 
-export const activate = (Oni) => {
+export const activate = (oni) => {
 
-    Oni.commands.registerCommand("markdown.preview", (args) => {
-        Oni.windows.split(1, new MarkdownPreviewEditor())
+    oni.commands.registerCommand("markdown.preview", (args) => {
+        oni.windows.split(1, new MarkdownPreviewEditor(oni))
     })
 
 }

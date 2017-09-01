@@ -39,6 +39,16 @@ declare namespace Oni {
         activeEditor: Editor
     }
 
+    export interface IBufferEnteredEventInfo {
+        fileName: string
+        fileType: string
+    }
+
+    export interface IBufferChangedEventInfo {
+        fileName: string
+        contents: string[]
+    }
+
     export interface Editor {
         mode: string
         onModeChanged: IEvent<string>

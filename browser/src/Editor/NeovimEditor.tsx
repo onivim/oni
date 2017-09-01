@@ -37,7 +37,7 @@ import * as UI from "./../UI/index"
 import { Rectangle } from "./../UI/Types"
 
 import { Keyboard } from "./../Input/Keyboard"
-import { IBufferChangedEventInfo, IBufferEnteredEventInfo, IEditor } from "./Editor"
+import { IEditor } from "./Editor"
 
 import { InstallHelp } from "./../UI/components/InstallHelp"
 
@@ -60,8 +60,8 @@ export class NeovimEditor implements IEditor {
 
     private _currentMode: string
     private _onModeChangedEvent: Event<string> = new Event<string>()
-    private _onBufferEnteredEvent: Event<IBufferEnteredEventInfo> = new Event<IBufferEnteredEventInfo>()
-    private _onBufferChangedEvent: Event<IBufferChangedEventInfo> = new Event<IBufferChangedEventInfo>()
+    private _onBufferEnteredEvent: Event<Oni.IBufferEnteredEventInfo> = new Event<Oni.IBufferEnteredEventInfo>()
+    private _onBufferChangedEvent: Event<Oni.IBufferChangedEventInfo> = new Event<Oni.IBufferChangedEventInfo>()
 
     // Services
     private _tasks: Tasks
@@ -79,11 +79,11 @@ export class NeovimEditor implements IEditor {
         return this._onModeChangedEvent
     }
 
-    public get onBufferEntered(): IEvent<IBufferEnteredEventInfo> {
+    public get onBufferEntered(): IEvent<Oni.IBufferEnteredEventInfo> {
         return this._onBufferEnteredEvent
     }
 
-    public get onBufferChanged(): IEvent<IBufferChangedEventInfo> {
+    public get onBufferChanged(): IEvent<Oni.IBufferChangedEventInfo> {
         return this._onBufferChangedEvent
     }
 
