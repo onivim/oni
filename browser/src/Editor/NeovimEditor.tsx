@@ -116,8 +116,8 @@ export class NeovimEditor implements IEditor {
         })
 
         // Tasks Executed
-
-        // TODO: use constants for the built-in commands
+        // TODO: Factor this to a filter concept, like for input strings
+        // This way, we don't have to rebuild registerBuiltInCommands each time
         this._tasks.on("task-executed", (command: String) => {
           // reload the commands if the path has been modified
           if (command === "oni.editor.removeFromPath" || command === "oni.editor.addToPath") {
