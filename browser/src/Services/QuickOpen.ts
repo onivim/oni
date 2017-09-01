@@ -168,12 +168,13 @@ export class QuickOpen {
                 if (!files) {
                     this._loadDefaultMenuItems()
                     this._showMenuFromQuickOpenItems(this._loadedItems)
-                }
+                } else {
 
-                files.forEach( (f: string) => {
-                    this._loadedItems.push(new QuickOpenItem(f, QuickOpenType.file))
-                })
-                this._showMenuFromQuickOpenItems(this._loadedItems)
+                    files.forEach( (f: string) => {
+                        this._loadedItems.push(new QuickOpenItem(f, QuickOpenType.file))
+                    })
+                    this._showMenuFromQuickOpenItems(this._loadedItems)
+                }
             })
         })
 
