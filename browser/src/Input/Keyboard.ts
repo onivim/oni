@@ -62,21 +62,21 @@ export class Keyboard extends EventEmitter {
         }
 
         if (evt.ctrlKey) {
-            mappedKey = "C-" + vimKey + ""
+            mappedKey = "c-" + vimKey + ""
             evt.preventDefault()
         }
 
         if (evt.shiftKey && suppressShiftKeyCharacters.indexOf(mappedKey) === -1) {
-            mappedKey = "S-" + mappedKey
+            mappedKey = "s-" + mappedKey
         }
 
         if (evt.altKey) {
-            mappedKey = "A-" + mappedKey
+            mappedKey = "a-" + mappedKey
             evt.preventDefault()
         }
 
         if (evt.metaKey) {
-            mappedKey = "M-" + mappedKey
+            mappedKey = "m-" + mappedKey
             evt.preventDefault()
         }
 
@@ -84,7 +84,7 @@ export class Keyboard extends EventEmitter {
             mappedKey = "<" + mappedKey + ">"
         }
 
-        return mappedKey
+        return mappedKey.toLowerCase()
     }
 
     private _convertKeyEventToVimKey(evt: KeyboardEvent): null | string {

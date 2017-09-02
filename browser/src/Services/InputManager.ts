@@ -45,10 +45,11 @@ export class InputManager implements Oni.InputManager {
             return
         }
 
-        const currentBinding = this._boundKeys[keyChord] || []
+        const normalizedKeyChord = keyChord.toLowerCase()
+        const currentBinding = this._boundKeys[normalizedKeyChord] || []
         const newBinding = { action, filter: filterFunction }
 
-        this._boundKeys[keyChord] = [...currentBinding, newBinding]
+        this._boundKeys[normalizedKeyChord] = [...currentBinding, newBinding]
     }
 
     public unbind(keyChord: string | string[]) {
@@ -57,7 +58,8 @@ export class InputManager implements Oni.InputManager {
             return
         }
 
-        this._boundKeys[keyChord] = []
+        const normalizedKeyChord = keyChord.toLowerCase()
+        this._boundKeys[normalizedKeyChord] = []
     }
 
     public unbindAll() {
