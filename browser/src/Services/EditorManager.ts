@@ -60,6 +60,14 @@ export class ActiveEditor implements Oni.Editor {
         return this._activeEditor.mode
     }
 
+    public get neovim(): Oni.NeovimEditorCapability {
+        if (!this._activeEditor) {
+            return null
+        }
+
+        return this._activeEditor.neovim
+    }
+
     public get onModeChanged(): IEvent<string> {
         return this._onModeChanged
     }
