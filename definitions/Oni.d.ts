@@ -35,9 +35,20 @@ declare namespace Oni {
         unbindAll()
     }
 
+    export interface NeovimEditorCapability {
+        // Send a direct set of key inputs to Neovim
+        input(keys: string): Promise<void>
+
+        // Evaluate an expression, and return the result
+        eval(expression: string): Promise<any>
+    }
+
     export interface Editor {
         mode: string
         onModeChanged: IEvent<string>
+
+        // Optional capabilities for the editor to implement
+        neovim?: NeovimEditorCapability
     }
 
     export interface Commands {
