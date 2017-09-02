@@ -176,10 +176,15 @@ const quickOpenFile = popupMenuCommand(() => UI.Actions.selectMenuItem("e"))
 const quickOpenFileHorizontal = popupMenuCommand(() => UI.Actions.selectMenuItem("sp"))
 const quickOpenFileVertical = popupMenuCommand(() => UI.Actions.selectMenuItem("vsp"))
 
-const pasteContents = (neovimInstance: INeovimInstance) => {
+const pasteContents = async (neovimInstance: INeovimInstance) => {
     const textToPaste = clipboard.readText()
     const sanitizedText = replaceAll(textToPaste, { "<": "<lt>" })
-    neovimInstance.input(sanitizedText)
+                            .split("/r/n")
+                            .join("/n")
+
+    await neovimInstance.command("set paste")
+    await neovimInstance.input(sanitizedText)
+    await neovimInstance.command("set nopaste")
 }
 
 const openFolder = (neovimInstance: INeovimInstance) => {
