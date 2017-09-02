@@ -1,3 +1,7 @@
+// For more information on customizing Oni,
+// check out our wiki page:
+// https://github.com/extr0py/oni/wiki/Configuration
+
 const activate = (oni) => {
     console.log("config activated")
 
@@ -5,7 +9,6 @@ const activate = (oni) => {
     //
     // Add input bindings here:
     //
-
     oni.input.bind("<c-enter>", () => console.log("Control+Enter was pressed"))
 
     //
