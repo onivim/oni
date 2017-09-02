@@ -31,8 +31,6 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
     const quickOpen = new QuickOpen(neovimInstance, bufferUpdates)
     const formatter = new Formatter(neovimInstance, pluginManager, bufferUpdates)
 
-    commandManager.clearCommands()
-
     const commands = [
         new CallbackCommand("editor.clipboard.paste", "Clipboard: Paste", "Paste clipboard contents into active text", () => pasteContents(neovimInstance)),
         new CallbackCommand("editor.clipboard.yank", "Clipboard: Yank", "Yank contents to clipboard", () => neovimInstance.input("y")),
@@ -87,9 +85,9 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("oni.config.openInitVim", "Edit Neovim Config", "Edit configuration file ('init.vim') for Neovim", () => neovimInstance.open("$MYVIMRC")),
 
         new CallbackCommand("oni.editor.showLogs",
-                            "Show Logs",
-                            "Show all logs in the bottom panel",
-                            () => UI.Actions.changeLogsVisibility(true)),
+            "Show Logs",
+            "Show all logs in the bottom panel",
+            () => UI.Actions.changeLogsVisibility(true)),
 
         new CallbackCommand("oni.openFolder", "Open Folder", "Set a folder as the working directory for Oni", () => openFolder(neovimInstance)),
 
@@ -123,23 +121,20 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
     // TODO: once implementations of this command work on all platforms, remove the exclusive check for OSX
     if (Platform.isMac()) {
-      let pathCommand: CallbackCommand
+        const addToPathCommand = new CallbackCommand("oni.editor.removeFromPath", "Remove from PATH", "Disable executing 'oni' from terminal", Platform.removeFromPath, () => Platform.isAddedToPath())
+        addToPathCommand.messageSuccess = "Oni has been removed from the $PATH"
 
-      if (Platform.isAddedToPath()) {
-        pathCommand = new CallbackCommand("oni.editor.removeFromPath", "Remove from PATH", "Disable executing 'oni' from terminal", Platform.removeFromPath )
-        pathCommand.messageSuccess = "Oni has been removed from the $PATH"
-      } else {
-        pathCommand = new CallbackCommand("oni.editor.addToPath", "Add to PATH", "Enable executing 'oni' from terminal", Platform.addToPath )
-        pathCommand.messageSuccess = "Oni has been added to the $PATH"
-      }
+        const removeFromPathCommand = new CallbackCommand("oni.editor.addToPath", "Add to PATH", "Enable executing 'oni' from terminal", Platform.addToPath, () => !Platform.isAddedToPath())
+        removeFromPathCommand.messageSuccess = "Oni has been added to the $PATH"
 
-      commands.push(pathCommand)
+        commands.push(addToPathCommand)
+        commands.push(removeFromPathCommand)
     }
 
     commands.forEach((c) => commandManager.registerCommand(c))
 }
 
-import { clipboard} from "electron"
+import { clipboard } from "electron"
 
 /**
  * Higher-order function for commands dealing with completion

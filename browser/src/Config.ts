@@ -269,46 +269,49 @@ export class Config extends EventEmitter {
     }
 
     private _applyDefaultKeyBindings(oni: Oni.Plugin.Api): void {
-        oni.input.unbindAll()
 
-        const isVisualMode = () => oni.editors.activeEditor.mode === "visual"
-        const isNormalMode = () => oni.editors.activeEditor.mode === "normal"
-        const isInsertOrCommandMode = () => oni.editors.activeEditor.mode === "insert" || oni.editors.activeEditor.mode === "cmdline_normal"
+        const { editors, input } = oni
+
+        input.unbindAll()
+
+        const isVisualMode = () => editors.activeEditor.mode === "visual"
+        const isNormalMode = () => editors.activeEditor.mode === "normal"
+        const isInsertOrCommandMode = () => editors.activeEditor.mode === "insert" || editors.activeEditor.mode === "cmdline_normal"
 
         if (Platform.isLinux() || Platform.isWindows()) {
             if (this.getValue("editor.clipboard.enabled")) {
-                oni.input.bind("<C-c>", "editor.clipboard.yank", isVisualMode)
-                oni.input.bind("<C-v>", "editor.clipboard.paste", isInsertOrCommandMode)
+                input.bind("<C-c>", "editor.clipboard.yank", isVisualMode)
+                input.bind("<C-v>", "editor.clipboard.paste", isInsertOrCommandMode)
             }
         } else {
             if (this.getValue("editor.clipboard.enabled")) {
-                oni.input.bind("<M-c>", "editor.clipboard.yank", isVisualMode)
-                oni.input.bind("<M-v>", "editor.clipboard.paste", isInsertOrCommandMode)
+                input.bind("<M-c>", "editor.clipboard.yank", isVisualMode)
+                input.bind("<M-v>", "editor.clipboard.paste", isInsertOrCommandMode)
             }
         }
 
-        oni.input.bind("<f3>", "language.formatter.formatDocument")
-        oni.input.bind("<f12>", "oni.editor.gotoDefinition")
-        oni.input.bind("<C-P>", "commands.show", isNormalMode)
-        oni.input.bind("<C-pageup>", "oni.process.cyclePrevious")
-        oni.input.bind("<C-pagedown>", "oni.process.cycleNext")
+        input.bind("<f3>", "language.formatter.formatDocument")
+        input.bind("<f12>", "oni.editor.gotoDefinition")
+        input.bind("<S-C-P>", "commands.show", isNormalMode)
+        input.bind("<C-pageup>", "oni.process.cyclePrevious")
+        input.bind("<C-pagedown>", "oni.process.cycleNext")
 
         // QuickOpen
-        oni.input.bind("<C-p>", "quickOpen.show", isNormalMode)
-        oni.input.bind("<C-/>", "quickOpen.showBufferLines", isNormalMode)
-        oni.input.bind("<enter>", "quickOpen.openFile")
-        oni.input.bind("<C-v>", "quickOpen.openFileVertical")
-        oni.input.bind("<C-s>", "quickOpen.openFileHorizontal")
+        input.bind("<C-p>", "quickOpen.show", isNormalMode)
+        input.bind("<C-/>", "quickOpen.showBufferLines", isNormalMode)
+        input.bind("<enter>", "quickOpen.openFile")
+        input.bind("<C-v>", "quickOpen.openFileVertical")
+        input.bind("<C-s>", "quickOpen.openFileHorizontal")
 
         // Completion
-        oni.input.bind(["<enter>", "<tab>"], "completion.complete")
-        oni.input.bind(["<down>", "<C-n>"], "completion.next")
-        oni.input.bind(["<up>", "<C-p>"], "completion.previous")
+        input.bind(["<enter>", "<tab>"], "completion.complete")
+        input.bind(["<down>", "<C-n>"], "completion.next")
+        input.bind(["<up>", "<C-p>"], "completion.previous")
 
         // Menu
-        oni.input.bind(["<down>", "<C-n>"], "menu.next")
-        oni.input.bind(["<up>", "<C-p>"], "menu.previous")
-        oni.input.bind("<esc>", "menu.close")
+        input.bind(["<down>", "<C-n>"], "menu.next")
+        input.bind(["<up>", "<C-p>"], "menu.previous")
+        input.bind("<esc>", "menu.close")
     }
 
     private applyConfig(): void {
