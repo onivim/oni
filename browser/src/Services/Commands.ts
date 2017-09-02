@@ -4,6 +4,8 @@
  * Built-in Oni Commands
  */
 
+import * as os from "os"
+
 import { remote } from "electron"
 
 import * as Config from "./../Config"
@@ -179,8 +181,8 @@ const quickOpenFileVertical = popupMenuCommand(() => UI.Actions.selectMenuItem("
 const pasteContents = async (neovimInstance: INeovimInstance) => {
     const textToPaste = clipboard.readText()
     const sanitizedText = replaceAll(textToPaste, { "<": "<lt>" })
-                            .split("/r/n")
-                            .join("/n")
+                            .split(os.EOL)
+                            .join("<cr>")
 
     await neovimInstance.command("set paste")
     await neovimInstance.input(sanitizedText)
