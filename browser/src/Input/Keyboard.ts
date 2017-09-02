@@ -5,6 +5,14 @@ export class Keyboard extends EventEmitter {
         super()
 
         document.addEventListener("keydown", (evt) => {
+            /*
+             * This prevents the opening and immediate
+             * (unwanted) closing of external windows.
+             * This problem seems to only exist in Mac OS.
+             */
+            if (evt.keyCode === 13) {
+                evt.preventDefault()
+            }
             const vimKey = this._convertKeyEventToVimKey(evt)
             const mappedKey = this._wrapWithBracketsAndModifiers(vimKey, evt)
 
