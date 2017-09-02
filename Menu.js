@@ -110,7 +110,7 @@ const buildMenu = (mainWindow, loadInit) => {
                 click (item, focusedWindow) {
                     dialog.showSaveDialog(mainWindow, {}, (name) => {
                         if (name) {
-                            executeVimCommand(":save " + name)
+                            executeVimCommand(":save " + normalizePath(name))
                         }
                     })
                 }
