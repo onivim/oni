@@ -1,0 +1,9 @@
+- Add `neovim` capability to activeEditor, that can be queried
+- Add option to hide commands in screen when (null, null)
+- Array of keys
+- Disable / enable keyboard input
+    - startCapture()
+    - stopCapture()
+- Test menu bindings / get menu bindings working
+- Create these 'commands' in `Commands.ts`:
+- Add arrow key bindings

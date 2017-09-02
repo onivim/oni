@@ -1,10 +1,37 @@
 import { EventEmitter } from "events"
 
+// List taken from:
+// https://github.com/zeit/hyper/blob/7a08b1dc3e07ae552debfe7e62c48b0a5a028ff9/lib/utils/key-code.js
+const suppressShiftKeyCharacters = [
+  "~",
+  "!",
+  "@",
+  "#",
+  "$",
+  "%",
+  "^",
+  "&",
+  "*",
+  "(",
+  ")",
+  "_",
+  "+",
+  "{",
+  "}",
+  "|",
+  ":",
+  "'",
+  "\"",
+  "<",
+  ">",
+  "?",
+]
+
 export class Keyboard extends EventEmitter {
     constructor() {
         super()
 
-        document.addEventListener("keydown", (evt) => {
+        document.body.addEventListener("keydown", (evt) => {
             /*
              * This prevents the opening and immediate
              * (unwanted) closing of external windows.
@@ -13,6 +40,7 @@ export class Keyboard extends EventEmitter {
             if (evt.keyCode === 13) {
                 evt.preventDefault()
             }
+
             const vimKey = this._convertKeyEventToVimKey(evt)
             const mappedKey = this._wrapWithBracketsAndModifiers(vimKey, evt)
 
@@ -34,21 +62,21 @@ export class Keyboard extends EventEmitter {
         }
 
         if (evt.ctrlKey) {
-            mappedKey = "C-" + vimKey + ""
+            mappedKey = "c-" + vimKey + ""
             evt.preventDefault()
         }
 
-        if (evt.shiftKey) {
-            mappedKey = "S-" + mappedKey
+        if (evt.shiftKey && suppressShiftKeyCharacters.indexOf(mappedKey) === -1) {
+            mappedKey = "s-" + mappedKey
         }
 
         if (evt.altKey) {
-            mappedKey = "A-" + mappedKey
+            mappedKey = "a-" + mappedKey
             evt.preventDefault()
         }
 
         if (evt.metaKey) {
-            mappedKey = "M-" + mappedKey
+            mappedKey = "m-" + mappedKey
             evt.preventDefault()
         }
 
@@ -56,7 +84,7 @@ export class Keyboard extends EventEmitter {
             mappedKey = "<" + mappedKey + ">"
         }
 
-        return mappedKey
+        return mappedKey.toLowerCase()
     }
 
     private _convertKeyEventToVimKey(evt: KeyboardEvent): null | string {

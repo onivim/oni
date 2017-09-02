@@ -12,6 +12,8 @@ import { Icon } from "./../Icon"
 import { HighlightTextByIndex } from "./HighlightText"
 import { Visible } from "./Visible"
 
+import { inputManager } from "./../../Services/InputManager"
+
 /**
  * Popup menu
  */
@@ -29,6 +31,16 @@ export interface IMenuProps {
 export class Menu extends React.PureComponent<IMenuProps, void> {
 
     private _inputElement: HTMLInputElement = null as any // FIXME: null
+
+    public componentWillUpdate(newProps: Readonly<IMenuProps>): void {
+        if (newProps.visible !== this.props.visible) {
+            if (newProps.visible) {
+                inputManager.startCapture()
+            } else {
+                inputManager.stopCapture()
+            }
+        }
+    }
 
     public render(): null | JSX.Element {
 

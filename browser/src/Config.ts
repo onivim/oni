@@ -8,6 +8,8 @@ import * as path from "path"
 import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
+import { applyDefaultKeyBindings } from "./Input/KeyBindings"
+
 export interface IConfigValues {
 
     "activate": (oni: Oni.Plugin.Api) => void
@@ -283,6 +285,7 @@ export class Config extends EventEmitter {
 
     private _activateIfOniObjectIsAvailable(): void {
         if (this.Config && this.Config.activate && this._oniApi) {
+            applyDefaultKeyBindings(this._oniApi, this)
             this.Config.activate(this._oniApi)
         }
     }

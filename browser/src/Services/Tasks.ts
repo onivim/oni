@@ -34,24 +34,10 @@ export class Tasks extends EventEmitter {
 
     private _providers: ITaskProvider[] = []
 
-    constructor() {
-        super()
-        UI.events.on("menu-item-selected:tasks", async (selectedItem: any) => {
-            const {label, detail} = selectedItem.selectedOption
-
-            const selectedTask = find(this._lastTasks, (t) => t.name === label && t.detail === detail)
-
-            if (selectedTask) {
-                await selectedTask.callback()
-                this.emit("task-executed", selectedTask.command)
-
-                // TODO: we should make the callback return a bool so we can display either success/fail messages
-                if (selectedTask.messageSuccess != null) {
-                  remote.dialog.showMessageBox({type: "info", title: "Success", message: selectedTask.messageSuccess})
-                }
-            }
-        })
-    }
+    // TODO: This should be refactored, as it is simply
+    // a timing dependency on when the object is created versus when 
+    // it is shown.
+    private _initialized = false
 
     public registerTaskProvider(taskProvider: ITaskProvider): void {
         this._providers.push(taskProvider)
@@ -62,6 +48,8 @@ export class Tasks extends EventEmitter {
     }
 
     public show(): void {
+        this._init()
+
         this._refreshTasks().then(() => {
             const options = this._lastTasks.map((f) => {
                 return {
@@ -75,6 +63,27 @@ export class Tasks extends EventEmitter {
         })
     }
 
+    private _init(): void {
+        if (!this._initialized) {
+            UI.events.on("menu-item-selected:tasks", async (selectedItem: any) => {
+                const {label, detail} = selectedItem.selectedOption
+
+                const selectedTask = find(this._lastTasks, (t) => t.name === label && t.detail === detail)
+
+                if (selectedTask) {
+                    await selectedTask.callback()
+                    this.emit("task-executed", selectedTask.command)
+
+                    // TODO: we should make the callback return a bool so we can display either success/fail messages
+                    if (selectedTask.messageSuccess != null) {
+                      remote.dialog.showMessageBox({type: "info", title: "Success", message: selectedTask.messageSuccess})
+                    }
+                }
+            })
+            this._initialized = true
+        }
+    }
+
     private async _refreshTasks(): Promise<void> {
         this._lastTasks = []
 
@@ -84,3 +93,5 @@ export class Tasks extends EventEmitter {
         this._lastTasks = flatten(allTasks)
     }
 }
+
+export const tasks = new Tasks()

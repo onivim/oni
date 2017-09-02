@@ -14,9 +14,9 @@ import { reducer } from "./Reducer"
 import * as UnboundSelectors from "./Selectors"
 import * as State from "./State"
 
-import { PluginManager } from "./../Plugins/PluginManager"
-import { CommandManager } from "./../Services/CommandManager"
 import { editorManager } from "./../Services/EditorManager"
+
+import { PluginManager } from "./../Plugins/PluginManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
 
@@ -42,14 +42,14 @@ export const Selectors = {
     getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState() as any),
 }
 
-export function init(pluginManager: PluginManager, commandManager: CommandManager, args: any): void {
-    render(defaultState, pluginManager, commandManager, args)
+export function init(pluginManager: PluginManager, args: any): void {
+    render(defaultState, pluginManager, args)
 }
 
-function render(_state: State.IState, pluginManager: PluginManager, commandManager: CommandManager, args: any): void {
+function render(_state: State.IState, pluginManager: PluginManager, args: any): void {
     const hostElement = document.getElementById("host")
 
-    const editor = new NeovimEditor(commandManager, pluginManager)
+    const editor = new NeovimEditor(pluginManager)
     editor.init(args)
 
     editorManager.setActiveEditor(editor)
