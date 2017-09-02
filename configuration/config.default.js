@@ -14,7 +14,7 @@ const activate = (oni) => {
     //
     // Or remove the default bindings here by uncommenting the below line:
     //
-    // oni.input.unbind("<c-p>"))
+    // oni.input.unbind("<c-p>")
 }
 
 const deactivate = () => {
