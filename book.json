@@ -1,0 +1,16 @@
+{
+  "gitbook": "3.2.2",
+  "title": "ONI",
+  "root": "./docs",
+  "plugins": ["edit-link", "prism", "-highlight", "github", "anchorjs"],
+  "pluginsConfig": {
+    "edit-link": {
+      "base": "https://github.com/extr0py/oni/tree/master/docs",
+      "label": "Edit This Page"
+    },
+    "github": {
+      "url": "https://github.com/reactjs/redux/"
+    },
+    "theme-default": { }
+  }
+}
