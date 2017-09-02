@@ -29,6 +29,12 @@ declare namespace Oni {
         activeEditor: Editor
     }
 
+    export interface InputManager {
+        bind(keyChord: string | string[], actionFunction: any, filterFunction?: () => boolean)
+        unbind(keyChord: string | string[])
+        unbindAll()
+    }
+
     export interface Editor {
         mode: string
         onModeChanged: IEvent<string>
@@ -172,6 +178,7 @@ declare namespace Oni {
             configuration: Configuration
             diagnostics: Diagnostics.Api
             editors: EditorManager
+            input: InputManager
             process: Process
             statusBar: StatusBar
 

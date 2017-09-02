@@ -392,6 +392,11 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
 
     // remove any items that don't have all the characters from searchString
     const filteredOptions = options.filter((o) => {
+
+        if (!o.label && !o.detail) {
+            return false
+        }
+
         const combined = o.label + o.detail
 
         for (let c of searchSet) {

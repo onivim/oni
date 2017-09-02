@@ -11,7 +11,7 @@ import * as minimist from "minimist"
 import * as Config from "./Config"
 import { PluginManager } from "./Plugins/PluginManager"
 
-import { CommandManager } from "./Services/CommandManager"
+import { commandManager } from "./Services/CommandManager"
 
 import * as isEqual from "lodash/isEqual"
 
@@ -27,8 +27,7 @@ const start = (args: string[]) => {
     window["UI"] = UI // tslint:disable-line no-string-literal
     require("./overlay.less")
 
-    const commandManager = new CommandManager()
-    const pluginManager = new PluginManager(commandManager)
+    const pluginManager = new PluginManager()
 
     const config = Config.instance()
     config.on("logError", (err: Error) => {
@@ -87,7 +86,7 @@ const start = (args: string[]) => {
         pluginManager.notifyCompletionItemSelected(item)
     })
 
-    UI.init(pluginManager, commandManager, parsedArgs._)
+    UI.init(pluginManager, parsedArgs._)
 
     ipcRenderer.on("execute-command", (_evt: any, command: string) => {
         commandManager.executeCommand(command, null)

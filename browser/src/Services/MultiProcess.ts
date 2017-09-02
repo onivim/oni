@@ -15,3 +15,5 @@ export class MultiProcess {
         ipcRenderer.send("focus-next-instance")
     }
 }
+
+export const multiProcess = new MultiProcess()
