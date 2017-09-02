@@ -41,6 +41,9 @@ declare namespace Oni {
 
         // Evaluate an expression, and return the result
         eval(expression: string): Promise<any>
+
+        // Execute a command
+        command(command: string): Promise<void>
     }
 
     export interface Editor {

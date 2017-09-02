@@ -72,6 +72,11 @@ export class NeovimEditor implements IEditor {
         return this._onModeChangedEvent
     }
 
+    // Capabilities
+    public get neovim(): Oni.NeovimEditorCapability {
+        return this._neovimInstance
+    }
+
     constructor(
         private _pluginManager: PluginManager,
         private _config: Config.Config = Config.instance(),

@@ -1,5 +1,3 @@
-import { IEvent } from "./../Event"
-
 /**
  * Interface that describes an Editor -
  * an editor handles rendering and input
