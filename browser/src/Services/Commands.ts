@@ -4,10 +4,14 @@
  * Built-in Oni Commands
  */
 
+import * as fs from "fs"
+import * as os from "os"
+import * as path from "path"
+
 import { remote } from "electron"
 
 import * as Config from "./../Config"
-import { IBuffer, INeovimInstance } from "./../neovim"
+import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { AutoCompletion } from "./../Services/AutoCompletion"
@@ -25,8 +29,6 @@ import * as Platform from "./../Platform"
 import { replaceAll } from "./../Utility"
 
 export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance, bufferUpdates: BufferUpdates) => {
-    const config = Config.instance()
-
     const autoCompletion = new AutoCompletion(neovimInstance)
     const quickOpen = new QuickOpen(neovimInstance, bufferUpdates)
     const formatter = new Formatter(neovimInstance, pluginManager, bufferUpdates)
@@ -46,41 +48,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("oni.editor.findAllReferences", "Find All References", "Find all references using a language service", () => pluginManager.findAllReferences()),
 
         // Menu commands
-        new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for Oni", () => {
-            let buffer: null | IBuffer = null
-            neovimInstance.open(config.userJsConfig)
-                .then(() => neovimInstance.getCurrentBuffer())
-                .then((buf) => buffer = buf)
-                .then(() => buffer.getLineCount())
-                .then((count) => {
-                    if (count === 1) {
-                        let lines = [
-                            // TODO: Export this to a file that we load, if the current config does not exist
-                            // That way, we don't have to duplicate defaults between this file and Config.ts
-
-                            "const activate = (Oni) => {",
-                            "   console.log(\"config activated\")",
-                            "}",
-                            "",
-                            "const deactivate = () => {",
-                            "   console.log(\"config deactivated\")",
-                            "}",
-                            "",
-                            "module.exports = {",
-                            "   activate,",
-                            "   deactivate,",
-                            "  //add custom config here, such as",
-                            "  //\"oni.useDefaultConfig\": true,",
-                            "  //\"oni.bookmarks\": [\"~/Documents\",]",
-                            "  //\"oni.loadInitVim\": false,",
-                            "  //\"editor.fontSize\": \"14px\",",
-                            "  //\"editor.fontFamily\": \"Monaco\"",
-                            "}",
-                        ]
-                        buffer.setLines(0, lines.length, false, lines)
-                    }
-                })
-        }),
+        new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for Oni", () => openDefaultConfig(neovimInstance)),
 
         new CallbackCommand("oni.config.openInitVim", "Edit Neovim Config", "Edit configuration file ('init.vim') for Neovim", () => neovimInstance.open("$MYVIMRC")),
 
@@ -196,4 +164,18 @@ const openFolder = (neovimInstance: INeovimInstance) => {
         const folderToOpen = folder[0]
         neovimInstance.chdir(folderToOpen)
     })
+}
+
+const openDefaultConfig = async (neovimInstance: INeovimInstance): Promise<void> => {
+    const config = Config.instance()
+
+    await neovimInstance.open(config.userJsConfig)
+    const buf = await neovimInstance.getCurrentBuffer()
+    const lineCount = await buf.getLineCount()
+
+    if (lineCount === 1) {
+        const defaultConfigJsPath = path.join(__dirname, "configuration", "config.default.js")
+        const defaultConfigLines = fs.readFileSync(defaultConfigJsPath, "utf8").split(os.EOL)
+        await buf.setLines(0, defaultConfigLines.length, false, defaultConfigLines)
+    }
 }
