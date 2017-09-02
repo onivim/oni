@@ -3,28 +3,28 @@ import { EventEmitter } from "events"
 // List taken from:
 // https://github.com/zeit/hyper/blob/7a08b1dc3e07ae552debfe7e62c48b0a5a028ff9/lib/utils/key-code.js
 const suppressShiftKeyCharacters = [
-  '~',
-  '!',
-  '@',
-  '#',
-  '$',
-  '%',
-  '^',
-  '&',
-  '*',
-  '(',
-  ')',
-  '_',
-  '+',
-  '{',
-  '}',
-  '|',
-  ':',
-  '\'',
-  '"',
-  '<',
-  '>',
-  '?'
+  "~",
+  "!",
+  "@",
+  "#",
+  "$",
+  "%",
+  "^",
+  "&",
+  "*",
+  "(",
+  ")",
+  "_",
+  "+",
+  "{",
+  "}",
+  "|",
+  ":",
+  "'",
+  "\"",
+  "<",
+  ">",
+  "?",
 ]
 
 export class Keyboard extends EventEmitter {
@@ -45,7 +45,6 @@ export class Keyboard extends EventEmitter {
             const mappedKey = this._wrapWithBracketsAndModifiers(vimKey, evt)
 
             if (mappedKey) {
-                console.log('mapped key: ' + mappedKey)
                 this.emit("keydown", mappedKey)
             }
         })
