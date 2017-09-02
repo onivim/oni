@@ -4,6 +4,10 @@
  * Built-in Oni Commands
  */
 
+import * as fs from 'fs'
+import * as path from 'path'
+import * as os from 'os'
+
 import { remote } from "electron"
 
 import * as Config from "./../Config"
@@ -37,36 +41,16 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         // Menu commands
         new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for Oni", () => {
             let buffer: null | IBuffer = null
+
             neovimInstance.open(config.userJsConfig)
                 .then(() => neovimInstance.getCurrentBuffer())
                 .then((buf) => buffer = buf)
                 .then(() => buffer.getLineCount())
                 .then((count) => {
                     if (count === 1) {
-                        let lines = [
-                            // TODO: Export this to a file that we load, if the current config does not exist
-                            // That way, we don't have to duplicate defaults between this file and Config.ts
-
-                            "const activate = (Oni) => {",
-                            "   console.log(\"config activated\")",
-                            "}",
-                            "",
-                            "const deactivate = () => {",
-                            "   console.log(\"config deactivated\")",
-                            "}",
-                            "",
-                            "module.exports = {",
-                            "   activate,",
-                            "   deactivate,",
-                            "  //add custom config here, such as",
-                            "  //\"oni.useDefaultConfig\": true,",
-                            "  //\"oni.bookmarks\": [\"~/Documents\",]",
-                            "  //\"oni.loadInitVim\": false,",
-                            "  //\"editor.fontSize\": \"14px\",",
-                            "  //\"editor.fontFamily\": \"Monaco\"",
-                            "}",
-                        ]
-                        buffer.setLines(0, lines.length, false, lines)
+                        const defaultConfigJsPath = path.join(__dirname, 'configuration', 'config.default.js')
+                        const defaultConfigLines = fs.readFileSync(defaultConfigJsPath, 'utf8').split(os.EOL)
+                        buffer.setLines(0, defaultConfigLines.length, false, defaultConfigLines)
                     }
                 })
         }),
