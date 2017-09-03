@@ -94,6 +94,12 @@ const start = (args: string[]) => {
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {
-    process.chdir(message.workingDirectory)
+    const workingDirectoryFromEnvironment = process.env["ONI_CWD"] // tslint:disable-line no-string-literal
+    if (workingDirectoryFromEnvironment) {
+        process.chdir(workingDirectoryFromEnvironment)
+    } else {
+        process.chdir(message.workingDirectory)
+    }
+
     start(message.args)
 })

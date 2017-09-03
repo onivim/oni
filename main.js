@@ -13,8 +13,6 @@ const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length >
 
 const { buildMenu } = require("./Menu")
 
-// import * as derp from "./installDevTools"
-
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 const webContents = electron.webContents
@@ -63,7 +61,7 @@ function createWindow(commandLineArguments, workingDirectory) {
 
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
-    let mainWindow = new BrowserWindow({ titleBarStyle: "hidden-inset", width: 800, height: 600, icon: path.join(__dirname, "images", "oni.ico"), webPreferences })
+    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "oni.ico"), webPreferences })
 
     updateMenu(mainWindow, false)
 
@@ -169,8 +167,11 @@ function log(message) {
 function loadFileFromArguments(platform, args, workingDirectory) {
     const windowsOpenWith = platform === 'win32' &&
                             args[0].split("\\").pop() === "Oni.exe"
-    
-    if (windowsOpenWith) {
+
+    const macOpenWith = platform === 'darwin' &&
+                            args[0].indexOf("Oni.app") >= 0
+
+    if (windowsOpenWith || macOpenWith) {
         createWindow(args.slice(1), workingDirectory)
     } else {
         createWindow(args.slice(2), workingDirectory)
