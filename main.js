@@ -63,7 +63,7 @@ function createWindow(commandLineArguments, workingDirectory) {
 
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
-    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "oni.ico"), webPreferences })
+    let mainWindow = new BrowserWindow({ titleBarStyle: "hidden-inset", width: 800, height: 600, icon: path.join(__dirname, "images", "oni.ico"), webPreferences })
 
     updateMenu(mainWindow, false)
 
