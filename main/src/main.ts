@@ -53,9 +53,12 @@ function createWindow(commandLineArguments, workingDirectory) {
         blinkFeatures: "ResizeObserver",
     }
 
+    const rootPath = path.join(__dirname, "..", "..", "..")
+    const iconPath = path.join(rootPath, "images", "oni.ico")
+    const indexPath = path.join(rootPath, "index.html")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
-    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "oni.ico"), webPreferences })
+    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: iconPath, webPreferences })
 
     updateMenu(mainWindow, false)
 
@@ -75,7 +78,7 @@ function createWindow(commandLineArguments, workingDirectory) {
     })
 
     // and load the index.html of the app.
-    mainWindow.loadURL(`file://${__dirname}/index.html`)
+    mainWindow.loadURL(`file://${indexPath}`)
 
     // Open the DevTools.
     if (process.env.NODE_ENV === "development" || commandLineArguments.indexOf("--debug") >= 0)
