@@ -91,7 +91,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: 'Split Open…',
                 click (item, focusedWindow) {
-                    dialog.showOpenDialog(mainWindow, 'openFile', (files) => executeVimCommandForFiles(":sp", files))
+                    dialog.showOpenDialog(mainWindow, { properties: ['openFile'] }, (files) => executeVimCommandForFiles(":sp", files))
                 }
             },
             {

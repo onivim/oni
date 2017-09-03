@@ -11,7 +11,7 @@
     "ide",
     "vim"
   ],
-  "main": "./lib/main.js",
+  "main": "./lib/main/src/main.js",
   "bin": {
     "oni": "./cli/oni",
     "oni-vim": "./cli/oni"
