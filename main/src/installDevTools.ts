@@ -13,4 +13,4 @@ try {
 } catch (ex) {
     console.warn("Unable to install developer tools. `electron-devtools-installer` may not be available in this environment")
 }
-
+

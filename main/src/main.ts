@@ -4,10 +4,10 @@ import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
 import { buildMenu } from "./menu"
 
-const isDevelopment = process.env.NODE_ENV === "development" 
+const isDevelopment = process.env.NODE_ENV === "development"
 
 const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
-const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length >0
+const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
 
 // import * as derp from "./installDevTools"
 
@@ -65,11 +65,11 @@ function createWindow(commandLineArguments, workingDirectory) {
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
             args: commandLineArguments,
-            workingDirectory: workingDirectory
+            workingDirectory,
         })
     })
 
-    ipcMain.on('rebuild-menu', function(_evt, loadInit) {
+    ipcMain.on("rebuild-menu", function(_evt, loadInit) {
         // ipcMain is a singleton so if there are multiple Oni instances
         // we may receive an event from a different instance
         if (mainWindow) {
@@ -85,7 +85,7 @@ function createWindow(commandLineArguments, workingDirectory) {
         mainWindow.webContents.openDevTools()
 
     // Emitted when the window is closed.
-    mainWindow.on('closed', function() {
+    mainWindow.on("closed", function() {
         // Dereference the window object, usually you would store windows
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
@@ -100,7 +100,7 @@ function createWindow(commandLineArguments, workingDirectory) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', () => {
+app.on("ready", () => {
     if (isDebug || isDevelopment) {
         require("./installDevTools")
     }
@@ -109,15 +109,15 @@ app.on('ready', () => {
 })
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
+app.on("window-all-closed", function() {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
+    if (process.platform !== "darwin") {
         app.quit()
     }
 })
 
-app.on('activate', function() {
+app.on("activate", function() {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (windows.length === 0) {
@@ -127,12 +127,12 @@ app.on('activate', function() {
 
 function updateMenu(mainWindow, loadInit) {
     const menu = buildMenu(mainWindow, loadInit)
-    if (process.platform === 'darwin') {
+    if (process.platform === "darwin") {
         //all osx windows share the same menu
         Menu.setApplicationMenu(menu)
     } else {
         //on windows and linux, set menu per window
-        mainWindow.setMenu(menu);
+        mainWindow.setMenu(menu)
     }
 }
 
@@ -162,9 +162,9 @@ function log(message) {
 }
 
 function loadFileFromArguments(platform, args, workingDirectory) {
-    const windowsOpenWith = platform === 'win32' &&
+    const windowsOpenWith = platform === "win32" &&
                             args[0].split("\\").pop() === "Oni.exe"
-    
+
     if (windowsOpenWith) {
         createWindow(args.slice(1), workingDirectory)
     } else {
