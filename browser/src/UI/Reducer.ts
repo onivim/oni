@@ -21,13 +21,13 @@ export function reducer<K extends keyof Config.IConfigValues>(s: State.IState, a
 
     switch (a.type) {
         case "SET_CURSOR_POSITION":
-            return {...s, 
-                cursorPixelX: a.payload.pixelX,
-                cursorPixelY: a.payload.pixelY,
-                fontPixelWidth: a.payload.fontPixelWidth,
-                fontPixelHeight: a.payload.fontPixelHeight,
-                cursorCharacter: a.payload.cursorCharacter,
-                cursorPixelWidth: a.payload.cursorPixelWidth}
+            return {...s,
+                    cursorPixelX: a.payload.pixelX,
+                    cursorPixelY: a.payload.pixelY,
+                    fontPixelWidth: a.payload.fontPixelWidth,
+                    fontPixelHeight: a.payload.fontPixelHeight,
+                    cursorCharacter: a.payload.cursorCharacter,
+                    cursorPixelWidth: a.payload.cursorPixelWidth}
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }
         case "SET_COLORS":
@@ -36,64 +36,64 @@ export function reducer<K extends keyof Config.IConfigValues>(s: State.IState, a
                 backgroundColor: a.payload.backgroundColor,
             } }
         case "SHOW_QUICK_INFO":
-            return {...s, 
-                quickInfo: {
+            return {...s,
+                    quickInfo: {
                     title: a.payload.title,
                     description: a.payload.description,
                 }}
         case "HIDE_QUICK_INFO":
-            return {...s, 
-                quickInfo: null}
+            return {...s,
+                    quickInfo: null}
         case "SHOW_AUTO_COMPLETION":
-            return {...s, 
-                autoCompletion: {
+            return {...s,
+                    autoCompletion: {
                     base: a.payload.base,
                     entries: a.payload.entries,
                     selectedIndex: 0,
                 }}
         case "HIDE_AUTO_COMPLETION":
-            return {...s, 
-                autoCompletion: null}
+            return {...s,
+                    autoCompletion: null}
         case "SHOW_SIGNATURE_HELP":
-            return {...s, 
-                signatureHelp: a.payload}
+            return {...s,
+                    signatureHelp: a.payload}
         case "HIDE_SIGNATURE_HELP":
-            return {...s, 
-                signatureHelp: null}
+            return {...s,
+                    signatureHelp: null}
          case "HIDE_CURSOR_LINE":
-             return {...s, 
-                 cursorLineVisible: false}
+             return {...s,
+                     cursorLineVisible: false}
          case "HIDE_CURSOR_COLUMN":
-             return {...s, 
-                 cursorColumnVisible: false}
+             return {...s,
+                     cursorColumnVisible: false}
          case "SHOW_CURSOR_LINE":
-             return {...s, 
-                 cursorLineVisible: true}
+             return {...s,
+                     cursorLineVisible: true}
          case "SHOW_CURSOR_COLUMN":
-             return {...s, 
-                 cursorColumnVisible: true}
+             return {...s,
+                     cursorColumnVisible: true}
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<Config.IConfigValues> = {}
             obj[a.payload.key] = a.payload.value
             const newConfig = {...s.configuration, ...obj}
-            return {...s, 
-                configuration: newConfig}
+            return {...s,
+                    configuration: newConfig}
         case "TOGGLE_LOG_FOLD":
-            return {...s, 
-                logs: s.logs.map((n, i) => {
+            return {...s,
+                    logs: s.logs.map((n, i) => {
                     return i === a.payload.index ?
                         {...n, folded: !n.folded} : n
                 })}
         case "CHANGE_LOGS_VISIBILITY":
-            return {...s, 
-                logsVisible: a.payload.visibility}
+            return {...s,
+                    logsVisible: a.payload.visibility}
         case "MAKE_LOG":
             const newLog = {
                 log: a.payload.log,
                 folded: true,
             }
-            return {...s, 
-                logs: concat(s.logs, newLog)}
+            return {...s,
+                    logs: concat(s.logs, newLog)}
         case "SHOW_MESSAGE_DIALOG":
             return {
                 ...s,
@@ -105,14 +105,14 @@ export function reducer<K extends keyof Config.IConfigValues>(s: State.IState, a
                 activeMessageDialog: null,
             }
         default:
-            return {...s, 
-                buffers: buffersReducer(s.buffers, a),
-                tabState: tabStateReducer(s.tabState, a),
-                errors: errorsReducer(s.errors, a),
-                autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
-                popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
-                statusBar: statusBarReducer(s.statusBar, a),
-                windowState: windowStateReducer(s.windowState, a)}
+            return {...s,
+                    buffers: buffersReducer(s.buffers, a),
+                    tabState: tabStateReducer(s.tabState, a),
+                    errors: errorsReducer(s.errors, a),
+                    autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
+                    popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
+                    statusBar: statusBarReducer(s.statusBar, a),
+                    windowState: windowStateReducer(s.windowState, a)}
     }
 }
 
@@ -284,15 +284,15 @@ export function popupMenuReducer(s: State.IMenu | null, a: Actions.SimpleAction)
                 return s
             }
 
-            return {...s, 
-                selectedIndex: (s.selectedIndex + 1) % size}
+            return {...s,
+                    selectedIndex: (s.selectedIndex + 1) % size}
         case "PREVIOUS_MENU":
             if (!s) {
                 return s
             }
 
-            return {...s, 
-                selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : size - 1}
+            return {...s,
+                    selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : size - 1}
         case "FILTER_MENU":
             if (!s) {
                 return s
@@ -303,9 +303,9 @@ export function popupMenuReducer(s: State.IMenu | null, a: Actions.SimpleAction)
             const optionsToSearch = a.payload.filter.indexOf(s.filter) === 0 ? s.filteredOptions : s.options
             const filteredOptionsSorted = filterMenuOptions(optionsToSearch, a.payload.filter, s.id)
 
-            return {...s, 
-                filter: a.payload.filter,
-                filteredOptions: filteredOptionsSorted}
+            return {...s,
+                    filter: a.payload.filter,
+                    filteredOptions: filteredOptionsSorted}
         default:
             return s
     }
@@ -482,14 +482,14 @@ export function autoCompletionReducer(s: State.IAutoCompletionInfo | null, a: Ac
 
     switch (a.type) {
         case "NEXT_AUTO_COMPLETION":
-            return {...s, 
-                selectedIndex: (s.selectedIndex + 1) % currentEntryCount}
+            return {...s,
+                    selectedIndex: (s.selectedIndex + 1) % currentEntryCount}
         case "PREVIOUS_AUTO_COMPLETION":
-            return {...s, 
-                selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : currentEntryCount - 1}
+            return {...s,
+                    selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : currentEntryCount - 1}
         default:
-            return {...s, 
-                entries: autoCompletionEntryReducer(s.entries, a)}
+            return {...s,
+                    entries: autoCompletionEntryReducer(s.entries, a)}
     }
 }
 

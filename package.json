@@ -82,7 +82,7 @@
     "test:integration": "cd test && tsc -p tsconfig.json && mocha -t 30000 --recursive ../lib_test/test",
     "test:unit": "npm run test:unit:browser",
     "test:unit:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
-    "fix-lint": "npm run fix-lint:browser && npm run fix-lint:test",
+    "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
     "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --config tslint.json",
     "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
     "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
@@ -163,7 +163,7 @@
     "style-loader": "0.18.2",
     "sudo-prompt": "7.1.1",
     "ts-loader": "2.3.2",
-    "tslint": "4.0.2",
+    "tslint": "5.7.0",
     "wcwidth": "1.0.1",
     "webpack": "3.5.3",
     "webpack-dev-server": "2.7.1"
