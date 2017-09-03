@@ -68,6 +68,7 @@
     "build-debug": "npm run build:browser-debug && npm run build:plugins",
     "build:browser": "webpack --config browser/webpack.production.config.js",
     "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
+    "build:main": "cd main && tsc -p tsconfig.json",
     "build:plugins": "npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-reasonml",
     "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && npm run build",
     "build:plugin:oni-plugin-reasonml": "cd vim/core/oni-plugin-reasonml && bsb -make-world",
