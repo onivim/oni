@@ -1,6 +1,6 @@
 /**
  * EditorManager.ts
- * 
+ *
  * Responsible for managing state of the editor collection, and
  * switching between active editors.
  *
@@ -72,7 +72,7 @@ export class ActiveEditor implements Oni.Editor {
         return this._onModeChanged
     }
 
-    /** 
+    /**
      * Internal methods
      */
 

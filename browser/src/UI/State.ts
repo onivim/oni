@@ -10,9 +10,9 @@ import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
 
-export type Buffers = { [filePath: string]: IBuffer }
-export type Errors = { [file: string]: { [key: string]: types.Diagnostic[] } }
-export type WindowLineMap = { [key: number]: number }
+export interface Buffers { [filePath: string]: IBuffer }
+export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
+export interface WindowLineMap { [key: number]: number }
 
 export interface IState {
     cursorPixelX: number

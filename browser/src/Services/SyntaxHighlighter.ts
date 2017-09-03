@@ -50,13 +50,13 @@ export class SyntaxHighlighter {
         this._pluginManager = pluginManager
 
         this._pluginManager.on("set-syntax-highlights", (payload: any) => {
-            let buf: IBuffer = <any> null // FIXME: null
+            let buf: IBuffer = null as any // FIXME: null
             this._neovimInstance.getCurrentBuffer()
                 .then((buffer) => buf = buffer)
                 .then(() => this._neovimInstance.eval("expand('%:p')"))
                 .then((res) => {
                     if (res !== payload.file) {
-                        throw "Syntax highlighting was for different file."
+                        throw new Error("Syntax highlighting was for different file.")
                     }
 
                     // const key = payload.key

@@ -293,7 +293,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public async getBufferIds(): Promise<number[]> {
         const buffers = await this._neovim.request<NeovimBufferReference[]>("nvim_list_bufs", [])
 
-        return buffers.map((b) => <any>b.id)
+        return buffers.map((b) => b.id as any)
     }
 
     public async getCurrentWorkingDirectory(): Promise<string> {
@@ -302,7 +302,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public async getCurrentWindow(): Promise<IWindow> {
-        let windowReference = await this._neovim.request<NeovimWindowReference>("nvim_get_current_win", [])
+        const windowReference = await this._neovim.request<NeovimWindowReference>("nvim_get_current_win", [])
         return new Window(windowReference, this._neovim)
     }
 
@@ -336,7 +336,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public async getApiVersion(): Promise<INeovimApiVersion> {
         const versionInfo = await this._neovim.request("nvim_get_api_info", [])
-        return <any>versionInfo[1].version
+        return versionInfo[1].version as any
     }
 
     private _resizeInternal(rows: number, columns: number): void {
@@ -489,7 +489,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 popupmenu_external: true,
             }
         } else {
-            throw "Unsupported version of Neovim."
+            throw new Error("Unsupported version of Neovim.")
         }
     }
 }

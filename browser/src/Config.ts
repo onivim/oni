@@ -271,7 +271,7 @@ export class Config extends EventEmitter {
     }
 
     private applyConfig(): void {
-        let userRuntimeConfigOrError = this.getUserRuntimeConfig()
+        const userRuntimeConfigOrError = this.getUserRuntimeConfig()
         if (isError(userRuntimeConfigOrError)) {
             this.emit("logError", userRuntimeConfigOrError)
             this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig}
@@ -303,7 +303,7 @@ export class Config extends EventEmitter {
             try {
                 userRuntimeConfig = global["require"](this.userJsConfig) // tslint:disable-line no-string-literal
             } catch (e) {
-                e.message = "Failed to parse " + this.userJsConfig + ":\n" + (<Error>e).message
+                e.message = "Failed to parse " + this.userJsConfig + ":\n" + (e as Error).message
                 error = e
             }
         }

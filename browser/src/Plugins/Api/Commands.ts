@@ -6,9 +6,7 @@
 
 import { IPluginChannel } from "./Channel"
 
-interface ICommandCallback {
-    (args?: any): void
-}
+type ICommandCallback = (args?: any) => void
 
 /**
  * API instance for interacting with Oni (and vim)

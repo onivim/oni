@@ -81,7 +81,7 @@ export class CanvasRenderer implements INeovimRenderer {
 
         modifiedCells.forEach((c) => deltaRegionTracker.notifyCellRendered(c.x, c.y))
 
-        for (let y of Object.keys(rowsToEdit)) {
+        for (const y of Object.keys(rowsToEdit)) {
             const row = rowsToEdit[y]
 
             if (!row) {

@@ -49,7 +49,7 @@ export class StatusBarItem implements Oni.StatusBarItem {
     }
 
     public dispose(): void {
-        throw "Not implemented"
+        throw new Error("Not implemented")
     }
 }
 

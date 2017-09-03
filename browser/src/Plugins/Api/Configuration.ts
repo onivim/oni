@@ -28,7 +28,7 @@ export class Configuration {
     }
 
     public getValue<T>(configValue: string, defaultValue?: T): T {
-        return Config.instance().getValue(<any>configValue) || defaultValue
+        return Config.instance().getValue(configValue as any) || defaultValue
     }
 
 }

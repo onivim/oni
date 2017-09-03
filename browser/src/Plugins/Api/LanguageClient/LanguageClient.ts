@@ -43,7 +43,7 @@ export interface ServerRunOptions {
 }
 
 /**
- * Options to send to the `initialize` method of the 
+ * Options to send to the `initialize` method of the
  * Language Server
  */
 export interface LanguageClientInitializationParams {
@@ -59,14 +59,12 @@ export interface LanguageClientInitializationParams {
  * Function that takes an event (buffer-open event) and returns a language params
  * This should always return the same value for a particular file.
  */
-export interface InitializationParamsCreator {
-    (filePath: string): Promise<LanguageClientInitializationParams>
-}
+export type InitializationParamsCreator = (filePath: string) => Promise<LanguageClientInitializationParams>
 
 import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
 
 /**
- * Implementation of a client that talks to a server 
+ * Implementation of a client that talks to a server
  * implementing the Language Server Protocol:
  * https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md
  */
@@ -166,7 +164,7 @@ export class LanguageClient {
             console.log(`[LANGUAGE CLIENT]: Starting process via node script '${this._startOptions.module}'`) // tslint:disable-line no-console
             this._process = this._oni.process.spawnNodeScript(this._startOptions.module, startArgs, options)
         } else {
-            throw "A command or module must be specified to start the server"
+            throw new Error("A command or module must be specified to start the server")
         }
 
         if (!this._process || !this._process.pid) {
@@ -187,8 +185,8 @@ export class LanguageClient {
         })
 
         this._connection = rpc.createMessageConnection(
-            <any>(new rpc.StreamMessageReader(this._process.stdout)),
-            <any>(new rpc.StreamMessageWriter(this._process.stdin)),
+            (new rpc.StreamMessageReader(this._process.stdout)) as any,
+            (new rpc.StreamMessageWriter(this._process.stdin)) as any,
             new LanguageClientLogger())
 
         this._currentOpenDocumentPath = null
@@ -342,7 +340,7 @@ export class LanguageClient {
             return null
         }
 
-        let result = await this._connection.sendRequest<types.CompletionList>(
+        const result = await this._connection.sendRequest<types.CompletionList>(
             Helpers.ProtocolConstants.TextDocument.Completion,
             Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
 
@@ -383,7 +381,7 @@ export class LanguageClient {
             return null
         }
 
-        let symbolInformation = await this._connection.sendRequest<types.SymbolInformation[]>(
+        const symbolInformation = await this._connection.sendRequest<types.SymbolInformation[]>(
             Helpers.ProtocolConstants.TextDocument.DocumentSymbol,
             Helpers.pathToTextDocumentIdentifierParms(bufferFullPath))
 
@@ -399,7 +397,7 @@ export class LanguageClient {
                     return null
                 }
 
-                let contents = Helpers.getTextFromContents(result.contents)
+                const contents = Helpers.getTextFromContents(result.contents)
 
                 if (contents.length === 0) {
                     return null
