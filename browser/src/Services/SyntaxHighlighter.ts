@@ -2,6 +2,7 @@
  * SyntaxHighlighter.ts
  */
 
+import * as Log from "./../Log"
 import { IBuffer, INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
@@ -66,7 +67,7 @@ export class SyntaxHighlighter {
 
                     highlights.forEach((h) => {
                         if (!h.highlightKind) {
-                            console.warn("Undefined highlight: ", h)
+                            Log.warn("Undefined highlight: " + h)
                             return
                         }
 
