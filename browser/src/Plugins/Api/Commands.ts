@@ -6,6 +6,8 @@
 
 import { IPluginChannel } from "./Channel"
 
+import * as Log from "./../../Log"
+
 type ICommandCallback = (args?: any) => void
 
 /**
@@ -24,7 +26,7 @@ export class Commands {
          const command = this._commandToCallback[commandName]
 
          if (!command) {
-            console.warn(`No command registered: ${commandName}`)
+            Log.warn(`No command registered: ${commandName}`)
             return
          }
 

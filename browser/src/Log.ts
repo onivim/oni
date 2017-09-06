@@ -6,6 +6,10 @@
 
 import * as UI from "./UI/index"
 
+export function debug(message: string): void {
+    console.log(message) // tslint:disable-line no-console
+}
+
 export function info(message: string): void {
     UI.Actions.makeLog({
         type: "info",
