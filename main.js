@@ -4,6 +4,8 @@ const path = require("path")
 const { Menu, app, shell, dialog } = electron;
 const os = require('os');
 
+console.log("opening")
+
 const ipcMain = electron.ipcMain
 
 const isDevelopment = process.env.NODE_ENV === "development" 
@@ -12,6 +14,8 @@ const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).leng
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length >0
 
 const { buildMenu } = require("./Menu")
+
+const { makeSingleInstance, quit } = require("./ProcessLifecycle")
 
 // import * as derp from "./installDevTools"
 
@@ -44,11 +48,16 @@ let windows = []
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
 if (!isDevelopment && !isDebug) {
-    const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
-        loadFileFromArguments(process.platform, commandLine, workingDirectory)
+
+    console.log("[MAIN] Making single instance...")
+    const shouldQuit = makeSingleInstance({}, (options) => {
+        console.log("[MAIN] Creating single instance")
+        // TODO:
+        loadFileFromArguments(process.platform, [], process.cwd())
     })
 
     if (shouldQuit) {
+        console.log("Quitting")
         app.quit()
         return
     }
@@ -161,9 +170,9 @@ function focusNextInstance(direction) {
 }
 
 function log(message) {
-    if (isVerbose) {
+    // if (isVerbose) {
         console.log(message)
-    }
+    // }
 }
 
 function loadFileFromArguments(platform, args, workingDirectory) {
