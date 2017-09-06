@@ -22,7 +22,7 @@ export class Configuration {
     private _onConfigurationChangedEvent: Event<void> = new Event<void>("oni_configuration_changed")
 
     constructor() {
-        Config.instance().registerListener(() => {
+        Config.instance().onConfigChanged.subscribe(() => {
             this._onConfigurationChangedEvent.dispatch(null)
         })
     }

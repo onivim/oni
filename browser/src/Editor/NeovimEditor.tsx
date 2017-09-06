@@ -227,7 +227,7 @@ export class NeovimEditor implements IEditor {
         })
 
         this._onConfigChanged()
-        this._config.registerListener(() => this._onConfigChanged())
+        this._config.onConfigChanged.subscribe(() => this._onConfigChanged())
 
         const keyboard = new Keyboard()
         keyboard.on("keydown", (key: string) => {
