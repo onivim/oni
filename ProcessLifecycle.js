@@ -9,6 +9,22 @@ const { app } = require("electron")
 // import * as path from "path"
 
 let isPrimaryInstance = false
+let isAppReady = false
+const pendingAppReadyCallbacks = []
+
+app.on("ready", () => {
+    isAppReady = true
+
+    pendingAppReadyCallbacks.forEach((callback) => callback())
+})
+
+const waitForAppReady = (callback) => {
+    if (isAppReady) {
+        callback()
+    } else {
+        pendingAppReadyCallbacks.push(callback)
+    }
+}
 
 
 // Inspired by atom's workaround in `atom-application.coffee`
@@ -19,7 +35,8 @@ const makeSingleInstance = (options, callbackFunction) => {
     const initializePrimaryInstance = () => {
         console.log("Initializing primary instance.")
         isPrimaryInstance = true
-        callbackFunction(options)
+
+        waitForAppReady(() => callbackFunction(options))
 
         deleteSocketFile(socketPath)
 
@@ -32,7 +49,7 @@ const makeSingleInstance = (options, callbackFunction) => {
 
             connection.on("end", () => {
                 const options = JSON.parse(data)
-                callbackFunction(options)
+                waitForAppReady(() => callbackFunction(options))
             })
         })
 
