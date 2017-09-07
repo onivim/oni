@@ -5,6 +5,7 @@ import * as State from "./State"
 import * as Fuse from "fuse.js"
 
 import * as Config from "./../Config"
+import * as Log from "./../Log"
 import * as Actions from "./Actions"
 
 import * as concat from "lodash/concat"
@@ -133,6 +134,15 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
     let byId = s.byId
     let allIds = s.allIds
 
+    const emptyBuffer = (id: number): State.IBuffer => ({
+        id,
+        file: null,
+        modified: false,
+        hidden: true,
+        listed: false,
+        totalLines: 0,
+    })
+
     switch (a.type) {
         case "BUFFER_ENTER":
             byId = {
@@ -143,7 +153,8 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                     totalLines: a.payload.totalLines,
                     hidden: a.payload.hidden,
                     listed: a.payload.listed,
-                } as State.IBuffer,
+                    modified: false,
+                },
             }
 
             if (allIds.indexOf(a.payload.id) === -1) {
@@ -156,14 +167,15 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 allIds,
             }
         case "BUFFER_SAVE":
-            const currentItem = s.byId[a.payload.id] || {}
+            const currentItem = s.byId[a.payload.id] || emptyBuffer(a.payload.id)
             byId = {
                 ...s.byId,
                 [a.payload.id]: {
                     ...currentItem,
+                    id: a.payload.id,
                     modified: a.payload.modified,
                     lastSaveVersion: a.payload.version,
-                } as State.IBuffer,
+                },
             }
 
             return {
@@ -171,7 +183,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 byId,
             }
         case "BUFFER_UPDATE":
-            const currentItem3: any = s.byId[a.payload.id] || {}
+            const currentItem3 = s.byId[a.payload.id] || emptyBuffer(a.payload.id)
 
             // If the last save version hasn't been set, this means it is the first update,
             // and should clamp to the incoming version
@@ -181,11 +193,12 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 ...s.byId,
                 [a.payload.id]: {
                     ...currentItem3,
+                    id: a.payload.id,
                     modified: a.payload.modified,
                     version: a.payload.version,
                     totalLines: a.payload.totalLines,
                     lastSaveVersion,
-                } as State.IBuffer,
+                },
             }
 
             return {
@@ -201,13 +214,13 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 activeBufferId = null
             }
 
-            const newById = pick(s.byId, a.payload.bufferIds)
+            const newById: any = pick(s.byId, a.payload.bufferIds)
 
             return {
                 activeBufferId,
                 byId: newById,
                 allIds,
-            } as State.IBufferState
+            }
         default:
             return s
     }
@@ -319,7 +332,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
         const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
         if (overriddenCommand) {
             try {
-                const files = execSync(overriddenCommand.replace("${search}", searchString), { cwd: process.cwd() })
+                const files = execSync(overriddenCommand.replace("${search}", searchString), { cwd: process.cwd() }) // tslint:disable-line no-invalid-template-strings
                     .toString("utf8")
                     .split("\n")
                 const opt: State.IMenuOptionWithHighlights[]  = files.map((untrimmedFile) => {
@@ -337,7 +350,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
                 })
                 return opt
             } catch (e) {
-                console.warn(`'${overriddenCommand}' returned an error: ${e.message}\nUsing default filtering`)
+                Log.warn(`'${overriddenCommand}' returned an error: ${e.message}\nUsing default filtering`)
             }
         }
     }

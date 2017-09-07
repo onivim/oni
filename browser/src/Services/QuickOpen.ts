@@ -120,7 +120,7 @@ export class QuickOpen {
         // Overridden strategy
         if (overriddenCommand) {
             // replace placeholder ${search} with "" for initial case
-            this.loadMenu(overriddenCommand.replace("${search}", ""))
+            this.loadMenu(overriddenCommand.replace("${search}", "")) // tslint:disable-line no-invalid-template-strings
             return
         }
 
