@@ -18,6 +18,17 @@ app.on("ready", () => {
     pendingAppReadyCallbacks.forEach((callback) => callback())
 })
 
+app.on("will-quit", () => {
+    console.log("will-quit")
+
+    if (isPrimaryInstance) {
+        const socketPath = getSocketPath()
+        deleteSocketFile(socketPath)
+    } else {
+        console.log("not deleting socket file because not primary instance.")
+    }
+})
+
 const waitForAppReady = (callback) => {
     if (isAppReady) {
         callback()
@@ -85,8 +96,6 @@ const makeSingleInstance = (options, callbackFunction) => {
 }
 
 const quit = () => {
-    const socketPath = getSocketPath()
-    deleteSocketFile(socketPath)
     app.quit()
 }
 
@@ -97,8 +106,10 @@ const deleteSocketFile = (socketPath) => {
     }
 
     if (fs.existsSync(socketPath)) {
+        console.log("Attemping to delete socket file...")
         try {
             fs.unlinkSync(socketPath)
+            console.log("Socket file was deleted")
         } catch (error) {
             if (error.code === "ENOENT") {
                 // In some cases, there can be a race condition here...
@@ -138,7 +149,6 @@ const getUserName = () => {
 }
 
 module.exports = {
-	makeSingleInstance,
-	quit
+    makeSingleInstance,
 }
 

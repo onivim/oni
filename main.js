@@ -15,7 +15,7 @@ const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length >
 
 const { buildMenu } = require("./Menu")
 
-const { makeSingleInstance, quit } = require("./ProcessLifecycle")
+const { makeSingleInstance } = require("./ProcessLifecycle")
 
 // import * as derp from "./installDevTools"
 
@@ -55,16 +55,10 @@ if (!isDevelopment && !isDebug) {
     }
 
     console.log("[MAIN] Making single instance...")
-    const shouldQuit = makeSingleInstance(currentOptions, (options) => {
+    makeSingleInstance(currentOptions, (options) => {
         console.log("[MAIN] Creating single instance")
         loadFileFromArguments(process.platform, options.args, options.workingDirectory)
     })
-
-    if (shouldQuit) {
-        console.log("Quitting")
-        app.quit()
-        return
-    }
 } else {
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
