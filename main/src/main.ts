@@ -9,6 +9,8 @@ const isDevelopment = process.env.NODE_ENV === "development"
 const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
 
+import * as Log from "./Log"
+
 // import * as derp from "./installDevTools"
 
 ipcMain.on("cross-browser-ipc", (event, arg) => {
@@ -158,7 +160,7 @@ function focusNextInstance(direction) {
 
 function log(message) {
     if (isVerbose) {
-        console.log(message)
+        Log.info(message)
     }
 }
 
