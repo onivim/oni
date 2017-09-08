@@ -7,7 +7,7 @@
 import * as Log from "./Log"
 
 try {
-    const electronDevtoolsInstaller = require("electron-devtools-installer")
+    const electronDevtoolsInstaller = require("electron-devtools-installer") // tslint:disable-line no-var-requires
 
     electronDevtoolsInstaller.default(electronDevtoolsInstaller.REDUX_DEVTOOLS)
         .then((name) => Log.info(`Added extension: ${name}`))
