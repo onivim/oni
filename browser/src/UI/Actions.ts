@@ -8,7 +8,6 @@
  */
 
 import * as Config from "./../Config"
-import { ILog } from "./Logs"
 import { IMessageDialog, ITab, StatusBarAlignment, WindowLineMap } from "./State"
 import { Rectangle } from "./Types"
 

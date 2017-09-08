@@ -2,7 +2,6 @@ import * as React from "react"
 
 import { Background } from "./components/Background"
 import { EditorHost } from "./components/EditorHost"
-import { Logs } from "./components/Logs"
 import { MenuContainer } from "./components/Menu"
 import StatusBar from "./components/StatusBar"
 
@@ -25,7 +24,6 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
                             <EditorHost editor={this.props.editor} />
                         </div>
                         <div className="stack layer">
-                            <Logs />
                             <MenuContainer />
                         </div>
                     </div>

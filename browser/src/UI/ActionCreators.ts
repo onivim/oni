@@ -13,8 +13,6 @@ import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
 import * as Actions from "./Actions"
-import { events } from "./Events"
-import { ILog } from "./Logs"
 import * as State from "./State"
 
 import * as Config from "./../Config"
@@ -178,7 +176,7 @@ function emitCompletionItemSelectedEvent(state: State.IState): void {
     const autoCompletion = state.autoCompletion
     if (autoCompletion != null) {
         const entry = autoCompletion.entries[autoCompletion.selectedIndex]
-        events.emit(Events.CompletionItemSelectedEvent, entry)
+        Events.events.emit(Events.CompletionItemSelectedEvent, entry)
     }
 }
 
@@ -316,18 +314,6 @@ export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Co
         },
     }
 }
-export const toggleLogFold = (index: number): Actions.IToggleLogFold => ({
-    type: "TOGGLE_LOG_FOLD",
-    payload: { index },
-})
-export const changeLogsVisibility = (visibility: boolean): Actions.IChangeLogsVisibility => ({
-    type: "CHANGE_LOGS_VISIBILITY",
-    payload: { visibility },
-})
-export const makeLog = (log: ILog): Actions.IMakeLog => ({
-    type: "MAKE_LOG",
-    payload: { log },
-})
 
 const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
     type: "SET_CURSOR_POSITION",

@@ -5,7 +5,6 @@
  */
 
 import * as Config from "./../Config"
-import { ILog } from "./Logs"
 import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"

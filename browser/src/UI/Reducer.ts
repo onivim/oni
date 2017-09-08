@@ -7,7 +7,6 @@ import * as Fuse from "fuse.js"
 import * as Config from "./../Config"
 import * as Actions from "./Actions"
 
-import * as concat from "lodash/concat"
 import * as pick from "lodash/pick"
 import * as sortBy from "lodash/sortBy"
 
