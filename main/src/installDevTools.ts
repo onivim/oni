@@ -1,16 +1,17 @@
 /**
- * installDevTools.js
+ * installDevTools.ts
  *
  * Helper to install the redux & react devtools
  */
+
+import * as Log from "./Log"
 
 try {
     const electronDevtoolsInstaller = require("electron-devtools-installer")
 
     electronDevtoolsInstaller.default(electronDevtoolsInstaller.REDUX_DEVTOOLS)
-        .then((name) => console.log(`Added extension: ${name}`))
-        .catch((err) => console.log(`An error occurred: ${err}`))
+        .then((name) => Log.info(`Added extension: ${name}`))
+        .catch((err) => Log.info(`An error occurred: ${err}`))
 } catch (ex) {
-    console.warn("Unable to install developer tools. `electron-devtools-installer` may not be available in this environment")
+    Log.warn("Unable to install developer tools. `electron-devtools-installer` may not be available in this environment")
 }
-

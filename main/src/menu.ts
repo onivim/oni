@@ -17,13 +17,14 @@ export const buildMenu = (mainWindow, loadInit) => {
     const executeOniCommand = (command) => mainWindow.webContents.send("execute-command", command)
 
     const executeVimCommandForFiles = (command, files) => {
-        if (!files || !files.length)
+        if (!files || !files.length) {
             return
+        }
 
         files.forEach((fileName) => executeVimCommand(`${command} ${normalizePath(fileName)}`))
     }
 
-    const isWindows = os.platform() == "win32"
+    const isWindows = os.platform() === "win32"
 
     const preferences = {
         label: "Preferences",

@@ -69,7 +69,7 @@ function createWindow(commandLineArguments, workingDirectory) {
         })
     })
 
-    ipcMain.on("rebuild-menu", function(_evt, loadInit) {
+    ipcMain.on("rebuild-menu", (_evt, loadInit) => {
         // ipcMain is a singleton so if there are multiple Oni instances
         // we may receive an event from a different instance
         if (mainWindow) {
@@ -81,17 +81,17 @@ function createWindow(commandLineArguments, workingDirectory) {
     mainWindow.loadURL(`file://${indexPath}`)
 
     // Open the DevTools.
-    if (process.env.NODE_ENV === "development" || commandLineArguments.indexOf("--debug") >= 0)
+    if (process.env.NODE_ENV === "development" || commandLineArguments.indexOf("--debug") >= 0) {
         mainWindow.webContents.openDevTools()
+    }
 
     // Emitted when the window is closed.
-    mainWindow.on("closed", function() {
+    mainWindow.on("closed", () => {
         // Dereference the window object, usually you would store windows
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
         windows = windows.filter(m => m !== mainWindow)
         mainWindow = null
-
     })
 
     windows.push(mainWindow)
@@ -109,7 +109,7 @@ app.on("ready", () => {
 })
 
 // Quit when all windows are closed.
-app.on("window-all-closed", function() {
+app.on("window-all-closed", () => {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== "darwin") {
@@ -117,7 +117,7 @@ app.on("window-all-closed", function() {
     }
 })
 
-app.on("activate", function() {
+app.on("activate", () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (windows.length === 0) {
@@ -128,10 +128,10 @@ app.on("activate", function() {
 function updateMenu(mainWindow, loadInit) {
     const menu = buildMenu(mainWindow, loadInit)
     if (process.platform === "darwin") {
-        //all osx windows share the same menu
+        // all osx windows share the same menu
         Menu.setApplicationMenu(menu)
     } else {
-        //on windows and linux, set menu per window
+        // on windows and linux, set menu per window
         mainWindow.setMenu(menu)
     }
 }
@@ -148,8 +148,9 @@ function focusNextInstance(direction) {
     const currentWindowIdx = windows.indexOf(currentFocusedWindow)
     let newFocusWindowIdx = (currentWindowIdx + direction) % windows.length
 
-    if (newFocusWindowIdx < 0)
+    if (newFocusWindowIdx < 0) {
         newFocusWindowIdx = windows.length - 1
+    }
 
     log(`Focusing index: ${newFocusWindowIdx}`)
     windows[newFocusWindowIdx].focus()
