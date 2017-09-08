@@ -49,11 +49,15 @@ let windows = []
 // Otherwise, all other open instances will also pick up the webpack bundle
 if (!isDevelopment && !isDebug) {
 
+    const currentOptions = {
+        args: process.argv,
+        workingDirectory: process.cwd(),
+    }
+
     console.log("[MAIN] Making single instance...")
-    const shouldQuit = makeSingleInstance({}, (options) => {
+    const shouldQuit = makeSingleInstance(currentOptions, (options) => {
         console.log("[MAIN] Creating single instance")
-        // TODO:
-        loadFileFromArguments(process.platform, [], process.cwd())
+        loadFileFromArguments(process.platform, options.args, options.workingDirectory)
     })
 
     if (shouldQuit) {
@@ -61,6 +65,14 @@ if (!isDevelopment && !isDebug) {
         app.quit()
         return
     }
+} else {
+    // This method will be called when Electron has finished
+    // initialization and is ready to create browser windows.
+    // Some APIs can only be used after this event occurs.
+    app.on('ready', () => {
+        require("./installDevTools")
+        loadFileFromArguments(process.platform, process.argv, process.cwd())
+    })
 }
 
 function createWindow(commandLineArguments, workingDirectory) {
@@ -110,17 +122,6 @@ function createWindow(commandLineArguments, workingDirectory) {
 
     windows.push(mainWindow)
 }
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', () => {
-    if (isDebug || isDevelopment) {
-        require("./installDevTools")
-    }
-
-    loadFileFromArguments(process.platform, process.argv, process.cwd())
-})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
