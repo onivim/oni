@@ -52,11 +52,6 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         new CallbackCommand("oni.config.openInitVim", "Edit Neovim Config", "Edit configuration file ('init.vim') for Neovim", () => neovimInstance.open("$MYVIMRC")),
 
-        new CallbackCommand("oni.editor.showLogs",
-            "Show Logs",
-            "Show all logs in the bottom panel",
-            () => UI.Actions.changeLogsVisibility(true)),
-
         new CallbackCommand("oni.openFolder", "Open Folder", "Set a folder as the working directory for Oni", () => openFolder(neovimInstance)),
 
         new CallbackCommand("oni.process.cycleNext", "Focus Next Oni", "Switch to the next running instance of Oni", () => multiProcess.focusNextInstance()),
