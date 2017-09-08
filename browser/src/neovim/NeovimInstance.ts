@@ -30,6 +30,8 @@ export interface INeovimApiVersion {
     patch: number
 }
 
+export type NeovimEventHandler = (...args: any[]) => void
+
 export interface INeovimInstance {
     cursorPosition: IPosition
     quickFix: IQuickFixList
@@ -66,7 +68,7 @@ export interface INeovimInstance {
 
     // TODO:
     // - Refactor remaining events into strongly typed events, as part of the interface
-    on(event: string, handler: Function): void
+    on(event: string, handler: NeovimEventHandler): void
 
     setFont(fontFamily: string, fontSize: string): void
 

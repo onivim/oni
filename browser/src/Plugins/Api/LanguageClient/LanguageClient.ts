@@ -467,13 +467,11 @@ export class LanguageClient {
         this._currentBuffer[lineNumber - 1] = changedLine
 
         if (this._serverCapabilities && this._serverCapabilities.textDocumentSync) {
-            let changeTextDocumentParams
+            const isFullSync = this._serverCapabilities.textDocumentSync === Helpers.TextDocumentSyncKind.Full
 
-            if (this._serverCapabilities.textDocumentSync === Helpers.TextDocumentSyncKind.Full) {
-                changeTextDocumentParams = Helpers.createDidChangeTextDocumentParams(args.eventContext.bufferFullPath, this._currentBuffer, args.eventContext.version)
-            } else {
-                changeTextDocumentParams = Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine)
-            }
+            const changeTextDocumentParams = isFullSync ?
+                Helpers.createDidChangeTextDocumentParams(args.eventContext.bufferFullPath, this._currentBuffer, args.eventContext.version)
+                : Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine)
 
             this._connection.sendNotification(Helpers.ProtocolConstants.TextDocument.DidChange, changeTextDocumentParams)
         }
