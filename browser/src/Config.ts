@@ -5,6 +5,7 @@ import * as cloneDeep from "lodash/cloneDeep"
 import * as isError from "lodash/isError"
 import * as path from "path"
 
+import * as Log from "./Log"
 import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
@@ -273,7 +274,7 @@ export class Config extends EventEmitter {
     private applyConfig(): void {
         let userRuntimeConfigOrError = this.getUserRuntimeConfig()
         if (isError(userRuntimeConfigOrError)) {
-            this.emit("logError", userRuntimeConfigOrError)
+            Log.error(userRuntimeConfigOrError)
             this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig}
         } else {
             this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfigOrError}

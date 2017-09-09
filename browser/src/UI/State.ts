@@ -44,12 +44,6 @@ export interface IState {
 
     windowState: IWindowState
 
-    logsVisible: boolean
-    logs: Array<{
-        log: ILog,
-        folded: boolean,
-    }>
-
     errors: Errors
 
     // Dimensions of active window, in pixels
@@ -196,8 +190,7 @@ export const createDefaultState = (): IState => ({
     cursorColumnVisible: false,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
-    logsVisible: false,
-    logs: [],
+
     configuration: Config.instance().getValues(),
 
     buffers: {

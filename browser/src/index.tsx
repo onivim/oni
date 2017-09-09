@@ -9,6 +9,7 @@
 import { ipcRenderer, remote } from "electron"
 import * as minimist from "minimist"
 import * as Config from "./Config"
+import * as Log from "./Log"
 import { PluginManager } from "./Plugins/PluginManager"
 
 import { commandManager } from "./Services/CommandManager"
@@ -30,21 +31,10 @@ const start = (args: string[]) => {
     const pluginManager = new PluginManager()
 
     const config = Config.instance()
-    config.on("logError", (err: Error) => {
-        UI.Actions.makeLog({
-            type: "error",
-            message: err.message,
-            details: err.stack.split("\n"),
-        })
-    })
 
     const initialConfigParsingError = config.getParsingError()
     if (initialConfigParsingError) {
-        UI.Actions.makeLog({
-            type: "error",
-            message: initialConfigParsingError.message,
-            details: initialConfigParsingError.stack.split("\n"),
-        })
+        Log.error(initialConfigParsingError)
     }
 
     let prevConfigValues = config.getValues()
