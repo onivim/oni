@@ -45,6 +45,8 @@ import { clipboard } from "electron"
 
 import { normalizePath } from "./../Utility"
 
+import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
+
 export class NeovimEditor implements IEditor {
 
     private _neovimInstance: NeovimInstance
@@ -363,6 +365,9 @@ export class NeovimEditor implements IEditor {
 
     private _onConfigChanged(): void {
         this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
+
+        VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+
         this._onUpdate()
         this._scheduleRender()
     }
