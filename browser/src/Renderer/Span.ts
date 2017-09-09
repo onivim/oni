@@ -6,7 +6,7 @@ export interface ISpan {
     endX: number
 }
 
-export type RowMap = { [key: number]: ISpan[] }
+export interface RowMap { [key: number]: ISpan[] }
 
 export function getSpansToEdit(grid: Grid<ISpan>, cells: IDeltaCellPosition[]): RowMap {
     const rowToSpans: RowMap = {}
@@ -37,7 +37,7 @@ export function getSpansToEdit(grid: Grid<ISpan>, cells: IDeltaCellPosition[]): 
 
 export function collapseSpanMap(currentSpanMap: RowMap): RowMap {
     const outMap = {}
-    for (let k of Object.keys(currentSpanMap)) {
+    for (const k of Object.keys(currentSpanMap)) {
         outMap[k] = collapseSpans(currentSpanMap[k])
     }
 

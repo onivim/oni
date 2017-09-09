@@ -81,8 +81,8 @@ export class CanvasRenderer implements INeovimRenderer {
 
         modifiedCells.forEach((c) => deltaRegionTracker.notifyCellRendered(c.x, c.y))
 
-        for (let y of Object.keys(rowsToEdit)) {
-            const row = rowsToEdit[y]
+        for (const y of Object.keys(rowsToEdit)) {
+            const row: ISpan[] = rowsToEdit[y]
 
             if (!row) {
                 return
@@ -91,28 +91,28 @@ export class CanvasRenderer implements INeovimRenderer {
             row.forEach((span: ISpan) => {
                 // All spans that have changed in current rendering pass
 
-                const row = Number.parseInt(y)
+                const rowIndex = Number.parseInt(y)
 
-                const currentCell = screenInfo.getCell(span.startX, row)
+                const currentCell = screenInfo.getCell(span.startX, rowIndex)
 
                 // Check spans before & after, to see if they can be merged
                 // (In other words, if they should be re-rendered together)
                 // This is important for ligature cases.
-                const gridCellBefore = screenInfo.getCell(span.startX - 1, row)
-                const gridCellAfter = screenInfo.getCell(span.endX + 1, row)
+                const gridCellBefore = screenInfo.getCell(span.startX - 1, rowIndex)
+                const gridCellAfter = screenInfo.getCell(span.endX + 1, rowIndex)
 
                 let updatedStartX = span.startX
                 let updatedEndX = span.endX
 
                 if (cellsAreTheSame(currentCell, gridCellBefore)) {
-                    const previousCell = this._grid.getCell(span.startX - 1, row)
+                    const previousCell = this._grid.getCell(span.startX - 1, rowIndex)
                     if (previousCell) {
                         updatedStartX = previousCell.startX
                     }
                 }
 
                 if (cellsAreTheSame(currentCell, gridCellAfter)) {
-                    const afterCell = this._grid.getCell(span.endX + 1, row)
+                    const afterCell = this._grid.getCell(span.endX + 1, rowIndex)
 
                     if (afterCell) {
                         updatedEndX = afterCell.endX
@@ -124,7 +124,7 @@ export class CanvasRenderer implements INeovimRenderer {
                     endX: updatedEndX,
                 }
 
-                this._renderSpan(updatedSpan, row, screenInfo)
+                this._renderSpan(updatedSpan, rowIndex, screenInfo)
             })
         }
 

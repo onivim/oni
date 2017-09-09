@@ -49,7 +49,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
 
         this._tssProcess.stderr.on("data", (data, err) => {
-            console.error("Error from tss: " + data)
+            console.error("Error from tss: " + data) // tslint:disable-line no-console
         })
 
         this._tssProcess.on("error", (data) => {
@@ -238,8 +238,8 @@ export class TypeScriptServerHost extends events.EventEmitter {
     }
 
     private _createDeferredPromise<T>(): any {
-        let resolve: Function
-        let reject: Function
+        let resolve
+        let reject
         const promise = new Promise((res, rej) => {
             resolve = res
             reject = rej

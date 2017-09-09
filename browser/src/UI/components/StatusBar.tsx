@@ -6,11 +6,9 @@ import * as React from "react"
 
 import { connect } from "react-redux"
 
-import * as State from "./../State"
+import { IState, StatusBarAlignment } from "./../State"
 
 require("./StatusBar.less") // tslint:disable-line no-var-requires
-
-import { StatusBarAlignment } from "./../State"
 
 export interface StatusBarProps {
     items: StatusBarItemProps[]
@@ -76,7 +74,7 @@ export class StatusBarItem extends React.PureComponent<StatusBarItemProps, void>
 
 import { createSelector } from "reselect"
 
-const getStatusBar = (state: State.IState) => state.statusBar
+const getStatusBar = (state: IState) => state.statusBar
 
 const getStatusBarItems = createSelector(
     [getStatusBar],
@@ -91,7 +89,7 @@ const getStatusBarItems = createSelector(
         return statusBarItems
     })
 
-const mapStateToProps = (state: State.IState): StatusBarProps => {
+const mapStateToProps = (state: IState): StatusBarProps => {
 
     const statusBarItems = getStatusBarItems(state)
 

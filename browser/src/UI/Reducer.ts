@@ -5,6 +5,7 @@ import * as State from "./State"
 import * as Fuse from "fuse.js"
 
 import * as Config from "./../Config"
+import * as Log from "./../Log"
 import * as Actions from "./Actions"
 
 import * as concat from "lodash/concat"
@@ -13,7 +14,7 @@ import * as sortBy from "lodash/sortBy"
 
 import * as types from "vscode-languageserver-types"
 
-export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, a: Actions.Action<K>) {
+export function reducer<K extends keyof Config.IConfigValues>(s: State.IState, a: Actions.Action<K>) {
 
     if (!s) {
         return s
@@ -21,14 +22,13 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
 
     switch (a.type) {
         case "SET_CURSOR_POSITION":
-            return Object.assign({}, s, {
-                cursorPixelX: a.payload.pixelX,
-                cursorPixelY: a.payload.pixelY,
-                fontPixelWidth: a.payload.fontPixelWidth,
-                fontPixelHeight: a.payload.fontPixelHeight,
-                cursorCharacter: a.payload.cursorCharacter,
-                cursorPixelWidth: a.payload.cursorPixelWidth,
-            })
+            return {...s,
+                    cursorPixelX: a.payload.pixelX,
+                    cursorPixelY: a.payload.pixelY,
+                    fontPixelWidth: a.payload.fontPixelWidth,
+                    fontPixelHeight: a.payload.fontPixelHeight,
+                    cursorCharacter: a.payload.cursorCharacter,
+                    cursorPixelWidth: a.payload.cursorPixelWidth}
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }
         case "SET_COLORS":
@@ -37,78 +37,64 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
                 backgroundColor: a.payload.backgroundColor,
             } }
         case "SHOW_QUICK_INFO":
-            return Object.assign({}, s, {
-                quickInfo: {
+            return {...s,
+                    quickInfo: {
                     title: a.payload.title,
                     description: a.payload.description,
-                },
-            })
+                }}
         case "HIDE_QUICK_INFO":
-            return Object.assign({}, s, {
-                quickInfo: null,
-            })
+            return {...s,
+                    quickInfo: null}
         case "SHOW_AUTO_COMPLETION":
-            return Object.assign({}, s, {
-                autoCompletion: {
+            return {...s,
+                    autoCompletion: {
                     base: a.payload.base,
                     entries: a.payload.entries,
                     selectedIndex: 0,
-                },
-            })
+                }}
         case "HIDE_AUTO_COMPLETION":
-            return Object.assign({}, s, {
-                autoCompletion: null,
-            })
+            return {...s,
+                    autoCompletion: null}
         case "SHOW_SIGNATURE_HELP":
-            return Object.assign({}, s, {
-                signatureHelp: a.payload,
-            })
+            return {...s,
+                    signatureHelp: a.payload}
         case "HIDE_SIGNATURE_HELP":
-            return Object.assign({}, s, {
-                signatureHelp: null,
-            })
+            return {...s,
+                    signatureHelp: null}
          case "HIDE_CURSOR_LINE":
-             return Object.assign({}, s, {
-                 cursorLineVisible: false,
-            })
+             return {...s,
+                     cursorLineVisible: false}
          case "HIDE_CURSOR_COLUMN":
-             return Object.assign({}, s, {
-                 cursorColumnVisible: false,
-            })
+             return {...s,
+                     cursorColumnVisible: false}
          case "SHOW_CURSOR_LINE":
-             return Object.assign({}, s, {
-                 cursorLineVisible: true,
-            })
+             return {...s,
+                     cursorLineVisible: true}
          case "SHOW_CURSOR_COLUMN":
-             return Object.assign({}, s, {
-                 cursorColumnVisible: true,
-            })
+             return {...s,
+                     cursorColumnVisible: true}
         case "SET_CONFIGURATION_VALUE":
-            let obj: Partial<Config.IConfigValues> = {}
+            const obj: Partial<Config.IConfigValues> = {}
             obj[a.payload.key] = a.payload.value
-            let newConfig = Object.assign({}, s.configuration, obj)
-            return Object.assign({}, s, {
-                configuration: newConfig,
-            })
+            const newConfig = {...s.configuration, ...obj}
+            return {...s,
+                    configuration: newConfig}
         case "TOGGLE_LOG_FOLD":
-            return Object.assign({}, s, {
-                logs: s.logs.map((n, i) => {
+            return {...s,
+                    logs: s.logs.map((n, i) => {
                     return i === a.payload.index ?
-                        Object.assign({}, n, {folded: !n.folded}) : n
-                }),
-            })
+                        {...n, folded: !n.folded} : n
+                })}
         case "CHANGE_LOGS_VISIBILITY":
-            return Object.assign({}, s, {
-                logsVisible: a.payload.visibility,
-            })
+            return {...s,
+                    logsVisible: a.payload.visibility}
         case "MAKE_LOG":
             const newLog = {
                 log: a.payload.log,
                 folded: true,
             }
-            return Object.assign({}, s, {
-                logs: concat(s.logs, newLog),
-            })
+            return {...s,
+                    logs: concat(s.logs, newLog)}
         case "SHOW_MESSAGE_DIALOG":
             return {
                 ...s,
@@ -120,15 +106,14 @@ export function reducer<K extends keyof Config.IConfigValues> (s: State.IState, 
                 activeMessageDialog: null,
             }
         default:
-            return Object.assign({}, s, {
-                buffers: buffersReducer(s.buffers, a),
-                tabState: tabStateReducer(s.tabState, a),
-                errors: errorsReducer(s.errors, a),
-                autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
-                popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
-                statusBar: statusBarReducer(s.statusBar, a),
-                windowState: windowStateReducer(s.windowState, a),
-            })
+            return {...s,
+                    buffers: buffersReducer(s.buffers, a),
+                    tabState: tabStateReducer(s.tabState, a),
+                    errors: errorsReducer(s.errors, a),
+                    autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
+                    popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
+                    statusBar: statusBarReducer(s.statusBar, a),
+                    windowState: windowStateReducer(s.windowState, a)}
     }
 }
 
@@ -149,16 +134,26 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
     let byId = s.byId
     let allIds = s.allIds
 
+    const emptyBuffer = (id: number): State.IBuffer => ({
+        id,
+        file: null,
+        modified: false,
+        hidden: true,
+        listed: false,
+        totalLines: 0,
+    })
+
     switch (a.type) {
         case "BUFFER_ENTER":
             byId = {
                 ...s.byId,
-                [a.payload.id]: <State.IBuffer>{
+                [a.payload.id]: {
                     id: a.payload.id,
                     file: a.payload.file,
                     totalLines: a.payload.totalLines,
                     hidden: a.payload.hidden,
                     listed: a.payload.listed,
+                    modified: false,
                 },
             }
 
@@ -172,11 +167,12 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 allIds,
             }
         case "BUFFER_SAVE":
-            const currentItem = s.byId[a.payload.id] || {}
+            const currentItem = s.byId[a.payload.id] || emptyBuffer(a.payload.id)
             byId = {
                 ...s.byId,
-                [a.payload.id]: <State.IBuffer>{
+                [a.payload.id]: {
                     ...currentItem,
+                    id: a.payload.id,
                     modified: a.payload.modified,
                     lastSaveVersion: a.payload.version,
                 },
@@ -187,7 +183,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 byId,
             }
         case "BUFFER_UPDATE":
-            const currentItem3: any = s.byId[a.payload.id] || {}
+            const currentItem3 = s.byId[a.payload.id] || emptyBuffer(a.payload.id)
 
             // If the last save version hasn't been set, this means it is the first update,
             // and should clamp to the incoming version
@@ -195,8 +191,9 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
 
             byId = {
                 ...s.byId,
-                [a.payload.id]: <State.IBuffer>{
+                [a.payload.id]: {
                     ...currentItem3,
+                    id: a.payload.id,
                     modified: a.payload.modified,
                     version: a.payload.version,
                     totalLines: a.payload.totalLines,
@@ -217,9 +214,9 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 activeBufferId = null
             }
 
-            let newById = pick(s.byId, a.payload.bufferIds)
+            const newById: any = pick(s.byId, a.payload.bufferIds)
 
-            return <State.IBufferState>{
+            return {
                 activeBufferId,
                 byId: newById,
                 allIds,
@@ -270,10 +267,10 @@ export const statusBarReducer = (s: { [key: string]: State.IStatusBarItem }, a: 
     }
 }
 
-export function popupMenuReducer (s: State.IMenu | null, a: Actions.SimpleAction) {
+export function popupMenuReducer(s: State.IMenu | null, a: Actions.SimpleAction) {
 
     // TODO: sync max display items (10) with value in Menu.render() (Menu.tsx)
-    let size = s ? Math.min(10, s.filteredOptions.length) : 0
+    const size = s ? Math.min(10, s.filteredOptions.length) : 0
 
     switch (a.type) {
         case "SHOW_MENU":
@@ -300,17 +297,15 @@ export function popupMenuReducer (s: State.IMenu | null, a: Actions.SimpleAction
                 return s
             }
 
-            return Object.assign({}, s, {
-                selectedIndex: (s.selectedIndex + 1) % size,
-            })
+            return {...s,
+                    selectedIndex: (s.selectedIndex + 1) % size}
         case "PREVIOUS_MENU":
             if (!s) {
                 return s
             }
 
-            return Object.assign({}, s, {
-                selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : size - 1,
-            })
+            return {...s,
+                    selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : size - 1}
         case "FILTER_MENU":
             if (!s) {
                 return s
@@ -321,10 +316,9 @@ export function popupMenuReducer (s: State.IMenu | null, a: Actions.SimpleAction
             const optionsToSearch = a.payload.filter.indexOf(s.filter) === 0 ? s.filteredOptions : s.options
             const filteredOptionsSorted = filterMenuOptions(optionsToSearch, a.payload.filter, s.id)
 
-            return Object.assign({}, s, {
-                filter: a.payload.filter,
-                filteredOptions: filteredOptionsSorted,
-            })
+            return {...s,
+                    filter: a.payload.filter,
+                    filteredOptions: filteredOptionsSorted}
         default:
             return s
     }
@@ -338,7 +332,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
         const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
         if (overriddenCommand) {
             try {
-                const files = execSync(overriddenCommand.replace("${search}", searchString), { cwd: process.cwd() })
+                const files = execSync(overriddenCommand.replace("${search}", searchString), { cwd: process.cwd() }) // tslint:disable-line no-invalid-template-strings
                     .toString("utf8")
                     .split("\n")
                 const opt: State.IMenuOptionWithHighlights[]  = files.map((untrimmedFile) => {
@@ -356,7 +350,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
                 })
                 return opt
             } catch (e) {
-                console.warn(`'${overriddenCommand}' returned an error: ${e.message}\nUsing default filtering`)
+                Log.warn(`'${overriddenCommand}' returned an error: ${e.message}\nUsing default filtering`)
             }
         }
     }
@@ -376,7 +370,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
         return sortBy(opt, (o) => o.pinned ? 0 : 1)
     }
 
-    let fuseOptions = {
+    const fuseOptions = {
         keys: [{
             name: "label",
             weight: 0.6,
@@ -399,7 +393,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
 
         const combined = o.label + o.detail
 
-        for (let c of searchSet) {
+        for (const c of searchSet) {
             if (combined.indexOf(c) === -1) {
                 return false
             }
@@ -491,7 +485,7 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
     }
 }
 
-export function autoCompletionReducer (s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) {
+export function autoCompletionReducer(s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) {
     if (!s) {
         return s
     }
@@ -501,21 +495,18 @@ export function autoCompletionReducer (s: State.IAutoCompletionInfo | null, a: A
 
     switch (a.type) {
         case "NEXT_AUTO_COMPLETION":
-            return Object.assign({}, s, {
-                selectedIndex: (s.selectedIndex + 1) % currentEntryCount,
-            })
+            return {...s,
+                    selectedIndex: (s.selectedIndex + 1) % currentEntryCount}
         case "PREVIOUS_AUTO_COMPLETION":
-            return Object.assign({}, s, {
-                selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : currentEntryCount - 1,
-            })
+            return {...s,
+                    selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : currentEntryCount - 1}
         default:
-            return Object.assign({}, s, {
-                entries: autoCompletionEntryReducer(s.entries, a),
-            })
+            return {...s,
+                    entries: autoCompletionEntryReducer(s.entries, a)}
     }
 }
 
-export function autoCompletionEntryReducer (s: Oni.Plugin.CompletionInfo[], action: Actions.SimpleAction) {
+export function autoCompletionEntryReducer(s: Oni.Plugin.CompletionInfo[], action: Actions.SimpleAction) {
     switch (action.type) {
         case "SET_AUTO_COMPLETION_DETAILS":
             return s.map((entry) => {

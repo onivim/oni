@@ -32,9 +32,7 @@ export interface IHostChannel {
     onResponse(responseCallback: (arg: any) => void): void
 }
 
-export interface PluginActivationFunction {
-    (): void
-}
+export type PluginActivationFunction = () => void
 
 export interface IChannel {
     host: IHostChannel
@@ -99,7 +97,7 @@ export class InProcessChannel implements IChannel {
     }
 
     private _getChannelsForRequestFromHost(filter: Capabilities.IPluginFilter): InProcessPluginInfo[] {
-        let potentialPlugins = this._pluginChannels
+        const potentialPlugins = this._pluginChannels
             .filter((p) => Capabilities.doesMetadataMatchFilter(p.channel.metadata, filter))
 
         return potentialPlugins

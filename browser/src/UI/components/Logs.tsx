@@ -96,7 +96,7 @@ export class LogsRenderer extends React.PureComponent<ILogsProps, void> {
                 l.log.details.length > 0 &&
                 !l.folded
             if (shouldShowDetails) {
-                let detailLines = l.log.details.map((det, i) => {
+                const detailLines = l.log.details.map((det, i) => {
                     return <div className="log-detail-line" key={i}>{det}</div>
                 })
                 return <tr>
