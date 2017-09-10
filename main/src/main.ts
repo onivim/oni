@@ -6,12 +6,11 @@ import { buildMenu } from "./menu"
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
-const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
 
 import * as Log from "./Log"
 
-const { makeSingleInstance, quit } = require("./ProcessLifecycle")
+const { makeSingleInstance } = require("./ProcessLifecycle")
 
 ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
