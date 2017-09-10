@@ -1,4 +1,4 @@
-import * fs from "fs"
+import * as fs from "fs"
 import * as net from "net"
 import * as os from "os"
 import * as path from "path"
@@ -57,8 +57,8 @@ export const makeSingleInstance = (options, callbackFunction) => {
             })
 
             connection.on("end", () => {
-                const options = JSON.parse(data)
-                waitForAppReady(() => callbackFunction(options))
+                const newProcessOpts = JSON.parse(data)
+                waitForAppReady(() => callbackFunction(newProcessOpts))
             })
         })
 
@@ -85,7 +85,7 @@ export const makeSingleInstance = (options, callbackFunction) => {
         })
     })
 
-    //...otherwise, if it doesn't succeed, that means
+    // ...otherwise, if it doesn't succeed, that means
     // we're the first instance
     client.on("error", () => {
         Log.info("Error when connecting socket")
