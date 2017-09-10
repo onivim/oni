@@ -8,7 +8,6 @@
  */
 
 import * as Config from "./../Config"
-import { ILog } from "./Logs"
 import { IMessageDialog, ITab, StatusBarAlignment, WindowLineMap } from "./State"
 import { Rectangle } from "./Types"
 
@@ -257,24 +256,6 @@ export interface ISetConfigurationValue<K extends keyof Config.IConfigValues> {
         value: Config.IConfigValues[K],
     }
 }
-export interface IToggleLogFold {
-    type: "TOGGLE_LOG_FOLD"
-    payload: {
-        index: number,
-    }
-}
-export interface IChangeLogsVisibility {
-    type: "CHANGE_LOGS_VISIBILITY",
-    payload: {
-        visibility: boolean,
-    }
-}
-export interface IMakeLog {
-    type: "MAKE_LOG",
-    payload: {
-        log: ILog,
-    }
-}
 
 export type Action<K extends keyof Config.IConfigValues> =
     SimpleAction | ActionWithGeneric<K>
@@ -310,9 +291,6 @@ export type SimpleAction =
     IClearErrorsAction |
     IShowCursorLineAction |
     IShowCursorColumnAction |
-    IToggleLogFold |
-    IChangeLogsVisibility |
-    IMakeLog |
     ISetCurrentBuffersAction |
     ISetTabs |
     ISetWindowDimensions |

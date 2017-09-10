@@ -8,7 +8,6 @@ import * as Config from "./../Config"
 import * as Log from "./../Log"
 import * as Actions from "./Actions"
 
-import * as concat from "lodash/concat"
 import * as pick from "lodash/pick"
 import * as sortBy from "lodash/sortBy"
 
@@ -79,22 +78,6 @@ export function reducer<K extends keyof Config.IConfigValues>(s: State.IState, a
             const newConfig = {...s.configuration, ...obj}
             return {...s,
                     configuration: newConfig}
-        case "TOGGLE_LOG_FOLD":
-            return {...s,
-                    logs: s.logs.map((n, i) => {
-                    return i === a.payload.index ?
-                        {...n, folded: !n.folded} : n
-                })}
-        case "CHANGE_LOGS_VISIBILITY":
-            return {...s,
-                    logsVisible: a.payload.visibility}
-        case "MAKE_LOG":
-            const newLog = {
-                log: a.payload.log,
-                folded: true,
-            }
-            return {...s,
-                    logs: concat(s.logs, newLog)}
         case "SHOW_MESSAGE_DIALOG":
             return {
                 ...s,

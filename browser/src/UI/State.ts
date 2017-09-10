@@ -5,7 +5,6 @@
  */
 
 import * as Config from "./../Config"
-import { ILog } from "./Logs"
 import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
@@ -44,12 +43,6 @@ export interface IState {
     buffers: IBufferState
 
     windowState: IWindowState
-
-    logsVisible: boolean
-    logs: Array<{
-        log: ILog,
-        folded: boolean,
-    }>
 
     errors: Errors
 
@@ -197,8 +190,7 @@ export const createDefaultState = (): IState => ({
     cursorColumnVisible: false,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
-    logsVisible: false,
-    logs: [],
+
     configuration: Config.instance().getValues(),
 
     buffers: {

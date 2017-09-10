@@ -16,6 +16,6 @@ export function warn(message: string): void {
     console.warn(message) // tslint:disable-line no-console
 }
 
-export function error(message: string, errorDetails?: any): void {
-    console.error(message, errorDetails) // tslint:disable-line no-console
+export function error(messageOrError: string | Error, errorDetails?: any): void {
+    console.error(messageOrError) // tslint:disable-line no-console
 }

@@ -178,30 +178,6 @@ export class NeovimEditor implements IEditor {
             UI.Actions.setTabs(currentTabId, tabs)
         })
 
-        this._neovimInstance.on("logInfo", (info: string) => {
-            UI.Actions.makeLog({
-                type: "info",
-                message: info,
-                details: null,
-            })
-        })
-
-        this._neovimInstance.on("logWarning", (warning: string) => {
-            UI.Actions.makeLog({
-                type: "warning",
-                message: warning,
-                details: null,
-            })
-        })
-
-        this._neovimInstance.on("logError", (err: Error) => {
-            UI.Actions.makeLog({
-                type: "error",
-                message: err.message,
-                details: err.stack.split("\n"),
-            })
-        })
-
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
         this._neovimInstance.on("buffer-update", (args: Oni.EventContext) => {
