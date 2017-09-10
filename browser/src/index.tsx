@@ -95,6 +95,5 @@ const start = (args: string[]) => {
 
 ipcRenderer.on("init", (_evt: any, message: any) => {
     process.chdir(message.workingDirectory)
-
     start(message.args)
 })
