@@ -58,6 +58,7 @@ export class NeovimEditor implements IEditor {
 
     private _currentMode: string
     private _onModeChangedEvent: Event<string> = new Event<string>()
+    private _hasLoaded: boolean = false
 
     // Overlays
     private _windowManager: NeovimWindowManager
@@ -285,6 +286,10 @@ export class NeovimEditor implements IEditor {
 
     public init(filesToOpen: string[]): void {
         this._neovimInstance.start(filesToOpen)
+            .then(() => {
+                this._hasLoaded = true
+                VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+            })
     }
 
     public render(): JSX.Element {
@@ -364,7 +369,9 @@ export class NeovimEditor implements IEditor {
     private _onConfigChanged(): void {
         this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
 
-        VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+        if (this._hasLoaded) {
+            VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+        }
 
         this._onUpdate()
         this._scheduleRender()

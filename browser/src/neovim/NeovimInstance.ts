@@ -138,7 +138,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         await this.command(`doautocmd <nomodeline> ${autoCommand}`)
     }
 
-    public start(filesToOpen?: string[]): void {
+    public start(filesToOpen?: string[]): Promise<void> {
         filesToOpen = filesToOpen || []
 
         this._initPromise = Promise.resolve(startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen))
@@ -238,6 +238,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         this.emit("error", err)
                     })
             })
+
+        return this._initPromise
     }
 
     public getMode(): Promise<string> {
