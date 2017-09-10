@@ -6,6 +6,8 @@ import * as Log from "./Log"
 import { buildMenu } from "./menu"
 import { makeSingleInstance } from "./ProcessLifecycle"
 
+global["getLogs"] = Log.getAllLogs
+
 const isDevelopment = process.env.NODE_ENV === "development"
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
 

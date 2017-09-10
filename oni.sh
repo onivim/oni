@@ -25,4 +25,4 @@ ONI_PATH=`dirname $target`
 
 FULL_ONI_PATH="$ONI_PATH/../../MacOS/Oni"
 
-ONI_CWD="$OPEN_DIRECTORY" open -a "$FULL_ONI_PATH" --args $*
+ONI_CWD="$OPEN_DIRECTORY" open --new -a "$FULL_ONI_PATH" --args $*
