@@ -37,7 +37,7 @@ if (!isDevelopment && !isDebug) {
 
     const currentOptions = {
         args: process.argv,
-        workingDirectory: process.cwd(),
+        workingDirectory: process.env["ONI_CWD"] || process.cwd(),
     }
 
     Log.info("Making single instance...")
