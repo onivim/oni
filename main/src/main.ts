@@ -13,17 +13,17 @@ ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
     const destinationWebContents = webContents.fromId(destinationId)
 
-    log(`sending message to destinationId: ${destinationId}`)
+    Log.info(`sending message to destinationId: ${destinationId}`)
     destinationWebContents.send("cross-browser-ipc", arg)
 })
 
 ipcMain.on("focus-next-instance", () => {
-    log("focus-next-instance")
+    Log.info("focus-next-instance")
     focusNextInstance(1)
 })
 
 ipcMain.on("focus-previous-instance", () => {
-    log("focus-previous-instance")
+    Log.info("focus-previous-instance")
     focusNextInstance(-1)
 })
 
@@ -56,7 +56,7 @@ if (!isDevelopment && !isDebug) {
 }
 
 function createWindow(commandLineArguments, workingDirectory) {
-    log(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
+    Log.info(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
 
     const webPreferences = {
         blinkFeatures: "ResizeObserver",
@@ -138,7 +138,7 @@ function focusNextInstance(direction) {
     const currentFocusedWindows = windows.filter(f => f.isFocused())
 
     if (currentFocusedWindows.length === 0) {
-        log("No window currently focused")
+        Log.info("No window currently focused")
         return
     }
 
@@ -150,12 +150,8 @@ function focusNextInstance(direction) {
         newFocusWindowIdx = windows.length - 1
     }
 
-    log(`Focusing index: ${newFocusWindowIdx}`)
+    Log.info(`Focusing index: ${newFocusWindowIdx}`)
     windows[newFocusWindowIdx].focus()
-}
-
-function log(message) {
-    Log.info(message)
 }
 
 function loadFileFromArguments(platform, args, workingDirectory) {
