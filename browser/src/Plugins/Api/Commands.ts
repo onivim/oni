@@ -6,9 +6,9 @@
 
 import { IPluginChannel } from "./Channel"
 
-interface ICommandCallback {
-    (args?: any): void
-}
+import * as Log from "./../../Log"
+
+type ICommandCallback = (args?: any) => void
 
 /**
  * API instance for interacting with Oni (and vim)
@@ -26,7 +26,7 @@ export class Commands {
          const command = this._commandToCallback[commandName]
 
          if (!command) {
-            console.warn(`No command registered: ${commandName}`)
+            Log.warn(`No command registered: ${commandName}`)
             return
          }
 

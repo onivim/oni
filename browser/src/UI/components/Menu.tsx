@@ -130,7 +130,7 @@ export interface IMenuItemProps {
     detail: string
     detailHighlights: number[][]
     pinned: boolean
-    onClick: Function
+    onClick: () => void
 }
 
 export class MenuItem extends React.PureComponent<IMenuItemProps, void> {

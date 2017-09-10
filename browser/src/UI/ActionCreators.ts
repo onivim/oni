@@ -19,6 +19,9 @@ import * as Config from "./../Config"
 import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
 
+export type DispatchFunction = (action: any) => void
+export type GetStateFunction = () => State.IState
+
 export const bufferEnter = (id: number, file: string, totalLines: number, hidden: boolean, listed: boolean) => ({
     type: "BUFFER_ENTER",
     payload: {
@@ -125,7 +128,7 @@ export const hideMessageDialog = (): Actions.IHideMessageDialog => ({
     type: "HIDE_MESSAGE_DIALOG",
 })
 
-export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => (dispatch: Function, getState: Function) => {
+export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
 
     const currentStatusBarItem = getState().statusBar[id]
 
@@ -152,7 +155,7 @@ export const hideStatusBarItem = (id: string) => ({
     },
 })
 
-export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: Function, getState: Function) => {
+export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(_showAutoCompletion(result.base, result.completions))
 
     if (result.completions.length > 0) {
@@ -160,13 +163,13 @@ export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatc
     }
 }
 
-export const previousCompletion = () => (dispatch: Function, getState: Function) => {
+export const previousCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(_previousAutoCompletion())
 
     emitCompletionItemSelectedEvent(getState())
 }
 
-export const nextCompletion = () => (dispatch: Function, getState: Function) => {
+export const nextCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(_nextAutoCompletion())
 
     emitCompletionItemSelectedEvent(getState())
@@ -180,7 +183,7 @@ function emitCompletionItemSelectedEvent(state: State.IState): void {
     }
 }
 
-export const setCursorPosition = (screen: IScreen) => (dispatch: Function) => {
+export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunction) => {
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
     if (screen.cursorRow === screen.height - 1) {
@@ -191,7 +194,7 @@ export const setCursorPosition = (screen: IScreen) => (dispatch: Function) => {
     dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
 }
 
-export const setColors = (foregroundColor: string, backgroundColor: string) => (dispatch: Function, getState: Function) => {
+export const setColors = (foregroundColor: string, backgroundColor: string) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     if (foregroundColor === getState().foregroundColor && backgroundColor === getState().backgroundColor) {
         return
     }
@@ -240,7 +243,7 @@ export const nextMenuItem = () => ({
     type: "NEXT_MENU",
 })
 
-export const selectMenuItem = (openInSplit: string, index?: number) => (dispatch: Function, getState: Function) => {
+export const selectMenuItem = (openInSplit: string, index?: number) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
 
     const state = getState()
 

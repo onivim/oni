@@ -160,14 +160,7 @@ const getTabsFromVimTabs = createSelector(
 const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITabsProps => {
 
     const shouldUseVimTabs = state.configuration["tabs.showVimTabs"]
-
-    let tabs: ITabProps[]
-
-    if (shouldUseVimTabs) {
-        tabs = getTabsFromVimTabs(state)
-    } else {
-        tabs = getTabsFromBuffers(state)
-    }
+    const tabs = shouldUseVimTabs ? getTabsFromVimTabs(state) : getTabsFromBuffers(state)
 
     const visible = state.configuration["tabs.enabled"]
 

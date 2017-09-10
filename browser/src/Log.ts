@@ -4,6 +4,10 @@
  * Utilities for logging in Oni
  */
 
+export function debug(message: string): void {
+    console.log(message) // tslint:disable-line no-console
+}
+
 export function info(message: string): void {
     console.log(message) // tslint:disable-line no-console
 }

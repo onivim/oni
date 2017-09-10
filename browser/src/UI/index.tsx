@@ -22,7 +22,7 @@ import { NeovimEditor } from "./../Editor/NeovimEditor"
 
 export const events = Events.events
 
-let defaultState = State.createDefaultState()
+const defaultState = State.createDefaultState()
 
 require("./components/common.less") // tslint:disable-line no-var-requires
 

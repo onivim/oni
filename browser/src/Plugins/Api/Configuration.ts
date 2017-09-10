@@ -22,13 +22,13 @@ export class Configuration {
     private _onConfigurationChangedEvent: Event<void> = new Event<void>("oni_configuration_changed")
 
     constructor() {
-        Config.instance().registerListener(() => {
+        Config.instance().onConfigChanged.subscribe(() => {
             this._onConfigurationChangedEvent.dispatch(null)
         })
     }
 
     public getValue<T>(configValue: string, defaultValue?: T): T {
-        return Config.instance().getValue(<any>configValue) || defaultValue
+        return Config.instance().getValue(configValue as any) || defaultValue
     }
 
 }
