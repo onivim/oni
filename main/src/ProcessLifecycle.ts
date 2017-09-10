@@ -1,12 +1,11 @@
-const fs = require("fs")
-const net = require("net")
-const os = require("os")
-const path = require("path")
+import * fs from "fs"
+import * as net from "net"
+import * as os from "os"
+import * as path from "path"
 
-const { app } = require("electron")
-// import * as fs from "fs"
-// import * as os from "os"
-// import * as path from "path"
+import { app } from "electron"
+
+import * as Log from "./Log"
 
 let isPrimaryInstance = false
 let isAppReady = false
@@ -19,13 +18,13 @@ app.on("ready", () => {
 })
 
 app.on("will-quit", () => {
-    console.log("will-quit")
+    Log.info("will-quit")
 
     if (isPrimaryInstance) {
         const socketPath = getSocketPath()
         deleteSocketFile(socketPath)
     } else {
-        console.log("not deleting socket file because not primary instance.")
+        Log.info("not deleting socket file because not primary instance.")
     }
 })
 
@@ -37,14 +36,13 @@ const waitForAppReady = (callback) => {
     }
 }
 
-
 // Inspired by atom's workaround in `atom-application.coffee`
-const makeSingleInstance = (options, callbackFunction) => {
+export const makeSingleInstance = (options, callbackFunction) => {
 
     const socketPath = getSocketPath()
 
     const initializePrimaryInstance = () => {
-        console.log("Initializing primary instance.")
+        Log.info("Initializing primary instance.")
         isPrimaryInstance = true
 
         waitForAppReady(() => callbackFunction(options))
@@ -71,7 +69,7 @@ const makeSingleInstance = (options, callbackFunction) => {
     // that means this is definitely the first / primary instance
     if (process.platform !== "win32") {
         if (!fs.existsSync(socketPath)) {
-            console.log("Socket file does not exist.")
+            Log.info("Socket file does not exist.")
             initializePrimaryInstance()
             return
         }
@@ -79,9 +77,9 @@ const makeSingleInstance = (options, callbackFunction) => {
 
     // Try writing to the socket. If this is not the first process,
     // this will succeed and we'll pass our options along...
-    const client = net.connect({ path: socketPath}, () => {
+    const client = net.connect(socketPath, () => {
         client.write(JSON.stringify(options), () => {
-            console.log("Connecting to socket and successfully wrote. Quitting.")
+            Log.info("Connecting to socket and successfully wrote. Quitting.")
             client.end()
             app.quit()
         })
@@ -90,15 +88,10 @@ const makeSingleInstance = (options, callbackFunction) => {
     //...otherwise, if it doesn't succeed, that means
     // we're the first instance
     client.on("error", () => {
-        console.log("Error when connecting socket")
+        Log.info("Error when connecting socket")
         initializePrimaryInstance()
     })
 }
-
-const quit = () => {
-    app.quit()
-}
-
 
 const deleteSocketFile = (socketPath) => {
     if (process.platform === "win32") {
@@ -106,10 +99,10 @@ const deleteSocketFile = (socketPath) => {
     }
 
     if (fs.existsSync(socketPath)) {
-        console.log("Attemping to delete socket file...")
+        Log.info("Attemping to delete socket file...")
         try {
             fs.unlinkSync(socketPath)
-            console.log("Socket file was deleted")
+            Log.info("Socket file was deleted")
         } catch (error) {
             if (error.code === "ENOENT") {
                 // In some cases, there can be a race condition here...
@@ -139,7 +132,6 @@ const getSocketPath = () => {
 
 }
 
-
 const getUserName = () => {
     if (process.platform === "win32") {
         return new Buffer(process.env.USERNAME).toString("base64")
@@ -147,8 +139,3 @@ const getUserName = () => {
         return process.env.USER
     }
 }
-
-module.exports = {
-    makeSingleInstance,
-}
-

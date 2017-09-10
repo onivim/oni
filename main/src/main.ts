@@ -2,15 +2,12 @@ import * as path from "path"
 
 import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
+import * as Log from "./Log"
 import { buildMenu } from "./menu"
+import { makeSingleInstance } from "./ProcessLifecycle"
 
 const isDevelopment = process.env.NODE_ENV === "development"
-
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
-
-import * as Log from "./Log"
-
-const { makeSingleInstance } = require("./ProcessLifecycle")
 
 ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
@@ -43,9 +40,9 @@ if (!isDevelopment && !isDebug) {
         workingDirectory: process.cwd(),
     }
 
-    console.log("[MAIN] Making single instance...")
+    Log.info("Making single instance...")
     makeSingleInstance(currentOptions, (options) => {
-        console.log("[MAIN] Creating single instance")
+        Log.info("Creating single instance")
         loadFileFromArguments(process.platform, options.args, options.workingDirectory)
     })
 } else {
