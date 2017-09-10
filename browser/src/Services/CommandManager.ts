@@ -6,6 +6,7 @@
 
 import * as values from "lodash/values"
 
+import * as Log from "./../Log"
 import { INeovimInstance } from "./../neovim"
 import { ITask, ITaskProvider } from "./Tasks"
 
@@ -59,7 +60,7 @@ export class CommandManager implements ITaskProvider {
 
     public registerCommand(command: ICommand): void {
         if (this._commandDictionary[command.command]) {
-            console.error(`Tried to register multiple commands for: ${command.name}`)
+            Log.error(`Tried to register multiple commands for: ${command.name}`)
             return
         }
 
@@ -70,7 +71,7 @@ export class CommandManager implements ITaskProvider {
         const command = this._commandDictionary[name]
 
         if (!command) {
-            console.error(`Unable to find command: ${name}`)
+            Log.error(`Unable to find command: ${name}`)
             return false
         }
 

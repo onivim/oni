@@ -60,7 +60,7 @@ export class HighlightTextByIndex extends React.PureComponent<IHighlightTextByIn
 
 function shouldHighlightIndex(index: number, highlights: number[][]): boolean {
     let matchFound = false
-    for (let startEnd of highlights) {
+    for (const startEnd of highlights) {
         if (startEnd[0] <= index && index <= startEnd[1]) {
             matchFound = true
             break
@@ -72,7 +72,7 @@ function shouldHighlightIndex(index: number, highlights: number[][]): boolean {
 export function createLetterCountDictionary(text: string): any {
     const array: string[] = text.split("")
     return array.reduce((previousValue: any, currentValue: string) => {
-        let cur = previousValue[currentValue] || 0
+        const cur = previousValue[currentValue] || 0
         previousValue[currentValue] = cur + 1
         return previousValue
     }, {})

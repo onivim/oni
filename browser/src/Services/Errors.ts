@@ -61,12 +61,12 @@ export class Errors implements ITaskProvider {
         })
 
         const flattenedErrors = flatten(arrayOfErrors)
-        const errors = flattenedErrors.map((e) => <any>({
+        const errors = flattenedErrors.map((e) => ({
             filename: e.filename,
             col: e.range.start.character || 0,
             lnum: e.range.start.line + 1,
             text: e.message,
-        }))
+        }) as any)
 
         this._neovimInstance.quickFix.setqflist(errors, "Errors", " ")
     }

@@ -1,7 +1,7 @@
 /**
  * Utility.ts
  *
- * Grab bag for functions that don't have another home. 
+ * Grab bag for functions that don't have another home.
  */
 
 /**

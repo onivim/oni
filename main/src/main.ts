@@ -1,37 +1,29 @@
-const electron = require('electron')
-const path = require("path")
-// Module to control application life.
-const { Menu, app, shell, dialog } = electron;
-const os = require('os');
+import * as path from "path"
 
-const ipcMain = electron.ipcMain
+import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
-const isDevelopment = process.env.NODE_ENV === "development" 
+import * as Log from "./Log"
+import { buildMenu } from "./menu"
+import { makeSingleInstance } from "./ProcessLifecycle"
 
-const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
-const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length >0
-
-const { buildMenu } = require("./Menu")
-
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow
-const webContents = electron.webContents
+const isDevelopment = process.env.NODE_ENV === "development"
+const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
 
 ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
     const destinationWebContents = webContents.fromId(destinationId)
 
-    log(`sending message to destinationId: ${destinationId}`)
+    Log.info(`sending message to destinationId: ${destinationId}`)
     destinationWebContents.send("cross-browser-ipc", arg)
 })
 
 ipcMain.on("focus-next-instance", () => {
-    log("focus-next-instance")
+    Log.info("focus-next-instance")
     focusNextInstance(1)
 })
 
 ipcMain.on("focus-previous-instance", () => {
-    log("focus-previous-instance")
+    Log.info("focus-previous-instance")
     focusNextInstance(-1)
 })
 
@@ -42,37 +34,51 @@ let windows = []
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
 if (!isDevelopment && !isDebug) {
-    const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
-        loadFileFromArguments(process.platform, commandLine, workingDirectory)
-    })
 
-    if (shouldQuit) {
-        app.quit()
-        return
+    const currentOptions = {
+        args: process.argv,
+        workingDirectory: process.cwd(),
     }
+
+    Log.info("Making single instance...")
+    makeSingleInstance(currentOptions, (options) => {
+        Log.info("Creating single instance")
+        loadFileFromArguments(process.platform, options.args, options.workingDirectory)
+    })
+} else {
+    // This method will be called when Electron has finished
+    // initialization and is ready to create browser windows.
+    // Some APIs can only be used after this event occurs.
+    app.on("ready", () => {
+        require("./installDevTools")
+        loadFileFromArguments(process.platform, process.argv, process.cwd())
+    })
 }
 
 function createWindow(commandLineArguments, workingDirectory) {
-    log(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
+    Log.info(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
 
     const webPreferences = {
         blinkFeatures: "ResizeObserver",
     }
 
+    const rootPath = path.join(__dirname, "..", "..", "..")
+    const iconPath = path.join(rootPath, "images", "oni.ico")
+    const indexPath = path.join(rootPath, "index.html")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
-    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: path.join(__dirname, "images", "oni.ico"), webPreferences })
+    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: iconPath, webPreferences })
 
     updateMenu(mainWindow, false)
 
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
             args: commandLineArguments,
-            workingDirectory: workingDirectory
+            workingDirectory,
         })
     })
 
-    ipcMain.on('rebuild-menu', function(_evt, loadInit) {
+    ipcMain.on("rebuild-menu", (_evt, loadInit) => {
         // ipcMain is a singleton so if there are multiple Oni instances
         // we may receive an event from a different instance
         if (mainWindow) {
@@ -81,46 +87,35 @@ function createWindow(commandLineArguments, workingDirectory) {
     })
 
     // and load the index.html of the app.
-    mainWindow.loadURL(`file://${__dirname}/index.html`)
+    mainWindow.loadURL(`file://${indexPath}`)
 
     // Open the DevTools.
-    if (process.env.NODE_ENV === "development" || commandLineArguments.indexOf("--debug") >= 0)
+    if (process.env.NODE_ENV === "development" || commandLineArguments.indexOf("--debug") >= 0) {
         mainWindow.webContents.openDevTools()
+    }
 
     // Emitted when the window is closed.
-    mainWindow.on('closed', function() {
+    mainWindow.on("closed", () => {
         // Dereference the window object, usually you would store windows
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
         windows = windows.filter(m => m !== mainWindow)
         mainWindow = null
-
     })
 
     windows.push(mainWindow)
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', () => {
-    if (isDebug || isDevelopment) {
-        require("./installDevTools")
-    }
-
-    loadFileFromArguments(process.platform, process.argv, process.cwd())
-})
-
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
+app.on("window-all-closed", () => {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
+    if (process.platform !== "darwin") {
         app.quit()
     }
 })
 
-app.on('activate', function() {
+app.on("activate", () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (windows.length === 0) {
@@ -130,12 +125,12 @@ app.on('activate', function() {
 
 function updateMenu(mainWindow, loadInit) {
     const menu = buildMenu(mainWindow, loadInit)
-    if (process.platform === 'darwin') {
-        //all osx windows share the same menu
+    if (process.platform === "darwin") {
+        // all osx windows share the same menu
         Menu.setApplicationMenu(menu)
     } else {
-        //on windows and linux, set menu per window
-        mainWindow.setMenu(menu);
+        // on windows and linux, set menu per window
+        mainWindow.setMenu(menu)
     }
 }
 
@@ -143,7 +138,7 @@ function focusNextInstance(direction) {
     const currentFocusedWindows = windows.filter(f => f.isFocused())
 
     if (currentFocusedWindows.length === 0) {
-        log("No window currently focused")
+        Log.info("No window currently focused")
         return
     }
 
@@ -151,24 +146,19 @@ function focusNextInstance(direction) {
     const currentWindowIdx = windows.indexOf(currentFocusedWindow)
     let newFocusWindowIdx = (currentWindowIdx + direction) % windows.length
 
-    if (newFocusWindowIdx < 0)
+    if (newFocusWindowIdx < 0) {
         newFocusWindowIdx = windows.length - 1
+    }
 
-    log(`Focusing index: ${newFocusWindowIdx}`)
+    Log.info(`Focusing index: ${newFocusWindowIdx}`)
     windows[newFocusWindowIdx].focus()
 }
 
-function log(message) {
-    if (isVerbose) {
-        console.log(message)
-    }
-}
-
 function loadFileFromArguments(platform, args, workingDirectory) {
-    const windowsOpenWith = platform === 'win32' &&
+    const windowsOpenWith = platform === "win32" &&
                             args[0].split("\\").pop() === "Oni.exe"
 
-    const macOpenWith = platform === 'darwin' &&
+    const macOpenWith = platform === "darwin" &&
                             args[0].indexOf("Oni.app") >= 0
 
     if (windowsOpenWith || macOpenWith) {

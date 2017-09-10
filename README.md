@@ -24,7 +24,7 @@
 
 ## Introduction
 
-ONI is a [NeoVim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
+Oni is a [NeoVim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
 
 ![screenshot](https://user-images.githubusercontent.com/13532591/28976286-25779704-78f2-11e7-967f-72cb438d77f6.png)
 
@@ -34,13 +34,13 @@ Check out [Releases](https://github.com/extr0py/oni/releases) for the latest bin
 
 ## Features
 
-ONI brings several IDE-like integrations to NeoVim:
+Oni brings several IDE-like integrations to NeoVim:
 
-- **[Quick Info](https://github.com/extr0py/oni/wiki/Usage#quick-info)**
+- **[Quick Info](https://github.com/extr0py/oni/wiki/Features#quick-info)**
 
 ![quick-info-demo](http://i.imgur.com/0vJ8KgU.gif)
 
-- **[Code Completion](https://github.com/extr0py/oni/wiki/Usage#code-completion)**
+- **[Code Completion](https://github.com/extr0py/oni/wiki/Features#code-completion)**
 
 ![completion-demo](http://i.imgur.com/exdasXs.gif)
 
@@ -48,11 +48,11 @@ ONI brings several IDE-like integrations to NeoVim:
 
 ![syntax-error-demo](http://i.imgur.com/GUBhRhG.gif)
 
-- **[Fuzzy Finding](https://github.com/extr0py/oni/wiki/Usage#fuzzy-finder)**
+- **[Fuzzy Finding](https://github.com/extr0py/oni/wiki/Features#fuzzy-finder)**
 
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
-- **[Status Bar](https://github.com/extr0py/oni/wiki/Usage#status-bar)**
+- **[Status Bar](https://github.com/extr0py/oni/wiki/Features#status-bar)**
 
 ![status-bar-demo](http://i.imgur.com/2grzeN1.gif)
 
@@ -113,28 +113,28 @@ A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.8/oni-0.2.8.tar
 
 3) Build using `npm run build` from the root
 
-4) Run `npm link` to register the *ONI* command
+4) Run `npm link` to register the *oni* command
 
 5) Run `oni` at the command line
 
 ## Goals
 
-The goal of this project is to provide both the full-fledged VIM experience, with no compromises, while pushing forward to enable new scenarios.
+The goal of this project is to provide both the full-fledged Vim experience, with no compromises, while pushing forward to enable new scenarios.
 
-- __Modern UX__ - The VIM experience should not be compromised with poor user experiences that stem from terminal limitations.
+- __Modern UX__ - The Vim experience should not be compromised with poor user experiences that stem from terminal limitations.
 - __Rich plugin development__ - using JavaScript, instead of VimL, allowing deep-language integration.
 - __Cross-platform support__ - across Windows, OS X, and Linux.
 - __Batteries included__ - rich features are available out of the box - minimal setup needed to be productive. TypeScript development is the canonical example, but the hope is that other language providers will be included. Later, an included package manager will make it simple to find and install plugins.
-- __Performance__ - no compromises, VIM is fast, and ONI should be fast too.
-- __Ease Learning Curve__ - without sacrificing the VIM experience
+- __Performance__ - no compromises, Vim is fast, and Oni should be fast too.
+- __Ease Learning Curve__ - without sacrificing the Vim experience
 
-VIM is an incredible tool for manipulating *text* at the speed of thought. With a composable, modal command language, it is no wonder that VIM usage is still prevalent today even in the realm of modern editors.
+Vim is an incredible tool for manipulating *text* at the speed of thought. With a composable, modal command language, it is no wonder that Vim usage is still prevalent today even in the realm of modern editors.
 
 However, going from thought to *code* has some different challenges than going from thought to *text*. IDEs today provide several benefits that help to reduce __cognitive load__ when writing code, and that benefit is tremendously important - not only in terms of pure coding efficiency and productivity, but also in making the process of writing code enjoyable and fun.
 
-In my journey of learning VIM and increasing proficiency in other editors, I've found there is always a trade-off - either enjoy the autocompletion and IDE features, and compromise on the experience and muscle memory I've built with VIM, or work in VIM and compromise on the rich language functionality we have in an IDE.
+In my journey of learning Vim and increasing proficiency in other editors, I've found there is always a trade-off - either enjoy the autocompletion and IDE features, and compromise on the experience and muscle memory I've built with Vim, or work in Vim and compromise on the rich language functionality we have in an IDE.
 
-The goal of this project is to give an editor that gives the best of both worlds - the power, speed, and flexibility of using VIM for manipulating text, as well as the rich tooling that comes with an IDE.
+The goal of this project is to give an editor that gives the best of both worlds - the power, speed, and flexibility of using Vim for manipulating text, as well as the rich tooling that comes with an IDE.
 
 ## Documentation
 
@@ -150,9 +150,9 @@ By default, Oni has an opinionated, prescribed set of plugins, in order to facil
 
 To avoid loading the Oni defaults, and instead use your `init.vim`, set `oni.useDefaultConfig` to false in `$HOME/.oni/config.js`.  See [Configuration](https://github.com/extr0py/oni/wiki/Configuration) for more details on configuring Oni.
 
-### Included VIM Plugins
+### Included Vim Plugins
 
-This distribution contains several VIM plugins that enhance the VIM experience.
+This distribution contains several Vim plugins that enhance the Vim experience.
 
 These are:
 - [targets.vim](https://github.com/wellle/targets.vim)
@@ -189,11 +189,11 @@ Bundled plugins have their own license terms. These include:
 
 Contributions are very much welcome :)
 
-If you're interested in helping out, check out our [Debugging Page](https://github.com/extr0py/oni/wiki/Debugging) for tips and tricks for working with ONI.
+If you're interested in helping out, check out our [Debugging Page](https://github.com/extr0py/oni/wiki/Debugging) for tips and tricks for working with Oni.
 
 ## Thanks
 
-Big thanks to the NeoVim team - without their work, this project would not be possible. The deep integration with VIM would not be possible without the incredible work that was done to enable the msgpack-RPC interface. Thanks!
+Big thanks to the NeoVim team - without their work, this project would not be possible. The deep integration with Vim would not be possible without the incredible work that was done to enable the msgpack-RPC interface. Thanks!
 
 ### Sponsors
 

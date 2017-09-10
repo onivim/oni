@@ -9,7 +9,7 @@ import * as ReactDOM from "react-dom"
 
 import * as types from "vscode-languageserver-types"
 
-import { ipcRenderer, remote } from "electron"
+import { clipboard, ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance, NeovimWindowManager } from "./../neovim"
@@ -40,8 +40,6 @@ import { NeovimSurface } from "./NeovimSurface"
 
 import { inputManager } from "./../Services/InputManager"
 import { tasks } from "./../Services/Tasks"
-
-import { clipboard } from "electron"
 
 import { normalizePath } from "./../Utility"
 
@@ -227,7 +225,7 @@ export class NeovimEditor implements IEditor {
         })
 
         this._onConfigChanged()
-        this._config.registerListener(() => this._onConfigChanged())
+        this._config.onConfigChanged.subscribe(() => this._onConfigChanged())
 
         const keyboard = new Keyboard()
         keyboard.on("keydown", (key: string) => {
