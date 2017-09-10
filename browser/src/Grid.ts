@@ -75,7 +75,7 @@ export class Grid<T> {
 
             for (let x = 0; x < this._width; x++) {
                 const oldCell = this.getCell(x, srcRow)
-                this.setCell(x, current, <any> oldCell)
+                this.setCell(x, current, oldCell as any)
             }
 
             current += dir

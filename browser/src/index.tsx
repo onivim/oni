@@ -80,7 +80,7 @@ const start = (args: string[]) => {
     }
 
     configChange() // initialize values
-    config.registerListener(configChange)
+    config.onConfigChanged.subscribe(configChange)
 
     UI.events.on("completion-item-selected", (item: any) => {
         pluginManager.notifyCompletionItemSelected(item)

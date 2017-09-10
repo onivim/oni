@@ -8,7 +8,7 @@ import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 
-import { remote } from "electron"
+import { clipboard, remote } from "electron"
 
 import * as Config from "./../Config"
 import { INeovimInstance } from "./../neovim"
@@ -101,8 +101,6 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
     commands.forEach((c) => commandManager.registerCommand(c))
 }
-
-import { clipboard } from "electron"
 
 /**
  * Higher-order function for commands dealing with completion

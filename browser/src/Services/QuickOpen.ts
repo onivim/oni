@@ -120,7 +120,7 @@ export class QuickOpen {
         // Overridden strategy
         if (overriddenCommand) {
             // replace placeholder ${search} with "" for initial case
-            this.loadMenu(overriddenCommand.replace("${search}", ""))
+            this.loadMenu(overriddenCommand.replace("${search}", "")) // tslint:disable-line no-invalid-template-strings
             return
         }
 
@@ -146,10 +146,10 @@ export class QuickOpen {
 
     // Overridden strategy
     // If git repo, use git ls-files
-    private async loadMenu (command: string, args: string[] = []) {
+    private async loadMenu(command: string, args: string[] = []) {
         const filer = spawn(command, args)
         filer.stdout.on("data", (data) => {
-            data.toString().split("\n").forEach( (d: string) => {
+            data.toString().split("\n").forEach((d: string) => {
                 this._loadedItems.push(new QuickOpenItem(d, QuickOpenType.file))
             })
             this._showMenuFromQuickOpenItems(this._loadedItems)
@@ -171,7 +171,7 @@ export class QuickOpen {
                     this._showMenuFromQuickOpenItems(this._loadedItems)
                 } else {
 
-                    files.forEach( (f: string) => {
+                    files.forEach((f: string) => {
                         this._loadedItems.push(new QuickOpenItem(f, QuickOpenType.file))
                     })
                     this._showMenuFromQuickOpenItems(this._loadedItems)
@@ -198,8 +198,8 @@ export class QuickOpen {
     private _showMenuFromQuickOpenItems(items: QuickOpenItem[]): void {
         const options = items.map((qitem) => {
             const f = qitem.item.trim()
-            let file = path.basename(f)
-            let folder = path.dirname(f)
+            const file = path.basename(f)
+            const folder = path.dirname(f)
 
             return {
                 icon: qitem.icon,
@@ -235,13 +235,13 @@ export class QuickOpen {
         // If bookmarks are null show a help message and open config on selection
         // If we are length 0 this is because we haven't added help and we have no bookmarks
         // Once we add help, we now have 1
-        if (bookmarks.length === 0 ) {
+        if (bookmarks.length === 0) {
             type = QuickOpenType.bookmarkHelp
             bookmarks.push("Opens Configuration to add a bookmark/Add Bookmark")
         }
 
         // Either way we need to map to quick open item
-        bookmarks.forEach( ( f: string) => {
+        bookmarks.forEach((f: string) => {
             this._loadedItems.push(new QuickOpenItem(f, type))
         })
 

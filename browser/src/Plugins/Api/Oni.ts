@@ -18,6 +18,8 @@ import { Ui } from "./Ui"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 
+import * as Log from "./../../Log"
+
 import * as throttle from "lodash/throttle"
 
 const react = require("react") // tslint:disable-line no-var-requires
@@ -117,7 +119,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
-        console.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead") // tslint:disable-line no-console-log
+        Log.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead")
 
         return this._process.execNodeScript(scriptPath, args, options, callback)
     }
@@ -127,7 +129,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
      */
     public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
 
-        console.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead") // tslint:disable-line no-console-log
+        Log.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead")
 
         return this._process.spawnNodeScript(scriptPath, args, options)
     }
@@ -244,11 +246,11 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                         })
                     break
                 default:
-                    console.warn(`Unknown request type: ${requestType}`)
+                    Log.warn(`Unknown request type: ${requestType}`)
 
             }
         } else {
-            console.warn("Unknown notification type")
+            Log.warn("Unknown notification type")
         }
     }
 }
