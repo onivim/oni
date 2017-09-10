@@ -27,7 +27,7 @@ export const addToPath = async () => {
   if (isMac()) {
     const appDirectory = path.join(path.dirname(process.mainModule.filename), "..", "..")
     const options = {name: "Oni", icns: path.join(appDirectory, "Resources", "Oni.icns")}
-    const linkPath = path.join(appDirectory, "MacOS", "Oni")
+    const linkPath = path.join(appDirectory, "Resources", "app", "oni.sh")
     await _runSudoCommand(`ln -s ${linkPath} ${getLinkPath()}`, options)
   }
 }
