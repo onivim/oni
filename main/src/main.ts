@@ -6,7 +6,7 @@ import * as Log from "./Log"
 import { buildMenu } from "./menu"
 import { makeSingleInstance } from "./ProcessLifecycle"
 
-global["getLogs"] = Log.getAllLogs
+global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 
 const isDevelopment = process.env.NODE_ENV === "development"
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
@@ -39,7 +39,7 @@ if (!isDevelopment && !isDebug) {
 
     const currentOptions = {
         args: process.argv,
-        workingDirectory: process.env["ONI_CWD"] || process.cwd(),
+        workingDirectory: process.env["ONI_CWD"] || process.cwd(), // tslint:disable-line no-string-literal
     }
 
     Log.info("Making single instance...")
