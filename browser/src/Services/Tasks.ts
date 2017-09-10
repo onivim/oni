@@ -35,7 +35,7 @@ export class Tasks extends EventEmitter {
     private _providers: ITaskProvider[] = []
 
     // TODO: This should be refactored, as it is simply
-    // a timing dependency on when the object is created versus when 
+    // a timing dependency on when the object is created versus when
     // it is shown.
     private _initialized = false
 

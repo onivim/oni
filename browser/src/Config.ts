@@ -8,6 +8,8 @@ import * as path from "path"
 import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
+import { Event, IEvent } from "./Event"
+
 import { applyDefaultKeyBindings } from "./Input/KeyBindings"
 
 export interface IConfigValues {
@@ -201,11 +203,15 @@ export class Config extends EventEmitter {
 
     private DefaultPlatformConfig = Platform.isWindows() ? this.WindowsConfig : Platform.isLinux() ? this.LinuxConfig : this.MacConfig
 
-    private configChanged: EventEmitter = new EventEmitter()
+    private _onConfigChangedEvent: Event<void> = new Event<void>()
 
     private _oniApi: Oni.Plugin.Api = null
 
     private Config: IConfigValues = null
+
+    public get onConfigChanged(): IEvent<void> {
+        return this._onConfigChangedEvent
+    }
 
     constructor() {
         super()
@@ -250,13 +256,6 @@ export class Config extends EventEmitter {
         return path.join(Platform.getUserHome(), ".oni")
     }
 
-    public registerListener(callback: Function): void {
-        this.configChanged.on("config-change", callback)
-    }
-
-    public unregisterListener(callback: Function): void {
-        this.configChanged.removeListener("config-change", callback)
-    }
     // Emitting event is not enough, at startup nobody's listening yet
     // so we can't emit the parsing error to anyone when it happens
     public getParsingError(): Error | null {
@@ -271,7 +270,7 @@ export class Config extends EventEmitter {
     }
 
     private applyConfig(): void {
-        let userRuntimeConfigOrError = this.getUserRuntimeConfig()
+        const userRuntimeConfigOrError = this.getUserRuntimeConfig()
         if (isError(userRuntimeConfigOrError)) {
             this.emit("logError", userRuntimeConfigOrError)
             this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig}
@@ -303,7 +302,7 @@ export class Config extends EventEmitter {
             try {
                 userRuntimeConfig = global["require"](this.userJsConfig) // tslint:disable-line no-string-literal
             } catch (e) {
-                e.message = "Failed to parse " + this.userJsConfig + ":\n" + (<Error>e).message
+                e.message = "Failed to parse " + this.userJsConfig + ":\n" + (e as Error).message
                 error = e
             }
         }
@@ -311,9 +310,8 @@ export class Config extends EventEmitter {
     }
 
     private notifyListeners(): void {
-        this.configChanged.emit("config-change")
+        this._onConfigChangedEvent.dispatch(null)
     }
-
 }
 
 const _config = new Config()

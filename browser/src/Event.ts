@@ -6,9 +6,7 @@ import { EventEmitter } from "events"
 
 import { IDisposable } from "./IDisposable"
 
-export interface EventCallback<T> {
-    (value: T): void
-}
+export type EventCallback<T> = (value: T) => void
 
 export interface IEvent<T> {
     subscribe(callback: EventCallback<T>): IDisposable

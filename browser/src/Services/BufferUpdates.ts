@@ -1,6 +1,6 @@
 /**
  * BufferUpdates.ts
- * 
+ *
  * Responsible for taking "buffer-update" messages and sending them
  * to the plugins. Sanitizes and manages incrementental state.
  */

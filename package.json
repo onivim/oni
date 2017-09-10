@@ -11,7 +11,7 @@
     "ide",
     "vim"
   ],
-  "main": "main.js",
+  "main": "./lib/main/src/main.js",
   "bin": {
     "oni": "./cli/oni",
     "oni-vim": "./cli/oni"
@@ -64,10 +64,11 @@
     }
   },
   "scripts": {
-    "build": "npm run build:browser && npm run build:plugins",
+    "build": "npm run build:browser && npm run build:main && npm run build:plugins",
     "build-debug": "npm run build:browser-debug && npm run build:plugins",
     "build:browser": "webpack --config browser/webpack.production.config.js",
     "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
+    "build:main": "cd main && tsc -p tsconfig.json",
     "build:plugins": "npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-reasonml",
     "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && npm run build",
     "build:plugin:oni-plugin-reasonml": "cd vim/core/oni-plugin-reasonml && bsb -make-world",
@@ -81,11 +82,13 @@
     "test:integration": "cd test && tsc -p tsconfig.json && mocha -t 30000 --recursive ../lib_test/test",
     "test:unit": "npm run test:unit:browser",
     "test:unit:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
-    "fix-lint": "npm run fix-lint:browser && npm run fix-lint:test",
+    "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
     "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --config tslint.json",
+    "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
     "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
-    "lint": "npm run lint:browser && npm run lint:test",
+    "lint": "npm run lint:browser && npm run lint:main && npm run lint:test",
     "lint:browser": "tslint --project browser/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
+    "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
     "lint:test": "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
     "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
     "start-hot": "cross-env NODE_ENV=development electron main.js",
@@ -160,7 +163,7 @@
     "style-loader": "0.18.2",
     "sudo-prompt": "7.1.1",
     "ts-loader": "2.3.2",
-    "tslint": "4.0.2",
+    "tslint": "5.7.0",
     "wcwidth": "1.0.1",
     "webpack": "3.5.3",
     "webpack-dev-server": "2.7.1"

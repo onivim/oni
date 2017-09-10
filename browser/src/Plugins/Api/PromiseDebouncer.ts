@@ -1,6 +1,4 @@
-export interface PromiseFunction<T> {
-    (...args: any[]): Promise<T>
-}
+export type PromiseFunction<T> = (...args: any[]) => Promise<T>
 
 export interface DeferredPromise<T> {
     promise: Promise<T>

@@ -21,7 +21,7 @@ export interface ICommandInfo {
 }
 
 /**
- * Interface describing 
+ * Interface describing
  */
 export interface IPluginFilter {
     fileType: string
