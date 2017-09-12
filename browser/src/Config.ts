@@ -286,7 +286,12 @@ export class Config extends EventEmitter {
     private _activateIfOniObjectIsAvailable(): void {
         if (this.Config && this.Config.activate && this._oniApi) {
             applyDefaultKeyBindings(this._oniApi, this)
-            this.Config.activate(this._oniApi)
+
+            try {
+                this.Config.activate(this._oniApi)
+            } catch (e) {
+                alert("[Config Error] Failed to activate " + this.userJsConfig + ":\n" + (e as Error).message)
+            }
         }
     }
 
@@ -303,8 +308,10 @@ export class Config extends EventEmitter {
             try {
                 userRuntimeConfig = global["require"](this.userJsConfig) // tslint:disable-line no-string-literal
             } catch (e) {
-                e.message = "Failed to parse " + this.userJsConfig + ":\n" + (e as Error).message
+                e.message = "[Config Error] Failed to parse " + this.userJsConfig + ":\n" + (e as Error).message
                 error = e
+
+                alert(e.message)
             }
         }
         return error ? error : userRuntimeConfig
