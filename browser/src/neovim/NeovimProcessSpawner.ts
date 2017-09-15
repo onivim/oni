@@ -1,8 +1,9 @@
-import * as cp from "child_process"
 import * as path from "path"
 
 import * as Config from "./../Config"
 import * as Platform from "./../Platform"
+
+import * as Process from "./../Plugins/Api/Process"
 
 import { Session } from "./Session"
 
@@ -40,7 +41,7 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
         .concat(["--cmd", `let &rtp.='${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
         .concat(args)
 
-    const nvimProc = cp.spawn(nvimProcessPath, argsToPass, {})
+    const nvimProc = new Process.Process().spawnProcess(nvimProcessPath, argsToPass)
 
     console.log(`Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console
 
