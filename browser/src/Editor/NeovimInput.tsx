@@ -6,6 +6,7 @@
 
 import * as React from "react"
 
+
 import { NeovimInstance } from "./../neovim"
 import { NeovimScreen } from "./../Screen"
 
@@ -38,7 +39,7 @@ export class NeovimInput extends React.PureComponent<INeovimInputProps, void> {
 
     public render(): JSX.Element {
         return <div ref={(elem) => this._mouseElement = elem} className="stack enable-mouse">
-            <KeyboardInputView onKeyDown={this.props.onKeyDown} top={100} left={100} />
+            <KeyboardInput onKeyDown={this.props.onKeyDown} />
         </div>
     }
 }
@@ -46,7 +47,10 @@ export class NeovimInput extends React.PureComponent<INeovimInputProps, void> {
 export interface IKeyboardInputViewProps {
     top: number
     left: number
+    height: number
     onKeyDown?: (key: string) => void
+    backgroundColor: string
+    foregroundColor: string
 }
 
 /**
@@ -76,11 +80,35 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             position: "absolute",
             top: this.props.top.toString() + "px",
             left: this.props.left.toString() + "px",
+            height: this.props.height.toString() + "px",
+            backgroundColor: "rgba(0, 0, 0, 0)",
+            padding: "0px",
+            color: this.props.foregroundColor,
+            border: "0px",
+            outline: "none",
+            font: "inherit",
         }
+
         return <input
             style={style}
             ref={(elem) => this._keyboardElement = elem}
             type="text" />
     }
-
 }
+
+import { connect } from "react-redux"
+import { IState } from "./../UI/State"
+
+const mapStateToProps = (state: IState, originalProps: Partial<IKeyboardInputViewProps>): IKeyboardInputViewProps => {
+    return {
+        ...originalProps,
+        top: state.cursorPixelY,
+        left: state.cursorPixelX,
+        height: state.fontPixelHeight,
+        backgroundColor: state.backgroundColor,
+        foregroundColor: state.foregroundColor,
+    }
+}
+
+const KeyboardInput = connect(mapStateToProps)(KeyboardInputView)
+
