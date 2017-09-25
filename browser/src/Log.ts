@@ -6,7 +6,7 @@
 
 // For now, `isVerboseLoggingEnabled` will handle both `debug` and `verbose` levels.
 // (and on by default for development builds)
-let isVerboseLoggingEnabled = process.env["NODE_ENV"] === "development"
+let isVerboseLoggingEnabled = process.env["NODE_ENV"] === "development" // tslint:disable-line no-string-literal
 
 export const debug = (message: string): void => {
     if (isVerboseLoggingEnabled) {
@@ -16,7 +16,7 @@ export const debug = (message: string): void => {
 
 export const verbose = (message: string): void => {
     if (isVerboseLoggingEnabled) {
-        console.log(message)
+        console.log(message) // tslint:disable-line no-console
     }
 }
 
