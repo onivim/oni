@@ -1,5 +1,7 @@
 import { EventEmitter } from "events"
 
+import * as Log from "./../Log"
+
 // List taken from:
 // https://github.com/zeit/hyper/blob/7a08b1dc3e07ae552debfe7e62c48b0a5a028ff9/lib/utils/key-code.js
 const suppressShiftKeyCharacters = [
@@ -43,6 +45,8 @@ export class Keyboard extends EventEmitter {
 
             const vimKey = this._convertKeyEventToVimKey(evt)
             const mappedKey = this._wrapWithBracketsAndModifiers(vimKey, evt)
+
+            Log.debug(`[Key event] Code: ${evt.code} Key: ${evt.key} CtrlKey: ${evt.ctrlKey} ShiftKey: ${evt.shiftKey} AltKey: ${evt.altKey} | Resolution: ${mappedKey}`)
 
             if (mappedKey) {
                 this.emit("keydown", mappedKey)
