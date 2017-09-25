@@ -53,6 +53,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._commands
     }
 
+    public get log(): Oni.Log {
+        return Log
+    }
+
     public get configuration(): Oni.Configuration {
         return this._configuration
     }

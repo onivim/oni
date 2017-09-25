@@ -15,6 +15,7 @@ matrix:
 addons:
     apt:
         packages:
+            - libxkbfile-dev
             - libgnome-keyring-dev
             - icnsutils
             - graphicsmagick

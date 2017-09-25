@@ -107,6 +107,8 @@ A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.9/Oni-0.2.9-lin
 
 ### Build
 
+> Ensure all dependencies for [node-gyp](https://github.com/nodejs/node-gyp) are installed, as some modules require building native code.
+
 1) Clone the repository: `git clone https://github.com/extr0py/oni.git`
 
 2) Install dependencies by running `npm install` from the root

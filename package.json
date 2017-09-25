@@ -91,12 +91,13 @@
     "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
     "lint:test": "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
     "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
-    "start-hot": "cross-env NODE_ENV=development electron main.js",
+    "start-hot": "cross-env NODE_ENV=development electron lib/main/src/main.js",
     "start-not-dev": "cross-env electron main.js",
     "watch:browser": "webpack-dev-server --config browser/webpack.debug.config.js --host localhost --port 8191",
     "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch",
     "uninstall-global": "npm rm -g oni-vim",
-    "install-global": "npm install -g oni-vim"
+    "install-global": "npm install -g oni-vim",
+    "postinstall": "electron-rebuild"
   },
   "repository": {
     "type": "git",
@@ -106,6 +107,7 @@
   "license": "MIT",
   "dependencies": {
     "find-up": "2.1.0",
+    "keyboard-layout": "2.0.13",
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",
     "typescript": "2.4.2",
@@ -137,6 +139,7 @@
     "electron": "1.7.7",
     "electron-builder": "19.26.0",
     "electron-devtools-installer": "2.2.0",
+    "electron-rebuild": "1.6.0",
     "extract-zip": "1.6.0",
     "fuse.js": "2.6.2",
     "glob": "7.1.1",
