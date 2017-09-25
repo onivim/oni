@@ -28,6 +28,8 @@ export interface INeovimSurfaceProps {
     deltaRegionTracker: IncrementalDeltaRegionTracker
     renderer: INeovimRenderer
     screen: NeovimScreen
+
+    onKeyDown?: (key: string) => void
     onBufferClose?: (bufferId: number) => void
     onBufferSelect?: (bufferId: number) => void
     onTabClose?: (tabId: number) => void

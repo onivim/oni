@@ -28,10 +28,10 @@ const suppressShiftKeyCharacters = [
 ]
 
 export class Keyboard extends EventEmitter {
-    constructor() {
+    constructor(element: HTMLElement) {
         super()
 
-        document.body.addEventListener("keydown", (evt) => {
+        element.addEventListener("keydown", (evt) => {
             /*
              * This prevents the opening and immediate
              * (unwanted) closing of external windows.
