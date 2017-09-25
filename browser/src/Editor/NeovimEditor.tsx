@@ -205,11 +205,7 @@ export class NeovimEditor implements IEditor {
 
         const keyboard = new Keyboard(document.body)
         keyboard.on("keydown", (key: string) => {
-            if (inputManager.handleKey(key)) {
-                return
-            }
-
-            this._neovimInstance.input(key)
+            this._onKeyDown(key)
         })
 
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
@@ -368,5 +364,13 @@ export class NeovimEditor implements IEditor {
 
         this._renderer.update(this._screen, this._deltaRegionManager)
         this._deltaRegionManager.cleanUpRenderedCells()
+    }
+
+    private _onKeyDown(key: string): void {
+        if (inputManager.handleKey(key)) {
+            return
+        }
+
+        this._neovimInstance.input(key)
     }
 }
