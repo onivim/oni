@@ -15,6 +15,9 @@ matrix:
 addons:
     apt:
         packages:
+            - clang-3.3
+            - libx11-dev
+            - libxkbfile-dev
             - libgnome-keyring-dev
             - icnsutils
             - graphicsmagick
