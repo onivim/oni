@@ -22,20 +22,47 @@ export interface INeovimInputProps {
 }
 
 export class NeovimInput extends React.PureComponent<INeovimInputProps, void> {
-    private _element: HTMLDivElement
+    private _mouseElement: HTMLDivElement
     private _mouse: Mouse
-    private _keyboard: Keyboard
 
     public componentDidMount(): void {
-        if (this._element) {
-            this._mouse = new Mouse(this._element, this.props.screen)
+        if (this._mouseElement) {
+            this._mouse = new Mouse(this._mouseElement, this.props.screen)
 
             this._mouse.on("mouse", (mouseInput: string) => {
                 UI.Actions.hideCompletions()
                 this.props.neovimInstance.input(mouseInput)
             })
+        }
+    }
 
-            this._keyboard = new Keyboard(document.body)
+    public render(): JSX.Element {
+        return <div ref={(elem) => this._mouseElement = elem} className="stack enable-mouse">
+            <KeyboardInputView onKeyDown={this.props.onKeyDown} top={100} left={100} />
+        </div>
+    }
+}
+
+export interface IKeyboardInputViewProps {
+    top: number
+    left: number
+    onKeyDown?: (key: string) => void
+}
+
+/**
+ * KeyboardInput
+ *
+ * Helper for managing state and sanitizing input from dead keys, IME, etc
+ */
+export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, void> {
+    private _keyboardElement: HTMLInputElement
+    private _keyboard: Keyboard
+
+    public componentDidMount(): void {
+        if (this._keyboardElement) {
+            this._keyboard = new Keyboard(this._keyboardElement)
+
+            this._keyboardElement.focus()
             this._keyboard.on("keydown", (key: string) => {
                 if (this.props.onKeyDown) {
                     this.props.onKeyDown(key)
@@ -45,6 +72,15 @@ export class NeovimInput extends React.PureComponent<INeovimInputProps, void> {
     }
 
     public render(): JSX.Element {
-        return <div ref={ (elem) => this._element = elem } className="stack enable-mouse"></div>
+        const style: React.CSSProperties = {
+            position: "absolute",
+            top: this.props.top.toString() + "px",
+            left: this.props.left.toString() + "px",
+        }
+        return <input
+            style={style}
+            ref={(elem) => this._keyboardElement = elem}
+            type="text" />
     }
+
 }
