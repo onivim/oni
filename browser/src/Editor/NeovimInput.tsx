@@ -13,15 +13,18 @@ import * as UI from "./../UI/index"
 
 // import { Keyboard } from "./../Input/Keyboard"
 import { Mouse } from "./../Input/Mouse"
+import { Keyboard } from "./../Input/Keyboard"
 
 export interface INeovimInputProps {
     neovimInstance: NeovimInstance
     screen: NeovimScreen
+    onKeyDown?: (key: string) => void
 }
 
 export class NeovimInput extends React.PureComponent<INeovimInputProps, void> {
     private _element: HTMLDivElement
     private _mouse: Mouse
+    private _keyboard: Keyboard
 
     public componentDidMount(): void {
         if (this._element) {
@@ -30,6 +33,13 @@ export class NeovimInput extends React.PureComponent<INeovimInputProps, void> {
             this._mouse.on("mouse", (mouseInput: string) => {
                 UI.Actions.hideCompletions()
                 this.props.neovimInstance.input(mouseInput)
+            })
+
+            this._keyboard = new Keyboard(document.body)
+            this._keyboard.on("keydown", (key: string) => {
+                if (this.props.onKeyDown) {
+                    this.props.onKeyDown(key)
+                }
             })
         }
     }

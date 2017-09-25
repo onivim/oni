@@ -31,7 +31,6 @@ import { WindowTitle } from "./../Services/WindowTitle"
 import * as UI from "./../UI/index"
 import { Rectangle } from "./../UI/Types"
 
-import { Keyboard } from "./../Input/Keyboard"
 import { IEditor } from "./Editor"
 
 import { InstallHelp } from "./../UI/components/InstallHelp"
@@ -203,10 +202,6 @@ export class NeovimEditor implements IEditor {
         this._onConfigChanged()
         this._config.onConfigChanged.subscribe(() => this._onConfigChanged())
 
-        const keyboard = new Keyboard(document.body)
-        keyboard.on("keydown", (key: string) => {
-            this._onKeyDown(key)
-        })
 
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
         window["__screen"] = this._screen // tslint:disable-line no-string-literal
@@ -275,10 +270,15 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.command(`tabn ${tabId}`)
         }
 
+        const onKeyDown = (key: string) => {
+            this._onKeyDown(key)
+        }
+
         return <NeovimSurface renderer={this._renderer}
             neovimInstance={this._neovimInstance}
             deltaRegionTracker={this._deltaRegionManager}
             screen={this._screen}
+            onKeyDown={onKeyDown}
             onBufferClose={onBufferClose}
             onBufferSelect={onBufferSelect}
             onTabClose={onTabClose}

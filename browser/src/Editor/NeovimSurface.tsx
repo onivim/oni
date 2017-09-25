@@ -61,8 +61,10 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                         <ConnectedBufferScrollBar />
                     </ActiveWindowContainer>
                 </div>
-                <NeovimInput neovimInstance={this.props.neovimInstance}
-                    screen={this.props.screen} />
+                <NeovimInput 
+                    neovimInstance={this.props.neovimInstance}
+                    screen={this.props.screen} 
+                    onKeyDown={this.props.onKeyDown}/>
                 <div className="stack layer">
                     <QuickInfoContainer />
                     <SignatureHelpContainer />
