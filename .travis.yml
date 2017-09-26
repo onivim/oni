@@ -3,6 +3,10 @@ dist: trusty
 
 language: node_js
 
+branches:
+    only:
+        - master
+
 matrix:
     include:
         - os: linux
