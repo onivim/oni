@@ -2,8 +2,8 @@ import { EventEmitter } from "events"
 
 import * as Log from "./../../Log"
 
-import { ignoreMetaKeyResolver, KeyResolver, createMetaKeyResolver, remapResolver  } from "./Resolvers"
 import { keyboardLayout } from "./KeyboardLayout"
+import { createMetaKeyResolver, ignoreMetaKeyResolver, KeyResolver, remapResolver  } from "./Resolvers"
 
 export class Keyboard extends EventEmitter {
     constructor() {
