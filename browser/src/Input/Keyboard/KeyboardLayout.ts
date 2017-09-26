@@ -5,8 +5,8 @@ export interface IKeyMap {
 export interface IKeyInfo {
     unmodified: string
     withShift: string
-    withAltGraphShift: string
-    withAltGraph: string
+    withAltGraphShift?: string
+    withAltGraph?: string
 }
 
 class KeyboardLayoutManager {

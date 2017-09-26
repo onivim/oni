@@ -1,4 +1,4 @@
-import { IKeyInfo, IKeyMap, keyboardLayout } from "./KeyboardLayout"
+import { IKeyInfo, IKeyMap } from "./KeyboardLayout"
 
 /**
  * Interface describing a 'key resolver' - a strategy
@@ -46,43 +46,45 @@ export const remapResolver = (evt: KeyboardEvent, previousResolution: string | n
     return keysToRemap[evt.key] ? keysToRemap[evt.key] : previousResolution
 }
 
-export const metaResolver = (evt: KeyboardEvent, previousResolution: string | null): null | string => {
-    const layout = keyboardLayout.getCurrentKeyMap()
-    const isCharacterFromShiftKey = isShiftCharacter(layout, evt)
-    const isCharacterFromAltGraphKey = isAltGraphCharacter(layout, evt)
 
-    let mappedKey = previousResolution
+export const createMetaKeyResolver = (keyMap: IKeyMap) => {
+    return (evt: KeyboardEvent, previousResolution: string | null): null | string => {
+        const isCharacterFromShiftKey = isShiftCharacter(keyMap, evt)
+        const isCharacterFromAltGraphKey = isAltGraphCharacter(keyMap, evt)
 
-    if (mappedKey === "<") {
-        mappedKey = "lt"
+        let mappedKey = previousResolution
+
+        if (mappedKey === "<") {
+            mappedKey = "lt"
+        }
+
+        // On Windows, when the AltGr key is pressed, _both_
+        // the evt.ctrlKey and evt.altKey are set to true.
+        if (evt.ctrlKey && !isCharacterFromAltGraphKey) {
+            mappedKey = "c-" + previousResolution + ""
+            evt.preventDefault()
+        }
+
+        if (evt.shiftKey && !isCharacterFromShiftKey) {
+            mappedKey = "s-" + mappedKey
+        }
+
+        if (evt.altKey && !isCharacterFromAltGraphKey) {
+            mappedKey = "a-" + mappedKey
+            evt.preventDefault()
+        }
+
+        if (evt.metaKey) {
+            mappedKey = "m-" + mappedKey
+            evt.preventDefault()
+        }
+
+        if (mappedKey.length > 1) {
+            mappedKey = "<" + mappedKey.toLowerCase() + ">"
+        }
+
+        return mappedKey
     }
-
-    // On Windows, when the AltGr key is pressed, _both_
-    // the evt.ctrlKey and evt.altKey are set to true.
-    if (evt.ctrlKey && !isCharacterFromAltGraphKey) {
-        mappedKey = "c-" + previousResolution + ""
-        evt.preventDefault()
-    }
-
-    if (evt.shiftKey && !isCharacterFromShiftKey) {
-        mappedKey = "s-" + mappedKey
-    }
-
-    if (evt.altKey && !isCharacterFromAltGraphKey) {
-        mappedKey = "a-" + mappedKey
-        evt.preventDefault()
-    }
-
-    if (evt.metaKey) {
-        mappedKey = "m-" + mappedKey
-        evt.preventDefault()
-    }
-
-    if (mappedKey.length > 1) {
-        mappedKey = "<" + mappedKey.toLowerCase() + ">"
-    }
-
-    return mappedKey
 }
 
 const isShiftCharacter = (keyMap: IKeyMap, evt: KeyboardEvent): boolean => {
