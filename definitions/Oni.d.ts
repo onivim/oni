@@ -58,6 +58,14 @@ declare namespace Oni {
         registerCommand(commandName: string, callback: (args?: any) => void): void
     }
 
+    export interface Log {
+        verbose(msg: string): void
+        info(msg: string): void
+
+        disableVerboseLogging(): void
+        enableVerboseLogging(): void
+    }
+
     export interface StatusBar {
         getItem(globalId?: string): StatusBarItem
         createItem(alignment: number, priority: number, globalId?: string): StatusBarItem
