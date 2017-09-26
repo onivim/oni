@@ -25,15 +25,23 @@ describe("Resolvers", () => {
     describe("metaResolver", () => {
         let metaResolver: KeyResolver
 
-        beforeEach(() => {
-            metaResolver = createMetaKeyResolver(englishLayout)
+        describe("english", () => {
+            beforeEach(() => {
+                metaResolver = createMetaKeyResolver(englishLayout)
+            })
+
+            it("Handles <c-s-p>", () => {
+                const key = control(shift(keyP))
+                const result = metaResolver(key, keyP.key)
+
+                assert.equal(result, "<c-s-p>")
+            })
         })
 
-        it("Handles <c-s-p>", () => {
-            const key = control(shift(keyP))
-            const result = metaResolver(key, keyP.key)
-
-            assert.equal(result, "<c-s-p>")
+        describe("english-intl", () => {
+            beforeEach(() => {
+                metaResolver = createMetaKeyResolver(englishInternationalLayout)
+            })
         })
     })
 })
@@ -42,6 +50,15 @@ const englishLayout = {
     "KeyP": {
         unmodified: "p",
         withShift: "P",
+    }
+}
+
+const englishInternationalLayout = {
+    "KeyS": {
+        unmodified: "s",
+        withShift: "S",
+        withAltGraph: "ß",
+        withAltGraphShift: "§",
     }
 }
 
