@@ -1,6 +1,10 @@
 import { EventEmitter } from "events"
 
+const KeyboardLayout = require("keyboard-layout")
+
 import * as Log from "./../Log"
+
+window["layout"] = KeyboardLayout.getCurrentKeyboardLayout()
 
 export class Keyboard extends EventEmitter {
     constructor() {
