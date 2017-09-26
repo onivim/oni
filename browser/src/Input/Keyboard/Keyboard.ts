@@ -2,7 +2,7 @@ import { EventEmitter } from "events"
 
 import * as Log from "./../../Log"
 
-import { KeyResolver, ignoreMetaKeyResolver, remapResolver, metaResolver  } from './Resolvers'
+import { ignoreMetaKeyResolver, KeyResolver, metaResolver, remapResolver  } from "./Resolvers"
 
 export class Keyboard extends EventEmitter {
     constructor() {
@@ -11,7 +11,7 @@ export class Keyboard extends EventEmitter {
         const resolvers: KeyResolver[] = [
             ignoreMetaKeyResolver,
             remapResolver,
-            metaResolver
+            metaResolver,
         ]
 
         document.body.addEventListener("keydown", (evt) => {

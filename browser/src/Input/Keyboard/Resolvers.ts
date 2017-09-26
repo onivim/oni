@@ -1,4 +1,4 @@
-import { IKeyInfo, IKeyMap, keyboardLayout } from './KeyboardLayout'
+import { IKeyInfo, IKeyMap, keyboardLayout } from "./KeyboardLayout"
 
 /**
  * Interface describing a 'key resolver' - a strategy
