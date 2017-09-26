@@ -128,6 +128,7 @@ export class Keyboard extends EventEmitter {
         const keyCode: { [key: string]: string } = {
             "Backspace": "bs",
             "Escape": "esc",
+            "Enter": "enter",
             "Tab": "tab",     // Tab
             "ArrowLeft": "left",    // ArrowLeft
             "ArrowUp": "up",      // ArrowUp
