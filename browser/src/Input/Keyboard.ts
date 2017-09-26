@@ -1,23 +1,32 @@
 import { EventEmitter } from "events"
 
-const KeyboardLayout = require("keyboard-layout")
+const KeyboardLayout = require("keyboard-layout") // tslint:disable-line no-var-requires
 
 import * as Log from "./../Log"
 
-window["layout"] = KeyboardLayout.getCurrentKeyboardLayout()
-
-
-const keystoignore = [
-            "Shift",
-            "Control",
-            "Alt",
-            "AltGraph",
-            "CapsLock",
-            "Pause",
-            "ScrollLock",
-            "AudioVolumeUp",
-            "AudioVolumeDown"
+const keysToIgnore = [
+    "Shift",
+    "Control",
+    "Alt",
+    "AltGraph",
+    "CapsLock",
+    "Pause",
+    "ScrollLock",
+    "AudioVolumeUp",
+    "AudioVolumeDown",
 ]
+
+const keysToRemap: { [key: string]: string } = {
+    "Backspace": "bs",
+    "Escape": "esc",
+    "Enter": "enter",
+    "Tab": "tab",     // Tab
+    "ArrowLeft": "left",    // ArrowLeft
+    "ArrowUp": "up",      // ArrowUp
+    "ArrowRight": "right",   // ArrowRight
+    "ArrowDown": "down",    // ArrowDown
+    "Insert": "insert",
+}
 
 const isShiftCharacter = (evt: KeyboardEvent): boolean => {
 
@@ -66,11 +75,11 @@ export class Keyboard extends EventEmitter {
                 evt.preventDefault()
             }
 
-            if (keystoignore.indexOf(evt.key) >= 0) {
+            if (keysToIgnore.indexOf(evt.key) >= 0) {
                 return
             }
 
-            const vimKey = this._convertKeyEventToVimKey(evt)
+            const vimKey = keysToRemap[evt.key] ? keysToRemap[evt.key] : evt.key
             const mappedKey = this._wrapWithBracketsAndModifiers(vimKey, evt)
 
             Log.debug(`[Key event] Code: ${evt.code} Key: ${evt.key} CtrlKey: ${evt.ctrlKey} ShiftKey: ${evt.shiftKey} AltKey: ${evt.altKey} | Resolution: ${mappedKey}`)
@@ -121,22 +130,5 @@ export class Keyboard extends EventEmitter {
         }
 
         return mappedKey
-    }
-
-    private _convertKeyEventToVimKey(evt: KeyboardEvent): null | string {
-
-        const keyCode: { [key: string]: string } = {
-            "Backspace": "bs",
-            "Escape": "esc",
-            "Enter": "enter",
-            "Tab": "tab",     // Tab
-            "ArrowLeft": "left",    // ArrowLeft
-            "ArrowUp": "up",      // ArrowUp
-            "ArrowRight": "right",   // ArrowRight
-            "ArrowDown": "down",    // ArrowDown
-            "Insert": "insert",
-        }
-
-        return keyCode[evt.key] ? keyCode[evt.key] : evt.key
     }
 }
