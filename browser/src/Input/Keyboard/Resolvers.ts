@@ -1,0 +1,119 @@
+import { IKeyInfo, IKeyMap, keyboardLayout } from './KeyboardLayout'
+
+/**
+ * Interface describing a 'key resolver' - a strategy
+ * for resolving a keyboard event to a vim-facing input event.
+ *
+ * Key resolvers are intended to be chained together.
+ *
+ * If a key resolver returns null, it will prevent processing that key.
+ */
+export type KeyResolver = (evt: KeyboardEvent, previousResolution: string | null) => string | null
+
+const keysToIgnore = [
+    "Shift",
+    "Control",
+    "Alt",
+    "AltGraph",
+    "CapsLock",
+    "Pause",
+    "ScrollLock",
+    "AudioVolumeUp",
+    "AudioVolumeDown",
+]
+
+export const ignoreMetaKeyResolver = (evt: KeyboardEvent, previousResolution: string | null): string | null => {
+    if (keysToIgnore.indexOf(evt.key) >= 0) {
+        return null
+    } else {
+        return evt.key
+    }
+}
+
+const keysToRemap: { [key: string]: string } = {
+    "Backspace": "bs",
+    "Escape": "esc",
+    "Enter": "enter",
+    "Tab": "tab",     // Tab
+    "ArrowLeft": "left",    // ArrowLeft
+    "ArrowUp": "up",      // ArrowUp
+    "ArrowRight": "right",   // ArrowRight
+    "ArrowDown": "down",    // ArrowDown
+    "Insert": "insert",
+}
+
+export const remapResolver = (evt: KeyboardEvent, previousResolution: string | null): string | null => {
+    return keysToRemap[evt.key] ? keysToRemap[evt.key] : previousResolution
+}
+
+export const metaResolver = (evt: KeyboardEvent, previousResolution: string | null): null | string => {
+    const layout = keyboardLayout.getCurrentKeyMap()
+    const isCharacterFromShiftKey = isShiftCharacter(layout, evt)
+    const isCharacterFromAltGraphKey = isAltGraphCharacter(layout, evt)
+
+    let mappedKey = previousResolution
+
+    if (mappedKey === "<") {
+        mappedKey = "lt"
+    }
+
+    // On Windows, when the AltGr key is pressed, _both_
+    // the evt.ctrlKey and evt.altKey are set to true.
+    if (evt.ctrlKey && !isCharacterFromAltGraphKey) {
+        mappedKey = "c-" + previousResolution + ""
+        evt.preventDefault()
+    }
+
+    if (evt.shiftKey && !isCharacterFromShiftKey) {
+        mappedKey = "s-" + mappedKey
+    }
+
+    if (evt.altKey && !isCharacterFromAltGraphKey) {
+        mappedKey = "a-" + mappedKey
+        evt.preventDefault()
+    }
+
+    if (evt.metaKey) {
+        mappedKey = "m-" + mappedKey
+        evt.preventDefault()
+    }
+
+    if (mappedKey.length > 1) {
+        mappedKey = "<" + mappedKey.toLowerCase() + ">"
+    }
+
+    return mappedKey
+}
+
+const isShiftCharacter = (keyMap: IKeyMap, evt: KeyboardEvent): boolean => {
+
+    const { key, code } = evt
+
+    const mappedKey: IKeyInfo = keyMap[code]
+
+    if (!mappedKey) {
+        return false
+    }
+
+    if (mappedKey.withShift === key || mappedKey.withAltGraphShift === key) {
+        return true
+    } else {
+        return false
+    }
+}
+
+const isAltGraphCharacter = (keyMap: IKeyMap, evt: KeyboardEvent): boolean => {
+    const { key, code } = evt
+
+    const mappedKey: IKeyInfo = keyMap[code]
+
+    if (!mappedKey) {
+        return false
+    }
+
+    if (mappedKey.withAltGraph === key || mappedKey.withAltGraphShift === key) {
+        return true
+    } else {
+        return false
+    }
+}
