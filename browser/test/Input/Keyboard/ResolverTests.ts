@@ -34,7 +34,7 @@ describe("Resolvers", () => {
                 const key = control(shift(keyP))
                 const result = metaResolver(key, keyP.key)
 
-                assert.equal(result, "<c-s-p>")
+                assert.equal(result, "<s-c-p>")
             })
         })
 

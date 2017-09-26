@@ -58,14 +58,16 @@ export const createMetaKeyResolver = (keyMap: IKeyMap) => {
             mappedKey = "lt"
         }
 
+        let controlPressed = false
         // On Windows, when the AltGr key is pressed, _both_
         // the evt.ctrlKey and evt.altKey are set to true.
         if (evt.ctrlKey && !isCharacterFromAltGraphKey) {
             mappedKey = "c-" + previousResolution + ""
+            controlPressed = true
             evt.preventDefault()
         }
 
-        if (evt.shiftKey && !isCharacterFromShiftKey) {
+        if (evt.shiftKey && (!isCharacterFromShiftKey || controlPressed)) {
             mappedKey = "s-" + mappedKey
         }
 
