@@ -27,6 +27,84 @@ const suppressShiftKeyCharacters = [
   "?",
 ]
 
+const wrapWithBracketsAndModifiers = (vimKey: null | string, evt: KeyboardEvent): null | string => {
+    if (vimKey === null) {
+        return null
+    }
+
+    let mappedKey = vimKey
+
+    if (mappedKey === "<") {
+        mappedKey = "lt"
+    }
+
+    if (evt.ctrlKey) {
+        mappedKey = "c-" + vimKey + ""
+        evt.preventDefault()
+    }
+
+    if (evt.shiftKey && suppressShiftKeyCharacters.indexOf(mappedKey) === -1) {
+        mappedKey = "s-" + mappedKey
+    }
+
+    if (evt.altKey) {
+        mappedKey = "a-" + mappedKey
+        evt.preventDefault()
+    }
+
+    if (evt.metaKey) {
+        mappedKey = "m-" + mappedKey
+        evt.preventDefault()
+    }
+
+    if (mappedKey.length > 1) {
+        mappedKey = "<" + mappedKey + ">"
+    }
+
+    return mappedKey.toLowerCase()
+}
+
+const convertKeyEventToVimKey = (evt: KeyboardEvent): null | string  => {
+
+    const keyCode: { [key: number]: string } = {
+        8: "bs",      // Backspace
+        9: "tab",     // Tab
+        13: "enter",   // Enter
+        27: "esc",     // Escape
+        33: "pageup",  // Page up
+        34: "pagedown", // Page down
+        35: "end",
+        36: "home",
+        37: "left",    // ArrowLeft
+        38: "up",      // ArrowUp
+        39: "right",   // ArrowRight
+        40: "down",    // ArrowDown
+        45: "insert",
+        114: "f3",
+        116: "f5",
+        123: "f12",
+        16: null,     // Shift left
+        17: null,     // Ctrl left
+        18: null,     // Alt left
+        19: null,     // Pause
+        20: null,     // Caps lock
+        145: null,     // Scroll lock
+        174: null,     // Volume up
+        175: null,     // Volume down
+    }
+
+    return keyCode[evt.keyCode] ? keyCode[evt.keyCode] : evt.key
+
+}
+
+export const keyEventToVim = (evt: KeyboardEvent): null | string => {
+
+    const vimKey = convertKeyEventToVimKey(evt)
+    const mappedKey = wrapWithBracketsAndModifiers(vimKey, evt)
+
+    return mappedKey
+}
+
 export class Keyboard extends EventEmitter {
     constructor(element: HTMLElement) {
         super()
@@ -41,8 +119,7 @@ export class Keyboard extends EventEmitter {
                 evt.preventDefault()
             }
 
-            const vimKey = this._convertKeyEventToVimKey(evt)
-            const mappedKey = this._wrapWithBracketsAndModifiers(vimKey, evt)
+            const mappedKey = convertKeyEventToVimKey(evt)
 
             if (mappedKey) {
                 this.emit("keydown", mappedKey)
@@ -50,73 +127,4 @@ export class Keyboard extends EventEmitter {
         })
     }
 
-    private _wrapWithBracketsAndModifiers(vimKey: null | string, evt: KeyboardEvent): null | string {
-        if (vimKey === null) {
-            return null
-        }
-
-        let mappedKey = vimKey
-
-        if (mappedKey === "<") {
-            mappedKey = "lt"
-        }
-
-        if (evt.ctrlKey) {
-            mappedKey = "c-" + vimKey + ""
-            evt.preventDefault()
-        }
-
-        if (evt.shiftKey && suppressShiftKeyCharacters.indexOf(mappedKey) === -1) {
-            mappedKey = "s-" + mappedKey
-        }
-
-        if (evt.altKey) {
-            mappedKey = "a-" + mappedKey
-            evt.preventDefault()
-        }
-
-        if (evt.metaKey) {
-            mappedKey = "m-" + mappedKey
-            evt.preventDefault()
-        }
-
-        if (mappedKey.length > 1) {
-            mappedKey = "<" + mappedKey + ">"
-        }
-
-        return mappedKey.toLowerCase()
-    }
-
-    private _convertKeyEventToVimKey(evt: KeyboardEvent): null | string {
-
-        const keyCode: { [key: number]: string } = {
-            8: "bs",      // Backspace
-            9: "tab",     // Tab
-            13: "enter",   // Enter
-            27: "esc",     // Escape
-            33: "pageup",  // Page up
-            34: "pagedown", // Page down
-            35: "end",
-            36: "home",
-            37: "left",    // ArrowLeft
-            38: "up",      // ArrowUp
-            39: "right",   // ArrowRight
-            40: "down",    // ArrowDown
-            45: "insert",
-            114: "f3",
-            116: "f5",
-            123: "f12",
-            16: null,     // Shift left
-            17: null,     // Ctrl left
-            18: null,     // Alt left
-            19: null,     // Pause
-            20: null,     // Caps lock
-            145: null,     // Scroll lock
-            174: null,     // Volume up
-            175: null,     // Volume down
-        }
-
-        return keyCode[evt.keyCode] ? keyCode[evt.keyCode] : evt.key
-
-    }
 }
