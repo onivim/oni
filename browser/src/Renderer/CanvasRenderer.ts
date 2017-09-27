@@ -166,7 +166,8 @@ export class CanvasRenderer implements INeovimRenderer {
 
         if (cell.foregroundColor !== currentState.foregroundColor
             || cell.backgroundColor !== currentState.backgroundColor
-            || isCurrentCellWhiteSpace !== currentState.isWhitespace) {
+            || isCurrentCellWhiteSpace !== currentState.isWhitespace
+            || cell.characterWidth > 1) {
             return {
                 isWhitespace: isCurrentCellWhiteSpace,
                 foregroundColor: cell.foregroundColor,
