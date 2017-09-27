@@ -57,11 +57,6 @@ export interface IKeyboardInputViewState {
      * Tracks if composition is occurring (ie, an IME is active)
      */
     isComposing: boolean
-
-    /**
-     * Tracks where a 'dead key' was pressed
-     */
-    isDeadKey: boolean
 }
 
 /**
@@ -78,7 +73,6 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
         this.state = {
             isComposing: false,
-            isDeadKey: false,
         }
     }
 
@@ -104,14 +98,10 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             })
 
             this._keyboardElement.addEventListener("input", (evt) => {
-
                 const valueLength = this._keyboardElement.value.length
 
-                if (this.state.isDeadKey) {
-                    const value = this._keyboardElement.value
-                    this._commit(value)
-                } else if (valueLength > 0 && !this.state.isComposing) {
-                    this._keyboardElement.value = ""
+                if (!this.state.isComposing && valueLength > 0) {
+                    this._commit(this._keyboardElement.value)
                 }
             })
 
@@ -120,28 +110,33 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
         }
     }
 
-    private _onKeyDown(evt: any) {
+    private _onKeyDown(evt: React.KeyboardEvent<HTMLInputElement>) {
         // 'Process' means hand-off to the IME -
         // so the composition events should handle this
-        if (evt.key === "Process") {
+        if (evt.key === "Process" || evt.key === "Dead") {
             return
         }
 
-        if (evt.key === "Dead") {
-            this.setState({
-                isDeadKey: true,
-            })
-            return
-        }
-
-        if (!this.state.isComposing && !this.state.isDeadKey) {
-            const key = keyEventToVimKey(evt)
+        // TODO: Consolidate this logic
+        if (!this.props.imeEnabled) {
+            const key = keyEventToVimKey(evt.nativeEvent)
             this._commit(key)
+            evt.preventDefault()
+            return
+        }
+
+        if (!this.state.isComposing) {
+            const key = keyEventToVimKey(evt.nativeEvent)
+
+            if (key.length > 1) {
+                this._commit(key)
+                evt.preventDefault()
+            }
         }
     }
 
     public render(): JSX.Element {
-        const opacity = this.state.isComposing || this.state.isDeadKey ? 0.8 : 0
+        const opacity = this.state.isComposing ? 0.8 : 0
 
         const style: React.CSSProperties = {
             position: "absolute",
@@ -171,7 +166,6 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
     private _commit(val: string): void {
         this.setState({
             isComposing: false,
-            isDeadKey: false,
         })
 
         this._keyboardElement.value = ""
