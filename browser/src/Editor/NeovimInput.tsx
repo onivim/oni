@@ -124,7 +124,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
         if (!this.state.isComposing) {
             const key = keyEventToVimKey(evt.nativeEvent)
 
-            if (key.length > 1) {
+            if (key && key.length > 1) {
                 this._commit(key)
                 evt.preventDefault()
             }
