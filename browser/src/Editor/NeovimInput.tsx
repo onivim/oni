@@ -141,18 +141,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
         }
     }
 
-    private _commit(val: string): void {
-        this.setState({
-            isComposing: false,
-            isDeadKey: false,
-        })
-
-        this._keyboardElement.value = ""
-        this.props.onKeyDown(val)
-    }
-
     public render(): JSX.Element {
-
         const opacity = this.state.isComposing || this.state.isDeadKey ? 0.8 : 0
 
         const style: React.CSSProperties = {
@@ -167,7 +156,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             border: "0px",
             outline: "none",
             font: "inherit",
-            opacity
+            opacity,
         }
 
         // IME is disabled for 'password' type fields
@@ -177,6 +166,16 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             style={style}
             ref={(elem) => this._keyboardElement = elem}
             type={inputType}/>
+    }
+
+    private _commit(val: string): void {
+        this.setState({
+            isComposing: false,
+            isDeadKey: false,
+        })
+
+        this._keyboardElement.value = ""
+        this.props.onKeyDown(val)
     }
 }
 
@@ -195,4 +194,3 @@ const mapStateToProps = (state: IState, originalProps: Partial<IKeyboardInputVie
 }
 
 const KeyboardInput = connect(mapStateToProps)(KeyboardInputView)
-
