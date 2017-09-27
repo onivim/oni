@@ -36,6 +36,7 @@ class CursorRenderer extends React.PureComponent<ICursorProps, void> {
             top: this.props.y.toString() + "px",
             width: width.toString() + "px",
             height,
+            lineHeight: height,
             backgroundColor: this.props.color,
             color: this.props.textColor,
             fontFamily,
