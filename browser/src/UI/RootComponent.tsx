@@ -9,6 +9,7 @@ import { IEditor } from "./../Editor/Editor"
 
 import { keyEventToVimKey } from "./../Input/Keyboard"
 import { inputManager } from "./../Services/InputManager"
+import { focusManager } from "./../Services/FocusManager"
 
 interface IRootComponentProps {
     editor: IEditor
@@ -43,6 +44,8 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
         if (inputManager.handleKey(vimKey)) {
             evt.stopPropagation()
             evt.preventDefault()
+        } else {
+            focusManager.enforceFocus()
         }
     }
 }

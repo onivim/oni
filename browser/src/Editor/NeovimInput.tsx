@@ -59,6 +59,8 @@ export interface IKeyboardInputViewState {
     isComposing: boolean
 }
 
+import { focusManager } from "./../Services/FocusManager"
+
 /**
  * KeyboardInput
  *
@@ -66,7 +68,6 @@ export interface IKeyboardInputViewState {
  */
 export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKeyboardInputViewState> {
     private _keyboardElement: HTMLInputElement
-    // private _keyboard: Keyboard
 
     constructor() {
         super()
@@ -82,10 +83,6 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
     public componentDidMount(): void {
         if (this._keyboardElement) {
-
-            this._keyboardElement.addEventListener("blur", (evt) => {
-                window.setTimeout(() => this._keyboardElement.focus(), 0)
-            })
 
             this._keyboardElement.addEventListener("compositionstart", (evt) => {
                 this.setState({
@@ -105,8 +102,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
                 }
             })
 
-            this._keyboardElement.focus()
-
+            focusManager.pushFocus(this._keyboardElement)
         }
     }
 
