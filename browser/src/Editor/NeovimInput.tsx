@@ -49,19 +49,10 @@ export interface IKeyboardInputViewProps {
     left: number
     height: number
     onKeyDown?: (key: string) => void
-    backgroundColor: string
     foregroundColor: string
 }
 
 export interface IKeyboardInputViewState {
-
-    /**
-     * Tracks the current text in the keyboard input.
-     * For non-Intl keys, this should always be empty - but in cases
-     * with IME or dead keys, this will show the current uncomitted text.
-     */
-    composingText: string
-
     /**
      * Tracks if composition is occurring (ie, an IME is active)
      */
@@ -86,7 +77,6 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
         super()
 
         this.state = {
-            composingText: "",
             isComposing: false,
             isDeadKey: false,
         }
@@ -110,14 +100,19 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             })
 
             this._keyboardElement.addEventListener("compositionend", (evt) => {
-                const result = this._keyboardElement.value
-                this.props.onKeyDown(result)
+                this._commit(this._keyboardElement.value)
+            })
 
-                this.setState({
-                    isComposing: false,
-                    isDeadKey: false,
-                    composingText: ""
-                })
+            this._keyboardElement.addEventListener("input", (evt) => {
+
+                const valueLength = this._keyboardElement.value.length
+
+                if (this.state.isDeadKey) {
+                    const value = this._keyboardElement.value
+                    this._commit(value)
+                } else if (valueLength > 0 && !this.state.isComposing) {
+                    this._keyboardElement.value = ""
+                }
             })
 
             this._keyboardElement.addEventListener("keydown", (evt) => {
@@ -132,20 +127,12 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
                     this.setState({
                         isDeadKey: true
                     })
-
                     return
                 }
 
-                if (this.state.isDeadKey) {
-                    console.log("After dead key:" this._keyboardElement.value)
-
-                    this.setState({
-                        isDeadKey: false,
-                    })
-                } else if (!this.state.isComposing) {
+                if (!this.state.isComposing && !this.state.isDeadKey) {
                     const key = keyEventToVimKey(evt)
-                    this.props.onKeyDown(key)
-                    this._keyboardElement.value = ""
+                    this._commit(key)
                 }
             })
 
@@ -154,19 +141,31 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
         }
     }
 
+    private _commit(val: string): void {
+        this.setState({
+            isComposing: false,
+            isDeadKey: false,
+        })
+
+        this._keyboardElement.value = ""
+        this.props.onKeyDown(val)
+    }
+
     public render(): JSX.Element {
 
-        const opacity = this.state.isComposing || this.state.isDeadKey ? 1.0 : 0.1
+        const opacity = this.state.isComposing || this.state.isDeadKey ? 0.8 : 0
 
         const style: React.CSSProperties = {
             position: "absolute",
             top: this.props.top.toString() + "px",
             left: this.props.left.toString() + "px",
             height: this.props.height.toString() + "px",
-            backgroundColor: "yellow",
+            width: "100px",
+            backgroundColor: "transparent",
             padding: "0px",
             color: this.props.foregroundColor,
-            border: "0px",
+            border: "1px solid " + this.props.foregroundColor,
+            marginTop: "-1px",
             outline: "none",
             font: "inherit",
             opacity,
@@ -175,7 +174,6 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
         return <input
             style={style}
             ref={(elem) => this._keyboardElement = elem}
-            // value={this.state.composingText}
             type="text" />
     }
 }
@@ -189,7 +187,6 @@ const mapStateToProps = (state: IState, originalProps: Partial<IKeyboardInputVie
         top: state.cursorPixelY,
         left: state.cursorPixelX,
         height: state.fontPixelHeight,
-        backgroundColor: state.backgroundColor,
         foregroundColor: state.foregroundColor,
     }
 }
