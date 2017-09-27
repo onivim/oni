@@ -115,29 +115,28 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
                 }
             })
 
-            this._keyboardElement.addEventListener("keydown", (evt) => {
-
-                // 'Process' means hand-off to the IME -
-                // so the composition events should handle this
-                if (evt.key === "Process") {
-                    return
-                }
-
-                if (evt.key === "Dead") {
-                    this.setState({
-                        isDeadKey: true,
-                    })
-                    return
-                }
-
-                if (!this.state.isComposing && !this.state.isDeadKey) {
-                    const key = keyEventToVimKey(evt)
-                    this._commit(key)
-                }
-            })
-
             this._keyboardElement.focus()
 
+        }
+    }
+
+    private _onKeyDown(evt: any) {
+        // 'Process' means hand-off to the IME -
+        // so the composition events should handle this
+        if (evt.key === "Process") {
+            return
+        }
+
+        if (evt.key === "Dead") {
+            this.setState({
+                isDeadKey: true,
+            })
+            return
+        }
+
+        if (!this.state.isComposing && !this.state.isDeadKey) {
+            const key = keyEventToVimKey(evt)
+            this._commit(key)
         }
     }
 
@@ -165,7 +164,8 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
         return <input
             style={style}
             ref={(elem) => this._keyboardElement = elem}
-            type={inputType}/>
+            type={inputType}
+            onKeyDown={(evt) => this._onKeyDown(evt)}/>
     }
 
     private _commit(val: string): void {

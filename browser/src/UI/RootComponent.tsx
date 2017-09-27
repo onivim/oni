@@ -7,13 +7,16 @@ import StatusBar from "./components/StatusBar"
 
 import { IEditor } from "./../Editor/Editor"
 
+import { keyEventToVimKey } from "./../Input/Keyboard"
+import { inputManager } from "./../Services/InputManager"
+
 interface IRootComponentProps {
     editor: IEditor
 }
 
 export class RootComponent extends React.PureComponent<IRootComponentProps, void> {
     public render() {
-        return <div className="stack disable-mouse">
+        return <div className="stack disable-mouse" onKeyDownCapture={(evt) => this._onRootKeyDown(evt)}>
             <div className="stack">
                 <Background />
             </div>
@@ -33,5 +36,13 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
                 </div>
             </div>
         </div>
+    }
+
+    private _onRootKeyDown(evt: any): void {
+        const vimKey = keyEventToVimKey(evt)
+        if (inputManager.handleKey(vimKey)) {
+            evt.stopPropagation()
+            evt.preventDefault()
+        }
     }
 }

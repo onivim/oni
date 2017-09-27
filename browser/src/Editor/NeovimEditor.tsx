@@ -37,7 +37,6 @@ import { InstallHelp } from "./../UI/components/InstallHelp"
 
 import { NeovimSurface } from "./NeovimSurface"
 
-import { inputManager } from "./../Services/InputManager"
 import { tasks } from "./../Services/Tasks"
 
 import { normalizePath } from "./../Utility"
@@ -366,10 +365,6 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onKeyDown(key: string): void {
-        if (inputManager.handleKey(key)) {
-            return
-        }
-
         this._neovimInstance.input(key)
     }
 }
