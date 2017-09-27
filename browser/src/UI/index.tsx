@@ -59,8 +59,3 @@ function render(_state: State.IState, pluginManager: PluginManager, args: any): 
             <RootComponent editor={editor} />
         </Provider>, hostElement)
 }
-
-if (process.env.NODE_ENV === "development") {
-    const Perf = require("react-addons-perf") // tslint:disable-line no-var-requires
-    window["ReactPerf"] = Perf // tslint:disable-line no-string-literal
-}
