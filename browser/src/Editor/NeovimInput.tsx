@@ -12,7 +12,7 @@ import { NeovimScreen } from "./../Screen"
 
 import * as UI from "./../UI/index"
 
-// import { Keyboard } from "./../Input/Keyboard"
+import { keyEventToVimKey } from "./../Input/Keyboard"
 import { Mouse } from "./../Input/Mouse"
 // import { keyEventToVim } from "./../Input/Keyboard"
 
@@ -88,7 +88,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
         this.state = {
             composingText: "",
             isComposing: false,
-            isDeadKey: false
+            isDeadKey: false,
         }
     }
 
@@ -115,6 +115,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
                 this.setState({
                     isComposing: false,
+                    isDeadKey: false,
                     composingText: ""
                 })
             })
@@ -129,25 +130,23 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
                 if (evt.key === "Dead") {
                     this.setState({
-                        isComposing: true
+                        isDeadKey: true
                     })
 
                     return
                 }
 
-                // if (!this.state.isComposing) {
-                //     const key = keyEventToVim(evt)
-                //     this.props.onKeyDown(key)
+                if (this.state.isDeadKey) {
+                    console.log("After dead key:" this._keyboardElement.value)
 
-                //     this.setState({
-                //         isComposing: false,
-                //         composingText: "",
-                //     })
-                // } else {
-                //     this.setState({
-                //         composingText: this.state.composingText + evt.key
-                //     })
-                // }
+                    this.setState({
+                        isDeadKey: false,
+                    })
+                } else if (!this.state.isComposing) {
+                    const key = keyEventToVimKey(evt)
+                    this.props.onKeyDown(key)
+                    this._keyboardElement.value = ""
+                }
             })
 
             this._keyboardElement.focus()
@@ -157,7 +156,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
     public render(): JSX.Element {
 
-        const opacity = this.state.isComposing ? 1.0 : 0.1
+        const opacity = this.state.isComposing || this.state.isDeadKey ? 1.0 : 0.1
 
         const style: React.CSSProperties = {
             position: "absolute",
