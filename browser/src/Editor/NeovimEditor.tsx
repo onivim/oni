@@ -202,7 +202,6 @@ export class NeovimEditor implements IEditor {
         this._onConfigChanged()
         this._config.onConfigChanged.subscribe(() => this._onConfigChanged())
 
-
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
         window["__screen"] = this._screen // tslint:disable-line no-string-literal
 

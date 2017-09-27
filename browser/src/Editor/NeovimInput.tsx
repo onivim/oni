@@ -6,7 +6,6 @@
 
 import * as React from "react"
 
-
 import { NeovimInstance } from "./../neovim"
 import { NeovimScreen } from "./../Screen"
 
@@ -50,6 +49,7 @@ export interface IKeyboardInputViewProps {
     height: number
     onKeyDown?: (key: string) => void
     foregroundColor: string
+    imeEnabled: boolean
 }
 
 export interface IKeyboardInputViewState {
@@ -95,7 +95,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
             this._keyboardElement.addEventListener("compositionstart", (evt) => {
                 this.setState({
-                    isComposing: true
+                    isComposing: true,
                 })
             })
 
@@ -117,7 +117,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
             this._keyboardElement.addEventListener("keydown", (evt) => {
 
-                // 'Process' means hand-off to the IME - 
+                // 'Process' means hand-off to the IME -
                 // so the composition events should handle this
                 if (evt.key === "Process") {
                     return
@@ -125,7 +125,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
                 if (evt.key === "Dead") {
                     this.setState({
-                        isDeadKey: true
+                        isDeadKey: true,
                     })
                     return
                 }
@@ -169,6 +169,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             outline: "none",
             font: "inherit",
             opacity,
+            imeMode: this.props.imeEnabled ? "normal" : "disabled",
         }
 
         return <input
@@ -188,8 +189,9 @@ const mapStateToProps = (state: IState, originalProps: Partial<IKeyboardInputVie
         left: state.cursorPixelX,
         height: state.fontPixelHeight,
         foregroundColor: state.foregroundColor,
+        imeEnabled: state.mode === "insert",
     }
 }
 
 const KeyboardInput = connect(mapStateToProps)(KeyboardInputView)
-
+
