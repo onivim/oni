@@ -160,22 +160,23 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             top: this.props.top.toString() + "px",
             left: this.props.left.toString() + "px",
             height: this.props.height.toString() + "px",
-            width: "100px",
+            width: "100%",
             backgroundColor: "transparent",
             padding: "0px",
             color: this.props.foregroundColor,
-            border: "1px solid " + this.props.foregroundColor,
-            marginTop: "-1px",
+            border: "0px",
             outline: "none",
             font: "inherit",
-            opacity,
-            imeMode: this.props.imeEnabled ? "normal" : "disabled",
+            opacity
         }
+
+        // IME is disabled for 'password' type fields
+        const inputType = this.props.imeEnabled ? "text" : "password"
 
         return <input
             style={style}
             ref={(elem) => this._keyboardElement = elem}
-            type="text" />
+            type={inputType}/>
     }
 }
 
