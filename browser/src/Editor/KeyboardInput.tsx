@@ -56,51 +56,7 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
 
     public componentDidMount(): void {
         if (this._keyboardElement) {
-
-            this._keyboardElement.addEventListener("compositionstart", (evt) => {
-                this.setState({
-                    isComposing: true,
-                })
-            })
-
-            this._keyboardElement.addEventListener("compositionend", (evt) => {
-                this._commit(this._keyboardElement.value)
-            })
-
-            this._keyboardElement.addEventListener("input", (evt) => {
-                const valueLength = this._keyboardElement.value.length
-
-                if (!this.state.isComposing && valueLength > 0) {
-                    this._commit(this._keyboardElement.value)
-                }
-            })
-
             focusManager.pushFocus(this._keyboardElement)
-        }
-    }
-
-    private _onKeyDown(evt: React.KeyboardEvent<HTMLInputElement>) {
-        // 'Process' means hand-off to the IME -
-        // so the composition events should handle this
-        if (evt.key === "Process" || evt.key === "Dead") {
-            return
-        }
-
-        // TODO: Consolidate this logic
-        if (!this.props.imeEnabled) {
-            const key = keyEventToVimKey(evt.nativeEvent)
-            this._commit(key)
-            evt.preventDefault()
-            return
-        }
-
-        if (!this.state.isComposing) {
-            const key = keyEventToVimKey(evt.nativeEvent)
-
-            if (key && key.length > 1) {
-                this._commit(key)
-                evt.preventDefault()
-            }
         }
     }
 
@@ -130,7 +86,56 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             style={style}
             ref={(elem) => this._keyboardElement = elem}
             type={inputType}
-            onKeyDown={(evt) => this._onKeyDown(evt)}/>
+            onKeyDown={(evt) => this._onKeyDown(evt)}
+            onCompositionEnd={(evt) => this._onCompositionEnd(evt)}
+            onCompositionStart={(evt) => this._onCompositionStart(evt)}
+            onInput={(evt) => this._onInput(evt)}/>
+    }
+
+    private _onKeyDown(evt: React.KeyboardEvent<HTMLInputElement>) {
+        // 'Process' means hand-off to the IME -
+        // so the composition events should handle this
+        if (evt.key === "Process" || evt.key === "Dead") {
+            return
+        }
+
+        const key = keyEventToVimKey(evt.nativeEvent)
+
+        if (!key) {
+            return
+        }
+
+        const imeDisabled = !this.props.imeEnabled
+        const isMetaCommand = key.length > 1
+
+        // If ime is disabled, always pass the key event through...
+        // Otherwise, we'll let the `input` handler take care of it,
+        // unless it is a keystroke containing meta characters
+        if (imeDisabled || isMetaCommand) {
+            this._commit(key)
+            evt.preventDefault()
+            return
+        }
+    }
+
+    private _onCompositionStart(evt: React.CompositionEvent<HTMLInputElement>) {
+        this.setState({
+            isComposing: true,
+        })
+    }
+
+    private _onCompositionEnd(evt: React.CompositionEvent<HTMLInputElement>) {
+        if (this._keyboardElement) {
+            this._commit(this._keyboardElement.value)
+        }
+    }
+
+    private _onInput(evt: React.FormEvent<HTMLInputElement>) {
+        const valueLength = this._keyboardElement.value.length
+
+        if (!this.state.isComposing && valueLength > 0) {
+            this._commit(this._keyboardElement.value)
+        }
     }
 
     private _commit(val: string): void {

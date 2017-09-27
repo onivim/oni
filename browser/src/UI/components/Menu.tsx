@@ -33,7 +33,7 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
     private _inputElement: HTMLInputElement = null as any // FIXME: null
 
     public componentWillUpdate(newProps: Readonly<IMenuProps>): void {
-        if (newProps.visible !== this.props.visible 
+        if (newProps.visible !== this.props.visible
             && !newProps.visible
             && this._inputElement) {
             focusManager.popFocus(this._inputElement)

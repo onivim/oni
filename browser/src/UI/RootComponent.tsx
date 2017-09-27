@@ -6,10 +6,9 @@ import { MenuContainer } from "./components/Menu"
 import StatusBar from "./components/StatusBar"
 
 import { IEditor } from "./../Editor/Editor"
-
 import { keyEventToVimKey } from "./../Input/Keyboard"
-import { inputManager } from "./../Services/InputManager"
 import { focusManager } from "./../Services/FocusManager"
+import { inputManager } from "./../Services/InputManager"
 
 interface IRootComponentProps {
     editor: IEditor

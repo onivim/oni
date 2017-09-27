@@ -1,6 +1,6 @@
-/**
+/*
  * FocusManager.ts
-*/
+ */
 
 class FocusManager {
 
@@ -21,8 +21,9 @@ class FocusManager {
 
     public enforceFocus(): void {
 
-        if (this._focusElementStack.length === 0)
+        if (this._focusElementStack.length === 0) {
             return
+        }
 
         const activeElement = this._focusElementStack[0]
         if (activeElement !== document.activeElement) {
@@ -30,6 +31,5 @@ class FocusManager {
         }
     }
 }
-
 
 export const focusManager = new FocusManager()
