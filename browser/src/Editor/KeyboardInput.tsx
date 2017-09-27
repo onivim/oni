@@ -99,6 +99,10 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             return
         }
 
+        if (this.state.isComposing) {
+            return
+        }
+
         const key = keyEventToVimKey(evt.nativeEvent)
 
         if (!key) {
