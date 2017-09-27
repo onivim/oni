@@ -146,6 +146,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             border: "0px",
             outline: "none",
             font: "inherit",
+            pointerEvents: "none",
             opacity,
         }
 
