@@ -32,7 +32,6 @@ interface IKeyboardInputViewState {
 
 export interface IKeyboardInputProps {
     onKeyDown?: (key: string) => void
-    imeEnabled: boolean
 }
 
 /**
