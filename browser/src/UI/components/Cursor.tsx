@@ -26,6 +26,7 @@ class CursorRenderer extends React.PureComponent<ICursorProps, void> {
         const fontSize = this.props.fontSize
 
         const isInsertCursor = this.props.mode === "insert" || this.props.mode === "cmdline_normal"
+        const height = this.props.height.toString() + "px"
         const width = isInsertCursor ? this.props.width / 4 : this.props.width
         const characterToShow = isInsertCursor ? "" : this.props.character
 
@@ -34,7 +35,8 @@ class CursorRenderer extends React.PureComponent<ICursorProps, void> {
             left: this.props.x.toString() + "px",
             top: this.props.y.toString() + "px",
             width: width.toString() + "px",
-            height: this.props.height.toString() + "px",
+            height,
+            lineHeight: height,
             backgroundColor: this.props.color,
             color: this.props.textColor,
             fontFamily,

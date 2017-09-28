@@ -19,22 +19,6 @@ export interface KeyBindingMap {
 export class InputManager implements Oni.InputManager {
 
     private _boundKeys: KeyBindingMap = {}
-    private _isCapturing: boolean = false
-
-    public stopCapture(): void {
-        this._isCapturing = false
-    }
-
-    /**
-     * Capture in this case means to prevent
-     * events from bubbling up to Neovim / active editor.
-     *
-     * This should be called when a UI element needs
-     * exclusive control of input (ie, a separate textbox)
-     */
-    public startCapture(): void {
-        this._isCapturing = true
-    }
 
     /**
      * API Methods
@@ -75,7 +59,7 @@ export class InputManager implements Oni.InputManager {
     // false otherwise.
     public handleKey(keyChord: string): boolean {
         if (!this._boundKeys[keyChord]) {
-            return this._isCapturing
+            return false
         }
 
         const boundKey = this._boundKeys[keyChord]
@@ -104,11 +88,7 @@ export class InputManager implements Oni.InputManager {
             }
         }
 
-        if (this._isCapturing) {
-            return true
-        } else {
-            return false
-        }
+        return false
     }
 }
 
