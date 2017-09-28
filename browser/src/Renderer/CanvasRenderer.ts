@@ -6,6 +6,8 @@ import { INeovimRenderer } from "./INeovimRenderer"
 
 import { getSpansToEdit, ISpan } from "./Span"
 
+import * as Config from "./../Config"
+
 export interface IRenderState {
     isWhitespace: boolean
     foregroundColor: string
@@ -224,7 +226,7 @@ export class CanvasRenderer implements INeovimRenderer {
 
         if (!state.isWhitespace) {
             this._canvasContext.fillStyle = foregroundColor
-            this._canvasContext.fillText(text, startX * fontWidth, y * fontHeight)
+            this._canvasContext.fillText(text, startX * fontWidth, y * fontHeight + Config.instance().getValue("editor.linePadding") / 2)
         }
 
         // Commit span dimensions to grid

@@ -336,7 +336,7 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onConfigChanged(): void {
-        this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
+        this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"), this._config.getValue("editor.linePadding"))
         this._onUpdate()
         this._scheduleRender()
     }
