@@ -30,4 +30,3 @@ export const keyEventToVimKey = (evt: KeyboardEvent): string | null => {
 
     return mappedKey
 }
-
