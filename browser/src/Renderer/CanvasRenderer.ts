@@ -216,13 +216,16 @@ export class CanvasRenderer implements INeovimRenderer {
         const fontWidth = screenInfo.fontWidthInPixels
         const fontHeight = screenInfo.fontHeightInPixels
 
+        const boundsStartX = Math.floor(startX * fontWidth)
+        const boundsWidth = Math.ceil(state.width * fontWidth)
+
         if (backgroundColor && backgroundColor !== screenInfo.backgroundColor) {
 
             this._canvasContext.fillStyle = backgroundColor
             // TODO: Width of non-english characters
-            this._canvasContext.fillRect(startX * fontWidth, y * fontHeight, state.width * fontWidth, fontHeight)
+            this._canvasContext.fillRect(boundsStartX, y * fontHeight, boundsWidth, fontHeight)
         } else {
-            this._canvasContext.clearRect(startX * fontWidth, y * fontHeight, state.width * fontWidth, fontHeight)
+            this._canvasContext.clearRect(boundsStartX, y * fontHeight, boundsWidth, fontHeight)
         }
 
         if (!state.isWhitespace) {
