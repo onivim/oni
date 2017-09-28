@@ -31,7 +31,7 @@ export class Event<T> implements IEvent<T> {
         return { dispose }
     }
 
-    public dispatch(val: T): void {
+    public dispatch(val?: T): void {
         this._eventObject.emit(this._name, val)
     }
 }
