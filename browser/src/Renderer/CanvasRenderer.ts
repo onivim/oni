@@ -216,8 +216,8 @@ export class CanvasRenderer implements INeovimRenderer {
         const fontWidth = screenInfo.fontWidthInPixels
         const fontHeight = screenInfo.fontHeightInPixels
 
-        const boundsStartX = Math.floor(startX * fontWidth)
-        const boundsWidth = Math.ceil(state.width * fontWidth)
+        const boundsStartX = startX * fontWidth
+        const boundsWidth = state.width * fontWidth
 
         if (backgroundColor && backgroundColor !== screenInfo.backgroundColor) {
 

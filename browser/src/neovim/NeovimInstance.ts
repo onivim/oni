@@ -262,7 +262,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._fontFamily = fontFamily
         this._fontSize = fontSize
 
-        const { width, height } = measureFont(this._fontFamily, this._fontSize)
+        const { width, height, kerning } = measureFont(this._fontFamily, this._fontSize)
+
+        document.body.style.letterSpacing = kerning.toString() + "px"
 
         this._fontWidthInPixels = width
         this._fontHeightInPixels = height + linePadding

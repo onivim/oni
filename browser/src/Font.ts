@@ -3,6 +3,9 @@ export const FallbackFonts = "Consolas,Monaco,Liberation Mono,DejaVu Sans Mono,B
 export interface IFontMeasurement {
     width: number
     height: number
+
+    // Additional space to put between characters
+    kerning: number
 }
 
 export function measureFont(fontFamily: string, fontSize: string, characterToTest?: string) {
@@ -19,6 +22,7 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
     div.textContent = "H"
     div.style.fontFamily = `${fontFamily},${FallbackFonts}`
     div.style.fontSize = fontSize
+    div.style.letterSpacing = "0px"
 
     document.body.appendChild(div)
 
@@ -27,8 +31,12 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
     const width = rect.width
     const height = rect.height
 
+    // Due to issues with subpixel rendering, we want to round the width to the nearest quarter pixel
+    const normalizedWidth = Math.round(width)
+
     return {
-        width,
+        width: normalizedWidth,
         height,
+        kerning: normalizedWidth - width,
     }
 }
