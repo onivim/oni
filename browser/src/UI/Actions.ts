@@ -20,6 +20,13 @@ export interface ISetCurrentBuffersAction {
     }
 }
 
+export interface ISetImeActive {
+    type: "SET_IME_ACTIVE",
+    payload: {
+        imeActive: boolean,
+    }
+}
+
 export interface IBufferEnterAction {
     type: "BUFFER_ENTER",
     payload: {
@@ -265,6 +272,7 @@ export type SimpleAction =
     IBufferSaveAction |
     IBufferUpdateAction |
     ISetCursorPositionAction |
+    ISetImeActive |
     IShowSignatureHelpAction |
     IHideSignatureHelpAction |
     IShowQuickInfoAction |

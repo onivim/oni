@@ -59,6 +59,13 @@ export const setCurrentBuffers = (bufferIds: number[]) => ({
     },
 })
 
+export const setImeActive = (imeActive: boolean) => ({
+    type: "SET_IME_ACTIVE",
+    payload: {
+        imeActive,
+    },
+})
+
 export const setTabs = (selectedTabId: number, tabs: State.ITab[]): Actions.ISetTabs => ({
     type: "SET_TABS",
     payload: {

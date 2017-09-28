@@ -14,6 +14,8 @@ import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { IState } from "./../UI/State"
 
+import * as UI from "./../UI"
+
 interface IKeyboardInputViewProps {
     top: number
     left: number
@@ -69,9 +71,9 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             left: this.props.left.toString() + "px",
             height: this.props.height.toString() + "px",
             width: "100%",
-            backgroundColor: "transparent",
+            backgroundColor: "white",
             padding: "0px",
-            color: this.props.foregroundColor,
+            color: "black",
             border: "0px",
             outline: "none",
             font: "inherit",
@@ -88,6 +90,7 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             type={inputType}
             onKeyDown={(evt) => this._onKeyDown(evt)}
             onCompositionEnd={(evt) => this._onCompositionEnd(evt)}
+            onCompositionUpdate={(evt) => this._onCompositionUpdate(evt)}
             onCompositionStart={(evt) => this._onCompositionStart(evt)}
             onInput={(evt) => this._onInput(evt)}/>
     }
@@ -123,12 +126,21 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
     }
 
     private _onCompositionStart(evt: React.CompositionEvent<HTMLInputElement>) {
+        UI.Actions.setImeActive(true)
         this.setState({
             isComposing: true,
         })
     }
 
+    private _onCompositionUpdate(evt: React.CompositionEvent<HTMLInputElement>) {
+        if (this._keyboardElement) {
+            console.log(this._keyboardElement.value)
+            this._keyboardElement.size = this._keyboardElement.value.length + 1
+        }
+    }
+
     private _onCompositionEnd(evt: React.CompositionEvent<HTMLInputElement>) {
+        UI.Actions.setImeActive(false)
         if (this._keyboardElement) {
             this._commit(this._keyboardElement.value)
         }

@@ -32,6 +32,7 @@ export interface IState {
     cursorColumnVisible: boolean
     cursorColumnOpacity: number
     configuration: Config.IConfigValues
+    imeActive: boolean
 
     statusBar: { [id: string]: IStatusBarItem }
 
@@ -166,6 +167,7 @@ export interface IAutoCompletionInfo {
      */
     selectedIndex: number
 }
+
 export const createDefaultState = (): IState => ({
     cursorPixelX: 10,
     cursorPixelY: 10,
@@ -173,6 +175,7 @@ export const createDefaultState = (): IState => ({
     cursorCharacter: "",
     fontPixelWidth: 10,
     fontPixelHeight: 10,
+    imeActive: false,
     mode: "normal",
     foregroundColor: "rgba(0, 0, 0, 0)",
     autoCompletion: null,
