@@ -246,7 +246,7 @@ export class Config {
         if (typeof this._config[configValue] === "undefined") {
             return defaultValue
         } else {
-            return this._config[configValue] || defaultValue
+            return this._config[configValue]
         }
     }
 
