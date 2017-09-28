@@ -16,7 +16,7 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
     div.style.left = "-1000px"
     div.style.top = "-1000px"
 
-    div.textContent = "H"
+    div.textContent = characterToTest
     div.style.fontFamily = `${fontFamily},${FallbackFonts}`
     div.style.fontSize = fontSize
 
