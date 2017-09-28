@@ -14,6 +14,7 @@ import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { IState } from "./../UI/State"
 
+import { measureFont } from "./../Font"
 import * as UI from "./../UI"
 
 interface IKeyboardInputViewProps {
@@ -70,7 +71,6 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             top: this.props.top.toString() + "px",
             left: this.props.left.toString() + "px",
             height: this.props.height.toString() + "px",
-            width: "100%",
             backgroundColor: "white",
             padding: "0px",
             color: "black",
@@ -134,8 +134,13 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
 
     private _onCompositionUpdate(evt: React.CompositionEvent<HTMLInputElement>) {
         if (this._keyboardElement) {
-            console.log(this._keyboardElement.value)
-            this._keyboardElement.size = this._keyboardElement.value.length + 1
+            // console.log(this._keyboardElement.value)
+            // this._keyboardElement.size = this._keyboardElement.value.length + 1
+
+            window.setTimeout(() => {
+                const measurements = measureFont("Fira Code", "9pt", this._keyboardElement.value)
+                this._keyboardElement.style.width = measurements.width + "px"
+            }, 0)
         }
     }
 
