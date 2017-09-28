@@ -8,6 +8,7 @@ var fs = require("fs")
 var processOptions = {}
 processOptions.detached = true
 processOptions.stdio = ["ignore", null, null]
+processOptions.env = Object.assign({}, process.env, { "LOCAL_ONI": 1 })
 
 var isWindows = os.platform() === "win32";
 
