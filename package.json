@@ -48,7 +48,7 @@
     },
     "linux": {
       "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
-      "maintainer": "extropy@extropygames.com",
+      "maintainer": "bryphe@outlook.com",
       "target": [
         "tar.gz",
         "deb",
