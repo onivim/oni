@@ -29,10 +29,11 @@ artifacts:
 
 deploy:
     provider: GitHub
+    repository: bryphe/oni
     auth_token:
         secure: 7+dYCBtYLMoaH4xvTno1mAw8mb4CPFYAcosPI8kRTmcqYKehzmhpChU825uGdaB6
     draft: false
-    prerelease: true
+    prerelease: false
     force_update: true
     on:
         appveyor_repo_tag: true
