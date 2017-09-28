@@ -1,4 +1,5 @@
 import { Event, IEvent } from "./../../Event"
+import * as Log from "./../../Log"
 
 export interface IKeyMap {
     [key: string]: IKeyInfo
@@ -26,15 +27,15 @@ class KeyboardLayoutManager {
     public getCurrentKeyMap(): IKeyMap {
         if (!this._keyMap) {
             const KeyboardLayout = require("keyboard-layout") // tslint:disable-line no-var-requires
+            Log.verbose("[Keyboard Layout] " + KeyboardLayout.getCurrentKeyboardLayout())
             this._keyMap = KeyboardLayout.getCurrentKeymap()
 
             // Lazily subscribe to the KeyboardLayout.onDidChangeCurrentKeyboardLayout
             // This is lazy primarily for unit testing outside of electron (where this module isn't available)
-            KeyboardLayout.onDidChangeCurrentKeyboardLayout((layout: any) => {
-                if (layout) {
-                    this._keyMap = layout
-                    this._onKeyMapChanged.dispatch()
-                }
+            KeyboardLayout.onDidChangeCurrentKeyboardLayout((newLayout: string) => {
+                Log.verbose("[Keyboard Layout] " + newLayout)
+                this._keyMap = KeyboardLayout.getCurrentKeymap()
+                this._onKeyMapChanged.dispatch()
             })
         }
 
