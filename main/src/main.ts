@@ -157,13 +157,8 @@ function focusNextInstance(direction) {
 }
 
 function loadFileFromArguments(platform, args, workingDirectory) {
-    const windowsOpenWith = platform === "win32" &&
-                            args[0].split("\\").pop() === "Oni.exe"
-
-    const macOpenWith = platform === "darwin" &&
-                            args[0].indexOf("Oni.app") >= 0
-
-    if (windowsOpenWith || macOpenWith) {
+    const localOni = "LOCAL_ONI"
+    if (!process.env[localOni]) {
         createWindow(args.slice(1), workingDirectory)
     } else {
         createWindow(args.slice(2), workingDirectory)
