@@ -204,14 +204,14 @@ export class Config {
 
     private DefaultPlatformConfig = Platform.isWindows() ? this.WindowsConfig : Platform.isLinux() ? this.LinuxConfig : this.MacConfig
 
-    private _onConfigChangedEvent: Event<Partial<IConfigValues>> = new Event<Partial<IConfigValues>>()
+    private _onConfigurationChangedEvent: Event<Partial<IConfigValues>> = new Event<Partial<IConfigValues>>()
 
     private _oniApi: Oni.Plugin.Api = null
 
     private _config: IConfigValues = null
 
-    public get onConfigChanged(): IEvent<Partial<IConfigValues>> {
-        return this._onConfigChangedEvent
+    public get onConfigurationChanged(): IEvent<Partial<IConfigValues>> {
+        return this._onConfigurationChangedEvent
     }
 
     constructor() {
@@ -242,8 +242,12 @@ export class Config {
         return !!this.getValue(configValue)
     }
 
-    public getValue<K extends keyof IConfigValues>(configValue: K) {
-        return this._config[configValue]
+    public getValue<K extends keyof IConfigValues>(configValue: K, defaultValue?: any) {
+        if (typeof this._config[configValue] === "undefined") {
+            return defaultValue
+        } else {
+            return this._config[configValue] || defaultValue
+        }
     }
 
     public getValues(): IConfigValues {
@@ -338,7 +342,7 @@ export class Config {
             }
         }, {})
 
-        this._onConfigChangedEvent.dispatch(diffObject)
+        this._onConfigurationChangedEvent.dispatch(diffObject)
     }
 }
 

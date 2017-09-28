@@ -4,7 +4,6 @@ import { EventEmitter } from "events"
 import { IPluginChannel } from "./Channel"
 
 import { Commands } from "./Commands"
-import { Configuration } from "./Configuration"
 import { Diagnostics } from "./Diagnostics"
 import { StatusBar } from "./StatusBar"
 
@@ -18,6 +17,7 @@ import { Ui } from "./Ui"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 
+import * as Config from "./../../Config"
 import * as Log from "./../../Log"
 
 import * as throttle from "lodash/throttle"
@@ -39,7 +39,6 @@ const helpers = {
  */
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
-    private _configuration: Oni.Configuration
     private _dependencies: Dependencies
     private _statusBar: StatusBar
     private _commands: Commands
@@ -58,7 +57,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     public get configuration(): Oni.Configuration {
-        return this._configuration
+        return Config.instance()
     }
 
     public get diagnostics(): Oni.Plugin.Diagnostics.Api {
@@ -100,7 +99,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     constructor(private _channel: IPluginChannel) {
         super()
 
-        this._configuration = new Configuration()
         this._diagnostics = new Diagnostics(this._channel)
         this._dependencies = new Dependencies()
         this._commands = new Commands(this._channel)

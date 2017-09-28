@@ -201,8 +201,8 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.executeAutoCommand("FocusGained")
         })
 
-        this._onConfigChanged()
-        this._config.onConfigChanged.subscribe(() => this._onConfigChanged())
+        this._onConfigChanged(this._config.getValues())
+        this._config.onConfigurationChanged.subscribe((newValues: Partial<Config.IConfigValues>) => this._onConfigChanged(newValues))
 
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
         window["__screen"] = this._screen // tslint:disable-line no-string-literal
@@ -336,11 +336,11 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    private _onConfigChanged(): void {
+    private _onConfigChanged(newValues: Partial<Config.IConfigValues>): void {
         this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
 
         if (this._hasLoaded) {
-            VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+            VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, newValues)
         }
 
         this._onUpdate()
