@@ -3,11 +3,19 @@ import * as Log from "./../../Log"
 import { keyboardLayout } from "./KeyboardLayout"
 import { createMetaKeyResolver, ignoreMetaKeyResolver, KeyResolver, remapResolver  } from "./Resolvers"
 
-const resolvers: KeyResolver[] = [
-    ignoreMetaKeyResolver,
-    remapResolver,
-    createMetaKeyResolver(keyboardLayout.getCurrentKeyMap()),
-]
+const rebuildResolvers = (): KeyResolver[] => {
+    return [
+        ignoreMetaKeyResolver,
+        remapResolver,
+        createMetaKeyResolver(keyboardLayout.getCurrentKeyMap()),
+    ]
+}
+
+let resolvers: KeyResolver[] = rebuildResolvers()
+
+keyboardLayout.onKeyMapChanged.subscribe(() => {
+    resolvers = rebuildResolvers()
+})
 
 export const keyEventToVimKey = (evt: KeyboardEvent): string | null => {
     const mappedKey = resolvers.reduce((prev: string, current) => {
