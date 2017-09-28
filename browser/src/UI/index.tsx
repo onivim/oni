@@ -15,6 +15,7 @@ import * as UnboundSelectors from "./Selectors"
 import * as State from "./State"
 
 import { editorManager } from "./../Services/EditorManager"
+import { focusManager } from "./../Services/FocusManager"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
@@ -60,7 +61,4 @@ function render(_state: State.IState, pluginManager: PluginManager, args: any): 
         </Provider>, hostElement)
 }
 
-if (process.env.NODE_ENV === "development") {
-    const Perf = require("react-addons-perf") // tslint:disable-line no-var-requires
-    window["ReactPerf"] = Perf // tslint:disable-line no-string-literal
-}
+document.body.addEventListener("click", () => focusManager.enforceFocus())

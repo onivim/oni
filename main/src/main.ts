@@ -2,32 +2,30 @@ import * as path from "path"
 
 import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
+import * as Log from "./Log"
 import { buildMenu } from "./menu"
+import { makeSingleInstance } from "./ProcessLifecycle"
+
+global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 
 const isDevelopment = process.env.NODE_ENV === "development"
-
-const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
-
-import * as Log from "./Log"
-
-// import * as derp from "./installDevTools"
 
 ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
     const destinationWebContents = webContents.fromId(destinationId)
 
-    log(`sending message to destinationId: ${destinationId}`)
+    Log.info(`sending message to destinationId: ${destinationId}`)
     destinationWebContents.send("cross-browser-ipc", arg)
 })
 
 ipcMain.on("focus-next-instance", () => {
-    log("focus-next-instance")
+    Log.info("focus-next-instance")
     focusNextInstance(1)
 })
 
 ipcMain.on("focus-previous-instance", () => {
-    log("focus-previous-instance")
+    Log.info("focus-previous-instance")
     focusNextInstance(-1)
 })
 
@@ -38,18 +36,29 @@ let windows = []
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
 if (!isDevelopment && !isDebug) {
-    const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
-        loadFileFromArguments(process.platform, commandLine, workingDirectory)
-    })
 
-    if (shouldQuit) {
-        app.quit()
-        process.exit()
+    const currentOptions = {
+        args: process.argv,
+        workingDirectory: process.env["ONI_CWD"] || process.cwd(), // tslint:disable-line no-string-literal
     }
+
+    Log.info("Making single instance...")
+    makeSingleInstance(currentOptions, (options) => {
+        Log.info("Creating single instance")
+        loadFileFromArguments(process.platform, options.args, options.workingDirectory)
+    })
+} else {
+    // This method will be called when Electron has finished
+    // initialization and is ready to create browser windows.
+    // Some APIs can only be used after this event occurs.
+    app.on("ready", () => {
+        require("./installDevTools")
+        loadFileFromArguments(process.platform, process.argv, process.cwd())
+    })
 }
 
 function createWindow(commandLineArguments, workingDirectory) {
-    log(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
+    Log.info(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
 
     const webPreferences = {
         blinkFeatures: "ResizeObserver",
@@ -57,7 +66,7 @@ function createWindow(commandLineArguments, workingDirectory) {
 
     const rootPath = path.join(__dirname, "..", "..", "..")
     const iconPath = path.join(rootPath, "images", "oni.ico")
-    const indexPath = path.join(rootPath, "index.html")
+    const indexPath = path.join(rootPath, "index.html?react_perf")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
     let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: iconPath, webPreferences })
@@ -99,17 +108,6 @@ function createWindow(commandLineArguments, workingDirectory) {
     windows.push(mainWindow)
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on("ready", () => {
-    if (isDebug || isDevelopment) {
-        require("./installDevTools")
-    }
-
-    loadFileFromArguments(process.platform, process.argv, process.cwd())
-})
-
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
     // On OS X it is common for applications and their menu bar
@@ -142,7 +140,7 @@ function focusNextInstance(direction) {
     const currentFocusedWindows = windows.filter(f => f.isFocused())
 
     if (currentFocusedWindows.length === 0) {
-        log("No window currently focused")
+        Log.info("No window currently focused")
         return
     }
 
@@ -154,21 +152,13 @@ function focusNextInstance(direction) {
         newFocusWindowIdx = windows.length - 1
     }
 
-    log(`Focusing index: ${newFocusWindowIdx}`)
+    Log.info(`Focusing index: ${newFocusWindowIdx}`)
     windows[newFocusWindowIdx].focus()
 }
 
-function log(message) {
-    if (isVerbose) {
-        Log.info(message)
-    }
-}
-
 function loadFileFromArguments(platform, args, workingDirectory) {
-    const windowsOpenWith = platform === "win32" &&
-                            args[0].split("\\").pop() === "Oni.exe"
-
-    if (windowsOpenWith) {
+    const localOni = "LOCAL_ONI"
+    if (!process.env[localOni]) {
         createWindow(args.slice(1), workingDirectory)
     } else {
         createWindow(args.slice(2), workingDirectory)

@@ -31,14 +31,12 @@ import { WindowTitle } from "./../Services/WindowTitle"
 import * as UI from "./../UI/index"
 import { Rectangle } from "./../UI/Types"
 
-import { Keyboard } from "./../Input/Keyboard"
 import { IEditor } from "./Editor"
 
 import { InstallHelp } from "./../UI/components/InstallHelp"
 
 import { NeovimSurface } from "./NeovimSurface"
 
-import { inputManager } from "./../Services/InputManager"
 import { tasks } from "./../Services/Tasks"
 
 import { normalizePath } from "./../Utility"
@@ -181,30 +179,6 @@ export class NeovimEditor implements IEditor {
             UI.Actions.setTabs(currentTabId, tabs)
         })
 
-        this._neovimInstance.on("logInfo", (info: string) => {
-            UI.Actions.makeLog({
-                type: "info",
-                message: info,
-                details: null,
-            })
-        })
-
-        this._neovimInstance.on("logWarning", (warning: string) => {
-            UI.Actions.makeLog({
-                type: "warning",
-                message: warning,
-                details: null,
-            })
-        })
-
-        this._neovimInstance.on("logError", (err: Error) => {
-            UI.Actions.makeLog({
-                type: "error",
-                message: err.message,
-                details: err.stack.split("\n"),
-            })
-        })
-
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
         this._neovimInstance.on("buffer-update", (args: Oni.EventContext) => {
@@ -229,15 +203,6 @@ export class NeovimEditor implements IEditor {
 
         this._onConfigChanged()
         this._config.onConfigChanged.subscribe(() => this._onConfigChanged())
-
-        const keyboard = new Keyboard()
-        keyboard.on("keydown", (key: string) => {
-            if (inputManager.handleKey(key)) {
-                return
-            }
-
-            this._neovimInstance.input(key)
-        })
 
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
         window["__screen"] = this._screen // tslint:disable-line no-string-literal
@@ -310,10 +275,15 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.command(`tabn ${tabId}`)
         }
 
+        const onKeyDown = (key: string) => {
+            this._onKeyDown(key)
+        }
+
         return <NeovimSurface renderer={this._renderer}
             neovimInstance={this._neovimInstance}
             deltaRegionTracker={this._deltaRegionManager}
             screen={this._screen}
+            onKeyDown={onKeyDown}
             onBufferClose={onBufferClose}
             onBufferSelect={onBufferSelect}
             onTabClose={onTabClose}
@@ -404,5 +374,9 @@ export class NeovimEditor implements IEditor {
 
         this._renderer.update(this._screen, this._deltaRegionManager)
         this._deltaRegionManager.cleanUpRenderedCells()
+    }
+
+    private _onKeyDown(key: string): void {
+        this._neovimInstance.input(key)
     }
 }

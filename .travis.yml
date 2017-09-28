@@ -3,6 +3,11 @@ dist: trusty
 
 language: node_js
 
+branches:
+    only:
+        - master
+        - /^release.*/
+
 matrix:
     include:
         - os: linux
@@ -15,6 +20,7 @@ matrix:
 addons:
     apt:
         packages:
+            - libxkbfile-dev
             - libgnome-keyring-dev
             - icnsutils
             - graphicsmagick
@@ -35,7 +41,7 @@ deploy:
       file_glob: true
       file:
         - dist/*.dmg
-        - dist/mac/*.zip
+        - dist/*.zip
       skip_cleanup: true
       on:
         condition: $TRAVIS_OS_NAME = osx

@@ -7,7 +7,8 @@ module.exports = {
     ],
     target: "electron-renderer",
     externals: {
-        "vscode-languageserver-types": "require('vscode-languageserver-types')"
+        "vscode-languageserver-types": "require('vscode-languageserver-types')",
+        "keyboard-layout": "require('keyboard-layout')"
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".less"]

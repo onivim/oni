@@ -188,7 +188,7 @@ export const activate = (Oni) => {
             })
         }
 
-        console.log("Get completions: current line " + currentLine) // tslint:disable-line no-console
+        Oni.log.verbose("Get completions: current line " + currentLine)
 
         return host.getCompletions(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, currentPrefix)
             .then((val: any[]) => {

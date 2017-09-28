@@ -28,6 +28,8 @@ export interface INeovimSurfaceProps {
     deltaRegionTracker: IncrementalDeltaRegionTracker
     renderer: INeovimRenderer
     screen: NeovimScreen
+
+    onKeyDown?: (key: string) => void
     onBufferClose?: (bufferId: number) => void
     onBufferSelect?: (bufferId: number) => void
     onTabClose?: (tabId: number) => void
@@ -59,8 +61,10 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                         <ConnectedBufferScrollBar />
                     </ActiveWindowContainer>
                 </div>
-                <NeovimInput neovimInstance={this.props.neovimInstance}
-                    screen={this.props.screen} />
+                <NeovimInput
+                    neovimInstance={this.props.neovimInstance}
+                    screen={this.props.screen}
+                    onKeyDown={this.props.onKeyDown}/>
                 <div className="stack layer">
                     <QuickInfoContainer />
                     <SignatureHelpContainer />
