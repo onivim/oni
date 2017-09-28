@@ -3,6 +3,11 @@ dist: trusty
 
 language: node_js
 
+branches:
+    only:
+        - master
+        - /^release.*/
+
 matrix:
     include:
         - os: linux

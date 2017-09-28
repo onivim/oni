@@ -4,6 +4,11 @@ environment:
 
 os: unstable
 
+branches:
+    only:
+    - master
+    - /^release.*/
+
 platform:
     - x86
     - x64

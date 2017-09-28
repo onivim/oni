@@ -172,7 +172,7 @@ See [Roadmap](https://github.com/extr0py/oni/wiki/Roadmap)
 
 ## License
 
-MIT License. Copyright (c) extropygames
+MIT License. Copyright (c) Bryan Phelps
 
 There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
 
