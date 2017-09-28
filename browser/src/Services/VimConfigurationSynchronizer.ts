@@ -9,16 +9,18 @@
 
 import { INeovimInstance } from "./../neovim/NeovimInstance"
 
-export type ConfigurationValues = { [key: string]: any }
+export interface IConfigurationValues {
+    [key: string]: any
+}
 
 const vimGlobalPrefix = "vim.global."
 const vimSettingPrefix = "vim.setting."
 
-// TODO: 
+// TODO:
 // - `onConfigChanged` with updated values
 // - Handle initial load case
 // - Update documentation / default config
-export const synchronizeConfiguration = (neovimInstance: INeovimInstance, configuration: ConfigurationValues) => {
+export const synchronizeConfiguration = (neovimInstance: INeovimInstance, configuration: IConfigurationValues) => {
 
     const vimSettingKeys: string[] = Object.keys(configuration).filter((key) => key.indexOf(vimSettingPrefix) === 0)
 
@@ -42,7 +44,6 @@ export const synchronizeConfiguration = (neovimInstance: INeovimInstance, config
         const vimGlobalValue: any = configuration[key]
 
         const globalSettingName = key.substring(vimGlobalPrefix.length, key.length)
-
         neovimInstance.command(`let g:${globalSettingName}=${vimGlobalValue}`)
     })
 }

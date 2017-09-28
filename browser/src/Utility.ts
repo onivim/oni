@@ -33,11 +33,11 @@ export const replaceAll = (str: string, wordsToReplace: { [key: string]: string 
 export const diff = (newObject: any, oldObject: any) => {
     // Return changed properties between newObject and oldObject
     const updatedProperties = reduce(newObject, (result, value, key) => {
-        return isEqual(value, oldObject[key]) ? result : result.concat[key]
+        return isEqual(value, oldObject[key]) ? result : [...result, key]
     }, [])
 
     const keysInNewObject = Object.keys(newObject)
     const deletedProperties = Object.keys(oldObject).filter((key) => keysInNewObject.indexOf(key) === -1)
 
     return [...updatedProperties, ...deletedProperties]
-})
+}
