@@ -161,7 +161,7 @@ export class Config extends EventEmitter {
         "editor.fontSize": "12px",
         "editor.fontFamily": "",
 
-        "editor.linePadding": 4,
+        "editor.linePadding": 2,
 
         "editor.quickOpen.execCommand": null,
 
