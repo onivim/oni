@@ -191,7 +191,7 @@ export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunctio
         dispatch(hideSignatureHelp())
     }
 
-    dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
+    dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, screen.kerning, cell.character, cell.characterWidth * screen.fontWidthInPixels))
 }
 
 export const setColors = (foregroundColor: string, backgroundColor: string) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
@@ -318,13 +318,14 @@ export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Co
     }
 }
 
-const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
+const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, kerning: number, cursorCharacter: string, cursorPixelWidth: number) => ({
     type: "SET_CURSOR_POSITION",
     payload: {
         pixelX: cursorPixelX,
         pixelY: cursorPixelY,
         fontPixelWidth,
         fontPixelHeight,
+        kerning,
         cursorCharacter,
         cursorPixelWidth,
     },

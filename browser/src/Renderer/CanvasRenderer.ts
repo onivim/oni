@@ -6,8 +6,6 @@ import { INeovimRenderer } from "./INeovimRenderer"
 
 import { getSpansToEdit, ISpan } from "./Span"
 
-import * as Config from "./../Config"
-
 export interface IRenderState {
     isWhitespace: boolean
     foregroundColor: string
@@ -37,6 +35,7 @@ export class CanvasRenderer implements INeovimRenderer {
     private _grid: Grid<ISpan> = new Grid<ISpan>()
 
     private _devicePixelRatio: number
+    private _lastLetterSpacingValue: number
 
     public start(element: HTMLDivElement): void {
         this._editorElement = element
@@ -62,6 +61,11 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
+
+        if (this._lastLetterSpacingValue !== screenInfo.kerning) {
+            this._lastLetterSpacingValue = screenInfo.kerning
+            this._editorElement.style.letterSpacing = screenInfo.kerning + "px"
+        }
 
         const modifiedCells = deltaRegionTracker.getModifiedCells()
 
@@ -213,24 +217,28 @@ export class CanvasRenderer implements INeovimRenderer {
 
         const { backgroundColor, foregroundColor, text, startX, y } = state
 
-        const fontWidth = screenInfo.fontWidthInPixels
-        const fontHeight = screenInfo.fontHeightInPixels
+        const { fontWidthInPixels, fontHeightInPixels, linePaddingInPixels } = screenInfo
 
-        const boundsStartX = startX * fontWidth
-        const boundsWidth = state.width * fontWidth
+        const boundsStartX = startX * fontWidthInPixels
+        const boundsWidth = state.width * fontWidthInPixels
+
+        const normalizedBoundsStartX = Math.floor(boundsStartX)
+        const delta = boundsStartX - normalizedBoundsStartX
+        const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
+
 
         if (backgroundColor && backgroundColor !== screenInfo.backgroundColor) {
 
             this._canvasContext.fillStyle = backgroundColor
             // TODO: Width of non-english characters
-            this._canvasContext.fillRect(boundsStartX, y * fontHeight, boundsWidth, fontHeight)
+            this._canvasContext.fillRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
         } else {
-            this._canvasContext.clearRect(boundsStartX, y * fontHeight, boundsWidth, fontHeight)
+            this._canvasContext.clearRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
         }
 
         if (!state.isWhitespace) {
             this._canvasContext.fillStyle = foregroundColor
-            this._canvasContext.fillText(text, startX * fontWidth, y * fontHeight + Config.instance().getValue("editor.linePadding") / 2)
+            this._canvasContext.fillText(text, boundsStartX, y * fontHeightInPixels + linePaddingInPixels / 2)
         }
 
         // Commit span dimensions to grid

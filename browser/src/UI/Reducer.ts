@@ -26,8 +26,9 @@ export function reducer<K extends keyof Config.IConfigValues>(s: State.IState, a
                     cursorPixelY: a.payload.pixelY,
                     fontPixelWidth: a.payload.fontPixelWidth,
                     fontPixelHeight: a.payload.fontPixelHeight,
+                    kerning: a.payload.kerning,
                     cursorCharacter: a.payload.cursorCharacter,
-                    cursorPixelWidth: a.payload.cursorPixelWidth}
+                    cursorPixelWidth: a.payload.cursorPixelWidth, }
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }
         case "SET_COLORS":

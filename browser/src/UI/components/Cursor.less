@@ -5,6 +5,11 @@
 
 .cursor {
     opacity: 1;
+
+    /* Cover up 'holes' due to subpixel rendering on canvas */
+    padding: 2px;
+    margin-left: -1px;
+    margin-right: -1px;
     // animation-name: blink;
     // animation-duration: 0.5s;
     // animation-iteration-count: infinite;

@@ -31,12 +31,20 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
     const width = rect.width
     const height = rect.height
 
-    // Due to issues with subpixel rendering, we want to round the width to the nearest quarter pixel
-    const normalizedWidth = Math.round(width)
+    // Due to issues with subpixel rendering, we make sure the width / height are clamped to the nearest pixel
+    // const normalizedWidth = Math.ceil(width)
+    // const normalizedHeight = Math.ceil(height)
+
+    // return {
+    //     width: normalizedWidth,
+    //     height: normalizedHeight,
+    //     kerning: normalizedWidth - width,
+    // }
 
     return {
-        width: normalizedWidth,
+        width,
         height,
-        kerning: normalizedWidth - width,
+        kerning: 0
     }
 }
+
