@@ -10,6 +10,10 @@
  * into the module. For most modules, we want the webpack behavior,
  * but for some (like node modules), we want to explicitly require them.
  */
+
+import * as isEqual from "lodash/isEqual"
+import * as reduce from "lodash/reduce"
+
 export function nodeRequire(moduleName: string): any {
     return window["require"](moduleName) // tslint:disable-line
 }
@@ -24,4 +28,16 @@ export const replaceAll = (str: string, wordsToReplace: { [key: string]: string 
     const re = new RegExp(Object.keys(wordsToReplace).join("|"), "gi")
 
     return str.replace(re, (matched) => wordsToReplace[matched.toLowerCase()])
+}
+
+export const diff = (newObject: any, oldObject: any) => {
+    // Return changed properties between newObject and oldObject
+    const updatedProperties = reduce(newObject, (result, value, key) => {
+        return isEqual(value, oldObject[key]) ? result : [...result, key]
+    }, [])
+
+    const keysInNewObject = Object.keys(newObject)
+    const deletedProperties = Object.keys(oldObject).filter((key) => keysInNewObject.indexOf(key) === -1)
+
+    return [...updatedProperties, ...deletedProperties]
 }

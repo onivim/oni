@@ -21,7 +21,7 @@ declare namespace Oni {
     }
 
     export interface Configuration {
-        onConfigurationChangedEvent: Event<void>
+        onConfigurationChanged: Event<any>
         getValue<T>(configValue: string, defaultValue?: T): T
     }
 
