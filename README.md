@@ -143,24 +143,6 @@ The goal of this project is to give an editor that gives the best of both worlds
 - [FAQ](https://github.com/bryphe/oni/wiki)
 - [Roadmap](https://github.com/bryphe/oni/wiki/Roadmap)
 
-### Included Vim Plugins
-
-This distribution contains several Vim plugins that enhance the Vim experience.
-
-These are:
-- [targets.vim](https://github.com/wellle/targets.vim)
-- [typescript-vim](https://github.com/leafgarland/typescript-vim)
-- [vim-commentary](https://github.com/tpope/vim-commentary)
-- [vim-unimpaired](https://github.com/tpope/vim-unimpaired)
-
-As well as some color-schemes:
-- [vim-monokai](https://github.com/sickill/vim-monokai)
-- [onedark.vim](https://github.com/joshdick/onedark.vim)
-
-## Roadmap
-
-See [Roadmap](https://github.com/bryphe/oni/wiki/Roadmap)
-
 ## License
 
 MIT License. Copyright (c) Bryan Phelps
