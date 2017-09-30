@@ -15,11 +15,10 @@
     - [Linux](#linux)
     - [Build](#build)
 - [Documentation](#documentation)
-- [Roadmap](#roadmap)
-- [License](#license)
 - [Contributing](#contributing)
 - [Thanks](#thanks)
     - [Sponsors](#sponsors)
+- [License](#license)
 
 ## Introduction
 
@@ -143,14 +142,6 @@ The goal of this project is to give an editor that gives the best of both worlds
 - [FAQ](https://github.com/bryphe/oni/wiki)
 - [Roadmap](https://github.com/bryphe/oni/wiki/Roadmap)
 
-## License
-
-MIT License. Copyright (c) Bryan Phelps
-
-There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
-
-Windows and OSX have a bundled version of Neovim, which is covered under [Neovim's license](https://github.com/neovim/neovim/blob/master/LICENSE)
-
 #### Bundled Plugins
 
 Bundled plugins have their own license terms. These include:
@@ -183,3 +174,11 @@ In addition, there are several other great NeoVim front-end UIs [here](https://g
 Also, thanks to our [contributors](https://github.com/bryphe/oni/graphs/contributors) for helping out!
 
 Special thanks to [Till Arnold](https://github.com/tillarnold) for handing over the `oni` NPM package name.
+
+## License
+
+MIT License. Copyright (c) Bryan Phelps
+
+There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
+
+Windows and OSX have a bundled version of Neovim, which is covered under [Neovim's license](https://github.com/neovim/neovim/blob/master/LICENSE)
