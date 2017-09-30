@@ -1,5 +1,3 @@
-import { EventEmitter } from "events"
-
 import * as fs from "fs"
 import * as cloneDeep from "lodash/cloneDeep"
 import * as isError from "lodash/isError"
@@ -12,6 +10,8 @@ import * as Platform from "./Platform"
 import { Event, IEvent } from "./Event"
 
 import { applyDefaultKeyBindings } from "./Input/KeyBindings"
+
+import { diff } from "./Utility"
 
 export interface IConfigValues {
 
@@ -118,7 +118,7 @@ export interface IConfigValues {
 
 const noop = () => { } // tslint:disable-line no-empty
 
-export class Config extends EventEmitter {
+export class Config {
 
     public userJsConfig = path.join(this.getUserFolder(), "config.js")
 
@@ -204,19 +204,17 @@ export class Config extends EventEmitter {
 
     private DefaultPlatformConfig = Platform.isWindows() ? this.WindowsConfig : Platform.isLinux() ? this.LinuxConfig : this.MacConfig
 
-    private _onConfigChangedEvent: Event<void> = new Event<void>()
+    private _onConfigurationChangedEvent: Event<Partial<IConfigValues>> = new Event<Partial<IConfigValues>>()
 
     private _oniApi: Oni.Plugin.Api = null
 
-    private Config: IConfigValues = null
+    private _config: IConfigValues = null
 
-    public get onConfigChanged(): IEvent<void> {
-        return this._onConfigChangedEvent
+    public get onConfigurationChanged(): IEvent<Partial<IConfigValues>> {
+        return this._onConfigurationChangedEvent
     }
 
     constructor() {
-        super()
-
         Performance.mark("Config.load.start")
 
         this.applyConfig()
@@ -233,7 +231,6 @@ export class Config extends EventEmitter {
                     // invalidate the Config currently stored in cache
                     delete global["require"].cache[global["require"].resolve(this.userJsConfig)] // tslint:disable-line no-string-literal
                     this.applyConfig()
-                    this.notifyListeners()
                 }
             })
         }
@@ -245,12 +242,16 @@ export class Config extends EventEmitter {
         return !!this.getValue(configValue)
     }
 
-    public getValue<K extends keyof IConfigValues>(configValue: K) {
-        return this.Config[configValue]
+    public getValue<K extends keyof IConfigValues>(configValue: K, defaultValue?: any) {
+        if (typeof this._config[configValue] === "undefined") {
+            return defaultValue
+        } else {
+            return this._config[configValue]
+        }
     }
 
     public getValues(): IConfigValues {
-        return cloneDeep(this.Config)
+        return cloneDeep(this._config)
     }
 
     public getUserFolder(): string {
@@ -271,24 +272,28 @@ export class Config extends EventEmitter {
     }
 
     private applyConfig(): void {
+        const previousConfig = this._config
+
         const userRuntimeConfigOrError = this.getUserRuntimeConfig()
         if (isError(userRuntimeConfigOrError)) {
             Log.error(userRuntimeConfigOrError)
-            this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig}
+            this._config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig}
         } else {
-            this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfigOrError}
+            this._config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfigOrError}
         }
 
         this._deactivate()
         this._activateIfOniObjectIsAvailable()
+
+        this._notifyListeners(previousConfig)
     }
 
     private _activateIfOniObjectIsAvailable(): void {
-        if (this.Config && this.Config.activate && this._oniApi) {
+        if (this._config && this._config.activate && this._oniApi) {
             applyDefaultKeyBindings(this._oniApi, this)
 
             try {
-                this.Config.activate(this._oniApi)
+                this._config.activate(this._oniApi)
             } catch (e) {
                 alert("[Config Error] Failed to activate " + this.userJsConfig + ":\n" + (e as Error).message)
             }
@@ -296,8 +301,8 @@ export class Config extends EventEmitter {
     }
 
     private _deactivate(): void {
-        if (this.Config && this.Config.deactivate) {
-            this.Config.deactivate()
+        if (this._config && this._config.deactivate) {
+            this._config.deactivate()
         }
     }
 
@@ -317,8 +322,27 @@ export class Config extends EventEmitter {
         return error ? error : userRuntimeConfig
     }
 
-    private notifyListeners(): void {
-        this._onConfigChangedEvent.dispatch(null)
+    private _notifyListeners(previousConfig?: Partial<IConfigValues>): void {
+        previousConfig = previousConfig || {}
+
+        const changedValues = diff(this._config, previousConfig)
+
+        const diffObject = changedValues.reduce((previous: Partial<IConfigValues>, current: string) => {
+
+            const currentValue = this._config[current]
+
+            // Skip functions, because those will always be different
+            if (currentValue && typeof currentValue === "function") {
+                return previous
+            }
+
+            return {
+                ...previous,
+                [current]: this._config[current],
+            }
+        }, {})
+
+        this._onConfigurationChangedEvent.dispatch(diffObject)
     }
 }
 

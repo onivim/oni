@@ -14,8 +14,6 @@ import { PluginManager } from "./Plugins/PluginManager"
 
 import { commandManager } from "./Services/CommandManager"
 
-import * as isEqual from "lodash/isEqual"
-
 import * as UI from "./UI/index"
 
 const start = (args: string[]) => {
@@ -37,19 +35,13 @@ const start = (args: string[]) => {
         Log.error(initialConfigParsingError)
     }
 
-    let prevConfigValues = config.getValues()
-
     const browserWindow = remote.getCurrentWindow()
 
-    const configChange = () => {
-        let newConfigValues = config.getValues()
+    const configChange = (newConfigValues: Partial<Config.IConfigValues>) => {
         let prop: keyof Config.IConfigValues
         for (prop in newConfigValues) {
-            if (!isEqual(newConfigValues[prop], prevConfigValues[prop])) {
-                UI.Actions.setConfigValue(prop, newConfigValues[prop])
-            }
+            UI.Actions.setConfigValue(prop, newConfigValues[prop])
         }
-        prevConfigValues = newConfigValues
 
         document.body.style.fontFamily = config.getValue("editor.fontFamily")
         document.body.style.fontSize = config.getValue("editor.fontSize")
@@ -69,8 +61,8 @@ const start = (args: string[]) => {
         browserWindow.setFullScreen(config.getValue("editor.fullScreenOnStart"))
     }
 
-    configChange() // initialize values
-    config.onConfigChanged.subscribe(configChange)
+    configChange(config.getValues()) // initialize values
+    config.onConfigurationChanged.subscribe(configChange)
 
     UI.events.on("completion-item-selected", (item: any) => {
         pluginManager.notifyCompletionItemSelected(item)
