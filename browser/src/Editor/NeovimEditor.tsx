@@ -41,6 +41,8 @@ import { tasks } from "./../Services/Tasks"
 
 import { normalizePath } from "./../Utility"
 
+import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
+
 export class NeovimEditor implements IEditor {
 
     private _neovimInstance: NeovimInstance
@@ -54,6 +56,7 @@ export class NeovimEditor implements IEditor {
 
     private _currentMode: string
     private _onModeChangedEvent: Event<string> = new Event<string>()
+    private _hasLoaded: boolean = false
 
     // Overlays
     private _windowManager: NeovimWindowManager
@@ -198,8 +201,8 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.executeAutoCommand("FocusGained")
         })
 
-        this._onConfigChanged()
-        this._config.onConfigChanged.subscribe(() => this._onConfigChanged())
+        this._onConfigChanged(this._config.getValues())
+        this._config.onConfigurationChanged.subscribe((newValues: Partial<Config.IConfigValues>) => this._onConfigChanged(newValues))
 
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
         window["__screen"] = this._screen // tslint:disable-line no-string-literal
@@ -248,6 +251,10 @@ export class NeovimEditor implements IEditor {
 
     public init(filesToOpen: string[]): void {
         this._neovimInstance.start(filesToOpen)
+            .then(() => {
+                this._hasLoaded = true
+                VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+            })
     }
 
     public render(): JSX.Element {
@@ -329,8 +336,18 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    private _onConfigChanged(): void {
-        this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
+    private _onConfigChanged(newValues: Partial<Config.IConfigValues>): void {
+        const fontFamily = this._config.getValue("editor.fontFamily")
+        const fontSize = this._config.getValue("editor.fontSize")
+        const linePadding = this._config.getValue("editor.linePadding")
+
+        UI.Actions.setFont(fontFamily, fontSize)
+        this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
+
+        if (this._hasLoaded) {
+            VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, newValues)
+        }
+
         this._onUpdate()
         this._scheduleRender()
     }

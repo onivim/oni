@@ -14,6 +14,9 @@ import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { IState } from "./../UI/State"
 
+import { measureFont } from "./../Font"
+import * as UI from "./../UI"
+
 interface IKeyboardInputViewProps {
     top: number
     left: number
@@ -21,6 +24,9 @@ interface IKeyboardInputViewProps {
     onKeyDown?: (key: string) => void
     foregroundColor: string
     imeEnabled: boolean
+    fontFamily: string
+    fontSize: string
+    fontCharacterWidthInPixels: number
 }
 
 interface IKeyboardInputViewState {
@@ -28,6 +34,13 @@ interface IKeyboardInputViewState {
      * Tracks if composition is occurring (ie, an IME is active)
      */
     isComposing: boolean
+
+    /**
+     * Tracks the width of the currently composing text.
+     * This isn't the same as the input text string value .length(),
+     * because usually for IMEs there are multi-byte characters.
+     */
+    compositionTextWidthInPixels: number
 }
 
 export interface IKeyboardInputProps {
@@ -47,6 +60,7 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
 
         this.state = {
             isComposing: false,
+            compositionTextWidthInPixels: 0,
         }
     }
 
@@ -63,33 +77,52 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
     public render(): JSX.Element {
         const opacity = this.state.isComposing ? 0.8 : 0
 
-        const style: React.CSSProperties = {
+        const containerStyle: React.CSSProperties = {
             position: "absolute",
             top: this.props.top.toString() + "px",
             left: this.props.left.toString() + "px",
             height: this.props.height.toString() + "px",
+            pointerEvents: "none",
+            opacity,
             width: "100%",
-            backgroundColor: "transparent",
+        }
+
+        const inputStyle: React.CSSProperties = {
+            position: "absolute",
             padding: "0px",
-            color: this.props.foregroundColor,
+            width: "100%",
+            color: "black",
             border: "0px",
             outline: "none",
             font: "inherit",
-            pointerEvents: "none",
-            opacity,
+            backgroundColor: "transparent",
+        }
+
+        const backgroundStyle: React.CSSProperties = {
+            position: "absolute",
+            height: "100%",
+            backgroundColor: "white",
+            padding: "2px",
+            marginTop: "-2px",
+            marginLeft: "-2px",
+            width: this.state.compositionTextWidthInPixels + "px",
         }
 
         // IME is disabled for 'password' type fields
         const inputType = this.props.imeEnabled ? "text" : "password"
 
-        return <input
-            style={style}
-            ref={(elem) => this._keyboardElement = elem}
-            type={inputType}
-            onKeyDown={(evt) => this._onKeyDown(evt)}
-            onCompositionEnd={(evt) => this._onCompositionEnd(evt)}
-            onCompositionStart={(evt) => this._onCompositionStart(evt)}
-            onInput={(evt) => this._onInput(evt)}/>
+        return <div style={containerStyle}>
+            <div style={backgroundStyle} />
+            <input
+                style={inputStyle}
+                ref={(elem) => this._keyboardElement = elem}
+                type={inputType}
+                onKeyDown={(evt) => this._onKeyDown(evt)}
+                onCompositionEnd={(evt) => this._onCompositionEnd(evt)}
+                onCompositionUpdate={(evt) => this._onCompositionUpdate(evt)}
+                onCompositionStart={(evt) => this._onCompositionStart(evt)}
+                onInput={(evt) => this._onInput(evt)} />
+        </div>
     }
 
     private _onKeyDown(evt: React.KeyboardEvent<HTMLInputElement>) {
@@ -123,12 +156,29 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
     }
 
     private _onCompositionStart(evt: React.CompositionEvent<HTMLInputElement>) {
+        UI.Actions.setImeActive(true)
         this.setState({
             isComposing: true,
         })
     }
 
+    private _onCompositionUpdate(evt: React.CompositionEvent<HTMLInputElement>) {
+        if (this._keyboardElement) {
+
+            const measurements = measureFont(this.props.fontSize, this.props.fontFamily, this._keyboardElement.value)
+
+            // Add some padding for an extra character to the end of the input box
+            const roomForNextCharacter = this.props.fontCharacterWidthInPixels
+            const width = Math.ceil(measurements.width) + roomForNextCharacter
+
+            this.setState({
+                compositionTextWidthInPixels: width,
+            })
+        }
+    }
+
     private _onCompositionEnd(evt: React.CompositionEvent<HTMLInputElement>) {
+        UI.Actions.setImeActive(false)
         if (this._keyboardElement) {
             this._commit(this._keyboardElement.value)
         }
@@ -145,6 +195,7 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
     private _commit(val: string): void {
         this.setState({
             isComposing: false,
+            compositionTextWidthInPixels: 0,
         })
 
         this._keyboardElement.value = ""
@@ -160,6 +211,9 @@ const mapStateToProps = (state: IState, originalProps: IKeyboardInputProps): IKe
         height: state.fontPixelHeight,
         foregroundColor: state.foregroundColor,
         imeEnabled: state.mode === "insert",
+        fontFamily: state.fontFamily,
+        fontSize: state.fontSize,
+        fontCharacterWidthInPixels: state.fontPixelWidth,
     }
 }
 

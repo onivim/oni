@@ -29,6 +29,7 @@ export interface IScreen {
     fontWidthInPixels: number
     foregroundColor: string
     height: number
+    linePaddingInPixels: number
     mode: string
     width: number
     dispatch(action: Actions.IAction): void
@@ -82,6 +83,7 @@ export class NeovimScreen implements IScreen {
     private _mode: Mode = "normal"
     private _scrollRegion: IScrollRegion
     private _width: number = 80
+    private _linePaddingInPixels: number
 
     constructor(deltaTracker: IDeltaRegionTracker) {
         this._deltaTracker = deltaTracker
@@ -109,6 +111,10 @@ export class NeovimScreen implements IScreen {
 
     public get fontHeightInPixels(): number {
         return this._fontHeightInPixels
+    }
+
+    public get linePaddingInPixels(): number {
+        return this._linePaddingInPixels
     }
 
     public get cursorRow(): number {
@@ -233,6 +239,7 @@ export class NeovimScreen implements IScreen {
                 this._fontSize = action.fontSize
                 this._fontWidthInPixels = action.fontWidthInPixels
                 this._fontHeightInPixels = action.fontHeightInPixels
+                this._linePaddingInPixels = action.linePaddingInPixels
                 break
             case Actions.CHANGE_MODE:
                 this._mode = action.mode

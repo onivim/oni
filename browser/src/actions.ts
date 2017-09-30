@@ -44,6 +44,7 @@ export interface ISetFontAction extends IAction {
     fontSize: string
     fontWidthInPixels: number
     fontHeightInPixels: number
+    linePaddingInPixels: number
 }
 
 export interface IScrollAction extends IAction {
@@ -156,13 +157,14 @@ export function changeMode(mode: string): IChangeModeAction {
     }
 }
 
-export function setFont(fontFamily: string, fontSize: string, fontWidthInPixels: number, fontHeightInPixels: number): ISetFontAction {
+export function setFont(fontFamily: string, fontSize: string, fontWidthInPixels: number, fontHeightInPixels: number, linePaddingInPixels: number): ISetFontAction {
     return {
         type: SET_FONT,
         fontFamily,
         fontSize,
         fontWidthInPixels,
         fontHeightInPixels,
+        linePaddingInPixels,
     }
 }
 
