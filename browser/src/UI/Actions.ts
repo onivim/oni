@@ -127,7 +127,6 @@ export interface ISetCursorPositionAction {
         pixelY: number,
         fontPixelWidth: number,
         fontPixelHeight: number,
-        kerning: number,
         cursorCharacter: string,
         cursorPixelWidth: number,
     }
