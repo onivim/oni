@@ -34,4 +34,3 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
         height,
     }
 }
-
