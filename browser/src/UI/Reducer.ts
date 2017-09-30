@@ -27,7 +27,7 @@ export function reducer<K extends keyof Config.IConfigValues>(s: State.IState, a
                     fontPixelWidth: a.payload.fontPixelWidth,
                     fontPixelHeight: a.payload.fontPixelHeight,
                     cursorCharacter: a.payload.cursorCharacter,
-                    cursorPixelWidth: a.payload.cursorPixelWidth}
+                    cursorPixelWidth: a.payload.cursorPixelWidth }
         case "SET_IME_ACTIVE":
             return { ...s,
                      imeActive: a.payload.imeActive }

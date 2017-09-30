@@ -60,7 +60,6 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
-
         const modifiedCells = deltaRegionTracker.getModifiedCells()
 
         if (modifiedCells.length === 0) {
@@ -211,21 +210,34 @@ export class CanvasRenderer implements INeovimRenderer {
 
         const { backgroundColor, foregroundColor, text, startX, y } = state
 
-        const fontWidth = screenInfo.fontWidthInPixels
-        const fontHeight = screenInfo.fontHeightInPixels
+        const { fontWidthInPixels, fontHeightInPixels, linePaddingInPixels } = screenInfo
+
+        const boundsStartX = startX * fontWidthInPixels
+        const boundsWidth = state.width * fontWidthInPixels
+
+        // This normalization is required to fix "cracks" due to anti-aliasing and rendering
+        // rectangles on subpixel boundaries. Sometimes, the rectangle will not "connect"
+        // between adjacent boundaries, and there is a crack between the blocks. Worse,
+        // sometimes when clearing a rectangle, a thin line will be left.
+        //
+        // This normalization addresses it by making sure the rectangle bounds are aligned
+        // to the nearest integer pixel.
+        const normalizedBoundsStartX = Math.floor(boundsStartX)
+        const delta = boundsStartX - normalizedBoundsStartX
+        const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
 
         if (backgroundColor && backgroundColor !== screenInfo.backgroundColor) {
 
             this._canvasContext.fillStyle = backgroundColor
             // TODO: Width of non-english characters
-            this._canvasContext.fillRect(startX * fontWidth, y * fontHeight, state.width * fontWidth, fontHeight)
+            this._canvasContext.fillRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
         } else {
-            this._canvasContext.clearRect(startX * fontWidth, y * fontHeight, state.width * fontWidth, fontHeight)
+            this._canvasContext.clearRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
         }
 
         if (!state.isWhitespace) {
             this._canvasContext.fillStyle = foregroundColor
-            this._canvasContext.fillText(text, startX * fontWidth, y * fontHeight)
+            this._canvasContext.fillText(text, boundsStartX, y * fontHeightInPixels + linePaddingInPixels / 2)
         }
 
         // Commit span dimensions to grid

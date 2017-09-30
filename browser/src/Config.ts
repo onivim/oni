@@ -85,6 +85,9 @@ export interface IConfigValues {
     "editor.fontSize": string
     "editor.fontFamily": string // Platform specific
 
+    // Additional padding between lines
+    "editor.linePadding": number
+
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
 
@@ -157,6 +160,8 @@ export class Config {
         "editor.fontLigatures": true,
         "editor.fontSize": "12px",
         "editor.fontFamily": "",
+
+        "editor.linePadding": 2,
 
         "editor.quickOpen.execCommand": null,
 

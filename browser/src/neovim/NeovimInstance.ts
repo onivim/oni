@@ -71,7 +71,7 @@ export interface INeovimInstance {
     // - Refactor remaining events into strongly typed events, as part of the interface
     on(event: string, handler: NeovimEventHandler): void
 
-    setFont(fontFamily: string, fontSize: string): void
+    setFont(fontFamily: string, fontSize: string, linePadding: number): void
 
     getBufferIds(): Promise<number[]>
 
@@ -260,16 +260,16 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.eval<number>("line('.')")
     }
 
-    public setFont(fontFamily: string, fontSize: string): void {
+    public setFont(fontFamily: string, fontSize: string, linePadding: number): void {
         this._fontFamily = fontFamily
         this._fontSize = fontSize
 
         const { width, height } = measureFont(this._fontFamily, this._fontSize)
 
         this._fontWidthInPixels = width
-        this._fontHeightInPixels = height
+        this._fontHeightInPixels = height + linePadding
 
-        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height))
+        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height + linePadding, linePadding))
 
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
     }

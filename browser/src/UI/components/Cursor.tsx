@@ -28,7 +28,7 @@ class CursorRenderer extends React.PureComponent<ICursorProps, void> {
 
         const isInsertCursor = this.props.mode === "insert" || this.props.mode === "cmdline_normal"
         const height = this.props.height.toString() + "px"
-        const width = isInsertCursor ? this.props.width / 4 : this.props.width
+        const width = isInsertCursor ? 0 : this.props.width
         const characterToShow = isInsertCursor ? "" : this.props.character
 
         const cursorStyle: React.CSSProperties = {
