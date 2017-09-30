@@ -20,6 +20,8 @@ export interface IState {
     cursorCharacter: string
     fontPixelWidth: number
     fontPixelHeight: number
+    fontFamily: string
+    fontSize: string
     mode: string
     backgroundColor: string
     foregroundColor: string
@@ -175,6 +177,8 @@ export const createDefaultState = (): IState => ({
     cursorCharacter: "",
     fontPixelWidth: 10,
     fontPixelHeight: 10,
+    fontFamily: "",
+    fontSize: "",
     imeActive: false,
     mode: "normal",
     foregroundColor: "rgba(0, 0, 0, 0)",

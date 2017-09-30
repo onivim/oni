@@ -66,6 +66,14 @@ export const setImeActive = (imeActive: boolean) => ({
     },
 })
 
+export const setFont = (fontFamily: string, fontSize: string) => ({
+    type: "SET_FONT",
+    payload: {
+        fontFamily,
+        fontSize,
+    },
+})
+
 export const setTabs = (selectedTabId: number, tabs: State.ITab[]): Actions.ISetTabs => ({
     type: "SET_TABS",
     payload: {

@@ -27,6 +27,14 @@ export interface ISetImeActive {
     }
 }
 
+export interface ISetFont {
+    type: "SET_FONT",
+    payload: {
+        fontFamily: string,
+        fontSize: string,
+    }
+}
+
 export interface IBufferEnterAction {
     type: "BUFFER_ENTER",
     payload: {
@@ -273,6 +281,7 @@ export type SimpleAction =
     IBufferUpdateAction |
     ISetCursorPositionAction |
     ISetImeActive |
+    ISetFont |
     IShowSignatureHelpAction |
     IHideSignatureHelpAction |
     IShowQuickInfoAction |
