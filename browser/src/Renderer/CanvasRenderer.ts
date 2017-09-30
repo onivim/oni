@@ -215,10 +215,16 @@ export class CanvasRenderer implements INeovimRenderer {
         const boundsStartX = startX * fontWidthInPixels
         const boundsWidth = state.width * fontWidthInPixels
 
+        // This normalization is required to fix "cracks" due to anti-aliasing and rendering
+        // rectangles on subpixel boundaries. Sometimes, the rectangle will not "connect"
+        // between adjacent boundaries, and there is a crack between the blocks. Worse,
+        // sometimes when clearing a rectangle, a thin line will be left.
+        //
+        // This normalization addresses it by making sure the rectangle bounds are aligned
+        // to the nearest integer pixel.
         const normalizedBoundsStartX = Math.floor(boundsStartX)
         const delta = boundsStartX - normalizedBoundsStartX
         const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
-
 
         if (backgroundColor && backgroundColor !== screenInfo.backgroundColor) {
 
