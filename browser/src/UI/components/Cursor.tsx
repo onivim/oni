@@ -14,6 +14,7 @@ export interface ICursorProps {
     character: string
     fontFamily: string
     fontSize: string
+    visible: boolean
 }
 
 require("./Cursor.less") // tslint:disable-line no-var-requires
@@ -31,6 +32,7 @@ class CursorRenderer extends React.PureComponent<ICursorProps, void> {
         const characterToShow = isInsertCursor ? "" : this.props.character
 
         const cursorStyle: React.CSSProperties = {
+            visibility: this.props.visible ? "visible" : "hidden",
             position: "absolute",
             left: this.props.x.toString() + "px",
             top: this.props.y.toString() + "px",
@@ -59,6 +61,7 @@ const mapStateToProps = (state: State.IState): ICursorProps => {
         character: state.cursorCharacter,
         fontFamily: State.readConf(state.configuration, "editor.fontFamily"),
         fontSize: State.readConf(state.configuration, "editor.fontSize"),
+        visible: !state.imeActive,
     }
 }
 

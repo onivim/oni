@@ -337,7 +337,12 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onConfigChanged(newValues: Partial<Config.IConfigValues>): void {
-        this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"), this._config.getValue("editor.linePadding"))
+        const fontFamily = this._config.getValue("editor.fontFamily")
+        const fontSize = this._config.getValue("editor.fontSize")
+        const linePadding = this._config.getValue("editor.linePadding")
+
+        UI.Actions.setFont(fontFamily, fontSize)
+        this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
 
         if (this._hasLoaded) {
             VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, newValues)
