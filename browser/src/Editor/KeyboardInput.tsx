@@ -165,7 +165,7 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
     private _onCompositionUpdate(evt: React.CompositionEvent<HTMLInputElement>) {
         if (this._keyboardElement) {
 
-            const measurements = measureFont(this.props.fontSize, this.props.fontFamily, this._keyboardElement.value)
+            const measurements = measureFont(this.props.fontSize, this.props.fontFamily, evt.data)
 
             // Add some padding for an extra character to the end of the input box
             const roomForNextCharacter = this.props.fontCharacterWidthInPixels
