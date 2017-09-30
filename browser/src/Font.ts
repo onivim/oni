@@ -19,7 +19,6 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
     div.textContent = characterToTest
     div.style.fontFamily = `${fontFamily},${FallbackFonts}`
     div.style.fontSize = fontSize
-    div.style.letterSpacing = "0px"
 
     document.body.appendChild(div)
 
