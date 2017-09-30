@@ -26,6 +26,7 @@ interface IKeyboardInputViewProps {
     imeEnabled: boolean
     fontFamily: string
     fontSize: string
+    fontCharacterWidthInPixels: number
 }
 
 interface IKeyboardInputViewState {
@@ -46,26 +47,6 @@ export interface IKeyboardInputProps {
     onKeyDown?: (key: string) => void
 }
 
-const inputStyle: React.CSSProperties = {
-    position: "absolute",
-    padding: "0px",
-    width: "100%",
-    color: "black",
-    border: "0px",
-    outline: "none",
-    font: "inherit",
-    backgroundColor: "transparent",
-}
-
-const backgroundStyle: React.CSSProperties = {
-    position: "absolute",
-    height: "100%",
-    backgroundColor: "white",
-    padding: "2px",
-    marginTop: "-2px",
-    marginLeft: "-2px",
-}
-
 /**
  * KeyboardInput
  *
@@ -73,7 +54,6 @@ const backgroundStyle: React.CSSProperties = {
  */
 class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKeyboardInputViewState> {
     private _keyboardElement: HTMLInputElement
-    private _wrapperElem: HTMLDivElement
 
     constructor() {
         super()
@@ -107,11 +87,32 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             width: "100%",
         }
 
+        const inputStyle: React.CSSProperties = {
+            position: "absolute",
+            padding: "0px",
+            width: "100%",
+            color: "black",
+            border: "0px",
+            outline: "none",
+            font: "inherit",
+            backgroundColor: "transparent",
+        }
+
+        const backgroundStyle: React.CSSProperties = {
+            position: "absolute",
+            height: "100%",
+            backgroundColor: "white",
+            padding: "2px",
+            marginTop: "-2px",
+            marginLeft: "-2px",
+            width: this.state.compositionTextWidthInPixels + "px"
+        }
+
         // IME is disabled for 'password' type fields
         const inputType = this.props.imeEnabled ? "text" : "password"
 
         return <div style={containerStyle}>
-            <div ref={(elem) => this._wrapperElem = elem} style={backgroundStyle} />
+            <div style={backgroundStyle} />
             <input
                 style={inputStyle}
                 ref={(elem) => this._keyboardElement = elem}
@@ -165,7 +166,10 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
         if (this._keyboardElement) {
 
             const measurements = measureFont(this.props.fontSize, this.props.fontFamily, this._keyboardElement.value)
-            const width = Math.ceil(measurements.width) + 1
+
+            // Add some padding for an extra character to the end of the input box
+            const roomForNextCharacter = this.props.fontCharacterWidthInPixels
+            const width = Math.ceil(measurements.width) + roomForNextCharacter
 
             this.setState({
                 compositionTextWidthInPixels: width,
@@ -209,6 +213,7 @@ const mapStateToProps = (state: IState, originalProps: IKeyboardInputProps): IKe
         imeEnabled: state.mode === "insert",
         fontFamily: state.fontFamily,
         fontSize: state.fontSize,
+        fontCharacterWidthInPixels: state.fontPixelWidth
     }
 }
 
