@@ -105,7 +105,7 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             padding: "2px",
             marginTop: "-2px",
             marginLeft: "-2px",
-            width: this.state.compositionTextWidthInPixels + "px"
+            width: this.state.compositionTextWidthInPixels + "px",
         }
 
         // IME is disabled for 'password' type fields
@@ -213,7 +213,7 @@ const mapStateToProps = (state: IState, originalProps: IKeyboardInputProps): IKe
         imeEnabled: state.mode === "insert",
         fontFamily: state.fontFamily,
         fontSize: state.fontSize,
-        fontCharacterWidthInPixels: state.fontPixelWidth
+        fontCharacterWidthInPixels: state.fontPixelWidth,
     }
 }
 
