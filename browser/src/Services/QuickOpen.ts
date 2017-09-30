@@ -125,7 +125,8 @@ export class QuickOpen {
         }
 
         // Default strategy
-        this.loadMenu("git", ["ls-files", "--others", "--exclude-standard", "--cached"])
+        // The '-z' argument is needed to prevent escaping, see #711 for more information.
+        this.loadMenu("git", ["ls-files", "--others", "--exclude-standard", "--cached", "-z"], "\u0000")
     }
 
     public async showBufferLines() {
@@ -146,10 +147,10 @@ export class QuickOpen {
 
     // Overridden strategy
     // If git repo, use git ls-files
-    private async loadMenu(command: string, args: string[] = []) {
+    private async loadMenu(command: string, args: string[] = [], splitCharacter: string = "\n") {
         const filer = spawn(command, args)
         filer.stdout.on("data", (data) => {
-            data.toString().split("\n").forEach((d: string) => {
+            data.toString().split(splitCharacter).forEach((d: string) => {
                 this._loadedItems.push(new QuickOpenItem(d, QuickOpenType.file))
             })
             this._showMenuFromQuickOpenItems(this._loadedItems)
