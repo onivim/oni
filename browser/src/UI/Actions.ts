@@ -20,6 +20,21 @@ export interface ISetCurrentBuffersAction {
     }
 }
 
+export interface ISetImeActive {
+    type: "SET_IME_ACTIVE",
+    payload: {
+        imeActive: boolean,
+    }
+}
+
+export interface ISetFont {
+    type: "SET_FONT",
+    payload: {
+        fontFamily: string,
+        fontSize: string,
+    }
+}
+
 export interface IBufferEnterAction {
     type: "BUFFER_ENTER",
     payload: {
@@ -265,6 +280,8 @@ export type SimpleAction =
     IBufferSaveAction |
     IBufferUpdateAction |
     ISetCursorPositionAction |
+    ISetImeActive |
+    ISetFont |
     IShowSignatureHelpAction |
     IHideSignatureHelpAction |
     IShowQuickInfoAction |
