@@ -35,7 +35,6 @@ export class CanvasRenderer implements INeovimRenderer {
     private _grid: Grid<ISpan> = new Grid<ISpan>()
 
     private _devicePixelRatio: number
-    private _lastLetterSpacingValue: number
 
     public start(element: HTMLDivElement): void {
         this._editorElement = element
@@ -61,12 +60,6 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
-
-        if (this._lastLetterSpacingValue !== screenInfo.kerning) {
-            this._lastLetterSpacingValue = screenInfo.kerning
-            this._editorElement.style.letterSpacing = screenInfo.kerning + "px"
-        }
-
         const modifiedCells = deltaRegionTracker.getModifiedCells()
 
         if (modifiedCells.length === 0) {

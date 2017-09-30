@@ -206,7 +206,7 @@ export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunctio
         dispatch(hideSignatureHelp())
     }
 
-    dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, screen.kerning, cell.character, cell.characterWidth * screen.fontWidthInPixels))
+    dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
 }
 
 export const setColors = (foregroundColor: string, backgroundColor: string) => (dispatch: DispatchFunction, getState: GetStateFunction) => {

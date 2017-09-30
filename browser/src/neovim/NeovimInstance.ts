@@ -264,12 +264,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._fontFamily = fontFamily
         this._fontSize = fontSize
 
-        const { width, height, kerning } = measureFont(this._fontFamily, this._fontSize)
+        const { width, height } = measureFont(this._fontFamily, this._fontSize)
 
         this._fontWidthInPixels = width
         this._fontHeightInPixels = height + linePadding
 
-        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height + linePadding, linePadding, kerning))
+        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height + linePadding, linePadding))
 
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
     }
