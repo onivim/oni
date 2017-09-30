@@ -165,7 +165,6 @@ export function setFont(fontFamily: string, fontSize: string, fontWidthInPixels:
         fontWidthInPixels,
         fontHeightInPixels,
         linePaddingInPixels,
-        kerning,
     }
 }
 
