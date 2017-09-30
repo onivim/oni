@@ -24,6 +24,8 @@ interface IKeyboardInputViewProps {
     onKeyDown?: (key: string) => void
     foregroundColor: string
     imeEnabled: boolean
+    fontFamily: string
+    fontSize: string
 }
 
 interface IKeyboardInputViewState {
@@ -31,6 +33,13 @@ interface IKeyboardInputViewState {
      * Tracks if composition is occurring (ie, an IME is active)
      */
     isComposing: boolean
+
+    /**
+     * Tracks the width of the currently composing text.
+     * This isn't the same as the input text string value .length(),
+     * because usually for IMEs there are multi-byte characters.
+     */
+    compositionTextWidthInPixels: number
 }
 
 export interface IKeyboardInputProps {
@@ -71,6 +80,7 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
 
         this.state = {
             isComposing: false,
+            compositionTextWidthInPixels: 0,
         }
     }
 
@@ -153,12 +163,13 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
 
     private _onCompositionUpdate(evt: React.CompositionEvent<HTMLInputElement>) {
         if (this._keyboardElement) {
-            // console.log(this._keyboardElement.value)
-            // this._keyboardElement.size = this._keyboardElement.value.length + 1
-            const measurements = measureFont("Fira Code", "9pt", this._keyboardElement.value)
-            const width = Math.ceil(measurements.width) + 1 + "px"
-            this._wrapperElem.style.width = width
-            console.log("Width: " + width)
+
+            const measurements = measureFont(this.props.fontSize, this.props.fontFamily, this._keyboardElement.value)
+            const width = Math.ceil(measurements.width) + 1
+
+            this.setState({
+                compositionTextWidthInPixels: width,
+            })
         }
     }
 
@@ -180,6 +191,7 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
     private _commit(val: string): void {
         this.setState({
             isComposing: false,
+            compositionTextWidthInPixels: 0,
         })
 
         this._keyboardElement.value = ""
@@ -195,6 +207,8 @@ const mapStateToProps = (state: IState, originalProps: IKeyboardInputProps): IKe
         height: state.fontPixelHeight,
         foregroundColor: state.foregroundColor,
         imeEnabled: state.mode === "insert",
+        fontFamily: state.fontFamily,
+        fontSize: state.fontSize,
     }
 }
 
