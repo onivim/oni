@@ -60,9 +60,9 @@ class Recorder {
                                 chromeMediaSource: 'desktop',
                                 chromeMediaSourceId: src.id,
                                 minWidth: 800,
-                                maxWidth: 1280,
+                                maxWidth: screen.availWidth,
                                 minHeight: 600,
-                                maxHeight: 720
+                                maxHeight: screen.availHeight,
                             }
                         }
                     }, (stream: any) => { this._handleStream(stream) },
@@ -95,7 +95,23 @@ class Recorder {
             const buffer = toBuffer(ab)
             const file = "videos/example.webm"
 
+            if (fs.existsSync(file)) {
+                fs.unlinkSync(file)
+            }
+
             fs.writeFileSync(file, buffer)
+
+            const gifshot = require("gifshot")
+            gifshot.createGIF({ video: "videos/example.webm"},
+                              (result: any) => {
+                                  if(!result.error) {
+                                    var image = result.image
+                                    const animatedImage = document.createElement("img")
+                                    animatedImage.src = image
+                                    document.body.appendChild(animatedImage)
+                                  }
+                              })
+
         })
     }
 
