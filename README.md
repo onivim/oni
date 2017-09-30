@@ -15,7 +15,6 @@
     - [Linux](#linux)
     - [Build](#build)
 - [Documentation](#documentation)
-- [FAQ](#faq)
 - [Roadmap](#roadmap)
 - [License](#license)
 - [Contributing](#contributing)
@@ -140,17 +139,9 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 ## Documentation
 
-Please see the [Wiki](https://github.com/bryphe/oni/wiki) for documentation on how to use and modify Oni.
-
-### FAQ
-
-#### Why isn't my init.vim loaded?
-
-> _TL;DR_ - Set the `oni.useDefaultConfig` configuration value to _false_
-
-By default, Oni has an opinionated, prescribed set of plugins, in order to facilitate a predictable out-of-box experience that highlights the additional UI integration points. However, this will likely have conflicts with a Vim/Neovim veteran's finely-honed configuration.
-
-To avoid loading the Oni defaults, and instead use your `init.vim`, set `oni.useDefaultConfig` to false in `$HOME/.oni/config.js`.  See [Configuration](https://github.com/bryphe/oni/wiki/Configuration) for more details on configuring Oni.
+- Check out the [Wiki](https://github.com/bryphe/oni/wiki) for documentation on how to use and modify Oni.
+- [FAQ](https://github.com/bryphe/oni/wiki)
+- [Roadmap](https://github.com/bryphe/oni/wiki/Roadmap)
 
 ### Included Vim Plugins
 
