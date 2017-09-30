@@ -2,8 +2,8 @@
 
 ### IDE powered by Neovim + React + Electron
 
-[![Build Status](https://travis-ci.org/extr0py/oni.svg?branch=master)](https://travis-ci.org/extr0py/oni)
-[![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/extr0py/oni/branch/master)
+[![Build Status](https://travis-ci.org/bryphe/oni.svg?branch=master)](https://travis-ci.org/bryphe/oni)
+[![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/bryphe/oni/branch/master)
 [![Join the chat at https://gitter.im/extr0py/Lobby](https://badges.gitter.im/extr0py/Lobby.svg)](https://gitter.im/extr0py/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 
@@ -30,17 +30,17 @@ Oni is a [NeoVim](https://github.com/neovim/neovim) front-end UI with rich IDE-l
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
-Check out [Releases](https://github.com/extr0py/oni/releases) for the latest binaries, or [Build Oni](#build) from source.
+Check out [Releases](https://github.com/bryphe/oni/releases) for the latest binaries, or [Build Oni](#build) from source.
 
 ## Features
 
 Oni brings several IDE-like integrations to NeoVim:
 
-- **[Quick Info](https://github.com/extr0py/oni/wiki/Features#quick-info)**
+- **[Quick Info](https://github.com/bryphe/oni/wiki/Features#quick-info)**
 
 ![quick-info-demo](http://i.imgur.com/0vJ8KgU.gif)
 
-- **[Code Completion](https://github.com/extr0py/oni/wiki/Features#code-completion)**
+- **[Code Completion](https://github.com/bryphe/oni/wiki/Features#code-completion)**
 
 ![completion-demo](http://i.imgur.com/exdasXs.gif)
 
@@ -48,33 +48,33 @@ Oni brings several IDE-like integrations to NeoVim:
 
 ![syntax-error-demo](http://i.imgur.com/GUBhRhG.gif)
 
-- **[Fuzzy Finding](https://github.com/extr0py/oni/wiki/Features#fuzzy-finder)**
+- **[Fuzzy Finding](https://github.com/bryphe/oni/wiki/Features#fuzzy-finder)**
 
 ![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
 
-- **[Status Bar](https://github.com/extr0py/oni/wiki/Features#status-bar)**
+- **[Status Bar](https://github.com/bryphe/oni/wiki/Features#status-bar)**
 
 ![status-bar-demo](http://i.imgur.com/2grzeN1.gif)
 
 ## Installation
 
-Check out [Releases](https://github.com/extr0py/oni/releases) for the latest binary.
+Check out [Releases](https://github.com/bryphe/oni/releases) for the latest binary.
 
 Windows & OSX releases come with a bundled Neovim release.
 
 ### Windows
 
-- Download the [Oni installer](https://github.com/extr0py/oni/releases/download/v0.2.9/Oni-0.2.9-ia32-win.exe) for Windows
+- Download the [Oni installer](https://github.com/bryphe/oni/releases/download/v0.2.9/Oni-0.2.9-ia32-win.exe) for Windows
 - Once it is downloaded, run the installer. This will only take a minute.
 - By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine. 
 
-You can also find install via a [zip archive](https://github.com/extr0py/oni/releases/download/v0.2.9/Oni-0.2.9-ia32-win.zip)
+You can also find install via a [zip archive](https://github.com/bryphe/oni/releases/download/v0.2.9/Oni-0.2.9-ia32-win.zip)
 
 > You may want to add Oni to your `%PATH%`, so that from the console, you can open Oni via `oni`
 
 ### Mac
 
-- Download [Oni](https://github.com/extr0py/oni/releases/download/v0.2.9/Oni-0.2.9-osx.dmg) for Mac
+- Download [Oni](https://github.com/bryphe/oni/releases/download/v0.2.9/Oni-0.2.9-osx.dmg) for Mac
 - Double-click on the archive to expand
 - Drag `Oni.app` to the `Applications` folder
 
@@ -84,32 +84,32 @@ You can also find install via a [zip archive](https://github.com/extr0py/oni/rel
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.1` is required..
 
-- Download the [.deb package (64-bit)](https://github.com/extr0py/oni/releases/download/v0.2.9/Oni-0.2.9-amd64-linux.deb)
+- Download the [.deb package (64-bit)](https://github.com/bryphe/oni/releases/download/v0.2.9/Oni-0.2.9-amd64-linux.deb)
 - Install the package with `sudo dpkg -i <file>.deb`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.9/Oni-0.2.9-linux.tar.gz) is also available.
+A [tar.gz](https://github.com/bryphe/oni/releases/download/v0.2.9/Oni-0.2.9-linux.tar.gz) is also available.
 
 #### Red Hat based distributions (Fedora, CentOS)
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.1` is required..
 
-- Download the [.rpm package](https://github.com/extr0py/oni/releases/download/v0.2.9/Oni-0.2.9-x86_64-linux.rpm)
+- Download the [.rpm package](https://github.com/bryphe/oni/releases/download/v0.2.9/Oni-0.2.9-x86_64-linux.rpm)
 - Install the package with `sudo dnf install <file>.rpm`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.9/Oni-0.2.9-linux.tar.gz) is also available.
+A [tar.gz](https://github.com/bryphe/oni/releases/download/v0.2.9/Oni-0.2.9-linux.tar.gz) is also available.
 
 #### Arch based distributions
 
 - Available via the [AUR](https://aur.archlinux.org/packages/oni/)
 - Install the package with `yaourt -S oni`
 
-A [tar.gz](https://github.com/extr0py/oni/releases/download/v0.2.9/Oni-0.2.9-linux.tar.gz) is also available.
+A [tar.gz](https://github.com/bryphe/oni/releases/download/v0.2.9/Oni-0.2.9-linux.tar.gz) is also available.
 
 ### Build
 
 > Ensure all dependencies for [node-gyp](https://github.com/nodejs/node-gyp) are installed, as some modules require building native code.
 
-1) Clone the repository: `git clone https://github.com/extr0py/oni.git`
+1) Clone the repository: `git clone https://github.com/bryphe/oni.git`
 
 2) Install dependencies by running `npm install` from the root
 
@@ -140,7 +140,7 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 ## Documentation
 
-Please see the [Wiki](https://github.com/extr0py/oni/wiki) for documentation on how to use and modify Oni.
+Please see the [Wiki](https://github.com/bryphe/oni/wiki) for documentation on how to use and modify Oni.
 
 ### FAQ
 
@@ -150,7 +150,7 @@ Please see the [Wiki](https://github.com/extr0py/oni/wiki) for documentation on 
 
 By default, Oni has an opinionated, prescribed set of plugins, in order to facilitate a predictable out-of-box experience that highlights the additional UI integration points. However, this will likely have conflicts with a Vim/Neovim veteran's finely-honed configuration.
 
-To avoid loading the Oni defaults, and instead use your `init.vim`, set `oni.useDefaultConfig` to false in `$HOME/.oni/config.js`.  See [Configuration](https://github.com/extr0py/oni/wiki/Configuration) for more details on configuring Oni.
+To avoid loading the Oni defaults, and instead use your `init.vim`, set `oni.useDefaultConfig` to false in `$HOME/.oni/config.js`.  See [Configuration](https://github.com/bryphe/oni/wiki/Configuration) for more details on configuring Oni.
 
 ### Included Vim Plugins
 
@@ -168,7 +168,7 @@ As well as some color-schemes:
 
 ## Roadmap
 
-See [Roadmap](https://github.com/extr0py/oni/wiki/Roadmap)
+See [Roadmap](https://github.com/bryphe/oni/wiki/Roadmap)
 
 ## License
 
@@ -191,7 +191,7 @@ Bundled plugins have their own license terms. These include:
 
 Contributions are very much welcome :)
 
-If you're interested in helping out, check out our [Debugging Page](https://github.com/extr0py/oni/wiki/Debugging) for tips and tricks for working with Oni.
+If you're interested in helping out, check out our [Debugging Page](https://github.com/bryphe/oni/wiki/Debugging) for tips and tricks for working with Oni.
 
 ## Thanks
 
@@ -207,6 +207,6 @@ A big THANK YOU to our current monthly sponsors. Your contributions help keep th
 
 In addition, there are several other great NeoVim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) that served as great reference points and learning opportunities.
 
-Also, thanks to our [contributors](https://github.com/extr0py/oni/graphs/contributors) for helping out!
+Also, thanks to our [contributors](https://github.com/bryphe/oni/graphs/contributors) for helping out!
 
 Special thanks to [Till Arnold](https://github.com/tillarnold) for handing over the `oni` NPM package name.
