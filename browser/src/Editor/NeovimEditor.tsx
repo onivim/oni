@@ -336,7 +336,7 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    private _onConfigChanged(): void {
+    private _onConfigChanged(newValues: Partial<Config.IConfigValues>): void {
         const fontFamily = this._config.getValue("editor.fontFamily")
         const fontSize = this._config.getValue("editor.fontSize")
 
