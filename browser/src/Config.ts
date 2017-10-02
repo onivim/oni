@@ -232,7 +232,8 @@ export class Config {
         // I could use watchFile() but that polls every 5 seconds.  Not ideal.
         if (fs.existsSync(this.getUserFolder())) {
             fs.watch(this.getUserFolder(), (event, filename) => {
-                if (event === "change" && filename === "config.js") {
+                if ((event === "change" && filename === "config.js") ||
+                     (event === "rename" && filename === "config.js")) {
                     // invalidate the Config currently stored in cache
                     delete global["require"].cache[global["require"].resolve(this.userJsConfig)] // tslint:disable-line no-string-literal
                     this.applyConfig()
