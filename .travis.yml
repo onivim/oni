@@ -37,7 +37,7 @@ script:
 deploy:
     - provider: releases
       api_key:
-        secure: o961hrUtOURo8uSzskTxgdg3W7ORvP3Wri2cp7ptcu4Jj/L2PgK/j052UkrZGKEvvQj2e11MEOMO/NYvF0BXzI7aRkyS5RdW5QDojVrQ1emN6Kyi9jl+X6q+klG1r+W1Clb4q6w+pZ5k5B2L2I5KUuYd0H5b8z2YV5tQagM3A7/VuDvdInybsiJqXJukYmxjmwClTNFzg0CUYGgiRwG4MsNC+1uxBjP5Jn2BBqpMXV4J6ofXvC0qbyxwcKFOl3Nxc0NQstaKqKvjYH8aFEAVymiEXQF4sYhTVBMdfg54ChsORZVj3/mYivRnB3g+4Na1JFjg4uooNKK4WTa8TrGmXvOS7YxWlF+A2HvvgU5C7tw3QPBS73kbjzq7UcsTpY1qOJHbVH4lkwnQzOVayWZfF/PgutXDxOLLtiZgZt9zCob1eJNxoTqdQAWLoXY3OqWE7aaADD0vDaTi6SklJOKuB1F0AemNdi1Xjmwfw7OfJFpzYu1V5LU1OSOgVZQoZ1OznW2Vr0xiNe14MB+odghzV2fT1PjfXsj++pOhnwNOUNh1dvJrehAKCiv5nhJlbkoUmuqnXNTOGPzz24UzqT+GO5mueNvnpYFhRC9HzyeOtntB8oiB6Jc2hHaY7TIP5djOxgTgxTD7DSKHsWHawrIltgwWNwAbR7VgMvQKu1rqBgY=
+        secure: AjQUeQNockqkBrVQCOQGyKq+sZ9C4SabSqp/bmXayKTB+7AmM8oohenxC09Sc4/dmIW1PQnDYL/4fjclJSRaywV5oiPqUnfhTveALkKFErmYnhA8oFi3VJYg4Tbszb2lYGITLOluuuAZGw67JZIuuiXzw/yOUfdWTmRCAVGzTmqkPsusYg56L4iRBWDwYQ3mhHsuNKFO7SIx1nJatj5hK9AkDJlcVilpA5IuWLWOHLY7nplFPUPUwMkRd99nifB7ITycbaAX4zLwp2U2wCb2uSTOzsFNfXykksf8AlreH0615Jb+T39/dDwQurDAQE3h+KUH5QhEvRJ1uphkGvx/x6Vn0LkJuSqS5DLeSATmVOVRK2f6AXcymvn/64qxizjlBR7bBoUxM55311qWJNKKk2FYFTAIW5fMzN0MRbaulpnpBwmhnBvd03rOMIghnvClHv2m8Eh5A6ppPnLcl2Vn7jsrqTmMm+PM1ppIWhCpvC7xn4digx1GGHXlYzfHkDxtnHwHcbj+WOkc+j4ha8Os+1ctdT3OJXz5rwW4viorSIhWryK+G36beguXe5YaoeMcK9Vzmb+S0lHdA7RuCWiJ31i/9ZMbzBhLkdcf/wfj9n3mkqmzvc4Uc1NM8FHQ23URsodSHpTdDi7q25Eqge/JP82AqJ2zAWA+QKVg54xCQQc=
       file_glob: true
       file:
         - dist/*.dmg
@@ -46,10 +46,10 @@ deploy:
       on:
         condition: $TRAVIS_OS_NAME = osx
         tags: true
-        repo: extr0py/oni
+        repo: bryphe/oni
     - provider: releases
       api_key:
-        secure: o961hrUtOURo8uSzskTxgdg3W7ORvP3Wri2cp7ptcu4Jj/L2PgK/j052UkrZGKEvvQj2e11MEOMO/NYvF0BXzI7aRkyS5RdW5QDojVrQ1emN6Kyi9jl+X6q+klG1r+W1Clb4q6w+pZ5k5B2L2I5KUuYd0H5b8z2YV5tQagM3A7/VuDvdInybsiJqXJukYmxjmwClTNFzg0CUYGgiRwG4MsNC+1uxBjP5Jn2BBqpMXV4J6ofXvC0qbyxwcKFOl3Nxc0NQstaKqKvjYH8aFEAVymiEXQF4sYhTVBMdfg54ChsORZVj3/mYivRnB3g+4Na1JFjg4uooNKK4WTa8TrGmXvOS7YxWlF+A2HvvgU5C7tw3QPBS73kbjzq7UcsTpY1qOJHbVH4lkwnQzOVayWZfF/PgutXDxOLLtiZgZt9zCob1eJNxoTqdQAWLoXY3OqWE7aaADD0vDaTi6SklJOKuB1F0AemNdi1Xjmwfw7OfJFpzYu1V5LU1OSOgVZQoZ1OznW2Vr0xiNe14MB+odghzV2fT1PjfXsj++pOhnwNOUNh1dvJrehAKCiv5nhJlbkoUmuqnXNTOGPzz24UzqT+GO5mueNvnpYFhRC9HzyeOtntB8oiB6Jc2hHaY7TIP5djOxgTgxTD7DSKHsWHawrIltgwWNwAbR7VgMvQKu1rqBgY=
+        secure: AjQUeQNockqkBrVQCOQGyKq+sZ9C4SabSqp/bmXayKTB+7AmM8oohenxC09Sc4/dmIW1PQnDYL/4fjclJSRaywV5oiPqUnfhTveALkKFErmYnhA8oFi3VJYg4Tbszb2lYGITLOluuuAZGw67JZIuuiXzw/yOUfdWTmRCAVGzTmqkPsusYg56L4iRBWDwYQ3mhHsuNKFO7SIx1nJatj5hK9AkDJlcVilpA5IuWLWOHLY7nplFPUPUwMkRd99nifB7ITycbaAX4zLwp2U2wCb2uSTOzsFNfXykksf8AlreH0615Jb+T39/dDwQurDAQE3h+KUH5QhEvRJ1uphkGvx/x6Vn0LkJuSqS5DLeSATmVOVRK2f6AXcymvn/64qxizjlBR7bBoUxM55311qWJNKKk2FYFTAIW5fMzN0MRbaulpnpBwmhnBvd03rOMIghnvClHv2m8Eh5A6ppPnLcl2Vn7jsrqTmMm+PM1ppIWhCpvC7xn4digx1GGHXlYzfHkDxtnHwHcbj+WOkc+j4ha8Os+1ctdT3OJXz5rwW4viorSIhWryK+G36beguXe5YaoeMcK9Vzmb+S0lHdA7RuCWiJ31i/9ZMbzBhLkdcf/wfj9n3mkqmzvc4Uc1NM8FHQ23URsodSHpTdDi7q25Eqge/JP82AqJ2zAWA+QKVg54xCQQc=
       file_glob: true
       file:
           - dist/*.deb
@@ -59,4 +59,4 @@ deploy:
       on:
         condition: $TRAVIS_OS_NAME = linux
         tags: true
-        repo: extr0py/oni
+        repo: bryphe/oni

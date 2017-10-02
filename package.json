@@ -3,7 +3,7 @@
   "author": "Bryan Phelps",
   "email": "bryphe@outlook.com",
   "homepage": "https://onivim.io",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "NeoVim front-end with IDE-style extensibility",
   "keywords": [
     "vim",
@@ -48,7 +48,7 @@
     },
     "linux": {
       "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
-      "maintainer": "extropy@extropygames.com",
+      "maintainer": "bryphe@outlook.com",
       "target": [
         "tar.gz",
         "deb",
@@ -103,7 +103,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/extr0py/oni"
+    "url": "https://github.com/bryphe/oni"
   },
   "author": "",
   "license": "MIT",
