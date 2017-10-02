@@ -27,6 +27,12 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
 
     nvimProcessPath = remapPathToUnpackedAsar(nvimProcessPath)
 
+    const neovimPath = Config.instance().getValue("debug.neovimPath")
+
+    if (neovimPath) {
+        nvimProcessPath = neovimPath
+    }
+
     const joinedRuntimePaths = runtimePaths
                                     .map((p) => remapPathToUnpackedAsar(p))
                                     .join(",")
