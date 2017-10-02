@@ -105,7 +105,7 @@ class Recorder {
         toArrayBuffer(new Blob(this._blobs, {type: "video/webm"}), (ab: any) => {
 
             const buffer = toBuffer(ab)
-            const file = "videos/example.webm"
+            const file = `videos/example-${new Date().getTime()}.webm`
 
             if (fs.existsSync(file)) {
                 fs.unlinkSync(file)
