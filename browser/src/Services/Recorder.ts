@@ -80,7 +80,10 @@ class Recorder {
                 }
             }
         });
+    }
 
+    public get isRecording(): boolean {
+        return !!this._recorder
     }
 
     private _handleStream(stream: any) {
@@ -110,25 +113,10 @@ class Recorder {
 
             fs.writeFileSync(file, buffer)
 
-            const size = getDimensions()
-            const gifshot = require("gifshot")
-            gifshot.createGIF({ video: "videos/example.webm", 
-                              gifWidth: size.width,
-                              gifHeight: size.height,
-                              sampleInterval: 1,
-            }, (result: any) => {
-                                  if(!result.error) {
-                                    var image = result.image
-                                    const animatedImage = document.createElement("img")
-                                    animatedImage.src = image
-                                    document.body.appendChild(animatedImage)
-                                  }
-                              })
-
+            this._recorder = null
+            this._blobs = []
+            alert("Recording saved to: " + file)
         })
-    }
-
-    public saveLastRecording(filePath?: string, fileType?: any): void {
     }
 
     public takeScreenshot(filePath?: string): void {
