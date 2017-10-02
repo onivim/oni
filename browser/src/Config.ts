@@ -24,6 +24,9 @@ export interface IConfigValues {
         columns: number,
     } | null
 
+    // Option to override neovim path. Used for testing new versions before bringing them in.
+    "debug.neovimPath": string | null
+
     // Production settings
 
     // Bell sound effect to use
@@ -130,6 +133,7 @@ export class Config {
         deactivate: noop,
 
         "debug.fixedSize": null,
+        "debug.neovimPath": null,
 
         "oni.audio.bellUrl": path.join(__dirname, "audio", "beep.wav"),
 
