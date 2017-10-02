@@ -38,8 +38,8 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
         </div>
     }
 
-    private _onRootKeyDown(evt: any): void {
-        const vimKey = keyEventToVimKey(evt)
+    private _onRootKeyDown(evt: React.KeyboardEvent<HTMLElement>): void {
+        const vimKey = keyEventToVimKey(evt.nativeEvent)
         if (inputManager.handleKey(vimKey)) {
             evt.stopPropagation()
             evt.preventDefault()
