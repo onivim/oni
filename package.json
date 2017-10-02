@@ -108,6 +108,7 @@
   "license": "MIT",
   "dependencies": {
     "find-up": "2.1.0",
+    "gifshot": "0.3.2",
     "keyboard-layout": "2.0.13",
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",
@@ -142,7 +143,6 @@
     "electron-rebuild": "1.6.0",
     "extract-zip": "1.6.0",
     "fuse.js": "2.6.2",
-    "gifshot": "0.3.2",
     "glob": "7.1.1",
     "innosetup-compiler": "5.5.9",
     "jsdom": "11.0.0",

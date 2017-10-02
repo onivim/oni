@@ -16,6 +16,14 @@ declare var MediaRecorder: any
 
 const SECRET_KEY = "oni_secret_key"
 
+const getDimensions = () => {
+    const size = require("electron").remote.getCurrentWindow().getSize()
+    return {
+        width: size[0],
+        height: size[1],
+    }
+}
+
 function toArrayBuffer(blob: any, cb: any) {
     let fileReader = new FileReader();
     fileReader.onload = function() {
@@ -53,16 +61,17 @@ class Recorder {
                 if (src.name === SECRET_KEY) {
                     document.title = title;
 
+                    const size = getDimensions()
                     navigator["webkitGetUserMedia"]({
                         audio: false,
                         video: {
                             mandatory: {
                                 chromeMediaSource: 'desktop',
                                 chromeMediaSourceId: src.id,
-                                minWidth: 800,
-                                maxWidth: screen.availWidth,
-                                minHeight: 600,
-                                maxHeight: screen.availHeight,
+                                minWidth: 320,
+                                maxWidth: size.width,
+                                minHeight: 240,
+                                maxHeight: size.height,
                             }
                         }
                     }, (stream: any) => { this._handleStream(stream) },
@@ -101,9 +110,13 @@ class Recorder {
 
             fs.writeFileSync(file, buffer)
 
+            const size = getDimensions()
             const gifshot = require("gifshot")
-            gifshot.createGIF({ video: "videos/example.webm"},
-                              (result: any) => {
+            gifshot.createGIF({ video: "videos/example.webm", 
+                              gifWidth: size.width,
+                              gifHeight: size.height,
+                              sampleInterval: 1,
+            }, (result: any) => {
                                   if(!result.error) {
                                     var image = result.image
                                     const animatedImage = document.createElement("img")
