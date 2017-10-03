@@ -25,7 +25,7 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
     const rect = div.getBoundingClientRect()
 
     const width = rect.width
-    const height = Math.ceil(rect.height)
+    const height = rect.height
 
     document.body.removeChild(div)
 
