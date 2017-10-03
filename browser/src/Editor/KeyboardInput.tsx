@@ -84,13 +84,13 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             right: "0px",
             pointerEvents: "none",
             opacity,
-            overflow: 'hidden',
+            overflow: "hidden",
         }
 
         const inputStyle: React.CSSProperties = {
             position: "absolute",
             padding: "0px",
-            width: '100%',
+            width: "100%",
             left: "0px",
             right: "0px",
             color: "black",
