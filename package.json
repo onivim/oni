@@ -56,7 +56,7 @@
       ]
     },
     "win": {
-      "artifactName": "${productName}-win.${ext}",
+      "artifactName": "${productName}-${arch}-win.${ext}",
       "target": [
         "zip",
         "dir"
