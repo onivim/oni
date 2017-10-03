@@ -100,7 +100,7 @@ export const Tab = (props: ITabPropsWithClick) => {
     }
 
     return <div className={cssClasses} title={props.description} style={style}>
-        <div className="corner"></div>
+        <div className="corner" onClick={props.onClickName}></div>
         <div className="name" onClick={props.onClickName}>
             <span className="name-inner">
                 {props.name}
@@ -139,7 +139,7 @@ const getTabsFromBuffers = createSelector(
             id: buf.id,
             name: getTabName(buf.file),
             isSelected: buf.id === buffers.activeBufferId,
-            isDirty: buf.version > buf.lastSaveVersion,
+            isDirty: buf.modified,
             description: buf.file,
         }))
         return tabs
@@ -160,14 +160,7 @@ const getTabsFromVimTabs = createSelector(
 const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITabsProps => {
 
     const shouldUseVimTabs = state.configuration["tabs.showVimTabs"]
-
-    let tabs: ITabProps[]
-
-    if (shouldUseVimTabs) {
-        tabs = getTabsFromVimTabs(state)
-    } else {
-        tabs = getTabsFromBuffers(state)
-    }
+    const tabs = shouldUseVimTabs ? getTabsFromVimTabs(state) : getTabsFromBuffers(state)
 
     const visible = state.configuration["tabs.enabled"]
 

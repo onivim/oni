@@ -4,6 +4,13 @@ import { EventEmitter } from "events"
 import * as types from "vscode-languageserver-types"
 
 declare namespace Oni {
+    export interface IDisposable {
+        dispose(): void
+    }
+
+    export interface IEvent<T> {
+        subscribe(callback: EventCallback<T>): IDisposable
+    }
 
     export interface EventCallback<T> {
         (val: T): void
@@ -14,16 +21,49 @@ declare namespace Oni {
     }
 
     export interface Configuration {
-        onConfigurationChangedEvent: Event<void>
+        onConfigurationChanged: Event<any>
         getValue<T>(configValue: string, defaultValue?: T): T
     }
 
+    export interface EditorManager {
+        activeEditor: Editor
+    }
+
+    export interface InputManager {
+        bind(keyChord: string | string[], actionFunction: any, filterFunction?: () => boolean)
+        unbind(keyChord: string | string[])
+        unbindAll()
+    }
+
+    export interface NeovimEditorCapability {
+        // Send a direct set of key inputs to Neovim
+        input(keys: string): Promise<void>
+
+        // Evaluate an expression, and return the result
+        eval(expression: string): Promise<any>
+
+        // Execute a command
+        command(command: string): Promise<void>
+    }
+
     export interface Editor {
-        executeShellCommand(shellCommand: string): void
+        mode: string
+        onModeChanged: IEvent<string>
+
+        // Optional capabilities for the editor to implement
+        neovim?: NeovimEditorCapability
     }
 
     export interface Commands {
         registerCommand(commandName: string, callback: (args?: any) => void): void
+    }
+
+    export interface Log {
+        verbose(msg: string): void
+        info(msg: string): void
+
+        disableVerboseLogging(): void
+        enableVerboseLogging(): void
     }
 
     export interface StatusBar {
@@ -80,6 +120,9 @@ declare namespace Oni {
         bufferTotalLines: number
         bufferNumber: number
 
+        modified: boolean
+        hidden: boolean
+        listed: boolean
         version: number
         line: number
 
@@ -156,7 +199,8 @@ declare namespace Oni {
         export interface Api extends EventEmitter {
             configuration: Configuration
             diagnostics: Diagnostics.Api
-            editor: Editor
+            editors: EditorManager
+            input: InputManager
             process: Process
             statusBar: StatusBar
 

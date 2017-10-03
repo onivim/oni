@@ -1,23 +1,31 @@
-import { EventEmitter } from "events"
-
 import * as fs from "fs"
 import * as cloneDeep from "lodash/cloneDeep"
 import * as isError from "lodash/isError"
 import * as path from "path"
 
+import * as Log from "./Log"
 import * as Performance from "./Performance"
 import * as Platform from "./Platform"
 
-export type RenderStrategy = "canvas" | "dom"
+import { Event, IEvent } from "./Event"
+
+import { applyDefaultKeyBindings } from "./Input/KeyBindings"
+
+import { diff } from "./Utility"
 
 export interface IConfigValues {
+
+    "activate": (oni: Oni.Plugin.Api) => void
+    "deactivate": () => void
+
     // Debug settings
-    "debug.incrementalRenderRegions": boolean
-    "debug.maxCellsToRender": number
     "debug.fixedSize": {
         rows: number,
         columns: number,
     } | null
+
+    // Option to override neovim path. Used for testing new versions before bringing them in.
+    "debug.neovimPath": string | null
 
     // Production settings
 
@@ -50,11 +58,22 @@ export interface IConfigValues {
     // glob pattern of files to exclude from fuzzy finder (Ctrl-P)
     "oni.exclude": string[]
 
+    // bookmarks to open if opened in install dir
+    "oni.bookmarks": string[]
+
     // Editor settings
 
     "editor.backgroundOpacity": number
     "editor.backgroundImageUrl": string
     "editor.backgroundImageSize": string
+
+    // Setting this to true enables yank integration with Oni
+    // When true, and text is yanked / deleted, that text will
+    // automatically be put on the clipboard.
+    //
+    // In addition, this enables <C-v> and <Cmd-v> behavior
+    // in paste from clipboard in insert mode.
+    "editor.clipboard.enabled": boolean
 
     "editor.quickInfo.enabled": boolean
     // Delay (in ms) for showing QuickInfo, when the cursor is on a term
@@ -69,7 +88,8 @@ export interface IConfigValues {
     "editor.fontSize": string
     "editor.fontFamily": string // Platform specific
 
-    "editor.renderer": RenderStrategy
+    // Additional padding between lines
+    "editor.linePadding": number
 
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
@@ -102,14 +122,18 @@ export interface IConfigValues {
     "tabs.showVimTabs": boolean
 }
 
-export class Config extends EventEmitter {
+const noop = () => { } // tslint:disable-line no-empty
+
+export class Config {
 
     public userJsConfig = path.join(this.getUserFolder(), "config.js")
 
     private DefaultConfig: IConfigValues = {
-        "debug.incrementalRenderRegions": false,
-        "debug.maxCellsToRender": 12000,
+        activate: noop,
+        deactivate: noop,
+
         "debug.fixedSize": null,
+        "debug.neovimPath": null,
 
         "oni.audio.bellUrl": path.join(__dirname, "audio", "beep.wav"),
 
@@ -122,10 +146,13 @@ export class Config extends EventEmitter {
         "oni.hideMenu": false,
 
         "oni.exclude": ["**/node_modules/**"],
+        "oni.bookmarks": [],
 
         "editor.backgroundOpacity": 1.0,
         "editor.backgroundImageUrl": null,
         "editor.backgroundImageSize": "initial",
+
+        "editor.clipboard.enabled": true,
 
         "editor.quickInfo.enabled": true,
         "editor.quickInfo.delay": 500,
@@ -135,12 +162,12 @@ export class Config extends EventEmitter {
         "editor.formatting.formatOnSwitchToNormalMode": false,
 
         "editor.fontLigatures": true,
-        "editor.fontSize": "14px",
+        "editor.fontSize": "12px",
         "editor.fontFamily": "",
 
-        "editor.quickOpen.execCommand": null,
+        "editor.linePadding": 2,
 
-        "editor.renderer": "canvas",
+        "editor.quickOpen.execCommand": null,
 
         "editor.scrollBar.visible": true,
 
@@ -155,7 +182,7 @@ export class Config extends EventEmitter {
         "environment.additionalPaths": [],
 
         "statusbar.enabled": true,
-        "statusbar.fontSize": "12px",
+        "statusbar.fontSize": "0.9em",
 
         "tabs.enabled": true,
         "tabs.showVimTabs": false,
@@ -163,8 +190,6 @@ export class Config extends EventEmitter {
 
     private MacConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "Menlo",
-        "editor.fontSize": "12px",
-        "statusbar.fontSize": "10px",
         "environment.additionalPaths": [
             "/usr/bin",
             "/usr/local/bin",
@@ -173,12 +198,10 @@ export class Config extends EventEmitter {
 
     private WindowsConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "Consolas",
-        "statusbar.fontSize": "11px",
     }
 
     private LinuxConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "DejaVu Sans Mono",
-        "statusbar.fontSize": "11px",
         "environment.additionalPaths": [
             "/usr/bin",
             "/usr/local/bin",
@@ -187,13 +210,17 @@ export class Config extends EventEmitter {
 
     private DefaultPlatformConfig = Platform.isWindows() ? this.WindowsConfig : Platform.isLinux() ? this.LinuxConfig : this.MacConfig
 
-    private configChanged: EventEmitter = new EventEmitter()
+    private _onConfigurationChangedEvent: Event<Partial<IConfigValues>> = new Event<Partial<IConfigValues>>()
 
-    private Config: IConfigValues = null
+    private _oniApi: Oni.Plugin.Api = null
+
+    private _config: IConfigValues = null
+
+    public get onConfigurationChanged(): IEvent<Partial<IConfigValues>> {
+        return this._onConfigurationChangedEvent
+    }
 
     constructor() {
-        super()
-
         Performance.mark("Config.load.start")
 
         this.applyConfig()
@@ -206,11 +233,11 @@ export class Config extends EventEmitter {
         // I could use watchFile() but that polls every 5 seconds.  Not ideal.
         if (fs.existsSync(this.getUserFolder())) {
             fs.watch(this.getUserFolder(), (event, filename) => {
-                if (event === "change" && filename === "config.js") {
+                if ((event === "change" && filename === "config.js") ||
+                     (event === "rename" && filename === "config.js")) {
                     // invalidate the Config currently stored in cache
                     delete global["require"].cache[global["require"].resolve(this.userJsConfig)] // tslint:disable-line no-string-literal
                     this.applyConfig()
-                    this.notifyListeners()
                 }
             })
         }
@@ -222,25 +249,22 @@ export class Config extends EventEmitter {
         return !!this.getValue(configValue)
     }
 
-    public getValue<K extends keyof IConfigValues>(configValue: K) {
-        return this.Config[configValue]
+    public getValue<K extends keyof IConfigValues>(configValue: K, defaultValue?: any) {
+        if (typeof this._config[configValue] === "undefined") {
+            return defaultValue
+        } else {
+            return this._config[configValue]
+        }
     }
 
     public getValues(): IConfigValues {
-        return cloneDeep(this.Config)
+        return cloneDeep(this._config)
     }
 
     public getUserFolder(): string {
         return path.join(Platform.getUserHome(), ".oni")
     }
 
-    public registerListener(callback: Function): void {
-        this.configChanged.on("config-change", callback)
-    }
-
-    public unregisterListener(callback: Function): void {
-        this.configChanged.removeListener("config-change", callback)
-    }
     // Emitting event is not enough, at startup nobody's listening yet
     // so we can't emit the parsing error to anyone when it happens
     public getParsingError(): Error | null {
@@ -248,15 +272,47 @@ export class Config extends EventEmitter {
         return isError(maybeError) ? maybeError : null
     }
 
+    public activate(oni: Oni.Plugin.Api): void {
+        this._oniApi = oni
+
+        this._activateIfOniObjectIsAvailable()
+    }
+
     private applyConfig(): void {
-        let userRuntimeConfigOrError = this.getUserRuntimeConfig()
+        const previousConfig = this._config
+
+        const userRuntimeConfigOrError = this.getUserRuntimeConfig()
         if (isError(userRuntimeConfigOrError)) {
-            this.emit("logError", userRuntimeConfigOrError)
-            this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig}
+            Log.error(userRuntimeConfigOrError)
+            this._config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig}
         } else {
-            this.Config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfigOrError}
+            this._config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfigOrError}
+        }
+
+        this._deactivate()
+        this._activateIfOniObjectIsAvailable()
+
+        this._notifyListeners(previousConfig)
+    }
+
+    private _activateIfOniObjectIsAvailable(): void {
+        if (this._config && this._config.activate && this._oniApi) {
+            applyDefaultKeyBindings(this._oniApi, this)
+
+            try {
+                this._config.activate(this._oniApi)
+            } catch (e) {
+                alert("[Config Error] Failed to activate " + this.userJsConfig + ":\n" + (e as Error).message)
+            }
         }
     }
+
+    private _deactivate(): void {
+        if (this._config && this._config.deactivate) {
+            this._config.deactivate()
+        }
+    }
+
     private getUserRuntimeConfig(): IConfigValues | Error {
         let userRuntimeConfig: IConfigValues | null = null
         let error: Error | null = null
@@ -264,17 +320,37 @@ export class Config extends EventEmitter {
             try {
                 userRuntimeConfig = global["require"](this.userJsConfig) // tslint:disable-line no-string-literal
             } catch (e) {
-                e.message = "Failed to parse " + this.userJsConfig + ":\n" + (<Error>e).message
+                e.message = "[Config Error] Failed to parse " + this.userJsConfig + ":\n" + (e as Error).message
                 error = e
+
+                alert(e.message)
             }
         }
         return error ? error : userRuntimeConfig
     }
 
-    private notifyListeners(): void {
-        this.configChanged.emit("config-change")
-    }
+    private _notifyListeners(previousConfig?: Partial<IConfigValues>): void {
+        previousConfig = previousConfig || {}
 
+        const changedValues = diff(this._config, previousConfig)
+
+        const diffObject = changedValues.reduce((previous: Partial<IConfigValues>, current: string) => {
+
+            const currentValue = this._config[current]
+
+            // Skip functions, because those will always be different
+            if (currentValue && typeof currentValue === "function") {
+                return previous
+            }
+
+            return {
+                ...previous,
+                [current]: this._config[current],
+            }
+        }, {})
+
+        this._onConfigurationChangedEvent.dispatch(diffObject)
+    }
 }
 
 const _config = new Config()

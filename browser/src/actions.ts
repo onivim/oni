@@ -17,10 +17,6 @@ export interface IAction {
     type: string
 }
 
-export interface IStartNeovimAction extends IAction {
-
-}
-
 export interface ICursorGotoAction extends IAction {
     row: number
     col: number
@@ -33,14 +29,6 @@ export interface IResizeAction extends IAction {
 
 export interface IPutCharacterAction extends IAction {
     characters: string[]
-}
-
-export interface IClearToEndOfLineAction extends IAction {
-
-}
-
-export interface IClearAction extends IAction {
-
 }
 
 export interface IChangeModeAction extends IAction {
@@ -56,6 +44,7 @@ export interface ISetFontAction extends IAction {
     fontSize: string
     fontWidthInPixels: number
     fontHeightInPixels: number
+    linePaddingInPixels: number
 }
 
 export interface IScrollAction extends IAction {
@@ -84,10 +73,10 @@ export interface ISetHighlightAction extends IAction {
     backgroundColor?: string
 }
 
-export function scroll(scroll: number): IScrollAction {
+export function scroll(scrollValue: number): IScrollAction {
     return {
         type: SCROLL,
-        scroll,
+        scroll: scrollValue,
     }
 }
 
@@ -168,17 +157,18 @@ export function changeMode(mode: string): IChangeModeAction {
     }
 }
 
-export function setFont(fontFamily: string, fontSize: string, fontWidthInPixels: number, fontHeightInPixels: number): ISetFontAction {
+export function setFont(fontFamily: string, fontSize: string, fontWidthInPixels: number, fontHeightInPixels: number, linePaddingInPixels: number): ISetFontAction {
     return {
         type: SET_FONT,
         fontFamily,
         fontSize,
         fontWidthInPixels,
         fontHeightInPixels,
+        linePaddingInPixels,
     }
 }
 
-export function clear(): IClearAction {
+export function clear(): IAction {
     return {
         type: CLEAR,
     }
@@ -199,7 +189,7 @@ export function put(characters: string[]): IPutCharacterAction {
     }
 }
 
-export function clearToEndOfLine(): IClearToEndOfLineAction {
+export function clearToEndOfLine(): IAction {
     return {
         type: CLEAR_TO_END_OF_LINE,
     }

@@ -6,26 +6,26 @@
 
 import * as React from "react"
 
+import { Mouse } from "./../Input/Mouse"
 import { NeovimInstance } from "./../neovim"
 import { NeovimScreen } from "./../Screen"
-
 import * as UI from "./../UI/index"
 
-// import { Keyboard } from "./../Input/Keyboard"
-import { Mouse } from "./../Input/Mouse"
+import { KeyboardInput } from "./KeyboardInput"
 
 export interface INeovimInputProps {
     neovimInstance: NeovimInstance
     screen: NeovimScreen
+    onKeyDown?: (key: string) => void
 }
 
 export class NeovimInput extends React.PureComponent<INeovimInputProps, void> {
-    private _element: HTMLDivElement
+    private _mouseElement: HTMLDivElement
     private _mouse: Mouse
 
     public componentDidMount(): void {
-        if (this._element) {
-            this._mouse = new Mouse(this._element, this.props.screen)
+        if (this._mouseElement) {
+            this._mouse = new Mouse(this._mouseElement, this.props.screen)
 
             this._mouse.on("mouse", (mouseInput: string) => {
                 UI.Actions.hideCompletions()
@@ -35,6 +35,8 @@ export class NeovimInput extends React.PureComponent<INeovimInputProps, void> {
     }
 
     public render(): JSX.Element {
-        return <div ref={ (elem) => this._element = elem } className="stack enable-mouse"></div>
+        return <div ref={(elem) => this._mouseElement = elem} className="stack enable-mouse">
+            <KeyboardInput onKeyDown={this.props.onKeyDown} />
+        </div>
     }
 }

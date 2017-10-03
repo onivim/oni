@@ -13,13 +13,13 @@ const getExecutablePath = () => {
             const archFlag = process.arch === "x64" ? "" : "ia32-"
             return path.join(__dirname, "..", "..", "dist", `linux-${archFlag}unpacked`, "oni")
         default:
-            throw `Unable to find Oni executable for platform ${process.platform}`
+            throw new Error(`Unable to find Oni executable for platform ${process.platform}`)
     }
 }
 
 const LongTimeout = 5000
 
-describe("application launch", function () { // tslint:disable-line only-arrow-functions
+describe("application launch", function() { // tslint:disable-line only-arrow-functions
     // Retry up to two times
     this.retries(2)
 

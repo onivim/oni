@@ -2,11 +2,13 @@ import * as React from "react"
 
 import { Background } from "./components/Background"
 import { EditorHost } from "./components/EditorHost"
-import { Logs } from "./components/Logs"
 import { MenuContainer } from "./components/Menu"
 import StatusBar from "./components/StatusBar"
 
 import { IEditor } from "./../Editor/Editor"
+import { keyEventToVimKey } from "./../Input/Keyboard"
+import { focusManager } from "./../Services/FocusManager"
+import { inputManager } from "./../Services/InputManager"
 
 interface IRootComponentProps {
     fileExplorerEditor: IEditor
@@ -15,7 +17,7 @@ interface IRootComponentProps {
 
 export class RootComponent extends React.PureComponent<IRootComponentProps, void> {
     public render() {
-        return <div className="stack disable-mouse">
+        return <div className="stack disable-mouse" onKeyDownCapture={(evt) => this._onRootKeyDown(evt)}>
             <div className="stack">
                 <Background />
             </div>
@@ -34,7 +36,6 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
 
                         </div>
                         <div className="stack layer">
-                            <Logs />
                             <MenuContainer />
                         </div>
                     </div>
@@ -44,5 +45,15 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
                 </div>
             </div>
         </div>
+    }
+
+    private _onRootKeyDown(evt: React.KeyboardEvent<HTMLElement>): void {
+        const vimKey = keyEventToVimKey(evt.nativeEvent)
+        if (inputManager.handleKey(vimKey)) {
+            evt.stopPropagation()
+            evt.preventDefault()
+        } else {
+            focusManager.enforceFocus()
+        }
     }
 }

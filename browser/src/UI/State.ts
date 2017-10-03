@@ -5,14 +5,13 @@
  */
 
 import * as Config from "./../Config"
-import { ILog } from "./Logs"
 import { Rectangle } from "./Types"
 
 import * as types from "vscode-languageserver-types"
 
-export type Buffers = { [filePath: string]: IBuffer }
-export type Errors = { [file: string]: { [key: string]: types.Diagnostic[] } }
-export type WindowLineMap = { [key: number]: number }
+export interface Buffers { [filePath: string]: IBuffer }
+export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
+export interface WindowLineMap { [key: number]: number }
 
 export interface IState {
     cursorPixelX: number
@@ -21,6 +20,8 @@ export interface IState {
     cursorCharacter: string
     fontPixelWidth: number
     fontPixelHeight: number
+    fontFamily: string
+    fontSize: string
     mode: string
     backgroundColor: string
     foregroundColor: string
@@ -33,6 +34,7 @@ export interface IState {
     cursorColumnVisible: boolean
     cursorColumnOpacity: number
     configuration: Config.IConfigValues
+    imeActive: boolean
 
     statusBar: { [id: string]: IStatusBarItem }
 
@@ -44,12 +46,6 @@ export interface IState {
     buffers: IBufferState
 
     windowState: IWindowState
-
-    logsVisible: boolean
-    logs: Array<{
-        log: ILog,
-        folded: boolean,
-    }>
 
     errors: Errors
 
@@ -95,9 +91,12 @@ export interface IBufferState {
 export interface IBuffer {
     id: number
     file: string
+    modified: boolean
     lastSaveVersion?: number
     version?: number
     totalLines: number
+    hidden: boolean
+    listed: boolean
 }
 
 export interface ITab {
@@ -170,6 +169,7 @@ export interface IAutoCompletionInfo {
      */
     selectedIndex: number
 }
+
 export const createDefaultState = (): IState => ({
     cursorPixelX: 10,
     cursorPixelY: 10,
@@ -177,6 +177,9 @@ export const createDefaultState = (): IState => ({
     cursorCharacter: "",
     fontPixelWidth: 10,
     fontPixelHeight: 10,
+    fontFamily: "",
+    fontSize: "",
+    imeActive: false,
     mode: "normal",
     foregroundColor: "rgba(0, 0, 0, 0)",
     autoCompletion: null,
@@ -194,8 +197,7 @@ export const createDefaultState = (): IState => ({
     cursorColumnVisible: false,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
-    logsVisible: false,
-    logs: [],
+
     configuration: Config.instance().getValues(),
 
     buffers: {

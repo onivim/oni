@@ -9,11 +9,10 @@
 import { ipcRenderer, remote } from "electron"
 import * as minimist from "minimist"
 import * as Config from "./Config"
+import * as Log from "./Log"
 import { PluginManager } from "./Plugins/PluginManager"
 
-import { CommandManager } from "./Services/CommandManager"
-
-import * as isEqual from "lodash/isEqual"
+import { commandManager } from "./Services/CommandManager"
 
 import * as UI from "./UI/index"
 
@@ -27,40 +26,22 @@ const start = (args: string[]) => {
     window["UI"] = UI // tslint:disable-line no-string-literal
     require("./overlay.less")
 
-    const commandManager = new CommandManager()
-    const pluginManager = new PluginManager(commandManager)
+    const pluginManager = new PluginManager()
 
     const config = Config.instance()
-    config.on("logError", (err: Error) => {
-        UI.Actions.makeLog({
-            type: "error",
-            message: err.message,
-            details: err.stack.split("\n"),
-        })
-    })
 
     const initialConfigParsingError = config.getParsingError()
     if (initialConfigParsingError) {
-        UI.Actions.makeLog({
-            type: "error",
-            message: initialConfigParsingError.message,
-            details: initialConfigParsingError.stack.split("\n"),
-        })
+        Log.error(initialConfigParsingError)
     }
-
-    let prevConfigValues = config.getValues()
 
     const browserWindow = remote.getCurrentWindow()
 
-    const configChange = () => {
-        let newConfigValues = config.getValues()
+    const configChange = (newConfigValues: Partial<Config.IConfigValues>) => {
         let prop: keyof Config.IConfigValues
         for (prop in newConfigValues) {
-            if (!isEqual(newConfigValues[prop], prevConfigValues[prop])) {
-                UI.Actions.setConfigValue(prop, newConfigValues[prop])
-            }
+            UI.Actions.setConfigValue(prop, newConfigValues[prop])
         }
-        prevConfigValues = newConfigValues
 
         document.body.style.fontFamily = config.getValue("editor.fontFamily")
         document.body.style.fontSize = config.getValue("editor.fontSize")
@@ -80,14 +61,14 @@ const start = (args: string[]) => {
         browserWindow.setFullScreen(config.getValue("editor.fullScreenOnStart"))
     }
 
-    configChange() // initialize values
-    config.registerListener(configChange)
+    configChange(config.getValues()) // initialize values
+    config.onConfigurationChanged.subscribe(configChange)
 
     UI.events.on("completion-item-selected", (item: any) => {
         pluginManager.notifyCompletionItemSelected(item)
     })
 
-    UI.init(pluginManager, commandManager, parsedArgs._)
+    UI.init(pluginManager, parsedArgs._)
 
     ipcRenderer.on("execute-command", (_evt: any, command: string) => {
         commandManager.executeCommand(command, null)

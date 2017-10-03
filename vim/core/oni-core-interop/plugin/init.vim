@@ -11,6 +11,10 @@ function OniNotify(args)
     call rpcnotify(1, "oni_plugin_notify", a:args)
 endfunction
 
+function OniNoop()
+
+endfunction
+
 function OniNotifyBufferUpdate()
 
     if !exists("b:last_change_tick")
@@ -46,9 +50,23 @@ function OniOpenFile(strategy, file)
      endif
  endfunction
 
+augroup OniClipboard
+    autocmd!
+    autocmd! TextYankPost * :call OniNotifyYank(v:event)
+augroup end
+
+" Prevent 'no matching autocommand' message if FocusLost/FocusGained
+" aren't registered
+augroup OniNoop
+    autocmd!
+    autocmd! FocusLost * :call OniNoop()
+    autocmd! FocusGained * :call OniNoop()
+augroup END
+
 augroup OniNotifyBufferUpdates
     autocmd!
     autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
+    autocmd! BufEnter * :call OniNotifyBufferUpdate()
     autocmd! CursorMoved * :call OniNotifyBufferUpdate()
     autocmd! InsertLeave * :call OniNotifyBufferUpdate()
     autocmd! InsertChange * :call OniNotifyBufferUpdate()
@@ -97,6 +115,9 @@ let context.windowTopLine = line("w0")
 let context.windowBottomLine = line("w$")
 let context.byte = line2byte(line(".")) + col(".")
 let context.filetype = eval("&filetype")
+let context.modified = &modified
+let context.hidden = &hidden
+let context.listed = &buflisted
 
 if exists("b:last_change_tick")
     let context.version = b:last_change_tick
@@ -141,6 +162,10 @@ function OniConnect()
     " prior to the UI attaching. See #122
     call OniNotifyEvent("BufEnter")
     call OniNotifyBufferUpdate()
+endfunction
+
+function OniNotifyYank(yankEvent)
+    call OniNotify(["oni_yank", a:yankEvent])
 endfunction
 
 

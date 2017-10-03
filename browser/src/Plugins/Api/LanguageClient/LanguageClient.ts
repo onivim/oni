@@ -16,6 +16,8 @@ import { ChildProcess } from "child_process"
 import { getCompletionMeet } from "./../../../Services/AutoCompletionUtility"
 import { Oni } from "./../Oni"
 
+import * as Log from "./../../../Log"
+
 import * as Helpers from "./LanguageClientHelpers"
 import { LanguageClientLogger } from "./LanguageClientLogger"
 
@@ -43,7 +45,7 @@ export interface ServerRunOptions {
 }
 
 /**
- * Options to send to the `initialize` method of the 
+ * Options to send to the `initialize` method of the
  * Language Server
  */
 export interface LanguageClientInitializationParams {
@@ -59,14 +61,12 @@ export interface LanguageClientInitializationParams {
  * Function that takes an event (buffer-open event) and returns a language params
  * This should always return the same value for a particular file.
  */
-export interface InitializationParamsCreator {
-    (filePath: string): Promise<LanguageClientInitializationParams>
-}
+export type InitializationParamsCreator = (filePath: string) => Promise<LanguageClientInitializationParams>
 
 import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
 
 /**
- * Implementation of a client that talks to a server 
+ * Implementation of a client that talks to a server
  * implementing the Language Server Protocol:
  * https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md
  */
@@ -160,46 +160,46 @@ export class LanguageClient {
         }
 
         if (this._startOptions.command) {
-            console.log(`[LANGUAGE CLIENT]: Starting process via '${this._startOptions.command}'`) // tslint:disable-line no-console
+            Log.info(`[LANGUAGE CLIENT]: Starting process via '${this._startOptions.command}'`)
             this._process = this._oni.process.spawnProcess(this._startOptions.command, startArgs, options)
         } else if (this._startOptions.module) {
-            console.log(`[LANGUAGE CLIENT]: Starting process via node script '${this._startOptions.module}'`) // tslint:disable-line no-console
+            Log.info(`[LANGUAGE CLIENT]: Starting process via node script '${this._startOptions.module}'`)
             this._process = this._oni.process.spawnNodeScript(this._startOptions.module, startArgs, options)
         } else {
-            throw "A command or module must be specified to start the server"
+            throw new Error("A command or module must be specified to start the server")
         }
 
         if (!this._process || !this._process.pid) {
-            console.error("[LANGUAGE CLIENT]: Unable to start language server process.") // tslint:disable-line no-console
+            Log.error("[LANGUAGE CLIENT]: Unable to start language server process.")
             this._statusBar.setStatus(LanguageClientState.Error)
             return Promise.reject(null)
         }
 
-        console.log(`[LANGUAGE CLIENT]: Started process ${this._process.pid}`) // tslint:disable-line no-console
+        Log.info(`[LANGUAGE CLIENT]: Started process ${this._process.pid}`)
 
         this._process.on("close", (code: number, signal: string) => {
-            console.warn(`[LANGUAGE CLIENT]: Process closed with exit code ${code} and signal ${signal}`) // tslint:disable-line no-console
+            Log.warn(`[LANGUAGE CLIENT]: Process closed with exit code ${code} and signal ${signal}`)
         })
 
         this._process.stderr.on("data", (msg) => {
-            console.error(`[LANGUAGE CLIENT - ERROR]: ${msg}`) // tslint:disable-line no-console
+            Log.error(`[LANGUAGE CLIENT - ERROR]: ${msg}`)
             this._statusBar.setStatus(LanguageClientState.Error)
         })
 
         this._connection = rpc.createMessageConnection(
-            <any>(new rpc.StreamMessageReader(this._process.stdout)),
-            <any>(new rpc.StreamMessageWriter(this._process.stdin)),
+            (new rpc.StreamMessageReader(this._process.stdout)) as any,
+            (new rpc.StreamMessageWriter(this._process.stdin)) as any,
             new LanguageClientLogger())
 
         this._currentOpenDocumentPath = null
         this._serverCapabilities = null
 
         this._connection.onNotification(Helpers.ProtocolConstants.Window.LogMessage, (args) => {
-            console.log(JSON.stringify(args)) // tslint:disable-line no-console
+            Log.info(JSON.stringify(args))
         })
 
         this._connection.onNotification(Helpers.ProtocolConstants.Telemetry.Event, (args) => {
-            console.log(JSON.stringify(args)) // tslint:disable-line no-console
+            Log.info(JSON.stringify(args))
         })
 
         this._connection.onNotification(Helpers.ProtocolConstants.Window.ShowMessage, (args) => {
@@ -229,18 +229,18 @@ export class LanguageClient {
         return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, oniLanguageClientParams)
             .then((response: any) => {
                 this._statusBar.setStatus(LanguageClientState.Initialized)
-                console.log(`[LANGUAGE CLIENT: ${initializationParams.clientName}]: Initialized`) // tslint:disable-line no-console
+                Log.info(`[LANGUAGE CLIENT: ${initializationParams.clientName}]: Initialized`)
                 if (response && response.capabilities) {
                     this._serverCapabilities = response.capabilities
                 }
             }, (err) => {
                 this._statusBar.setStatus(LanguageClientState.Error)
-                console.error(err)
+                Log.error(err)
             })
     }
 
     public end(): Promise<void> {
-        console.warn("Closing current language service connection")
+        Log.warn("Closing current language service connection")
         this._connection.dispose()
 
         this._connection = null
@@ -261,7 +261,7 @@ export class LanguageClient {
         const newPromise = this._currentPromise
             .then(() => promiseExecutor(),
             (err) => {
-                console.error(err)
+                Log.error(err)
                 this._statusBar.setStatus(LanguageClientState.Error)
                 return promiseExecutor()
             })
@@ -342,7 +342,7 @@ export class LanguageClient {
             return null
         }
 
-        let result = await this._connection.sendRequest<types.CompletionList>(
+        const result = await this._connection.sendRequest<types.CompletionList>(
             Helpers.ProtocolConstants.TextDocument.Completion,
             Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
 
@@ -383,7 +383,7 @@ export class LanguageClient {
             return null
         }
 
-        let symbolInformation = await this._connection.sendRequest<types.SymbolInformation[]>(
+        const symbolInformation = await this._connection.sendRequest<types.SymbolInformation[]>(
             Helpers.ProtocolConstants.TextDocument.DocumentSymbol,
             Helpers.pathToTextDocumentIdentifierParms(bufferFullPath))
 
@@ -399,7 +399,7 @@ export class LanguageClient {
                     return null
                 }
 
-                let contents = Helpers.getTextFromContents(result.contents)
+                const contents = Helpers.getTextFromContents(result.contents)
 
                 if (contents.length === 0) {
                     return null
@@ -467,13 +467,11 @@ export class LanguageClient {
         this._currentBuffer[lineNumber - 1] = changedLine
 
         if (this._serverCapabilities && this._serverCapabilities.textDocumentSync) {
-            let changeTextDocumentParams
+            const isFullSync = this._serverCapabilities.textDocumentSync === Helpers.TextDocumentSyncKind.Full
 
-            if (this._serverCapabilities.textDocumentSync === Helpers.TextDocumentSyncKind.Full) {
-                changeTextDocumentParams = Helpers.createDidChangeTextDocumentParams(args.eventContext.bufferFullPath, this._currentBuffer, args.eventContext.version)
-            } else {
-                changeTextDocumentParams = Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine)
-            }
+            const changeTextDocumentParams = isFullSync ?
+                Helpers.createDidChangeTextDocumentParams(args.eventContext.bufferFullPath, this._currentBuffer, args.eventContext.version)
+                : Helpers.incrementalBufferUpdateToDidChangeTextDocumentParams(args, previousLine)
 
             this._connection.sendNotification(Helpers.ProtocolConstants.TextDocument.DidChange, changeTextDocumentParams)
         }

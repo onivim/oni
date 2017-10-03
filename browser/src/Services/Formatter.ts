@@ -6,6 +6,7 @@
 
 import * as orderBy from "lodash/orderBy"
 import * as Config from "./../Config"
+import * as Log from "./../Log"
 import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
@@ -32,7 +33,7 @@ export class Formatter {
 
         this._pluginManager.on("format", (response: Oni.Plugin.FormattingEditsResponse) => {
 
-            if (response.version !== this._bufferUpdates.version) {
+            if (!this._bufferUpdates.modified) {
                 return
             }
 
@@ -47,7 +48,7 @@ export class Formatter {
             sortedEdits.forEach((edit) => {
 
                 if (edit.start.line !== edit.end.line) {
-                    console.warn("Unable to apply multi-line edit")
+                    Log.warn("Unable to apply multi-line edit")
                     return
                 }
 

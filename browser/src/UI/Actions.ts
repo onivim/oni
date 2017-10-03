@@ -8,7 +8,6 @@
  */
 
 import * as Config from "./../Config"
-import { ILog } from "./Logs"
 import { IMessageDialog, ITab, StatusBarAlignment, WindowLineMap } from "./State"
 import { Rectangle } from "./Types"
 
@@ -21,12 +20,29 @@ export interface ISetCurrentBuffersAction {
     }
 }
 
+export interface ISetImeActive {
+    type: "SET_IME_ACTIVE",
+    payload: {
+        imeActive: boolean,
+    }
+}
+
+export interface ISetFont {
+    type: "SET_FONT",
+    payload: {
+        fontFamily: string,
+        fontSize: string,
+    }
+}
+
 export interface IBufferEnterAction {
     type: "BUFFER_ENTER",
     payload: {
         id: number,
         file: string,
         totalLines: number,
+        hidden: boolean,
+        listed: boolean,
     }
 }
 
@@ -34,6 +50,7 @@ export interface IBufferUpdateAction {
     type: "BUFFER_UPDATE",
     payload: {
         id: number,
+        modified: boolean,
         version: number,
         totalLines: number,
     }
@@ -43,6 +60,7 @@ export interface IBufferSaveAction {
     type: "BUFFER_SAVE",
     payload: {
         id: number,
+        modified: boolean,
         version: number,
     }
 }
@@ -253,24 +271,6 @@ export interface ISetConfigurationValue<K extends keyof Config.IConfigValues> {
         value: Config.IConfigValues[K],
     }
 }
-export interface IToggleLogFold {
-    type: "TOGGLE_LOG_FOLD"
-    payload: {
-        index: number,
-    }
-}
-export interface IChangeLogsVisibility {
-    type: "CHANGE_LOGS_VISIBILITY",
-    payload: {
-        visibility: boolean,
-    }
-}
-export interface IMakeLog {
-    type: "MAKE_LOG",
-    payload: {
-        log: ILog,
-    }
-}
 
 export type Action<K extends keyof Config.IConfigValues> =
     SimpleAction | ActionWithGeneric<K>
@@ -280,6 +280,8 @@ export type SimpleAction =
     IBufferSaveAction |
     IBufferUpdateAction |
     ISetCursorPositionAction |
+    ISetImeActive |
+    ISetFont |
     IShowSignatureHelpAction |
     IHideSignatureHelpAction |
     IShowQuickInfoAction |
@@ -306,9 +308,6 @@ export type SimpleAction =
     IClearErrorsAction |
     IShowCursorLineAction |
     IShowCursorColumnAction |
-    IToggleLogFold |
-    IChangeLogsVisibility |
-    IMakeLog |
     ISetCurrentBuffersAction |
     ISetTabs |
     ISetWindowDimensions |

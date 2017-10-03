@@ -9,20 +9,18 @@
  *  - NPM tasks
  */
 
+import { remote } from "electron"
+import {EventEmitter} from "events"
 import * as find from "lodash/find"
 import * as flatten from "lodash/flatten"
-
-import * as Parser from "./../Parser"
-import { getProjectConfiguration } from "./../ProjectConfig"
 import * as UI from "./../UI/index"
-
-import { OutputWindow } from "./Output"
-
-const findUp = require("find-up") // tslint:disable-line no-var-requires
 
 export interface ITask {
     name: string
     detail: string
+    command: string
+    messageSuccess?: string
+    messageFail?: string // TODO: implement callbacks to return boolean
     callback: () => void
 }
 
@@ -30,91 +28,16 @@ export interface ITaskProvider {
     getTasks(): Promise<ITask[]>
 }
 
-/**
- * Implementation of TasksProvider that gets launch tasks
- * from .oni/launch.json
- */
-export class OniLaunchTasksProvider implements ITaskProvider {
-    private _currentBufferPath: string
-    private _output: OutputWindow
-
-    constructor(currentBufferPath: string, output: OutputWindow) {
-        this._currentBufferPath = currentBufferPath
-        this._output = output
-    }
-
-    public getTasks(): Promise<ITask[]> {
-        return getProjectConfiguration(this._currentBufferPath)
-            .then((config) => {
-                return config.launchConfigurations.map((p) => ({
-                    name: p.name,
-                    detail: p.program,
-                    callback: () => {
-                        const launchCommand = p.program + " " + p.args.join(" ")
-                        const commands = p.dependentCommands.concat([launchCommand])
-                        this._output.executeCommands(commands)
-                    },
-                }))
-            })
-    }
-}
-
-export class PackageJsonTasksProvider implements ITaskProvider {
-
-    private _currentPath: string
-    private _output: OutputWindow
-
-    constructor(currentPath: string, output: OutputWindow) {
-        this._currentPath = currentPath
-        this._output = output
-    }
-
-    public async getTasks(): Promise<ITask[]> {
-
-        const filePath = await findUp("package.json", { cwd: this._currentPath })
-
-        if (!filePath) {
-            return []
-        }
-
-        const packageJson = Parser.parseJsonFromFile<any>(filePath)
-
-        if (!packageJson.scripts) {
-            return[]
-        }
-
-        const scripts = packageJson.scripts
-        const tasks = Object.keys(scripts)
-            .map((key) => ({
-                name: key,
-                detail: scripts[key],
-                callback: () => this._output.execute(`npm run ${key}`),
-            }))
-
-        return tasks
-    }
-}
-
-export class Tasks {
+export class Tasks extends EventEmitter {
     private _lastTasks: ITask[] = []
     private _currentBufferPath: string
-    private _output: OutputWindow
 
     private _providers: ITaskProvider[] = []
 
-    constructor(output: OutputWindow) {
-        this._output = output
-
-        UI.events.on("menu-item-selected:tasks", (selectedItem: any) => {
-            const {label, detail} = selectedItem.selectedOption
-
-            const selectedTask = find(this._lastTasks, (t) => t.name === label && t.detail === detail)
-
-            if (selectedTask) {
-                selectedTask.callback()
-            }
-        })
-    }
+    // TODO: This should be refactored, as it is simply
+    // a timing dependency on when the object is created versus when
+    // it is shown.
+    private _initialized = false
 
     public registerTaskProvider(taskProvider: ITaskProvider): void {
         this._providers.push(taskProvider)
@@ -125,6 +48,8 @@ export class Tasks {
     }
 
     public show(): void {
+        this._init()
+
         this._refreshTasks().then(() => {
             const options = this._lastTasks.map((f) => {
                 return {
@@ -138,17 +63,35 @@ export class Tasks {
         })
     }
 
+    private _init(): void {
+        if (!this._initialized) {
+            UI.events.on("menu-item-selected:tasks", async (selectedItem: any) => {
+                const {label, detail} = selectedItem.selectedOption
+
+                const selectedTask = find(this._lastTasks, (t) => t.name === label && t.detail === detail)
+
+                if (selectedTask) {
+                    await selectedTask.callback()
+                    this.emit("task-executed", selectedTask.command)
+
+                    // TODO: we should make the callback return a bool so we can display either success/fail messages
+                    if (selectedTask.messageSuccess != null) {
+                      remote.dialog.showMessageBox({type: "info", title: "Success", message: selectedTask.messageSuccess})
+                    }
+                }
+            })
+            this._initialized = true
+        }
+    }
+
     private async _refreshTasks(): Promise<void> {
         this._lastTasks = []
 
-        let initialProviders: ITaskProvider[] = []
+        const initialProviders: ITaskProvider[] = []
         const taskProviders = initialProviders.concat(this._providers)
-        const rootPath = this._currentBufferPath || process.cwd()
-        taskProviders.push(new OniLaunchTasksProvider(rootPath, this._output))
-        taskProviders.push(new PackageJsonTasksProvider(rootPath, this._output))
-
         const allTasks = await Promise.all(taskProviders.map(async (t: ITaskProvider) => await t.getTasks() || []))
-
         this._lastTasks = flatten(allTasks)
     }
 }
+
+export const tasks = new Tasks()

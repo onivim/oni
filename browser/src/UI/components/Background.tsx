@@ -29,7 +29,7 @@ export class BackgroundRenderer extends React.PureComponent<IBackgroundProps, vo
 }
 
 const mapStateToProps = (state: State.IState): IBackgroundProps => {
-    let conf = state.configuration
+    const conf = state.configuration
     return {
         backgroundColor: state.backgroundColor,
         backgroundImageUrl: State.readConf(conf, "editor.backgroundImageUrl"),
