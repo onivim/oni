@@ -13,6 +13,9 @@ export interface IQuickInfoProps {
     y: number
     elements: JSX.Element[]
     openFromTop?: boolean
+
+    backgroundColor: string
+    foregroundColor: string
 }
 
 export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
@@ -34,6 +37,8 @@ export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
             "position": "absolute",
             "opacity": this.props.visible ? 1 : 0,
             "max-width": (document.body.offsetWidth - this.props.x - 40) + "px",
+            backgroundColor: this.props.backgroundColor,
+            color: this.props.foregroundColor,
         }
 
         const openFromTopStyle: React.CSSProperties = {
@@ -96,7 +101,7 @@ export class SelectedText extends TextComponent {
     }
 }
 
-const getOpenPosition = (state: IState): { x: number, y: number, openFromTop: boolean } => {
+const getOpenPosition = (state: IState): { foregroundColor: string, backgroundColor: string, x: number, y: number, openFromTop: boolean } => {
     const openFromTopPosition = state.cursorPixelY + (state.fontPixelHeight * 2)
     const openFromBottomPosition = state.cursorPixelY - state.fontPixelHeight
 
@@ -108,6 +113,8 @@ const getOpenPosition = (state: IState): { x: number, y: number, openFromTop: bo
         x: state.cursorPixelX,
         y: yPos,
         openFromTop,
+        foregroundColor: state.foregroundColor,
+        backgroundColor: state.backgroundColor,
     }
 }
 
