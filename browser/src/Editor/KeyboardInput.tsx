@@ -23,7 +23,6 @@ interface IKeyboardInputViewProps {
     height: number
     onKeyDown?: (key: string) => void
     foregroundColor: string
-    imeEnabled: boolean
     fontFamily: string
     fontSize: string
     fontCharacterWidthInPixels: number
@@ -119,15 +118,12 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             width: this.state.compositionTextWidthInPixels + "px",
         }
 
-        // IME is disabled for 'password' type fields
-        const inputType = this.props.imeEnabled ? "text" : "password"
-
         return <div style={containerStyle}>
             <div style={backgroundStyle} />
             <input
                 style={inputStyle}
                 ref={(elem) => this._keyboardElement = elem}
-                type={inputType}
+                type={"text"}
                 onKeyDown={(evt) => this._onKeyDown(evt)}
                 onCompositionEnd={(evt) => this._onCompositionEnd(evt)}
                 onCompositionUpdate={(evt) => this._onCompositionUpdate(evt)}
@@ -160,13 +156,11 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             return
         }
 
-        const imeDisabled = !this.props.imeEnabled
         const isMetaCommand = key.length > 1
 
-        // If ime is disabled, always pass the key event through...
-        // Otherwise, we'll let the `input` handler take care of it,
+        // We'll let the `input` handler take care of it,
         // unless it is a keystroke containing meta characters
-        if (imeDisabled || isMetaCommand) {
+        if (isMetaCommand) {
             this._commit(key)
             evt.preventDefault()
             return
@@ -229,7 +223,6 @@ const mapStateToProps = (state: IState, originalProps: IKeyboardInputProps): IKe
         left: state.cursorPixelX,
         height: state.fontPixelHeight,
         foregroundColor: state.foregroundColor,
-        imeEnabled: true,
         fontFamily: state.fontFamily,
         fontSize: state.fontSize,
         fontCharacterWidthInPixels: state.fontPixelWidth,
