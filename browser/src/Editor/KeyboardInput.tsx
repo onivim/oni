@@ -229,7 +229,7 @@ const mapStateToProps = (state: IState, originalProps: IKeyboardInputProps): IKe
         left: state.cursorPixelX,
         height: state.fontPixelHeight,
         foregroundColor: state.foregroundColor,
-        imeEnabled: state.mode === "insert",
+        imeEnabled: true,
         fontFamily: state.fontFamily,
         fontSize: state.fontSize,
         fontCharacterWidthInPixels: state.fontPixelWidth,
