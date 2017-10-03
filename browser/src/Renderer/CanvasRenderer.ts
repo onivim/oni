@@ -35,6 +35,9 @@ export class CanvasRenderer implements INeovimRenderer {
     private _grid: Grid<ISpan> = new Grid<ISpan>()
 
     private _devicePixelRatio: number
+    
+    constructor(private _screen: IScreen) {
+    }
 
     public start(element: HTMLDivElement): void {
         this._editorElement = element
@@ -44,7 +47,8 @@ export class CanvasRenderer implements INeovimRenderer {
         this._canvasElement.style.height = "100%"
 
         this._devicePixelRatio = window.devicePixelRatio
-        this._canvasContext = this._canvasElement.getContext("2d")
+
+        this._canvasContext = this._canvasElement.getContext("2d", { alpha: false })
 
         this._editorElement.appendChild(this._canvasElement)
 
@@ -222,18 +226,14 @@ export class CanvasRenderer implements INeovimRenderer {
         //
         // This normalization addresses it by making sure the rectangle bounds are aligned
         // to the nearest integer pixel.
-        const normalizedBoundsStartX = Math.floor(boundsStartX)
-        const delta = boundsStartX - normalizedBoundsStartX
-        const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
+         const normalizedBoundsStartX = Math.floor(boundsStartX)
+         const delta = boundsStartX - normalizedBoundsStartX
+         const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
 
-        if (backgroundColor && backgroundColor !== screenInfo.backgroundColor) {
-
-            this._canvasContext.fillStyle = backgroundColor
-            // TODO: Width of non-english characters
-            this._canvasContext.fillRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
-        } else {
-            this._canvasContext.clearRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
-        }
+        this._canvasContext.fillStyle = backgroundColor || screenInfo.backgroundColor
+        // this._canvasContext.strokeStyle = backgroundColor || screenInfo.backgroundColor
+        // TODO: Width of non-english characters
+        this._canvasContext.fillRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
 
         if (!state.isWhitespace) {
             this._canvasContext.fillStyle = foregroundColor
@@ -254,5 +254,14 @@ export class CanvasRenderer implements INeovimRenderer {
     private _setContextDimensions(): void {
         this._canvasElement.width = this._canvasElement.offsetWidth * this._devicePixelRatio
         this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
+
+        console.log(this._screen.backgroundColor)
+
+
+        // this._canvasContext.translate(0, 0)
+        // this._canvasContext.fillStyle = this._screen.backgroundColor
+        // this._canvasContext.fillRect(0, 0, width, height)
+
+        // this._canvasContext.translate(0.5, 0.5)
     }
 }

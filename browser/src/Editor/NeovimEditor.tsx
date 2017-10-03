@@ -86,7 +86,7 @@ export class NeovimEditor implements IEditor {
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
 
-        this._renderer = new CanvasRenderer()
+        this._renderer = new CanvasRenderer(this._screen)
 
         // Services
         const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
