@@ -182,7 +182,7 @@ export class Config {
         "environment.additionalPaths": [],
 
         "statusbar.enabled": true,
-        "statusbar.fontSize": "11px",
+        "statusbar.fontSize": "0.9em",
 
         "tabs.enabled": true,
         "tabs.showVimTabs": false,
@@ -190,7 +190,6 @@ export class Config {
 
     private MacConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "Menlo",
-        "statusbar.fontSize": "10px",
         "environment.additionalPaths": [
             "/usr/bin",
             "/usr/local/bin",
@@ -199,12 +198,10 @@ export class Config {
 
     private WindowsConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "Consolas",
-        "statusbar.fontSize": "11px",
     }
 
     private LinuxConfig: Partial<IConfigValues> = {
         "editor.fontFamily": "DejaVu Sans Mono",
-        "statusbar.fontSize": "11px",
         "environment.additionalPaths": [
             "/usr/bin",
             "/usr/local/bin",
