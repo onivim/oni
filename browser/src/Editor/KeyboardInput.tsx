@@ -192,7 +192,6 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
 
     private _commit(val: string): void {
         this.setState({
-            isDead: false,
             isComposing: false,
             compositionTextWidthInPixels: 0,
         })
