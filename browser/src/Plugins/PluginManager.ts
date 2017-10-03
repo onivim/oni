@@ -107,6 +107,10 @@ export class PluginManager extends EventEmitter {
     }
 
     public notifyBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]): void {
+
+        if (!eventContext)
+            return
+
         this._channel.host.send({
             type: "buffer-update",
             payload: {
@@ -331,12 +335,12 @@ export class PluginManager extends EventEmitter {
     }
 }
 
-function getDirectories(rootPath: string): string[] {
-    if (!fs.existsSync(rootPath)) {
-        return []
-    }
+ function getDirectories(rootPath: string): string[] {
+     if (!fs.existsSync(rootPath)) {
+         return []
+     }
 
-    return fs.readdirSync(rootPath)
-        .map((f) => path.join(rootPath.toString(), f))
-        .filter((f) => fs.statSync(f).isDirectory())
-}
+     return fs.readdirSync(rootPath)
+         .map((f) => path.join(rootPath.toString(), f))
+         .filter((f) => fs.statSync(f).isDirectory())
+ }
