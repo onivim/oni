@@ -36,7 +36,7 @@
       "!test"
     ],
     "mac": {
-      "artifactName": "${productName}-${version}-osx.${ext}",
+      "artifactName": "${productName}-osx.${ext}",
       "category": "public.app-category.developer-tools",
       "target": [
         "dmg",
@@ -47,7 +47,7 @@
       ]
     },
     "linux": {
-      "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
+      "artifactName": "${productName}-${arch}-linux.${ext}",
       "maintainer": "bryphe@outlook.com",
       "target": [
         "tar.gz",
@@ -56,6 +56,7 @@
       ]
     },
     "win": {
+      "artifactName": "${productName}-win.${ext}",
       "target": [
         "zip",
         "dir"
