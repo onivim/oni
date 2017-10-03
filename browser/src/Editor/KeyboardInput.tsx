@@ -30,6 +30,12 @@ interface IKeyboardInputViewProps {
 }
 
 interface IKeyboardInputViewState {
+
+    /**
+     * Tracks if a dead key has been pressed, in which we should use the `input` strategy
+     */
+    isDead: boolean
+
     /**
      * Tracks if composition is occurring (ie, an IME is active)
      */
@@ -59,6 +65,7 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
         super()
 
         this.state = {
+            isDead: false,
             isComposing: false,
             compositionTextWidthInPixels: 0,
         }
@@ -132,7 +139,14 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
     private _onKeyDown(evt: React.KeyboardEvent<HTMLInputElement>) {
         // 'Process' means hand-off to the IME -
         // so the composition events should handle this
-        if (evt.key === "Process" || evt.key === "Dead") {
+        if (evt.key === "Process" || this.state.isDead) {
+            return
+        }
+
+        if (evt.key === "Dead") {
+            this.setState({
+                isDead: true,
+            })
             return
         }
 
@@ -198,6 +212,7 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
 
     private _commit(val: string): void {
         this.setState({
+            isDead: false,
             isComposing: false,
             compositionTextWidthInPixels: 0,
         })
