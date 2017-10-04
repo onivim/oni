@@ -137,6 +137,8 @@ export class Config {
         "debug.fixedSize": null,
         "debug.neovimPath": null,
 
+        "experimental.enableLanguageServerFromConfig": false,
+
         "oni.audio.bellUrl": path.join(__dirname, "audio", "beep.wav"),
 
         "oni.useDefaultConfig": true,

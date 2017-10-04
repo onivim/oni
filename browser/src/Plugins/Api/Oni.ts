@@ -10,7 +10,7 @@ import { StatusBar } from "./StatusBar"
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient, ServerRunOptions } from "./LanguageClient/LanguageClient"
 
-import { Process } from "./Process"
+import * Process from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
@@ -47,7 +47,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     private _diagnostics: Oni.Plugin.Diagnostics.Api
     private _ui: Ui
     private _services: Services
-    private _process: Process
 
     public get commands(): Oni.Commands {
         return this._commands
@@ -82,7 +81,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     public get process(): Oni.Process {
-        return this._process
+        return Process
     }
 
     public get statusBar(): StatusBar {
@@ -110,7 +109,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._statusBar = new StatusBar(this._channel)
         this._ui = new Ui(react)
         this._services = new Services()
-        this._process = new Process()
 
         this._channel.onRequest((arg: any) => {
             this._handleNotification(arg)
@@ -128,7 +126,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
         Log.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead")
 
-        return this._process.execNodeScript(scriptPath, args, options, callback)
+        return Process.execNodeScript(scriptPath, args, options, callback)
     }
 
     /**
@@ -138,7 +136,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
         Log.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead")
 
-        return this._process.spawnNodeScript(scriptPath, args, options)
+        return Process.spawnNodeScript(scriptPath, args, options)
     }
 
     public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {

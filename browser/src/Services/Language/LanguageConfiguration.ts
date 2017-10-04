@@ -4,9 +4,20 @@
  * Helper for registering language client information from config
 */
 
-import * as Config from "./../../Config"
+import * as path from "path"
 
-import { languageManager } from "./LanguageManager"
+import * as Config from "./../../Config"
+import * as Log from "./../../Log"
+
+import { InitializationOptions, languageManager, ServerRunOptions } from "./LanguageManager"
+
+export interface ILightweightLanguageConfiguration {
+    languageServer?: ILightweightLanguageServerConfiguration
+}
+
+export interface ILightweightLanguageServerConfiguration {
+    command?: string
+}
 
 const expandConfigurationSetting = (rootObject: any, configurationPath: string[], value: string): any  => {
     if (!configurationPath || !configurationPath.length) {
@@ -41,11 +52,36 @@ const expandLanguageConfiguration = (configuration: { [key: string]: any }) => {
     return expanded.language
 }
 
+const createLanguageClientFromConfig = (language: string, config: ILightweightLanguageConfiguration): void => {
+    if (!config || !config.languageServer || !config.languageServer.command) {
+        return
+    }
+
+    const lightweightCommand = config.languageServer.command
+
+    Log.info(`[Language Manager - Config] Registering info for language: ${language} - command: ${config.languageServer.command}`)
+
+    const commandOrModule = lightweightCommand.endsWith(".js") ? { module: lightweightCommand } : { command: lightweightCommand }
+
+    const simplePathResolver = (filePath: string) => Promise.resolve(path.dirname(filePath))
+    const serverRunOptions: ServerRunOptions = {
+        ...commandOrModule,
+        args: [],
+        workingDirectory: simplePathResolver
+    }
+
+    const initializationOptions: InitializationOptions = {
+        rootPath: simplePathResolver
+    }
+
+    languageManager.createLanguageClient(language, serverRunOptions, initializationOptions)
+}
+
 export const createLanguageClientsFromConfiguration = (configuration: { [key: string]: any }) => {
     const languageInfo = expandLanguageConfiguration(Config.instance().getValues())
     const languages = Object.keys(languageInfo)
 
     languages.forEach((lang) => {
-        languageManager.createLanguageClientFromConfig(lang, languages[lang])
+        createLanguageClientFromConfig(lang, languageInfo[lang])
     })
 }

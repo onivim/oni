@@ -7,33 +7,108 @@
  *  - Handling custom syntax (TextMate themes)
 */
 
-import * as Config from "./../../Config"
 import * as Log from "./../../Log"
 
-// TODO: Factor out configuration pieces to separate file
+import { editorManager } from "./../EditorManager"
 
-export interface ILanguageConfiguration {
-    languageServer?: ILanguageServerConfiguration
+export type PathResolver = (filePath: string) => Promise<string>
+
+export interface ServerRunOptions {
+    /**
+     * Specify `command` to use a shell command to spawn a process
+     */
+    command?: string
+
+    /**
+     * Specify `module` to run a JavaScript module
+     */
+    module?: string
+
+    /**
+     * Arguments to pass to the language servicew
+     */
+    args?: string[]
+
+    workingDirectory?: PathResolver
 }
 
-export interface ILanguageServerConfiguration {
-    command?: string
+export interface InitializationOptions {
+    rootPath: PathResolver
+}
+
+export class PromiseQueue {
+    private _currentPromise: Promise<any> = Promise.resolve(null)
+
+    public enqueuePromise<T>(functionThatReturnsPromiseOrThenable: () => Promise<T> | Thenable<T>, requireConnection: boolean = true): Promise<T> {
+
+        const promiseExecutor = () => {
+            return functionThatReturnsPromiseOrThenable()
+        }
+
+        const newPromise = this._currentPromise
+            .then(() => promiseExecutor(),
+            (err) => {
+                Log.error(err)
+                return promiseExecutor()
+            })
+
+        this._currentPromise = newPromise
+        return newPromise
+    }
+}
+
+export class LanguageClient {
+
+    private _promiseQueue: PromiseQueue = new PromiseQueue()
+    private _languageClientProcess: LanguageClientProcess
+
+    constructor(
+        serverOptions: ServerRunOptions,
+        initializationOptions: InitializationOptions) {
+        this._languageClientProcess = new LanguageClientProcess(serverOptions, initializationOptions)
+    }
+
+    public sendRequest<T>(requestName: string, protocolArguments: any): Promise<T> {
+        return this._promiseQueue.enqueuePromise(() => {
+            return Promise.resolve(null)
+        })
+    }
+
+    public sendNotification(notificationName: string, protocolArguments: any): void {
+        this._promiseQueue.enqueuePromise(() => {
+
+        })
+    }
 }
 
 export class LanguageManager {
 
-    public createLanguageClientFromConfig(language: string, config: ILanguageConfiguration): void {
-        Log.info(`[Language Manager] Registering info for language: ${language} - command: ${config.languageServer.command}`)
+    private _languageServerInfo: { [language: string]: LanguageClient } = {}
+
+    constructor() {
+        editorManager.allEditors.onBufferEnter.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
+            console.log("Buffer enter: " + bufferInfo.filePath)
+        })
+
+        editorManager.allEditors.onBufferLeave.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
+            console.log("Buffer leave: " + bufferInfo.filePath)
+        })
     }
 
-    public createLanguageClient(languageIdentifier: string, serverOptions: any, fileResolver?: string): any {
+    public getLanguageClient(language: string): LanguageClient {
+        return this._languageServerInfo[language]
+    }
 
-        const value = expandLanguageConfiguration({
-            "language.go.languageServerPath": "test1",
-            "language.go.textMateTheme": "test2",
-            "language.typescript.languageServer.command": "test3",
-        })
-        return value
+    public createLanguageClient(language: string, serverOptions: ServerRunOptions, initializationOptions: InitializationOptions): any {
+
+        if (this._languageServerInfo[language]) {
+            Log.error("Duplicate language server registered for: " + language)
+            return
+        }
+
+        this._languageServerInfo[language] = new LanguageClient(serverOptions, initializationOptions)
     }
 
 }
+
+export const languageManager = new LanguageManager()

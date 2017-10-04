@@ -77,6 +77,7 @@ const start = (args: string[]) => {
     })
 
     if (config.getValue("experimental.enableLanguageServerFromConfig")) {
+        createLanguageClientsFromConfiguration(config.getValues())
     }
 }
 
