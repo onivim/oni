@@ -12,12 +12,17 @@ import { Event, IEvent } from "./../Event"
 import { IDisposable } from "./../IDisposable"
 
 export class EditorManager implements Oni.EditorManager {
-    private _activeEditor: ActiveEditor = new ActiveEditor()
+    private _activeEditor: Oni.Editor = null
+    private _allEditors: AllEditors = new AllEditors()
     private _onActiveEditorChanged: Event<Oni.Editor> = new Event<Oni.Editor>()
 
     /**
      * API Methods
      */
+    public get allEditors(): Oni.Editor {
+        return this._allEditors
+    }
+
     public get activeEditor(): Oni.Editor {
         return this._activeEditor
     }
@@ -30,21 +35,24 @@ export class EditorManager implements Oni.EditorManager {
      * Internal Methods
      */
     public setActiveEditor(editor: Oni.Editor) {
-        const oldEditor = this._activeEditor.getUnderlyingEditor()
+        this._activeEditor = editor
+
+        const oldEditor = this._allEditors.getUnderlyingEditor()
         if (editor !== oldEditor) {
             this._onActiveEditorChanged.dispatch(editor)
-            this._activeEditor.setActiveEditor(editor)
+            this._allEditors.setActiveEditor(editor)
         }
     }
 }
 
 /**
- * ActiveEditor is a proxy for the Neovim interface,
- * exposing methods of the current editor.
+ * AllEditors is a proxy for the Neovim interface,
+ * exposing methods of 'all' editors, as an aggregate.
  *
- * This manages tracking subscriptions as the active editor changes.
+ * This enables consumers to use `Oni.editor.allEditors.onModeChanged((newMode) => { ... }),
+ * for convenience, as it handles manages tracking subscriptions as the active editor changes.
  */
-export class ActiveEditor implements Oni.Editor {
+export class AllEditors implements Oni.Editor {
     private _activeEditor: Oni.Editor
     private _onModeChanged: Event<string> = new Event<string>()
     private _subscriptions: IDisposable[] = []
