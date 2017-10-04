@@ -52,11 +52,13 @@ export class EditorManager implements Oni.EditorManager {
  * This enables consumers to use `Oni.editor.allEditors.onModeChanged((newMode) => { ... }),
  * for convenience, as it handles manages tracking subscriptions as the active editor changes.
  */
-export class AllEditors implements Oni.Editor {
+class AllEditors implements Oni.Editor {
     private _activeEditor: Oni.Editor
-    private _onModeChanged: Event<string> = new Event<string>()
     private _subscriptions: IDisposable[] = []
 
+    private _onModeChanged = new Event<string>()
+    private _onBufferEnter = new Event<Oni.EditorBufferEventArgs>()
+    private _onBufferLeave = new Event<Oni.EditorBufferEventArgs>()
     /**
      * API Methods
      */
@@ -80,6 +82,14 @@ export class AllEditors implements Oni.Editor {
         return this._onModeChanged
     }
 
+    public get onBufferEnter(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferEnter
+    }
+
+    public get onBufferLeave(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferLeave
+    }
+
     /**
      * Internal methods
      */
@@ -89,6 +99,8 @@ export class AllEditors implements Oni.Editor {
         this._subscriptions.forEach((d) => d.dispose())
         this._subscriptions = []
         this._subscriptions.push(newEditor.onModeChanged.subscribe((val) => this._onModeChanged.dispatch(val)))
+        this._subscriptions.push(newEditor.onBufferEnter.subscribe((val) => this._onBufferEnter.dispatch(val)))
+        this._subscriptions.push(newEditor.onBufferLeave.subscribe((val) => this._onBufferLeave.dispatch(val)))
     }
 
     public getUnderlyingEditor(): Oni.Editor {
