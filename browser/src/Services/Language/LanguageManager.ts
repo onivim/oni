@@ -9,6 +9,15 @@
 
 export type LanguageFilter = string
 
+export const createLanguageClientsFromConfiguration = (configuration: { [key: string]: any }) => {
+
+    const keys = Object.keys(configuration).filter((k) => k.indexOf("language.") === 0)
+
+
+
+
+}
+
 export class LanguageManager {
 
     public createLanguageClient(languageIdentifier: LanguageFilter, serverOptions: any, fileResolver?: string): any {
