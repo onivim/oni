@@ -26,6 +26,7 @@ declare namespace Oni {
     }
 
     export interface EditorManager {
+        allEditors: Editor
         activeEditor: Editor
     }
 
@@ -46,9 +47,17 @@ declare namespace Oni {
         command(command: string): Promise<void>
     }
 
+    export interface EditorBufferEventArgs {
+        filePath: string
+        language: string
+    }
+
     export interface Editor {
         mode: string
         onModeChanged: IEvent<string>
+
+        onBufferEnter: IEvent<EditorBufferEventArgs>
+        onBufferLeave: IEvent<EditorBufferEventArgs>
 
         // Optional capabilities for the editor to implement
         neovim?: NeovimEditorCapability
