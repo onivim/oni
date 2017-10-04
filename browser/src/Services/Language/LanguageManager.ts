@@ -7,23 +7,33 @@
  *  - Handling custom syntax (TextMate themes)
 */
 
-export type LanguageFilter = string
+import * as Config from "./../../Config"
+import * as Log from "./../../Log"
 
-export const createLanguageClientsFromConfiguration = (configuration: { [key: string]: any }) => {
+// TODO: Factor out configuration pieces to separate file
 
-    const keys = Object.keys(configuration).filter((k) => k.indexOf("language.") === 0)
+export interface ILanguageConfiguration {
+    languageServer?: ILanguageServerConfiguration
+}
 
-
-
-
+export interface ILanguageServerConfiguration {
+    command?: string
 }
 
 export class LanguageManager {
 
-    public createLanguageClient(languageIdentifier: LanguageFilter, serverOptions: any, fileResolver?: string): any {
-        return null
+    public createLanguageClientFromConfig(language: string, config: ILanguageConfiguration): void {
+        Log.info(`[Language Manager] Registering info for language: ${language} - command: ${config.languageServer.command}`)
+    }
+
+    public createLanguageClient(languageIdentifier: string, serverOptions: any, fileResolver?: string): any {
+
+        const value = expandLanguageConfiguration({
+            "language.go.languageServerPath": "test1",
+            "language.go.textMateTheme": "test2",
+            "language.typescript.languageServer.command": "test3",
+        })
+        return value
     }
 
 }
-
-export const languageManager = new LanguageManager()
