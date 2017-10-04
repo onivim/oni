@@ -49,7 +49,7 @@ declare namespace Oni {
 
     export interface EditorBufferEventArgs {
         filePath: string
-        languageType: string
+        language: string
     }
 
     export interface Editor {

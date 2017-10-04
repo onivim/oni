@@ -330,6 +330,12 @@ export class NeovimEditor implements IEditor {
         tasks.onEvent(evt)
 
         if (eventName === "BufEnter") {
+
+            this._onBufferEnterEvent.dispatch({
+                filePath: evt.bufferFullPath,
+                language: evt.filetype,
+            })
+
             // TODO: More convenient way to hide all UI?
             UI.Actions.hideCompletions()
             UI.Actions.hidePopupMenu()
@@ -337,6 +343,11 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hideQuickInfo()
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
+        } else if (eventName === "BufLeave") {
+            this._onBufferLeaveEvent.dispatch({
+                fileType: evt.bufferFullPath,
+                language: evt.filetype,
+            })
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
