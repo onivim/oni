@@ -106,6 +106,7 @@ export interface IConfigValues {
     // IE, Windows:
     // "editor.quickOpen.execCommand": "dir /s /b"
     "editor.quickOpen.execCommand": string | null
+    "editor.quickOpen.execCommandArgs": string[]
 
     "editor.fullScreenOnStart": boolean
 

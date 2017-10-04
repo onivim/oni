@@ -1,6 +1,6 @@
 {
   "name": "oni",
-  "author": "Bryan Phelps",
+  "author": "",
   "email": "bryphe@outlook.com",
   "homepage": "https://onivim.io",
   "version": "0.2.12",
@@ -105,7 +105,6 @@
     "type": "git",
     "url": "https://github.com/bryphe/oni"
   },
-  "author": "",
   "license": "MIT",
   "dependencies": {
     "find-up": "2.1.0",
@@ -114,7 +113,8 @@
     "msgpack-lite": "0.1.26",
     "typescript": "2.4.2",
     "vscode-jsonrpc": "3.3.1",
-    "vscode-languageserver-types": "3.3.0"
+    "vscode-languageserver-types": "3.3.0",
+    "vscode-ripgrep": "0.0.27"
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
