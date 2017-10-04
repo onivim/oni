@@ -18,9 +18,9 @@ export class BackgroundView extends React.PureComponent<IBackgroundProps, void> 
         }
 
         return <div>
-                <BackgroundImageView {...this.props} />
-                 <div className="background-cover" style={coverStyle}></div>
-               </div>
+            <BackgroundImageView {...this.props} />
+            <div className="background-cover" style={coverStyle}></div>
+        </div>
     }
 }
 
@@ -31,7 +31,8 @@ export const BackgroundImageView = (props: IBackgroundProps) => {
             backgroundImage: "url(" + props.backgroundImageUrl + ")",
             backgroundSize: props.backgroundImageSize || "cover",
         }
-         return <div className="background-image" style={imageStyle}></div>
+
+        return <div className="background-image" style={imageStyle}></div>
     } else {
         return null
     }
