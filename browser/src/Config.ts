@@ -150,7 +150,7 @@ export class Config {
 
         "editor.backgroundOpacity": 1.0,
         "editor.backgroundImageUrl": null,
-        "editor.backgroundImageSize": "initial",
+        "editor.backgroundImageSize": "cover",
 
         "editor.clipboard.enabled": true,
 
