@@ -5,6 +5,6 @@
  */
 export interface IEditor extends Oni.Editor {
     // Methods
-    init(filesToOpen: string[]): void
+    init(filesToOpen: string[]): Promise<void>
     render(): JSX.Element
 }

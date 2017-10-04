@@ -15,13 +15,14 @@ import { INeovimRenderer } from "./../Renderer"
 import { IScreen, NeovimScreen } from "./../Screen"
 import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
 
+import { CommonNeovimEditor } from "./NeovimEditor"
+
 import { Icon } from "./../UI/Icon"
 
 import * as Config from "./../Config"
 
 // import { PluginManager } from "./../Plugins/PluginManager"
 
-import { Keyboard } from "./../Input/Keyboard"
 import { IEditor } from "./Editor"
 
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -31,7 +32,8 @@ export class DummyPluginManager {
         return []
     }
 
-    public startPlugins(neovimInstance: NeovimInstance): void {
+    public startPlugins(neovimInstance: NeovimInstance): Oni.Plugin.Api {
+        return null
         // no-op
     }
 }
@@ -119,22 +121,18 @@ export class FileExplorerRenderer implements INeovimRenderer {
     }
 }
 
-export class SimpleNeovimEditor implements IEditor {
+export class SimpleNeovimEditor extends CommonNeovimEditor implements IEditor {
 
-    private _neovimInstance: NeovimInstance
     private _deltaRegionManager: IncrementalDeltaRegionTracker
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
 
-    private _pendingTimeout: any = null
-    private _pendingAnimationFrame: boolean = false
-
     constructor(
-        private _config: Config.Config = Config.instance(),
     ) {
+        super(new DummyPluginManager(), Config.instance())
         // TODO: How to get rid of this?
-        this._neovimInstance = new NeovimInstance(new DummyPluginManager(), 100, 100)
-        this._neovimInstance.setInitVim("C:/oni/test.vim")
+        this.neovimInstance.setInitVim("C:/oni/test.vim")
+        this.neovimInstance.setInitVim("C:/oni/test.vim")
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
 
@@ -142,30 +140,11 @@ export class SimpleNeovimEditor implements IEditor {
 
         this._render()
 
-        this._config.registerListener(() => this._onConfigChanged())
-
-        this._neovimInstance.on("action", (action: any) => {
-            this._renderer.onAction(action)
-            this._screen.dispatch(action)
-
-            this._scheduleRender()
-
-            if (!this._pendingTimeout) {
-                this._pendingTimeout = setTimeout(() => this._onUpdate(), 0)
-            }
-        })
-
-        const keyboard = new Keyboard()
-        keyboard.on("keydown", (key: string) => {
-            this._neovimInstance.input(key)
-        })
-
-        this._onConfigChanged()
     }
 
     public async setDummyText(): Promise<void> {
         console.log("getting buffer")
-        const buf = await this._neovimInstance.getCurrentBuffer()
+        const buf = await this.neovimInstance.getCurrentBuffer()
         console.log("got buffer")
         
         const files = fs.readdirSync(process.cwd())
@@ -173,46 +152,26 @@ export class SimpleNeovimEditor implements IEditor {
         console.log("set lines")
     }
 
-    public init(filesToOpen: string[]): void {
-        this._neovimInstance.start(filesToOpen)
+    public init(filesToOpen: string[]): Promise<void> {
+        return super.init(filesToOpen)
             .then(() => this.setDummyText())
     }
 
     public render(): JSX.Element {
         return <NeovimRenderer
                     renderer={this._renderer}
-                    neovimInstance={this._neovimInstance}
+                    neovimInstance={this.neovimInstance}
                     deltaRegionTracker={this._deltaRegionManager} />
     }
 
-    private _onConfigChanged(): void {
-        this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
-        this._onUpdate()
-        this._scheduleRender()
+    protected /* override */ _onAction(action: any): void {
+        super._onAction(action)
+        this._renderer.onAction(action)
+        this._screen.dispatch(action)
     }
 
-    private _onUpdate(): void {
-        if (!!this._pendingTimeout) {
-            clearTimeout(this._pendingTimeout) // FIXME: null
-            this._pendingTimeout = null
-        }
-    }
-
-    private _scheduleRender(): void {
-        if (this._pendingAnimationFrame) {
-            return
-        }
-
-        this._pendingAnimationFrame = true
-        window.requestAnimationFrame(() => this._render())
-    }
-
-    private _render(): void {
-        this._pendingAnimationFrame = false
-
-        if (this._pendingTimeout) {
-            // UI.Actions.setCursorPosition(this._screen)
-        }
+    protected /* override */ _render(): void {
+        super._render()
 
         this._renderer.update(this._screen, this._deltaRegionManager)
         this._deltaRegionManager.cleanUpRenderedCells()

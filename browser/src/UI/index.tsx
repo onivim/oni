@@ -14,6 +14,8 @@ import { reducer } from "./Reducer"
 import * as UnboundSelectors from "./Selectors"
 import * as State from "./State"
 
+import * as Config from "./../Config"
+
 import { editorManager } from "./../Services/EditorManager"
 import { focusManager } from "./../Services/FocusManager"
 
@@ -54,7 +56,7 @@ function render(_state: State.IState, pluginManager: PluginManager, args: any): 
     const fileExplorerEditor = new SimpleNeovimEditor()
     fileExplorerEditor.init([])
 
-    const editor = new NeovimEditor(pluginManager)
+    const editor = new NeovimEditor(pluginManager, Config.instance())
     editor.init(args)
 
     editorManager.setActiveEditor(editor)

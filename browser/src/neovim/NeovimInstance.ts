@@ -87,6 +87,12 @@ export interface INeovimInstance {
     executeAutoCommand(autoCommand: string): Promise<void>
 }
 
+export interface IPluginManager {
+    getAllRuntimePaths(): string[]
+
+    startPlugins(neovimInstance: NeovimInstance): Oni.Plugin.Api
+}
+
 /**
  * Integration with NeoVim API
  */
@@ -121,7 +127,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._onYank
     }
 
-    constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
+    constructor(pluginManager: IPluginManager, widthInPixels: number, heightInPixels: number) {
         super()
 
         this._pluginManager = pluginManager
