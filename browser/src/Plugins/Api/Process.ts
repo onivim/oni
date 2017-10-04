@@ -41,36 +41,33 @@ const mergeSpawnOptions = (originalSpawnOptions: ChildProcess.ExecOptions | Chil
  * API surface area responsible for handling process-related tasks
  * (spawning processes, managing running process, etc)
  */
-export class Process {
+export const execNodeScript = (scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess => {
+    const spawnOptions = mergeSpawnOptions(options)
+    spawnOptions.env.ELECTRON_RUN_AS_NODE = 1
 
-    public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
-        const spawnOptions = mergeSpawnOptions(options)
-        spawnOptions.env.ELECTRON_RUN_AS_NODE = 1
+    const execOptions = [process.execPath, scriptPath].concat(args)
+    const execString = execOptions.map((s) => `"${s}"`).join(" ")
 
-        const execOptions = [process.execPath, scriptPath].concat(args)
-        const execString = execOptions.map((s) => `"${s}"`).join(" ")
-
-        return ChildProcess.exec(execString, spawnOptions, callback)
-    }
-
-    /**
-     * Wrapper around `child_process.exec` to run using electron as opposed to node
-     */
-    public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
-        const spawnOptions = mergeSpawnOptions(options)
-        spawnOptions.env.ELECTRON_RUN_AS_NODE = 1
-
-        const allArgs = [scriptPath].concat(args)
-
-        return ChildProcess.spawn(process.execPath, allArgs, spawnOptions)
-    }
-
-    /**
-     * Spawn process - wrapper around `child_process.spawn`
-     */
-    public spawnProcess(startCommand: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
-        const spawnOptions = mergeSpawnOptions(options)
-
-        return ChildProcess.spawn(startCommand, args, spawnOptions)
-    }
+    return ChildProcess.exec(execString, spawnOptions, callback)
 }
+
+/**
+ * Wrapper around `child_process.exec` to run using electron as opposed to node
+ */
+export const spawnNodeScript = (scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess => {
+    const spawnOptions = mergeSpawnOptions(options)
+    spawnOptions.env.ELECTRON_RUN_AS_NODE = 1
+
+    const allArgs = [scriptPath].concat(args)
+
+    return ChildProcess.spawn(process.execPath, allArgs, spawnOptions)
+}
+
+/**
+ * Spawn process - wrapper around `child_process.spawn`
+ */
+export const spawnProcess = (startCommand: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess => {
+    const spawnOptions = mergeSpawnOptions(options)
+
+    return ChildProcess.spawn(startCommand, args, spawnOptions)
+    }

@@ -57,6 +57,8 @@ export class PromiseQueue {
     }
 }
 
+import { LanguageClientProcess } from "./LanguageClientProcess"
+
 export class LanguageClient {
 
     private _promiseQueue: PromiseQueue = new PromiseQueue()
@@ -76,7 +78,7 @@ export class LanguageClient {
 
     public sendNotification(notificationName: string, protocolArguments: any): void {
         this._promiseQueue.enqueuePromise(() => {
-
+            return Promise.resolve(null)
         })
     }
 }
@@ -87,6 +89,15 @@ export class LanguageManager {
 
     constructor() {
         editorManager.allEditors.onBufferEnter.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
+            const { language } = bufferInfo
+
+
+            const languageClient = this.getLanguageClient(language)
+
+            if (languageClient) {
+                languageClient.sendNotification
+            }
+
             console.log("Buffer enter: " + bufferInfo.filePath)
         })
 

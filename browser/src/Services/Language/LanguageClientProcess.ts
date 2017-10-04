@@ -16,7 +16,11 @@ import * as Log from "./../../Log"
 
 import { ServerRunOptions, InitializationOptions } from "./LanguageManager"
 
-import { LanguageClientLogger } from "./../../Plugin/Api/LanguageClient/LanguageClientLogger"
+import { LanguageClientLogger } from "./../../Plugins/Api/LanguageClient/LanguageClientLogger"
+
+import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
+
+import * as Process from "./../../Plugins/Api/Process"
 
 export class LanguageClientProcess {
 
@@ -58,10 +62,10 @@ export class LanguageClientProcess {
 
         if (this._serverOptions.command) {
             Log.info(`[LanguageClientProcess]: Starting process via '${this._serverOptions.command}'`)
-            this._process = this._oni.process.spawnProcess(this._serverOptions.command, args, options)
+            this._process = Process.spawnProcess(this._serverOptions.command, args, options)
         } else if (this._serverOptions.module) {
             Log.info(`[LanguageClientProcess]: Starting process via node script '${this._serverOptions.module}'`)
-            this._process = this._oni.process.spawnNodeScript(this._serverOptions.module, args, options)
+            this._process = Process.spawnNodeScript(this._serverOptions.module, args, options)
         } else {
             throw new Error("A command or module must be specified to start the server")
         }
@@ -85,7 +89,7 @@ export class LanguageClientProcess {
         this._connection.listen()
 
         const oniLanguageClientParams = {
-            clientName: "oni"
+            clientName: "oni",
             rootPath,
         }
 

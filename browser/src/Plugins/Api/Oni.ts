@@ -10,7 +10,7 @@ import { StatusBar } from "./StatusBar"
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient, ServerRunOptions } from "./LanguageClient/LanguageClient"
 
-import * Process from "./Process"
+import *  as Process from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
