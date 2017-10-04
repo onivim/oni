@@ -15,7 +15,6 @@ import { IWindow, Window } from "./Window"
 import * as Actions from "./../actions"
 import * as Config from "./../Config"
 import { measureFont } from "./../Font"
-import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
 
 export interface INeovimYankInfo {
@@ -88,6 +87,12 @@ export interface INeovimInstance {
     executeAutoCommand(autoCommand: string): Promise<void>
 }
 
+export interface IPluginManager {
+    getAllRuntimePaths(): string[]
+
+    startPlugins(neovimInstance: NeovimInstance): Oni.Plugin.Api
+}
+
 /**
  * Integration with NeoVim API
  */
@@ -108,9 +113,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _rows: number
     private _cols: number
 
-    private _pluginManager: PluginManager
+    private _pluginManager: IPluginManager
     private _quickFix: QuickFixList
 
+    private _initVimPath: string | null = null
     private _onYank: Event<INeovimYankInfo> = new Event<INeovimYankInfo>()
 
     public get quickFix(): IQuickFixList {
@@ -121,7 +127,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._onYank
     }
 
-    constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
+    constructor(pluginManager: IPluginManager, widthInPixels: number, heightInPixels: number) {
         super()
 
         this._pluginManager = pluginManager
@@ -139,10 +145,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         await this.command(`doautocmd <nomodeline> ${autoCommand}`)
     }
 
+    public setInitVim(initVimPath: string): void {
+        this._initVimPath = initVimPath
+    }
+
     public start(filesToOpen?: string[]): Promise<void> {
         filesToOpen = filesToOpen || []
 
-        this._initPromise = Promise.resolve(startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen))
+        this._initPromise = Promise.resolve(startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen, this._initVimPath))
             .then((nv) => {
                 Log.info("NeovimInstance: Neovim started")
 

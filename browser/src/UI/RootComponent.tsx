@@ -11,6 +11,7 @@ import { focusManager } from "./../Services/FocusManager"
 import { inputManager } from "./../Services/InputManager"
 
 interface IRootComponentProps {
+    fileExplorerEditor: IEditor
     editor: IEditor
 }
 
@@ -24,7 +25,15 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
                 <div className="container vertical full">
                     <div className="container full">
                         <div className="stack">
-                            <EditorHost editor={this.props.editor} />
+                            <div className="container horizontal full">
+                                <div className="container fixed" style={{width: "250px", height: "100%"}}>
+                                    <EditorHost editor={this.props.fileExplorerEditor} />
+                                </div>
+                                <div className="container full">
+                                    <EditorHost editor={this.props.editor} />
+                                </div>
+                            </div>
+
                         </div>
                         <div className="stack layer">
                             <MenuContainer />

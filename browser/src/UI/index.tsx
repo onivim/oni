@@ -14,12 +14,15 @@ import { reducer } from "./Reducer"
 import * as UnboundSelectors from "./Selectors"
 import * as State from "./State"
 
+import * as Config from "./../Config"
+
 import { editorManager } from "./../Services/EditorManager"
 import { focusManager } from "./../Services/FocusManager"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
+import { SimpleNeovimEditor } from "./../Editor/SimpleNeovimEditor"
 
 export const events = Events.events
 
@@ -50,14 +53,17 @@ export function init(pluginManager: PluginManager, args: any): void {
 function render(_state: State.IState, pluginManager: PluginManager, args: any): void {
     const hostElement = document.getElementById("host")
 
-    const editor = new NeovimEditor(pluginManager)
+    const fileExplorerEditor = new SimpleNeovimEditor()
+    fileExplorerEditor.init([])
+
+    const editor = new NeovimEditor(pluginManager, Config.instance())
     editor.init(args)
 
     editorManager.setActiveEditor(editor)
 
     ReactDOM.render(
         <Provider store={store}>
-            <RootComponent editor={editor} />
+            <RootComponent editor={editor} fileExplorerEditor={fileExplorerEditor}/>
         </Provider>, hostElement)
 }
 
