@@ -345,7 +345,7 @@ export class NeovimEditor implements IEditor {
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
         } else if (eventName === "BufLeave") {
             this._onBufferLeaveEvent.dispatch({
-                fileType: evt.bufferFullPath,
+                filePath: evt.bufferFullPath,
                 language: evt.filetype,
             })
         } else if (eventName === "BufWritePost") {
