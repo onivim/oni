@@ -55,7 +55,10 @@ export class NeovimEditor implements IEditor {
     private _element: HTMLElement
 
     private _currentMode: string
-    private _onModeChangedEvent: Event<string> = new Event<string>()
+    private _onModeChangedEvent = new Event<string>()
+    private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
+    private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
+
     private _hasLoaded: boolean = false
 
     // Overlays
@@ -69,6 +72,14 @@ export class NeovimEditor implements IEditor {
 
     public get onModeChanged(): IEvent<string> {
         return this._onModeChangedEvent
+    }
+
+    public get onBufferEnter(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferEnterEvent
+    }
+
+    public get onBufferLeave(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferLeaveEvent
     }
 
     // Capabilities
