@@ -55,7 +55,10 @@ export class NeovimEditor implements IEditor {
     private _element: HTMLElement
 
     private _currentMode: string
-    private _onModeChangedEvent: Event<string> = new Event<string>()
+    private _onModeChangedEvent = new Event<string>()
+    private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
+    private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
+
     private _hasLoaded: boolean = false
 
     // Overlays
@@ -69,6 +72,14 @@ export class NeovimEditor implements IEditor {
 
     public get onModeChanged(): IEvent<string> {
         return this._onModeChangedEvent
+    }
+
+    public get onBufferEnter(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferEnterEvent
+    }
+
+    public get onBufferLeave(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferLeaveEvent
     }
 
     // Capabilities
@@ -319,6 +330,12 @@ export class NeovimEditor implements IEditor {
         tasks.onEvent(evt)
 
         if (eventName === "BufEnter") {
+
+            this._onBufferEnterEvent.dispatch({
+                filePath: evt.bufferFullPath,
+                language: evt.filetype,
+            })
+
             // TODO: More convenient way to hide all UI?
             UI.Actions.hideCompletions()
             UI.Actions.hidePopupMenu()
@@ -326,6 +343,11 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hideQuickInfo()
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
+        } else if (eventName === "BufLeave") {
+            this._onBufferLeaveEvent.dispatch({
+                filePath: evt.bufferFullPath,
+                language: evt.filetype,
+            })
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
