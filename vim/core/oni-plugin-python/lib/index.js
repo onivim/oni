@@ -13,11 +13,7 @@ const activate = (Oni) => {
     const getInitializationOptionsAsync = (filePath) => {
         return Promise.resolve({
             clientName: "python",
-            rootPath: "file:///" + filePath,
-
-            // workaround for:
-            // https://github.com/palantir/python-language-server/issues/73
-            disableDocumentSymbol: true,
+            rootPath: "file:///" + path.dirname(filePath).split("\\").join("/"),
         })
     }
 

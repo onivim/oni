@@ -16,6 +16,7 @@ import { Ui } from "./Ui"
 
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
+import { languageManager } from "./../../Services/Language"
 
 import * as Config from "./../../Config"
 import * as Log from "./../../Log"
@@ -74,6 +75,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     public get input(): Oni.InputManager {
         return inputManager
+    }
+
+    public get language(): any {
+        return languageManager
     }
 
     public get process(): Oni.Process {
