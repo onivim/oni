@@ -31,44 +31,56 @@ export function popupMenuReducer(s: State.IMenu | null, a: any): State.IMenu {
 
     switch (a.type) {
         case "SHOW_MENU":
-            const sortedOptions = sortBy(a.payload.options, (f: any) => f.pinned ? 0 : 1).map((o: any) => ({
-                icon: o.icon,
-                detail: o.detail,
-                label: o.label,
-                pinned: o.pinned,
-                detailHighlights: [] as any,
-                labelHighlights: [] as any,
-            }))
+            // const sortedOptions = sortBy(a.payload.options, (f: any) => f.pinned ? 0 : 1).map((o: any) => ({
+            //     icon: o.icon,
+            //     detail: o.detail,
+            //     label: o.label,
+            //     pinned: o.pinned,
+            //     detailHighlights: [] as any,
+            //     labelHighlights: [] as any,
+            // }))
 
             return {
                 id: a.payload.id,
                 filter: "",
-                filteredOptions: sortedOptions,
-                options: a.payload.options,
+                filteredOptions: [],
+                options: [],
                 selectedIndex: 0,
                 isLoading: false,
+            }
+        case "SET_MENU_ITEMS":
+            if (!s || s.id !== a.payload.id) {
+                return s
+            }
+
+            const filteredOptions = filterMenuOptions(a.payload.items, s.filter, s.id)
+
+            return {
+                ...s,
+                options: a.payload.items,
+                filteredOptions: filteredOptions,
+            }
+        case "SET_MENU_LOADING":
+            if (!s || s.id !== a.payload.id) {
+                return s
+            }
+
+            return {
+                ...s,
+                isLoading: a.payload.isLoading,
             }
         case "HIDE_MENU":
             return null
         case "NEXT_MENU":
-            if (!s) {
-                return s
-            }
-
             return {...s,
                     selectedIndex: (s.selectedIndex + 1) % size}
         case "PREVIOUS_MENU":
-            if (!s) {
-                return s
-            }
-
             return {...s,
                     selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : size - 1}
         case "FILTER_MENU":
             if (!s) {
                 return s
             }
-
             // If we already had search results, and this search is a superset of the previous,
             // just filter the already-pruned subset
             const optionsToSearch = a.payload.filter.indexOf(s.filter) === 0 ? s.filteredOptions : s.options

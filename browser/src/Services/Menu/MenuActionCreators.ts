@@ -2,12 +2,27 @@
  * MenuActionCreators.ts
  */
 
-export const showPopupMenu = (id: string, options: Oni.Menu.MenuOption[]) => ({
+export const showPopupMenu = (id: string) => ({
     type: "SHOW_MENU",
     payload: {
         id,
-        options,
     },
+})
+
+export const setMenuLoading = (id: string, isLoading: boolean) => ({
+    type: "SET_MENU_LOADING",
+    payload: {
+        id,
+        isLoading,
+    },
+})
+
+export const setMenuItems = (id: string, items: Oni.Menu.MenuOption[]) => ({
+    type: "SET_MENU_ITEMS",
+    payload: {
+        id,
+        items,
+    }
 })
 
 export const hidePopupMenu = () => ({
@@ -28,23 +43,3 @@ export const filterMenu = (filterString: string) => ({
 export const nextMenuItem = () => ({
     type: "NEXT_MENU",
 })
-
-export const selectMenuItem = () => ({
-
-})
-
-// export const selectMenuItem = (openInSplit: string, index?: number) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-
-//     const state = getState()
-
-//     if (!state || !state.popupMenu) {
-//         return
-//     }
-
-//     const selectedIndex = index || state.popupMenu.selectedIndex
-//     const selectedOption = state.popupMenu.filteredOptions[selectedIndex]
-
-//     Events.events.emit("menu-item-selected:" + state.popupMenu.id, { selectedOption, openInSplit })
-
-//     dispatch(hidePopupMenu())
-// }

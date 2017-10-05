@@ -21,7 +21,7 @@ export class MenuManager {
 
     public create(): Menu {
         this._id++
-        return new Menu(this._id)
+        return new Menu(this._id.toString())
     }
 
     public isMenuOpen(): boolean {
@@ -35,7 +35,7 @@ export class MenuManager {
     public previousMenuItem(): void {
         menuActions.previousMenuItem()
     }
-    
+
     public closeActiveMenu(): void {
         menuActions.hidePopupMenu()
     }
@@ -53,19 +53,20 @@ export class Menu {
         return this._onFilterTextChanged
     }
 
-    constructor(private _id: number) {
+    constructor(private _id: string) {
     }
 
     public setLoading(isLoading: boolean): void {
+        menuActions.setMenuLoading(this._id, isLoading)
     }
 
     public setItems(items: Oni.Menu.MenuOption[]): void {
-
+        menuActions.setMenuItems(this._id, items)
     }
 
     public show(): void {
         // TODO: Pass in callbacks for events here
-        menuActions.showPopupMenu("test" + this._id, [])
+        menuActions.showPopupMenu(this._id)
     }
 
     public hide(): void {
