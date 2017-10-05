@@ -13,11 +13,11 @@ import { Process } from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
+import { configuration } from "./../../Services/Configuration"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import { statusBar } from "./../../Services/StatusBar"
 
-import * as Config from "./../../Config"
 import * as Log from "./../../Log"
 
 import * as throttle from "lodash/throttle"
@@ -56,7 +56,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     public get configuration(): Oni.Configuration {
-        return Config.instance()
+        return configuration
     }
 
     public get diagnostics(): Oni.Plugin.Diagnostics.Api {

@@ -5,16 +5,17 @@
  */
 
 import * as orderBy from "lodash/orderBy"
-import * as Config from "./../Config"
+
 import * as Log from "./../Log"
 import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
+import { configuration } from "./../Services/Configuration"
 
 import { BufferUpdates } from "./BufferUpdates"
 
 export class Formatter {
 
-    private _config = Config.instance()
+    private _config = configuration
     private _lastMode: string
 
     constructor(

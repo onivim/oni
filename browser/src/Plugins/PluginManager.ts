@@ -3,9 +3,9 @@ import * as fs from "fs"
 import * as mkdirp from "mkdirp"
 import * as os from "os"
 import * as path from "path"
-import * as Config from "./../Config"
 import { INeovimInstance } from "./../neovim"
 import { CallbackCommand, commandManager } from "./../Services/CommandManager"
+import { configuration } from "./../Services/Configuration"
 import * as UI from "./../UI/index"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
@@ -25,7 +25,7 @@ export interface IEventContext {
 }
 
 export class PluginManager extends EventEmitter {
-    private _config = Config.instance()
+    private _config = configuration
     private _rootPluginPaths: string[] = []
     private _extensionPath: string
     private _plugins: Plugin[] = []

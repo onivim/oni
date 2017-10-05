@@ -16,7 +16,6 @@ import { NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
-import * as Config from "./../Config"
 import { Event, IEvent } from "./../Event"
 
 import { PluginManager } from "./../Plugins/PluginManager"
@@ -24,6 +23,7 @@ import { PluginManager } from "./../Plugins/PluginManager"
 import { BufferUpdates } from "./../Services/BufferUpdates"
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
+import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { WindowTitle } from "./../Services/WindowTitle"
@@ -89,7 +89,7 @@ export class NeovimEditor implements IEditor {
 
     constructor(
         private _pluginManager: PluginManager,
-        private _config: Config.Config = Config.instance(),
+        private _config = configuration,
     ) {
         const services: any[] = []
 
@@ -125,7 +125,7 @@ export class NeovimEditor implements IEditor {
         })
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
-            if (Config.instance().getValue("editor.clipboard.enabled")) {
+            if (configuration.getValue("editor.clipboard.enabled")) {
                 clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
             }
         })
@@ -213,7 +213,7 @@ export class NeovimEditor implements IEditor {
         })
 
         this._onConfigChanged(this._config.getValues())
-        this._config.onConfigurationChanged.subscribe((newValues: Partial<Config.IConfigValues>) => this._onConfigChanged(newValues))
+        this._config.onConfigurationChanged.subscribe((newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues))
 
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
         window["__screen"] = this._screen // tslint:disable-line no-string-literal
@@ -358,7 +358,7 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    private _onConfigChanged(newValues: Partial<Config.IConfigValues>): void {
+    private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
         const fontFamily = this._config.getValue("editor.fontFamily")
         const fontSize = this._config.getValue("editor.fontSize")
         const linePadding = this._config.getValue("editor.linePadding")

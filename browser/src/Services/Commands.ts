@@ -10,12 +10,12 @@ import * as path from "path"
 
 import { clipboard, remote } from "electron"
 
-import * as Config from "./../Config"
 import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { AutoCompletion } from "./../Services/AutoCompletion"
 import { BufferUpdates } from "./../Services/BufferUpdates"
+import { configuration } from "./../Services/Configuration"
 import { Formatter } from "./../Services/Formatter"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
@@ -165,9 +165,7 @@ const openFolder = (neovimInstance: INeovimInstance) => {
 }
 
 const openDefaultConfig = async (neovimInstance: INeovimInstance): Promise<void> => {
-    const config = Config.instance()
-
-    await neovimInstance.open(config.userJsConfig)
+    await neovimInstance.open(configuration.userJsConfig)
     const buf = await neovimInstance.getCurrentBuffer()
     const lineCount = await buf.getLineCount()
 
