@@ -91,10 +91,11 @@ export class LanguageManager {
         editorManager.allEditors.onBufferEnter.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
             const { language } = bufferInfo
 
-
             const languageClient = this.getLanguageClient(language)
 
             if (languageClient) {
+                // TODO: Make this work... maybe just blank text for now
+                // 
                 languageClient.sendNotification
             }
 
