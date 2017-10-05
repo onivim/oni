@@ -1,4 +1,4 @@
-import { execSync } from "child_process"
+import { spawnSync } from "child_process"
 import * as path from "path"
 import * as State from "./State"
 
@@ -321,11 +321,21 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
         const config = Config.instance()
         const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
         if (overriddenCommand) {
+            const args = config.getValue("editor.quickOpen.execCommandArgs") || []
+            const sanitizedArgs = args.map((a: string) => {
+                if (a === "${search}") {
+                    return searchString
+                } else {
+                    return a
+                }
+            })
+
             try {
-                const files = execSync(overriddenCommand.replace("${search}", searchString), { cwd: process.cwd() }) // tslint:disable-line no-invalid-template-strings
+
+                const files = (spawnSync as any)(overriddenCommand.replace("${search}", searchString), sanitizedArgs, { cwd: process.cwd() }) // tslint:disable-line no-invalid-template-strings
                     .toString("utf8")
                     .split("\n")
-                const opt: State.IMenuOptionWithHighlights[]  = files.map((untrimmedFile) => {
+                const opt: State.IMenuOptionWithHighlights[]  = files.map((untrimmedFile: string) => {
                     const f = untrimmedFile.trim()
                     const file = path.basename(f)
                     const folder = path.dirname(f)
@@ -334,8 +344,8 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
                         label: file,
                         detail: folder,
                         pinned: false,
-                        detailHighlights: [],
-                        labelHighlights: [],
+                        detailHighlights: [] as string[],
+                        labelHighlights: [] as string[],
                     }
                 })
                 return opt

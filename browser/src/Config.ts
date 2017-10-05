@@ -106,7 +106,6 @@ export interface IConfigValues {
     // IE, Windows:
     // "editor.quickOpen.execCommand": "dir /s /b"
     "editor.quickOpen.execCommand": string | null
-    "editor.quickOpen.execCommandArgs": string[]
 
     "editor.fullScreenOnStart": boolean
 
@@ -169,6 +168,7 @@ export class Config {
         "editor.linePadding": 2,
 
         "editor.quickOpen.execCommand": null,
+        // "editor.quickOpen.execCommand": "C:/oni/node_modules/vscode-ripgrep/bin/rg.exe --files --hidden --case-insensitive",
 
         "editor.scrollBar.visible": true,
 
