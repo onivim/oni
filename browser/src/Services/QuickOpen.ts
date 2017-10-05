@@ -75,29 +75,6 @@ export class QuickOpen {
         })
     }
 
-    // public async showColors() {
-    //     this._showLoading()
-    //     if (this._doneLoadingColors) {
-    //         this._showMenuFromQuickOpenItems(this._loadedColors)
-    //     } else if (this._needToLoadColors) {
-    //         this._loadColors()
-    //     }
-    // }
-
-    // private async _loadColors() {
-    //     this._needToLoadColors = true
-    //     this._neovimInstance.eval(`map(split(globpath(&rtp, "colors/*.vim"), "\n"), "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')")`)
-    //         .then((colors) => {
-    //             colors.forEach( (d: string) => {
-    //                 d = d.substring(0, d.length - 4)
-    //                 this._loadedColors.push(new QuickOpenItem(d, QuickOpenType.color))
-    //                 this._doneLoadingColors = true
-    //                 if (UI.Selectors.isPopupMenuOpen()) {
-    //                     this._showMenuFromQuickOpenItems(this._loadedColors)
-    //                 }
-    //             })
-    //         })
-    // }
     public async show() {
         // reset list and show loading indicator
         this._loadedItems = []

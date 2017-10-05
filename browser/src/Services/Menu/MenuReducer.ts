@@ -24,7 +24,7 @@ export const reducer = (s: State.IMenus, a: Actions.MenuAction): State.IMenus =>
     }
 }
 
-export function popupMenuReducer(s: State.IMenu | null, a: any) {
+export function popupMenuReducer(s: State.IMenu | null, a: any): State.IMenu {
 
     // TODO: sync max display items (10) with value in Menu.render() (Menu.tsx)
     const size = s ? Math.min(10, s.filteredOptions.length) : 0
@@ -46,6 +46,7 @@ export function popupMenuReducer(s: State.IMenu | null, a: any) {
                 filteredOptions: sortedOptions,
                 options: a.payload.options,
                 selectedIndex: 0,
+                isLoading: false,
             }
         case "HIDE_MENU":
             return null

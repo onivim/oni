@@ -13,7 +13,6 @@ import { remote } from "electron"
 import {EventEmitter} from "events"
 import * as find from "lodash/find"
 import * as flatten from "lodash/flatten"
-import * as UI from "./../UI/index"
 
 import { menuManager, Menu } from "./../Services/Menu"
 
@@ -62,6 +61,7 @@ export class Tasks extends EventEmitter {
             this._menu = menuManager.create()
             this._menu.onItemSelected.subscribe((selection: any) => this._onItemSelected(selection))
             this._menu.show()
+            this._menu.setItems(options)
             // TODO
             // UI.Actions.showPopupMenu("tasks", options)
         })
