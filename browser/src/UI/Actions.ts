@@ -183,33 +183,6 @@ export interface IHideSignatureHelpAction {
     type: "HIDE_SIGNATURE_HELP"
 }
 
-export interface IShowMenuAction {
-    type: "SHOW_MENU",
-    payload: {
-        id: string
-        options: Oni.Menu.MenuOption[],
-    }
-}
-
-export interface IFilterMenuAction {
-    type: "FILTER_MENU",
-    payload: {
-        filter: string,
-    }
-}
-
-export interface IHideMenuAction {
-    type: "HIDE_MENU"
-}
-
-export interface INextMenuAction {
-    type: "NEXT_MENU"
-}
-
-export interface IPreviousMenuAction {
-    type: "PREVIOUS_MENU"
-}
-
 export interface IShowQuickInfoAction {
     type: "SHOW_QUICK_INFO",
     payload: {
@@ -292,13 +265,8 @@ export type SimpleAction =
     INextAutoCompletionAction |
     IPreviousAutoCompletionAction |
     ISetAutoCompletionDetails |
-    IShowMenuAction |
-    IHideMenuAction |
     IShowMessageDialog |
     IHideMessageDialog |
-    IPreviousMenuAction |
-    INextMenuAction |
-    IFilterMenuAction |
     ISetModeAction |
     ISetColorsAction |
     IStatusBarHideAction |

@@ -12,11 +12,6 @@ import { Rectangle } from "./Types"
 
 import * as flatten from "lodash/flatten"
 
-export const isPopupMenuOpen = (state: State.IState) => {
-    const popupMenu = state.popupMenu
-    return !!popupMenu
-}
-
 export const areCompletionsVisible = (state: State.IState) => {
     const autoCompletion = state.autoCompletion
     const entryCount = (autoCompletion && autoCompletion.entries) ? autoCompletion.entries.length : 0

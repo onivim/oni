@@ -28,7 +28,6 @@ export interface IState {
     foregroundColor: string
     autoCompletion: null | IAutoCompletionInfo
     quickInfo: null | Oni.Plugin.QuickInfo
-    popupMenu: null | IMenu
     signatureHelp: null | Oni.Plugin.SignatureHelpResult
     cursorLineVisible: boolean
     cursorLineOpacity: number
@@ -143,19 +142,6 @@ export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurat
     return conf[k]
 }
 
-export interface IMenu {
-    id: string,
-    filter: string,
-    filteredOptions: IMenuOptionWithHighlights[],
-    options: Oni.Menu.MenuOption[],
-    selectedIndex: number
-}
-
-export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
-    labelHighlights: number[][],
-    detailHighlights: number[][]
-}
-
 export interface IAutoCompletionInfo {
 
     /**
@@ -185,7 +171,6 @@ export const createDefaultState = (): IState => ({
     foregroundColor: "rgba(0, 0, 0, 0)",
     autoCompletion: null,
     quickInfo: null,
-    popupMenu: null,
     signatureHelp: null,
     activeWindowDimensions: {
         x: 0,
