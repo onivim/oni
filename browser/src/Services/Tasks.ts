@@ -50,7 +50,7 @@ export class Tasks extends EventEmitter {
 
     public show(): void {
         this._refreshTasks().then(() => {
-            const options = this._lastTasks.map((f) => {
+            const options: Oni.Menu.MenuOption[] = this._lastTasks.map((f) => {
                 return {
                     icon: "tasks",
                     label: f.name,

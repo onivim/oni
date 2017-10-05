@@ -4,75 +4,75 @@
  * Manages the quick open menu
  */
 
-import { spawn } from "child_process"
+// import { spawn } from "child_process"
 import { lstatSync } from "fs"
 
-import * as glob from "glob"
+// import * as glob from "glob"
 import * as path from "path"
-import * as Log from "./../Log"
+// import * as Log from "./../Log"
 
 import { INeovimInstance } from "./../neovim"
-import * as UI from "./../UI/index"
 import { BufferUpdates } from "./BufferUpdates"
 
 import { commandManager } from "./../Services/CommandManager"
 import { configuration } from "./../Services/Configuration"
+import { Menu, menuManager } from "./../Services/Menu"
 
 export class QuickOpen {
     private _seenItems: string[] = []
     private _loadedItems: QuickOpenItem[] = []
-    // private _loadedColors: QuickOpenItem[] = []
     private _neovimInstance: INeovimInstance
     private _bufferUpdates: BufferUpdates
-    // private _doneLoadingColors: boolean
-    // private _needToLoadColors: boolean
+    private _menu: Menu
 
     constructor(neovimInstance: INeovimInstance, bufferUpdates: BufferUpdates) {
         this._neovimInstance = neovimInstance
         this._bufferUpdates = bufferUpdates
-        // this._loadColors()
 
-        UI.events.on("menu-item-selected:quickOpen", (selectedItem: any) => {
-            const arg = selectedItem.selectedOption
+        this._menu = menuManager.create()
+        this._menu.onItemSelected.subscribe((selectedItem: any) => { this._onItemSelected(selectedItem) })
+    }
 
-            if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.loading)) {
-                return
-            } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
-                commandManager.executeCommand("oni.config.openConfigJs")
-            } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.color)) {
-                neovimInstance.command(`colo ${arg.label}`)
-            } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
-                commandManager.executeCommand("oni.openFolder")
-            } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
-                if (selectedItem.openInSplit !== "e") {
-                    neovimInstance.command(selectedItem.openInSplit + "!")
-                }
-                neovimInstance.command(`${arg.label}`)
-            } else {
-                let fullPath = path.join(arg.detail, arg.label)
+    private _onItemSelected(selectedItem: any): void {
+        const arg = selectedItem.selectedOption
 
-                this._seenItems.push(fullPath)
+        if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.loading)) {
+            return
+        } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
+            commandManager.executeCommand("oni.config.openConfigJs")
+        } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.color)) {
+            this._neovimInstance.command(`colo ${arg.label}`)
+        } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
+            commandManager.executeCommand("oni.openFolder")
+        } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
+            if (selectedItem.openInSplit !== "e") {
+                this._neovimInstance.command(selectedItem.openInSplit + "!")
+            }
+            this._neovimInstance.command(`${arg.label}`)
+        } else {
+            let fullPath = path.join(arg.detail, arg.label)
 
-                neovimInstance.command(selectedItem.openInSplit + "! " + fullPath)
+            this._seenItems.push(fullPath)
 
-                if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folder)) {
-                    neovimInstance.chdir(fullPath)
-                }
+            this._neovimInstance.command(selectedItem.openInSplit + "! " + fullPath)
 
-                // If we are bookmark, and we open a file, the open it's dirname
-                // If we are a directory, open it.
-                if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmark)) {
-                    // If I use this one more place I'm going to make a function >.>
-                    fullPath = fullPath.replace("~", process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"])
+            if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folder)) {
+                this._neovimInstance.chdir(fullPath)
+            }
 
-                    if (lstatSync(fullPath).isDirectory()) {
-                        neovimInstance.chdir(fullPath)
-                    } else {
-                        neovimInstance.chdir(arg.detail)
-                    }
+            // If we are bookmark, and we open a file, the open it's dirname
+            // If we are a directory, open it.
+            if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmark)) {
+                // If I use this one more place I'm going to make a function >.>
+                fullPath = fullPath.replace("~", process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"])
+
+                if (lstatSync(fullPath).isDirectory()) {
+                    this._neovimInstance.chdir(fullPath)
+                } else {
+                    this._neovimInstance.chdir(arg.detail)
                 }
             }
-        })
+        }
     }
 
     public isOpen(): boolean {
@@ -134,51 +134,58 @@ export class QuickOpen {
             }
         })
 
-        UI.Actions.showPopupMenu("quickOpen", options)
+        this._menu.show()
+        this._menu.setItems(options)
+
+        // UI.Actions.showPopupMenu("quickOpen", options)
     }
 
     // Overridden strategy
     // If git repo, use git ls-files
     private async loadMenu(command: string, args: string[] = [], splitCharacter: string = "\n") {
-        const filer = spawn(command, args)
-        filer.stdout.on("data", (data) => {
-            data.toString().split(splitCharacter).forEach((d: string) => {
-                this._loadedItems.push(new QuickOpenItem(d, QuickOpenType.file))
-            })
-            this._showMenuFromQuickOpenItems(this._loadedItems)
-        })
-        // Otherwise, find all files recursively
-        filer.stderr.on("data", (data) => {
-            this._showLoading()
-            Log.error(data.toString())
 
-            // FIXME : Convert to an async function like the ones above.
-            // TODO: This async call is being dropped, if we happen to use the promise
-            return glob("**/*", {
-                nodir: true,
-                ignore: configuration.getValue("oni.exclude"),
-            }, (_err: any, files: string[]) => {
-                Log.error(_err)
-                if (!files) {
-                    this._loadDefaultMenuItems()
-                    this._showMenuFromQuickOpenItems(this._loadedItems)
-                } else {
+        // TODO:
 
-                    files.forEach((f: string) => {
-                        this._loadedItems.push(new QuickOpenItem(f, QuickOpenType.file))
-                    })
-                    this._showMenuFromQuickOpenItems(this._loadedItems)
-                }
-            })
-        })
+        this._menu.show()
+        // const filer = spawn(command, args)
+        // filer.stdout.on("data", (data) => {
+        //     data.toString().split(splitCharacter).forEach((d: string) => {
+        //         this._loadedItems.push(new QuickOpenItem(d, QuickOpenType.file))
+        //     })
+        //     this._showMenuFromQuickOpenItems(this._loadedItems)
+        // })
+        // // Otherwise, find all files recursively
+        // filer.stderr.on("data", (data) => {
+        //     this._showLoading()
+        //     Log.error(data.toString())
 
-        filer.on("exit", (code) => {
-            // For the (rare) case of an empty git directory
-            if (code === 0 && this._loadedItems.length === 0) {
-                this._loadDefaultMenuItems()
-                this._showMenuFromQuickOpenItems(this._loadedItems)
-            }
-        })
+        //     // FIXME : Convert to an async function like the ones above.
+        //     // TODO: This async call is being dropped, if we happen to use the promise
+        //     return glob("**/*", {
+        //         nodir: true,
+        //         ignore: configuration.getValue("oni.exclude"),
+        //     }, (_err: any, files: string[]) => {
+        //         Log.error(_err)
+        //         if (!files) {
+        //             this._loadDefaultMenuItems()
+        //             this._showMenuFromQuickOpenItems(this._loadedItems)
+        //         } else {
+
+        //             files.forEach((f: string) => {
+        //                 this._loadedItems.push(new QuickOpenItem(f, QuickOpenType.file))
+        //             })
+        //             this._showMenuFromQuickOpenItems(this._loadedItems)
+        //         }
+        //     })
+        // })
+
+        // filer.on("exit", (code) => {
+        //     // For the (rare) case of an empty git directory
+        //     if (code === 0 && this._loadedItems.length === 0) {
+        //         this._loadDefaultMenuItems()
+        //         this._showMenuFromQuickOpenItems(this._loadedItems)
+        //     }
+        // })
     }
 
     // If we are in home or install dir offer to open folder/bookmark (Basically user hasn't opened a folder yet)
@@ -202,11 +209,17 @@ export class QuickOpen {
             }
         })
 
-        UI.Actions.showPopupMenu("quickOpen", options)
+
+        // TODO:
+        // UI.Actions.showPopupMenu("quickOpen", options)
+
+        this._menu.show()
+        this._menu.setItems(options)
     }
 
     private _showLoading(): void {
-        UI.Actions.showPopupMenu("quickOpen", [{
+        this._menu.show()
+        this._menu.setItems([{
             icon: QuickOpenItem.convertTypeToIcon(QuickOpenType.loading),
             label: "Loading ...",
             detail: "",

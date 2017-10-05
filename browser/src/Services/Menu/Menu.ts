@@ -59,7 +59,7 @@ export class Menu {
     public setLoading(isLoading: boolean): void {
     }
 
-    public setItems(items: Oni.Menu.MenuOption): void {
+    public setItems(items: Oni.Menu.MenuOption[]): void {
 
     }
 

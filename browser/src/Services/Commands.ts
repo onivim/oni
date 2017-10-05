@@ -131,8 +131,6 @@ const popupMenuCommand = (innerCommand: ICommandCallback) => {
     }
 }
 
-
-
 const popupMenuClose = popupMenuCommand(() => menuManager.closeActiveMenu())
 const popupMenuNext = popupMenuCommand(() => menuManager.nextMenuItem())
 const popupMenuPrevious = popupMenuCommand(() => menuManager.previousMenuItem())
