@@ -5,9 +5,9 @@
  */
 
 import * as Platform from "./../Platform"
-import { Config } from "./../Services/Configuration"
+import { Configuration } from "./../Services/Configuration"
 
-export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Config): void => {
+export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configuration): void => {
 
     const { editors, input } = oni
 
