@@ -130,6 +130,11 @@ export class NeovimEditor implements IEditor {
             }
         })
 
+        this._neovimInstance.onOniCommand.subscribe((command) => {
+            alert(command)
+            commandManager.executeCommand(command)
+        })
+
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
         this._pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
             if (err) {

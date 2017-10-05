@@ -194,13 +194,13 @@ endfunction
 function! OniNextWindow( direction )
   if ! s:GotoNextWindow(a:direction)
     if a:direction == 'h'
-      OniCommand("window.moveLeft")
+      call OniCommand("window.moveLeft")
     elseif a:direction == 'j'
-      OniCommand("window.moveDown")
+      call OniCommand("window.moveDown")
     elseif a:direction == 'k'
-      OniCommand("window.moveup")
+      call OniCommand("window.moveup")
     elseif a:direction == 'l'
-      OniCommand("window.moveRight")
+      call OniCommand("window.moveRight")
     endif
     execute 'wincmd' a:direction
   endif
