@@ -20,7 +20,6 @@ describe("WindowSplit", () => {
     })
 
     describe("closeSplit", () => {
-
         it("removes split from array", () => {
              const root = getRoot<number>()
              const leaf = WindowSplit.createSplitLeaf(1)

@@ -10,86 +10,19 @@
 
 import { Event, IEvent } from "./../Event"
 
-export enum Split {
-    Right = 0,
-    Bottom = 1,
-    Left = 2,
-    Top = 3,
-}
-
-export enum SplitDirection {
-    Horizontal = 0,
-    Vertical = 1,
-}
-
-export type SplitOrLeaf = ISplitInfo | ISplitLeaf
-
-export interface ISplitInfo {
-    type: "Split"
-    splits: SplitOrLeaf[]
-    direction: SplitDirection
-    parent: ISplitInfo
-}
-
-export interface ISplitLeaf {
-    type: "Leaf"
-    editor: Oni.Editor
-}
-
-const createSplitRoot = (direction: SplitDirection, parent?: ISplitInfo): ISplitInfo => ({
-    type: "Split",
-    splits: [],
-    direction: SplitDirection.Horizontal,
-    parent: parent || null,
-})
-
-const createSplitLeaf = (editor: Oni.Editor): ISplitLeaf => ({
-    type: "Leaf",
-    editor,
-})
-
-const applySplit = (originalSplit: ISplitInfo, direction: SplitDirection, leaf: ISplitLeaf): ISplitInfo => {
-    // TODO: Implement split direction
-
-    return {
-        ...originalSplit,
-        splits: [...originalSplit.splits, leaf]
-    }
-}
-
-const closeSplit = (originalSplit: ISplitInfo, editor: Oni.Editor ): ISplitInfo => {
-
-    const filteredSplits = originalSplit.splits.filter((s) => {
-        switch (s.type) {
-            case "Split":
-                return true
-            case "Leaf":
-                return s.editor !== editor
-        }
-    })
-
-    return {
-        ...originalSplit,
-        splits: filteredSplits,
-    }
-}
+import { createSplitLeaf, createSplitRoot, applySplit, closeSplit, ISplitLeaf, ISplitInfo, SplitDirection } from "./WindowSplit"
 
 export class WindowManager {
-    private _activeSplit: ISplitLeaf
-    private _splitRoot: ISplitInfo
+    private _activeSplit: ISplitLeaf<Oni.Editor>
+    private _splitRoot: ISplitInfo<Oni.Editor>
 
-    private _onSplitChanged: Event<ISplitInfo> = new Event<ISplitInfo>()
-    private _onFocusChanged: Event<Oni.Editor> = new Event<Oni.Editor>()
+    private _onSplitChanged = new Event<ISplitInfo<Oni.Editor>>()
 
-    public get onSplitChanged(): IEvent<ISplitInfo> {
+    public get onSplitChanged(): IEvent<ISplitInfo<Oni.Editor>> {
         return this._onSplitChanged
     }
 
-    public get onFocusChanged(): IEvent<Oni.Editor> {
-        return this._onFocusChanged
-    }
-
-    public get splitRoot(): ISplitInfo {
+    public get splitRoot(): ISplitInfo<Oni.Editor> {
         return this._splitRoot
     }
 
