@@ -232,9 +232,6 @@ export class PluginManager extends EventEmitter {
             case "signature-help-response":
                 this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
                 break
-            case "redux-action":
-                UI.store.dispatch(pluginResponse.payload)
-                break
             default:
                 this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)
         }

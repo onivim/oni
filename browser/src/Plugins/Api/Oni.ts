@@ -5,7 +5,6 @@ import { IPluginChannel } from "./Channel"
 
 import { Commands } from "./Commands"
 import { Diagnostics } from "./Diagnostics"
-import { StatusBar } from "./StatusBar"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient, ServerRunOptions } from "./LanguageClient/LanguageClient"
@@ -16,6 +15,7 @@ import { Ui } from "./Ui"
 
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
+import { statusBar } from "./../../Services/StatusBar"
 
 import * as Config from "./../../Config"
 import * as Log from "./../../Log"
@@ -40,7 +40,6 @@ const helpers = {
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     private _dependencies: Dependencies
-    private _statusBar: StatusBar
     private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
@@ -80,8 +79,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._process
     }
 
-    public get statusBar(): StatusBar {
-        return this._statusBar
+    public get statusBar(): Oni.StatusBar {
+        return statusBar
     }
 
     public get ui(): Ui {
@@ -102,7 +101,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._diagnostics = new Diagnostics(this._channel)
         this._dependencies = new Dependencies()
         this._commands = new Commands(this._channel)
-        this._statusBar = new StatusBar(this._channel)
         this._ui = new Ui(react)
         this._services = new Services()
         this._process = new Process()
