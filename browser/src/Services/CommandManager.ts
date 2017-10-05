@@ -68,7 +68,7 @@ export class CommandManager implements ITaskProvider {
     public getTasks(): Promise<ITask[]> {
         const commands =
             values(this._commandDictionary)
-                .filter((c: ICommand) => !c.enabled || (c.enabled()))
+                .filter((c: Oni.ICommand) => !c.enabled || (c.enabled()))
 
         const tasks = commands.map((c) => ({
             name: c.name,
