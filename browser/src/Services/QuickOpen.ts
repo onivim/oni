@@ -75,6 +75,22 @@ export class QuickOpen {
         })
     }
 
+    public isOpen(): boolean {
+        return false
+    }
+
+    public openFile(): void {
+    }
+
+    public openFileNewTab(): void {
+    }
+
+    public openFileHorizontal(): void {
+    }
+
+    public openFileVertical(): void {
+    }
+
     public async show() {
         // reset list and show loading indicator
         this._loadedItems = []

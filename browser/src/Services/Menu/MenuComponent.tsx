@@ -31,7 +31,7 @@ export interface IMenuProps {
 
 export class MenuView extends React.PureComponent<IMenuProps, void> {
 
-    private _inputElement: HTMLInputElement = null as any // FIXME: null
+    private _inputElement: HTMLInputElement = null
 
     public componentWillUpdate(newProps: Readonly<IMenuProps>): void {
         if (newProps.visible !== this.props.visible
@@ -42,7 +42,6 @@ export class MenuView extends React.PureComponent<IMenuProps, void> {
     }
 
     public render(): null | JSX.Element {
-
         if (!this.props.visible) {
             return null
         }

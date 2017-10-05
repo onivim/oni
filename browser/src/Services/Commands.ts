@@ -17,6 +17,7 @@ import { AutoCompletion } from "./../Services/AutoCompletion"
 import { BufferUpdates } from "./../Services/BufferUpdates"
 import { configuration } from "./../Services/Configuration"
 import { Formatter } from "./../Services/Formatter"
+import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
 import { tasks } from "./../Services/Tasks"
@@ -74,10 +75,10 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         // QuickOpen
         new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show()),
         new CallbackCommand("quickOpen.showBufferLines", null, null, () => quickOpen.showBufferLines()),
-        new CallbackCommand("quickOpen.openFile", null, null, quickOpenFile),
-        new CallbackCommand("quickOpen.openFileNewTab", null, null, quickOpenFileNewTab),
-        new CallbackCommand("quickOpen.openFileVertical", null, null, quickOpenFileVertical),
-        new CallbackCommand("quickOpen.openFileHorizontal", null, null, quickOpenFileHorizontal),
+        new CallbackCommand("quickOpen.openFile", null, null, quickOpenFile(quickOpen)),
+        new CallbackCommand("quickOpen.openFileNewTab", null, null, quickOpenFileNewTab(quickOpen)),
+        new CallbackCommand("quickOpen.openFileVertical", null, null, quickOpenFileVertical(quickOpen)),
+        new CallbackCommand("quickOpen.openFileHorizontal", null, null, quickOpenFileHorizontal(quickOpen)),
 
         // Add additional commands here
         // ...
@@ -122,7 +123,7 @@ const previousCompletionItem = autoCompletionCommand(() => {
 
 const popupMenuCommand = (innerCommand: ICommandCallback) => {
     return () => {
-        if (UI.Selectors.isPopupMenuOpen()) {
+        if (menuManager.isMenuOpen()) {
             return innerCommand()
         }
 
@@ -130,14 +131,26 @@ const popupMenuCommand = (innerCommand: ICommandCallback) => {
     }
 }
 
-const popupMenuClose = popupMenuCommand(() => UI.Actions.hidePopupMenu())
-const popupMenuNext = popupMenuCommand(() => UI.Actions.nextMenuItem())
-const popupMenuPrevious = popupMenuCommand(() => UI.Actions.previousMenuItem())
 
-const quickOpenFile = popupMenuCommand(() => UI.Actions.selectMenuItem("e"))
-const quickOpenFileNewTab = popupMenuCommand(() => UI.Actions.selectMenuItem("tabnew"))
-const quickOpenFileHorizontal = popupMenuCommand(() => UI.Actions.selectMenuItem("sp"))
-const quickOpenFileVertical = popupMenuCommand(() => UI.Actions.selectMenuItem("vsp"))
+
+const popupMenuClose = popupMenuCommand(() => menuManager.closeActiveMenu())
+const popupMenuNext = popupMenuCommand(() => menuManager.nextMenuItem())
+const popupMenuPrevious = popupMenuCommand(() => menuManager.previousMenuItem())
+
+const quickOpenCommand = (innerCommand: ICommandCallback) => (quickOpen: QuickOpen) => {
+    return () => {
+        if (quickOpen.isOpen()) {
+            return innerCommand(quickOpen)
+        }
+
+        return false
+    }
+})
+
+const quickOpenFile = quickOpenCommand((quickOpen) => quickOpen.openFile()))
+const quickOpenFileNewTab = quickOpenCommand((quickOpen) => quickOpen.openFileNewTab())
+const quickOpenFileHorizontal = quickOpenCommand((quickOpen) => quickOpen.openFileHorizontal())
+const quickOpenFileVertical = quickOpenCommand((quickOpen) => quickOpen.openFileVertical())
 
 const pasteContents = async (neovimInstance: INeovimInstance) => {
     const textToPaste = clipboard.readText()

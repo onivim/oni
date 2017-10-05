@@ -23,6 +23,22 @@ export class MenuManager {
         this._id++
         return new Menu(this._id)
     }
+
+    public isMenuOpen(): boolean {
+        return false
+    }
+
+    public nextMenuItem(): void {
+        menuActions.nextMenuItem()
+    }
+
+    public previousMenuItem(): void {
+        menuActions.previousMenuItem()
+    }
+    
+    public closeActiveMenu(): void {
+        menuActions.hidePopupMenu()
+    }
 }
 
 export class Menu {
