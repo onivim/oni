@@ -1,5 +1,11 @@
-import { Config } from "./../Config"
+/**
+ * KeyBindings.ts
+ *
+ * Default, out-of-the-box keybindings for Oni
+ */
+
 import * as Platform from "./../Platform"
+import { Config } from "./../Services/Configuration"
 
 export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Config): void => {
 

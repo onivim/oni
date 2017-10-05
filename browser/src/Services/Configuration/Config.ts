@@ -13,7 +13,7 @@ import { diff } from "./../../Utility"
 import { IConfigurationValues } from "./IConfigurationValues"
 import { DefaultConfiguration } from "./DefaultConfiguration"
 
-export class Config {
+export class Config implements Oni.Configuration {
 
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
     private _oniApi: Oni.Plugin.Api = null
