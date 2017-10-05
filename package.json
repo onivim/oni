@@ -121,7 +121,6 @@
     "@types/glob": "5.0.30",
     "@types/jsdom": "11.0.0",
     "@types/lodash": "4.14.38",
-    "@types/marked": "^0.3.0",
     "@types/minimist": "1.1.29",
     "@types/mkdirp": "0.3.29",
     "@types/mocha": "2.2.33",

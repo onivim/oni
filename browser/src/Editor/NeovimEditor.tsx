@@ -131,7 +131,6 @@ export class NeovimEditor implements IEditor {
         })
 
         this._neovimInstance.onOniCommand.subscribe((command) => {
-            alert(command)
             commandManager.executeCommand(command)
         })
 

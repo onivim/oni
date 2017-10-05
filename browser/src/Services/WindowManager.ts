@@ -49,20 +49,28 @@ const createSplitLeaf = (editor: Oni.Editor): ISplitLeaf => ({
 })
 
 const applySplit = (originalSplit: ISplitInfo, direction: SplitDirection, leaf: ISplitLeaf): ISplitInfo => {
+    // TODO: Implement split direction
 
-    if (!originalSplit.splits || !originalSplit.splits.length) {
-        return {
-            ...originalSplit,
-            splits: [leaf],
+    return {
+        ...originalSplit,
+        splits: [...originalSplit.splits, leaf]
+    }
+}
+
+const closeSplit = (originalSplit: ISplitInfo, editor: Oni.Editor ): ISplitInfo => {
+
+    const filteredSplits = originalSplit.splits.filter((s) => {
+        switch (s.type) {
+            case "Split":
+                return true
+            case "Leaf":
+                return s.editor !== editor
         }
-    } else if (originalSplit.splits.length === 1) {
-        return {
-            ...originalSplit,
-            splits: [...originalSplit.splits, leaf],
-            direction,
-        }
-    } else {
-        return originalSplit
+    })
+
+    return {
+        ...originalSplit,
+        splits: filteredSplits,
     }
 }
 
@@ -91,31 +99,35 @@ export class WindowManager {
     }
 
     public split(direction: SplitDirection, newEditor: Oni.Editor) {
-
         const newLeaf = createSplitLeaf(newEditor)
         this._splitRoot = applySplit(this._splitRoot, direction, newLeaf)
 
         this._onSplitChanged.dispatch(this._splitRoot)
     }
 
-    // public moveLeft(): void {
+    public moveLeft(): void {
+        // TODO
+    }
 
-    // }
+    public moveRight(): void {
+        // TODO
+    }
 
-    // public moveRight(): void {
+    public moveUp(): void {
+        // TODO
+    }
 
-    // }
+    public moveDown(): void {
+        // TODO
+    }
 
-    // public moveUp(): void {
-
-    // }
-
-    // public moveDown(): void {
-
-    // }
+    public showDock(direction: SplitDirection, newEditor: Oni.Editor) {
+        // TODO
+    }
 
     public close(editor: Oni.Editor) {
-
+        this._splitRoot = closeSplit(this._splitRoot, editor)
+        this._onSplitChanged.dispatch(this._splitRoot)
     }
 }
 

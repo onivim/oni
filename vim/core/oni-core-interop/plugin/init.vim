@@ -198,7 +198,7 @@ function! OniNextWindow( direction )
     elseif a:direction == 'j'
       call OniCommand("window.moveDown")
     elseif a:direction == 'k'
-      call OniCommand("window.moveup")
+      call OniCommand("window.moveUp")
     elseif a:direction == 'l'
       call OniCommand("window.moveRight")
     endif
