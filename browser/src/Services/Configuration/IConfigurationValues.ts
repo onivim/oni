@@ -6,7 +6,7 @@
  * because dependent packages or plugins may have their own set of configuration
  */
 
-export interface IConfigValues {
+export interface IConfigurationValues {
 
     "activate": (oni: Oni.Plugin.Api) => void
     "deactivate": () => void

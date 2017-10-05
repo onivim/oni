@@ -14,100 +14,15 @@ import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
 import { diff } from "./../../Utility"
 
 import { IConfigurationValues } from "./IConfigurationValues"
-
-const noop = () => { } // tslint:disable-line no-empty
+import { DefaultConfiguration } from "./DefaultConfiguration"
 
 export class Config {
 
-    public userJsConfig = path.join(this.getUserFolder(), "config.js")
-
-    private DefaultConfig: IConfigValues = {
-        activate: noop,
-        deactivate: noop,
-
-        "debug.fixedSize": null,
-        "debug.neovimPath": null,
-
-        "oni.audio.bellUrl": path.join(__dirname, "audio", "beep.wav"),
-
-        "oni.useDefaultConfig": true,
-
-        "oni.loadInitVim": false,
-
-        "oni.useExternalPopupMenu": true,
-
-        "oni.hideMenu": false,
-
-        "oni.exclude": ["**/node_modules/**"],
-        "oni.bookmarks": [],
-
-        "editor.backgroundOpacity": 1.0,
-        "editor.backgroundImageUrl": null,
-        "editor.backgroundImageSize": "cover",
-
-        "editor.clipboard.enabled": true,
-
-        "editor.quickInfo.enabled": true,
-        "editor.quickInfo.delay": 500,
-
-        "editor.completions.enabled": true,
-        "editor.errors.slideOnFocus": true,
-        "editor.formatting.formatOnSwitchToNormalMode": false,
-
-        "editor.fontLigatures": true,
-        "editor.fontSize": "12px",
-        "editor.fontFamily": "",
-
-        "editor.linePadding": 2,
-
-        "editor.quickOpen.execCommand": null,
-
-        "editor.scrollBar.visible": true,
-
-        "editor.fullScreenOnStart" : false,
-
-        "editor.cursorLine": true,
-        "editor.cursorLineOpacity" : 0.1,
-
-        "editor.cursorColumn": false,
-        "editor.cursorColumnOpacity": 0.1,
-
-        "environment.additionalPaths": [],
-
-        "statusbar.enabled": true,
-        "statusbar.fontSize": "0.9em",
-
-        "tabs.enabled": true,
-        "tabs.showVimTabs": false,
-    }
-
-    private MacConfig: Partial<IConfigurationValues> = {
-        "editor.fontFamily": "Menlo",
-        "environment.additionalPaths": [
-            "/usr/bin",
-            "/usr/local/bin",
-        ],
-    }
-
-    private WindowsConfig: Partial<IConfigurationValues> = {
-        "editor.fontFamily": "Consolas",
-    }
-
-    private LinuxConfig: Partial<IConfigurationValues> = {
-        "editor.fontFamily": "DejaVu Sans Mono",
-        "environment.additionalPaths": [
-            "/usr/bin",
-            "/usr/local/bin",
-        ],
-    }
-
-    private DefaultPlatformConfig = Platform.isWindows() ? this.WindowsConfig : Platform.isLinux() ? this.LinuxConfig : this.MacConfig
-
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
-
     private _oniApi: Oni.Plugin.Api = null
-
     private _config: IConfigurationValues = null
+
+    public userJsConfig = path.join(this.getUserFolder(), "config.js")
 
     public get onConfigurationChanged(): IEvent<Partial<IConfigurationValues>> {
         return this._onConfigurationChangedEvent
@@ -177,9 +92,9 @@ export class Config {
         const userRuntimeConfigOrError = this.getUserRuntimeConfig()
         if (isError(userRuntimeConfigOrError)) {
             Log.error(userRuntimeConfigOrError)
-            this._config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig}
+            this._config = { ...DefaultConfiguration }
         } else {
-            this._config = { ...this.DefaultConfig, ...this.DefaultPlatformConfig, ...userRuntimeConfigOrError}
+            this._config = { ...DefaultConfiguration, ...userRuntimeConfigOrError}
         }
 
         this._deactivate()
@@ -222,12 +137,12 @@ export class Config {
         return error ? error : userRuntimeConfig
     }
 
-    private _notifyListeners(previousConfig?: Partial<IConfigValues>): void {
+    private _notifyListeners(previousConfig?: Partial<IConfigurationValues>): void {
         previousConfig = previousConfig || {}
 
         const changedValues = diff(this._config, previousConfig)
 
-        const diffObject = changedValues.reduce((previous: Partial<IConfigValues>, current: string) => {
+        const diffObject = changedValues.reduce((previous: Partial<IConfigurationValues>, current: string) => {
 
             const currentValue = this._config[current]
 
@@ -246,5 +161,4 @@ export class Config {
     }
 }
 
-const _config = new Config()
-export const instance = () => _config
+export const configuration = new Config()
