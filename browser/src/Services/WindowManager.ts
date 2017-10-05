@@ -10,7 +10,7 @@
 
 import { Event, IEvent } from "./../Event"
 
-import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, ISplitLeaf, ISplitInfo, SplitDirection } from "./WindowSplit"
+import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, ISplitInfo, ISplitLeaf, SplitDirection } from "./WindowSplit"
 
 export class WindowManager {
     private _activeSplit: ISplitLeaf<Oni.Editor>

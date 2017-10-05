@@ -1,6 +1,5 @@
 import * as React from "react"
 
-// import { IEditor } from "./../Editor/Editor"
 import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { inputManager } from "./../Services/InputManager"
