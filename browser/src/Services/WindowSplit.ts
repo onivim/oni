@@ -1,6 +1,6 @@
 /**
  * WindowSplit.ts
- * 
+ *
  * Handles managing split state transitions, like:
  *  - Applying a split
  *  - Closing a split
@@ -52,7 +52,7 @@ export function applySplit<T>(originalSplit: ISplitInfo<T>, direction: SplitDire
     // TODO: Implement split direction & nested splits
     return {
         ...originalSplit,
-        splits: [...originalSplit.splits, leaf]
+        splits: [...originalSplit.splits, leaf],
     }
 }
 

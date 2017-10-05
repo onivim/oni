@@ -1,6 +1,6 @@
 /**
  * WindowManager.ts
- * 
+ *
  * Responsible for managing state of the editor collection, and
  * switching between active editors.
  *
@@ -10,7 +10,7 @@
 
 import { Event, IEvent } from "./../Event"
 
-import { createSplitLeaf, createSplitRoot, applySplit, closeSplit, ISplitLeaf, ISplitInfo, SplitDirection } from "./WindowSplit"
+import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, ISplitLeaf, ISplitInfo, SplitDirection } from "./WindowSplit"
 
 export class WindowManager {
     private _activeSplit: ISplitLeaf<Oni.Editor>

@@ -1,9 +1,15 @@
+/**
+ * EditorWindows.tsx
+ *
+ * UI that hosts all the `Editor` instances
+ */
+
 import * as React from "react"
 
-import { EditorHost } from "./components/EditorHost"
+import { EditorHost } from "./EditorHost"
 
-import { WindowManager } from "./../Services/WindowManager"
-import { ISplitInfo } from "./../Services/WindowSplit"
+import { WindowManager } from "./../../Services/WindowManager"
+import { ISplitInfo } from "./../../Services/WindowSplit"
 
 export interface IEditorWindowsProps {
     windowManager: WindowManager
@@ -39,8 +45,8 @@ export class EditorWindows extends React.PureComponent<IEditorWindowsProps, IEdi
         const containerStyle = {
             "display": "flex",
             "flex-direction": "row",
-            "width": " 100%",
-            "height": " 100%",
+            "width": "100%",
+            "height": "100%",
         }
 
         const editors = this.state.splitRoot.splits.map((split) => {
