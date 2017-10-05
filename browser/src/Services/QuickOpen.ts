@@ -94,7 +94,6 @@ export class QuickOpen {
     public async show() {
         // reset list and show loading indicator
         this._loadedItems = []
-        this._showLoading()
 
         const overriddenCommand = configuration.getValue("editor.quickOpen.execCommand")
         // const exclude = config.getValue("oni.exclude")
@@ -122,7 +121,6 @@ export class QuickOpen {
     }
 
     public async showBufferLines() {
-        this._showLoading()
         let nu = 0
 
         const options = this._bufferUpdates.lines.map((line: string) => {
@@ -215,16 +213,6 @@ export class QuickOpen {
 
         this._menu.show()
         this._menu.setItems(options)
-    }
-
-    private _showLoading(): void {
-        this._menu.show()
-        this._menu.setItems([{
-            icon: QuickOpenItem.convertTypeToIcon(QuickOpenType.loading),
-            label: "Loading ...",
-            detail: "",
-            pinned: false,
-        }])
     }
 
     private _loadDefaultMenuItems() {
