@@ -98,4 +98,3 @@ export const DefaultConfiguration = {
     ...BaseConfiguration,
     ...PlatformConfigOverride,
 }
-
