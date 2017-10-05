@@ -6,6 +6,8 @@
 
 import { bindActionCreators, createStore } from "redux"
 
+import { Event, IEvent } from "./../../Event"
+
 import * as ActionCreators from "./MenuActionCreators"
 import { reducer } from "./MenuReducer"
 import * as State from "./MenuState"
@@ -24,6 +26,17 @@ export class MenuManager {
 }
 
 export class Menu {
+    private _onItemSelected = new Event<any>()
+    private _onFilterTextChanged = new Event<string>()
+
+    public get onItemSelected(): IEvent<any> {
+        return this._onItemSelected
+    }
+
+    public get onFilterTextChanged(): IEvent<any> {
+        return this._onFilterTextChanged
+    }
+
     constructor(private _id: number) {
     }
 
@@ -35,6 +48,7 @@ export class Menu {
     }
 
     public show(): void {
+        // TODO: Pass in callbacks for events here
         menuActions.showPopupMenu("test" + this._id, [])
     }
 

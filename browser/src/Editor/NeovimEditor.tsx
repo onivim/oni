@@ -338,7 +338,6 @@ export class NeovimEditor implements IEditor {
 
             // TODO: More convenient way to hide all UI?
             UI.Actions.hideCompletions()
-            UI.Actions.hidePopupMenu()
             UI.Actions.hideSignatureHelp()
             UI.Actions.hideQuickInfo()
 
