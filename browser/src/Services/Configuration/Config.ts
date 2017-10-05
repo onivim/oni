@@ -10,8 +10,8 @@ import * as Performance from "./../../Performance"
 import * as Platform from "./../../Platform"
 import { diff } from "./../../Utility"
 
-import { IConfigurationValues } from "./IConfigurationValues"
 import { DefaultConfiguration } from "./DefaultConfiguration"
+import { IConfigurationValues } from "./IConfigurationValues"
 
 export class Config implements Oni.Configuration {
 

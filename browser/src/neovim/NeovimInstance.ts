@@ -13,10 +13,10 @@ import { Session } from "./Session"
 import { IWindow, Window } from "./Window"
 
 import * as Actions from "./../actions"
-import { configuration } from "./../Services/Configuration"
 import { measureFont } from "./../Font"
 import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
+import { configuration } from "./../Services/Configuration"
 
 export interface INeovimYankInfo {
     operator: string

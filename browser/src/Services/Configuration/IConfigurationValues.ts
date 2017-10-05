@@ -1,7 +1,7 @@
 /**
  * IConfigurationValues
  * - Set of configuration values that Oni relies on
- * 
+ *
  * NOTE: This may not be the complete set of configuration values,
  * because dependent packages or plugins may have their own set of configuration
  */

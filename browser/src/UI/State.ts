@@ -6,7 +6,7 @@
 
 import { Rectangle } from "./Types"
 
-import { configuration ,IConfigurationValues } from "./../Services/Configuration"
+import { configuration , IConfigurationValues } from "./../Services/Configuration"
 
 import * as types from "vscode-languageserver-types"
 
