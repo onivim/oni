@@ -4,7 +4,6 @@ import * as mkdirp from "mkdirp"
 import * as os from "os"
 import * as path from "path"
 import { INeovimInstance } from "./../neovim"
-import { CallbackCommand, commandManager } from "./../Services/CommandManager"
 import { configuration } from "./../Services/Configuration"
 import * as UI from "./../UI/index"
 
@@ -282,19 +281,6 @@ export class PluginManager extends EventEmitter {
             type: "request",
             payload,
         }, Capabilities.createPluginFilter(eventContext.filetype))
-    }
-
-    private _sendCommand(command: string, args?: any): void {
-        const filetype = !!this._lastEventContext ? this._lastEventContext.filetype : null
-        const filter = Capabilities.createPluginFilterForCommand(filetype, command)
-        this._channel.host.send({
-            type: "command",
-            payload: {
-                command,
-                args,
-                eventContext: this._lastEventContext,
-            },
-        }, filter)
     }
 
     /**

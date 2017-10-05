@@ -2,8 +2,6 @@ import * as ChildProcess from "child_process"
 import { EventEmitter } from "events"
 
 import { IPluginChannel } from "./Channel"
-
-import { Commands } from "./Commands"
 import { Diagnostics } from "./Diagnostics"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
