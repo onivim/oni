@@ -4,6 +4,7 @@ import { EventEmitter } from "events"
 import * as types from "vscode-languageserver-types"
 
 declare namespace Oni {
+
     export interface IDisposable {
         dispose(): void
     }
@@ -23,6 +24,15 @@ declare namespace Oni {
     export interface Configuration {
         onConfigurationChanged: Event<any>
         getValue<T>(configValue: string, defaultValue?: T): T
+    }
+
+    export interface IWindowManager {
+        split(direction: number, editor: Oni.Editor, sourceEditor?: Oni.Editor)
+        moveLeft(): void
+        moveRight(): void
+        moveDown(): void
+        moveUp(): void
+        close(editor: Oni.Editor)
     }
 
     export interface EditorManager {

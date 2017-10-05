@@ -16,6 +16,7 @@ import * as State from "./State"
 
 import { editorManager } from "./../Services/EditorManager"
 import { focusManager } from "./../Services/FocusManager"
+import { windowManager } from "./../Services/WindowManager"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
@@ -55,9 +56,11 @@ function render(_state: State.IState, pluginManager: PluginManager, args: any): 
 
     editorManager.setActiveEditor(editor)
 
+    windowManager.split(0, editor)
+
     ReactDOM.render(
         <Provider store={store}>
-            <RootComponent editor={editor} />
+            <RootComponent windowManager={windowManager}/>
         </Provider>, hostElement)
 }
 

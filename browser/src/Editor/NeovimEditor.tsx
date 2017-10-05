@@ -61,7 +61,6 @@ export class NeovimEditor implements IEditor {
 
     private _hasLoaded: boolean = false
 
-    // Overlays
     private _windowManager: NeovimWindowManager
 
     private _errorStartingNeovim: boolean = false
@@ -70,6 +69,7 @@ export class NeovimEditor implements IEditor {
         return this._currentMode
     }
 
+    // Events
     public get onModeChanged(): IEvent<string> {
         return this._onModeChangedEvent
     }
@@ -128,6 +128,10 @@ export class NeovimEditor implements IEditor {
             if (configuration.getValue("editor.clipboard.enabled")) {
                 clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
             }
+        })
+
+        this._neovimInstance.onOniCommand.subscribe((command) => {
+            commandManager.executeCommand(command)
         })
 
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
