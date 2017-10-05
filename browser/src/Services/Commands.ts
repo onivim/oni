@@ -75,6 +75,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show()),
         new CallbackCommand("quickOpen.showBufferLines", null, null, () => quickOpen.showBufferLines()),
         new CallbackCommand("quickOpen.openFile", null, null, quickOpenFile),
+        new CallbackCommand("quickOpen.openFileNewTab", null, null, quickOpenFileNewTab),
         new CallbackCommand("quickOpen.openFileVertical", null, null, quickOpenFileVertical),
         new CallbackCommand("quickOpen.openFileHorizontal", null, null, quickOpenFileHorizontal),
 
@@ -134,6 +135,7 @@ const popupMenuNext = popupMenuCommand(() => UI.Actions.nextMenuItem())
 const popupMenuPrevious = popupMenuCommand(() => UI.Actions.previousMenuItem())
 
 const quickOpenFile = popupMenuCommand(() => UI.Actions.selectMenuItem("e"))
+const quickOpenFileNewTab = popupMenuCommand(() => UI.Actions.selectMenuItem("tabnew"))
 const quickOpenFileHorizontal = popupMenuCommand(() => UI.Actions.selectMenuItem("sp"))
 const quickOpenFileVertical = popupMenuCommand(() => UI.Actions.selectMenuItem("vsp"))
 

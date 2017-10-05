@@ -41,6 +41,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<enter>", "quickOpen.openFile")
     input.bind("<C-v>", "quickOpen.openFileVertical")
     input.bind("<C-s>", "quickOpen.openFileHorizontal")
+    input.bind("<C-t>", "quickOpen.openFileNewTab")
 
     // Completion
     input.bind(["<enter>", "<tab>"], "completion.complete")
