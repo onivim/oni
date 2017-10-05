@@ -143,9 +143,9 @@ const quickOpenCommand = (innerCommand: ICommandCallback) => (quickOpen: QuickOp
 
         return false
     }
-})
+}
 
-const quickOpenFile = quickOpenCommand((quickOpen) => quickOpen.openFile()))
+const quickOpenFile = quickOpenCommand((quickOpen) => quickOpen.openFile())
 const quickOpenFileNewTab = quickOpenCommand((quickOpen) => quickOpen.openFileNewTab())
 const quickOpenFileHorizontal = quickOpenCommand((quickOpen) => quickOpen.openFileHorizontal())
 const quickOpenFileVertical = quickOpenCommand((quickOpen) => quickOpen.openFileVertical())

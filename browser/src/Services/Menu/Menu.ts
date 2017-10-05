@@ -25,7 +25,7 @@ export class MenuManager {
     }
 
     public isMenuOpen(): boolean {
-        return false
+        return !!menuStore.getState().menu
     }
 
     public nextMenuItem(): void {

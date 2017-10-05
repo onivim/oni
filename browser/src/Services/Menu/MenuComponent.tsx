@@ -1,5 +1,5 @@
 import * as React from "react"
-import { connect } from "react-redux"
+import { connect, Provider } from "react-redux"
 
 import * as take from "lodash/take"
 
@@ -9,6 +9,7 @@ import { Icon } from "./../../UI/Icon"
 
 import { focusManager } from "./../FocusManager"
 
+import { menuStore } from "./Menu"
 import * as ActionCreators from "./MenuActionCreators"
 import * as State from "./MenuState"
 
@@ -128,7 +129,13 @@ const mapDispatchToProps = (dispatch: any) => {
     }
 }
 
-export const MenuContainer = connect(mapStateToProps, mapDispatchToProps)(MenuView)
+export const ConnectedMenu = connect(mapStateToProps, mapDispatchToProps)(MenuView)
+
+export const MenuContainer = () => {
+    return <Provider store={menuStore}>
+            <ConnectedMenu />
+        </Provider>
+}
 
 export interface IMenuItemProps {
     icon?: string
