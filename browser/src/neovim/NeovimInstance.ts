@@ -40,6 +40,9 @@ export interface INeovimInstance {
     // Events
     onYank: IEvent<INeovimYankInfo>
 
+    // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
+    onOniCommand: IEvent<string>
+
     screenToPixels(row: number, col: number): IPixelPosition
 
     /**
@@ -111,7 +114,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _pluginManager: PluginManager
     private _quickFix: QuickFixList
 
-    private _onYank: Event<INeovimYankInfo> = new Event<INeovimYankInfo>()
+    private _onYank = new Event<INeovimYankInfo>()
+    private _onOniCommand = new Event<string>()
 
     public get quickFix(): IQuickFixList {
         return this._quickFix
@@ -119,6 +123,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onYank(): IEvent<INeovimYankInfo> {
         return this._onYank
+    }
+
+    public get onOniCommand(): IEvent<string> {
+        return this._onOniCommand
     }
 
     constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
@@ -175,6 +183,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             this.emit("buffer-update", eventContext, bufferLines)
                         } else if (pluginMethod === "oni_yank") {
                             this._onYank.dispatch(args[0][0])
+                        } else if (pluginMethod === "oni_command") {
+                            this._onOniCommand.dispatch(args[0][0])
                         } else if (pluginMethod === "event") {
                             const eventName = args[0][0]
                             const eventContext = args[0][1]

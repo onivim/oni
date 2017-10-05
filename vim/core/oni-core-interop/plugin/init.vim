@@ -40,6 +40,10 @@ function OniNotifyEvent(eventName)
     call OniNotify(["event", a:eventName, context])
 endfunction
 
+function OniCommand(oniCommand)
+    call OniNotify(["oni_command", a:oniCommand])
+endfunction
+
 function OniOpenFile(strategy, file)
      if bufname('%') != ''
          exec a:strategy . a:file
@@ -190,13 +194,13 @@ endfunction
 function! OniNextWindow( direction )
   if ! s:GotoNextWindow(a:direction)
     if a:direction == 'h'
-      echo "left"
+      OniCommand("window.moveLeft")
     elseif a:direction == 'j'
-      echo "down"
+      OniCommand("window.moveDown")
     elseif a:direction == 'k'
-      echo "up"
+      OniCommand("window.moveup")
     elseif a:direction == 'l'
-      echo "right"
+      OniCommand("window.moveRight")
     endif
     execute 'wincmd' a:direction
   endif
