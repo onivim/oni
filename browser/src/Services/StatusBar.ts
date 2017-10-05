@@ -4,8 +4,6 @@
  * Implements API surface area for working with the status bar
  */
 
-import { IPluginChannel } from "./Channel"
-
 import * as UI from "./../../UI"
 
 export enum StatusBarAlignment {
@@ -62,7 +60,7 @@ export class StatusBar implements Oni.StatusBar {
     public createItem(alignment: StatusBarAlignment, priority: number = 0, globalId?: string): Oni.StatusBarItem {
         this._id++
 
-        const statusBarId = globalId || `${this._channel.metadata.name}${this._id.toString()}`
+        const statusBarId = globalId || `${this._id.toString()}`
 
         return new StatusBarItem(statusBarId, alignment, priority)
     }
