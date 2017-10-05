@@ -11,11 +11,12 @@ import * as glob from "glob"
 import * as path from "path"
 import * as Log from "./../Log"
 
-import * as Config from "./../Config"
-import { NeovimEditor } from "./../Editor/NeovimEditor"
 import { INeovimInstance } from "./../neovim"
 import * as UI from "./../UI/index"
 import { BufferUpdates } from "./BufferUpdates"
+
+import { commandManager } from "./../Services/CommandManager"
+import { configuration } from "./../Services/Configuration"
 
 export class QuickOpen {
     private _seenItems: string[] = []
@@ -26,7 +27,7 @@ export class QuickOpen {
     // private _doneLoadingColors: boolean
     // private _needToLoadColors: boolean
 
-    constructor(neovimInstance: INeovimInstance, neovimEditor: NeovimEditor, bufferUpdates: BufferUpdates) {
+    constructor(neovimInstance: INeovimInstance, bufferUpdates: BufferUpdates) {
         this._neovimInstance = neovimInstance
         this._bufferUpdates = bufferUpdates
         // this._loadColors()
@@ -37,11 +38,11 @@ export class QuickOpen {
             if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.loading)) {
                 return
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
-                neovimEditor.executeCommand("oni.config.openConfigJs")
+                commandManager.executeCommand("oni.config.openConfigJs")
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.color)) {
                 neovimInstance.command(`colo ${arg.label}`)
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
-                neovimEditor.executeCommand("oni.openFolder")
+                commandManager.executeCommand("oni.openFolder")
             } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
                 if (selectedItem.openInSplit !== "e") {
                     neovimInstance.command(selectedItem.openInSplit + "!")
@@ -97,46 +98,17 @@ export class QuickOpen {
     //             })
     //         })
     // }
-
     public async show() {
         // reset list and show loading indicator
         this._loadedItems = []
         this._showLoading()
 
-        const config = Config.instance()
-        const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
+        const overriddenCommand = configuration.getValue("editor.quickOpen.execCommand")
         // const exclude = config.getValue("oni.exclude")
 
         //  If in exec directory or home, show bookmarks to change cwd to
         if (this._isInstallDirectoryOrHome()) {
-            // Open folder help at top
-            this._loadedItems.push(new QuickOpenItem(
-                "Open Folder",
-                QuickOpenType.folderHelp,
-            ))
-
-            // Get bookmarks, if we added remove them all so we don't think we have length
-            const bookmarks = config.getValue("oni.bookmarks")
-            let type = QuickOpenType.bookmark
-
-            // If bookmarks are null show a help message and open config on selection
-            // If we are length 0 this is because we haven't added help and we have no bookmarks
-            // Once we add help, we now have 1
-            if (bookmarks.length === 0 ) {
-                type = QuickOpenType.bookmarkHelp
-                bookmarks.push("Opens Configuration to add a bookmark/Add Bookmark")
-            }
-
-            // Either way we need to map to quick open item
-            bookmarks.forEach( ( f: string) => {
-                this._loadedItems.push(new QuickOpenItem(f, type))
-            })
-
-            // reset bookmarks because javascript doesn't respect local garbace collection IF
-            // we are help, otherwise... don't... "optimize" >.>... sure
-            if (type === QuickOpenType.bookmarkHelp) {
-                bookmarks.splice(0, bookmarks.length)
-            }
+            this._loadDefaultMenuItems()
 
             // TODO consider adding folders as well (recursive async with ignores/excludes)
             // For now, sync call bookmarks and open folder, it's so few it's not going to matter
@@ -147,12 +119,13 @@ export class QuickOpen {
         // Overridden strategy
         if (overriddenCommand) {
             // replace placeholder ${search} with "" for initial case
-            this.loadMenu(overriddenCommand.replace("${search}", ""))
+            this.loadMenu(overriddenCommand.replace("${search}", "")) // tslint:disable-line no-invalid-template-strings
             return
         }
 
         // Default strategy
-        this.loadMenu("git", ["ls-files", "--others", "--exclude-standard", "--cached"])
+        // The '-z' argument is needed to prevent escaping, see #711 for more information.
+        this.loadMenu("git", ["ls-files", "--others", "--exclude-standard", "--cached", "-z"], "\u0000")
     }
 
     public async showBufferLines() {
@@ -173,33 +146,45 @@ export class QuickOpen {
 
     // Overridden strategy
     // If git repo, use git ls-files
-    private async loadMenu (command: string, args: string[] = []) {
+    private async loadMenu(command: string, args: string[] = [], splitCharacter: string = "\n") {
         const filer = spawn(command, args)
-
         filer.stdout.on("data", (data) => {
-            data.toString().split("\n").forEach( (d: string) => {
+            data.toString().split(splitCharacter).forEach((d: string) => {
                 this._loadedItems.push(new QuickOpenItem(d, QuickOpenType.file))
             })
             this._showMenuFromQuickOpenItems(this._loadedItems)
         })
-
         // Otherwise, find all files recursively
         filer.stderr.on("data", (data) => {
             this._showLoading()
-
             Log.error(data.toString())
 
             // FIXME : Convert to an async function like the ones above.
             // TODO: This async call is being dropped, if we happen to use the promise
             return glob("**/*", {
                 nodir: true,
-                ignore: Config.instance().getValue("oni.exclude"),
+                ignore: configuration.getValue("oni.exclude"),
             }, (_err: any, files: string[]) => {
-                files.forEach( (f: string) => {
-                    this._loadedItems.push(new QuickOpenItem(f, QuickOpenType.file))
-                })
-                this._showMenuFromQuickOpenItems(this._loadedItems)
+                Log.error(_err)
+                if (!files) {
+                    this._loadDefaultMenuItems()
+                    this._showMenuFromQuickOpenItems(this._loadedItems)
+                } else {
+
+                    files.forEach((f: string) => {
+                        this._loadedItems.push(new QuickOpenItem(f, QuickOpenType.file))
+                    })
+                    this._showMenuFromQuickOpenItems(this._loadedItems)
+                }
             })
+        })
+
+        filer.on("exit", (code) => {
+            // For the (rare) case of an empty git directory
+            if (code === 0 && this._loadedItems.length === 0) {
+                this._loadDefaultMenuItems()
+                this._showMenuFromQuickOpenItems(this._loadedItems)
+            }
         })
     }
 
@@ -213,8 +198,8 @@ export class QuickOpen {
     private _showMenuFromQuickOpenItems(items: QuickOpenItem[]): void {
         const options = items.map((qitem) => {
             const f = qitem.item.trim()
-            let file = path.basename(f)
-            let folder = path.dirname(f)
+            const file = path.basename(f)
+            const folder = path.dirname(f)
 
             return {
                 icon: qitem.icon,
@@ -236,6 +221,36 @@ export class QuickOpen {
         }])
     }
 
+    private _loadDefaultMenuItems() {
+        // Open folder help at top
+        this._loadedItems.push(new QuickOpenItem(
+            "Open Folder",
+            QuickOpenType.folderHelp,
+        ))
+
+        // Get bookmarks, if we added remove them all so we don't think we have length
+        const bookmarks = configuration.getValue("oni.bookmarks")
+        let type = QuickOpenType.bookmark
+
+        // If bookmarks are null show a help message and open config on selection
+        // If we are length 0 this is because we haven't added help and we have no bookmarks
+        // Once we add help, we now have 1
+        if (bookmarks.length === 0) {
+            type = QuickOpenType.bookmarkHelp
+            bookmarks.push("Opens Configuration to add a bookmark/Add Bookmark")
+        }
+
+        // Either way we need to map to quick open item
+        bookmarks.forEach((f: string) => {
+            this._loadedItems.push(new QuickOpenItem(f, type))
+        })
+
+        // reset bookmarks because javascript doesn't respect local garbace collection IF
+        // we are help, otherwise... don't... "optimize" >.>... sure
+        if (type === QuickOpenType.bookmarkHelp) {
+            bookmarks.splice(0, bookmarks.length)
+        }
+    }
 }
 
 // We use basename/dirname for label/detail

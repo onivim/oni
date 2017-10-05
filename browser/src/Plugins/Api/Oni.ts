@@ -4,9 +4,7 @@ import { EventEmitter } from "events"
 import { IPluginChannel } from "./Channel"
 
 import { Commands } from "./Commands"
-import { Configuration } from "./Configuration"
 import { Diagnostics } from "./Diagnostics"
-import { StatusBar } from "./StatusBar"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient, ServerRunOptions } from "./LanguageClient/LanguageClient"
@@ -15,8 +13,13 @@ import { Process } from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
+import { configuration } from "./../../Services/Configuration"
 import { editorManager } from "./../../Services/EditorManager"
+import { inputManager } from "./../../Services/InputManager"
+import { statusBar } from "./../../Services/StatusBar"
 import { windowManager, WindowManager } from "./../../Services/WindowManager"
+
+import * as Log from "./../../Log"
 
 import * as throttle from "lodash/throttle"
 
@@ -37,9 +40,7 @@ const helpers = {
  */
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
-    private _configuration: Oni.Configuration
     private _dependencies: Dependencies
-    private _statusBar: StatusBar
     private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
@@ -51,8 +52,12 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._commands
     }
 
+    public get log(): Oni.Log {
+        return Log
+    }
+
     public get configuration(): Oni.Configuration {
-        return this._configuration
+        return configuration
     }
 
     public get diagnostics(): Oni.Plugin.Diagnostics.Api {
@@ -67,12 +72,16 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return editorManager
     }
 
+    public get input(): Oni.InputManager {
+        return inputManager
+    }
+
     public get process(): Oni.Process {
         return this._process
     }
 
-    public get statusBar(): StatusBar {
-        return this._statusBar
+    public get statusBar(): Oni.StatusBar {
+        return statusBar
     }
 
     public get ui(): Ui {
@@ -94,11 +103,9 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     constructor(private _channel: IPluginChannel) {
         super()
 
-        this._configuration = new Configuration()
         this._diagnostics = new Diagnostics(this._channel)
         this._dependencies = new Dependencies()
         this._commands = new Commands(this._channel)
-        this._statusBar = new StatusBar(this._channel)
         this._ui = new Ui(react)
         this._services = new Services()
         this._process = new Process()
@@ -117,7 +124,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
-        console.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead") // tslint:disable-line no-console-log
+        Log.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead")
 
         return this._process.execNodeScript(scriptPath, args, options, callback)
     }
@@ -127,7 +134,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
      */
     public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
 
-        console.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead") // tslint:disable-line no-console-log
+        Log.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead")
 
         return this._process.spawnNodeScript(scriptPath, args, options)
     }
@@ -244,11 +251,11 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                         })
                     break
                 default:
-                    console.warn(`Unknown request type: ${requestType}`)
+                    Log.warn(`Unknown request type: ${requestType}`)
 
             }
         } else {
-            console.warn("Unknown notification type")
+            Log.warn("Unknown notification type")
         }
     }
 }

@@ -12,6 +12,8 @@ import { Icon } from "./../Icon"
 import { HighlightTextByIndex } from "./HighlightText"
 import { Visible } from "./Visible"
 
+import { focusManager } from "./../../Services/FocusManager"
+
 /**
  * Popup menu
  */
@@ -24,11 +26,22 @@ export interface IMenuProps {
     onChangeFilterText: (text: string) => void
     onSelect: (openInSplit: string, selectedIndex?: number) => void
     items: State.IMenuOptionWithHighlights[]
+
+    backgroundColor: string
+    foregroundColor: string
 }
 
 export class Menu extends React.PureComponent<IMenuProps, void> {
 
     private _inputElement: HTMLInputElement = null as any // FIXME: null
+
+    public componentWillUpdate(newProps: Readonly<IMenuProps>): void {
+        if (newProps.visible !== this.props.visible
+            && !newProps.visible
+            && this._inputElement) {
+            focusManager.popFocus(this._inputElement)
+        }
+    }
 
     public render(): null | JSX.Element {
 
@@ -47,13 +60,19 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
             onClick={() => this.props.onSelect("e", index)}
             />)
 
+        const menuStyle = {
+            backgroundColor: this.props.backgroundColor,
+            color: this.props.foregroundColor,
+        }
+
         return <div className="menu-background enable-mouse">
-            <div className="menu">
+            <div className="menu" style={menuStyle}>
                 <input type="text"
+                    style={{color: this.props.foregroundColor}}
                     ref={(inputElement) => {
                         this._inputElement = inputElement
                         if (this._inputElement) {
-                            this._inputElement.focus()
+                            focusManager.pushFocus(this._inputElement)
                         }
                     }}
                     onChange={(evt) => this._onChange(evt)}
@@ -80,6 +99,8 @@ const mapStateToProps = (state: State.IState) => {
             selectedIndex: 0,
             filterText: "",
             items: EmptyArray,
+            backgroundColor: state.backgroundColor,
+            foregroundColor: state.foregroundColor,
         }
     } else {
         const popupMenu = state.popupMenu
@@ -88,6 +109,8 @@ const mapStateToProps = (state: State.IState) => {
             selectedIndex: popupMenu.selectedIndex,
             filterText: popupMenu.filter,
             items: popupMenu.filteredOptions,
+            backgroundColor: state.backgroundColor,
+            foregroundColor: state.foregroundColor,
         }
     }
 }
@@ -118,7 +141,7 @@ export interface IMenuItemProps {
     detail: string
     detailHighlights: number[][]
     pinned: boolean
-    onClick: Function
+    onClick: () => void
 }
 
 export class MenuItem extends React.PureComponent<IMenuItemProps, void> {

@@ -3,6 +3,7 @@ import { EventEmitter } from "events"
 import * as path from "path"
 
 import { Event, IEvent } from "./../Event"
+import * as Log from "./../Log"
 
 import { Buffer, IBuffer } from "./Buffer"
 import { NeovimBufferReference, NeovimWindowReference } from "./MsgPack"
@@ -12,10 +13,10 @@ import { Session } from "./Session"
 import { IWindow, Window } from "./Window"
 
 import * as Actions from "./../actions"
-import * as Config from "./../Config"
 import { measureFont } from "./../Font"
 import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
+import { configuration } from "./../Services/Configuration"
 
 export interface INeovimYankInfo {
     operator: string
@@ -29,6 +30,8 @@ export interface INeovimApiVersion {
     minor: number
     patch: number
 }
+
+export type NeovimEventHandler = (...args: any[]) => void
 
 export interface INeovimInstance {
     cursorPosition: IPosition
@@ -66,9 +69,9 @@ export interface INeovimInstance {
 
     // TODO:
     // - Refactor remaining events into strongly typed events, as part of the interface
-    on(event: string, handler: Function): void
+    on(event: string, handler: NeovimEventHandler): void
 
-    setFont(fontFamily: string, fontSize: string): void
+    setFont(fontFamily: string, fontSize: string, linePadding: number): void
 
     getBufferIds(): Promise<number[]>
 
@@ -92,7 +95,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _neovim: Session
     private _initPromise: Promise<void>
 
-    private _config = Config.instance()
+    private _config = configuration
 
     private _fontFamily: string = this._config.getValue("editor.fontFamily")
     private _fontSize: string = this._config.getValue("editor.fontSize")
@@ -136,12 +139,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         await this.command(`doautocmd <nomodeline> ${autoCommand}`)
     }
 
-    public start(filesToOpen?: string[]): void {
+    public start(filesToOpen?: string[]): Promise<void> {
         filesToOpen = filesToOpen || []
 
         this._initPromise = Promise.resolve(startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen))
             .then((nv) => {
-                this.emit("logInfo", "NeovimInstance: Neovim started")
+                Log.info("NeovimInstance: Neovim started")
 
                 // Workaround for issue where UI
                 // can fail to attach if there is a UI-blocking error
@@ -153,7 +156,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 this.command("set completeopt=longest,menu")
 
                 this._neovim.on("error", (err: Error) => {
-                    this.emit("logError", err)
+                    Log.error(err)
                 })
 
                 this._neovim.on("notification", (method: any, args: any) => {
@@ -197,15 +200,15 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             }
 
                         } else {
-                            this.emit("logWarning", "Unknown event from oni_plugin_notify: " + pluginMethod)
+                            Log.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
                         }
                     } else {
-                        this.emit("logWarning", "Unknown notification: " + method)
+                        Log.warn("Unknown notification: " + method)
                     }
                 })
 
                 this._neovim.on("request", (method: any, _args: any, _resp: any) => {
-                    this.emit("logWarning", "Unhandled request: " + method)
+                    Log.warn("Unhandled request: " + method)
                 })
 
                 this._neovim.on("disconnect", () => {
@@ -220,13 +223,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
                 return this._attachUI(size.cols, size.rows)
                     .then(() => {
-                        this.emit("logInfo", "Attach success")
+                        Log.info("Attach success")
 
                         performance.mark("NeovimInstance.Plugins.Start")
                         const api = this._pluginManager.startPlugins(this)
                         performance.mark("NeovimInstance.Plugins.End")
 
-                        Config.instance().activate(api)
+                        configuration.activate(api)
 
                         // set title after attaching listeners so we can get the initial title
                         this.command("set title")
@@ -236,6 +239,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         this.emit("error", err)
                     })
             })
+
+        return this._initPromise
     }
 
     public getMode(): Promise<string> {
@@ -255,16 +260,16 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.eval<number>("line('.')")
     }
 
-    public setFont(fontFamily: string, fontSize: string): void {
+    public setFont(fontFamily: string, fontSize: string, linePadding: number): void {
         this._fontFamily = fontFamily
         this._fontSize = fontSize
 
         const { width, height } = measureFont(this._fontFamily, this._fontSize)
 
         this._fontWidthInPixels = width
-        this._fontHeightInPixels = height
+        this._fontHeightInPixels = height + linePadding
 
-        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height))
+        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height + linePadding, linePadding))
 
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
     }
@@ -293,7 +298,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public async getBufferIds(): Promise<number[]> {
         const buffers = await this._neovim.request<NeovimBufferReference[]>("nvim_list_bufs", [])
 
-        return buffers.map((b) => <any>b.id)
+        return buffers.map((b) => b.id as any)
     }
 
     public async getCurrentWorkingDirectory(): Promise<string> {
@@ -302,7 +307,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public async getCurrentWindow(): Promise<IWindow> {
-        let windowReference = await this._neovim.request<NeovimWindowReference>("nvim_get_current_win", [])
+        const windowReference = await this._neovim.request<NeovimWindowReference>("nvim_get_current_win", [])
         return new Window(windowReference, this._neovim)
     }
 
@@ -336,7 +341,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public async getApiVersion(): Promise<INeovimApiVersion> {
         const versionInfo = await this._neovim.request("nvim_get_api_info", [])
-        return <any>versionInfo[1].version
+        return versionInfo[1].version as any
     }
 
     private _resizeInternal(rows: number, columns: number): void {
@@ -345,7 +350,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             const fixedSize = this._config.getValue("debug.fixedSize")
             rows = fixedSize.rows
             columns = fixedSize.columns
-            this.emit("logWarning", "Overriding screen size based on debug.fixedSize")
+            Log.warn("Overriding screen size based on debug.fixedSize")
         }
 
         if (rows === this._rows && columns === this._cols) {
@@ -454,7 +459,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     }
                     break
                 default:
-                    this.emit("logWarning", "Unhandled command: " + command)
+                    Log.warn("Unhandled command: " + command)
             }
         })
     }
@@ -489,7 +494,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 popupmenu_external: true,
             }
         } else {
-            throw "Unsupported version of Neovim."
+            throw new Error("Unsupported version of Neovim.")
         }
     }
 }

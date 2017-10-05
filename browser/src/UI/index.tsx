@@ -14,16 +14,17 @@ import { reducer } from "./Reducer"
 import * as UnboundSelectors from "./Selectors"
 import * as State from "./State"
 
-import { PluginManager } from "./../Plugins/PluginManager"
-import { CommandManager } from "./../Services/CommandManager"
 import { editorManager } from "./../Services/EditorManager"
+import { focusManager } from "./../Services/FocusManager"
 import { windowManager } from "./../Services/WindowManager"
+
+import { PluginManager } from "./../Plugins/PluginManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
 
 export const events = Events.events
 
-let defaultState = State.createDefaultState()
+const defaultState = State.createDefaultState()
 
 require("./components/common.less") // tslint:disable-line no-var-requires
 
@@ -43,14 +44,14 @@ export const Selectors = {
     getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState() as any),
 }
 
-export function init(pluginManager: PluginManager, commandManager: CommandManager, args: any): void {
-    render(defaultState, pluginManager, commandManager, args)
+export function init(pluginManager: PluginManager, args: any): void {
+    render(defaultState, pluginManager, args)
 }
 
-function render(_state: State.IState, pluginManager: PluginManager, commandManager: CommandManager, args: any): void {
+function render(_state: State.IState, pluginManager: PluginManager, args: any): void {
     const hostElement = document.getElementById("host")
 
-    const editor = new NeovimEditor(commandManager, pluginManager)
+    const editor = new NeovimEditor(pluginManager)
     editor.init(args)
 
     editorManager.setActiveEditor(editor)
@@ -63,7 +64,4 @@ function render(_state: State.IState, pluginManager: PluginManager, commandManag
         </Provider>, hostElement)
 }
 
-if (process.env.NODE_ENV === "development") {
-    const Perf = require("react-addons-perf") // tslint:disable-line no-var-requires
-    window["ReactPerf"] = Perf // tslint:disable-line no-string-literal
-}
+document.body.addEventListener("click", () => focusManager.enforceFocus())

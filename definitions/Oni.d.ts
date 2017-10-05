@@ -22,7 +22,7 @@ declare namespace Oni {
     }
 
     export interface Configuration {
-        onConfigurationChangedEvent: Event<void>
+        onConfigurationChanged: Event<any>
         getValue<T>(configValue: string, defaultValue?: T): T
     }
 
@@ -36,28 +36,53 @@ declare namespace Oni {
     }
 
     export interface EditorManager {
+        allEditors: Editor
         activeEditor: Editor
     }
 
-    export interface IBufferEnteredEventInfo {
-        fileName: string
-        fileType: string
+    export interface InputManager {
+        bind(keyChord: string | string[], actionFunction: any, filterFunction?: () => boolean)
+        unbind(keyChord: string | string[])
+        unbindAll()
     }
 
-    export interface IBufferChangedEventInfo {
-        fileName: string
-        contents: string[]
+    export interface NeovimEditorCapability {
+        // Send a direct set of key inputs to Neovim
+        input(keys: string): Promise<void>
+
+        // Evaluate an expression, and return the result
+        eval(expression: string): Promise<any>
+
+        // Execute a command
+        command(command: string): Promise<void>
+    }
+
+    export interface EditorBufferEventArgs {
+        filePath: string
+        language: string
     }
 
     export interface Editor {
         mode: string
         onModeChanged: IEvent<string>
-        onBufferEntered: IEvent<IBufferEnteredEventInfo>
-        onBufferChanged: IEvent<IBufferChangedEventInfo>
+
+        onBufferEnter: IEvent<EditorBufferEventArgs>
+        onBufferLeave: IEvent<EditorBufferEventArgs>
+
+        // Optional capabilities for the editor to implement
+        neovim?: NeovimEditorCapability
     }
 
     export interface Commands {
         registerCommand(commandName: string, callback: (args?: any) => void): void
+    }
+
+    export interface Log {
+        verbose(msg: string): void
+        info(msg: string): void
+
+        disableVerboseLogging(): void
+        enableVerboseLogging(): void
     }
 
     export interface StatusBar {
@@ -194,6 +219,7 @@ declare namespace Oni {
             configuration: Configuration
             diagnostics: Diagnostics.Api
             editors: EditorManager
+            input: InputManager
             process: Process
             statusBar: StatusBar
 

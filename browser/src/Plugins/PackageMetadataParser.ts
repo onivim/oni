@@ -8,6 +8,8 @@ import * as keys from "lodash/keys"
 
 import * as Capabilities from "./Api/Capabilities"
 
+import * as Log from "./../Log"
+
 export const PluginDefaults: Partial<Capabilities.IPluginCapabilities> = {
     commands: {},
     activationMode: "on-demand",
@@ -17,7 +19,7 @@ export const parseFromString = (packageJson: string): Capabilities.IPluginMetada
     const metadata: Capabilities.IPluginMetadata = JSON.parse(packageJson)
 
     if (!metadata.engines || !metadata.engines["oni"]) { // tslint:disable-line no-string-literal
-        console.warn("Aborting plugin load as Oni engine version not specified")
+        Log.warn("Aborting plugin load as Oni engine version not specified")
         return null
     }
 

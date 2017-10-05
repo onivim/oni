@@ -9,43 +9,39 @@ import * as ReactDOM from "react-dom"
 
 import * as types from "vscode-languageserver-types"
 
-import { ipcRenderer, remote } from "electron"
+import { clipboard, ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
-import * as Config from "./../Config"
 import { Event, IEvent } from "./../Event"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
-import { AutoCompletion } from "./../Services/AutoCompletion"
 import { BufferUpdates } from "./../Services/BufferUpdates"
-import { CommandManager } from "./../Services/CommandManager"
+import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
+import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { Formatter } from "./../Services/Formatter"
-import { MultiProcess } from "./../Services/MultiProcess"
-import { QuickOpen } from "./../Services/QuickOpen"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
-import { Tasks } from "./../Services/Tasks"
 import { WindowTitle } from "./../Services/WindowTitle"
 
 import * as UI from "./../UI/index"
 import { Rectangle } from "./../UI/Types"
 
-import { Keyboard } from "./../Input/Keyboard"
 import { IEditor } from "./Editor"
 
 import { InstallHelp } from "./../UI/components/InstallHelp"
 
 import { NeovimSurface } from "./NeovimSurface"
 
-import { clipboard} from "electron"
+import { tasks } from "./../Services/Tasks"
 
-import * as Platform from "./../Platform"
+import { normalizePath } from "./../Utility"
+
+import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
 
 export class NeovimEditor implements IEditor {
 
@@ -59,12 +55,11 @@ export class NeovimEditor implements IEditor {
     private _element: HTMLElement
 
     private _currentMode: string
-    private _onModeChangedEvent: Event<string> = new Event<string>()
-    private _onBufferEnteredEvent: Event<Oni.IBufferEnteredEventInfo> = new Event<Oni.IBufferEnteredEventInfo>()
-    private _onBufferChangedEvent: Event<Oni.IBufferChangedEventInfo> = new Event<Oni.IBufferChangedEventInfo>()
+    private _onModeChangedEvent = new Event<string>()
+    private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
+    private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
 
-    // Services
-    private _tasks: Tasks
+    private _hasLoaded: boolean = false
 
     private _windowManager: NeovimWindowManager
 
@@ -79,18 +74,22 @@ export class NeovimEditor implements IEditor {
         return this._onModeChangedEvent
     }
 
-    public get onBufferEntered(): IEvent<Oni.IBufferEnteredEventInfo> {
-        return this._onBufferEnteredEvent
+    public get onBufferEnter(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferEnterEvent
     }
 
-    public get onBufferChanged(): IEvent<Oni.IBufferChangedEventInfo> {
-        return this._onBufferChangedEvent
+    public get onBufferLeave(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferLeaveEvent
+    }
+
+    // Capabilities
+    public get neovim(): Oni.NeovimEditorCapability {
+        return this._neovimInstance
     }
 
     constructor(
-        private _commandManager: CommandManager,
         private _pluginManager: PluginManager,
-        private _config: Config.Config = Config.instance(),
+        private _config = configuration,
     ) {
         const services: any[] = []
 
@@ -101,27 +100,19 @@ export class NeovimEditor implements IEditor {
         this._renderer = new CanvasRenderer()
 
         // Services
-        const autoCompletion = new AutoCompletion(this._neovimInstance)
         const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
         const errorService = new Errors(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
-        const multiProcess = new MultiProcess()
-        const formatter = new Formatter(this._neovimInstance, this._pluginManager, bufferUpdates)
         const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
-        const quickOpen = new QuickOpen(this._neovimInstance, this, bufferUpdates)
-        this._tasks = new Tasks()
-        registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
 
-        this._tasks.registerTaskProvider(this._commandManager)
-        this._tasks.registerTaskProvider(errorService)
+        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance, bufferUpdates)
 
-        services.push(autoCompletion)
+        tasks.registerTaskProvider(commandManager)
+        tasks.registerTaskProvider(errorService)
+
         services.push(bufferUpdates)
         services.push(errorService)
-        services.push(quickOpen)
         services.push(windowTitle)
-        services.push(formatter)
-        services.push(multiProcess)
         services.push(syntaxHighlighter)
 
         // Overlays
@@ -134,19 +125,9 @@ export class NeovimEditor implements IEditor {
         })
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
-            if (Config.instance().getValue("editor.clipboard.enabled")) {
+            if (configuration.getValue("editor.clipboard.enabled")) {
                 clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
             }
-        })
-
-        // Tasks Executed
-
-        // TODO: use constants for the built-in commands
-        this._tasks.on("task-executed", (command: String) => {
-          // reload the commands if the path has been modified
-          if (command === "oni.editor.removeFromPath" || command === "oni.editor.addToPath") {
-            registerBuiltInCommands(this._commandManager, this._pluginManager, this._neovimInstance)
-          }
         })
 
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
@@ -209,30 +190,6 @@ export class NeovimEditor implements IEditor {
             UI.Actions.setTabs(currentTabId, tabs)
         })
 
-        this._neovimInstance.on("logInfo", (info: string) => {
-            UI.Actions.makeLog({
-                type: "info",
-                message: info,
-                details: null,
-            })
-        })
-
-        this._neovimInstance.on("logWarning", (warning: string) => {
-            UI.Actions.makeLog({
-                type: "warning",
-                message: warning,
-                details: null,
-            })
-        })
-
-        this._neovimInstance.on("logError", (err: Error) => {
-            UI.Actions.makeLog({
-                type: "error",
-                message: err.message,
-                details: err.stack.split("\n"),
-            })
-        })
-
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
         this._neovimInstance.on("buffer-update", (args: Oni.EventContext) => {
@@ -255,92 +212,8 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.executeAutoCommand("FocusGained")
         })
 
-        this._onConfigChanged()
-        this._config.registerListener(() => this._onConfigChanged())
-
-        const keyboard = new Keyboard()
-        keyboard.on("keydown", (key: string) => {
-            if (key === "<f3>") {
-                formatter.formatBuffer()
-                return
-            }
-
-            if (UI.Selectors.isPopupMenuOpen()) {
-                if (key === "<esc>") {
-                    UI.Actions.hidePopupMenu()
-                } else if (key === "<enter>") {
-                    UI.Actions.selectMenuItem("e")
-                } else if (key === "<C-v>") {
-                    UI.Actions.selectMenuItem("vsp")
-                } else if (key === "<C-s>") {
-                    UI.Actions.selectMenuItem("sp")
-                } else if (key === "<C-n>" || key === "<down>") {
-                    UI.Actions.nextMenuItem()
-                } else if (key === "<C-p>" || key === "<up>") {
-                    UI.Actions.previousMenuItem()
-                }
-
-                return
-            }
-
-            if (UI.Selectors.areCompletionsVisible()) {
-
-                if (key === "<enter>") {
-                    autoCompletion.complete()
-                    return
-                } else if (key === "<C-n>") {
-                    UI.Actions.nextCompletion()
-                    return
-                } else if (key === "<C-p>") {
-                    UI.Actions.previousCompletion()
-                    return
-                }
-            }
-
-            // TODO: Untangle these nested conditionals to use our new input-binding strategy :)
-            if (Config.instance().getValue("editor.clipboard.enabled")) {
-
-                const isInsertMode = this._screen.mode === "insert" || this._screen.mode === "cmdline_normal"
-
-                // Handling the platform-default cases should be done when we initialize
-                // default key bindings, prior to loading hte config
-                if (Platform.isLinux() || Platform.isWindows()) {
-                    if (key === "<C-c>" && this._screen.mode === "visual") {
-                        this._neovimInstance.input("y")
-                        return
-                    } else if (key === "<C-v>" && isInsertMode) {
-                        this._commandManager.executeCommand("editor.clipboard.paste", null)
-                        return
-                    }
-                } else {
-                    if (key === "<M-c>" && this._screen.mode === "visual") {
-                        // Make the <M-c> case work the same as <C-c> case on Windows..
-                        // execute out of visual mode, but yank
-                        this._neovimInstance.input("y")
-                        return
-                    } else if (key === "<M-v>" && isInsertMode) {
-                        this._commandManager.executeCommand("editor.clipboard.paste", null)
-                        return
-                    }
-                }
-            }
-
-            if (key === "<f12>") {
-                this._commandManager.executeCommand("oni.editor.gotoDefinition", null)
-            } else if (key === "<C-p>" && this._screen.mode === "normal") {
-                quickOpen.show()
-            } else if (key === "<C-/>" && this._screen.mode === "normal") {
-                quickOpen.showBufferLines()
-            } else if (key === "<S-C-P>" && this._screen.mode === "normal") {
-                this._tasks.show()
-            } else if (key === "<C-pageup>") {
-                multiProcess.focusPreviousInstance()
-            } else if (key === "<C-pagedown>") {
-                multiProcess.focusNextInstance()
-            } else {
-                this._neovimInstance.input(key)
-            }
-        })
+        this._onConfigChanged(this._config.getValues())
+        this._config.onConfigurationChanged.subscribe((newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues))
 
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
         window["__screen"] = this._screen // tslint:disable-line no-string-literal
@@ -352,8 +225,6 @@ export class NeovimEditor implements IEditor {
                 this._neovimInstance.command("exec \":normal! " + message + "\"")
             }
         })
-
-        const normalizePath = (fileName: string) => fileName.split("\\").join("/")
 
         const openFiles = async (files: string[], action: string) => {
 
@@ -386,11 +257,15 @@ export class NeovimEditor implements IEditor {
     }
 
     public executeCommand(command: string): void {
-        this._commandManager.executeCommand(command, null)
+        commandManager.executeCommand(command, null)
     }
 
     public init(filesToOpen: string[]): void {
         this._neovimInstance.start(filesToOpen)
+            .then(() => {
+                this._hasLoaded = true
+                VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+            })
     }
 
     public render(): JSX.Element {
@@ -411,14 +286,19 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.command(`tabn ${tabId}`)
         }
 
+        const onKeyDown = (key: string) => {
+            this._onKeyDown(key)
+        }
+
         return <NeovimSurface renderer={this._renderer}
             neovimInstance={this._neovimInstance}
             deltaRegionTracker={this._deltaRegionManager}
             screen={this._screen}
+            onKeyDown={onKeyDown}
             onBufferClose={onBufferClose}
             onBufferSelect={onBufferSelect}
             onTabClose={onTabClose}
-            onTabSelect={onTabSelect}/>
+            onTabSelect={onTabSelect} />
     }
 
     private _onModeChanged(newMode: string): void {
@@ -447,9 +327,15 @@ export class NeovimEditor implements IEditor {
     private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
         UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
 
-        this._tasks.onEvent(evt)
+        tasks.onEvent(evt)
 
         if (eventName === "BufEnter") {
+
+            this._onBufferEnterEvent.dispatch({
+                filePath: evt.bufferFullPath,
+                language: evt.filetype,
+            })
+
             // TODO: More convenient way to hide all UI?
             UI.Actions.hideCompletions()
             UI.Actions.hidePopupMenu()
@@ -457,6 +343,11 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hideQuickInfo()
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
+        } else if (eventName === "BufLeave") {
+            this._onBufferLeaveEvent.dispatch({
+                filePath: evt.bufferFullPath,
+                language: evt.filetype,
+            })
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
@@ -467,8 +358,18 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    private _onConfigChanged(): void {
-        this._neovimInstance.setFont(this._config.getValue("editor.fontFamily"), this._config.getValue("editor.fontSize"))
+    private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
+        const fontFamily = this._config.getValue("editor.fontFamily")
+        const fontSize = this._config.getValue("editor.fontSize")
+        const linePadding = this._config.getValue("editor.linePadding")
+
+        UI.Actions.setFont(fontFamily, fontSize)
+        this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
+
+        if (this._hasLoaded) {
+            VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, newValues)
+        }
+
         this._onUpdate()
         this._scheduleRender()
     }
@@ -500,5 +401,9 @@ export class NeovimEditor implements IEditor {
 
         this._renderer.update(this._screen, this._deltaRegionManager)
         this._deltaRegionManager.cleanUpRenderedCells()
+    }
+
+    private _onKeyDown(key: string): void {
+        this._neovimInstance.input(key)
     }
 }

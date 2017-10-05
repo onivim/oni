@@ -3,9 +3,9 @@ import * as fs from "fs"
 import * as mkdirp from "mkdirp"
 import * as os from "os"
 import * as path from "path"
-import * as Config from "./../Config"
 import { INeovimInstance } from "./../neovim"
-import { CallbackCommand, CommandManager } from "./../Services/CommandManager"
+import { CallbackCommand, commandManager } from "./../Services/CommandManager"
+import { configuration } from "./../Services/Configuration"
 import * as UI from "./../UI/index"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
@@ -25,7 +25,7 @@ export interface IEventContext {
 }
 
 export class PluginManager extends EventEmitter {
-    private _config = Config.instance()
+    private _config = configuration
     private _rootPluginPaths: string[] = []
     private _extensionPath: string
     private _plugins: Plugin[] = []
@@ -35,9 +35,7 @@ export class PluginManager extends EventEmitter {
 
     private _channel: Channel.IChannel = new Channel.InProcessChannel()
 
-    constructor(
-        private _commandManager: CommandManager,
-    ) {
+    constructor() {
         super()
 
         this._rootPluginPaths.push(corePluginsRoot)
@@ -134,7 +132,7 @@ export class PluginManager extends EventEmitter {
 
         if (plugin.commands) {
             plugin.commands.forEach((commandInfo) => {
-                this._commandManager.registerCommand(new CallbackCommand(commandInfo.command, commandInfo.name, commandInfo.details, (args?: any) => {
+                commandManager.registerCommand(new CallbackCommand(commandInfo.command, commandInfo.name, commandInfo.details, (args?: any) => {
                     this._sendCommand(commandInfo.command, args)
                 }))
             })
@@ -214,7 +212,7 @@ export class PluginManager extends EventEmitter {
                 this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors)
                 break
             case "execute-command":
-                this._commandManager.executeCommand(pluginResponse.payload.commandName, pluginResponse.payload.args)
+                commandManager.executeCommand(pluginResponse.payload.commandName, pluginResponse.payload.args)
                 break
             case "find-all-references":
                 this.emit("find-all-references", pluginResponse.payload.references)
@@ -233,9 +231,6 @@ export class PluginManager extends EventEmitter {
                 break
             case "signature-help-response":
                 this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
-                break
-            case "redux-action":
-                UI.store.dispatch(pluginResponse.payload)
                 break
             default:
                 this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)

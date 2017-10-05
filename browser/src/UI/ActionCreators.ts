@@ -13,13 +13,15 @@ import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
 import * as Actions from "./Actions"
-import { events } from "./Events"
-import { ILog } from "./Logs"
 import * as State from "./State"
 
-import * as Config from "./../Config"
 import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
+
+import { IConfigurationValues } from "./../Services/Configuration"
+
+export type DispatchFunction = (action: any) => void
+export type GetStateFunction = () => State.IState
 
 export const bufferEnter = (id: number, file: string, totalLines: number, hidden: boolean, listed: boolean) => ({
     type: "BUFFER_ENTER",
@@ -55,6 +57,21 @@ export const setCurrentBuffers = (bufferIds: number[]) => ({
     type: "SET_CURRENT_BUFFERS",
     payload: {
         bufferIds,
+    },
+})
+
+export const setImeActive = (imeActive: boolean) => ({
+    type: "SET_IME_ACTIVE",
+    payload: {
+        imeActive,
+    },
+})
+
+export const setFont = (fontFamily: string, fontSize: string) => ({
+    type: "SET_FONT",
+    payload: {
+        fontFamily,
+        fontSize,
     },
 })
 
@@ -127,7 +144,7 @@ export const hideMessageDialog = (): Actions.IHideMessageDialog => ({
     type: "HIDE_MESSAGE_DIALOG",
 })
 
-export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => (dispatch: Function, getState: Function) => {
+export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
 
     const currentStatusBarItem = getState().statusBar[id]
 
@@ -154,7 +171,7 @@ export const hideStatusBarItem = (id: string) => ({
     },
 })
 
-export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: Function, getState: Function) => {
+export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(_showAutoCompletion(result.base, result.completions))
 
     if (result.completions.length > 0) {
@@ -162,13 +179,13 @@ export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatc
     }
 }
 
-export const previousCompletion = () => (dispatch: Function, getState: Function) => {
+export const previousCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(_previousAutoCompletion())
 
     emitCompletionItemSelectedEvent(getState())
 }
 
-export const nextCompletion = () => (dispatch: Function, getState: Function) => {
+export const nextCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(_nextAutoCompletion())
 
     emitCompletionItemSelectedEvent(getState())
@@ -178,11 +195,11 @@ function emitCompletionItemSelectedEvent(state: State.IState): void {
     const autoCompletion = state.autoCompletion
     if (autoCompletion != null) {
         const entry = autoCompletion.entries[autoCompletion.selectedIndex]
-        events.emit(Events.CompletionItemSelectedEvent, entry)
+        Events.events.emit(Events.CompletionItemSelectedEvent, entry)
     }
 }
 
-export const setCursorPosition = (screen: IScreen) => (dispatch: Function) => {
+export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunction) => {
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
     if (screen.cursorRow === screen.height - 1) {
@@ -193,7 +210,7 @@ export const setCursorPosition = (screen: IScreen) => (dispatch: Function) => {
     dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
 }
 
-export const setColors = (foregroundColor: string, backgroundColor: string) => (dispatch: Function, getState: Function) => {
+export const setColors = (foregroundColor: string, backgroundColor: string) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     if (foregroundColor === getState().foregroundColor && backgroundColor === getState().backgroundColor) {
         return
     }
@@ -242,7 +259,7 @@ export const nextMenuItem = () => ({
     type: "NEXT_MENU",
 })
 
-export const selectMenuItem = (openInSplit: string, index?: number) => (dispatch: Function, getState: Function) => {
+export const selectMenuItem = (openInSplit: string, index?: number) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
 
     const state = getState()
 
@@ -307,7 +324,7 @@ export const setCursorColumnOpacity = (opacity: number) => ({
     },
 })
 
-export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Config.IConfigValues[K]): Actions.ISetConfigurationValue<K> {
+export function setConfigValue<K extends keyof IConfigurationValues>(k: K, v: IConfigurationValues[K]): Actions.ISetConfigurationValue<K> {
     return {
         type: "SET_CONFIGURATION_VALUE",
         payload: {
@@ -316,18 +333,6 @@ export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Co
         },
     }
 }
-export const toggleLogFold = (index: number): Actions.IToggleLogFold => ({
-    type: "TOGGLE_LOG_FOLD",
-    payload: { index },
-})
-export const changeLogsVisibility = (visibility: boolean): Actions.IChangeLogsVisibility => ({
-    type: "CHANGE_LOGS_VISIBILITY",
-    payload: { visibility },
-})
-export const makeLog = (log: ILog): Actions.IMakeLog => ({
-    type: "MAKE_LOG",
-    payload: { log },
-})
 
 const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
     type: "SET_CURSOR_POSITION",

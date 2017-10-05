@@ -1,8 +1,8 @@
 import * as cp from "child_process"
 import * as path from "path"
 
-import * as Config from "./../Config"
 import * as Platform from "./../Platform"
+import { configuration } from "./../Services/Configuration"
 
 import { Session } from "./Session"
 
@@ -27,12 +27,18 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
 
     nvimProcessPath = remapPathToUnpackedAsar(nvimProcessPath)
 
+    const neovimPath = configuration.getValue("debug.neovimPath")
+
+    if (neovimPath) {
+        nvimProcessPath = neovimPath
+    }
+
     const joinedRuntimePaths = runtimePaths
                                     .map((p) => remapPathToUnpackedAsar(p))
                                     .join(",")
 
-    const shouldLoadInitVim = Config.instance().getValue("oni.loadInitVim")
-    const useDefaultConfig = Config.instance().getValue("oni.useDefaultConfig")
+    const shouldLoadInitVim = configuration.getValue("oni.loadInitVim")
+    const useDefaultConfig = configuration.getValue("oni.useDefaultConfig")
 
     const vimRcArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
 
