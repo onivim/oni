@@ -1,18 +1,16 @@
 import * as React from "react"
-
 import { connect } from "react-redux"
 
 import * as take from "lodash/take"
 
-import * as ActionCreators from "./../ActionCreators"
-import * as State from "./../State"
+import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
+import { Visible } from "./../../UI/components/Visible"
+import { Icon } from "./../../UI/Icon"
 
-import { Icon } from "./../Icon"
+import { focusManager } from "./../FocusManager"
 
-import { HighlightTextByIndex } from "./HighlightText"
-import { Visible } from "./Visible"
-
-import { focusManager } from "./../../Services/FocusManager"
+import * as ActionCreators from "./MenuActionCreators"
+import * as State from "./MenuState"
 
 /**
  * Popup menu
@@ -92,8 +90,8 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
 
 const EmptyArray: any[] = []
 
-const mapStateToProps = (state: State.IState) => {
-    if (!state.popupMenu) {
+const mapStateToProps = (state: State.IMenus) => {
+    if (!state.menu) {
         return {
             visible: false,
             selectedIndex: 0,
@@ -120,13 +118,14 @@ const mapDispatchToProps = (dispatch: any) => {
         dispatch(ActionCreators.filterMenu(text))
     }
 
-    const selectItem = (openInSplit: string, selectedIndex: number) => {
-        dispatch(ActionCreators.selectMenuItem(openInSplit, selectedIndex))
-    }
+    // TODO
+    // const selectItem = (openInSplit: string, selectedIndex: number) => {
+    //     dispatch(ActionCreators.selectMenuItem(openInSplit, selectedIndex))
+    // }
 
     return {
         onChangeFilterText: dispatchFilterText,
-        onSelect: selectItem,
+        // onSelect: selectItem,
     }
 }
 
