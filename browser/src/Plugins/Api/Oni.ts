@@ -13,6 +13,7 @@ import { Process } from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
+import { commandManager } from "./../../Services/CommandManager"
 import { configuration } from "./../../Services/Configuration"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
@@ -41,7 +42,6 @@ const helpers = {
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     private _dependencies: Dependencies
-    private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
     private _ui: Ui
@@ -49,7 +49,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     private _process: Process
 
     public get commands(): Oni.Commands {
-        return this._commands
+        return commandManager
     }
 
     public get log(): Oni.Log {
@@ -105,7 +105,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
         this._diagnostics = new Diagnostics(this._channel)
         this._dependencies = new Dependencies()
-        this._commands = new Commands(this._channel)
         this._ui = new Ui(react)
         this._services = new Services()
         this._process = new Process()
@@ -174,8 +173,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
             }
 
             this.emit(arg.payload.name, arg.payload.context)
-        } else if (arg.type === "command") {
-            this._commands.onCommand(arg.payload.command, arg.payload.args)
         } else if (arg.type === "request") {
             const requestType = arg.payload.name
 

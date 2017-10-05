@@ -128,17 +128,7 @@ export class PluginManager extends EventEmitter {
     }
 
     private _createPlugin(pluginRootDirectory: string): Plugin {
-        const plugin = new Plugin(pluginRootDirectory, this._channel)
-
-        if (plugin.commands) {
-            plugin.commands.forEach((commandInfo) => {
-                commandManager.registerCommand(new CallbackCommand(commandInfo.command, commandInfo.name, commandInfo.details, (args?: any) => {
-                    this._sendCommand(commandInfo.command, args)
-                }))
-            })
-        }
-
-        return plugin
+        return new Plugin(pluginRootDirectory, this._channel)
     }
 
     private _ensureOniPluginsPath(): string {
@@ -210,9 +200,6 @@ export class PluginManager extends EventEmitter {
                 break
             case "set-errors":
                 this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors)
-                break
-            case "execute-command":
-                commandManager.executeCommand(pluginResponse.payload.commandName, pluginResponse.payload.args)
                 break
             case "find-all-references":
                 this.emit("find-all-references", pluginResponse.payload.references)
