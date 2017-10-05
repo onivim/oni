@@ -4,7 +4,7 @@
  * Implements API surface area for working with the status bar
  */
 
-import * as UI from "./../../UI"
+import * as UI from "./../UI"
 
 export enum StatusBarAlignment {
     Left,
@@ -50,7 +50,7 @@ export class StatusBarItem implements Oni.StatusBarItem {
     }
 }
 
-export class StatusBar implements Oni.StatusBar {
+class StatusBar implements Oni.StatusBar {
     private _id: number = 0
 
     public getItem(globalId: string): Oni.StatusBarItem {
@@ -65,3 +65,5 @@ export class StatusBar implements Oni.StatusBar {
         return new StatusBarItem(statusBarId, alignment, priority)
     }
 }
+
+export const statusBar = new StatusBar()
