@@ -8,7 +8,7 @@ import * as path from "path"
 
 import * as Platform from "./../../Platform"
 
-import { IConfigurationValues } from "./IConfigurationValues
+import { IConfigurationValues } from "./IConfigurationValues"
 
 const noop = () => { } // tslint:disable-line no-empty
 
