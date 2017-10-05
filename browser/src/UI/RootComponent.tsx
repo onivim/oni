@@ -2,13 +2,13 @@ import * as React from "react"
 
 import { Background } from "./components/Background"
 import { EditorHost } from "./components/EditorHost"
-import { MenuContainer } from "./components/Menu"
 import StatusBar from "./components/StatusBar"
 
 import { IEditor } from "./../Editor/Editor"
 import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { inputManager } from "./../Services/InputManager"
+import { MenuContainer } from "./../Services/Menu"
 
 interface IRootComponentProps {
     editor: IEditor

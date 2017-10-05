@@ -29,7 +29,7 @@ export interface IMenuProps {
     foregroundColor: string
 }
 
-export class Menu extends React.PureComponent<IMenuProps, void> {
+export class MenuView extends React.PureComponent<IMenuProps, void> {
 
     private _inputElement: HTMLInputElement = null as any // FIXME: null
 
@@ -97,18 +97,18 @@ const mapStateToProps = (state: State.IMenus) => {
             selectedIndex: 0,
             filterText: "",
             items: EmptyArray,
-            backgroundColor: state.backgroundColor,
-            foregroundColor: state.foregroundColor,
+            backgroundColor: "black", //state.backgroundColor,
+            foregroundColor: "white", //state.foregroundColor,
         }
     } else {
-        const popupMenu = state.popupMenu
+        const popupMenu = state.menu
         return {
             visible: true,
             selectedIndex: popupMenu.selectedIndex,
             filterText: popupMenu.filter,
             items: popupMenu.filteredOptions,
-            backgroundColor: state.backgroundColor,
-            foregroundColor: state.foregroundColor,
+            backgroundColor: "black", // TODO state.backgroundColor,
+            foregroundColor: "white", // TODO state.foregroundColor,
         }
     }
 }
@@ -129,7 +129,7 @@ const mapDispatchToProps = (dispatch: any) => {
     }
 }
 
-export const MenuContainer = connect(mapStateToProps, mapDispatchToProps)(Menu)
+export const MenuContainer = connect(mapStateToProps, mapDispatchToProps)(MenuView)
 
 export interface IMenuItemProps {
     icon?: string
