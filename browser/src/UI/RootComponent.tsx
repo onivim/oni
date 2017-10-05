@@ -5,7 +5,7 @@ import { EditorHost } from "./components/EditorHost"
 import { MenuContainer } from "./components/Menu"
 import StatusBar from "./components/StatusBar"
 
-import { IEditor } from "./../Editor/Editor"
+// import { IEditor } from "./../Editor/Editor"
 import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { inputManager } from "./../Services/InputManager"
@@ -22,8 +22,6 @@ export interface IWindowManagerProps {
 export interface IWindowManagerState {
     splitRoot: WindowManager.ISplitInfo
 }
-
-import * as marked from "marked"
 
 export class WindowManagerComponent extends React.PureComponent<IWindowManagerProps, IWindowManagerState> {
 
