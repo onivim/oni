@@ -73,8 +73,21 @@ declare namespace Oni {
         neovim?: NeovimEditorCapability
     }
 
+    export type ICommandCallback = (args?: any) => any
+    export type ICommandEnabledCallback = () => boolean
+
+    export interface ICommand {
+        command: string
+        name: string
+        detail: string
+        enabled?: ICommandEnabledCallback
+        messageSuccess?: string
+        messageFail?: string
+        execute: ICommandCallback
+    }
+
     export interface Commands {
-        registerCommand(commandName: string, callback: (args?: any) => void): void
+        registerCommand(command: ICommand): void
     }
 
     export interface Log {
