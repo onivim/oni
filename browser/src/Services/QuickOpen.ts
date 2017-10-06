@@ -11,12 +11,12 @@ import * as glob from "glob"
 import * as path from "path"
 import * as Log from "./../Log"
 
-import * as Config from "./../Config"
 import { INeovimInstance } from "./../neovim"
 import * as UI from "./../UI/index"
 import { BufferUpdates } from "./BufferUpdates"
 
 import { commandManager } from "./../Services/CommandManager"
+import { configuration } from "./../Services/Configuration"
 
 export class QuickOpen {
     private _seenItems: string[] = []
@@ -103,8 +103,7 @@ export class QuickOpen {
         this._loadedItems = []
         this._showLoading()
 
-        const config = Config.instance()
-        const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
+        const overriddenCommand = configuration.getValue("editor.quickOpen.execCommand")
         // const exclude = config.getValue("oni.exclude")
 
         //  If in exec directory or home, show bookmarks to change cwd to
@@ -164,7 +163,7 @@ export class QuickOpen {
             // TODO: This async call is being dropped, if we happen to use the promise
             return glob("**/*", {
                 nodir: true,
-                ignore: Config.instance().getValue("oni.exclude"),
+                ignore: configuration.getValue("oni.exclude"),
             }, (_err: any, files: string[]) => {
                 Log.error(_err)
                 if (!files) {
@@ -230,7 +229,7 @@ export class QuickOpen {
         ))
 
         // Get bookmarks, if we added remove them all so we don't think we have length
-        const bookmarks = Config.instance().getValue("oni.bookmarks")
+        const bookmarks = configuration.getValue("oni.bookmarks")
         let type = QuickOpenType.bookmark
 
         // If bookmarks are null show a help message and open config on selection

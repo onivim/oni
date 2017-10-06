@@ -29,8 +29,9 @@ artifacts:
 
 deploy:
     provider: GitHub
+    repository: bryphe/oni
     auth_token:
-        secure: K2rf9kzQFZR5B4dOJcFgA4La1bHYSnqyPGce/tQy3OFc1+HumyJwvWsfcMCuMd2h
+        secure: 7+dYCBtYLMoaH4xvTno1mAw8mb4CPFYAcosPI8kRTmcqYKehzmhpChU825uGdaB6
     draft: false
     prerelease: false
     force_update: true
