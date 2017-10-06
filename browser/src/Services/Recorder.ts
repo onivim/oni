@@ -18,8 +18,8 @@ const ONI_RECORDER_TITLE = "oni_recorder_title"
 // Some of this code was adapted and modified from this stackoverflow post:
 // https://stackoverflow.com/questions/36753288/saving-desktopcapturer-to-video-file-in-electron
 
-const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer) => {
-    return new Promise((resolve, reject) => {
+const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
+    return new Promise<ArrayBuffer>((resolve, reject) => {
         const fileReader = new FileReader()
         fileReader.onload = function() {
             let arrayBuffer = this.result
@@ -27,6 +27,7 @@ const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer) => {
         }
         fileReader.readAsArrayBuffer(blob)
     })
+}
 
 const getDimensions = () => {
     const size = require("electron").remote.getCurrentWindow().getSize()
@@ -101,7 +102,7 @@ class Recorder {
 
         const arrayBuffer = await toArrayBuffer(new Blob(this._blobs, {type: "video/webm"}))
 
-        const buffer = toBuffer(ab)
+        const buffer = toBuffer(arrayBuffer)
         const file = `videos/example-${new Date().getTime()}.webm`
 
         // TODO: Finish making this async
@@ -120,6 +121,7 @@ class Recorder {
         const webContents = require("electron").remote.getCurrentWebContents()
         webContents.capturePage((image) => {
             const pngBuffer = image.toPNG({ scaleFactor: scale})
+            fs.writeFileSync("videos/screenshot.png", pngBuffer)
         })
     }
 }
