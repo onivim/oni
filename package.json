@@ -108,6 +108,7 @@
   "license": "MIT",
   "dependencies": {
     "find-up": "2.1.0",
+    "gifshot": "0.3.2",
     "keyboard-layout": "2.0.13",
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",

@@ -27,6 +27,13 @@ const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer) => {
         }
         fileReader.readAsArrayBuffer(blob)
     })
+
+const getDimensions = () => {
+    const size = require("electron").remote.getCurrentWindow().getSize()
+    return {
+        width: size[0],
+        height: size[1],
+    }
 }
 
 const toBuffer = (ab: ArrayBuffer) => {
@@ -53,6 +60,7 @@ class Recorder {
                 if (src.name === ONI_RECORDER_TITLE) {
                     document.title = title
 
+                    const size = getDimensions()
                     navigator["webkitGetUserMedia"]({
                         audio: false,
                         video: {
@@ -60,9 +68,9 @@ class Recorder {
                                 chromeMediaSource: "desktop",
                                 chromeMediaSourceId: src.id,
                                 minWidth: 320,
-                                maxWidth: screen.availWidth,
+                                maxWidth: size.width,
                                 minHeight: 240,
-                                maxHeight: screen.availHeight,
+                                maxHeight: size.height,
                             }
                         }
                     }, (stream: any) => { this._handleStream(stream) },
@@ -71,7 +79,10 @@ class Recorder {
                 }
             }
         });
+    }
 
+    public get isRecording(): boolean {
+        return !!this._recorder
     }
 
     private _handleStream(stream: any) {
@@ -90,8 +101,8 @@ class Recorder {
 
         const arrayBuffer = await toArrayBuffer(new Blob(this._blobs, {type: "video/webm"}))
 
-        const buffer = toBuffer(arrayBuffer)
-        const file = "videos/example.webm"
+        const buffer = toBuffer(ab)
+        const file = `videos/example-${new Date().getTime()}.webm`
 
         // TODO: Finish making this async
         if (fs.existsSync(file)) {
@@ -99,14 +110,16 @@ class Recorder {
         }
 
         fs.writeFileSync(file, buffer)
+
+        this._recorder = null
+        this._blobs = []
+        alert("Recording saved to: " + file)
     }
 
     public takeScreenshot(scale: number = 1): void {
         const webContents = require("electron").remote.getCurrentWebContents()
         webContents.capturePage((image) => {
             const pngBuffer = image.toPNG({ scaleFactor: scale})
-
-
         })
     }
 }
