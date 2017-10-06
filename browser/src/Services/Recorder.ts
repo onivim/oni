@@ -103,20 +103,18 @@ class Recorder {
         webContents.capturePage((image) => {
             const pngBuffer = image.toPNG({ scaleFactor: scale})
 
+            const screenshotPath = getOutputPath("oni-screenshot", "png")
+            fs.writeFileSync(screenshotPath, pngBuffer)
             if (configuration.getValue("recorder.copyScreenshotToClipboard")) {
-                clipboard.writeImage(image, "png")
-            } else {
-                const screenshotPath = getOutputPath("oni-screenshot", "png")
-                fs.writeFileSync(screenshotPath, pngBuffer)
-                alert("Screenshot saved to: " + screenshotPath)
+                clipboard.writeImage(screenshotPath as any)
             }
+            alert("Screenshot saved to: " + screenshotPath)
         })
     }
 }
 
 // Some of this code was adapted and modified from this stackoverflow post:
 // https://stackoverflow.com/questions/36753288/saving-desktopcapturer-to-video-file-in-electron
-
 const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
     return new Promise<ArrayBuffer>((resolve, reject) => {
         const fileReader = new FileReader()
