@@ -3,8 +3,8 @@ import * as path from "path"
 
 import { Application } from "spectron"
 
-const log = (msg:string) => {
-    console.log(msg) // tslint:disable-line no-console-log
+const log = (msg: string) => {
+    console.log(msg) // tslint:disable-line no-console
 }
 
 const getExecutablePath = () => {
