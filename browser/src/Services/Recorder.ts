@@ -6,9 +6,9 @@
  *  - Record & save video (.webm)
  */
 
+import { clipboard, desktopCapturer } from "electron"
 import * as fs from "fs"
 import * as path from "path"
-import { clipboard, desktopCapturer } from "electron"
 
 import * as Log from "./../Log"
 
@@ -19,12 +19,12 @@ declare var MediaRecorder: any
 const ONI_RECORDER_TITLE = "oni_recorder_title"
 
 const toBuffer = (ab: ArrayBuffer) => {
-    let buffer = new Buffer(ab.byteLength);
-    let arr = new Uint8Array(ab);
+    const buffer = new Buffer(ab.byteLength)
+    const arr = new Uint8Array(ab)
     for (let i = 0; i < arr.byteLength; i++) {
-        buffer[i] = arr[i];
+        buffer[i] = arr[i]
     }
-    return buffer;
+    return buffer
 }
 
 class Recorder {
@@ -32,18 +32,18 @@ class Recorder {
     private _blobs: Blob[] = []
 
     public startRecording(): void {
-        var title = document.title
+        const title = document.title
         document.title = ONI_RECORDER_TITLE
 
         desktopCapturer.getSources({ types: ["window", "screen"] }, (error, sources) => {
             if (error) throw error
             for (let i = 0; i < sources.length; i++) {
-                let src = sources[i]
+                const src = sources[i]
                 if (src.name === ONI_RECORDER_TITLE) {
                     document.title = title
 
                     const size = getDimensions()
-                    navigator["webkitGetUserMedia"]({
+                    navigator.webkitGetUserMedia({
                         audio: false,
                         video: {
                             mandatory: {
@@ -53,14 +53,14 @@ class Recorder {
                                 maxWidth: size.width,
                                 minHeight: 240,
                                 maxHeight: size.height,
-                            }
-                        }
+                            },
+                        },
                     }, (stream: any) => { this._handleStream(stream) },
                         (err: Error) => { this._handleUserMediaError(err) })
                     return
                 }
             }
-        });
+        })
     }
 
     public get isRecording(): boolean {
@@ -119,7 +119,7 @@ const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
     return new Promise<ArrayBuffer>((resolve, reject) => {
         const fileReader = new FileReader()
         fileReader.onload = function() {
-            let arrayBuffer = this.result
+            const arrayBuffer = this.result
             resolve(arrayBuffer)
         }
         fileReader.readAsArrayBuffer(blob)
