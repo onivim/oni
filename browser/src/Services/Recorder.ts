@@ -13,21 +13,23 @@ import * as Log from "./../Log"
 
 declare var MediaRecorder: any
 
-const SECRET_KEY = "oni_secret_key"
+const ONI_RECORDER_TITLE = "oni_recorder_title"
 
 // Some of this code was adapted and modified from this stackoverflow post:
 // https://stackoverflow.com/questions/36753288/saving-desktopcapturer-to-video-file-in-electron
 
-function toArrayBuffer(blob: any, cb: any) {
-    let fileReader = new FileReader();
-    fileReader.onload = function() {
-        let arrayBuffer = this.result;
-        cb(arrayBuffer);
-    };
-    fileReader.readAsArrayBuffer(blob);
+const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer) => {
+    return new Promise((resolve, reject) => {
+        const fileReader = new FileReader()
+        fileReader.onload = function() {
+            let arrayBuffer = this.result
+            resolve(arrayBuffer)
+        }
+        fileReader.readAsArrayBuffer(blob)
+    })
 }
 
-function toBuffer(ab: any) {
+const toBuffer = (ab: ArrayBuffer) => {
     let buffer = new Buffer(ab.byteLength);
     let arr = new Uint8Array(ab);
     for (let i = 0; i < arr.byteLength; i++) {
@@ -41,31 +43,31 @@ class Recorder {
     private _blobs: Blob[] = []
 
     public startRecording(): void {
-        var title = document.title;
-        document.title = SECRET_KEY;
+        var title = document.title
+        document.title = ONI_RECORDER_TITLE
 
         desktopCapturer.getSources({ types: ["window", "screen"] }, (error, sources) => {
-            if (error) throw error;
+            if (error) throw error
             for (let i = 0; i < sources.length; i++) {
-                let src = sources[i];
-                if (src.name === SECRET_KEY) {
-                    document.title = title;
+                let src = sources[i]
+                if (src.name === ONI_RECORDER_TITLE) {
+                    document.title = title
 
                     navigator["webkitGetUserMedia"]({
                         audio: false,
                         video: {
                             mandatory: {
-                                chromeMediaSource: 'desktop',
+                                chromeMediaSource: "desktop",
                                 chromeMediaSourceId: src.id,
-                                minWidth: 800,
+                                minWidth: 320,
                                 maxWidth: screen.availWidth,
-                                minHeight: 600,
+                                minHeight: 240,
                                 maxHeight: screen.availHeight,
                             }
                         }
                     }, (stream: any) => { this._handleStream(stream) },
-                        (err: Error) => { this._handleUserMediaError(err) });
-                    return;
+                        (err: Error) => { this._handleUserMediaError(err) })
+                    return
                 }
             }
         });
@@ -76,31 +78,36 @@ class Recorder {
         this._recorder = new MediaRecorder(stream)
         this._blobs = []
         this._recorder.ondataavailable = (evt: any) => { this._blobs.push(evt.data) }
-        this._recorder.start(100)
+        this._recorder.start(100 /* ms */)
     }
 
     private _handleUserMediaError(err: Error) {
         Log.error(err)
     }
 
-    public stopRecording(): void {
+    public async stopRecording(): Promise<void> {
         this._recorder.stop()
 
-        toArrayBuffer(new Blob(this._blobs, {type: "video/webm"}), (ab: any) => {
+        const arrayBuffer = await toArrayBuffer(new Blob(this._blobs, {type: "video/webm"}))
 
-            const buffer = toBuffer(ab)
-            const file = "videos/example.webm"
+        const buffer = toBuffer(arrayBuffer)
+        const file = "videos/example.webm"
 
-            if (fs.existsSync(file)) {
-                fs.unlinkSync(file)
-            }
+        // TODO: Finish making this async
+        if (fs.existsSync(file)) {
+            fs.unlinkSync(file)
+        }
 
-            fs.writeFileSync(file, buffer)
-        })
+        fs.writeFileSync(file, buffer)
     }
 
-    public takeScreenshot(): void {
+    public takeScreenshot(scale: number = 1): void {
+        const webContents = require("electron").remote.getCurrentWebContents()
+        webContents.capturePage((image) => {
+            const pngBuffer = image.toPNG({ scaleFactor: scale})
 
+
+        })
     }
 }
 
