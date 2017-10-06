@@ -39,6 +39,14 @@ export class MenuManager {
     public closeActiveMenu(): void {
         menuActions.hidePopupMenu()
     }
+
+    public selectMenuItem(idx?: number): void {
+        const menuState = menuStore.getState()
+
+        if (menuState && menuState.menu) {
+            menuState.menu.onSelectItem(idx)
+        }
+    }
 }
 
 export class Menu {

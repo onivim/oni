@@ -33,8 +33,8 @@ export class QuickOpen {
         this._menu.onItemSelected.subscribe((selectedItem: any) => { this._onItemSelected(selectedItem) })
     }
 
-    private _onItemSelected(selectedItem: any): void {
-        const arg = selectedItem.selectedOption
+    private _onItemSelected(selectedOption: Oni.Menu.MenuOption): void {
+        const arg = selectedOption
 
         if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.loading)) {
             return
@@ -45,16 +45,19 @@ export class QuickOpen {
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
             commandManager.executeCommand("oni.openFolder")
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
-            if (selectedItem.openInSplit !== "e") {
-                this._neovimInstance.command(selectedItem.openInSplit + "!")
-            }
+            // TODO: Make sure this works!
+            // if (selectedItem.openInSplit !== "e") {
+            //     this._neovimInstance.command(selectedItem.openInSplit + "!")
+            // }
             this._neovimInstance.command(`${arg.label}`)
         } else {
             let fullPath = path.join(arg.detail, arg.label)
 
             this._seenItems.push(fullPath)
 
-            this._neovimInstance.command(selectedItem.openInSplit + "! " + fullPath)
+            // TODO: Make sure this works!
+            // this._neovimInstance.command(selectedItem.openInSplit + "! " + fullPath)
+            this._neovimInstance.command("e! " + fullPath)
 
             if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folder)) {
                 this._neovimInstance.chdir(fullPath)

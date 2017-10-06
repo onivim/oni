@@ -72,11 +72,11 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("menu.close", null, null, popupMenuClose),
         new CallbackCommand("menu.next", null, null, popupMenuNext),
         new CallbackCommand("menu.previous", null, null, popupMenuPrevious),
+        new CallbackCommand("menu.select", null, null, popupMenuSelect),
 
         // QuickOpen
         new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show()),
         new CallbackCommand("quickOpen.showBufferLines", null, null, () => quickOpen.showBufferLines()),
-        new CallbackCommand("quickOpen.openFile", null, null, quickOpenFile(quickOpen)),
         new CallbackCommand("quickOpen.openFileNewTab", null, null, quickOpenFileNewTab(quickOpen)),
         new CallbackCommand("quickOpen.openFileVertical", null, null, quickOpenFileVertical(quickOpen)),
         new CallbackCommand("quickOpen.openFileHorizontal", null, null, quickOpenFileHorizontal(quickOpen)),
@@ -140,6 +140,7 @@ const popupMenuCommand = (innerCommand: Oni.ICommandCallback) => {
 const popupMenuClose = popupMenuCommand(() => menuManager.closeActiveMenu())
 const popupMenuNext = popupMenuCommand(() => menuManager.nextMenuItem())
 const popupMenuPrevious = popupMenuCommand(() => menuManager.previousMenuItem())
+const popupMenuSelect = popupMenuCommand(() => menuManager.selectMenuItem())
 
 const quickOpenCommand = (innerCommand: Oni.ICommandCallback) => (quickOpen: QuickOpen) => {
     return () => {
@@ -151,7 +152,6 @@ const quickOpenCommand = (innerCommand: Oni.ICommandCallback) => (quickOpen: Qui
     }
 }
 
-const quickOpenFile = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFile())
 const quickOpenFileNewTab = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFileNewTab())
 const quickOpenFileHorizontal = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFileHorizontal())
 const quickOpenFileVertical = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFileVertical())
