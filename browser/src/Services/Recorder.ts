@@ -36,14 +36,14 @@ class Recorder {
         document.title = ONI_RECORDER_TITLE
 
         desktopCapturer.getSources({ types: ["window", "screen"] }, (error, sources) => {
-            if (error) throw error
-            for (let i = 0; i < sources.length; i++) {
+            if (error) { throw error }
+            for (let i = 0; i < sources.length; i++) { // tslint:disable-line prefer-for-of
                 const src = sources[i]
                 if (src.name === ONI_RECORDER_TITLE) {
                     document.title = title
 
                     const size = getDimensions()
-                    navigator.webkitGetUserMedia({
+                    navigator["webkitGetUserMedia"]({ // tslint:disable-line no-string-literal
                         audio: false,
                         video: {
                             mandatory: {
@@ -65,17 +65,6 @@ class Recorder {
 
     public get isRecording(): boolean {
         return !!this._recorder
-    }
-
-    private _handleStream(stream: any) {
-        this._recorder = new MediaRecorder(stream)
-        this._blobs = []
-        this._recorder.ondataavailable = (evt: any) => { this._blobs.push(evt.data) }
-        this._recorder.start(100 /* ms */)
-    }
-
-    private _handleUserMediaError(err: Error) {
-        Log.error(err)
     }
 
     public async stopRecording(): Promise<void> {
@@ -111,6 +100,18 @@ class Recorder {
             alert("Screenshot saved to: " + screenshotPath)
         })
     }
+
+    private _handleStream(stream: any) {
+        this._recorder = new MediaRecorder(stream)
+        this._blobs = []
+        this._recorder.ondataavailable = (evt: any) => { this._blobs.push(evt.data) }
+        this._recorder.start(100 /* ms */)
+    }
+
+    private _handleUserMediaError(err: Error) {
+        Log.error(err)
+    }
+
 }
 
 // Some of this code was adapted and modified from this stackoverflow post:
