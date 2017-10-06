@@ -10,21 +10,31 @@ export interface IBackgroundProps {
     backgroundOpacity: number
 }
 
-export class BackgroundRenderer extends React.PureComponent<IBackgroundProps, void> {
+export class BackgroundView extends React.PureComponent<IBackgroundProps, void> {
     public render(): JSX.Element {
-        const imageStyle = {
-            backgroundImage: "url(" + this.props.backgroundImageUrl + ")",
-            backgroundSize: this.props.backgroundImageSize || "cover",
-        }
         const coverStyle = {
             backgroundColor: this.props.backgroundColor,
             opacity: this.props.backgroundOpacity,
         }
 
         return <div>
-                 <div className="background-image" style={imageStyle}></div>
-                 <div className="background-cover" style={coverStyle}></div>
-               </div>
+            <BackgroundImageView {...this.props} />
+            <div className="background-cover" style={coverStyle}></div>
+        </div>
+    }
+}
+
+export const BackgroundImageView = (props: IBackgroundProps) => {
+
+    if (props.backgroundImageUrl) {
+        const imageStyle = {
+            backgroundImage: "url(" + props.backgroundImageUrl + ")",
+            backgroundSize: props.backgroundImageSize || "cover",
+        }
+
+        return <div className="background-image" style={imageStyle}></div>
+    } else {
+        return null
     }
 }
 
@@ -38,4 +48,4 @@ const mapStateToProps = (state: State.IState): IBackgroundProps => {
     }
 }
 
-export const Background = connect(mapStateToProps)(BackgroundRenderer)
+export const Background = connect(mapStateToProps)(BackgroundView)

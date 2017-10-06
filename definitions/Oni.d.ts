@@ -4,6 +4,7 @@ import { EventEmitter } from "events"
 import * as types from "vscode-languageserver-types"
 
 declare namespace Oni {
+
     export interface IDisposable {
         dispose(): void
     }
@@ -25,7 +26,17 @@ declare namespace Oni {
         getValue<T>(configValue: string, defaultValue?: T): T
     }
 
+    export interface IWindowManager {
+        split(direction: number, editor: Oni.Editor, sourceEditor?: Oni.Editor)
+        moveLeft(): void
+        moveRight(): void
+        moveDown(): void
+        moveUp(): void
+        close(editor: Oni.Editor)
+    }
+
     export interface EditorManager {
+        allEditors: Editor
         activeEditor: Editor
     }
 
@@ -46,16 +57,37 @@ declare namespace Oni {
         command(command: string): Promise<void>
     }
 
+    export interface EditorBufferEventArgs {
+        filePath: string
+        language: string
+    }
+
     export interface Editor {
         mode: string
         onModeChanged: IEvent<string>
+
+        onBufferEnter: IEvent<EditorBufferEventArgs>
+        onBufferLeave: IEvent<EditorBufferEventArgs>
 
         // Optional capabilities for the editor to implement
         neovim?: NeovimEditorCapability
     }
 
+    export type ICommandCallback = (args?: any) => any
+    export type ICommandEnabledCallback = () => boolean
+
+    export interface ICommand {
+        command: string
+        name: string
+        detail: string
+        enabled?: ICommandEnabledCallback
+        messageSuccess?: string
+        messageFail?: string
+        execute: ICommandCallback
+    }
+
     export interface Commands {
-        registerCommand(commandName: string, callback: (args?: any) => void): void
+        registerCommand(command: ICommand): void
     }
 
     export interface Log {

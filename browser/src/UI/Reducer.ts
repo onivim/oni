@@ -4,16 +4,17 @@ import * as State from "./State"
 
 import * as Fuse from "fuse.js"
 
-import * as Config from "./../Config"
 import * as Log from "./../Log"
 import * as Actions from "./Actions"
+
+import { configuration, IConfigurationValues } from "./../Services/Configuration"
 
 import * as pick from "lodash/pick"
 import * as sortBy from "lodash/sortBy"
 
 import * as types from "vscode-languageserver-types"
 
-export function reducer<K extends keyof Config.IConfigValues>(s: State.IState, a: Actions.Action<K>) {
+export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>) {
 
     if (!s) {
         return s
@@ -80,7 +81,7 @@ export function reducer<K extends keyof Config.IConfigValues>(s: State.IState, a
              return {...s,
                      cursorColumnVisible: true}
         case "SET_CONFIGURATION_VALUE":
-            const obj: Partial<Config.IConfigValues> = {}
+            const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value
             const newConfig = {...s.configuration, ...obj}
             return {...s,
@@ -318,8 +319,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
 
     // if filtering files (not tasks) and overriddenCommand defined
     if (id === "quickOpen") {
-        const config = Config.instance()
-        const overriddenCommand = config.getValue("editor.quickOpen.execCommand")
+        const overriddenCommand = configuration.getValue("editor.quickOpen.execCommand")
         if (overriddenCommand) {
             try {
                 const files = execSync(overriddenCommand.replace("${search}", searchString), { cwd: process.cwd() }) // tslint:disable-line no-invalid-template-strings

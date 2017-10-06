@@ -26,6 +26,9 @@ export interface IMenuProps {
     onChangeFilterText: (text: string) => void
     onSelect: (openInSplit: string, selectedIndex?: number) => void
     items: State.IMenuOptionWithHighlights[]
+
+    backgroundColor: string
+    foregroundColor: string
 }
 
 export class Menu extends React.PureComponent<IMenuProps, void> {
@@ -57,9 +60,15 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
             onClick={() => this.props.onSelect("e", index)}
             />)
 
+        const menuStyle = {
+            backgroundColor: this.props.backgroundColor,
+            color: this.props.foregroundColor,
+        }
+
         return <div className="menu-background enable-mouse">
-            <div className="menu">
+            <div className="menu" style={menuStyle}>
                 <input type="text"
+                    style={{color: this.props.foregroundColor}}
                     ref={(inputElement) => {
                         this._inputElement = inputElement
                         if (this._inputElement) {
@@ -90,6 +99,8 @@ const mapStateToProps = (state: State.IState) => {
             selectedIndex: 0,
             filterText: "",
             items: EmptyArray,
+            backgroundColor: state.backgroundColor,
+            foregroundColor: state.foregroundColor,
         }
     } else {
         const popupMenu = state.popupMenu
@@ -98,6 +109,8 @@ const mapStateToProps = (state: State.IState) => {
             selectedIndex: popupMenu.selectedIndex,
             filterText: popupMenu.filter,
             items: popupMenu.filteredOptions,
+            backgroundColor: state.backgroundColor,
+            foregroundColor: state.foregroundColor,
         }
     }
 }
