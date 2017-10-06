@@ -4,7 +4,7 @@ import * as Performance from "./../Performance"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
 
-import { getSpansToEdit, ISpan } from "./Span"
+import { getSpansToEdit, IPosition, ISpan } from "./Span"
 
 export interface IRenderState {
     isWhitespace: boolean
@@ -32,10 +32,13 @@ export class CanvasRenderer implements INeovimRenderer {
     private _editorElement: HTMLDivElement
     private _canvasElement: HTMLCanvasElement
     private _canvasContext: CanvasRenderingContext2D
-    private _grid: Grid<ISpan> = new Grid<ISpan>()
 
+    private _width: number
+    private _height: number
+
+    private _grid: Grid<ISpan> = new Grid<ISpan>()
     private _devicePixelRatio: number
-    
+
     constructor(private _screen: IScreen) {
     }
 
@@ -61,15 +64,27 @@ export class CanvasRenderer implements INeovimRenderer {
 
     public onResize(): void {
         this._setContextDimensions()
+
+        this.redrawAll(this._screen)
     }
 
-    public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
-        const modifiedCells = deltaRegionTracker.getModifiedCells()
+    public redrawAll(screenInfo: IScreen): void {
+        const cellsToUpdate: IPosition[] = []
 
-        if (modifiedCells.length === 0) {
-            return
+        // clear
+        this._canvasContext.fillStyle = screenInfo.backgroundColor
+        this._canvasContext.fillRect(0, 0, this._width, this._height)
+
+        for (let x = 0; x < screenInfo.width; x++) {
+            for (let y = 0; y < screenInfo.height; y++) {
+                cellsToUpdate.push({ x, y })
+            }
         }
 
+        this._redraw(screenInfo, cellsToUpdate)
+    }
+
+    private _redraw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
         Performance.mark("CanvasRenderer.update.start")
 
         this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
@@ -81,8 +96,6 @@ export class CanvasRenderer implements INeovimRenderer {
         this._editorElement.style.fontSize = screenInfo.fontSize
 
         const rowsToEdit = getSpansToEdit(this._grid, modifiedCells)
-
-        modifiedCells.forEach((c) => deltaRegionTracker.notifyCellRendered(c.x, c.y))
 
         for (const y of Object.keys(rowsToEdit)) {
             const row: ISpan[] = rowsToEdit[y]
@@ -162,6 +175,18 @@ export class CanvasRenderer implements INeovimRenderer {
         }
 
         this._renderText(prevState, screenInfo)
+    }
+
+    public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
+        const modifiedCells = deltaRegionTracker.getModifiedCells()
+
+        if (modifiedCells.length === 0) {
+            return
+        }
+
+        this._redraw(screenInfo, modifiedCells)
+
+        modifiedCells.forEach((c) => deltaRegionTracker.notifyCellRendered(c.x, c.y))
     }
 
     private _getNextRenderState(cell: ICell, x: number, y: number, currentState: IRenderState): IRenderState {
@@ -252,16 +277,7 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     private _setContextDimensions(): void {
-        this._canvasElement.width = this._canvasElement.offsetWidth * this._devicePixelRatio
-        this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
-
-        console.log(this._screen.backgroundColor)
-
-
-        // this._canvasContext.translate(0, 0)
-        // this._canvasContext.fillStyle = this._screen.backgroundColor
-        // this._canvasContext.fillRect(0, 0, width, height)
-
-        // this._canvasContext.translate(0.5, 0.5)
+        this._width = this._canvasElement.width = this._canvasElement.offsetWidth * this._devicePixelRatio
+        this._height = this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
     }
 }
