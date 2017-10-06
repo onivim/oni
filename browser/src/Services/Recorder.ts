@@ -7,35 +7,16 @@
  */
 
 import * as fs from "fs"
+import * as path from "path"
 import { desktopCapturer } from "electron"
 
 import * as Log from "./../Log"
 
+import { configuration } from "./Configuration"
+
 declare var MediaRecorder: any
 
 const ONI_RECORDER_TITLE = "oni_recorder_title"
-
-// Some of this code was adapted and modified from this stackoverflow post:
-// https://stackoverflow.com/questions/36753288/saving-desktopcapturer-to-video-file-in-electron
-
-const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
-    return new Promise<ArrayBuffer>((resolve, reject) => {
-        const fileReader = new FileReader()
-        fileReader.onload = function() {
-            let arrayBuffer = this.result
-            resolve(arrayBuffer)
-        }
-        fileReader.readAsArrayBuffer(blob)
-    })
-}
-
-const getDimensions = () => {
-    const size = require("electron").remote.getCurrentWindow().getSize()
-    return {
-        width: size[0],
-        height: size[1],
-    }
-}
 
 const toBuffer = (ab: ArrayBuffer) => {
     let buffer = new Buffer(ab.byteLength);
@@ -103,27 +84,57 @@ class Recorder {
         const arrayBuffer = await toArrayBuffer(new Blob(this._blobs, {type: "video/webm"}))
 
         const buffer = toBuffer(arrayBuffer)
-        const file = `videos/example-${new Date().getTime()}.webm`
+        const videoFilePath = getOutputPath("oni-video", "webm")
 
         // TODO: Finish making this async
-        if (fs.existsSync(file)) {
-            fs.unlinkSync(file)
+        if (fs.existsSync(videoFilePath)) {
+            fs.unlinkSync(videoFilePath)
         }
 
-        fs.writeFileSync(file, buffer)
+        fs.writeFileSync(videoFilePath, buffer)
 
         this._recorder = null
         this._blobs = []
-        alert("Recording saved to: " + file)
+        alert("Recording saved to: " + videoFilePath)
     }
 
     public takeScreenshot(scale: number = 1): void {
         const webContents = require("electron").remote.getCurrentWebContents()
         webContents.capturePage((image) => {
             const pngBuffer = image.toPNG({ scaleFactor: scale})
-            fs.writeFileSync("videos/screenshot.png", pngBuffer)
+            const screenshotPath = getOutputPath("oni-screenshot", "png")
+            fs.writeFileSync(screenshotPath, pngBuffer)
+            alert("Screenshot saved to: " + screenshotPath)
         })
     }
+}
+
+// Some of this code was adapted and modified from this stackoverflow post:
+// https://stackoverflow.com/questions/36753288/saving-desktopcapturer-to-video-file-in-electron
+
+const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
+    return new Promise<ArrayBuffer>((resolve, reject) => {
+        const fileReader = new FileReader()
+        fileReader.onload = function() {
+            let arrayBuffer = this.result
+            resolve(arrayBuffer)
+        }
+        fileReader.readAsArrayBuffer(blob)
+    })
+}
+
+const getDimensions = () => {
+    const size = require("electron").remote.getCurrentWindow().getSize()
+    return {
+        width: size[0],
+        height: size[1],
+    }
+}
+
+const getOutputPath = (fileBase: string, fileExtension: string) => {
+    const outputPath = configuration.getValue("recorder.outputPath")
+    const fileName = `${fileBase}-${new Date().getTime()}.${fileExtension}`
+    return path.join(outputPath, fileName)
 }
 
 export const recorder = new Recorder()
