@@ -2,10 +2,7 @@ import * as ChildProcess from "child_process"
 import { EventEmitter } from "events"
 
 import { IPluginChannel } from "./Channel"
-
-import { Commands } from "./Commands"
 import { Diagnostics } from "./Diagnostics"
-import { StatusBar } from "./StatusBar"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient, ServerRunOptions } from "./LanguageClient/LanguageClient"
@@ -14,10 +11,14 @@ import { Process } from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
+import { commandManager } from "./../../Services/CommandManager"
+import { configuration } from "./../../Services/Configuration"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
+import { recorder } from "./../../Services/Recorder"
+import { statusBar } from "./../../Services/StatusBar"
+import { windowManager, WindowManager } from "./../../Services/WindowManager"
 
-import * as Config from "./../../Config"
 import * as Log from "./../../Log"
 
 import * as throttle from "lodash/throttle"
@@ -40,8 +41,6 @@ const helpers = {
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     private _dependencies: Dependencies
-    private _statusBar: StatusBar
-    private _commands: Commands
     private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
     private _ui: Ui
@@ -49,15 +48,19 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     private _process: Process
 
     public get commands(): Oni.Commands {
-        return this._commands
+        return commandManager
     }
 
     public get log(): Oni.Log {
         return Log
     }
 
+    public get recorder(): any {
+        return recorder
+    }
+
     public get configuration(): Oni.Configuration {
-        return Config.instance()
+        return configuration
     }
 
     public get diagnostics(): Oni.Plugin.Diagnostics.Api {
@@ -80,8 +83,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._process
     }
 
-    public get statusBar(): StatusBar {
-        return this._statusBar
+    public get statusBar(): Oni.StatusBar {
+        return statusBar
     }
 
     public get ui(): Ui {
@@ -90,6 +93,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     public get services(): Services {
         return this._services
+    }
+
+    public get windows(): WindowManager {
+        return windowManager
     }
 
     public get helpers(): any {
@@ -101,8 +108,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
         this._diagnostics = new Diagnostics(this._channel)
         this._dependencies = new Dependencies()
-        this._commands = new Commands(this._channel)
-        this._statusBar = new StatusBar(this._channel)
         this._ui = new Ui(react)
         this._services = new Services()
         this._process = new Process()
@@ -171,8 +176,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
             }
 
             this.emit(arg.payload.name, arg.payload.context)
-        } else if (arg.type === "command") {
-            this._commands.onCommand(arg.payload.command, arg.payload.args)
         } else if (arg.type === "request") {
             const requestType = arg.payload.name
 

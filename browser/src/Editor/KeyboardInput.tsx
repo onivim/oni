@@ -23,7 +23,6 @@ interface IKeyboardInputViewProps {
     height: number
     onKeyDown?: (key: string) => void
     foregroundColor: string
-    imeEnabled: boolean
     fontFamily: string
     fontSize: string
     fontCharacterWidthInPixels: number
@@ -82,15 +81,18 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             top: this.props.top.toString() + "px",
             left: this.props.left.toString() + "px",
             height: this.props.height.toString() + "px",
+            right: "0px",
             pointerEvents: "none",
             opacity,
-            width: "100%",
+            overflow: "hidden",
         }
 
         const inputStyle: React.CSSProperties = {
             position: "absolute",
             padding: "0px",
             width: "100%",
+            left: "0px",
+            right: "0px",
             color: "black",
             border: "0px",
             outline: "none",
@@ -102,21 +104,19 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             position: "absolute",
             height: "100%",
             backgroundColor: "white",
+            left: "0px",
             padding: "2px",
             marginTop: "-2px",
             marginLeft: "-2px",
             width: this.state.compositionTextWidthInPixels + "px",
         }
 
-        // IME is disabled for 'password' type fields
-        const inputType = this.props.imeEnabled ? "text" : "password"
-
         return <div style={containerStyle}>
             <div style={backgroundStyle} />
             <input
                 style={inputStyle}
                 ref={(elem) => this._keyboardElement = elem}
-                type={inputType}
+                type={"text"}
                 onKeyDown={(evt) => this._onKeyDown(evt)}
                 onCompositionEnd={(evt) => this._onCompositionEnd(evt)}
                 onCompositionUpdate={(evt) => this._onCompositionUpdate(evt)}
@@ -142,13 +142,11 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             return
         }
 
-        const imeDisabled = !this.props.imeEnabled
         const isMetaCommand = key.length > 1
 
-        // If ime is disabled, always pass the key event through...
-        // Otherwise, we'll let the `input` handler take care of it,
+        // We'll let the `input` handler take care of it,
         // unless it is a keystroke containing meta characters
-        if (imeDisabled || isMetaCommand) {
+        if (isMetaCommand) {
             this._commit(key)
             evt.preventDefault()
             return
@@ -210,7 +208,6 @@ const mapStateToProps = (state: IState, originalProps: IKeyboardInputProps): IKe
         left: state.cursorPixelX,
         height: state.fontPixelHeight,
         foregroundColor: state.foregroundColor,
-        imeEnabled: state.mode === "insert",
         fontFamily: state.fontFamily,
         fontSize: state.fontSize,
         fontCharacterWidthInPixels: state.fontPixelWidth,

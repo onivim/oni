@@ -2,7 +2,6 @@ import * as React from "react"
 
 import { connect } from "react-redux"
 
-import * as Config from "./../../Config"
 import * as Selectors from "./../Selectors"
 import * as State from "./../State"
 
@@ -10,6 +9,8 @@ import { Icon } from "./../Icon"
 
 import { getColorFromSeverity } from "./../../Services/Errors"
 import { WindowContext } from "./../WindowContext"
+
+import { configuration } from "./../../Services/Configuration"
 
 import * as types from "vscode-languageserver-types"
 
@@ -99,8 +100,6 @@ export interface IErrorMarkerProps {
 
 export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, void> {
 
-    private config = Config.instance()
-
     public render(): JSX.Element {
 
         const iconPositionStyles = {
@@ -122,7 +121,7 @@ export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, void> {
         ].join(" ")
 
         // TODO change editor.errors.slideOnFocus name
-        const errorDescription = this.config.getValue("editor.errors.slideOnFocus") ? (
+        const errorDescription = configuration.getValue("editor.errors.slideOnFocus") ? (
             <div className={className} style={textPositionStyles}>
                 <div className="text">
                     {this.props.text}

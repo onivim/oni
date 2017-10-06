@@ -16,7 +16,6 @@ import { NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
-import * as Config from "./../Config"
 import { Event, IEvent } from "./../Event"
 
 import { PluginManager } from "./../Plugins/PluginManager"
@@ -24,6 +23,7 @@ import { PluginManager } from "./../Plugins/PluginManager"
 import { BufferUpdates } from "./../Services/BufferUpdates"
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
+import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { WindowTitle } from "./../Services/WindowTitle"
@@ -55,10 +55,12 @@ export class NeovimEditor implements IEditor {
     private _element: HTMLElement
 
     private _currentMode: string
-    private _onModeChangedEvent: Event<string> = new Event<string>()
+    private _onModeChangedEvent = new Event<string>()
+    private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
+    private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
+
     private _hasLoaded: boolean = false
 
-    // Overlays
     private _windowManager: NeovimWindowManager
 
     private _errorStartingNeovim: boolean = false
@@ -67,8 +69,17 @@ export class NeovimEditor implements IEditor {
         return this._currentMode
     }
 
+    // Events
     public get onModeChanged(): IEvent<string> {
         return this._onModeChangedEvent
+    }
+
+    public get onBufferEnter(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferEnterEvent
+    }
+
+    public get onBufferLeave(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferLeaveEvent
     }
 
     // Capabilities
@@ -78,7 +89,7 @@ export class NeovimEditor implements IEditor {
 
     constructor(
         private _pluginManager: PluginManager,
-        private _config: Config.Config = Config.instance(),
+        private _config = configuration,
     ) {
         const services: any[] = []
 
@@ -114,9 +125,13 @@ export class NeovimEditor implements IEditor {
         })
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
-            if (Config.instance().getValue("editor.clipboard.enabled")) {
+            if (configuration.getValue("editor.clipboard.enabled")) {
                 clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
             }
+        })
+
+        this._neovimInstance.onOniCommand.subscribe((command) => {
+            commandManager.executeCommand(command)
         })
 
         // TODO: Refactor `pluginManager` responsibilities outside of this instance
@@ -202,7 +217,7 @@ export class NeovimEditor implements IEditor {
         })
 
         this._onConfigChanged(this._config.getValues())
-        this._config.onConfigurationChanged.subscribe((newValues: Partial<Config.IConfigValues>) => this._onConfigChanged(newValues))
+        this._config.onConfigurationChanged.subscribe((newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues))
 
         window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
         window["__screen"] = this._screen // tslint:disable-line no-string-literal
@@ -319,6 +334,12 @@ export class NeovimEditor implements IEditor {
         tasks.onEvent(evt)
 
         if (eventName === "BufEnter") {
+
+            this._onBufferEnterEvent.dispatch({
+                filePath: evt.bufferFullPath,
+                language: evt.filetype,
+            })
+
             // TODO: More convenient way to hide all UI?
             UI.Actions.hideCompletions()
             UI.Actions.hidePopupMenu()
@@ -326,6 +347,11 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hideQuickInfo()
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
+        } else if (eventName === "BufLeave") {
+            this._onBufferLeaveEvent.dispatch({
+                filePath: evt.bufferFullPath,
+                language: evt.filetype,
+            })
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
@@ -336,7 +362,7 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    private _onConfigChanged(newValues: Partial<Config.IConfigValues>): void {
+    private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
         const fontFamily = this._config.getValue("editor.fontFamily")
         const fontSize = this._config.getValue("editor.fontSize")
         const linePadding = this._config.getValue("editor.linePadding")
