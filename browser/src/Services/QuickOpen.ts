@@ -72,7 +72,6 @@ export class FinderProcess {
         this._isExplicitlyStopped = true
         this._process.kill()
     }
-    
 }
 
 export class QuickOpen {
@@ -195,16 +194,11 @@ export class QuickOpen {
 
         this._menu.show()
         this._menu.setItems(options)
-
-        // UI.Actions.showPopupMenu("quickOpen", options)
     }
 
     // Overridden strategy
     // If git repo, use git ls-files
-    private async loadMenu(command: string, args: string[] = [], splitCharacter: string = "\n") {
-
-        // TODO:
-
+    private loadMenu(command: string, args: string[] = [], splitCharacter: string = "\n") {
         this._menu.show()
 
         this._menu.setLoading(true)
