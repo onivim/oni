@@ -9,14 +9,146 @@ require("./QuickInfo.less") // tslint:disable-line no-var-requires
 
 export interface IQuickInfoProps {
     visible: boolean
-    x: number
-    y: number
     elements: JSX.Element[]
-    openFromTop?: boolean
 
     backgroundColor: string
     foregroundColor: string
 }
+
+const getOpenPosition = (state: IState): { backgroundColor: string, x: number, y: number, openFromTop: boolean } => {
+    const openFromTopPosition = state.cursorPixelY + (state.fontPixelHeight * 2)
+    const openFromBottomPosition = state.cursorPixelY - state.fontPixelHeight
+
+    const openFromTop = state.cursorPixelY < 75
+
+    const xPos = state.cursorPixelX - (state.fontPixelWidth / 2) - 2
+    const yPos = openFromTop ? openFromTopPosition : openFromBottomPosition
+
+    return {
+        x: xPos,
+        y: yPos,
+        openFromTop,
+        backgroundColor: state.backgroundColor,
+    }
+}
+
+export interface ICursorPositionerViewProps {
+    x: number
+    y: number
+
+    openFromTop: boolean
+
+    backgroundColor: string
+}
+
+export interface ICursorPositionerViewState {
+    measuredRect: ClientRect | null
+}
+
+/**
+ * Helper component to position an element relative to the current cursor position
+ */
+export class CursorPositionerView extends React.PureComponent<ICursorPositionerViewProps, ICursorPositionerViewState> {
+
+    constructor(props: ICursorPositionerViewProps) {
+        super(props)
+
+        this.state = {
+            measuredRect: null
+        }
+    }
+
+    private _measureElement(element: HTMLElement): void {
+        if (element) {
+            const rect = element.getBoundingClientRect()
+
+            if (!this.state.measuredRect
+                || this.state.measuredRect.width !== rect.width
+                || this.state.measuredRect.height !== rect.height) {
+
+                this.setState({
+                    measuredRect: rect
+                })
+            }
+        }
+    }
+
+    public render(): JSX.Element {
+        const containerStyle: React.CSSProperties = {
+            position: "absolute",
+            top: this.props.y.toString() + "px",
+            left: this.props.x.toString() + "px",
+        }
+
+        const openFromBottomStyle: React.CSSProperties = {
+            position: "absolute",
+            bottom: "0px",
+        }
+
+        const openFromTopStyle: React.CSSProperties = {
+            position: "absolute",
+            top: "0px",
+        }
+
+        const innerStyle = this.props.openFromTop ? openFromTopStyle : openFromBottomStyle
+
+        return <div style={containerStyle}>
+                <div style={innerStyle}>
+                    <div ref={(elem) => this._measureElement(elem) }>
+                        // <div>{!!this.state.measuredRect ? `${this.state.measuredRect.width}x${this.state.measuredRect.height}`: ""}</div>
+                        {this.props.children}
+                    </div>
+                 </div>
+                 <div style={{position: "absolute", top: "0px", left: "2px"}}>
+                     <Arrow direction={this.props.openFromTop ? ArrowDirection.Up : ArrowDirection.Down} size={10} color={this.props.backgroundColor} />
+                 </div>
+                </div>
+    }
+}
+
+export enum ArrowDirection {
+    Up = 0,
+    Down,
+}
+
+
+export interface IArrowProps {
+    size: number
+    color: string
+    direction: ArrowDirection
+}
+
+export const Arrow = (props: IArrowProps): JSX.Element => {
+
+    const transparentBorder = `${props.size * 0.8}px solid transparent`
+    const solidBorder = `${props.size}px solid ${props.color}`
+
+    const upArrowStyle = {
+        width: "0px",
+        height: "0px",
+        borderLeft: transparentBorder,
+        borderRight: transparentBorder,
+        borderBottom: solidBorder,
+    }
+
+    const downArrowStyle = {
+        width: "0px",
+        height: "0px",
+        borderLeft: transparentBorder,
+        borderRight: transparentBorder,
+        borderTop: solidBorder
+    }
+
+    const style = props.direction === ArrowDirection.Up ? upArrowStyle : downArrowStyle
+
+    return <div style={style}></div>
+}
+
+const mapStateToProps2 = (state: IState): ICursorPositionerViewProps => {
+    return getOpenPosition(state)
+}
+
+export const CursorPositioner = connect(mapStateToProps2)(CursorPositionerView)
 
 export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
 
@@ -25,39 +157,19 @@ export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
             return null
         }
 
-        const openFromTop = this.props.openFromTop || false
-
-        const containerStyle: React.CSSProperties = {
-            position: "absolute",
-            top: this.props.y.toString() + "px",
-            left: this.props.x.toString() + "px",
-        }
-
         const innerCommonStyle: React.CSSProperties = {
-            "position": "absolute",
             "opacity": this.props.visible ? 1 : 0,
-            "max-width": (document.body.offsetWidth - this.props.x - 40) + "px",
             backgroundColor: this.props.backgroundColor,
             color: this.props.foregroundColor,
         }
 
-        const openFromTopStyle: React.CSSProperties = {
-            ...innerCommonStyle,
-            "top": "0px",
-        }
-
-        const openFromBottomStyle: React.CSSProperties = {
-            ...innerCommonStyle,
-            "bottom": "0px",
-        }
-
-        const innerStyle: React.CSSProperties = openFromTop ? openFromTopStyle : openFromBottomStyle
-
-        return <div key={"quickinfo-container"} className="quickinfo-container enable-mouse" style={containerStyle}>
-            <div key={"quickInfo"} style={innerStyle} className="quickinfo">
-                {this.props.elements}
+        return <CursorPositioner>
+            <div key={"quickinfo-container"} className="quickinfo-container enable-mouse">
+                <div key={"quickInfo"} style={innerCommonStyle} className="quickinfo">
+                    {this.props.elements}
+                </div>
             </div>
-        </div>
+        </CursorPositioner>
     }
 }
 
@@ -101,23 +213,6 @@ export class SelectedText extends TextComponent {
     }
 }
 
-const getOpenPosition = (state: IState): { foregroundColor: string, backgroundColor: string, x: number, y: number, openFromTop: boolean } => {
-    const openFromTopPosition = state.cursorPixelY + (state.fontPixelHeight * 2)
-    const openFromBottomPosition = state.cursorPixelY - state.fontPixelHeight
-
-    const openFromTop = state.cursorPixelY < 75
-
-    const yPos = openFromTop ? openFromTopPosition : openFromBottomPosition
-
-    return {
-        x: state.cursorPixelX,
-        y: yPos,
-        openFromTop,
-        foregroundColor: state.foregroundColor,
-        backgroundColor: state.backgroundColor,
-    }
-}
-
 import { createSelector } from "reselect"
 
 const getQuickInfo = (state: IState) => state.quickInfo
@@ -141,33 +236,32 @@ const getQuickInfoElement = createSelector(
     })
 
 const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
-    const openPosition = getOpenPosition(state)
-
     const elements = getQuickInfoElement(state)
 
     if (!state.quickInfo || !state.cursorCharacter) {
         return {
-            ...openPosition,
             visible: false,
             elements,
+            foregroundColor: state.foregroundColor,
+            backgroundColor: state.backgroundColor,
         }
     } else {
         return {
-            ...openPosition,
             visible: true,
             elements,
+            foregroundColor: state.foregroundColor,
+            backgroundColor: state.backgroundColor,
         }
     }
 }
 
 const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
-    const openPosition = getOpenPosition(state)
-
     if (!state.signatureHelp) {
         return {
-            ...openPosition,
             visible: false,
             elements: EmptyArray,
+            foregroundColor: state.foregroundColor,
+            backgroundColor: state.backgroundColor,
         }
     } else {
         const currentItem = state.signatureHelp.items[state.signatureHelp.selectedItemIndex]
@@ -200,9 +294,10 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
         }
 
         return {
-            ...openPosition,
             visible: true,
             elements,
+            foregroundColor: state.foregroundColor,
+            backgroundColor: state.backgroundColor,
         }
     }
 }
