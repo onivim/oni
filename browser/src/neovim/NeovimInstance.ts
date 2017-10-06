@@ -13,10 +13,10 @@ import { Session } from "./Session"
 import { IWindow, Window } from "./Window"
 
 import * as Actions from "./../actions"
-import * as Config from "./../Config"
 import { measureFont } from "./../Font"
 import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
+import { configuration } from "./../Services/Configuration"
 
 export interface INeovimYankInfo {
     operator: string
@@ -39,6 +39,9 @@ export interface INeovimInstance {
 
     // Events
     onYank: IEvent<INeovimYankInfo>
+
+    // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
+    onOniCommand: IEvent<string>
 
     screenToPixels(row: number, col: number): IPixelPosition
 
@@ -95,7 +98,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _neovim: Session
     private _initPromise: Promise<void>
 
-    private _config = Config.instance()
+    private _config = configuration
 
     private _fontFamily: string = this._config.getValue("editor.fontFamily")
     private _fontSize: string = this._config.getValue("editor.fontSize")
@@ -111,7 +114,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _pluginManager: PluginManager
     private _quickFix: QuickFixList
 
-    private _onYank: Event<INeovimYankInfo> = new Event<INeovimYankInfo>()
+    private _onYank = new Event<INeovimYankInfo>()
+    private _onOniCommand = new Event<string>()
 
     public get quickFix(): IQuickFixList {
         return this._quickFix
@@ -119,6 +123,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onYank(): IEvent<INeovimYankInfo> {
         return this._onYank
+    }
+
+    public get onOniCommand(): IEvent<string> {
+        return this._onOniCommand
     }
 
     constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
@@ -175,6 +183,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             this.emit("buffer-update", eventContext, bufferLines)
                         } else if (pluginMethod === "oni_yank") {
                             this._onYank.dispatch(args[0][0])
+                        } else if (pluginMethod === "oni_command") {
+                            this._onOniCommand.dispatch(args[0][0])
                         } else if (pluginMethod === "event") {
                             const eventName = args[0][0]
                             const eventContext = args[0][1]
@@ -229,7 +239,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         const api = this._pluginManager.startPlugins(this)
                         performance.mark("NeovimInstance.Plugins.End")
 
-                        Config.instance().activate(api)
+                        configuration.activate(api)
 
                         // set title after attaching listeners so we can get the initial title
                         this.command("set title")

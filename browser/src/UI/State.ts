@@ -4,8 +4,9 @@
  * This file describes the Redux state of the app
  */
 
-import * as Config from "./../Config"
 import { Rectangle } from "./Types"
+
+import { configuration , IConfigurationValues } from "./../Services/Configuration"
 
 import * as types from "vscode-languageserver-types"
 
@@ -33,7 +34,7 @@ export interface IState {
     cursorLineOpacity: number
     cursorColumnVisible: boolean
     cursorColumnOpacity: number
-    configuration: Config.IConfigValues
+    configuration: IConfigurationValues
     imeActive: boolean
 
     statusBar: { [id: string]: IStatusBarItem }
@@ -138,7 +139,7 @@ export interface IStatusBarItem {
     visible: boolean
 }
 
-export function readConf<K extends keyof Config.IConfigValues>(conf: Config.IConfigValues, k: K): Config.IConfigValues[K] {
+export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurationValues, k: K): IConfigurationValues[K] {
     return conf[k]
 }
 
@@ -198,7 +199,7 @@ export const createDefaultState = (): IState => ({
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
 
-    configuration: Config.instance().getValues(),
+    configuration: configuration.getValues(),
 
     buffers: {
         activeBufferId: null,

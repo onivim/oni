@@ -1,17 +1,17 @@
 import * as React from "react"
 
-import { Background } from "./components/Background"
-import { EditorHost } from "./components/EditorHost"
-import { MenuContainer } from "./components/Menu"
-import StatusBar from "./components/StatusBar"
-
-import { IEditor } from "./../Editor/Editor"
 import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { inputManager } from "./../Services/InputManager"
+import * as WindowManager from "./../Services/WindowManager"
+
+import { Background } from "./components/Background"
+import { EditorWindows } from "./components/EditorWindows"
+import { MenuContainer } from "./components/Menu"
+import StatusBar from "./components/StatusBar"
 
 interface IRootComponentProps {
-    editor: IEditor
+    windowManager: WindowManager.WindowManager
 }
 
 export class RootComponent extends React.PureComponent<IRootComponentProps, void> {
@@ -24,7 +24,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
                 <div className="container vertical full">
                     <div className="container full">
                         <div className="stack">
-                            <EditorHost editor={this.props.editor} />
+                            <EditorWindows windowManager={this.props.windowManager} />
                         </div>
                         <div className="stack layer">
                             <MenuContainer />
@@ -38,8 +38,8 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
         </div>
     }
 
-    private _onRootKeyDown(evt: any): void {
-        const vimKey = keyEventToVimKey(evt)
+    private _onRootKeyDown(evt: React.KeyboardEvent<HTMLElement>): void {
+        const vimKey = keyEventToVimKey(evt.nativeEvent)
         if (inputManager.handleKey(vimKey)) {
             evt.stopPropagation()
             evt.preventDefault()
