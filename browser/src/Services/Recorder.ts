@@ -8,7 +8,7 @@
 
 import * as fs from "fs"
 import * as path from "path"
-import { desktopCapturer } from "electron"
+import { clipboard, desktopCapturer } from "electron"
 
 import * as Log from "./../Log"
 
@@ -102,9 +102,14 @@ class Recorder {
         const webContents = require("electron").remote.getCurrentWebContents()
         webContents.capturePage((image) => {
             const pngBuffer = image.toPNG({ scaleFactor: scale})
-            const screenshotPath = getOutputPath("oni-screenshot", "png")
-            fs.writeFileSync(screenshotPath, pngBuffer)
-            alert("Screenshot saved to: " + screenshotPath)
+
+            if (configuration.getValue("recorder.copyScreenshotToClipboard")) {
+                clipboard.writeImage(image, "png")
+            } else {
+                const screenshotPath = getOutputPath("oni-screenshot", "png")
+                fs.writeFileSync(screenshotPath, pngBuffer)
+                alert("Screenshot saved to: " + screenshotPath)
+            }
         })
     }
 }
