@@ -11,6 +11,8 @@ import { lstatSync } from "fs"
 import * as path from "path"
 // import * as Log from "./../Log"
 
+import { IEvent, Event } from "./../Event"
+
 import { INeovimInstance } from "./../neovim"
 import { BufferUpdates } from "./BufferUpdates"
 
@@ -18,7 +20,63 @@ import { commandManager } from "./../Services/CommandManager"
 import { configuration } from "./../Services/Configuration"
 import { Menu, menuManager } from "./../Services/Menu"
 
+import { spawn, ChildProcess } from 'child_process'
+
+export class FinderProcess {
+
+    private _process: ChildProcess
+
+    private _isExplicitlyStopped: boolean = false
+
+    private _onData = new Event<string[]>()
+    private _onError = new Event<string>()
+    private _onComplete = new Event<void>()
+
+
+    public get onData(): IEvent<string[]> {
+        return this._onData
+    }
+
+    constructor(private _command: string,
+               private _args: string[],
+               private _splitCharacter: string) {
+    }
+
+    public start(): void {
+        if (this._process) {
+            return
+        }
+
+        this._process = spawn(this._command, this._args)
+        this._process.stdout.on('data', (data) => {
+
+
+            // TODO: Handle case with incomplete data
+
+            console.log('Got data: ' + data.toString())
+
+            const dataToSend = data.toString().split(this._splitCharacter)
+            this._onData.dispatch(dataToSend)
+        })
+
+        this._process.stderr.on('data', (data) => {
+            this._onError.dispatch(data.toString())
+        })
+
+        this._process.on('exit', (code) => {
+            this._onComplete.dispatch()
+        })
+    }
+
+    public stop(): void {
+        this._isExplicitlyStopped = true
+        this._process.kill()
+    }
+    
+}
+
 export class QuickOpen {
+    private _finderProcess: FinderProcess
     private _seenItems: string[] = []
     private _loadedItems: QuickOpenItem[] = []
     private _neovimInstance: INeovimInstance
@@ -107,7 +165,7 @@ export class QuickOpen {
 
             // TODO consider adding folders as well (recursive async with ignores/excludes)
             // For now, sync call bookmarks and open folder, it's so few it's not going to matter
-            await this._showMenuFromQuickOpenItems(this._loadedItems)
+            // await this._setItemsFromQuickOpenItems(this._loadedItems)
             return
         }
 
@@ -148,45 +206,26 @@ export class QuickOpen {
         // TODO:
 
         this._menu.show()
-        // const filer = spawn(command, args)
-        // filer.stdout.on("data", (data) => {
-        //     data.toString().split(splitCharacter).forEach((d: string) => {
-        //         this._loadedItems.push(new QuickOpenItem(d, QuickOpenType.file))
-        //     })
-        //     this._showMenuFromQuickOpenItems(this._loadedItems)
-        // })
-        // // Otherwise, find all files recursively
-        // filer.stderr.on("data", (data) => {
-        //     this._showLoading()
-        //     Log.error(data.toString())
 
-        //     // FIXME : Convert to an async function like the ones above.
-        //     // TODO: This async call is being dropped, if we happen to use the promise
-        //     return glob("**/*", {
-        //         nodir: true,
-        //         ignore: configuration.getValue("oni.exclude"),
-        //     }, (_err: any, files: string[]) => {
-        //         Log.error(_err)
-        //         if (!files) {
-        //             this._loadDefaultMenuItems()
-        //             this._showMenuFromQuickOpenItems(this._loadedItems)
-        //         } else {
+        this._menu.setLoading(true)
+        this._loadedItems = []
 
-        //             files.forEach((f: string) => {
-        //                 this._loadedItems.push(new QuickOpenItem(f, QuickOpenType.file))
-        //             })
-        //             this._showMenuFromQuickOpenItems(this._loadedItems)
-        //         }
-        //     })
-        // })
+        if (this._finderProcess) {
+            this._finderProcess.stop()
+            this._finderProcess = null
+        }
 
-        // filer.on("exit", (code) => {
-        //     // For the (rare) case of an empty git directory
-        //     if (code === 0 && this._loadedItems.length === 0) {
-        //         this._loadDefaultMenuItems()
-        //         this._showMenuFromQuickOpenItems(this._loadedItems)
-        //     }
-        // })
+        this._finderProcess = new FinderProcess(command, args, splitCharacter)
+
+        this._finderProcess.onData.subscribe((newData) => {
+            const newItems = newData.map((s) => new QuickOpenItem(s, QuickOpenType.file))
+            this._loadedItems = this._loadedItems.concat(newItems)
+            this._setItemsFromQuickOpenItems(this._loadedItems)
+        })
+
+        this._finderProcess.start()
+
+        // TODO: Handle oni.exclude
     }
 
     // If we are in home or install dir offer to open folder/bookmark (Basically user hasn't opened a folder yet)
@@ -196,7 +235,7 @@ export class QuickOpen {
     }
 
     // Show menu based on items given
-    private _showMenuFromQuickOpenItems(items: QuickOpenItem[]): void {
+    private _setItemsFromQuickOpenItems(items: QuickOpenItem[]): void {
         const options = items.map((qitem) => {
             const f = qitem.item.trim()
             const file = path.basename(f)
@@ -210,11 +249,6 @@ export class QuickOpen {
             }
         })
 
-
-        // TODO:
-        // UI.Actions.showPopupMenu("quickOpen", options)
-
-        this._menu.show()
         this._menu.setItems(options)
     }
 
