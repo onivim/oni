@@ -16,7 +16,7 @@ export const showPopupMenu = (id: string, opts?: MenuActions.IMenuOptions) => {
 
     const options = {
         ...defaultOptions,
-        opts,
+        ...opts,
     }
 
     return {

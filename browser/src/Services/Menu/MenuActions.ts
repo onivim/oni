@@ -5,8 +5,9 @@
  */
 
 export interface IMenuOptions {
-    foregroundColor: string
-    backgroundColor: string
+    foregroundColor?: string
+    backgroundColor?: string
+    onSelectItem?: (idx: number) => void
 }
 
 export interface IShowMenuAction {

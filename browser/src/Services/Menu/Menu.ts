@@ -66,7 +66,21 @@ export class Menu {
 
     public show(): void {
         // TODO: Pass in callbacks for events here
-        menuActions.showPopupMenu(this._id)
+        menuActions.showPopupMenu(this._id, {
+            onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
+        })
+    }
+
+    private _onItemSelectedHandler(idx?: number): void {
+
+        const menuState = menuStore.getState()
+        const index = (typeof idx === "number") ? idx : menuState.menu.selectedIndex
+
+        const selectedOption = menuState.menu.filteredOptions[index]
+
+        this._onItemSelected.dispatch(selectedOption)
+
+        this.hide()
     }
 
     public hide(): void {

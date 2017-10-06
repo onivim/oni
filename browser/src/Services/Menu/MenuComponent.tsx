@@ -23,7 +23,7 @@ export interface IMenuProps {
     selectedIndex: number
     filterText: string
     onChangeFilterText: (text: string) => void
-    onSelect: (openInSplit: string, selectedIndex?: number) => void
+    onSelect: (selectedIndex?: number) => void
     items: State.IMenuOptionWithHighlights[]
 
     backgroundColor: string
@@ -55,7 +55,7 @@ export class MenuView extends React.PureComponent<IMenuProps, void> {
         const items = initialItems.map((menuItem, index) => <MenuItem {...menuItem as any} // FIXME: undefined
             filterText={this.props.filterText}
             isSelected={index === this.props.selectedIndex}
-            onClick={() => this.props.onSelect("e", index)}
+            onClick={() => this.props.onSelect(index)}
             />)
 
         const menuStyle = {
@@ -109,6 +109,7 @@ const mapStateToProps = (state: State.IMenus) => {
             items: popupMenu.filteredOptions,
             backgroundColor: popupMenu.backgroundColor,
             foregroundColor: popupMenu.foregroundColor,
+            onSelect: popupMenu.onSelectItem,
         }
     }
 }

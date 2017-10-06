@@ -67,8 +67,8 @@ export class Tasks extends EventEmitter {
         })
     }
 
-    private async _onItemSelected(selectedItem: any): Promise<void> {
-        const {label, detail} = selectedItem.selectedOption
+    private async _onItemSelected(selectedOption: Oni.Menu.MenuOption): Promise<void> {
+        const {label, detail} = selectedOption
 
         const selectedTask = find(this._lastTasks, (t) => t.name === label && t.detail === detail)
 

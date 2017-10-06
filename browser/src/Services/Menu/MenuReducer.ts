@@ -41,14 +41,13 @@ export function popupMenuReducer(s: State.IMenu | null, a: any): State.IMenu {
             // }))
 
             return {
+                ...a.payload.options,
                 id: a.payload.id,
                 filter: "",
                 filteredOptions: [],
                 options: [],
                 selectedIndex: 0,
                 isLoading: false,
-                backgroundColor: a.payload.options.backgroundColor,
-                foregroundColor: a.payload.options.foregroundColor,
             }
         case "SET_MENU_ITEMS":
             if (!s || s.id !== a.payload.id) {
