@@ -3,9 +3,8 @@ import * as fs from "fs"
 import * as mkdirp from "mkdirp"
 import * as os from "os"
 import * as path from "path"
-import * as Config from "./../Config"
 import { INeovimInstance } from "./../neovim"
-import { CallbackCommand, commandManager } from "./../Services/CommandManager"
+import { configuration } from "./../Services/Configuration"
 import * as UI from "./../UI/index"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
@@ -25,7 +24,7 @@ export interface IEventContext {
 }
 
 export class PluginManager extends EventEmitter {
-    private _config = Config.instance()
+    private _config = configuration
     private _rootPluginPaths: string[] = []
     private _extensionPath: string
     private _plugins: Plugin[] = []
@@ -107,10 +106,6 @@ export class PluginManager extends EventEmitter {
     }
 
     public notifyBufferUpdate(eventContext: Oni.EventContext, bufferLines: string[]): void {
-
-        if (!eventContext)
-            return
-
         this._channel.host.send({
             type: "buffer-update",
             payload: {
@@ -132,17 +127,7 @@ export class PluginManager extends EventEmitter {
     }
 
     private _createPlugin(pluginRootDirectory: string): Plugin {
-        const plugin = new Plugin(pluginRootDirectory, this._channel)
-
-        if (plugin.commands) {
-            plugin.commands.forEach((commandInfo) => {
-                commandManager.registerCommand(new CallbackCommand(commandInfo.command, commandInfo.name, commandInfo.details, (args?: any) => {
-                    this._sendCommand(commandInfo.command, args)
-                }))
-            })
-        }
-
-        return plugin
+        return new Plugin(pluginRootDirectory, this._channel)
     }
 
     private _ensureOniPluginsPath(): string {
@@ -215,9 +200,6 @@ export class PluginManager extends EventEmitter {
             case "set-errors":
                 this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors)
                 break
-            case "execute-command":
-                commandManager.executeCommand(pluginResponse.payload.commandName, pluginResponse.payload.args)
-                break
             case "find-all-references":
                 this.emit("find-all-references", pluginResponse.payload.references)
                 break
@@ -235,9 +217,6 @@ export class PluginManager extends EventEmitter {
                 break
             case "signature-help-response":
                 this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
-                break
-            case "redux-action":
-                UI.store.dispatch(pluginResponse.payload)
                 break
             default:
                 this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)
@@ -304,19 +283,6 @@ export class PluginManager extends EventEmitter {
         }, Capabilities.createPluginFilter(eventContext.filetype))
     }
 
-    private _sendCommand(command: string, args?: any): void {
-        const filetype = !!this._lastEventContext ? this._lastEventContext.filetype : null
-        const filter = Capabilities.createPluginFilterForCommand(filetype, command)
-        this._channel.host.send({
-            type: "command",
-            payload: {
-                command,
-                args,
-                eventContext: this._lastEventContext,
-            },
-        }, filter)
-    }
-
     /**
      * Validate that the originating event matched the initating event
      */
@@ -335,12 +301,12 @@ export class PluginManager extends EventEmitter {
     }
 }
 
- function getDirectories(rootPath: string): string[] {
-     if (!fs.existsSync(rootPath)) {
-         return []
-     }
+function getDirectories(rootPath: string): string[] {
+    if (!fs.existsSync(rootPath)) {
+        return []
+    }
 
-     return fs.readdirSync(rootPath)
-         .map((f) => path.join(rootPath.toString(), f))
-         .filter((f) => fs.statSync(f).isDirectory())
- }
+    return fs.readdirSync(rootPath)
+        .map((f) => path.join(rootPath.toString(), f))
+        .filter((f) => fs.statSync(f).isDirectory())
+}
