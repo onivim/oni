@@ -2,9 +2,8 @@
  * Recorder.ts
  *
  * Manages a variety of recording scenarios, including:
- *  - Take screenshot
- *  - Record video
- *  - Record animated gif
+ *  - Take & save screenshot
+ *  - Record & save video (.webm)
  */
 
 import * as fs from "fs"
@@ -15,6 +14,9 @@ import * as Log from "./../Log"
 declare var MediaRecorder: any
 
 const SECRET_KEY = "oni_secret_key"
+
+// Some of this code was adapted and modified from this stackoverflow post:
+// https://stackoverflow.com/questions/36753288/saving-desktopcapturer-to-video-file-in-electron
 
 function toArrayBuffer(blob: any, cb: any) {
     let fileReader = new FileReader();
@@ -35,18 +37,14 @@ function toBuffer(ab: any) {
 }
 
 class Recorder {
-
     private _recorder: any = null
     private _blobs: Blob[] = []
 
     public startRecording(): void {
-        // This code was adapted and modified from this stackoverflow post:
-        // https://stackoverflow.com/questions/36753288/saving-desktopcapturer-to-video-file-in-electron
-
         var title = document.title;
         document.title = SECRET_KEY;
 
-        desktopCapturer.getSources({ types: ['window', 'screen'] }, (error, sources) => {
+        desktopCapturer.getSources({ types: ["window", "screen"] }, (error, sources) => {
             if (error) throw error;
             for (let i = 0; i < sources.length; i++) {
                 let src = sources[i];
@@ -77,9 +75,7 @@ class Recorder {
     private _handleStream(stream: any) {
         this._recorder = new MediaRecorder(stream)
         this._blobs = []
-
         this._recorder.ondataavailable = (evt: any) => { this._blobs.push(evt.data) }
-
         this._recorder.start(100)
     }
 
@@ -115,10 +111,7 @@ class Recorder {
         })
     }
 
-    public saveLastRecording(filePath?: string, fileType?: any): void {
-    }
-
-    public takeScreenshot(filePath?: string): void {
+    public takeScreenshot(): void {
 
     }
 }
