@@ -19,7 +19,7 @@ const augmentKeyMap = (keyMap: IKeyMap, language: string): IKeyMap => {
 
     // Temporary hack to workaround atom/keyboard-layout#36
     if (Platform.isWindows() && language === "es-ES") {
-        keyMap["BracketLeft"] = {
+        keyMap["BracketLeft"] = { // tslint:disable-line no-string-literal
             unmodified: null,
             withShift: null,
             withAltGraph: "[",
