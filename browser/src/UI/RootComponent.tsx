@@ -8,7 +8,6 @@ import * as WindowManager from "./../Services/WindowManager"
 
 import { Background } from "./components/Background"
 import { EditorWindows } from "./components/EditorWindows"
-import { MenuContainer } from "./components/Menu"
 import StatusBar from "./components/StatusBar"
 
 interface IRootComponentProps {

@@ -141,7 +141,7 @@ const popupMenuClose = popupMenuCommand(() => menuManager.closeActiveMenu())
 const popupMenuNext = popupMenuCommand(() => menuManager.nextMenuItem())
 const popupMenuPrevious = popupMenuCommand(() => menuManager.previousMenuItem())
 
-const quickOpenCommand = (innerCommand: ICommandCallback) => (quickOpen: QuickOpen) => {
+const quickOpenCommand = (innerCommand: Oni.ICommandCallback) => (quickOpen: QuickOpen) => {
     return () => {
         if (quickOpen.isOpen()) {
             return innerCommand(quickOpen)
@@ -151,10 +151,10 @@ const quickOpenCommand = (innerCommand: ICommandCallback) => (quickOpen: QuickOp
     }
 }
 
-const quickOpenFile = quickOpenCommand((quickOpen) => quickOpen.openFile())
-const quickOpenFileNewTab = quickOpenCommand((quickOpen) => quickOpen.openFileNewTab())
-const quickOpenFileHorizontal = quickOpenCommand((quickOpen) => quickOpen.openFileHorizontal())
-const quickOpenFileVertical = quickOpenCommand((quickOpen) => quickOpen.openFileVertical())
+const quickOpenFile = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFile())
+const quickOpenFileNewTab = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFileNewTab())
+const quickOpenFileHorizontal = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFileHorizontal())
+const quickOpenFileVertical = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFileVertical())
 
 const pasteContents = async (neovimInstance: INeovimInstance) => {
     const textToPaste = clipboard.readText()
