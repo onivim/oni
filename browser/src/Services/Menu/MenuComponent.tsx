@@ -97,8 +97,8 @@ const mapStateToProps = (state: State.IMenus) => {
             selectedIndex: 0,
             filterText: "",
             items: EmptyArray,
-            backgroundColor: "black", //state.backgroundColor,
-            foregroundColor: "white", //state.foregroundColor,
+            backgroundColor: "black",
+            foregroundColor: "white",
         }
     } else {
         const popupMenu = state.menu
@@ -107,8 +107,8 @@ const mapStateToProps = (state: State.IMenus) => {
             selectedIndex: popupMenu.selectedIndex,
             filterText: popupMenu.filter,
             items: popupMenu.filteredOptions,
-            backgroundColor: "black", // TODO state.backgroundColor,
-            foregroundColor: "white", // TODO state.foregroundColor,
+            backgroundColor: popupMenu.backgroundColor,
+            foregroundColor: popupMenu.foregroundColor,
         }
     }
 }

@@ -2,12 +2,31 @@
  * MenuActionCreators.ts
  */
 
-export const showPopupMenu = (id: string) => ({
-    type: "SHOW_MENU",
-    payload: {
-        id,
-    },
-})
+import * as UI from "./../../UI"
+import * as MenuActions from "./MenuActions"
+
+export const showPopupMenu = (id: string, opts?: MenuActions.IMenuOptions) => {
+
+    const { backgroundColor, foregroundColor }  = UI.store.getState() as any
+
+    const defaultOptions = {
+        backgroundColor,
+        foregroundColor
+    }
+
+    const options = {
+        ...defaultOptions,
+        opts,
+    }
+
+    return {
+        type: "SHOW_MENU",
+        payload: {
+            id,
+            options,
+        }
+    }
+}
 
 export const setMenuLoading = (id: string, isLoading: boolean) => ({
     type: "SET_MENU_LOADING",

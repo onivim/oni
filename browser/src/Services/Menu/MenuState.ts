@@ -16,6 +16,9 @@ export interface IMenu {
     options: Oni.Menu.MenuOption[],
     selectedIndex: number
     isLoading: boolean
+
+    backgroundColor: string
+    foregroundColor: string
 }
 
 export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {

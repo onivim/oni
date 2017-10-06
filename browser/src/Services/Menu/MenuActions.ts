@@ -4,10 +4,16 @@
  * Implements API surface area for working with the status bar
  */
 
+export interface IMenuOptions {
+    foregroundColor: string
+    backgroundColor: string
+}
+
 export interface IShowMenuAction {
     type: "SHOW_MENU",
     payload: {
         id: string,
+        options: IMenuOptions,
     }
 }
 
