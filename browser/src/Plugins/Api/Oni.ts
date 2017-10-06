@@ -15,6 +15,7 @@ import { commandManager } from "./../../Services/CommandManager"
 import { configuration } from "./../../Services/Configuration"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
+import { recorder } from "./../../Services/Recorder"
 import { statusBar } from "./../../Services/StatusBar"
 import { windowManager, WindowManager } from "./../../Services/WindowManager"
 
@@ -52,6 +53,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     public get log(): Oni.Log {
         return Log
+    }
+
+    public get recorder(): any {
+        return recorder
     }
 
     public get configuration(): Oni.Configuration {
