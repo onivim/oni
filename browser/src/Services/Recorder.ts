@@ -96,18 +96,6 @@ class Recorder {
             }
 
             fs.writeFileSync(file, buffer)
-
-            const gifshot = require("gifshot")
-            gifshot.createGIF({ video: "videos/example.webm"},
-                              (result: any) => {
-                                  if(!result.error) {
-                                    var image = result.image
-                                    const animatedImage = document.createElement("img")
-                                    animatedImage.src = image
-                                    document.body.appendChild(animatedImage)
-                                  }
-                              })
-
         })
     }
 
