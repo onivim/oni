@@ -4,15 +4,8 @@
  * Implements state-change logic for the menu
  */
 
-import { execSync } from "child_process"
-import * as path from "path"
-
 import * as Fuse from "fuse.js"
 import * as sortBy from "lodash/sortBy"
-
-import * as Log from "./../../Log"
-
-import { configuration } from "./../Configuration"
 
 import * as State from "./MenuState"
 import * as Actions from "./MenuActions"
@@ -31,15 +24,6 @@ export function popupMenuReducer(s: State.IMenu | null, a: any): State.IMenu {
 
     switch (a.type) {
         case "SHOW_MENU":
-            // const sortedOptions = sortBy(a.payload.options, (f: any) => f.pinned ? 0 : 1).map((o: any) => ({
-            //     icon: o.icon,
-            //     detail: o.detail,
-            //     label: o.label,
-            //     pinned: o.pinned,
-            //     detailHighlights: [] as any,
-            //     labelHighlights: [] as any,
-            // }))
-
             return {
                 ...a.payload.options,
                 id: a.payload.id,
@@ -54,7 +38,7 @@ export function popupMenuReducer(s: State.IMenu | null, a: any): State.IMenu {
                 return s
             }
 
-            const filteredOptions = filterMenuOptions(a.payload.items, s.filter, s.id)
+            const filteredOptions = filterMenuOptions(a.payload.items, s.filter)
 
             return {
                 ...s,
@@ -85,7 +69,7 @@ export function popupMenuReducer(s: State.IMenu | null, a: any): State.IMenu {
             // If we already had search results, and this search is a superset of the previous,
             // just filter the already-pruned subset
             const optionsToSearch = a.payload.filter.indexOf(s.filter) === 0 ? s.filteredOptions : s.options
-            const filteredOptionsSorted = filterMenuOptions(optionsToSearch, a.payload.filter, s.id)
+            const filteredOptionsSorted = filterMenuOptions(optionsToSearch, a.payload.filter)
 
             return {...s,
                     filter: a.payload.filter,
@@ -95,35 +79,7 @@ export function popupMenuReducer(s: State.IMenu | null, a: any): State.IMenu {
     }
 }
 
-export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string, id: string): State.IMenuOptionWithHighlights[] {
-
-    // if filtering files (not tasks) and overriddenCommand defined
-    if (id === "quickOpen") {
-        const overriddenCommand = configuration.getValue("editor.quickOpen.execCommand")
-        if (overriddenCommand) {
-            try {
-                const files = execSync(overriddenCommand.replace("${search}", searchString), { cwd: process.cwd() }) // tslint:disable-line no-invalid-template-strings
-                    .toString("utf8")
-                    .split("\n")
-                const opt: State.IMenuOptionWithHighlights[]  = files.map((untrimmedFile) => {
-                    const f = untrimmedFile.trim()
-                    const file = path.basename(f)
-                    const folder = path.dirname(f)
-                    return {
-                        icon: "file-text-o",
-                        label: file,
-                        detail: folder,
-                        pinned: false,
-                        detailHighlights: [],
-                        labelHighlights: [],
-                    }
-                })
-                return opt
-            } catch (e) {
-                Log.warn(`'${overriddenCommand}' returned an error: ${e.message}\nUsing default filtering`)
-            }
-        }
-    }
+export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string): State.IMenuOptionWithHighlights[] {
 
     if (!searchString) {
         const opt = options.map((o) => {
@@ -200,4 +156,3 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
 
     return highlightOptions
 }
-
