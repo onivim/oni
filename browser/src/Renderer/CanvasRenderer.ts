@@ -3,8 +3,9 @@ import { Grid } from "./../Grid"
 import * as Performance from "./../Performance"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
-
 import { getSpansToEdit, IPosition, ISpan } from "./Span"
+
+import { configuration } from "./../Services/Configuration"
 
 export interface IRenderState {
     isWhitespace: boolean
@@ -55,7 +56,7 @@ export class CanvasRenderer implements INeovimRenderer {
 
         this._editorElement.appendChild(this._canvasElement)
 
-        this._setContextDimensions()
+        this._setContext()
     }
 
     public onAction(_action: any): void {
@@ -63,7 +64,7 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     public onResize(): void {
-        this._setContextDimensions()
+        this._setContext()
 
         this.redrawAll(this._screen)
     }
@@ -276,8 +277,15 @@ export class CanvasRenderer implements INeovimRenderer {
         }
     }
 
-    private _setContextDimensions(): void {
+    private _setContext(): void {
         this._width = this._canvasElement.width = this._canvasElement.offsetWidth * this._devicePixelRatio
         this._height = this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
+
+        if (configuration.getValue("editor.backgroundImageUrl") && configuration.getValue("editor.backgroundOpacity") < 1.0) {
+            this._canvasContext = this._canvasElement.getContext("2d", { alpha: true }) 
+        } else {
+            this._canvasContext = this._canvasElement.getContext("2d", { alpha: false }) 
+        }
+
     }
 }
