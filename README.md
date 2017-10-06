@@ -13,7 +13,6 @@
     - [Windows](#windows)
     - [Mac](#mac)
     - [Linux](#linux)
-    - [Build](#build)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
 - [Thanks](#thanks)
@@ -56,9 +55,10 @@ Oni brings several IDE-like integrations to NeoVim:
 
 ## Installation
 
-Check out [Releases](https://github.com/bryphe/oni/releases) for the latest binary.
+ - Check out [Releases](https://github.com/bryphe/oni/releases) for the latest binary.
+ - If you'd prefer to build from source, see [Development](https://github.com/bryphe/oni/wiki/Development)
 
-Windows & OSX releases come with a bundled Neovim release.
+> NOTE: Windows & OSX releases come with a bundled neovim release, so you do not need a neovim install on those platforms.
 
 ### Windows
 
@@ -102,20 +102,6 @@ A [tar.gz](https://github.com/bryphe/oni/releases/download/v0.2.11/Oni-0.2.11-li
 - Install the package with `yaourt -S oni`
 
 A [tar.gz](https://github.com/bryphe/oni/releases/download/v0.2.11/Oni-0.2.11-linux.tar.gz) is also available.
-
-### Build
-
-> Ensure all dependencies for [node-gyp](https://github.com/nodejs/node-gyp) are installed, as some modules require building native code.
-
-1) Clone the repository: `git clone https://github.com/bryphe/oni.git`
-
-2) Install dependencies by running `npm install` from the root
-
-3) Build using `npm run build` from the root
-
-4) Run `npm link` to register the *oni* command
-
-5) Run `oni` at the command line
 
 ## Goals
 

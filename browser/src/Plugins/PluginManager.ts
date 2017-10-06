@@ -4,7 +4,6 @@ import * as mkdirp from "mkdirp"
 import * as os from "os"
 import * as path from "path"
 import { INeovimInstance } from "./../neovim"
-import { CallbackCommand, commandManager } from "./../Services/CommandManager"
 import { configuration } from "./../Services/Configuration"
 import * as UI from "./../UI/index"
 
@@ -128,17 +127,7 @@ export class PluginManager extends EventEmitter {
     }
 
     private _createPlugin(pluginRootDirectory: string): Plugin {
-        const plugin = new Plugin(pluginRootDirectory, this._channel)
-
-        if (plugin.commands) {
-            plugin.commands.forEach((commandInfo) => {
-                commandManager.registerCommand(new CallbackCommand(commandInfo.command, commandInfo.name, commandInfo.details, (args?: any) => {
-                    this._sendCommand(commandInfo.command, args)
-                }))
-            })
-        }
-
-        return plugin
+        return new Plugin(pluginRootDirectory, this._channel)
     }
 
     private _ensureOniPluginsPath(): string {
@@ -210,9 +199,6 @@ export class PluginManager extends EventEmitter {
                 break
             case "set-errors":
                 this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors)
-                break
-            case "execute-command":
-                commandManager.executeCommand(pluginResponse.payload.commandName, pluginResponse.payload.args)
                 break
             case "find-all-references":
                 this.emit("find-all-references", pluginResponse.payload.references)
@@ -295,19 +281,6 @@ export class PluginManager extends EventEmitter {
             type: "request",
             payload,
         }, Capabilities.createPluginFilter(eventContext.filetype))
-    }
-
-    private _sendCommand(command: string, args?: any): void {
-        const filetype = !!this._lastEventContext ? this._lastEventContext.filetype : null
-        const filter = Capabilities.createPluginFilterForCommand(filetype, command)
-        this._channel.host.send({
-            type: "command",
-            payload: {
-                command,
-                args,
-                eventContext: this._lastEventContext,
-            },
-        }, filter)
     }
 
     /**

@@ -21,10 +21,11 @@ import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
 import { tasks } from "./../Services/Tasks"
+import { windowManager } from "./../Services/WindowManager"
 
 import * as UI from "./../UI/index"
 
-import { CallbackCommand, CommandManager, ICommandCallback } from "./CommandManager"
+import { CallbackCommand, CommandManager } from "./CommandManager"
 
 import * as Platform from "./../Platform"
 import { replaceAll } from "./../Utility"
@@ -80,6 +81,11 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("quickOpen.openFileVertical", null, null, quickOpenFileVertical(quickOpen)),
         new CallbackCommand("quickOpen.openFileHorizontal", null, null, quickOpenFileHorizontal(quickOpen)),
 
+        new CallbackCommand("window.moveLeft", null, null, () => windowManager.moveLeft()),
+        new CallbackCommand("window.moveRight", null, null, () => windowManager.moveRight()),
+        new CallbackCommand("window.moveDown", null, null, () => windowManager.moveDown()),
+        new CallbackCommand("window.moveUp", null, null, () => windowManager.moveUp()),
+
         // Add additional commands here
         // ...
     ]
@@ -103,7 +109,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
  * Higher-order function for commands dealing with completion
  * - checks that the completion menu is open
  */
-const autoCompletionCommand = (innerCommand: ICommandCallback) => {
+const autoCompletionCommand = (innerCommand: Oni.ICommandCallback) => {
     return () => {
         if (UI.Selectors.areCompletionsVisible()) {
             return innerCommand()
@@ -121,7 +127,7 @@ const previousCompletionItem = autoCompletionCommand(() => {
     UI.Actions.previousCompletion()
 })
 
-const popupMenuCommand = (innerCommand: ICommandCallback) => {
+const popupMenuCommand = (innerCommand: Oni.ICommandCallback) => {
     return () => {
         if (menuManager.isMenuOpen()) {
             return innerCommand()
