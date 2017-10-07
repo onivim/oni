@@ -234,6 +234,7 @@ declare namespace Oni {
             label: string
             detail?: string
             documentation?: string
+            insertText?: string
         }
 
         export interface EvaluationResult {

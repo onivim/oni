@@ -375,6 +375,7 @@ export class LanguageClient {
             detail: i.detail,
             documentation: this._getCompletionDocumentation(i),
             kind: i.kind,
+            insertText: i.insertText,
         }))
 
         return {
