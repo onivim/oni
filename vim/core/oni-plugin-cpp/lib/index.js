@@ -8,6 +8,7 @@ const activate = (Oni) => {
 
     const serverOptions = {
         command,
+        stderrAsLog: true,
     }
 
     const getInitializationOptionsAsync = (filePath) => {
@@ -19,7 +20,6 @@ const activate = (Oni) => {
     }
 
     const client = Oni.createLanguageClient(serverOptions, getInitializationOptionsAsync)
-    const stderrAsLog = true
 }
 
 module.exports = {

@@ -193,7 +193,7 @@ export class LanguageClient {
             Log.error(`[LANGUAGE CLIENT - ERROR]: ${msg}`)
             this._statusBar.setStatus(LanguageClientState.Error)
         }
-        this._process.stderr.on("data", (this._startOptions.stderrAsLog || true) ? logFunc : errFunc)
+        this._process.stderr.on("data", (this._startOptions.stderrAsLog) ? logFunc : errFunc)
 
         this._connection = rpc.createMessageConnection(
             (new rpc.StreamMessageReader(this._process.stdout)) as any,
