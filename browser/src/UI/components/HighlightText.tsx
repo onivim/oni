@@ -43,8 +43,9 @@ export class HighlightTextByIndex extends React.PureComponent<IHighlightTextByIn
 
         const childNodes: JSX.Element[] = []
         const highlightIndices = this.props.highlightIndices || []
+        const text = this.props.text || ""
 
-        this.props.text.split("").forEach((c: string, idx: number) => {
+        text.split("").forEach((c: string, idx: number) => {
 
             if (shouldHighlightIndex(idx, highlightIndices)) {
                 childNodes.push(<span className={this.props.highlightClassName}>{c}</span>)
