@@ -15,13 +15,12 @@
     - [Linux](#linux)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
-- [Thanks](#thanks)
-    - [Sponsors](#sponsors)
+- [Special Thanks](#special-thanks)
 - [License](#license)
 
 ## Introduction
 
-Oni is a [NeoVim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
+Oni is a [neovim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
 
 ![screenshot](https://user-images.githubusercontent.com/13532591/28976286-25779704-78f2-11e7-967f-72cb438d77f6.png)
 
@@ -118,8 +117,6 @@ Vim is an incredible tool for manipulating *text* at the speed of thought. With 
 
 However, going from thought to *code* has some different challenges than going from thought to *text*. IDEs today provide several benefits that help to reduce __cognitive load__ when writing code, and that benefit is tremendously important - not only in terms of pure coding efficiency and productivity, but also in making the process of writing code enjoyable and fun.
 
-In my journey of learning Vim and increasing proficiency in other editors, I've found there is always a trade-off - either enjoy the autocompletion and IDE features, and compromise on the experience and muscle memory I've built with Vim, or work in Vim and compromise on the rich language functionality we have in an IDE.
-
 The goal of this project is to give an editor that gives the best of both worlds - the power, speed, and flexibility of using Vim for manipulating text, as well as the rich tooling that comes with an IDE.
 
 ## Documentation
@@ -128,38 +125,30 @@ The goal of this project is to give an editor that gives the best of both worlds
 - [FAQ](https://github.com/bryphe/oni/wiki)
 - [Roadmap](https://github.com/bryphe/oni/wiki/Roadmap)
 
-#### Bundled Plugins
-
-Bundled plugins have their own license terms. These include:
-- [typescript-vim](https://github.com/leafgarland/typescript-vim) (`oni/vim/core/typescript.vim`)
-- [targets.vim](https://github.com/wellle/targets.vim) (`oni/vim/default/bundle/targets.vim`)
-- [vim-commentary](https://github.com/tpope/vim-commentary) (`oni/vim/default/bundle/vim-commentary`)
-- [vim-unimpaired](https://github.com/tpope/vim-unimpaired) (`oni/vim/default/bundle/vim-unimpaired`)
-- [vim-reasonml](https://github.com/reasonml-editor/vim-reason) (`.vim` files in `oni/vim/core/oni-plugin-reasonml`)
-
 ## Contributing
 
 Contributions are very much welcome :)
 
 If you're interested in helping out, check out our [Debugging Page](https://github.com/bryphe/oni/wiki/Debugging) for tips and tricks for working with Oni.
 
-## Thanks
+## Special Thanks
 
-Big thanks to the NeoVim team - without their work, this project would not be possible. The deep integration with Vim would not be possible without the incredible work that was done to enable the msgpack-RPC interface. Thanks!
+Oni wouldn't be here without your help and support. There are some especially impactful contributions I'd like trecognize (in chronological order):
 
-### Sponsors
+- @neovim team, especially @justinmk and @tarruda - Oni would not be possible without their vision for neovim.
+- @vscode and @microsoft for their generous OSS contributions
+- @atom, @github, and @electronjs for their platform
+- @jordwalke for his generous support, inspiration, and ideas.
+- @keforbes for his contributions getting this project off the gorund
+- @tillarnold for giving us the `oni` npm package name
+- @mhartingon for his generous support
+- @badosu for his support, contributions, and managing the AUR releases
+- All of our current monthly [sponsors](https://salt.bountysource.com/teams/oni/supporters) - your contributions help keep this project going!
+- All of our [contributors](https://github.com/bryphe/oni/graphs/contributors)
 
-A big THANK YOU to our current monthly sponsors. Your contributions help keep this project alive!
+In addition, several other great neovim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) served as a reference, especially [NyaoVim](https://github.com/rhysd/NyaoVim) and [VimR](https://github.com/qvacua/vimr). I encourage you to check those out!
 
-- [Mike Hartington](https://github.com/mhartington)
-
-### Other Contributions
-
-In addition, there are several other great NeoVim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) that served as great reference points and learning opportunities.
-
-Also, thanks to our [contributors](https://github.com/bryphe/oni/graphs/contributors) for helping out!
-
-Special thanks to [Till Arnold](https://github.com/tillarnold) for handing over the `oni` NPM package name.
+Thank you!
 
 ## License
 
@@ -168,3 +157,13 @@ MIT License. Copyright (c) Bryan Phelps
 There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
 
 Windows and OSX have a bundled version of Neovim, which is covered under [Neovim's license](https://github.com/neovim/neovim/blob/master/LICENSE)
+
+### Bundled Plugins
+
+Bundled plugins have their own license terms. These include:
+- [typescript-vim](https://github.com/leafgarland/typescript-vim) (`oni/vim/core/typescript.vim`)
+- [targets.vim](https://github.com/wellle/targets.vim) (`oni/vim/default/bundle/targets.vim`)
+- [vim-commentary](https://github.com/tpope/vim-commentary) (`oni/vim/default/bundle/vim-commentary`)
+- [vim-unimpaired](https://github.com/tpope/vim-unimpaired) (`oni/vim/default/bundle/vim-unimpaired`)
+- [vim-reasonml](https://github.com/reasonml-editor/vim-reason) (`.vim` files in `oni/vim/core/oni-plugin-reasonml`)
+
