@@ -15,12 +15,12 @@
     - [Linux](#linux)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
-- [Special Thanks](#special-thanks)
+- [Acknowledgements](#acknowledgements)
 - [License](#license)
 
 ## Introduction
 
-Oni is a [neovim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/)
+Oni is a [neovim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/). Oni supports Windows, OS X, and Linux.
 
 ![screenshot](https://user-images.githubusercontent.com/13532591/28976286-25779704-78f2-11e7-967f-72cb438d77f6.png)
 
@@ -32,11 +32,11 @@ Check out [Releases](https://github.com/bryphe/oni/releases) for the latest bina
 
 Oni brings several IDE-like integrations to NeoVim:
 
-- **[Quick Info](https://github.com/bryphe/oni/wiki/Features#quick-info)**
-- **[Code Completion](https://github.com/bryphe/oni/wiki/Features#code-completion)**
-- **Syntax / Compilation Errors**
-- **[Fuzzy Finding](https://github.com/bryphe/oni/wiki/Features#fuzzy-finder)**
-- **[Status Bar](https://github.com/bryphe/oni/wiki/Features#status-bar)**
+- [Quick Info](https://github.com/bryphe/oni/wiki/Features#quick-info)
+- [Code Completion](https://github.com/bryphe/oni/wiki/Features#code-completion)
+- Syntax / Compilation Errors
+- [Fuzzy Finding](https://github.com/bryphe/oni/wiki/Features#fuzzy-finder)
+- [Status Bar](https://github.com/bryphe/oni/wiki/Features#status-bar)
 
 ## Installation
 
@@ -117,24 +117,22 @@ Contributions are very much welcome :)
 
 If you're interested in helping out, check out our [Debugging Page](https://github.com/bryphe/oni/wiki/Debugging) for tips and tricks for working with Oni.
 
-## Special Thanks
+## Acknowledgements
 
-Oni wouldn't be here without your help and support. There are some especially impactful contributions to call out (in chronological order):
+Oni wouldn't be here without your help and support. There are some especially impactful contributions to call out (in chronological order), so big thanks to:
 
-- @neovim team, especially @justinmk and @tarruda - Oni would not be possible without their vision
-- @vscode and @microsoft for their generous OSS contributions
-- @atom, @github, and @electronjs for their platform
-- @jordwalke for his generous support, inspiration, and ideas.
-- @keforbes for his contributions getting this project off the gorund
-- @tillarnold for giving us the `oni` npm package name
-- @mhartingon for his generous support
-- @badosu for his support, contributions, and managing the AUR releases
-- All of our current monthly [sponsors](https://salt.bountysource.com/teams/oni/supporters) and [backers](BACKERS.md)- your contributions help keep this project going!
-- All of our [contributors](https://github.com/bryphe/oni/graphs/contributors)
+- the [neovim team](https://neovim.io/), especially [justinmk](https://github.com/justinmk) and [tarruda](https://github.com/tarruda) - Oni would not be possible without their vision
+- [jordwalke](https://github.com/jordwalke) for his generous support, inspiration, and ideas. And React ;)
+- [keforbes](https://github.com/keforbes) for helping to get this project off the ground
+- [tillarnold](https://github.com/tillarnold) for giving us the `oni` npm package name
+- [mhartington](https://github.com/mhartington) for his generous support
+- [badosu](https://github.com/badosu) for his support, contributions, and managing the AUR releases
+- All our current monthly [sponsors](https://salt.bountysource.com/teams/oni/supporters) and [backers](BACKERS.md)- your support keeps this project alive!
+- All of our [contributors](https://github.com/bryphe/oni/graphs/contributors) - thanks for helping to improve this project!
 
 In addition, several other great neovim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) served as a reference, especially [NyaoVim](https://github.com/rhysd/NyaoVim) and [VimR](https://github.com/qvacua/vimr). I encourage you to check those out!
 
-Thank you!
+Thank you for making this project possible!
 
 ## License
 
