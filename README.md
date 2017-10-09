@@ -20,23 +20,25 @@
 
 ## Introduction
 
-Oni is a [neovim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/). Oni supports Windows, OS X, and Linux.
+Oni is a [neovim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/).
 
 ![screenshot](https://user-images.githubusercontent.com/13532591/28976286-25779704-78f2-11e7-967f-72cb438d77f6.png)
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
-Check out [Releases](https://github.com/bryphe/oni/releases) for the latest binaries, or [Build Oni](#build) from source.
+Check out [Releases](https://github.com/bryphe/oni/releases) for the latest binaries, or [Build Oni](#build) from source. Consider making a donation via [BountySource](https://salt.bountysource.com/teams/oni) if you find this project useful!
 
 ## Features
 
-Oni brings several IDE-like integrations to NeoVim:
+Oni brings several IDE-like integrations to neovim:
 
 - [Quick Info](https://github.com/bryphe/oni/wiki/Features#quick-info)
 - [Code Completion](https://github.com/bryphe/oni/wiki/Features#code-completion)
 - Syntax / Compilation Errors
 - [Fuzzy Finding](https://github.com/bryphe/oni/wiki/Features#fuzzy-finder)
 - [Status Bar](https://github.com/bryphe/oni/wiki/Features#status-bar)
+
+Oni is cross-platform and supports Windows, OS X, and Linux.
 
 ## Installation
 
@@ -116,16 +118,14 @@ The goal of this project is to give an editor that gives the best of both worlds
 There many ways to contribute to Oni:
 
 - Support Oni financially by making a donation via [Bountysource](https://salt.bountysource.com/teams/oni)
-- [Submit bugs](https://github.com/bryphe/oni/issues) or propose new features
+- [Submit bugs](https://github.com/bryphe/oni/issues) or propose new features.
 - Review and and upate our [documentation](https://github.com/bryphe/oni/wiki)
 - Try out the latest [released build](https://github.com/bryphe/oni/releases)
 - Contribute a bug fix or code change - start by checking our [Debugging Page](https://github.com/bryphe/oni/wiki/Debugging)
 
 ## Acknowledgements
 
-Oni is an independent project and wouldn't be here without the separate of some exceptional people. 
-
-Big thanks to the following people for making this project:
+Oni is an independent project and is made possible by the support of some exceptional people. Big thanks to the following people for helping to realize this project:
 
 - the [neovim team](https://neovim.io/), especially [justinmk](https://github.com/justinmk) and [tarruda](https://github.com/tarruda) - Oni would not be possible without their vision
 - [jordwalke](https://github.com/jordwalke) for his generous support, inspiration, and ideas. And React ;)
@@ -133,10 +133,10 @@ Big thanks to the following people for making this project:
 - [tillarnold](https://github.com/tillarnold) for giving us the `oni` npm package name
 - [mhartington](https://github.com/mhartington) for his generous support
 - [badosu](https://github.com/badosu) for his support, contributions, and managing the AUR releases
-- All our current monthly [sponsors](https://salt.bountysource.com/teams/oni/supporters) and [backers](BACKERS.md)- your support keeps this project alive!
+- All our current monthly [sponsors](https://salt.bountysource.com/teams/oni/supporters) and [backers](BACKERS.md)
 - All of our [contributors](https://github.com/bryphe/oni/graphs/contributors) - thanks for helping to improve this project!
 
-In addition, several other great neovim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) served as a reference, especially [NyaoVim](https://github.com/rhysd/NyaoVim) and [VimR](https://github.com/qvacua/vimr). I encourage you to check those out!
+Several other great neovim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) served as a reference, especially [NyaoVim](https://github.com/rhysd/NyaoVim) and [VimR](https://github.com/qvacua/vimr). I encourage you to check those out!
 
 Thank you!
 
