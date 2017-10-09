@@ -7,7 +7,7 @@
             "type": "node",
             "request": "launch",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/main.js",
+            "program": "${workspaceRoot}/lib/main/src/main.js",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
             "windows": {
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
@@ -29,7 +29,7 @@
             },
             "runtimeArgs": [
                 "--enable-logging",
-                "${workspaceRoot}/main.js"
+                "${workspaceRoot}/lib/main/src/main.js"
             ],
             "webRoot": "${workspaceRoot}",
             "sourceMaps": true,
