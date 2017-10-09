@@ -33,24 +33,10 @@ Check out [Releases](https://github.com/bryphe/oni/releases) for the latest bina
 Oni brings several IDE-like integrations to NeoVim:
 
 - **[Quick Info](https://github.com/bryphe/oni/wiki/Features#quick-info)**
-
-![quick-info-demo](http://i.imgur.com/0vJ8KgU.gif)
-
 - **[Code Completion](https://github.com/bryphe/oni/wiki/Features#code-completion)**
-
-![completion-demo](http://i.imgur.com/exdasXs.gif)
-
 - **Syntax / Compilation Errors**
-
-![syntax-error-demo](http://i.imgur.com/GUBhRhG.gif)
-
 - **[Fuzzy Finding](https://github.com/bryphe/oni/wiki/Features#fuzzy-finder)**
-
-![fuzzy-finder-demo](http://i.imgur.com/wYnvcT6.gif)
-
 - **[Status Bar](https://github.com/bryphe/oni/wiki/Features#status-bar)**
-
-![status-bar-demo](http://i.imgur.com/2grzeN1.gif)
 
 ## Installation
 
@@ -133,9 +119,9 @@ If you're interested in helping out, check out our [Debugging Page](https://gith
 
 ## Special Thanks
 
-Oni wouldn't be here without your help and support. There are some especially impactful contributions I'd like trecognize (in chronological order):
+Oni wouldn't be here without your help and support. There are some especially impactful contributions to call out (in chronological order):
 
-- @neovim team, especially @justinmk and @tarruda - Oni would not be possible without their vision for neovim.
+- @neovim team, especially @justinmk and @tarruda - Oni would not be possible without their vision
 - @vscode and @microsoft for their generous OSS contributions
 - @atom, @github, and @electronjs for their platform
 - @jordwalke for his generous support, inspiration, and ideas.
@@ -143,7 +129,7 @@ Oni wouldn't be here without your help and support. There are some especially im
 - @tillarnold for giving us the `oni` npm package name
 - @mhartingon for his generous support
 - @badosu for his support, contributions, and managing the AUR releases
-- All of our current monthly [sponsors](https://salt.bountysource.com/teams/oni/supporters) - your contributions help keep this project going!
+- All of our current monthly [sponsors](https://salt.bountysource.com/teams/oni/supporters) and [backers](BACKERS.md)- your contributions help keep this project going!
 - All of our [contributors](https://github.com/bryphe/oni/graphs/contributors)
 
 In addition, several other great neovim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) served as a reference, especially [NyaoVim](https://github.com/rhysd/NyaoVim) and [VimR](https://github.com/qvacua/vimr). I encourage you to check those out!
