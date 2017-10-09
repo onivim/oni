@@ -113,13 +113,19 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 ## Contributing
 
-Contributions are very much welcome :)
+There many ways to contribute to Oni:
 
-If you're interested in helping out, check out our [Debugging Page](https://github.com/bryphe/oni/wiki/Debugging) for tips and tricks for working with Oni.
+- Support Oni financially by making a donation via [Bountysource](https://salt.bountysource.com/teams/oni)
+- [Submit bugs](https://github.com/bryphe/oni/issues) or propose new features
+- Review and and upate our [documentation](https://github.com/bryphe/oni/wiki)
+- Try out the latest [released build](https://github.com/bryphe/oni/releases)
+- Contribute a bug fix or code change - start by checking our [Debugging Page](https://github.com/bryphe/oni/wiki/Debugging)
 
 ## Acknowledgements
 
-Oni wouldn't be here without your help and support. There are some especially impactful contributions to call out (in chronological order), so big thanks to:
+Oni is an independent project and wouldn't be here without the separate of some exceptional people. 
+
+Big thanks to the following people for making this project:
 
 - the [neovim team](https://neovim.io/), especially [justinmk](https://github.com/justinmk) and [tarruda](https://github.com/tarruda) - Oni would not be possible without their vision
 - [jordwalke](https://github.com/jordwalke) for his generous support, inspiration, and ideas. And React ;)
@@ -132,7 +138,7 @@ Oni wouldn't be here without your help and support. There are some especially im
 
 In addition, several other great neovim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) served as a reference, especially [NyaoVim](https://github.com/rhysd/NyaoVim) and [VimR](https://github.com/qvacua/vimr). I encourage you to check those out!
 
-Thank you for making this project possible!
+Thank you!
 
 ## License
 
