@@ -44,7 +44,7 @@ export interface IIncrementalBufferUpdateEvent {
 
 // Limit for the number of lines to handle buffer updates
 // If the file is too large, it ends up being too much traffic
-// between Neovim <-> Oni <-> Language Servers - so 
+// between Neovim <-> Oni <-> Language Servers - so
 // set a hard limit. In the future, if need be, this could be
 // moved to a configuration setting.
 export const MAX_LINES_FOR_BUFFER_UPDATE = 5000
@@ -268,7 +268,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         performance.mark("NeovimInstance.Plugins.End")
 
                         configuration.activate(api)
-
 
                         // TODO: #702 - Batch these calls via `nvim_call_atomic`
                         // Override completeopt so Oni works correctly with external popupmenu
