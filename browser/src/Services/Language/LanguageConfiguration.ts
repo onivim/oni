@@ -8,8 +8,8 @@ import * as path from "path"
 
 import * as Log from "./../../Log"
 
-import { InitializationOptions, languageManager, ServerRunOptions } from "./LanguageManager"
-import { LanguageClientProcess } from "./LanguageClientProcess"
+import { languageManager } from "./LanguageManager"
+import { InitializationOptions, LanguageClientProcess, ServerRunOptions } from "./LanguageClientProcess"
 
 export interface ILightweightLanguageConfiguration {
     languageServer?: ILightweightLanguageServerConfiguration

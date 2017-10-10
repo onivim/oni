@@ -15,8 +15,6 @@ import { ChildProcess } from "child_process"
 import * as Log from "./../../Log"
 import { IEvent, Event} from "./../../Event"
 
-import { ServerRunOptions, InitializationOptions } from "./LanguageManager"
-
 import { LanguageClientLogger } from "./../../Plugins/Api/LanguageClient/LanguageClientLogger"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
@@ -24,7 +22,35 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 import * as Process from "./../../Plugins/Api/Process"
 
 export interface ILanguageClientProcess {
+
+    onConnectionChanged: IEvent<rpc.MessageConnection>
+
     ensureActive(fileName: string): Promise<rpc.MessageConnection>
+}
+
+export type PathResolver = (filePath: string) => Promise<string>
+
+export interface ServerRunOptions {
+    /**
+     * Specify `command` to use a shell command to spawn a process
+     */
+    command?: string
+
+    /**
+     * Specify `module` to run a JavaScript module
+     */
+    module?: string
+
+    /**
+     * Arguments to pass to the language servicew
+     */
+    args?: string[]
+
+    workingDirectory?: PathResolver
+}
+
+export interface InitializationOptions {
+    rootPath: PathResolver
 }
 
 export class LanguageClientProcess {
@@ -39,7 +65,7 @@ export class LanguageClientProcess {
 
     // Notifies when the connection has changed (due to process restart)
     // This allows consumers to re-subscribe to events
-    public get onConnectionChangedEvent(): IEvent<rpc.MessageConnection> {
+    public get onConnectionChanged(): IEvent<rpc.MessageConnection> {
         return this._onConnectionChangedEvent
     }
 
