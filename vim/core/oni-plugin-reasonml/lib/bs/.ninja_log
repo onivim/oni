@@ -1,0 +1,11 @@
+# ninja log v5
+1	77	0	src/Oni.mlast	8657d8b004a84a64
+5	80	0	src/index.mlast	1799651d8addcfc4
+77	103	0	src/Oni.mlast.d	a27d17a6a5fb793e
+80	106	0	src/index.mlast.d	8e2d323f73ffaf5f
+1	64	0	src/Oni.cmj	aa091b6e37abb86f
+1	64	0	C:/oni/vim/core/oni-plugin-reasonml/lib/js/src/Oni.js	aa091b6e37abb86f
+1	64	0	src/Oni.cmi	aa091b6e37abb86f
+65	121	0	src/index.cmj	14ed2aefc4a6b61
+65	121	0	C:/oni/vim/core/oni-plugin-reasonml/lib/js/src/index.js	14ed2aefc4a6b61
+65	121	0	src/index.cmi	14ed2aefc4a6b61

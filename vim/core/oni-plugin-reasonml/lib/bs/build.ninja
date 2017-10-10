@@ -1,0 +1,34 @@
+ninja_required_version = 1.5.1 
+bs_package_flags = -bs-package-name oni-plugin-ocaml
+src_root_dir = C:\oni\vim\core\oni-plugin-reasonml
+bsc = C:\oni\node_modules\bs-platform\bin\bsc.exe
+bsdep = C:\oni\node_modules\bs-platform\bin\bsb_helper.exe
+ocamllex = ocamllex.opt
+bsc_flags = -nostdlib -I "C:\oni\node_modules\bs-platform\lib\ocaml" -no-alias-deps -color always -w -40+6+7+27+32..39+44+45
+ppx_flags = 
+bs_package_includes = 
+bs_package_dev_includes = 
+refmt = C:\oni\node_modules\bs-platform\bin\refmt.exe
+reason_react_jsx = 
+refmt_flags = --print binary
+bsb_dir_group = 0
+bsc_lib_includes = -I src
+rule build_ast_and_deps_from_reason_impl
+  command = ${bsc} -pp "${refmt} ${refmt_flags}" ${reason_react_jsx}  ${ppx_flags} ${bsc_flags} -c -o ${out} -bs-syntax-only -bs-binary-ast -impl ${in}
+  description = [34mBuilding[39m [2m${out}[22m
+build src\Oni.mlast : build_ast_and_deps_from_reason_impl $src_root_dir\src\Oni.re
+rule build_deps
+  command = ${bsdep} -g ${bsb_dir_group} -MD ${in}
+  description = [34mBuilding[39m [2m${out}[22m
+build src\Oni.mlast.d : build_deps src\Oni.mlast
+rule build_cmj_cmi
+  command = ${bsc} ${bs_package_flags} -bs-assume-no-mli -bs-no-builtin-ppx-ml -bs-no-implicit-include ${bs_package_includes} ${bsc_lib_includes} ${bsc_extra_includes} ${bsc_flags} -o ${in} -c  ${in} ${postbuild}
+  depfile = ${in}.d
+  description = [34mBuilding[39m [2m${out}[22m
+build src\Oni.cmj $src_root_dir\lib\js\src\Oni.js src\Oni.cmi : build_cmj_cmi src\Oni.mlast
+  bs_package_flags = $bs_package_flags  -bs-package-output commonjs:lib\js\src
+build src\index.mlast : build_ast_and_deps_from_reason_impl $src_root_dir\src\index.re
+build src\index.mlast.d : build_deps src\index.mlast
+build src\index.cmj $src_root_dir\lib\js\src\index.js src\index.cmi : build_cmj_cmi src\index.mlast
+  bs_package_flags = $bs_package_flags  -bs-package-output commonjs:lib\js\src
+build build.ninja : phony  ||  src\index.mlast.d src\Oni.mlast.d

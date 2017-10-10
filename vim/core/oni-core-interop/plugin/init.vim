@@ -67,16 +67,6 @@ augroup OniNoop
     autocmd! FocusGained * :call OniNoop()
 augroup END
 
-augroup OniNotifyBufferUpdates
-    autocmd!
-    autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
-    autocmd! BufEnter * :call OniNotifyBufferUpdate()
-    autocmd! CursorMoved * :call OniNotifyBufferUpdate()
-    autocmd! InsertLeave * :call OniNotifyBufferUpdate()
-    autocmd! InsertChange * :call OniNotifyBufferUpdate()
-    autocmd! InsertEnter * :call OniNotifyBufferUpdate()
-augroup END
-
 augroup OniNotifyWindowDisplayUpdate
     autocmd!
     autocmd! BufEnter * :call OniUpdateWindowDisplayMap(1)
@@ -102,6 +92,16 @@ augroup OniEventListeners
     autocmd! InsertLeave * :call OniNotifyEvent("InsertLeave")
     autocmd! InsertEnter * :call OniNotifyEvent("InsertEnter")
     autocmd! DirChanged * :call OniNotifyEvent("DirChanged")
+augroup END
+
+augroup OniNotifyBufferUpdates
+    autocmd!
+    autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
+    autocmd! BufEnter * :call OniNotifyBufferUpdate()
+    autocmd! CursorMoved * :call OniNotifyBufferUpdate()
+    autocmd! InsertLeave * :call OniNotifyBufferUpdate()
+    autocmd! InsertChange * :call OniNotifyBufferUpdate()
+    autocmd! InsertEnter * :call OniNotifyBufferUpdate()
 augroup END
 
 function OniGetContext()
