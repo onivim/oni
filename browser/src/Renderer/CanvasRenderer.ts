@@ -56,7 +56,6 @@ export class CanvasRenderer implements INeovimRenderer {
 
         this._setContext()
 
-        // clear
         if (this._isOpaque) {
             this._canvasContext.fillStyle = screenInfo.backgroundColor
             this._canvasContext.fillRect(0, 0, this._width, this._height)
