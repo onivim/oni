@@ -103,9 +103,10 @@ export class LanguageClientProcess {
 
         this._connection.listen()
 
-        const oniLanguageClientParams = {
+        const oniLanguageClientParams: any = {
             clientName: "oni",
-            rootPath,
+            rootPath: "C:/test/dotnet-core",
+            capabilities: {},
         }
 
         return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, oniLanguageClientParams)

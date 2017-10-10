@@ -46,14 +46,14 @@ export class LanguageManager {
 
     constructor() {
         editorManager.allEditors.onBufferEnter.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
-            const { language } = bufferInfo
+            const { language, filePath } = bufferInfo
 
             const languageClient = this.getLanguageClient(language)
 
             if (languageClient) {
                 // TODO: Make this work... maybe just blank text for now
                 // 
-                languageClient.sendNotification
+                languageClient.sendNotification(filePath, "test", null)
             }
 
             console.log("Buffer enter: " + bufferInfo.filePath)
