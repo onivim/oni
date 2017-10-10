@@ -185,9 +185,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                 this._neovim = nv
 
-                // Override completeopt so Oni works correctly with external popupmenu
-                this.command("set completeopt=longest,menu")
-
                 this._neovim.on("error", (err: Error) => {
                     Log.error(err)
                 })
@@ -264,6 +261,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         performance.mark("NeovimInstance.Plugins.End")
 
                         configuration.activate(api)
+
+
+                        // TODO: #702 - Batch these calls via `nvim_call_atomic`
+                        // Override completeopt so Oni works correctly with external popupmenu
+                        await this.command("set completeopt=longest,menu")
 
                         // set title after attaching listeners so we can get the initial title
                         await this.command("set title")
