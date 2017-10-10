@@ -99,7 +99,7 @@ export class NeovimEditor implements IEditor {
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
 
-        this._renderer = new CanvasRenderer(this._screen)
+        this._renderer = new CanvasRenderer()
 
         // Services
         const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
@@ -271,10 +271,6 @@ export class NeovimEditor implements IEditor {
             .then(() => {
                 this._hasLoaded = true
                 VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
-
-                window.setTimeout(() => {
-                    this._renderer.redrawAll(this._screen)
-                })
             })
     }
 
@@ -416,7 +412,14 @@ export class NeovimEditor implements IEditor {
                 this._isFirstRender = false
                 this._renderer.redrawAll(this._screen)
             } else {
-                this._renderer.update(this._screen, this._deltaRegionManager)
+                const modifiedCells = this._deltaRegionManager.getModifiedCells()
+
+                if (modifiedCells.length === 0) {
+                    return
+                }
+
+                modifiedCells.forEach((c) => this._deltaRegionManager.notifyCellRendered(c.x, c.y))
+                this._renderer.draw(this._screen, modifiedCells)
             }
         }
 

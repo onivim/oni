@@ -1,4 +1,3 @@
-import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
 import * as Performance from "./../Performance"
 import { ICell, IScreen } from "./../Screen"
@@ -42,9 +41,6 @@ export class CanvasRenderer implements INeovimRenderer {
     private _grid: Grid<ISpan> = new Grid<ISpan>()
     private _devicePixelRatio: number
 
-    constructor(private _screen: IScreen) {
-    }
-
     public start(element: HTMLDivElement): void {
         this._editorElement = element
 
@@ -55,14 +51,10 @@ export class CanvasRenderer implements INeovimRenderer {
         // In the future, something like scrolling could be potentially optimized here
     }
 
-    public onResize(): void {
-        this._setContext()
-
-        this.redrawAll(this._screen)
-    }
-
     public redrawAll(screenInfo: IScreen): void {
         const cellsToUpdate: IPosition[] = []
+
+        this._setContext()
 
         // clear
         if (this._isOpaque) {
@@ -78,10 +70,22 @@ export class CanvasRenderer implements INeovimRenderer {
             }
         }
 
-        this._redraw(screenInfo, cellsToUpdate)
+        this.draw(screenInfo, cellsToUpdate)
     }
 
-    private _redraw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
+    // public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
+    //     const modifiedCells = deltaRegionTracker.getModifiedCells()
+
+    //     if (modifiedCells.length === 0) {
+    //         return
+    //     }
+
+    //     this._redraw(screenInfo, modifiedCells)
+
+    //     modifiedCells.forEach((c) => deltaRegionTracker.notifyCellRendered(c.x, c.y))
+    // }
+
+    public draw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
         Performance.mark("CanvasRenderer.update.start")
 
         this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
@@ -174,18 +178,6 @@ export class CanvasRenderer implements INeovimRenderer {
         this._renderText(prevState, screenInfo)
     }
 
-    public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
-        const modifiedCells = deltaRegionTracker.getModifiedCells()
-
-        if (modifiedCells.length === 0) {
-            return
-        }
-
-        this._redraw(screenInfo, modifiedCells)
-
-        modifiedCells.forEach((c) => deltaRegionTracker.notifyCellRendered(c.x, c.y))
-    }
-
     private _getNextRenderState(cell: ICell, x: number, y: number, currentState: IRenderState): IRenderState {
         const isCurrentCellWhiteSpace = isWhiteSpace(cell.character)
 
@@ -253,14 +245,13 @@ export class CanvasRenderer implements INeovimRenderer {
          const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
 
         this._canvasContext.fillStyle = backgroundColor || screenInfo.backgroundColor
-        // this._canvasContext.strokeStyle = backgroundColor || screenInfo.backgroundColor
-        // TODO: Width of non-english characters
 
         if (this._isOpaque || (backgroundColor && backgroundColor !== screenInfo.backgroundColor)) {
             this._canvasContext.fillRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
         } else {
             this._canvasContext.clearRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
         }
+
         if (!state.isWhitespace) {
             this._canvasContext.fillStyle = foregroundColor
             this._canvasContext.fillText(text, boundsStartX, y * fontHeightInPixels + linePaddingInPixels / 2)
