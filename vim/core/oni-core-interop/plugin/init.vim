@@ -25,8 +25,9 @@ function OniNotifyBufferUpdate()
         let b:last_change_tick = b:changedtick
         if mode() == 'i'
             let buffer_line = line(".")
+            let line_contents = getline(".")
             let context = OniGetContext()
-            call OniNotify(["buffer_update", context, buffer_line, buffer_line])
+            call OniNotify(["incremental_buffer_update", context, line_contents, buffer_line])
         else
             let context = OniGetContext()
             call OniNotify(["buffer_update", context, 1, line('$')])

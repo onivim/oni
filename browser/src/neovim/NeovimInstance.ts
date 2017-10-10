@@ -31,6 +31,17 @@ export interface INeovimApiVersion {
     patch: number
 }
 
+export interface IFullBufferUpdateEvent {
+    context: Oni.EventContext
+    bufferLines: string[]
+}
+
+export interface IIncrementalBufferUpdateEvent {
+    context: Oni.EventContext
+    lineNumber: number
+    lineContents: string
+}
+
 export type NeovimEventHandler = (...args: any[]) => void
 
 export interface INeovimInstance {
@@ -39,6 +50,10 @@ export interface INeovimInstance {
 
     // Events
     onYank: IEvent<INeovimYankInfo>
+
+    onBufferUpdate: IEvent<IFullBufferUpdateEvent>
+
+    onBufferUpdateIncremental: IEvent<IIncrementalBufferUpdateEvent>
 
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
     onOniCommand: IEvent<string>
@@ -116,17 +131,27 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _onYank = new Event<INeovimYankInfo>()
     private _onOniCommand = new Event<string>()
+    private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
+    private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
 
     public get quickFix(): IQuickFixList {
         return this._quickFix
     }
 
-    public get onYank(): IEvent<INeovimYankInfo> {
-        return this._onYank
+    public get onBufferUpdate(): IEvent<IFullBufferUpdateEvent> {
+        return this._onFullBufferUpdateEvent
+    }
+
+    public get onBufferUpdateIncremental(): IEvent<IIncrementalBufferUpdateEvent> {
+        return this._onIncrementalBufferUpdateEvent
     }
 
     public get onOniCommand(): IEvent<string> {
         return this._onOniCommand
+    }
+
+    public get onYank(): IEvent<INeovimYankInfo> {
+        return this._onYank
     }
 
     constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
@@ -145,6 +170,21 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public async executeAutoCommand(autoCommand: string): Promise<void> {
         await this.command(`doautocmd <nomodeline> ${autoCommand}`)
+    }
+
+    private async _onFullBufferUpdate(context: Oni.EventContext, startRange: number, endRange: number): Promise<void> {
+
+        const buffer = new Buffer(context.bufferNumber as any, this._neovim)
+
+        if (endRange > 10000)
+            return
+
+        const bufferLines = await buffer.getLines(startRange, endRange, false)
+
+        this._onFullBufferUpdateEvent.dispatch({
+            context,
+            bufferLines,
+        })
     }
 
     public start(filesToOpen?: string[]): Promise<void> {
@@ -177,10 +217,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         // TODO: Update pluginManager to subscribe from event here, instead of dupliating this
 
                         if (pluginMethod === "buffer_update") {
-                            const eventContext = args[0][0]
-                            const bufferLines = args[0][1]
+                            const eventContext: Oni.EventContext = args[0][0]
+                            const startRange: number = args[0][1]
+                            const endRange: number = args[0][2]
 
-                            this.emit("buffer-update", eventContext, bufferLines)
+                            this._onFullBufferUpdate(eventContext, startRange, endRange)
                         } else if (pluginMethod === "oni_yank") {
                             this._onYank.dispatch(args[0][0])
                         } else if (pluginMethod === "oni_command") {
@@ -197,10 +238,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                         } else if (pluginMethod === "incremental_buffer_update") {
                             const eventContext = args[0][0]
-                            const bufferLine = args[0][1]
+                            const lineContents = args[0][1]
                             const lineNumber = args[0][2]
 
-                            this.emit("buffer-update-incremental", eventContext, bufferLine, lineNumber)
+                            this._onIncrementalBufferUpdateEvent.dispatch({
+                                context: eventContext,
+                                lineNumber,
+                                lineContents,
+                            })
                         } else if (pluginMethod === "window_display_update") {
                             this.emit("window-display-update", args[0][0], args[0][1], args[0][2])
                         } else if (pluginMethod === "api_info") {
