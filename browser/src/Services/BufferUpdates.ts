@@ -5,7 +5,7 @@
  * to the plugins. Sanitizes and manages incrementental state.
  */
 
-import { IIncrementalBufferUpdateEvent, IFullBufferUpdateEvent, INeovimInstance } from "./../neovim"
+import { IFullBufferUpdateEvent, IIncrementalBufferUpdateEvent, INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 export class BufferUpdates {

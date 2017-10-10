@@ -179,7 +179,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         if (endRange > 10000)
             return
 
-        const bufferLines = await buffer.getLines(startRange, endRange, false)
+        const bufferLines = await buffer.getLines(startRange - 1, endRange, false)
 
         this._onFullBufferUpdateEvent.dispatch({
             context,
