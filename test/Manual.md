@@ -18,4 +18,5 @@ Ideally, these test cases could be automated to minimize overhead with the relea
     - ß (AltGr+S)
     - Dead key in normal mode - navigate to mark (ma, `+space+a)
     - Dead key on command line
-
+- Spanish:
+    - [ Left bracket (AltGr+[ on Windows es-ES)
