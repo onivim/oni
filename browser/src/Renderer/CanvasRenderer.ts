@@ -240,9 +240,9 @@ export class CanvasRenderer implements INeovimRenderer {
         //
         // This normalization addresses it by making sure the rectangle bounds are aligned
         // to the nearest integer pixel.
-         const normalizedBoundsStartX = Math.floor(boundsStartX)
-         const delta = boundsStartX - normalizedBoundsStartX
-         const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
+        const normalizedBoundsStartX = Math.floor(boundsStartX)
+        const delta = boundsStartX - normalizedBoundsStartX
+        const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
 
         this._canvasContext.fillStyle = backgroundColor || screenInfo.backgroundColor
 
@@ -283,10 +283,10 @@ export class CanvasRenderer implements INeovimRenderer {
         this._height = this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
 
         if (configuration.getValue("editor.backgroundImageUrl") && configuration.getValue("editor.backgroundOpacity") < 1.0) {
-            this._canvasContext = this._canvasElement.getContext("2d", { alpha: true }) 
+            this._canvasContext = this._canvasElement.getContext("2d", { alpha: true })
             this._isOpaque = false
         } else {
-            this._canvasContext = this._canvasElement.getContext("2d", { alpha: false }) 
+            this._canvasContext = this._canvasElement.getContext("2d", { alpha: false })
             this._isOpaque = true
         }
     }
