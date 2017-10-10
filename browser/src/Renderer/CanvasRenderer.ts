@@ -37,6 +37,8 @@ export class CanvasRenderer implements INeovimRenderer {
     private _width: number
     private _height: number
 
+    private _isOpaque: boolean
+
     private _grid: Grid<ISpan> = new Grid<ISpan>()
     private _devicePixelRatio: number
 
@@ -45,16 +47,6 @@ export class CanvasRenderer implements INeovimRenderer {
 
     public start(element: HTMLDivElement): void {
         this._editorElement = element
-
-        this._canvasElement = document.createElement("canvas")
-        this._canvasElement.style.width = "100%"
-        this._canvasElement.style.height = "100%"
-
-        this._devicePixelRatio = window.devicePixelRatio
-
-        this._canvasContext = this._canvasElement.getContext("2d", { alpha: false })
-
-        this._editorElement.appendChild(this._canvasElement)
 
         this._setContext()
     }
@@ -73,8 +65,12 @@ export class CanvasRenderer implements INeovimRenderer {
         const cellsToUpdate: IPosition[] = []
 
         // clear
-        this._canvasContext.fillStyle = screenInfo.backgroundColor
-        this._canvasContext.fillRect(0, 0, this._width, this._height)
+        if (this._isOpaque) {
+            this._canvasContext.fillStyle = screenInfo.backgroundColor
+            this._canvasContext.fillRect(0, 0, this._width, this._height)
+        } else {
+            this._canvasContext.clearRect(0, 0, this._width, this._height)
+        }
 
         for (let x = 0; x < screenInfo.width; x++) {
             for (let y = 0; y < screenInfo.height; y++) {
@@ -259,8 +255,12 @@ export class CanvasRenderer implements INeovimRenderer {
         this._canvasContext.fillStyle = backgroundColor || screenInfo.backgroundColor
         // this._canvasContext.strokeStyle = backgroundColor || screenInfo.backgroundColor
         // TODO: Width of non-english characters
-        this._canvasContext.fillRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
 
+        if (this._isOpaque || (backgroundColor && backgroundColor !== screenInfo.backgroundColor)) {
+            this._canvasContext.fillRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
+        } else {
+            this._canvasContext.clearRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
+        }
         if (!state.isWhitespace) {
             this._canvasContext.fillStyle = foregroundColor
             this._canvasContext.fillText(text, boundsStartX, y * fontHeightInPixels + linePaddingInPixels / 2)
@@ -278,14 +278,25 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     private _setContext(): void {
+        this._editorElement.innerHTML = ""
+
+        this._canvasElement = document.createElement("canvas")
+        this._canvasElement.style.width = "100%"
+        this._canvasElement.style.height = "100%"
+
+        this._devicePixelRatio = window.devicePixelRatio
+
+        this._editorElement.appendChild(this._canvasElement)
+
         this._width = this._canvasElement.width = this._canvasElement.offsetWidth * this._devicePixelRatio
         this._height = this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
 
         if (configuration.getValue("editor.backgroundImageUrl") && configuration.getValue("editor.backgroundOpacity") < 1.0) {
             this._canvasContext = this._canvasElement.getContext("2d", { alpha: true }) 
+            this._isOpaque = false
         } else {
             this._canvasContext = this._canvasElement.getContext("2d", { alpha: false }) 
+            this._isOpaque = true
         }
-
     }
 }
