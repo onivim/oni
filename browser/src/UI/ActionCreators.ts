@@ -15,9 +15,10 @@ import { Rectangle } from "./Types"
 import * as Actions from "./Actions"
 import * as State from "./State"
 
-import * as Config from "./../Config"
 import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
+
+import { IConfigurationValues } from "./../Services/Configuration"
 
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
@@ -323,7 +324,7 @@ export const setCursorColumnOpacity = (opacity: number) => ({
     },
 })
 
-export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Config.IConfigValues[K]): Actions.ISetConfigurationValue<K> {
+export function setConfigValue<K extends keyof IConfigurationValues>(k: K, v: IConfigurationValues[K]): Actions.ISetConfigurationValue<K> {
     return {
         type: "SET_CONFIGURATION_VALUE",
         payload: {

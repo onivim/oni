@@ -1,5 +1,6 @@
 import { Event, IEvent } from "./../../Event"
 import * as Log from "./../../Log"
+import * as Platform from "./../../Platform"
 
 export interface IKeyMap {
     [key: string]: IKeyInfo
@@ -10,6 +11,23 @@ export interface IKeyInfo {
     withShift: string
     withAltGraphShift?: string
     withAltGraph?: string
+}
+
+// Helper method to augment the key mapping in cases
+// where it isn't accurate from `keyboard-layout`
+const augmentKeyMap = (keyMap: IKeyMap, language: string): IKeyMap => {
+
+    // Temporary hack to workaround atom/keyboard-layout#36
+    if (Platform.isWindows() && language === "es-ES") {
+        keyMap["BracketLeft"] = { // tslint:disable-line no-string-literal
+            unmodified: null,
+            withShift: null,
+            withAltGraph: "[",
+            withAltGraphShift: null,
+        }
+    }
+
+    return keyMap
 }
 
 class KeyboardLayoutManager {
@@ -27,8 +45,9 @@ class KeyboardLayoutManager {
     public getCurrentKeyMap(): IKeyMap {
         if (!this._keyMap) {
             const KeyboardLayout = require("keyboard-layout") // tslint:disable-line no-var-requires
+            const keyboardLanguage = KeyboardLayout.getCurrentKeyboardLanguage()
             Log.verbose("[Keyboard Layout] " + KeyboardLayout.getCurrentKeyboardLayout())
-            this._keyMap = KeyboardLayout.getCurrentKeymap()
+            this._keyMap = augmentKeyMap(KeyboardLayout.getCurrentKeymap(), keyboardLanguage)
 
             // Lazily subscribe to the KeyboardLayout.onDidChangeCurrentKeyboardLayout
             // This is lazy primarily for unit testing outside of electron (where this module isn't available)

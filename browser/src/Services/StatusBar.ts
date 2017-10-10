@@ -4,9 +4,7 @@
  * Implements API surface area for working with the status bar
  */
 
-import { IPluginChannel } from "./Channel"
-
-import * as ActionCreators from "./../../UI/ActionCreators"
+import * as UI from "./../UI"
 
 export enum StatusBarAlignment {
     Left,
@@ -24,7 +22,6 @@ export class StatusBarItem implements Oni.StatusBarItem {
     private _visible: boolean = false
 
     constructor(
-        private _channel: IPluginChannel,
         private _id: string,
         private _alignment?: StatusBarAlignment | null,
         private _priority?: number | null,
@@ -32,12 +29,12 @@ export class StatusBarItem implements Oni.StatusBarItem {
 
     public show(): void {
         this._visible = true
-        this._channel.send("redux-action", null, ActionCreators.showStatusBarItem(this._id, this._contents, this._alignment, this._priority))
+        UI.Actions.showStatusBarItem(this._id, this._contents, this._alignment, this._priority)
     }
 
     public hide(): void {
         this._visible = false
-        this._channel.send("redux-action", null, ActionCreators.hideStatusBarItem(this._id))
+        UI.Actions.hideStatusBarItem(this._id)
     }
 
     public setContents(element: any): void {
@@ -53,22 +50,20 @@ export class StatusBarItem implements Oni.StatusBarItem {
     }
 }
 
-export class StatusBar implements Oni.StatusBar {
+class StatusBar implements Oni.StatusBar {
     private _id: number = 0
 
-    constructor(
-        private _channel: IPluginChannel,
-    ) { }
-
     public getItem(globalId: string): Oni.StatusBarItem {
-        return new StatusBarItem(this._channel, globalId)
+        return new StatusBarItem(globalId)
     }
 
     public createItem(alignment: StatusBarAlignment, priority: number = 0, globalId?: string): Oni.StatusBarItem {
         this._id++
 
-        const statusBarId = globalId || `${this._channel.metadata.name}${this._id.toString()}`
+        const statusBarId = globalId || `${this._id.toString()}`
 
-        return new StatusBarItem(this._channel, statusBarId, alignment, priority)
+        return new StatusBarItem(statusBarId, alignment, priority)
     }
 }
+
+export const statusBar = new StatusBar()

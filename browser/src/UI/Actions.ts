@@ -7,9 +7,10 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
-import * as Config from "./../Config"
 import { IMessageDialog, ITab, StatusBarAlignment, WindowLineMap } from "./State"
 import { Rectangle } from "./Types"
+
+import { IConfigurationValues } from "./../Services/Configuration"
 
 import * as types from "vscode-languageserver-types"
 
@@ -264,15 +265,15 @@ export interface IHideCursorColumnAction {
     type: "HIDE_CURSOR_COLUMN"
 }
 
-export interface ISetConfigurationValue<K extends keyof Config.IConfigValues> {
+export interface ISetConfigurationValue<K extends keyof IConfigurationValues> {
     type: "SET_CONFIGURATION_VALUE"
     payload: {
         key: K,
-        value: Config.IConfigValues[K],
+        value: IConfigurationValues[K],
     }
 }
 
-export type Action<K extends keyof Config.IConfigValues> =
+export type Action<K extends keyof IConfigurationValues> =
     SimpleAction | ActionWithGeneric<K>
 
 export type SimpleAction =
@@ -314,5 +315,5 @@ export type SimpleAction =
     ISetWindowLineMapping |
     ISetWindowState
 
-export type ActionWithGeneric<K extends keyof Config.IConfigValues> =
+export type ActionWithGeneric<K extends keyof IConfigurationValues> =
     ISetConfigurationValue<K>

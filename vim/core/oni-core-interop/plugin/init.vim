@@ -40,6 +40,10 @@ function OniNotifyEvent(eventName)
     call OniNotify(["event", a:eventName, context])
 endfunction
 
+function OniCommand(oniCommand)
+    call OniNotify(["oni_command", a:oniCommand])
+endfunction
+
 function OniOpenFile(strategy, file)
      if bufname('%') != ''
          exec a:strategy . a:file
@@ -176,3 +180,37 @@ function OniApiInfo()
         call OniNotify(["api_info",{"api_level":0}])
     endif
 endfunction
+
+
+" Window navigation excerpt from:
+" http://blog.paulrugelhiatt.com/vim/2014/10/31/vim-tip-automatically-create-window-splits-with-movement.html
+
+function! s:GotoNextWindow( direction )
+  let l:prevWinNr = winnr()
+  execute 'wincmd' a:direction
+  return winnr() != l:prevWinNr
+endfunction
+
+function! OniNextWindow( direction )
+  if ! s:GotoNextWindow(a:direction)
+    if a:direction == 'h'
+      call OniCommand("window.moveLeft")
+    elseif a:direction == 'j'
+      call OniCommand("window.moveDown")
+    elseif a:direction == 'k'
+      call OniCommand("window.moveUp")
+    elseif a:direction == 'l'
+      call OniCommand("window.moveRight")
+    endif
+    execute 'wincmd' a:direction
+  endif
+endfunction
+
+nnoremap <silent> <C-w>h :<C-u>call OniNextWindow('h')<CR>
+nnoremap <silent> <C-w>j :<C-u>call OniNextWindow('j')<CR>
+nnoremap <silent> <C-w>k :<C-u>call OniNextWindow('k')<CR>
+nnoremap <silent> <C-w>l :<C-u>call OniNextWindow('l')<CR>
+nnoremap <silent> <C-w><C-h> :<C-u>call OniNextWindow('h')<CR>
+nnoremap <silent> <C-w><C-j> :<C-u>call OniNextWindow('j')<CR>
+nnoremap <silent> <C-w><C-k> :<C-u>call OniNextWindow('k')<CR>
+nnoremap <silent> <C-w><C-l> :<C-u>call OniNextWindow('l')<CR>

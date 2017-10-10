@@ -10,20 +10,21 @@ import * as path from "path"
 
 import { clipboard, remote } from "electron"
 
-import * as Config from "./../Config"
 import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { AutoCompletion } from "./../Services/AutoCompletion"
 import { BufferUpdates } from "./../Services/BufferUpdates"
+import { configuration } from "./../Services/Configuration"
 import { Formatter } from "./../Services/Formatter"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
 import { tasks } from "./../Services/Tasks"
+import { windowManager } from "./../Services/WindowManager"
 
 import * as UI from "./../UI/index"
 
-import { CallbackCommand, CommandManager, ICommandCallback } from "./CommandManager"
+import { CallbackCommand, CommandManager } from "./CommandManager"
 
 import * as Platform from "./../Platform"
 import { replaceAll } from "./../Utility"
@@ -36,6 +37,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
     const commands = [
         new CallbackCommand("editor.clipboard.paste", "Clipboard: Paste", "Paste clipboard contents into active text", () => pasteContents(neovimInstance)),
         new CallbackCommand("editor.clipboard.yank", "Clipboard: Yank", "Yank contents to clipboard", () => neovimInstance.input("y")),
+
+        new CallbackCommand("oni.quit", null, null, () => remote.getCurrentWindow().close()),
 
         // Debug
         new CallbackCommand("oni.debug.openDevTools", "Open DevTools", "Debug Oni and any running plugins using the Chrome developer tools", () => remote.getCurrentWindow().webContents.openDevTools()),
@@ -75,8 +78,14 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show()),
         new CallbackCommand("quickOpen.showBufferLines", null, null, () => quickOpen.showBufferLines()),
         new CallbackCommand("quickOpen.openFile", null, null, quickOpenFile),
+        new CallbackCommand("quickOpen.openFileNewTab", null, null, quickOpenFileNewTab),
         new CallbackCommand("quickOpen.openFileVertical", null, null, quickOpenFileVertical),
         new CallbackCommand("quickOpen.openFileHorizontal", null, null, quickOpenFileHorizontal),
+
+        new CallbackCommand("window.moveLeft", null, null, () => windowManager.moveLeft()),
+        new CallbackCommand("window.moveRight", null, null, () => windowManager.moveRight()),
+        new CallbackCommand("window.moveDown", null, null, () => windowManager.moveDown()),
+        new CallbackCommand("window.moveUp", null, null, () => windowManager.moveUp()),
 
         // Add additional commands here
         // ...
@@ -101,7 +110,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
  * Higher-order function for commands dealing with completion
  * - checks that the completion menu is open
  */
-const autoCompletionCommand = (innerCommand: ICommandCallback) => {
+const autoCompletionCommand = (innerCommand: Oni.ICommandCallback) => {
     return () => {
         if (UI.Selectors.areCompletionsVisible()) {
             return innerCommand()
@@ -119,7 +128,7 @@ const previousCompletionItem = autoCompletionCommand(() => {
     UI.Actions.previousCompletion()
 })
 
-const popupMenuCommand = (innerCommand: ICommandCallback) => {
+const popupMenuCommand = (innerCommand: Oni.ICommandCallback) => {
     return () => {
         if (UI.Selectors.isPopupMenuOpen()) {
             return innerCommand()
@@ -134,6 +143,7 @@ const popupMenuNext = popupMenuCommand(() => UI.Actions.nextMenuItem())
 const popupMenuPrevious = popupMenuCommand(() => UI.Actions.previousMenuItem())
 
 const quickOpenFile = popupMenuCommand(() => UI.Actions.selectMenuItem("e"))
+const quickOpenFileNewTab = popupMenuCommand(() => UI.Actions.selectMenuItem("tabnew"))
 const quickOpenFileHorizontal = popupMenuCommand(() => UI.Actions.selectMenuItem("sp"))
 const quickOpenFileVertical = popupMenuCommand(() => UI.Actions.selectMenuItem("vsp"))
 
@@ -165,9 +175,7 @@ const openFolder = (neovimInstance: INeovimInstance) => {
 }
 
 const openDefaultConfig = async (neovimInstance: INeovimInstance): Promise<void> => {
-    const config = Config.instance()
-
-    await neovimInstance.open(config.userJsConfig)
+    await neovimInstance.open(configuration.userJsConfig)
     const buf = await neovimInstance.getCurrentBuffer()
     const lineCount = await buf.getLineCount()
 
