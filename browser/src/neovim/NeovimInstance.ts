@@ -256,7 +256,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 // Workaround for bug in neovim/node-client
                 // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
                 return this._attachUI(size.cols, size.rows)
-                    .then(() => {
+                    .then(async () => {
                         Log.info("Attach success")
 
                         performance.mark("NeovimInstance.Plugins.Start")
@@ -266,8 +266,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         configuration.activate(api)
 
                         // set title after attaching listeners so we can get the initial title
-                        this.command("set title")
-                        this.callFunction("OniConnect", [])
+                        await this.command("set title")
+                        await this.callFunction("OniConnect", [])
                     },
                     (err: any) => {
                         this.emit("error", err)
@@ -502,8 +502,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         const buffer = new Buffer(context.bufferNumber as any, this._neovim)
 
-        if (endRange > 10000)
+        if (endRange > 10000) {
             return
+        }
 
         const bufferLines = await buffer.getLines(startRange - 1, endRange, false)
 
