@@ -1,10 +1,10 @@
-import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
 import * as Performance from "./../Performance"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
+import { getSpansToEdit, IPosition, ISpan } from "./Span"
 
-import { getSpansToEdit, ISpan } from "./Span"
+import { configuration } from "./../Services/Configuration"
 
 export interface IRenderState {
     isWhitespace: boolean
@@ -32,40 +32,47 @@ export class CanvasRenderer implements INeovimRenderer {
     private _editorElement: HTMLDivElement
     private _canvasElement: HTMLCanvasElement
     private _canvasContext: CanvasRenderingContext2D
-    private _grid: Grid<ISpan> = new Grid<ISpan>()
 
+    private _width: number
+    private _height: number
+
+    private _isOpaque: boolean
+
+    private _grid: Grid<ISpan> = new Grid<ISpan>()
     private _devicePixelRatio: number
 
     public start(element: HTMLDivElement): void {
         this._editorElement = element
 
-        this._canvasElement = document.createElement("canvas")
-        this._canvasElement.style.width = "100%"
-        this._canvasElement.style.height = "100%"
-
-        this._devicePixelRatio = window.devicePixelRatio
-        this._canvasContext = this._canvasElement.getContext("2d")
-
-        this._editorElement.appendChild(this._canvasElement)
-
-        this._setContextDimensions()
+        this._setContext()
     }
 
     public onAction(_action: any): void {
         // In the future, something like scrolling could be potentially optimized here
     }
 
-    public onResize(): void {
-        this._setContextDimensions()
-    }
+    public redrawAll(screenInfo: IScreen): void {
+        const cellsToUpdate: IPosition[] = []
 
-    public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
-        const modifiedCells = deltaRegionTracker.getModifiedCells()
+        this._setContext()
 
-        if (modifiedCells.length === 0) {
-            return
+        if (this._isOpaque) {
+            this._canvasContext.fillStyle = screenInfo.backgroundColor
+            this._canvasContext.fillRect(0, 0, this._width, this._height)
+        } else {
+            this._canvasContext.clearRect(0, 0, this._width, this._height)
         }
 
+        for (let x = 0; x < screenInfo.width; x++) {
+            for (let y = 0; y < screenInfo.height; y++) {
+                cellsToUpdate.push({ x, y })
+            }
+        }
+
+        this.draw(screenInfo, cellsToUpdate)
+    }
+
+    public draw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
         Performance.mark("CanvasRenderer.update.start")
 
         this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
@@ -77,8 +84,6 @@ export class CanvasRenderer implements INeovimRenderer {
         this._editorElement.style.fontSize = screenInfo.fontSize
 
         const rowsToEdit = getSpansToEdit(this._grid, modifiedCells)
-
-        modifiedCells.forEach((c) => deltaRegionTracker.notifyCellRendered(c.x, c.y))
 
         for (const y of Object.keys(rowsToEdit)) {
             const row: ISpan[] = rowsToEdit[y]
@@ -226,10 +231,9 @@ export class CanvasRenderer implements INeovimRenderer {
         const delta = boundsStartX - normalizedBoundsStartX
         const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
 
-        if (backgroundColor && backgroundColor !== screenInfo.backgroundColor) {
+        this._canvasContext.fillStyle = backgroundColor || screenInfo.backgroundColor
 
-            this._canvasContext.fillStyle = backgroundColor
-            // TODO: Width of non-english characters
+        if (this._isOpaque || (backgroundColor && backgroundColor !== screenInfo.backgroundColor)) {
             this._canvasContext.fillRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
         } else {
             this._canvasContext.clearRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
@@ -251,8 +255,26 @@ export class CanvasRenderer implements INeovimRenderer {
         }
     }
 
-    private _setContextDimensions(): void {
-        this._canvasElement.width = this._canvasElement.offsetWidth * this._devicePixelRatio
-        this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
+    private _setContext(): void {
+        this._editorElement.innerHTML = ""
+
+        this._canvasElement = document.createElement("canvas")
+        this._canvasElement.style.width = "100%"
+        this._canvasElement.style.height = "100%"
+
+        this._devicePixelRatio = window.devicePixelRatio
+
+        this._editorElement.appendChild(this._canvasElement)
+
+        this._width = this._canvasElement.width = this._canvasElement.offsetWidth * this._devicePixelRatio
+        this._height = this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
+
+        if (configuration.getValue("editor.backgroundImageUrl") && configuration.getValue("editor.backgroundOpacity") < 1.0) {
+            this._canvasContext = this._canvasElement.getContext("2d", { alpha: true })
+            this._isOpaque = false
+        } else {
+            this._canvasContext = this._canvasElement.getContext("2d", { alpha: false })
+            this._isOpaque = true
+        }
     }
 }
