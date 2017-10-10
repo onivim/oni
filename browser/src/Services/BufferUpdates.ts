@@ -53,9 +53,9 @@ export class BufferUpdates {
             // If we can send incremental updates, and the line hasn't changed, just send the incremental change
             if (this._canSendIncrementalUpdates && lastLine === args.line) {
                 const changedLine = bufferLines[args.line - 1]
-                this._pluginManager.notifyBufferUpdateIncremental(args, args.line, changedLine)
+                // this._pluginManager.notifyBufferUpdateIncremental(args, args.line, changedLine)
             } else {
-                this._pluginManager.notifyBufferUpdate(args, bufferLines)
+                // this._pluginManager.notifyBufferUpdate(args, bufferLines)
             }
         })
 
@@ -65,7 +65,7 @@ export class BufferUpdates {
             this._modified = args.modified
             this._lastBufferVersion = args.version
 
-            this._pluginManager.notifyBufferUpdateIncremental(args, lineNumber, bufferLine)
+            // this._pluginManager.notifyBufferUpdateIncremental(args, lineNumber, bufferLine)
         })
     }
 }
