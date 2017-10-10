@@ -42,6 +42,13 @@ export interface IIncrementalBufferUpdateEvent {
     lineContents: string
 }
 
+// Limit for the number of lines to handle buffer updates
+// If the file is too large, it ends up being too much traffic
+// between Neovim <-> Oni <-> Language Servers - so 
+// set a hard limit. In the future, if need be, this could be
+// moved to a configuration setting.
+export const MAX_LINES_FOR_BUFFER_UPDATE = 5000
+
 export type NeovimEventHandler = (...args: any[]) => void
 
 export interface INeovimInstance {
@@ -504,7 +511,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         const buffer = new Buffer(context.bufferNumber as any, this._neovim)
 
-        if (endRange > 10000) {
+        if (endRange > MAX_LINES_FOR_BUFFER_UPDATE) {
             return
         }
 
