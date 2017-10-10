@@ -172,21 +172,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         await this.command(`doautocmd <nomodeline> ${autoCommand}`)
     }
 
-    private async _onFullBufferUpdate(context: Oni.EventContext, startRange: number, endRange: number): Promise<void> {
-
-        const buffer = new Buffer(context.bufferNumber as any, this._neovim)
-
-        if (endRange > 10000)
-            return
-
-        const bufferLines = await buffer.getLines(startRange - 1, endRange, false)
-
-        this._onFullBufferUpdateEvent.dispatch({
-            context,
-            bufferLines,
-        })
-    }
-
     public start(filesToOpen?: string[]): Promise<void> {
         filesToOpen = filesToOpen || []
 
@@ -248,12 +233,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             })
                         } else if (pluginMethod === "window_display_update") {
                             this.emit("window-display-update", args[0][0], args[0][1], args[0][2])
-                        } else if (pluginMethod === "api_info") {
-                            const apiVersion = args[0][0]
-                            if (apiVersion.api_level < 1) {
-                                alert("Please upgrade to at least Neovim 0.2.0")
-                            }
-
                         } else {
                             Log.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
                         }
@@ -516,6 +495,21 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 default:
                     Log.warn("Unhandled command: " + command)
             }
+        })
+    }
+
+    private async _onFullBufferUpdate(context: Oni.EventContext, startRange: number, endRange: number): Promise<void> {
+
+        const buffer = new Buffer(context.bufferNumber as any, this._neovim)
+
+        if (endRange > 10000)
+            return
+
+        const bufferLines = await buffer.getLines(startRange - 1, endRange, false)
+
+        this._onFullBufferUpdateEvent.dispatch({
+            context,
+            bufferLines,
         })
     }
 

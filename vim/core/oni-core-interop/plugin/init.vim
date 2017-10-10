@@ -159,8 +159,6 @@ function OniUpdateWindowDisplayMap(shouldMeasure)
 endfunction
 
 function OniConnect()
-    call OniApiInfo()
-
     " Force BufEnter and buffer update events to be dispatched on connection
     " Otherwise, there can be race conditions where the buffer is loaded
     " prior to the UI attaching. See #122
@@ -170,15 +168,6 @@ endfunction
 
 function OniNotifyYank(yankEvent)
     call OniNotify(["oni_yank", a:yankEvent])
-endfunction
-
-
-function OniApiInfo()
-    if (has_key(api_info(),'version'))
-        call OniNotify(["api_info",api_info()["version"]])
-    else
-        call OniNotify(["api_info",{"api_level":0}])
-    endif
 endfunction
 
 
