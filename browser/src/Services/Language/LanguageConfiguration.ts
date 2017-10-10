@@ -6,7 +6,6 @@
 
 import * as path from "path"
 
-import * as Config from "./../../Config"
 import * as Log from "./../../Log"
 
 import { InitializationOptions, languageManager, ServerRunOptions } from "./LanguageManager"
@@ -19,19 +18,13 @@ export interface ILightweightLanguageServerConfiguration {
     command?: string
 }
 
-const expandConfigurationSetting = (rootObject: any, configurationPath: string[], value: string): any  => {
-    if (!configurationPath || !configurationPath.length) {
-        return value
-    }
+export const createLanguageClientsFromConfiguration = (configurationValues: { [key: string]: any }) => {
+    const languageInfo = expandLanguageConfiguration(configurationValues)
+    const languages = Object.keys(languageInfo)
 
-    const [currentPath, ...remaining] = configurationPath
-
-    const currentObject = rootObject[currentPath] || {}
-
-    return {
-        ...rootObject,
-        [currentPath]: expandConfigurationSetting(currentObject, remaining, value)
-    }
+    languages.forEach((lang) => {
+        createLanguageClientFromConfig(lang, languageInfo[lang])
+    })
 }
 
 const expandLanguageConfiguration = (configuration: { [key: string]: any }) => {
@@ -50,6 +43,21 @@ const expandLanguageConfiguration = (configuration: { [key: string]: any }) => {
     }, {})
 
     return expanded.language
+}
+
+const expandConfigurationSetting = (rootObject: any, configurationPath: string[], value: string): any  => {
+    if (!configurationPath || !configurationPath.length) {
+        return value
+    }
+
+    const [currentPath, ...remaining] = configurationPath
+
+    const currentObject = rootObject[currentPath] || {}
+
+    return {
+        ...rootObject,
+        [currentPath]: expandConfigurationSetting(currentObject, remaining, value)
+    }
 }
 
 const createLanguageClientFromConfig = (language: string, config: ILightweightLanguageConfiguration): void => {
@@ -75,13 +83,4 @@ const createLanguageClientFromConfig = (language: string, config: ILightweightLa
     }
 
     languageManager.createLanguageClient(language, serverRunOptions, initializationOptions)
-}
-
-export const createLanguageClientsFromConfiguration = (configuration: { [key: string]: any }) => {
-    const languageInfo = expandLanguageConfiguration(Config.instance().getValues())
-    const languages = Object.keys(languageInfo)
-
-    languages.forEach((lang) => {
-        createLanguageClientFromConfig(lang, languageInfo[lang])
-    })
 }

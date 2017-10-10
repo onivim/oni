@@ -80,8 +80,8 @@ const start = (args: string[]) => {
         commandManager.executeCommand(command, null)
     })
 
-    if (config.getValue("experimental.enableLanguageServerFromConfig")) {
-        createLanguageClientsFromConfiguration(config.getValues())
+    if (configuration.getValue("experimental.enableLanguageServerFromConfig")) {
+        createLanguageClientsFromConfiguration(configuration.getValues())
     }
 }
 
