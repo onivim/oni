@@ -34,23 +34,31 @@ export class LanguageManager {
             const { language, filePath } = bufferInfo
 
             console.log("Buffer enter: " + bufferInfo.filePath)
-            return this.sendLanguageServerRequest(language, filePath, "textDocument/didOpen", Helpers.pathToTextDocumentIdentifierParms(filePath)
+            return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", Helpers.pathToTextDocumentIdentifierParms(filePath))
         })
 
         editorManager.allEditors.onBufferLeave.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
             const { language, filePath } = bufferInfo
             console.log("Buffer leave: " + bufferInfo.filePath)
-            return this.sendLanguageServerRequest(language, filePath, "textDocument/didClose", Helpers.pathToTextDocumentIdentifierParms(filePath))
+            return this.sendLanguageServerNotification(language, filePath, "textDocument/didClose", Helpers.pathToTextDocumentIdentifierParms(filePath))
+        })
+
+        this.subscribeToLanguageServerNotification("window/logMessage", (args) => {
+            debugger
+        })
+
+        this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
+            debugger
         })
     }
 
-    public sendLanguageServerRequest(language: string, filePath: string, protocolMessage: string, protocolPayload: any): Promise<void> {
+    public sendLanguageServerNotification(language: string, filePath: string, protocolMessage: string, protocolPayload: any): void {
         const languageClient = this._getLanguageClient(language)
 
         if (languageClient) {
-            return languageClient.sendRequest(filePath, protocolMessage, protocolPayload)
+            languageClient.sendNotification(filePath, protocolMessage, protocolPayload)
         } else {
-            return new Promise((res, rej) => rej("No registered language client"))
+            // TODO
         }
     }
 
@@ -64,7 +72,7 @@ export class LanguageManager {
 
             const languageClients = Object.values(this._languageServerInfo)
             languageClients.forEach((ls) => {
-                ls.subscribe
+                ls.subscribe(protocolMessage, evt)
             })
 
             return evt.subscribe((args) => callback(args))
@@ -79,8 +87,14 @@ export class LanguageManager {
             Log.error("Duplicate language server registered for: " + language)
             return
         }
+        
+        const languageClient = new LanguageClient2(language, languageProcess) 
 
-        this._languageServerInfo[language] = new LanguageClient2(language, languageProcess)
+        for (let notification in this._notificationSubscriptions) {
+            languageClient.subscribe(notification, this._notificationSubscriptions[notification])
+        }
+
+        this._languageServerInfo[language]  = languageClient
     }
 
     private _getLanguageClient(language: string): LanguageClient2 {
