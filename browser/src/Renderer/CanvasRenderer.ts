@@ -73,18 +73,6 @@ export class CanvasRenderer implements INeovimRenderer {
         this.draw(screenInfo, cellsToUpdate)
     }
 
-    // public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
-    //     const modifiedCells = deltaRegionTracker.getModifiedCells()
-
-    //     if (modifiedCells.length === 0) {
-    //         return
-    //     }
-
-    //     this._redraw(screenInfo, modifiedCells)
-
-    //     modifiedCells.forEach((c) => deltaRegionTracker.notifyCellRendered(c.x, c.y))
-    // }
-
     public draw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
         Performance.mark("CanvasRenderer.update.start")
 
