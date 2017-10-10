@@ -13,6 +13,7 @@ import * as rpc from "vscode-jsonrpc"
 import { ChildProcess } from "child_process"
 
 import * as Log from "./../../Log"
+import { IEvent, Event} from "./../../Event"
 
 import { ServerRunOptions, InitializationOptions } from "./LanguageManager"
 
@@ -22,14 +23,25 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import * as Process from "./../../Plugins/Api/Process"
 
+export interface ILanguageClientProcess {
+    ensureActive(fileName: string): Promise<rpc.MessageConnection>
+}
+
 export class LanguageClientProcess {
 
     private _process: ChildProcess
     private _connection: rpc.MessageConnection
+    private _onConnectionChangedEvent = new Event<rpc.MessageConnection>()
 
     private _lastWorkingDirectory: string = null
     private _lastRootPath: string = null
     private _serverCapabilities: any = { }
+
+    // Notifies when the connection has changed (due to process restart)
+    // This allows consumers to re-subscribe to events
+    public get onConnectionChangedEvent(): IEvent<rpc.MessageConnection> {
+        return this._onConnectionChangedEvent
+    }
 
     constructor(
         private _serverOptions: ServerRunOptions,
@@ -71,13 +83,13 @@ export class LanguageClientProcess {
         }
 
         if (!this._process || !this._process.pid) {
-            throw("Unable to start langauge server process")
+            throw new Error("Unable to start language server process")
         }
 
         Log.info(`[LanguageClientProcess]: Started process ${this._process.pid}`)
 
         this._process.stderr.on("data", (msg) => {
-            Log.error(`[LANGUAGE CLIENT - ERROR]: ${msg}`)
+            Log.info(`[LANGUAGE CLIENT - STDERR]: ${msg}`)
             // this._statusBar.setStatus(LanguageClientState.Error)
         })
 
@@ -85,6 +97,9 @@ export class LanguageClientProcess {
             (new rpc.StreamMessageReader(this._process.stdout)) as any,
             (new rpc.StreamMessageWriter(this._process.stdin)) as any,
             new LanguageClientLogger())
+
+
+        this._onConnectionChangedEvent.dispatch(this._connection)
 
         this._connection.listen()
 

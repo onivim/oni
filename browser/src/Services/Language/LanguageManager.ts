@@ -36,56 +36,13 @@ export interface InitializationOptions {
     rootPath: PathResolver
 }
 
-export class PromiseQueue {
-    private _currentPromise: Promise<any> = Promise.resolve(null)
+import { ILanguageClientProcess } from "./LanguageClientProcess"
 
-    public enqueuePromise<T>(functionThatReturnsPromiseOrThenable: () => Promise<T> | Thenable<T>, requireConnection: boolean = true): Promise<T> {
-
-        const promiseExecutor = () => {
-            return functionThatReturnsPromiseOrThenable()
-        }
-
-        const newPromise = this._currentPromise
-            .then(() => promiseExecutor(),
-            (err) => {
-                Log.error(err)
-                return promiseExecutor()
-            })
-
-        this._currentPromise = newPromise
-        return newPromise
-    }
-}
-
-import { LanguageClientProcess } from "./LanguageClientProcess"
-
-export class LanguageClient {
-
-    private _promiseQueue: PromiseQueue = new PromiseQueue()
-    private _languageClientProcess: LanguageClientProcess
-
-    constructor(
-        serverOptions: ServerRunOptions,
-        initializationOptions: InitializationOptions) {
-        this._languageClientProcess = new LanguageClientProcess(serverOptions, initializationOptions)
-    }
-
-    public sendRequest<T>(requestName: string, protocolArguments: any): Promise<T> {
-        return this._promiseQueue.enqueuePromise(() => {
-            return Promise.resolve(null)
-        })
-    }
-
-    public sendNotification(notificationName: string, protocolArguments: any): void {
-        this._promiseQueue.enqueuePromise(() => {
-            return Promise.resolve(null)
-        })
-    }
-}
+import { LanguageClient2 } from "./LanguageClient2"
 
 export class LanguageManager {
 
-    private _languageServerInfo: { [language: string]: LanguageClient } = {}
+    private _languageServerInfo: { [language: string]: LanguageClient2 } = {}
 
     constructor() {
         editorManager.allEditors.onBufferEnter.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
@@ -107,18 +64,19 @@ export class LanguageManager {
         })
     }
 
-    public getLanguageClient(language: string): LanguageClient {
+    // TODO: Should this even be public?
+    public getLanguageClient(language: string): LanguageClient2 {
         return this._languageServerInfo[language]
     }
 
-    public createLanguageClient(language: string, serverOptions: ServerRunOptions, initializationOptions: InitializationOptions): any {
+    public registerLanguageClientFromProcess(language: string, languageProcess: ILanguageClientProcess): any {
 
         if (this._languageServerInfo[language]) {
             Log.error("Duplicate language server registered for: " + language)
             return
         }
 
-        this._languageServerInfo[language] = new LanguageClient(serverOptions, initializationOptions)
+        this._languageServerInfo[language] = new LanguageClient2(languageProcess)
     }
 
 }
