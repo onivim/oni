@@ -1,3 +1,5 @@
+import * as Log from "./../../Log"
+
 export class PromiseQueue {
     private _currentPromise: Promise<any> = Promise.resolve(null)
 

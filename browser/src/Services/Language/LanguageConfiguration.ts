@@ -9,6 +9,7 @@ import * as path from "path"
 import * as Log from "./../../Log"
 
 import { InitializationOptions, languageManager, ServerRunOptions } from "./LanguageManager"
+import { LanguageClientProcess } from "./LanguageClientProcess"
 
 export interface ILightweightLanguageConfiguration {
     languageServer?: ILightweightLanguageServerConfiguration
@@ -82,5 +83,5 @@ const createLanguageClientFromConfig = (language: string, config: ILightweightLa
         rootPath: simplePathResolver
     }
 
-    languageManager.createLanguageClient(language, serverRunOptions, initializationOptions)
+    languageManager.registerLanguageClientFromProcess(language, new LanguageClientProcess(serverRunOptions, initializationOptions))
 }

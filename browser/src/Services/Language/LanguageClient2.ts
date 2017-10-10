@@ -1,5 +1,5 @@
 
-import { ILanguageClientProcess, LanguageClientProcess } from "./LanguageClientProcess"
+import { ILanguageClientProcess } from "./LanguageClientProcess"
 import { PromiseQueue } from "./PromiseQueue"
 
 // TODO: Naming it 'LanguageClient2' so as not to conflict with the other,
@@ -13,13 +13,13 @@ export class LanguageClient2 {
     }
 
     public sendRequest<T>(fileName: string, requestName: string, protocolArguments: any): Promise<T> {
-        return this._promiseQueue.enqueuePromise(async () => {
+        return this._promiseQueue.enqueuePromise<T>(async () => {
 
             const connection = await this._languageClientProcess.ensureActive(fileName)
 
             console.log("connection")
 
-            return connection.sendRequest(requestName, protocolArguments)
+            return connection.sendRequest<T>(requestName, protocolArguments)
         })
     }
 
