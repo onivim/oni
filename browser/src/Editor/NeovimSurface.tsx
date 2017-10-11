@@ -50,7 +50,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                 <div className="stack">
                     <NeovimRenderer renderer={this.props.renderer}
                         neovimInstance={this.props.neovimInstance}
-                        deltaRegionTracker={this.props.deltaRegionTracker} />
+                        screen={this.props.screen} />
                 </div>
                 <div className="stack layer">
                     <Cursor />

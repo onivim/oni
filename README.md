@@ -34,7 +34,7 @@ Oni brings several IDE-like integrations to neovim:
 
 - [Quick Info](https://github.com/bryphe/oni/wiki/Features#quick-info)
 - [Code Completion](https://github.com/bryphe/oni/wiki/Features#code-completion)
-- Syntax / Compilation Errors
+- [Syntax / Compilation Errors](https://github.com/bryphe/oni/wiki/Features#syntax--compilation-errors)
 - [Fuzzy Finding](https://github.com/bryphe/oni/wiki/Features#fuzzy-finder)
 - [Status Bar](https://github.com/bryphe/oni/wiki/Features#status-bar)
 

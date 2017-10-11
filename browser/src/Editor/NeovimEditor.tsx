@@ -65,6 +65,8 @@ export class NeovimEditor implements IEditor {
 
     private _errorStartingNeovim: boolean = false
 
+    private _isFirstRender: boolean = true
+
     public get mode(): string {
         return this._currentMode
     }
@@ -374,6 +376,8 @@ export class NeovimEditor implements IEditor {
             VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, newValues)
         }
 
+        this._isFirstRender = true
+
         this._onUpdate()
         this._scheduleRender()
     }
@@ -403,7 +407,22 @@ export class NeovimEditor implements IEditor {
             UI.Actions.setCursorPosition(this._screen)
         }
 
-        this._renderer.update(this._screen, this._deltaRegionManager)
+        if (this._hasLoaded) {
+            if (this._isFirstRender) {
+                this._isFirstRender = false
+                this._renderer.redrawAll(this._screen)
+            } else {
+                const modifiedCells = this._deltaRegionManager.getModifiedCells()
+
+                if (modifiedCells.length === 0) {
+                    return
+                }
+
+                modifiedCells.forEach((c) => this._deltaRegionManager.notifyCellRendered(c.x, c.y))
+                this._renderer.draw(this._screen, modifiedCells)
+            }
+        }
+
         this._deltaRegionManager.cleanUpRenderedCells()
     }
 

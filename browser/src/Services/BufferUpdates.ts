@@ -5,7 +5,7 @@
  * to the plugins. Sanitizes and manages incrementental state.
  */
 
-import { INeovimInstance } from "./../neovim"
+import { IFullBufferUpdateEvent, IIncrementalBufferUpdateEvent, INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 export class BufferUpdates {
@@ -43,29 +43,30 @@ export class BufferUpdates {
             this._canSendIncrementalUpdates = (mode === "insert")
         })
 
-        this._neovimInstance.on("buffer-update", (args: Oni.EventContext, bufferLines: string[]) => {
-            const lastLine = args.line
-            this._lastArgs = args
-            this._lastBufferLines = bufferLines
-            this._modified = args.modified
-            this._lastBufferVersion = args.version
+        this._neovimInstance.onBufferUpdate.subscribe((args: IFullBufferUpdateEvent) => {
+            const lastLine = args.context.line
+            this._lastArgs = args.context
+            this._lastBufferLines = args.bufferLines
+            this._modified = args.context.modified
+            this._lastBufferVersion = args.context.version
 
             // If we can send incremental updates, and the line hasn't changed, just send the incremental change
-            if (this._canSendIncrementalUpdates && lastLine === args.line) {
-                const changedLine = bufferLines[args.line - 1]
-                this._pluginManager.notifyBufferUpdateIncremental(args, args.line, changedLine)
+            if (this._canSendIncrementalUpdates && lastLine === args.context.line) {
+                const changedLine = args.bufferLines[args.context.line - 1]
+                this._pluginManager.notifyBufferUpdateIncremental(args.context, args.context.line, changedLine)
             } else {
-                this._pluginManager.notifyBufferUpdate(args, bufferLines)
+                this._pluginManager.notifyBufferUpdate(args.context, args.bufferLines)
             }
         })
 
-        this._neovimInstance.on("buffer-update-incremental", (args: Oni.EventContext, bufferLine: string, lineNumber: number) => {
-            this._lastArgs = args
-            this._lastBufferLines[lineNumber - 1] = bufferLine
-            this._modified = args.modified
-            this._lastBufferVersion = args.version
+        this._neovimInstance.onBufferUpdateIncremental.subscribe((args: IIncrementalBufferUpdateEvent) => {
+            const { context, lineNumber, lineContents } = args
+            this._lastArgs = context
+            this._lastBufferLines[lineNumber - 1] = lineContents
+            this._modified = context.modified
+            this._lastBufferVersion = context.version
 
-            this._pluginManager.notifyBufferUpdateIncremental(args, lineNumber, bufferLine)
+            this._pluginManager.notifyBufferUpdateIncremental(context, lineNumber, lineContents)
         })
     }
 }
