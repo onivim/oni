@@ -24,6 +24,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "oni.useDefaultConfig": true,
 
+    "oni.enhancedSyntaxHighlighting": true,
+
     "oni.loadInitVim": false,
 
     "oni.useExternalPopupMenu": true,

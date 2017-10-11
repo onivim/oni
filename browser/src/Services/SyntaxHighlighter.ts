@@ -6,6 +6,8 @@ import * as Log from "./../Log"
 import { IBuffer, INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
+import { configuration } from "./Configuration"
+
 import { SymbolKind } from "vscode-languageserver-types"
 
 const symbolKindToHighlightString = (kind: SymbolKind): string => {
@@ -51,6 +53,11 @@ export class SyntaxHighlighter {
         this._pluginManager = pluginManager
 
         this._pluginManager.on("set-syntax-highlights", (payload: any) => {
+
+            if (!configuration.getValue("oni.enhancedSyntaxHighlighting")) {
+                return
+            }
+
             let buf: IBuffer = null as any // FIXME: null
             this._neovimInstance.getCurrentBuffer()
                 .then((buffer) => buf = buffer)

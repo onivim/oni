@@ -26,6 +26,10 @@ export interface IConfigurationValues {
     // See `:help bell` for instances where the bell sound would be used
     "oni.audio.bellUrl": string
 
+    // Set this to `true` to enable additional syntax highlighting
+    // from Oni & language integrations
+    "oni.enhancedSyntaxHighlighting": boolean
+
     // The default config is an opinionated, prescribed set of plugins. This is on by default to provide
     // a good out-of-box experience, but will likely conflict with a Vim/Neovim veteran's finely honed config.
     //
