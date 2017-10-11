@@ -21,6 +21,10 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     }
 
     switch (a.type) {
+        case "SET_VIEWPORT":
+            return { ...s,
+                        viewport: viewportReducer(s.viewport, a)
+        }
         case "SET_CURSOR_POSITION":
             return {...s,
                     cursorPixelX: a.payload.pixelX,
@@ -105,6 +109,18 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
                     statusBar: statusBarReducer(s.statusBar, a),
                     windowState: windowStateReducer(s.windowState, a)}
+    }
+}
+
+export const viewportReducer = (s: State.IViewport, a: Actions.ISetViewportAction) => {
+    switch (a.type) {
+        case "SET_VIEWPORT":
+            return {
+                width: a.payload.width,
+                height: a.payload.height,
+        }
+        default:
+            return s
     }
 }
 

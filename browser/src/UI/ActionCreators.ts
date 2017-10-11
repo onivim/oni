@@ -23,6 +23,14 @@ import { IConfigurationValues } from "./../Services/Configuration"
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
 
+export const setViewport = (width: number, height: number) => ({
+    type: "SET_VIEWPORT",
+    payload: {
+        width,
+        height,
+    },
+})
+
 export const bufferEnter = (id: number, file: string, totalLines: number, hidden: boolean, listed: boolean) => ({
     type: "BUFFER_ENTER",
     payload: {

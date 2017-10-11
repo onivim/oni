@@ -14,6 +14,14 @@ import { IConfigurationValues } from "./../Services/Configuration"
 
 import * as types from "vscode-languageserver-types"
 
+export interface ISetViewportAction {
+    type: "SET_VIEWPORT",
+    payload: {
+        width: number,
+        height: number,
+    }
+}
+
 export interface ISetCurrentBuffersAction {
     type: "SET_CURRENT_BUFFERS",
     payload: {
@@ -311,6 +319,7 @@ export type SimpleAction =
     IShowCursorColumnAction |
     ISetCurrentBuffersAction |
     ISetTabs |
+    ISetViewportAction |
     ISetWindowDimensions |
     ISetWindowLineMapping |
     ISetWindowState
