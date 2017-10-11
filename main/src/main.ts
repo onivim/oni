@@ -61,7 +61,7 @@ function createWindow(commandLineArguments, workingDirectory) {
     Log.info(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
 
     const webPreferences = {
-        blinkFeatures: "ResizeObserver",
+        blinkFeatures: "ResizeObserver,Accelerated2dCanvas,Canvas2dFixedRenderingMode",
     }
 
     const rootPath = path.join(__dirname, "..", "..", "..")

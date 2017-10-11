@@ -101,12 +101,21 @@ export interface IConfigurationValues {
     "editor.quickOpen.execCommand": string | null
 
     "editor.fullScreenOnStart": boolean
+    "editor.maximizeScreenOnStart": boolean
 
     "editor.cursorLine": boolean
     "editor.cursorLineOpacity": number
 
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
+
+    // Output path to save screenshots and recordings
+    "recorder.outputPath": string
+
+    // If this is set to true, the recorder
+    // will save screenshots to clipboard instead
+    // of saving to file
+    "recorder.copyScreenshotToClipboard": boolean
 
     "statusbar.enabled": boolean
     "statusbar.fontSize": string

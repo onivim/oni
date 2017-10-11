@@ -21,6 +21,7 @@ const start = (args: string[]) => {
     const parsedArgs = minimist(args)
 
     let loadInitVim: boolean = false
+    let maximizeScreenOnStart: boolean = false
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
@@ -54,6 +55,11 @@ const start = (args: string[]) => {
             ipcRenderer.send("rebuild-menu", loadInit)
             // don't rebuild menu unless oni.loadInitVim actually changed
             loadInitVim = loadInit
+        }
+
+        const maximizeScreen: boolean = configuration.getValue("editor.maximizeScreenOnStart")
+        if (maximizeScreen !== maximizeScreenOnStart) {
+            browserWindow.maximize()
         }
 
         browserWindow.setFullScreen(configuration.getValue("editor.fullScreenOnStart"))

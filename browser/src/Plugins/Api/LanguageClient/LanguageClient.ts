@@ -37,11 +37,16 @@ export interface ServerRunOptions {
     module?: string
 
     /**
-     * Arguments to pass to the language servicew
+     * Arguments to pass to the language service
      */
     args?: string[]
 
     // TODO: TransportKind option?
+
+    /**
+     * Indicates whether stderr of the LSP server is used for logs or actual errors
+     */
+    stderrAsLog?: boolean
 }
 
 /**
@@ -181,10 +186,14 @@ export class LanguageClient {
             Log.warn(`[LANGUAGE CLIENT]: Process closed with exit code ${code} and signal ${signal}`)
         })
 
-        this._process.stderr.on("data", (msg) => {
+        const logFunc = (msg: any) => {
+            Log.debug(`[LANGUAGE CLIENT - DEBUG] ${msg}`)
+        }
+        const errFunc = (msg: any) => {
             Log.error(`[LANGUAGE CLIENT - ERROR]: ${msg}`)
             this._statusBar.setStatus(LanguageClientState.Error)
-        })
+        }
+        this._process.stderr.on("data", (this._startOptions.stderrAsLog) ? logFunc : errFunc)
 
         this._connection = rpc.createMessageConnection(
             (new rpc.StreamMessageReader(this._process.stdout)) as any,
@@ -366,6 +375,7 @@ export class LanguageClient {
             detail: i.detail,
             documentation: this._getCompletionDocumentation(i),
             kind: i.kind,
+            insertText: i.insertText,
         }))
 
         return {

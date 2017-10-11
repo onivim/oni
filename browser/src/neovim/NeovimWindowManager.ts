@@ -26,6 +26,9 @@ export class NeovimWindowManager extends EventEmitter {
 
         let win: IWindow
 
+        // TODO: #702 - Good candidate to be consolidated via `nvim_call_atomic`
+        // In addition, would be nice to have `async/await` used here to clean up
+        // the nested promise chain
         this._neovimInstance.getCurrentWindow()
             .then((currentWindow) => win = currentWindow)
             .then(() => win.getDimensions())

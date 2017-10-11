@@ -35,7 +35,12 @@ export const areCompletionsVisible = (state: State.IState) => {
 
 export const getSelectedCompletion = (state: State.IState) => {
     const autoCompletion = state.autoCompletion
-    return autoCompletion ? autoCompletion.entries[autoCompletion.selectedIndex].label : null
+    if (!autoCompletion) {
+        return null
+    }
+
+    const completion = autoCompletion.entries[autoCompletion.selectedIndex]
+    return completion.insertText ? completion.insertText : completion.label
 }
 
 export const getAllBuffers = (buffers: State.IBufferState): State.IBuffer[] => {

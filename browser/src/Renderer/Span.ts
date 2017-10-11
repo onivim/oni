@@ -1,4 +1,3 @@
-import { IDeltaCellPosition } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
 
 export interface ISpan {
@@ -6,9 +5,14 @@ export interface ISpan {
     endX: number
 }
 
+export interface IPosition {
+    x: number,
+    y: number
+}
+
 export interface RowMap { [key: number]: ISpan[] }
 
-export function getSpansToEdit(grid: Grid<ISpan>, cells: IDeltaCellPosition[]): RowMap {
+export function getSpansToEdit(grid: Grid<ISpan>, cells: IPosition[]): RowMap {
     const rowToSpans: RowMap = {}
     cells.forEach((cell) => {
         const { x, y } = cell

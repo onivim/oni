@@ -4,6 +4,7 @@
  * Specifies Oni default settings
  */
 
+import * as os from "os"
 import * as path from "path"
 
 import * as Platform from "./../../Platform"
@@ -56,6 +57,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.scrollBar.visible": true,
 
     "editor.fullScreenOnStart": false,
+    "editor.maximizeScreenOnStart": false,
 
     "editor.cursorLine": true,
     "editor.cursorLineOpacity": 0.1,
@@ -64,6 +66,9 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumnOpacity": 0.1,
 
     "environment.additionalPaths": [],
+
+    "recorder.copyScreenshotToClipboard": false,
+    "recorder.outputPath": os.tmpdir(),
 
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",

@@ -24,13 +24,13 @@ function OniNotifyBufferUpdate()
     if b:changedtick > b:last_change_tick
         let b:last_change_tick = b:changedtick
         if mode() == 'i'
-            let buffer_line = getline(".")
+            let buffer_line = line(".")
+            let line_contents = getline(".")
             let context = OniGetContext()
-            call OniNotify(["incremental_buffer_update", context, buffer_line, line(".")])
+            call OniNotify(["incremental_buffer_update", context, line_contents, buffer_line])
         else
-            let buffer_lines = getline(1,"$")
             let context = OniGetContext()
-            call OniNotify(["buffer_update", context, buffer_lines])
+            call OniNotify(["buffer_update", context, 1, line('$')])
         endif
     endif
 endfunction
@@ -58,14 +58,6 @@ augroup OniClipboard
     autocmd!
     autocmd! TextYankPost * :call OniNotifyYank(v:event)
 augroup end
-
-" Prevent 'no matching autocommand' message if FocusLost/FocusGained
-" aren't registered
-augroup OniNoop
-    autocmd!
-    autocmd! FocusLost * :call OniNoop()
-    autocmd! FocusGained * :call OniNoop()
-augroup END
 
 augroup OniNotifyBufferUpdates
     autocmd!
@@ -159,8 +151,6 @@ function OniUpdateWindowDisplayMap(shouldMeasure)
 endfunction
 
 function OniConnect()
-    call OniApiInfo()
-
     " Force BufEnter and buffer update events to be dispatched on connection
     " Otherwise, there can be race conditions where the buffer is loaded
     " prior to the UI attaching. See #122
@@ -170,15 +160,6 @@ endfunction
 
 function OniNotifyYank(yankEvent)
     call OniNotify(["oni_yank", a:yankEvent])
-endfunction
-
-
-function OniApiInfo()
-    if (has_key(api_info(),'version'))
-        call OniNotify(["api_info",api_info()["version"]])
-    else
-        call OniNotify(["api_info",{"api_level":0}])
-    endif
 endfunction
 
 
