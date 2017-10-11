@@ -81,18 +81,17 @@ export class SelectedText extends TextComponent {
 }
 
 import { createSelector } from "reselect"
+import * as Selectors from "./../Selectors"
 
-const getQuickInfo = (state: IState) => state.quickInfo
-
-const getCursorCharacter = (state: IState) => state.cursorCharacter
+const getQuickInfo = Selectors.getQuickInfo
 
 const EmptyArray: JSX.Element[] = []
 
 const getQuickInfoElement = createSelector(
-    [getQuickInfo, getCursorCharacter],
-    (quickInfo, cursorCharacter) => {
+    [getQuickInfo],
+    (quickInfo) => {
 
-        if (!quickInfo || !cursorCharacter) {
+        if (!quickInfo) {
             return EmptyArray
         } else {
             return [
@@ -103,16 +102,19 @@ const getQuickInfoElement = createSelector(
     })
 
 const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
-    const elements = getQuickInfoElement(state)
-
-    if (!state.quickInfo || !state.cursorCharacter) {
+    if (!state.quickInfo || state.mode !== "normal") {
         return {
             visible: false,
-            elements,
+            elements: EmptyArray,
             foregroundColor: state.foregroundColor,
             backgroundColor: state.backgroundColor,
         }
     } else {
+
+        const elements = getQuickInfoElement(state)
+
+        // const { data, filePath, line, column } = state.quickInfo
+
         return {
             visible: true,
             elements,

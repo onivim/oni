@@ -47,10 +47,16 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 backgroundColor: a.payload.backgroundColor,
             } }
         case "SHOW_QUICK_INFO":
+            const { filePath, line, column, title, description } = a.payload
             return {...s,
                     quickInfo: {
-                    title: a.payload.title,
-                    description: a.payload.description,
+                        filePath,
+                        line,
+                        column,
+                        data: {
+                            title: title,
+                            description: description,
+                        }
                 }}
         case "HIDE_QUICK_INFO":
             return {...s,

@@ -22,6 +22,17 @@ export interface IViewport {
     height: number
 }
 
+/**
+ * Interface describing an item that is relative
+ * to a particular file location
+ */
+export interface ILocatable<T> {
+    filePath: string
+    line: number
+    column: number
+    data: T 
+}
+
 export interface IState {
     cursorPixelX: number
     cursorPixelY: number
@@ -35,7 +46,7 @@ export interface IState {
     backgroundColor: string
     foregroundColor: string
     autoCompletion: null | IAutoCompletionInfo
-    quickInfo: null | Oni.Plugin.QuickInfo
+    quickInfo: null | ILocatable<Oni.Plugin.QuickInfo>
     popupMenu: null | IMenu
     signatureHelp: null | Oni.Plugin.SignatureHelpResult
     cursorLineVisible: boolean

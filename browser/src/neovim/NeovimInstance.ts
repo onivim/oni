@@ -1,4 +1,3 @@
-// import { remote } from "electron"
 import { EventEmitter } from "events"
 import * as path from "path"
 

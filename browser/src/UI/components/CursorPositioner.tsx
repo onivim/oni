@@ -83,13 +83,13 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
 
         const arrowStyleWithAdjustments = {
             ...arrowStyle,
-            left: this.props.x.toString() + "px"
+            left: this.props.x.toString() + "px",
         }
 
         const childStyleWithAdjustments = this.state.isMeasured ? {
             ...childStyle,
             left: this.state.isFullWidth ? "8px" : adjustedX.toString() + "px",
-            right: this.state.isFullWidth ? "8px" : null
+            right: this.state.isFullWidth ? "8px" : null,
         } : childStyle
 
         return <div style={containerStyle}>

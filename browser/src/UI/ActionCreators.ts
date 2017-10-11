@@ -283,9 +283,12 @@ export const selectMenuItem = (openInSplit: string, index?: number) => (dispatch
     dispatch(hidePopupMenu())
 }
 
-export const showQuickInfo = (title: string, description: string) => ({
+export const showQuickInfo = (filePath: string, line: number, column: number, title: string, description: string): Actions.IShowQuickInfoAction => ({
     type: "SHOW_QUICK_INFO",
     payload: {
+        filePath: normalizePath(filePath),
+        line,
+        column,
         title,
         description,
     },

@@ -21,6 +21,8 @@ import { windowManager, WindowManager } from "./../../Services/WindowManager"
 
 import * as Log from "./../../Log"
 
+import * as UI from "./../../UI"
+
 import * as throttle from "lodash/throttle"
 
 const react = require("react") // tslint:disable-line no-var-requires
@@ -196,10 +198,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                                     documentation: quickInfo.description,
                                 })
                             } else {
-                                this._channel.send("clear-quick-info", originalContext, null)
+                                window.setTimeout(() => UI.Actions.hideQuickInfo())
                             }
                         }, (err) => {
-                            this._channel.sendError("show-quick-info", originalContext, err)
+                            UI.Actions.hideQuickInfo()
                         })
                     break
                 case "goto-definition":
@@ -245,9 +247,9 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                 case "signature-help":
                     languageService.getSignatureHelp(arg.payload.context)
                         .then((val) => {
-                            this._channel.send("signature-help-response", originalContext, val)
+                            UI.Actions.showSignatureHelp(val)
                         }, (err) => {
-                            this._channel.sendError("signature-help-response", originalContext, err)
+                            UI.Actions.hideSignatureHelp()
                         })
                     break
                 default:
