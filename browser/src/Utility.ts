@@ -11,6 +11,11 @@
  * but for some (like node modules), we want to explicitly require them.
  */
 
+import * as fs from "fs"
+import * as path from "path"
+import * as minimatch from "minimatch"
+
+import * as find from "lodash/find"
 import * as isEqual from "lodash/isEqual"
 import * as reduce from "lodash/reduce"
 
@@ -40,4 +45,58 @@ export const diff = (newObject: any, oldObject: any) => {
     const deletedProperties = Object.keys(oldObject).filter((key) => keysInNewObject.indexOf(key) === -1)
 
     return [...updatedProperties, ...deletedProperties]
+}
+
+export const doesFileNameMatchGlobPatterns = (fileName: string, globPatterns: string[]): boolean => {
+
+    if (!fileName) {
+        return false
+    }
+
+    if (!globPatterns || !globPatterns.length) {
+        return false
+    }
+
+    for (let i =0; i < globPatterns.length; i++) {
+        if(minimatch(fileName, globPatterns[i]))
+            return true
+    }
+
+    return false
+}
+
+export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
+
+    const getFilesForDirectory = (fullPath: string): Promise<string[]> => {
+        return new Promise((res, rej) => {
+            fs.readdir(fullPath, (err, files) => {
+                if (err) {
+                    rej(err)
+                } else {
+                    res(files)
+                }
+            })
+        })
+    }
+
+    const getRootProjectFile = async (fullPath: string): Promise<string> {
+
+        const parentDir = path.dirname(fullPath)
+
+        // Test for root folder
+        if (parentDir === fullPath) {
+            return Promise.reject("Unable to find root csproj file")
+        }
+
+        const files = await getFilesForDirectory(fullPath)
+        const proj = find(files, (f) =>  doesFileNameMatchGlobPatterns(f, patternsToMatch))
+
+        if (proj) {
+            return fullPath
+        } else {
+            return getRootProjectFile(path.dirname(fullPath))
+        }
+    }
+
+    return getRootProjectFile
 }
