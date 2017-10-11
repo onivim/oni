@@ -176,7 +176,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public async executeAutoCommand(autoCommand: string): Promise<void> {
-        await this.command(`doautocmd <nomodeline> ${autoCommand}`)
+        const doesAutoCommandExist = await this.eval(`exists('#${autoCommand}')`)
+
+        if (doesAutoCommandExist) {
+            await this.command(`doautocmd <nomodeline> ${autoCommand}`)
+        }
     }
 
     public start(filesToOpen?: string[]): Promise<void> {
