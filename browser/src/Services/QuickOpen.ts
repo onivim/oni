@@ -27,6 +27,7 @@ export class FinderProcess {
     private _process: ChildProcess
 
     private _isExplicitlyStopped: boolean = false
+    private _lastData: string = ""
 
     private _onData = new Event<string[]>()
     private _onError = new Event<string>()
@@ -53,14 +54,24 @@ export class FinderProcess {
 
         this._process = spawn(this._command, this._args)
         this._process.stdout.on('data', (data) => {
+            if (!data) {
+                return
+            }
 
+            const dataString = data.toString()
+            const isCleanEnd = dataString.endsWith(this._splitCharacter)
+            const splitData = dataString.split(this._splitCharacter)
 
-            // TODO: Handle case with incomplete data
+            if (this._lastData && splitData.length > 0) {
+                splitData[0] = splitData[0] + this._lastData
+                this._lastData = ""
+            }
 
-            console.log('Got data: ' + data.toString())
+            if (!isCleanEnd) {
+                this._lastData = splitData.pop()
+            }
 
-            const dataToSend = data.toString().split(this._splitCharacter)
-            this._onData.dispatch(dataToSend)
+            this._onData.dispatch(splitData)
         })
 
         this._process.stderr.on('data', (data) => {
