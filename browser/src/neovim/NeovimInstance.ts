@@ -1,3 +1,4 @@
+import { remote } from "electron"
 import { EventEmitter } from "events"
 import * as path from "path"
 
@@ -253,10 +254,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 })
 
                 this._neovim.on("disconnect", () => {
-
-                    // TODO: Revert
-                    alert("Neovim disconnected")
-                    // remote.getCurrentWindow().close()
+                    remote.getCurrentWindow().close()
                 })
 
                 const size = this._getSize()
