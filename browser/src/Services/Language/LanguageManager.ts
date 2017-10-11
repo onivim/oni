@@ -44,11 +44,11 @@ export class LanguageManager {
         })
 
         this.subscribeToLanguageServerNotification("window/logMessage", (args) => {
-            debugger
+            console.log("[LanguageManager - window/logMessage] " + JSON.stringify(args))
         })
 
         this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
-            debugger
+            console.log("[LanguageManager - telemetry/Event] " + JSON.stringify(args))
         })
     }
 
@@ -58,7 +58,18 @@ export class LanguageManager {
         if (languageClient) {
             languageClient.sendNotification(filePath, protocolMessage, protocolPayload)
         } else {
-            // TODO
+            // TODO: Log warning
+        }
+    }
+
+    public sendLanguageServerRequest(language: string, filePath: string, protocolMessage: string, protocolPayload: any): Promise<any> {
+        const languageClient = this._getLanguageClient(language)
+
+        if (languageClient) {
+            return languageClient.sendRequest(filePath, protocolMessage, protocolPayload)
+        } else {
+            return Promise.reject("No language server registered")
+            // TODO: Log warning
         }
     }
 

@@ -79,8 +79,7 @@ export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
         })
     }
 
-
-    const getRootProjectFile = async (fullPath: string): Promise<string> {
+    const getRootProjectFile = async (fullPath: string): Promise<string> => {
 
         const parentDir = path.dirname(fullPath)
 
@@ -100,5 +99,4 @@ export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
     }
 
     return getRootProjectFile
-
 }

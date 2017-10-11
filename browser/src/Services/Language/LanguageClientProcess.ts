@@ -9,6 +9,8 @@
  *  - Getting server capabilities
 */
 
+import * as path from "path"
+
 import * as rpc from "vscode-jsonrpc"
 import { ChildProcess } from "child_process"
 
@@ -75,8 +77,9 @@ export class LanguageClientProcess {
     }
 
     public async ensureActive(fileName: string): Promise<rpc.MessageConnection> {
-        const workingDirectory = await this._serverOptions.workingDirectory(fileName)
-        const rootPath = await this._initializationOptions.rootPath(fileName)
+        const rootDir = path.dirname(fileName)
+        const workingDirectory = await this._serverOptions.workingDirectory(rootDir)
+        const rootPath = await this._initializationOptions.rootPath(rootDir)
 
         const shouldRestartServer = workingDirectory !== this._lastWorkingDirectory
                 || this._lastRootPath !== rootPath
@@ -124,14 +127,13 @@ export class LanguageClientProcess {
             (new rpc.StreamMessageWriter(this._process.stdin)) as any,
             new LanguageClientLogger())
 
-
         this._onConnectionChangedEvent.dispatch(this._connection)
 
         this._connection.listen()
 
         const oniLanguageClientParams: any = {
             clientName: "oni",
-            rootPath: "C:/test/dotnet-core",
+            rootPath,
             capabilities: {},
         }
 

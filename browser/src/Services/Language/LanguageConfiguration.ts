@@ -2,14 +2,16 @@
  * LanguageConfiguration.ts
  *
  * Helper for registering language client information from config
-*/
+ */
 
 import * as path from "path"
 
 import * as Log from "./../../Log"
 
-import { languageManager } from "./LanguageManager"
 import { InitializationOptions, LanguageClientProcess, ServerRunOptions } from "./LanguageClientProcess"
+import { languageManager } from "./LanguageManager"
+
+import { getRootProjectFileFunc } from "./../../Utility"
 
 export interface ILightweightLanguageConfiguration {
     languageServer?: ILightweightLanguageServerConfiguration
@@ -17,6 +19,7 @@ export interface ILightweightLanguageConfiguration {
 
 export interface ILightweightLanguageServerConfiguration {
     command?: string
+    rootFiles?: string[]
 }
 
 export const createLanguageClientsFromConfiguration = (configurationValues: { [key: string]: any }) => {
@@ -61,26 +64,34 @@ const expandConfigurationSetting = (rootObject: any, configurationPath: string[]
     }
 }
 
+const simplePathResolver = (filePath: string) => Promise.resolve(path.dirname(filePath))
+
 const createLanguageClientFromConfig = (language: string, config: ILightweightLanguageConfiguration): void => {
     if (!config || !config.languageServer || !config.languageServer.command) {
         return
     }
 
     const lightweightCommand = config.languageServer.command
+    const rootFiles = config.languageServer.rootFiles
 
     Log.info(`[Language Manager - Config] Registering info for language: ${language} - command: ${config.languageServer.command}`)
 
     const commandOrModule = lightweightCommand.endsWith(".js") ? { module: lightweightCommand } : { command: lightweightCommand }
 
-    const simplePathResolver = (filePath: string) => Promise.resolve(path.dirname(filePath))
+    let pathResolver = simplePathResolver
+
+    if (rootFiles) {
+        pathResolver = getRootProjectFileFunc(rootFiles)
+    }
+
     const serverRunOptions: ServerRunOptions = {
         ...commandOrModule,
         args: [],
-        workingDirectory: simplePathResolver
+        workingDirectory: pathResolver
     }
 
     const initializationOptions: InitializationOptions = {
-        rootPath: simplePathResolver
+        rootPath: pathResolver
     }
 
     languageManager.registerLanguageClientFromProcess(language, new LanguageClientProcess(serverRunOptions, initializationOptions))

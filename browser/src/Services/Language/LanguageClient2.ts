@@ -61,9 +61,11 @@ export class LanguageClient2 {
         this._promiseQueue.enqueuePromise(async () => {
             this._connection = await this._languageClientProcess.ensureActive(fileName)
 
-            console.log("connection")
+            console.log(`[Language Client - ${notificationName}] Started.`)
 
-            return this._connection.sendNotification(notificationName, protocolArguments)
+            await this._connection.sendNotification(notificationName, protocolArguments)
+
+            console.log(`[Language Client - ${notificationName}] Completed.`)
         })
     }
 }
