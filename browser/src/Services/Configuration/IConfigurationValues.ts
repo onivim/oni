@@ -101,6 +101,7 @@ export interface IConfigurationValues {
     "editor.quickOpen.execCommand": string | null
 
     "editor.fullScreenOnStart": boolean
+    "editor.maximizeScreenOnStart": boolean
 
     "editor.cursorLine": boolean
     "editor.cursorLineOpacity": number

@@ -65,6 +65,8 @@ export class NeovimEditor implements IEditor {
 
     private _errorStartingNeovim: boolean = false
 
+    private _isFirstRender: boolean = true
+
     public get mode(): string {
         return this._currentMode
     }
@@ -132,15 +134,6 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.onOniCommand.subscribe((command) => {
             commandManager.executeCommand(command)
-        })
-
-        // TODO: Refactor `pluginManager` responsibilities outside of this instance
-        this._pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
-            if (err) {
-                UI.Actions.hideSignatureHelp()
-            } else {
-                UI.Actions.showSignatureHelp(signatureHelp)
-            }
         })
 
         this._pluginManager.on("set-errors", (key: string, fileName: string, errors: types.Diagnostic[]) => {
@@ -317,14 +310,12 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
         } else if (newMode === "insert") {
-            UI.Actions.hideQuickInfo()
             UI.Actions.showCursorColumn()
             UI.Actions.showCursorLine()
         } else if (newMode.indexOf("cmdline") >= 0) {
             UI.Actions.hideCursorLine()
             UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
             UI.Actions.hideCompletions()
-            UI.Actions.hideQuickInfo()
         }
     }
 
@@ -343,7 +334,6 @@ export class NeovimEditor implements IEditor {
             // TODO: More convenient way to hide all UI?
             UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
-            UI.Actions.hideQuickInfo()
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
         } else if (eventName === "BufLeave") {
@@ -372,6 +362,8 @@ export class NeovimEditor implements IEditor {
         if (this._hasLoaded) {
             VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, newValues)
         }
+
+        this._isFirstRender = true
 
         this._onUpdate()
         this._scheduleRender()
@@ -402,7 +394,22 @@ export class NeovimEditor implements IEditor {
             UI.Actions.setCursorPosition(this._screen)
         }
 
-        this._renderer.update(this._screen, this._deltaRegionManager)
+        if (this._hasLoaded) {
+            if (this._isFirstRender) {
+                this._isFirstRender = false
+                this._renderer.redrawAll(this._screen)
+            } else {
+                const modifiedCells = this._deltaRegionManager.getModifiedCells()
+
+                if (modifiedCells.length === 0) {
+                    return
+                }
+
+                modifiedCells.forEach((c) => this._deltaRegionManager.notifyCellRendered(c.x, c.y))
+                this._renderer.draw(this._screen, modifiedCells)
+            }
+        }
+
         this._deltaRegionManager.cleanUpRenderedCells()
     }
 

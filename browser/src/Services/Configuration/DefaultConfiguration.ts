@@ -57,6 +57,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.scrollBar.visible": true,
 
     "editor.fullScreenOnStart": false,
+    "editor.maximizeScreenOnStart": false,
 
     "editor.cursorLine": true,
     "editor.cursorLineOpacity": 0.1,

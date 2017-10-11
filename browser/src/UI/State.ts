@@ -14,6 +14,25 @@ export interface Buffers { [filePath: string]: IBuffer }
 export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
 export interface WindowLineMap { [key: number]: number }
 
+/**
+ * Viewport encompasses the actual 'app' height
+ */
+export interface IViewport {
+    width: number
+    height: number
+}
+
+/**
+ * Interface describing an item that is relative
+ * to a particular file location
+ */
+export interface ILocatable<T> {
+    filePath: string
+    line: number
+    column: number
+    data: T
+}
+
 export interface IState {
     cursorPixelX: number
     cursorPixelY: number
@@ -27,7 +46,7 @@ export interface IState {
     backgroundColor: string
     foregroundColor: string
     autoCompletion: null | IAutoCompletionInfo
-    quickInfo: null | Oni.Plugin.QuickInfo
+    quickInfo: null | ILocatable<Oni.Plugin.QuickInfo>
     signatureHelp: null | Oni.Plugin.SignatureHelpResult
     cursorLineVisible: boolean
     cursorLineOpacity: number
@@ -35,6 +54,7 @@ export interface IState {
     cursorColumnOpacity: number
     configuration: IConfigurationValues
     imeActive: boolean
+    viewport: IViewport
 
     statusBar: { [id: string]: IStatusBarItem }
 
@@ -50,6 +70,8 @@ export interface IState {
     errors: Errors
 
     // Dimensions of active window, in pixels
+    // TODO: This is relevant only to a specific 'editor',
+    // so this should be factored to a per-editor store
     activeWindowDimensions: Rectangle
 
     activeMessageDialog: IMessageDialog
@@ -200,6 +222,11 @@ export const createDefaultState = (): IState => ({
     windowState: {
         activeWindow: null,
         windows: {},
+    },
+
+    viewport: {
+        width: 0,
+        height: 0,
     },
 
     errors: {},

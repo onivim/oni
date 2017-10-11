@@ -30,7 +30,12 @@ export const areCompletionsVisible = (state: State.IState) => {
 
 export const getSelectedCompletion = (state: State.IState) => {
     const autoCompletion = state.autoCompletion
-    return autoCompletion ? autoCompletion.entries[autoCompletion.selectedIndex].label : null
+    if (!autoCompletion) {
+        return null
+    }
+
+    const completion = autoCompletion.entries[autoCompletion.selectedIndex]
+    return completion.insertText ? completion.insertText : completion.label
 }
 
 export const getAllBuffers = (buffers: State.IBufferState): State.IBuffer[] => {
@@ -72,6 +77,24 @@ export const getActiveWindow = (state: State.IState): State.IWindow => {
 
     const activeWindow = state.windowState.activeWindow
     return state.windowState.windows[activeWindow]
+}
+
+export const getQuickInfo = (state: State.IState): Oni.Plugin.QuickInfo => {
+    const { file, line, column } = getActiveWindow(state)
+
+    const quickInfo = state.quickInfo
+
+    if (!quickInfo) {
+        return null
+    }
+
+    if (quickInfo.filePath !== file
+        || quickInfo.line !== line
+        || quickInfo.column !== column) {
+            return null
+        }
+
+    return quickInfo.data
 }
 
 export const getActiveWindowDimensions = (state: State.IState): Rectangle => {

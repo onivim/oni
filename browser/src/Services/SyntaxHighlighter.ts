@@ -84,6 +84,7 @@ export class SyntaxHighlighter {
 
                         const highlight = k
                         const keywords = highlightDictionary[k]
+                        // TODO: Good use case for 'nvim_call_atomic'? Or should be replaced?
                         this._neovimInstance.command("syntax keyword " + highlight + keywords)
                     })
                 })

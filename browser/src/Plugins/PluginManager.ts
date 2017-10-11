@@ -152,24 +152,13 @@ export class PluginManager extends EventEmitter {
         // TODO: Refactor these handlers to separate classes
         // - pluginManager.registerResponseHandler("show-quick-info", new QuickInfoHandler())
         switch (pluginResponse.type) {
-            case "clear-quick-info":
-                UI.Actions.hideQuickInfo()
-                break
             case "show-quick-info":
-                if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                    return
-                }
-
                 if (!pluginResponse.error) {
-                    UI.Actions.hideQuickInfo()
                     setTimeout(() => {
-                        if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                            return
-                        }
-                        UI.Actions.showQuickInfo(pluginResponse.payload.info, pluginResponse.payload.documentation)
+                        const originEvent = pluginResponse.meta.originEvent
+
+                        UI.Actions.showQuickInfo(originEvent.bufferFullPath, originEvent.line, originEvent.column, pluginResponse.payload.info, pluginResponse.payload.documentation)
                     }, this._config.getValue("editor.quickInfo.delay"))
-                } else {
-                    setTimeout(() => UI.Actions.hideQuickInfo())
                 }
                 break
             case "goto-definition":
@@ -206,17 +195,11 @@ export class PluginManager extends EventEmitter {
             case "format":
                 this.emit("format", pluginResponse.payload)
                 break
-            case "evaluate-block-result":
-                this.emit("evaluate-block-result", pluginResponse.payload)
-                break
             case "set-syntax-highlights":
                 this.emit("set-syntax-highlights", pluginResponse.payload)
                 break
             case "clear-syntax-highlights":
                 this.emit("clear-syntax-highlights", pluginResponse.payload)
-                break
-            case "signature-help-response":
-                this.emit("signature-help-response", pluginResponse.error, pluginResponse.payload)
                 break
             default:
                 this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)

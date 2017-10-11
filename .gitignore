@@ -6,11 +6,14 @@ yarn.lock
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
 
+# Python
+.mypy_cache
+
 # Local app data
 $LOCALAPPDATA
 
 # Output
-lib
+/lib
 lib_test
 dist
 
