@@ -185,3 +185,9 @@ const openDefaultConfig = async (neovimInstance: INeovimInstance): Promise<void>
         await buf.setLines(0, defaultConfigLines.length, false, defaultConfigLines)
     }
 }
+
+const openNeovimConfig == async (neovimInstance: INeovimInstance): Promise<void> => {
+    const homeDirectory = Platform.getUserHome()
+
+
+}
