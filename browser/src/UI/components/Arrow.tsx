@@ -35,7 +35,7 @@ export const Arrow = (props: IArrowProps): JSX.Element => {
         height: "0px",
         borderLeft: transparentBorder,
         borderRight: transparentBorder,
-        borderTop: solidBorder
+        borderTop: solidBorder,
     }
 
     const style = props.direction === ArrowDirection.Up ? upArrowStyle : downArrowStyle

@@ -23,8 +23,7 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     switch (a.type) {
         case "SET_VIEWPORT":
             return { ...s,
-                        viewport: viewportReducer(s.viewport, a)
-        }
+                     viewport: viewportReducer(s.viewport, a) }
         case "SET_CURSOR_POSITION":
             return {...s,
                     cursorPixelX: a.payload.pixelX,

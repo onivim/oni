@@ -12,24 +12,6 @@ import { IState } from "./../State"
 
 import { Arrow, ArrowDirection } from "./Arrow"
 
-// const getOpenPosition = (state: IState): ICursorPositionerViewProps => {
-//     // const openFromTopPosition = state.cursorPixelY + (state.fontPixelHeight * 2)
-//     // const openFromBottomPosition = state.cursorPixelY - state.fontPixelHeight
-
-//     // const openFromTop = state.cursorPixelY < 75
-
-//     const x = state.cursorPixelX - (state.fontPixelWidth / 2) - 2
-//     const y = state.cursorPixelY + state.fontPixelHeight * 2
-//     const lineHeight = state.fontPixelHeight
-
-//     return {
-//         x,
-//         y,
-//         lineHeight,
-//         backgroundColor: state.backgroundColor,
-//     }
-// }
-
 export interface ICursorPositionerViewProps {
     x: number
     y: number
@@ -42,7 +24,23 @@ export interface ICursorPositionerViewProps {
 }
 
 export interface ICursorPositionerViewState {
-    measuredRect: ClientRect | null
+    lastMeasurementX: number
+    lastMeasurementY: number
+    isMeasured: boolean
+
+    isFullWidth: boolean
+    shouldOpenDownward: boolean,
+    adjustedX: number
+}
+
+const InitialState = {
+    lastMeasurementX: -1,
+    lastMeasurementY: -1,
+    isMeasured: false,
+
+    isFullWidth: false,
+    shouldOpenDownward: false,
+    adjustedX: 0,
 }
 
 /**
@@ -53,52 +51,29 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
     constructor(props: ICursorPositionerViewProps) {
         super(props)
 
-        this.state = {
-            measuredRect: null
-        }
+        this.state = InitialState
     }
 
-    private _measureElement(element: HTMLElement): void {
-        if (element) {
-            const rect = element.getBoundingClientRect()
-
-            if (!this.state.measuredRect
-                || this.state.measuredRect.width !== rect.width
-                || this.state.measuredRect.height !== rect.height) {
-
-                this.setState({
-                    measuredRect: rect
-                })
-            }
+    public componentWillReceiveProps(nextProps: ICursorPositionerViewProps): void {
+        if (this.props !== nextProps) {
+            this.setState(InitialState)
         }
     }
 
     public render(): JSX.Element {
-        // Decide if should open from the top...
-        let shouldOpenDownward = false
         let adjustedY = this.props.y
-        let adjustedX = 0
+        let adjustedX = this.state.adjustedX
 
-        if (this.state.measuredRect) {
-            if (this.props.y - this.state.measuredRect.height < this.props.lineHeight * 2) {
-                shouldOpenDownward = true
-                adjustedY = this.props.y + this.props.lineHeight * 3
-            }
-
-            if (this.state.measuredRect.right > this.props.containerWidth) {
-                const offset = this.state.measuredRect.right - this.props.containerWidth
-
-                adjustedX = -(offset + this.props.lineHeight)
-            }
-
-
+        if (this.state.shouldOpenDownward) {
+            adjustedY = this.props.y + this.props.lineHeight * 3
         }
 
         const containerStyle: React.CSSProperties = {
             position: "absolute",
             top: adjustedY.toString() + "px",
-            left: this.props.x.toString() + "px",
-            visibility: this.state.measuredRect === null ? "hidden" : "visible", // Wait until we've measured the bounds to show..
+            left: "0px",
+            width: this.props.containerWidth.toString() + "px",
+            visibility: this.state.isMeasured ? "visible" : "hidden", // Wait until we've measured the bounds to show..
         }
 
         const openFromBottomStyle: React.CSSProperties = {
@@ -111,24 +86,61 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             top: "0px",
         }
 
-        const childStyle = shouldOpenDownward ? openFromTopStyle : openFromBottomStyle
-        const arrowStyle = shouldOpenDownward ? openFromBottomStyle : openFromTopStyle
+        const childStyle = this.state.shouldOpenDownward ? openFromTopStyle : openFromBottomStyle
+        const arrowStyle = this.state.shouldOpenDownward ? openFromBottomStyle : openFromTopStyle
 
-        const childStyleWithAdjustments= {
-            ...childStyle,
-            left: adjustedX.toString() + "px",
+        const arrowStyleWithAdjustments = {
+            ...arrowStyle,
+            left: this.props.x.toString() + "px"
         }
 
+        const childStyleWithAdjustments = this.state.isMeasured ? {
+            ...childStyle,
+            left: this.state.isFullWidth ? "8px" : adjustedX.toString() + "px",
+            right: this.state.isFullWidth ? "8px" : null
+        } : childStyle
+
         return <div style={containerStyle}>
-                <div style={childStyleWithAdjustments}>
-                    <div ref={(elem) => this._measureElement(elem) }>
-                        {this.props.children}
-                    </div>
-                 </div>
-                 <div style={arrowStyle}>
-                     <Arrow direction={shouldOpenDownward ? ArrowDirection.Up : ArrowDirection.Down} size={10} color={this.props.backgroundColor} />
-                 </div>
+            <div style={childStyleWithAdjustments}>
+                <div ref={(elem) => this._measureElement(elem)}>
+                    {this.props.children}
                 </div>
+            </div>
+            <div style={arrowStyleWithAdjustments}>
+                <Arrow direction={this.state.shouldOpenDownward ? ArrowDirection.Up : ArrowDirection.Down} size={10} color={this.props.backgroundColor} />
+            </div>
+        </div>
+    }
+
+    private _measureElement(element: HTMLElement): void {
+        if (element) {
+            const rect = element.getBoundingClientRect()
+
+            if (!this.state.isMeasured || (this.state.lastMeasurementX !== this.props.x|| this.state.lastMeasurementY !== this.props.y)) {
+
+                const shouldOpenDownward = this.props.y - rect.height < this.props.lineHeight * 2
+
+                const rightBounds = this.props.x + rect.width
+
+                const isFullWidth = rect.width > this.props.containerWidth
+
+                let adjustedX = this.props.x
+
+                if (!isFullWidth && rightBounds > this.props.containerWidth) {
+                    const offset = rightBounds - this.props.containerWidth + 8
+                    adjustedX = this.props.x - offset
+                }
+
+                this.setState({
+                    lastMeasurementX: this.props.x,
+                    lastMeasurementY: this.props.y,
+                    isFullWidth,
+                    shouldOpenDownward,
+                    adjustedX,
+                    isMeasured: true,
+                })
+            }
+        }
     }
 }
 
