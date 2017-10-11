@@ -59,14 +59,6 @@ augroup OniClipboard
     autocmd! TextYankPost * :call OniNotifyYank(v:event)
 augroup end
 
-" Prevent 'no matching autocommand' message if FocusLost/FocusGained
-" aren't registered
-augroup OniNoop
-    autocmd!
-    autocmd! FocusLost * :call OniNoop()
-    autocmd! FocusGained * :call OniNoop()
-augroup END
-
 augroup OniNotifyBufferUpdates
     autocmd!
     autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
