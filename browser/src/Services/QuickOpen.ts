@@ -37,6 +37,10 @@ export class FinderProcess {
         return this._onData
     }
 
+    public get onComplete(): IEvent<void> {
+        return this._onComplete
+    }
+
     constructor(private _command: string,
                private _args: string[],
                private _splitCharacter: string) {
@@ -217,9 +221,11 @@ export class QuickOpen {
             this._setItemsFromQuickOpenItems(this._loadedItems)
         })
 
-        this._finderProcess.start()
+        this._finderProcess.onComplete.subscribe(() => {
+            // this._menu.setLoading(false)
+        })
 
-        // TODO: Handle oni.exclude
+        this._finderProcess.start()
     }
 
     // If we are in home or install dir offer to open folder/bookmark (Basically user hasn't opened a folder yet)

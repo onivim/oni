@@ -1,11 +1,13 @@
 import * as React from "react"
 import { connect, Provider } from "react-redux"
 
+import * as Transition from "react-transition-group/Transition"
+
 import * as take from "lodash/take"
 
 import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
 import { Visible } from "./../../UI/components/Visible"
-import { Icon } from "./../../UI/Icon"
+import { Icon, IconSize } from "./../../UI/Icon"
 
 import { focusManager } from "./../FocusManager"
 
@@ -25,6 +27,7 @@ export interface IMenuProps {
     onChangeFilterText: (text: string) => void
     onSelect: (selectedIndex?: number) => void
     items: State.IMenuOptionWithHighlights[]
+    isLoading: boolean
 
     backgroundColor: string
     foregroundColor: string
@@ -63,6 +66,8 @@ export class MenuView extends React.PureComponent<IMenuProps, void> {
             color: this.props.foregroundColor,
         }
 
+        const loadingSpinner = this.props.isLoading ? <Icon name="circle-o-notch" className=" fa-spin" size={IconSize.Large} />: null
+
         return <div className="menu-background enable-mouse">
             <div className="menu" style={menuStyle}>
                 <input type="text"
@@ -77,6 +82,9 @@ export class MenuView extends React.PureComponent<IMenuProps, void> {
                     />
                 <div className="items">
                     {items}
+                </div>
+                <div className="footer">
+                    {loadingSpinner}
                 </div>
             </div>
         </div>
@@ -99,6 +107,7 @@ const mapStateToProps = (state: State.IMenus) => {
             items: EmptyArray,
             backgroundColor: "black",
             foregroundColor: "white",
+            isLoading: true,
         }
     } else {
         const popupMenu = state.menu
@@ -110,6 +119,7 @@ const mapStateToProps = (state: State.IMenus) => {
             backgroundColor: popupMenu.backgroundColor,
             foregroundColor: popupMenu.foregroundColor,
             onSelect: popupMenu.onSelectItem,
+            isLoading: popupMenu.isLoading,
         }
     }
 }
