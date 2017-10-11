@@ -43,7 +43,7 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
     let initVimArg = []
     initVimArg = (loadInitVimConfigOption || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
 
-    if (typeof(loadInitVimConfigOption) === 'string') {
+    if (typeof(loadInitVimConfigOption) === "string") {
         initVimArg = ["-u", loadInitVimConfigOption]
     }
 

@@ -328,10 +328,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public openInitVim(): Promise<void> {
         const loadInitVim = configuration.getValue("oni.loadInitVim")
 
-        if (typeof(loadInitVim) === 'string') {
+        if (typeof(loadInitVim) === "string") {
             return this.open(loadInitVim)
         } else {
-            return this.open('$MYVIMRC')
+            return this.open("$MYVIMRC")
         }
     }
 
