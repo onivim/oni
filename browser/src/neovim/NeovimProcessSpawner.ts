@@ -38,14 +38,13 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
                                     .join(",")
 
     const shouldLoadInitVim = configuration.getValue("oni.loadInitVim")
-    const customInitVimPath = configuration.getValue("oni.customInitVimPath")
     const useDefaultConfig = configuration.getValue("oni.useDefaultConfig")
 
     let initVimArg = []
     initVimArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
 
-    if ((shouldLoadInitVim || !useDefaultConfig) && customInitVimPath) {
-        initVimArg = ["-u", customInitVimPath]
+    if (typeof(shouldLoadInitVim) === 'string') {
+        initVimArg = ["-u", shouldLoadInitVim]
     }
 
     const argsToPass = initVimArg
