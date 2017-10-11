@@ -24,8 +24,6 @@ export interface ICursorPositionerViewProps {
 }
 
 export interface ICursorPositionerViewState {
-    lastMeasurementX: number
-    lastMeasurementY: number
     isMeasured: boolean
 
     isFullWidth: boolean
@@ -34,8 +32,6 @@ export interface ICursorPositionerViewState {
 }
 
 const InitialState = {
-    lastMeasurementX: -1,
-    lastMeasurementY: -1,
     isMeasured: false,
 
     isFullWidth: false,
@@ -61,12 +57,8 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
     }
 
     public render(): JSX.Element {
-        let adjustedY = this.props.y
-        let adjustedX = this.state.adjustedX
-
-        if (this.state.shouldOpenDownward) {
-            adjustedY = this.props.y + this.props.lineHeight * 3
-        }
+        const adjustedX = this.state.adjustedX
+        const adjustedY = this.state.shouldOpenDownward ? this.props.y + this.props.lineHeight * 3 : this.props.y
 
         const containerStyle: React.CSSProperties = {
             position: "absolute",
@@ -116,8 +108,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         if (element) {
             const rect = element.getBoundingClientRect()
 
-            if (!this.state.isMeasured || (this.state.lastMeasurementX !== this.props.x|| this.state.lastMeasurementY !== this.props.y)) {
-
+            if (!this.state.isMeasured) {
                 const shouldOpenDownward = this.props.y - rect.height < this.props.lineHeight * 2
 
                 const rightBounds = this.props.x + rect.width
@@ -132,8 +123,6 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
                 }
 
                 this.setState({
-                    lastMeasurementX: this.props.x,
-                    lastMeasurementY: this.props.y,
                     isFullWidth,
                     shouldOpenDownward,
                     adjustedX,
