@@ -22,73 +22,6 @@ import { Menu, menuManager } from "./../Services/Menu"
 
 import { spawn, ChildProcess } from 'child_process'
 
-export class FinderProcess {
-
-    private _process: ChildProcess
-
-    private _isExplicitlyStopped: boolean = false
-    private _lastData: string = ""
-
-    private _onData = new Event<string[]>()
-    private _onError = new Event<string>()
-    private _onComplete = new Event<void>()
-
-
-    public get onData(): IEvent<string[]> {
-        return this._onData
-    }
-
-    public get onComplete(): IEvent<void> {
-        return this._onComplete
-    }
-
-    constructor(private _command: string,
-               private _args: string[],
-               private _splitCharacter: string) {
-    }
-
-    public start(): void {
-        if (this._process) {
-            return
-        }
-
-        this._process = spawn(this._command, this._args)
-        this._process.stdout.on('data', (data) => {
-            if (!data) {
-                return
-            }
-
-            const dataString = data.toString()
-            const isCleanEnd = dataString.endsWith(this._splitCharacter)
-            const splitData = dataString.split(this._splitCharacter)
-
-            if (this._lastData && splitData.length > 0) {
-                splitData[0] = splitData[0] + this._lastData
-                this._lastData = ""
-            }
-
-            if (!isCleanEnd) {
-                this._lastData = splitData.pop()
-            }
-
-            this._onData.dispatch(splitData)
-        })
-
-        this._process.stderr.on('data', (data) => {
-            this._onError.dispatch(data.toString())
-        })
-
-        this._process.on('exit', (code) => {
-            this._onComplete.dispatch()
-        })
-    }
-
-    public stop(): void {
-        this._isExplicitlyStopped = true
-        this._process.kill()
-    }
-}
-
 export class QuickOpen {
     private _finderProcess: FinderProcess
     private _seenItems: string[] = []
@@ -108,9 +41,7 @@ export class QuickOpen {
     private _onItemSelected(selectedOption: Oni.Menu.MenuOption): void {
         const arg = selectedOption
 
-        if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.loading)) {
-            return
-        } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
+        if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
             commandManager.executeCommand("oni.config.openConfigJs")
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.color)) {
             this._neovimInstance.command(`colo ${arg.label}`)
@@ -233,7 +164,7 @@ export class QuickOpen {
         })
 
         this._finderProcess.onComplete.subscribe(() => {
-            // this._menu.setLoading(false)
+            this._menu.setLoading(false)
         })
 
         this._finderProcess.start()
@@ -295,67 +226,3 @@ export class QuickOpen {
     }
 }
 
-// We use basename/dirname for label/detail
-// So let's say you want the label YO with detail a greeting
-// you would make file = "a greeting/YO"
-enum QuickOpenType {
-    bookmark,
-    bookmarkHelp,
-    file,
-    folder,
-    folderHelp,
-    bufferLine,
-    loading,
-    color,
-}
-
-// Wrapper around quick open items, this not only allows us to show multiple icons
-// It also allows us to distinguish what happens once we know their icon
-class QuickOpenItem {
-    // We take a type, and then give an fa icon
-    public static convertTypeToIcon(type: QuickOpenType): string {
-        switch (type) {
-            case QuickOpenType.bookmark:
-                return "star-o"
-            case QuickOpenType.bookmarkHelp:
-                return "info"
-            case QuickOpenType.file:
-                return "file-text-o"
-            case QuickOpenType.folder:
-                return "folder-o"
-            case QuickOpenType.folderHelp:
-                return "folder-open-o"
-            case QuickOpenType.bufferLine:
-                return "angle-right"
-            case QuickOpenType.loading:
-                return "refresh fa-spin fa-fw"
-            case QuickOpenType.color:
-                return "paint-brush"
-            default:
-                return "question-circle-o"
-        }
-    }
-
-    // Each has an item, and an icon
-    private _item: string
-    private _icon: string
-    private _lineNu: number
-
-    public get item(): string {
-        return this._item
-    }
-
-    public get icon(): string {
-        return this._icon
-    }
-
-    public get lineNu(): number {
-        return this._lineNu
-    }
-
-    constructor(item: string, type: QuickOpenType, num?: number) {
-        this._item = item
-        this._icon = QuickOpenItem.convertTypeToIcon(type)
-        this._lineNu = num
-    }
-}
