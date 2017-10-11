@@ -218,15 +218,7 @@ export interface IPreviousMenuAction {
     type: "PREVIOUS_MENU"
 }
 
-export interface ILocatableAction {
-    payload: {
-        filePath: string
-        line: number
-        column: number
-    }
-}
-
-export interface IShowQuickInfoAction extends ILocatableAction {
+export interface IShowQuickInfoAction {
     type: "SHOW_QUICK_INFO",
     payload: {
         filePath: string,

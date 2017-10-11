@@ -30,7 +30,7 @@ export interface ILocatable<T> {
     filePath: string
     line: number
     column: number
-    data: T 
+    data: T
 }
 
 export interface IState {

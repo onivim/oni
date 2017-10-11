@@ -54,9 +54,9 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                         line,
                         column,
                         data: {
-                            title: title,
-                            description: description,
-                        }
+                            title,
+                            description,
+                        },
                 }}
         case "HIDE_QUICK_INFO":
             return {...s,
