@@ -36,6 +36,9 @@ export interface IConfigurationValues {
     // Set this to `true` to enable loading of init.vim.
     "oni.loadInitVim": boolean
 
+    // Option to override init.vim path.
+    "oni.customInitVimPath": string
+
     // Sets the `popupmenu_external` option in Neovim
     // This will override the default UI to show a consistent popupmenu,
     // whether using Oni's completion mechanisms or VIMs

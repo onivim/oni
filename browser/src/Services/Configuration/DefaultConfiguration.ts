@@ -25,6 +25,7 @@ const BaseConfiguration: IConfigurationValues = {
     "oni.useDefaultConfig": true,
 
     "oni.loadInitVim": false,
+    "oni.customInitVimPath" : "",
 
     "oni.useExternalPopupMenu": true,
 
