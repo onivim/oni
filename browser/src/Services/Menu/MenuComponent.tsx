@@ -127,14 +127,8 @@ const mapDispatchToProps = (dispatch: any) => {
         dispatch(ActionCreators.filterMenu(text))
     }
 
-    // TODO
-    // const selectItem = (openInSplit: string, selectedIndex: number) => {
-    //     dispatch(ActionCreators.selectMenuItem(openInSplit, selectedIndex))
-    // }
-
     return {
         onChangeFilterText: dispatchFilterText,
-        // onSelect: selectItem,
     }
 }
 
