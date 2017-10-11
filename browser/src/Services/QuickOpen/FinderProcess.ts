@@ -4,9 +4,9 @@
  * Manages communication with the external finder process
  */
 
-import { IEvent, Event } from "./../../Event"
+import { Event, IEvent } from "./../../Event"
 
-import { ChildProcess, spawn } from 'child_process'
+import { ChildProcess, spawn } from "child_process"
 
 export class FinderProcess {
 
@@ -19,7 +19,6 @@ export class FinderProcess {
     private _onError = new Event<string>()
     private _onComplete = new Event<void>()
 
-
     public get onData(): IEvent<string[]> {
         return this._onData
     }
@@ -29,8 +28,8 @@ export class FinderProcess {
     }
 
     constructor(private _command: string,
-               private _args: string[],
-               private _splitCharacter: string) {
+                private _args: string[],
+                private _splitCharacter: string) {
     }
 
     public start(): void {
@@ -39,7 +38,7 @@ export class FinderProcess {
         }
 
         this._process = spawn(this._command, this._args)
-        this._process.stdout.on('data', (data) => {
+        this._process.stdout.on("data", (data) => {
             if (!data) {
                 return
             }
@@ -60,11 +59,11 @@ export class FinderProcess {
             this._onData.dispatch(splitData)
         })
 
-        this._process.stderr.on('data', (data) => {
+        this._process.stderr.on("data", (data) => {
             this._onError.dispatch(data.toString())
         })
 
-        this._process.on('exit', (code) => {
+        this._process.on("exit", (code) => {
             this._onComplete.dispatch()
         })
     }

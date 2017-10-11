@@ -35,19 +35,28 @@ export class QuickOpen {
     }
 
     public isOpen(): boolean {
-        return false
-    }
-
-    public openFile(): void {
+        return this._menu && this._menu.isOpen()
     }
 
     public openFileNewTab(): void {
+        const selectedItem = this._menu.selectedItem
+        if (selectedItem) {
+            this._onItemSelected(selectedItem, ":tabnew")
+        }
     }
 
     public openFileHorizontal(): void {
+        const selectedItem = this._menu.selectedItem
+        if (selectedItem) {
+            this._onItemSelected(selectedItem, ":sp")
+        }
     }
 
     public openFileVertical(): void {
+        const selectedItem = this._menu.selectedItem
+        if (selectedItem) {
+            this._onItemSelected(selectedItem, ":vsp")
+        }
     }
 
     public async show() {
@@ -63,7 +72,7 @@ export class QuickOpen {
 
             // TODO consider adding folders as well (recursive async with ignores/excludes)
             // For now, sync call bookmarks and open folder, it's so few it's not going to matter
-            // await this._setItemsFromQuickOpenItems(this._loadedItems)
+            await this._setItemsFromQuickOpenItems(this._loadedItems)
             return
         }
 
@@ -101,12 +110,10 @@ export class QuickOpen {
         this._menu.show()
 
         this._menu.setLoading(true)
+        this._menu.setItems([])
         this._loadedItems = []
 
-        if (this._finderProcess) {
-            this._finderProcess.stop()
-            this._finderProcess = null
-        }
+        this._stopFinderProcess()
 
         this._finderProcess = new FinderProcess(command, args, splitCharacter)
 
@@ -123,7 +130,19 @@ export class QuickOpen {
         this._finderProcess.start()
     }
 
-    private _onItemSelected(selectedOption: Oni.Menu.MenuOption): void {
+    private _closeMenu(): void {
+        this._stopFinderProcess()
+        this._menu.hide()
+    }
+
+    private _stopFinderProcess(): void {
+        if (this._finderProcess) {
+            this._finderProcess.stop()
+            this._finderProcess = null
+        }
+    }
+
+    private _onItemSelected(selectedOption: Oni.Menu.MenuOption, openInSplit: string = ":e"): void {
         const arg = selectedOption
 
         if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
@@ -133,19 +152,16 @@ export class QuickOpen {
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
             commandManager.executeCommand("oni.openFolder")
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
-            // TODO: Make sure this works!
-            // if (selectedItem.openInSplit !== "e") {
-            //     this._neovimInstance.command(selectedItem.openInSplit + "!")
-            // }
+            if (openInSplit !== "e") {
+                this._neovimInstance.command(openInSplit + "!")
+            }
             this._neovimInstance.command(`${arg.label}`)
         } else {
             let fullPath = path.join(arg.detail, arg.label)
 
             this._seenItems.push(fullPath)
 
-            // TODO: Make sure this works!
-            // this._neovimInstance.command(selectedItem.openInSplit + "! " + fullPath)
-            this._neovimInstance.command("e! " + fullPath)
+            this._neovimInstance.command(openInSplit + "! " + fullPath)
 
             if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folder)) {
                 this._neovimInstance.chdir(fullPath)
@@ -164,6 +180,8 @@ export class QuickOpen {
                 }
             }
         }
+
+        this._closeMenu()
     }
 
     // If we are in home or install dir offer to open folder/bookmark (Basically user hasn't opened a folder yet)
@@ -221,4 +239,3 @@ export class QuickOpen {
         }
     }
 }
-

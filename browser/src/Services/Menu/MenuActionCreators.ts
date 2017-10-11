@@ -11,7 +11,7 @@ export const showPopupMenu = (id: string, opts?: MenuActions.IMenuOptions) => {
 
     const defaultOptions = {
         backgroundColor,
-        foregroundColor
+        foregroundColor,
     }
 
     const options = {
@@ -24,7 +24,7 @@ export const showPopupMenu = (id: string, opts?: MenuActions.IMenuOptions) => {
         payload: {
             id,
             options,
-        }
+        },
     }
 }
 
@@ -41,7 +41,7 @@ export const setMenuItems = (id: string, items: Oni.Menu.MenuOption[]) => ({
     payload: {
         id,
         items,
-    }
+    },
 })
 
 export const hidePopupMenu = () => ({

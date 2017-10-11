@@ -7,13 +7,13 @@
 import * as Fuse from "fuse.js"
 import * as sortBy from "lodash/sortBy"
 
-import * as State from "./MenuState"
 import * as Actions from "./MenuActions"
+import * as State from "./MenuState"
 
 export const reducer = (s: State.IMenus, a: Actions.MenuAction): State.IMenus => {
     return {
         ...s,
-        menu: popupMenuReducer(s.menu, a)
+        menu: popupMenuReducer(s.menu, a),
     }
 }
 
@@ -43,7 +43,7 @@ export function popupMenuReducer(s: State.IMenu | null, a: any): State.IMenu {
             return {
                 ...s,
                 options: a.payload.items,
-                filteredOptions: filteredOptions,
+                filteredOptions,
             }
         case "SET_MENU_LOADING":
             if (!s || s.id !== a.payload.id) {

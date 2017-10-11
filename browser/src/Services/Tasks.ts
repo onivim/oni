@@ -14,7 +14,7 @@ import {EventEmitter} from "events"
 import * as find from "lodash/find"
 import * as flatten from "lodash/flatten"
 
-import { menuManager, Menu } from "./../Services/Menu"
+import { Menu, menuManager } from "./../Services/Menu"
 
 export interface ITask {
     name: string

@@ -29,5 +29,5 @@ export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
 }
 
 export const createDefaultState = (): IMenus => ({
-    menu: null
+    menu: null,
 })

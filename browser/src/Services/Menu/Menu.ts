@@ -61,7 +61,16 @@ export class Menu {
         return this._onFilterTextChanged
     }
 
+    public get selectedItem() {
+        return this._getSelectedItem()
+    }
+
     constructor(private _id: string) {
+    }
+
+    public isOpen(): boolean {
+        const menuState = menuStore.getState() 
+        return menuState.menu && menuState.menu.id === this._id
     }
 
     public setLoading(isLoading: boolean): void {
@@ -73,26 +82,33 @@ export class Menu {
     }
 
     public show(): void {
-        // TODO: Pass in callbacks for events here
         menuActions.showPopupMenu(this._id, {
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
         })
     }
 
+    public hide(): void {
+        menuActions.hidePopupMenu()
+    }
+
     private _onItemSelectedHandler(idx?: number): void {
 
-        const menuState = menuStore.getState()
-        const index = (typeof idx === "number") ? idx : menuState.menu.selectedIndex
-
-        const selectedOption = menuState.menu.filteredOptions[index]
-
+        const selectedOption = this._getSelectedItem(idx)
         this._onItemSelected.dispatch(selectedOption)
 
         this.hide()
     }
 
-    public hide(): void {
-        menuActions.hidePopupMenu()
+    private _getSelectedItem(idx?: number) {
+        const menuState = menuStore.getState()
+
+        if (!menuState.menu) {
+            return null
+        }
+
+        const index = (typeof idx === "number") ? idx : menuState.menu.selectedIndex
+
+        return menuState.menu.filteredOptions[index]
     }
 }
 
