@@ -328,7 +328,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public openInitVim(): Promise<void> {
         const customInitVimPath = configuration.getValue("oni.customInitVimPath")
 
-        if (customInitVimPath){
+        if (customInitVimPath) {
             return this.command(`e! ${customInitVimPath}`)
         } else {
             return this.command(`e! $MYVIMRC`)
