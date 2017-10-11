@@ -1,8 +1,6 @@
 import * as React from "react"
 import { connect, Provider } from "react-redux"
 
-import * as Transition from "react-transition-group/Transition"
-
 import * as take from "lodash/take"
 
 import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
