@@ -58,7 +58,7 @@ export const doesFileNameMatchGlobPatterns = (fileName: string, globPatterns: st
     }
 
     for (let i =0; i < globPatterns.length; i++) {
-        if(minimatch(fileName, globPatterns[i]))
+        if (minimatch(fileName, globPatterns[i]))
             return true
     }
 
@@ -78,6 +78,7 @@ export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
             })
         })
     }
+
 
     const getRootProjectFile = async (fullPath: string): Promise<string> {
 
@@ -99,4 +100,5 @@ export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
     }
 
     return getRootProjectFile
+
 }
