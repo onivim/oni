@@ -4,23 +4,19 @@
  * Manages the quick open menu
  */
 
-// import { spawn } from "child_process"
 import { lstatSync } from "fs"
 
-// import * as glob from "glob"
 import * as path from "path"
-// import * as Log from "./../Log"
 
-import { IEvent, Event } from "./../Event"
+import { INeovimInstance } from "./../../neovim"
+import { BufferUpdates } from "./../BufferUpdates"
 
-import { INeovimInstance } from "./../neovim"
-import { BufferUpdates } from "./BufferUpdates"
+import { commandManager } from "./../CommandManager"
+import { configuration } from "./../Configuration"
+import { Menu, menuManager } from "./../Menu"
 
-import { commandManager } from "./../Services/CommandManager"
-import { configuration } from "./../Services/Configuration"
-import { Menu, menuManager } from "./../Services/Menu"
-
-import { spawn, ChildProcess } from 'child_process'
+import { FinderProcess } from "./FinderProcess"
+import { QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
 
 export class QuickOpen {
     private _finderProcess: FinderProcess
@@ -36,49 +32,6 @@ export class QuickOpen {
 
         this._menu = menuManager.create()
         this._menu.onItemSelected.subscribe((selectedItem: any) => { this._onItemSelected(selectedItem) })
-    }
-
-    private _onItemSelected(selectedOption: Oni.Menu.MenuOption): void {
-        const arg = selectedOption
-
-        if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
-            commandManager.executeCommand("oni.config.openConfigJs")
-        } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.color)) {
-            this._neovimInstance.command(`colo ${arg.label}`)
-        } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
-            commandManager.executeCommand("oni.openFolder")
-        } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
-            // TODO: Make sure this works!
-            // if (selectedItem.openInSplit !== "e") {
-            //     this._neovimInstance.command(selectedItem.openInSplit + "!")
-            // }
-            this._neovimInstance.command(`${arg.label}`)
-        } else {
-            let fullPath = path.join(arg.detail, arg.label)
-
-            this._seenItems.push(fullPath)
-
-            // TODO: Make sure this works!
-            // this._neovimInstance.command(selectedItem.openInSplit + "! " + fullPath)
-            this._neovimInstance.command("e! " + fullPath)
-
-            if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folder)) {
-                this._neovimInstance.chdir(fullPath)
-            }
-
-            // If we are bookmark, and we open a file, the open it's dirname
-            // If we are a directory, open it.
-            if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmark)) {
-                // If I use this one more place I'm going to make a function >.>
-                fullPath = fullPath.replace("~", process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"])
-
-                if (lstatSync(fullPath).isDirectory()) {
-                    this._neovimInstance.chdir(fullPath)
-                } else {
-                    this._neovimInstance.chdir(arg.detail)
-                }
-            }
-        }
     }
 
     public isOpen(): boolean {
@@ -157,8 +110,8 @@ export class QuickOpen {
 
         this._finderProcess = new FinderProcess(command, args, splitCharacter)
 
-        this._finderProcess.onData.subscribe((newData) => {
-            const newItems = newData.map((s) => new QuickOpenItem(s, QuickOpenType.file))
+        this._finderProcess.onData.subscribe((newData: string[]) => {
+            const newItems = newData.map((s: string) => new QuickOpenItem(s, QuickOpenType.file))
             this._loadedItems = this._loadedItems.concat(newItems)
             this._setItemsFromQuickOpenItems(this._loadedItems)
         })
@@ -168,6 +121,49 @@ export class QuickOpen {
         })
 
         this._finderProcess.start()
+    }
+
+    private _onItemSelected(selectedOption: Oni.Menu.MenuOption): void {
+        const arg = selectedOption
+
+        if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
+            commandManager.executeCommand("oni.config.openConfigJs")
+        } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.color)) {
+            this._neovimInstance.command(`colo ${arg.label}`)
+        } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
+            commandManager.executeCommand("oni.openFolder")
+        } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
+            // TODO: Make sure this works!
+            // if (selectedItem.openInSplit !== "e") {
+            //     this._neovimInstance.command(selectedItem.openInSplit + "!")
+            // }
+            this._neovimInstance.command(`${arg.label}`)
+        } else {
+            let fullPath = path.join(arg.detail, arg.label)
+
+            this._seenItems.push(fullPath)
+
+            // TODO: Make sure this works!
+            // this._neovimInstance.command(selectedItem.openInSplit + "! " + fullPath)
+            this._neovimInstance.command("e! " + fullPath)
+
+            if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folder)) {
+                this._neovimInstance.chdir(fullPath)
+            }
+
+            // If we are bookmark, and we open a file, the open it's dirname
+            // If we are a directory, open it.
+            if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmark)) {
+                // If I use this one more place I'm going to make a function >.>
+                fullPath = fullPath.replace("~", process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"])
+
+                if (lstatSync(fullPath).isDirectory()) {
+                    this._neovimInstance.chdir(fullPath)
+                } else {
+                    this._neovimInstance.chdir(arg.detail)
+                }
+            }
+        }
     }
 
     // If we are in home or install dir offer to open folder/bookmark (Basically user hasn't opened a folder yet)

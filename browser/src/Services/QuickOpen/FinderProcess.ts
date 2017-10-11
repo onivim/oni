@@ -1,26 +1,12 @@
 /**
- * QuickOpen.ts
+ * FinderProcess.ts
  *
- * Manages the quick open menu
+ * Manages communication with the external finder process
  */
 
-// import { spawn } from "child_process"
-import { lstatSync } from "fs"
+import { IEvent, Event } from "./../../Event"
 
-// import * as glob from "glob"
-import * as path from "path"
-// import * as Log from "./../Log"
-
-import { IEvent, Event } from "./../Event"
-
-import { INeovimInstance } from "./../neovim"
-import { BufferUpdates } from "./BufferUpdates"
-
-import { commandManager } from "./../Services/CommandManager"
-import { configuration } from "./../Services/Configuration"
-import { Menu, menuManager } from "./../Services/Menu"
-
-import { spawn, ChildProcess } from 'child_process'
+import { ChildProcess, spawn } from 'child_process'
 
 export class FinderProcess {
 

@@ -1,7 +1,7 @@
 // We use basename/dirname for label/detail
 // So let's say you want the label YO with detail a greeting
 // you would make file = "a greeting/YO"
-enum QuickOpenType {
+export enum QuickOpenType {
     bookmark,
     bookmarkHelp,
     file,
@@ -13,7 +13,7 @@ enum QuickOpenType {
 
 // Wrapper around quick open items, this not only allows us to show multiple icons
 // It also allows us to distinguish what happens once we know their icon
-class QuickOpenItem {
+export class QuickOpenItem {
     // We take a type, and then give an fa icon
     public static convertTypeToIcon(type: QuickOpenType): string {
         switch (type) {
