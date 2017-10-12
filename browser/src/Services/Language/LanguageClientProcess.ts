@@ -17,6 +17,8 @@ import * as rpc from "vscode-jsonrpc"
 import { Event, IEvent} from "./../../Event"
 import * as Log from "./../../Log"
 
+import { normalizePath } from "./../../Utility"
+
 import { LanguageClientLogger } from "./../../Plugins/Api/LanguageClient/LanguageClientLogger"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
@@ -77,7 +79,7 @@ export class LanguageClientProcess {
     }
 
     public async ensureActive(fileName: string): Promise<rpc.MessageConnection> {
-        const rootDir = path.dirname(fileName)
+        const rootDir = normalizePath(path.dirname(fileName))
         const workingDirectory = await this._serverOptions.workingDirectory(rootDir)
         const rootPath = await this._initializationOptions.rootPath(rootDir)
 
@@ -121,6 +123,9 @@ export class LanguageClientProcess {
             Log.info(`[LANGUAGE CLIENT - STDERR]: ${msg}`)
             // this._statusBar.setStatus(LanguageClientState.Error)
         })
+
+        this._lastWorkingDirectory = workingDirectory
+        this._lastRootPath = rootPath
 
         this._connection = rpc.createMessageConnection(
             (new rpc.StreamMessageReader(this._process.stdout)) as any,

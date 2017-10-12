@@ -57,8 +57,8 @@ export const doesFileNameMatchGlobPatterns = (fileName: string, globPatterns: st
         return false
     }
 
-    for (const i of globPatterns) {
-        if (minimatch(fileName, globPatterns[i])) {
+    for (const filePattern of globPatterns) {
+        if (minimatch(fileName, filePattern)) {
             return true
         }
     }
