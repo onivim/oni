@@ -147,8 +147,6 @@ export class QuickOpen {
 
         if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
             commandManager.executeCommand("oni.config.openConfigJs")
-        } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.color)) {
-            this._neovimInstance.command(`colo ${arg.label}`)
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
             commandManager.executeCommand("oni.openFolder")
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {

@@ -8,7 +8,6 @@ export enum QuickOpenType {
     folder,
     folderHelp,
     bufferLine,
-    color,
 }
 
 // Wrapper around quick open items, this not only allows us to show multiple icons
@@ -29,8 +28,6 @@ export class QuickOpenItem {
                 return "folder-open-o"
             case QuickOpenType.bufferLine:
                 return "angle-right"
-            case QuickOpenType.color:
-                return "paint-brush"
             default:
                 return "question-circle-o"
         }
