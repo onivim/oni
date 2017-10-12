@@ -7,15 +7,15 @@
  *  - Sending initialization
  *  - Managing the connection
  *  - Getting server capabilities
-*/
+ */
 
 import * as path from "path"
 
-import * as rpc from "vscode-jsonrpc"
 import { ChildProcess } from "child_process"
+import * as rpc from "vscode-jsonrpc"
 
+import { Event, IEvent} from "./../../Event"
 import * as Log from "./../../Log"
-import { IEvent, Event} from "./../../Event"
 
 import { LanguageClientLogger } from "./../../Plugins/Api/LanguageClient/LanguageClientLogger"
 
@@ -98,7 +98,7 @@ export class LanguageClientProcess {
         const args = this._serverOptions.args || []
 
         const options = {
-            cwd: workingDirectory || process.cwd()
+            cwd: workingDirectory || process.cwd(),
         }
 
         if (this._serverOptions.command) {

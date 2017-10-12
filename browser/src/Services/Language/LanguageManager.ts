@@ -5,11 +5,11 @@
  *  - Language server protocol
  *  - Synchronizing language configuration
  *  - Handling custom syntax (TextMate themes)
-*/
+ */
 
-import * as Log from "./../../Log"
 import { Event } from "./../../Event"
 import { IDisposable } from "./../../IDisposable"
+import * as Log from "./../../Log"
 
 import { editorManager } from "./../EditorManager"
 
@@ -33,22 +33,20 @@ export class LanguageManager {
         editorManager.allEditors.onBufferEnter.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
             const { language, filePath } = bufferInfo
 
-            console.log("Buffer enter: " + bufferInfo.filePath)
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", Helpers.pathToTextDocumentIdentifierParms(filePath))
         })
 
         editorManager.allEditors.onBufferLeave.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
             const { language, filePath } = bufferInfo
-            console.log("Buffer leave: " + bufferInfo.filePath)
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didClose", Helpers.pathToTextDocumentIdentifierParms(filePath))
         })
 
         this.subscribeToLanguageServerNotification("window/logMessage", (args) => {
-            console.log("[LanguageManager - window/logMessage] " + JSON.stringify(args))
+            logInfo("window/logMessage: " + JSON.stringify(args))
         })
 
         this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
-            console.log("[LanguageManager - telemetry/Event] " + JSON.stringify(args))
+            logInfo("telemetry/event:" + JSON.stringify(args))
         })
     }
 
@@ -69,7 +67,6 @@ export class LanguageManager {
             return languageClient.sendRequest(filePath, protocolMessage, protocolPayload)
         } else {
             return Promise.reject("No language server registered")
-            // TODO: Log warning
         }
     }
 
@@ -98,12 +95,12 @@ export class LanguageManager {
             Log.error("Duplicate language server registered for: " + language)
             return
         }
-        
-        const languageClient = new LanguageClient2(language, languageProcess) 
 
-        for (let notification in this._notificationSubscriptions) {
+        const languageClient = new LanguageClient2(language, languageProcess)
+
+        Object.keys(this._notificationSubscriptions).forEach((notification) => {
             languageClient.subscribe(notification, this._notificationSubscriptions[notification])
-        }
+        })
 
         this._languageServerInfo[language]  = languageClient
     }
@@ -111,6 +108,10 @@ export class LanguageManager {
     private _getLanguageClient(language: string): LanguageClient2 {
         return this._languageServerInfo[language]
     }
+}
+
+const logInfo = (msg: string) => {
+    Log.info("[Language Manager] " + msg)
 }
 
 export const languageManager = new LanguageManager()

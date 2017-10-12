@@ -4,20 +4,20 @@
  * Grab bag for functions that don't have another home.
  */
 
+import * as fs from "fs"
+import * as minimatch from "minimatch"
+import * as path from "path"
+
+import * as find from "lodash/find"
+import * as isEqual from "lodash/isEqual"
+import * as reduce from "lodash/reduce"
+
 /**
  * Use a `node` require instead of a `webpack` require
  * The difference is that `webpack` require will bake the javascript
  * into the module. For most modules, we want the webpack behavior,
  * but for some (like node modules), we want to explicitly require them.
  */
-
-import * as fs from "fs"
-import * as path from "path"
-import * as minimatch from "minimatch"
-
-import * as find from "lodash/find"
-import * as isEqual from "lodash/isEqual"
-import * as reduce from "lodash/reduce"
 
 export function nodeRequire(moduleName: string): any {
     return window["require"](moduleName) // tslint:disable-line
@@ -57,9 +57,10 @@ export const doesFileNameMatchGlobPatterns = (fileName: string, globPatterns: st
         return false
     }
 
-    for (let i =0; i < globPatterns.length; i++) {
-        if (minimatch(fileName, globPatterns[i]))
+    for (const i of globPatterns) {
+        if (minimatch(fileName, globPatterns[i])) {
             return true
+        }
     }
 
     return false

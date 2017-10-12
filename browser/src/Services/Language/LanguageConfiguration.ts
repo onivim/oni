@@ -60,7 +60,7 @@ const expandConfigurationSetting = (rootObject: any, configurationPath: string[]
 
     return {
         ...rootObject,
-        [currentPath]: expandConfigurationSetting(currentObject, remaining, value)
+        [currentPath]: expandConfigurationSetting(currentObject, remaining, value),
     }
 }
 
@@ -87,11 +87,11 @@ const createLanguageClientFromConfig = (language: string, config: ILightweightLa
     const serverRunOptions: ServerRunOptions = {
         ...commandOrModule,
         args: [],
-        workingDirectory: pathResolver
+        workingDirectory: pathResolver,
     }
 
     const initializationOptions: InitializationOptions = {
-        rootPath: pathResolver
+        rootPath: pathResolver,
     }
 
     languageManager.registerLanguageClientFromProcess(language, new LanguageClientProcess(serverRunOptions, initializationOptions))
