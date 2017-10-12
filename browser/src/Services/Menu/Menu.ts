@@ -16,6 +16,21 @@ export const menuStore = createStore(reducer, State.createDefaultState())
 
 export const menuActions: typeof ActionCreators = bindActionCreators(ActionCreators as any, menuStore.dispatch)
 
+// TODO: Refactor to thunk?
+const hideMenu = () => {
+    const state = menuStore.getState()
+
+    if (!state.menu) {
+        return
+    }
+
+    if (state.menu.onHide) {
+        state.menu.onHide()
+    }
+
+    menuActions.hidePopupMenu()
+}
+
 export class MenuManager {
     private _id: number = 0
 
@@ -37,7 +52,7 @@ export class MenuManager {
     }
 
     public closeActiveMenu(): void {
-        menuActions.hidePopupMenu()
+        hideMenu()
     }
 
     public selectMenuItem(idx?: number): void {
@@ -52,6 +67,11 @@ export class MenuManager {
 export class Menu {
     private _onItemSelected = new Event<any>()
     private _onFilterTextChanged = new Event<string>()
+    private _onHide = new Event<void>()
+
+    public get onHide(): IEvent<void> {
+        return this._onHide
+    }
 
     public get onItemSelected(): IEvent<any> {
         return this._onItemSelected
@@ -84,11 +104,12 @@ export class Menu {
     public show(): void {
         menuActions.showPopupMenu(this._id, {
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
+            onHide: () => this._onHide.dispatch(),
         })
     }
 
     public hide(): void {
-        menuActions.hidePopupMenu()
+        hideMenu()
     }
 
     private _onItemSelectedHandler(idx?: number): void {

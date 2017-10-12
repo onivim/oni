@@ -8,6 +8,7 @@ export interface IMenuOptions {
     foregroundColor?: string
     backgroundColor?: string
     onSelectItem?: (idx: number) => void
+    onHide?: () => void
 }
 
 export interface IShowMenuAction {
