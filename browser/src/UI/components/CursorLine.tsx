@@ -50,6 +50,8 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
     const enabledSetting = props.lineType === "line" ? "editor.cursorLine" : "editor.cursorColumn"
     const enabled = state.configuration[enabledSetting]
 
+    const isNormalInsertOrVisualMode = state.mode === "normal" || state.mode === "insert" || state.mode === "visual"
+
     const isVisible = props.lineType === "line" ? state.cursorLineVisible : state.cursorColumnVisible
 
     const activeWindowDimensions = Selectors.getActiveWindowDimensions(state)
@@ -60,7 +62,7 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
         width: props.lineType === "line" ? activeWindowDimensions.width : state.cursorPixelWidth,
         height: props.lineType === "line" ? state.fontPixelHeight : activeWindowDimensions.height,
         color: state.foregroundColor,
-        visible: isVisible && enabled,
+        visible: isVisible && enabled & isNormalInsertOrVisualMode,
         opacity,
     }
 }

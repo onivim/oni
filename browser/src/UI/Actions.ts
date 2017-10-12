@@ -260,22 +260,6 @@ export interface IHideQuickInfoAction {
     type: "HIDE_QUICK_INFO"
 }
 
-export interface IShowCursorLineAction {
-    type: "SHOW_CURSOR_LINE"
-}
-
-export interface IHideCurorLineAction {
-    type: "HIDE_CURSOR_LINE"
-}
-
-export interface IShowCursorColumnAction {
-    type: "SHOW_CURSOR_COLUMN"
-}
-
-export interface IHideCursorColumnAction {
-    type: "HIDE_CURSOR_COLUMN"
-}
-
 export interface ISetConfigurationValue<K extends keyof IConfigurationValues> {
     type: "SET_CONFIGURATION_VALUE"
     payload: {
