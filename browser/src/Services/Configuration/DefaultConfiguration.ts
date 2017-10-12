@@ -32,7 +32,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "oni.hideMenu": false,
 
-    "oni.exclude": ["**/node_modules/**"],
+    "oni.exclude": ["node_modules", ".git"],
     "oni.bookmarks": [],
 
     "editor.backgroundOpacity": 1.0,

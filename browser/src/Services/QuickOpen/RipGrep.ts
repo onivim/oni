@@ -16,7 +16,12 @@ export const getCommand = () => {
     return path.join(rootPath, executableName)
 }
 
-export const getArguments = (/*excludePaths: string[]*/) => {
-    return ["--files", "--hidden", "--case-sensitive"]
+export const getArguments = (excludePaths: string[]) => {
+
+    const ignoreArguments = excludePaths.reduce((prev, cur) => {
+        return prev.concat(["-g", cur])
+    }, [])
+
+    return ["--files", "--hidden", "--case-sensitive"].concat(ignoreArguments)
 }
 
