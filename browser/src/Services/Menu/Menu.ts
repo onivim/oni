@@ -69,7 +69,7 @@ export class Menu {
     }
 
     public isOpen(): boolean {
-        const menuState = menuStore.getState() 
+        const menuState = menuStore.getState()
         return menuState.menu && menuState.menu.id === this._id
     }
 
