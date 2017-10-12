@@ -1,7 +1,5 @@
 import { EventEmitter } from "events"
 import * as fs from "fs"
-import * as mkdirp from "mkdirp"
-import * as os from "os"
 import * as path from "path"
 import { INeovimInstance } from "./../neovim"
 import { configuration } from "./../Services/Configuration"
