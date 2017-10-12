@@ -82,13 +82,12 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return inputManager
     }
 
-<<<<<<< HEAD
     public get language(): any {
         return languageManager
-=======
+    }
+
     public get menu(): any /* TODO */ {
         return menuManager
->>>>>>> master
     }
 
     public get process(): Oni.Process {
