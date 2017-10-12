@@ -68,6 +68,8 @@ export class QuickOpen {
 
         //  If in exec directory or home, show bookmarks to change cwd to
         if (this._isInstallDirectoryOrHome()) {
+
+            this._menu.show()
             this._loadDefaultMenuItems()
 
             // TODO consider adding folders as well (recursive async with ignores/excludes)
