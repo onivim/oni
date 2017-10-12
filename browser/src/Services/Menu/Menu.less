@@ -1,5 +1,14 @@
 @import (reference) "./../../UI/components/common.less";
 
+@keyframes fade-in-and-down {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .menu-background {
     position: absolute;
     top: 0px;
@@ -83,6 +92,25 @@
 
     .footer {
         text-align: center;
+
+        .loading-spinner {
+            opacity: 0;
+
+            &.loading {
+                opacity: 0;
+                animation-name: fade-in-and-down;
+                animation-delay: 0.5s;
+                animation-duration: 1s;
+                animation-fill-mode: forwards;
+            }
+
+            &.loaded {
+                animation-name: fade-in-and-down;
+                animation-duration: 0.5s;
+                animation-direction: reverse;
+                animation-fill-mode: forwards;
+            }
+        }
     }
 
 }

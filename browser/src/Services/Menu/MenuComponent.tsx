@@ -64,7 +64,7 @@ export class MenuView extends React.PureComponent<IMenuProps, void> {
             color: this.props.foregroundColor,
         }
 
-        const loadingSpinner = this.props.isLoading ? <Icon name="circle-o-notch" className=" fa-spin" size={IconSize.Large} /> : null
+        const loadingSpinnerClassName = "loading-spinner " + (this.props.isLoading ? "loading" : "loaded")
 
         return <div className="menu-background enable-mouse">
             <div className="menu" style={menuStyle}>
@@ -82,7 +82,9 @@ export class MenuView extends React.PureComponent<IMenuProps, void> {
                     {items}
                 </div>
                 <div className="footer">
-                    {loadingSpinner}
+                    <div className={loadingSpinnerClassName}>
+                        <Icon name="circle-o-notch" className=" fa-spin" size={IconSize.Large} />
+                    </div>
                 </div>
             </div>
         </div>
