@@ -13,7 +13,8 @@ import { remote } from "electron"
 import {EventEmitter} from "events"
 import * as find from "lodash/find"
 import * as flatten from "lodash/flatten"
-import * as UI from "./../UI/index"
+
+import { Menu, menuManager } from "./../Services/Menu"
 
 export interface ITask {
     name: string
@@ -32,13 +33,13 @@ export class Tasks extends EventEmitter {
     private _lastTasks: ITask[] = []
     private _currentBufferPath: string
 
+    private _menu: Menu
+
     private _providers: ITaskProvider[] = []
 
     // TODO: This should be refactored, as it is simply
     // a timing dependency on when the object is created versus when
     // it is shown.
-    private _initialized = false
-
     public registerTaskProvider(taskProvider: ITaskProvider): void {
         this._providers.push(taskProvider)
     }
@@ -48,10 +49,8 @@ export class Tasks extends EventEmitter {
     }
 
     public show(): void {
-        this._init()
-
         this._refreshTasks().then(() => {
-            const options = this._lastTasks.map((f) => {
+            const options: Oni.Menu.MenuOption[] = this._lastTasks.map((f) => {
                 return {
                     icon: "tasks",
                     label: f.name,
@@ -59,28 +58,28 @@ export class Tasks extends EventEmitter {
                 }
             })
 
-            UI.Actions.showPopupMenu("tasks", options)
+            this._menu = menuManager.create()
+            this._menu.onItemSelected.subscribe((selection: any) => this._onItemSelected(selection))
+            this._menu.show()
+            this._menu.setItems(options)
+            // TODO
+            // UI.Actions.showPopupMenu("tasks", options)
         })
     }
 
-    private _init(): void {
-        if (!this._initialized) {
-            UI.events.on("menu-item-selected:tasks", async (selectedItem: any) => {
-                const {label, detail} = selectedItem.selectedOption
+    private async _onItemSelected(selectedOption: Oni.Menu.MenuOption): Promise<void> {
+        const {label, detail} = selectedOption
 
-                const selectedTask = find(this._lastTasks, (t) => t.name === label && t.detail === detail)
+        const selectedTask = find(this._lastTasks, (t) => t.name === label && t.detail === detail)
 
-                if (selectedTask) {
-                    await selectedTask.callback()
-                    this.emit("task-executed", selectedTask.command)
+        if (selectedTask) {
+            await selectedTask.callback()
+            this.emit("task-executed", selectedTask.command)
 
-                    // TODO: we should make the callback return a bool so we can display either success/fail messages
-                    if (selectedTask.messageSuccess != null) {
-                      remote.dialog.showMessageBox({type: "info", title: "Success", message: selectedTask.messageSuccess})
-                    }
-                }
-            })
-            this._initialized = true
+            // TODO: we should make the callback return a bool so we can display either success/fail messages
+            if (selectedTask.messageSuccess != null) {
+              remote.dialog.showMessageBox({type: "info", title: "Success", message: selectedTask.messageSuccess})
+            }
         }
     }
 

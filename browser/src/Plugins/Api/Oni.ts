@@ -16,6 +16,7 @@ import { configuration } from "./../../Services/Configuration"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import { languageManager } from "./../../Services/Language"
+import { menuManager } from "./../../Services/Menu"
 import { recorder } from "./../../Services/Recorder"
 import { statusBar } from "./../../Services/StatusBar"
 import { windowManager, WindowManager } from "./../../Services/WindowManager"
@@ -81,8 +82,13 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return inputManager
     }
 
+<<<<<<< HEAD
     public get language(): any {
         return languageManager
+=======
+    public get menu(): any /* TODO */ {
+        return menuManager
+>>>>>>> master
     }
 
     public get process(): Oni.Process {

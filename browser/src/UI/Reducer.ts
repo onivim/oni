@@ -1,16 +1,10 @@
-import { execSync } from "child_process"
-import * as path from "path"
 import * as State from "./State"
 
-import * as Fuse from "fuse.js"
-
-import * as Log from "./../Log"
 import * as Actions from "./Actions"
 
-import { configuration, IConfigurationValues } from "./../Services/Configuration"
+import { IConfigurationValues } from "./../Services/Configuration"
 
 import * as pick from "lodash/pick"
-import * as sortBy from "lodash/sortBy"
 
 import * as types from "vscode-languageserver-types"
 
@@ -99,7 +93,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
                     autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
-                    popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
                     statusBar: statusBarReducer(s.statusBar, a),
                     windowState: windowStateReducer(s.windowState, a)}
     }
@@ -265,169 +258,6 @@ export const statusBarReducer = (s: { [key: string]: State.IStatusBarItem }, a: 
         default:
             return s
     }
-}
-
-export function popupMenuReducer(s: State.IMenu | null, a: Actions.SimpleAction) {
-
-    // TODO: sync max display items (10) with value in Menu.render() (Menu.tsx)
-    const size = s ? Math.min(10, s.filteredOptions.length) : 0
-
-    switch (a.type) {
-        case "SHOW_MENU":
-            const sortedOptions = sortBy(a.payload.options, (f) => f.pinned ? 0 : 1).map((o) => ({
-                icon: o.icon,
-                detail: o.detail,
-                label: o.label,
-                pinned: o.pinned,
-                detailHighlights: [],
-                labelHighlights: [],
-            }))
-
-            return {
-                id: a.payload.id,
-                filter: "",
-                filteredOptions: sortedOptions,
-                options: a.payload.options,
-                selectedIndex: 0,
-            }
-        case "HIDE_MENU":
-            return null
-        case "NEXT_MENU":
-            if (!s) {
-                return s
-            }
-
-            return {...s,
-                    selectedIndex: (s.selectedIndex + 1) % size}
-        case "PREVIOUS_MENU":
-            if (!s) {
-                return s
-            }
-
-            return {...s,
-                    selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : size - 1}
-        case "FILTER_MENU":
-            if (!s) {
-                return s
-            }
-
-            // If we already had search results, and this search is a superset of the previous,
-            // just filter the already-pruned subset
-            const optionsToSearch = a.payload.filter.indexOf(s.filter) === 0 ? s.filteredOptions : s.options
-            const filteredOptionsSorted = filterMenuOptions(optionsToSearch, a.payload.filter, s.id)
-
-            return {...s,
-                    filter: a.payload.filter,
-                    filteredOptions: filteredOptionsSorted}
-        default:
-            return s
-    }
-}
-
-export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string, id: string): State.IMenuOptionWithHighlights[] {
-
-    // if filtering files (not tasks) and overriddenCommand defined
-    if (id === "quickOpen") {
-        const overriddenCommand = configuration.getValue("editor.quickOpen.execCommand")
-        if (overriddenCommand) {
-            try {
-                const files = execSync(overriddenCommand.replace("${search}", searchString), { cwd: process.cwd() }) // tslint:disable-line no-invalid-template-strings
-                    .toString("utf8")
-                    .split("\n")
-                const opt: State.IMenuOptionWithHighlights[]  = files.map((untrimmedFile) => {
-                    const f = untrimmedFile.trim()
-                    const file = path.basename(f)
-                    const folder = path.dirname(f)
-                    return {
-                        icon: "file-text-o",
-                        label: file,
-                        detail: folder,
-                        pinned: false,
-                        detailHighlights: [],
-                        labelHighlights: [],
-                    }
-                })
-                return opt
-            } catch (e) {
-                Log.warn(`'${overriddenCommand}' returned an error: ${e.message}\nUsing default filtering`)
-            }
-        }
-    }
-
-    if (!searchString) {
-        const opt = options.map((o) => {
-            return {
-                label: o.label,
-                detail: o.detail,
-                icon: o.icon,
-                pinned: o.pinned,
-                detailHighlights: [],
-                labelHighlights: [],
-            }
-        })
-
-        return sortBy(opt, (o) => o.pinned ? 0 : 1)
-    }
-
-    const fuseOptions = {
-        keys: [{
-            name: "label",
-            weight: 0.6,
-        }, {
-            name: "detail",
-            weight: 0.4,
-        }],
-        include: ["matches"],
-    }
-
-    // remove duplicate characters
-    const searchSet = new Set(searchString)
-
-    // remove any items that don't have all the characters from searchString
-    const filteredOptions = options.filter((o) => {
-
-        if (!o.label && !o.detail) {
-            return false
-        }
-
-        const combined = o.label + o.detail
-
-        for (const c of searchSet) {
-            if (combined.indexOf(c) === -1) {
-                return false
-            }
-        }
-
-        return true
-    })
-
-    const fuse = new Fuse(filteredOptions, fuseOptions)
-    const results = fuse.search(searchString)
-
-    const highlightOptions = results.map((f: any) => {
-        let labelHighlights: number[][] = []
-        let detailHighlights: number[][] = []
-        // matches will have 1 or 2 items depending on
-        // whether one or both (label and detail) matched
-        f.matches.forEach((obj: any) => {
-            if (obj.key === "label") {
-                labelHighlights = obj.indices
-            } else {
-                detailHighlights = obj.indices
-            }
-        })
-
-        return {
-            icon: f.item.icon,
-            pinned: f.item.pinned,
-            label: f.item.label,
-            detail: f.item.detail,
-            labelHighlights,
-            detailHighlights,
-        }
-    })
-
-    return highlightOptions
 }
 
 export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleAction): State.IWindowState => {

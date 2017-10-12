@@ -1,4 +1,13 @@
-@import (reference) "./common.less";
+@import (reference) "./../../UI/components/common.less";
+
+@keyframes fade-in-and-down {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
 
 .menu-background {
     position: absolute;
@@ -15,6 +24,7 @@
 .menu {
     .box-shadow;
 
+    position: relative;
     margin-top: 16px;
     padding: 8px;
     width: 75%;
@@ -81,4 +91,42 @@
         }
     }
 
+    .footer {
+        text-align: center;
+        width: 100%;
+        transition-property: margin, opacity, padding;
+        transition-duration: 0.25s;
+        margin-bottom: 0em;
+        position: relative;
+
+        &.loading {
+            padding-bottom: 24px;
+            padding-top: 8px;
+            margin-bottom: 2em;
+
+            .loading-spinner {
+                opacity: 1;
+            }
+        }
+
+        &.loaded {
+            margin-bottom: 0em;
+        }
+
+        .loading-spinner {
+            .box-shadow-inset;
+            line-height: 2em;
+            height: 2em;
+
+            position: absolute;
+            left: -8px;
+            right: -8px;
+            padding: 8px;
+            opacity: 0;
+
+            .loading & {
+                opacity: 1;
+            }
+        }
+    }
 }
