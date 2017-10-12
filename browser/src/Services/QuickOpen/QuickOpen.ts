@@ -17,6 +17,7 @@ import { Menu, menuManager } from "./../Menu"
 
 import { FinderProcess } from "./FinderProcess"
 import { QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
+import * as RipGrep from "./RipGrep"
 
 export class QuickOpen {
     private _finderProcess: FinderProcess
@@ -87,7 +88,7 @@ export class QuickOpen {
 
         // Default strategy
         // The '-z' argument is needed to prevent escaping, see #711 for more information.
-        this.loadMenu("git", ["ls-files", "--others", "--exclude-standard", "--cached", "-z"], "\u0000")
+        this.loadMenu(RipGrep.getCommand(), RipGrep.getArguments(), "\n")
     }
 
     public async showBufferLines() {
