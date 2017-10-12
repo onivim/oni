@@ -88,7 +88,8 @@ export class QuickOpen {
 
         // Default strategy
         // The '-z' argument is needed to prevent escaping, see #711 for more information.
-        this.loadMenu(RipGrep.getCommand(), RipGrep.getArguments(), "\n")
+        const excludeFiles = configuration.getValue("oni.exclude")
+        this.loadMenu(RipGrep.getCommand(), RipGrep.getArguments(excludeFiles), "\n")
     }
 
     public async showBufferLines() {

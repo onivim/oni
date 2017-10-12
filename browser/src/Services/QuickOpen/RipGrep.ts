@@ -19,7 +19,7 @@ export const getCommand = () => {
 export const getArguments = (excludePaths: string[]) => {
 
     const ignoreArguments = excludePaths.reduce((prev, cur) => {
-        return prev.concat(["-g", cur])
+        return prev.concat(["-g", "!" + cur])
     }, [])
 
     return ["--files", "--hidden", "--case-sensitive"].concat(ignoreArguments)
