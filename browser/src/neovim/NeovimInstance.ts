@@ -436,7 +436,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _handleNotification(_method: any, args: any): void {
         args.forEach((a: any[]) => {
-            const command = a.shift()
+            const command = a[0]
+            a = a.slice(1)
+
             switch (command) {
                 case "cursor_goto":
                     this.emit("action", Actions.createCursorGotoAction(a[0][0], a[0][1]))
