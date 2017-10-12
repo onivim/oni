@@ -305,16 +305,9 @@ export class NeovimEditor implements IEditor {
         this._onModeChangedEvent.dispatch(newMode)
 
         if (newMode === "normal") {
-            UI.Actions.showCursorLine()
-            UI.Actions.showCursorColumn()
             UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
-        } else if (newMode === "insert") {
-            UI.Actions.showCursorColumn()
-            UI.Actions.showCursorLine()
         } else if (newMode.indexOf("cmdline") >= 0) {
-            UI.Actions.hideCursorLine()
-            UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
             UI.Actions.hideCompletions()
         }
     }
@@ -331,9 +324,7 @@ export class NeovimEditor implements IEditor {
                 language: evt.filetype,
             })
 
-            // TODO: More convenient way to hide all UI?
             UI.Actions.hideCompletions()
-            UI.Actions.hidePopupMenu()
             UI.Actions.hideSignatureHelp()
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)

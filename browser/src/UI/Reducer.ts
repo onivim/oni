@@ -77,18 +77,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         case "HIDE_SIGNATURE_HELP":
             return {...s,
                     signatureHelp: null}
-         case "HIDE_CURSOR_LINE":
-             return {...s,
-                     cursorLineVisible: false}
-         case "HIDE_CURSOR_COLUMN":
-             return {...s,
-                     cursorColumnVisible: false}
-         case "SHOW_CURSOR_LINE":
-             return {...s,
-                     cursorLineVisible: true}
-         case "SHOW_CURSOR_COLUMN":
-             return {...s,
-                     cursorColumnVisible: true}
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value

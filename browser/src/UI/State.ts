@@ -49,9 +49,7 @@ export interface IState {
     quickInfo: null | ILocatable<Oni.Plugin.QuickInfo>
     popupMenu: null | IMenu
     signatureHelp: null | Oni.Plugin.SignatureHelpResult
-    cursorLineVisible: boolean
     cursorLineOpacity: number
-    cursorColumnVisible: boolean
     cursorColumnOpacity: number
     configuration: IConfigurationValues
     imeActive: boolean
@@ -215,9 +213,7 @@ export const createDefaultState = (): IState => ({
         width: 0,
         height: 0,
     },
-    cursorLineVisible: false,
     cursorLineOpacity: 0,
-    cursorColumnVisible: false,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
 
