@@ -111,7 +111,10 @@ export class QuickOpen {
     private loadMenu(command: string, args: string[] = [], splitCharacter: string = "\n") {
         this._menu.show()
 
-        this._menu.setLoading(true)
+        let timeout = window.setTimeout(() => {
+            this._menu.setLoading(true)
+        }, 200)
+
         this._menu.setItems([])
         this._loadedItems = []
 
@@ -127,6 +130,11 @@ export class QuickOpen {
 
         this._finderProcess.onComplete.subscribe(() => {
             this._menu.setLoading(false)
+
+            if (timeout) {
+                window.clearTimeout(timeout)
+                timeout = null
+            }
         })
 
         this._finderProcess.start()

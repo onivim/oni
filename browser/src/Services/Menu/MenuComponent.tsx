@@ -64,7 +64,7 @@ export class MenuView extends React.PureComponent<IMenuProps, void> {
             color: this.props.foregroundColor,
         }
 
-        const loadingSpinnerClassName = "loading-spinner " + (this.props.isLoading ? "loading" : "loaded")
+        const footerClassName = "footer " + (this.props.isLoading ? "loading" : "loaded")
 
         return <div className="menu-background enable-mouse">
             <div className="menu" style={menuStyle}>
@@ -78,13 +78,13 @@ export class MenuView extends React.PureComponent<IMenuProps, void> {
                     }}
                     onChange={(evt) => this._onChange(evt)}
                     />
-                <div className="items">
-                    {items}
-                </div>
-                <div className="footer">
-                    <div className={loadingSpinnerClassName}>
+                <div className={footerClassName} style={menuStyle}>
+                    <div className="loading-spinner">
                         <Icon name="circle-o-notch" className=" fa-spin" size={IconSize.Large} />
                     </div>
+                </div>
+                <div className="items">
+                    {items}
                 </div>
             </div>
         </div>
