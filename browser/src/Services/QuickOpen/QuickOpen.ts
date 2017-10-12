@@ -5,7 +5,6 @@
  */
 
 import { lstatSync } from "fs"
-
 import * as path from "path"
 
 import { INeovimInstance } from "./../../neovim"
@@ -82,12 +81,11 @@ export class QuickOpen {
         if (overriddenCommand) {
             // replace placeholder ${search} with "" for initial case
             this.loadMenu(overriddenCommand.replace("${search}", "")) // tslint:disable-line no-invalid-template-strings
-            return
+        } else {
+            // Default strategy
+            // The '-z' argument is needed to prevent escaping, see #711 for more information.
+            this.loadMenu("C:/oni/node_modules/vscode-ripgrep/bin/rg.exe", ["--files", "--hidden", "--case-sensitive", "-g", "!.git"], "\n")
         }
-
-        // Default strategy
-        // The '-z' argument is needed to prevent escaping, see #711 for more information.
-        this.loadMenu("git", ["ls-files", "--others", "--exclude-standard", "--cached", "-z"], "\u0000")
     }
 
     public async showBufferLines() {
