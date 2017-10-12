@@ -298,12 +298,8 @@ export type SimpleAction =
     ISetColorsAction |
     IStatusBarHideAction |
     IStatusBarShowAction |
-    IHideCurorLineAction |
-    IHideCursorColumnAction |
     ISetErrorsAction |
     IClearErrorsAction |
-    IShowCursorLineAction |
-    IShowCursorColumnAction |
     ISetCurrentBuffersAction |
     ISetTabs |
     ISetViewportAction |

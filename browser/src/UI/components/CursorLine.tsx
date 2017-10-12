@@ -17,8 +17,6 @@ export interface ICursorLineProps {
     lineType: string
 }
 
-// require("./Cursor.less") // tslint:disable-line no-var-requires
-
 class CursorLineRenderer extends React.PureComponent<ICursorLineRendererProps, void> {
 
     public render(): null |  JSX.Element {
@@ -52,8 +50,6 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
 
     const isNormalInsertOrVisualMode = state.mode === "normal" || state.mode === "insert" || state.mode === "visual"
 
-    const isVisible = props.lineType === "line" ? state.cursorLineVisible : state.cursorColumnVisible
-
     const activeWindowDimensions = Selectors.getActiveWindowDimensions(state)
 
     return {
@@ -62,7 +58,7 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
         width: props.lineType === "line" ? activeWindowDimensions.width : state.cursorPixelWidth,
         height: props.lineType === "line" ? state.fontPixelHeight : activeWindowDimensions.height,
         color: state.foregroundColor,
-        visible: isVisible && enabled & isNormalInsertOrVisualMode,
+        visible: enabled && isNormalInsertOrVisualMode,
         opacity,
     }
 }
