@@ -21,6 +21,9 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     }
 
     switch (a.type) {
+        case "SET_VIEWPORT":
+            return { ...s,
+                     viewport: viewportReducer(s.viewport, a) }
         case "SET_CURSOR_POSITION":
             return {...s,
                     cursorPixelX: a.payload.pixelX,
@@ -44,10 +47,16 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 backgroundColor: a.payload.backgroundColor,
             } }
         case "SHOW_QUICK_INFO":
+            const { filePath, line, column, title, description } = a.payload
             return {...s,
                     quickInfo: {
-                    title: a.payload.title,
-                    description: a.payload.description,
+                        filePath,
+                        line,
+                        column,
+                        data: {
+                            title,
+                            description,
+                        },
                 }}
         case "HIDE_QUICK_INFO":
             return {...s,
@@ -68,18 +77,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         case "HIDE_SIGNATURE_HELP":
             return {...s,
                     signatureHelp: null}
-         case "HIDE_CURSOR_LINE":
-             return {...s,
-                     cursorLineVisible: false}
-         case "HIDE_CURSOR_COLUMN":
-             return {...s,
-                     cursorColumnVisible: false}
-         case "SHOW_CURSOR_LINE":
-             return {...s,
-                     cursorLineVisible: true}
-         case "SHOW_CURSOR_COLUMN":
-             return {...s,
-                     cursorColumnVisible: true}
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value
@@ -105,6 +102,18 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     popupMenu: popupMenuReducer(s.popupMenu, a), // FIXME: null
                     statusBar: statusBarReducer(s.statusBar, a),
                     windowState: windowStateReducer(s.windowState, a)}
+    }
+}
+
+export const viewportReducer = (s: State.IViewport, a: Actions.ISetViewportAction) => {
+    switch (a.type) {
+        case "SET_VIEWPORT":
+            return {
+                width: a.payload.width,
+                height: a.payload.height,
+        }
+        default:
+            return s
     }
 }
 

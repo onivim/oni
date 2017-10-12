@@ -84,6 +84,24 @@ export const getActiveWindow = (state: State.IState): State.IWindow => {
     return state.windowState.windows[activeWindow]
 }
 
+export const getQuickInfo = (state: State.IState): Oni.Plugin.QuickInfo => {
+    const { file, line, column } = getActiveWindow(state)
+
+    const quickInfo = state.quickInfo
+
+    if (!quickInfo) {
+        return null
+    }
+
+    if (quickInfo.filePath !== file
+        || quickInfo.line !== line
+        || quickInfo.column !== column) {
+            return null
+        }
+
+    return quickInfo.data
+}
+
 export const getActiveWindowDimensions = (state: State.IState): Rectangle => {
     const emptyRectangle = {
         x: 0,

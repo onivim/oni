@@ -109,6 +109,7 @@ export interface INeovimInstance {
     getApiVersion(): Promise<INeovimApiVersion>
 
     open(fileName: string): Promise<void>
+    openInitVim(): Promise<void>
 
     executeAutoCommand(autoCommand: string): Promise<void>
 }
@@ -322,6 +323,16 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public open(fileName: string): Promise<void> {
         return this.command(`e! ${fileName}`)
+    }
+
+    public openInitVim(): Promise<void> {
+        const loadInitVim = configuration.getValue("oni.loadInitVim")
+
+        if (typeof(loadInitVim) === "string") {
+            return this.open(loadInitVim)
+        } else {
+            return this.open("$MYVIMRC")
+        }
     }
 
     public eval<T>(expression: string): Promise<T> {

@@ -136,15 +136,6 @@ export class NeovimEditor implements IEditor {
             commandManager.executeCommand(command)
         })
 
-        // TODO: Refactor `pluginManager` responsibilities outside of this instance
-        this._pluginManager.on("signature-help-response", (err: string, signatureHelp: any) => { // FIXME: setup Oni import
-            if (err) {
-                UI.Actions.hideSignatureHelp()
-            } else {
-                UI.Actions.showSignatureHelp(signatureHelp)
-            }
-        })
-
         this._pluginManager.on("set-errors", (key: string, fileName: string, errors: types.Diagnostic[]) => {
 
             UI.Actions.setErrors(fileName, key, errors)
@@ -314,19 +305,10 @@ export class NeovimEditor implements IEditor {
         this._onModeChangedEvent.dispatch(newMode)
 
         if (newMode === "normal") {
-            UI.Actions.showCursorLine()
-            UI.Actions.showCursorColumn()
             UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
-        } else if (newMode === "insert") {
-            UI.Actions.hideQuickInfo()
-            UI.Actions.showCursorColumn()
-            UI.Actions.showCursorLine()
         } else if (newMode.indexOf("cmdline") >= 0) {
-            UI.Actions.hideCursorLine()
-            UI.Actions.hideCursorColumn() // TODO: cleaner way to hide and unhide?
             UI.Actions.hideCompletions()
-            UI.Actions.hideQuickInfo()
         }
     }
 
@@ -342,11 +324,8 @@ export class NeovimEditor implements IEditor {
                 language: evt.filetype,
             })
 
-            // TODO: More convenient way to hide all UI?
             UI.Actions.hideCompletions()
-            UI.Actions.hidePopupMenu()
             UI.Actions.hideSignatureHelp()
-            UI.Actions.hideQuickInfo()
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
         } else if (eventName === "BufLeave") {

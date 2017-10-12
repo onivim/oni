@@ -5,14 +5,16 @@ import { connect } from "react-redux"
 
 import { IState } from "./../State"
 
+import { CursorPositioner } from "./CursorPositioner"
+
 require("./QuickInfo.less") // tslint:disable-line no-var-requires
 
 export interface IQuickInfoProps {
     visible: boolean
-    x: number
-    y: number
     elements: JSX.Element[]
-    openFromTop?: boolean
+
+    backgroundColor: string
+    foregroundColor: string
 }
 
 export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
@@ -22,37 +24,19 @@ export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
             return null
         }
 
-        const openFromTop = this.props.openFromTop || false
-
-        const containerStyle: React.CSSProperties = {
-            position: "absolute",
-            top: this.props.y.toString() + "px",
-            left: this.props.x.toString() + "px",
-        }
-
         const innerCommonStyle: React.CSSProperties = {
-            "position": "absolute",
             "opacity": this.props.visible ? 1 : 0,
-            "max-width": (document.body.offsetWidth - this.props.x - 40) + "px",
+            backgroundColor: this.props.backgroundColor,
+            color: this.props.foregroundColor,
         }
 
-        const openFromTopStyle: React.CSSProperties = {
-            ...innerCommonStyle,
-            "top": "0px",
-        }
-
-        const openFromBottomStyle: React.CSSProperties = {
-            ...innerCommonStyle,
-            "bottom": "0px",
-        }
-
-        const innerStyle: React.CSSProperties = openFromTop ? openFromTopStyle : openFromBottomStyle
-
-        return <div key={"quickinfo-container"} className="quickinfo-container enable-mouse" style={containerStyle}>
-            <div key={"quickInfo"} style={innerStyle} className="quickinfo">
-                {this.props.elements}
+        return <CursorPositioner>
+            <div key={"quickinfo-container"} className="quickinfo-container enable-mouse">
+                <div key={"quickInfo"} style={innerCommonStyle} className="quickinfo">
+                    {this.props.elements}
+                </div>
             </div>
-        </div>
+        </CursorPositioner>
     }
 }
 
@@ -96,34 +80,18 @@ export class SelectedText extends TextComponent {
     }
 }
 
-const getOpenPosition = (state: IState): { x: number, y: number, openFromTop: boolean } => {
-    const openFromTopPosition = state.cursorPixelY + (state.fontPixelHeight * 2)
-    const openFromBottomPosition = state.cursorPixelY - state.fontPixelHeight
-
-    const openFromTop = state.cursorPixelY < 75
-
-    const yPos = openFromTop ? openFromTopPosition : openFromBottomPosition
-
-    return {
-        x: state.cursorPixelX,
-        y: yPos,
-        openFromTop,
-    }
-}
-
 import { createSelector } from "reselect"
+import * as Selectors from "./../Selectors"
 
-const getQuickInfo = (state: IState) => state.quickInfo
-
-const getCursorCharacter = (state: IState) => state.cursorCharacter
+const getQuickInfo = Selectors.getQuickInfo
 
 const EmptyArray: JSX.Element[] = []
 
 const getQuickInfoElement = createSelector(
-    [getQuickInfo, getCursorCharacter],
-    (quickInfo, cursorCharacter) => {
+    [getQuickInfo],
+    (quickInfo) => {
 
-        if (!quickInfo || !cursorCharacter) {
+        if (!quickInfo) {
             return EmptyArray
         } else {
             return [
@@ -134,33 +102,35 @@ const getQuickInfoElement = createSelector(
     })
 
 const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
-    const openPosition = getOpenPosition(state)
-
-    const elements = getQuickInfoElement(state)
-
-    if (!state.quickInfo || !state.cursorCharacter) {
+    if (!state.quickInfo || state.mode !== "normal") {
         return {
-            ...openPosition,
             visible: false,
-            elements,
+            elements: EmptyArray,
+            foregroundColor: state.foregroundColor,
+            backgroundColor: state.backgroundColor,
         }
     } else {
+
+        const elements = getQuickInfoElement(state)
+
+        // const { data, filePath, line, column } = state.quickInfo
+
         return {
-            ...openPosition,
             visible: true,
             elements,
+            foregroundColor: state.foregroundColor,
+            backgroundColor: state.backgroundColor,
         }
     }
 }
 
 const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
-    const openPosition = getOpenPosition(state)
-
     if (!state.signatureHelp) {
         return {
-            ...openPosition,
             visible: false,
             elements: EmptyArray,
+            foregroundColor: state.foregroundColor,
+            backgroundColor: state.backgroundColor,
         }
     } else {
         const currentItem = state.signatureHelp.items[state.signatureHelp.selectedItemIndex]
@@ -193,9 +163,10 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
         }
 
         return {
-            ...openPosition,
             visible: true,
             elements,
+            foregroundColor: state.foregroundColor,
+            backgroundColor: state.backgroundColor,
         }
     }
 }

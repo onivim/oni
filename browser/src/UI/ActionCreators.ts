@@ -23,6 +23,14 @@ import { IConfigurationValues } from "./../Services/Configuration"
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
 
+export const setViewport = (width: number, height: number) => ({
+    type: "SET_VIEWPORT",
+    payload: {
+        width,
+        height,
+    },
+})
+
 export const bufferEnter = (id: number, file: string, totalLines: number, hidden: boolean, listed: boolean) => ({
     type: "BUFFER_ENTER",
     payload: {
@@ -275,9 +283,12 @@ export const selectMenuItem = (openInSplit: string, index?: number) => (dispatch
     dispatch(hidePopupMenu())
 }
 
-export const showQuickInfo = (title: string, description: string) => ({
+export const showQuickInfo = (filePath: string, line: number, column: number, title: string, description: string): Actions.IShowQuickInfoAction => ({
     type: "SHOW_QUICK_INFO",
     payload: {
+        filePath: normalizePath(filePath),
+        line,
+        column,
         title,
         description,
     },
@@ -301,14 +312,6 @@ export const setDetailedCompletionEntry = (detailedEntry: Oni.Plugin.CompletionI
 export const hideCompletions = () => ({ type: "HIDE_AUTO_COMPLETION" })
 
 export const hideQuickInfo = () => ({ type: "HIDE_QUICK_INFO" })
-
-export const hideCursorLine = () => ({ type: "HIDE_CURSOR_LINE" })
-
-export const showCursorLine = () => ({ type: "SHOW_CURSOR_LINE" })
-
-export const showCursorColumn = () => ({ type: "SHOW_CURSOR_COLUMN" })
-
-export const hideCursorColumn = () => ({ type: "HIDE_CURSOR_COLUMN" })
 
 export const setCursorLineOpacity = (opacity: number) => ({
     type: "SET_CURSOR_LINE_OPACITY",

@@ -14,6 +14,14 @@ import { IConfigurationValues } from "./../Services/Configuration"
 
 import * as types from "vscode-languageserver-types"
 
+export interface ISetViewportAction {
+    type: "SET_VIEWPORT",
+    payload: {
+        width: number,
+        height: number,
+    }
+}
+
 export interface ISetCurrentBuffersAction {
     type: "SET_CURRENT_BUFFERS",
     payload: {
@@ -213,7 +221,10 @@ export interface IPreviousMenuAction {
 export interface IShowQuickInfoAction {
     type: "SHOW_QUICK_INFO",
     payload: {
-        title: string
+        filePath: string,
+        line: number,
+        column: number,
+        title: string,
         description: string,
     }
 }
@@ -247,22 +258,6 @@ export interface IPreviousAutoCompletionAction {
 
 export interface IHideQuickInfoAction {
     type: "HIDE_QUICK_INFO"
-}
-
-export interface IShowCursorLineAction {
-    type: "SHOW_CURSOR_LINE"
-}
-
-export interface IHideCurorLineAction {
-    type: "HIDE_CURSOR_LINE"
-}
-
-export interface IShowCursorColumnAction {
-    type: "SHOW_CURSOR_COLUMN"
-}
-
-export interface IHideCursorColumnAction {
-    type: "HIDE_CURSOR_COLUMN"
 }
 
 export interface ISetConfigurationValue<K extends keyof IConfigurationValues> {
@@ -303,14 +298,11 @@ export type SimpleAction =
     ISetColorsAction |
     IStatusBarHideAction |
     IStatusBarShowAction |
-    IHideCurorLineAction |
-    IHideCursorColumnAction |
     ISetErrorsAction |
     IClearErrorsAction |
-    IShowCursorLineAction |
-    IShowCursorColumnAction |
     ISetCurrentBuffersAction |
     ISetTabs |
+    ISetViewportAction |
     ISetWindowDimensions |
     ISetWindowLineMapping |
     ISetWindowState

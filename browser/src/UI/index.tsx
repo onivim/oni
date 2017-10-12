@@ -48,6 +48,16 @@ export function init(pluginManager: PluginManager, args: any): void {
     render(defaultState, pluginManager, args)
 }
 
+const updateViewport = () => {
+    const width = document.body.offsetWidth
+    const height = document.body.offsetHeight
+
+    Actions.setViewport(width, height)
+}
+
+window.addEventListener("resize", updateViewport)
+updateViewport()
+
 function render(_state: State.IState, pluginManager: PluginManager, args: any): void {
     const hostElement = document.getElementById("host")
 
