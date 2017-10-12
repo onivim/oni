@@ -114,7 +114,7 @@
     "keyboard-layout": "2.0.13",
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",
-    "typescript": "2.4.2",
+    "typescript": "2.5.3",
     "vscode-jsonrpc": "3.3.1",
     "vscode-languageserver-types": "3.3.0"
   },
