@@ -92,17 +92,23 @@
     }
 
     .footer {
+        .box-shadow;
+
         text-align: center;
         width: 100%;
-        transition-property: margin, opacity, padding;
-        transition-duration: 0.25s;
-        margin-bottom: 0em;
-        position: relative;
+        transition-property: transform, opacity;
+        transition-duration: 0.5s;
+        position: absolute;
+        bottom: 0px;
+        height: 3em;
+        margin-left: -8px;
+
+        // Put behind items / menu element
+        z-index: -1;
 
         &.loading {
-            padding-bottom: 24px;
-            padding-top: 8px;
-            margin-bottom: 2em;
+            transform: translateY(100%);
+            opacity: 1;
 
             .loading-spinner {
                 opacity: 1;
@@ -110,18 +116,14 @@
         }
 
         &.loaded {
-            margin-bottom: 0em;
+            opacity: 0;
+            transform: translateY(0%);
         }
 
         .loading-spinner {
-            .box-shadow-inset;
-            line-height: 2em;
-            height: 2em;
+            line-height: 3em;
+            height: 3em;
 
-            position: absolute;
-            left: -8px;
-            right: -8px;
-            padding: 8px;
             opacity: 0;
 
             .loading & {
