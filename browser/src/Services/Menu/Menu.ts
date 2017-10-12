@@ -4,7 +4,8 @@
  * Implements API surface area for working with the status bar
  */
 
-import { bindActionCreators, createStore } from "redux"
+import { applyMiddleware, bindActionCreators, createStore } from "redux"
+import thunk from "redux-thunk"
 
 import { Event, IEvent } from "./../../Event"
 
@@ -12,24 +13,9 @@ import * as ActionCreators from "./MenuActionCreators"
 import { reducer } from "./MenuReducer"
 import * as State from "./MenuState"
 
-export const menuStore = createStore(reducer, State.createDefaultState())
+export const menuStore = createStore(reducer, State.createDefaultState(), applyMiddleware(thunk))
 
 export const menuActions: typeof ActionCreators = bindActionCreators(ActionCreators as any, menuStore.dispatch)
-
-// TODO: Refactor to thunk?
-const hideMenu = () => {
-    const state = menuStore.getState()
-
-    if (!state.menu) {
-        return
-    }
-
-    if (state.menu.onHide) {
-        state.menu.onHide()
-    }
-
-    menuActions.hidePopupMenu()
-}
 
 export class MenuManager {
     private _id: number = 0
@@ -52,7 +38,7 @@ export class MenuManager {
     }
 
     public closeActiveMenu(): void {
-        hideMenu()
+        menuActions.hidePopupMenu()
     }
 
     public selectMenuItem(idx?: number): void {
@@ -77,7 +63,7 @@ export class Menu {
         return this._onItemSelected
     }
 
-    public get onFilterTextChanged(): IEvent<any> {
+    public get onFilterTextChanged(): IEvent<string> {
         return this._onFilterTextChanged
     }
 
@@ -105,11 +91,12 @@ export class Menu {
         menuActions.showPopupMenu(this._id, {
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
             onHide: () => this._onHide.dispatch(),
+            onFilterTextChanged: (newText) => this._onFilterTextChanged.dispatch(newText),
         })
     }
 
     public hide(): void {
-        hideMenu()
+        menuActions.hidePopupMenu()
     }
 
     private _onItemSelectedHandler(idx?: number): void {

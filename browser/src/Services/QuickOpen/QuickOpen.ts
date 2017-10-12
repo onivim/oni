@@ -26,6 +26,8 @@ export class QuickOpen {
     private _neovimInstance: INeovimInstance
     private _bufferUpdates: BufferUpdates
     private _menu: Menu
+    private _loadingTimeout: number | null = null
+    private _lastCommand: string | null = null
 
     constructor(neovimInstance: INeovimInstance, bufferUpdates: BufferUpdates) {
         this._neovimInstance = neovimInstance
@@ -36,6 +38,13 @@ export class QuickOpen {
 
         this._menu.onHide.subscribe(() => {
             this._stopFinderProcess()
+        })
+
+        this._menu.onFilterTextChanged.subscribe((newFilter: any) => {
+            if (this._isFinderCommandDynamic() && this._menu.isOpen()) {
+                const commandWithFilter = this._getDynamicSearchCommand(newFilter)
+                this._updateFinderProcess(commandWithFilter)
+            }
         })
     }
 
@@ -93,7 +102,8 @@ export class QuickOpen {
         // Default strategy
         // The '-z' argument is needed to prevent escaping, see #711 for more information.
         const excludeFiles = configuration.getValue("oni.exclude")
-        this.loadMenu(RipGrep.getCommand(), RipGrep.getArguments(excludeFiles), "\n")
+        const command = RipGrep.getCommand() + " " + RipGrep.getArguments(excludeFiles).join(" ")
+        this.loadMenu(command, "\n")
     }
 
     public async showBufferLines() {
@@ -114,19 +124,32 @@ export class QuickOpen {
 
     // Overridden strategy
     // If git repo, use git ls-files
-    private loadMenu(command: string, args: string[] = [], splitCharacter: string = "\n") {
+    private loadMenu(command: string, splitCharacter: string = "\n") {
         this._menu.show()
-
-        let timeout = window.setTimeout(() => {
-            this._menu.setLoading(true)
-        }, 200)
+        this._lastCommand = command
 
         this._menu.setItems([])
         this._loadedItems = []
 
+        this._updateFinderProcess(command, splitCharacter)
+    }
+
+    private _isFinderCommandDynamic(): boolean {
+        return this._lastCommand && this._lastCommand.indexOf("${search}") >= 0 // tslint:disable-line no-invalid-template-strings
+    }
+
+    private _getDynamicSearchCommand(filterText: string): string {
+        return this._lastCommand.replace("${search}", filterText) // tslint:disable-line no-invalid-template-strings
+    }
+
+    private _updateFinderProcess(command: string, splitCharacter: string = "\n"): void {
         this._stopFinderProcess()
 
-        this._finderProcess = new FinderProcess(command, args, splitCharacter)
+        this._loadingTimeout = window.setTimeout(() => {
+            this._menu.setLoading(true)
+        }, 200)
+
+        this._finderProcess = new FinderProcess(command, splitCharacter)
 
         this._finderProcess.onData.subscribe((newData: string[]) => {
             const newItems = newData.map((s: string) => new QuickOpenItem(s, QuickOpenType.file))
@@ -137,9 +160,9 @@ export class QuickOpen {
         this._finderProcess.onComplete.subscribe(() => {
             this._menu.setLoading(false)
 
-            if (timeout) {
-                window.clearTimeout(timeout)
-                timeout = null
+            if (this._loadingTimeout) {
+                window.clearTimeout(this._loadingTimeout)
+                this._loadingTimeout = null
             }
         })
 
