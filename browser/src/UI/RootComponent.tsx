@@ -3,11 +3,11 @@ import * as React from "react"
 import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { inputManager } from "./../Services/InputManager"
+import { MenuContainer } from "./../Services/Menu"
 import * as WindowManager from "./../Services/WindowManager"
 
 import { Background } from "./components/Background"
 import { EditorWindows } from "./components/EditorWindows"
-import { MenuContainer } from "./components/Menu"
 import StatusBar from "./components/StatusBar"
 
 interface IRootComponentProps {

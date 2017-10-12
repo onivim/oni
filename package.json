@@ -120,7 +120,6 @@
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
-    "@types/glob": "5.0.30",
     "@types/jsdom": "11.0.0",
     "@types/lodash": "4.14.38",
     "@types/minimist": "1.1.29",
@@ -145,7 +144,6 @@
     "electron-rebuild": "1.6.0",
     "extract-zip": "1.6.0",
     "fuse.js": "2.6.2",
-    "glob": "7.1.1",
     "innosetup-compiler": "5.5.9",
     "jsdom": "11.0.0",
     "less": "2.7.1",

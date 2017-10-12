@@ -39,7 +39,6 @@ export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators 
 
 // TODO: Is there a helper utility like `bindActionCreators`, but for selectors?
 export const Selectors = {
-    isPopupMenuOpen: () => UnboundSelectors.isPopupMenuOpen(store.getState() as any),
     areCompletionsVisible: () => UnboundSelectors.areCompletionsVisible(store.getState() as any),
     getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState() as any),
 }

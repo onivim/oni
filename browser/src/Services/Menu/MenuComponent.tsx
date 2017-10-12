@@ -1,18 +1,17 @@
 import * as React from "react"
-
-import { connect } from "react-redux"
+import { connect, Provider } from "react-redux"
 
 import * as take from "lodash/take"
 
-import * as ActionCreators from "./../ActionCreators"
-import * as State from "./../State"
+import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
+import { Visible } from "./../../UI/components/Visible"
+import { Icon, IconSize } from "./../../UI/Icon"
 
-import { Icon } from "./../Icon"
+import { focusManager } from "./../FocusManager"
 
-import { HighlightTextByIndex } from "./HighlightText"
-import { Visible } from "./Visible"
-
-import { focusManager } from "./../../Services/FocusManager"
+import { menuStore } from "./Menu"
+import * as ActionCreators from "./MenuActionCreators"
+import * as State from "./MenuState"
 
 /**
  * Popup menu
@@ -24,16 +23,17 @@ export interface IMenuProps {
     selectedIndex: number
     filterText: string
     onChangeFilterText: (text: string) => void
-    onSelect: (openInSplit: string, selectedIndex?: number) => void
+    onSelect: (selectedIndex?: number) => void
     items: State.IMenuOptionWithHighlights[]
+    isLoading: boolean
 
     backgroundColor: string
     foregroundColor: string
 }
 
-export class Menu extends React.PureComponent<IMenuProps, void> {
+export class MenuView extends React.PureComponent<IMenuProps, void> {
 
-    private _inputElement: HTMLInputElement = null as any // FIXME: null
+    private _inputElement: HTMLInputElement = null
 
     public componentWillUpdate(newProps: Readonly<IMenuProps>): void {
         if (newProps.visible !== this.props.visible
@@ -44,7 +44,6 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
     }
 
     public render(): null | JSX.Element {
-
         if (!this.props.visible) {
             return null
         }
@@ -57,13 +56,15 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
         const items = initialItems.map((menuItem, index) => <MenuItem {...menuItem as any} // FIXME: undefined
             filterText={this.props.filterText}
             isSelected={index === this.props.selectedIndex}
-            onClick={() => this.props.onSelect("e", index)}
+            onClick={() => this.props.onSelect(index)}
             />)
 
         const menuStyle = {
             backgroundColor: this.props.backgroundColor,
             color: this.props.foregroundColor,
         }
+
+        const footerClassName = "footer " + (this.props.isLoading ? "loading" : "loaded")
 
         return <div className="menu-background enable-mouse">
             <div className="menu" style={menuStyle}>
@@ -77,6 +78,11 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
                     }}
                     onChange={(evt) => this._onChange(evt)}
                     />
+                <div className={footerClassName} style={menuStyle}>
+                    <div className="loading-spinner">
+                        <Icon name="circle-o-notch" className=" fa-spin" size={IconSize.Large} />
+                    </div>
+                </div>
                 <div className="items">
                     {items}
                 </div>
@@ -92,25 +98,28 @@ export class Menu extends React.PureComponent<IMenuProps, void> {
 
 const EmptyArray: any[] = []
 
-const mapStateToProps = (state: State.IState) => {
-    if (!state.popupMenu) {
+const mapStateToProps = (state: State.IMenus) => {
+    if (!state.menu) {
         return {
             visible: false,
             selectedIndex: 0,
             filterText: "",
             items: EmptyArray,
-            backgroundColor: state.backgroundColor,
-            foregroundColor: state.foregroundColor,
+            backgroundColor: "black",
+            foregroundColor: "white",
+            isLoading: true,
         }
     } else {
-        const popupMenu = state.popupMenu
+        const popupMenu = state.menu
         return {
             visible: true,
             selectedIndex: popupMenu.selectedIndex,
             filterText: popupMenu.filter,
             items: popupMenu.filteredOptions,
-            backgroundColor: state.backgroundColor,
-            foregroundColor: state.foregroundColor,
+            backgroundColor: popupMenu.backgroundColor,
+            foregroundColor: popupMenu.foregroundColor,
+            onSelect: popupMenu.onSelectItem,
+            isLoading: popupMenu.isLoading,
         }
     }
 }
@@ -120,17 +129,18 @@ const mapDispatchToProps = (dispatch: any) => {
         dispatch(ActionCreators.filterMenu(text))
     }
 
-    const selectItem = (openInSplit: string, selectedIndex: number) => {
-        dispatch(ActionCreators.selectMenuItem(openInSplit, selectedIndex))
-    }
-
     return {
         onChangeFilterText: dispatchFilterText,
-        onSelect: selectItem,
     }
 }
 
-export const MenuContainer = connect(mapStateToProps, mapDispatchToProps)(Menu)
+export const ConnectedMenu = connect(mapStateToProps, mapDispatchToProps)(MenuView)
+
+export const MenuContainer = () => {
+    return <Provider store={menuStore}>
+            <ConnectedMenu />
+        </Provider>
+}
 
 export interface IMenuItemProps {
     icon?: string

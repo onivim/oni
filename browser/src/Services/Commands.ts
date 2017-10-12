@@ -17,6 +17,7 @@ import { AutoCompletion } from "./../Services/AutoCompletion"
 import { BufferUpdates } from "./../Services/BufferUpdates"
 import { configuration } from "./../Services/Configuration"
 import { Formatter } from "./../Services/Formatter"
+import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
 import { tasks } from "./../Services/Tasks"
@@ -73,14 +74,14 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("menu.close", null, null, popupMenuClose),
         new CallbackCommand("menu.next", null, null, popupMenuNext),
         new CallbackCommand("menu.previous", null, null, popupMenuPrevious),
+        new CallbackCommand("menu.select", null, null, popupMenuSelect),
 
         // QuickOpen
         new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show()),
         new CallbackCommand("quickOpen.showBufferLines", null, null, () => quickOpen.showBufferLines()),
-        new CallbackCommand("quickOpen.openFile", null, null, quickOpenFile),
-        new CallbackCommand("quickOpen.openFileNewTab", null, null, quickOpenFileNewTab),
-        new CallbackCommand("quickOpen.openFileVertical", null, null, quickOpenFileVertical),
-        new CallbackCommand("quickOpen.openFileHorizontal", null, null, quickOpenFileHorizontal),
+        new CallbackCommand("quickOpen.openFileNewTab", null, null, quickOpenFileNewTab(quickOpen)),
+        new CallbackCommand("quickOpen.openFileVertical", null, null, quickOpenFileVertical(quickOpen)),
+        new CallbackCommand("quickOpen.openFileHorizontal", null, null, quickOpenFileHorizontal(quickOpen)),
 
         new CallbackCommand("window.moveLeft", null, null, () => windowManager.moveLeft()),
         new CallbackCommand("window.moveRight", null, null, () => windowManager.moveRight()),
@@ -130,7 +131,7 @@ const previousCompletionItem = autoCompletionCommand(() => {
 
 const popupMenuCommand = (innerCommand: Oni.ICommandCallback) => {
     return () => {
-        if (UI.Selectors.isPopupMenuOpen()) {
+        if (menuManager.isMenuOpen()) {
             return innerCommand()
         }
 
@@ -138,14 +139,24 @@ const popupMenuCommand = (innerCommand: Oni.ICommandCallback) => {
     }
 }
 
-const popupMenuClose = popupMenuCommand(() => UI.Actions.hidePopupMenu())
-const popupMenuNext = popupMenuCommand(() => UI.Actions.nextMenuItem())
-const popupMenuPrevious = popupMenuCommand(() => UI.Actions.previousMenuItem())
+const popupMenuClose = popupMenuCommand(() => menuManager.closeActiveMenu())
+const popupMenuNext = popupMenuCommand(() => menuManager.nextMenuItem())
+const popupMenuPrevious = popupMenuCommand(() => menuManager.previousMenuItem())
+const popupMenuSelect = popupMenuCommand(() => menuManager.selectMenuItem())
 
-const quickOpenFile = popupMenuCommand(() => UI.Actions.selectMenuItem("e"))
-const quickOpenFileNewTab = popupMenuCommand(() => UI.Actions.selectMenuItem("tabnew"))
-const quickOpenFileHorizontal = popupMenuCommand(() => UI.Actions.selectMenuItem("sp"))
-const quickOpenFileVertical = popupMenuCommand(() => UI.Actions.selectMenuItem("vsp"))
+const quickOpenCommand = (innerCommand: Oni.ICommandCallback) => (quickOpen: QuickOpen) => {
+    return () => {
+        if (quickOpen.isOpen()) {
+            return innerCommand(quickOpen)
+        }
+
+        return false
+    }
+}
+
+const quickOpenFileNewTab = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFileNewTab())
+const quickOpenFileHorizontal = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFileHorizontal())
+const quickOpenFileVertical = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFileVertical())
 
 const pasteContents = async (neovimInstance: INeovimInstance) => {
     const textToPaste = clipboard.readText()
