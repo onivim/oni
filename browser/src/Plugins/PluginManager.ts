@@ -1,7 +1,5 @@
 import { EventEmitter } from "events"
 import * as fs from "fs"
-import * as mkdirp from "mkdirp"
-import * as os from "os"
 import * as path from "path"
 import { INeovimInstance } from "./../neovim"
 import { configuration } from "./../Services/Configuration"
@@ -26,7 +24,6 @@ export interface IEventContext {
 export class PluginManager extends EventEmitter {
     private _config = configuration
     private _rootPluginPaths: string[] = []
-    private _extensionPath: string
     private _plugins: Plugin[] = []
     private _neovimInstance: INeovimInstance
     private _lastEventContext: any
@@ -43,9 +40,6 @@ export class PluginManager extends EventEmitter {
             this._rootPluginPaths.push(defaultPluginsRoot)
             this._rootPluginPaths.push(path.join(defaultPluginsRoot, "bundle"))
         }
-
-        this._extensionPath = this._ensureOniPluginsPath()
-        this._rootPluginPaths.push(this._extensionPath)
 
         this._rootPluginPaths.push(path.join(this._config.getUserFolder(), "plugins"))
 
@@ -128,13 +122,6 @@ export class PluginManager extends EventEmitter {
 
     private _createPlugin(pluginRootDirectory: string): Plugin {
         return new Plugin(pluginRootDirectory, this._channel)
-    }
-
-    private _ensureOniPluginsPath(): string {
-        const rootOniPluginsDir = path.join(os.homedir(), ".oni", "extensions")
-
-        mkdirp.sync(rootOniPluginsDir)
-        return rootOniPluginsDir
     }
 
     private _getAllPluginPaths(): string[] {
