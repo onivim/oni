@@ -56,7 +56,7 @@ export class LanguageManager {
         if (languageClient) {
             languageClient.sendNotification(filePath, protocolMessage, protocolPayload)
         } else {
-            // TODO: Log warning
+            Log.error("No supported language")
         }
     }
 
