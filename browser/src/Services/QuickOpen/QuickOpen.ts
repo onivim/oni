@@ -33,6 +33,10 @@ export class QuickOpen {
 
         this._menu = menuManager.create()
         this._menu.onItemSelected.subscribe((selectedItem: any) => { this._onItemSelected(selectedItem) })
+
+        this._menu.onHide.subscribe(() => {
+            this._stopFinderProcess()
+        })
     }
 
     public isOpen(): boolean {
