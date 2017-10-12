@@ -58,14 +58,6 @@ export class PluginManager extends EventEmitter {
         this._sendLanguageServiceRequest("format", this._lastEventContext, "formatting")
     }
 
-    public requestEvaluateBlock(id: string, fileName: string, code: string): void {
-        this._sendLanguageServiceRequest("evaluate-block", this._lastEventContext, "evaluate-block", {
-            id,
-            fileName,
-            code,
-        })
-    }
-
     public notifyCompletionItemSelected(completionItem: any): void {
         this._sendLanguageServiceRequest("completion-provider-item-selected", this._lastEventContext, "completion-provider", { item: completionItem })
     }
@@ -75,10 +67,6 @@ export class PluginManager extends EventEmitter {
 
         this._neovimInstance.on("event", (eventName: string, context: Oni.EventContext) => {
             this._onEvent(eventName, context)
-        })
-
-        this._neovimInstance.on("mode-change", (newMode: string) => {
-            this._onModeChanged(newMode)
         })
 
         this._neovimInstance.on("directory-changed", (newDirectory: string) => {
@@ -201,17 +189,6 @@ export class PluginManager extends EventEmitter {
             payload: {
                 name: "directory-changed",
                 context: newDirectory,
-            },
-        }, Capabilities.createPluginFilter(filetype))
-    }
-    private _onModeChanged(newMode: string): void {
-        const filetype = this._lastEventContext ? this._lastEventContext.filetype : ""
-
-        this._channel.host.send({
-            type: "event",
-            payload: {
-                name: "mode-change",
-                context: newMode,
             },
         }, Capabilities.createPluginFilter(filetype))
     }
