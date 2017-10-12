@@ -90,8 +90,8 @@ const activate = (Oni) => {
         fileTypeItem.show()
     }
 
-    Oni.on("mode-change", (evt) => {
-        setMode(evt)
+    Oni.editors.activeEditor.onModeChanged.subscribe((newMode) => {
+        setMode(newMode)
     })
 
     Oni.on("cursor-moved", (evt) => {
