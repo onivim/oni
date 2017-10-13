@@ -101,6 +101,16 @@ export const eventContextToTextDocumentPositionParams = (args: Oni.EventContext)
     },
 })
 
+export const bufferToTextDocumentPositionParams = (buffer: Oni.Buffer) => ({
+    textDocument: {
+        uri: wrapPathInFileUri(buffer.filePath),
+    },
+    position: {
+        line: buffer.cursor.line,
+        character: buffer.cursor.column,
+    },
+})
+
 export const createDidChangeTextDocumentParams = (bufferFullPath: string, lines: string[], version: number) => {
     const text = lines.join(os.EOL)
 

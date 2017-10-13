@@ -70,6 +70,16 @@ class AllEditors implements Oni.Editor {
         return this._activeEditor.mode
     }
 
+    public get activeBuffer(): Oni.Buffer {
+
+        // TODO: Replace with null-object pattern
+        if (!this._activeEditor) {
+            return null
+        }
+
+        return this._activeEditor.activeBuffer
+    }
+
     public get neovim(): Oni.NeovimEditorCapability {
         if (!this._activeEditor) {
             return null

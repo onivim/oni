@@ -67,9 +67,16 @@ export class NeovimEditor implements IEditor {
     private _errorStartingNeovim: boolean = false
 
     private _isFirstRender: boolean = true
+    private _currentBuffer: Oni.Buffer = null
 
     public get mode(): string {
         return this._currentMode
+    }
+
+    public get activeBuffer(): Oni.Buffer {
+
+        return this._currentBuffer
+
     }
 
     // Events
@@ -306,6 +313,15 @@ export class NeovimEditor implements IEditor {
         UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
 
         tasks.onEvent(evt)
+
+        this._currentBuffer = {
+            filePath: evt.bufferFullPath,
+            language: evt.filetype,
+            cursor: {
+                line: evt.line - 1,
+                column: evt.column - 1,
+            }
+        }
 
         if (eventName === "BufEnter") {
 
