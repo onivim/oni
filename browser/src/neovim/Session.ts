@@ -4,9 +4,17 @@ import { EventEmitter } from "events"
 
 import * as Log from "./../Log"
 
+import { configuration } from "./../Services/Configuration"
+
 import * as msgpack from "./MsgPack"
 
 type RequestHandlerFunction = (result: any) => void
+
+const log = (msg: string) => {
+    if (configuration.getValue("debug.detailedSessionLogging")) {
+        Log.info("[DEBUG - Neovim Session] " + msg)
+    }
+}
 
 /**
  * Session is responsible for the Neovim msgpack session
@@ -47,10 +55,12 @@ export class Session extends EventEmitter {
                 case 1 /* Response */:
                     const [responseMessage, payload1, payload2] = remaining
                     const result = payload1 || payload2
+                    log("Received response - "  + responseMessage + " : " + result)
                     this._pendingRequests[responseMessage](result)
                     break
                 case 2 /* Notification */:
                     const [notificationMessage, payload] = remaining
+                    log("Received notification - " + notificationMessage)
 
                     this.emit("notification", notificationMessage, payload)
                     break
@@ -60,6 +70,7 @@ export class Session extends EventEmitter {
         })
 
         this._decoder.on("end", () => {
+            log("Disconnect")
             this.emit("disconnect")
         })
 
@@ -81,6 +92,8 @@ export class Session extends EventEmitter {
             return Promise.reject(null)
         }
 
+        log("Sending request - " + methodName + " : " + this._requestId)
+
         this._pendingRequests[this._requestId] = r
         this._writeImmediate([0, this._requestId, methodName, args])
 
@@ -88,6 +101,7 @@ export class Session extends EventEmitter {
     }
 
     public notify(methodName: string, args: any) {
+        log("Sending notification - " + methodName)
         this._writeImmediate([2, methodName, args])
     }
 
