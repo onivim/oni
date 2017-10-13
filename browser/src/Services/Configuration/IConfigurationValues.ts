@@ -20,6 +20,10 @@ export interface IConfigurationValues {
     // Option to override neovim path. Used for testing new versions before bringing them in.
     "debug.neovimPath": string | null
 
+    // Experimental feature flags
+
+    "experimental.enableLanguageServerFromConfig": boolean
+
     // Production settings
 
     // Bell sound effect to use
