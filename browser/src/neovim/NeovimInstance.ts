@@ -255,7 +255,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 })
 
                 this._neovim.on("disconnect", () => {
-                    remote.getCurrentWindow().close()
+
+                    if (!configuration.getValue("debug.persistOnNeovimExit")) {
+                        remote.getCurrentWindow().close()
+                    }
                 })
 
                 const size = this._getSize()
@@ -340,6 +343,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public command(command: string): Promise<void> {
+        Log.verbose("[NeovimInstance] Executing command: " + command)
         return this._neovim.request("nvim_command", [command])
     }
 
