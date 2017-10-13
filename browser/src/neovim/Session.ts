@@ -53,8 +53,6 @@ export class Session extends EventEmitter {
                     Log.warn("Unhandled request")
                     break
                 case 1 /* Response */:
-
-
                     const [responseMessage, payload1, payload2] = remaining
                     const result = payload1 || payload2
                     log("Received response - "  + responseMessage + " : " + result)
