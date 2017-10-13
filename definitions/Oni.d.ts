@@ -231,7 +231,6 @@ declare namespace Oni {
         export namespace Diagnostics {
             export interface Api {
                 setErrors(key: string, fileName: string, errors: types.Diagnostic[])
-                clearErrors(key: string)
             }
         }
 
