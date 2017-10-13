@@ -26,6 +26,8 @@ export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
             return null
         }
 
+        // TODO:
+        // This should be factored out as part of colorscheme management (#412)
         const backgroundColor = Color(this.props.backgroundColor)
         const foregroundColor = Color(this.props.foregroundColor)
 
