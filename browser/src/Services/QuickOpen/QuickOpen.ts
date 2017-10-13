@@ -26,7 +26,6 @@ export class QuickOpen {
     private _neovimInstance: INeovimInstance
     private _bufferUpdates: BufferUpdates
     private _menu: Menu
-    private _loadingTimeout: number | null = null
     private _lastCommand: string | null = null
 
     constructor(neovimInstance: INeovimInstance, bufferUpdates: BufferUpdates) {
@@ -42,7 +41,7 @@ export class QuickOpen {
 
         this._menu.onFilterTextChanged.subscribe((newFilter: any) => {
             if (this._isFinderCommandDynamic() && this._menu.isOpen()) {
-                const commandWithFilter = this._getDynamicSearchCommand(newFilter)
+                const commandWithFilter = this._getDynamicSearchCommand(this._lastCommand, newFilter)
                 this._updateFinderProcess(commandWithFilter)
             }
         })
@@ -95,15 +94,14 @@ export class QuickOpen {
         // Overridden strategy
         if (overriddenCommand) {
             // replace placeholder ${search} with "" for initial case
-            this.loadMenu(overriddenCommand.replace("${search}", "")) // tslint:disable-line no-invalid-template-strings
+            this.loadMenu(overriddenCommand) // tslint:disable-line no-invalid-template-strings
             return
+        } else {
+            // Default strategy
+            const excludeFiles = configuration.getValue("oni.exclude")
+            const command = RipGrep.getCommand() + " " + RipGrep.getArguments(excludeFiles).join(" ")
+            this.loadMenu(command, "\n")
         }
-
-        // Default strategy
-        // The '-z' argument is needed to prevent escaping, see #711 for more information.
-        const excludeFiles = configuration.getValue("oni.exclude")
-        const command = RipGrep.getCommand() + " " + RipGrep.getArguments(excludeFiles).join(" ")
-        this.loadMenu(command, "\n")
     }
 
     public async showBufferLines() {
@@ -131,21 +129,24 @@ export class QuickOpen {
         this._menu.setItems([])
         this._loadedItems = []
 
-        this._updateFinderProcess(command, splitCharacter)
+        this._updateFinderProcess(this._getDynamicSearchCommand(command, ""), splitCharacter)
     }
 
     private _isFinderCommandDynamic(): boolean {
         return this._lastCommand && this._lastCommand.indexOf("${search}") >= 0 // tslint:disable-line no-invalid-template-strings
     }
 
-    private _getDynamicSearchCommand(filterText: string): string {
-        return this._lastCommand.replace("${search}", filterText) // tslint:disable-line no-invalid-template-strings
+    private _getDynamicSearchCommand(command: string, filterText: string): string {
+        return command.replace("${search}", filterText) // tslint:disable-line no-invalid-template-strings
     }
 
     private _updateFinderProcess(command: string, splitCharacter: string = "\n"): void {
+        this._menu.setItems([])
+        this._loadedItems = []
+
         this._stopFinderProcess()
 
-        this._loadingTimeout = window.setTimeout(() => {
+        let timeout = window.setTimeout(() => {
             this._menu.setLoading(true)
         }, 200)
 
@@ -160,9 +161,9 @@ export class QuickOpen {
         this._finderProcess.onComplete.subscribe(() => {
             this._menu.setLoading(false)
 
-            if (this._loadingTimeout) {
-                window.clearTimeout(this._loadingTimeout)
-                this._loadingTimeout = null
+            if (timeout) {
+                window.clearTimeout(timeout)
+                timeout = null
             }
         })
 
