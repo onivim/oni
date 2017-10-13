@@ -204,8 +204,8 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
-        this._neovimInstance.onBufferUpdate.subscribe((bufferUpdateArgs: IFullBufferUpdateEvent) => {
-            const args = bufferUpdateArgs.context
+        this._neovimInstance.onBufferUpdate.subscribe((bufferUpdateEvent: IFullBufferUpdateEvent) => {
+            const args = bufferUpdateEvent.context
             UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
 
             const buf = getBufferFromEvent(bufferUpdateArgs.context)

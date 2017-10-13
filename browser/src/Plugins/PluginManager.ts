@@ -113,6 +113,11 @@ export class PluginManager extends EventEmitter {
                 bufferLine,
             },
         }, Capabilities.createPluginFilter(eventContext.filetype))
+
+        if (this._config.getValue("editor.completions.enabled")) {
+            this._sendLanguageServiceRequest("signature-help", eventContext)
+            this._sendLanguageServiceRequest("completion-provider", eventContext)
+        }
     }
 
     private _createPlugin(pluginRootDirectory: string): Plugin {
@@ -210,12 +215,6 @@ export class PluginManager extends EventEmitter {
                 context: eventContext,
             },
         }, Capabilities.createPluginFilter(this._lastEventContext.filetype))
-
-        if (eventName === "CursorMovedI" && this._config.getValue("editor.completions.enabled")) {
-            this._sendLanguageServiceRequest("completion-provider", eventContext)
-
-            this._sendLanguageServiceRequest("signature-help", eventContext)
-        }
     }
 
     private _sendLanguageServiceRequest(requestName: string, eventContext: any, languageServiceCapability?: any, additionalArgs?: any): void {
