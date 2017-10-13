@@ -4,7 +4,8 @@
  * Implements API surface area for working with the status bar
  */
 
-import { bindActionCreators, createStore } from "redux"
+import { applyMiddleware, bindActionCreators, createStore } from "redux"
+import thunk from "redux-thunk"
 
 import { Event, IEvent } from "./../../Event"
 
@@ -12,7 +13,7 @@ import * as ActionCreators from "./MenuActionCreators"
 import { reducer } from "./MenuReducer"
 import * as State from "./MenuState"
 
-export const menuStore = createStore(reducer, State.createDefaultState())
+export const menuStore = createStore(reducer, State.createDefaultState(), applyMiddleware(thunk))
 
 export const menuActions: typeof ActionCreators = bindActionCreators(ActionCreators as any, menuStore.dispatch)
 
@@ -52,12 +53,17 @@ export class MenuManager {
 export class Menu {
     private _onItemSelected = new Event<any>()
     private _onFilterTextChanged = new Event<string>()
+    private _onHide = new Event<void>()
+
+    public get onHide(): IEvent<void> {
+        return this._onHide
+    }
 
     public get onItemSelected(): IEvent<any> {
         return this._onItemSelected
     }
 
-    public get onFilterTextChanged(): IEvent<any> {
+    public get onFilterTextChanged(): IEvent<string> {
         return this._onFilterTextChanged
     }
 
@@ -84,6 +90,8 @@ export class Menu {
     public show(): void {
         menuActions.showPopupMenu(this._id, {
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
+            onHide: () => this._onHide.dispatch(),
+            onFilterTextChanged: (newText) => this._onFilterTextChanged.dispatch(newText),
         })
     }
 

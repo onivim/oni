@@ -28,7 +28,6 @@ export class FinderProcess {
     }
 
     constructor(private _command: string,
-                private _args: string[],
                 private _splitCharacter: string) {
     }
 
@@ -37,7 +36,7 @@ export class FinderProcess {
             return
         }
 
-        this._process = spawn(this._command, this._args)
+        this._process = spawn(this._command, [], { shell: true })
         this._process.stdout.on("data", (data) => {
             if (!data) {
                 return

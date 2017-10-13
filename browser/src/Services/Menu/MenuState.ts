@@ -21,6 +21,7 @@ export interface IMenu {
     foregroundColor: string
 
     onSelectItem: (idx: number) => void
+    onHide: () => void
 }
 
 export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {

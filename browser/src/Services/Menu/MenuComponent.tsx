@@ -78,13 +78,13 @@ export class MenuView extends React.PureComponent<IMenuProps, void> {
                     }}
                     onChange={(evt) => this._onChange(evt)}
                     />
+                <div className="items">
+                    {items}
+                </div>
                 <div className={footerClassName} style={menuStyle}>
                     <div className="loading-spinner">
                         <Icon name="circle-o-notch" className=" fa-spin" size={IconSize.Large} />
                     </div>
-                </div>
-                <div className="items">
-                    {items}
                 </div>
             </div>
         </div>
