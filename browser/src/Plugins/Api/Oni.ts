@@ -7,7 +7,7 @@ import { Diagnostics } from "./Diagnostics"
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
 import { InitializationParamsCreator, LanguageClient, ServerRunOptions } from "./LanguageClient/LanguageClient"
 
-import { Process } from "./Process"
+import * as Process from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
@@ -15,6 +15,7 @@ import { commandManager } from "./../../Services/CommandManager"
 import { configuration } from "./../../Services/Configuration"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
+import { languageManager } from "./../../Services/Language"
 import { menuManager } from "./../../Services/Menu"
 import { recorder } from "./../../Services/Recorder"
 import { statusBar } from "./../../Services/StatusBar"
@@ -48,7 +49,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     private _diagnostics: Oni.Plugin.Diagnostics.Api
     private _ui: Ui
     private _services: Services
-    private _process: Process
 
     public get commands(): Oni.Commands {
         return commandManager
@@ -82,12 +82,16 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return inputManager
     }
 
+    public get language(): any {
+        return languageManager
+    }
+
     public get menu(): any /* TODO */ {
         return menuManager
     }
 
     public get process(): Oni.Process {
-        return this._process
+        return Process
     }
 
     public get statusBar(): Oni.StatusBar {
@@ -117,7 +121,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._dependencies = new Dependencies()
         this._ui = new Ui(react)
         this._services = new Services()
-        this._process = new Process()
 
         this._channel.onRequest((arg: any) => {
             this._handleNotification(arg)
@@ -135,7 +138,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
         Log.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead")
 
-        return this._process.execNodeScript(scriptPath, args, options, callback)
+        return Process.execNodeScript(scriptPath, args, options, callback)
     }
 
     /**
@@ -145,7 +148,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
         Log.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead")
 
-        return this._process.spawnNodeScript(scriptPath, args, options)
+        return Process.spawnNodeScript(scriptPath, args, options)
     }
 
     public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {

@@ -14,6 +14,8 @@ import { PluginManager } from "./Plugins/PluginManager"
 import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
 
+import { createLanguageClientsFromConfiguration } from "./Services/Language"
+
 import * as UI from "./UI/index"
 
 const start = (args: string[]) => {
@@ -77,6 +79,10 @@ const start = (args: string[]) => {
     ipcRenderer.on("execute-command", (_evt: any, command: string) => {
         commandManager.executeCommand(command, null)
     })
+
+    if (configuration.getValue("experimental.enableLanguageServerFromConfig")) {
+        createLanguageClientsFromConfiguration(configuration.getValues())
+    }
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {

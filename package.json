@@ -115,13 +115,14 @@
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",
     "typescript": "2.5.3",
-    "vscode-jsonrpc": "3.3.1",
-    "vscode-languageserver-types": "3.3.0"
+    "vscode-jsonrpc": "3.4.1",
+    "vscode-languageserver-types": "3.4.0"
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
     "@types/jsdom": "11.0.0",
     "@types/lodash": "4.14.38",
+    "@types/minimatch": "3.0.1",
     "@types/minimist": "1.1.29",
     "@types/mkdirp": "0.3.29",
     "@types/mocha": "2.2.33",
@@ -150,6 +151,7 @@
     "less-loader": "4.0.5",
     "less-plugin-autoprefix": "1.5.1",
     "lodash": "4.17.0",
+    "minimatch": "3.0.4",
     "mkdirp": "0.5.1",
     "mocha": "3.1.2",
     "optimize-js-plugin": "0.0.4",
