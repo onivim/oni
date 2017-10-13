@@ -18,18 +18,16 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 // TODO:
 // - Factor out event context to something simpler
 // - Remove plugin manager
-export const checkAndShowQuickInfo = (evt: Oni.EventContext, pluginManager: PluginManager) => {
+export const checkAndShowQuickInfo = async (evt: Oni.EventContext, pluginManager: PluginManager) => {
     if (languageManager.isLanguageServerAvailable(evt.filetype)) {
-        languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/hover",
+        const result = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/hover",
             Helpers.eventContextToTextDocumentPositionParams(evt))
-            .then((result: types.Hover) => {
 
-                const titleAndContents = getTitleAndContents(result)
+        const titleAndContents = getTitleAndContents(result)
 
-                if (titleAndContents) {
-                    showQuickInfo(evt, titleAndContents.title, titleAndContents.description)
-                }
-            })
+        if (titleAndContents) {
+            showQuickInfo(evt, titleAndContents.title, titleAndContents.description)
+        }
     } else {
         pluginManager.checkHover(evt)
     }

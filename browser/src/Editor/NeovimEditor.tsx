@@ -25,7 +25,7 @@ import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { checkAndShowQuickInfo } from "./../Services/Language"
+import { checkAndShowQuickInfo, showReferencesInQuickFix } from "./../Services/Language"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { WindowTitle } from "./../Services/WindowTitle"
 
@@ -145,18 +145,7 @@ export class NeovimEditor implements IEditor {
         })
 
         this._pluginManager.on("find-all-references", (references: Oni.Plugin.ReferencesResult) => {
-            const convertToQuickFixItem = (item: Oni.Plugin.ReferencesResultItem) => ({
-                filename: item.fullPath,
-                lnum: item.line,
-                col: item.column,
-                text: item.lineText || references.tokenName,
-            })
-
-            const quickFixItems = references.items.map((item) => convertToQuickFixItem(item))
-
-            this._neovimInstance.quickFix.setqflist(quickFixItems, ` Find All References: ${references.tokenName}`)
-            this._neovimInstance.command("copen")
-            this._neovimInstance.command(`execute "normal! /${references.tokenName}\\<cr>"`)
+            showReferencesInQuickFix(references, this._neovimInstance)
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
