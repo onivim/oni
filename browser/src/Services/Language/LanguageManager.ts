@@ -50,6 +50,10 @@ export class LanguageManager {
         })
     }
 
+    public isLanguageServerAvailable(language: string): boolean {
+        return !!this._getLanguageClient(language)
+    }
+
     public sendLanguageServerNotification(language: string, filePath: string, protocolMessage: string, protocolPayload: any): void {
         const languageClient = this._getLanguageClient(language)
 

@@ -46,6 +46,13 @@ export class PluginManager extends EventEmitter {
         this._channel.host.onResponse((arg: any) => this._handlePluginResponse(arg))
     }
 
+    // TODO: Deprecate this once the Language functionality has been migrated out
+    // Also deprecate the `Oni.EventContext`, as once that surface area is removed,
+    // it can be purely internal
+    public checkHover(eventContext: Oni.EventContext): void {
+        this._sendLanguageServiceRequest("quick-info", eventContext)
+    }
+
     public gotoDefinition(): void {
         this._sendLanguageServiceRequest("goto-definition", this._lastEventContext)
     }
@@ -204,10 +211,7 @@ export class PluginManager extends EventEmitter {
             },
         }, Capabilities.createPluginFilter(this._lastEventContext.filetype))
 
-        if (eventName === "CursorMoved" && this._config.getValue("editor.quickInfo.enabled")) {
-            this._sendLanguageServiceRequest("quick-info", eventContext)
-
-        } else if (eventName === "CursorMovedI" && this._config.getValue("editor.completions.enabled")) {
+        if (eventName === "CursorMovedI" && this._config.getValue("editor.completions.enabled")) {
             this._sendLanguageServiceRequest("completion-provider", eventContext)
 
             this._sendLanguageServiceRequest("signature-help", eventContext)
