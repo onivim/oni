@@ -44,20 +44,45 @@ export const setMenuItems = (id: string, items: Oni.Menu.MenuOption[]) => ({
     },
 })
 
-export const hidePopupMenu = () => ({
-    type: "HIDE_MENU",
-})
+export const hidePopupMenu = () => (dispatch: any, getState: any) => {
+    const state = getState()
+
+    if (!state.menu) {
+        return
+    }
+
+    if (state.menu.onHide) {
+        state.menu.onHide()
+    }
+
+    dispatch({
+        type: "HIDE_MENU",
+    })
+}
 
 export const previousMenuItem = () => ({
     type: "PREVIOUS_MENU",
 })
 
-export const filterMenu = (filterString: string) => ({
-    type: "FILTER_MENU",
-    payload: {
-        filter: filterString,
-    },
-})
+export const filterMenu = (filterString: string) => (dispatch: any, getState: any) => {
+
+    const state = getState()
+
+    if (!state.menu) {
+        return
+    }
+
+    if (state.menu.onFilterTextChanged) {
+        state.menu.onFilterTextChanged(filterString)
+    }
+
+    dispatch({
+        type: "FILTER_MENU",
+        payload: {
+            filter: filterString,
+        },
+    })
+}
 
 export const nextMenuItem = () => ({
     type: "NEXT_MENU",
