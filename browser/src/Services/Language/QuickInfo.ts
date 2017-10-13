@@ -12,8 +12,8 @@ import * as UI from "./../../UI"
 
 import { languageManager } from "./LanguageManager"
 
-import { PluginManager } from "./../../Plugins/PluginManager"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
+import { PluginManager } from "./../../Plugins/PluginManager"
 
 // TODO:
 // - Factor out event context to something simpler
