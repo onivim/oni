@@ -12,7 +12,7 @@ import * as types from "vscode-languageserver-types"
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
-import { NeovimInstance, NeovimWindowManager } from "./../neovim"
+import { IFullBufferUpdateEvent, IIncrementalBufferUpdateEvent, NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
@@ -189,11 +189,13 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
-        this._neovimInstance.on("buffer-update", (args: Oni.EventContext) => {
+        this._neovimInstance.onBufferUpdate.subscribe((bufferUpdateEvent: IFullBufferUpdateEvent) => {
+            const args = bufferUpdateEvent.context
             UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
         })
 
-        this._neovimInstance.on("buffer-update-incremental", (args: Oni.EventContext) => {
+        this._neovimInstance.onBufferUpdateIncremental.subscribe((bufferUpdateEvent: IIncrementalBufferUpdateEvent) => {
+            const args = bufferUpdateEvent.context
             UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
         })
 
