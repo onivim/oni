@@ -80,7 +80,7 @@ export const filterMenu = (filterString: string) => (dispatch: any, getState: an
         type: "FILTER_MENU",
         payload: {
             filter: filterString,
-        }
+        },
     })
 }
 
