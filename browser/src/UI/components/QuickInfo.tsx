@@ -7,6 +7,8 @@ import { IState } from "./../State"
 
 import { CursorPositioner } from "./CursorPositioner"
 
+import * as Color from "color"
+
 require("./QuickInfo.less") // tslint:disable-line no-var-requires
 
 export interface IQuickInfoProps {
@@ -24,13 +26,20 @@ export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
             return null
         }
 
+        const backgroundColor = Color(this.props.backgroundColor)
+        const foregroundColor = Color(this.props.foregroundColor)
+
+        const borderColor = backgroundColor.luminosity() > 0.5 ? foregroundColor.lighten(0.6) : foregroundColor.darken(0.6)
+        const borderColorString = borderColor.rgb().toString()
+
         const innerCommonStyle: React.CSSProperties = {
             "opacity": this.props.visible ? 1 : 0,
             backgroundColor: this.props.backgroundColor,
+            border: `1px solid ${borderColorString}`,
             color: this.props.foregroundColor,
         }
 
-        return <CursorPositioner>
+        return <CursorPositioner beakColor={borderColorString}>
             <div key={"quickinfo-container"} className="quickinfo-container enable-mouse">
                 <div key={"quickInfo"} style={innerCommonStyle} className="quickinfo">
                     {this.props.elements}
