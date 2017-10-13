@@ -19,7 +19,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
-    "debug.persistOnNeovimExit": true,
+    "debug.persistOnNeovimExit": false,
     "debug.detailedSessionLogging": false,
 
     "experimental.enableLanguageServerFromConfig": false,
