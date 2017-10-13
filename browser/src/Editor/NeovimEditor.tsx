@@ -4,6 +4,8 @@
  * IEditor implementation for Neovim
  */
 
+import * as os from "os"
+
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
@@ -43,6 +45,17 @@ import { tasks } from "./../Services/Tasks"
 import { normalizePath } from "./../Utility"
 
 import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
+
+const getBufferFromEvent = (evt: Oni.EventContext) => ({
+            filePath: evt.bufferFullPath,
+            language: evt.filetype,
+            version: evt.version,
+            modified: evt.modified,
+            cursor: {
+                line: evt.line - 1,
+                column: evt.column - 1,
+            }
+        })
 
 export class NeovimEditor implements IEditor {
 
@@ -194,11 +207,31 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.onBufferUpdate.subscribe((bufferUpdateArgs: IFullBufferUpdateEvent) => {
             const args = bufferUpdateArgs.context
             UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
+
+            const buf = getBufferFromEvent(bufferUpdateArgs.context)
+
+            this._onBufferChangedEvent.dispatch({
+                buffer: buf,
+                contentChanges: [{ text: bufferUpdateArgs.bufferLines.join(os.EOL) }],
+            })
         })
 
         this._neovimInstance.onBufferUpdateIncremental.subscribe((bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
             const args = bufferUpdateArgs.context
             UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
+
+            const buf = getBufferFromEvent(bufferUpdateArgs.context)
+
+            const lineNumber = bufferUpdateArgs.lineNumber
+            const changedLine = bufferUpdateArgs.lineContents
+
+            this._onBufferChangedEvent.dispatch({
+                buffer: buf,
+                contentChanges: [{
+                    range: types.Range.create(lineNumber - 1, 0, lineNumber, 0),
+                    text: changedLine + os.EOL,
+                }]
+            })
         })
 
         this._render()
@@ -321,17 +354,9 @@ export class NeovimEditor implements IEditor {
 
         tasks.onEvent(evt)
 
-        this._currentBuffer = {
-            filePath: evt.bufferFullPath,
-            language: evt.filetype,
-            cursor: {
-                line: evt.line - 1,
-                column: evt.column - 1,
-            }
-        }
+        this._currentBuffer = getBufferFromEvent(evt)
 
         if (eventName === "BufEnter") {
-
             this._onBufferEnterEvent.dispatch({
                 filePath: evt.bufferFullPath,
                 language: evt.filetype,

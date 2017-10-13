@@ -80,6 +80,8 @@ declare namespace Oni {
         language: string
         filePath: string
         cursor: Cursor
+        version: number
+        modified: boolean
     }
 
     // Zero-based position of the cursor
