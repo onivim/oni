@@ -12,7 +12,7 @@ import * as types from "vscode-languageserver-types"
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
-import { NeovimInstance, NeovimWindowManager } from "./../neovim"
+import { IFullBufferUpdateEvent, IIncrementalBufferUpdateEvent, NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
@@ -59,6 +59,7 @@ export class NeovimEditor implements IEditor {
     private _onModeChangedEvent = new Event<string>()
     private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
+    private _onBufferChangedEvent = new Event<Oni.EditorBufferChangedEventArgs>()
 
     private _hasLoaded: boolean = false
 
@@ -90,6 +91,10 @@ export class NeovimEditor implements IEditor {
 
     public get onBufferLeave(): IEvent<Oni.EditorBufferEventArgs> {
         return this._onBufferLeaveEvent
+    }
+
+    public get onBufferChanged(): IEvent<Oni.EditorBufferChangedEventArgs> {
+        return this._onBufferChangedEvent
     }
 
     // Capabilities
@@ -186,11 +191,13 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
-        this._neovimInstance.on("buffer-update", (args: Oni.EventContext) => {
+        this._neovimInstance.onBufferUpdate.subscribe((bufferUpdateArgs: IFullBufferUpdateEvent) => {
+            const args = bufferUpdateArgs.context
             UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
         })
 
-        this._neovimInstance.on("buffer-update-incremental", (args: Oni.EventContext) => {
+        this._neovimInstance.onBufferUpdateIncremental.subscribe((bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
+            const args = bufferUpdateArgs.context
             UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
         })
 

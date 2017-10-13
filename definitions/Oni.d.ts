@@ -65,9 +65,15 @@ declare namespace Oni {
 
         onBufferEnter: IEvent<EditorBufferEventArgs>
         onBufferLeave: IEvent<EditorBufferEventArgs>
+        onBufferChanged: IEvent<EditorBufferChangedEventArgs>
 
         // Optional capabilities for the editor to implement
         neovim?: NeovimEditorCapability
+    }
+
+    export interface EditorBufferChangedEventArgs {
+        buffer: Oni.Buffer
+        contentChanges: types.TextDocumentContentChangeEvent[]
     }
 
     export interface Buffer {
