@@ -34,7 +34,7 @@ export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
         const borderColor = backgroundColor.luminosity() > 0.5 ? foregroundColor.lighten(0.6) : foregroundColor.darken(0.6)
         const borderColorString = borderColor.rgb().toString()
 
-        const innerCommonStyle: React.CSSProperties = {
+        const quickInfoStyle: React.CSSProperties = {
             "opacity": this.props.visible ? 1 : 0,
             backgroundColor: this.props.backgroundColor,
             border: `1px solid ${borderColorString}`,
@@ -43,7 +43,7 @@ export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
 
         return <CursorPositioner beakColor={borderColorString}>
             <div key={"quickinfo-container"} className="quickinfo-container enable-mouse">
-                <div key={"quickInfo"} style={innerCommonStyle} className="quickinfo">
+                <div key={"quickInfo"} style={quickInfoStyle} className="quickinfo">
                     {this.props.elements}
                 </div>
             </div>

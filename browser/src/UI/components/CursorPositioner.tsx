@@ -24,6 +24,8 @@ export interface ICursorPositionerViewProps extends ICursorPositionerProps {
     containerWidth: number
     containerHeight: number
 
+    fontPixelWidth: number
+
     backgroundColor: string
 }
 
@@ -87,7 +89,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
 
         const arrowStyleWithAdjustments = {
             ...arrowStyle,
-            left: this.props.x.toString() + "px",
+            left: (this.props.x + this.props.fontPixelWidth / 2).toString() + "px",
         }
 
         const childStyleWithAdjustments = this.state.isMeasured ? {
@@ -103,7 +105,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
                 </div>
             </div>
             <div style={arrowStyleWithAdjustments}>
-                <Arrow direction={this.state.shouldOpenDownward ? ArrowDirection.Up : ArrowDirection.Down} size={8} color={this.props.beakColor} />
+                <Arrow direction={this.state.shouldOpenDownward ? ArrowDirection.Up : ArrowDirection.Down} size={5} color={this.props.beakColor} />
             </div>
         </div>
     }
@@ -147,6 +149,7 @@ const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursor
 
     return {
         beakColor,
+        fontPixelWidth: state.fontPixelWidth,
         x,
         y,
         containerWidth: state.viewport.width,
