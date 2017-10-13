@@ -255,7 +255,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 })
 
                 this._neovim.on("disconnect", () => {
-                    remote.getCurrentWindow().close()
+
+                    if (!configuration.getValue("debug.persistOnNeovimExit")) {
+                        remote.getCurrentWindow().close()
+                    }
                 })
 
                 const size = this._getSize()
