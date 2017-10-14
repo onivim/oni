@@ -4,6 +4,8 @@
  * Layer responsible for handling Neovim input interactiosn
  */
 
+window["DERP"] = 1
+
 import * as React from "react"
 
 import { Mouse } from "./../Input/Mouse"
