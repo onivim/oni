@@ -14,6 +14,7 @@ import { IWindow, Window } from "./Window"
 
 import * as Actions from "./../actions"
 import { measureFont } from "./../Font"
+import * as Platform from "./../Platform"
 import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
 import { configuration } from "./../Services/Configuration"
@@ -334,7 +335,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         if (typeof(loadInitVim) === "string") {
             return this.open(loadInitVim)
         } else {
-            return this.open("$MYVIMRC")
+            // Use path from: https://github.com/neovim/neovim/wiki/FAQ
+            if (Platform.isWindows()) {
+                const initVimPath = path.join(Platform.getUserHome(), "AppData", "Local", "nvim", "init.vim")
+                return this.open(initVimPath)
+            } else {
+                return this.open("~/.config/nvim/init.vim")
+            }
         }
     }
 
