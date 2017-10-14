@@ -342,7 +342,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             if (Platform.isWindows()) {
                 rootFolder = path.join(Platform.getUserHome(), "AppData", "Local", "nvim")
             } else {
-                rootFolder = "~/.config/nvim"
+                rootFolder = path.join(Platform.getUserHome(), ".config", "nvim")
             }
 
             mkdirp.sync(rootFolder)
