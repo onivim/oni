@@ -12,13 +12,19 @@ import { IState } from "./../State"
 
 import { Arrow, ArrowDirection } from "./Arrow"
 
-export interface ICursorPositionerViewProps {
+export interface ICursorPositionerProps {
+    beakColor?: string
+}
+
+export interface ICursorPositionerViewProps extends ICursorPositionerProps {
     x: number
     y: number
     lineHeight: number
 
     containerWidth: number
     containerHeight: number
+
+    fontPixelWidth: number
 
     backgroundColor: string
 }
@@ -83,7 +89,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
 
         const arrowStyleWithAdjustments = {
             ...arrowStyle,
-            left: this.props.x.toString() + "px",
+            left: (this.props.x + this.props.fontPixelWidth / 2).toString() + "px",
         }
 
         const childStyleWithAdjustments = this.state.isMeasured ? {
@@ -99,7 +105,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
                 </div>
             </div>
             <div style={arrowStyleWithAdjustments}>
-                <Arrow direction={this.state.shouldOpenDownward ? ArrowDirection.Up : ArrowDirection.Down} size={10} color={this.props.backgroundColor} />
+                <Arrow direction={this.state.shouldOpenDownward ? ArrowDirection.Up : ArrowDirection.Down} size={5} color={this.props.beakColor} />
             </div>
         </div>
     }
@@ -133,13 +139,17 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
     }
 }
 
-const mapStateToProps = (state: IState): ICursorPositionerViewProps => {
+const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursorPositionerViewProps => {
 
     const x = state.cursorPixelX - (state.fontPixelWidth / 2) - 2
     const y = state.cursorPixelY - (state.fontPixelHeight * 1)
     const lineHeight = state.fontPixelHeight
 
+    const beakColor = (props && props.beakColor) ? props.beakColor : state.backgroundColor
+
     return {
+        beakColor,
+        fontPixelWidth: state.fontPixelWidth,
         x,
         y,
         containerWidth: state.viewport.width,
