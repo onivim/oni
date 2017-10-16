@@ -139,7 +139,9 @@ function OniUpdateWindowDisplayMap(shouldMeasure)
     while(cursor <= windowEndLine)
         call setpos(".", [bufNum, cursor, 0])
         let cursorString = string(cursor)
-        let mapping[cursorString] = winline()
+        let newPos = getpos(".")
+        let newLine = newPos[1]
+        let mapping[cursorString] = newLine
         let cursor = cursor+1
     endwhile
 
