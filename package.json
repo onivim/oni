@@ -3,7 +3,7 @@
   "author": "",
   "email": "bryphe@outlook.com",
   "homepage": "https://onivim.io",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "description": "NeoVim front-end with IDE-style extensibility",
   "keywords": [
     "vim",
