@@ -204,11 +204,11 @@ export class NeovimEditor implements IEditor {
         const browserWindow = remote.getCurrentWindow()
 
         browserWindow.on("blur", () => {
-            this._neovimInstance.executeAutoCommand("FocusLost")
+            this._neovimInstance.autoCommands.executeAutoCommand("FocusLost")
         })
 
         browserWindow.on("focus", () => {
-            this._neovimInstance.executeAutoCommand("FocusGained")
+            this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
         })
 
         this._onConfigChanged(this._config.getValues())

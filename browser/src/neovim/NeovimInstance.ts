@@ -7,19 +7,20 @@ import * as mkdirp from "mkdirp"
 import { Event, IEvent } from "./../Event"
 import * as Log from "./../Log"
 
-import { Buffer, IBuffer } from "./Buffer"
-import { NeovimBufferReference, NeovimWindowReference } from "./MsgPack"
-import { startNeovim } from "./NeovimProcessSpawner"
-import { IQuickFixList, QuickFixList } from "./QuickFix"
-import { Session } from "./Session"
-import { IWindow, Window } from "./Window"
-
 import * as Actions from "./../actions"
 import { measureFont } from "./../Font"
 import * as Platform from "./../Platform"
 import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
 import { configuration } from "./../Services/Configuration"
+
+import { Buffer, IBuffer } from "./Buffer"
+import { NeovimBufferReference, NeovimWindowReference } from "./MsgPack"
+import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
+import { startNeovim } from "./NeovimProcessSpawner"
+import { IQuickFixList, QuickFixList } from "./QuickFix"
+import { Session } from "./Session"
+import { IWindow, Window } from "./Window"
 
 export interface INeovimYankInfo {
     operator: string
@@ -68,6 +69,8 @@ export interface INeovimInstance {
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
     onOniCommand: IEvent<string>
 
+    autoCommands: INeovimAutoCommands
+
     screenToPixels(row: number, col: number): IPixelPosition
 
     /**
@@ -113,8 +116,6 @@ export interface INeovimInstance {
 
     open(fileName: string): Promise<void>
     openInitVim(): Promise<void>
-
-    executeAutoCommand(autoCommand: string): Promise<void>
 }
 
 /**
@@ -125,6 +126,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _initPromise: Promise<void>
 
     private _config = configuration
+    private _autoCommands: INeovimAutoCommands
 
     private _fontFamily: string = this._config.getValue("editor.fontFamily")
     private _fontSize: string = this._config.getValue("editor.fontSize")
@@ -165,6 +167,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._onYank
     }
 
+    public get autoCommands(): INeovimAutoCommands {
+        return this._autoCommands
+    }
+
     constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
         super()
 
@@ -172,19 +178,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
+
         this._quickFix = new QuickFixList(this)
+        this._autoCommands = new NeovimAutoCommands(this)
     }
 
     public async chdir(directoryPath: string): Promise<void> {
         await this.command(`cd! ${directoryPath}`)
-    }
-
-    public async executeAutoCommand(autoCommand: string): Promise<void> {
-        const doesAutoCommandExist = await this.eval(`exists('#${autoCommand}')`)
-
-        if (doesAutoCommandExist) {
-            await this.command(`doautocmd <nomodeline> ${autoCommand}`)
-        }
     }
 
     public start(filesToOpen?: string[]): Promise<void> {

@@ -64,6 +64,7 @@ augroup OniEventListeners
     autocmd! BufWritePre * :call OniNotifyEvent("BufWritePre")
     autocmd! BufWritePost * :call OniNotifyEvent("BufWritePost")
     autocmd! BufEnter * :call OniNotifyEvent("BufEnter")
+    autocmd! BufWinEnter * :call OniNotifyEvent("BufWinEnter")
     autocmd! WinEnter * :call OniNotifyEvent("WinEnter")
     autocmd! BufLeave * :call OniNotifyEvent("BufLeave")
     autocmd! BufDelete * :call OniNotifyEvent("BufDelete")
