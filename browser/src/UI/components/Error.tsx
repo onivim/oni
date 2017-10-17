@@ -98,15 +98,23 @@ export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, void> {
         }
 
         const errorIcon = <div style={iconPositionStyles} className="error-marker">
-            <div className="icon-container" style={{ color: this.props.color }}>
-                <Icon name="exclamation-circle" />
-            </div>
+            <ErrorIcon color={this.props.color} />
         </div>
 
         return <div>
             {errorIcon}
         </div>
     }
+}
+
+export interface IErrorIconProps {
+    color: string
+}
+
+export const ErrorIcon = (props: IErrorIconProps) => {
+    return <div className="icon-container" style={{ color: props.color }}>
+        <Icon name="exclamation-circle" />
+    </div>
 }
 
 export interface IErrorSquiggleProps {

@@ -1,6 +1,8 @@
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
+import { ErrorIcon } from "./Error"
+
 export interface IErrorInfoProps {
     errors: types.Diagnostic[]
 }
@@ -16,7 +18,10 @@ export class ErrorInfo extends React.PureComponent<IErrorInfoProps, void> {
             return null
         }
 
-        const errs = this.props.errors.map((e) => <div className="diagnostic">{e.message}</div>)
+        const errs = this.props.errors.map((e) => <div className="diagnostic">
+                                           <ErrorIcon color={"red"} />
+                                           <span>{e.message}</span>
+                                           </div>)
 
         return <div className="diagnostic-container">
         {errs}
