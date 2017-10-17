@@ -2,6 +2,8 @@ import { remote } from "electron"
 import { EventEmitter } from "events"
 import * as path from "path"
 
+import * as mkdirp from "mkdirp"
+
 import { Event, IEvent } from "./../Event"
 import * as Log from "./../Log"
 
@@ -14,6 +16,7 @@ import { IWindow, Window } from "./Window"
 
 import * as Actions from "./../actions"
 import { measureFont } from "./../Font"
+import * as Platform from "./../Platform"
 import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
 import { configuration } from "./../Services/Configuration"
@@ -334,7 +337,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         if (typeof(loadInitVim) === "string") {
             return this.open(loadInitVim)
         } else {
-            return this.open("$MYVIMRC")
+            // Use path from: https://github.com/neovim/neovim/wiki/FAQ
+            const rootFolder = Platform.isWindows() ? path.join(Platform.getUserHome(), "AppData", "Local", "nvim") : path.join(Platform.getUserHome(), ".config", "nvim")
+
+            mkdirp.sync(rootFolder)
+            const initVimPath = path.join(rootFolder, "init.vim")
+
+            return this.open(initVimPath)
         }
     }
 

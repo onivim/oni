@@ -4,6 +4,8 @@
  * Simple 'up' or 'down' arrow component
  */
 
+require("./Arrow.less") // tslint:disable-line no-var-requires
+
 import * as React from "react"
 
 export enum ArrowDirection {
@@ -38,7 +40,9 @@ export const Arrow = (props: IArrowProps): JSX.Element => {
         borderTop: solidBorder,
     }
 
-    const style = props.direction === ArrowDirection.Up ? upArrowStyle : downArrowStyle
+    const isUp = props.direction === ArrowDirection.Up
+    const style = isUp ? upArrowStyle : downArrowStyle
+    const className = isUp ? "arrow up" : "arrow down"
 
-    return <div style={style}></div>
+    return <div className={className} style={style}></div>
 }
