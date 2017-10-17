@@ -71,4 +71,3 @@ const getTitleAndContents = (result: types.Hover) => {
         }
     }
 }
-

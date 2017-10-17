@@ -77,11 +77,17 @@ declare namespace Oni {
     }
 
     export interface Buffer {
+        id: string
         language: string
         filePath: string
         cursor: Cursor
         version: number
         modified: boolean
+
+        lineCount: number
+
+        // getLines(start?: number, end?: number): Promise<string[]>
+        getTokenAt(line: number, column: number): Promise<string>
     }
 
     // Zero-based position of the cursor

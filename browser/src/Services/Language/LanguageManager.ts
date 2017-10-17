@@ -50,7 +50,7 @@ export class LanguageManager {
                     uri: Helpers.wrapPathInFileUri(filePath),
                     version: change.buffer.version,
                 },
-                contentChanges: change.contentChanges
+                contentChanges: change.contentChanges,
             })
         })
 
@@ -61,6 +61,10 @@ export class LanguageManager {
         this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
             logInfo("telemetry/event:" + JSON.stringify(args))
         })
+    }
+
+    public getTokenRegex(language: string): RegExp {
+        return /[_a-z]/i
     }
 
     public isLanguageServerAvailable(language: string): boolean {

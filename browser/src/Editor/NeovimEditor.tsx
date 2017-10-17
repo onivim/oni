@@ -38,6 +38,7 @@ import { IEditor } from "./Editor"
 
 import { InstallHelp } from "./../UI/components/InstallHelp"
 
+import { BufferManager } from "./BufferManager"
 import { NeovimSurface } from "./NeovimSurface"
 
 import { tasks } from "./../Services/Tasks"
@@ -46,19 +47,9 @@ import { normalizePath } from "./../Utility"
 
 import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
 
-const getBufferFromEvent = (evt: Oni.EventContext) => ({
-            filePath: evt.bufferFullPath,
-            language: evt.filetype,
-            version: evt.version,
-            modified: evt.modified,
-            cursor: {
-                line: evt.line - 1,
-                column: evt.column - 1,
-            }
-        })
-
 export class NeovimEditor implements IEditor {
 
+    private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
     private _deltaRegionManager: IncrementalDeltaRegionTracker
     private _renderer: INeovimRenderer
@@ -81,16 +72,15 @@ export class NeovimEditor implements IEditor {
     private _errorStartingNeovim: boolean = false
 
     private _isFirstRender: boolean = true
-    private _currentBuffer: Oni.Buffer = null
+
+    private _lastBufferId: string = null
 
     public get mode(): string {
         return this._currentMode
     }
 
     public get activeBuffer(): Oni.Buffer {
-
-        return this._currentBuffer
-
+        return this._bufferManager.getBufferById(this._lastBufferId)
     }
 
     // Events
@@ -122,6 +112,7 @@ export class NeovimEditor implements IEditor {
         const services: any[] = []
 
         this._neovimInstance = new NeovimInstance(this._pluginManager, 100, 100)
+        this._bufferManager = new BufferManager(this._neovimInstance)
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
 
@@ -208,7 +199,7 @@ export class NeovimEditor implements IEditor {
             const args = bufferUpdateEvent.context
             UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
 
-            const buf = getBufferFromEvent(bufferUpdateEvent.context)
+            const buf = this._bufferManager.updateBufferFromEvent(args)
 
             this._onBufferChangedEvent.dispatch({
                 buffer: buf,
@@ -220,7 +211,7 @@ export class NeovimEditor implements IEditor {
             const args = bufferUpdateArgs.context
             UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
 
-            const buf = getBufferFromEvent(bufferUpdateArgs.context)
+            const buf = this._bufferManager.updateBufferFromEvent(args)
 
             const lineNumber = bufferUpdateArgs.lineNumber
             const changedLine = bufferUpdateArgs.lineContents
@@ -354,13 +345,11 @@ export class NeovimEditor implements IEditor {
 
         tasks.onEvent(evt)
 
-        this._currentBuffer = getBufferFromEvent(evt)
+        const buf = this._bufferManager.updateBufferFromEvent(evt)
 
         if (eventName === "BufEnter") {
-            this._onBufferEnterEvent.dispatch({
-                filePath: evt.bufferFullPath,
-                language: evt.filetype,
-            })
+            this._lastBufferId = evt.bufferNumber.toString()
+            this._onBufferEnterEvent.dispatch(buf)
 
             UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
