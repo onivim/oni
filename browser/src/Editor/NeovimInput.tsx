@@ -6,6 +6,9 @@
 
 window["DERP"] = 1
 
+var derp = 1
+derp = false
+
 import * as React from "react"
 
 import { Mouse } from "./../Input/Mouse"

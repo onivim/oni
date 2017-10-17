@@ -81,12 +81,8 @@ const NoScrollBar: IBufferScrollBarProps = {
 import { createSelector } from "reselect"
 
 export const getMarkers = createSelector(
-    [Selectors.getActiveWindow, Selectors.getErrors],
-    (activeWindow, errors) => {
-
-        const file = activeWindow.file
-        const fileErrors = Selectors.getAllErrorsForFile(file, errors)
-
+    [Selectors.getActiveWindow, Selectors.getErrorsForActiveFile],
+    (activeWindow, fileErrors) => {
         const errorMarkers = fileErrors.map((e: types.Diagnostic) => ({
             line: e.range.start.line || 0,
             height: 1,

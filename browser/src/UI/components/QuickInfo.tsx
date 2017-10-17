@@ -8,6 +8,7 @@ import { IState } from "./../State"
 import { CursorPositioner } from "./CursorPositioner"
 
 import * as Color from "color"
+import * as types from "vscode-languageserver-types"
 
 require("./QuickInfo.less") // tslint:disable-line no-var-requires
 
@@ -94,23 +95,48 @@ export class SelectedText extends TextComponent {
 import { createSelector } from "reselect"
 import * as Selectors from "./../Selectors"
 
+import { ErrorInfo } from "./ErrorInfo"
+
 const getQuickInfo = Selectors.getQuickInfo
 
 const EmptyArray: JSX.Element[] = []
 
 const getQuickInfoElement = createSelector(
-    [getQuickInfo],
-    (quickInfo) => {
+    [getQuickInfo, Selectors.getErrorsForPosition],
+    (quickInfo, errors) => {
 
-        if (!quickInfo) {
+        if (!quickInfo && !errors) {
             return EmptyArray
         } else {
-            return [
-                <QuickInfoTitle text={quickInfo.title} />,
-                <QuickInfoDocumentation text={quickInfo.description} />,
-            ]
+
+            const errorElements = getErrorElements(errors)
+            const quickInfoElements = getQuickInfoElements(quickInfo)
+            return errorElements.concat(quickInfoElements)
         }
     })
+
+const getErrorElements = (errors: types.Diagnostic[]): JSX.Element[] => {
+
+    if (!errors) {
+        return EmptyArray
+    } else {
+        return [<ErrorInfo errors={errors} />]
+    }
+
+}
+
+const getQuickInfoElements = (quickInfo: Oni.Plugin.QuickInfo): JSX.Element[] => {
+
+    if (!quickInfo) {
+        return EmptyArray
+    } else {
+        return [
+            <QuickInfoTitle text={quickInfo.title} />,
+            <QuickInfoDocumentation text={quickInfo.description} />,
+        ]
+    }
+
+}
 
 const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
     if (!state.quickInfo || state.mode !== "normal") {

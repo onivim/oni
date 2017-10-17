@@ -134,21 +134,10 @@ export class ErrorSquiggle extends React.PureComponent<IErrorSquiggleProps, void
     }
 }
 
-import { createSelector } from "reselect"
-
-const EmptyArray: any[] = []
-
-export const getErrorsForFile = createSelector(
-    [Selectors.getActiveWindow, Selectors.getErrors],
-    (window, errors) => {
-        const errorsForFile = (window && window.file) ? Selectors.getAllErrorsForFile(window.file, errors) : EmptyArray
-        return errorsForFile
-    })
-
 const mapStateToProps = (state: State.IState): IErrorsProps => {
     const window = Selectors.getActiveWindow(state)
 
-    const errors = getErrorsForFile(state)
+    const errors = Selectors.getErrorsForActiveFile(state)
 
     return {
         errors,
