@@ -15,35 +15,25 @@ export class NeovimWindowManager extends EventEmitter {
         this._screen = screen
         this._neovimInstance = neovimInstance
 
-        this._neovimInstance.on("window-display-update", (evt: Oni.EventContext, data: any, shouldMeasure: boolean) => {
-            if (shouldMeasure) {
-                this._notifyWindowDimensionsChanged(evt)
-            }
-        })
+        this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
+        this._neovimInstance.autoCommands.onWinBufEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
+        this._neovimInstance.autoCommands.onWinEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
     }
 
-    private _notifyWindowDimensionsChanged(eventContext: Oni.EventContext) {
-
-        let win: IWindow
-
-        // TODO: #702 - Good candidate to be consolidated via `nvim_call_atomic`
-        // In addition, would be nice to have `async/await` used here to clean up
-        // the nested promise chain
-        this._neovimInstance.getCurrentWindow()
-            .then((currentWindow) => win = currentWindow)
-            .then(() => win.getDimensions())
-            .then((dimensions)  => {
-                const windowStartRow = dimensions.row
-                const windowStartColumn = dimensions.col
-
-                const dimensionsInPixels = {
-                    x: windowStartColumn * this._screen.fontWidthInPixels,
-                    y: windowStartRow * this._screen.fontHeightInPixels,
-                    width: dimensions.width * this._screen.fontWidthInPixels,
-                    height: dimensions.height * this._screen.fontHeightInPixels,
-                }
-
-                this.emit("current-window-size-changed", dimensionsInPixels, eventContext.windowNumber)
-            })
+    // The goal of this function is to acquire functions for the current window:
+    // - bufferSpaceToScreenSpace(range) => Range[]
+    // - bufferSpaceToPixelSpace(range) => Rectangle[]
+    //
+    // These are needed for rich-UI rendering (knowing where adorners and elements should be rendered,
+    // relative to text in the document). An example is the error squiggle - we need to translate the
+    // error range into pixel-range.
+    //
+    // To get those, we need some information:
+    // - The dimensions of the window itself
+    // - How each buffer line maps to the screen space
+    //
+    // We can derive these from information coming from the event handlers, along with screen width
+    private _remeasureWindow(context: Oni.EventContext): void {
     }
+
 }
