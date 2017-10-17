@@ -1,0 +1,25 @@
+@import (reference) "./common.less";
+
+.arrow {
+    animation-duration: 0.3s;
+    animation-delay: 0.2s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+
+    &.down {
+        animation-name: appear-down;
+    }
+
+    &.up {
+        animation-name: appear-up;
+    }
+}
+
+@keyframes appear-down {
+    from {transform: translateY(-4px); opacity: 0;}
+    to {transform: translateY(0px);opacity: 1;}
+}
+@keyframes appear-up {
+    from {transform: translateY(4px); opacity: 0;}
+    to {transform: translateY(0px);opacity: 1;}
+}
