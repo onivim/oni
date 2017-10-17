@@ -127,7 +127,7 @@ const getErrorElements = (errors: types.Diagnostic[]): JSX.Element[] => {
 
 const getQuickInfoElements = (quickInfo: Oni.Plugin.QuickInfo): JSX.Element[] => {
 
-    if (!quickInfo) {
+    if (!quickInfo || (!quickInfo.title && !quickInfo.description)) {
         return EmptyArray
     } else {
         return [
@@ -139,7 +139,8 @@ const getQuickInfoElements = (quickInfo: Oni.Plugin.QuickInfo): JSX.Element[] =>
 }
 
 const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
-    if (!state.quickInfo || state.mode !== "normal") {
+    const quickInfo = Selectors.getQuickInfo(state)
+    if (!quickInfo || state.mode !== "normal") {
         return {
             visible: false,
             elements: EmptyArray,
@@ -150,13 +151,20 @@ const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
 
         const elements = getQuickInfoElement(state)
 
-        // const { data, filePath, line, column } = state.quickInfo
-
-        return {
-            visible: true,
-            elements,
-            foregroundColor: state.foregroundColor,
-            backgroundColor: state.backgroundColor,
+        if (elements.length === 0) {
+            return {
+                visible: false,
+                elements: EmptyArray,
+                foregroundColor: state.foregroundColor,
+                backgroundColor: state.backgroundColor,
+            }
+        } else {
+            return {
+                visible: true,
+                elements,
+                foregroundColor: state.foregroundColor,
+                backgroundColor: state.backgroundColor,
+            }
         }
     }
 }

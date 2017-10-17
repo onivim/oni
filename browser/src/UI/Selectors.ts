@@ -86,7 +86,13 @@ export const getActiveWindow = (state: State.IState): State.IWindow => {
 }
 
 export const getQuickInfo = (state: State.IState): Oni.Plugin.QuickInfo => {
-    const { file, line, column } = getActiveWindow(state)
+    const win = getActiveWindow(state)
+
+    if (!win) {
+        return null
+    }
+
+    const { file, line, column } = win
 
     const quickInfo = state.quickInfo
 
@@ -134,6 +140,10 @@ const isInRange = (line: number, column: number, range: types.Range): boolean =>
 export const getErrorsForPosition = createSelector(
     [getActiveWindow, getErrorsForActiveFile],
     (win, errors) => {
+        if (!win) {
+            return EmptyArray
+        }
+
         const { line, column } = win
         return errors.filter((diag) => isInRange(line - 1, column - 1, diag.range))
     })

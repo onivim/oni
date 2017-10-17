@@ -206,10 +206,16 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                                     documentation: quickInfo.description,
                                 })
                             } else {
-                                window.setTimeout(() => UI.Actions.hideQuickInfo())
+                                this._channel.send("show-quick-info", originalContext, {
+                                    info: null,
+                                    documentation: null,
+                                })
                             }
                         }, (err) => {
-                            UI.Actions.hideQuickInfo()
+                            this._channel.send("show-quick-info", originalContext, {
+                                info: null,
+                                documentation: null,
+                            })
                         })
                     break
                 case "goto-definition":
