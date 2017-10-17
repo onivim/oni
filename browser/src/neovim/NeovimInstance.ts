@@ -21,18 +21,6 @@ import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
 import { configuration } from "./../Services/Configuration"
 
-// const derp = 1
-// derp = 2
-//
-
-require(derp) 
-
-
-window["derp"] = derp
-
-
-
-
 export interface INeovimYankInfo {
     operator: string
     regcontents: string[]
