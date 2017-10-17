@@ -29,7 +29,7 @@ import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { WindowTitle } from "./../Services/WindowTitle"
 
 import * as UI from "./../UI/index"
-import { Rectangle } from "./../UI/Types"
+// import { Rectangle } from "./../UI/Types"
 
 import { IEditor } from "./Editor"
 
@@ -122,9 +122,9 @@ export class NeovimEditor implements IEditor {
         // explicit window management: #362
         this._windowManager = new NeovimWindowManager(this._screen, this._neovimInstance)
 
-        this._windowManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
-            UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
-        })
+        // this._windowManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
+        //     UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
+        // })
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
             if (configuration.getValue("editor.clipboard.enabled")) {

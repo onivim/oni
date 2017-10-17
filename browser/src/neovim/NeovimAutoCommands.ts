@@ -7,6 +7,8 @@
 
 import { Event, IEvent } from "./../Event"
 
+import { NeovimInstance } from "./NeovimInstance"
+
 export interface INeovimAutoCommands {
     // Autocommands
     onBufEnter: IEvent<Oni.EventContext>
@@ -47,7 +49,7 @@ export class NeovimAutoCommands {
         return this._onCursorMovedIEvent
     }
 
-    constructor(private _neovimInstance: INeovimInstance) {
+    constructor(private _neovimInstance: NeovimInstance) {
         this._nameToEvent = {
             "BufEnter": this._onBufEnterEvent,
             "BufWinEnter": this._onBufWinEnterEvent,
@@ -69,10 +71,10 @@ export class NeovimAutoCommands {
     }
 
     public async executeAutoCommand(autoCommand: string): Promise<void> {
-        const doesAutoCommandExist = await this.eval(`exists('#${autoCommand}')`)
+        const doesAutoCommandExist = await this._neovimInstance.eval(`exists('#${autoCommand}')`)
 
         if (doesAutoCommandExist) {
-            await this.command(`doautocmd <nomodeline> ${autoCommand}`)
+            await this._neovimInstance.command(`doautocmd <nomodeline> ${autoCommand}`)
         }
     }
 }

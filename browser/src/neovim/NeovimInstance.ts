@@ -126,7 +126,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _initPromise: Promise<void>
 
     private _config = configuration
-    private _autoCommands: INeovimAutoCommands
+    private _autoCommands: NeovimAutoCommands
 
     private _fontFamily: string = this._config.getValue("editor.fontFamily")
     private _fontSize: string = this._config.getValue("editor.fontSize")
@@ -230,6 +230,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             if (eventName === "DirChanged") {
                                 this._updateProcessDirectory()
                             }
+
+                            this._autoCommands.notifyAutocommand(eventName, eventContext)
 
                             this.emit("event", eventName, eventContext)
 
@@ -349,6 +351,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public eval<T>(expression: string): Promise<T> {
         return this._neovim.request("nvim_eval", [expression])
+    }
+
+    public request<T>(requestMethod: string, args: any[]): Promise<T> {
+        return this._neovim.request(requestMethod, args)
     }
 
     public command(command: string): Promise<void> {
