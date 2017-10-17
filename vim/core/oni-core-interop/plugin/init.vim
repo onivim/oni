@@ -59,17 +59,6 @@ augroup OniClipboard
     autocmd! TextYankPost * :call OniNotifyYank(v:event)
 augroup end
 
-augroup OniNotifyWindowDisplayUpdate
-    autocmd!
-    autocmd! BufEnter * :call OniUpdateWindowDisplayMap(1)
-    autocmd! BufWinEnter * :call OniUpdateWindowDisplayMap(1)
-    autocmd! WinEnter * :call OniUpdateWindowDisplayMap(1)
-    autocmd! VimResized * :call OniUpdateWindowDisplayMap(1)
-    autocmd! CursorMoved * :call OniUpdateWindowDisplayMap(0)
-    autocmd! InsertLeave * :call OniUpdateWindowDisplayMap(0)
-    autocmd! InsertEnter * :call OniUpdateWindowDisplayMap(0)
-augroup END
-
 augroup OniEventListeners
     autocmd!
     autocmd! BufWritePre * :call OniNotifyEvent("BufWritePre")
@@ -120,34 +109,6 @@ if exists("b:last_change_tick")
 endif
 
 return context
-endfunction
-
-function OniUpdateWindowDisplayMap(shouldMeasure)
-    let currentWindowNumber = winnr()
-    let pos = getpos(".")
-    let bufNum = pos[0]
-    let currentLine = pos[1]
-    let currentColumn = pos[2]
-
-    let windowStartLine = line('w0')
-    let windowEndLine = line('w$')
-
-    let mapping = {}
-
-    let cursor = windowStartLine
-
-    while(cursor <= windowEndLine)
-        call setpos(".", [bufNum, cursor, 0])
-        let cursorString = string(cursor)
-        let mapping[cursorString] = winline()
-        let cursor = cursor+1
-    endwhile
-
-    call setpos(".", [bufNum, currentLine, currentColumn])
-
-    let context = OniGetContext()
-
-    call OniNotify(["window_display_update", context, mapping, a:shouldMeasure])
 endfunction
 
 function OniConnect()
