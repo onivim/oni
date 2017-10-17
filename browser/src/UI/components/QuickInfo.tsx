@@ -117,7 +117,7 @@ const getQuickInfoElement = createSelector(
 
 const getErrorElements = (errors: types.Diagnostic[]): JSX.Element[] => {
 
-    if (!errors) {
+    if (!errors || !errors.length) {
         return EmptyArray
     } else {
         return [<ErrorInfo errors={errors} />]
