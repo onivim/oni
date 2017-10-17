@@ -6,6 +6,7 @@ import { ErrorIcon } from "./Error"
 import { getColorFromSeverity } from "./../../Services/Errors"
 
 export interface IErrorInfoProps {
+    style: React.CSSProperties
     errors: types.Diagnostic[]
 }
 
@@ -21,7 +22,9 @@ export class ErrorInfo extends React.PureComponent<IErrorInfoProps, void> {
                                            <span>{e.message}</span>
                                            </div>)
 
-        return <div className="diagnostic-container">
+        const style = this.props.style || {}
+
+        return <div className="diagnostic-container" style={style}>
         {errs}
         </div>
     }

@@ -20,6 +20,14 @@ export interface IQuickInfoProps {
     foregroundColor: string
 }
 
+const getBorderColor = (bgColor: string, fgColor: string): string => {
+    const backgroundColor = Color(bgColor)
+    const foregroundColor = Color(fgColor)
+
+    const borderColor = backgroundColor.luminosity() > 0.5 ? foregroundColor.lighten(0.6) : foregroundColor.darken(0.6)
+    return borderColor.rgb().toString()
+}
+
 export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
 
     public render(): null | JSX.Element {
@@ -27,13 +35,7 @@ export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
             return null
         }
 
-        // TODO:
-        // This should be factored out as part of colorscheme management (#412)
-        const backgroundColor = Color(this.props.backgroundColor)
-        const foregroundColor = Color(this.props.foregroundColor)
-
-        const borderColor = backgroundColor.luminosity() > 0.5 ? foregroundColor.lighten(0.6) : foregroundColor.darken(0.6)
-        const borderColorString = borderColor.rgb().toString()
+        const borderColorString = getBorderColor(this.props.backgroundColor, this.props.foregroundColor)
 
         const quickInfoStyle: React.CSSProperties = {
             "opacity": this.props.visible ? 1 : 0,
@@ -101,26 +103,40 @@ const getQuickInfo = Selectors.getQuickInfo
 
 const EmptyArray: JSX.Element[] = []
 
+const getColors = (state: IState) => ({
+    foregroundColor: state.foregroundColor,
+    backgroundColor: state.backgroundColor,
+})
+
 const getQuickInfoElement = createSelector(
-    [getQuickInfo, Selectors.getErrorsForPosition],
-    (quickInfo, errors) => {
+    [getQuickInfo, Selectors.getErrorsForPosition, getColors],
+    (quickInfo, errors, colors) => {
 
         if (!quickInfo && !errors) {
             return EmptyArray
         } else {
 
-            const errorElements = getErrorElements(errors)
             const quickInfoElements = getQuickInfoElements(quickInfo)
+
+            let customErrorStyle = { }
+            if (quickInfoElements.length > 0) {
+                const borderColor = getBorderColor(colors.backgroundColor, colors.foregroundColor)
+                customErrorStyle = {
+                    "border-bottom": "1px solid " + borderColor
+                }
+            }
+
+            const errorElements = getErrorElements(errors, customErrorStyle)
             return errorElements.concat(quickInfoElements)
         }
     })
 
-const getErrorElements = (errors: types.Diagnostic[]): JSX.Element[] => {
+const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[] => {
 
     if (!errors || !errors.length) {
         return EmptyArray
     } else {
-        return [<ErrorInfo errors={errors} />]
+        return [<ErrorInfo errors={errors} style={style} />]
     }
 
 }
