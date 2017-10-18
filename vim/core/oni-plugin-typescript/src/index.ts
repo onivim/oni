@@ -415,31 +415,6 @@ export const activate = (Oni) => {
         host.changeLineInFile(args.eventContext.bufferFullPath, lineNumber, changedLine)
     })
 
-    const getHighlightsFromNavTree = (navTree: protocol.NavigationTree[], highlights: any[]) => {
-        if (!navTree) {
-            return
-        }
-
-        navTree.forEach((item) => {
-            const spans = item.spans
-            const highlightKind = kindToHighlightGroup[item.kind]
-
-            // if(!highlightKind)
-            //     debugger
-
-            spans.forEach((s) => {
-                highlights.push({
-                    highlightKind,
-                    token: item.text,
-                })
-            })
-
-            if (item.childItems) {
-                getHighlightsFromNavTree(item.childItems, highlights)
-            }
-        })
-    }
-
     // Oni.on("buffer-enter", (args: Oni.EventContext) => {
     //     // // TODO: Look at alternate implementation for this
     //     host.openFile(args.bufferFullPath)
@@ -466,18 +441,6 @@ export const activate = (Oni) => {
         //         Oni.setHighlights(args.bufferFullPath, "typescript", highlights)
         //     })
     })
-
-    const kindToHighlightGroup = {
-        let: types.SymbolKind.Variable,
-        const: types.SymbolKind.Constant,
-        var: types.SymbolKind.Variable,
-        alias: types.SymbolKind.Package,
-        function: types.SymbolKind.Method,
-        method: types.SymbolKind.Function,
-        property: types.SymbolKind.Property,
-        class: types.SymbolKind.Class,
-        interface: types.SymbolKind.Interface,
-    }
 
     // TODO: Refactor to separate file
     const convertToDisplayString = (displayParts: IDisplayPart[]) => {
