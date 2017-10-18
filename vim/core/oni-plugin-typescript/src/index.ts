@@ -66,7 +66,10 @@ export class LightweightLanguageClient {
         const notifierEvent = this._subscriptions[notificationName]
 
         if (notifierEvent) {
-            (<any>notifierEvent).dispatch(payload)
+            (<any>notifierEvent).dispatch({
+                language: "typescript", // TODO: Generalize for JS too
+                payload,
+            })
         }
     }
 
@@ -298,19 +301,23 @@ export const activate = (Oni) => {
 
         const errors = diags.map((d) => {
             // Convert lines to zero-based to accomodate protocol
-            const startPosition = types.Position.create(d.start.line - 1, d.start.offset)
-            const endPosition = types.Position.create(d.end.line - 1, d.end.offset)
+            const startPosition = types.Position.create(d.start.line - 1, d.start.offset - 1)
+            const endPosition = types.Position.create(d.end.line - 1, d.end.offset - 1)
             const range = types.Range.create(startPosition, endPosition)
 
-            return {
-                type: null,
+            const ret: types.Diagnostic =  {
+                // type: null,
                 message: d.text,
                 range,
-                severity: 1,
+                severity: types.DiagnosticSeverity.Error
             }
+            return ret
         })
 
-        Oni.diagnostics.setErrors("typescript-compiler", fileName, errors)
+        lightweightLanguageClient.notify("textDocument/publishDiagnostics", {
+            uri: wrapPathInFileUri(fileName),
+            diagnostics: errors,
+        })
     })
 
     // TODO: Refactor to helpers?
@@ -322,6 +329,7 @@ export const activate = (Oni) => {
         }
      }
 
+    const wrapPathInFileUri = (path: string) => getFilePrefix() + path
     const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split(getFilePrefix())[1])
 
     const protocolOpenFile = (message: string, payload: any) => {
@@ -373,7 +381,6 @@ export const activate = (Oni) => {
     lightweightLanguageClient.handleNotification("textDocument/didChange", protocolChangeFile)
 
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo)
-
 
     const updateFile = Oni.helpers.throttle((bufferFullPath, stringContents) => {
         host.updateFile(bufferFullPath, stringContents)
@@ -433,31 +440,31 @@ export const activate = (Oni) => {
         })
     }
 
-    Oni.on("buffer-enter", (args: Oni.EventContext) => {
-        // // TODO: Look at alternate implementation for this
-        host.openFile(args.bufferFullPath)
+    // Oni.on("buffer-enter", (args: Oni.EventContext) => {
+    //     // // TODO: Look at alternate implementation for this
+    //     host.openFile(args.bufferFullPath)
 
-        host.getNavigationTree(args.bufferFullPath)
-            .then((navTree) => {
-                const highlights = []
-                // debugger
-                getHighlightsFromNavTree(navTree.childItems, highlights)
+    //     host.getNavigationTree(args.bufferFullPath)
+    //         .then((navTree) => {
+    //             const highlights = []
+    //             // debugger
+    //             getHighlightsFromNavTree(navTree.childItems, highlights)
 
-                Oni.setHighlights(args.bufferFullPath, "typescript", highlights)
-            })
-    })
+    //             Oni.setHighlights(args.bufferFullPath, "typescript", highlights)
+    //         })
+    // })
 
     Oni.on("buffer-saved", (args: Oni.EventContext) => {
         host.getErrorsAcrossProject(args.bufferFullPath)
 
-        host.getNavigationTree(args.bufferFullPath)
-            .then((navTree) => {
-                const highlights = []
-                // debugger
-                getHighlightsFromNavTree(navTree.childItems, highlights)
+        // host.getNavigationTree(args.bufferFullPath)
+        //     .then((navTree) => {
+        //         const highlights = []
+        //         // debugger
+        //         getHighlightsFromNavTree(navTree.childItems, highlights)
 
-                Oni.setHighlights(args.bufferFullPath, "typescript", highlights)
-            })
+        //         Oni.setHighlights(args.bufferFullPath, "typescript", highlights)
+        //     })
     })
 
     const kindToHighlightGroup = {
