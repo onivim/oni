@@ -13,11 +13,11 @@ import { NeovimScreen } from "./../Screen"
 
 import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
 import { AutoCompletionContainer } from "./../UI/components/AutoCompletion"
-import { ConnectedBufferScrollBar } from "./../UI/components/BufferScrollBar"
 import { Cursor } from "./../UI/components/Cursor"
 import { CursorLine } from "./../UI/components/CursorLine"
 import { TabsContainer } from "./../UI/components/Tabs"
 
+import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarContainer"
 import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
 import { QuickInfoContainer } from "./../UI/containers/QuickInfoContainer"
 import { SignatureHelpContainer } from "./../UI/containers/SignatureHelpContainer"
@@ -60,7 +60,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                     <CursorLine lineType={"column"} />
                     <ActiveWindowContainer>
                         <ErrorsContainer />
-                        <ConnectedBufferScrollBar />
+                        <BufferScrollBarContainer />
                     </ActiveWindowContainer>
                 </div>
                 <NeovimInput

@@ -139,10 +139,6 @@ export class NeovimEditor implements IEditor {
         // explicit window management: #362
         this._windowManager = new NeovimWindowManager(this._screen, this._neovimInstance)
 
-        // this._windowManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
-        //     UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
-        // })
-
         this._neovimInstance.onYank.subscribe((yankInfo) => {
             if (configuration.getValue("editor.clipboard.enabled")) {
                 clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
@@ -169,11 +165,6 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.on("error", (_err: string) => {
             this._errorStartingNeovim = true
             ReactDOM.render(<InstallHelp />, this._element.parentElement)
-        })
-
-        this._neovimInstance.on("window-display-update", (evt: Oni.EventContext, lineMapping: any) => {
-            UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
-            UI.Actions.setWindowLineMapping(evt.windowNumber, lineMapping)
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -341,8 +332,6 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
-        UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
-
         tasks.onEvent(evt)
 
         const buf = this._bufferManager.updateBufferFromEvent(evt)

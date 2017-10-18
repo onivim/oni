@@ -13,7 +13,6 @@ import { Rectangle } from "./Types"
 
 export interface Buffers { [filePath: string]: IBuffer }
 export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
-export interface WindowLineMap { [key: number]: number }
 
 /**
  * Viewport encompasses the actual 'app' height
