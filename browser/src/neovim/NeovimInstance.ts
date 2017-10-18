@@ -358,10 +358,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request("nvim_eval", [expression])
     }
 
-    public request<T>(requestMethod: string, args: any[]): Promise<T> {
-        return this._neovim.request(requestMethod, args)
-    }
-
     public command(command: string): Promise<void> {
         Log.verbose("[NeovimInstance] Executing command: " + command)
         return this._neovim.request("nvim_command", [command])
