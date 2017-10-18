@@ -95,5 +95,5 @@ const createLanguageClientFromConfig = (language: string, config: ILightweightLa
         rootPath: pathResolver,
     }
     const languageClient = new LanguageClient2(language, new LanguageClientProcess(serverRunOptions, initializationOptions))
-    languageManager.registerLanguageClient(languageClient)
+    languageManager.registerLanguageClient(language, languageClient)
 }

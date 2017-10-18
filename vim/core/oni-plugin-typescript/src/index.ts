@@ -20,6 +20,58 @@ export interface IDisplayPart {
     kind: string
 }
 
+export type RequestHandler = (requestName: string, payload: any) => Promise<any>
+export type NotificationHandler = (notificationName: string, payload: any) => void
+
+export class LightweightLanguageClient {
+
+    private _subscriptions: { [key: string]: Oni.Event<any> } = { }
+
+    private _requestHandler: { [key: string]: RequestHandler } = { }
+    private _notificationHandler:  { [key: string]: NotificationHandler } = { }
+
+    public subscribe(notificationName: string, evt: Oni.Event<any>) {
+        this._subscriptions[notificationName] = evt
+    }
+
+    public sendRequest<T>(fileName: string, requestName: string, protocolArguments: any): Promise<T> {
+
+        const handler = this._requestHandler[requestName]
+
+        if (handler) {
+            return handler(requestName, protocolArguments)
+        } else {
+            return Promise.reject("Not implemented")
+        }
+    }
+
+    public sendNotification(fileName: string, notificationName: string, protocolArguments: any): void {
+
+        const notifier = this._notificationHandler[notificationName]
+
+        if (notifier) {
+            notifier(notificationName, protocolArguments)
+        }
+    }
+
+    public handleRequest(requestName: string, handler: RequestHandler): void {
+        this._requestHandler[requestName] = handler
+    }
+
+    public handleNotification(notificationName: string, notificationHandler: NotificationHandler): void {
+        this._notificationHandler[notificationName] = notificationHandler
+    }
+
+    public notify(notificationName: string, payload: any): void {
+        const notifierEvent = this._subscriptions[notificationName]
+
+        if (notifierEvent) {
+            (<any>notifierEvent).dispatch(payload)
+        }
+    }
+
+}
+
 export const activate = (Oni) => {
 
     const host = new TypeScriptServerHost(Oni)
@@ -232,15 +284,22 @@ export const activate = (Oni) => {
             })
     }
 
-    Oni.registerLanguageService({
-        findAllReferences,
-        getCompletionDetails,
-        getCompletions,
-        getDefinition,
-        getFormattingEdits,
-        getQuickInfo,
-        getSignatureHelp,
-    })
+    const lightweightLanguageClient = new LightweightLanguageClient()
+
+    Oni.language.registerLanguageClient("typescript", lightweightLanguageClient)
+    Oni.language.registerLanguageClient("javascript", lightweightLanguageClient)
+
+    lightweightLanguageClient.notify("window/logMessage", "Hello world")
+
+//     Oni.registerLanguageService({
+//         findAllReferences,
+//         getCompletionDetails,
+//         getCompletions,
+//         getDefinition,
+//         getFormattingEdits,
+//         getQuickInfo,
+//         getSignatureHelp,
+//     })
 
     host.on("semanticDiag", (diagnostics) => {
         const fileName = diagnostics.file

@@ -7,8 +7,6 @@ import { ILanguageClientProcess } from "./LanguageClientProcess"
 import { PromiseQueue } from "./PromiseQueue"
 
 export interface ILanguageClient {
-    language: string
-
     subscribe(notificationName: string, evt: Event<any>): void
 
     sendRequest<T>(fileName: string, requestName: string, protocolArguments: any): Promise<T>
@@ -25,10 +23,6 @@ export class LanguageClient2 implements ILanguageClient {
 
     private _connection: rpc.MessageConnection
     private _subscriptions: { [key: string]: Event<any> } = {}
-
-    public get language(): string {
-        return this._language
-    }
 
     constructor(
         private _language: string,

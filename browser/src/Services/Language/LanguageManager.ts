@@ -109,9 +109,7 @@ export class LanguageManager {
         }
     }
 
-    public registerLanguageClient(languageClient: ILanguageClient): any {
-        const language = languageClient.language
-
+    public registerLanguageClient(language: string, languageClient: ILanguageClient): any {
         if (this._languageServerInfo[language]) {
             Log.error("Duplicate language server registered for: " + language)
             return
