@@ -187,6 +187,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         }
     }
 
+    // Make a direct request against the msgpack API
+    public async request<T>(request: string, args: any[]): Promise<T> {
+        return this._neovim.request<T>(request, args)
+    }
+
     public start(filesToOpen?: string[]): Promise<void> {
         filesToOpen = filesToOpen || []
 

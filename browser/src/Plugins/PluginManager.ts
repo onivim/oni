@@ -46,6 +46,13 @@ export class PluginManager extends EventEmitter {
         this._channel.host.onResponse((arg: any) => this._handlePluginResponse(arg))
     }
 
+    // TODO: Deprecate this once the Language functionality has been migrated out
+    // Also deprecate the `Oni.EventContext`, as once that surface area is removed,
+    // it can be purely internal
+    public checkHover(eventContext: Oni.EventContext): void {
+        this._sendLanguageServiceRequest("quick-info", eventContext)
+    }
+
     public gotoDefinition(): void {
         this._sendLanguageServiceRequest("goto-definition", this._lastEventContext)
     }
@@ -208,10 +215,6 @@ export class PluginManager extends EventEmitter {
                 context: eventContext,
             },
         }, Capabilities.createPluginFilter(this._lastEventContext.filetype))
-
-        if (eventName === "CursorMoved" && this._config.getValue("editor.quickInfo.enabled")) {
-            this._sendLanguageServiceRequest("quick-info", eventContext)
-        }
     }
 
     private _sendLanguageServiceRequest(requestName: string, eventContext: any, languageServiceCapability?: any, additionalArgs?: any): void {
