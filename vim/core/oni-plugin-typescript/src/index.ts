@@ -10,7 +10,7 @@
 import * as os from "os"
 import * as path from "path"
 
-import { CompletionItemKind, Diagnostic, Position, Range, SymbolKind } from "vscode-languageserver-types"
+import * as types from "vscode-languageserver-types"
 
 import { QuickInfo } from "./QuickInfo"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
@@ -81,16 +81,6 @@ export const activate = (Oni) => {
 
     let lastBuffer: string[] = []
 
-    const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
-        return host.getQuickInfo(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
-            .then((val: any) => {
-                return {
-                    title: val.displayString,
-                    description: val.documentation,
-                }
-            })
-    }
-
     const findAllReferences = (textDocumentPosition: Oni.EventContext) => {
         return host.findAllReferences(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
             .then((val: protocol.ReferencesResponseBody) => {
@@ -153,30 +143,30 @@ export const activate = (Oni) => {
             })
     }
 
-    const convertTypeScriptKindToCompletionItemKind = (kind: string): CompletionItemKind => {
+    const convertTypeScriptKindToCompletionItemKind = (kind: string): types.CompletionItemKind => {
 
         const typeScriptKindToCompletionKind = {
-            "let": CompletionItemKind.Variable,
-            "interface": CompletionItemKind.Interface,
-            "alias": CompletionItemKind.Reference,
-            "color": CompletionItemKind.Color,
-            "const": CompletionItemKind.Value,
-            "constructor": CompletionItemKind.Constructor,
-            "class": CompletionItemKind.Class,
-            "type": CompletionItemKind.Class,
-            "directory": CompletionItemKind.File,
-            "file": CompletionItemKind.File,
-            "script": CompletionItemKind.File,
-            "var": CompletionItemKind.Variable,
-            "property": CompletionItemKind.Property,
-            "parameter": CompletionItemKind.Variable,
-            "module": CompletionItemKind.Module,
-            "external module name": CompletionItemKind.Module,
-            "method": CompletionItemKind.Method,
-            "function": CompletionItemKind.Function,
-            "unit": CompletionItemKind.Unit,
-            "keyword": CompletionItemKind.Keyword,
-            "text": CompletionItemKind.Text,
+            "let": types.CompletionItemKind.Variable,
+            "interface": types.CompletionItemKind.Interface,
+            "alias": types.CompletionItemKind.Reference,
+            "color": types.CompletionItemKind.Color,
+            "const": types.CompletionItemKind.Value,
+            "constructor": types.CompletionItemKind.Constructor,
+            "class": types.CompletionItemKind.Class,
+            "type": types.CompletionItemKind.Class,
+            "directory": types.CompletionItemKind.File,
+            "file": types.CompletionItemKind.File,
+            "script": types.CompletionItemKind.File,
+            "var": types.CompletionItemKind.Variable,
+            "property": types.CompletionItemKind.Property,
+            "parameter": types.CompletionItemKind.Variable,
+            "module": types.CompletionItemKind.Module,
+            "external module name": types.CompletionItemKind.Module,
+            "method": types.CompletionItemKind.Method,
+            "function": types.CompletionItemKind.Function,
+            "unit": types.CompletionItemKind.Unit,
+            "keyword": types.CompletionItemKind.Keyword,
+            "text": types.CompletionItemKind.Text,
         }
 
         if (kind && typeScriptKindToCompletionKind[kind]) {
@@ -308,9 +298,9 @@ export const activate = (Oni) => {
 
         const errors = diags.map((d) => {
             // Convert lines to zero-based to accomodate protocol
-            const startPosition = Position.create(d.start.line - 1, d.start.offset)
-            const endPosition = Position.create(d.end.line - 1, d.end.offset)
-            const range = Range.create(startPosition, endPosition)
+            const startPosition = types.Position.create(d.start.line - 1, d.start.offset)
+            const endPosition = types.Position.create(d.end.line - 1, d.end.offset)
+            const range = types.Range.create(startPosition, endPosition)
 
             return {
                 type: null,
@@ -322,6 +312,68 @@ export const activate = (Oni) => {
 
         Oni.diagnostics.setErrors("typescript-compiler", fileName, errors)
     })
+
+    // TODO: Refactor to helpers?
+    const getFilePrefix = () => {
+        if (process.platform === "win32") {
+            return "file:///"
+        } else {
+            return "file://"
+        }
+     }
+
+    const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split(getFilePrefix())[1])
+
+    const protocolOpenFile = (message: string, payload: any) => {
+        const textDocument: types.TextDocumentIdentifier = payload.textDocument
+        const filePath = unwrapFileUriPath(textDocument.uri)
+        host.openFile(filePath)
+    }
+
+    const protocolChangeFile = (message: string, payload: any) => {
+
+        const textDocument: types.TextDocumentIdentifier = payload.textDocument
+        const contentChanges: types.TextDocumentContentChangeEvent[] = payload.contentChanges
+
+        const filePath = unwrapFileUriPath(textDocument.uri)
+
+        const change = contentChanges[0]
+        if (!change.range) {
+            host.updateFile(filePath, change.text)
+        } else {
+            // TODO
+        }
+    }
+
+    // const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
+    //     return host.getQuickInfo(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
+    //         .then((val: any) => {
+    //             return {
+    //                 title: val.displayString,
+    //                 description: val.documentation,
+    //             }
+    //         })
+    // }
+
+    const getQuickInfo = async (protocolName: string, payload: any): Promise<types.Hover> => {
+
+        const textDocument: types.TextDocument  = payload.textDocument
+        const position: types.Position = payload.position
+
+        const filePath = unwrapFileUriPath(textDocument.uri)
+        const val = await host.getQuickInfo(filePath, position.line + 1, position.character + 1)
+
+        return {
+            contents: [val.displayString, val.documentation]
+        }
+    }
+
+    lightweightLanguageClient.handleNotification("textDocument/didOpen", protocolOpenFile)
+
+    lightweightLanguageClient.handleNotification("textDocument/didChange", protocolChangeFile)
+
+    lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo)
+
 
     const updateFile = Oni.helpers.throttle((bufferFullPath, stringContents) => {
         host.updateFile(bufferFullPath, stringContents)
@@ -409,15 +461,15 @@ export const activate = (Oni) => {
     })
 
     const kindToHighlightGroup = {
-        let: SymbolKind.Variable,
-        const: SymbolKind.Constant,
-        var: SymbolKind.Variable,
-        alias: SymbolKind.Package,
-        function: SymbolKind.Method,
-        method: SymbolKind.Function,
-        property: SymbolKind.Property,
-        class: SymbolKind.Class,
-        interface: SymbolKind.Interface,
+        let: types.SymbolKind.Variable,
+        const: types.SymbolKind.Constant,
+        var: types.SymbolKind.Variable,
+        alias: types.SymbolKind.Package,
+        function: types.SymbolKind.Method,
+        method: types.SymbolKind.Function,
+        property: types.SymbolKind.Property,
+        class: types.SymbolKind.Class,
+        interface: types.SymbolKind.Interface,
     }
 
     // TODO: Refactor to separate file

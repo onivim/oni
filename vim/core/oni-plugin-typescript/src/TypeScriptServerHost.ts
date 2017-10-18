@@ -138,7 +138,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public getQuickInfo(file: string, line: number, offset: number): Promise<void> {
+    public getQuickInfo(file: string, line: number, offset: number): Promise<any> {
         return this._makeTssRequest<void>("quickinfo", {
             file,
             line,
