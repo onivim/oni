@@ -1,3 +1,5 @@
+import * as types from "vscode-languageserver-types"
+
 import { IScreen } from "./../Screen"
 
 import { /*IWindow,*/ NeovimInstance } from "./index"
@@ -47,15 +49,50 @@ export class NeovimWindowManager {
         if (values.length === 4) {
             // const position = values[0]
             const width = values[1]
-            // const height = values[2]
+            const height = values[2]
             const lines = values[3]
 
             const offset = context.wincol - context.column
             const contentWidth = width - offset
 
-            const expandedLines = expandLines(lines, contentWidth)
-            console.dir(expandedLines)
+            const rangesOnScreen = getBufferRanges(lines, context.windowTopLine - 1, contentWidth)
+            console.dir(rangesOnScreen)
+
+            const isInRange = (line: number, column: number, range: types.Range) => {
             
+                return (line >= range.start.line 
+                    && column >= range.start.character 
+                    && line <= range.end.line
+                    && column <= range.end.character)
+            }
+
+            const indexWhereCursorIs = rangesOnScreen.findIndex((val: types.Range) => isInRange(context.line - 1, context.column - 1, val))
+
+            const arrayStart = indexWhereCursorIs - (context.winline - 1)
+            const arrayEnd = arrayStart + height
+
+            const ranges = rangesOnScreen.slice(arrayStart, arrayEnd)
+            
+
+            const bufferToScreen = (line, col) => {
+                const line = ranges.findIndex((v) => isInRange(line, col, v))
+
+                if (line === -1) {
+                    return null
+                }
+
+                const yPos = line
+                const range = ranges[line]
+                const xPos = col - range.start.character
+
+                return {
+                    screenX: xPos,
+                    screenY: yPos,
+                }
+            }
+
+
+            console.dir(ranges)
             // TODO: Create array of 'range' instead of line contents
             // Then, figure out the cursor position in window (using winline/wincol),
             // and create an array of ranges inside the current window
@@ -83,27 +120,30 @@ export class NeovimWindowManager {
     }
 }
 
-const expandLines = (bufferLines: string[], width: number): string[] => {
+const getBufferRanges = (bufferLines: string[], startLine: number, width: number): types.Range[] => {
 
-    let expandedLines: string[] = []
+    let ranges: types.Range[] = []
 
     for(var i = 0; i < bufferLines.length; i++) {
-        expandedLines = expandedLines.concat(splitLine(bufferLines[i], width))
+        ranges = ranges.concat(getRangesForLine(bufferLines[i], startLine + i, width))
     }
 
-    return expandedLines
+    return ranges
 }
 
-const splitLine = (bufferLine: string, width: number): string[] => {
+const getRangesForLine = (bufferLine: string, lineNumber: number, width: number): types.Range[] => {
     if (!bufferLine || !bufferLine.length) {
         return []
     }
 
     const length = bufferLine.length
-    const chunks = []
+    const chunks: types.Range[] = []
 
     for(var i = 0; i < length; i += width) {
-        chunks.push(bufferLine.substring(i, i + width))
+        const startPosition = types.Position.create(lineNumber, i)
+        const endPosition = types.Position.create(lineNumber, Math.min(bufferLine.length, i + width))
+        const range = types.Range.create(startPosition, endPosition)
+        chunks.push(range)
     }
 
     return chunks

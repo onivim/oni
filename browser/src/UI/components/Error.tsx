@@ -5,7 +5,6 @@
  */
 
 import * as React from "react"
-
 import * as types from "vscode-languageserver-types"
 
 import { getColorFromSeverity } from "./../../Services/Errors"
