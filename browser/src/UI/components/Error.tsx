@@ -10,8 +10,6 @@ import { Icon } from "./../Icon"
 import { getColorFromSeverity } from "./../../Services/Errors"
 import { WindowContext } from "./../WindowContext"
 
-import { configuration } from "./../../Services/Configuration"
-
 import * as types from "vscode-languageserver-types"
 
 require("./Error.less") // tslint:disable-line no-var-requires
@@ -21,7 +19,6 @@ export interface IErrorsProps {
     fontWidthInPixels: number
     fontHeightInPixels: number
     window: State.IWindow
-    showDetails: boolean
 }
 
 const padding = 8
@@ -46,15 +43,11 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
                 const yPos = windowContext.getWindowRegionForLine(lineNumber).y - (padding / 2)
                 const isActive = screenLine === windowContext.getCurrentWindowLine()
 
-                const showTooltipTop = windowContext.dimensions.height - windowContext.getWindowLine(lineNumber) <= 2
-
                 return <ErrorMarker isActive={isActive}
                     x={xPos}
                     y={yPos}
-                    showTooltipTop={showTooltipTop}
                     text={e.message}
-                    color={getColorFromSeverity(e.severity)}
-                    showDetails={this.props.showDetails} />
+                    color={getColorFromSeverity(e.severity)} />
             } else {
                 return null
             }
@@ -91,11 +84,9 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
 export interface IErrorMarkerProps {
     x: number
     y: number
-    showTooltipTop: boolean
     text: string
     isActive: boolean
     color: string
-    showDetails: boolean
 }
 
 export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, void> {
@@ -105,39 +96,25 @@ export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, void> {
         const iconPositionStyles = {
             top: this.props.y.toString() + "px",
         }
-        const textPositionStyles = {
-            left: this.props.x.toString() + "px",
-            // Tooltip below line: use top so text grows downward when text gets longer
-            // Tooltip above line: use bottom so text grows upward
-            top: this.props.showTooltipTop ? "initial" : this.props.y.toString() + "px",
-            bottom: this.props.showTooltipTop ? "calc(100% - " + this.props.y.toString() + "px" : "initial",
-            borderColor: this.props.color,
-        }
 
-        const className = [
-            "error",
-            this.props.isActive ? "active" : "",
-            this.props.showTooltipTop ? "top" : "",
-        ].join(" ")
-
-        // TODO change editor.errors.slideOnFocus name
-        const errorDescription = configuration.getValue("editor.errors.slideOnFocus") ? (
-            <div className={className} style={textPositionStyles}>
-                <div className="text">
-                    {this.props.text}
-                </div>
-            </div>) : null
         const errorIcon = <div style={iconPositionStyles} className="error-marker">
-            <div className="icon-container" style={{ color: this.props.color }}>
-                <Icon name="exclamation-circle" />
-            </div>
+            <ErrorIcon color={this.props.color} />
         </div>
 
         return <div>
-            {this.props.showDetails ? errorDescription : null}
             {errorIcon}
         </div>
     }
+}
+
+export interface IErrorIconProps {
+    color: string
+}
+
+export const ErrorIcon = (props: IErrorIconProps) => {
+    return <div className="icon-container" style={{ color: props.color }}>
+        <Icon name="exclamation-circle" />
+    </div>
 }
 
 export interface IErrorSquiggleProps {
@@ -165,30 +142,16 @@ export class ErrorSquiggle extends React.PureComponent<IErrorSquiggleProps, void
     }
 }
 
-import { createSelector } from "reselect"
-
-const EmptyArray: any[] = []
-
-export const getErrorsForFile = createSelector(
-    [Selectors.getActiveWindow, Selectors.getErrors],
-    (window, errors) => {
-        const errorsForFile = (window && window.file) ? Selectors.getAllErrorsForFile(window.file, errors) : EmptyArray
-        return errorsForFile
-    })
-
 const mapStateToProps = (state: State.IState): IErrorsProps => {
     const window = Selectors.getActiveWindow(state)
 
-    const errors = getErrorsForFile(state)
-
-    const showDetails = state.mode !== "insert"
+    const errors = Selectors.getErrorsForActiveFile(state)
 
     return {
         errors,
         fontWidthInPixels: state.fontPixelWidth,
         fontHeightInPixels: state.fontPixelHeight,
         window,
-        showDetails,
     }
 }
 
