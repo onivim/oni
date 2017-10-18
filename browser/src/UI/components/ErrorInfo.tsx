@@ -10,6 +10,9 @@ export interface IErrorInfoProps {
     errors: types.Diagnostic[]
 }
 
+/**
+ * Helper component to render errors in the QuickInfo bubble
+ */
 export class ErrorInfo extends React.PureComponent<IErrorInfoProps, void> {
 
     public render(): null | JSX.Element {
@@ -25,8 +28,7 @@ export class ErrorInfo extends React.PureComponent<IErrorInfoProps, void> {
         const style = this.props.style || {}
 
         return <div className="diagnostic-container" style={style}>
-        {errs}
+            {errs}
         </div>
     }
 }
-

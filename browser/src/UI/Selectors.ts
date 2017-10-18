@@ -16,7 +16,7 @@ import { createSelector } from "reselect"
 
 import * as types from "vscode-languageserver-types"
 
-const EmptyArray: any[] = []
+export const EmptyArray: any[] = []
 
 export const areCompletionsVisible = (state: State.IState) => {
     const autoCompletion = state.autoCompletion
@@ -147,3 +147,54 @@ export const getErrorsForPosition = createSelector(
         const { line, column } = win
         return errors.filter((diag) => isInRange(line - 1, column - 1, diag.range))
     })
+
+export const getForegroundBackgroundColor = (state: IState) => ({
+    foregroundColor: state.foregroundColor,
+    backgroundColor: state.backgroundColor,
+})
+
+export const getQuickInfoElement = createSelector(
+    [getQuickInfo, Selectors.getErrorsForPosition, getColors],
+    (quickInfo, errors, colors) => {
+
+        if (!quickInfo && !errors) {
+            return EmptyArray
+        } else {
+
+            const quickInfoElements = getQuickInfoElements(quickInfo)
+
+            let customErrorStyle = { }
+            if (quickInfoElements.length > 0) {
+                const borderColor = Colors.getBorderColor(colors.backgroundColor, colors.foregroundColor)
+                customErrorStyle = {
+                    "border-bottom": "1px solid " + borderColor
+                }
+            }
+
+            const errorElements = getErrorElements(errors, customErrorStyle)
+            return errorElements.concat(quickInfoElements)
+        }
+    })
+
+const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[] => {
+    if (!errors || !errors.length) {
+        return EmptyArray
+    } else {
+        return [<ErrorInfo errors={errors} style={style} />]
+    }
+
+}
+
+const getQuickInfoElements = (quickInfo: Oni.Plugin.QuickInfo): JSX.Element[] => {
+
+    if (!quickInfo || (!quickInfo.title && !quickInfo.description)) {
+        return EmptyArray
+    } else {
+        return [
+            <QuickInfoTitle text={quickInfo.title} />,
+            <QuickInfoDocumentation text={quickInfo.description} />,
+        ]
+    }
+
+}
+
