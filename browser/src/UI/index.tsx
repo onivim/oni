@@ -16,6 +16,7 @@ import * as State from "./State"
 
 import { editorManager } from "./../Services/EditorManager"
 import { focusManager } from "./../Services/FocusManager"
+import { listenForDiagnostics } from "./../Services/Language"
 import { windowManager } from "./../Services/WindowManager"
 
 import { PluginManager } from "./../Plugins/PluginManager"
@@ -53,6 +54,8 @@ const updateViewport = () => {
 
     Actions.setViewport(width, height)
 }
+
+listenForDiagnostics()
 
 window.addEventListener("resize", updateViewport)
 updateViewport()

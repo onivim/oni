@@ -57,20 +57,50 @@ declare namespace Oni {
         command(command: string): Promise<void>
     }
 
-    export interface EditorBufferEventArgs {
-        filePath: string
-        language: string
-    }
-
     export interface Editor {
         mode: string
         onModeChanged: IEvent<string>
 
+        activeBuffer: Buffer
+
         onBufferEnter: IEvent<EditorBufferEventArgs>
         onBufferLeave: IEvent<EditorBufferEventArgs>
+        onBufferChanged: IEvent<EditorBufferChangedEventArgs>
 
         // Optional capabilities for the editor to implement
         neovim?: NeovimEditorCapability
+    }
+
+    export interface EditorBufferChangedEventArgs {
+        buffer: Oni.Buffer
+        contentChanges: types.TextDocumentContentChangeEvent[]
+    }
+
+    export interface Buffer {
+        id: string
+        language: string
+        filePath: string
+        cursor: Cursor
+        version: number
+        modified: boolean
+
+        lineCount: number
+
+        // getLines(start?: number, end?: number): Promise<string[]>
+        getTokenAt(line: number, column: number): Promise<string>
+    }
+
+    // Zero-based position of the cursor
+    // Note that in Vim, this is a 1-based position
+    export interface Cursor {
+        line: number
+        column: number
+    }
+
+    // TODO: Remove this, replace with buffer
+    export interface EditorBufferEventArgs {
+        language: string
+        filePath: string
     }
 
     export type ICommandCallback = (args?: any) => any
@@ -207,7 +237,6 @@ declare namespace Oni {
         export namespace Diagnostics {
             export interface Api {
                 setErrors(key: string, fileName: string, errors: types.Diagnostic[])
-                clearErrors(key: string)
             }
         }
 

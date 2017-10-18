@@ -80,13 +80,15 @@ const NoScrollBar: IBufferScrollBarProps = {
 
 import { createSelector } from "reselect"
 
+export const getCurrentLine = createSelector(
+    [Selectors.getActiveWindow],
+    (activeWindow) => {
+        return activeWindow.line
+    })
+
 export const getMarkers = createSelector(
-    [Selectors.getActiveWindow, Selectors.getErrors],
-    (activeWindow, errors) => {
-
-        const file = activeWindow.file
-        const fileErrors = Selectors.getAllErrorsForFile(file, errors)
-
+    [getCurrentLine, Selectors.getErrorsForActiveFile],
+    (activeLine, fileErrors) => {
         const errorMarkers = fileErrors.map((e: types.Diagnostic) => ({
             line: e.range.start.line || 0,
             height: 1,
@@ -94,7 +96,7 @@ export const getMarkers = createSelector(
         }))
 
         const cursorMarker: IScrollBarMarker = {
-            line: activeWindow.line,
+            line: activeLine,
             height: 1,
             color: "rgb(200, 200, 200)",
         }

@@ -34,11 +34,4 @@ export class Diagnostics implements Oni.Plugin.Diagnostics.Api {
             errors,
         })
     }
-
-    public clearErrors(key: string): void {
-        this._filesThatHaveErrors = {}
-        this._channel.send("clear-errors", null, {
-            key,
-        })
-    }
 }

@@ -41,6 +41,19 @@ export class LanguageManager {
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didClose", Helpers.pathToTextDocumentIdentifierParms(filePath))
         })
 
+        editorManager.allEditors.onBufferChanged.subscribe((change: Oni.EditorBufferChangedEventArgs) => {
+
+            // TODO: Incremental buffer updates...
+            const { language, filePath } = change.buffer
+            return this.sendLanguageServerNotification(language, filePath, "textDocument/didChange", {
+                textDocument: {
+                    uri: Helpers.wrapPathInFileUri(filePath),
+                    version: change.buffer.version,
+                },
+                contentChanges: change.contentChanges,
+            })
+        })
+
         this.subscribeToLanguageServerNotification("window/logMessage", (args) => {
             logInfo("window/logMessage: " + JSON.stringify(args))
         })
@@ -48,6 +61,14 @@ export class LanguageManager {
         this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
             logInfo("telemetry/event:" + JSON.stringify(args))
         })
+    }
+
+    public getTokenRegex(language: string): RegExp {
+        return /[_a-z]/i
+    }
+
+    public isLanguageServerAvailable(language: string): boolean {
+        return !!this._getLanguageClient(language)
     }
 
     public sendLanguageServerNotification(language: string, filePath: string, protocolMessage: string, protocolPayload: any): void {

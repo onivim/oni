@@ -17,6 +17,7 @@ import { AutoCompletion } from "./../Services/AutoCompletion"
 import { BufferUpdates } from "./../Services/BufferUpdates"
 import { configuration } from "./../Services/Configuration"
 import { Formatter } from "./../Services/Formatter"
+import { findAllReferences } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
@@ -49,7 +50,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         // Language service
         new CallbackCommand("oni.editor.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => pluginManager.gotoDefinition()),
-        new CallbackCommand("oni.editor.findAllReferences", "Find All References", "Find all references using a language service", () => pluginManager.findAllReferences()),
+        new CallbackCommand("oni.editor.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences(pluginManager)),
 
         // Menu commands
         new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for Oni", () => openDefaultConfig(neovimInstance)),
