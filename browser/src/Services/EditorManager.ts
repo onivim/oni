@@ -60,6 +60,8 @@ class AllEditors implements Oni.Editor {
     private _onBufferEnter = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeave = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChanged = new Event<Oni.EditorBufferChangedEventArgs>()
+    private _onBufferSaved = new Event<Oni.EditorBufferEventArgs>()
+
     /**
      * API Methods
      */
@@ -105,6 +107,10 @@ class AllEditors implements Oni.Editor {
         return this._onBufferLeave
     }
 
+    public get onBufferSaved(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferSaved
+    }
+
     /**
      * Internal methods
      */
@@ -117,6 +123,7 @@ class AllEditors implements Oni.Editor {
         this._subscriptions.push(newEditor.onBufferEnter.subscribe((val) => this._onBufferEnter.dispatch(val)))
         this._subscriptions.push(newEditor.onBufferLeave.subscribe((val) => this._onBufferLeave.dispatch(val)))
         this._subscriptions.push(newEditor.onBufferChanged.subscribe((val) => this._onBufferChanged.dispatch(val)))
+        this._subscriptions.push(newEditor.onBufferSaved.subscribe((val) => this._onBufferSaved.dispatch(val)))
     }
 
     public getUnderlyingEditor(): Oni.Editor {
