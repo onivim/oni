@@ -52,7 +52,7 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
         return NoScrollBar
     }
 
-    const dimensions = Selectors.getActiveWindowDimensions(state)
+    const dimensions = Selectors.getActiveWindowPixelDimensions(state)
 
     const file = activeWindow.file
     const buffer = Selectors.getBufferByFilename(file, state.buffers)

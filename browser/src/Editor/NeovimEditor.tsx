@@ -137,7 +137,7 @@ export class NeovimEditor implements IEditor {
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
-        this._windowManager = new NeovimWindowManager(this._screen, this._neovimInstance)
+        this._windowManager = new NeovimWindowManager(this._neovimInstance)
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
             if (configuration.getValue("editor.clipboard.enabled")) {
@@ -294,6 +294,10 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.command(`buf ${bufferId}`)
         }
 
+        const onResize = () => {
+            this._windowManager.remeasure()
+        }
+
         const onTabClose = (tabId: number) => {
             this._neovimInstance.command(`tabclose ${tabId}`)
         }
@@ -313,6 +317,7 @@ export class NeovimEditor implements IEditor {
             onKeyDown={onKeyDown}
             onBufferClose={onBufferClose}
             onBufferSelect={onBufferSelect}
+            onResize={onResize}
             onTabClose={onTabClose}
             onTabSelect={onTabSelect} />
     }

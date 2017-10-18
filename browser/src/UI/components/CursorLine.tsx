@@ -50,7 +50,7 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
 
     const isNormalInsertOrVisualMode = state.mode === "normal" || state.mode === "insert" || state.mode === "visual"
 
-    const activeWindowDimensions = Selectors.getActiveWindowDimensions(state)
+    const activeWindowDimensions = Selectors.getActiveWindowPixelDimensions(state)
 
     return {
         x: props.lineType === "line" ? activeWindowDimensions.x : state.cursorPixelX,

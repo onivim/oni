@@ -66,6 +66,8 @@ export interface INeovimInstance {
 
     onBufferUpdateIncremental: IEvent<IIncrementalBufferUpdateEvent>
 
+    onScroll: IEvent<Oni.EventContext>
+
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
     onOniCommand: IEvent<string>
 
@@ -146,6 +148,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onOniCommand = new Event<string>()
     private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
     private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
+    private _onScroll = new Event<Oni.EventContext>()
 
     public get quickFix(): IQuickFixList {
         return this._quickFix
@@ -161,6 +164,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onOniCommand(): IEvent<string> {
         return this._onOniCommand
+    }
+
+    public get onScroll(): IEvent<Oni.EventContext> {
+        return this._onScroll
     }
 
     public get onYank(): IEvent<INeovimYankInfo> {
@@ -190,6 +197,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     // Make a direct request against the msgpack API
     public async request<T>(request: string, args: any[]): Promise<T> {
         return this._neovim.request<T>(request, args)
+    }
+
+    public async getContext(): Promise<Oni.EventContext> {
+        return this.callFunction("OniGetContext", [])
     }
 
     public start(filesToOpen?: string[]): Promise<void> {
@@ -363,7 +374,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request("nvim_command", [command])
     }
 
-    public callFunction(functionName: string, args: any[]): Promise<void> {
+    public callFunction(functionName: string, args: any[]): Promise<any> {
         return this._neovim.request<void>("nvim_call_function", [functionName, args])
     }
 
@@ -454,6 +465,19 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return { rows, cols }
     }
 
+    private _pendingScrollTimeout: number | null = null
+    private _dispatchScrollEvent(): void {
+        if (this._pendingScrollTimeout) {
+            return
+        }
+
+        this._pendingScrollTimeout = window.setTimeout(async () => {
+            const evt = await this.getContext()
+            this._onScroll.dispatch(evt)
+            this._pendingScrollTimeout = null
+        })
+    }
+
     private _handleNotification(_method: any, args: any): void {
         args.forEach((a: any[]) => {
             const command = a[0]
@@ -473,6 +497,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     break
                 case "scroll":
                     this.emit("action", Actions.scroll(a[0][0]))
+                    this._dispatchScrollEvent()
                     break
                 case "highlight_set":
                     const highlightInfo = a[a.length - 1][0]

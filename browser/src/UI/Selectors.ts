@@ -109,7 +109,7 @@ export const getQuickInfo = (state: State.IState): Oni.Plugin.QuickInfo => {
     return quickInfo.data
 }
 
-export const getActiveWindowDimensions = (state: State.IState): Rectangle => {
+export const getActiveWindowPixelDimensions = (state: State.IState): Rectangle => {
     const emptyRectangle = {
         x: 0,
         y: 0,
@@ -118,11 +118,19 @@ export const getActiveWindowDimensions = (state: State.IState): Rectangle => {
     }
 
     const window = getActiveWindow(state)
-    if (!window) {
+    if (!window || !window.dimensions) {
         return emptyRectangle
     }
+    const dimensions = window.dimensions
 
-    return window.dimensions || emptyRectangle
+    const pixelDimensions = {
+        x: dimensions.x * state.fontPixelWidth,
+        y: dimensions.y * state.fontPixelHeight,
+        width: dimensions.width * state.fontPixelWidth,
+        height: dimensions.height * state.fontPixelHeight,
+    }
+
+    return pixelDimensions
 }
 
 export const getErrorsForActiveFile = createSelector(

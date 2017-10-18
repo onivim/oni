@@ -1,49 +1,53 @@
+/**
+ * NeovimWindowManager.ts
+ *
+ * Responsible for synchronizing the UI coordinate system / state
+ * with the current state of the neovim instance.
+ */
+
 import * as types from "vscode-languageserver-types"
 
-import { IScreen } from "./../Screen"
-
-import { /*IWindow,*/ NeovimInstance } from "./index"
+import { NeovimInstance } from "./index"
 
 import * as UI from "./../UI"
-// import * as Coordinates from "./../UI/Coordinates"
-
-// import { Rectangle } from "./../UI/Types"
-
-const isInRange = (line: number, column: number, range: types.Range) => {
-
-    return (line >= range.start.line
-        && column >= range.start.character
-        && line <= range.end.line
-        && column <= range.end.character)
-}
-
-const getBufferToScreenFromRanges = (ranges: types.Range[]) => (bufferPosition: types.Position) => {
-    const screenLine = ranges.findIndex((v) => isInRange(bufferPosition.line, bufferPosition.character, v))
-
-    if (screenLine === -1) {
-        return null
-    }
-
-    const yPos = screenLine
-    const range = ranges[screenLine]
-    const xPos = bufferPosition.character - range.start.character
-
-    return {
-        screenX: xPos,
-        screenY: yPos,
-    }
-}
 
 export class NeovimWindowManager {
 
+    private _lastEvent: Oni.EventContext
+
     constructor(
-        private _screen: IScreen,
         private _neovimInstance: NeovimInstance
     ) {
         this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
         this._neovimInstance.autoCommands.onBufWinEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
         this._neovimInstance.autoCommands.onWinEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
         this._neovimInstance.autoCommands.onCursorMoved.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
+        this._neovimInstance.onScroll.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
+    }
+
+    public async remeasure(): Promise<void> {
+        if (this._lastEvent) {
+            const newContext = await this._neovimInstance.getContext()
+            this._remeasureWindow(newContext)
+        }
+    }
+
+    private _shouldRemeasure(context: Oni.EventContext): boolean {
+
+        if (!this._lastEvent) {
+            return true
+        }
+
+        if (context.version === this._lastEvent.version
+            && context.bufferTotalLines === this._lastEvent.bufferTotalLines
+            && context.bufferNumber === this._lastEvent.bufferNumber
+            && context.windowNumber === this._lastEvent.windowNumber
+            && context.windowTopLine === this._lastEvent.windowTopLine
+            && context.windowBottomLine === this._lastEvent.windowBottomLine) {
+                return false
+            } else {
+                return true
+            }
     }
 
     // The goal of this function is to acquire functions for the current window:
@@ -61,6 +65,12 @@ export class NeovimWindowManager {
     // We can derive these from information coming from the event handlers, along with screen width
     private async _remeasureWindow(context: Oni.EventContext): Promise<void> {
 
+        if (!this._shouldRemeasure(context)) {
+            return Promise.resolve()
+        }
+
+        this._lastEvent = context
+
         const currentWin: any = await this._neovimInstance.request("nvim_get_current_win", [])
 
         const atomicCalls = [
@@ -73,7 +83,7 @@ export class NeovimWindowManager {
         const response = await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
 
         const values = response[0]
-        // Success if we received 4 items
+
         if (values.length === 4) {
             const position = values[0]
             const width = values[1]
@@ -84,7 +94,6 @@ export class NeovimWindowManager {
             const contentWidth = width - offset
 
             const rangesOnScreen = getBufferRanges(lines, context.windowTopLine - 1, contentWidth)
-            console.dir(rangesOnScreen)
 
             const indexWhereCursorIs = rangesOnScreen.findIndex((val: types.Range) => isInRange(context.line - 1, context.column - 1, val))
 
@@ -108,36 +117,42 @@ export class NeovimWindowManager {
                     context.windowBottomLine,
                     context.windowTopLine,
                     dimensions,
-                    getBufferToScreenFromRanges(ranges))
+                    getBufferToScreenFromRanges(offset, ranges))
 
-            console.dir(ranges)
-            // TODO: Create array of 'range' instead of line contents
-            // Then, figure out the cursor position in window (using winline/wincol),
-            // and create an array of ranges inside the current window
-            //
-            // This will then give us the bufferSpaceToScreenSpace, with the position
-            // and then the pixel info gives us the rest...
+        } else {
+            console.warn("Measure request failed")
         }
-
-        // Some items, like signs or numbers, actually take up some space
-
-        // Success if we received 4 items
-        // if (values.length === 4) {
-        //     const position = values[0]
-        //     const width = values[1]
-        //     const height = values[2]
-        //     const lines = values[3]
-        // }
-
-        // const position = response[0]
-        // const width = response[1]
-
-        console.dir(values)
-
-        console.log(this._screen.backgroundColor)
     }
 }
 
+// TODO: Can this be moved to a common place?
+const isInRange = (line: number, column: number, range: types.Range) => {
+
+    return (line >= range.start.line
+        && column >= range.start.character
+        && line <= range.end.line
+        && column <= range.end.character)
+}
+
+const getBufferToScreenFromRanges = (offset: number, ranges: types.Range[]) => (bufferPosition: types.Position) => {
+    const screenLine = ranges.findIndex((v) => isInRange(bufferPosition.line, bufferPosition.character, v))
+
+    if (screenLine === -1) {
+        return null
+    }
+
+    const yPos = screenLine
+    const range = ranges[screenLine]
+    const xPos = offset + bufferPosition.character - range.start.character
+
+    return {
+        screenX: xPos,
+        screenY: yPos,
+    }
+}
+
+
+// TODO: Need to properly handle multibyte characters here
 const getBufferRanges = (bufferLines: string[], startLine: number, width: number): types.Range[] => {
 
     let ranges: types.Range[] = []
@@ -151,7 +166,9 @@ const getBufferRanges = (bufferLines: string[], startLine: number, width: number
 
 const getRangesForLine = (bufferLine: string, lineNumber: number, width: number): types.Range[] => {
     if (!bufferLine || !bufferLine.length) {
-        return []
+        const startPosition = types.Position.create(lineNumber, 0) 
+        const endPosition = types.Position.create(lineNumber, 0)
+        return [types.Range.create(startPosition,endPosition)]
     }
 
     const length = bufferLine.length

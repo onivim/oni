@@ -37,7 +37,7 @@ export class ActiveWindow extends React.PureComponent<IActiveWindowProps, void> 
 
 const mapStateToProps = (state: State.IState): IActiveWindowProps => {
     return {
-        dimensions: Selectors.getActiveWindowDimensions(state),
+        dimensions: Selectors.getActiveWindowPixelDimensions(state),
     }
 }
 

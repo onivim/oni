@@ -44,12 +44,13 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
 
             const screenLine = screenSpaceStart.screenY
 
-            const screenY = screenLine - (padding / 2)
+            const screenY = screenLine
             const pixelPosition = this.props.screenToPixel({screenX: 0, screenY })
-            const isActive = screenLine === screenLine
+            const isActive = this.props.cursorLine === screenLine
+            const pixelY = pixelPosition.pixelY - (padding / 2)
 
             return <ErrorMarker isActive={isActive}
-                y={pixelPosition.pixelY}
+                y={pixelY}
                 text={e.message}
                 color={getColorFromSeverity(e.severity)} />
         })
