@@ -85,12 +85,18 @@ export class NeovimWindowManager {
         const values = response[0]
 
         if (values.length === 4) {
+            // Grab the results of the `nvim_atomic_call`, as they are returned in an array
             const position = values[0]
             const width = values[1]
             const height = values[2]
             const lines = values[3]
 
+            // The 'offset' (difference between `wincol` and `column`) is the size of the gutter
+            // (for example, line numbers). The buffer isn't in that space, so we need to account
+            // for that.
             const offset = context.wincol - context.column
+
+            // `contentWidth` is the number of cells the buffer is rendered itno
             const contentWidth = width - offset
 
             const rangesOnScreen = getBufferRanges(lines, context.windowTopLine - 1, contentWidth)

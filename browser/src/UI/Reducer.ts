@@ -264,6 +264,20 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
 
     let currentWindow
     switch (a.type) {
+        case "SET_WINDOW_CURSOR":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                activeWindow: a.payload.windowId,
+                windows: {
+                    ...s.windows,
+                    [a.payload.windowId]: {
+                        ...currentWindow,
+                        column: a.payload.column,
+                        line: a.payload.line,
+                    }
+                }
+            }
         case "SET_WINDOW_STATE":
             currentWindow = s.windows[a.payload.windowId] || null
 

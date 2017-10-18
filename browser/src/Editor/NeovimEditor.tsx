@@ -337,6 +337,8 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
+        UI.Actions.setWindowCursor(evt.windowNumber, evt.line, evt.column)
+
         tasks.onEvent(evt)
 
         const buf = this._bufferManager.updateBufferFromEvent(evt)

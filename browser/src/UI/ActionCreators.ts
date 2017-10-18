@@ -92,6 +92,15 @@ export const setTabs = (selectedTabId: number, tabs: State.ITab[]): Actions.ISet
     },
 })
 
+export const setWindowCursor = (windowId: number, line: number, column: number) => ({
+    type: "SET_WINDOW_CURSOR",
+    payload: {
+        windowId,
+        line,
+        column,
+    }
+})
+
 export const setWindowState = (windowId: number,
     file: string,
     column: number,

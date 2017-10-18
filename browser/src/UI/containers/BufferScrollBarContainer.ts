@@ -35,7 +35,7 @@ export const getMarkers = createSelector(
         }))
 
         const cursorMarker: IScrollBarMarker = {
-            line: activeLine,
+            line: activeLine - 1,
             height: 1,
             color: "rgb(200, 200, 200)",
         }

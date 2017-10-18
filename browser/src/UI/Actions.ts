@@ -83,6 +83,15 @@ export interface ISetTabs {
     }
 }
 
+export interface ISetWindowCursor {
+    type: "SET_WINDOW_CURSOR",
+    payload: {
+        windowId: number,
+        line: number,
+        column: number,
+    },
+}
+
 export interface ISetWindowState {
     type: "SET_WINDOW_STATE",
     payload: {
@@ -265,6 +274,7 @@ export type SimpleAction =
     ISetCurrentBuffersAction |
     ISetTabs |
     ISetViewportAction |
+    ISetWindowCursor |
     ISetWindowState
 
 export type ActionWithGeneric<K extends keyof IConfigurationValues> =
