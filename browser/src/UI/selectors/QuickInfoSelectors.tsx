@@ -1,12 +1,10 @@
-import * as os from "os"
-
 import * as React from "react"
 import { createSelector } from "reselect"
 import * as types from "vscode-languageserver-types"
 
 import * as Colors from "./../Colors"
 import { ErrorInfo } from "./../components/ErrorInfo"
-import { QuickInfoTitle, QuickInfoDocumentation } from "./../components/QuickInfo.tsx"
+import { QuickInfoDocumentation, QuickInfoTitle } from "./../components/QuickInfo"
 import * as Selectors from "./../Selectors"
 import { IState } from "./../State"
 
@@ -69,7 +67,7 @@ export const getQuickInfoElement = createSelector(
             if (quickInfoElements.length > 0) {
                 const borderColor = Colors.getBorderColor(colors.backgroundColor, colors.foregroundColor)
                 customErrorStyle = {
-                    "border-bottom": "1px solid " + borderColor
+                    "border-bottom": "1px solid " + borderColor,
                 }
             }
 

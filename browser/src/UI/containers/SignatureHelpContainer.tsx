@@ -3,9 +3,7 @@ import { connect } from "react-redux"
 
 import { IState } from "./../State"
 
-import * as Colors from "./../Colors"
 import { EmptyArray } from "./../Selectors"
-import * as Selectors from "./../selectors/QuickInfo"
 
 import { IQuickInfoProps, QuickInfo, QuickInfoDocumentation } from "./../components/QuickInfo"
 import { SelectedText, Text } from "./../components/Text"

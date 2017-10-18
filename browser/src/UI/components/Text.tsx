@@ -19,4 +19,3 @@ export class SelectedText extends TextComponent {
         return <span className="selected">{this.props.text}</span>
     }
 }
-

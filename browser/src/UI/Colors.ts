@@ -14,4 +14,3 @@ export const getBorderColor = (bgColor: string, fgColor: string): string => {
     const borderColor = backgroundColor.luminosity() > 0.5 ? foregroundColor.lighten(0.6) : foregroundColor.darken(0.6)
     return borderColor.rgb().toString()
 }
-

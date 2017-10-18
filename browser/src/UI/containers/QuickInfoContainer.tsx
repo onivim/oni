@@ -1,12 +1,10 @@
-import * as React from "react"
 import { connect } from "react-redux"
 
 import { IState } from "./../State"
 
-import * as Colors from "./../Colors"
 import { IQuickInfoProps, QuickInfo } from "./../components/QuickInfo"
 import { EmptyArray } from "./../Selectors"
-import * as Selectors from "./../selectors/QuickInfo"
+import * as Selectors from "./../selectors/QuickInfoSelectors"
 
 const mapStateToQuickInfoProps = (state: IState): IQuickInfoProps => {
     const quickInfo = Selectors.getQuickInfo(state)
