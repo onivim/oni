@@ -6,26 +6,15 @@
 
 import * as React from "react"
 
-import { Icon } from "./../Icon"
+import * as types from "vscode-languageserver-types"
 
 import { getColorFromSeverity } from "./../../Services/Errors"
 
-import * as types from "vscode-languageserver-types"
+import { Icon } from "./../Icon"
+
+import { BufferToScreen, ScreenToPixel } from "./../Coordinates"
 
 require("./Error.less") // tslint:disable-line no-var-requires
-
-export interface ScreenSpacePoint {
-    screenX: number
-    screenY: number
-}
-
-export interface PixelSpacePoint {
-    pixelX: number
-    pixelY: number
-}
-
-export type BufferToScreen = (position: types.Position) => ScreenSpacePoint | null
-export type ScreenToPixel = (screenPoint: ScreenSpacePoint) => PixelSpacePoint | null
 
 export interface IErrorsProps {
     errors: types.Diagnostic[]
