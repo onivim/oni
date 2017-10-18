@@ -8,17 +8,21 @@ import * as types from "vscode-languageserver-types"
 
 import { connect } from "react-redux"
 
+import * as Colors from "./../Colors"
 import { Icon } from "./../Icon"
 import { IState /*, AutoCompletionInfo */ } from "./../State"
+
+import { CursorPositioner, OpenDirection } from "./CursorPositioner"
 import { HighlightText } from "./HighlightText"
 
 export interface IAutoCompletionProps {
     visible: boolean
-    x: number
-    y: number
     base: string
     entries: Oni.Plugin.CompletionInfo[]
     selectedIndex: number
+
+    backgroundColor: string
+    foregroundColor: string
 }
 
 require("./AutoCompletion.less") // tslint:disable-line no-var-requires
@@ -31,10 +35,12 @@ export class AutoCompletion extends React.PureComponent<IAutoCompletionProps, vo
             return null
         }
 
+        const highlightColor = Colors.getBorderColor(this.props.backgroundColor, this.props.foregroundColor)
+
         const containerStyle: React.CSSProperties = {
-            position: "absolute",
-            top: this.props.y.toString() + "px",
-            left: this.props.x.toString() + "px",
+            backgroundColor: this.props.backgroundColor,
+            foregroundColor: this.props.foregroundColor,
+            border: "1px solid " + highlightColor,
         }
 
         if (this.props.entries.length === 0) {
@@ -49,20 +55,24 @@ export class AutoCompletion extends React.PureComponent<IAutoCompletionProps, vo
         // TODO: sync max display items (10) with value in Reducer.autoCompletionReducer() (Reducer.ts)
         const firstTenEntries = take(this.props.entries, 10)
 
+
         const entries = firstTenEntries.map((s, i) => {
             const isSelected = i === this.props.selectedIndex
 
-            return <AutoCompletionItem {...s} isSelected={isSelected} base={this.props.base} />
+            return <AutoCompletionItem {...s} isSelected={isSelected} base={this.props.base} highlightColor={highlightColor}/>
         })
 
         const selectedItemDocumentation = getDocumentationFromItems(firstTenEntries, this.props.selectedIndex)
 
-        return (<div style={containerStyle} className="autocompletion enable-mouse">
-            <div className="entries">
-                {entries}
-            </div>
-            <AutoCompletionDocumentation documentation={selectedItemDocumentation} />
-        </div>)
+        return (<CursorPositioner beakColor={highlightColor} openDirection={OpenDirection.Down}>
+
+                <div style={containerStyle} className="autocompletion enable-mouse">
+                    <div className="entries">
+                        {entries}
+                    </div>
+                    <AutoCompletionDocumentation documentation={selectedItemDocumentation} />
+                </div>
+               </CursorPositioner>)
     }
 }
 
@@ -81,6 +91,7 @@ const getDocumentationFromItems = (items: Oni.Plugin.CompletionInfo[], selectedI
 export interface IAutoCompletionItemProps extends Oni.Plugin.CompletionInfo {
     base: string
     isSelected: boolean
+    highlightColor?: string
 }
 
 export class AutoCompletionItem extends React.PureComponent<IAutoCompletionItemProps, void> {
@@ -171,20 +182,20 @@ const mapStateToProps = (state: IState) => {
     if (!state.autoCompletion) {
         return {
             visible: false,
-            x: state.cursorPixelX,
-            y: state.cursorPixelY + state.fontPixelHeight,
             base: "",
             entries: EmptyArray,
             selectedIndex: 0,
+            backgroundColor: "",
+            foregroundColor: "",
         }
     } else {
         const ret: IAutoCompletionProps = {
             visible: true,
-            x: state.cursorPixelX,
-            y: state.cursorPixelY + state.fontPixelHeight,
             base: state.autoCompletion.base,
             entries: state.autoCompletion.entries,
             selectedIndex: state.autoCompletion.selectedIndex,
+            foregroundColor: state.foregroundColor,
+            backgroundColor: state.backgroundColor,
         }
         return ret
     }
