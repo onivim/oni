@@ -84,26 +84,6 @@ export const activate = (Oni) => {
 
     let lastBuffer: string[] = []
 
-    const findAllReferences = (textDocumentPosition: Oni.EventContext) => {
-        return host.findAllReferences(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
-            .then((val: protocol.ReferencesResponseBody) => {
-
-                const mapResponseToItem = (referenceItem: protocol.ReferencesResponseItem) => ({
-                    fullPath: referenceItem.file,
-                    line: referenceItem.start.line,
-                    column: referenceItem.start.offset,
-                    lineText: referenceItem.lineText,
-                })
-
-                const output: Oni.Plugin.ReferencesResult = {
-                    tokenName: val.symbolName,
-                    items: val.refs.map((item) => mapResponseToItem(item)),
-                }
-
-                return output
-            })
-    }
-
     const getDefinition = (textDocumentPosition: Oni.EventContext) => {
         return host.getTypeDefinition(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
             .then((val: any) => {
@@ -353,15 +333,31 @@ export const activate = (Oni) => {
         }
     }
 
-    // const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
-    //     return host.getQuickInfo(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
-    //         .then((val: any) => {
-    //             return {
-    //                 title: val.displayString,
-    //                 description: val.documentation,
-    //             }
-    //         })
-    // }
+    const findAllReferences = async (message: string, payload: any): Promise<types.Location[]> => {
+        const textDocument: types.TextDocumentIdentifier = payload.textDocument
+        const filePath = unwrapFileUriPath(textDocument.uri)
+        const zeroBasedPosition: types.Position = payload.position
+
+        const oneBasedPosition = {
+            line: zeroBasedPosition.line + 1,
+            column: zeroBasedPosition.character + 1,
+        }
+
+        const val = await host.findAllReferences(filePath, oneBasedPosition.line, oneBasedPosition.column)
+
+        const mapResponseToLocation = (referenceItem: protocol.ReferencesResponseItem): types.Location => {
+            const startPosition = types.Position.create(referenceItem.start.line - 1, referenceItem.start.offset - 1)
+            const endPosition = types.Position.create(referenceItem.end.line - 1, referenceItem.end.offset - 1)
+            const range = types.Range.create(startPosition, endPosition)
+
+            return {
+                uri: wrapPathInFileUri(referenceItem.file),
+                range: range,
+            }
+        }
+
+        return val.refs.map((v) => mapResponseToLocation(v))
+    }
 
     const getQuickInfo = async (protocolName: string, payload: any): Promise<types.Hover> => {
 
@@ -381,6 +377,7 @@ export const activate = (Oni) => {
     lightweightLanguageClient.handleNotification("textDocument/didChange", protocolChangeFile)
 
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo)
+    lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences)
 
     const updateFile = Oni.helpers.throttle((bufferFullPath, stringContents) => {
         host.updateFile(bufferFullPath, stringContents)
