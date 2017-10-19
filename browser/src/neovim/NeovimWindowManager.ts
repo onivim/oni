@@ -11,6 +11,7 @@ import { NeovimInstance } from "./index"
 
 import * as Log from "./../Log"
 import * as UI from "./../UI"
+import * as Utility from "./../Utility"
 
 export class NeovimWindowManager {
 
@@ -102,7 +103,7 @@ export class NeovimWindowManager {
 
             const rangesOnScreen = getBufferRanges(lines, context.windowTopLine - 1, contentWidth)
 
-            const indexWhereCursorIs = rangesOnScreen.findIndex((val: types.Range) => isInRange(context.line - 1, context.column - 1, val))
+            const indexWhereCursorIs = rangesOnScreen.findIndex((val: types.Range) => Utility.isInRange(context.line - 1, context.column - 1, val))
 
             const arrayStart = indexWhereCursorIs - (context.winline - 1)
             const arrayEnd = arrayStart + height

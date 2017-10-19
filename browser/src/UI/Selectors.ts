@@ -6,15 +6,13 @@
  * http://redux.js.org/docs/recipes/ComputingDerivedData.html
  */
 
-import * as State from "./State"
-
-import { Rectangle } from "./Types"
-
 import * as flatten from "lodash/flatten"
-
 import { createSelector } from "reselect"
 
-import * as types from "vscode-languageserver-types"
+import * as Utility from "./../Utility"
+
+import * as State from "./State"
+import { Rectangle } from "./Types"
 
 export const EmptyArray: any[] = []
 
@@ -140,11 +138,6 @@ export const getErrorsForActiveFile = createSelector(
         return errorsForFile
     })
 
-const isInRange = (line: number, column: number, range: types.Range): boolean => {
-    return (line >= range.start.line && column >= range.start.character
-        && line <= range.end.line && column <= range.end.character)
-}
-
 export const getErrorsForPosition = createSelector(
     [getActiveWindow, getErrorsForActiveFile],
     (win, errors) => {
@@ -153,7 +146,7 @@ export const getErrorsForPosition = createSelector(
         }
 
         const { line, column } = win
-        return errors.filter((diag) => isInRange(line - 1, column - 1, diag.range))
+        return errors.filter((diag) => Utility.isInRange(line - 1, column - 1, diag.range))
     })
 
 export const getForegroundBackgroundColor = (state: State.IState) => ({
