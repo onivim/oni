@@ -106,7 +106,7 @@ export interface ISetWindowState {
         screenToPixel: Coordinates.ScreenToPixel
 
         topBufferLine: number
-        bottomBufferLine: number
+        bottomBufferLine: number,
     }
 }
 

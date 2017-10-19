@@ -1,6 +1,6 @@
 /**
  * Error.tsx
- * 
+ *
  * Various UI components related to showing errors on screen
  */
 

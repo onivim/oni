@@ -98,18 +98,17 @@ export const setWindowCursor = (windowId: number, line: number, column: number) 
         windowId,
         line,
         column,
-    }
+    },
 })
 
 export const setWindowState = (windowId: number,
-    file: string,
-    column: number,
-    line: number,
-    bottomBufferLine: number,
-    topBufferLine: number,
-    dimensions: Rectangle,
-    bufferToScreen: Coordinates.BufferToScreen) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-
+                               file: string,
+                               column: number,
+                               line: number,
+                               bottomBufferLine: number,
+                               topBufferLine: number,
+                               dimensions: Rectangle,
+                               bufferToScreen: Coordinates.BufferToScreen) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
 
     const { fontPixelWidth, fontPixelHeight } = getState()
 

@@ -275,8 +275,8 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                         ...currentWindow,
                         column: a.payload.column,
                         line: a.payload.line,
-                    }
-                }
+                    },
+                },
             }
         case "SET_WINDOW_STATE":
             currentWindow = s.windows[a.payload.windowId] || null

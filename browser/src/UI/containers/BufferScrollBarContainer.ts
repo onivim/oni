@@ -4,7 +4,7 @@ import { connect } from "react-redux"
 import * as Selectors from "./../Selectors"
 import * as State from "./../State"
 
-import { IScrollBarMarker, IBufferScrollBarProps, BufferScrollBar } from "./../components/BufferScrollBar"
+import { BufferScrollBar, IBufferScrollBarProps, IScrollBarMarker } from "./../components/BufferScrollBar"
 
 import { getColorFromSeverity } from "./../../Services/Errors"
 

@@ -16,7 +16,7 @@ export class NeovimWindowManager {
     private _lastEvent: Oni.EventContext
 
     constructor(
-        private _neovimInstance: NeovimInstance
+        private _neovimInstance: NeovimInstance,
     ) {
         this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
         this._neovimInstance.autoCommands.onBufWinEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
@@ -157,13 +157,12 @@ const getBufferToScreenFromRanges = (offset: number, ranges: types.Range[]) => (
     }
 }
 
-
 // TODO: Need to properly handle multibyte characters here
 const getBufferRanges = (bufferLines: string[], startLine: number, width: number): types.Range[] => {
 
     let ranges: types.Range[] = []
 
-    for (var i = 0; i < bufferLines.length; i++) {
+    for (let i = 0; i < bufferLines.length; i++) {
         ranges = ranges.concat(getRangesForLine(bufferLines[i], startLine + i, width))
     }
 
@@ -172,15 +171,15 @@ const getBufferRanges = (bufferLines: string[], startLine: number, width: number
 
 const getRangesForLine = (bufferLine: string, lineNumber: number, width: number): types.Range[] => {
     if (!bufferLine || !bufferLine.length) {
-        const startPosition = types.Position.create(lineNumber, 0) 
+        const startPosition = types.Position.create(lineNumber, 0)
         const endPosition = types.Position.create(lineNumber, 0)
-        return [types.Range.create(startPosition,endPosition)]
+        return [types.Range.create(startPosition, endPosition)]
     }
 
     const length = bufferLine.length
     const chunks: types.Range[] = []
 
-    for (var i = 0; i < length; i += width) {
+    for (let i = 0; i < length; i += width) {
         const startPosition = types.Position.create(lineNumber, i)
         const endPosition = types.Position.create(lineNumber, Math.min(bufferLine.length, i + width))
         const range = types.Range.create(startPosition, endPosition)
