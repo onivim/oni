@@ -47,7 +47,7 @@ export interface IState {
     foregroundColor: string
     autoCompletion: null | IAutoCompletionInfo
     quickInfo: null | ILocatable<Oni.Plugin.QuickInfo>
-    signatureHelp: null | Oni.Plugin.SignatureHelpResult
+    signatureHelp: null | ILocatable<types.SignatureHelp>
     cursorLineOpacity: number
     cursorColumnOpacity: number
     configuration: IConfigurationValues

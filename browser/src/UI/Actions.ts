@@ -182,11 +182,12 @@ export interface ISetColorsAction {
 
 export interface IShowSignatureHelpAction {
     type: "SHOW_SIGNATURE_HELP",
-    payload: Oni.Plugin.SignatureHelpResult
-}
-
-export interface IHideSignatureHelpAction {
-    type: "HIDE_SIGNATURE_HELP"
+    payload: {
+        filePath: string,
+        line: number,
+        column: number,
+        signatureHelp: types.SignatureHelp,
+    }
 }
 
 export interface IShowQuickInfoAction {
@@ -250,7 +251,6 @@ export type SimpleAction =
     ISetImeActive |
     ISetFont |
     IShowSignatureHelpAction |
-    IHideSignatureHelpAction |
     IShowQuickInfoAction |
     IHideQuickInfoAction |
     IShowAutoCompletionAction |

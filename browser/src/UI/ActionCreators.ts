@@ -243,13 +243,14 @@ export const setMode = (mode: string) => ({
     payload: { mode },
 })
 
-export const showSignatureHelp = (signatureHelpResult: Oni.Plugin.SignatureHelpResult) => ({
+export const showSignatureHelp = (filePath: string, line: number, columm: number, signatureHelp: types.SignatureHelp) => ({
     type: "SHOW_SIGNATURE_HELP",
-    payload: signatureHelpResult,
-})
-
-export const hideSignatureHelp = () => ({
-    type: "HIDE_SIGNATURE_HELP",
+    payload: {
+        filePath: normalizePath(filePath),
+        line,
+        column,
+        signatureHelp,
+    },
 })
 
 export const showQuickInfo = (filePath: string, line: number, column: number, title: string, description: string): Actions.IShowQuickInfoAction => ({
