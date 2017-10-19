@@ -12,6 +12,7 @@ import * as Colors from "./../Colors"
 import { Icon } from "./../Icon"
 import { IState /*, AutoCompletionInfo */ } from "./../State"
 
+import { Arrow, ArrowDirection } from "./Arrow"
 import { CursorPositioner, OpenDirection } from "./CursorPositioner"
 import { HighlightText } from "./HighlightText"
 
@@ -20,6 +21,8 @@ export interface IAutoCompletionProps {
     base: string
     entries: Oni.Plugin.CompletionInfo[]
     selectedIndex: number
+
+    fontWidthInPixels: number
 
     backgroundColor: string
     foregroundColor: string
@@ -39,8 +42,9 @@ export class AutoCompletion extends React.PureComponent<IAutoCompletionProps, vo
 
         const containerStyle: React.CSSProperties = {
             backgroundColor: this.props.backgroundColor,
-            foregroundColor: this.props.foregroundColor,
+            color: this.props.foregroundColor,
             border: "1px solid " + highlightColor,
+            marginLeft: (-3 * this.props.fontWidthInPixels) + "px",
         }
 
         if (this.props.entries.length === 0) {
@@ -55,7 +59,6 @@ export class AutoCompletion extends React.PureComponent<IAutoCompletionProps, vo
         // TODO: sync max display items (10) with value in Reducer.autoCompletionReducer() (Reducer.ts)
         const firstTenEntries = take(this.props.entries, 10)
 
-
         const entries = firstTenEntries.map((s, i) => {
             const isSelected = i === this.props.selectedIndex
 
@@ -64,8 +67,7 @@ export class AutoCompletion extends React.PureComponent<IAutoCompletionProps, vo
 
         const selectedItemDocumentation = getDocumentationFromItems(firstTenEntries, this.props.selectedIndex)
 
-        return (<CursorPositioner beakColor={highlightColor} openDirection={OpenDirection.Down}>
-
+        return (<CursorPositioner beakColor={highlightColor} openDirection={OpenDirection.Down} hideArrow={true}>
                 <div style={containerStyle} className="autocompletion enable-mouse">
                     <div className="entries">
                         {entries}
@@ -108,11 +110,14 @@ export class AutoCompletionItem extends React.PureComponent<IAutoCompletionItemP
             backgroundColor: highlightColor,
         }
 
+        const arrowColor = this.props.isSelected ? highlightColor : "transparent"
+
         return <div className={className}>
             <div className="main">
                 <span className="icon" style={iconContainerStyle}>
                     <AutoCompletionIcon kind={this.props.kind as any /* FIXME: undefined */} />
                 </span>
+                <Arrow direction={ArrowDirection.Right} size={5}  color={arrowColor}/>
                 <HighlightText className="label" highlightClassName="highlight" highlightText={this.props.base} text={this.props.label} />
                 <span className="detail">{this.props.detail}</span>
             </div>
@@ -187,6 +192,7 @@ const mapStateToProps = (state: IState) => {
             selectedIndex: 0,
             backgroundColor: "",
             foregroundColor: "",
+            fontWidthInPixels: 0,
         }
     } else {
         const ret: IAutoCompletionProps = {
@@ -196,6 +202,7 @@ const mapStateToProps = (state: IState) => {
             selectedIndex: state.autoCompletion.selectedIndex,
             foregroundColor: state.foregroundColor,
             backgroundColor: state.backgroundColor,
+            fontWidthInPixels: state.fontPixelWidth,
         }
         return ret
     }

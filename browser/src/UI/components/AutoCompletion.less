@@ -5,18 +5,16 @@
     .layer;
 
     .box-shadow;
-
-    background-color: @background-color;
-    color: @text-color;
     width: 600px;
     overflow: hidden;
     animation-name: appear;
     animation-duration: 0.1s;
 
+    margin-top: -8px;
+
     .entry {
         &.selected {
             .box-shadow;
-            background-color: rgb(60, 60, 60);
 
             .main {
                 opacity: 1;
@@ -36,15 +34,12 @@
 
             .icon {
                 padding: 4px;
-                width: 20px;
+                width: 1.2em;
                 flex: 0 0 auto;
-                color: white;
                 text-align: center;
 
                 i {
-                    margin-left: 4px;
-                    margin-right: 4px;
-                    font-size: 10px;
+                    font-size: 0.9em;
                 }
             }
         }
@@ -55,8 +50,8 @@
             margin-left: 8px;
 
             .highlight {
-                font-weight: bold;
-                color: @text-color-highlight;
+                // font-weight: bold;
+                text-decoration: underline;
             }
         }
 
@@ -70,9 +65,8 @@
             white-space: nowrap;
             margin-left: 16px;
 
-            color: @text-color-detail;
-
-            font-size: 11px;
+            font-size: 0.8em;
+            opacity: 0.8;
             visibility: hidden;
         }
     }
@@ -80,10 +74,9 @@
     .documentation {
         .box-shadow-inset;
         padding: 8px;
-        font-size: 10px;
+        font-size: 0.8em;
         max-height: 48px;
         overflow-y: auto;
-        color: @text-color-dark;
     }
 }
 

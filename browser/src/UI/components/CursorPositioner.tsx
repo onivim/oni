@@ -20,6 +20,7 @@ export enum OpenDirection {
 export interface ICursorPositionerProps {
     beakColor?: string
     openDirection?: OpenDirection
+    hideArrow?: boolean
 }
 
 export interface ICursorPositionerViewProps extends ICursorPositionerProps {
@@ -96,6 +97,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         const arrowStyleWithAdjustments = {
             ...arrowStyle,
             left: (this.props.x + this.props.fontPixelWidth / 2).toString() + "px",
+            visibility: this.props.hideArrow ? "hidden" : "visible",
         }
 
         const childStyleWithAdjustments = this.state.isMeasured ? {
