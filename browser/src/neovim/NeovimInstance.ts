@@ -144,6 +144,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _pluginManager: PluginManager
     private _quickFix: QuickFixList
 
+    private _onDirectoryChanged = new Event<string>()
     private _onYank = new Event<INeovimYankInfo>()
     private _onOniCommand = new Event<string>()
     private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
@@ -162,6 +163,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onBufferUpdateIncremental(): IEvent<IIncrementalBufferUpdateEvent> {
         return this._onIncrementalBufferUpdateEvent
+    }
+
+    public get onDirectoryChanged(): IEvent<string> {
+        return this._onDirectoryChanged
     }
 
     public get onOniCommand(): IEvent<string> {
@@ -587,8 +592,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private async _updateProcessDirectory(): Promise<void> {
         const newDirectory = await this.getCurrentWorkingDirectory()
-        process.chdir(newDirectory)
-        this.emit("directory-changed", newDirectory)
+        this._onDirectoryChanged.dispatch(newDirectory)
     }
 
     private async _attachUI(columns: number, rows: number): Promise<void> {
