@@ -10,7 +10,13 @@ import * as State from "./../State"
 import { locatableHigherOrderReducer } from "./LocatableReducer"
 
 const autoCompletionReducer = (s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) => {
-    if (!s) {
+
+    if (a.type === "SHOW_AUTO_COMPLETION") {
+        return {
+            entries: a.payload.entries,
+            selectedIndex: 0,
+        }
+    } else if (!s) {
         return s
     }
 
@@ -18,12 +24,6 @@ const autoCompletionReducer = (s: State.IAutoCompletionInfo | null, a: Actions.S
     const currentEntryCount = Math.min(10, s.entries.length)
 
     switch (a.type) {
-        case "SHOW_AUTO_COMPLETION":
-            return {...s,
-                    autoCompletion: {
-                    entries: a.payload.entries,
-                    selectedIndex: 0,
-                }}
         case "NEXT_AUTO_COMPLETION":
             return {...s,
                     selectedIndex: (s.selectedIndex + 1) % currentEntryCount}

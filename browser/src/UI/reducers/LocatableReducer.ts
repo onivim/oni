@@ -5,7 +5,7 @@
  * (state associated with a particular file, line, and column)
  */
 
-import * as State from "./State"
+import * as State from "./../State"
 
 export function locatableHigherOrderReducer<T>(innerReducer: (s: T, a: any) => T) {
     return (s: State.ILocatable<T>, a: any) => {
@@ -24,7 +24,7 @@ export function locatableHigherOrderReducer<T>(innerReducer: (s: T, a: any) => T
                 filePath,
                 line,
                 column,
-                data: innerReducer(s.data, a)
+                data: newState
             }
         }
     }

@@ -2,7 +2,7 @@
  * QuickInfoReducers.ts
  */
 
-import * as Actions from "./Actions"
+import * as Actions from "./../Actions"
 
 import { locatableHigherOrderReducer } from "./LocatableReducer"
 

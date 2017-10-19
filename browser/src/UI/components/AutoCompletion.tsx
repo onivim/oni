@@ -184,7 +184,7 @@ export class AutoCompletionIcon extends React.PureComponent<IAutoCompletionIconP
 const EmptyArray: any[] = []
 
 const mapStateToProps = (state: IState) => {
-    if (!state.autoCompletion) {
+    if (!state.autoCompletion || state.mode !== "insert") {
         return {
             visible: false,
             base: "",
@@ -197,7 +197,7 @@ const mapStateToProps = (state: IState) => {
     } else {
         const ret: IAutoCompletionProps = {
             visible: true,
-            base: state.autoCompletion.data.base,
+            base: "",
             entries: state.autoCompletion.data.entries,
             selectedIndex: state.autoCompletion.data.selectedIndex,
             foregroundColor: state.foregroundColor,
