@@ -249,8 +249,8 @@ export const activate = (Oni) => {
 
         const errors = diags.map((d) => {
             // Convert lines to zero-based to accomodate protocol
-            const startPosition = Position.create(d.start.line - 1, d.start.offset)
-            const endPosition = Position.create(d.end.line - 1, d.end.offset)
+            const startPosition = Position.create(d.start.line - 1, d.start.offset - 1)
+            const endPosition = Position.create(d.end.line - 1, d.end.offset - 1)
             const range = Range.create(startPosition, endPosition)
 
             return {

@@ -13,6 +13,7 @@ import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
 import * as Actions from "./Actions"
+import * as Coordinates from "./Coordinates"
 import * as State from "./State"
 
 import { IScreen } from "./../Screen"
@@ -91,35 +92,46 @@ export const setTabs = (selectedTabId: number, tabs: State.ITab[]): Actions.ISet
     },
 })
 
-export const setWindowState = (windowId: number, file: string, column: number, line: number, winline: number, wincolumn: number, windowTopLine: number, windowBottomLine: number) => ({
-    type: "SET_WINDOW_STATE",
+export const setWindowCursor = (windowId: number, line: number, column: number) => ({
+    type: "SET_WINDOW_CURSOR",
     payload: {
         windowId,
-        file: normalizePath(file),
-        column,
         line,
-        winline,
-        wincolumn,
-        windowTopLine,
-        windowBottomLine,
+        column,
     },
 })
 
-export const setWindowLineMapping = (windowId: number, lineMapping: State.WindowLineMap) => ({
-    type: "SET_WINDOW_LINE_MAP",
-    payload: {
-        windowId,
-        lineMapping,
-    },
-})
+export const setWindowState = (windowId: number,
+                               file: string,
+                               column: number,
+                               line: number,
+                               bottomBufferLine: number,
+                               topBufferLine: number,
+                               dimensions: Rectangle,
+                               bufferToScreen: Coordinates.BufferToScreen) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
 
-export const setWindowDimensions = (windowId: number, dimensions: Rectangle) => ({
-    type: "SET_WINDOW_DIMENSIONS",
-    payload: {
-        windowId,
-        dimensions,
-    },
-})
+    const { fontPixelWidth, fontPixelHeight } = getState()
+
+    const screenToPixel = (screenSpace: Coordinates.ScreenSpacePoint) => ({
+            pixelX: screenSpace.screenX * fontPixelWidth,
+            pixelY: screenSpace.screenY * fontPixelHeight,
+    })
+
+    dispatch({
+        type: "SET_WINDOW_STATE",
+        payload: {
+            windowId,
+            file: normalizePath(file),
+            column,
+            dimensions,
+            line,
+            bufferToScreen,
+            screenToPixel,
+            bottomBufferLine,
+            topBufferLine,
+        },
+    })
+}
 
 export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({
     type: "SET_ERRORS",

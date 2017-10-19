@@ -6,15 +6,12 @@
  * http://redux.js.org/docs/recipes/ComputingDerivedData.html
  */
 
-import * as State from "./State"
-
-import { Rectangle } from "./Types"
-
 import * as flatten from "lodash/flatten"
-
 import { createSelector } from "reselect"
 
-import * as types from "vscode-languageserver-types"
+import * as Utility from "./../Utility"
+
+import * as State from "./State"
 
 export const EmptyArray: any[] = []
 
@@ -109,21 +106,40 @@ export const getQuickInfo = (state: State.IState): Oni.Plugin.QuickInfo => {
     return quickInfo.data
 }
 
-export const getActiveWindowDimensions = (state: State.IState): Rectangle => {
-    const emptyRectangle = {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-    }
-
-    const window = getActiveWindow(state)
-    if (!window) {
-        return emptyRectangle
-    }
-
-    return window.dimensions || emptyRectangle
+const emptyRectangle = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
 }
+
+export const getFontPixelWidthHeight = (state: State.IState) => ({
+    fontPixelWidth: state.fontPixelWidth,
+    fontPixelHeight: state.fontPixelHeight,
+})
+
+export const getActiveWindowScreenDimensions = createSelector(
+    [getActiveWindow],
+    (win) => {
+        if (!win || !win.dimensions) {
+            return emptyRectangle
+        }
+
+        return win.dimensions
+    })
+
+export const getActiveWindowPixelDimensions = createSelector(
+    [getActiveWindowScreenDimensions, getFontPixelWidthHeight],
+    (dimensions, fontSize) => {
+        const pixelDimensions = {
+            x: dimensions.x * fontSize.fontPixelWidth,
+            y: dimensions.y * fontSize.fontPixelHeight,
+            width: dimensions.width * fontSize.fontPixelWidth,
+            height: dimensions.height * fontSize.fontPixelHeight,
+        }
+
+        return pixelDimensions
+    })
 
 export const getErrorsForActiveFile = createSelector(
     [getActiveWindow, getErrors],
@@ -131,11 +147,6 @@ export const getErrorsForActiveFile = createSelector(
         const errorsForFile = (win && win.file) ? getAllErrorsForFile(win.file, errors) : EmptyArray
         return errorsForFile
     })
-
-const isInRange = (line: number, column: number, range: types.Range): boolean => {
-    return (line >= range.start.line && column >= range.start.character
-        && line <= range.end.line && column <= range.end.character)
-}
 
 export const getErrorsForPosition = createSelector(
     [getActiveWindow, getErrorsForActiveFile],
@@ -145,7 +156,7 @@ export const getErrorsForPosition = createSelector(
         }
 
         const { line, column } = win
-        return errors.filter((diag) => isInRange(line - 1, column - 1, diag.range))
+        return errors.filter((diag) => Utility.isInRange(line - 1, column - 1, diag.range))
     })
 
 export const getForegroundBackgroundColor = (state: State.IState) => ({

@@ -12,6 +12,8 @@ import * as find from "lodash/find"
 import * as isEqual from "lodash/isEqual"
 import * as reduce from "lodash/reduce"
 
+import * as types from "vscode-languageserver-types"
+
 /**
  * Use a `node` require instead of a `webpack` require
  * The difference is that `webpack` require will bake the javascript
@@ -100,4 +102,9 @@ export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
     }
 
     return getRootProjectFile
+}
+
+export const isInRange = (line: number, column: number, range: types.Range): boolean => {
+    return (line >= range.start.line && column >= range.start.character
+        && line <= range.end.line && column <= range.end.character)
 }

@@ -1,16 +1,17 @@
+/**
+ * Error.tsx
+ *
+ * Various UI components related to showing errors on screen
+ */
+
 import * as React from "react"
+import * as types from "vscode-languageserver-types"
 
-import { connect } from "react-redux"
-
-import * as Selectors from "./../Selectors"
-import * as State from "./../State"
+import { getColorFromSeverity } from "./../../Services/Errors"
 
 import { Icon } from "./../Icon"
 
-import { getColorFromSeverity } from "./../../Services/Errors"
-import { WindowContext } from "./../WindowContext"
-
-import * as types from "vscode-languageserver-types"
+import { BufferToScreen, ScreenToPixel } from "./../Coordinates"
 
 require("./Error.less") // tslint:disable-line no-var-requires
 
@@ -18,7 +19,10 @@ export interface IErrorsProps {
     errors: types.Diagnostic[]
     fontWidthInPixels: number
     fontHeightInPixels: number
-    window: State.IWindow
+
+    cursorLine: number
+    bufferToScreen: BufferToScreen
+    screenToPixel: ScreenToPixel
 }
 
 const padding = 8
@@ -27,54 +31,58 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
     public render(): JSX.Element {
         const errors = this.props.errors || []
 
-        if (!this.props.window || !this.props.window.dimensions) {
+        if (!this.props.bufferToScreen) {
             return null
         }
 
-        const windowContext = new WindowContext(this.props.fontWidthInPixels, this.props.fontHeightInPixels, this.props.window)
-
         const markers = errors.map((e) => {
-            const lineNumber = e.range.start.line + 1
-            const column = e.range.start.character + 1
-            if (windowContext.isLineInView(lineNumber)) {
-                const screenLine = windowContext.getWindowLine(lineNumber)
 
-                const xPos = windowContext.getWindowPosition(lineNumber, column).x
-                const yPos = windowContext.getWindowRegionForLine(lineNumber).y - (padding / 2)
-                const isActive = screenLine === windowContext.getCurrentWindowLine()
-
-                return <ErrorMarker isActive={isActive}
-                    x={xPos}
-                    y={yPos}
-                    text={e.message}
-                    color={getColorFromSeverity(e.severity)} />
-            } else {
+            const screenSpaceStart = this.props.bufferToScreen(types.Position.create(e.range.start.line, e.range.start.character))
+            if (!screenSpaceStart) {
                 return null
             }
+
+            const screenLine = screenSpaceStart.screenY
+
+            const screenY = screenLine
+            const pixelPosition = this.props.screenToPixel({screenX: 0, screenY })
+            const isActive = this.props.cursorLine - 1 === e.range.start.line
+            const pixelY = pixelPosition.pixelY - (padding / 2)
+
+            return <ErrorMarker isActive={isActive}
+                y={pixelY}
+                text={e.message}
+                color={getColorFromSeverity(e.severity)} />
         })
 
         const squiggles = errors
             .filter((e) => e && e.range && e.range.start && e.range.end)
             .map((e) => {
-            const lineNumber = e.range.start.line + 1
-            const column = e.range.start.character + 1
-            const endColumn = e.range.end.character + 1
+            const lineNumber = e.range.start.line
+            const column = e.range.start.character
+            const endColumn = e.range.end.character
 
-            if (windowContext.isLineInView(lineNumber)) {
-                const yPos = windowContext.getWindowRegionForLine(lineNumber).y
+            const startPosition = this.props.bufferToScreen(types.Position.create(lineNumber, column))
 
-                const startX = windowContext.getWindowPosition(lineNumber, column).x // FIXME: undefined
-                const endX = windowContext.getWindowPosition(lineNumber, endColumn).x
-
-                return <ErrorSquiggle
-                    y={yPos}
-                    height={windowContext.fontHeightInPixels}
-                    x={startX}
-                    width={endX - startX}
-                    color={getColorFromSeverity(e.severity)} />
-            } else {
+            if (!startPosition) {
                 return null
             }
+
+            const endPosition = this.props.bufferToScreen(types.Position.create(lineNumber, endColumn))
+
+            if (!endPosition) {
+                return null
+            }
+
+            const pixelStart = this.props.screenToPixel(startPosition)
+            const pixelEnd = this.props.screenToPixel(endPosition)
+
+            return <ErrorSquiggle
+                y={pixelStart.pixelY}
+                height={this.props.fontHeightInPixels}
+                x={pixelStart.pixelX}
+                width={pixelEnd.pixelX - pixelStart.pixelX}
+                color={getColorFromSeverity(e.severity)} />
         })
 
         return <div>{markers}{squiggles}</div>
@@ -82,7 +90,6 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
 }
 
 export interface IErrorMarkerProps {
-    x: number
     y: number
     text: string
     isActive: boolean
@@ -141,18 +148,3 @@ export class ErrorSquiggle extends React.PureComponent<IErrorSquiggleProps, void
         return <div className="error-squiggle" style={style}></div>
     }
 }
-
-const mapStateToProps = (state: State.IState): IErrorsProps => {
-    const window = Selectors.getActiveWindow(state)
-
-    const errors = Selectors.getErrorsForActiveFile(state)
-
-    return {
-        errors,
-        fontWidthInPixels: state.fontPixelWidth,
-        fontHeightInPixels: state.fontPixelHeight,
-        window,
-    }
-}
-
-export const ErrorsContainer = connect(mapStateToProps)(Errors)

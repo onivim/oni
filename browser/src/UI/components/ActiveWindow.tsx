@@ -10,10 +10,12 @@ import { connect } from "react-redux"
 
 import * as Selectors from "./../Selectors"
 import * as State from "./../State"
-import { Rectangle } from "./../Types"
 
 export interface IActiveWindowProps {
-    dimensions: Rectangle
+    pixelX: number
+    pixelY: number
+    pixelWidth: number
+    pixelHeight: number
 }
 
 export class ActiveWindow extends React.PureComponent<IActiveWindowProps, void> {
@@ -23,10 +25,10 @@ export class ActiveWindow extends React.PureComponent<IActiveWindowProps, void> 
 
         const style: React.CSSProperties = {
             position: "absolute",
-            left: px(this.props.dimensions.x),
-            top: px(this.props.dimensions.y),
-            width: px(this.props.dimensions.width),
-            height: px(this.props.dimensions.height),
+            left: px(this.props.pixelX),
+            top: px(this.props.pixelY),
+            width: px(this.props.pixelWidth),
+            height: px(this.props.pixelHeight),
         }
 
         return <div style={style}>
@@ -36,8 +38,12 @@ export class ActiveWindow extends React.PureComponent<IActiveWindowProps, void> 
 }
 
 const mapStateToProps = (state: State.IState): IActiveWindowProps => {
+    const dimensions = Selectors.getActiveWindowPixelDimensions(state)
     return {
-        dimensions: Selectors.getActiveWindowDimensions(state),
+        pixelX: dimensions.x,
+        pixelY: dimensions.y,
+        pixelWidth: dimensions.width,
+        pixelHeight: dimensions.height,
     }
 }
 
