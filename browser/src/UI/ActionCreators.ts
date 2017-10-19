@@ -263,6 +263,16 @@ export const showQuickInfo = (filePath: string, line: number, column: number, ti
     },
 })
 
+export const setDefinition = (filePath: string, line: number, column: number, location: types.Location): Actions.ISetDefinitionAction => ({
+    type: "SET_DEFINITION",
+    payload: {
+        filePath: normalizePath(filePath),
+        line,
+        column,
+        location,
+    },
+})
+
 const _showAutoCompletion = (base: string, entries: Oni.Plugin.CompletionInfo[]) => ({
     type: "SHOW_AUTO_COMPLETION",
     payload: {

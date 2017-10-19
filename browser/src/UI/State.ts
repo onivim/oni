@@ -46,6 +46,7 @@ export interface IState {
     backgroundColor: string
     foregroundColor: string
     autoCompletion: null | IAutoCompletionInfo
+    definition: null | ILocatable<types.Location>
     quickInfo: null | ILocatable<Oni.Plugin.QuickInfo>
     signatureHelp: null | Oni.Plugin.SignatureHelpResult
     cursorLineOpacity: number
@@ -194,6 +195,7 @@ export const createDefaultState = (): IState => ({
     mode: "normal",
     foregroundColor: "rgba(0, 0, 0, 0)",
     autoCompletion: null,
+    definition: null,
     quickInfo: null,
     signatureHelp: null,
     activeWindowDimensions: {

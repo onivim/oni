@@ -90,11 +90,30 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         default:
             return {...s,
                     buffers: buffersReducer(s.buffers, a),
+                    definition: definitionReducer(s.definition, a),
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
                     autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
                     statusBar: statusBarReducer(s.statusBar, a),
                     windowState: windowStateReducer(s.windowState, a)}
+    }
+}
+
+export const definitionReducer = (s: State.ILocatable<types.Location>, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "SET_DEFINITION":
+            const { filePath, line, column, location } = a.payload
+            return {...s,
+                    definition: {
+                        filePath,
+                        line,
+                        column,
+                        data: {
+                            location,
+                        },
+                }}
+        default:
+            return s
     }
 }
 
