@@ -7,7 +7,6 @@
 
 import { Event, IEvent } from "./../Event"
 
-
 export class Workspace implements Oni.Workspace {
     private _onDirectoryChangedEvent = new Event<string>()
 
