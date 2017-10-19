@@ -35,7 +35,7 @@ export const checkAndShowQuickInfo = async (evt: Oni.EventContext, pluginManager
 
 const showQuickInfo = (evt: Oni.EventContext, title: string, contents: string): void => {
     setTimeout(() => {
-        UI.Actions.showQuickInfo(evt.bufferFullPath, evt.line, evt.column, title, contents)
+        UI.Actions.showQuickInfo(evt.bufferFullPath, evt.line - 1, evt.column - 1, title, contents)
     }, configuration.getValue("editor.quickInfo.delay"))
 }
 

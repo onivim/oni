@@ -1,12 +1,11 @@
 /**
  * Completion.ts
- *
  */
 
-import * as os from "os"
+// import * as os from "os"
 import * as types from "vscode-languageserver-types"
 
-import { configuration } from "./../Configuration"
+// import { configuration } from "./../Configuration"
 
 import * as UI from "./../../UI"
 
@@ -20,54 +19,50 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 // - Remove plugin manager
 export const checkForCompletions = async (evt: Oni.EventContext, pluginManager: PluginManager) => {
     if (languageManager.isLanguageServerAvailable(evt.filetype)) {
-        const result = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/completions",
+        const result = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/completion",
             Helpers.eventContextToTextDocumentPositionParams(evt))
 
-        const titleAndContents = getTitleAndContents(result)
+        const items = getCompletionItems(result)
 
-        if (titleAndContents) {
-            showQuickInfo(evt, titleAndContents.title, titleAndContents.description)
+        if (!items) {
+            return
         }
+
+        const completions = items.map((i) => ({
+            label: i.label,
+            detail: i.detail,
+            documentation: getCompletionDocumentation(i),
+            kind: i.kind,
+            insertText: i.insertText,
+        }))
+
+        UI.Actions.showCompletions(evt.bufferFullPath, evt.line - 1, evt.column - 1, completions || [])
+
+        // console.dir(result)
+        // debugger
+
     } else {
-        pluginManager.checkHover(evt)
+        pluginManager.getCompletions(evt)
     }
 }
+    const getCompletionItems = (items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[]  => {
+        if (!items) {
+            return []
+        }
 
-const showQuickInfo = (evt: Oni.EventContext, title: string, contents: string): void => {
-    setTimeout(() => {
-        UI.Actions.showQuickInfo(evt.bufferFullPath, evt.line, evt.column, title, contents)
-    }, configuration.getValue("editor.quickInfo.delay"))
-}
-
-const getTitleAndContents = (result: types.Hover) => {
-    if (!result || !result.contents) {
-        return null
+        if (Array.isArray(items)) {
+            return items
+        } else {
+            return items.items || []
+        }
     }
 
-    const contents = Helpers.getTextFromContents(result.contents)
-
-    if (contents.length === 0) {
-        return null
-    } else if (contents.length === 1 && contents[0]) {
-        const title = contents[0].trim()
-
-        if (!title) {
+    const getCompletionDocumentation = (item: types.CompletionItem): string | null=> {
+        if (item.documentation) {
+            return item.documentation
+        } else if (item.data && item.data.documentation) {
+            return item.data.documentation
+        } else {
             return null
         }
-
-        return {
-            title,
-            description: "",
-        }
-    } else {
-
-        const description = [...contents]
-        description.shift()
-        const descriptionContent = description.join(os.EOL)
-
-        return {
-            title: contents[0],
-            description: descriptionContent,
-        }
     }
-}

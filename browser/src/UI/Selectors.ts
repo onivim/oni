@@ -158,7 +158,7 @@ export const getErrorsForPosition = createSelector(
         }
 
         const { line, column } = win
-        return errors.filter((diag) => Utility.isInRange(line - 1, column - 1, diag.range))
+        return errors.filter((diag) => Utility.isInRange(line, column, diag.range))
     })
 
 export const getForegroundBackgroundColor = (state: State.IState) => ({

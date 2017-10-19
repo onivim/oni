@@ -144,7 +144,7 @@ export class PluginManager extends EventEmitter {
                     setTimeout(() => {
                         const originEvent = pluginResponse.meta.originEvent
 
-                        UI.Actions.showQuickInfo(originEvent.bufferFullPath, originEvent.line, originEvent.column, pluginResponse.payload.info, pluginResponse.payload.documentation)
+                        UI.Actions.showQuickInfo(originEvent.bufferFullPath, originEvent.line - 1, originEvent.column - 1, pluginResponse.payload.info, pluginResponse.payload.documentation)
                     }, this._config.getValue("editor.quickInfo.delay"))
                 }
                 break
@@ -166,7 +166,7 @@ export class PluginManager extends EventEmitter {
 
                 const originEvent = pluginResponse.meta.originEvent
 
-                setTimeout(() => UI.Actions.showCompletions(originEvent.bufferFullPath, originEvent.line, originEvent.column, pluginResponse.payload.completions))
+                setTimeout(() => UI.Actions.showCompletions(originEvent.bufferFullPath, originEvent.line - 1, originEvent.column - 1, pluginResponse.payload.completions))
                 break
             case "completion-provider-item-selected":
                 setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))

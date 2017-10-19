@@ -1,3 +1,4 @@
+export * from "./Completion"
 export * from "./Diagnostics"
 export * from "./FindAllReferences"
 export * from "./LanguageClientProcess"
