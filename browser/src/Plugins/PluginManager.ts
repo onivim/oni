@@ -166,7 +166,7 @@ export class PluginManager extends EventEmitter {
 
                 const originEvent = pluginResponse.meta.originEvent
 
-                setTimeout(() => UI.Actions.showCompletions(originEvent.bufferFullPath, originEvent.line, originEvent.column, pluginResponse.payload))
+                setTimeout(() => UI.Actions.showCompletions(originEvent.bufferFullPath, originEvent.line, originEvent.column, pluginResponse.payload.completions))
                 break
             case "completion-provider-item-selected":
                 setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
