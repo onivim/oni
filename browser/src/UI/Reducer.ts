@@ -1,3 +1,9 @@
+/**
+ * Reducer.ts
+ *
+ * Top-level reducer for UI state transforms
+ */
+
 import * as State from "./State"
 
 import * as Actions from "./Actions"
@@ -7,6 +13,9 @@ import { IConfigurationValues } from "./../Services/Configuration"
 import * as pick from "lodash/pick"
 
 import * as types from "vscode-languageserver-types"
+
+import { autoCompletionReducerWithLocation } from "./reducers/AutoCompletionReducers"
+import { quickInfoReducerWithLocation } from "./reducers/QuickInfoReducers"
 
 export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>) {
 
@@ -85,43 +94,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     windowState: windowStateReducer(s.windowState, a)}
     }
 }
-
-export function locatableHigherOrderReducer<T>(innerReducer: (s: T, a: any) => T) {
-    return (s: State.ILocatable<T>, a: any) => {
-
-        // Check if state changed...
-        const previousState = (s && s.data) ? s.data : null
-        const newState = innerReducer(previousState, a)
-
-        if (newState === previousState) {
-            return s
-        } else {
-            // Otherwise, apply the location data as well
-            const { filePath, line, column } = a.payload
-
-            return {
-                filePath,
-                line,
-                column,
-                data: innerReducer(s.data, a)
-            }
-        }
-    }
-}
-
-export const quickInfoReducer = (s: Oni.Plugin.QuickInfo, a: Actions.SimpleAction): Oni.Plugin.QuickInfo => {
-    switch (a.type) {
-        case "SHOW_QUICK_INFO":
-            return {
-                title: a.payload.title,
-                description: a.payload.description,
-            }
-        default:
-            return s
-    }
-}
-
-export const quickInfoReducerWithLocation = locatableHigherOrderReducer(quickInfoReducer)
 
 export const viewportReducer = (s: State.IViewport, a: Actions.ISetViewportAction) => {
     switch (a.type) {
@@ -334,49 +306,6 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                     },
                 },
             }
-        default:
-            return s
-    }
-}
-
-const autoCompletionReducer = (s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) => {
-    if (!s) {
-        return s
-    }
-
-    // TODO: sync max display items (10) with value in AutoCompletion.render() (AutoCompletion.tsx)
-    const currentEntryCount = Math.min(10, s.entries.length)
-
-    switch (a.type) {
-        case "SHOW_AUTO_COMPLETION":
-            return {...s,
-                    autoCompletion: {
-                    entries: a.payload.entries,
-                    selectedIndex: 0,
-                }}
-        case "NEXT_AUTO_COMPLETION":
-            return {...s,
-                    selectedIndex: (s.selectedIndex + 1) % currentEntryCount}
-        case "PREVIOUS_AUTO_COMPLETION":
-            return {...s,
-                    selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : currentEntryCount - 1}
-        default:
-            return {...s,
-                    entries: autoCompletionEntryReducer(s.entries, a)}
-    }
-}
-
-const autoCompletionReducerWithLocation = locatableHigherOrderReducer(autoCompletionReducer)
-
-const autoCompletionEntryReducer = (s: Oni.Plugin.CompletionInfo[], action: Actions.SimpleAction) => {
-    switch (action.type) {
-        case "SET_AUTO_COMPLETION_DETAILS":
-            return s.map((entry) => {
-                if (action.payload.detailedEntry && entry.label === action.payload.detailedEntry.label) {
-                    return action.payload.detailedEntry
-                }
-                return entry
-            })
         default:
             return s
     }
