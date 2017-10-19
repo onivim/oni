@@ -149,6 +149,7 @@ export class PluginManager extends EventEmitter {
                 }
                 break
             case "goto-definition":
+
                 // if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
                 //     return
                 // }
@@ -158,6 +159,9 @@ export class PluginManager extends EventEmitter {
                 // this._neovimInstance.command("e! " + filePath)
                 // this._neovimInstance.command(`cal cursor(${line}, ${column})`)
                 // this._neovimInstance.command("norm zz")
+                // const { bufferFullPath, line, column } = pluginResponse.payload
+
+                // UI.Actions.setDefinition(bufferFullPath, line, column, { tokenName: "", 
                 break
             case "completion-provider":
                 if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
