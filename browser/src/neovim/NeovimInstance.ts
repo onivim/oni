@@ -150,6 +150,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
     private _onScroll = new Event<Oni.EventContext>()
 
+    private _pendingScrollTimeout: number | null = null
+
     public get quickFix(): IQuickFixList {
         return this._quickFix
     }
@@ -465,7 +467,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return { rows, cols }
     }
 
-    private _pendingScrollTimeout: number | null = null
     private _dispatchScrollEvent(): void {
         if (this._pendingScrollTimeout) {
             return

@@ -9,6 +9,7 @@ import * as types from "vscode-languageserver-types"
 
 import { NeovimInstance } from "./index"
 
+import * as Log from "./../Log"
 import * as UI from "./../UI"
 
 export class NeovimWindowManager {
@@ -126,7 +127,7 @@ export class NeovimWindowManager {
                     getBufferToScreenFromRanges(offset, ranges))
 
         } else {
-            console.warn("Measure request failed")
+            Log.warn("Measure request failed")
         }
     }
 }
