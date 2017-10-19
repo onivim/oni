@@ -45,7 +45,8 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<C-t>", "quickOpen.openFileNewTab")
 
     // Completion
-    input.bind(["<enter>", "<tab>"], "completion.complete")
+    // TODO: Bring back prior to checking in...
+    // input.bind(["<enter>", "<tab>"], "completion.complete")
     input.bind(["<down>", "<C-n>"], "completion.next")
     input.bind(["<up>", "<C-p>"], "completion.previous")
 
