@@ -99,17 +99,18 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     }
 }
 
-export const definitionReducer = (s: State.ILocatable<types.Location>, a: Actions.SimpleAction) => {
+export const definitionReducer = (s: State.ILocatable<State.IDefinition>, a: Actions.SimpleAction) => {
     switch (a.type) {
         case "SET_DEFINITION":
-            const { filePath, line, column, location } = a.payload
+            const { filePath, line, column, definitionLocation, token } = a.payload
             return {...s,
                     definition: {
                         filePath,
                         line,
                         column,
                         data: {
-                            location,
+                            definitionLocation,
+                            token,
                         },
                 }}
         default:

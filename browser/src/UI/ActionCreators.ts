@@ -263,13 +263,14 @@ export const showQuickInfo = (filePath: string, line: number, column: number, ti
     },
 })
 
-export const setDefinition = (filePath: string, line: number, column: number, location: types.Location): Actions.ISetDefinitionAction => ({
+export const setDefinition = (filePath: string, line: number, column: number, token: Oni.Token, definitionLocation: types.Location): Actions.ISetDefinitionAction => ({
     type: "SET_DEFINITION",
     payload: {
         filePath: normalizePath(filePath),
         line,
         column,
-        location,
+        token,
+        definitionLocation,
     },
 })
 

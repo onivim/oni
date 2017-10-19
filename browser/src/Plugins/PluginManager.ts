@@ -53,7 +53,7 @@ export class PluginManager extends EventEmitter {
         this._sendLanguageServiceRequest("quick-info", eventContext)
     }
 
-    public gotoDefinition(): void {
+    public getDefinition(): void {
         this._sendLanguageServiceRequest("goto-definition", this._lastEventContext)
     }
 
@@ -149,15 +149,15 @@ export class PluginManager extends EventEmitter {
                 }
                 break
             case "goto-definition":
-                if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                    return
-                }
+                // if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
+                //     return
+                // }
 
-                // TODO: Refactor to 'Service', break remaining NeoVim dependencies
-                const { filePath, line, column } = pluginResponse.payload
-                this._neovimInstance.command("e! " + filePath)
-                this._neovimInstance.command(`cal cursor(${line}, ${column})`)
-                this._neovimInstance.command("norm zz")
+                // // TODO: Refactor to 'Service', break remaining NeoVim dependencies
+                // const { filePath, line, column } = pluginResponse.payload
+                // this._neovimInstance.command("e! " + filePath)
+                // this._neovimInstance.command(`cal cursor(${line}, ${column})`)
+                // this._neovimInstance.command("norm zz")
                 break
             case "completion-provider":
                 if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {

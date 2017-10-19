@@ -206,7 +206,8 @@ export interface ISetDefinitionAction {
         filePath: string,
         line: number,
         column: number,
-        location: types.Location,
+        token: Oni.IToken,
+        definitionLocation: types.Location,
     }
 }
 
