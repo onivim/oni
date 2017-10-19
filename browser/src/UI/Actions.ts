@@ -107,11 +107,6 @@ export interface ISetWindowState {
 
         topBufferLine: number
         bottomBufferLine: number
-
-        // winline: number,
-        // wincolumn: number,
-        // windowTopLine: number,
-        // windowBottomLine: number,
     }
 }
 

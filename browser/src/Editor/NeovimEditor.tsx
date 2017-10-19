@@ -32,7 +32,6 @@ import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { WindowTitle } from "./../Services/WindowTitle"
 
 import * as UI from "./../UI/index"
-// import { Rectangle } from "./../UI/Types"
 
 import { IEditor } from "./Editor"
 
