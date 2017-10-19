@@ -58,7 +58,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         case "SHOW_AUTO_COMPLETION":
             return {...s,
                     autoCompletion: {
-                    base: a.payload.base,
                     entries: a.payload.entries,
                     selectedIndex: 0,
                 }}
