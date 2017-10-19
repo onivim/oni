@@ -64,13 +64,13 @@ export const Arrow = (props: IArrowProps): JSX.Element => {
     if (props.direction === ArrowDirection.Down) {
         style = downArrowStyle
         className = "arrow down"
-    } else if(props.direction === ArrowDirection.Up) {
+    } else if (props.direction === ArrowDirection.Up) {
         style = upArrowStyle
         className = "arrow up"
-    } else if(props.direction === ArrowDirection.Left) {
+    } else if (props.direction === ArrowDirection.Left) {
         style = leftArrowStyle
         className = "arrow left"
-    } else if(props.direction === ArrowDirection.Right) {
+    } else if (props.direction === ArrowDirection.Right) {
         style = rightArrowStyle
         className = "arrow right"
     }

@@ -128,8 +128,6 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             const canOpenDownard = this.props.y + rect.height + this.props.lineHeight * 3 < this.props.containerHeight - margin - bottomScreenPadding
 
             if (!this.state.isMeasured) {
-
-
                 const shouldOpenDownward = (this.props.openDirection !== OpenDirection.Down && !canOpenUpward) || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
 
                 const rightBounds = this.props.x + rect.width
