@@ -6,6 +6,14 @@
     opacity: 0;
     animation-fill-mode: forwards;
 
+    &.right {
+        animation-name: appear-right;
+    }
+
+    &.left {
+        animation-name: appear-left;
+    }
+
     &.down {
         animation-name: appear-down;
     }
@@ -22,4 +30,12 @@
 @keyframes appear-up {
     from {transform: translateY(4px); opacity: 0;}
     to {transform: translateY(0px);opacity: 1;}
+}
+@keyframes appear-left {
+    from {transform: translateX(4px); opacity: 0;}
+    to {transform: translateX(0px);opacity: 1;}
+}
+@keyframes appear-right {
+    from {transform: translateX(-4px); opacity: 0;}
+    to {transform: translateX(0px);opacity: 1;}
 }
