@@ -194,7 +194,6 @@ export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunctio
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
     if (screen.cursorRow === screen.height - 1) {
-        dispatch(hideQuickInfo())
         dispatch(hideSignatureHelp())
     }
 
@@ -247,10 +246,6 @@ export const setDetailedCompletionEntry = (detailedEntry: Oni.Plugin.CompletionI
         detailedEntry,
     },
 })
-
-export const hideCompletions = () => ({ type: "HIDE_AUTO_COMPLETION" })
-
-export const hideQuickInfo = () => ({ type: "HIDE_QUICK_INFO" })
 
 export const setCursorLineOpacity = (opacity: number) => ({
     type: "SET_CURSOR_LINE_OPACITY",

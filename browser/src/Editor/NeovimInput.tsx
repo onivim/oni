@@ -9,7 +9,7 @@ import * as React from "react"
 import { Mouse } from "./../Input/Mouse"
 import { NeovimInstance } from "./../neovim"
 import { NeovimScreen } from "./../Screen"
-import * as UI from "./../UI/index"
+// import * as UI from "./../UI/index"
 
 import { KeyboardInput } from "./KeyboardInput"
 
@@ -28,7 +28,7 @@ export class NeovimInput extends React.PureComponent<INeovimInputProps, void> {
             this._mouse = new Mouse(this._mouseElement, this.props.screen)
 
             this._mouse.on("mouse", (mouseInput: string) => {
-                UI.Actions.hideCompletions()
+                // UI.Actions.hideCompletions()
                 this.props.neovimInstance.input(mouseInput)
             })
         }

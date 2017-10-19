@@ -216,20 +216,12 @@ export interface ISetAutoCompletionDetails {
     }
 }
 
-export interface IHideAutoCompletionAction {
-    type: "HIDE_AUTO_COMPLETION"
-}
-
 export interface INextAutoCompletionAction {
     type: "NEXT_AUTO_COMPLETION"
 }
 
 export interface IPreviousAutoCompletionAction {
     type: "PREVIOUS_AUTO_COMPLETION"
-}
-
-export interface IHideQuickInfoAction {
-    type: "HIDE_QUICK_INFO"
 }
 
 export interface ISetConfigurationValue<K extends keyof IConfigurationValues> {
@@ -253,9 +245,7 @@ export type SimpleAction =
     IShowSignatureHelpAction |
     IHideSignatureHelpAction |
     IShowQuickInfoAction |
-    IHideQuickInfoAction |
     IShowAutoCompletionAction |
-    IHideAutoCompletionAction |
     INextAutoCompletionAction |
     IPreviousAutoCompletionAction |
     ISetAutoCompletionDetails |

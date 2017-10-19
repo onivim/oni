@@ -52,18 +52,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                             description,
                         },
                 }}
-        case "HIDE_QUICK_INFO":
-            return {...s,
-                    quickInfo: null}
-        case "SHOW_AUTO_COMPLETION":
-            return {...s,
-                    autoCompletion: {
-                    entries: a.payload.entries,
-                    selectedIndex: 0,
-                }}
-        case "HIDE_AUTO_COMPLETION":
-            return {...s,
-                    autoCompletion: null}
         case "SHOW_SIGNATURE_HELP":
             return {...s,
                     signatureHelp: a.payload}
@@ -91,11 +79,49 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     buffers: buffersReducer(s.buffers, a),
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
-                    autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
+                    autoCompletion: autoCompletionReducerWithLocation(s.autoCompletion, a), // FIXME: null
+                    quickInfo: quickInfoReducerWithLocation(s.quickInfo, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     windowState: windowStateReducer(s.windowState, a)}
     }
 }
+
+export function locatableHigherOrderReducer<T>(innerReducer: (s: T, a: any) => T) {
+    return (s: State.ILocatable<T>, a: any) => {
+
+        // Check if state changed...
+        const previousState = (s && s.data) ? s.data : null
+        const newState = innerReducer(previousState, a)
+
+        if (newState === previousState) {
+            return s
+        } else {
+            // Otherwise, apply the location data as well
+            const { filePath, line, column } = a.payload
+
+            return {
+                filePath,
+                line,
+                column,
+                data: innerReducer(s.data, a)
+            }
+        }
+    }
+}
+
+export const quickInfoReducer = (s: Oni.Plugin.QuickInfo, a: Actions.SimpleAction): Oni.Plugin.QuickInfo => {
+    switch (a.type) {
+        case "SHOW_QUICK_INFO":
+            return {
+                title: a.payload.title,
+                description: a.payload.description,
+            }
+        default:
+            return s
+    }
+}
+
+export const quickInfoReducerWithLocation = locatableHigherOrderReducer(quickInfoReducer)
 
 export const viewportReducer = (s: State.IViewport, a: Actions.ISetViewportAction) => {
     switch (a.type) {
@@ -313,7 +339,7 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
     }
 }
 
-export function autoCompletionReducer(s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) {
+const autoCompletionReducer = (s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) => {
     if (!s) {
         return s
     }
@@ -322,6 +348,12 @@ export function autoCompletionReducer(s: State.IAutoCompletionInfo | null, a: Ac
     const currentEntryCount = Math.min(10, s.entries.length)
 
     switch (a.type) {
+        case "SHOW_AUTO_COMPLETION":
+            return {...s,
+                    autoCompletion: {
+                    entries: a.payload.entries,
+                    selectedIndex: 0,
+                }}
         case "NEXT_AUTO_COMPLETION":
             return {...s,
                     selectedIndex: (s.selectedIndex + 1) % currentEntryCount}
@@ -334,7 +366,9 @@ export function autoCompletionReducer(s: State.IAutoCompletionInfo | null, a: Ac
     }
 }
 
-export function autoCompletionEntryReducer(s: Oni.Plugin.CompletionInfo[], action: Actions.SimpleAction) {
+const autoCompletionReducerWithLocation = locatableHigherOrderReducer(autoCompletionReducer)
+
+const autoCompletionEntryReducer = (s: Oni.Plugin.CompletionInfo[], action: Actions.SimpleAction) => {
     switch (action.type) {
         case "SET_AUTO_COMPLETION_DETAILS":
             return s.map((entry) => {

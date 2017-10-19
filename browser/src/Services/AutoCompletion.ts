@@ -32,7 +32,7 @@ export class AutoCompletion {
         })
 
         this._neovimInstance.on("hide-popup-menu", () => {
-            UI.Actions.hideCompletions()
+            // UI.Actions.hideCompletions()
         })
     }
 
@@ -73,6 +73,6 @@ export class AutoCompletion {
                 return this._neovimInstance.eval(`setpos(".", [0, ${cursorRow}, ${cursorColumn + cursorOffset}, 0])`)
             })
 
-        UI.Actions.hideCompletions()
+        // UI.Actions.hideCompletions()
     }
 }

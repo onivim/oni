@@ -338,10 +338,10 @@ export class NeovimEditor implements IEditor {
         this._onModeChangedEvent.dispatch(newMode)
 
         if (newMode === "normal") {
-            UI.Actions.hideCompletions()
+            // UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
         } else if (newMode.indexOf("cmdline") >= 0) {
-            UI.Actions.hideCompletions()
+            // UI.Actions.hideCompletions()
         }
     }
 
@@ -356,7 +356,7 @@ export class NeovimEditor implements IEditor {
             this._lastBufferId = evt.bufferNumber.toString()
             this._onBufferEnterEvent.dispatch(buf)
 
-            UI.Actions.hideCompletions()
+            // UI.Actions.hideCompletions()
             UI.Actions.hideSignatureHelp()
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)

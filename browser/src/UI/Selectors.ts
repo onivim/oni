@@ -20,7 +20,7 @@ export const EmptyArray: any[] = []
 
 export const areCompletionsVisible = (state: State.IState) => {
     const autoCompletion = state.autoCompletion
-    const entryCount = (autoCompletion && autoCompletion.entries) ? autoCompletion.entries.length : 0
+    const entryCount = (autoCompletion && autoCompletion.data && autoCompletion.data.entries) ? autoCompletion.data.entries.length : 0
 
     if (entryCount === 0) {
         return false
@@ -31,16 +31,18 @@ export const areCompletionsVisible = (state: State.IState) => {
     }
 
     // In the case of a single entry, should not be visible if the base is equal to the selected item
-    return autoCompletion != null && autoCompletion.base !== getSelectedCompletion(state)
+    return autoCompletion != null && autoCompletion.data.base !== getSelectedCompletion(state)
 }
 
 export const getSelectedCompletion = (state: State.IState) => {
     const autoCompletion = state.autoCompletion
-    if (!autoCompletion) {
+    if (!autoCompletion || !autoCompletion.data) {
         return null
     }
 
-    const completion = autoCompletion.entries[autoCompletion.selectedIndex]
+    const completionData = autoCompletion.data
+
+    const completion = completionData.entries[completionData.selectedIndex]
     return completion.insertText ? completion.insertText : completion.label
 }
 
