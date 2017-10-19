@@ -30,7 +30,7 @@ export class NeovimWindowManager {
     public async remeasure(): Promise<void> {
         if (this._lastEvent) {
             const newContext = await this._neovimInstance.getContext()
-            this._remeasureWindow(newContext)
+            this._remeasureWindow(newContext, true)
         }
     }
 
@@ -65,9 +65,9 @@ export class NeovimWindowManager {
     // - How each buffer line maps to the screen space
     //
     // We can derive these from information coming from the event handlers, along with screen width
-    private async _remeasureWindow(context: Oni.EventContext): Promise<void> {
+    private async _remeasureWindow(context: Oni.EventContext, force: boolean = false): Promise<void> {
 
-        if (!this._shouldRemeasure(context)) {
+        if (!force && !this._shouldRemeasure(context)) {
             return Promise.resolve()
         }
 

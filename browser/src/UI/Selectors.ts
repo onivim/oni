@@ -12,7 +12,6 @@ import { createSelector } from "reselect"
 import * as Utility from "./../Utility"
 
 import * as State from "./State"
-import { Rectangle } from "./Types"
 
 export const EmptyArray: any[] = []
 
@@ -107,29 +106,41 @@ export const getQuickInfo = (state: State.IState): Oni.Plugin.QuickInfo => {
     return quickInfo.data
 }
 
-export const getActiveWindowPixelDimensions = (state: State.IState): Rectangle => {
-    const emptyRectangle = {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-    }
-
-    const window = getActiveWindow(state)
-    if (!window || !window.dimensions) {
-        return emptyRectangle
-    }
-    const dimensions = window.dimensions
-
-    const pixelDimensions = {
-        x: dimensions.x * state.fontPixelWidth,
-        y: dimensions.y * state.fontPixelHeight,
-        width: dimensions.width * state.fontPixelWidth,
-        height: dimensions.height * state.fontPixelHeight,
-    }
-
-    return pixelDimensions
+const emptyRectangle = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
 }
+
+export const getFontPixelWidthHeight = (state: State.IState) => ({
+    fontPixelWidth: state.fontPixelWidth,
+    fontPixelHeight: state.fontPixelHeight,
+})
+
+export const getActiveWindowScreenDimensions = createSelector(
+    [getActiveWindow],
+    (win) => {
+        if (!win || !win.dimensions) {
+            return emptyRectangle
+        }
+
+        return win.dimensions
+    })
+
+
+export const getActiveWindowPixelDimensions = createSelector(
+    [getActiveWindowScreenDimensions, getFontPixelWidthHeight],
+    (dimensions, fontSize) => {
+        const pixelDimensions = {
+            x: dimensions.x * fontSize.fontPixelWidth,
+            y: dimensions.y * fontSize.fontPixelHeight,
+            width: dimensions.width * fontSize.fontPixelWidth,
+            height: dimensions.height * fontSize.fontPixelHeight,
+        }
+
+        return pixelDimensions
+    })
 
 export const getErrorsForActiveFile = createSelector(
     [getActiveWindow, getErrors],
