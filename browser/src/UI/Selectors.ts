@@ -128,7 +128,6 @@ export const getActiveWindowScreenDimensions = createSelector(
         return win.dimensions
     })
 
-
 export const getActiveWindowPixelDimensions = createSelector(
     [getActiveWindowScreenDimensions, getFontPixelWidthHeight],
     (dimensions, fontSize) => {
