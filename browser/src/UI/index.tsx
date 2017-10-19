@@ -9,7 +9,6 @@ import { RootComponent } from "./RootComponent"
 
 // import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
-import * as Events from "./Events"
 import { reducer } from "./Reducer"
 import * as UnboundSelectors from "./Selectors"
 import * as State from "./State"
@@ -22,8 +21,6 @@ import { windowManager } from "./../Services/WindowManager"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
-
-export const events = Events.events
 
 const defaultState = State.createDefaultState()
 

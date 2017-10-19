@@ -65,10 +65,6 @@ export class PluginManager extends EventEmitter {
         this._sendLanguageServiceRequest("format", this._lastEventContext, "formatting")
     }
 
-    public notifyCompletionItemSelected(completionItem: any): void {
-        this._sendLanguageServiceRequest("completion-provider-item-selected", this._lastEventContext, "completion-provider", { item: completionItem })
-    }
-
     public startPlugins(neovimInstance: INeovimInstance): Oni.Plugin.Api {
         this._neovimInstance = neovimInstance
 

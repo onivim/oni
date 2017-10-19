@@ -9,7 +9,6 @@
 
 import * as types from "vscode-languageserver-types"
 
-import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
 import * as Actions from "./Actions"
@@ -181,30 +180,14 @@ export const hideStatusBarItem = (id: string) => ({
 
 export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(_showAutoCompletion(result.completions))
-
-    if (result.completions.length > 0) {
-        emitCompletionItemSelectedEvent(getState())
-    }
 }
 
 export const previousCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(_previousAutoCompletion())
-
-    emitCompletionItemSelectedEvent(getState())
 }
 
 export const nextCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(_nextAutoCompletion())
-
-    emitCompletionItemSelectedEvent(getState())
-}
-
-function emitCompletionItemSelectedEvent(state: State.IState): void {
-    const autoCompletion = state.autoCompletion
-    if (autoCompletion != null) {
-        const entry = autoCompletion.entries[autoCompletion.selectedIndex]
-        Events.events.emit(Events.CompletionItemSelectedEvent, entry)
-    }
 }
 
 export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunction) => {
