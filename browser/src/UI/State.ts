@@ -142,9 +142,6 @@ export interface IWindow {
     bufferToScreen: Coordinates.BufferToScreen
     screenToPixel: Coordinates.ScreenToPixel
 
-    // winline: number
-    // wincolumn: number
-    // lineMapping: WindowLineMap
     dimensions: Rectangle
     topBufferLine: number
     bottomBufferLine: number
