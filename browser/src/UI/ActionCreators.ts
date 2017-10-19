@@ -232,7 +232,7 @@ export const showQuickInfo = (filePath: string, line: number, column: number, ti
 export const showCompletions = (filePath: string, line: number, column: number, entries: Oni.Plugin.CompletionInfo[]): Actions.IShowAutoCompletionAction => ({
     type: "SHOW_AUTO_COMPLETION",
     payload: {
-        filePath,
+        filePath: normalizePath(filePath),
         line,
         column,
         entries,
