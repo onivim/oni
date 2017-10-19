@@ -205,6 +205,9 @@ export interface IShowQuickInfoAction {
 export interface IShowAutoCompletionAction {
     type: "SHOW_AUTO_COMPLETION",
     payload: {
+        filePath: string,
+        line: number,
+        column: number,
         entries: Oni.Plugin.CompletionInfo[],
     }
 }

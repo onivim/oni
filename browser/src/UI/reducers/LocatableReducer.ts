@@ -17,14 +17,21 @@ export function locatableHigherOrderReducer<T>(innerReducer: (s: T, a: any) => T
         if (newState === previousState) {
             return s
         } else {
-            // Otherwise, apply the location data as well
-            const { filePath, line, column } = a.payload
 
-            return {
-                filePath,
-                line,
-                column,
-                data: newState
+            // If the action is 'locatable', apply the file/line/column
+            if (a.payload.filePath) {
+                const { filePath, line, column } = a.payload
+                return {
+                    filePath,
+                    line,
+                    column,
+                    data: newState
+                }
+            } else {
+                return {
+                    ...s,
+                    data: newState,
+                }
             }
         }
     }

@@ -178,10 +178,6 @@ export const hideStatusBarItem = (id: string) => ({
     },
 })
 
-export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    dispatch(_showAutoCompletion(result.completions))
-}
-
 export const previousCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(_previousAutoCompletion())
 }
@@ -233,9 +229,12 @@ export const showQuickInfo = (filePath: string, line: number, column: number, ti
     },
 })
 
-const _showAutoCompletion = (entries: Oni.Plugin.CompletionInfo[]) => ({
+export const showCompletions = (filePath: string, line: number, column: number, entries: Oni.Plugin.CompletionInfo[]): Actions.IShowAutoCompletionAction => ({
     type: "SHOW_AUTO_COMPLETION",
     payload: {
+        filePath,
+        line,
+        column,
         entries,
     },
 })

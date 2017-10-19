@@ -53,6 +53,10 @@ export class PluginManager extends EventEmitter {
         this._sendLanguageServiceRequest("quick-info", eventContext)
     }
 
+    public getCompletions(eventContext: Oni.EventContext): void {
+        this._sendLanguageServiceRequest("completion-provider", eventContext)
+    }
+
     public gotoDefinition(): void {
         this._sendLanguageServiceRequest("goto-definition", this._lastEventContext)
     }
@@ -112,7 +116,7 @@ export class PluginManager extends EventEmitter {
 
         if (this._config.getValue("editor.completions.enabled")) {
             this._sendLanguageServiceRequest("signature-help", eventContext)
-            this._sendLanguageServiceRequest("completion-provider", eventContext)
+            this.getCompletions(eventContext)
         }
     }
 
@@ -156,15 +160,13 @@ export class PluginManager extends EventEmitter {
                 this._neovimInstance.command("norm zz")
                 break
             case "completion-provider":
-                if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                    return
-                }
-
                 if (!pluginResponse.payload) {
                     return
                 }
 
-                setTimeout(() => UI.Actions.showCompletions(pluginResponse.payload))
+                const originEvent = pluginResponse.meta.originEvent
+
+                setTimeout(() => UI.Actions.showCompletions(originEvent.bufferFullPath, originEvent.line, originEvent.column, pluginResponse.payload.pluginResponse.payload))
                 break
             case "completion-provider-item-selected":
                 setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
