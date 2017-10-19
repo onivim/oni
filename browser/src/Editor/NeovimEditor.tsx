@@ -64,6 +64,7 @@ export class NeovimEditor implements IEditor {
     private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChangedEvent = new Event<Oni.EditorBufferChangedEventArgs>()
+    private _onBufferSavedEvent = new Event<Oni.EditorBufferEventArgs>()
 
     private _hasLoaded: boolean = false
 
@@ -98,6 +99,10 @@ export class NeovimEditor implements IEditor {
 
     public get onBufferChanged(): IEvent<Oni.EditorBufferChangedEventArgs> {
         return this._onBufferChangedEvent
+    }
+
+    public get onBufferSaved(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferSavedEvent
     }
 
     // Capabilities
@@ -363,6 +368,11 @@ export class NeovimEditor implements IEditor {
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
+
+            this._onBufferSavedEvent.dispatch({
+                filePath: evt.bufferFullPath,
+                language: evt.filetype,
+            })
         } else if (eventName === "BufDelete") {
 
             this._neovimInstance.getBufferIds()
