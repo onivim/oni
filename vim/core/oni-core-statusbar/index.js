@@ -102,7 +102,7 @@ const activate = (Oni) => {
         setFileType(evt.filetype)
     })
 
-    Oni.on("directory-changed", (newDirectory) => {
+    Oni.workspace.onDirectoryChanged.subscribe((newDirectory) => {
         setWorkingDirectory(newDirectory)
     })
 
