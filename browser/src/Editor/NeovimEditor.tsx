@@ -32,7 +32,6 @@ import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { WindowTitle } from "./../Services/WindowTitle"
 
 import * as UI from "./../UI/index"
-import { Rectangle } from "./../UI/Types"
 
 import { IEditor } from "./Editor"
 
@@ -142,11 +141,7 @@ export class NeovimEditor implements IEditor {
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
-        this._windowManager = new NeovimWindowManager(this._screen, this._neovimInstance)
-
-        this._windowManager.on("current-window-size-changed", (dimensionsInPixels: Rectangle, windowId: number) => {
-            UI.Actions.setWindowDimensions(windowId, dimensionsInPixels)
-        })
+        this._windowManager = new NeovimWindowManager(this._neovimInstance)
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
             if (configuration.getValue("editor.clipboard.enabled")) {
@@ -174,11 +169,6 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.on("error", (_err: string) => {
             this._errorStartingNeovim = true
             ReactDOM.render(<InstallHelp />, this._element.parentElement)
-        })
-
-        this._neovimInstance.on("window-display-update", (evt: Oni.EventContext, lineMapping: any) => {
-            UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
-            UI.Actions.setWindowLineMapping(evt.windowNumber, lineMapping)
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -235,11 +225,11 @@ export class NeovimEditor implements IEditor {
         const browserWindow = remote.getCurrentWindow()
 
         browserWindow.on("blur", () => {
-            this._neovimInstance.executeAutoCommand("FocusLost")
+            this._neovimInstance.autoCommands.executeAutoCommand("FocusLost")
         })
 
         browserWindow.on("focus", () => {
-            this._neovimInstance.executeAutoCommand("FocusGained")
+            this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
         })
 
         this._onConfigChanged(this._config.getValues())
@@ -308,6 +298,10 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.command(`buf ${bufferId}`)
         }
 
+        const onResize = () => {
+            this._windowManager.remeasure()
+        }
+
         const onTabClose = (tabId: number) => {
             this._neovimInstance.command(`tabclose ${tabId}`)
         }
@@ -327,6 +321,7 @@ export class NeovimEditor implements IEditor {
             onKeyDown={onKeyDown}
             onBufferClose={onBufferClose}
             onBufferSelect={onBufferSelect}
+            onResize={onResize}
             onTabClose={onTabClose}
             onTabSelect={onTabSelect} />
     }
@@ -346,7 +341,7 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
-        UI.Actions.setWindowState(evt.windowNumber, evt.bufferFullPath, evt.column, evt.line, evt.winline, evt.wincol, evt.windowTopLine, evt.windowBottomLine)
+        UI.Actions.setWindowCursor(evt.windowNumber, evt.line, evt.column)
 
         tasks.onEvent(evt)
 
