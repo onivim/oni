@@ -345,9 +345,18 @@ export class NeovimEditor implements IEditor {
 
         tasks.onEvent(evt)
 
+        const lastBuffer = this.activeBuffer
+
         const buf = this._bufferManager.updateBufferFromEvent(evt)
 
         if (eventName === "BufEnter") {
+            if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
+                this._onBufferLeaveEvent.dispatch({
+                    filePath: lastBuffer.filePath,
+                    language: lastBuffer.language,
+                })
+            }
+
             this._lastBufferId = evt.bufferNumber.toString()
             this._onBufferEnterEvent.dispatch(buf)
 
@@ -355,11 +364,6 @@ export class NeovimEditor implements IEditor {
             UI.Actions.hideSignatureHelp()
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
-        } else if (eventName === "BufLeave") {
-            this._onBufferLeaveEvent.dispatch({
-                filePath: evt.bufferFullPath,
-                language: evt.filetype,
-            })
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
