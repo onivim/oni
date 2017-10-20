@@ -94,14 +94,14 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
 }
 
 export const signatureHelpReducer = (s: State.ILocatable<types.SignatureHelp>, a: Actions.SimpleAction) => {
-    switch(a.type) {
+    switch (a.type) {
         case "SHOW_SIGNATURE_HELP":
             const { filePath, line, column, signatureHelp } = a.payload
             return {...s,
-                        filePath,
-                        line,
-                        column,
-                        data: signatureHelp,
+                    filePath,
+                    line,
+                    column,
+                    data: signatureHelp,
             }
         default:
             return s

@@ -27,7 +27,7 @@ import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { checkAndShowQuickInfo, showSignatureHelp, showReferencesInQuickFix } from "./../Services/Language"
+import { checkAndShowQuickInfo, showReferencesInQuickFix, showSignatureHelp } from "./../Services/Language"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { WindowTitle } from "./../Services/WindowTitle"
 

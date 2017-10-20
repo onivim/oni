@@ -28,28 +28,26 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
             return emptyProps
         }
 
-        // const titleElement = <QuickInfoTitle text={currentItem.label} />
-
         const elements = []
 
         const label = currentItem.label
         const parameters = currentItem.parameters
-        
+
         let remainingSignatureString = label
 
-        for(let i = 0; i < parameters.length; i++) {
-            
+        for (let i = 0; i < parameters.length; i++) {
             const parameterLabel = parameters[i].label
             const parameterIndex = remainingSignatureString.indexOf(parameterLabel)
 
-            if (parameterIndex === -1)
+            if (parameterIndex === -1) {
                 continue
+            }
 
             const nonArgumentText = remainingSignatureString.substring(0, parameterIndex)
             elements.push(<Text text={nonArgumentText} />)
 
             const argumentText = remainingSignatureString.substring(parameterIndex, parameterIndex + parameterLabel.length)
-            
+
             if (i === signatureHelp.activeParameter) {
                 elements.push(<SelectedText text={argumentText} />)
             } else {
