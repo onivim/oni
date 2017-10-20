@@ -287,6 +287,7 @@ export const activate = (Oni) => {
 
             const ret: types.Diagnostic =  {
                 // type: null,
+                code: d.code,
                 message: d.text,
                 range,
                 severity: types.DiagnosticSeverity.Error
@@ -372,10 +373,24 @@ export const activate = (Oni) => {
         }
     }
 
+    const getCodeActions = async (protocolName: string, payload: any): Promise<types.Command[]> => {
+
+        const textDocument = payload.textDocument
+        const range = payload.range
+        const filePath = unwrapFileUriPath(textDocument.uri)
+
+        const val = await host.getRefactors(filePath, range.start.line + 1, range.start.character + 1, range.end.line + 1, range.end.character + 1)
+
+        console.dir(val)
+        return val
+        // return Promise.resolve([])
+    }
+
     lightweightLanguageClient.handleNotification("textDocument/didOpen", protocolOpenFile)
 
     lightweightLanguageClient.handleNotification("textDocument/didChange", protocolChangeFile)
 
+    lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions)
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo)
     lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences)
 

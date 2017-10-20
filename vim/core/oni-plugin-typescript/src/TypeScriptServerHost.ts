@@ -120,6 +120,16 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
+    public getRefactors(file: string, startLine: number, startOffset: number, endLine: number, endOffset: number): Promise<any> {
+        return this._makeTssRequest<void>("getApplicableRefactors", {
+            file,
+            startLine,
+            startOffset,
+            endLine,
+            endOffset
+        })
+    }
+
     public updateFile(file: string, fileContent: string): Promise<void> {
         return this._makeTssRequest<void>("open", {
             file,
