@@ -238,7 +238,7 @@ declare namespace Oni {
         export interface FormattingEditsResponse {
             filePath: string
             version: number
-            edits: TextEdit[]
+            edits: any[]
         }
 
         export interface Api extends EventEmitter {
