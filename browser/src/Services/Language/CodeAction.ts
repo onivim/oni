@@ -14,6 +14,8 @@ import { languageManager } from "./LanguageManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
+import * as Log from "./../../Log"
+
 // TODO:
 // - Factor out event context to something simpler
 // - Remove plugin manager
@@ -22,9 +24,7 @@ export const checkCodeActions = async (evt: Oni.EventContext) => {
         const result = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/codeAction",
             Helpers.eventContextToCodeActionParams(evt))
 
-        console.dir(result)
-        // debugger
-
+        // TODO:
+        Log.info(result)
     }
 }
-

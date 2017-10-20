@@ -10,7 +10,6 @@ import * as UI from "./../../UI"
 
 import { languageManager } from "./LanguageManager"
 
-
 export const showSignatureHelp = async (evt: Oni.EventContext) => {
     if (languageManager.isLanguageServerAvailable(evt.filetype)) {
         const result: types.SignatureHelp = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/signatureHelp",

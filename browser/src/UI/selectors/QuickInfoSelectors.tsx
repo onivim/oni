@@ -6,7 +6,7 @@ import * as Colors from "./../Colors"
 import { ErrorInfo } from "./../components/ErrorInfo"
 import { QuickInfoDocumentation, QuickInfoTitle } from "./../components/QuickInfo"
 import * as Selectors from "./../Selectors"
-import { IState, IQuickInfo } from "./../State"
+import { IQuickInfo, IState } from "./../State"
 
 export interface ITextProps {
     text: string
