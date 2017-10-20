@@ -41,8 +41,6 @@ export const checkForCompletions = async (evt: Oni.EventContext, pluginManager: 
         // console.dir(result)
         // debugger
 
-    } else {
-        pluginManager.getCompletions(evt)
     }
 }
     const getCompletionItems = (items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[]  => {

@@ -3,10 +3,11 @@
  */
 
 import * as Actions from "./../Actions"
+import * as State from "./../State"
 
 import { locatableHigherOrderReducer } from "./LocatableReducer"
 
-export const quickInfoReducer = (s: Oni.Plugin.QuickInfo, a: Actions.SimpleAction): Oni.Plugin.QuickInfo => {
+export const quickInfoReducer = (s: State.IQuickInfo, a: Actions.SimpleAction): State.IQuickInfo => {
     switch (a.type) {
         case "SHOW_QUICK_INFO":
             return {

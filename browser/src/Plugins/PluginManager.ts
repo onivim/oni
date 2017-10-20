@@ -177,22 +177,6 @@ export class PluginManager extends EventEmitter {
         }, Capabilities.createPluginFilter(eventContext.filetype))
     }
 
-    /**
-     * Validate that the originating event matched the initating event
-     */
-    private _validateOriginEventMatchesCurrentEvent(pluginResponse: any): boolean {
-        const currentEvent = this._lastEventContext
-        const originEvent = pluginResponse.meta.originEvent
-
-        if (originEvent.bufferFullPath === currentEvent.bufferFullPath
-            && originEvent.line === currentEvent.line
-            && originEvent.column === currentEvent.column) {
-            return true
-        } else {
-            console.log("Plugin response aborted as it didn't match current even (buffer/line/col)") // tslint:disable-line no-console
-            return false
-        }
-    }
 }
 
 function getDirectories(rootPath: string): string[] {

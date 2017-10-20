@@ -49,18 +49,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 foregroundColor: a.payload.foregroundColor,
                 backgroundColor: a.payload.backgroundColor,
             } }
-        case "SHOW_QUICK_INFO":
-            const { filePath, line, column, title, description } = a.payload
-            return {...s,
-                    quickInfo: {
-                        filePath,
-                        line,
-                        column,
-                        data: {
-                            title,
-                            description,
-                        },
-                }}
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value
