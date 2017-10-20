@@ -30,6 +30,7 @@ import { Errors } from "./../Services/Errors"
 import { checkAndShowQuickInfo, showReferencesInQuickFix } from "./../Services/Language"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { WindowTitle } from "./../Services/WindowTitle"
+import { workspace } from "./../Services/Workspace"
 
 import * as UI from "./../UI/index"
 
@@ -169,6 +170,10 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.on("error", (_err: string) => {
             this._errorStartingNeovim = true
             ReactDOM.render(<InstallHelp />, this._element.parentElement)
+        })
+
+        this._neovimInstance.onDirectoryChanged.subscribe((newDirectory) => {
+            workspace.changeDirectory(newDirectory)
         })
 
         this._neovimInstance.on("action", (action: any) => {
