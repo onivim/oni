@@ -1,16 +1,13 @@
-import * as React from "react"
+// import * as React from "react"
 import { createSelector } from "reselect"
-import * as types from "vscode-languageserver-types"
+// import * as types from "vscode-languageserver-types"
 
-import * as Colors from "./../Colors"
-import { ErrorInfo } from "./../components/ErrorInfo"
-import { QuickInfoDocumentation, QuickInfoTitle } from "./../components/QuickInfo"
 import * as Selectors from "./../Selectors"
 import { IState } from "./../State"
 
 const getSignatureHelpRaw = (state: IState) => state.signatureHelp
 
-export const getQuickInfo = createSelector(
+export const getSignatureHelp = createSelector(
     [Selectors.getActiveWindow, getSignatureHelpRaw],
     (win, signatureHelp) => {
 
@@ -25,8 +22,9 @@ export const getQuickInfo = createSelector(
     }
 
     if (signatureHelp.filePath !== file
-        || signatureHelp.line !== line
-        || signatureHelp.column !== column) {
+        // TODO: Fix off by one hack...
+        || signatureHelp.line + 1 !== line
+        || signatureHelp.column + 1 !== column) {
             return null
         }
 

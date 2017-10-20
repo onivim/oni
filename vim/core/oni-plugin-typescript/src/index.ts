@@ -212,22 +212,36 @@ export const activate = (Oni) => {
             .then((result) => {
                 const items = result.items || []
 
-                const signatureHelpItems = items.map((item) => ({
-                    variableArguments: item.isVariadic,
-                    prefix: convertToDisplayString(item.prefixDisplayParts),
-                    suffix: convertToDisplayString(item.suffixDisplayParts),
-                    separator: convertToDisplayString(item.separatorDisplayParts),
-                    parameters: item.parameters.map((p) => ({
-                        text: convertToDisplayString(p.displayParts),
+                const signatureHelpItems = items.map((item) => {
+                    const prefix = convertToDisplayString(item.prefixDisplayParts)
+                    const suffix = convertToDisplayString(item.suffixDisplayParts)
+                    const separator = convertToDisplayString(item.separatorDisplayParts)
+
+                    const parameters = item.parameters.map((p) => ({
+                        label: convertToDisplayString(p.displayParts),
                         documentation: convertToDisplayString(p.documentation),
-                    })),
-                }))
+                    }))
+
+                    const parameterLabels = parameters.map((p) => p.label)
+
+                    const label = prefix + parameterLabels.join(separator) + suffix
+
+                    return {
+                        // variableArguments: item.isVariadic,
+                        label: label,
+                        documentation: convertToDisplayString(item.documentation),
+                        // prefix: convertToDisplayString(item.prefixDisplayParts),
+                        // suffix: convertToDisplayString(item.suffixDisplayParts),
+                        // separator: convertToDisplayString(item.separatorDisplayParts),
+                        parameters: parameters,
+                    }
+                })
 
                 return {
-                    items: signatureHelpItems,
-                    selectedItemIndex: result.selectedItemIndex,
-                    argumentCount: result.argumentCount,
-                    argumentIndex: result.argumentIndex,
+                    signatures: signatureHelpItems,
+                    activeSignature: result.selectedItemIndex,
+                    // argumentCount: result.argumentCount,
+                    activeParameter: result.argumentIndex,
                 }
             })
     }

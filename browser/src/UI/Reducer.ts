@@ -87,7 +87,7 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
                     autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
-                    signatureHelp: signatureHelpReducer(s.signatureHelp, a)
+                    signatureHelp: signatureHelpReducer(s.signatureHelp, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     windowState: windowStateReducer(s.windowState, a)}
     }

@@ -261,7 +261,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                 case "signature-help":
                     languageService.getSignatureHelp(arg.payload.context)
                         .then((val) => {
-                            UI.Actions.showSignatureHelp(originalContext.bufferFullPath, originalContext.line - 1, originalContext.column - 1, arg.val)
+                            UI.Actions.showSignatureHelp(originalContext.bufferFullPath, originalContext.line - 1, originalContext.column - 1, val)
                         })
                     break
                 default:
