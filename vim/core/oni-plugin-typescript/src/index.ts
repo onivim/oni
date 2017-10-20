@@ -28,7 +28,7 @@ export class LightweightLanguageClient {
     private _subscriptions: { [key: string]: Oni.Event<any> } = { }
 
     private _requestHandler: { [key: string]: RequestHandler } = { }
-    private _notificationHandler:  { [key: string]: NotificationHandler } = { }
+    private _notificationHandler: { [key: string]: NotificationHandler } = { }
 
     public subscribe(notificationName: string, evt: Oni.Event<any>) {
         this._subscriptions[notificationName] = evt
@@ -262,17 +262,14 @@ export const activate = (Oni) => {
     Oni.language.registerLanguageClient("typescript", lightweightLanguageClient)
     Oni.language.registerLanguageClient("javascript", lightweightLanguageClient)
 
-    lightweightLanguageClient.notify("window/logMessage", "Hello world")
-
-//     Oni.registerLanguageService({
-//         findAllReferences,
-//         getCompletionDetails,
-//         getCompletions,
-//         getDefinition,
-//         getFormattingEdits,
-//         getQuickInfo,
-//         getSignatureHelp,
-//     })
+    // TODO:
+    // - Migrate all this functionality to the new language client
+    Oni.registerLanguageService({
+        getCompletionDetails,
+        getCompletions,
+        getDefinition,
+        getFormattingEdits,
+    })
 
     host.on("semanticDiag", (diagnostics) => {
         const fileName = diagnostics.file
@@ -310,7 +307,7 @@ export const activate = (Oni) => {
         }
      }
 
-    const wrapPathInFileUri = (path: string) => getFilePrefix() + path
+    const wrapPathInFileUri = (filePath: string) => getFilePrefix() + filePath
     const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split(getFilePrefix())[1])
 
     const protocolOpenFile = (message: string, payload: any) => {
@@ -325,7 +322,7 @@ export const activate = (Oni) => {
             return true
         }
 
-        if (range.start.character ===0 && range.end.character === 0 && range.start.line + 1 === range.end.line) {
+        if (range.start.character === 0 && range.end.character === 0 && range.start.line + 1 === range.end.line) {
             return true
         }
 
@@ -342,7 +339,7 @@ export const activate = (Oni) => {
         }
 
         if (contentChanges.length > 1) {
-            console.warn("Only handling first content change")
+            Oni.log.warn("Only handling first content change")
         }
 
         const filePath = unwrapFileUriPath(textDocument.uri)
@@ -353,7 +350,7 @@ export const activate = (Oni) => {
         } else if (isSingleLineChange(change.range) && change.text) {
             host.changeLineInFile(filePath, change.range.start.line + 1, change.text.trim())
         } else {
-            console.warn("Unhandled change request!")
+            Oni.log.warn("Unhandled change request!")
         }
     }
 
@@ -376,7 +373,7 @@ export const activate = (Oni) => {
 
             return {
                 uri: wrapPathInFileUri(referenceItem.file),
-                range: range,
+                range,
             }
         }
 
@@ -404,66 +401,19 @@ export const activate = (Oni) => {
 
         const val = await host.getRefactors(filePath, range.start.line + 1, range.start.character + 1, range.end.line + 1, range.end.character + 1)
 
-        console.dir(val)
+        // TODO: Implement code actions
+        Oni.log.verbose(val)
         return val
-        // return Promise.resolve([])
     }
 
     lightweightLanguageClient.handleNotification("textDocument/didOpen", protocolOpenFile)
-
     lightweightLanguageClient.handleNotification("textDocument/didChange", protocolChangeFile)
 
     lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions)
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo)
     lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences)
 
-//     const updateFile = Oni.helpers.throttle((bufferFullPath, stringContents) => {
-//         host.updateFile(bufferFullPath, stringContents)
-//     }, 50)
-
-//     Oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
-
-//         if (!args.eventContext.bufferFullPath) {
-//             return
-//         }
-
-//         if (lastOpenFile !== args.eventContext.bufferFullPath) {
-//             host.openFile(args.eventContext.bufferFullPath)
-//         }
-
-//         lastBuffer = args.bufferLines
-
-//         updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL))
-
-//     })
-
-//     Oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
-//         if (!args.eventContext.bufferFullPath) {
-//             return
-//         }
-
-//         const changedLine = args.bufferLine
-//         const lineNumber = args.lineNumber
-
-//         lastBuffer[lineNumber - 1] = changedLine
-
-//         host.changeLineInFile(args.eventContext.bufferFullPath, lineNumber, changedLine)
-//     })
-
-    // Oni.on("buffer-enter", (args: Oni.EventContext) => {
-    //     // // TODO: Look at alternate implementation for this
-    //     host.openFile(args.bufferFullPath)
-
-    //     host.getNavigationTree(args.bufferFullPath)
-    //         .then((navTree) => {
-    //             const highlights = []
-    //             // debugger
-    //             getHighlightsFromNavTree(navTree.childItems, highlights)
-
-    //             Oni.setHighlights(args.bufferFullPath, "typescript", highlights)
-    //         })
-    // })
-
+    // TODO: Migrate to 'textDocument/didSave'
     Oni.on("buffer-saved", (args: Oni.EventContext) => {
         host.getErrorsAcrossProject(args.bufferFullPath)
     })
