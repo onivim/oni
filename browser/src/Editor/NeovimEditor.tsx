@@ -27,7 +27,7 @@ import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { checkAndShowQuickInfo, showReferencesInQuickFix, showSignatureHelp } from "./../Services/Language"
+import { checkAndShowQuickInfo, checkCodeActions, showReferencesInQuickFix, showSignatureHelp } from "./../Services/Language"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
@@ -384,6 +384,8 @@ export class NeovimEditor implements IEditor {
                 // First, check if there is a language client registered...
                 checkAndShowQuickInfo(evt, this._pluginManager)
             }
+
+            checkCodeActions(evt)
         } else if (eventName === "CursorMovedI") {
             showSignatureHelp(evt, this._pluginManager)
         }
