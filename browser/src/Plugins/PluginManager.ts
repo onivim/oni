@@ -108,18 +108,7 @@ export class PluginManager extends EventEmitter {
 
     private _handlePluginResponse(pluginResponse: any): void {
 
-        // TODO: Refactor these handlers to separate classes
-        // - pluginManager.registerResponseHandler("show-quick-info", new QuickInfoHandler())
         switch (pluginResponse.type) {
-            case "show-quick-info":
-                if (!pluginResponse.error) {
-                    setTimeout(() => {
-                        const originEvent = pluginResponse.meta.originEvent
-
-                        UI.Actions.showQuickInfo(originEvent.bufferFullPath, originEvent.line - 1, originEvent.column - 1, pluginResponse.payload.info, pluginResponse.payload.documentation)
-                    }, this._config.getValue("editor.quickInfo.delay"))
-                }
-                break
             case "completion-provider":
                 if (!pluginResponse.payload) {
                     return
@@ -132,17 +121,8 @@ export class PluginManager extends EventEmitter {
             case "completion-provider-item-selected":
                 setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
                 break
-            case "set-errors":
-                this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors)
-                break
             case "format":
                 this.emit("format", pluginResponse.payload)
-                break
-            case "set-syntax-highlights":
-                this.emit("set-syntax-highlights", pluginResponse.payload)
-                break
-            case "clear-syntax-highlights":
-                this.emit("clear-syntax-highlights", pluginResponse.payload)
                 break
             default:
                 this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)
