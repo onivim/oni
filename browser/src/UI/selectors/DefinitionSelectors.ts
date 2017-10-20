@@ -33,4 +33,3 @@ export const getActiveDefinition = createSelector(
 
         return definition.data
     })
-

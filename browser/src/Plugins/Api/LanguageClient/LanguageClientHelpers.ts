@@ -96,7 +96,7 @@ export const eventContextToCodeActionParams = (args: Oni.EventContext) => ({
         uri: wrapPathInFileUri(args.bufferFullPath),
     },
     range: types.Range.create(types.Position.create(args.line - 1, 0), types.Position.create(args.line, 0)),
-    context: { diagnostics: <any[]>[] },
+    context: { diagnostics: [] as any[] },
 })
 
 export const eventContextToTextDocumentPositionParams = (args: Oni.EventContext) => ({

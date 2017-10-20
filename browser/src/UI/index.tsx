@@ -43,7 +43,7 @@ export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators 
 export const Selectors = {
     areCompletionsVisible: () => UnboundSelectors.areCompletionsVisible(store.getState() as any),
     getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState() as any),
-    getActiveDefinition: () => getActiveDefinition(store.getState() as any)
+    getActiveDefinition: () => getActiveDefinition(store.getState() as any),
 }
 
 export function init(pluginManager: PluginManager, args: any): void {

@@ -99,10 +99,10 @@ export const definitionReducer = (s: State.ILocatable<State.IDefinition>, a: Act
         case "SET_DEFINITION":
             const { filePath, line, column, definitionLocation, token } = a.payload
             return {...s,
-                        filePath,
-                        line,
-                        column,
-                        data: {
+                    filePath,
+                    line,
+                    column,
+                    data: {
                             definitionLocation,
                             token,
                         },

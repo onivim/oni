@@ -383,12 +383,12 @@ export const activate = (Oni) => {
         const filePath = unwrapFileUriPath(textDocument.uri)
         const val: any = await host.getTypeDefinition(filePath, position.line + 1, position.character + 1)
 
-        const position = val[0]
+        const resultPos = val[0]
 
-        const range = types.Range.create(position.start.line - 1, position.start.offset - 1, position.end.line - 1, position.end.offset - 1)
+        const range = types.Range.create(resultPos.start.line - 1, resultPos.start.offset - 1, resultPos.end.line - 1, resultPos.end.offset - 1)
 
         return {
-            uri: wrapPathInFileUri(position.file)
+            uri: wrapPathInFileUri(resultPos.file),
             range,
         }
     }

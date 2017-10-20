@@ -8,9 +8,9 @@ import * as path from "path"
 
 import * as Log from "./../../Log"
 
+import { LanguageClient2 } from "./LanguageClient2"
 import { InitializationOptions, LanguageClientProcess, ServerRunOptions } from "./LanguageClientProcess"
 import { languageManager } from "./LanguageManager"
-import { LanguageClient2 } from "./LanguageClient2"
 
 import { getRootProjectFileFunc } from "./../../Utility"
 

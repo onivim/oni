@@ -11,6 +11,7 @@
 // import * as UI from "./../../UI"
 
 import { languageManager } from "./LanguageManager"
+import * as Log from "./../../Log"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -22,9 +23,9 @@ export const checkCodeActions = async (evt: Oni.EventContext) => {
         const result = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/codeAction",
             Helpers.eventContextToCodeActionParams(evt))
 
-        console.dir(result)
-        // debugger
-
+        // TODO:
+        if (result) {
+            Log.info(result)
+        }
     }
 }
-
