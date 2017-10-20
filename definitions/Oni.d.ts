@@ -17,6 +17,11 @@ declare namespace Oni {
         (val: T): void
     }
 
+    export interface IToken {
+        tokenName: string
+        range: types.Range
+    }
+
     export interface Event<T> {
         subscribe(callback: EventCallback<T>)
     }
@@ -92,7 +97,7 @@ declare namespace Oni {
         lineCount: number
 
         // getLines(start?: number, end?: number): Promise<string[]>
-        getTokenAt(line: number, column: number): Promise<string>
+        getTokenAt(line: number, column: number): Promise<IToken>
     }
 
     // Zero-based position of the cursor

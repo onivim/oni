@@ -46,6 +46,7 @@ export interface IState {
     backgroundColor: string
     foregroundColor: string
     autoCompletion: null | IAutoCompletionInfo
+    definition: null | ILocatable<IDefinition>
     quickInfo: null | ILocatable<Oni.Plugin.QuickInfo>
     signatureHelp: null | Oni.Plugin.SignatureHelpResult
     cursorLineOpacity: number
@@ -73,6 +74,11 @@ export interface IState {
     activeWindowDimensions: Rectangle
 
     activeMessageDialog: IMessageDialog
+}
+
+export interface IDefinition {
+    token: Oni.IToken
+    definitionLocation: Location
 }
 
 export enum MessageType {
@@ -194,6 +200,7 @@ export const createDefaultState = (): IState => ({
     mode: "normal",
     foregroundColor: "rgba(0, 0, 0, 0)",
     autoCompletion: null,
+    definition: null,
     quickInfo: null,
     signatureHelp: null,
     activeWindowDimensions: {

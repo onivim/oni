@@ -18,6 +18,7 @@ import { CursorLine } from "./../UI/components/CursorLine"
 import { TabsContainer } from "./../UI/components/Tabs"
 
 import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarContainer"
+import { DefinitionContainer } from "./../UI/containers/DefinitionContainer"
 import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
 import { QuickInfoContainer } from "./../UI/containers/QuickInfoContainer"
 import { SignatureHelpContainer } from "./../UI/containers/SignatureHelpContainer"
@@ -61,6 +62,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
                     <ActiveWindowContainer>
+                        <DefinitionContainer />
                         <ErrorsContainer />
                         <BufferScrollBarContainer />
                     </ActiveWindowContainer>

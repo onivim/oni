@@ -40,7 +40,7 @@ export const findAllReferences = async (pluginManager: PluginManager) => {
         const { line, column } = activeBuffer.cursor
         const token = await activeBuffer.getTokenAt(line, column)
         const result: types.Location[] = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/references", args)
-        const references = convertLocationToReferences(token, result)
+        const references = convertLocationToReferences(token.tokenName, result)
         showReferencesInQuickFix(references, activeEditor.neovim as any)
     } else {
         pluginManager.findAllReferences()
