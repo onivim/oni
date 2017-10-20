@@ -1,4 +1,5 @@
 export * from "./CodeAction"
+export * from "./Definition"
 export * from "./Diagnostics"
 export * from "./FindAllReferences"
 export * from "./LanguageClientProcess"

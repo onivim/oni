@@ -84,18 +84,6 @@ export const activate = (Oni) => {
 
     let lastBuffer: string[] = []
 
-    const getDefinition = (textDocumentPosition: Oni.EventContext) => {
-        return host.getTypeDefinition(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
-            .then((val: any) => {
-                val = val[0]
-                return {
-                    filePath: val.file,
-                    line: val.start.line,
-                    column: val.start.offset,
-                }
-            })
-    }
-
     const getFormattingEdits = (position: Oni.EventContext) => {
         return host.getFormattingEdits(position.bufferFullPath, 1, 1, lastBuffer.length, 0)
             .then((val) => {
@@ -275,7 +263,6 @@ export const activate = (Oni) => {
     Oni.registerLanguageService({
         getCompletionDetails,
         getCompletions,
-        getDefinition,
         getFormattingEdits,
     })
 
@@ -388,6 +375,24 @@ export const activate = (Oni) => {
         return val.refs.map((v) => mapResponseToLocation(v))
     }
 
+    const getDefinition = async (protocolName: string, payload: any): Promise<types.Location> => {
+
+        const textDocument: types.TextDocument  = payload.textDocument
+        const position: types.Position = payload.position
+
+        const filePath = unwrapFileUriPath(textDocument.uri)
+        const val: any = await host.getTypeDefinition(filePath, position.line + 1, position.character + 1)
+
+        const resultPos = val[0]
+
+        const range = types.Range.create(resultPos.start.line - 1, resultPos.start.offset - 1, resultPos.end.line - 1, resultPos.end.offset - 1)
+
+        return {
+            uri: wrapPathInFileUri(resultPos.file),
+            range,
+        }
+    }
+
     const getQuickInfo = async (protocolName: string, payload: any): Promise<types.Hover> => {
 
         const textDocument: types.TextDocument  = payload.textDocument
@@ -418,6 +423,7 @@ export const activate = (Oni) => {
     lightweightLanguageClient.handleNotification("textDocument/didChange", protocolChangeFile)
 
     lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions)
+    lightweightLanguageClient.handleRequest("textDocument/definition", getDefinition)
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo)
     lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences)
 

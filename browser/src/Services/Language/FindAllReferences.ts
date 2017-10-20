@@ -39,7 +39,7 @@ export const findAllReferences = async () => {
         const { line, column } = activeBuffer.cursor
         const token = await activeBuffer.getTokenAt(line, column)
         const result: types.Location[] = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/references", args)
-        showReferencesInQuickFix(token, result, activeEditor.neovim as any)
+        showReferencesInQuickFix(token.tokenName, result, activeEditor.neovim as any)
     }
 }
 

@@ -201,6 +201,17 @@ export interface IShowQuickInfoAction {
     }
 }
 
+export interface ISetDefinitionAction {
+    type: "SET_DEFINITION",
+    payload: {
+        filePath: string,
+        line: number,
+        column: number,
+        token: Oni.IToken,
+        definitionLocation: types.Location,
+    }
+}
+
 export interface IShowAutoCompletionAction {
     type: "SHOW_AUTO_COMPLETION",
     payload: {
@@ -260,6 +271,7 @@ export type SimpleAction =
     ISetAutoCompletionDetails |
     IShowMessageDialog |
     IHideMessageDialog |
+    ISetDefinitionAction |
     ISetModeAction |
     ISetColorsAction |
     IStatusBarHideAction |

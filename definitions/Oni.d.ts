@@ -17,6 +17,11 @@ declare namespace Oni {
         (val: T): void
     }
 
+    export interface IToken {
+        tokenName: string
+        range: types.Range
+    }
+
     export interface Event<T> {
         subscribe(callback: EventCallback<T>)
     }
@@ -92,7 +97,7 @@ declare namespace Oni {
         lineCount: number
 
         // getLines(start?: number, end?: number): Promise<string[]>
-        getTokenAt(line: number, column: number): Promise<string>
+        getTokenAt(line: number, column: number): Promise<IToken>
     }
 
     // Zero-based position of the cursor
@@ -197,15 +202,6 @@ declare namespace Oni {
         windowBottomLine: number
     }
 
-    // export interface TextDocumentPosition {
-    //     // TODO: Reconcile these - remove buffer
-    //     bufferFullPath?: string
-    //     filePath?: string
-    //     line: number
-    //     column: number
-    //     byte?: number
-    // }
-
     export namespace Menu {
         export interface MenuOption {
             /**
@@ -231,10 +227,6 @@ declare namespace Oni {
             }
         }
 
-        export interface GotoDefinitionResponse extends Position {
-            filePath: string
-        }
-
         export interface FormattingEditsResponse {
             filePath: string
             version: number
@@ -246,6 +238,7 @@ declare namespace Oni {
             diagnostics: Diagnostics.Api
             editors: EditorManager
             input: InputManager
+            menu: any; /* TODO */
             process: Process
             statusBar: StatusBar
             workspace: Workspace

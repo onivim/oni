@@ -9,7 +9,7 @@ import { Configuration } from "./../Services/Configuration"
 
 export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configuration): void => {
 
-    const { editors, input } = oni
+    const { editors, input, menu } = oni
 
     input.unbindAll()
 
@@ -32,7 +32,9 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     }
 
     input.bind("<f3>", "language.formatter.formatDocument")
-    input.bind("<f12>", "oni.editor.gotoDefinition")
+    input.bind(["<enter>", "<f12>"], "oni.editor.gotoDefinition", () => isNormalMode() && !menu.isMenuOpen())
+    input.bind(["<c-enter>", "<c-f12>"], "oni.editor.gotoDefinition.openVertical", () => isNormalMode() && !menu.isMenuOpen())
+    input.bind(["<s-enter>", "<s-f12>"], "oni.editor.gotoDefinition.openHorizontal", () => isNormalMode() && !menu.IsMenuOpen())
     input.bind("<S-C-P>", "commands.show", isNormalMode)
     input.bind("<C-pageup>", "oni.process.cyclePrevious")
     input.bind("<C-pagedown>", "oni.process.cycleNext")
@@ -40,14 +42,14 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     // QuickOpen
     input.bind("<C-p>", "quickOpen.show", isNormalMode)
     input.bind("<C-/>", "quickOpen.showBufferLines", isNormalMode)
-    input.bind("<C-v>", "quickOpen.openFileVertical")
-    input.bind("<C-s>", "quickOpen.openFileHorizontal")
+    input.bind(["<c-enter", "<C-v>"], "quickOpen.openFileVertical")
+    input.bind(["<s-enter", "<C-s>"], "quickOpen.openFileHorizontal")
     input.bind("<C-t>", "quickOpen.openFileNewTab")
 
     // Completion
-    input.bind(["<enter>", "<tab>"], "completion.complete")
-    input.bind(["<down>", "<C-n>"], "completion.next")
-    input.bind(["<up>", "<C-p>"], "completion.previous")
+    input.bind(["<enter>", "<tab>"], "completion.complete", isInsertOrCommandMode)
+    input.bind(["<down>", "<C-n>"], "completion.next", isInsertOrCommandMode)
+    input.bind(["<up>", "<C-p>"], "completion.previous", isInsertOrCommandMode)
 
     // Menu
     input.bind(["<down>", "<C-n>"], "menu.next")

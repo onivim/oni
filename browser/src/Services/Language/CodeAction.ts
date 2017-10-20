@@ -11,10 +11,9 @@
 // import * as UI from "./../../UI"
 
 import { languageManager } from "./LanguageManager"
+import * as Log from "./../../Log"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-
-import * as Log from "./../../Log"
 
 // TODO:
 // - Factor out event context to something simpler
@@ -25,6 +24,8 @@ export const checkCodeActions = async (evt: Oni.EventContext) => {
             Helpers.eventContextToCodeActionParams(evt))
 
         // TODO:
-        Log.info(result)
+        if (result) {
+            Log.info(result)
+        }
     }
 }
