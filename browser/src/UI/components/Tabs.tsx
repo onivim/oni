@@ -9,7 +9,7 @@ import { connect } from "react-redux"
 
 import * as classNames from "classnames"
 
-import * as Selectors from "./../Selectors"
+import * as BufferSelectors from "./../selectors/BufferSelectors"
 import * as State from "./../State"
 
 import { Icon } from "./../Icon"
@@ -134,7 +134,7 @@ const getTabState = (state: State.IState) => state.tabState
 const getTabsFromBuffers = createSelector(
     [getBufferState],
     (buffers) => {
-        const allBuffers = Selectors.getAllBuffers(buffers)
+        const allBuffers = BufferSelectors.getAllBuffers(buffers)
         const tabs = allBuffers.map((buf): ITabProps => ({
             id: buf.id,
             name: getTabName(buf.file),
