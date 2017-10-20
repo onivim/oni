@@ -78,7 +78,7 @@ export interface IState {
 
 export interface IDefinition {
     token: Oni.IToken
-    definitionLocation: Location
+    definitionLocation: types.Location
 }
 
 export enum MessageType {

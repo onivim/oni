@@ -32,7 +32,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     }
 
     input.bind("<f3>", "language.formatter.formatDocument")
-    // input.bind("<f12>", "oni.editor.gotoDefinition")
+    input.bind("<f12>", "oni.editor.gotoDefinition")
     input.bind("<S-C-P>", "commands.show", isNormalMode)
     input.bind("<C-pageup>", "oni.process.cyclePrevious")
     input.bind("<C-pagedown>", "oni.process.cycleNext")

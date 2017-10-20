@@ -9,28 +9,33 @@ import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-import { PluginManager } from "./../../Plugins/PluginManager"
 
 import * as UI from "./../../UI"
 
-// TODO:
-// - Factor out event context to something simpler
-// - Remove plugin manager
-export const getDefinition = async (pluginManager: PluginManager) => {
-
+const getActiveBuffer = (): Oni.Buffer => {
     const activeEditor = editorManager.activeEditor
 
     if (!activeEditor) {
-        return
+        return null
     }
 
     const activeBuffer = activeEditor.activeBuffer
 
     if (!activeBuffer) {
-        return
+        return null
     }
 
-    if (languageManager.isLanguageServerAvailable(activeBuffer.language)) {
+    return activeBuffer
+}
+
+// TODO:
+// - Factor out event context to something simpler
+// - Remove plugin manager
+export const getDefinition = async () => {
+
+    const activeBuffer = getActiveBuffer()
+
+    if (activeBuffer && languageManager.isLanguageServerAvailable(activeBuffer.language)) {
         const args = { ...Helpers.bufferToTextDocumentPositionParams(activeBuffer) }
 
         const { line, column } = activeBuffer.cursor
@@ -41,12 +46,26 @@ export const getDefinition = async (pluginManager: PluginManager) => {
     }
 }
 
-export const gotoDefinitionUnderCursor = () => {
-    alert("Going to definition!")
-    // TODO: Execute goto definition
+export const gotoDefinitionUnderCursor = async () => {
+    // alert("Going to definition!")
 
-                // const { filePath, line, column } = pluginResponse.payload
-                // this._neovimInstance.command("e! " + filePath)
+    const activeDefinition = UI.Selectors.getActiveDefinition()
+
+    if (!activeDefinition) {
+        return
+    }
+
+    const { uri, range } = activeDefinition.definitionLocation
+
+    const line = range.start.line
+    const column = range.start.character
+
+    const activeEditor = editorManager.activeEditor
+    const filePath = Helpers.unwrapFileUriPath(uri)
+    activeEditor.neovim.command("tabnew! " + filePath)
+    activeEditor.neovim.command(`cal cursor(${line}, ${column})`)
+    activeEditor.neovim.command("norm zz")
+
                 // this._neovimInstance.command(`cal cursor(${line}, ${column})`)
                 // this._neovimInstance.command("norm zz")
 

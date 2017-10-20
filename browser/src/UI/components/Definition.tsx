@@ -46,8 +46,9 @@ export class Definition extends React.PureComponent<IDefinitionProps, void> {
             top: startPixelPosition.pixelY + "px",
             left: startPixelPosition.pixelX + "px",
             height: this.props.fontHeightInPixels + "px",
-            width: (endPixelPosition.pixelX - startPixelPosition.pixelX) + "px",
+            width: (endPixelPosition.pixelX - startPixelPosition.pixelX + this.props.fontWidthInPixels) + "px",
             borderBottom: "1px solid " + this.props.color,
+            opacity: 0.4,
         }
 
         return <div className="definition" style={style} />

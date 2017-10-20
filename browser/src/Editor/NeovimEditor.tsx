@@ -385,7 +385,7 @@ export class NeovimEditor implements IEditor {
                 checkAndShowQuickInfo(evt, this._pluginManager)
             }
 
-            getDefinition(this._pluginManager)
+            getDefinition()
             checkCodeActions(evt)
         } else if (eventName === "CursorMovedI") {
             showSignatureHelp(evt, this._pluginManager)
