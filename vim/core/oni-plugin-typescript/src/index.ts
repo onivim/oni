@@ -10,7 +10,7 @@
 import * as os from "os"
 import * as path from "path"
 
-import { CompletionItemKind, Diagnostic, Position, Range, SymbolKind } from "vscode-languageserver-types"
+import { CompletionItemKind, Diagnostic, Position, Range, SignatureHelp, SignatureInformation, SymbolKind } from "vscode-languageserver-types"
 
 import { QuickInfo } from "./QuickInfo"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
@@ -207,29 +207,37 @@ export const activate = (Oni) => {
             })
     }
 
-    const getSignatureHelp = (textDocumentPosition: Oni.EventContext) => {
-        return host.getSignatureHelp(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
-            .then((result) => {
-                const items = result.items || []
+    const getSignatureHelp = async (textDocumentPosition: Oni.EventContext): Promise<SignatureHelp> => {
+        const result = await host.getSignatureHelp(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
 
-                const signatureHelpItems = items.map((item) => ({
-                    variableArguments: item.isVariadic,
-                    prefix: convertToDisplayString(item.prefixDisplayParts),
-                    suffix: convertToDisplayString(item.suffixDisplayParts),
-                    separator: convertToDisplayString(item.separatorDisplayParts),
-                    parameters: item.parameters.map((p) => ({
-                        text: convertToDisplayString(p.displayParts),
-                        documentation: convertToDisplayString(p.documentation),
-                    })),
-                }))
+        const items = result.items || []
 
-                return {
-                    items: signatureHelpItems,
-                    selectedItemIndex: result.selectedItemIndex,
-                    argumentCount: result.argumentCount,
-                    argumentIndex: result.argumentIndex,
-                }
-            })
+        const signatureHelpItems = items.map((item): SignatureInformation => {
+            const prefix = convertToDisplayString(item.prefixDisplayParts)
+            const suffix = convertToDisplayString(item.suffixDisplayParts)
+            const separator = convertToDisplayString(item.separatorDisplayParts)
+
+            const parameters = item.parameters.map((p) => ({
+                label: convertToDisplayString(p.displayParts),
+                documentation: convertToDisplayString(p.documentation),
+            }))
+
+            const parameterLabels = parameters.map((p) => p.label)
+
+            const label = prefix + parameterLabels.join(separator) + suffix
+
+            return {
+                label,
+                documentation: convertToDisplayString(item.documentation),
+                parameters,
+            }
+        })
+
+        return {
+            signatures: signatureHelpItems,
+            activeSignature: result.selectedItemIndex,
+            activeParameter: result.argumentIndex,
+        }
     }
 
     Oni.registerLanguageService({

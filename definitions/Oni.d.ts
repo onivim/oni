@@ -312,28 +312,6 @@ declare namespace Oni {
             errors?: string[]
         }
 
-        export interface SignatureHelpItem {
-            variableArguments: boolean
-            prefix: string
-            suffix: string
-            separator: string
-            parameters: SignatureHelpParameter[]
-        }
-
-        export interface SignatureHelpParameter {
-            text: string
-            documentation: string
-        }
-
-        export interface SignatureHelpResult {
-            items: SignatureHelpItem[]
-            selectedItemIndex: number
-            argumentIndex: number
-            argumentCount: number
-
-            error?: string
-        }
-
         export interface ReferencesResultItem extends Position {
             fullPath: string
             lineText?: string
@@ -350,7 +328,7 @@ declare namespace Oni {
 
             findAllReferences?(position: EventContext): Promise<ReferencesResult>
 
-            getSignatureHelp?(position: EventContext): Promise<SignatureHelpResult>
+            getSignatureHelp?(position: EventContext): Promise<types.SignatureHelp>
 
             getQuickInfo?(position: EventContext): Promise<QuickInfo>
             getDefinition?(position: EventContext): Promise<GotoDefinitionResponse>

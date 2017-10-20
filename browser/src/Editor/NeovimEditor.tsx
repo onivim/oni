@@ -27,7 +27,7 @@ import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { checkAndShowQuickInfo, showReferencesInQuickFix } from "./../Services/Language"
+import { checkAndShowQuickInfo, showReferencesInQuickFix, showSignatureHelp } from "./../Services/Language"
 import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
@@ -339,7 +339,6 @@ export class NeovimEditor implements IEditor {
 
         if (newMode === "normal") {
             UI.Actions.hideCompletions()
-            UI.Actions.hideSignatureHelp()
         } else if (newMode.indexOf("cmdline") >= 0) {
             UI.Actions.hideCompletions()
         }
@@ -366,7 +365,6 @@ export class NeovimEditor implements IEditor {
             this._onBufferEnterEvent.dispatch(buf)
 
             UI.Actions.hideCompletions()
-            UI.Actions.hideSignatureHelp()
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
         } else if (eventName === "BufWritePost") {
@@ -386,6 +384,8 @@ export class NeovimEditor implements IEditor {
                 // First, check if there is a language client registered...
                 checkAndShowQuickInfo(evt, this._pluginManager)
             }
+        } else if (eventName === "CursorMovedI") {
+            showSignatureHelp(evt, this._pluginManager)
         }
     }
 

@@ -53,6 +53,10 @@ export class PluginManager extends EventEmitter {
         this._sendLanguageServiceRequest("quick-info", eventContext)
     }
 
+    public checkSignatureHelp(eventContext: Oni.EventContext): void {
+        this._sendLanguageServiceRequest("signature-help", eventContext)
+    }
+
     public gotoDefinition(): void {
         this._sendLanguageServiceRequest("goto-definition", this._lastEventContext)
     }
@@ -111,7 +115,6 @@ export class PluginManager extends EventEmitter {
         }, Capabilities.createPluginFilter(eventContext.filetype))
 
         if (this._config.getValue("editor.completions.enabled")) {
-            this._sendLanguageServiceRequest("signature-help", eventContext)
             this._sendLanguageServiceRequest("completion-provider", eventContext)
         }
     }
