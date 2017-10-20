@@ -96,7 +96,7 @@ declare namespace Oni {
 
         lineCount: number
 
-        // getLines(start?: number, end?: number): Promise<string[]>
+        getLines(start?: number, end?: number): Promise<string[]>
         getTokenAt(line: number, column: number): Promise<IToken>
     }
 

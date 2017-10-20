@@ -73,7 +73,6 @@ export class NeovimEditor implements IEditor {
     private _isFirstRender: boolean = true
 
     private _lastBufferId: string = null
-    private _currentBufferLines: string[] = null
 
     public get mode(): string {
         return this._currentMode
@@ -183,10 +182,13 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.onBufferUpdate.subscribe((bufferUpdateEvent: IFullBufferUpdateEvent) => {
             const args = bufferUpdateEvent.context
-            this._currentBufferLines = bufferUpdateEvent.bufferLines
-            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, this._currentBufferLines)
 
             const buf = this._bufferManager.updateBufferFromEvent(args)
+            buf._notifyBufferUpdated(bufferUpdateEvent.bufferLines, args.version)
+
+            buf.getLines(0, buf.lineCount).then((lines) => {
+                UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, lines)
+            })
 
             this._onBufferChangedEvent.dispatch({
                 buffer: buf,
@@ -199,12 +201,12 @@ export class NeovimEditor implements IEditor {
             const lineNumber = bufferUpdateArgs.lineNumber
             const changedLine = bufferUpdateArgs.lineContents
 
-            // Clone the current set of lines and update
-            this._currentBufferLines = [...this._currentBufferLines]
-            this._currentBufferLines[lineNumber] = changedLine
-            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, this._currentBufferLines)
-
             const buf = this._bufferManager.updateBufferFromEvent(args)
+            buf._notifyBufferUpdatedAt(lineNumber, changedLine, args.version)
+
+            buf.getLines(0, buf.lineCount).then((lines) => {
+                UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, lines)
+            })
 
             this._onBufferChangedEvent.dispatch({
                 buffer: buf,
@@ -213,6 +215,11 @@ export class NeovimEditor implements IEditor {
                     text: changedLine + os.EOL,
                 }],
             })
+
+            window.setTimeout(() => {
+                showSignatureHelp(args)
+                checkForCompletions(args, this._pluginManager)
+            }, 49)
         })
 
         this._render()
@@ -345,7 +352,6 @@ export class NeovimEditor implements IEditor {
                 })
             }
 
-            this._currentBufferLines = null
             this._lastBufferId = evt.bufferNumber.toString()
             this._onBufferEnterEvent.dispatch(buf)
 
@@ -370,9 +376,6 @@ export class NeovimEditor implements IEditor {
 
             getDefinition()
             checkCodeActions(evt)
-        } else if (eventName === "CursorMovedI") {
-            showSignatureHelp(evt)
-            checkForCompletions(evt, this._pluginManager)
         }
     }
 

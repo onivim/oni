@@ -66,6 +66,10 @@ export class LanguageManager {
         return /[_a-z]/i
     }
 
+    public getSignatureHelpTriggerCharacters(language: string): string[] {
+        return ["("]
+    }
+
     public isLanguageServerAvailable(language: string): boolean {
         return !!this._getLanguageClient(language)
     }
