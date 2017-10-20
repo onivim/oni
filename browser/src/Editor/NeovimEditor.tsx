@@ -27,7 +27,7 @@ import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { checkAndShowQuickInfo, checkForCompletions, checkCodeActions, getDefinition, showSignatureHelp } from "./../Services/Language"
+import { checkAndShowQuickInfo, checkCodeActions, checkForCompletions, getDefinition, showSignatureHelp } from "./../Services/Language"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 

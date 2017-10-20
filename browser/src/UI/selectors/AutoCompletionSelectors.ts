@@ -37,7 +37,7 @@ export const getAutoCompletion = createSelector(
     // Work backward in the buffer to see if there is a match...
 
     // for(let i = column; i >= 0; i--) {
-        
+
     // }
 
     // if (completion.filePath !== file

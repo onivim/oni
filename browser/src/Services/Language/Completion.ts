@@ -43,24 +43,25 @@ export const checkForCompletions = async (evt: Oni.EventContext, pluginManager: 
 
     }
 }
-    const getCompletionItems = (items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[]  => {
-        if (!items) {
-            return []
-        }
 
-        if (Array.isArray(items)) {
-            return items
-        } else {
-            return items.items || []
-        }
+const getCompletionItems = (items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[] => {
+    if (!items) {
+        return []
     }
 
-    const getCompletionDocumentation = (item: types.CompletionItem): string | null=> {
-        if (item.documentation) {
-            return item.documentation
-        } else if (item.data && item.data.documentation) {
-            return item.data.documentation
-        } else {
-            return null
-        }
+    if (Array.isArray(items)) {
+        return items
+    } else {
+        return items.items || []
     }
+}
+
+const getCompletionDocumentation = (item: types.CompletionItem): string | null => {
+    if (item.documentation) {
+        return item.documentation
+    } else if (item.data && item.data.documentation) {
+        return item.data.documentation
+    } else {
+        return null
+    }
+}

@@ -25,7 +25,7 @@ export function locatableHigherOrderReducer<T>(innerReducer: (s: T, a: any) => T
                     filePath,
                     line,
                     column,
-                    data: newState
+                    data: newState,
                 }
             } else {
                 return {
