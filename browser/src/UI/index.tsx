@@ -11,6 +11,7 @@ import { RootComponent } from "./RootComponent"
 import * as ActionCreators from "./ActionCreators"
 import { reducer } from "./Reducer"
 import * as UnboundSelectors from "./Selectors"
+import { getActiveDefinition } from "./selectors/DefinitionSelectors"
 import * as State from "./State"
 
 import { editorManager } from "./../Services/EditorManager"
@@ -39,6 +40,7 @@ export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators 
 export const Selectors = {
     areCompletionsVisible: () => UnboundSelectors.areCompletionsVisible(store.getState() as any),
     getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState() as any),
+    getActiveDefinition: () => getActiveDefinition(store.getState() as any),
 }
 
 export function init(pluginManager: PluginManager, args: any): void {

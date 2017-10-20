@@ -46,25 +46,6 @@ export class PluginManager extends EventEmitter {
         this._channel.host.onResponse((arg: any) => this._handlePluginResponse(arg))
     }
 
-    // TODO: Deprecate this once the Language functionality has been migrated out
-    // Also deprecate the `Oni.EventContext`, as once that surface area is removed,
-    // it can be purely internal
-    public checkHover(eventContext: Oni.EventContext): void {
-        this._sendLanguageServiceRequest("quick-info", eventContext)
-    }
-
-    public getCompletions(eventContext: Oni.EventContext): void {
-        this._sendLanguageServiceRequest("completion-provider", eventContext)
-    }
-
-    public gotoDefinition(): void {
-        this._sendLanguageServiceRequest("goto-definition", this._lastEventContext)
-    }
-
-    public findAllReferences(): void {
-        this._sendLanguageServiceRequest("find-all-references", this._lastEventContext)
-    }
-
     public requestFormat(): void {
         this._sendLanguageServiceRequest("format", this._lastEventContext, "formatting")
     }
@@ -74,10 +55,6 @@ export class PluginManager extends EventEmitter {
 
         this._neovimInstance.on("event", (eventName: string, context: Oni.EventContext) => {
             this._onEvent(eventName, context)
-        })
-
-        this._neovimInstance.on("directory-changed", (newDirectory: string) => {
-            this._onWorkingDirectoryChanged(newDirectory)
         })
 
         const allPlugins = this._getAllPluginPaths()
@@ -113,11 +90,6 @@ export class PluginManager extends EventEmitter {
                 bufferLine,
             },
         }, Capabilities.createPluginFilter(eventContext.filetype))
-
-        if (this._config.getValue("editor.completions.enabled")) {
-            this._sendLanguageServiceRequest("signature-help", eventContext)
-            this.getCompletions(eventContext)
-        }
     }
 
     private _createPlugin(pluginRootDirectory: string): Plugin {
@@ -148,17 +120,6 @@ export class PluginManager extends EventEmitter {
                     }, this._config.getValue("editor.quickInfo.delay"))
                 }
                 break
-            case "goto-definition":
-                if (!this._validateOriginEventMatchesCurrentEvent(pluginResponse)) {
-                    return
-                }
-
-                // TODO: Refactor to 'Service', break remaining NeoVim dependencies
-                const { filePath, line, column } = pluginResponse.payload
-                this._neovimInstance.command("e! " + filePath)
-                this._neovimInstance.command(`cal cursor(${line}, ${column})`)
-                this._neovimInstance.command("norm zz")
-                break
             case "completion-provider":
                 if (!pluginResponse.payload) {
                     return
@@ -174,9 +135,6 @@ export class PluginManager extends EventEmitter {
             case "set-errors":
                 this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors)
                 break
-            case "find-all-references":
-                this.emit("find-all-references", pluginResponse.payload.references)
-                break
             case "format":
                 this.emit("format", pluginResponse.payload)
                 break
@@ -189,18 +147,6 @@ export class PluginManager extends EventEmitter {
             default:
                 this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)
         }
-    }
-
-    private _onWorkingDirectoryChanged(newDirectory: string): void {
-        const filetype = this._lastEventContext ? this._lastEventContext.filetype : ""
-
-        this._channel.host.send({
-            type: "event",
-            payload: {
-                name: "directory-changed",
-                context: newDirectory,
-            },
-        }, Capabilities.createPluginFilter(filetype))
     }
 
     private _onEvent(eventName: string, eventContext: Oni.EventContext): void {

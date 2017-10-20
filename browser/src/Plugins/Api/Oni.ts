@@ -20,10 +20,9 @@ import { menuManager } from "./../../Services/Menu"
 import { recorder } from "./../../Services/Recorder"
 import { statusBar } from "./../../Services/StatusBar"
 import { windowManager, WindowManager } from "./../../Services/WindowManager"
+import { workspace } from "./../../Services/Workspace"
 
 import * as Log from "./../../Log"
-
-import * as UI from "./../../UI"
 
 import * as throttle from "lodash/throttle"
 
@@ -110,6 +109,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return windowManager
     }
 
+    public get workspace(): Oni.Workspace {
+        return workspace
+    }
+
     public get helpers(): any {
         return helpers
     }
@@ -151,27 +154,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return Process.spawnNodeScript(scriptPath, args, options)
     }
 
-    public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {
-        this._channel.send("set-syntax-highlights", null, {
-            file,
-            key,
-            highlights,
-        })
-    }
-
-    public clearHighlights(file: string, key: string): void {
-        this._channel.send("clear-syntax-highlights", null, {
-            file,
-            key,
-        })
-    }
-
     private _handleNotification(arg: any): void {
-        if (arg.type === "buffer-update") {
-            this.emit("buffer-update", arg.payload)
-        } else if (arg.type === "buffer-update-incremental") {
-            this.emit("buffer-update-incremental", arg.payload)
-        } else if (arg.type === "event") {
+        if (arg.type === "event") {
 
             if (arg.payload.name === "CursorMoved") {
                 this.emit("cursor-moved", arg.payload.context)
@@ -197,45 +181,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
             }
 
             switch (requestType) {
-                case "quick-info":
-                    this._languageService.getQuickInfo(arg.payload.context)
-                        .then((quickInfo) => {
-                            if (quickInfo && quickInfo.title) {
-                                this._channel.send("show-quick-info", originalContext, {
-                                    info: quickInfo.title,
-                                    documentation: quickInfo.description,
-                                })
-                            } else {
-                                this._channel.send("show-quick-info", originalContext, {
-                                    info: null,
-                                    documentation: null,
-                                })
-                            }
-                        }, (err) => {
-                            this._channel.send("show-quick-info", originalContext, {
-                                info: null,
-                                documentation: null,
-                            })
-                        })
-                    break
-                case "goto-definition":
-                    languageService.getDefinition(arg.payload.context)
-                        .then((definitionPosition) => {
-                            this._channel.send("goto-definition", originalContext, {
-                                filePath: definitionPosition.filePath,
-                                line: definitionPosition.line,
-                                column: definitionPosition.column,
-                            })
-                        })
-                    break
-                case "find-all-references":
-                    languageService.findAllReferences(arg.payload.context)
-                        .then((references) => {
-                            this._channel.send("find-all-references", originalContext, {
-                                references,
-                            })
-                        })
-                    break
                 case "completion-provider":
                     languageService.getCompletions(arg.payload.context)
                         .then((completions) => {
@@ -256,14 +201,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                     languageService.getFormattingEdits(arg.payload.context)
                         .then((formattingResponse) => {
                             this._channel.send("format", originalContext, formattingResponse)
-                        })
-                    break
-                case "signature-help":
-                    languageService.getSignatureHelp(arg.payload.context)
-                        .then((val) => {
-                            UI.Actions.showSignatureHelp(val)
-                        }, (err) => {
-                            UI.Actions.hideSignatureHelp()
                         })
                     break
                 default:

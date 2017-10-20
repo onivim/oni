@@ -13,8 +13,7 @@ import * as Log from "./../../Log"
 
 import { editorManager } from "./../EditorManager"
 
-import { LanguageClient2 } from "./LanguageClient2"
-import { ILanguageClientProcess } from "./LanguageClientProcess"
+import { ILanguageClient } from "./LanguageClient2"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -25,7 +24,7 @@ export interface ILanguageServerNotificationResponse {
 
 export class LanguageManager {
 
-    private _languageServerInfo: { [language: string]: LanguageClient2 } = {}
+    private _languageServerInfo: { [language: string]: ILanguageClient } = {}
 
     private _notificationSubscriptions: { [notificationMessage: string]: Event<any> }  = {}
 
@@ -110,14 +109,11 @@ export class LanguageManager {
         }
     }
 
-    public registerLanguageClientFromProcess(language: string, languageProcess: ILanguageClientProcess): any {
-
+    public registerLanguageClient(language: string, languageClient: ILanguageClient): any {
         if (this._languageServerInfo[language]) {
             Log.error("Duplicate language server registered for: " + language)
             return
         }
-
-        const languageClient = new LanguageClient2(language, languageProcess)
 
         Object.keys(this._notificationSubscriptions).forEach((notification) => {
             languageClient.subscribe(notification, this._notificationSubscriptions[notification])
@@ -126,7 +122,7 @@ export class LanguageManager {
         this._languageServerInfo[language]  = languageClient
     }
 
-    private _getLanguageClient(language: string): LanguageClient2 {
+    private _getLanguageClient(language: string): ILanguageClient {
         return this._languageServerInfo[language]
     }
 }

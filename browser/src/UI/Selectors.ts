@@ -84,7 +84,7 @@ export const getActiveWindow = (state: State.IState): State.IWindow => {
     return state.windowState.windows[activeWindow]
 }
 
-export const getQuickInfo = (state: State.IState): Oni.Plugin.QuickInfo => {
+export const getQuickInfo = (state: State.IState): State.IQuickInfo => {
     const win = getActiveWindow(state)
 
     if (!win) {

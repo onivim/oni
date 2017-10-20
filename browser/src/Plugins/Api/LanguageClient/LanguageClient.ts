@@ -5,8 +5,6 @@
  * https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md
  */
 
-import * as os from "os"
-
 import * as isEqual from "lodash/isEqual"
 import * as rpc from "vscode-jsonrpc"
 import * as types from "vscode-languageserver-types"
@@ -121,7 +119,6 @@ export class LanguageClient {
 
         this._oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdate(args))
-                .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
         })
 
         this._oni.on("buffer-leave", (args: Oni.EventContext) => {
@@ -130,30 +127,14 @@ export class LanguageClient {
 
         this._oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
             return this._enqueuePromise(() => this._onBufferUpdateIncremental(args))
-                .then(() => this._enqueuePromise(() => this._updateHighlights(args.eventContext.bufferFullPath)))
         })
-
-        const getQuickInfo = (textDocumentPosition: Oni.EventContext) => {
-            return this._enqueuePromise(() => this._getQuickInfo(textDocumentPosition))
-        }
-
-        const getDefinition = (textDocumentPosition: Oni.EventContext) => {
-            return this._enqueuePromise(() => this._getDefinition(textDocumentPosition))
-        }
 
         const getCompletions = (textDocumentPosition: Oni.EventContext) => {
             return this._enqueuePromise(() => this._getCompletions(textDocumentPosition))
         }
 
-        const findAllReferences = (textDocumentPosition: Oni.EventContext) => {
-            return this._enqueuePromise(() => this._getReferences(textDocumentPosition))
-        }
-
         this._oni.registerLanguageService({
-            findAllReferences,
             getCompletions,
-            getDefinition,
-            getQuickInfo,
         })
     }
 
@@ -301,51 +282,6 @@ export class LanguageClient {
         }
     }
 
-    private async _getReferences(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.ReferencesResult> {
-        const args = {
-            ...Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition),
-            context: {
-                includeDeclaration: true,
-            },
-        }
-
-        const result = await this._connection.sendRequest<types.Location[]>(
-            Helpers.ProtocolConstants.TextDocument.References,
-            args)
-
-        const getToken = (buffer: string[], line: number, character: number): string => {
-            const lineContents = buffer[line]
-
-            const tokenStart = getLastMatchingCharacter(lineContents, character, -1, characterMatchRegex)
-            const tokenEnd = getLastMatchingCharacter(lineContents, character, 1, characterMatchRegex)
-
-            return lineContents.substring(tokenStart, tokenEnd + 1)
-        }
-
-        const getLastMatchingCharacter = (lineContents: string, character: number, dir: number, regex: RegExp) => {
-            while (character >= 0 && character < lineContents.length) {
-                if (!lineContents[character].match(regex)) {
-                    return character - dir
-                }
-
-                character += dir
-            }
-
-            return character
-        }
-
-        const locationToReferences = (location: types.Location): Oni.Plugin.ReferencesResultItem => ({
-            fullPath: Helpers.unwrapFileUriPath(location.uri),
-            line: location.range.start.line,
-            column: location.range.start.character,
-        })
-
-        return {
-            tokenName: getToken(this._currentBuffer, textDocumentPosition.line - 1, textDocumentPosition.column - 1),
-            items: result.map((l) => locationToReferences(l)),
-        }
-    }
-
     private async _getCompletions(textDocumentPosition: Oni.EventContext): Promise<Oni.Plugin.CompletionResult> {
         if (!this._serverCapabilities || !this._serverCapabilities.completionProvider) {
             return null
@@ -382,87 +318,6 @@ export class LanguageClient {
             base: meetInfo.base,
             completions,
         }
-    }
-
-    private async _updateHighlights(bufferFullPath: string): Promise<void> {
-        if (!this._serverCapabilities || !this._serverCapabilities.documentSymbolProvider) {
-            return null
-        }
-
-        if (!this._initializationParams || this._initializationParams.disableDocumentSymbol) {
-            return null
-        }
-
-        const symbolInformation = await this._connection.sendRequest<types.SymbolInformation[]>(
-            Helpers.ProtocolConstants.TextDocument.DocumentSymbol,
-            Helpers.pathToTextDocumentIdentifierParms(bufferFullPath))
-
-        const oniHighlights: Oni.Plugin.SyntaxHighlight[] = symbolInformation.map((v) => ({ highlightKind: v.kind, token: v.name }))
-        this._oni.setHighlights(bufferFullPath, "language-client", oniHighlights)
-    }
-
-    private _getQuickInfo(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.QuickInfo> {
-        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.Hover,
-            Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
-            .then((result: types.Hover) => {
-                if (!result || !result.contents) {
-                    return null
-                }
-
-                const contents = Helpers.getTextFromContents(result.contents)
-
-                if (contents.length === 0) {
-                    return null
-                } else if (contents.length === 1 && contents[0]) {
-                    const title = contents[0].trim()
-
-                    if (!title) {
-                        return null
-                    }
-
-                    return {
-                        title,
-                        description: "",
-                    }
-                } else {
-
-                    const description = [...contents]
-                    description.shift()
-                    const descriptionContent = description.join(os.EOL)
-
-                    return {
-                        title: contents[0],
-                        description: descriptionContent,
-                    }
-                }
-            })
-    }
-
-    private _getDefinition(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.GotoDefinitionResponse> {
-        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.Definition,
-            Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
-            .then((result: types.Location & types.Location[]) => {
-                if (!result) {
-                    return null
-                }
-
-                if (result.length === 0) {
-                    return null
-                }
-
-                let location: types.Location = result
-
-                if (result.length) {
-                    location = result[0]
-                }
-
-                const startPos = location.range.start || location.range.end
-                return {
-                    filePath: Helpers.unwrapFileUriPath(location.uri),
-                    line: startPos.line + 1,
-                    column: startPos.character + 1,
-                }
-            })
     }
 
     private _onBufferUpdateIncremental(args: Oni.IncrementalBufferUpdateContext): Thenable<void> {

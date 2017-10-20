@@ -182,11 +182,12 @@ export interface ISetColorsAction {
 
 export interface IShowSignatureHelpAction {
     type: "SHOW_SIGNATURE_HELP",
-    payload: Oni.Plugin.SignatureHelpResult
-}
-
-export interface IHideSignatureHelpAction {
-    type: "HIDE_SIGNATURE_HELP"
+    payload: {
+        filePath: string,
+        line: number,
+        column: number,
+        signatureHelp: types.SignatureHelp,
+    }
 }
 
 export interface IShowQuickInfoAction {
@@ -197,6 +198,17 @@ export interface IShowQuickInfoAction {
         column: number,
         title: string,
         description: string,
+    }
+}
+
+export interface ISetDefinitionAction {
+    type: "SET_DEFINITION",
+    payload: {
+        filePath: string,
+        line: number,
+        column: number,
+        token: Oni.IToken,
+        definitionLocation: types.Location,
     }
 }
 
@@ -244,7 +256,6 @@ export type SimpleAction =
     ISetImeActive |
     ISetFont |
     IShowSignatureHelpAction |
-    IHideSignatureHelpAction |
     IShowQuickInfoAction |
     IShowAutoCompletionAction |
     INextAutoCompletionAction |
@@ -252,6 +263,7 @@ export type SimpleAction =
     ISetAutoCompletionDetails |
     IShowMessageDialog |
     IHideMessageDialog |
+    ISetDefinitionAction |
     ISetModeAction |
     ISetColorsAction |
     IStatusBarHideAction |

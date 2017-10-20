@@ -61,12 +61,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                             description,
                         },
                 }}
-        case "SHOW_SIGNATURE_HELP":
-            return {...s,
-                    signatureHelp: a.payload}
-        case "HIDE_SIGNATURE_HELP":
-            return {...s,
-                    signatureHelp: null}
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value
@@ -86,12 +80,47 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         default:
             return {...s,
                     buffers: buffersReducer(s.buffers, a),
+                    definition: definitionReducer(s.definition, a),
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
                     autoCompletion: autoCompletionReducerWithLocation(s.autoCompletion, a), // FIXME: null
                     quickInfo: quickInfoReducerWithLocation(s.quickInfo, a),
+                    signatureHelp: signatureHelpReducer(s.signatureHelp, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     windowState: windowStateReducer(s.windowState, a)}
+    }
+}
+
+export const definitionReducer = (s: State.ILocatable<State.IDefinition>, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "SET_DEFINITION":
+            const { filePath, line, column, definitionLocation, token } = a.payload
+            return {...s,
+                    filePath,
+                    line,
+                    column,
+                    data: {
+                            definitionLocation,
+                            token,
+                        },
+                }
+        default:
+            return s
+    }
+}
+
+export const signatureHelpReducer = (s: State.ILocatable<types.SignatureHelp>, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "SHOW_SIGNATURE_HELP":
+            const { filePath, line, column, signatureHelp } = a.payload
+            return {...s,
+                    filePath,
+                    line,
+                    column,
+                    data: signatureHelp,
+            }
+        default:
+            return s
     }
 }
 

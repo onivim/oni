@@ -17,6 +17,11 @@ declare namespace Oni {
         (val: T): void
     }
 
+    export interface IToken {
+        tokenName: string
+        range: types.Range
+    }
+
     export interface Event<T> {
         subscribe(callback: EventCallback<T>)
     }
@@ -24,6 +29,10 @@ declare namespace Oni {
     export interface Configuration {
         onConfigurationChanged: Event<any>
         getValue<T>(configValue: string, defaultValue?: T): T
+    }
+
+    export interface Workspace {
+        onDirectoryChanged: Event<string>
     }
 
     export interface IWindowManager {
@@ -88,7 +97,7 @@ declare namespace Oni {
         lineCount: number
 
         // getLines(start?: number, end?: number): Promise<string[]>
-        getTokenAt(line: number, column: number): Promise<string>
+        getTokenAt(line: number, column: number): Promise<IToken>
     }
 
     // Zero-based position of the cursor
@@ -147,20 +156,6 @@ declare namespace Oni {
         dispose(): void
     }
 
-    export interface Position {
-        line: number
-        column: number
-    }
-
-    export interface Range {
-        start: Position
-        end: Position
-    }
-
-    export interface TextEdit extends Range {
-        newValue: string
-    }
-
     /**
      * Describes the change of an entire buffer
      */
@@ -207,15 +202,6 @@ declare namespace Oni {
         windowBottomLine: number
     }
 
-    // export interface TextDocumentPosition {
-    //     // TODO: Reconcile these - remove buffer
-    //     bufferFullPath?: string
-    //     filePath?: string
-    //     line: number
-    //     column: number
-    //     byte?: number
-    // }
-
     export namespace Menu {
         export interface MenuOption {
             /**
@@ -241,21 +227,10 @@ declare namespace Oni {
             }
         }
 
-        export interface QuickInfo {
-            title: string
-            description: string
-
-            error?: string
-        }
-
-        export interface GotoDefinitionResponse extends Position {
-            filePath: string
-        }
-
         export interface FormattingEditsResponse {
             filePath: string
             version: number
-            edits: TextEdit[]
+            edits: any[]
         }
 
         export interface Api extends EventEmitter {
@@ -263,13 +238,12 @@ declare namespace Oni {
             diagnostics: Diagnostics.Api
             editors: EditorManager
             input: InputManager
+            menu: any; /* TODO */
             process: Process
             statusBar: StatusBar
+            workspace: Workspace
 
             registerLanguageService(languageService: LanguageService)
-
-            clearHighlights(file: string, key: string)
-            setHighlights(file: string, key: string, highlights: SyntaxHighlight[])
         }
 
         export interface CompletionResult {
@@ -283,13 +257,6 @@ declare namespace Oni {
             error?: string
         }
 
-        export interface SyntaxHighlight {
-            highlightKind: types.SymbolKind
-            token: string
-        }
-
-        //export type CompletionKind = "method" | "function" | "var"
-
         export interface CompletionInfo {
             highlightColor?: string,
             kind?: types.CompletionItemKind
@@ -299,60 +266,11 @@ declare namespace Oni {
             insertText?: string
         }
 
-        export interface EvaluationResult {
-            line: number
-            result: any
-            variables?: any
-            output?: string[]
-            errors?: string[]
-        }
-
-        export interface SignatureHelpItem {
-            variableArguments: boolean
-            prefix: string
-            suffix: string
-            separator: string
-            parameters: SignatureHelpParameter[]
-        }
-
-        export interface SignatureHelpParameter {
-            text: string
-            documentation: string
-        }
-
-        export interface SignatureHelpResult {
-            items: SignatureHelpItem[]
-            selectedItemIndex: number
-            argumentIndex: number
-            argumentCount: number
-
-            error?: string
-        }
-
-        export interface ReferencesResultItem extends Position {
-            fullPath: string
-            lineText?: string
-        }
-
-        export interface ReferencesResult {
-            tokenName: string
-            items: ReferencesResultItem[]
-        }
-
         export interface LanguageService {
             getCompletions?(position: EventContext): Promise<CompletionResult>
             getCompletionDetails?(position: EventContext, completionInfo: CompletionInfo): Promise<CompletionInfo>
 
-            findAllReferences?(position: EventContext): Promise<ReferencesResult>
-
-            getSignatureHelp?(position: EventContext): Promise<SignatureHelpResult>
-
-            getQuickInfo?(position: EventContext): Promise<QuickInfo>
-            getDefinition?(position: EventContext): Promise<GotoDefinitionResponse>
-
             getFormattingEdits?(position: EventContext): Promise<FormattingEditsResponse>
-
-            evaluateBlock?(context: EventContext, id: string, fileName: string, code: string): Promise<EvaluationResult>
         }
     }
 }
