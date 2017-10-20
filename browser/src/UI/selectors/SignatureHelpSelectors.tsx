@@ -24,9 +24,8 @@ export const getSignatureHelp = createSelector(
     }
 
     if (signatureHelp.filePath !== file
-        // TODO: Fix off by one hack...
-        || signatureHelp.line + 1 !== line
-        || signatureHelp.column + 1 !== column) {
+        || signatureHelp.line !== line
+        || signatureHelp.column !== column) {
             return null
         }
 
