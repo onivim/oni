@@ -1,3 +1,5 @@
+import * as types from "vscode-languageserver-types"
+
 import * as msgpack from "./MsgPack"
 import { Session } from "./Session"
 
@@ -11,7 +13,7 @@ export interface IBuffer {
     clearHighlight(highlightId: number, startLine: number, endLine: number): Promise<void>
     addHighlight(highlightId: number, highlightType: string, line: number, startColumn: number, endColumn: number): Promise<void>
 
-    getMark(mark: string): Promise<Oni.Position>
+    getMark(mark: string): Promise<types.Position>
 }
 
 export class Buffer implements IBuffer {
@@ -45,11 +47,11 @@ export class Buffer implements IBuffer {
         return this._session.request<void>("nvim_buf_set_option", [this._bufferReference, optionName, optionValue])
     }
 
-    public getMark(mark: string): Promise<{ line: number; column: number }> {
+    public getMark(mark: string): Promise<types.Position> {
         return this._session.request<number[]>("nvim_buf_get_mark", [this._bufferReference, mark])
             .then((pos: number[]) => ({
                 line: pos[0],
-                column: pos[1],
+                character: pos[1],
             }))
     }
 

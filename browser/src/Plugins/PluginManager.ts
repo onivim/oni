@@ -61,10 +61,6 @@ export class PluginManager extends EventEmitter {
         this._sendLanguageServiceRequest("goto-definition", this._lastEventContext)
     }
 
-    public findAllReferences(): void {
-        this._sendLanguageServiceRequest("find-all-references", this._lastEventContext)
-    }
-
     public requestFormat(): void {
         this._sendLanguageServiceRequest("format", this._lastEventContext, "formatting")
     }
@@ -174,9 +170,6 @@ export class PluginManager extends EventEmitter {
                 break
             case "set-errors":
                 this.emit("set-errors", pluginResponse.payload.key, pluginResponse.payload.fileName, pluginResponse.payload.errors)
-                break
-            case "find-all-references":
-                this.emit("find-all-references", pluginResponse.payload.references)
                 break
             case "format":
                 this.emit("format", pluginResponse.payload)

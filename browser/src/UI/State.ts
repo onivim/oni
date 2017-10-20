@@ -33,6 +33,11 @@ export interface ILocatable<T> {
     data: T
 }
 
+export interface IQuickInfo {
+    title: string,
+    description: string,
+}
+
 export interface IState {
     cursorPixelX: number
     cursorPixelY: number
@@ -46,7 +51,7 @@ export interface IState {
     backgroundColor: string
     foregroundColor: string
     autoCompletion: null | IAutoCompletionInfo
-    quickInfo: null | ILocatable<Oni.Plugin.QuickInfo>
+    quickInfo: null | ILocatable<IQuickInfo>
     signatureHelp: null | ILocatable<types.SignatureHelp>
     cursorLineOpacity: number
     cursorColumnOpacity: number

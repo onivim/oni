@@ -27,8 +27,7 @@ import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { checkAndShowQuickInfo, checkCodeActions, showReferencesInQuickFix, showSignatureHelp } from "./../Services/Language"
-import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
+import { checkAndShowQuickInfo, checkCodeActions, showSignatureHelp } from "./../Services/Language"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
@@ -127,7 +126,6 @@ export class NeovimEditor implements IEditor {
         const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
         const errorService = new Errors(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
-        const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
 
         registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance, bufferUpdates)
 
@@ -137,7 +135,6 @@ export class NeovimEditor implements IEditor {
         services.push(bufferUpdates)
         services.push(errorService)
         services.push(windowTitle)
-        services.push(syntaxHighlighter)
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
@@ -152,17 +149,6 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.onOniCommand.subscribe((command) => {
             commandManager.executeCommand(command)
-        })
-
-        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: types.Diagnostic[]) => {
-
-            UI.Actions.setErrors(fileName, key, errors)
-
-            errorService.setErrors(fileName, errors)
-        })
-
-        this._pluginManager.on("find-all-references", (references: Oni.Plugin.ReferencesResult) => {
-            showReferencesInQuickFix(references, this._neovimInstance)
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
@@ -382,12 +368,12 @@ export class NeovimEditor implements IEditor {
         } else if (eventName === "CursorMoved") {
             if (configuration.getValue("editor.quickInfo.enabled")) {
                 // First, check if there is a language client registered...
-                checkAndShowQuickInfo(evt, this._pluginManager)
+                checkAndShowQuickInfo(evt)
             }
 
             checkCodeActions(evt)
         } else if (eventName === "CursorMovedI") {
-            showSignatureHelp(evt, this._pluginManager)
+            showSignatureHelp(evt)
         }
     }
 

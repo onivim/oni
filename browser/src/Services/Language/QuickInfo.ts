@@ -13,12 +13,11 @@ import * as UI from "./../../UI"
 import { languageManager } from "./LanguageManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-import { PluginManager } from "./../../Plugins/PluginManager"
 
 // TODO:
 // - Factor out event context to something simpler
 // - Remove plugin manager
-export const checkAndShowQuickInfo = async (evt: Oni.EventContext, pluginManager: PluginManager) => {
+export const checkAndShowQuickInfo = async (evt: Oni.EventContext) => {
     if (languageManager.isLanguageServerAvailable(evt.filetype)) {
         const result = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/hover",
             Helpers.eventContextToTextDocumentPositionParams(evt))
@@ -28,8 +27,6 @@ export const checkAndShowQuickInfo = async (evt: Oni.EventContext, pluginManager
         if (titleAndContents) {
             showQuickInfo(evt, titleAndContents.title, titleAndContents.description)
         }
-    } else {
-        pluginManager.checkHover(evt)
     }
 }
 

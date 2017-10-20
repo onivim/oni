@@ -6,7 +6,7 @@ import * as Colors from "./../Colors"
 import { ErrorInfo } from "./../components/ErrorInfo"
 import { QuickInfoDocumentation, QuickInfoTitle } from "./../components/QuickInfo"
 import * as Selectors from "./../Selectors"
-import { IState } from "./../State"
+import { IState, IQuickInfo } from "./../State"
 
 export interface ITextProps {
     text: string
@@ -85,7 +85,7 @@ const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[]
 
 }
 
-const getQuickInfoElements = (quickInfo: Oni.Plugin.QuickInfo): JSX.Element[] => {
+const getQuickInfoElements = (quickInfo: IQuickInfo): JSX.Element[] => {
 
     if (!quickInfo || (!quickInfo.title && !quickInfo.description)) {
         return Selectors.EmptyArray
