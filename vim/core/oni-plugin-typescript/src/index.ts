@@ -227,12 +227,8 @@ export const activate = (Oni) => {
                     const label = prefix + parameterLabels.join(separator) + suffix
 
                     return {
-                        // variableArguments: item.isVariadic,
                         label: label,
                         documentation: convertToDisplayString(item.documentation),
-                        // prefix: convertToDisplayString(item.prefixDisplayParts),
-                        // suffix: convertToDisplayString(item.suffixDisplayParts),
-                        // separator: convertToDisplayString(item.separatorDisplayParts),
                         parameters: parameters,
                     }
                 })
@@ -240,7 +236,6 @@ export const activate = (Oni) => {
                 return {
                     signatures: signatureHelpItems,
                     activeSignature: result.selectedItemIndex,
-                    // argumentCount: result.argumentCount,
                     activeParameter: result.argumentIndex,
                 }
             })

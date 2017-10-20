@@ -1,6 +1,8 @@
-// import * as React from "react"
+/**
+ * SignatureHelpSelectors.tsx
+ */
+
 import { createSelector } from "reselect"
-// import * as types from "vscode-languageserver-types"
 
 import * as Selectors from "./../Selectors"
 import { IState } from "./../State"
