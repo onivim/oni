@@ -319,18 +319,41 @@ export const activate = (Oni) => {
         host.openFile(filePath)
     }
 
+    const isSingleLineChange = (range: types.Range): boolean => {
+
+        if (range.start.line === range.end.line) {
+            return true
+        }
+
+        if (range.start.character ===0 && range.end.character === 0 && range.start.line + 1 === range.end.line) {
+            return true
+        }
+
+        return false
+    }
+
     const protocolChangeFile = (message: string, payload: any) => {
 
         const textDocument: types.TextDocumentIdentifier = payload.textDocument
         const contentChanges: types.TextDocumentContentChangeEvent[] = payload.contentChanges
+
+        if (!contentChanges || !contentChanges.length) {
+            return
+        }
+
+        if (contentChanges.length > 1) {
+            console.warn("Only handling first content change")
+        }
 
         const filePath = unwrapFileUriPath(textDocument.uri)
 
         const change = contentChanges[0]
         if (!change.range) {
             host.updateFile(filePath, change.text)
+        } else if (isSingleLineChange(change.range) && change.text) {
+            host.changeLineInFile(filePath, change.range.start.line + 1, change.text.trim())
         } else {
-            // TODO
+            console.warn("Unhandled change request!")
         }
     }
 
@@ -394,38 +417,38 @@ export const activate = (Oni) => {
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo)
     lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences)
 
-    const updateFile = Oni.helpers.throttle((bufferFullPath, stringContents) => {
-        host.updateFile(bufferFullPath, stringContents)
-    }, 50)
+//     const updateFile = Oni.helpers.throttle((bufferFullPath, stringContents) => {
+//         host.updateFile(bufferFullPath, stringContents)
+//     }, 50)
 
-    Oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
+//     Oni.on("buffer-update", (args: Oni.BufferUpdateContext) => {
 
-        if (!args.eventContext.bufferFullPath) {
-            return
-        }
+//         if (!args.eventContext.bufferFullPath) {
+//             return
+//         }
 
-        if (lastOpenFile !== args.eventContext.bufferFullPath) {
-            host.openFile(args.eventContext.bufferFullPath)
-        }
+//         if (lastOpenFile !== args.eventContext.bufferFullPath) {
+//             host.openFile(args.eventContext.bufferFullPath)
+//         }
 
-        lastBuffer = args.bufferLines
+//         lastBuffer = args.bufferLines
 
-        updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL))
+//         updateFile(args.eventContext.bufferFullPath, args.bufferLines.join(os.EOL))
 
-    })
+//     })
 
-    Oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
-        if (!args.eventContext.bufferFullPath) {
-            return
-        }
+//     Oni.on("buffer-update-incremental", (args: Oni.IncrementalBufferUpdateContext) => {
+//         if (!args.eventContext.bufferFullPath) {
+//             return
+//         }
 
-        const changedLine = args.bufferLine
-        const lineNumber = args.lineNumber
+//         const changedLine = args.bufferLine
+//         const lineNumber = args.lineNumber
 
-        lastBuffer[lineNumber - 1] = changedLine
+//         lastBuffer[lineNumber - 1] = changedLine
 
-        host.changeLineInFile(args.eventContext.bufferFullPath, lineNumber, changedLine)
-    })
+//         host.changeLineInFile(args.eventContext.bufferFullPath, lineNumber, changedLine)
+//     })
 
     // Oni.on("buffer-enter", (args: Oni.EventContext) => {
     //     // // TODO: Look at alternate implementation for this
@@ -443,15 +466,6 @@ export const activate = (Oni) => {
 
     Oni.on("buffer-saved", (args: Oni.EventContext) => {
         host.getErrorsAcrossProject(args.bufferFullPath)
-
-        // host.getNavigationTree(args.bufferFullPath)
-        //     .then((navTree) => {
-        //         const highlights = []
-        //         // debugger
-        //         getHighlightsFromNavTree(navTree.childItems, highlights)
-
-        //         Oni.setHighlights(args.bufferFullPath, "typescript", highlights)
-        //     })
     })
 
     // TODO: Refactor to separate file
