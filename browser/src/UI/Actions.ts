@@ -7,7 +7,8 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
-import { IMessageDialog, ITab, StatusBarAlignment, WindowLineMap } from "./State"
+import * as Coordinates from "./Coordinates"
+import { IMessageDialog, ITab, StatusBarAlignment } from "./State"
 import { Rectangle } from "./Types"
 
 import { IConfigurationValues } from "./../Services/Configuration"
@@ -82,6 +83,15 @@ export interface ISetTabs {
     }
 }
 
+export interface ISetWindowCursor {
+    type: "SET_WINDOW_CURSOR",
+    payload: {
+        windowId: number,
+        line: number,
+        column: number,
+    },
+}
+
 export interface ISetWindowState {
     type: "SET_WINDOW_STATE",
     payload: {
@@ -89,26 +99,14 @@ export interface ISetWindowState {
         file: string,
         column: number,
         line: number,
-        winline: number,
-        wincolumn: number,
-        windowTopLine: number,
-        windowBottomLine: number,
-    }
-}
 
-export interface ISetWindowLineMapping {
-    type: "SET_WINDOW_LINE_MAP",
-    payload: {
-        windowId: number,
-        lineMapping: WindowLineMap,
-    }
-}
+        dimensions: Rectangle
 
-export interface ISetWindowDimensions {
-    type: "SET_WINDOW_DIMENSIONS",
-    payload: {
-        windowId: number,
-        dimensions: Rectangle,
+        bufferToScreen: Coordinates.BufferToScreen
+        screenToPixel: Coordinates.ScreenToPixel
+
+        topBufferLine: number
+        bottomBufferLine: number,
     }
 }
 
@@ -271,8 +269,7 @@ export type SimpleAction =
     ISetCurrentBuffersAction |
     ISetTabs |
     ISetViewportAction |
-    ISetWindowDimensions |
-    ISetWindowLineMapping |
+    ISetWindowCursor |
     ISetWindowState
 
 export type ActionWithGeneric<K extends keyof IConfigurationValues> =

@@ -10,7 +10,9 @@ import * as React from "react"
 
 export enum ArrowDirection {
     Up = 0,
-    Down,
+    Down = 1,
+    Left = 2,
+    Right = 3,
 }
 
 export interface IArrowProps {
@@ -40,9 +42,38 @@ export const Arrow = (props: IArrowProps): JSX.Element => {
         borderTop: solidBorder,
     }
 
-    const isUp = props.direction === ArrowDirection.Up
-    const style = isUp ? upArrowStyle : downArrowStyle
-    const className = isUp ? "arrow up" : "arrow down"
+    const leftArrowStyle = {
+        width: "0px",
+        height: "0px",
+        borderTop: transparentBorder,
+        borderRight: solidBorder,
+        borderBottom: transparentBorder,
+    }
+
+    const rightArrowStyle = {
+        width: "0px",
+        height: "0px",
+        borderTop: transparentBorder,
+        borderLeft: solidBorder,
+        borderBottom: transparentBorder,
+    }
+
+    let style: any = upArrowStyle
+    let className = "arrow"
+
+    if (props.direction === ArrowDirection.Down) {
+        style = downArrowStyle
+        className = "arrow down"
+    } else if (props.direction === ArrowDirection.Up) {
+        style = upArrowStyle
+        className = "arrow up"
+    } else if (props.direction === ArrowDirection.Left) {
+        style = leftArrowStyle
+        className = "arrow left"
+    } else if (props.direction === ArrowDirection.Right) {
+        style = rightArrowStyle
+        className = "arrow right"
+    }
 
     return <div className={className} style={style}></div>
 }

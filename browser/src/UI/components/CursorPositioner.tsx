@@ -12,8 +12,15 @@ import { IState } from "./../State"
 
 import { Arrow, ArrowDirection } from "./Arrow"
 
+export enum OpenDirection {
+    Up = 1,
+    Down = 2,
+}
+
 export interface ICursorPositionerProps {
     beakColor?: string
+    openDirection?: OpenDirection
+    hideArrow?: boolean
 }
 
 export interface ICursorPositionerViewProps extends ICursorPositionerProps {
@@ -64,7 +71,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
 
     public render(): JSX.Element {
         const adjustedX = this.state.adjustedX
-        const adjustedY = this.state.shouldOpenDownward ? this.props.y + this.props.lineHeight * 3 : this.props.y
+        const adjustedY = this.state.shouldOpenDownward ? this.props.y + this.props.lineHeight * 2.5 : this.props.y
 
         const containerStyle: React.CSSProperties = {
             position: "absolute",
@@ -90,6 +97,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         const arrowStyleWithAdjustments = {
             ...arrowStyle,
             left: (this.props.x + this.props.fontPixelWidth / 2).toString() + "px",
+            visibility: this.props.hideArrow ? "hidden" : "visible",
         }
 
         const childStyleWithAdjustments = this.state.isMeasured ? {
@@ -114,8 +122,13 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         if (element) {
             const rect = element.getBoundingClientRect()
 
+            const margin = this.props.lineHeight * 2
+            const canOpenUpward = this.props.y - rect.height > margin
+            const bottomScreenPadding = 50
+            const canOpenDownard = this.props.y + rect.height + this.props.lineHeight * 3 < this.props.containerHeight - margin - bottomScreenPadding
+
             if (!this.state.isMeasured) {
-                const shouldOpenDownward = this.props.y - rect.height < this.props.lineHeight * 2
+                const shouldOpenDownward = (this.props.openDirection !== OpenDirection.Down && !canOpenUpward) || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
 
                 const rightBounds = this.props.x + rect.width
 

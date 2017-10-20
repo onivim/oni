@@ -7,19 +7,20 @@ import * as mkdirp from "mkdirp"
 import { Event, IEvent } from "./../Event"
 import * as Log from "./../Log"
 
-import { Buffer, IBuffer } from "./Buffer"
-import { NeovimBufferReference, NeovimWindowReference } from "./MsgPack"
-import { startNeovim } from "./NeovimProcessSpawner"
-import { IQuickFixList, QuickFixList } from "./QuickFix"
-import { Session } from "./Session"
-import { IWindow, Window } from "./Window"
-
 import * as Actions from "./../actions"
 import { measureFont } from "./../Font"
 import * as Platform from "./../Platform"
 import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
 import { configuration } from "./../Services/Configuration"
+
+import { Buffer, IBuffer } from "./Buffer"
+import { NeovimBufferReference, NeovimWindowReference } from "./MsgPack"
+import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
+import { startNeovim } from "./NeovimProcessSpawner"
+import { IQuickFixList, QuickFixList } from "./QuickFix"
+import { Session } from "./Session"
+import { IWindow, Window } from "./Window"
 
 export interface INeovimYankInfo {
     operator: string
@@ -65,8 +66,12 @@ export interface INeovimInstance {
 
     onBufferUpdateIncremental: IEvent<IIncrementalBufferUpdateEvent>
 
+    onScroll: IEvent<Oni.EventContext>
+
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
     onOniCommand: IEvent<string>
+
+    autoCommands: INeovimAutoCommands
 
     screenToPixels(row: number, col: number): IPixelPosition
 
@@ -113,8 +118,6 @@ export interface INeovimInstance {
 
     open(fileName: string): Promise<void>
     openInitVim(): Promise<void>
-
-    executeAutoCommand(autoCommand: string): Promise<void>
 }
 
 /**
@@ -125,6 +128,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _initPromise: Promise<void>
 
     private _config = configuration
+    private _autoCommands: NeovimAutoCommands
 
     private _fontFamily: string = this._config.getValue("editor.fontFamily")
     private _fontSize: string = this._config.getValue("editor.fontSize")
@@ -144,6 +148,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onOniCommand = new Event<string>()
     private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
     private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
+    private _onScroll = new Event<Oni.EventContext>()
+
+    private _pendingScrollTimeout: number | null = null
 
     public get quickFix(): IQuickFixList {
         return this._quickFix
@@ -161,8 +168,16 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._onOniCommand
     }
 
+    public get onScroll(): IEvent<Oni.EventContext> {
+        return this._onScroll
+    }
+
     public get onYank(): IEvent<INeovimYankInfo> {
         return this._onYank
+    }
+
+    public get autoCommands(): INeovimAutoCommands {
+        return this._autoCommands
     }
 
     constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
@@ -172,24 +187,22 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
+
         this._quickFix = new QuickFixList(this)
+        this._autoCommands = new NeovimAutoCommands(this)
     }
 
     public async chdir(directoryPath: string): Promise<void> {
         await this.command(`cd! ${directoryPath}`)
     }
 
-    public async executeAutoCommand(autoCommand: string): Promise<void> {
-        const doesAutoCommandExist = await this.eval(`exists('#${autoCommand}')`)
-
-        if (doesAutoCommandExist) {
-            await this.command(`doautocmd <nomodeline> ${autoCommand}`)
-        }
-    }
-
     // Make a direct request against the msgpack API
     public async request<T>(request: string, args: any[]): Promise<T> {
         return this._neovim.request<T>(request, args)
+    }
+
+    public async getContext(): Promise<Oni.EventContext> {
+        return this.callFunction("OniGetContext", [])
     }
 
     public start(filesToOpen?: string[]): Promise<void> {
@@ -235,6 +248,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             if (eventName === "DirChanged") {
                                 this._updateProcessDirectory()
                             }
+
+                            this._autoCommands.notifyAutocommand(eventName, eventContext)
 
                             this.emit("event", eventName, eventContext)
 
@@ -361,7 +376,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request("nvim_command", [command])
     }
 
-    public callFunction(functionName: string, args: any[]): Promise<void> {
+    public callFunction(functionName: string, args: any[]): Promise<any> {
         return this._neovim.request<void>("nvim_call_function", [functionName, args])
     }
 
@@ -452,6 +467,18 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return { rows, cols }
     }
 
+    private _dispatchScrollEvent(): void {
+        if (this._pendingScrollTimeout) {
+            return
+        }
+
+        this._pendingScrollTimeout = window.setTimeout(async () => {
+            const evt = await this.getContext()
+            this._onScroll.dispatch(evt)
+            this._pendingScrollTimeout = null
+        })
+    }
+
     private _handleNotification(_method: any, args: any): void {
         args.forEach((a: any[]) => {
             const command = a[0]
@@ -471,6 +498,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     break
                 case "scroll":
                     this.emit("action", Actions.scroll(a[0][0]))
+                    this._dispatchScrollEvent()
                     break
                 case "highlight_set":
                     const highlightInfo = a[a.length - 1][0]

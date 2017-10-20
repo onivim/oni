@@ -13,11 +13,12 @@ import { NeovimScreen } from "./../Screen"
 
 import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
 import { AutoCompletionContainer } from "./../UI/components/AutoCompletion"
-import { ConnectedBufferScrollBar } from "./../UI/components/BufferScrollBar"
 import { Cursor } from "./../UI/components/Cursor"
 import { CursorLine } from "./../UI/components/CursorLine"
-import { ErrorsContainer } from "./../UI/components/Error"
 import { TabsContainer } from "./../UI/components/Tabs"
+
+import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarContainer"
+import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
 import { QuickInfoContainer } from "./../UI/containers/QuickInfoContainer"
 import { SignatureHelpContainer } from "./../UI/containers/SignatureHelpContainer"
 
@@ -33,6 +34,7 @@ export interface INeovimSurfaceProps {
     onKeyDown?: (key: string) => void
     onBufferClose?: (bufferId: number) => void
     onBufferSelect?: (bufferId: number) => void
+    onResize: () => void
     onTabClose?: (tabId: number) => void
     onTabSelect?: (tabId: number) => void
 }
@@ -51,6 +53,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                 <div className="stack">
                     <NeovimRenderer renderer={this.props.renderer}
                         neovimInstance={this.props.neovimInstance}
+                        onResize={this.props.onResize}
                         screen={this.props.screen} />
                 </div>
                 <div className="stack layer">
@@ -59,7 +62,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                     <CursorLine lineType={"column"} />
                     <ActiveWindowContainer>
                         <ErrorsContainer />
-                        <ConnectedBufferScrollBar />
+                        <BufferScrollBarContainer />
                     </ActiveWindowContainer>
                 </div>
                 <NeovimInput

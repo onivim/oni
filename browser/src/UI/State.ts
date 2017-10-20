@@ -4,15 +4,15 @@
  * This file describes the Redux state of the app
  */
 
-import { Rectangle } from "./Types"
+import * as types from "vscode-languageserver-types"
 
 import { configuration , IConfigurationValues } from "./../Services/Configuration"
 
-import * as types from "vscode-languageserver-types"
+import * as Coordinates from "./Coordinates"
+import { Rectangle } from "./Types"
 
 export interface Buffers { [filePath: string]: IBuffer }
 export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
-export interface WindowLineMap { [key: number]: number }
 
 /**
  * Viewport encompasses the actual 'app' height
@@ -138,12 +138,16 @@ export interface IWindow {
     file: string
     column: number
     line: number
-    winline: number
-    wincolumn: number
-    lineMapping: WindowLineMap
+
+    bufferToScreen: Coordinates.BufferToScreen
+    screenToPixel: Coordinates.ScreenToPixel
+
+    // winline: number
+    // wincolumn: number
+    // lineMapping: WindowLineMap
     dimensions: Rectangle
-    windowTopLine: number
-    windowBottomLine: number
+    topBufferLine: number
+    bottomBufferLine: number
 }
 
 export enum StatusBarAlignment {

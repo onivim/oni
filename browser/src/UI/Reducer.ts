@@ -264,6 +264,20 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
 
     let currentWindow
     switch (a.type) {
+        case "SET_WINDOW_CURSOR":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                activeWindow: a.payload.windowId,
+                windows: {
+                    ...s.windows,
+                    [a.payload.windowId]: {
+                        ...currentWindow,
+                        column: a.payload.column,
+                        line: a.payload.line,
+                    },
+                },
+            }
         case "SET_WINDOW_STATE":
             currentWindow = s.windows[a.payload.windowId] || null
 
@@ -276,36 +290,12 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                         file: a.payload.file,
                         column: a.payload.column,
                         line: a.payload.line,
-                        winline: a.payload.winline,
-                        wincolumn: a.payload.wincolumn,
-                        windowBottomLine: a.payload.windowBottomLine,
-                        windowTopLine: a.payload.windowTopLine,
-                    },
-                },
-            }
-        case "SET_WINDOW_DIMENSIONS":
-            currentWindow = s.windows[a.payload.windowId] || null
-
-            return {
-                ...s,
-                windows: {
-                    ...s.windows,
-                    [a.payload.windowId]: {
-                        ...currentWindow,
+                        bufferToScreen: a.payload.bufferToScreen,
+                        screenToPixel: a.payload.screenToPixel,
                         dimensions: a.payload.dimensions,
-                    },
-                },
-            }
-        case "SET_WINDOW_LINE_MAP":
-            currentWindow = s.windows[a.payload.windowId] || null
 
-            return {
-                ...s,
-                windows: {
-                    ...s.windows,
-                    [a.payload.windowId]: {
-                        ...currentWindow,
-                        lineMapping: a.payload.lineMapping,
+                        topBufferLine: a.payload.topBufferLine,
+                        bottomBufferLine: a.payload.bottomBufferLine,
                     },
                 },
             }

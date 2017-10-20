@@ -43,6 +43,13 @@ export class BufferUpdates {
             this._canSendIncrementalUpdates = (mode === "insert")
         })
 
+        this._neovimInstance.autoCommands.onBufEnter.subscribe(async (args: Oni.EventContext) => {
+            const buffer = await this._neovimInstance.getCurrentBuffer()
+            const lines = await buffer.getLines(0, args.bufferTotalLines - 1, false)
+
+            this._pluginManager.notifyBufferUpdate(args, lines)
+        })
+
         this._neovimInstance.onBufferUpdate.subscribe((args: IFullBufferUpdateEvent) => {
             const lastLine = args.context.line
             this._lastArgs = args.context
