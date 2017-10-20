@@ -224,7 +224,6 @@ export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunctio
 
     if (screen.cursorRow === screen.height - 1) {
         dispatch(hideQuickInfo())
-        dispatch(hideSignatureHelp())
     }
 
     dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
@@ -243,13 +242,14 @@ export const setMode = (mode: string) => ({
     payload: { mode },
 })
 
-export const showSignatureHelp = (signatureHelpResult: Oni.Plugin.SignatureHelpResult) => ({
+export const showSignatureHelp = (filePath: string, line: number, column: number, signatureHelp: types.SignatureHelp) => ({
     type: "SHOW_SIGNATURE_HELP",
-    payload: signatureHelpResult,
-})
-
-export const hideSignatureHelp = () => ({
-    type: "HIDE_SIGNATURE_HELP",
+    payload: {
+        filePath: normalizePath(filePath),
+        line,
+        column,
+        signatureHelp,
+    },
 })
 
 export const showQuickInfo = (filePath: string, line: number, column: number, title: string, description: string): Actions.IShowQuickInfoAction => ({

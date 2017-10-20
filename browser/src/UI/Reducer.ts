@@ -65,12 +65,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         case "HIDE_AUTO_COMPLETION":
             return {...s,
                     autoCompletion: null}
-        case "SHOW_SIGNATURE_HELP":
-            return {...s,
-                    signatureHelp: a.payload}
-        case "HIDE_SIGNATURE_HELP":
-            return {...s,
-                    signatureHelp: null}
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value
@@ -94,6 +88,7 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
                     autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
+                    signatureHelp: signatureHelpReducer(s.signatureHelp, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     windowState: windowStateReducer(s.windowState, a)}
     }
@@ -113,6 +108,21 @@ export const definitionReducer = (s: State.ILocatable<State.IDefinition>, a: Act
                             token,
                         },
                 }}
+        default:
+            return s
+    }
+}
+
+export const signatureHelpReducer = (s: State.ILocatable<types.SignatureHelp>, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "SHOW_SIGNATURE_HELP":
+            const { filePath, line, column, signatureHelp } = a.payload
+            return {...s,
+                    filePath,
+                    line,
+                    column,
+                    data: signatureHelp,
+            }
         default:
             return s
     }

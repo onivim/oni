@@ -57,6 +57,10 @@ export class PluginManager extends EventEmitter {
         this._sendLanguageServiceRequest("goto-definition", this._lastEventContext)
     }
 
+    public checkSignatureHelp(eventContext: Oni.EventContext): void {
+        this._sendLanguageServiceRequest("signature-help", eventContext)
+    }
+
     public findAllReferences(): void {
         this._sendLanguageServiceRequest("find-all-references", this._lastEventContext)
     }
@@ -74,10 +78,6 @@ export class PluginManager extends EventEmitter {
 
         this._neovimInstance.on("event", (eventName: string, context: Oni.EventContext) => {
             this._onEvent(eventName, context)
-        })
-
-        this._neovimInstance.on("directory-changed", (newDirectory: string) => {
-            this._onWorkingDirectoryChanged(newDirectory)
         })
 
         const allPlugins = this._getAllPluginPaths()
@@ -115,7 +115,6 @@ export class PluginManager extends EventEmitter {
         }, Capabilities.createPluginFilter(eventContext.filetype))
 
         if (this._config.getValue("editor.completions.enabled")) {
-            this._sendLanguageServiceRequest("signature-help", eventContext)
             this._sendLanguageServiceRequest("completion-provider", eventContext)
         }
     }
@@ -195,18 +194,6 @@ export class PluginManager extends EventEmitter {
             default:
                 this.emit("logWarning", "Unexpected plugin type: " + pluginResponse.type)
         }
-    }
-
-    private _onWorkingDirectoryChanged(newDirectory: string): void {
-        const filetype = this._lastEventContext ? this._lastEventContext.filetype : ""
-
-        this._channel.host.send({
-            type: "event",
-            payload: {
-                name: "directory-changed",
-                context: newDirectory,
-            },
-        }, Capabilities.createPluginFilter(filetype))
     }
 
     private _onEvent(eventName: string, eventContext: Oni.EventContext): void {

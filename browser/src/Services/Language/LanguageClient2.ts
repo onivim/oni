@@ -6,12 +6,19 @@ import * as Log from "./../../Log"
 import { ILanguageClientProcess } from "./LanguageClientProcess"
 import { PromiseQueue } from "./PromiseQueue"
 
+export interface ILanguageClient {
+    subscribe(notificationName: string, evt: Event<any>): void
+
+    sendRequest<T>(fileName: string, requestName: string, protocolArguments: any): Promise<T>
+    sendNotification(fileName: string, notificationName: string, protocolArguments: any): void
+}
+
 // TODO: Naming it 'LanguageClient2' so as not to conflict with the other,
 // legacy LanguageClient. Once the work is complete, `LanguageClient` will go away
 // and `LanguageClient2` will be renamed.
 //
 // In other words, this will handle a superset of the cases `LanguageClient` handled
-export class LanguageClient2 {
+export class LanguageClient2 implements ILanguageClient {
     private _promiseQueue = new PromiseQueue()
 
     private _connection: rpc.MessageConnection

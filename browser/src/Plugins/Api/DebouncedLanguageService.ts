@@ -1,5 +1,7 @@
 import { debounce, PromiseFunction } from "./PromiseDebouncer"
 
+import * as types from "vscode-languageserver-types"
+
 /**
  * Wrapper around language service to assist with debouncing
  * methods that are called frequently
@@ -8,7 +10,7 @@ export class DebouncedLanguageService implements Oni.Plugin.LanguageService {
 
     private _debouncedCompletions: PromiseFunction<null | Oni.Plugin.CompletionResult>
     private _debouncedFormattingEdits: PromiseFunction<null | Oni.Plugin.FormattingEditsResponse>
-    private _debouncedGetSignatureHelp: PromiseFunction<null | Oni.Plugin.SignatureHelpResult>
+    private _debouncedGetSignatureHelp: PromiseFunction<null | types.SignatureHelp>
     private _debouncedQuickInfo: PromiseFunction<null | Oni.Plugin.QuickInfo>
     private _languageService: Oni.Plugin.LanguageService
 
@@ -80,7 +82,7 @@ export class DebouncedLanguageService implements Oni.Plugin.LanguageService {
         return this._debouncedFormattingEdits(position)
     }
 
-    public getSignatureHelp(position: Oni.EventContext): Promise<null | Oni.Plugin.SignatureHelpResult> {
+    public getSignatureHelp(position: Oni.EventContext): Promise<null | types.SignatureHelp> {
         return this._debouncedGetSignatureHelp(position)
     }
 }

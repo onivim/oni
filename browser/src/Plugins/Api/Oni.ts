@@ -20,6 +20,7 @@ import { menuManager } from "./../../Services/Menu"
 import { recorder } from "./../../Services/Recorder"
 import { statusBar } from "./../../Services/StatusBar"
 import { windowManager, WindowManager } from "./../../Services/WindowManager"
+import { workspace } from "./../../Services/Workspace"
 
 import * as Log from "./../../Log"
 
@@ -108,6 +109,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     public get windows(): WindowManager {
         return windowManager
+    }
+
+    public get workspace(): Oni.Workspace {
+        return workspace
     }
 
     public get helpers(): any {
@@ -261,9 +266,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                 case "signature-help":
                     languageService.getSignatureHelp(arg.payload.context)
                         .then((val) => {
-                            UI.Actions.showSignatureHelp(val)
-                        }, (err) => {
-                            UI.Actions.hideSignatureHelp()
+                            UI.Actions.showSignatureHelp(originalContext.bufferFullPath, originalContext.line - 1, originalContext.column - 1, val)
                         })
                     break
                 default:
