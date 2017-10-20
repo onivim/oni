@@ -47,8 +47,6 @@ export const getDefinition = async () => {
 }
 
 export const gotoDefinitionUnderCursor = async () => {
-    // alert("Going to definition!")
-
     const activeDefinition = UI.Selectors.getActiveDefinition()
 
     if (!activeDefinition) {
@@ -65,8 +63,4 @@ export const gotoDefinitionUnderCursor = async () => {
     activeEditor.neovim.command("tabnew! " + filePath)
     activeEditor.neovim.command(`cal cursor(${line}, ${column})`)
     activeEditor.neovim.command("norm zz")
-
-                // this._neovimInstance.command(`cal cursor(${line}, ${column})`)
-                // this._neovimInstance.command("norm zz")
-
 }
