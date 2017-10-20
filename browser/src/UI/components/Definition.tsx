@@ -9,6 +9,8 @@ import * as types from "vscode-languageserver-types"
 
 import { BufferToScreen, ScreenToPixel } from "./../Coordinates"
 
+require("./Definition.less") // tslint:disable-line no-var-requires
+
 export interface IDefinitionProps {
     range: types.Range
     fontWidthInPixels: number
@@ -48,7 +50,6 @@ export class Definition extends React.PureComponent<IDefinitionProps, void> {
             height: this.props.fontHeightInPixels + "px",
             width: (endPixelPosition.pixelX - startPixelPosition.pixelX + this.props.fontWidthInPixels) + "px",
             borderBottom: "1px solid " + this.props.color,
-            opacity: 0.4,
         }
 
         return <div className="definition" style={style} />

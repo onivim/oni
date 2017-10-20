@@ -46,7 +46,13 @@ export const getDefinition = async () => {
     }
 }
 
-export const gotoDefinitionUnderCursor = async () => {
+export enum OpenType {
+    NewTab = 0,
+    SplitVertical = 1,
+    SplitHorizontal = 2,
+}
+
+export const gotoDefinitionUnderCursor = async (openType: OpenType = OpenType.NewTab) => {
     const activeDefinition = UI.Selectors.getActiveDefinition()
 
     if (!activeDefinition) {
@@ -60,7 +66,20 @@ export const gotoDefinitionUnderCursor = async () => {
 
     const activeEditor = editorManager.activeEditor
     const filePath = Helpers.unwrapFileUriPath(uri)
-    activeEditor.neovim.command("tabnew! " + filePath)
+    const command = getCommandFromOpenType(openType)
+
+    activeEditor.neovim.command(`${command} ${filePath}`)
     activeEditor.neovim.command(`cal cursor(${line}, ${column})`)
     activeEditor.neovim.command("norm zz")
+}
+
+const getCommandFromOpenType = (openType: OpenType) => {
+    switch (openType) {
+        case OpenType.SplitVertical:
+            return "vsp"
+        case OpenType.SplitHorizontal:
+            return "sp"
+        default:
+            return "tabnew"
+    }
 }

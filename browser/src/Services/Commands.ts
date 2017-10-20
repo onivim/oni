@@ -51,6 +51,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         // Language service
         // TODO: Bring back!
         new CallbackCommand("oni.editor.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => gotoDefinitionUnderCursor()),
+        new CallbackCommand("oni.editor.gotoDefinition.openVertical", null, null, () => gotoDefinitionUnderCursor(1)),
+        new CallbackCommand("oni.editor.gotoDefinition.openHorizontal", null, null, () => gotoDefinitionUnderCursor(2)),
         new CallbackCommand("oni.editor.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences(pluginManager)),
 
         // Menu commands
