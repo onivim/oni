@@ -137,10 +137,6 @@ export class LanguageClient {
             return this._enqueuePromise(() => this._getQuickInfo(textDocumentPosition))
         }
 
-        const getDefinition = (textDocumentPosition: Oni.EventContext) => {
-            return this._enqueuePromise(() => this._getDefinition(textDocumentPosition))
-        }
-
         const getCompletions = (textDocumentPosition: Oni.EventContext) => {
             return this._enqueuePromise(() => this._getCompletions(textDocumentPosition))
         }
@@ -152,7 +148,6 @@ export class LanguageClient {
         this._oni.registerLanguageService({
             findAllReferences,
             getCompletions,
-            getDefinition,
             getQuickInfo,
         })
     }
@@ -434,33 +429,6 @@ export class LanguageClient {
                         title: contents[0],
                         description: descriptionContent,
                     }
-                }
-            })
-    }
-
-    private _getDefinition(textDocumentPosition: Oni.EventContext): Thenable<Oni.Plugin.GotoDefinitionResponse> {
-        return this._connection.sendRequest(Helpers.ProtocolConstants.TextDocument.Definition,
-            Helpers.eventContextToTextDocumentPositionParams(textDocumentPosition))
-            .then((result: types.Location & types.Location[]) => {
-                if (!result) {
-                    return null
-                }
-
-                if (result.length === 0) {
-                    return null
-                }
-
-                let location: types.Location = result
-
-                if (result.length) {
-                    location = result[0]
-                }
-
-                const startPos = location.range.start || location.range.end
-                return {
-                    filePath: Helpers.unwrapFileUriPath(location.uri),
-                    line: startPos.line + 1,
-                    column: startPos.character + 1,
                 }
             })
     }

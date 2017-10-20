@@ -38,7 +38,16 @@ export const getDefinition = async (pluginManager: PluginManager) => {
         const result: types.Location = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/definition", args)
 
         UI.Actions.setDefinition(activeBuffer.filePath, line, column, token, result)
-    } else {
-        pluginManager.getDefinition()
     }
+}
+
+export const gotoDefinitionUnderCursor = () => {
+    alert("Going to definition!")
+    // TODO: Execute goto definition
+
+                // const { filePath, line, column } = pluginResponse.payload
+                // this._neovimInstance.command("e! " + filePath)
+                // this._neovimInstance.command(`cal cursor(${line}, ${column})`)
+                // this._neovimInstance.command("norm zz")
+
 }

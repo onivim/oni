@@ -62,14 +62,6 @@ export class DebouncedLanguageService implements Oni.Plugin.LanguageService {
         return this._debouncedCompletions(position)
     }
 
-    public async getDefinition(context: Oni.EventContext): Promise<null | Oni.Plugin.GotoDefinitionResponse> {
-        if (this._languageService.getDefinition) {
-            return this._languageService.getDefinition(context)
-        } else {
-            return null
-        }
-    }
-
     public async getCompletionDetails(position: Oni.EventContext, completionInfo: Oni.Plugin.CompletionInfo): Promise<null | Oni.Plugin.CompletionInfo> {
         if (this._languageService.getCompletionDetails) {
             return this._languageService.getCompletionDetails(position, completionInfo)

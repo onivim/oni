@@ -257,10 +257,6 @@ declare namespace Oni {
             error?: string
         }
 
-        export interface GotoDefinitionResponse extends Position {
-            filePath: string
-        }
-
         export interface FormattingEditsResponse {
             filePath: string
             version: number
@@ -336,7 +332,6 @@ declare namespace Oni {
             getSignatureHelp?(position: EventContext): Promise<types.SignatureHelp>
 
             getQuickInfo?(position: EventContext): Promise<QuickInfo>
-            getDefinition?(position: EventContext): Promise<GotoDefinitionResponse>
 
             getFormattingEdits?(position: EventContext): Promise<FormattingEditsResponse>
 

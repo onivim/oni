@@ -223,16 +223,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
                             })
                         })
                     break
-                case "goto-definition":
-                    languageService.getDefinition(arg.payload.context)
-                        .then((definitionPosition) => {
-                            this._channel.send("goto-definition", originalContext, {
-                                filePath: definitionPosition.filePath,
-                                line: definitionPosition.line,
-                                column: definitionPosition.column,
-                            })
-                        })
-                    break
                 case "find-all-references":
                     languageService.findAllReferences(arg.payload.context)
                         .then((references) => {
