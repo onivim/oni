@@ -26,8 +26,7 @@ export const getActiveDefinition = createSelector(
             return null
         }
 
-        // TODO: Fix off-by-one issue here!
-        if (!isInRange(line - 1, column - 1, token.range)) {
+        if (!isInRange(line, column, token.range)) {
             return null
         }
 
