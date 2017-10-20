@@ -50,6 +50,7 @@ export interface IBufferEnterAction {
     payload: {
         id: number,
         file: string,
+        fileType: string,
         totalLines: number,
         hidden: boolean,
         listed: boolean,
@@ -63,6 +64,7 @@ export interface IBufferUpdateAction {
         modified: boolean,
         version: number,
         totalLines: number,
+        lines?: string[],
     }
 }
 

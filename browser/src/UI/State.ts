@@ -128,6 +128,7 @@ export interface IBuffer {
     totalLines: number
     hidden: boolean
     listed: boolean
+    lines?: string[] | null
 }
 
 export interface ITab {

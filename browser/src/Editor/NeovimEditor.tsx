@@ -47,7 +47,6 @@ import { normalizePath } from "./../Utility"
 import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
 
 export class NeovimEditor implements IEditor {
-
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
     private _deltaRegionManager: IncrementalDeltaRegionTracker
@@ -74,6 +73,7 @@ export class NeovimEditor implements IEditor {
     private _isFirstRender: boolean = true
 
     private _lastBufferId: string = null
+    private _currentBufferLines: string[] = null
 
     public get mode(): string {
         return this._currentMode
@@ -183,7 +183,8 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.onBufferUpdate.subscribe((bufferUpdateEvent: IFullBufferUpdateEvent) => {
             const args = bufferUpdateEvent.context
-            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
+            this._currentBufferLines = bufferUpdateEvent.bufferLines
+            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, this._currentBufferLines)
 
             const buf = this._bufferManager.updateBufferFromEvent(args)
 
@@ -195,12 +196,15 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.onBufferUpdateIncremental.subscribe((bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
             const args = bufferUpdateArgs.context
-            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
-
-            const buf = this._bufferManager.updateBufferFromEvent(args)
-
             const lineNumber = bufferUpdateArgs.lineNumber
             const changedLine = bufferUpdateArgs.lineContents
+
+            // Clone the current set of lines and update
+            this._currentBufferLines = [...this._currentBufferLines]
+            this._currentBufferLines[lineNumber] = changedLine
+            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, this._currentBufferLines)
+
+            const buf = this._bufferManager.updateBufferFromEvent(args)
 
             this._onBufferChangedEvent.dispatch({
                 buffer: buf,
@@ -341,10 +345,11 @@ export class NeovimEditor implements IEditor {
                 })
             }
 
+            this._currentBufferLines = null
             this._lastBufferId = evt.bufferNumber.toString()
             this._onBufferEnterEvent.dispatch(buf)
 
-            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
+            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.filetype, evt.bufferTotalLines, evt.hidden, evt.listed)
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
