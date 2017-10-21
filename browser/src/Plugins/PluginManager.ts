@@ -10,14 +10,6 @@ import { Plugin } from "./Plugin"
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
 
-export interface IEventContext {
-    bufferFullPath: string
-    line: number
-    column: number
-    byte: number
-    filetype: string
-}
-
 export class PluginManager extends EventEmitter {
     private _config = configuration
     private _rootPluginPaths: string[] = []
