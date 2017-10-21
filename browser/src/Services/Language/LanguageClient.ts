@@ -13,12 +13,7 @@ export interface ILanguageClient {
     sendNotification(fileName: string, notificationName: string, protocolArguments: any): void
 }
 
-// TODO: Naming it 'LanguageClient2' so as not to conflict with the other,
-// legacy LanguageClient. Once the work is complete, `LanguageClient` will go away
-// and `LanguageClient2` will be renamed.
-//
-// In other words, this will handle a superset of the cases `LanguageClient` handled
-export class LanguageClient2 implements ILanguageClient {
+export class LanguageClient implements ILanguageClient {
     private _promiseQueue = new PromiseQueue()
 
     private _connection: rpc.MessageConnection

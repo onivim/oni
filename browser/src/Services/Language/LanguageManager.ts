@@ -13,7 +13,7 @@ import * as Log from "./../../Log"
 
 import { editorManager } from "./../EditorManager"
 
-import { ILanguageClient } from "./LanguageClient2"
+import { ILanguageClient } from "./LanguageClient"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
