@@ -23,11 +23,11 @@ export function getCompletionStart(bufferLine: string, cursorColumn: number, com
     return x + 1
 }
 
-export function replacePrefixWithCompletion(bufferLine: string, cursorColumn: number, completion: string): string {
-    const startPosition = getCompletionStart(bufferLine, cursorColumn, completion)
+export function replacePrefixWithCompletion(bufferLine: string, basePosition: number, cursorColumn: number, completion: string): string {
+    const startPosition = basePosition
 
     const before = bufferLine.substring(0, startPosition)
-    const after = bufferLine.substring(cursorColumn + 1, bufferLine.length)
+    const after = bufferLine.substring(cursorColumn, bufferLine.length)
 
     return before + completion + after
 }

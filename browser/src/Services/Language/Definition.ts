@@ -67,7 +67,7 @@ export const gotoDefinitionUnderCursor = async (openType: OpenType = OpenType.Ne
     const command = getCommandFromOpenType(openType)
 
     activeEditor.neovim.command(`${command} ${filePath}`)
-    activeEditor.neovim.command(`cal cursor(${line}, ${column})`)
+    activeEditor.neovim.command(`cal cursor(${line + 1}, ${column + 1})`)
     activeEditor.neovim.command("norm zz")
 }
 

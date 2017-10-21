@@ -8,6 +8,7 @@ import * as types from "vscode-languageserver-types"
 // import { configuration } from "./../Configuration"
 
 import * as UI from "./../../UI"
+import * as State from "./../../UI/State"
 
 import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
@@ -85,15 +86,25 @@ export const checkForCompletions = async (evt: Oni.EventContext) => {
 }
 
 export const commitCompletion = async () => {
-    const completion =  UI.Selectors.getSelectedCompletion() || ""
+    const completion =  UI.Selectors.getSelectedCompletion()
+
+    if (!completion) {
+        return
+    }
+
+    const state = UI.store.getState() as State.IState
 
     const buffer = editorManager.activeEditor.activeBuffer
     const { line, column } = buffer.cursor
 
+    if (!state.autoCompletion || state.autoCompletion.line !== line)
+        return
+
+    const base = state.autoCompletion.column
     const lines = await buffer.getLines(line, line + 1)
     const originalLine = lines[0]
 
-    const newLine = AutoCompletionUtility.replacePrefixWithCompletion(originalLine, column, completion)
+    const newLine = AutoCompletionUtility.replacePrefixWithCompletion(originalLine, base, column, completion)
 
     await buffer.setLines(line, line + 1, [newLine])
 

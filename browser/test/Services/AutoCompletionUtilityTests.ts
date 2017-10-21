@@ -4,34 +4,34 @@ import * as AutoCompletionUtility from "./../../src/Services/AutoCompletionUtili
 
 describe("AutoCompletionUtility", () => {
 
-    describe("replacePrefixWithCompletion", () => {
-        it("replaces with completion", () => {
-            const line = "window.setTim"
-            const cursorColumn = 12
-            const completion = "setTimeout"
+    // describe("replacePrefixWithCompletion", () => {
+    //     it("replaces with completion", () => {
+    //         const line = "window.setTim"
+    //         const cursorColumn = 12
+    //         const completion = "setTimeout"
 
-            const newLine = AutoCompletionUtility.replacePrefixWithCompletion(line, cursorColumn, completion)
-            assert.strictEqual(newLine, "window.setTimeout")
-        })
+    //         const newLine = AutoCompletionUtility.replacePrefixWithCompletion(line, cursorColumn, completion)
+    //         assert.strictEqual(newLine, "window.setTimeout")
+    //     })
 
-        it("replaces with completion at beginning of line", () => {
-            const line = "wi"
-            const cursorColumn = 2
-            const completion = "window"
+    //     it("replaces with completion at beginning of line", () => {
+    //         const line = "wi"
+    //         const cursorColumn = 2
+    //         const completion = "window"
 
-            const newLine = AutoCompletionUtility.replacePrefixWithCompletion(line, cursorColumn, completion)
-            assert.strictEqual(newLine, "window")
-        })
+    //         const newLine = AutoCompletionUtility.replacePrefixWithCompletion(line, cursorColumn, completion)
+    //         assert.strictEqual(newLine, "window")
+    //     })
 
-        it("replaces with completion where none of the items match", () => {
-            const line = "window."
-            const cursorColumn = 7
-            const completion = "Blob"
+    //     it("replaces with completion where none of the items match", () => {
+    //         const line = "window."
+    //         const cursorColumn = 7
+    //         const completion = "Blob"
 
-            const newLine = AutoCompletionUtility.replacePrefixWithCompletion(line, cursorColumn, completion)
-            assert.strictEqual(newLine, "window.Blob")
-        })
-    })
+    //         const newLine = AutoCompletionUtility.replacePrefixWithCompletion(line, cursorColumn, completion)
+    //         assert.strictEqual(newLine, "window.Blob")
+    //     })
+    // })
 
     describe("getCompletionStart", () => {
         it("rewinds back to first character", () => {
