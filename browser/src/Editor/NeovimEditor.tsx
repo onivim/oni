@@ -155,10 +155,6 @@ export class NeovimEditor implements IEditor {
             commandManager.executeCommand(command)
         })
 
-        this._neovimInstance.autoCommands.onVimResized.subscribe(() => {
-            this._windowManager.remeasure()
-        })
-
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
 
         this._neovimInstance.on("error", (_err: string) => {

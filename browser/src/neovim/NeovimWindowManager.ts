@@ -24,6 +24,7 @@ export class NeovimWindowManager {
         this._neovimInstance.autoCommands.onBufWinEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
         this._neovimInstance.autoCommands.onWinEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
         this._neovimInstance.autoCommands.onCursorMoved.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
+        this._neovimInstance.autoCommands.onVimResized.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
         this._neovimInstance.onScroll.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
     }
 
