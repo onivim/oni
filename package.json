@@ -165,6 +165,7 @@
     "redux": "3.7.2",
     "redux-thunk": "2.2.0",
     "reselect": "3.0.1",
+    "rxjs": "5.5.0",
     "shelljs": "0.7.7",
     "sinon": "1.17.6",
     "spectron": "3.6.2",
