@@ -19,7 +19,7 @@ export const getSignatureHelp = createSelector(
     [Selectors.getActiveWindow, getSignatureHelpRaw, getCurrentBufferLine],
     (win, signatureHelp, currentLine) => {
 
-    if (!win || !signatureHelp) {
+    if (!win || !signatureHelp || !currentLine) {
         return null
     }
 

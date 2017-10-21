@@ -41,11 +41,13 @@ export class LanguageManager {
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didClose", Helpers.pathToTextDocumentIdentifierParms(filePath))
         })
 
-        editorManager.allEditors.onBufferChanged.subscribe((change: Oni.EditorBufferChangedEventArgs) => {
+        editorManager.allEditors.onBufferChanged.subscribe(async (change: Oni.EditorBufferChangedEventArgs) => {
 
             const { language, filePath } = change.buffer
-            const capabilities = this.getCapabilitiesForLanguage(language)
-            console.dir(capabilities)
+            // const capabilities = await this.getCapabilitiesForLanguage(language)
+
+            // const syncMode = (capabilities & typeof capabilities.textDocumentSync === "number")
+
 
             // TODO: Incremental buffer updates...
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didChange", {
