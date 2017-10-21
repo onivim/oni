@@ -76,12 +76,14 @@ export class Errors extends React.PureComponent<IErrorsProps, void> {
 
             const pixelStart = this.props.screenToPixel(startPosition)
             const pixelEnd = this.props.screenToPixel(endPosition)
+            const pixelWidth = pixelEnd.pixelX - pixelStart.pixelX
+            const normalizedPixelWidth = pixelWidth === 0 ? this.props.fontWidthInPixels : pixelWidth
 
             return <ErrorSquiggle
                 y={pixelStart.pixelY}
                 height={this.props.fontHeightInPixels}
                 x={pixelStart.pixelX}
-                width={pixelEnd.pixelX - pixelStart.pixelX}
+                width={normalizedPixelWidth}
                 color={getColorFromSeverity(e.severity)} />
         })
 

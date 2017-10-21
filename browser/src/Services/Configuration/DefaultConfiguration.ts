@@ -73,6 +73,9 @@ const BaseConfiguration: IConfigurationValues = {
 
     "environment.additionalPaths": [],
 
+    "language.cpp.languageServer.command": "clangd",
+    "language.c.languageServer.command": "clangd",
+
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
 
