@@ -12,24 +12,16 @@ import * as path from "path"
 
 import * as types from "vscode-languageserver-types"
 
+import { ITextDocumentPositionParams } from "./Types"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
-
-export interface ITextDocumentPositionParams {
-    textDocument: types.TextDocumentIdentifier
-    position: types.Position
-}
+import * as Utility from "./Utility"
 
 export const getCompletions = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (message: string, payload: ITextDocumentPositionParams): Promise<types.CompletionItem[]> => {
     const textDocument: types.TextDocumentIdentifier = payload.textDocument
     const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-    const zeroBasedPosition: types.Position = payload.position
+    const oneBasedPosition: types.Position = Utility.zeroBasedPositionToOneBasedPosition(payload.position)
 
-    const oneBasedPosition = {
-        line: zeroBasedPosition.line + 1,
-        column: zeroBasedPosition.character + 1,
-    }
-
-    const val = await host.getCompletions(filePath, oneBasedPosition.line, oneBasedPosition.column, "")
+    const val = await host.getCompletions(filePath, oneBasedPosition.line, oneBasedPosition.character, "")
 
     const results = val
         .map((v) => ({

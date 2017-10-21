@@ -7,34 +7,32 @@
 /// <reference path="./../../../../definitions/Oni.d.ts" />
 /// <reference path="./../../../../node_modules/typescript/lib/protocol.d.ts" />
 
-import * as os from "os"
-import * as path from "path"
-
 import * as types from "vscode-languageserver-types"
 
 import { getCompletions } from "./Completion"
 import { LightweightLanguageClient } from "./LightweightLanguageClient"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
 
+import { ITextDocumentPositionParams } from "./Types"
 import * as Utility from "./Utility"
 
-export const getSignatureHelp = async (message: string, payload: any): Promise<types.SignatureHelp> => {
+export const getSignatureHelp = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (message: string, payload: any): Promise<types.SignatureHelp> => {
     const textDocument: types.TextDocumentIdentifier = payload.textDocument
-    const filePath = unwrapFileUriPath(textDocument.uri)
+    const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
     const oneBasedPosition: types.Position = Utility.zeroBasedPositionToOneBasedPosition(payload.position)
 
-    const result = await host.getSignatureHelp(filePath, oneBasedPosition.line, oneBasedPosition.column)
+    const result = await host.getSignatureHelp(filePath, oneBasedPosition.line, oneBasedPosition.character)
 
     const items = result.items || []
 
     const signatureHelpItems = items.map((item): types.SignatureInformation => {
-        const prefix = convertToDisplayString(item.prefixDisplayParts)
-        const suffix = convertToDisplayString(item.suffixDisplayParts)
-        const separator = convertToDisplayString(item.separatorDisplayParts)
+        const prefix = Utility.convertToDisplayString(item.prefixDisplayParts)
+        const suffix = Utility.convertToDisplayString(item.suffixDisplayParts)
+        const separator = Utility.convertToDisplayString(item.separatorDisplayParts)
 
         const parameters = item.parameters.map((p) => ({
-            label: convertToDisplayString(p.displayParts),
-            documentation: convertToDisplayString(p.documentation),
+            label: Utility.convertToDisplayString(p.displayParts),
+            documentation: Utility.convertToDisplayString(p.documentation),
         }))
 
         const parameterLabels = parameters.map((p) => p.label)
@@ -43,7 +41,7 @@ export const getSignatureHelp = async (message: string, payload: any): Promise<t
 
         return {
             label,
-            documentation: convertToDisplayString(item.documentation),
+            documentation: Utility.convertToDisplayString(item.documentation),
             parameters,
         }
     })

@@ -128,8 +128,12 @@ export class LanguageManager {
         }
     }
 
-    public unwrapFileUriPath(filePath: string): string {
-        return Helpers.unwrapFileUriPath(filePath)
+    public unwrapFileUriPath(fileUri: string): string {
+        return Helpers.unwrapFileUriPath(fileUri)
+    }
+
+    public wrapPathInFileUri(filePath: string): string {
+        return Helpers.wrapPathInFileUri(filePath)
     }
 
     public registerLanguageClient(language: string, languageClient: ILanguageClient): any {
