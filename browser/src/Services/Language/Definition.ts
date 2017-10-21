@@ -1,6 +1,5 @@
 /**
- * QuickInfo.ts
- *
+ * Definition.ts
  */
 
 import * as types from "vscode-languageserver-types"
@@ -28,9 +27,6 @@ const getActiveBuffer = (): Oni.Buffer => {
     return activeBuffer
 }
 
-// TODO:
-// - Factor out event context to something simpler
-// - Remove plugin manager
 export const getDefinition = async () => {
 
     const activeBuffer = getActiveBuffer()
@@ -42,7 +38,9 @@ export const getDefinition = async () => {
         const token = await activeBuffer.getTokenAt(line, column)
         const result: types.Location = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/definition", args)
 
-        UI.Actions.setDefinition(activeBuffer.filePath, line, column, token, result)
+        if (result) {
+            UI.Actions.setDefinition(activeBuffer.filePath, line, column, token, result)
+        }
     }
 }
 

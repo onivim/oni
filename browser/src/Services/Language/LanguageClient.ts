@@ -3,10 +3,12 @@ import * as rpc from "vscode-jsonrpc"
 import { Event } from "./../../Event"
 import * as Log from "./../../Log"
 
+import { IServerCapabilities } from "./ServerCapabilities"
 import { ILanguageClientProcess } from "./LanguageClientProcess"
 import { PromiseQueue } from "./PromiseQueue"
 
 export interface ILanguageClient {
+    serverCapabilities: IServerCapabilities
     subscribe(notificationName: string, evt: Event<any>): void
 
     sendRequest<T>(fileName: string, requestName: string, protocolArguments: any): Promise<T>
@@ -18,6 +20,10 @@ export class LanguageClient implements ILanguageClient {
 
     private _connection: rpc.MessageConnection
     private _subscriptions: { [key: string]: Event<any> } = {}
+
+    public get serverCapabilities(): IServerCapabilities {
+        return this._languageClientProcess.serverCapabilities
+    }
 
     constructor(
         private _language: string,

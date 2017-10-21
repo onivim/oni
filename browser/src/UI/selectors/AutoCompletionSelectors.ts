@@ -44,15 +44,11 @@ export const getAutoCompletion = createSelector(
     [Selectors.getActiveWindow, getAutoCompletionRaw, getCurrentBufferLine],
     (win, completion, currentLine) => {
 
-    if (!win) {
+    if (!win || !completion || !currentLine) {
         return null
     }
 
     const { file, line, column} = win
-
-    if (!completion) {
-        return null
-    }
 
     // If we're not in the same file or line,
     // don't bother.

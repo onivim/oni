@@ -14,6 +14,7 @@ import * as Log from "./../../Log"
 import { editorManager } from "./../EditorManager"
 
 import { ILanguageClient } from "./LanguageClient"
+import { IServerCapabilities } from "./ServerCapabilities"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -42,8 +43,11 @@ export class LanguageManager {
 
         editorManager.allEditors.onBufferChanged.subscribe((change: Oni.EditorBufferChangedEventArgs) => {
 
-            // TODO: Incremental buffer updates...
             const { language, filePath } = change.buffer
+            const capabilities = this.getCapabilitiesForLanguage(language)
+            console.dir(capabilities)
+
+            // TODO: Incremental buffer updates...
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didChange", {
                 textDocument: {
                     uri: Helpers.wrapPathInFileUri(filePath),
@@ -60,6 +64,16 @@ export class LanguageManager {
         this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
             // logInfo("telemetry/event:" + JSON.stringify(args))
         })
+    }
+
+    public getCapabilitiesForLanguage(language: string): Promise<IServerCapabilities> {
+        const languageClient = this._getLanguageClient(language)
+
+        if (languageClient) {
+            return Promise.resolve(languageClient.serverCapabilities)
+        } else {
+            return Promise.resolve(null)
+        }
     }
 
     public getTokenRegex(language: string): RegExp {
