@@ -12,10 +12,10 @@ import * as path from "path"
 
 import * as types from "vscode-languageserver-types"
 
-import { TypeScriptServerHost } from "./TypeScriptServerHost"
-import { LightweightLanguageClient } from "./LightweightLanguageClient"
-
 import { getCompletions } from "./Completion"
+import { LightweightLanguageClient } from "./LightweightLanguageClient"
+import { TypeScriptServerHost } from "./TypeScriptServerHost"
+
 
 export interface IDisplayPart {
     text: string
@@ -102,7 +102,6 @@ export const activate = (oni: Oni.Plugin.Api) => {
     }
 
     const lightweightLanguageClient = new LightweightLanguageClient()
-
     oni.language.registerLanguageClient("typescript", lightweightLanguageClient)
     oni.language.registerLanguageClient("javascript", lightweightLanguageClient)
 
