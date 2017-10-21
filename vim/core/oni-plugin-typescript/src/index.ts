@@ -13,15 +13,11 @@ import * as path from "path"
 import * as types from "vscode-languageserver-types"
 
 import { getCompletions } from "./Completion"
+import { getDefinition } from "./Definition"
+import { findAllReferences } from "./FindAllReferences"
 import { LightweightLanguageClient } from "./LightweightLanguageClient"
 import { getSignatureHelp } from "./SignatureHelp"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
-
-
-export interface IDisplayPart {
-    text: string
-    kind: string
-}
 
 export const activate = (oni: Oni.Plugin.Api) => {
 
@@ -139,50 +135,6 @@ export const activate = (oni: Oni.Plugin.Api) => {
         }
     }
 
-    const findAllReferences = async (message: string, payload: any): Promise<types.Location[]> => {
-        const textDocument: types.TextDocumentIdentifier = payload.textDocument
-        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-        const zeroBasedPosition: types.Position = payload.position
-
-        const oneBasedPosition = {
-            line: zeroBasedPosition.line + 1,
-            column: zeroBasedPosition.character + 1,
-        }
-
-        const val = await host.findAllReferences(filePath, oneBasedPosition.line, oneBasedPosition.column)
-
-        const mapResponseToLocation = (referenceItem: protocol.ReferencesResponseItem): types.Location => {
-            const startPosition = types.Position.create(referenceItem.start.line - 1, referenceItem.start.offset - 1)
-            const endPosition = types.Position.create(referenceItem.end.line - 1, referenceItem.end.offset - 1)
-            const range = types.Range.create(startPosition, endPosition)
-
-            return {
-                uri: oni.language.wrapPathInFileUri(referenceItem.file),
-                range,
-            }
-        }
-
-        return val.refs.map((v) => mapResponseToLocation(v))
-    }
-
-    const getDefinition = async (protocolName: string, payload: any): Promise<types.Location> => {
-
-        const textDocument: types.TextDocument  = payload.textDocument
-        const position: types.Position = payload.position
-
-        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-        const val: any = await host.getTypeDefinition(filePath, position.line + 1, position.character + 1)
-
-        const resultPos = val[0]
-
-        const range = types.Range.create(resultPos.start.line - 1, resultPos.start.offset - 1, resultPos.end.line - 1, resultPos.end.offset - 1)
-
-        return {
-            uri: oni.language.wrapPathInFileUri(resultPos.file),
-            range,
-        }
-    }
-
     const getQuickInfo = async (protocolName: string, payload: any): Promise<types.Hover> => {
 
         const textDocument: types.TextDocument  = payload.textDocument
@@ -215,9 +167,9 @@ export const activate = (oni: Oni.Plugin.Api) => {
 
     lightweightLanguageClient.handleRequest("textDocument/completion", getCompletions(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions)
-    lightweightLanguageClient.handleRequest("textDocument/definition", getDefinition)
+    lightweightLanguageClient.handleRequest("textDocument/definition", getDefinition(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo)
-    lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences)
+    lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
 
     // TODO: Migrate to 'textDocument/didSave'
