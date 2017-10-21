@@ -268,8 +268,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                                 lineNumber,
                                 lineContents,
                             })
-                        } else if (pluginMethod === "window_display_update") {
-                            this.emit("window-display-update", args[0][0], args[0][1], args[0][2])
                         } else {
                             Log.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
                         }

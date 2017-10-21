@@ -45,7 +45,9 @@ export class NeovimWindowManager {
             && context.bufferNumber === this._lastEvent.bufferNumber
             && context.windowNumber === this._lastEvent.windowNumber
             && context.windowTopLine === this._lastEvent.windowTopLine
-            && context.windowBottomLine === this._lastEvent.windowBottomLine) {
+            && context.windowBottomLine === this._lastEvent.windowBottomLine
+            && context.windowWidth === this._lastEvent.windowWidth
+            && context.windowHeight === this._lastEvent.windowHeight) {
                 return false
             } else {
                 return true
