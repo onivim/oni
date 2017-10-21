@@ -125,14 +125,6 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         this._services = new Services()
     }
 
-    public createLanguageClient(startOptions: ServerRunOptions, initializationParamsCreator: InitializationParamsCreator): LanguageClient {
-        return new LanguageClient(startOptions, initializationParamsCreator, this)
-    }
-
-    public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {
-        this._languageService = new DebouncedLanguageService(languageService)
-    }
-
     public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
         Log.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead")
 
