@@ -16,6 +16,7 @@ export interface INeovimAutoCommands {
     onWinEnter: IEvent<Oni.EventContext>
     onCursorMoved: IEvent<Oni.EventContext>
     onCursorMovedI: IEvent<Oni.EventContext>
+    onVimResized: IEvent<Oni.EventContext>
 
     executeAutoCommand(autoCommand: string): Promise<void>
 }
@@ -28,6 +29,7 @@ export class NeovimAutoCommands {
     private _onWinEnterEvent = new Event<Oni.EventContext>()
     private _onCursorMovedEvent = new Event<Oni.EventContext>()
     private _onCursorMovedIEvent = new Event<Oni.EventContext>()
+    private _onVimResizedEvent = new Event<Oni.EventContext>()
 
     public get onBufEnter(): IEvent<Oni.EventContext> {
         return this._onBufEnterEvent
@@ -49,6 +51,10 @@ export class NeovimAutoCommands {
         return this._onCursorMovedIEvent
     }
 
+    public get onVimResized(): IEvent<Oni.EventContext> {
+        return this._onVimResizedEvent
+    }
+
     constructor(private _neovimInstance: NeovimInstance) {
         this._nameToEvent = {
             "BufEnter": this._onBufEnterEvent,
@@ -56,6 +62,7 @@ export class NeovimAutoCommands {
             "CursorMoved": this._onCursorMovedEvent,
             "CursorMovedI": this._onCursorMovedIEvent,
             "WinEnter": this._onWinEnterEvent,
+            "VimResized": this._onVimResizedEvent,
         }
     }
 

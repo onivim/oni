@@ -45,7 +45,9 @@ export class NeovimWindowManager {
             && context.bufferNumber === this._lastEvent.bufferNumber
             && context.windowNumber === this._lastEvent.windowNumber
             && context.windowTopLine === this._lastEvent.windowTopLine
-            && context.windowBottomLine === this._lastEvent.windowBottomLine) {
+            && context.windowBottomLine === this._lastEvent.windowBottomLine
+            && context.windowWidth === this._lastEvent.windowWidth
+            && context.windowHeight === this._lastEvent.windowHeight) {
                 return false
             } else {
                 return true
@@ -89,6 +91,7 @@ export class NeovimWindowManager {
         if (values.length === 4) {
             // Grab the results of the `nvim_atomic_call`, as they are returned in an array
             const position = values[0]
+            const [row, col] = position
             const width = values[1]
             const height = values[2]
             const lines = values[3]
@@ -111,8 +114,8 @@ export class NeovimWindowManager {
             const ranges = rangesOnScreen.slice(arrayStart, arrayEnd)
 
             const dimensions = {
-                x: position[0],
-                y: position[1],
+                x: col,
+                y: row,
                 width,
                 height,
             }
@@ -133,17 +136,8 @@ export class NeovimWindowManager {
     }
 }
 
-// TODO: Can this be moved to a common place?
-const isInRange = (line: number, column: number, range: types.Range) => {
-
-    return (line >= range.start.line
-        && column >= range.start.character
-        && line <= range.end.line
-        && column <= range.end.character)
-}
-
 const getBufferToScreenFromRanges = (offset: number, ranges: types.Range[]) => (bufferPosition: types.Position) => {
-    const screenLine = ranges.findIndex((v) => isInRange(bufferPosition.line, bufferPosition.character, v))
+    const screenLine = ranges.findIndex((v) => Utility.isInRange(bufferPosition.line, bufferPosition.character, v))
 
     if (screenLine === -1) {
         return null

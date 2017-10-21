@@ -35,7 +35,6 @@ export interface INeovimSurfaceProps {
     onKeyDown?: (key: string) => void
     onBufferClose?: (bufferId: number) => void
     onBufferSelect?: (bufferId: number) => void
-    onResize: () => void
     onTabClose?: (tabId: number) => void
     onTabSelect?: (tabId: number) => void
 }
@@ -54,7 +53,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                 <div className="stack">
                     <NeovimRenderer renderer={this.props.renderer}
                         neovimInstance={this.props.neovimInstance}
-                        onResize={this.props.onResize}
                         screen={this.props.screen} />
                 </div>
                 <div className="stack layer">

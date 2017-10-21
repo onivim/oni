@@ -194,15 +194,13 @@ declare namespace Oni {
         byte: number
         filetype: string
 
-        /**
-         * Actual column position within the window
-         * Includes line number, gutter, etc
-         */
         windowNumber: number
         wincol: number
         winline: number
         windowTopLine: number
         windowBottomLine: number
+        windowWidth: number,
+        windowHeight: number,
     }
 
     export namespace Menu {

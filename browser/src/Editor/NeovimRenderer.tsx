@@ -14,7 +14,6 @@ export interface INeovimRendererProps {
     neovimInstance: NeovimInstance
     screen: IScreen
     renderer: INeovimRenderer
-    onResize: () => void
 }
 
 export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, void> {
@@ -68,7 +67,5 @@ export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, vo
 
         this.props.neovimInstance.resize(width, height)
         this.props.renderer.redrawAll(this.props.screen)
-
-        this.props.onResize()
     }
 }
