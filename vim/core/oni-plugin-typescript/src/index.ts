@@ -155,14 +155,6 @@ export const activate = (Oni) => {
     Oni.language.registerLanguageClient("typescript", lightweightLanguageClient)
     Oni.language.registerLanguageClient("javascript", lightweightLanguageClient)
 
-    // TODO:
-    // - Migrate all this functionality to the new language client
-    Oni.registerLanguageService({
-        // getCompletionDetails,
-        // getCompletions,
-        // getFormattingEdits,
-    })
-
     host.on("semanticDiag", (diagnostics) => {
         const fileName = diagnostics.file
 
