@@ -22,7 +22,6 @@ import { Event, IEvent } from "./../Event"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
-import { BufferUpdates } from "./../Services/BufferUpdates"
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
@@ -122,16 +121,14 @@ export class NeovimEditor implements IEditor {
         this._renderer = new CanvasRenderer()
 
         // Services
-        const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
         const errorService = new Errors(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
 
-        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance, bufferUpdates)
+        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance)
 
         tasks.registerTaskProvider(commandManager)
         tasks.registerTaskProvider(errorService)
 
-        services.push(bufferUpdates)
         services.push(errorService)
         services.push(windowTitle)
 

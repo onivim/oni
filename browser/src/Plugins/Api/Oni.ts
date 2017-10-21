@@ -1,7 +1,6 @@
 import * as ChildProcess from "child_process"
 import { EventEmitter } from "events"
 
-import { IPluginChannel } from "./Channel"
 import { Diagnostics } from "./Diagnostics"
 
 import { DebouncedLanguageService } from "./DebouncedLanguageService"
@@ -117,17 +116,13 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return helpers
     }
 
-    constructor(private _channel: IPluginChannel) {
+    constructor() {
         super()
 
-        this._diagnostics = new Diagnostics(this._channel)
+        this._diagnostics = new Diagnostics()
         this._dependencies = new Dependencies()
         this._ui = new Ui(react)
         this._services = new Services()
-
-        this._channel.onRequest((arg: any) => {
-            this._handleNotification(arg)
-        })
     }
 
     public createLanguageClient(startOptions: ServerRunOptions, initializationParamsCreator: InitializationParamsCreator): LanguageClient {
@@ -152,63 +147,5 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         Log.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead")
 
         return Process.spawnNodeScript(scriptPath, args, options)
-    }
-
-    private _handleNotification(arg: any): void {
-        if (arg.type === "event") {
-
-            if (arg.payload.name === "CursorMoved") {
-                this.emit("cursor-moved", arg.payload.context)
-            } else if (arg.payload.name === "CursorMovedI") {
-                this.emit("cursor-moved", arg.payload.context)
-            } else if (arg.payload.name === "BufWritePost") {
-                this.emit("buffer-saved", arg.payload.context)
-            } else if (arg.payload.name === "BufEnter") {
-                this.emit("buffer-enter", arg.payload.context)
-            } else if (arg.payload.name === "BufLeave") {
-                this.emit("buffer-leave", arg.payload.context)
-            }
-
-            this.emit(arg.payload.name, arg.payload.context)
-        } else if (arg.type === "request") {
-            const requestType = arg.payload.name
-
-            const originalContext = arg.payload.context
-
-            const languageService = this._languageService || null
-            if (!languageService) {
-                return
-            }
-
-            switch (requestType) {
-                case "completion-provider":
-                    languageService.getCompletions(arg.payload.context)
-                        .then((completions) => {
-                            this._channel.send("completion-provider", originalContext, completions)
-                        }, (err) => {
-                            this._channel.sendError("completion-provider", originalContext, err)
-                        })
-                    break
-                case "completion-provider-item-selected":
-                    languageService.getCompletionDetails(arg.payload.context, arg.payload.item)
-                        .then((details) => {
-                            this._channel.send("completion-provider-item-selected", originalContext, {
-                                details,
-                            })
-                        })
-                    break
-                case "format":
-                    languageService.getFormattingEdits(arg.payload.context)
-                        .then((formattingResponse) => {
-                            this._channel.send("format", originalContext, formattingResponse)
-                        })
-                    break
-                default:
-                    Log.warn(`Unknown request type: ${requestType}`)
-
-            }
-        } else {
-            Log.warn("Unknown notification type")
-        }
     }
 }

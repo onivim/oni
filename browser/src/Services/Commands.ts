@@ -13,9 +13,7 @@ import { clipboard, remote } from "electron"
 import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
-import { BufferUpdates } from "./../Services/BufferUpdates"
 import { configuration } from "./../Services/Configuration"
-import { Formatter } from "./../Services/Formatter"
 import { commitCompletion, findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
@@ -30,9 +28,8 @@ import { CallbackCommand, CommandManager } from "./CommandManager"
 import * as Platform from "./../Platform"
 import { replaceAll } from "./../Utility"
 
-export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance, bufferUpdates: BufferUpdates) => {
-    const quickOpen = new QuickOpen(neovimInstance, bufferUpdates)
-    const formatter = new Formatter(neovimInstance, pluginManager, bufferUpdates)
+export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance) => {
+    const quickOpen = new QuickOpen(neovimInstance)
 
     const commands = [
         new CallbackCommand("editor.clipboard.paste", "Clipboard: Paste", "Paste clipboard contents into active text", () => pasteContents(neovimInstance)),
@@ -61,8 +58,6 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         new CallbackCommand("oni.process.cycleNext", "Focus Next Oni", "Switch to the next running instance of Oni", () => multiProcess.focusNextInstance()),
         new CallbackCommand("oni.process.cyclePrevious", "Focus Previous Oni", "Switch to the previous running instance of Oni", () => multiProcess.focusPreviousInstance()),
-
-        new CallbackCommand("language.formatter.formatDocument", "Format Document", "Use the language service to auto-format the document", () => formatter.formatBuffer()),
 
         new CallbackCommand("commands.show", null, null, () => tasks.show()),
 
