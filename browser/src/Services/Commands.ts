@@ -13,11 +13,8 @@ import { clipboard, remote } from "electron"
 import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
-import { AutoCompletion } from "./../Services/AutoCompletion"
-import { BufferUpdates } from "./../Services/BufferUpdates"
 import { configuration } from "./../Services/Configuration"
-import { Formatter } from "./../Services/Formatter"
-import { findAllReferences } from "./../Services/Language"
+import { commitCompletion, findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
@@ -31,10 +28,8 @@ import { CallbackCommand, CommandManager } from "./CommandManager"
 import * as Platform from "./../Platform"
 import { replaceAll } from "./../Utility"
 
-export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance, bufferUpdates: BufferUpdates) => {
-    const autoCompletion = new AutoCompletion(neovimInstance)
-    const quickOpen = new QuickOpen(neovimInstance, bufferUpdates)
-    const formatter = new Formatter(neovimInstance, pluginManager, bufferUpdates)
+export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance) => {
+    const quickOpen = new QuickOpen(neovimInstance)
 
     const commands = [
         new CallbackCommand("editor.clipboard.paste", "Clipboard: Paste", "Paste clipboard contents into active text", () => pasteContents(neovimInstance)),
@@ -49,8 +44,10 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("oni.editor.maximize", "Maximize Window", "Maximize the current window", () => remote.getCurrentWindow().maximize()),
 
         // Language service
-        new CallbackCommand("oni.editor.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => pluginManager.gotoDefinition()),
-        new CallbackCommand("oni.editor.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences(pluginManager)),
+        new CallbackCommand("oni.editor.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => gotoDefinitionUnderCursor()),
+        new CallbackCommand("oni.editor.gotoDefinition.openVertical", null, null, () => gotoDefinitionUnderCursor(1)),
+        new CallbackCommand("oni.editor.gotoDefinition.openHorizontal", null, null, () => gotoDefinitionUnderCursor(2)),
+        new CallbackCommand("oni.editor.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences()),
 
         // Menu commands
         new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for Oni", () => openDefaultConfig(neovimInstance)),
@@ -62,12 +59,10 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("oni.process.cycleNext", "Focus Next Oni", "Switch to the next running instance of Oni", () => multiProcess.focusNextInstance()),
         new CallbackCommand("oni.process.cyclePrevious", "Focus Previous Oni", "Switch to the previous running instance of Oni", () => multiProcess.focusPreviousInstance()),
 
-        new CallbackCommand("language.formatter.formatDocument", "Format Document", "Use the language service to auto-format the document", () => formatter.formatBuffer()),
-
         new CallbackCommand("commands.show", null, null, () => tasks.show()),
 
         // Autocompletion
-        new CallbackCommand("completion.complete", null, null, autoCompletionCommand(() => autoCompletion.complete())),
+        new CallbackCommand("completion.complete", null, null, autoCompletionCommand(() => commitCompletion())),
         new CallbackCommand("completion.next", null, null, nextCompletionItem),
         new CallbackCommand("completion.previous", null, null, previousCompletionItem),
 

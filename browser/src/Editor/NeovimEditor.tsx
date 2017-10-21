@@ -22,13 +22,11 @@ import { Event, IEvent } from "./../Event"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
-import { BufferUpdates } from "./../Services/BufferUpdates"
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { checkAndShowQuickInfo, showReferencesInQuickFix, showSignatureHelp } from "./../Services/Language"
-import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
+import { checkAndShowQuickInfo, checkCodeActions, checkForCompletions, getDefinition, showSignatureHelp } from "./../Services/Language"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
@@ -48,7 +46,6 @@ import { normalizePath } from "./../Utility"
 import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
 
 export class NeovimEditor implements IEditor {
-
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
     private _deltaRegionManager: IncrementalDeltaRegionTracker
@@ -124,20 +121,16 @@ export class NeovimEditor implements IEditor {
         this._renderer = new CanvasRenderer()
 
         // Services
-        const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
         const errorService = new Errors(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
-        const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
 
-        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance, bufferUpdates)
+        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance)
 
         tasks.registerTaskProvider(commandManager)
         tasks.registerTaskProvider(errorService)
 
-        services.push(bufferUpdates)
         services.push(errorService)
         services.push(windowTitle)
-        services.push(syntaxHighlighter)
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
@@ -152,17 +145,6 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.onOniCommand.subscribe((command) => {
             commandManager.executeCommand(command)
-        })
-
-        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: types.Diagnostic[]) => {
-
-            UI.Actions.setErrors(fileName, key, errors)
-
-            errorService.setErrors(fileName, errors)
-        })
-
-        this._pluginManager.on("find-all-references", (references: Oni.Plugin.ReferencesResult) => {
-            showReferencesInQuickFix(references, this._neovimInstance)
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
@@ -197,9 +179,13 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.onBufferUpdate.subscribe((bufferUpdateEvent: IFullBufferUpdateEvent) => {
             const args = bufferUpdateEvent.context
-            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
 
             const buf = this._bufferManager.updateBufferFromEvent(args)
+            buf._notifyBufferUpdated(bufferUpdateEvent.bufferLines, args.version)
+
+            buf.getLines(0, buf.lineCount).then((lines) => {
+                UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, lines)
+            })
 
             this._onBufferChangedEvent.dispatch({
                 buffer: buf,
@@ -209,12 +195,15 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.onBufferUpdateIncremental.subscribe((bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
             const args = bufferUpdateArgs.context
-            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
-
-            const buf = this._bufferManager.updateBufferFromEvent(args)
-
             const lineNumber = bufferUpdateArgs.lineNumber
             const changedLine = bufferUpdateArgs.lineContents
+
+            const buf = this._bufferManager.updateBufferFromEvent(args)
+            buf._notifyBufferUpdatedAt(lineNumber - 1, changedLine, args.version)
+
+            buf.getLines(0, buf.lineCount).then((lines) => {
+                UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, lines)
+            })
 
             this._onBufferChangedEvent.dispatch({
                 buffer: buf,
@@ -223,6 +212,11 @@ export class NeovimEditor implements IEditor {
                     text: changedLine + os.EOL,
                 }],
             })
+
+            window.setTimeout(async () => {
+                await checkForCompletions(args)
+                await showSignatureHelp(args)
+            }, 49)
         })
 
         this._render()
@@ -336,16 +330,10 @@ export class NeovimEditor implements IEditor {
 
         this._currentMode = newMode
         this._onModeChangedEvent.dispatch(newMode)
-
-        if (newMode === "normal") {
-            UI.Actions.hideCompletions()
-        } else if (newMode.indexOf("cmdline") >= 0) {
-            UI.Actions.hideCompletions()
-        }
     }
 
     private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
-        UI.Actions.setWindowCursor(evt.windowNumber, evt.line, evt.column)
+        UI.Actions.setWindowCursor(evt.windowNumber, evt.line - 1, evt.column - 1)
 
         tasks.onEvent(evt)
 
@@ -364,9 +352,7 @@ export class NeovimEditor implements IEditor {
             this._lastBufferId = evt.bufferNumber.toString()
             this._onBufferEnterEvent.dispatch(buf)
 
-            UI.Actions.hideCompletions()
-
-            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
+            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.filetype, evt.bufferTotalLines, evt.hidden, evt.listed)
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
@@ -382,10 +368,11 @@ export class NeovimEditor implements IEditor {
         } else if (eventName === "CursorMoved") {
             if (configuration.getValue("editor.quickInfo.enabled")) {
                 // First, check if there is a language client registered...
-                checkAndShowQuickInfo(evt, this._pluginManager)
+                checkAndShowQuickInfo(evt)
             }
-        } else if (eventName === "CursorMovedI") {
-            showSignatureHelp(evt, this._pluginManager)
+
+            getDefinition()
+            checkCodeActions(evt)
         }
     }
 

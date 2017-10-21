@@ -33,6 +33,11 @@ export interface ILocatable<T> {
     data: T
 }
 
+export interface IQuickInfo {
+    title: string,
+    description: string,
+}
+
 export interface IState {
     cursorPixelX: number
     cursorPixelY: number
@@ -45,8 +50,9 @@ export interface IState {
     mode: string
     backgroundColor: string
     foregroundColor: string
-    autoCompletion: null | IAutoCompletionInfo
-    quickInfo: null | ILocatable<Oni.Plugin.QuickInfo>
+    autoCompletion: null | ILocatable<IAutoCompletionInfo>
+    definition: null | ILocatable<IDefinition>
+    quickInfo: null | ILocatable<IQuickInfo>
     signatureHelp: null | ILocatable<types.SignatureHelp>
     cursorLineOpacity: number
     cursorColumnOpacity: number
@@ -73,6 +79,11 @@ export interface IState {
     activeWindowDimensions: Rectangle
 
     activeMessageDialog: IMessageDialog
+}
+
+export interface IDefinition {
+    token: Oni.IToken
+    definitionLocation: types.Location
 }
 
 export enum MessageType {
@@ -117,6 +128,7 @@ export interface IBuffer {
     totalLines: number
     hidden: boolean
     listed: boolean
+    lines?: string[] | null
 }
 
 export interface ITab {
@@ -142,9 +154,6 @@ export interface IWindow {
     bufferToScreen: Coordinates.BufferToScreen
     screenToPixel: Coordinates.ScreenToPixel
 
-    // winline: number
-    // wincolumn: number
-    // lineMapping: WindowLineMap
     dimensions: Rectangle
     topBufferLine: number
     bottomBufferLine: number
@@ -175,6 +184,8 @@ export interface IAutoCompletionInfo {
 
     entries: Oni.Plugin.CompletionInfo[]
 
+    filteredEntries: Oni.Plugin.CompletionInfo[]
+
     /**
      * Label of selected entry
      */
@@ -194,6 +205,7 @@ export const createDefaultState = (): IState => ({
     mode: "normal",
     foregroundColor: "rgba(0, 0, 0, 0)",
     autoCompletion: null,
+    definition: null,
     quickInfo: null,
     signatureHelp: null,
     activeWindowDimensions: {

@@ -50,6 +50,7 @@ export interface IBufferEnterAction {
     payload: {
         id: number,
         file: string,
+        fileType: string,
         totalLines: number,
         hidden: boolean,
         listed: boolean,
@@ -63,6 +64,7 @@ export interface IBufferUpdateAction {
         modified: boolean,
         version: number,
         totalLines: number,
+        lines?: string[],
     }
 }
 
@@ -201,12 +203,33 @@ export interface IShowQuickInfoAction {
     }
 }
 
+export interface ISetDefinitionAction {
+    type: "SET_DEFINITION",
+    payload: {
+        filePath: string,
+        line: number,
+        column: number,
+        token: Oni.IToken,
+        definitionLocation: types.Location,
+    }
+}
+
 export interface IShowAutoCompletionAction {
     type: "SHOW_AUTO_COMPLETION",
     payload: {
-        base: string
+        filePath: string,
+        line: number,
+        column: number,
         entries: Oni.Plugin.CompletionInfo[],
+        base: string,
     }
+}
+
+export interface ISetAutoCompletionBaseAction {
+    type: "SET_AUTO_COMPLETION_BASE",
+    payload: {
+        base: string,
+    },
 }
 
 export interface ISetAutoCompletionDetails {
@@ -216,20 +239,12 @@ export interface ISetAutoCompletionDetails {
     }
 }
 
-export interface IHideAutoCompletionAction {
-    type: "HIDE_AUTO_COMPLETION"
-}
-
 export interface INextAutoCompletionAction {
     type: "NEXT_AUTO_COMPLETION"
 }
 
 export interface IPreviousAutoCompletionAction {
     type: "PREVIOUS_AUTO_COMPLETION"
-}
-
-export interface IHideQuickInfoAction {
-    type: "HIDE_QUICK_INFO"
 }
 
 export interface ISetConfigurationValue<K extends keyof IConfigurationValues> {
@@ -252,14 +267,14 @@ export type SimpleAction =
     ISetFont |
     IShowSignatureHelpAction |
     IShowQuickInfoAction |
-    IHideQuickInfoAction |
     IShowAutoCompletionAction |
-    IHideAutoCompletionAction |
     INextAutoCompletionAction |
     IPreviousAutoCompletionAction |
+    ISetAutoCompletionBaseAction |
     ISetAutoCompletionDetails |
     IShowMessageDialog |
     IHideMessageDialog |
+    ISetDefinitionAction |
     ISetModeAction |
     ISetColorsAction |
     IStatusBarHideAction |

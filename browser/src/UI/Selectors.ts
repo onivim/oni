@@ -15,47 +15,6 @@ import * as State from "./State"
 
 export const EmptyArray: any[] = []
 
-export const areCompletionsVisible = (state: State.IState) => {
-    const autoCompletion = state.autoCompletion
-    const entryCount = (autoCompletion && autoCompletion.entries) ? autoCompletion.entries.length : 0
-
-    if (entryCount === 0) {
-        return false
-    }
-
-    if (entryCount > 1) {
-        return true
-    }
-
-    // In the case of a single entry, should not be visible if the base is equal to the selected item
-    return autoCompletion != null && autoCompletion.base !== getSelectedCompletion(state)
-}
-
-export const getSelectedCompletion = (state: State.IState) => {
-    const autoCompletion = state.autoCompletion
-    if (!autoCompletion) {
-        return null
-    }
-
-    const completion = autoCompletion.entries[autoCompletion.selectedIndex]
-    return completion.insertText ? completion.insertText : completion.label
-}
-
-export const getAllBuffers = (buffers: State.IBufferState): State.IBuffer[] => {
-    return buffers.allIds.map((id) => buffers.byId[id]).filter((buf) => !buf.hidden && buf.listed)
-}
-
-export const getBufferByFilename = (fileName: string, buffers: State.IBufferState): State.IBuffer => {
-    const allBuffers = getAllBuffers(buffers)
-    const matchingBuffers = allBuffers.filter((buf) => buf.file === fileName)
-
-    if (matchingBuffers.length > 0) {
-        return matchingBuffers[0]
-    } else {
-        return null
-    }
-}
-
 export const getErrors = (state: State.IState) => state.errors
 
 const getAllErrorsForFile = (fileName: string, errors: State.Errors) => {
@@ -82,7 +41,7 @@ export const getActiveWindow = (state: State.IState): State.IWindow => {
     return state.windowState.windows[activeWindow]
 }
 
-export const getQuickInfo = (state: State.IState): Oni.Plugin.QuickInfo => {
+export const getQuickInfo = (state: State.IState): State.IQuickInfo => {
     const win = getActiveWindow(state)
 
     if (!win) {
@@ -156,7 +115,7 @@ export const getErrorsForPosition = createSelector(
         }
 
         const { line, column } = win
-        return errors.filter((diag) => Utility.isInRange(line - 1, column - 1, diag.range))
+        return errors.filter((diag) => Utility.isInRange(line, column, diag.range))
     })
 
 export const getForegroundBackgroundColor = (state: State.IState) => ({

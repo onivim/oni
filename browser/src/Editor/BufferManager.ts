@@ -3,8 +3,10 @@
  *
  * Helpers to manage buffer state
  */
-import { NeovimInstance } from "./../neovim"
 
+import * as types from "vscode-languageserver-types"
+
+import { NeovimInstance } from "./../neovim"
 import { languageManager } from "./../Services/Language"
 
 export class Buffer implements Oni.Buffer {
@@ -16,6 +18,9 @@ export class Buffer implements Oni.Buffer {
     private _version: number
     private _modified: boolean
     private _lineCount: number
+
+    private _lastBufferLineVersion: number = -1
+    private _bufferLines: string[]
 
     public get filePath(): string {
         return this._filePath
@@ -50,25 +55,39 @@ export class Buffer implements Oni.Buffer {
         this.updateFromEvent(evt)
     }
 
-    public getLines(start?: number, end?: number): Promise<string[]> {
-        // TODO:
-        return Promise.resolve([])
+    public async getLines(start?: number, end?: number): Promise<string[]> {
+
+        if (typeof start !== "number") {
+            start = 0
+        }
+
+        if (typeof end !== "number") {
+            end = this._lineCount
+        }
+
+        if (this._lastBufferLineVersion < this.version) {
+            const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [parseInt(this._id, 10), start, end, false])
+            return lines
+        } 
+
+        return this._bufferLines.slice(start, end)
     }
 
-    public async getTokenAt(line: number, column: number): Promise<string> {
-        const result = await this._neovimInstance.request<any>("nvim_buf_get_lines", [parseInt(this._id, 10), line, line + 1, false])
+    public async setLines(start: number, end: number, lines: string[]): Promise<void> {
+        await this._neovimInstance.request<any>("nvim_buf_set_lines", [parseInt(this._id, 10), start, end, false, lines])
+    }
+
+    public async setCursorPosition(row: number, column: number): Promise<void> {
+        await this._neovimInstance.eval(`setpos(".", [0, ${row + 1}, ${column + 1}, 0])`)
+    }
+
+    public async getTokenAt(line: number, column: number): Promise<Oni.IToken> {
+        const result = await this.getLines(line, line + 1)
 
         const tokenRegEx = languageManager.getTokenRegex(this.language)
 
-        const getToken = (lineContents: string, character: number): string => {
-            const tokenStart = getLastMatchingCharacter(lineContents, character, -1, tokenRegEx)
-            const tokenEnd = getLastMatchingCharacter(lineContents, character, 1, tokenRegEx)
-
-            return lineContents.substring(tokenStart, tokenEnd + 1)
-        }
-
         const getLastMatchingCharacter = (lineContents: string, character: number, dir: number, regex: RegExp) => {
-            while (character >= 0 && character < lineContents.length) {
+            while (character > 0 && character < lineContents.length) {
                 if (!lineContents[character].match(regex)) {
                     return character - dir
                 }
@@ -77,6 +96,19 @@ export class Buffer implements Oni.Buffer {
             }
 
             return character
+        }
+
+        const getToken = (lineContents: string, character: number): Oni.IToken => {
+            const tokenStart = getLastMatchingCharacter(lineContents, character, -1, tokenRegEx)
+            const tokenEnd = getLastMatchingCharacter(lineContents, character, 1, tokenRegEx)
+
+            const range = types.Range.create(line, tokenStart, line, tokenEnd)
+            const tokenName = lineContents.substring(tokenStart, tokenEnd + 1)
+
+            return {
+                tokenName,
+                range,
+            }
         }
 
         return getToken(result[0], column)
@@ -95,6 +127,16 @@ export class Buffer implements Oni.Buffer {
             column: evt.column - 1,
         }
     }
+
+    public _notifyBufferUpdated(lines: string[], version: number): void {
+        this._bufferLines = lines
+        this._lastBufferLineVersion = version
+    }
+
+    public _notifyBufferUpdatedAt(line: number, lineContents: string, version: number): void {
+        this._bufferLines[line] = lineContents
+        this._lastBufferLineVersion = version
+    }
 }
 
 // Helper for managing buffer state
@@ -104,7 +146,7 @@ export class BufferManager {
 
     constructor(private _neovimInstance: NeovimInstance) { }
 
-    public updateBufferFromEvent(evt: Oni.EventContext): Oni.Buffer {
+    public updateBufferFromEvent(evt: Oni.EventContext): Buffer {
         const id = evt.bufferNumber.toString()
         const currentBuffer = this.getBufferById(id)
 

@@ -16,6 +16,8 @@ import { Arrow, ArrowDirection } from "./Arrow"
 import { CursorPositioner, OpenDirection } from "./CursorPositioner"
 import { HighlightText } from "./HighlightText"
 
+import { getAutoCompletion } from "./../selectors/AutoCompletionSelectors"
+
 export interface IAutoCompletionProps {
     visible: boolean
     base: string
@@ -184,7 +186,8 @@ export class AutoCompletionIcon extends React.PureComponent<IAutoCompletionIconP
 const EmptyArray: any[] = []
 
 const mapStateToProps = (state: IState) => {
-    if (!state.autoCompletion) {
+    const autoCompletion = getAutoCompletion(state)
+    if (!autoCompletion || state.mode !== "insert") {
         return {
             visible: false,
             base: "",
@@ -197,9 +200,9 @@ const mapStateToProps = (state: IState) => {
     } else {
         const ret: IAutoCompletionProps = {
             visible: true,
-            base: state.autoCompletion.base,
-            entries: state.autoCompletion.entries,
-            selectedIndex: state.autoCompletion.selectedIndex,
+            base: autoCompletion.base,
+            entries: autoCompletion.filteredEntries,
+            selectedIndex: autoCompletion.selectedIndex,
             foregroundColor: state.foregroundColor,
             backgroundColor: state.backgroundColor,
             fontWidthInPixels: state.fontPixelWidth,

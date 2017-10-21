@@ -9,10 +9,10 @@ import { lstatSync } from "fs"
 import * as path from "path"
 
 import { INeovimInstance } from "./../../neovim"
-import { BufferUpdates } from "./../BufferUpdates"
 
 import { commandManager } from "./../CommandManager"
 import { configuration } from "./../Configuration"
+import { editorManager } from "./../EditorManager"
 import { Menu, menuManager } from "./../Menu"
 
 import { FinderProcess } from "./FinderProcess"
@@ -24,13 +24,11 @@ export class QuickOpen {
     private _seenItems: string[] = []
     private _loadedItems: QuickOpenItem[] = []
     private _neovimInstance: INeovimInstance
-    private _bufferUpdates: BufferUpdates
     private _menu: Menu
     private _lastCommand: string | null = null
 
-    constructor(neovimInstance: INeovimInstance, bufferUpdates: BufferUpdates) {
+    constructor(neovimInstance: INeovimInstance) {
         this._neovimInstance = neovimInstance
-        this._bufferUpdates = bufferUpdates
 
         this._menu = menuManager.create()
         this._menu.onItemSelected.subscribe((selectedItem: any) => { this._onItemSelected(selectedItem) })
@@ -107,7 +105,9 @@ export class QuickOpen {
     public async showBufferLines() {
         let nu = 0
 
-        const options = this._bufferUpdates.lines.map((line: string) => {
+        const currentLines = await editorManager.activeEditor.activeBuffer.getLines()
+
+        const options = currentLines.map((line: string) => {
             return {
                 icon: QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine),
                 label: String(++nu),

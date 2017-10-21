@@ -1,3 +1,9 @@
+/**
+ * Reducer.ts
+ *
+ * Top-level reducer for UI state transforms
+ */
+
 import * as State from "./State"
 
 import * as Actions from "./Actions"
@@ -7,6 +13,9 @@ import { IConfigurationValues } from "./../Services/Configuration"
 import * as pick from "lodash/pick"
 
 import * as types from "vscode-languageserver-types"
+
+import { autoCompletionReducerWithLocation } from "./reducers/AutoCompletionReducers"
+import { quickInfoReducerWithLocation } from "./reducers/QuickInfoReducers"
 
 export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>) {
 
@@ -40,31 +49,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 foregroundColor: a.payload.foregroundColor,
                 backgroundColor: a.payload.backgroundColor,
             } }
-        case "SHOW_QUICK_INFO":
-            const { filePath, line, column, title, description } = a.payload
-            return {...s,
-                    quickInfo: {
-                        filePath,
-                        line,
-                        column,
-                        data: {
-                            title,
-                            description,
-                        },
-                }}
-        case "HIDE_QUICK_INFO":
-            return {...s,
-                    quickInfo: null}
-        case "SHOW_AUTO_COMPLETION":
-            return {...s,
-                    autoCompletion: {
-                    base: a.payload.base,
-                    entries: a.payload.entries,
-                    selectedIndex: 0,
-                }}
-        case "HIDE_AUTO_COMPLETION":
-            return {...s,
-                    autoCompletion: null}
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value
@@ -84,12 +68,32 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         default:
             return {...s,
                     buffers: buffersReducer(s.buffers, a),
+                    definition: definitionReducer(s.definition, a),
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
-                    autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
+                    autoCompletion: autoCompletionReducerWithLocation(s.autoCompletion, a), // FIXME: null
+                    quickInfo: quickInfoReducerWithLocation(s.quickInfo, a),
                     signatureHelp: signatureHelpReducer(s.signatureHelp, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     windowState: windowStateReducer(s.windowState, a)}
+    }
+}
+
+export const definitionReducer = (s: State.ILocatable<State.IDefinition>, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "SET_DEFINITION":
+            const { filePath, line, column, definitionLocation, token } = a.payload
+            return {...s,
+                    filePath,
+                    line,
+                    column,
+                    data: {
+                            definitionLocation,
+                            token,
+                        },
+                }
+        default:
+            return s
     }
 }
 
@@ -157,6 +161,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                     hidden: a.payload.hidden,
                     listed: a.payload.listed,
                     modified: false,
+                    lines: [],
                 },
             }
 
@@ -201,6 +206,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                     version: a.payload.version,
                     totalLines: a.payload.totalLines,
                     lastSaveVersion,
+                    lines: a.payload.lines,
                 },
             }
 
@@ -309,41 +315,6 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                     },
                 },
             }
-        default:
-            return s
-    }
-}
-
-export function autoCompletionReducer(s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) {
-    if (!s) {
-        return s
-    }
-
-    // TODO: sync max display items (10) with value in AutoCompletion.render() (AutoCompletion.tsx)
-    const currentEntryCount = Math.min(10, s.entries.length)
-
-    switch (a.type) {
-        case "NEXT_AUTO_COMPLETION":
-            return {...s,
-                    selectedIndex: (s.selectedIndex + 1) % currentEntryCount}
-        case "PREVIOUS_AUTO_COMPLETION":
-            return {...s,
-                    selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : currentEntryCount - 1}
-        default:
-            return {...s,
-                    entries: autoCompletionEntryReducer(s.entries, a)}
-    }
-}
-
-export function autoCompletionEntryReducer(s: Oni.Plugin.CompletionInfo[], action: Actions.SimpleAction) {
-    switch (action.type) {
-        case "SET_AUTO_COMPLETION_DETAILS":
-            return s.map((entry) => {
-                if (action.payload.detailedEntry && entry.label === action.payload.detailedEntry.label) {
-                    return action.payload.detailedEntry
-                }
-                return entry
-            })
         default:
             return s
     }

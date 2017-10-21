@@ -5,30 +5,46 @@
 import { createSelector } from "reselect"
 
 import * as Selectors from "./../Selectors"
+import { getActiveBuffer } from "./../selectors/BufferSelectors"
 import { IState } from "./../State"
+
+// import { languageManager } from "./../../Services/Language"
+//
+
+import { getSignatureHelpTriggerColumn } from "./../../Services/Language"
 
 const getSignatureHelpRaw = (state: IState) => state.signatureHelp
 
 export const getSignatureHelp = createSelector(
-    [Selectors.getActiveWindow, getSignatureHelpRaw],
-    (win, signatureHelp) => {
+    [Selectors.getActiveWindow, getSignatureHelpRaw, getActiveBuffer],
+    (win, signatureHelp, buffer) => {
 
-    if (!win) {
+    if (!win || !signatureHelp) {
         return null
     }
 
     const { file, line, column } = win
 
-    if (!signatureHelp) {
-        return null
-    }
-
     if (signatureHelp.filePath !== file
-        // TODO: Fix off by one hack...
-        || signatureHelp.line + 1 !== line
-        || signatureHelp.column + 1 !== column) {
+        || signatureHelp.line !== line) {
             return null
         }
 
-    return signatureHelp.data
+
+
+    if (!buffer.lines) {
+        return null
+    }
+
+    const currentLine = buffer.lines[line]
+
+    const signatureHelpTriggerCharacters = ["("]
+
+    const idx = getSignatureHelpTriggerColumn(currentLine, column, signatureHelpTriggerCharacters)
+
+    if (signatureHelp.column !== idx) {
+        return  null
+    } else {
+        return signatureHelp.data
+    }
 })

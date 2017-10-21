@@ -42,11 +42,11 @@ export interface CompletionMeetResult {
  */
 export function getCompletionMeet(line: string, cursorColumn: number, characterMatchRegex: RegExp): CompletionMeetResult {
 
-    if (cursorColumn <= 1) {
+    if (cursorColumn <= 0) {
         return null
     }
 
-    let col = cursorColumn - 2
+    let col = cursorColumn - 1
     let currentPrefix = ""
 
     while (col >= 0) {

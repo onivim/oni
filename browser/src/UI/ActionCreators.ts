@@ -9,7 +9,6 @@
 
 import * as types from "vscode-languageserver-types"
 
-import * as Events from "./Events"
 import { Rectangle } from "./Types"
 
 import * as Actions from "./Actions"
@@ -32,24 +31,26 @@ export const setViewport = (width: number, height: number) => ({
     },
 })
 
-export const bufferEnter = (id: number, file: string, totalLines: number, hidden: boolean, listed: boolean) => ({
+export const bufferEnter = (id: number, file: string, language: string, totalLines: number, hidden: boolean, listed: boolean) => ({
     type: "BUFFER_ENTER",
     payload: {
         id,
         file: normalizePath(file),
+        language,
         totalLines,
         hidden,
         listed,
     },
 })
 
-export const bufferUpdate = (id: number, modified: boolean, version: number, totalLines: number) => ({
+export const bufferUpdate = (id: number, modified: boolean, version: number, totalLines: number, lines?: string[]) => ({
     type: "BUFFER_UPDATE",
     payload: {
         id,
         modified,
         version,
         totalLines,
+        lines,
     },
 })
 
@@ -191,40 +192,16 @@ export const hideStatusBarItem = (id: string) => ({
     },
 })
 
-export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    dispatch(_showAutoCompletion(result.base, result.completions))
-
-    if (result.completions.length > 0) {
-        emitCompletionItemSelectedEvent(getState())
-    }
-}
-
 export const previousCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(_previousAutoCompletion())
-
-    emitCompletionItemSelectedEvent(getState())
 }
 
 export const nextCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(_nextAutoCompletion())
-
-    emitCompletionItemSelectedEvent(getState())
-}
-
-function emitCompletionItemSelectedEvent(state: State.IState): void {
-    const autoCompletion = state.autoCompletion
-    if (autoCompletion != null) {
-        const entry = autoCompletion.entries[autoCompletion.selectedIndex]
-        Events.events.emit(Events.CompletionItemSelectedEvent, entry)
-    }
 }
 
 export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunction) => {
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
-
-    if (screen.cursorRow === screen.height - 1) {
-        dispatch(hideQuickInfo())
-    }
 
     dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
 }
@@ -263,13 +240,35 @@ export const showQuickInfo = (filePath: string, line: number, column: number, ti
     },
 })
 
-const _showAutoCompletion = (base: string, entries: Oni.Plugin.CompletionInfo[]) => ({
-    type: "SHOW_AUTO_COMPLETION",
+export const setDefinition = (filePath: string, line: number, column: number, token: Oni.IToken, definitionLocation: types.Location): Actions.ISetDefinitionAction => ({
+    type: "SET_DEFINITION",
     payload: {
-        base,
-        entries,
+        filePath: normalizePath(filePath),
+        line,
+        column,
+        token,
+        definitionLocation,
     },
 })
+
+export const showCompletions = (filePath: string, line: number, column: number, entries: Oni.Plugin.CompletionInfo[], base: string): Actions.IShowAutoCompletionAction => ({
+    type: "SHOW_AUTO_COMPLETION",
+    payload: {
+        filePath: normalizePath(filePath),
+        line,
+        column,
+        entries,
+        base,
+    },
+})
+
+export const setCompletionBase = (base: string) => ({
+    type: "SET_AUTO_COMPLETION_BASE",
+    payload: {
+        base,
+    },
+})
+
 
 export const setDetailedCompletionEntry = (detailedEntry: Oni.Plugin.CompletionInfo) => ({
     type: "SET_AUTO_COMPLETION_DETAILS",
@@ -277,10 +276,6 @@ export const setDetailedCompletionEntry = (detailedEntry: Oni.Plugin.CompletionI
         detailedEntry,
     },
 })
-
-export const hideCompletions = () => ({ type: "HIDE_AUTO_COMPLETION" })
-
-export const hideQuickInfo = () => ({ type: "HIDE_QUICK_INFO" })
 
 export const setCursorLineOpacity = (opacity: number) => ({
     type: "SET_CURSOR_LINE_OPACITY",

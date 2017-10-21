@@ -120,9 +120,9 @@ export class NeovimWindowManager {
             UI.Actions.setWindowState(
                     context.windowNumber,
                     context.bufferFullPath,
-                    context.column,
-                    context.line,
-                    context.windowBottomLine,
+                    context.column - 1,
+                    context.line - 1,
+                    context.windowBottomLine - 1,
                     context.windowTopLine,
                     dimensions,
                     getBufferToScreenFromRanges(offset, ranges))

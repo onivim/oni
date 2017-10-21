@@ -7,11 +7,10 @@ import thunk from "redux-thunk"
 
 import { RootComponent } from "./RootComponent"
 
-// import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
-import * as Events from "./Events"
 import { reducer } from "./Reducer"
-import * as UnboundSelectors from "./Selectors"
+import { areCompletionsVisible, getSelectedCompletion } from "./selectors/AutoCompletionSelectors"
+import { getActiveDefinition } from "./selectors/DefinitionSelectors"
 import * as State from "./State"
 
 import { editorManager } from "./../Services/EditorManager"
@@ -22,8 +21,6 @@ import { windowManager } from "./../Services/WindowManager"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
-
-export const events = Events.events
 
 const defaultState = State.createDefaultState()
 
@@ -40,8 +37,9 @@ export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators 
 
 // TODO: Is there a helper utility like `bindActionCreators`, but for selectors?
 export const Selectors = {
-    areCompletionsVisible: () => UnboundSelectors.areCompletionsVisible(store.getState() as any),
-    getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState() as any),
+    areCompletionsVisible: () => areCompletionsVisible(store.getState() as any),
+    getSelectedCompletion: () => getSelectedCompletion(store.getState() as any),
+    getActiveDefinition: () => getActiveDefinition(store.getState() as any),
 }
 
 export function init(pluginManager: PluginManager, args: any): void {
@@ -55,7 +53,10 @@ const updateViewport = () => {
     Actions.setViewport(width, height)
 }
 
-listenForDiagnostics()
+// TODO: WHy is this breaking?
+window.setTimeout(() => {
+    listenForDiagnostics()
+})
 
 window.addEventListener("resize", updateViewport)
 updateViewport()
