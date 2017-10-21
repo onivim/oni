@@ -207,7 +207,8 @@ export class NeovimEditor implements IEditor {
             })
         })
 
-        this._$bufferIncrementalUpdates
+
+        const $postIncrementalUpdate = this._$bufferIncrementalUpdates
             .auditTime(10)
             .mergeMap((bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
 
@@ -233,8 +234,8 @@ export class NeovimEditor implements IEditor {
                     return bufferUpdateArgs.context
                 })
             })
-            .auditTime(25)
-            .subscribe(async (args: Oni.EventContext) => {
+
+            $postIncrementalUpdate.subscribe(async (args: Oni.EventContext) => {
                 await checkForCompletions(args)
                 await showSignatureHelp(args)
             })
