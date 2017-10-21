@@ -216,9 +216,9 @@ export class NeovimEditor implements IEditor {
                 }],
             })
 
-            window.setTimeout(() => {
-                showSignatureHelp(args)
-                checkForCompletions(args, this._pluginManager)
+            window.setTimeout(async () => {
+                await checkForCompletions(args)
+                await showSignatureHelp(args)
             }, 49)
         })
 

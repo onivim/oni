@@ -54,11 +54,11 @@ export class LanguageManager {
         })
 
         this.subscribeToLanguageServerNotification("window/logMessage", (args) => {
-            logInfo("window/logMessage: " + JSON.stringify(args))
+            // logInfo("window/logMessage: " + JSON.stringify(args))
         })
 
         this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
-            logInfo("telemetry/event:" + JSON.stringify(args))
+            // logInfo("telemetry/event:" + JSON.stringify(args))
         })
     }
 
@@ -131,8 +131,8 @@ export class LanguageManager {
     }
 }
 
-const logInfo = (msg: string) => {
-    Log.info("[Language Manager] " + msg)
-}
+// const logInfo = (msg: string) => {
+//     Log.info("[Language Manager] " + msg)
+// }
 
 export const languageManager = new LanguageManager()

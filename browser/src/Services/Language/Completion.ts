@@ -9,18 +9,60 @@ import * as types from "vscode-languageserver-types"
 
 import * as UI from "./../../UI"
 
+import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-import { PluginManager } from "./../../Plugins/PluginManager"
+
+import * as AutoCompletionUtility from "./../AutoCompletionUtility"
+
+let lastFile:string = null
+let lastLine:number = null
+let lastColumn:number = null
 
 // TODO:
 // - Factor out event context to something simpler
 // - Remove plugin manager
-export const checkForCompletions = async (evt: Oni.EventContext, pluginManager: PluginManager) => {
+export const checkForCompletions = async (evt: Oni.EventContext) => {
     if (languageManager.isLanguageServerAvailable(evt.filetype)) {
-        const result = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/completion",
-            Helpers.eventContextToTextDocumentPositionParams(evt))
+
+
+        const line = evt.line - 1
+        const column = evt.column - 1
+
+        const buffer = editorManager.activeEditor.activeBuffer
+        const currentLine = await buffer.getLines(line, line + 1)
+
+
+        const token = languageManager.getTokenRegex(evt.filetype)
+        const meet = AutoCompletionUtility.getCompletionMeet(currentLine[0], column, token)
+
+        if (!meet) {
+            return
+        }
+
+        const pos = meet.position + 1
+
+        if (lastFile === evt.bufferFullPath && lastLine === line && pos === lastColumn) {
+            UI.Actions.setCompletionBase(meet.base)
+            return
+        }
+
+        lastFile = evt.bufferFullPath
+        lastLine = line
+        lastColumn = pos
+
+        const args = {
+            textDocument: { 
+                uri: Helpers.wrapPathInFileUri(evt.bufferFullPath), 
+            },
+            position: {
+                line,
+                character: pos,
+            }
+        }
+
+        const result = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/completion", args)
 
         const items = getCompletionItems(result)
 
@@ -36,7 +78,7 @@ export const checkForCompletions = async (evt: Oni.EventContext, pluginManager: 
             insertText: i.insertText,
         }))
 
-        UI.Actions.showCompletions(evt.bufferFullPath, evt.line - 1, evt.column - 1, completions || [])
+        UI.Actions.showCompletions(evt.bufferFullPath, evt.line - 1, evt.column - 1, completions || [], meet.base)
 
         // console.dir(result)
         // debugger

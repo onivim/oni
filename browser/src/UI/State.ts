@@ -184,6 +184,8 @@ export interface IAutoCompletionInfo {
 
     entries: Oni.Plugin.CompletionInfo[]
 
+    filteredEntries: Oni.Plugin.CompletionInfo[]
+
     /**
      * Label of selected entry
      */

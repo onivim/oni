@@ -54,7 +54,10 @@ const updateViewport = () => {
     Actions.setViewport(width, height)
 }
 
-listenForDiagnostics()
+// TODO: WHy is this breaking?
+window.setTimeout(() => {
+    listenForDiagnostics()
+})
 
 window.addEventListener("resize", updateViewport)
 updateViewport()

@@ -221,7 +221,15 @@ export interface IShowAutoCompletionAction {
         line: number,
         column: number,
         entries: Oni.Plugin.CompletionInfo[],
+        base: string,
     }
+}
+
+export interface ISetAutoCompletionBaseAction {
+    type: "SET_AUTO_COMPLETION_BASE",
+    payload: {
+        base: string,
+    },
 }
 
 export interface ISetAutoCompletionDetails {
@@ -262,6 +270,7 @@ export type SimpleAction =
     IShowAutoCompletionAction |
     INextAutoCompletionAction |
     IPreviousAutoCompletionAction |
+    ISetAutoCompletionBaseAction |
     ISetAutoCompletionDetails |
     IShowMessageDialog |
     IHideMessageDialog |

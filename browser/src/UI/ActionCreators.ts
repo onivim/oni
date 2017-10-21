@@ -251,15 +251,24 @@ export const setDefinition = (filePath: string, line: number, column: number, to
     },
 })
 
-export const showCompletions = (filePath: string, line: number, column: number, entries: Oni.Plugin.CompletionInfo[]): Actions.IShowAutoCompletionAction => ({
+export const showCompletions = (filePath: string, line: number, column: number, entries: Oni.Plugin.CompletionInfo[], base: string): Actions.IShowAutoCompletionAction => ({
     type: "SHOW_AUTO_COMPLETION",
     payload: {
         filePath: normalizePath(filePath),
         line,
         column,
         entries,
+        base,
     },
 })
+
+export const setCompletionBase = (base: string) => ({
+    type: "SET_AUTO_COMPLETION_BASE",
+    payload: {
+        base,
+    },
+})
+
 
 export const setDetailedCompletionEntry = (detailedEntry: Oni.Plugin.CompletionInfo) => ({
     type: "SET_AUTO_COMPLETION_DETAILS",

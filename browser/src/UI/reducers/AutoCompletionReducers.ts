@@ -9,21 +9,33 @@ import * as State from "./../State"
 
 import { locatableHigherOrderReducer } from "./LocatableReducer"
 
+const getFilteredEntries = (entries: Oni.Plugin.CompletionInfo[], filterText: string) => {
+    return entries.filter((f) => f.label.indexOf(filterText) >= 0)
+}
+
 const autoCompletionReducer = (s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) => {
 
     if (a.type === "SHOW_AUTO_COMPLETION") {
         return {
             entries: a.payload.entries,
             selectedIndex: 0,
+            base: a.payload.base,
+            filteredEntries: getFilteredEntries(a.payload.entries, a.payload.base)
         }
     } else if (!s) {
         return s
     }
 
     // TODO: sync max display items (10) with value in AutoCompletion.render() (AutoCompletion.tsx)
-    const currentEntryCount = Math.min(10, s.entries.length)
+    const currentEntryCount = Math.min(10, s.filteredEntries.length)
 
     switch (a.type) {
+        case "SET_AUTO_COMPLETION_BASE":
+            return {
+            ...s,
+            base: a.payload.base,
+            filteredEntries: getFilteredEntries(s.entries, a.payload.base),
+        }
         case "NEXT_AUTO_COMPLETION":
             return {...s,
                     selectedIndex: (s.selectedIndex + 1) % currentEntryCount}

@@ -3,7 +3,6 @@ import * as fs from "fs"
 import * as path from "path"
 import { INeovimInstance } from "./../neovim"
 import { configuration } from "./../Services/Configuration"
-import * as UI from "./../UI/index"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
 import * as Capabilities from "./Api/Capabilities"
@@ -109,18 +108,6 @@ export class PluginManager extends EventEmitter {
     private _handlePluginResponse(pluginResponse: any): void {
 
         switch (pluginResponse.type) {
-            case "completion-provider":
-                if (!pluginResponse.payload) {
-                    return
-                }
-
-                const originEvent = pluginResponse.meta.originEvent
-
-                setTimeout(() => UI.Actions.showCompletions(originEvent.bufferFullPath, originEvent.line - 1, originEvent.column - 1, pluginResponse.payload.completions))
-                break
-            case "completion-provider-item-selected":
-                setTimeout(() => UI.Actions.setDetailedCompletionEntry(pluginResponse.payload.details))
-                break
             case "format":
                 this.emit("format", pluginResponse.payload)
                 break

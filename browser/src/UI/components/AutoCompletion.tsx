@@ -200,8 +200,8 @@ const mapStateToProps = (state: IState) => {
     } else {
         const ret: IAutoCompletionProps = {
             visible: true,
-            base: "",
-            entries: autoCompletion.entries,
+            base: autoCompletion.base,
+            entries: autoCompletion.filteredEntries,
             selectedIndex: autoCompletion.selectedIndex,
             foregroundColor: state.foregroundColor,
             backgroundColor: state.backgroundColor,
