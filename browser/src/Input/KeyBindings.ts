@@ -48,7 +48,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     // Completion
     // TODO: Bring back prior to checking in...
-    // input.bind(["<enter>", "<tab>"], "completion.complete", isInsertOrCommandMode)
+    input.bind(["<enter>", "<tab>"], "completion.complete", isInsertOrCommandMode)
     input.bind(["<down>", "<C-n>"], "completion.next", isInsertOrCommandMode)
     input.bind(["<up>", "<C-p>"], "completion.previous", isInsertOrCommandMode)
 

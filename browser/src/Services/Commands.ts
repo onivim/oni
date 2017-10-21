@@ -13,11 +13,10 @@ import { clipboard, remote } from "electron"
 import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
-import { AutoCompletion } from "./../Services/AutoCompletion"
 import { BufferUpdates } from "./../Services/BufferUpdates"
 import { configuration } from "./../Services/Configuration"
 import { Formatter } from "./../Services/Formatter"
-import { findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
+import { commitCompletion, findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
@@ -32,7 +31,6 @@ import * as Platform from "./../Platform"
 import { replaceAll } from "./../Utility"
 
 export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance, bufferUpdates: BufferUpdates) => {
-    const autoCompletion = new AutoCompletion(neovimInstance)
     const quickOpen = new QuickOpen(neovimInstance, bufferUpdates)
     const formatter = new Formatter(neovimInstance, pluginManager, bufferUpdates)
 
@@ -69,7 +67,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("commands.show", null, null, () => tasks.show()),
 
         // Autocompletion
-        new CallbackCommand("completion.complete", null, null, autoCompletionCommand(() => autoCompletion.complete())),
+        new CallbackCommand("completion.complete", null, null, autoCompletionCommand(() => commitCompletion())),
         new CallbackCommand("completion.next", null, null, nextCompletionItem),
         new CallbackCommand("completion.previous", null, null, previousCompletionItem),
 

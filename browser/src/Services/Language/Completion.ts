@@ -86,6 +86,24 @@ export const checkForCompletions = async (evt: Oni.EventContext) => {
     }
 }
 
+export const commitCompletion = async () => {
+    const completion =  UI.Selectors.getSelectedCompletion() || ""
+
+    const buffer = editorManager.activeEditor.activeBuffer
+    const { line, column } = buffer.cursor
+
+    const lines = await buffer.getLines(line, line + 1)
+    const originalLine = lines[0]
+
+    const newLine = AutoCompletionUtility.replacePrefixWithCompletion(originalLine, column, completion)
+
+    await buffer.setLines(line, line + 1, [newLine])
+
+    const cursorOffset = newLine.length - originalLine.length
+
+    await buffer.setCursorPosition(line, column + cursorOffset)
+} 
+
 const getCompletionItems = (items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[] => {
     if (!items) {
         return []

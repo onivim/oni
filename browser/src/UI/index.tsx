@@ -7,10 +7,9 @@ import thunk from "redux-thunk"
 
 import { RootComponent } from "./RootComponent"
 
-// import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
 import { reducer } from "./Reducer"
-import * as UnboundSelectors from "./Selectors"
+import { areCompletionsVisible, getSelectedCompletion } from "./selectors/AutoCompletionSelectors"
 import { getActiveDefinition } from "./selectors/DefinitionSelectors"
 import * as State from "./State"
 
@@ -38,8 +37,8 @@ export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators 
 
 // TODO: Is there a helper utility like `bindActionCreators`, but for selectors?
 export const Selectors = {
-    areCompletionsVisible: () => UnboundSelectors.areCompletionsVisible(store.getState() as any),
-    getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState() as any),
+    areCompletionsVisible: () => areCompletionsVisible(store.getState() as any),
+    getSelectedCompletion: () => getSelectedCompletion(store.getState() as any),
     getActiveDefinition: () => getActiveDefinition(store.getState() as any),
 }
 

@@ -14,65 +14,11 @@ import * as types from "vscode-languageserver-types"
 
 import { QuickInfo } from "./QuickInfo"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
+import { LightweightLanguageClient } from "./LightweightLanguageClient"
 
 export interface IDisplayPart {
     text: string
     kind: string
-}
-
-export type RequestHandler = (requestName: string, payload: any) => Promise<any>
-export type NotificationHandler = (notificationName: string, payload: any) => void
-
-export class LightweightLanguageClient {
-
-    private _subscriptions: { [key: string]: Oni.Event<any> } = { }
-
-    private _requestHandler: { [key: string]: RequestHandler } = { }
-    private _notificationHandler: { [key: string]: NotificationHandler } = { }
-
-    public subscribe(notificationName: string, evt: Oni.Event<any>) {
-        this._subscriptions[notificationName] = evt
-    }
-
-    public sendRequest<T>(fileName: string, requestName: string, protocolArguments: any): Promise<T> {
-
-        const handler = this._requestHandler[requestName]
-
-        if (handler) {
-            return handler(requestName, protocolArguments)
-        } else {
-            return Promise.reject("Not implemented")
-        }
-    }
-
-    public sendNotification(fileName: string, notificationName: string, protocolArguments: any): void {
-
-        const notifier = this._notificationHandler[notificationName]
-
-        if (notifier) {
-            notifier(notificationName, protocolArguments)
-        }
-    }
-
-    public handleRequest(requestName: string, handler: RequestHandler): void {
-        this._requestHandler[requestName] = handler
-    }
-
-    public handleNotification(notificationName: string, notificationHandler: NotificationHandler): void {
-        this._notificationHandler[notificationName] = notificationHandler
-    }
-
-    public notify(notificationName: string, payload: any): void {
-        const notifierEvent = this._subscriptions[notificationName]
-
-        if (notifierEvent) {
-            (<any>notifierEvent).dispatch({
-                language: "typescript", // TODO: Generalize for JS too
-                payload,
-            })
-        }
-    }
-
 }
 
 export const activate = (Oni) => {
@@ -170,55 +116,6 @@ export const activate = (Oni) => {
             })
     }
 
-    const getCompletions = (textDocumentPosition: Oni.EventContext) => {
-        if (textDocumentPosition.column <= 1) {
-            return Promise.resolve({
-                completions: [],
-            })
-        }
-
-        const currentLine = lastBuffer[textDocumentPosition.line - 1]
-        let col = textDocumentPosition.column - 2
-        let currentPrefix = ""
-
-        while (col >= 0) {
-            const currentCharacter = currentLine[col]
-
-            if (!currentCharacter.match(/[_a-z]/i)) {
-                break
-            }
-
-            currentPrefix = currentCharacter + currentPrefix
-            col--
-        }
-
-        const basePos = col
-
-        if (currentPrefix.length === 0 && currentLine[basePos] !== ".") {
-            return Promise.resolve({
-                base: currentPrefix,
-                completions: [],
-            })
-        }
-
-        Oni.log.verbose("Get completions: current line " + currentLine)
-
-        return host.getCompletions(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, currentPrefix)
-            .then((val: any[]) => {
-
-                const results = val
-                    .filter((v) => v.name.indexOf(currentPrefix) === 0 || currentPrefix.length === 0)
-                    .map((v) => ({
-                        label: v.name,
-                        kind: convertTypeScriptKindToCompletionItemKind(v.kind),
-                    }))
-
-                return {
-                    base: currentPrefix,
-                    completions: results,
-                }
-            })
-    }
 
     const getSignatureHelp = async (textDocumentPosition: Oni.EventContext): Promise<types.SignatureHelp> => {
         const result = await host.getSignatureHelp(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
@@ -261,9 +158,9 @@ export const activate = (Oni) => {
     // TODO:
     // - Migrate all this functionality to the new language client
     Oni.registerLanguageService({
-        getCompletionDetails,
-        getCompletions,
-        getFormattingEdits,
+        // getCompletionDetails,
+        // getCompletions,
+        // getFormattingEdits,
     })
 
     host.on("semanticDiag", (diagnostics) => {
@@ -322,6 +219,76 @@ export const activate = (Oni) => {
         }
 
         return false
+    }
+    // const getCompletions = (textDocumentPosition: Oni.EventContext) => {
+    //     if (textDocumentPosition.column <= 1) {
+    //         return Promise.resolve({
+    //             completions: [],
+    //         })
+    //     }
+
+    //     const currentLine = lastBuffer[textDocumentPosition.line - 1]
+    //     let col = textDocumentPosition.column - 2
+    //     let currentPrefix = ""
+
+    //     while (col >= 0) {
+    //         const currentCharacter = currentLine[col]
+
+    //         if (!currentCharacter.match(/[_a-z]/i)) {
+    //             break
+    //         }
+
+    //         currentPrefix = currentCharacter + currentPrefix
+    //         col--
+    //     }
+
+    //     const basePos = col
+
+    //     if (currentPrefix.length === 0 && currentLine[basePos] !== ".") {
+    //         return Promise.resolve({
+    //             base: currentPrefix,
+    //             completions: [],
+    //         })
+    //     }
+
+    //     Oni.log.verbose("Get completions: current line " + currentLine)
+
+    //     return host.getCompletions(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, currentPrefix)
+    //         .then((val: any[]) => {
+
+    //             const results = val
+    //                 .filter((v) => v.name.indexOf(currentPrefix) === 0 || currentPrefix.length === 0)
+    //                 .map((v) => ({
+    //                     label: v.name,
+    //                     kind: convertTypeScriptKindToCompletionItemKind(v.kind),
+    //                 }))
+
+    //             return {
+    //                 base: currentPrefix,
+    //                 completions: results,
+    //             }
+    //         })
+    // }
+
+    const protocolGetCompletions = async (message: string, payload: any): Promise<types.CompletionItem[]> => {
+        const textDocument: types.TextDocumentIdentifier = payload.textDocument
+        const filePath = unwrapFileUriPath(textDocument.uri)
+        const zeroBasedPosition: types.Position = payload.position
+
+        const oneBasedPosition = {
+            line: zeroBasedPosition.line + 1,
+            column: zeroBasedPosition.character + 1,
+        }
+
+        const val = await host.getCompletions(filePath, oneBasedPosition.line, oneBasedPosition.column, "")
+
+        const results = val
+            .map((v) => ({
+                label: v.name,
+                kind: convertTypeScriptKindToCompletionItemKind(v.kind),
+            }))
+
+        return results
     }
 
     const protocolChangeFile = (message: string, payload: any) => {
@@ -422,6 +389,7 @@ export const activate = (Oni) => {
     lightweightLanguageClient.handleNotification("textDocument/didOpen", protocolOpenFile)
     lightweightLanguageClient.handleNotification("textDocument/didChange", protocolChangeFile)
 
+    lightweightLanguageClient.handleRequest("textDocument/completion", protocolGetCompletions)
     lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions)
     lightweightLanguageClient.handleRequest("textDocument/definition", getDefinition)
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo)

@@ -73,6 +73,14 @@ export class Buffer implements Oni.Buffer {
         return this._bufferLines.slice(start, end)
     }
 
+    public async setLines(start: number, end: number, lines: string[]): Promise<void> {
+        await this._neovimInstance.request<any>("nvim_buf_set_lines", [parseInt(this._id, 10), start, end, false, lines])
+    }
+
+    public async setCursorPosition(row: number, column: number): Promise<void> {
+        await this._neovimInstance.eval(`setpos(".", [0, ${row + 1}, ${column + 1}, 0])`)
+    }
+
     public async getTokenAt(line: number, column: number): Promise<Oni.IToken> {
         const result = await this.getLines(line, line + 1)
 

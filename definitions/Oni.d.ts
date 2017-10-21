@@ -98,6 +98,9 @@ declare namespace Oni {
 
         getLines(start?: number, end?: number): Promise<string[]>
         getTokenAt(line: number, column: number): Promise<IToken>
+
+        setLines(start: number, end: number, lines: string[]): Promise<void>
+        setCursorPosition(line: number, column: number): Promise<void>
     }
 
     // Zero-based position of the cursor

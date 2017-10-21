@@ -7,6 +7,35 @@ import { IState } from "./../State"
 
 const getAutoCompletionRaw = (state: IState) => state.autoCompletion
 
+// TODO: Need to gate the visibility correctly
+export const areCompletionsVisible = (state: IState) => {
+    const autoCompletion = state.autoCompletion
+    const entryCount = (autoCompletion && autoCompletion.data && autoCompletion.data.entries) ? autoCompletion.data.entries.length : 0
+
+    if (entryCount === 0) {
+        return false
+    }
+
+    if (entryCount > 1) {
+        return true
+    }
+
+    // In the case of a single entry, should not be visible if the base is equal to the selected item
+    return autoCompletion != null && autoCompletion.data.base !== getSelectedCompletion(state)
+}
+
+export const getSelectedCompletion = (state: IState) => {
+    const autoCompletion = state.autoCompletion
+    if (!autoCompletion || !autoCompletion.data) {
+        return null
+    }
+
+    const completionData = autoCompletion.data
+
+    const completion = completionData.filteredEntries[completionData.selectedIndex]
+    return completion.insertText ? completion.insertText : completion.label
+}
+
 export const getAutoCompletion = createSelector(
     [Selectors.getActiveWindow, getAutoCompletionRaw],
     (win, completion) => {
