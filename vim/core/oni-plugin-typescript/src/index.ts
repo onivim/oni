@@ -117,8 +117,17 @@ export const activate = (Oni) => {
     }
 
 
-    const getSignatureHelp = async (textDocumentPosition: Oni.EventContext): Promise<types.SignatureHelp> => {
-        const result = await host.getSignatureHelp(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column)
+    const getSignatureHelp = async (message: string, payload: any): Promise<types.SignatureHelp> => {
+        const textDocument: types.TextDocumentIdentifier = payload.textDocument
+        const filePath = unwrapFileUriPath(textDocument.uri)
+        const zeroBasedPosition: types.Position = payload.position
+
+        const oneBasedPosition = {
+            line: zeroBasedPosition.line + 1,
+            column: zeroBasedPosition.character + 1,
+        }
+
+        const result = await host.getSignatureHelp(filePath, oneBasedPosition.line, oneBasedPosition.column)
 
         const items = result.items || []
 
@@ -212,55 +221,6 @@ export const activate = (Oni) => {
 
         return false
     }
-    // const getCompletions = (textDocumentPosition: Oni.EventContext) => {
-    //     if (textDocumentPosition.column <= 1) {
-    //         return Promise.resolve({
-    //             completions: [],
-    //         })
-    //     }
-
-    //     const currentLine = lastBuffer[textDocumentPosition.line - 1]
-    //     let col = textDocumentPosition.column - 2
-    //     let currentPrefix = ""
-
-    //     while (col >= 0) {
-    //         const currentCharacter = currentLine[col]
-
-    //         if (!currentCharacter.match(/[_a-z]/i)) {
-    //             break
-    //         }
-
-    //         currentPrefix = currentCharacter + currentPrefix
-    //         col--
-    //     }
-
-    //     const basePos = col
-
-    //     if (currentPrefix.length === 0 && currentLine[basePos] !== ".") {
-    //         return Promise.resolve({
-    //             base: currentPrefix,
-    //             completions: [],
-    //         })
-    //     }
-
-    //     Oni.log.verbose("Get completions: current line " + currentLine)
-
-    //     return host.getCompletions(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, currentPrefix)
-    //         .then((val: any[]) => {
-
-    //             const results = val
-    //                 .filter((v) => v.name.indexOf(currentPrefix) === 0 || currentPrefix.length === 0)
-    //                 .map((v) => ({
-    //                     label: v.name,
-    //                     kind: convertTypeScriptKindToCompletionItemKind(v.kind),
-    //                 }))
-
-    //             return {
-    //                 base: currentPrefix,
-    //                 completions: results,
-    //             }
-    //         })
-    // }
 
     const protocolGetCompletions = async (message: string, payload: any): Promise<types.CompletionItem[]> => {
         const textDocument: types.TextDocumentIdentifier = payload.textDocument
@@ -386,6 +346,7 @@ export const activate = (Oni) => {
     lightweightLanguageClient.handleRequest("textDocument/definition", getDefinition)
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo)
     lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences)
+    lightweightLanguageClient.handleRequest("textDocument/signatureHelp",  getSignatureHelp)
 
     // TODO: Migrate to 'textDocument/didSave'
     Oni.on("buffer-saved", (args: Oni.EventContext) => {
