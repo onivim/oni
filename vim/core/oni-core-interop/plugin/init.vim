@@ -72,6 +72,7 @@ augroup OniEventListeners
     autocmd! InsertLeave * :call OniNotifyEvent("InsertLeave")
     autocmd! InsertEnter * :call OniNotifyEvent("InsertEnter")
     autocmd! DirChanged * :call OniNotifyEvent("DirChanged")
+    autocmd! VimResized * :call OniNotifyEvent("VimResized")
 augroup END
 
 augroup OniNotifyBufferUpdates
@@ -96,6 +97,8 @@ let context.winline = winline()
 let context.wincol = wincol()
 let context.windowTopLine = line("w0")
 let context.windowBottomLine = line("w$")
+let context.windowWidth = winwidth(winnr())
+let context.windowHeight = winheight(winnr())
 let context.byte = line2byte(line(".")) + col(".")
 let context.filetype = eval("&filetype")
 let context.modified = &modified

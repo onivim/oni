@@ -154,6 +154,10 @@ export class NeovimEditor implements IEditor {
             commandManager.executeCommand(command)
         })
 
+        this._neovimInstance.autoCommands.onVimResized.subscribe(() => {
+            this._windowManager.remeasure()
+        })
+
         this._pluginManager.on("set-errors", (key: string, fileName: string, errors: types.Diagnostic[]) => {
 
             UI.Actions.setErrors(fileName, key, errors)
@@ -303,10 +307,6 @@ export class NeovimEditor implements IEditor {
             this._neovimInstance.command(`buf ${bufferId}`)
         }
 
-        const onResize = () => {
-            this._windowManager.remeasure()
-        }
-
         const onTabClose = (tabId: number) => {
             this._neovimInstance.command(`tabclose ${tabId}`)
         }
@@ -326,7 +326,6 @@ export class NeovimEditor implements IEditor {
             onKeyDown={onKeyDown}
             onBufferClose={onBufferClose}
             onBufferSelect={onBufferSelect}
-            onResize={onResize}
             onTabClose={onTabClose}
             onTabSelect={onTabSelect} />
     }
