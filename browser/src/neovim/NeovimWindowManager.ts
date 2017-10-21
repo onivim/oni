@@ -89,6 +89,7 @@ export class NeovimWindowManager {
         if (values.length === 4) {
             // Grab the results of the `nvim_atomic_call`, as they are returned in an array
             const position = values[0]
+            const [row, col] = position
             const width = values[1]
             const height = values[2]
             const lines = values[3]
@@ -111,8 +112,8 @@ export class NeovimWindowManager {
             const ranges = rangesOnScreen.slice(arrayStart, arrayEnd)
 
             const dimensions = {
-                x: position[0],
-                y: position[1],
+                x: col,
+                y: row,
                 width,
                 height,
             }
