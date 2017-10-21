@@ -134,17 +134,8 @@ export class NeovimWindowManager {
     }
 }
 
-// TODO: Can this be moved to a common place?
-const isInRange = (line: number, column: number, range: types.Range) => {
-
-    return (line >= range.start.line
-        && column >= range.start.character
-        && line <= range.end.line
-        && column <= range.end.character)
-}
-
 const getBufferToScreenFromRanges = (offset: number, ranges: types.Range[]) => (bufferPosition: types.Position) => {
-    const screenLine = ranges.findIndex((v) => isInRange(bufferPosition.line, bufferPosition.character, v))
+    const screenLine = ranges.findIndex((v) => Utility.isInRange(bufferPosition.line, bufferPosition.character, v))
 
     if (screenLine === -1) {
         return null
