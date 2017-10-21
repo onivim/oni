@@ -111,9 +111,6 @@ export interface INeovimInstance {
     getCurrentBuffer(): Promise<IBuffer>
     getCurrentWindow(): Promise<IWindow>
 
-    getCursorColumn(): Promise<number>
-    getCursorRow(): Promise<number>
-
     getApiVersion(): Promise<INeovimApiVersion>
 
     open(fileName: string): Promise<void>
@@ -317,23 +314,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             })
 
         return this._initPromise
-    }
-
-    public getMode(): Promise<string> {
-        return this.eval<string>("mode()")
-    }
-
-    /**
-     * Returns the current cursor column in buffer-space
-     */
-    public getCursorColumn(): Promise<number> {
-        return this.eval<number>("col('.')")
-    }
-
-    /** Returns the current cursor row in buffer-space
-     */
-    public getCursorRow(): Promise<number> {
-        return this.eval<number>("line('.')")
     }
 
     public setFont(fontFamily: string, fontSize: string, linePadding: number): void {
