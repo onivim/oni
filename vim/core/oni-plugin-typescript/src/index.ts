@@ -16,6 +16,7 @@ import { getCompletions } from "./Completion"
 import { getDefinition } from "./Definition"
 import { findAllReferences } from "./FindAllReferences"
 import { LightweightLanguageClient } from "./LightweightLanguageClient"
+import { getQuickInfo } from "./QuickInfo"
 import { getSignatureHelp } from "./SignatureHelp"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
 
@@ -135,19 +136,6 @@ export const activate = (oni: Oni.Plugin.Api) => {
         }
     }
 
-    const getQuickInfo = async (protocolName: string, payload: any): Promise<types.Hover> => {
-
-        const textDocument: types.TextDocument  = payload.textDocument
-        const position: types.Position = payload.position
-
-        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-        const val = await host.getQuickInfo(filePath, position.line + 1, position.character + 1)
-
-        return {
-            contents: [val.displayString, val.documentation]
-        }
-    }
-
     // TODO:
     const getCodeActions = async (protocolName: string, payload: any): Promise<types.Command[]> => {
 
@@ -168,7 +156,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
     lightweightLanguageClient.handleRequest("textDocument/completion", getCompletions(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions)
     lightweightLanguageClient.handleRequest("textDocument/definition", getDefinition(oni, host))
-    lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo)
+    lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
 
