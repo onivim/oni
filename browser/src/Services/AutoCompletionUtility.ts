@@ -49,7 +49,7 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
     let col = cursorColumn - 1
     let currentPrefix = ""
 
-    while (col >= 0) {
+    while (col >= 0 && col < line.length) {
         const currentCharacter = line[col]
 
         if (!currentCharacter.match(characterMatchRegex)) {

@@ -1,16 +1,20 @@
 import { createSelector } from "reselect"
 
 import * as Selectors from "./../Selectors"
+import { getCurrentBufferLine } from "./../selectors/BufferSelectors"
 import { IState } from "./../State"
 
-// import { languageManager } from "./../../Services/Language"
+// import { getSignatureHelpTriggerColumn } from "./../../Services/Language"
+
+import { getCompletionMeet } from "./../../Services/AutoCompletionUtility"
+import { languageManager } from "./../../Services/Language"
 
 const getAutoCompletionRaw = (state: IState) => state.autoCompletion
 
 // TODO: Need to gate the visibility correctly
 export const areCompletionsVisible = (state: IState) => {
-    const autoCompletion = state.autoCompletion
-    const entryCount = (autoCompletion && autoCompletion.data && autoCompletion.data.entries) ? autoCompletion.data.entries.length : 0
+    const autoCompletion = getAutoCompletion(state)
+    const entryCount = (autoCompletion) ? autoCompletion.entries.length : 0
 
     if (entryCount === 0) {
         return false
@@ -21,30 +25,30 @@ export const areCompletionsVisible = (state: IState) => {
     }
 
     // In the case of a single entry, should not be visible if the base is equal to the selected item
-    return autoCompletion != null && autoCompletion.data.base !== getSelectedCompletion(state)
+    return autoCompletion != null && autoCompletion.base !== getSelectedCompletion(state)
 }
 
 export const getSelectedCompletion = (state: IState) => {
-    const autoCompletion = state.autoCompletion
-    if (!autoCompletion || !autoCompletion.data) {
+    const autoCompletion = getAutoCompletion(state)
+    if (!autoCompletion) {
         return null
     }
 
-    const completionData = autoCompletion.data
+    const completionData = autoCompletion
 
     const completion = completionData.filteredEntries[completionData.selectedIndex]
     return completion.insertText ? completion.insertText : completion.label
 }
 
 export const getAutoCompletion = createSelector(
-    [Selectors.getActiveWindow, getAutoCompletionRaw],
-    (win, completion) => {
+    [Selectors.getActiveWindow, getAutoCompletionRaw, getCurrentBufferLine],
+    (win, completion, currentLine) => {
 
     if (!win) {
         return null
     }
 
-    const { file, line /*, column */} = win
+    const { file, line, column} = win
 
     if (!completion) {
         return null
@@ -57,23 +61,17 @@ export const getAutoCompletion = createSelector(
             return null
         }
 
-    // const tokenRegEx = languageManager.getTokenRegex("typescript")
+    const tokenRegEx = languageManager.getTokenRegex("typescript")
+    const meet = getCompletionMeet(currentLine, column, tokenRegEx)
 
-    // TODO:
-    //  -Need buffer language
-    //  -Need buffer line
+    if (!meet) {
+        return null
+    }
+    const idx = meet.position + 1
 
-    // Work backward in the buffer to see if there is a match...
-
-    // for(let i = column; i >= 0; i--) {
-
-    // }
-
-    // if (completion.filePath !== file
-    //     || completion.line !== line
-    //     || completion.column !== column) {
-    //         return null
-    //     }
+    if (idx !== completion.column) {
+        return null
+    }
 
     return completion.data
 })

@@ -42,11 +42,12 @@ export const showSignatureHelp = async (evt: Oni.EventContext) => {
     }
 }
 
+// TODO: `getSignatureHelpTriggerColumn` rename to `getNearestTriggerCharacter`
 export const getSignatureHelpTriggerColumn = (line: string, character: number, triggerCharacters: string[]): number => {
 
     let idx = character
     while (idx >= 0) {
-        if(line[idx] === triggerCharacters[0]) {
+        if (line[idx] === triggerCharacters[0]) {
             break
         }
 

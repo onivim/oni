@@ -5,7 +5,7 @@
 import { createSelector } from "reselect"
 
 import * as Selectors from "./../Selectors"
-import { getActiveBuffer } from "./../selectors/BufferSelectors"
+import { getCurrentBufferLine } from "./../selectors/BufferSelectors"
 import { IState } from "./../State"
 
 // import { languageManager } from "./../../Services/Language"
@@ -16,8 +16,8 @@ import { getSignatureHelpTriggerColumn } from "./../../Services/Language"
 const getSignatureHelpRaw = (state: IState) => state.signatureHelp
 
 export const getSignatureHelp = createSelector(
-    [Selectors.getActiveWindow, getSignatureHelpRaw, getActiveBuffer],
-    (win, signatureHelp, buffer) => {
+    [Selectors.getActiveWindow, getSignatureHelpRaw, getCurrentBufferLine],
+    (win, signatureHelp, currentLine) => {
 
     if (!win || !signatureHelp) {
         return null
@@ -29,14 +29,6 @@ export const getSignatureHelp = createSelector(
         || signatureHelp.line !== line) {
             return null
         }
-
-
-
-    if (!buffer.lines) {
-        return null
-    }
-
-    const currentLine = buffer.lines[line]
 
     const signatureHelpTriggerCharacters = ["("]
 

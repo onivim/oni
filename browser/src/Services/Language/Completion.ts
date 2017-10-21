@@ -78,7 +78,7 @@ export const checkForCompletions = async (evt: Oni.EventContext) => {
             insertText: i.insertText,
         }))
 
-        UI.Actions.showCompletions(evt.bufferFullPath, evt.line - 1, evt.column - 1, completions || [], meet.base)
+        UI.Actions.showCompletions(evt.bufferFullPath, evt.line - 1, pos, completions || [], meet.base)
 
         // console.dir(result)
         // debugger

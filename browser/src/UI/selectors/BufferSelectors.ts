@@ -37,3 +37,18 @@ export const getActiveBuffer = createSelector(
         return buf || null
     }
 )
+
+export const getCurrentBufferLine = createSelector(
+    [Selectors.getActiveWindow, getActiveBuffer],
+    (win, buffer) => {
+        if (!buffer || !buffer.lines) {
+            return null
+        }
+
+        if (win.file !== buffer.file) {
+            return null
+        }
+
+        return buffer.lines[win.line]
+    }
+)
