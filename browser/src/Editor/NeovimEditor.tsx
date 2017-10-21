@@ -9,6 +9,10 @@ import * as os from "os"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
+import { Observable } from "rxjs/Observable"
+import "rxjs/add/observable/defer"
+import "rxjs/add/operator/mergeMap"
+
 import * as types from "vscode-languageserver-types"
 
 import { clipboard, ipcRenderer, remote } from "electron"
@@ -62,6 +66,10 @@ export class NeovimEditor implements IEditor {
     private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChangedEvent = new Event<Oni.EditorBufferChangedEventArgs>()
     private _onBufferSavedEvent = new Event<Oni.EditorBufferEventArgs>()
+
+    private _$cursorMoved: Observable<Oni.EventContext>
+    private _$bufferUpdates: Observable<IFullBufferUpdateEvent>
+    private _$bufferIncrementalUpdates: Observable<IIncrementalBufferUpdateEvent>
 
     private _hasLoaded: boolean = false
 
@@ -177,13 +185,19 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
 
-        this._neovimInstance.onBufferUpdate.subscribe((bufferUpdateEvent: IFullBufferUpdateEvent) => {
+        this._$bufferUpdates = this._neovimInstance.onBufferUpdate.asObservable()
+        this._$bufferIncrementalUpdates = this._neovimInstance.onBufferUpdateIncremental.asObservable()
+        this._$cursorMoved = this._neovimInstance.autoCommands.onCursorMoved.asObservable()
+
+        this._$bufferUpdates
+            .auditTime(10)
+            .subscribe((bufferUpdateEvent: IFullBufferUpdateEvent) => {
             const args = bufferUpdateEvent.context
 
             const buf = this._bufferManager.updateBufferFromEvent(args)
             buf._notifyBufferUpdated(bufferUpdateEvent.bufferLines, args.version)
 
-            buf.getLines(0, buf.lineCount).then((lines) => {
+            buf.getLines(0, buf.lineCount).then((lines: string[]) => {
                 UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, lines)
             })
 
@@ -193,31 +207,49 @@ export class NeovimEditor implements IEditor {
             })
         })
 
-        this._neovimInstance.onBufferUpdateIncremental.subscribe((bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
-            const args = bufferUpdateArgs.context
-            const lineNumber = bufferUpdateArgs.lineNumber
-            const changedLine = bufferUpdateArgs.lineContents
+        this._$bufferIncrementalUpdates
+            .auditTime(10)
+            .mergeMap((bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
 
-            const buf = this._bufferManager.updateBufferFromEvent(args)
-            buf._notifyBufferUpdatedAt(lineNumber - 1, changedLine, args.version)
+                return Observable.defer(async () => {
+                    const args = bufferUpdateArgs.context
+                    const lineNumber = bufferUpdateArgs.lineNumber
+                    const changedLine = bufferUpdateArgs.lineContents
 
-            buf.getLines(0, buf.lineCount).then((lines) => {
-                UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, lines)
+                    const buf = this._bufferManager.updateBufferFromEvent(args)
+                    buf._notifyBufferUpdatedAt(lineNumber - 1, changedLine, args.version)
+
+                    const lines: string[] = await buf.getLines(0, buf.lineCount)
+                    UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, lines)
+
+                    this._onBufferChangedEvent.dispatch({
+                        buffer: buf,
+                        contentChanges: [{
+                            range: types.Range.create(lineNumber - 1, 0, lineNumber, 0),
+                            text: changedLine + os.EOL,
+                        }],
+                    })
+
+                    return bufferUpdateArgs.context
+                })
             })
-
-            this._onBufferChangedEvent.dispatch({
-                buffer: buf,
-                contentChanges: [{
-                    range: types.Range.create(lineNumber - 1, 0, lineNumber, 0),
-                    text: changedLine + os.EOL,
-                }],
-            })
-
-            window.setTimeout(async () => {
+            .auditTime(25)
+            .subscribe(async (args: Oni.EventContext) => {
                 await checkForCompletions(args)
                 await showSignatureHelp(args)
-            }, 49)
-        })
+            })
+
+        this._$cursorMoved
+            .auditTime(10)
+            .subscribe((context: Oni.EventContext) => {
+                if (configuration.getValue("editor.quickInfo.enabled")) {
+                    // First, check if there is a language client registered...
+                    checkAndShowQuickInfo(context)
+                }
+
+                getDefinition()
+                checkCodeActions(context)
+            })
 
         this._render()
 
@@ -338,7 +370,6 @@ export class NeovimEditor implements IEditor {
         tasks.onEvent(evt)
 
         const lastBuffer = this.activeBuffer
-
         const buf = this._bufferManager.updateBufferFromEvent(evt)
 
         if (eventName === "BufEnter") {
@@ -365,14 +396,6 @@ export class NeovimEditor implements IEditor {
 
             this._neovimInstance.getBufferIds()
                 .then((ids) => UI.Actions.setCurrentBuffers(ids))
-        } else if (eventName === "CursorMoved") {
-            if (configuration.getValue("editor.quickInfo.enabled")) {
-                // First, check if there is a language client registered...
-                checkAndShowQuickInfo(evt)
-            }
-
-            getDefinition()
-            checkCodeActions(evt)
         }
     }
 
