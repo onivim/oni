@@ -128,6 +128,10 @@ export class LanguageManager {
         }
     }
 
+    public unwrapFileUriPath(filePath: string): string {
+        return Helpers.unwrapFileUriPath(filePath)
+    }
+
     public registerLanguageClient(language: string, languageClient: ILanguageClient): any {
         if (this._languageServerInfo[language]) {
             Log.error("Duplicate language server registered for: " + language)

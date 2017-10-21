@@ -49,12 +49,12 @@ export class LightweightLanguageClient {
         this._notificationHandler[notificationName] = notificationHandler
     }
 
-    public notify(notificationName: string, payload: any): void {
+    public notify(notificationName: string, language: string, payload: any): void {
         const notifierEvent = this._subscriptions[notificationName]
 
         if (notifierEvent) {
             (<any>notifierEvent).dispatch({
-                language: "typescript", // TODO: Generalize for JS too
+                language, // TODO: Generalize for JS too
                 payload,
             })
         }

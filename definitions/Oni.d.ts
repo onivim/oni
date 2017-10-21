@@ -239,7 +239,9 @@ declare namespace Oni {
             diagnostics: Diagnostics.Api
             editors: EditorManager
             input: InputManager
-            menu: any; /* TODO */
+            language: any /* TODO */
+            log: any /* TODO */
+            menu: any /* TODO */
             process: Process
             statusBar: StatusBar
             workspace: Workspace
