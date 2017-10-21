@@ -12,20 +12,20 @@ export namespace TextDocumentSyncKind {
    /**
     * Documents should not be synced at all.
     */
-   export const None = 0;
+   export const None = 0
 
    /**
     * Documents are synced by always sending the full content
     * of the document.
     */
-   export const Full = 1;
+   export const Full = 1
 
    /**
     * Documents are synced by sending the full content on open.
     * After that only incremental updates to the document are
     * send.
     */
-   export const Incremental = 2;
+   export const Incremental = 2
 }
 
 /**
@@ -36,12 +36,12 @@ export interface CompletionOptions {
     * The server provides support to resolve additional
     * information for a completion item.
     */
-   resolveProvider?: boolean;
+   resolveProvider?: boolean
 
    /**
     * The characters that trigger completion automatically.
     */
-   triggerCharacters?: string[];
+   triggerCharacters?: string[]
 }
 /**
  * Signature help options.
@@ -51,7 +51,7 @@ export interface SignatureHelpOptions {
     * The characters that trigger signature help
     * automatically.
     */
-   triggerCharacters?: string[];
+   triggerCharacters?: string[]
 }
 
 /**
@@ -61,7 +61,7 @@ export interface CodeLensOptions {
    /**
     * Code lens has a resolve provider as well.
     */
-   resolveProvider?: boolean;
+   resolveProvider?: boolean
 }
 
 /**
@@ -71,12 +71,12 @@ export interface DocumentOnTypeFormattingOptions {
    /**
     * A character on which formatting should be triggered, like `}`.
     */
-   firstTriggerCharacter: string;
+   firstTriggerCharacter: string
 
    /**
     * More trigger characters.
     */
-   moreTriggerCharacter?: string[];
+   moreTriggerCharacter?: string[]
 }
 
 /**
@@ -86,7 +86,7 @@ export interface DocumentLinkOptions {
    /**
     * Document links have a resolve provider as well.
     */
-   resolveProvider?: boolean;
+   resolveProvider?: boolean
 }
 
 /**
@@ -106,31 +106,31 @@ export interface SaveOptions {
    /**
     * The client is supposed to include the content on save.
     */
-   includeText?: boolean;
+   includeText?: boolean
 }
 
 export interface TextDocumentSyncOptions {
    /**
     * Open and close notifications are sent to the server.
     */
-   openClose?: boolean;
+   openClose?: boolean
    /**
     * Change notifications are sent to the server. See TextDocumentSyncKind.None, TextDocumentSyncKind.Full
     * and TextDocumentSyncKindIncremental.
     */
-   change?: number;
+   change?: number
    /**
     * Will save notifications are sent to the server.
     */
-   willSave?: boolean;
+   willSave?: boolean
    /**
     * Will save wait until requests are sent to the server.
     */
-   willSaveWaitUntil?: boolean;
+   willSaveWaitUntil?: boolean
    /**
     * Save notifications are sent to the server.
     */
-   save?: SaveOptions;
+   save?: SaveOptions
 }
 
 export interface IServerCapabilities {
@@ -138,73 +138,73 @@ export interface IServerCapabilities {
     * Defines how text documents are synced. Is either a detailed structure defining each notification or
     * for backwards compatibility the TextDocumentSyncKind number.
     */
-   textDocumentSync?: TextDocumentSyncOptions | number;
+   textDocumentSync?: TextDocumentSyncOptions | number
    /**
     * The server provides hover support.
     */
-   hoverProvider?: boolean;
+   hoverProvider?: boolean
    /**
     * The server provides completion support.
     */
-   completionProvider?: CompletionOptions;
+   completionProvider?: CompletionOptions
    /**
     * The server provides signature help support.
     */
-   signatureHelpProvider?: SignatureHelpOptions;
+   signatureHelpProvider?: SignatureHelpOptions
    /**
     * The server provides goto definition support.
     */
-   definitionProvider?: boolean;
+   definitionProvider?: boolean
    /**
     * The server provides find references support.
     */
-   referencesProvider?: boolean;
+   referencesProvider?: boolean
    /**
     * The server provides document highlight support.
     */
-   documentHighlightProvider?: boolean;
+   documentHighlightProvider?: boolean
    /**
     * The server provides document symbol support.
     */
-   documentSymbolProvider?: boolean;
+   documentSymbolProvider?: boolean
    /**
     * The server provides workspace symbol support.
     */
-   workspaceSymbolProvider?: boolean;
+   workspaceSymbolProvider?: boolean
    /**
     * The server provides code actions.
     */
-   codeActionProvider?: boolean;
+   codeActionProvider?: boolean
    /**
     * The server provides code lens.
     */
-   codeLensProvider?: CodeLensOptions;
+   codeLensProvider?: CodeLensOptions
    /**
     * The server provides document formatting.
     */
-   documentFormattingProvider?: boolean;
+   documentFormattingProvider?: boolean
    /**
     * The server provides document range formatting.
     */
-   documentRangeFormattingProvider?: boolean;
+   documentRangeFormattingProvider?: boolean
    /**
     * The server provides document formatting on typing.
     */
-   documentOnTypeFormattingProvider?: DocumentOnTypeFormattingOptions;
+   documentOnTypeFormattingProvider?: DocumentOnTypeFormattingOptions
    /**
     * The server provides rename support.
     */
-   renameProvider?: boolean;
+   renameProvider?: boolean
    /**
     * The server provides document link support.
     */
-   documentLinkProvider?: DocumentLinkOptions;
+   documentLinkProvider?: DocumentLinkOptions
    /**
     * The server provides execute command support.
     */
-   executeCommandProvider?: ExecuteCommandOptions;
+   executeCommandProvider?: ExecuteCommandOptions
    /**
     * Experimental server capabilities.
     */
-   experimental?: any;
+   experimental?: any
 }

@@ -269,7 +269,6 @@ export const setCompletionBase = (base: string) => ({
     },
 })
 
-
 export const setDetailedCompletionEntry = (detailedEntry: Oni.Plugin.CompletionInfo) => ({
     type: "SET_AUTO_COMPLETION_DETAILS",
     payload: {

@@ -8,8 +8,8 @@ import * as types from "vscode-languageserver-types"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 import * as UI from "./../../UI"
 
-import { languageManager } from "./LanguageManager"
 import { editorManager } from "./../EditorManager"
+import { languageManager } from "./LanguageManager"
 
 export const showSignatureHelp = async (evt: Oni.EventContext) => {
     if (languageManager.isLanguageServerAvailable(evt.filetype)) {
@@ -27,13 +27,13 @@ export const showSignatureHelp = async (evt: Oni.EventContext) => {
         }
 
         const args = {
-            textDocument: { 
-                uri: Helpers.wrapPathInFileUri(evt.bufferFullPath), 
+            textDocument: {
+                uri: Helpers.wrapPathInFileUri(evt.bufferFullPath),
             },
             position: {
                 line,
                 character: column,
-            }
+            },
         }
 
         const result: types.SignatureHelp = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/signatureHelp", args)

@@ -48,7 +48,6 @@ export class LanguageManager {
 
             // const syncMode = (capabilities & typeof capabilities.textDocumentSync === "number")
 
-
             // TODO: Incremental buffer updates...
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didChange", {
                 textDocument: {

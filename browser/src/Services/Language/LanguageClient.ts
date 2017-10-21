@@ -3,9 +3,9 @@ import * as rpc from "vscode-jsonrpc"
 import { Event } from "./../../Event"
 import * as Log from "./../../Log"
 
-import { IServerCapabilities } from "./ServerCapabilities"
 import { ILanguageClientProcess } from "./LanguageClientProcess"
 import { PromiseQueue } from "./PromiseQueue"
+import { IServerCapabilities } from "./ServerCapabilities"
 
 export interface ILanguageClient {
     serverCapabilities: IServerCapabilities

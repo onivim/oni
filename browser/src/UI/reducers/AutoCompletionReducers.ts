@@ -20,7 +20,7 @@ const autoCompletionReducer = (s: State.IAutoCompletionInfo | null, a: Actions.S
             entries: a.payload.entries,
             selectedIndex: 0,
             base: a.payload.base,
-            filteredEntries: getFilteredEntries(a.payload.entries, a.payload.base)
+            filteredEntries: getFilteredEntries(a.payload.entries, a.payload.base),
         }
     } else if (!s) {
         return s

@@ -9,9 +9,9 @@ import * as os from "os"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-import { Observable } from "rxjs/Observable"
 import "rxjs/add/observable/defer"
 import "rxjs/add/operator/mergeMap"
+import { Observable } from "rxjs/Observable"
 
 import * as types from "vscode-languageserver-types"
 
@@ -207,7 +207,6 @@ export class NeovimEditor implements IEditor {
             })
         })
 
-
         const $postIncrementalUpdate = this._$bufferIncrementalUpdates
             .auditTime(10)
             .mergeMap((bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
@@ -235,7 +234,7 @@ export class NeovimEditor implements IEditor {
                 })
             })
 
-            $postIncrementalUpdate.subscribe(async (args: Oni.EventContext) => {
+        $postIncrementalUpdate.subscribe(async (args: Oni.EventContext) => {
                 await checkForCompletions(args)
                 await showSignatureHelp(args)
             })

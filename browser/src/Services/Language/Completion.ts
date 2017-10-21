@@ -16,9 +16,9 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
-let lastFile:string = null
-let lastLine:number = null
-let lastColumn:number = null
+let lastFile: string = null
+let lastLine: number = null
+let lastColumn: number = null
 
 // TODO:
 // - Factor out event context to something simpler
@@ -26,13 +26,11 @@ let lastColumn:number = null
 export const checkForCompletions = async (evt: Oni.EventContext) => {
     if (languageManager.isLanguageServerAvailable(evt.filetype)) {
 
-
         const line = evt.line - 1
         const column = evt.column - 1
 
         const buffer = editorManager.activeEditor.activeBuffer
         const currentLine = await buffer.getLines(line, line + 1)
-
 
         const token = languageManager.getTokenRegex(evt.filetype)
         const meet = AutoCompletionUtility.getCompletionMeet(currentLine[0], column, token)
@@ -53,13 +51,13 @@ export const checkForCompletions = async (evt: Oni.EventContext) => {
         lastColumn = pos
 
         const args = {
-            textDocument: { 
-                uri: Helpers.wrapPathInFileUri(evt.bufferFullPath), 
+            textDocument: {
+                uri: Helpers.wrapPathInFileUri(evt.bufferFullPath),
             },
             position: {
                 line,
                 character: pos,
-            }
+            },
         }
 
         const result = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/completion", args)
@@ -102,7 +100,7 @@ export const commitCompletion = async () => {
     const cursorOffset = newLine.length - originalLine.length
 
     await buffer.setCursorPosition(line, column + cursorOffset)
-} 
+}
 
 const getCompletionItems = (items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[] => {
     if (!items) {

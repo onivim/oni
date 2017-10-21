@@ -68,7 +68,7 @@ export class Buffer implements Oni.Buffer {
         if (this._lastBufferLineVersion < this.version) {
             const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [parseInt(this._id, 10), start, end, false])
             return lines
-        } 
+        }
 
         return this._bufferLines.slice(start, end)
     }
