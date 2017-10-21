@@ -15,12 +15,11 @@ import { IPixelPosition, IPosition } from "./../Screen"
 import { configuration } from "./../Services/Configuration"
 
 import { Buffer, IBuffer } from "./Buffer"
-import { NeovimBufferReference, NeovimWindowReference } from "./MsgPack"
+import { NeovimBufferReference } from "./MsgPack"
 import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
 import { startNeovim } from "./NeovimProcessSpawner"
 import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { Session } from "./Session"
-import { IWindow, Window } from "./Window"
 
 export interface INeovimYankInfo {
     operator: string
@@ -109,7 +108,6 @@ export interface INeovimInstance {
     getBufferIds(): Promise<number[]>
 
     getCurrentBuffer(): Promise<IBuffer>
-    getCurrentWindow(): Promise<IWindow>
 
     getApiVersion(): Promise<INeovimApiVersion>
 
@@ -377,11 +375,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public async getCurrentWorkingDirectory(): Promise<string> {
         const currentWorkingDirectory = await this.eval<string>("getcwd()")
         return path.normalize(currentWorkingDirectory)
-    }
-
-    public async getCurrentWindow(): Promise<IWindow> {
-        const windowReference = await this._neovim.request<NeovimWindowReference>("nvim_get_current_win", [])
-        return new Window(windowReference, this._neovim)
     }
 
     public get cursorPosition(): IPosition {
