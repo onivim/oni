@@ -3,9 +3,6 @@ import { EventEmitter } from "events"
 
 import { Diagnostics } from "./Diagnostics"
 
-import { DebouncedLanguageService } from "./DebouncedLanguageService"
-import { InitializationParamsCreator, LanguageClient, ServerRunOptions } from "./LanguageClient/LanguageClient"
-
 import * as Process from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
@@ -43,7 +40,6 @@ const helpers = {
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     private _dependencies: Dependencies
-    private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
     private _ui: Ui
     private _services: Services

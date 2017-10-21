@@ -245,8 +245,6 @@ declare namespace Oni {
             process: Process
             statusBar: StatusBar
             workspace: Workspace
-
-            registerLanguageService(languageService: LanguageService)
         }
 
         export interface CompletionResult {
