@@ -19,6 +19,7 @@ export interface ILightweightLanguageConfiguration {
 }
 
 export interface ILightweightLanguageServerConfiguration {
+    arguments?: string[]
     command?: string
     rootFiles?: string[]
 }
@@ -74,6 +75,7 @@ const createLanguageClientFromConfig = (language: string, config: ILightweightLa
 
     const lightweightCommand = config.languageServer.command
     const rootFiles = config.languageServer.rootFiles
+    const args = config.languageServer.arguments || []
 
     Log.info(`[Language Manager - Config] Registering info for language: ${language} - command: ${config.languageServer.command}`)
 
@@ -87,7 +89,7 @@ const createLanguageClientFromConfig = (language: string, config: ILightweightLa
 
     const serverRunOptions: ServerRunOptions = {
         ...commandOrModule,
-        args: [],
+        args,
         workingDirectory: pathResolver,
     }
 
