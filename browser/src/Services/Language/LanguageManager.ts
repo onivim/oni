@@ -13,7 +13,8 @@ import * as Log from "./../../Log"
 
 import { editorManager } from "./../EditorManager"
 
-import { ILanguageClient } from "./LanguageClient2"
+import { ILanguageClient } from "./LanguageClient"
+import { IServerCapabilities } from "./ServerCapabilities"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -40,10 +41,14 @@ export class LanguageManager {
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didClose", Helpers.pathToTextDocumentIdentifierParms(filePath))
         })
 
-        editorManager.allEditors.onBufferChanged.subscribe((change: Oni.EditorBufferChangedEventArgs) => {
+        editorManager.allEditors.onBufferChanged.subscribe(async (change: Oni.EditorBufferChangedEventArgs) => {
+
+            const { language, filePath } = change.buffer
+            // const capabilities = await this.getCapabilitiesForLanguage(language)
+
+            // const syncMode = (capabilities & typeof capabilities.textDocumentSync === "number")
 
             // TODO: Incremental buffer updates...
-            const { language, filePath } = change.buffer
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didChange", {
                 textDocument: {
                     uri: Helpers.wrapPathInFileUri(filePath),
@@ -60,6 +65,16 @@ export class LanguageManager {
         this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
             // logInfo("telemetry/event:" + JSON.stringify(args))
         })
+    }
+
+    public getCapabilitiesForLanguage(language: string): Promise<IServerCapabilities> {
+        const languageClient = this._getLanguageClient(language)
+
+        if (languageClient) {
+            return Promise.resolve(languageClient.serverCapabilities)
+        } else {
+            return Promise.resolve(null)
+        }
     }
 
     public getTokenRegex(language: string): RegExp {
@@ -111,6 +126,14 @@ export class LanguageManager {
         } else {
             return currentSubscription.subscribe((args) => callback(args))
         }
+    }
+
+    public unwrapFileUriPath(fileUri: string): string {
+        return Helpers.unwrapFileUriPath(fileUri)
+    }
+
+    public wrapPathInFileUri(filePath: string): string {
+        return Helpers.wrapPathInFileUri(filePath)
     }
 
     public registerLanguageClient(language: string, languageClient: ILanguageClient): any {

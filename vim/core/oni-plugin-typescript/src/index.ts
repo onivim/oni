@@ -12,157 +12,54 @@ import * as path from "path"
 
 import * as types from "vscode-languageserver-types"
 
-import { QuickInfo } from "./QuickInfo"
-import { TypeScriptServerHost } from "./TypeScriptServerHost"
+import { getCompletions } from "./Completion"
+import { getDefinition } from "./Definition"
+import { findAllReferences } from "./FindAllReferences"
 import { LightweightLanguageClient } from "./LightweightLanguageClient"
+import { getQuickInfo } from "./QuickInfo"
+import { getSignatureHelp } from "./SignatureHelp"
+import { TypeScriptServerHost } from "./TypeScriptServerHost"
 
-export interface IDisplayPart {
-    text: string
-    kind: string
-}
+export const activate = (oni: Oni.Plugin.Api) => {
 
-export const activate = (Oni) => {
+    const host = new TypeScriptServerHost(oni)
 
-    const host = new TypeScriptServerHost(Oni)
-    const quickInfo = new QuickInfo(Oni, host)
+    // TODO:
+    // let lastBuffer: string[] = []
 
-    const lastOpenFile = null
+    // const getFormattingEdits = (position: Oni.EventContext) => {
+    //     return host.getFormattingEdits(position.bufferFullPath, 1, 1, lastBuffer.length, 0)
+    //         .then((val) => {
+    //             const edits = val.map((v) => {
+    //                 const start = {
+    //                     line: v.start.line,
+    //                     column: v.start.offset,
+    //                 }
 
-    let lastBuffer: string[] = []
+    //                 const end = {
+    //                     line: v.end.line,
+    //                     column: v.end.offset,
+    //                 }
 
-    const getFormattingEdits = (position: Oni.EventContext) => {
-        return host.getFormattingEdits(position.bufferFullPath, 1, 1, lastBuffer.length, 0)
-            .then((val) => {
-                const edits = val.map((v) => {
-                    const start = {
-                        line: v.start.line,
-                        column: v.start.offset,
-                    }
+    //                 return {
+    //                     start,
+    //                     end,
+    //                     newValue: v.newText,
+    //                 }
 
-                    const end = {
-                        line: v.end.line,
-                        column: v.end.offset,
-                    }
+    //             })
 
-                    return {
-                        start,
-                        end,
-                        newValue: v.newText,
-                    }
-
-                })
-
-                return {
-                    filePath: position.bufferFullPath,
-                    version: position.version,
-                    edits,
-                }
-            })
-    }
-
-    const convertTypeScriptKindToCompletionItemKind = (kind: string): types.CompletionItemKind => {
-
-        const typeScriptKindToCompletionKind = {
-            "let": types.CompletionItemKind.Variable,
-            "interface": types.CompletionItemKind.Interface,
-            "alias": types.CompletionItemKind.Reference,
-            "color": types.CompletionItemKind.Color,
-            "const": types.CompletionItemKind.Value,
-            "constructor": types.CompletionItemKind.Constructor,
-            "class": types.CompletionItemKind.Class,
-            "type": types.CompletionItemKind.Class,
-            "directory": types.CompletionItemKind.File,
-            "file": types.CompletionItemKind.File,
-            "script": types.CompletionItemKind.File,
-            "var": types.CompletionItemKind.Variable,
-            "property": types.CompletionItemKind.Property,
-            "parameter": types.CompletionItemKind.Variable,
-            "module": types.CompletionItemKind.Module,
-            "external module name": types.CompletionItemKind.Module,
-            "method": types.CompletionItemKind.Method,
-            "function": types.CompletionItemKind.Function,
-            "unit": types.CompletionItemKind.Unit,
-            "keyword": types.CompletionItemKind.Keyword,
-            "text": types.CompletionItemKind.Text,
-        }
-
-        if (kind && typeScriptKindToCompletionKind[kind]) {
-            return typeScriptKindToCompletionKind[kind]
-        } else {
-            return null
-        }
-    }
-
-    const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {
-
-        if (!textDocumentPosition || !textDocumentPosition.bufferFullPath) {
-            return Promise.resolve(null)
-        }
-
-        return host.getCompletionDetails(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, [completionItem.label])
-            .then((details) => {
-                const entry = details[0]
-
-                if (!entry) {
-                    return null
-                }
-
-                return {
-                    kind: convertTypeScriptKindToCompletionItemKind(entry.kind),
-                    label: entry.name,
-                    documentation: entry.documentation && entry.documentation.length ? entry.documentation[0].text : null,
-                    detail: convertToDisplayString(entry.displayParts),
-                }
-            })
-    }
-
-
-    const getSignatureHelp = async (message: string, payload: any): Promise<types.SignatureHelp> => {
-        const textDocument: types.TextDocumentIdentifier = payload.textDocument
-        const filePath = unwrapFileUriPath(textDocument.uri)
-        const zeroBasedPosition: types.Position = payload.position
-
-        const oneBasedPosition = {
-            line: zeroBasedPosition.line + 1,
-            column: zeroBasedPosition.character + 1,
-        }
-
-        const result = await host.getSignatureHelp(filePath, oneBasedPosition.line, oneBasedPosition.column)
-
-        const items = result.items || []
-
-        const signatureHelpItems = items.map((item): types.SignatureInformation => {
-            const prefix = convertToDisplayString(item.prefixDisplayParts)
-            const suffix = convertToDisplayString(item.suffixDisplayParts)
-            const separator = convertToDisplayString(item.separatorDisplayParts)
-
-            const parameters = item.parameters.map((p) => ({
-                label: convertToDisplayString(p.displayParts),
-                documentation: convertToDisplayString(p.documentation),
-            }))
-
-            const parameterLabels = parameters.map((p) => p.label)
-
-            const label = prefix + parameterLabels.join(separator) + suffix
-
-            return {
-                label,
-                documentation: convertToDisplayString(item.documentation),
-                parameters,
-            }
-        })
-
-        return {
-            signatures: signatureHelpItems,
-            activeSignature: result.selectedItemIndex,
-            activeParameter: result.argumentIndex,
-        }
-    }
+    //             return {
+    //                 filePath: position.bufferFullPath,
+    //                 version: position.version,
+    //                 edits,
+    //             }
+    //         })
+    // }
 
     const lightweightLanguageClient = new LightweightLanguageClient()
-
-    Oni.language.registerLanguageClient("typescript", lightweightLanguageClient)
-    Oni.language.registerLanguageClient("javascript", lightweightLanguageClient)
+    oni.language.registerLanguageClient("typescript", lightweightLanguageClient)
+    oni.language.registerLanguageClient("javascript", lightweightLanguageClient)
 
     host.on("semanticDiag", (diagnostics) => {
         const fileName = diagnostics.file
@@ -185,27 +82,19 @@ export const activate = (Oni) => {
             return ret
         })
 
-        lightweightLanguageClient.notify("textDocument/publishDiagnostics", {
-            uri: wrapPathInFileUri(fileName),
+
+        const extension = path.extname(fileName)
+        const language = extension === ".js" || extension === ".jsx" ? "javascript" : "typescript"
+
+        lightweightLanguageClient.notify("textDocument/publishDiagnostics", language, {
+            uri: oni.language.wrapPathInFileUri(fileName),
             diagnostics: errors,
         })
     })
 
-    // TODO: Refactor to helpers?
-    const getFilePrefix = () => {
-        if (process.platform === "win32") {
-            return "file:///"
-        } else {
-            return "file://"
-        }
-     }
-
-    const wrapPathInFileUri = (filePath: string) => getFilePrefix() + filePath
-    const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split(getFilePrefix())[1])
-
     const protocolOpenFile = (message: string, payload: any) => {
         const textDocument: types.TextDocumentIdentifier = payload.textDocument
-        const filePath = unwrapFileUriPath(textDocument.uri)
+        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
         host.openFile(filePath)
     }
 
@@ -222,27 +111,6 @@ export const activate = (Oni) => {
         return false
     }
 
-    const protocolGetCompletions = async (message: string, payload: any): Promise<types.CompletionItem[]> => {
-        const textDocument: types.TextDocumentIdentifier = payload.textDocument
-        const filePath = unwrapFileUriPath(textDocument.uri)
-        const zeroBasedPosition: types.Position = payload.position
-
-        const oneBasedPosition = {
-            line: zeroBasedPosition.line + 1,
-            column: zeroBasedPosition.character + 1,
-        }
-
-        const val = await host.getCompletions(filePath, oneBasedPosition.line, oneBasedPosition.column, "")
-
-        const results = val
-            .map((v) => ({
-                label: v.name,
-                kind: convertTypeScriptKindToCompletionItemKind(v.kind),
-            }))
-
-        return results
-    }
-
     const protocolChangeFile = (message: string, payload: any) => {
 
         const textDocument: types.TextDocumentIdentifier = payload.textDocument
@@ -253,10 +121,10 @@ export const activate = (Oni) => {
         }
 
         if (contentChanges.length > 1) {
-            Oni.log.warn("Only handling first content change")
+            oni.log.warn("Only handling first content change")
         }
 
-        const filePath = unwrapFileUriPath(textDocument.uri)
+        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
 
         const change = contentChanges[0]
         if (!change.range) {
@@ -264,107 +132,36 @@ export const activate = (Oni) => {
         } else if (isSingleLineChange(change.range) && change.text) {
             host.changeLineInFile(filePath, change.range.start.line + 1, change.text.trim())
         } else {
-            Oni.log.warn("Unhandled change request!")
+            oni.log.warn("Unhandled change request!")
         }
     }
 
-    const findAllReferences = async (message: string, payload: any): Promise<types.Location[]> => {
-        const textDocument: types.TextDocumentIdentifier = payload.textDocument
-        const filePath = unwrapFileUriPath(textDocument.uri)
-        const zeroBasedPosition: types.Position = payload.position
-
-        const oneBasedPosition = {
-            line: zeroBasedPosition.line + 1,
-            column: zeroBasedPosition.character + 1,
-        }
-
-        const val = await host.findAllReferences(filePath, oneBasedPosition.line, oneBasedPosition.column)
-
-        const mapResponseToLocation = (referenceItem: protocol.ReferencesResponseItem): types.Location => {
-            const startPosition = types.Position.create(referenceItem.start.line - 1, referenceItem.start.offset - 1)
-            const endPosition = types.Position.create(referenceItem.end.line - 1, referenceItem.end.offset - 1)
-            const range = types.Range.create(startPosition, endPosition)
-
-            return {
-                uri: wrapPathInFileUri(referenceItem.file),
-                range,
-            }
-        }
-
-        return val.refs.map((v) => mapResponseToLocation(v))
-    }
-
-    const getDefinition = async (protocolName: string, payload: any): Promise<types.Location> => {
-
-        const textDocument: types.TextDocument  = payload.textDocument
-        const position: types.Position = payload.position
-
-        const filePath = unwrapFileUriPath(textDocument.uri)
-        const val: any = await host.getTypeDefinition(filePath, position.line + 1, position.character + 1)
-
-        const resultPos = val[0]
-
-        const range = types.Range.create(resultPos.start.line - 1, resultPos.start.offset - 1, resultPos.end.line - 1, resultPos.end.offset - 1)
-
-        return {
-            uri: wrapPathInFileUri(resultPos.file),
-            range,
-        }
-    }
-
-    const getQuickInfo = async (protocolName: string, payload: any): Promise<types.Hover> => {
-
-        const textDocument: types.TextDocument  = payload.textDocument
-        const position: types.Position = payload.position
-
-        const filePath = unwrapFileUriPath(textDocument.uri)
-        const val = await host.getQuickInfo(filePath, position.line + 1, position.character + 1)
-
-        return {
-            contents: [val.displayString, val.documentation]
-        }
-    }
-
+    // TODO:
     const getCodeActions = async (protocolName: string, payload: any): Promise<types.Command[]> => {
 
         const textDocument = payload.textDocument
         const range = payload.range
-        const filePath = unwrapFileUriPath(textDocument.uri)
+        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
 
         const val = await host.getRefactors(filePath, range.start.line + 1, range.start.character + 1, range.end.line + 1, range.end.character + 1)
 
         // TODO: Implement code actions
-        Oni.log.verbose(val)
+        oni.log.verbose(val)
         return val
     }
 
     lightweightLanguageClient.handleNotification("textDocument/didOpen", protocolOpenFile)
     lightweightLanguageClient.handleNotification("textDocument/didChange", protocolChangeFile)
 
-    lightweightLanguageClient.handleRequest("textDocument/completion", protocolGetCompletions)
+    lightweightLanguageClient.handleRequest("textDocument/completion", getCompletions(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions)
-    lightweightLanguageClient.handleRequest("textDocument/definition", getDefinition)
-    lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo)
-    lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences)
-    lightweightLanguageClient.handleRequest("textDocument/signatureHelp",  getSignatureHelp)
+    lightweightLanguageClient.handleRequest("textDocument/definition", getDefinition(oni, host))
+    lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo(oni, host))
+    lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences(oni, host))
+    lightweightLanguageClient.handleRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
 
     // TODO: Migrate to 'textDocument/didSave'
-    Oni.on("buffer-saved", (args: Oni.EventContext) => {
+    oni.on("buffer-saved", (args: Oni.EventContext) => {
         host.getErrorsAcrossProject(args.bufferFullPath)
     })
-
-    // TODO: Refactor to separate file
-    const convertToDisplayString = (displayParts: IDisplayPart[]) => {
-        let ret = ""
-
-        if (!displayParts || !displayParts.forEach) {
-            return ret
-        }
-
-        displayParts.forEach((dp) => {
-            ret += dp.text
-        })
-
-        return ret
-    }
 }

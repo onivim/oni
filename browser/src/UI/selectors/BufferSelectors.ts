@@ -35,7 +35,7 @@ export const getActiveBuffer = createSelector(
         const buf = buffers.find((b) => b.file === win.file)
 
         return buf || null
-    }
+    },
 )
 
 export const getCurrentBufferLine = createSelector(
@@ -50,5 +50,5 @@ export const getCurrentBufferLine = createSelector(
         }
 
         return buffer.lines[win.line]
-    }
+    },
 )

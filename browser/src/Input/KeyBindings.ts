@@ -15,6 +15,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     const isVisualMode = () => editors.activeEditor.mode === "visual"
     const isNormalMode = () => editors.activeEditor.mode === "normal"
+    const isInsertMode = () => editors.activeEditor.mode === "insert"
     const isInsertOrCommandMode = () => editors.activeEditor.mode === "insert" || editors.activeEditor.mode === "cmdline_normal"
 
     if (Platform.isMac()) {
@@ -47,10 +48,9 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<C-t>", "quickOpen.openFileNewTab")
 
     // Completion
-    // TODO: Bring back prior to checking in...
-    input.bind(["<enter>", "<tab>"], "completion.complete", isInsertOrCommandMode)
-    input.bind(["<down>", "<C-n>"], "completion.next", isInsertOrCommandMode)
-    input.bind(["<up>", "<C-p>"], "completion.previous", isInsertOrCommandMode)
+    input.bind(["<enter>", "<tab>"], "completion.complete", isInsertMode)
+    input.bind(["<down>", "<C-n>"], "completion.next", isInsertMode)
+    input.bind(["<up>", "<C-p>"], "completion.previous", isInsertMode)
 
     // Menu
     input.bind(["<down>", "<C-n>"], "menu.next")

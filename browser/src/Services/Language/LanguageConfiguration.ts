@@ -8,7 +8,7 @@ import * as path from "path"
 
 import * as Log from "./../../Log"
 
-import { LanguageClient2 } from "./LanguageClient2"
+import { LanguageClient } from "./LanguageClient"
 import { InitializationOptions, LanguageClientProcess, ServerRunOptions } from "./LanguageClientProcess"
 import { languageManager } from "./LanguageManager"
 
@@ -94,6 +94,6 @@ const createLanguageClientFromConfig = (language: string, config: ILightweightLa
     const initializationOptions: InitializationOptions = {
         rootPath: pathResolver,
     }
-    const languageClient = new LanguageClient2(language, new LanguageClientProcess(serverRunOptions, initializationOptions))
+    const languageClient = new LanguageClient(language, new LanguageClientProcess(serverRunOptions, initializationOptions))
     languageManager.registerLanguageClient(language, languageClient)
 }

@@ -14,15 +14,20 @@ import * as types from "vscode-languageserver-types"
 
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
 
-export const getQuickInfo = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (protocolName: string, payload: any): Promise<types.Hover> => {
+export const getDefinition = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (protocolName: string, payload: any): Promise<types.Location> => {
 
     const textDocument: types.TextDocument  = payload.textDocument
     const position: types.Position = payload.position
 
     const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-    const val = await host.getQuickInfo(filePath, position.line + 1, position.character + 1)
+    const val: any = await host.getTypeDefinition(filePath, position.line + 1, position.character + 1)
+
+    const resultPos = val[0]
+
+    const range = types.Range.create(resultPos.start.line - 1, resultPos.start.offset - 1, resultPos.end.line - 1, resultPos.end.offset - 1)
 
     return {
-        contents: [val.displayString, val.documentation]
+        uri: oni.language.wrapPathInFileUri(resultPos.file),
+        range,
     }
 }
