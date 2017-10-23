@@ -8,9 +8,10 @@
 import * as isEqual from "lodash/isEqual"
 import { Observable } from "rxjs/Observable"
 
-import * as types from "vscode-languageserver-types"
+// import * as types from "vscode-languageserver-types"
 
 import { contextMenuManager } from "./../ContextMenu"
+import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
 import { commitCompletion, getCompletions } from "./Completion"
 
@@ -40,41 +41,57 @@ export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<On
 
 }
 
-export const addInsertModeLanguageFunctionality = ($bufferUpdates: Observable<Oni.EditorBufferChangedEventArgs>, $modeChanged: Observable<string>) => {
+export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.Cursor>, $modeChanged: Observable<string>) => {
 
-    const isSingleLineChange = (range: types.Range ) => {
-        if (!range) {
-            return false
-        }
+    // const isSingleLineChange = (range: types.Range ) => {
+    //     if (!range) {
+    //         return false
+    //     }
 
-        return range.start.line === range.end.line ||
-            (range.start.character === 0 && range.end.character === 0 && range.start.line === range.end.line - 1)
-    }
+    //     return range.start.line === range.end.line ||
+    //         (range.start.character === 0 && range.end.character === 0 && range.start.line === range.end.line - 1)
+    // }
 
-    const $incrementalBufferUpdates = $bufferUpdates
-        .filter((evt: Oni.EditorBufferChangedEventArgs) => {
-            return evt.contentChanges && evt.contentChanges.length > 0 && isSingleLineChange(evt.contentChanges[0].range)
-        })
-        .mergeMap(async (evt: Oni.EditorBufferChangedEventArgs) => {
+    // const $incrementalBufferUpdates = $bufferUpdates
+    //     .filter((evt: Oni.EditorBufferChangedEventArgs) => {
+    //         return evt.contentChanges && evt.contentChanges.length > 0 && isSingleLineChange(evt.contentChanges[0].range)
+    //     })
+    //     .mergeMap(async (evt: Oni.EditorBufferChangedEventArgs) => {
 
-            const buffer = evt.buffer
-            const changedLineNumber = evt.contentChanges[0].range.start.line
-            const changedLines: string[] = await buffer.getLines(changedLineNumber, changedLineNumber + 1)
-            const changedLine = changedLines[0]
+    //         const buffer = evt.buffer
+    //         const changedLineNumber = evt.contentChanges[0].range.start.line
+    //         const changedLines: string[] = await buffer.getLines(changedLineNumber, changedLineNumber + 1)
+    //         const changedLine = changedLines[0]
 
-            const cursorColumn = buffer.cursor.column
+    //         const cursorColumn = buffer.cursor.column
 
-            console.log(`[COMPLETION] Line changed at ${changedLineNumber}:${cursorColumn} - ${changedLine}`)
+    //         console.log(`[COMPLETION] Line changed at ${changedLineNumber}:${cursorColumn} - ${changedLine}`)
 
-            return {
-                filePath: buffer.filePath,
-                language: buffer.language,
-                cursorLine: changedLineNumber,
-                contents: changedLine,
-                cursorColumn,
-            }
-        })
+    //         return {
+    //             filePath: buffer.filePath,
+    //             language: buffer.language,
+    //             cursorLine: changedLineNumber,
+    //             contents: changedLine,
+    //             cursorColumn,
+    //         }
+    //     })
 
+    const $incrementalBufferUpdates = $cursorMoved
+            .auditTime(25)
+            .mergeMap(async (cursorPos) => {
+                const editor = editorManager.activeEditor
+                const buffer = editor.activeBuffer
+
+                const changedLines: string[] = await buffer.getLines(cursorPos.line, cursorPos.line + 1)
+                const changedLine = changedLines[0]
+                return {
+                    filePath: buffer.filePath,
+                    language: buffer.language,
+                    cursorLine: cursorPos.line,
+                    contents: changedLine,
+                    cursorColumn: cursorPos.column,
+                }
+            })
 
 
     const $currentCompletionMeet = $incrementalBufferUpdates

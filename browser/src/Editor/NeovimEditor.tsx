@@ -69,6 +69,7 @@ export class NeovimEditor implements IEditor {
 
     private _$modeChanged: Observable<string>
     private _$cursorMoved: Observable<Oni.Cursor>
+    private _$cursorMovedI: Observable<Oni.Cursor>
     private _$bufferUpdates: Observable<IFullBufferUpdateEvent>
     private _$bufferIncrementalUpdates: Observable<IIncrementalBufferUpdateEvent>
 
@@ -194,6 +195,11 @@ export class NeovimEditor implements IEditor {
                 column: evt.column - 1,
             }))
 
+        this._$cursorMovedI = this._neovimInstance.autoCommands.onCursorMovedI.asObservable()
+            .map((evt): Oni.Cursor => ({
+                line: evt.line - 1,
+                column: evt.column - 1,
+            }))
         this._$modeChanged = this._onModeChangedEvent.asObservable()
 
         // Refactor to new method
@@ -244,7 +250,7 @@ export class NeovimEditor implements IEditor {
             })
 
         const $allUpdates = this._onBufferChangedEvent.asObservable()
-        addInsertModeLanguageFunctionality($allUpdates, this._$modeChanged)
+        addInsertModeLanguageFunctionality(this._$cursorMovedI, this._$modeChanged)
         addNormalModeLanguageFunctionality($allUpdates, this._$cursorMoved)
 
         this._render()
