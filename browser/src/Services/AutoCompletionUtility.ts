@@ -42,11 +42,10 @@ export interface CompletionMeetResult {
  */
 export function getCompletionMeet(line: string, cursorColumn: number, characterMatchRegex: RegExp): CompletionMeetResult {
 
-    if (cursorColumn <= 0) {
-        return null
-    }
+    // Clamp column to within string bands
+    let col = Math.max(cursorColumn, 0)
+    col = Math.min(cursorColumn, line.length - 1)
 
-    let col = cursorColumn - 1
     let currentPrefix = ""
 
     while (col >= 0 && col < line.length) {
@@ -63,13 +62,13 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
     const basePos = col
 
     // TODO: Refactor this into a 'trigger characters' array
-    if (currentPrefix.length === 0 && line[basePos] !== ".") {
-        return null
-    } else {
-        return {
-            position: basePos,
-            base: currentPrefix,
-        }
+    // if (currentPrefix.length === 0 && line[basePos] !== ".") {
+    //     return null
+    // } else {
+    return {
+        position: basePos + 1,
+        base: currentPrefix,
     }
+    // }
 
 }

@@ -30,7 +30,7 @@ import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { checkAndShowQuickInfo, checkCodeActions, checkForCompletions, getDefinition, showSignatureHelp } from "./../Services/Language"
+import { addInsertModeLanguageFunctionality } from "./../Services/Language"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
@@ -207,18 +207,23 @@ export class NeovimEditor implements IEditor {
             })
         })
 
-        const $postIncrementalUpdate = this._$bufferIncrementalUpdates
+        this._$bufferIncrementalUpdates
             .auditTime(10)
-            .mergeMap((bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
+            .subscribe(async (bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
 
-                return Observable.defer(async () => {
                     const args = bufferUpdateArgs.context
                     const lineNumber = bufferUpdateArgs.lineNumber
                     const changedLine = bufferUpdateArgs.lineContents
 
                     const buf = this._bufferManager.updateBufferFromEvent(args)
-                    buf._notifyBufferUpdatedAt(lineNumber - 1, changedLine, args.version)
 
+                    // Don't process the update if it is behind the current version
+                    if (args.version < buf.version) {
+                        console.warn("[Neovim Editor] Skipping incremental update because version is out of date")
+                        return null
+                    }
+
+                    buf._notifyBufferUpdatedAt(lineNumber - 1, changedLine, args.version)
                     const lines: string[] = await buf.getLines(0, buf.lineCount)
                     UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, lines)
 
@@ -230,26 +235,26 @@ export class NeovimEditor implements IEditor {
                         }],
                     })
 
-                    return bufferUpdateArgs.context
-                })
             })
 
-        $postIncrementalUpdate.subscribe(async (args: Oni.EventContext) => {
-                await checkForCompletions(args)
-                await showSignatureHelp(args)
-            })
+            const $allUpdates = this._onBufferChangedEvent.asObservable()
+            addInsertModeLanguageFunctionality($allUpdates)
 
-        this._$cursorMoved
-            .auditTime(10)
-            .subscribe((context: Oni.EventContext) => {
-                if (configuration.getValue("editor.quickInfo.enabled")) {
-                    // First, check if there is a language client registered...
-                    checkAndShowQuickInfo(context)
-                }
+        // $postIncrementalUpdate.subscribe(async (args: Oni.EventContext) => {
+        //         await checkForCompletions(args)
+        //         await showSignatureHelp(args)
+        //     })
 
-                getDefinition()
-                checkCodeActions(context)
-            })
+        // this._$cursorMoved
+        //     .auditTime(10)
+        //     .subscribe((context: Oni.EventContext) => {
+        //         if (configuration.getValue("editor.quickInfo.enabled")) {
+        //             // First, check if there is a language client registered...
+        //             checkAndShowQuickInfo(context)
+        //         }
+
+        //         getDefinition()
+        //     })
 
         this._render()
 

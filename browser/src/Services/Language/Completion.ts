@@ -17,56 +17,29 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
-let lastFile: string = null
-let lastLine: number = null
-let lastColumn: number = null
-
-// TODO:
-// - Factor out event context to something simpler
-// - Remove plugin manager
-export const checkForCompletions = async (evt: Oni.EventContext) => {
-    if (languageManager.isLanguageServerAvailable(evt.filetype)) {
-
-        const line = evt.line - 1
-        const column = evt.column - 1
-
-        const buffer = editorManager.activeEditor.activeBuffer
-        const currentLine = await buffer.getLines(line, line + 1)
-
-        const token = languageManager.getTokenRegex(evt.filetype)
-        const meet = AutoCompletionUtility.getCompletionMeet(currentLine[0], column, token)
-
-        if (!meet) {
-            return
-        }
-
-        const pos = meet.position + 1
-
-        if (lastFile === evt.bufferFullPath && lastLine === line && pos === lastColumn) {
-            UI.Actions.setCompletionBase(meet.base)
-            return
-        }
-
-        lastFile = evt.bufferFullPath
-        lastLine = line
-        lastColumn = pos
+export const getCompletions = async (language: string, filePath: string, line: number, character: number): Promise<types.CompletionItem[]> => {
 
         const args = {
             textDocument: {
-                uri: Helpers.wrapPathInFileUri(evt.bufferFullPath),
+                uri: Helpers.wrapPathInFileUri(filePath),
             },
             position: {
                 line,
-                character: pos,
+                character,
             },
         }
 
-        const result = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/completion", args)
+        let result
+        try {
+        result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/completion", args)
+        } catch(ex) {
+            return null
+        }
 
         const items = getCompletionItems(result)
 
         if (!items) {
-            return
+            return null
         }
 
         const completions = items.map((i) => ({
@@ -77,13 +50,9 @@ export const checkForCompletions = async (evt: Oni.EventContext) => {
             insertText: i.insertText,
         }))
 
-        UI.Actions.showCompletions(evt.bufferFullPath, evt.line - 1, pos, completions || [], meet.base)
-
-        // console.dir(result)
-        // debugger
-
-    }
+        return completions
 }
+
 
 export const commitCompletion = async () => {
     const completion =  UI.Selectors.getSelectedCompletion()
