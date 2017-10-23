@@ -134,4 +134,7 @@ export interface IConfigurationValues {
 
     "tabs.enabled": boolean
     "tabs.showVimTabs": boolean
+
+    // Handle other, non-predefined configuration keys
+    [configurationKey:string]: any
 }
