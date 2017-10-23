@@ -11,11 +11,8 @@ import * as UI from "./../../UI"
 import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
 
-export const showSignatureHelp = async (evt: Oni.EventContext) => {
-    if (languageManager.isLanguageServerAvailable(evt.filetype)) {
-
-        const line = evt.line - 1
-        const column = evt.column - 1
+export const showSignatureHelp = async (language: string, filePath: string, line: number, column: number) => {
+    if (languageManager.isLanguageServerAvailable(language)) {
 
         const buffer = editorManager.activeEditor.activeBuffer
         const currentLine = await buffer.getLines(line, line + 1)
@@ -28,7 +25,7 @@ export const showSignatureHelp = async (evt: Oni.EventContext) => {
 
         const args = {
             textDocument: {
-                uri: Helpers.wrapPathInFileUri(evt.bufferFullPath),
+                uri: Helpers.wrapPathInFileUri(filePath),
             },
             position: {
                 line,
@@ -36,9 +33,9 @@ export const showSignatureHelp = async (evt: Oni.EventContext) => {
             },
         }
 
-        const result: types.SignatureHelp = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/signatureHelp", args)
+        const result: types.SignatureHelp = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/signatureHelp", args)
 
-        UI.Actions.showSignatureHelp(evt.bufferFullPath, line, requestColumn, result)
+        UI.Actions.showSignatureHelp(filePath, line, requestColumn, result)
     }
 }
 

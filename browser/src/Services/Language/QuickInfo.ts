@@ -6,7 +6,7 @@
 import * as os from "os"
 import * as types from "vscode-languageserver-types"
 
-import { configuration } from "./../Configuration"
+// import { configuration } from "./../Configuration"
 
 import * as UI from "./../../UI"
 
@@ -17,23 +17,34 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 // TODO:
 // - Factor out event context to something simpler
 // - Remove plugin manager
-export const checkAndShowQuickInfo = async (evt: Oni.EventContext) => {
-    if (languageManager.isLanguageServerAvailable(evt.filetype)) {
-        const result = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/hover",
-            Helpers.eventContextToTextDocumentPositionParams(evt))
+export const checkAndShowQuickInfo = async (language: string, filePath: string, line: number, column: number) => {
+    if (languageManager.isLanguageServerAvailable(language)) {
 
-        const titleAndContents = getTitleAndContents(result)
+        try {
+            const result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/hover",
+                                                                           {
+                textDocument: {
+                    uri: Helpers.wrapPathInFileUri(filePath),
+                },
+                position: {
+                    line,
+                    character: column,
+                },
+            })
 
-        if (titleAndContents) {
-            showQuickInfo(evt, titleAndContents.title, titleAndContents.description)
+            const titleAndContents = getTitleAndContents(result)
+
+            if (titleAndContents) {
+                showQuickInfo(filePath, line, column, titleAndContents.title, titleAndContents.description)
+            }
+        }
+        catch (ex) {
         }
     }
 }
 
-const showQuickInfo = (evt: Oni.EventContext, title: string, contents: string): void => {
-    setTimeout(() => {
-        UI.Actions.showQuickInfo(evt.bufferFullPath, evt.line - 1, evt.column - 1, title, contents)
-    }, configuration.getValue("editor.quickInfo.delay"))
+const showQuickInfo = (filePath: string, line: number, column: number, title: string, contents: string): void => {
+    UI.Actions.showQuickInfo(filePath, line, column, title, contents)
 }
 
 const getTitleAndContents = (result: types.Hover) => {

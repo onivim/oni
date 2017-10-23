@@ -14,6 +14,9 @@ import { contextMenuManager } from "./../ContextMenu"
 import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
 import { commitCompletion, getCompletions } from "./Completion"
+import { getDefinition } from "./Definition"
+import { checkAndShowQuickInfo } from "./QuickInfo"
+// import { showSignatureHelp } from "./SignatureHelp"
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
@@ -25,6 +28,7 @@ export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<On
            .map((combined: any[]) => {
                 const [bufferEvent, cursorPosition] = combined
                 return {
+                    language: bufferEvent.buffer.language,
                     filePath: bufferEvent.buffer.filePath,
                     version: bufferEvent.buffer.version,
                     line: cursorPosition.line,
@@ -32,49 +36,20 @@ export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<On
                 }
            })
            .distinctUntilChanged(isEqual)
-           .auditTime(250) // TODO: Use config setting
+           .auditTime(250) // TODO: Use config setting 'editor.quickInfo.delay'
 
     $latestPositionAndVersion
-        .subscribe((val) => {
+        .subscribe(async (val) => {
+
+            await getDefinition()
+            await checkAndShowQuickInfo(val.language, val.filePath, val.line, val.column)
+            // await showSignatureHelp(val.language, val.filePath, val.line, val.column)
             console.log("Normal mode language functionality: " + val)
         })
 
 }
 
 export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.Cursor>, $modeChanged: Observable<string>) => {
-
-    // const isSingleLineChange = (range: types.Range ) => {
-    //     if (!range) {
-    //         return false
-    //     }
-
-    //     return range.start.line === range.end.line ||
-    //         (range.start.character === 0 && range.end.character === 0 && range.start.line === range.end.line - 1)
-    // }
-
-    // const $incrementalBufferUpdates = $bufferUpdates
-    //     .filter((evt: Oni.EditorBufferChangedEventArgs) => {
-    //         return evt.contentChanges && evt.contentChanges.length > 0 && isSingleLineChange(evt.contentChanges[0].range)
-    //     })
-    //     .mergeMap(async (evt: Oni.EditorBufferChangedEventArgs) => {
-
-    //         const buffer = evt.buffer
-    //         const changedLineNumber = evt.contentChanges[0].range.start.line
-    //         const changedLines: string[] = await buffer.getLines(changedLineNumber, changedLineNumber + 1)
-    //         const changedLine = changedLines[0]
-
-    //         const cursorColumn = buffer.cursor.column
-
-    //         console.log(`[COMPLETION] Line changed at ${changedLineNumber}:${cursorColumn} - ${changedLine}`)
-
-    //         return {
-    //             filePath: buffer.filePath,
-    //             language: buffer.language,
-    //             cursorLine: changedLineNumber,
-    //             contents: changedLine,
-    //             cursorColumn,
-    //         }
-    //     })
 
     const $incrementalBufferUpdates = $cursorMoved
             .auditTime(25)
