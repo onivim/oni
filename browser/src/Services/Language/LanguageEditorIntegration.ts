@@ -16,6 +16,30 @@ import { commitCompletion, getCompletions } from "./Completion"
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
+export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<Oni.EditorBufferChangedEventArgs>, $cursorMoved: Observable<Oni.Cursor>) => {
+
+    const $latestPositionAndVersion =
+        $bufferUpdates
+           .combineLatest($cursorMoved)
+           .map((combined: any[]) => {
+                const [bufferEvent, cursorPosition] = combined
+                return {
+                    filePath: bufferEvent.buffer.filePath,
+                    version: bufferEvent.buffer.version,
+                    line: cursorPosition.line,
+                    column: cursorPosition.column,
+                }
+           })
+           .distinctUntilChanged(isEqual)
+           .auditTime(250) // TODO: Use config setting
+
+    $latestPositionAndVersion
+        .subscribe((val) => {
+            console.log("Normal mode language functionality: " + val)
+        })
+
+}
+
 export const addInsertModeLanguageFunctionality = ($bufferUpdates: Observable<Oni.EditorBufferChangedEventArgs>, $modeChanged: Observable<string>) => {
 
     const isSingleLineChange = (range: types.Range ) => {
@@ -57,6 +81,7 @@ export const addInsertModeLanguageFunctionality = ($bufferUpdates: Observable<On
         .map((changeInfo) => {
             const token = languageManager.getTokenRegex(changeInfo.language)
             const meet = AutoCompletionUtility.getCompletionMeet(changeInfo.contents, changeInfo.cursorColumn, token)
+            console.log(`[COMPLETION] Got meet at position: ${meet.position} with base: ${meet.base} - shouldExpand: ${meet.shouldExpandCompletions}`)
             return {
                 ...changeInfo,
                 meetPosition: meet.position,
@@ -80,16 +105,18 @@ export const addInsertModeLanguageFunctionality = ($bufferUpdates: Observable<On
         .distinctUntilChanged(isEqual)
 
     const $completions = $currentCompletionMeet
-        .filter((bufferMeetInfo) => bufferMeetInfo.shouldExpand)
         .map((bufferMeetInfo) => ({
             language: bufferMeetInfo.language,
             filePath: bufferMeetInfo.filePath,
             line: bufferMeetInfo.cursorLine,
-            character: bufferMeetInfo.meetPosition
+            character: bufferMeetInfo.meetPosition,
+            shouldExpand: bufferMeetInfo.shouldExpand,
         }))
         .distinctUntilChanged(isEqual)
+        .filter((info) => info.shouldExpand)
         .mergeMap((completionInfo: any) => {
             return Observable.defer(async () => {
+                console.log(`[COMPLETION] Requesting completions at line ${completionInfo.line} and character ${completionInfo.character}`)
                 return await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.line, completionInfo.character)
             })
         })
@@ -106,7 +133,11 @@ export const addInsertModeLanguageFunctionality = ($bufferUpdates: Observable<On
 
     $baseChanged
         .subscribe((newBaseInfo) => {
-            newContextMenu.setFilter(newBaseInfo.base)
+            if (newBaseInfo.shouldExpand) {
+              newContextMenu.setFilter(newBaseInfo.base)
+            } else {
+                newContextMenu.hide()
+            }
         })
 
     $modeChanged.subscribe((mode) => {

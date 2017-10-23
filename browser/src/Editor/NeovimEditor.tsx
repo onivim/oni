@@ -30,7 +30,7 @@ import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { addInsertModeLanguageFunctionality } from "./../Services/Language"
+import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
@@ -68,7 +68,7 @@ export class NeovimEditor implements IEditor {
     private _onBufferSavedEvent = new Event<Oni.EditorBufferEventArgs>()
 
     private _$modeChanged: Observable<string>
-    private _$cursorMoved: Observable<Oni.EventContext>
+    private _$cursorMoved: Observable<Oni.Cursor>
     private _$bufferUpdates: Observable<IFullBufferUpdateEvent>
     private _$bufferIncrementalUpdates: Observable<IIncrementalBufferUpdateEvent>
 
@@ -189,10 +189,15 @@ export class NeovimEditor implements IEditor {
         this._$bufferUpdates = this._neovimInstance.onBufferUpdate.asObservable()
         this._$bufferIncrementalUpdates = this._neovimInstance.onBufferUpdateIncremental.asObservable()
         this._$cursorMoved = this._neovimInstance.autoCommands.onCursorMoved.asObservable()
+            .map((evt): Oni.Cursor => ({
+                line: evt.line - 1,
+                column: evt.column - 1,
+            }))
+
         this._$modeChanged = this._onModeChangedEvent.asObservable()
 
+        // Refactor to new method
         this._$bufferUpdates
-            .auditTime(10)
             .subscribe((bufferUpdateEvent: IFullBufferUpdateEvent) => {
             const args = bufferUpdateEvent.context
 
@@ -210,7 +215,6 @@ export class NeovimEditor implements IEditor {
         })
 
         this._$bufferIncrementalUpdates
-            .auditTime(10)
             .subscribe(async (bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
 
                     const args = bufferUpdateArgs.context
@@ -239,24 +243,9 @@ export class NeovimEditor implements IEditor {
 
             })
 
-            const $allUpdates = this._onBufferChangedEvent.asObservable()
-            addInsertModeLanguageFunctionality($allUpdates, this._$modeChanged)
-
-        // $postIncrementalUpdate.subscribe(async (args: Oni.EventContext) => {
-        //         await checkForCompletions(args)
-        //         await showSignatureHelp(args)
-        //     })
-
-        // this._$cursorMoved
-        //     .auditTime(10)
-        //     .subscribe((context: Oni.EventContext) => {
-        //         if (configuration.getValue("editor.quickInfo.enabled")) {
-        //             // First, check if there is a language client registered...
-        //             checkAndShowQuickInfo(context)
-        //         }
-
-        //         getDefinition()
-        //     })
+        const $allUpdates = this._onBufferChangedEvent.asObservable()
+        addInsertModeLanguageFunctionality($allUpdates, this._$modeChanged)
+        addNormalModeLanguageFunctionality($allUpdates, this._$cursorMoved)
 
         this._render()
 
