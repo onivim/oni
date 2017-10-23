@@ -50,7 +50,6 @@ export interface IState {
     mode: string
     backgroundColor: string
     foregroundColor: string
-    autoCompletion: null | ILocatable<IAutoCompletionInfo>
     definition: null | ILocatable<IDefinition>
     quickInfo: null | ILocatable<IQuickInfo>
     signatureHelp: null | ILocatable<types.SignatureHelp>
@@ -175,23 +174,6 @@ export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurat
     return conf[k]
 }
 
-export interface IAutoCompletionInfo {
-
-    /**
-     * Base entry being completed against
-     */
-    base: string
-
-    entries: Oni.Plugin.CompletionInfo[]
-
-    filteredEntries: Oni.Plugin.CompletionInfo[]
-
-    /**
-     * Label of selected entry
-     */
-    selectedIndex: number
-}
-
 export const createDefaultState = (): IState => ({
     cursorPixelX: 10,
     cursorPixelY: 10,
@@ -204,7 +186,6 @@ export const createDefaultState = (): IState => ({
     imeActive: false,
     mode: "normal",
     foregroundColor: "rgba(0, 0, 0, 0)",
-    autoCompletion: null,
     definition: null,
     quickInfo: null,
     signatureHelp: null,

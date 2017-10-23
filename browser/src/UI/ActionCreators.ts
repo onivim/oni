@@ -192,14 +192,6 @@ export const hideStatusBarItem = (id: string) => ({
     },
 })
 
-export const previousCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    dispatch(_previousAutoCompletion())
-}
-
-export const nextCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    dispatch(_nextAutoCompletion())
-}
-
 export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunction) => {
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
@@ -251,31 +243,6 @@ export const setDefinition = (filePath: string, line: number, column: number, to
     },
 })
 
-export const showCompletions = (filePath: string, line: number, column: number, entries: Oni.Plugin.CompletionInfo[], base: string): Actions.IShowAutoCompletionAction => ({
-    type: "SHOW_AUTO_COMPLETION",
-    payload: {
-        filePath: normalizePath(filePath),
-        line,
-        column,
-        entries,
-        base,
-    },
-})
-
-export const setCompletionBase = (base: string) => ({
-    type: "SET_AUTO_COMPLETION_BASE",
-    payload: {
-        base,
-    },
-})
-
-export const setDetailedCompletionEntry = (detailedEntry: Oni.Plugin.CompletionInfo) => ({
-    type: "SET_AUTO_COMPLETION_DETAILS",
-    payload: {
-        detailedEntry,
-    },
-})
-
 export const setCursorLineOpacity = (opacity: number) => ({
     type: "SET_CURSOR_LINE_OPACITY",
     payload: {
@@ -315,12 +282,4 @@ const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth
 const _setColors = (foregroundColor: string, backgroundColor: string) => ({
     type: "SET_COLORS",
     payload: { foregroundColor, backgroundColor },
-})
-
-const _nextAutoCompletion = () => ({
-    type: "NEXT_AUTO_COMPLETION",
-})
-
-const _previousAutoCompletion = () => ({
-    type: "PREVIOUS_AUTO_COMPLETION",
 })

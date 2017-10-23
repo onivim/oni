@@ -247,30 +247,7 @@ declare namespace Oni {
             workspace: Workspace
         }
 
-        export interface CompletionResult {
-
-            /**
-             * Base entry being completed against
-             */
-            base: string
-            completions: CompletionInfo[]
-
-            error?: string
-        }
-
-        export interface CompletionInfo {
-            highlightColor?: string,
-            kind?: types.CompletionItemKind
-            label: string
-            detail?: string
-            documentation?: string
-            insertText?: string
-        }
-
         export interface LanguageService {
-            getCompletions?(position: EventContext): Promise<CompletionResult>
-            getCompletionDetails?(position: EventContext, completionInfo: CompletionInfo): Promise<CompletionInfo>
-
             getFormattingEdits?(position: EventContext): Promise<FormattingEditsResponse>
         }
     }

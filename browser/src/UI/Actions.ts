@@ -214,39 +214,6 @@ export interface ISetDefinitionAction {
     }
 }
 
-export interface IShowAutoCompletionAction {
-    type: "SHOW_AUTO_COMPLETION",
-    payload: {
-        filePath: string,
-        line: number,
-        column: number,
-        entries: Oni.Plugin.CompletionInfo[],
-        base: string,
-    }
-}
-
-export interface ISetAutoCompletionBaseAction {
-    type: "SET_AUTO_COMPLETION_BASE",
-    payload: {
-        base: string,
-    },
-}
-
-export interface ISetAutoCompletionDetails {
-    type: "SET_AUTO_COMPLETION_DETAILS",
-    payload: {
-        detailedEntry: Oni.Plugin.CompletionInfo,
-    }
-}
-
-export interface INextAutoCompletionAction {
-    type: "NEXT_AUTO_COMPLETION"
-}
-
-export interface IPreviousAutoCompletionAction {
-    type: "PREVIOUS_AUTO_COMPLETION"
-}
-
 export interface ISetConfigurationValue<K extends keyof IConfigurationValues> {
     type: "SET_CONFIGURATION_VALUE"
     payload: {
@@ -267,11 +234,6 @@ export type SimpleAction =
     ISetFont |
     IShowSignatureHelpAction |
     IShowQuickInfoAction |
-    IShowAutoCompletionAction |
-    INextAutoCompletionAction |
-    IPreviousAutoCompletionAction |
-    ISetAutoCompletionBaseAction |
-    ISetAutoCompletionDetails |
     IShowMessageDialog |
     IHideMessageDialog |
     ISetDefinitionAction |

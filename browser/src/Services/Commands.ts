@@ -14,14 +14,14 @@ import { INeovimInstance } from "./../neovim"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { configuration } from "./../Services/Configuration"
-import { commitCompletion, findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
+import { /*commitCompletion,*/ findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
 import { tasks } from "./../Services/Tasks"
 import { windowManager } from "./../Services/WindowManager"
 
-import * as UI from "./../UI/index"
+// import * as UI from "./../UI/index"
 
 import { CallbackCommand, CommandManager } from "./CommandManager"
 
@@ -62,9 +62,9 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("commands.show", null, null, () => tasks.show()),
 
         // Autocompletion
-        new CallbackCommand("completion.complete", null, null, autoCompletionCommand(() => commitCompletion())),
-        new CallbackCommand("completion.next", null, null, nextCompletionItem),
-        new CallbackCommand("completion.previous", null, null, previousCompletionItem),
+        // new CallbackCommand("completion.complete", null, null, autoCompletionCommand(() => commitCompletion())),
+        // new CallbackCommand("completion.next", null, null, nextCompletionItem),
+        // new CallbackCommand("completion.previous", null, null, previousCompletionItem),
 
         // Menu
         new CallbackCommand("menu.close", null, null, popupMenuClose),
@@ -107,23 +107,23 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
  * Higher-order function for commands dealing with completion
  * - checks that the completion menu is open
  */
-const autoCompletionCommand = (innerCommand: Oni.ICommandCallback) => {
-    return () => {
-        if (UI.Selectors.areCompletionsVisible()) {
-            return innerCommand()
-        }
+// const autoCompletionCommand = (innerCommand: Oni.ICommandCallback) => {
+//     return () => {
+//         if (UI.Selectors.areCompletionsVisible()) {
+//             return innerCommand()
+//         }
 
-        return false
-    }
-}
+//         return false
+//     }
+// }
 
-const nextCompletionItem = autoCompletionCommand(() => {
-    UI.Actions.nextCompletion()
-})
+// const nextCompletionItem = autoCompletionCommand(() => {
+//     UI.Actions.nextCompletion()
+// })
 
-const previousCompletionItem = autoCompletionCommand(() => {
-    UI.Actions.previousCompletion()
-})
+// const previousCompletionItem = autoCompletionCommand(() => {
+//     UI.Actions.previousCompletion()
+// })
 
 const popupMenuCommand = (innerCommand: Oni.ICommandCallback) => {
     return () => {

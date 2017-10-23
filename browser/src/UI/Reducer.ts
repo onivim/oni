@@ -14,7 +14,6 @@ import * as pick from "lodash/pick"
 
 import * as types from "vscode-languageserver-types"
 
-import { autoCompletionReducerWithLocation } from "./reducers/AutoCompletionReducers"
 import { quickInfoReducerWithLocation } from "./reducers/QuickInfoReducers"
 
 export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>) {
@@ -71,7 +70,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     definition: definitionReducer(s.definition, a),
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
-                    autoCompletion: autoCompletionReducerWithLocation(s.autoCompletion, a), // FIXME: null
                     quickInfo: quickInfoReducerWithLocation(s.quickInfo, a),
                     signatureHelp: signatureHelpReducer(s.signatureHelp, a),
                     statusBar: statusBarReducer(s.statusBar, a),

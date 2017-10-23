@@ -9,6 +9,7 @@ import { Ui } from "./Ui"
 
 import { commandManager } from "./../../Services/CommandManager"
 import { configuration } from "./../../Services/Configuration"
+import { contextMenuManager } from "./../../Services/ContextMenu"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import { languageManager } from "./../../Services/Language"
@@ -58,6 +59,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
     public get configuration(): Oni.Configuration {
         return configuration
+    }
+
+    public get contextMenu(): any {
+        return contextMenuManager
     }
 
     public get diagnostics(): Oni.Plugin.Diagnostics.Api {
