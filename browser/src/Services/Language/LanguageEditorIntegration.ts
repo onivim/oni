@@ -10,12 +10,13 @@ import { Observable } from "rxjs/Observable"
 
 import * as types from "vscode-languageserver-types"
 
+import { contextMenuManager } from "./../ContextMenu"
 import { languageManager } from "./LanguageManager"
-import { getCompletions } from "./Completion"
+import { commitCompletion, getCompletions } from "./Completion"
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
-export const addInsertModeLanguageFunctionality = ($bufferUpdates: Observable<Oni.EditorBufferChangedEventArgs>) => {
+export const addInsertModeLanguageFunctionality = ($bufferUpdates: Observable<Oni.EditorBufferChangedEventArgs>, $modeChanged: Observable<string>) => {
 
     const isSingleLineChange = (range: types.Range ) => {
         if (!range) {
@@ -60,12 +61,26 @@ export const addInsertModeLanguageFunctionality = ($bufferUpdates: Observable<On
                 ...changeInfo,
                 meetPosition: meet.position,
                 meetBase: meet.base,
+                shouldExpand: meet.shouldExpandCompletions,
             }
         })
         .distinctUntilChanged(isEqual)
 
+    let lastMeet: any = null
+
+    $currentCompletionMeet.subscribe((newMeet) => { lastMeet = newMeet })
+
+    const $baseChanged = $currentCompletionMeet
+        .map((bufferMeetInfo) => {
+            return {
+                base: bufferMeetInfo.meetBase,
+                shouldExpand: bufferMeetInfo.shouldExpand,
+            }
+        })
+        .distinctUntilChanged(isEqual)
 
     const $completions = $currentCompletionMeet
+        .filter((bufferMeetInfo) => bufferMeetInfo.shouldExpand)
         .map((bufferMeetInfo) => ({
             language: bufferMeetInfo.language,
             filePath: bufferMeetInfo.filePath,
@@ -79,10 +94,48 @@ export const addInsertModeLanguageFunctionality = ($bufferUpdates: Observable<On
             })
         })
 
-    $completions.subscribe((newCompletions) => {
-        console.log("[COMPLETION] --Got completions!")
-        console.dir(newCompletions)
-        console.log("[COMPLETION] --")
+    const newContextMenu = window["__contextMenu"] = contextMenuManager.create()
+    newContextMenu.onItemSelected.subscribe((completionItem) => {
+        const meetInfo = lastMeet
+        if (meetInfo) {
+            commitCompletion(meetInfo.cursorLine, meetInfo.contents, meetInfo.meetPosition, meetInfo.cursorColumn, completionItem.label)
+            newContextMenu.hide()
+        }
+    })
+
+
+    $baseChanged
+        .subscribe((newBaseInfo) => {
+            newContextMenu.setFilter(newBaseInfo.base)
+        })
+
+    $modeChanged.subscribe((mode) => {
+        if (mode !== "i") {
+            newContextMenu.setItems([])
+            newContextMenu.hide()
+        }
+    })
+
+    $completions
+        .withLatestFrom($baseChanged)
+        .subscribe((args: any[]) => {
+
+        const [newCompletions, baseInfo] = args
+
+        if (!newCompletions || !newCompletions.length) {
+            newContextMenu.setItems([])
+            newContextMenu.hide()
+            console.log("[COMPLETION] None returned")
+        } else {
+            newContextMenu.show()
+            newContextMenu.setItems(newCompletions)
+            newContextMenu.setFilter(baseInfo.base)
+
+            console.log("[COMPLETION] --Got completions!")
+            console.dir(newCompletions)
+            console.log("[COMPLETION] --")
+        }
+
     })
 
 }

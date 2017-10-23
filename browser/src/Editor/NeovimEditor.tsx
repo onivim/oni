@@ -67,6 +67,7 @@ export class NeovimEditor implements IEditor {
     private _onBufferChangedEvent = new Event<Oni.EditorBufferChangedEventArgs>()
     private _onBufferSavedEvent = new Event<Oni.EditorBufferEventArgs>()
 
+    private _$modeChanged: Observable<string>
     private _$cursorMoved: Observable<Oni.EventContext>
     private _$bufferUpdates: Observable<IFullBufferUpdateEvent>
     private _$bufferIncrementalUpdates: Observable<IIncrementalBufferUpdateEvent>
@@ -188,6 +189,7 @@ export class NeovimEditor implements IEditor {
         this._$bufferUpdates = this._neovimInstance.onBufferUpdate.asObservable()
         this._$bufferIncrementalUpdates = this._neovimInstance.onBufferUpdateIncremental.asObservable()
         this._$cursorMoved = this._neovimInstance.autoCommands.onCursorMoved.asObservable()
+        this._$modeChanged = this._onModeChangedEvent.asObservable()
 
         this._$bufferUpdates
             .auditTime(10)
@@ -238,7 +240,7 @@ export class NeovimEditor implements IEditor {
             })
 
             const $allUpdates = this._onBufferChangedEvent.asObservable()
-            addInsertModeLanguageFunctionality($allUpdates)
+            addInsertModeLanguageFunctionality($allUpdates, this._$modeChanged)
 
         // $postIncrementalUpdate.subscribe(async (args: Oni.EventContext) => {
         //         await checkForCompletions(args)

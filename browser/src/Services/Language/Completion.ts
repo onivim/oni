@@ -7,12 +7,12 @@ import * as types from "vscode-languageserver-types"
 
 // import { configuration } from "./../Configuration"
 
-// import { editorManager } from "./../EditorManager"
+import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-// import * as AutoCompletionUtility from "./../AutoCompletionUtility"
+import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
 export const getCompletions = async (language: string, filePath: string, line: number, character: number): Promise<types.CompletionItem[]> => {
 
@@ -51,34 +51,17 @@ export const getCompletions = async (language: string, filePath: string, line: n
 }
 
 
-export const commitCompletion = async () => {
-    console.log("todo")
-    return Promise.resolve()
-    // const completion =  UI.Selectors.getSelectedCompletion()
+export const commitCompletion = async (line: number, originalLine: string, base: number, column: number, completion: string) => {
 
-    // if (!completion) {
-    //     return
-    // }
+    const buffer = editorManager.activeEditor.activeBuffer
 
-    // const state = UI.store.getState() as State.IState
+    const newLine = AutoCompletionUtility.replacePrefixWithCompletion(originalLine, base, column, completion)
 
-    // const buffer = editorManager.activeEditor.activeBuffer
-    // const { line, column } = buffer.cursor
+    await buffer.setLines(line, line + 1, [newLine])
 
-    // if (!state.autoCompletion || state.autoCompletion.line !== line)
-    //     return
+    const cursorOffset = newLine.length - originalLine.length
 
-    // const base = state.autoCompletion.column
-    // const lines = await buffer.getLines(line, line + 1)
-    // const originalLine = lines[0]
-
-    // const newLine = AutoCompletionUtility.replacePrefixWithCompletion(originalLine, base, column, completion)
-
-    // await buffer.setLines(line, line + 1, [newLine])
-
-    // const cursorOffset = newLine.length - originalLine.length
-
-    // await buffer.setCursorPosition(line, column + cursorOffset)
+    await buffer.setCursorPosition(line, column + cursorOffset)
 }
 
 const getCompletionItems = (items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[] => {

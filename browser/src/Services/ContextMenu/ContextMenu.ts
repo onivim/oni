@@ -57,6 +57,8 @@ export class ContextMenu {
     private _onFilterTextChanged = new Event<string>()
     private _onHide = new Event<void>()
 
+    private _lastItems: any = null
+
     public get onHide(): IEvent<void> {
         return this._onHide
     }
@@ -81,11 +83,22 @@ export class ContextMenu {
         return contextMenuState.menu && contextMenuState.menu.id === this._id
     }
 
+    public setFilter(filter: string): void {
+        contextMenuActions.filterMenu(filter)
+    }
+
     public setLoading(isLoading: boolean): void {
         contextMenuActions.setMenuLoading(this._id, isLoading)
     }
 
     public setItems(items: Oni.Menu.MenuOption[]): void {
+
+        if (items === this._lastItems) {
+            return
+        }
+
+        this._lastItems = items
+
         contextMenuActions.setMenuItems(this._id, items)
     }
 

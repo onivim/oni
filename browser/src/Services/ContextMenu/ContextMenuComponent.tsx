@@ -71,14 +71,6 @@ export class ContextMenuView extends React.PureComponent<IContextMenuProps, void
                     <ContextMenuDocumentation documentation={selectedItemDocumentation} />
                 </div>
 
-        // return (<CursorPositioner beakColor={highlightColor} openDirection={OpenDirection.Down} hideArrow={true}>
-        //         <div style={containerStyle} className="autocompletion enable-mouse">
-        //             <div className="entries">
-        //                 {entries}
-        //             </div>
-        //             <ContextMenuDocumentation documentation={selectedItemDocumentation} />
-        //         </div>
-        //        </CursorPositioner>)
     }
 }
 
@@ -116,7 +108,7 @@ export class ContextMenuItem extends React.PureComponent<IContextMenuItemProps, 
 
         const arrowColor = this.props.isSelected ? highlightColor : "transparent"
 
-        return <div className={className}>
+        return <div className={className} key={this.props.label}>
             <div className="main">
                 <span className="icon" style={iconContainerStyle}>
                     <Icon name={this.props.icon} />

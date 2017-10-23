@@ -35,6 +35,7 @@ export function replacePrefixWithCompletion(bufferLine: string, basePosition: nu
 export interface CompletionMeetResult {
     position: number
     base: string
+    shouldExpandCompletions: boolean
 }
 
 /**
@@ -61,6 +62,8 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
 
     const basePos = col
 
+    const shouldExpandCompletions = currentPrefix.length > 0 || line[basePos] === "."
+
     // TODO: Refactor this into a 'trigger characters' array
     // if (currentPrefix.length === 0 && line[basePos] !== ".") {
     //     return null
@@ -68,6 +71,7 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
     return {
         position: basePos + 1,
         base: currentPrefix,
+        shouldExpandCompletions,
     }
     // }
 

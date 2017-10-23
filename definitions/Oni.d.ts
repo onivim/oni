@@ -211,7 +211,7 @@ declare namespace Oni {
             icon?: string
 
             label: string
-            detail: string
+            detail?: string
 
             /**
              * A pinned option is always shown first in the menu,

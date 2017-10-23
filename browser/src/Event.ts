@@ -8,11 +8,14 @@ import { Observable } from "rxjs/Observable"
 import { Subject } from "rxjs/Subject"
 
 import "rxjs/add/operator/auditTime"
+import "rxjs/add/operator/combineLatest"
 import "rxjs/add/operator/debounceTime"
 import "rxjs/add/operator/distinctUntilChanged"
 import "rxjs/add/operator/filter"
+import "rxjs/add/operator/takeLast"
 import "rxjs/add/operator/map"
 import "rxjs/add/operator/mergeMap"
+import "rxjs/add/operator/withLatestFrom"
 
 import { IDisposable } from "./IDisposable"
 

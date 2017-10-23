@@ -25,7 +25,7 @@ import { SignatureHelpContainer } from "./../UI/containers/SignatureHelpContaine
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
 
-import { ContextMenuContainer, ContextMenuVisibleContainer } from "./../Services/ContextMenu"
+import { ContextMenuContainer } from "./../Services/ContextMenu"
 
 export interface INeovimSurfaceProps {
     neovimInstance: NeovimInstance
@@ -45,7 +45,7 @@ import  {CursorPositioner } from "./../UI/components/CursorPositioner"
 export class ContextMenuHost extends React.PureComponent<{}, void> {
 
     public render(): JSX.Element {
-            return <CursorPositioner beakColor={"transparent"}>
+            return <CursorPositioner beakColor={"transparent"} openDirection={2}>
                 <ContextMenuContainer />
               </CursorPositioner>
     }
