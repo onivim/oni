@@ -27,6 +27,7 @@ Source: "{{SourcePath}}"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 [Tasks]
 Name: "addtopath"; Description: "Add {{AppName}} to %PATH%"; GroupDescription: "Other"
 Name: "registerAsEditor"; Description: "Register {{AppName}} as an editor"; GroupDescription: "Other"
+Name: "addToRightClickMenu"; Description: "Add {{AppName}} to the right click menu for all files."; GroupDescription: "Other"
 
 [Icons]
 Name: "{group}\{{AppName}}"; Filename: "{app}\{{AppExecutableName}}"
