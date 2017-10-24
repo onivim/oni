@@ -111,6 +111,10 @@ export const activate = (oni: Oni.Plugin.Api) => {
         return false
     }
 
+    const removeNewLines = (str: string) => {
+        return str.replace(/(\r\n|\n|\r)/gm, "")
+    }
+
     const protocolChangeFile = (message: string, payload: any) => {
 
         const textDocument: types.TextDocumentIdentifier = payload.textDocument
@@ -130,7 +134,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
         if (!change.range) {
             host.updateFile(filePath, change.text)
         } else if (isSingleLineChange(change.range) && change.text) {
-            host.changeLineInFile(filePath, change.range.start.line + 1, change.text.trim())
+            host.changeLineInFile(filePath, change.range.start.line + 1, removeNewLines(change.text))
         } else {
             oni.log.warn("Unhandled change request!")
         }

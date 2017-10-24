@@ -94,8 +94,8 @@ const activate = (Oni) => {
         setMode(newMode)
     })
 
-    Oni.on("cursor-moved", (evt) => {
-        setLineNumber(evt.line, evt.column)
+    Oni.editors.activeEditor.onCursorMoved.subscribe((cursor) => {
+        setLineNumber(cursor.line + 1, cursor.column + 1)
     })
 
     Oni.on("buffer-enter", (evt) => {

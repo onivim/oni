@@ -66,6 +66,7 @@ export class NeovimEditor implements IEditor {
     private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChangedEvent = new Event<Oni.EditorBufferChangedEventArgs>()
     private _onBufferSavedEvent = new Event<Oni.EditorBufferEventArgs>()
+    private _onCursorMoved = new Event<Oni.Cursor>()
 
     private _$modeChanged: Observable<string>
     private _$cursorMoved: Observable<Oni.Cursor>
@@ -89,6 +90,10 @@ export class NeovimEditor implements IEditor {
 
     public get activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
+    }
+
+    public get onCursorMoved(): IEvent<Oni.Cursor> {
+        return this._onCursorMoved
     }
 
     // Events
@@ -200,6 +205,14 @@ export class NeovimEditor implements IEditor {
                 line: evt.line - 1,
                 column: evt.column - 1,
             }))
+
+
+        this._$cursorMoved
+            .merge(this._$cursorMovedI)
+            .subscribe((cursorMoved) => {
+                this._onCursorMoved.dispatch(cursorMoved)
+            })
+
         this._$modeChanged = this._onModeChangedEvent.asObservable()
 
         // Refactor to new method
