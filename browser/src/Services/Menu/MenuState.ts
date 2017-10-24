@@ -4,16 +4,16 @@
  * Definition of State for Menu functionality
  */
 
-export interface IMenus {
+export interface IMenus<T, FilteredT> {
     // TOOD: In the future, could handle multiple menus here...
-    menu: IMenu
+    menu: IMenu<T, FilteredT>
 }
 
-export interface IMenu {
+export interface IMenu<T, FilteredT> {
     id: string,
     filter: string,
-    filteredOptions: IMenuOptionWithHighlights[],
-    options: Oni.Menu.MenuOption[],
+    filteredOptions: FilteredT[],
+    options: T[],
     selectedIndex: number
     isLoading: boolean
 
@@ -24,11 +24,8 @@ export interface IMenu {
     onHide: () => void
 }
 
-export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
-    labelHighlights: number[][],
-    detailHighlights: number[][]
+export function createDefaultState<T, FilteredT>(): IMenus<T, FilteredT> {
+    return {
+        menu: null,
+    }
 }
-
-export const createDefaultState = (): IMenus => ({
-    menu: null,
-})

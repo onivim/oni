@@ -7,11 +7,22 @@
 import { applyMiddleware, bindActionCreators, createStore } from "redux"
 import thunk from "redux-thunk"
 
+import * as types from "vscode-languageserver-types"
+
 import { Event, IEvent } from "./../../Event"
 
 import * as ActionCreators from "./../Menu/MenuActionCreators"
-import { reducer } from "./../Menu/MenuReducer"
+import { createReducer } from "./../Menu/MenuReducer"
 import * as State from "./../Menu/MenuState"
+
+const reducer = createReducer<types.CompletionItem, types.CompletionItem>((opts, searchText) => {
+    return opts.filter((opt) => {
+
+        const filterText = opt.filterText || opt.label
+        return filterText.indexOf(searchText) === 0
+    })
+})
+
 
 export const contextMenuStore = createStore(reducer, State.createDefaultState(), applyMiddleware(thunk))
 export const contextMenuActions: typeof ActionCreators = bindActionCreators(ActionCreators as any, contextMenuStore.dispatch)

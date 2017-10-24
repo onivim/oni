@@ -20,11 +20,11 @@ export interface IShowMenuAction {
     }
 }
 
-export interface ISetMenuItems {
+export interface ISetMenuItems<T> {
     type: "SET_MENU_ITEMS",
     payload: {
         id: string,
-        items: Oni.Menu.MenuOption[],
+        items: T[],
     }
 }
 
@@ -59,7 +59,7 @@ export interface IPreviousMenuAction {
 export type MenuAction =
     IShowMenuAction |
     ISetMenuLoading |
-    ISetMenuItems |
+    ISetMenuItems<any> |
     IFilterMenuAction |
     IHideMenuAction |
     INextMenuAction |

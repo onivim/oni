@@ -9,7 +9,7 @@ import { Icon, IconSize } from "./../../UI/Icon"
 
 import { focusManager } from "./../FocusManager"
 
-import { menuStore } from "./Menu"
+import { IMenuOptionWithHighlights, menuStore } from "./Menu"
 import * as ActionCreators from "./MenuActionCreators"
 import * as State from "./MenuState"
 
@@ -24,7 +24,7 @@ export interface IMenuProps {
     filterText: string
     onChangeFilterText: (text: string) => void
     onSelect: (selectedIndex?: number) => void
-    items: State.IMenuOptionWithHighlights[]
+    items: IMenuOptionWithHighlights[]
     isLoading: boolean
 
     backgroundColor: string
@@ -98,7 +98,7 @@ export class MenuView extends React.PureComponent<IMenuProps, void> {
 
 const EmptyArray: any[] = []
 
-const mapStateToProps = (state: State.IMenus) => {
+const mapStateToProps = (state: State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlights>) => {
     if (!state.menu) {
         return {
             visible: false,

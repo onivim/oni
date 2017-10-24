@@ -36,7 +36,7 @@ export const setMenuLoading = (id: string, isLoading: boolean) => ({
     },
 })
 
-export const setMenuItems = (id: string, items: Oni.Menu.MenuOption[]) => ({
+export const setMenuItems = (id: string, items: any[]) => ({
     type: "SET_MENU_ITEMS",
     payload: {
         id,

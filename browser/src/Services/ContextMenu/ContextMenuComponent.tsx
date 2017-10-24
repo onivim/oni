@@ -4,7 +4,7 @@
 
 import * as take from "lodash/take"
 import * as React from "react"
-// import * as types from "vscode-languageserver-types"
+import * as types from "vscode-languageserver-types"
 
 import { connect, Provider } from "react-redux"
 
@@ -137,7 +137,7 @@ export const ContextMenuDocumentation = (props: IContextMenuDocumentationProps) 
 
 const EmptyArray: any[] = []
 
-const mapStateToProps = (state: IMenus) => {
+const mapStateToProps = (state: IMenus<types.CompletionItem, types.CompletionItem>) => {
     const contextMenu = state.menu
     if (!contextMenu) {
         return {
@@ -159,30 +159,6 @@ const mapStateToProps = (state: IMenus) => {
         }
         return ret
     }
-}
-
-const ContextMenuVisibleView = (props: any) => {
-    if (props.isVisible) {
-        return props.children
-    } else {
-        return null
-    }
-}
-
-const mapStateToProps2 = (state: IMenus, originalProps: any) => {
-    return {
-        ...originalProps,
-        isVisible: !!state.menu,
-    }
-}
-
-const ConnectedContextMenuVisible = connect(mapStateToProps2)(ContextMenuVisibleView)
-export const ContextMenuVisibleContainer = (props: any) => {
-    return <Provider store={contextMenuStore}>
-             <ConnectedContextMenuVisible>
-                {props.children}
-             </ConnectedContextMenuVisible>
-           </Provider>
 }
 
 export const ConnectedContextMenu = connect(mapStateToProps)(ContextMenuView)
