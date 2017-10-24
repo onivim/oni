@@ -33,17 +33,6 @@ const reducer = createReducer<types.CompletionItem, types.CompletionItem>((opts,
 export const contextMenuStore = createStore(reducer, State.createDefaultState(), applyMiddleware(thunk))
 export const contextMenuActions: typeof ActionCreators = bindActionCreators(ActionCreators as any, contextMenuStore.dispatch)
 
-const getSelectedItem = () => {
-        const contextMenuState = contextMenuStore.getState()
-
-        if (!contextMenuState.menu) {
-            return null
-        }
-
-        const index = contextMenuState.menu.selectedIndex
-
-        return contextMenuState.menu.filteredOptions[index]
-}
 
 // TODO: This is essentially a duplicate of `MenuManager.ts` - can this be consolidated?
 // Can potentially move to a higher-order class that takes contextMenuActions/store as arguments
@@ -62,14 +51,10 @@ export class ContextMenuManager {
 
     public nextMenuItem(): void {
         contextMenuActions.nextMenuItem()
-
-        this._notifySelectedItemChanged()
     }
 
     public previousMenuItem(): void {
         contextMenuActions.previousMenuItem()
-
-        this._notifySelectedItemChanged()
     }
 
     public closeActiveMenu(): void {
@@ -81,16 +66,6 @@ export class ContextMenuManager {
 
         if (contextMenuState && contextMenuState.menu) {
             contextMenuState.menu.onSelectItem(idx)
-        }
-    }
-
-    private _notifySelectedItemChanged(): void {
-        const contextMenuState = contextMenuStore.getState()
-
-        const selectedItem = getSelectedItem()
-
-        if (contextMenuState && contextMenuState.menu && contextMenuState.menu.onSelectedItemChanged) {
-            contextMenuState.menu.onSelectedItemChanged(selectedItem)
         }
     }
 }

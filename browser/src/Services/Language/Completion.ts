@@ -39,14 +39,7 @@ export const getCompletions = async (language: string, filePath: string, line: n
             return null
         }
 
-        const completions = items.map((i) => ({
-            label: i.label,
-            detail: i.detail,
-            documentation: getCompletionDocumentation(i),
-            icon: convertKindToIconName(i.kind),
-            insertText: i.insertText,
-            rawCompletion: i,
-        }))
+        const completions = items.map((i) => _convertCompletionForContextMenu(i))
 
         return completions
 }
@@ -59,7 +52,7 @@ export const resolveCompletionItem = async (language: string, filePath: string, 
         return null
     }
 
-    return result
+    return _convertCompletionForContextMenu(result)
 }
 
 
@@ -141,3 +134,13 @@ const getCompletionDocumentation = (item: types.CompletionItem): string | null =
         return null
     }
 }
+
+const _convertCompletionForContextMenu = (completion: types.CompletionItem): any => ({
+    label: completion.label,
+    detail: completion.detail,
+    documentation: getCompletionDocumentation(completion),
+    icon: convertKindToIconName(completion.kind),
+    insertText: completion.insertText,
+    rawCompletion: completion,
+})
+
