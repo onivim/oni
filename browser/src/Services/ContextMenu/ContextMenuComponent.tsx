@@ -135,53 +135,6 @@ export const ContextMenuDocumentation = (props: IContextMenuDocumentationProps) 
     return <div className="documentation">{documentation}</div>
 }
 
-// export interface IContextMenuIconProps {
-//     kind: types.CompletionItemKind
-// }
-
-// const completionItemKindToIconName = (completionKind: types.CompletionItemKind) => {
-//     switch (completionKind) {
-//             case types.CompletionItemKind.Class:
-//                return "cube"
-//             case types.CompletionItemKind.Color:
-//                return "paint-brush"
-//             case types.CompletionItemKind.Constructor:
-//                return "building"
-//             case types.CompletionItemKind.Enum:
-//                return "sitemap"
-//             case types.CompletionItemKind.Field:
-//                return "var"
-//             case types.CompletionItemKind.File:
-//                return "file"
-//             case types.CompletionItemKind.Function:
-//                return "cog"
-//             case types.CompletionItemKind.Interface:
-//                return "plug"
-//             case types.CompletionItemKind.Keyword:
-//                return "key"
-//             case types.CompletionItemKind.Method:
-//                return "flash"
-//             case types.CompletionItemKind.Module:
-//                return "cubes"
-//             case types.CompletionItemKind.Property:
-//                return "wrench"
-//             case types.CompletionItemKind.Reference:
-//                return "chain"
-//             case types.CompletionItemKind.Snippet:
-//                return "align-justify"
-//             case types.CompletionItemKind.Text:
-//                return "align-justify"
-//             case types.CompletionItemKind.Unit:
-//                return "tag"
-//             case types.CompletionItemKind.Value:
-//                return "lock"
-//             case types.CompletionItemKind.Variable:
-//                return "code"
-//             default:
-//                 return "question"
-//     }
-// }
-
 const EmptyArray: any[] = []
 
 const mapStateToProps = (state: IMenus) => {
@@ -207,8 +160,6 @@ const mapStateToProps = (state: IMenus) => {
         return ret
     }
 }
-
-
 
 const ContextMenuVisibleView = (props: any) => {
     if (props.isVisible) {
