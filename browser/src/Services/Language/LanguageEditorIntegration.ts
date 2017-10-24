@@ -16,7 +16,7 @@ import { languageManager } from "./LanguageManager"
 import { commitCompletion, getCompletions } from "./Completion"
 import { getDefinition, hideDefinition } from "./Definition"
 import { checkAndShowQuickInfo, hideQuickInfo } from "./QuickInfo"
-import { showSignatureHelp } from "./SignatureHelp"
+import { hideSignatureHelp, showSignatureHelp } from "./SignatureHelp"
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
@@ -58,7 +58,7 @@ export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<On
 export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.Cursor>, $modeChanged: Observable<string>) => {
 
     const $incrementalBufferUpdates = $cursorMoved
-            .auditTime(25)
+            .auditTime(10)
             .mergeMap(async (cursorPos) => {
                 const editor = editorManager.activeEditor
                 const buffer = editor.activeBuffer
@@ -77,6 +77,13 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
     $incrementalBufferUpdates
         .subscribe((val) => {
             showSignatureHelp(val.language, val.filePath, val.cursorLine, val.cursorColumn)
+        })
+
+    $modeChanged
+        .subscribe((newMode) => {
+            if (newMode !== "i") {
+                hideSignatureHelp()
+            }
         })
 
     const $currentCompletionMeet = $incrementalBufferUpdates

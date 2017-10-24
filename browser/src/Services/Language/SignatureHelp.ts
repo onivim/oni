@@ -45,6 +45,10 @@ export const showSignatureHelp = async (language: string, filePath: string, line
     }
 }
 
+export const hideSignatureHelp = () => {
+    UI.Actions.hideSignatureHelp()
+}
+
 // TODO: `getSignatureHelpTriggerColumn` rename to `getNearestTriggerCharacter`
 export const getSignatureHelpTriggerColumn = (line: string, character: number, triggerCharacters: string[]): number => {
 
