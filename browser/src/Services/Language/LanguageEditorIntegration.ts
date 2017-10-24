@@ -46,7 +46,7 @@ export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<On
         })
 
     const $shouldUpdateNormalModeAdorners = $latestPositionAndVersion
-        .auditTime(250) // TODO: Use config setting 'editor.quickInfo.delay'
+        .debounceTime(250) // TODO: Use config setting 'editor.quickInfo.delay'
         .combineLatest($modeChanged)
         .filter((combinedArgs: [any, string]) => {
             const [, mode] = combinedArgs
