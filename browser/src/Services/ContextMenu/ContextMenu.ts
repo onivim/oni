@@ -16,10 +16,16 @@ import { createReducer } from "./../Menu/MenuReducer"
 import * as State from "./../Menu/MenuState"
 
 const reducer = createReducer<types.CompletionItem, types.CompletionItem>((opts, searchText) => {
-    return opts.filter((opt) => {
 
-        const filterText = opt.filterText || opt.label
-        return filterText.indexOf(searchText) === 0
+    if (!searchText) {
+        return opts
+    }
+
+    const filterRegEx = new RegExp("^" + searchText.split("").join(".*") + ".*")
+
+    return opts.filter((f) => {
+        const textToFilterOn = f.filterText || f.label
+        return textToFilterOn.match(filterRegEx)
     })
 })
 
