@@ -37,7 +37,12 @@ export const getDefinition = async () => {
         const { line, column } = activeBuffer.cursor
         const token = await activeBuffer.getTokenAt(line, column)
         UI.Actions.hideDefinition()
-        const result: types.Location = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/definition", args)
+        let result: types.Location = null
+
+        try {
+            result = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/definition", args)
+        } catch (ex) {
+        }
 
         if (result) {
             UI.Actions.setDefinition(token, result)
