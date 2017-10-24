@@ -77,7 +77,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
                 code: d.code,
                 message: d.text,
                 range,
-                severity: types.DiagnosticSeverity.Error
+                severity: types.DiagnosticSeverity.Error,
             }
             return ret
         })
@@ -150,8 +150,15 @@ export const activate = (oni: Oni.Plugin.Api) => {
         return val
     }
 
+    const onSaved = (protocolName: string, payload: any) => {
+        const textDocument = payload.textDocument
+        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
+        host.getErrorsAcrossProject(filePath)
+    }
+
     lightweightLanguageClient.handleNotification("textDocument/didOpen", protocolOpenFile)
     lightweightLanguageClient.handleNotification("textDocument/didChange", protocolChangeFile)
+    lightweightLanguageClient.handleNotification("textDocument/didSave", onSaved)
 
     lightweightLanguageClient.handleRequest("textDocument/completion", getCompletions(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions)
@@ -159,9 +166,4 @@ export const activate = (oni: Oni.Plugin.Api) => {
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
-
-    // TODO: Migrate to 'textDocument/didSave'
-    oni.on("buffer-saved", (args: Oni.EventContext) => {
-        host.getErrorsAcrossProject(args.bufferFullPath)
-    })
 }

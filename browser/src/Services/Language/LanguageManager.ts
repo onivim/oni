@@ -58,6 +58,11 @@ export class LanguageManager {
             })
         })
 
+        editorManager.allEditors.onBufferSaved.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
+            const { language, filePath} = bufferInfo
+            return this.sendLanguageServerNotification(language, filePath, "textDocument/didSave", Helpers.pathToTextDocumentIdentifierParms(filePath))
+        })
+
         this.subscribeToLanguageServerNotification("window/logMessage", (args) => {
             // logInfo("window/logMessage: " + JSON.stringify(args))
         })
