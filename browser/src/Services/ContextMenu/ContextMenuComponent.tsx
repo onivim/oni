@@ -45,15 +45,6 @@ export class ContextMenuView extends React.PureComponent<IContextMenuProps, void
             border: "1px solid " + highlightColor,
         }
 
-        if (this.props.entries.length === 0) {
-            return null
-        }
-
-        if (this.props.entries.length === 1
-            && this.props.entries[0].label === this.props.base) {
-            return null
-        }
-
         // TODO: sync max display items (10) with value in Reducer.autoCompletionReducer() (Reducer.ts)
         const firstTenEntries = take(this.props.entries, 10)
 

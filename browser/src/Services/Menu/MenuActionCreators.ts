@@ -24,7 +24,7 @@ const notifySelectedItemChange = (contextMenuState: any) => {
     }
 }
 
-export const showPopupMenu = (id: string, opts?: MenuActions.IMenuOptions) => {
+export const showPopupMenu = (id: string, opts?: MenuActions.IMenuOptions, items?: any, filter?: string) => {
 
     const { backgroundColor, foregroundColor }  = UI.store.getState() as any
 
@@ -43,6 +43,8 @@ export const showPopupMenu = (id: string, opts?: MenuActions.IMenuOptions) => {
         payload: {
             id,
             options,
+            items,
+            filter,
         },
     }
 }

@@ -121,6 +121,7 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
             return {
                 base: bufferMeetInfo.meetBase,
                 shouldExpand: bufferMeetInfo.shouldExpand,
+                meetPosition: bufferMeetInfo.position,
             }
         })
         .distinctUntilChanged(isEqual)
@@ -138,6 +139,7 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
         .mergeMap((completionInfo: any) => {
             return Observable.defer(async () => {
                 console.log(`[COMPLETION] Requesting completions at line ${completionInfo.line} and character ${completionInfo.character}`)
+                newContextMenu.hide()
                 return await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.line, completionInfo.character)
             })
         })
@@ -169,7 +171,6 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
 
     $modeChanged.subscribe((mode) => {
         if (mode !== "i") {
-            newContextMenu.setItems([])
             newContextMenu.hide()
         }
     })
@@ -181,13 +182,10 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
         const [newCompletions, baseInfo] = args
 
         if (!newCompletions || !newCompletions.length) {
-            newContextMenu.setItems([])
             newContextMenu.hide()
             console.log("[COMPLETION] None returned")
         } else {
-            newContextMenu.show()
-            newContextMenu.setItems(newCompletions)
-            newContextMenu.setFilter(baseInfo.base)
+            newContextMenu.show(newCompletions, baseInfo.base)
 
             console.log("[COMPLETION] --Got completions!")
             console.dir(newCompletions)

@@ -125,13 +125,13 @@ export class ContextMenu {
         contextMenuActions.setMenuItems(this._id, items)
     }
 
-    public show(): void {
+    public show(items?: any[], filter?: string): void {
         contextMenuActions.showPopupMenu(this._id, {
             onSelectedItemChanged: (item: any) => this._onSelectedItemChanged.dispatch(item),
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
             onHide: () => this._onHide.dispatch(),
             onFilterTextChanged: (newText) => this._onFilterTextChanged.dispatch(newText),
-        })
+        }, items, filter)
     }
 
     public updateItem(item: any): void {

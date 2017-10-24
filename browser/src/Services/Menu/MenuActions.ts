@@ -17,7 +17,9 @@ export interface IShowMenuAction {
     type: "SHOW_MENU",
     payload: {
         id: string,
-        options: IMenuOptions,
+        options?: IMenuOptions,
+        items?: any[],
+        filter?: string,
     }
 }
 

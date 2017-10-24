@@ -24,13 +24,17 @@ export function createReducer<T, FilteredT extends T>(filterFunc: MenuFilterFunc
         const size = s ? Math.min(10, s.filteredOptions.length) : 0
 
         switch (a.type) {
+
             case "SHOW_MENU":
+                const options3 = a.payload.items || []
+                const filterText = a.payload.filter || ""
+                const filteredOptions3 = filterFunc(options3, filterText)
                 return {
                     ...a.payload.options,
                     id: a.payload.id,
-                    filter: "",
-                    filteredOptions: [],
-                    options: [],
+                    filter: filterText,
+                    filteredOptions: filteredOptions3,
+                    options: options3,
                     selectedIndex: 0,
                     isLoading: false,
                 }
