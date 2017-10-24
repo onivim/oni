@@ -36,12 +36,17 @@ export const getDefinition = async () => {
 
         const { line, column } = activeBuffer.cursor
         const token = await activeBuffer.getTokenAt(line, column)
+        UI.Actions.hideDefinition()
         const result: types.Location = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/definition", args)
 
         if (result) {
-            UI.Actions.setDefinition(activeBuffer.filePath, line, column, token, result)
+            UI.Actions.setDefinition(token, result)
         }
     }
+}
+
+export const hideDefinition = () => {
+    UI.Actions.hideDefinition()
 }
 
 export enum OpenType {

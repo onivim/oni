@@ -14,7 +14,7 @@ import * as pick from "lodash/pick"
 
 import * as types from "vscode-languageserver-types"
 
-import { quickInfoReducerWithLocation } from "./reducers/QuickInfoReducers"
+import { quickInfoReducer } from "./reducers/QuickInfoReducers"
 
 export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>) {
 
@@ -70,41 +70,37 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     definition: definitionReducer(s.definition, a),
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
-                    quickInfo: quickInfoReducerWithLocation(s.quickInfo, a),
+                    quickInfo: quickInfoReducer(s.quickInfo, a),
                     signatureHelp: signatureHelpReducer(s.signatureHelp, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     windowState: windowStateReducer(s.windowState, a)}
     }
 }
 
-export const definitionReducer = (s: State.ILocatable<State.IDefinition>, a: Actions.SimpleAction) => {
+export const definitionReducer = (s: State.IDefinition, a: Actions.SimpleAction) => {
     switch (a.type) {
-        case "SET_DEFINITION":
-            const { filePath, line, column, definitionLocation, token } = a.payload
-            return {...s,
-                    filePath,
-                    line,
-                    column,
-                    data: {
-                            definitionLocation,
-                            token,
-                        },
+        case "SHOW_DEFINITION":
+            const { definitionLocation, token } = a.payload
+                return {
+                    definitionLocation,
+                    token,
                 }
+        case "HIDE_DEFINITION":
+            return null
         default:
             return s
     }
 }
 
-export const signatureHelpReducer = (s: State.ILocatable<types.SignatureHelp>, a: Actions.SimpleAction) => {
+export const signatureHelpReducer = (s: types.SignatureHelp, a: Actions.SimpleAction) => {
     switch (a.type) {
         case "SHOW_SIGNATURE_HELP":
-            const { filePath, line, column, signatureHelp } = a.payload
-            return {...s,
-                    filePath,
-                    line,
-                    column,
-                    data: signatureHelp,
+            const { signatureHelp } = a.payload
+            return {
+                ...signatureHelp,
             }
+        case "HIDE_SIGNATURE_HELP":
+            return null
         default:
             return s
     }

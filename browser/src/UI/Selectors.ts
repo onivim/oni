@@ -41,29 +41,7 @@ export const getActiveWindow = (state: State.IState): State.IWindow => {
     return state.windowState.windows[activeWindow]
 }
 
-export const getQuickInfo = (state: State.IState): State.IQuickInfo => {
-    const win = getActiveWindow(state)
-
-    if (!win) {
-        return null
-    }
-
-    const { file, line, column } = win
-
-    const quickInfo = state.quickInfo
-
-    if (!quickInfo) {
-        return null
-    }
-
-    if (quickInfo.filePath !== file
-        || quickInfo.line !== line
-        || quickInfo.column !== column) {
-            return null
-        }
-
-    return quickInfo.data
-}
+export const getQuickInfo = (state: State.IState): State.IQuickInfo => state.quickInfo
 
 const emptyRectangle = {
     x: 0,

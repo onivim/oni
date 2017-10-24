@@ -35,16 +35,21 @@ export const checkAndShowQuickInfo = async (language: string, filePath: string, 
             const titleAndContents = getTitleAndContents(result)
 
             if (titleAndContents) {
-                showQuickInfo(filePath, line, column, titleAndContents.title, titleAndContents.description)
+                showQuickInfo(titleAndContents.title, titleAndContents.description)
             }
         }
         catch (ex) {
+            hideQuickInfo()
         }
     }
 }
 
-const showQuickInfo = (filePath: string, line: number, column: number, title: string, contents: string): void => {
-    UI.Actions.showQuickInfo(filePath, line, column, title, contents)
+export const hideQuickInfo = (): void => {
+    UI.Actions.hideQuickInfo()
+}
+
+const showQuickInfo = (title: string, contents: string): void => {
+    UI.Actions.showQuickInfo(title, contents)
 }
 
 const getTitleAndContents = (result: types.Hover) => {

@@ -33,9 +33,15 @@ export const showSignatureHelp = async (language: string, filePath: string, line
             },
         }
 
-        const result: types.SignatureHelp = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/signatureHelp", args)
 
-        UI.Actions.showSignatureHelp(filePath, line, requestColumn, result)
+        try {
+            const result: types.SignatureHelp = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/signatureHelp", args)
+
+            UI.Actions.showSignatureHelp(result)
+        }
+        catch (ex) {
+            UI.Actions.hideSignatureHelp()
+        }
     }
 }
 

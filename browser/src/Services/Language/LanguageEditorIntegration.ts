@@ -14,9 +14,9 @@ import { contextMenuManager } from "./../ContextMenu"
 import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
 import { commitCompletion, getCompletions } from "./Completion"
-import { getDefinition } from "./Definition"
-import { checkAndShowQuickInfo } from "./QuickInfo"
-// import { showSignatureHelp } from "./SignatureHelp"
+import { getDefinition, hideDefinition } from "./Definition"
+import { checkAndShowQuickInfo, hideQuickInfo } from "./QuickInfo"
+import { showSignatureHelp } from "./SignatureHelp"
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
@@ -36,9 +36,15 @@ export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<On
                 }
            })
            .distinctUntilChanged(isEqual)
-           .auditTime(250) // TODO: Use config setting 'editor.quickInfo.delay'
 
     $latestPositionAndVersion
+        .subscribe(() => {
+            hideQuickInfo()
+            hideDefinition()
+        })
+
+    $latestPositionAndVersion
+        .auditTime(250) // TODO: Use config setting 'editor.quickInfo.delay'
         .subscribe(async (val) => {
 
             await getDefinition()
@@ -68,6 +74,10 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
                 }
             })
 
+    $incrementalBufferUpdates
+        .subscribe((val) => {
+            showSignatureHelp(val.language, val.filePath, val.cursorLine, val.cursorColumn)
+        })
 
     const $currentCompletionMeet = $incrementalBufferUpdates
         .map((changeInfo) => {

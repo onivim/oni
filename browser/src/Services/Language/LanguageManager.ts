@@ -78,7 +78,7 @@ export class LanguageManager {
     }
 
     public getTokenRegex(language: string): RegExp {
-        return /[_a-z]/i
+        return /[$_a-zA-Z0-9]/i
     }
 
     public getSignatureHelpTriggerCharacters(language: string): string[] {

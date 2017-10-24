@@ -22,17 +22,6 @@ export interface IViewport {
     height: number
 }
 
-/**
- * Interface describing an item that is relative
- * to a particular file location
- */
-export interface ILocatable<T> {
-    filePath: string
-    line: number
-    column: number
-    data: T
-}
-
 export interface IQuickInfo {
     title: string,
     description: string,
@@ -50,9 +39,9 @@ export interface IState {
     mode: string
     backgroundColor: string
     foregroundColor: string
-    definition: null | ILocatable<IDefinition>
-    quickInfo: null | ILocatable<IQuickInfo>
-    signatureHelp: null | ILocatable<types.SignatureHelp>
+    definition: null | IDefinition
+    quickInfo: null | IQuickInfo
+    signatureHelp: null | types.SignatureHelp
     cursorLineOpacity: number
     cursorColumnOpacity: number
     configuration: IConfigurationValues

@@ -211,36 +211,39 @@ export const setMode = (mode: string) => ({
     payload: { mode },
 })
 
-export const showSignatureHelp = (filePath: string, line: number, column: number, signatureHelp: types.SignatureHelp) => ({
+export const showSignatureHelp = (signatureHelp: types.SignatureHelp) => ({
     type: "SHOW_SIGNATURE_HELP",
     payload: {
-        filePath: normalizePath(filePath),
-        line,
-        column,
         signatureHelp,
     },
 })
 
-export const showQuickInfo = (filePath: string, line: number, column: number, title: string, description: string): Actions.IShowQuickInfoAction => ({
+export const hideSignatureHelp = () => ({
+    type: "HIDE_SIGNATURE_HELP",
+})
+
+export const showQuickInfo = (title: string, description: string): Actions.IShowQuickInfoAction => ({
     type: "SHOW_QUICK_INFO",
     payload: {
-        filePath: normalizePath(filePath),
-        line,
-        column,
         title,
         description,
     },
 })
 
-export const setDefinition = (filePath: string, line: number, column: number, token: Oni.IToken, definitionLocation: types.Location): Actions.ISetDefinitionAction => ({
-    type: "SET_DEFINITION",
+export const hideQuickInfo = () => ({
+    type: "HIDE_QUICK_INFO",
+})
+
+export const setDefinition = (token: Oni.IToken, definitionLocation: types.Location): Actions.IShowDefinitionAction => ({
+    type: "SHOW_DEFINITION",
     payload: {
-        filePath: normalizePath(filePath),
-        line,
-        column,
         token,
         definitionLocation,
     },
+})
+
+export const hideDefinition = () => ({
+    type: "HIDE_DEFINITION",
 })
 
 export const setCursorLineOpacity = (opacity: number) => ({

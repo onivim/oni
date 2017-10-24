@@ -28,30 +28,7 @@ export class SelectedText extends TextComponent {
     }
 }
 
-const getQuickInfoRaw = (state: IState) => state.quickInfo
-
-export const getQuickInfo = createSelector(
-    [Selectors.getActiveWindow, getQuickInfoRaw],
-    (win, quickInfo) => {
-
-    if (!win) {
-        return null
-    }
-
-    const { file, line, column } = win
-
-    if (!quickInfo) {
-        return null
-    }
-
-    if (quickInfo.filePath !== file
-        || quickInfo.line !== line
-        || quickInfo.column !== column) {
-            return null
-        }
-
-    return quickInfo.data
-})
+export const getQuickInfo = (state: IState) => state.quickInfo
 
 export const getQuickInfoElement = createSelector(
     [getQuickInfo, Selectors.getErrorsForPosition, Selectors.getForegroundBackgroundColor],

@@ -185,33 +185,36 @@ export interface ISetColorsAction {
 export interface IShowSignatureHelpAction {
     type: "SHOW_SIGNATURE_HELP",
     payload: {
-        filePath: string,
-        line: number,
-        column: number,
         signatureHelp: types.SignatureHelp,
     }
+}
+
+export interface IHideSignatureHelpAction {
+    type: "HIDE_SIGNATURE_HELP",
 }
 
 export interface IShowQuickInfoAction {
     type: "SHOW_QUICK_INFO",
     payload: {
-        filePath: string,
-        line: number,
-        column: number,
         title: string,
         description: string,
     }
 }
 
-export interface ISetDefinitionAction {
-    type: "SET_DEFINITION",
+export interface IHideQuickInfoAction {
+    type: "HIDE_QUICK_INFO",
+}
+
+export interface IShowDefinitionAction {
+    type: "SHOW_DEFINITION",
     payload: {
-        filePath: string,
-        line: number,
-        column: number,
         token: Oni.IToken,
         definitionLocation: types.Location,
     }
+}
+
+export interface IHideDefinitionAction {
+    type: "HIDE_DEFINITION",
 }
 
 export interface ISetConfigurationValue<K extends keyof IConfigurationValues> {
@@ -232,11 +235,14 @@ export type SimpleAction =
     ISetCursorPositionAction |
     ISetImeActive |
     ISetFont |
+    IHideSignatureHelpAction |
     IShowSignatureHelpAction |
+    IHideQuickInfoAction |
     IShowQuickInfoAction |
     IShowMessageDialog |
     IHideMessageDialog |
-    ISetDefinitionAction |
+    IHideDefinitionAction |
+    IShowDefinitionAction |
     ISetModeAction |
     ISetColorsAction |
     IStatusBarHideAction |
