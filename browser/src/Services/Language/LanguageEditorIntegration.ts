@@ -8,6 +8,8 @@
 import * as isEqual from "lodash/isEqual"
 import { Observable } from "rxjs/Observable"
 
+import "rxjs/add/observable/never"
+
 // import * as types from "vscode-languageserver-types"
 
 import { contextMenuManager } from "./../ContextMenu"
@@ -20,7 +22,7 @@ import { hideSignatureHelp, showSignatureHelp } from "./SignatureHelp"
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
-export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<Oni.EditorBufferChangedEventArgs>, $cursorMoved: Observable<Oni.Cursor>) => {
+export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<Oni.EditorBufferChangedEventArgs>, $cursorMoved: Observable<Oni.Cursor>, $modeChanged: Observable<string>) => {
 
     const $latestPositionAndVersion =
         $bufferUpdates
@@ -45,7 +47,14 @@ export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<On
 
     $latestPositionAndVersion
         .auditTime(250) // TODO: Use config setting 'editor.quickInfo.delay'
-        .subscribe(async (val) => {
+        .combineLatest($modeChanged)
+        .subscribe(async (combinedArgs: [any, string]) => {
+
+            const [val, mode] = combinedArgs
+
+            if (mode !== "normal") {
+                return
+            }
 
             await getDefinition()
             await checkAndShowQuickInfo(val.language, val.filePath, val.line, val.column)

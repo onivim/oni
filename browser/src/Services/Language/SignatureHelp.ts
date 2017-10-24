@@ -20,7 +20,7 @@ export const showSignatureHelp = async (language: string, filePath: string, line
         const requestColumn = getSignatureHelpTriggerColumn(currentLine[0], column, ["("])
 
         if (requestColumn < 0) {
-            return
+            UI.Actions.hideSignatureHelp()
         }
 
         const args = {

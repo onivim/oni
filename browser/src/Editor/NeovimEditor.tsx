@@ -264,7 +264,7 @@ export class NeovimEditor implements IEditor {
 
         const $allUpdates = this._onBufferChangedEvent.asObservable()
         addInsertModeLanguageFunctionality(this._$cursorMovedI, this._$modeChanged)
-        addNormalModeLanguageFunctionality($allUpdates, this._$cursorMoved)
+        addNormalModeLanguageFunctionality($allUpdates, this._$cursorMoved, this._$modeChanged)
 
         this._render()
 
