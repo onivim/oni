@@ -265,6 +265,7 @@ declare namespace Oni {
             diagnostics: Diagnostics.Api
             editors: EditorManager
             input: InputManager
+            menu: any; // TODO: Add typing for this
             process: Process
             statusBar: StatusBar
             workspace: Workspace

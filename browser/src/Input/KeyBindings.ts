@@ -8,13 +8,15 @@ import * as Platform from "./../Platform"
 import { Configuration } from "./../Services/Configuration"
 
 export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configuration): void => {
-    const { editors, input } = oni
+    const { editors, input, menu } = oni
 
     input.unbindAll()
 
     const isVisualMode = () => editors.activeEditor.mode === "visual"
     const isNormalMode = () => editors.activeEditor.mode === "normal"
     const isInsertOrCommandMode = () => editors.activeEditor.mode === "insert" || editors.activeEditor.mode === "cmdline_normal"
+
+    const isMenuOpen = () => menu.isMenuOpen()
 
     if (Platform.isMac()) {
         input.bind("<m-q>", "oni.quit")
@@ -27,7 +29,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         }
     } else {
         input.bind("<a-f4>", "oni.quit")
-        input.bind("<c-p>", "quickOpen.show", isNormalMode)
+        input.bind("<c-p>", "quickOpen.show", () => isNormalMode() && !isMenuOpen())
         input.bind("<s-c-p>", "commands.show", isNormalMode)
 
         if (config.getValue("editor.clipboard.enabled")) {
