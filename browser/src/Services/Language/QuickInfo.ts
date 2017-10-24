@@ -20,9 +20,7 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 export const checkAndShowQuickInfo = async (language: string, filePath: string, line: number, column: number) => {
     if (languageManager.isLanguageServerAvailable(language)) {
 
-        try {
-            const result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/hover",
-                                                                           {
+        const args = {
                 textDocument: {
                     uri: Helpers.wrapPathInFileUri(filePath),
                 },
@@ -30,16 +28,21 @@ export const checkAndShowQuickInfo = async (language: string, filePath: string, 
                     line,
                     character: column,
                 },
-            })
+        }
 
+        let result: types.Hover = null
+        try {
+            result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/hover", args)
+        } catch (ex) { }
+
+        if (!result) {
+            hideQuickInfo()
+        } else {
             const titleAndContents = getTitleAndContents(result)
 
             if (titleAndContents) {
                 showQuickInfo(titleAndContents.title, titleAndContents.description)
             }
-        }
-        catch (ex) {
-            hideQuickInfo()
         }
     }
 }
