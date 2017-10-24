@@ -45,9 +45,21 @@ export const getCompletions = async (language: string, filePath: string, line: n
             documentation: getCompletionDocumentation(i),
             icon: convertKindToIconName(i.kind),
             insertText: i.insertText,
+            rawCompletion: i,
         }))
 
         return completions
+}
+
+export const resolveCompletionItem = async (language: string, filePath: string, completionItem: types.CompletionItem): Promise<types.CompletionItem> => {
+    let result
+    try {
+        result = await languageManager.sendLanguageServerRequest(language, filePath, "completionItem/resolve", completionItem)
+    } catch (ex) {
+        return null
+    }
+
+    return result
 }
 
 

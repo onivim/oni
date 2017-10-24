@@ -20,6 +20,8 @@ export interface IMenu<T, FilteredT> {
     backgroundColor: string
     foregroundColor: string
 
+    onFilterTextChanged: (newText: string) => void
+    onSelectedItemChanged: (newItem: FilteredT) => void
     onSelectItem: (idx: number) => void
     onHide: () => void
 }

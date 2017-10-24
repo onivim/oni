@@ -15,7 +15,7 @@ import "rxjs/add/observable/never"
 import { contextMenuManager } from "./../ContextMenu"
 import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
-import { commitCompletion, getCompletions } from "./Completion"
+import { commitCompletion, getCompletions, resolveCompletionItem } from "./Completion"
 import { getDefinition, hideDefinition } from "./Definition"
 import { checkAndShowQuickInfo, hideQuickInfo } from "./QuickInfo"
 import { hideSignatureHelp, showSignatureHelp } from "./SignatureHelp"
@@ -149,6 +149,11 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
             commitCompletion(meetInfo.cursorLine, meetInfo.contents, meetInfo.meetPosition, meetInfo.cursorColumn, completionItem.label)
             newContextMenu.hide()
         }
+    })
+
+    newContextMenu.onSelectedItemChanged.subscribe(async (newItem) => {
+        const result = await resolveCompletionItem(lastMeet.language, lastMeet.filePath, newItem.rawCompletion)
+        console.log("Got resolution: " + JSON.stringify(result))
     })
 
 
