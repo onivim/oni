@@ -73,6 +73,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "environment.additionalPaths": [],
 
+    "language.python.languageServer.command": "pyls",
     "language.cpp.languageServer.command": "clangd",
     "language.c.languageServer.command": "clangd",
 

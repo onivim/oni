@@ -67,7 +67,7 @@ export class LanguageManager {
 
                     return {
                         textDocument,
-                        contentChanges: [{ text: allBufferLines.join(os.EOL) }]
+                        contentChanges: [{ text: allBufferLines.join(os.EOL) }],
                     }
                 }
             }
