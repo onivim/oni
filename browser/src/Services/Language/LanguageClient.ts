@@ -7,12 +7,14 @@ import { ILanguageClientProcess } from "./LanguageClientProcess"
 import { PromiseQueue } from "./PromiseQueue"
 import { IServerCapabilities } from "./ServerCapabilities"
 
+import * as LanguageClientTypes from "./LanguageClientTypes"
+
 export interface ILanguageClient {
     serverCapabilities: IServerCapabilities
     subscribe(notificationName: string, evt: Event<any>): void
 
-    sendRequest<T>(fileName: string, requestName: string, protocolArguments: any): Promise<T>
-    sendNotification(fileName: string, notificationName: string, protocolArguments: any): void
+    sendRequest<T>(fileName: string, requestName: string, protocolArguments: LanguageClientTypes.NotificationValueOrThunk): Promise<T>
+    sendNotification(fileName: string, notificationName: string, protocolArguments: LanguageClientTypes.NotificationValueOrThunk): void
 }
 
 export class LanguageClient implements ILanguageClient {
@@ -57,25 +59,29 @@ export class LanguageClient implements ILanguageClient {
         this._subscriptions[notificationName] = evt
     }
 
-    public sendRequest<T>(fileName: string, requestName: string, protocolArguments: any): Promise<T> {
+    public sendRequest<T>(fileName: string, requestName: string, protocolArguments: LanguageClientTypes.NotificationValueOrThunk): Promise<T> {
         return this._promiseQueue.enqueuePromise<T>(async () => {
 
             this._connection = await this._languageClientProcess.ensureActive(fileName)
 
+            const args = await LanguageClientTypes.unwrapThunkOrValue(protocolArguments, this.serverCapabilities)
+
             logInfo(`Request ${requestName} - ${fileName}: start`)
-            const result = await this._connection.sendRequest<T>(requestName, protocolArguments)
+            const result = await this._connection.sendRequest<T>(requestName, args)
             logInfo(`Request ${requestName} - ${fileName}: end`)
             return result
         })
     }
 
-    public sendNotification(fileName: string, notificationName: string, protocolArguments: any): void {
+    public sendNotification(fileName: string, notificationName: string, protocolArguments: LanguageClientTypes.NotificationValueOrThunk): void {
         this._promiseQueue.enqueuePromise(async () => {
             this._connection = await this._languageClientProcess.ensureActive(fileName)
 
+            const args = await LanguageClientTypes.unwrapThunkOrValue(protocolArguments, this.serverCapabilities)
+
             logInfo(`Notification ${notificationName} - ${fileName}: start`)
 
-            await this._connection.sendNotification(notificationName, protocolArguments)
+            await this._connection.sendNotification(notificationName, args)
 
             logInfo(`Notification ${notificationName} - ${fileName}: end`)
         })

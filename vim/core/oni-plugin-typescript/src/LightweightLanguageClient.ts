@@ -17,27 +17,53 @@ export class LightweightLanguageClient {
     private _requestHandler: { [key: string]: RequestHandler } = { }
     private _notificationHandler: { [key: string]: NotificationHandler } = { }
 
+    public get serverCapabilities(): any {
+        return {
+            textDocumentSync: 2 /* incremental */,
+            hoverProvider: true,
+            completionProvider: {
+                resolveProvider: true,
+                triggerCharacters: ["."],
+            },
+            signatureHelpProvider: {
+                triggerCharacters: ["("],
+            },
+            definitionProvider: true,
+            referencesProvider: true,
+
+            // TODO:
+            // codelensprovider
+            // codeactionprovider
+            // renameprovider
+            // documentformattingprovider
+        }
+    }
+
     public subscribe(notificationName: string, evt: Oni.Event<any>) {
         this._subscriptions[notificationName] = evt
     }
 
-    public sendRequest<T>(fileName: string, requestName: string, protocolArguments: any): Promise<T> {
+    public async sendRequest<T>(fileName: string, requestName: string, protocolArguments: any): Promise<T> {
 
         const handler = this._requestHandler[requestName]
 
+        const unwrappedValue = await this._unwrapThunk(protocolArguments)
+
         if (handler) {
-            return handler(requestName, protocolArguments)
+            return handler(requestName, unwrappedValue)
         } else {
             return Promise.reject("Not implemented")
         }
     }
 
-    public sendNotification(fileName: string, notificationName: string, protocolArguments: any): void {
+    public async sendNotification(fileName: string, notificationName: string, protocolArguments: any): Promise<void> {
 
         const notifier = this._notificationHandler[notificationName]
 
+        const unwrappedValue = await this._unwrapThunk(protocolArguments)
+
         if (notifier) {
-            notifier(notificationName, protocolArguments)
+            notifier(notificationName, unwrappedValue)
         }
     }
 
@@ -57,6 +83,20 @@ export class LightweightLanguageClient {
                 language, // TODO: Generalize for JS too
                 payload,
             })
+        }
+    }
+
+    private _unwrapThunk(valueOrThunk?: any): Promise<any> {
+        if(typeof(valueOrThunk) !== "function") {
+            return valueOrThunk
+        } else {
+            const val = valueOrThunk(this.serverCapabilities)
+
+            if (typeof(val.then) === "function") {
+                return val
+            } else {
+                return Promise.resolve(val)
+            }
         }
     }
 }

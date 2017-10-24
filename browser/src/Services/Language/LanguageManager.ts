@@ -7,6 +7,8 @@
  *  - Handling custom syntax (TextMate themes)
  */
 
+import * as os from "os"
+
 import { Event } from "./../../Event"
 import { IDisposable } from "./../../IDisposable"
 import * as Log from "./../../Log"
@@ -15,6 +17,8 @@ import { editorManager } from "./../EditorManager"
 
 import { ILanguageClient } from "./LanguageClient"
 import { IServerCapabilities } from "./ServerCapabilities"
+
+import * as LanguageClientTypes from "./LanguageClientTypes"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -44,18 +48,31 @@ export class LanguageManager {
         editorManager.allEditors.onBufferChanged.subscribe(async (change: Oni.EditorBufferChangedEventArgs) => {
 
             const { language, filePath } = change.buffer
-            // const capabilities = await this.getCapabilitiesForLanguage(language)
 
-            // const syncMode = (capabilities & typeof capabilities.textDocumentSync === "number")
-
-            // TODO: Incremental buffer updates...
-            return this.sendLanguageServerNotification(language, filePath, "textDocument/didChange", {
-                textDocument: {
+            const sendBufferThunk = async (capabilities: IServerCapabilities) => {
+                const textDocument = {
                     uri: Helpers.wrapPathInFileUri(filePath),
                     version: change.buffer.version,
-                },
-                contentChanges: change.contentChanges,
-            })
+                }
+
+                // If the service supports incremental capabilities, just pass it directly
+                if (capabilities.textDocumentSync === 2) {
+                    return {
+                        textDocument,
+                        contentChanges: change.contentChanges,
+                    }
+                // Otherwise, get the whole buffer and send it up
+                } else {
+                    const allBufferLines = await change.buffer.getLines()
+
+                    return {
+                        textDocument,
+                        contentChanges: [{ text: allBufferLines.join(os.EOL) }]
+                    }
+                }
+            }
+
+            return this.sendLanguageServerNotification(language, filePath, "textDocument/didChange", sendBufferThunk)
         })
 
         editorManager.allEditors.onBufferSaved.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
@@ -94,17 +111,17 @@ export class LanguageManager {
         return !!this._getLanguageClient(language)
     }
 
-    public sendLanguageServerNotification(language: string, filePath: string, protocolMessage: string, protocolPayload: any): void {
+    public sendLanguageServerNotification(language: string, filePath: string, protocolMessage: string, protocolPayload: LanguageClientTypes.NotificationValueOrThunk): void {
         const languageClient = this._getLanguageClient(language)
 
         if (languageClient) {
             languageClient.sendNotification(filePath, protocolMessage, protocolPayload)
         } else {
-            Log.error("No supported language")
+            Log.verbose("No supported language")
         }
     }
 
-    public sendLanguageServerRequest(language: string, filePath: string, protocolMessage: string, protocolPayload: any): Promise<any> {
+    public sendLanguageServerRequest(language: string, filePath: string, protocolMessage: string, protocolPayload: LanguageClientTypes.NotificationValueOrThunk): Promise<any> {
         const languageClient = this._getLanguageClient(language)
 
         Log.verbose("[LANGUAGE] Sending request: " + protocolMessage + "|" + JSON.stringify(protocolPayload))
