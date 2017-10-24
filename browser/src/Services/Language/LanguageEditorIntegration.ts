@@ -105,6 +105,7 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
             console.log(`[COMPLETION] Got meet at position: ${meet.position} with base: ${meet.base} - shouldExpand: ${meet.shouldExpandCompletions}`)
             return {
                 ...changeInfo,
+                meetLine: changeInfo.cursorLine,
                 meetPosition: meet.position,
                 meetBase: meet.base,
                 shouldExpand: meet.shouldExpandCompletions,
@@ -115,16 +116,6 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
     let lastMeet: any = null
 
     $currentCompletionMeet.subscribe((newMeet) => { lastMeet = newMeet })
-
-    const $baseChanged = $currentCompletionMeet
-        .map((bufferMeetInfo) => {
-            return {
-                base: bufferMeetInfo.meetBase,
-                shouldExpand: bufferMeetInfo.shouldExpand,
-                meetPosition: bufferMeetInfo.position,
-            }
-        })
-        .distinctUntilChanged(isEqual)
 
     const $completions = $currentCompletionMeet
         .map((bufferMeetInfo) => ({
@@ -140,7 +131,13 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
             return Observable.defer(async () => {
                 console.log(`[COMPLETION] Requesting completions at line ${completionInfo.line} and character ${completionInfo.character}`)
                 newContextMenu.hide()
-                return await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.line, completionInfo.character)
+                const results = await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.line, completionInfo.character)
+
+                return {
+                    completions: results,
+                    meetLine: completionInfo.line,
+                    meetPosition: completionInfo.character
+                }
             })
         })
 
@@ -159,16 +156,6 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
         // console.log("Got resolution: " + JSON.stringify(result))
     })
 
-
-    $baseChanged
-        .subscribe((newBaseInfo) => {
-            if (newBaseInfo.shouldExpand) {
-              newContextMenu.setFilter(newBaseInfo.base)
-            } else {
-                newContextMenu.hide()
-            }
-        })
-
     $modeChanged.subscribe((mode) => {
         if (mode !== "i") {
             newContextMenu.hide()
@@ -176,19 +163,23 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
     })
 
     $completions
-        .withLatestFrom($baseChanged)
+        .combineLatest($currentCompletionMeet)
         .subscribe((args: any[]) => {
 
-        const [newCompletions, baseInfo] = args
+        const [completionInfo, baseInfo] = args
 
-        if (!newCompletions || !newCompletions.length) {
+        const { completions, meetLine, meetPosition } = completionInfo
+
+        if (!completions || !completions.length || !baseInfo.shouldExpand) {
             newContextMenu.hide()
             console.log("[COMPLETION] None returned")
+        } else if(meetLine !== baseInfo.meetLine || meetPosition !== baseInfo.meetPosition) {
+            newContextMenu.hide()
         } else {
-            newContextMenu.show(newCompletions, baseInfo.base)
+            newContextMenu.show(completions, baseInfo.meetBase)
 
             console.log("[COMPLETION] --Got completions!")
-            console.dir(newCompletions)
+            console.dir(completions)
             console.log("[COMPLETION] --")
         }
 
