@@ -45,23 +45,26 @@ export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<On
             hideDefinition()
         })
 
-    $latestPositionAndVersion
+    const $shouldUpdateNormalModeAdorners = $latestPositionAndVersion
         .auditTime(250) // TODO: Use config setting 'editor.quickInfo.delay'
         .combineLatest($modeChanged)
-        .subscribe(async (combinedArgs: [any, string]) => {
-
-            const [val, mode] = combinedArgs
-
-            if (mode !== "normal") {
-                return
-            }
-
-            await getDefinition()
-            await checkAndShowQuickInfo(val.language, val.filePath, val.line, val.column)
-            // await showSignatureHelp(val.language, val.filePath, val.line, val.column)
-            console.log("Normal mode language functionality: " + val)
+        .filter((combinedArgs: [any, string]) => {
+            const [, mode] = combinedArgs
+            return mode === "normal"
+        })
+        .map((combinedArgs: [any, string]) => {
+            const [val, ] = combinedArgs
+            return val
         })
 
+
+    $shouldUpdateNormalModeAdorners.subscribe(async (val: any) => {
+        await getDefinition()
+    })
+
+    $shouldUpdateNormalModeAdorners.subscribe(async (val: any) => {
+        await checkAndShowQuickInfo(val.language, val.filePath, val.line, val.column)
+    })
 }
 
 export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.Cursor>, $modeChanged: Observable<string>) => {

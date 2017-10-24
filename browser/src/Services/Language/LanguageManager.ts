@@ -107,6 +107,8 @@ export class LanguageManager {
     public sendLanguageServerRequest(language: string, filePath: string, protocolMessage: string, protocolPayload: any): Promise<any> {
         const languageClient = this._getLanguageClient(language)
 
+        Log.verbose("[LANGUAGE] Sending request: " + protocolMessage + "|" + JSON.stringify(protocolPayload))
+
         if (languageClient) {
             return languageClient.sendRequest(filePath, protocolMessage, protocolPayload)
         } else {
