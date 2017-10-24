@@ -21,6 +21,13 @@ export interface IShowMenuAction {
     }
 }
 
+export interface ISetDetailedMenuItem<T> {
+    type: "SET_DETAILED_MENU_ITEM",
+    payload: {
+        detailedItem: T,
+    }
+}
+
 export interface ISetMenuItems<T> {
     type: "SET_MENU_ITEMS",
     payload: {

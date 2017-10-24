@@ -159,6 +159,10 @@ export class ContextMenu {
         })
     }
 
+    public updateItem(item: any): void {
+        contextMenuActions.setDetailedMenuItem(item)
+    }
+
     public hide(): void {
         contextMenuActions.hidePopupMenu()
     }

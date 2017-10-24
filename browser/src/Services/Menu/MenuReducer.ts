@@ -34,6 +34,31 @@ export function createReducer<T, FilteredT extends T>(filterFunc: MenuFilterFunc
                     selectedIndex: 0,
                     isLoading: false,
                 }
+            case "SET_DETAILED_MENU_ITEM":
+                if (!s || !s.options) {
+                    return s
+                }
+
+                if (!a.payload.detailedItem) {
+                    return s
+                }
+
+                const options = s.options.map((entry) => {
+                    // TODO: Decide on canonical interface for menu options
+                    if ((<any>entry).label === a.payload.detailedItem.label) {
+                        return a.payload.detailedItem
+                    } else {
+                        return entry
+                    }
+                })
+
+                const filteredOptions2 = filterFunc(options, s.filter)
+                return {
+                    ...s,
+                    options,
+                    filteredOptions: filteredOptions2,
+                }
+
             case "SET_MENU_ITEMS":
                 if (!s || s.id !== a.payload.id) {
                     return s

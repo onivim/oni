@@ -16,10 +16,18 @@ import { ITextDocumentPositionParams } from "./Types"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
 import * as Utility from "./Utility"
 
+let lastMeetInfo = null
+
 export const getCompletions = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (message: string, payload: ITextDocumentPositionParams): Promise<types.CompletionItem[]> => {
     const textDocument: types.TextDocumentIdentifier = payload.textDocument
     const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
     const oneBasedPosition: types.Position = Utility.zeroBasedPositionToOneBasedPosition(payload.position)
+
+    lastMeetInfo = {
+        filePath,
+        line: oneBasedPosition.line,
+        character: oneBasedPosition.character,
+    }
 
     const val = await host.getCompletions(filePath, oneBasedPosition.line, oneBasedPosition.character, "")
 
@@ -32,29 +40,27 @@ export const getCompletions = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) 
     return results
 }
 
-// TODO: Bring back completion details
-// export const getCompletionDetails = (textDocumentPosition: Oni.EventContext, completionItem) => {
+export const getCompletionDetails = (host: TypeScriptServerHost) => async (requestName: string, completionItem: types.CompletionItem): Promise<types.CompletionItem> => {
 
-//     if (!textDocumentPosition || !textDocumentPosition.bufferFullPath) {
-//         return Promise.resolve(null)
-//     }
+    if (!lastMeetInfo || !completionItem) {
+        return null
+    }
 
-//     return host.getCompletionDetails(textDocumentPosition.bufferFullPath, textDocumentPosition.line, textDocumentPosition.column, [completionItem.label])
-//         .then((details) => {
-//             const entry = details[0]
+    const details = await host.getCompletionDetails(lastMeetInfo.filePath, lastMeetInfo.line, lastMeetInfo.character, [completionItem.label])
 
-//             if (!entry) {
-//                 return null
-//             }
+    const entry = details[0]
 
-//             return {
-//                 kind: convertTypeScriptKindToCompletionItemKind(entry.kind),
-//                 label: entry.name,
-//                 documentation: entry.documentation && entry.documentation.length ? entry.documentation[0].text : null,
-//                 detail: convertToDisplayString(entry.displayParts),
-//             }
-//         })
-// }
+    if (!entry) {
+        return null
+    }
+
+    return {
+        kind: convertTypeScriptKindToCompletionItemKind(entry.kind),
+        label: entry.name,
+        documentation: entry.documentation && entry.documentation.length ? entry.documentation[0].text : null,
+        detail: Utility.convertToDisplayString(entry.displayParts),
+    }
+}
 
 const convertTypeScriptKindToCompletionItemKind = (kind: string): types.CompletionItemKind => {
     const typeScriptKindToCompletionKind = {

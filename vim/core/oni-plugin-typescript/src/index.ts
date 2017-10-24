@@ -12,7 +12,7 @@ import * as path from "path"
 
 import * as types from "vscode-languageserver-types"
 
-import { getCompletions } from "./Completion"
+import { getCompletions, getCompletionDetails } from "./Completion"
 import { getDefinition } from "./Definition"
 import { findAllReferences } from "./FindAllReferences"
 import { LightweightLanguageClient } from "./LightweightLanguageClient"
@@ -23,39 +23,6 @@ import { TypeScriptServerHost } from "./TypeScriptServerHost"
 export const activate = (oni: Oni.Plugin.Api) => {
 
     const host = new TypeScriptServerHost(oni)
-
-    // TODO:
-    // let lastBuffer: string[] = []
-
-    // const getFormattingEdits = (position: Oni.EventContext) => {
-    //     return host.getFormattingEdits(position.bufferFullPath, 1, 1, lastBuffer.length, 0)
-    //         .then((val) => {
-    //             const edits = val.map((v) => {
-    //                 const start = {
-    //                     line: v.start.line,
-    //                     column: v.start.offset,
-    //                 }
-
-    //                 const end = {
-    //                     line: v.end.line,
-    //                     column: v.end.offset,
-    //                 }
-
-    //                 return {
-    //                     start,
-    //                     end,
-    //                     newValue: v.newText,
-    //                 }
-
-    //             })
-
-    //             return {
-    //                 filePath: position.bufferFullPath,
-    //                 version: position.version,
-    //                 edits,
-    //             }
-    //         })
-    // }
 
     const lightweightLanguageClient = new LightweightLanguageClient()
     oni.language.registerLanguageClient("typescript", lightweightLanguageClient)
@@ -170,4 +137,6 @@ export const activate = (oni: Oni.Plugin.Api) => {
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
+
+    lightweightLanguageClient.handleRequest("completionItem/resolve", getCompletionDetails(host))
 }

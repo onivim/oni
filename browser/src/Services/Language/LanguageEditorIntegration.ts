@@ -153,7 +153,8 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
 
     newContextMenu.onSelectedItemChanged.subscribe(async (newItem) => {
         const result = await resolveCompletionItem(lastMeet.language, lastMeet.filePath, newItem.rawCompletion)
-        console.log("Got resolution: " + JSON.stringify(result))
+        newContextMenu.updateItem(result)
+        // console.log("Got resolution: " + JSON.stringify(result))
     })
 
 
