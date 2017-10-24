@@ -149,6 +149,7 @@ function! OniNextWindow( direction )
   endif
 endfunction
 
+nnoremap gd :call OniCommand("language.gotoDefinition")<CR>
 nnoremap <silent> <C-w>h :<C-u>call OniNextWindow('h')<CR>
 nnoremap <silent> <C-w>j :<C-u>call OniNextWindow('j')<CR>
 nnoremap <silent> <C-w>k :<C-u>call OniNextWindow('k')<CR>

@@ -45,10 +45,15 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("oni.editor.maximize", "Maximize Window", "Maximize the current window", () => remote.getCurrentWindow().maximize()),
 
         // Language service
-        new CallbackCommand("oni.editor.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => gotoDefinitionUnderCursor()),
-        new CallbackCommand("oni.editor.gotoDefinition.openVertical", null, null, () => gotoDefinitionUnderCursor(1)),
-        new CallbackCommand("oni.editor.gotoDefinition.openHorizontal", null, null, () => gotoDefinitionUnderCursor(2)),
-        new CallbackCommand("oni.editor.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences()),
+        // TODO: Deprecate
+        new CallbackCommand("oni.editor.gotoDefinition",null,null, () => gotoDefinitionUnderCursor()),
+        new CallbackCommand("language.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => gotoDefinitionUnderCursor()),
+        new CallbackCommand("language.gotoDefinition.openVertical", null, null, () => gotoDefinitionUnderCursor(1)),
+        new CallbackCommand("language.gotoDefinition.openHorizontal", null, null, () => gotoDefinitionUnderCursor(2)),
+
+        // TODO: Deprecate
+        new CallbackCommand("oni.editor.findAllReferences",null,null, () => findAllReferences()),
+        new CallbackCommand("language.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences()),
 
         // Menu commands
         new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for Oni", () => openDefaultConfig(neovimInstance)),
