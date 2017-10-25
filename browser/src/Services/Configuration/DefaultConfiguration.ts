@@ -59,7 +59,6 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
-    "editor.quickOpen.caseSensitive": "smart",
 
     "editor.scrollBar.visible": true,
 
@@ -73,6 +72,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumnOpacity": 0.1,
 
     "environment.additionalPaths": [],
+
+    "menu.caseSensitive": "smart",
 
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),

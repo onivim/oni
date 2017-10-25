@@ -89,7 +89,7 @@ const shouldFilterbeCaseSensitive = (searchString: string): boolean => {
     // One option is to plumb through the configuration setting
     // from the top-level, but it might be worth extracting
     // out the filter strategy in general.
-    const caseSensitivitySetting = configuration.getValue("editor.quickOpen.caseSensitive")
+    const caseSensitivitySetting = configuration.getValue("menu.caseSensitive")
 
     if (caseSensitivitySetting === false) {
         return false
