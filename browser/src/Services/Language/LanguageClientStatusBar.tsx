@@ -7,17 +7,17 @@
 import * as electron from "electron"
 import * as React from "react"
 
-import { Icon } from "./../../../UI/Icon"
+import { Icon } from "./../../UI/Icon"
 
-import { Oni } from "./../Oni"
+import { statusBar } from "./../StatusBar"
 
 export class LanguageClientStatusBar {
 
     private _item: Oni.StatusBarItem
     private _fileType: string
 
-    constructor(private _oni: Oni) {
-        this._item = this._oni.statusBar.getItem("oni.status.fileType")
+    constructor() {
+        this._item = statusBar.createItem(0, 0, "oni.status.fileType2")
     }
 
     public show(fileType: string): void {
@@ -54,6 +54,8 @@ interface StatusBarRendererProps {
 
 const getIconFromStatus = (status: LanguageClientState) => {
     switch (status) {
+        case LanguageClientState.NotAvailable:
+            return null
         case LanguageClientState.Initializing:
             return SpinnerIcon
         case LanguageClientState.Error:
@@ -96,10 +98,12 @@ const StatusBarRenderer = (props: StatusBarRendererProps) => {
 
     const onClick = props.state === LanguageClientState.Error ? openDevTools : null
 
+    const iconName = getIconFromStatus(props.state)
+
+    const icon = iconName ? <span style={iconStyle}><Icon name={iconName} className={getClassNameFromstatus(props.state)} /></span> : null
+
     return <div style={containerStyle} onClick={onClick}>
-        <span style={iconStyle}>
-            <Icon name={getIconFromStatus(props.state)} className={getClassNameFromstatus(props.state)} />
-        </span>
+        {icon}
         <span>{props.language}</span>
     </div>
 }
