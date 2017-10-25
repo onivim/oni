@@ -7,11 +7,18 @@
 
 import * as types from "vscode-languageserver-types"
 
+import { Observable } from "rxjs/Observable"
+
+import "rxjs/add/observable/defer"
+import "rxjs/add/observable/from"
+import "rxjs/add/operator/concatMap"
+
 import { editorManager } from "./EditorManager"
 
 import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import { Event, IEvent } from "./../Event"
+import * as Log from "./../Log"
 
 export class Workspace implements Oni.Workspace {
     private _onDirectoryChangedEvent = new Event<string>()
@@ -37,13 +44,25 @@ export class Workspace implements Oni.Workspace {
         // Show modal to grab input
         // await editorManager.activeEditor.openFiles(files)
 
-        await files.map(async (fileUri) => {
-            const changes = edits[fileUri]
-            const fileName = Helpers.unwrapFileUriPath(fileUri)
-            // TODO: Sort changes?
-            const buf = await editorManager.activeEditor.openFile(fileName)
-            await buf.applyTextEdits(changes)
+        const deferredEdits = await files.map((fileUri: string) => {
+            return Observable.defer(async () => {
+                const changes = edits[fileUri]
+                const fileName = Helpers.unwrapFileUriPath(fileUri)
+                // TODO: Sort changes?
+                Log.verbose("[Workspace] Opening file: " + fileName)
+                const buf = await editorManager.activeEditor.openFile(fileName)
+                Log.verbose("[Workspace] Got buffer for file: " + buf.filePath + " and id: " + buf.id)
+                await buf.applyTextEdits(changes)
+                Log.verbose("[Workspace] Applied " + changes.length + " edits to buffer")
+            })
         })
+
+        Observable.from(deferredEdits)
+                .concatMap(de => de)
+                .subscribe(() => { }, () => { }, () => {
+                    console.log("[Workspace] Edit application completed.")
+                })
+
         // Hide modal
     }
 }
