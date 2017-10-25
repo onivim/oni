@@ -41,10 +41,13 @@ export class LanguageManager {
         editorManager.allEditors.onBufferEnter.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
             const { language, filePath } = bufferInfo
 
-        this._statusBar.show(language)
-        this._statusBar.setStatus(LanguageClientState.Initializing)
+            this._statusBar.show(language)
+            this._statusBar.setStatus(LanguageClientState.Initializing)
 
-            return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", Helpers.pathToTextDocumentIdentifierParms(filePath))
+            return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", () => {
+                this._statusBar.setStatus(LanguageClientState.Active)
+                Helpers.pathToTextDocumentIdentifierParms(filePath)
+            })
         })
 
         editorManager.allEditors.onBufferLeave.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
@@ -117,20 +120,25 @@ export class LanguageManager {
     public isLanguageServerAvailable(language: string): boolean {
         return !!this._getLanguageClient(language)
     }
+    
+    private _setStatus(protocolMessage: string, status: LanguageClientState): void {
+
+        switch (protocolMessage) {
+            case "textDocument/didOpen":
+            case "textDocument/didChange":
+                this._statusBar.setStatus(status)
+                break
+            default:
+                break
+        }
+    }
 
     public async sendLanguageServerNotification(language: string, filePath: string, protocolMessage: string, protocolPayload: LanguageClientTypes.NotificationValueOrThunk): Promise<void> {
         const languageClient = this._getLanguageClient(language)
 
         if (languageClient) {
-            try {
             await languageClient.sendNotification(filePath, protocolMessage, protocolPayload)
-            this._statusBar.setStatus(LanguageClientState.Active)
-            } catch(ex) {
-                this._statusBar.setStatus(LanguageClientState.Error)
-                throw ex
-            }
         } else {
-            this._statusBar.setStatus(LanguageClientState.NotAvailable)
             Log.verbose("No supported language")
         }
     }
@@ -143,16 +151,14 @@ export class LanguageManager {
         if (languageClient) {
             try {
             const result = await languageClient.sendRequest(filePath, protocolMessage, protocolPayload)
-            if (protocolMessage !== "textDocument/didClose") {
-                this._statusBar.setStatus(LanguageClientState.Active)
-            }
+            this._setStatus(protocolMessage, LanguageClientState.Active)
             return result
             } catch (ex) {
-                this._statusBar.setStatus(LanguageClientState.Error)
+                this._setStatus(protocolMessage, LanguageClientState.Error)
                 throw ex
             }
         } else {
-            this._statusBar.setStatus(LanguageClientState.NotAvailable)
+            this._setStatus(protocolMessage, LanguageClientState.Error)
             return Promise.reject("No language server registered")
         }
     }
