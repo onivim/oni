@@ -59,6 +59,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
+    "editor.quickOpen.caseSensitive": "smart",
 
     "editor.scrollBar.visible": true,
 
