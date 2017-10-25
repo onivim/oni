@@ -15,6 +15,7 @@ import { PluginManager } from "./../Plugins/PluginManager"
 
 import { configuration } from "./../Services/Configuration"
 import { contextMenuManager } from "./../Services/ContextMenu"
+import { editorManager } from "./../Services/EditorManager"
 import { /*commitCompletion,*/ cancelRename, commitRename, isRenameActive, startRename, findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
@@ -196,13 +197,14 @@ const openFolder = (neovimInstance: INeovimInstance) => {
 }
 
 const openDefaultConfig = async (neovimInstance: INeovimInstance): Promise<void> => {
-    await neovimInstance.open(configuration.userJsConfig)
-    const buf = await neovimInstance.getCurrentBuffer()
-    const lineCount = await buf.getLineCount()
+
+    const activeEditor = editorManager.activeEditor
+    const buf = await activeEditor.openFile(configuration.userJsConfig)
+    const lineCount = buf.lineCount
 
     if (lineCount === 1) {
         const defaultConfigJsPath = path.join(__dirname, "configuration", "config.default.js")
         const defaultConfigLines = fs.readFileSync(defaultConfigJsPath, "utf8").split(os.EOL)
-        await buf.setLines(0, defaultConfigLines.length, false, defaultConfigLines)
+        await buf.setLines(0, defaultConfigLines.length, defaultConfigLines)
     }
 }

@@ -14,7 +14,6 @@ import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
 import { configuration } from "./../Services/Configuration"
 
-import { Buffer, IBuffer } from "./Buffer"
 import { NeovimBufferReference } from "./MsgPack"
 import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
 import { startNeovim } from "./NeovimProcessSpawner"
@@ -106,8 +105,6 @@ export interface INeovimInstance {
     setFont(fontFamily: string, fontSize: string, linePadding: number): void
 
     getBufferIds(): Promise<number[]>
-
-    getCurrentBuffer(): Promise<IBuffer>
 
     getApiVersion(): Promise<INeovimApiVersion>
 
@@ -361,11 +358,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request<void>("nvim_call_function", [functionName, args])
     }
 
-    public async getCurrentBuffer(): Promise<IBuffer> {
-        const bufferReference = await this._neovim.request<NeovimBufferReference>("nvim_get_current_buf", [])
-        return new Buffer(bufferReference, this._neovim)
-    }
-
     public async getBufferIds(): Promise<number[]> {
         const buffers = await this._neovim.request<NeovimBufferReference[]>("nvim_list_bufs", [])
 
@@ -547,13 +539,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private async _onFullBufferUpdate(context: Oni.EventContext, startRange: number, endRange: number): Promise<void> {
 
-        const buffer = new Buffer(context.bufferNumber as any, this._neovim)
-
         if (endRange > MAX_LINES_FOR_BUFFER_UPDATE) {
             return
         }
 
-        const bufferLines = await buffer.getLines(startRange - 1, endRange, false)
+        const bufferLines = await this.request<string[]>("nvim_buf_get_lines", [context.bufferNumber, startRange - 1, endRange, false])
+
 
         this._onFullBufferUpdateEvent.dispatch({
             context,
