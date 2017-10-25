@@ -323,7 +323,7 @@ export class NeovimEditor implements IEditor {
     }
 
     public async openFile(file: string): Promise<Oni.Buffer> {
-        await this._neovimInstance.command(":e! " + file)
+        await this._neovimInstance.command(":e " + file)
         return this.activeBuffer
     }
 

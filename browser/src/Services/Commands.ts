@@ -55,7 +55,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("oni.editor.findAllReferences",null,null, () => findAllReferences()),
         new CallbackCommand("language.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences()),
 
-        new CallbackCommand("language.rename", null, null, () => startRename(), isRenameActive),
+        new CallbackCommand("language.rename", null, null, () => startRename()),
         new CallbackCommand("language.rename.commit", null, null, () => commitRename(), isRenameActive),
         new CallbackCommand("language.rename.cancel", null, null, () => cancelRename(), isRenameActive),
 

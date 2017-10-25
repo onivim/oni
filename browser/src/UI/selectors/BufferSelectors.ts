@@ -10,7 +10,7 @@ import * as State from "./../State"
 const getAllBuffersFromRootState = (state: State.IState) => getAllBuffers(state.buffers)
 
 export const getAllBuffers = (buffers: State.IBufferState): State.IBuffer[] => {
-    return buffers.allIds.map((id) => buffers.byId[id]).filter((buf) => !buf.hidden && buf.listed)
+    return buffers.allIds.map((id) => buffers.byId[id]).filter((buf) => buf.listed)
 }
 
 export const getBufferByFilename = (fileName: string, buffers: State.IBufferState): State.IBuffer => {

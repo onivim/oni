@@ -88,6 +88,6 @@ const getCommandFromOpenType = (openType: OpenType) => {
         case OpenType.SplitHorizontal:
             return "sp"
         default:
-            return "tabnew"
+            return "e"
     }
 }

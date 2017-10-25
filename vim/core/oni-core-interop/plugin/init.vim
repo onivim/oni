@@ -5,6 +5,8 @@ if exists("g:loaded_oni_interop_plugin")
     finish
 endif
 
+:set hidden
+
 let g:loaded_oni_interop_plugin = 1
 
 function OniNotify(args)
