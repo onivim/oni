@@ -134,4 +134,15 @@ export interface IConfigurationValues {
 
     "tabs.enabled": boolean
     "tabs.showVimTabs": boolean
+
+    // Height of individual tabs in the tab strip
+    "tabs.height": string
+
+    // Maximum width of a tab
+    "tabs.maxWidth": string
+
+    // Whether or not tabs should wrap.
+    // If `false`, a scrollbar will be shown.
+    // If `true`, will wrap the tabs.
+    "tabs.wrap": boolean
 }
