@@ -29,3 +29,8 @@ export interface IRenameParams extends ITextDocumentPositionParams {
     newName: string
 }
 
+export interface IDocumentRangeFormattingParams {
+    textDocument: types.TextDocumentIdentifier
+    range: types.Range
+    options: types.FormattingOptions
+}

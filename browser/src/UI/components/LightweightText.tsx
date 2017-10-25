@@ -1,7 +1,7 @@
 import * as React from "react"
-// import { connect } from "react-redux"
+import { connect } from "react-redux"
 
-// import * as State from "./../State"
+import * as State from "./../State"
 
 import { focusManager } from "./../../Services/FocusManager"
 
@@ -9,9 +9,15 @@ import { focusManager } from "./../../Services/FocusManager"
 
 export interface IToolTipsViewProps {
     onComplete?: (result: string) => void
+
+    defaultValue?: string
+
+    backgroundColor: string
+    foregroundColor: string
+
 }
 
-export class TextInput extends React.PureComponent<IToolTipsViewProps, void> {
+export class TextInputView extends React.PureComponent<IToolTipsViewProps, void> {
 
     private _element: HTMLInputElement
 
@@ -22,7 +28,21 @@ export class TextInput extends React.PureComponent<IToolTipsViewProps, void> {
     }
 
     public render(): JSX.Element {
+
+        const inputStyle: React.CSSProperties = {
+            outline: "none",
+            color: this.props.foregroundColor,
+            backgroundColor: this.props.backgroundColor,
+            border: "1px solid " + this.props.foregroundColor,
+            transform: "translateY(0px)",
+        }
+
+        const defaultValue = this.props.defaultValue || "newName"
+
         return <input type="text"
+                    style={inputStyle}
+                    placeholder={defaultValue}
+                    onFocus={(evt) => evt.currentTarget.select()}
                     ref={(elem) => this._element = elem} />
     }
 
@@ -35,3 +55,10 @@ export class TextInput extends React.PureComponent<IToolTipsViewProps, void> {
     }
 }
 
+const mapStateToProps = (state: State.IState, originalProps?: Partial<IToolTipsViewProps>) => ({
+    ...originalProps,
+    backgroundColor: state.backgroundColor,
+    foregroundColor: state.foregroundColor,
+})
+
+export const TextInput = connect(mapStateToProps)(TextInputView)

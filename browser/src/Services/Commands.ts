@@ -16,7 +16,7 @@ import { PluginManager } from "./../Plugins/PluginManager"
 import { configuration } from "./../Services/Configuration"
 import { contextMenuManager } from "./../Services/ContextMenu"
 import { editorManager } from "./../Services/EditorManager"
-import { /*commitCompletion,*/ cancelRename, commitRename, isRenameActive, startRename, findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
+import { /*commitCompletion,*/ cancelRename, commitRename, formatDocument, isRenameActive, startRename, findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
@@ -59,6 +59,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("language.rename", null, null, () => startRename()),
         new CallbackCommand("language.rename.commit", null, null, () => commitRename(), isRenameActive),
         new CallbackCommand("language.rename.cancel", null, null, () => cancelRename(), isRenameActive),
+
+        new CallbackCommand("language.formatDocument", null, null, () => formatDocument()),
 
         // Menu commands
         new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for Oni", () => openDefaultConfig(neovimInstance)),

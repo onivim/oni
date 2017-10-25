@@ -15,6 +15,7 @@ import * as types from "vscode-languageserver-types"
 import { getCompletions, getCompletionDetails } from "./Completion"
 import { getDefinition } from "./Definition"
 import { findAllReferences } from "./FindAllReferences"
+import { formatRange } from "./Formatting"
 import { LightweightLanguageClient } from "./LightweightLanguageClient"
 import { getQuickInfo } from "./QuickInfo"
 import { doRename } from "./Rename"
@@ -136,8 +137,9 @@ export const activate = (oni: Oni.Plugin.Api) => {
     lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions)
     lightweightLanguageClient.handleRequest("textDocument/definition", getDefinition(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo(oni, host))
-    lightweightLanguageClient.handleRequest("textDocument/rename",  doRename(oni, host))
+    lightweightLanguageClient.handleRequest("textDocument/rangeFormatting", formatRange(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences(oni, host))
+    lightweightLanguageClient.handleRequest("textDocument/rename",  doRename(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
 
     lightweightLanguageClient.handleRequest("completionItem/resolve", getCompletionDetails(host))

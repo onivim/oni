@@ -92,8 +92,8 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public getFormattingEdits(file: string, line: number, offset: number, endLine: number, endOffset: number): Promise<any> {
-        return this._makeTssRequest<void>("format", {
+    public getFormattingEdits(file: string, line: number, offset: number, endLine: number, endOffset: number): Promise<protocol.CodeEdit[]> {
+        return this._makeTssRequest<protocol.FormatResponse>("format", {
             file,
             line,
             offset,
