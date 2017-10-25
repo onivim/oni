@@ -17,6 +17,7 @@ import { getDefinition } from "./Definition"
 import { findAllReferences } from "./FindAllReferences"
 import { LightweightLanguageClient } from "./LightweightLanguageClient"
 import { getQuickInfo } from "./QuickInfo"
+import { doRename } from "./Rename"
 import { getSignatureHelp } from "./SignatureHelp"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
 
@@ -135,6 +136,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
     lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions)
     lightweightLanguageClient.handleRequest("textDocument/definition", getDefinition(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo(oni, host))
+    lightweightLanguageClient.handleRequest("textDocument/rename",  doRename(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
 

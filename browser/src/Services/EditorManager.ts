@@ -91,6 +91,16 @@ class AllEditors implements Oni.Editor {
         return this._activeEditor.neovim
     }
 
+    public openFile(file: string): Promise<Oni.Buffer> {
+        console.warn("Not implemented")
+        return Promise.resolve(null)
+    }
+
+    public openFiles(files: string[]): Promise<Oni.Buffer[]> {
+        console.warn("Not implemented")
+        return Promise.resolve([])
+    }
+
     public get onModeChanged(): IEvent<string> {
         return this._onModeChanged
     }

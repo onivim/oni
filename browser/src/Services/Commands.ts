@@ -15,7 +15,7 @@ import { PluginManager } from "./../Plugins/PluginManager"
 
 import { configuration } from "./../Services/Configuration"
 import { contextMenuManager } from "./../Services/ContextMenu"
-import { /*commitCompletion,*/ findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
+import { /*commitCompletion,*/ doRename, findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
@@ -54,6 +54,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         // TODO: Deprecate
         new CallbackCommand("oni.editor.findAllReferences",null,null, () => findAllReferences()),
         new CallbackCommand("language.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences()),
+
+        new CallbackCommand("language.rename", null, null, () => doRename("derp")),
 
         // Menu commands
         new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for Oni", () => openDefaultConfig(neovimInstance)),

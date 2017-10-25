@@ -25,3 +25,7 @@ export interface ITextDocumentPositionParams {
     position: types.Position
 }
 
+export interface IRenameParams extends ITextDocumentPositionParams {
+    newName: string
+}
+

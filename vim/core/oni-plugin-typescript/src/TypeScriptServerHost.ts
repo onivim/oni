@@ -205,6 +205,16 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
+    public rename(file: string, line: number, offset: number): Promise<protocol.RenameResponseBody> {
+        return this._makeTssRequest<protocol.RenameResponseBody>("rename", {
+            file,
+            line,
+            offset,
+            findInComments: true,
+            findInStrings: true,
+        })
+    }
+
     public _makeTssRequest<T>(commandName: string, args: any): Promise<T> {
         const seq = this._seqNumber++
         const payload = {

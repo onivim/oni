@@ -40,7 +40,7 @@ export interface INeovimSurfaceProps {
     onTabSelect?: (tabId: number) => void
 }
 
-import  {CursorPositioner } from "./../UI/components/CursorPositioner"
+import { CursorPositioner } from "./../UI/components/CursorPositioner"
 
 export class ContextMenuHost extends React.PureComponent<{}, void> {
 

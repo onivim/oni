@@ -73,6 +73,33 @@ export class Buffer implements Oni.Buffer {
         return this._bufferLines.slice(start, end)
     }
 
+    public async applyTextEdits(textEdits: types.TextEdit | types.TextEdit[]): Promise<void> {
+
+
+        const textEditsAsArray = textEdits instanceof Array ? textEdits : [textEdits]
+
+        await textEditsAsArray.map(async (te) => {
+            const range = te.range
+
+            const lineStart = range.start.line
+            const lineEnd = range.end.line
+
+            if (lineStart !== lineEnd) {
+                console.warn("Multi-line edits not currently supported")
+                return
+            }
+
+            const [lineContents] = await this.getLines(lineStart, lineStart + 1)
+            const beginning = lineContents.substring(0, range.start.character)
+            const end = lineContents.substring(range.end.character, lineContents.length)
+            const newLine = beginning + te.newText + end
+
+            await this.setLines(lineStart, lineStart + 1, [newLine])
+        })
+
+        return Promise.resolve(null)
+    }
+
     public async setLines(start: number, end: number, lines: string[]): Promise<void> {
         await this._neovimInstance.request<any>("nvim_buf_set_lines", [parseInt(this._id, 10), start, end, false, lines])
     }

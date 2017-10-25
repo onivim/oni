@@ -72,6 +72,8 @@ declare namespace Oni {
 
         activeBuffer: Buffer
 
+        openFile(file: string): Promise<Buffer>
+
         onBufferEnter: IEvent<EditorBufferEventArgs>
         onBufferLeave: IEvent<EditorBufferEventArgs>
         onBufferChanged: IEvent<EditorBufferChangedEventArgs>
@@ -96,6 +98,7 @@ declare namespace Oni {
 
         lineCount: number
 
+        applyTextEdits(edit: types.TextEdit | types.TextEdit[]): Promise<void>
         getLines(start?: number, end?: number): Promise<string[]>
         getTokenAt(line: number, column: number): Promise<IToken>
 
