@@ -43,9 +43,11 @@ export interface CompletionMeetResult {
  */
 export function getCompletionMeet(line: string, cursorColumn: number, characterMatchRegex: RegExp): CompletionMeetResult {
 
+
+
     // Clamp column to within string bands
-    let col = Math.max(cursorColumn, 0)
-    col = Math.min(cursorColumn, line.length - 1)
+    let col = Math.max(cursorColumn - 1, 0)
+    col = Math.min(col, line.length - 1)
 
     let currentPrefix = ""
 

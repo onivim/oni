@@ -172,15 +172,10 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
 
         if (!completions || !completions.length || !baseInfo.shouldExpand) {
             newContextMenu.hide()
-            console.log("[COMPLETION] None returned")
         } else if(meetLine !== baseInfo.meetLine || meetPosition !== baseInfo.meetPosition) {
             newContextMenu.hide()
         } else {
             newContextMenu.show(completions, baseInfo.meetBase)
-
-            console.log("[COMPLETION] --Got completions!")
-            console.dir(completions)
-            console.log("[COMPLETION] --")
         }
 
     })
