@@ -57,6 +57,22 @@ export interface IBufferEnterAction {
     }
 }
 
+export interface IShowToolTipAction {
+    type: "SHOW_TOOL_TIP",
+    payload: {
+        id: string,
+        element: JSX.Element,
+        options?: Oni.ToolTip.ToolTipOptions,
+    }
+}
+
+export interface IHideToolTipAction {
+    type: "HIDE_TOOL_TIP",
+    payload: {
+        id: string,
+    }
+}
+
 export interface IBufferUpdateAction {
     type: "BUFFER_UPDATE",
     payload: {
@@ -118,14 +134,6 @@ export interface ISetErrorsAction {
         file: string,
         key: string,
         errors: types.Diagnostic[],
-    }
-}
-
-export interface IClearErrorsAction {
-    type: "CLEAR_ERRORS",
-    payload: {
-        file: string,
-        key: string,
     }
 }
 
@@ -248,7 +256,6 @@ export type SimpleAction =
     IStatusBarHideAction |
     IStatusBarShowAction |
     ISetErrorsAction |
-    IClearErrorsAction |
     ISetCurrentBuffersAction |
     ISetTabs |
     ISetViewportAction |

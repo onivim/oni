@@ -206,6 +206,23 @@ declare namespace Oni {
         windowHeight: number,
     }
 
+    export namespace Coordinates {
+        export interface PixelSpacePoint {
+            pixelX: number
+            pixelY: number
+        }
+    }
+
+    export namespace ToolTip {
+        export enum OpenDirection {
+            Up = 1,
+            Down= 2,
+        }
+        export interface ToolTipOptions {
+            position: PixelSpacePoint
+        }
+    }
+
     export namespace Menu {
         export interface MenuOption {
             /**

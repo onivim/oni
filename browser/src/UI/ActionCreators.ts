@@ -134,20 +134,25 @@ export const setWindowState = (windowId: number,
     })
 }
 
+export const showToolTip = (id: string, element: JSX.Element, options?: Oni.ToolTip.ToolTipOptions) => ({
+    type: "SHOW_TOOL_TIP",
+    payload: {
+        id,
+        element,
+        options,
+    }
+})
+
+export const hideToolTip = (id: string) => ({
+    type: "HIDE_TOOL_TIP",
+})
+
 export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({
     type: "SET_ERRORS",
     payload: {
         file: normalizePath(file),
         key,
         errors,
-    },
-})
-
-export const clearErrors = (file: string, key: string) => ({
-    type: "CLEAR_ERRORS",
-    payload: {
-        file,
-        key,
     },
 })
 
