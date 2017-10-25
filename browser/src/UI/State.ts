@@ -27,6 +27,11 @@ export interface IQuickInfo {
     description: string,
 }
 
+export interface IToolTip {
+    options: Oni.ToolTip.ToolTipOptions,
+    element: JSX.Element
+}
+
 export interface IState {
     cursorPixelX: number
     cursorPixelY: number
@@ -49,6 +54,7 @@ export interface IState {
     viewport: IViewport
 
     statusBar: { [id: string]: IStatusBarItem }
+    toolTips: { [id: string]: IToolTip }
 
     /**
      * Tabs refer to the Vim-concept of tabs
@@ -213,5 +219,6 @@ export const createDefaultState = (): IState => ({
 
     errors: {},
     statusBar: {},
+    toolTips: {},
     activeMessageDialog: null,
 })

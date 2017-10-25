@@ -18,6 +18,7 @@ export enum OpenDirection {
 }
 
 export interface ICursorPositionerProps {
+    position?: Oni.Coordinates.PixelSpacePoint,
     beakColor?: string
     openDirection?: OpenDirection
     hideArrow?: boolean
@@ -154,8 +155,9 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
 
 const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursorPositionerViewProps => {
 
-    const x = state.cursorPixelX - (state.fontPixelWidth / 2) - 2
-    const y = state.cursorPixelY - (state.fontPixelHeight * 1)
+    const x = props.position ? props.position.pixelX : state.cursorPixelX - (state.fontPixelWidth / 2) - 2
+    const y = props.position ? props.position.pixelY : state.cursorPixelY - (state.fontPixelHeight * 1)
+
     const lineHeight = state.fontPixelHeight
 
     const beakColor = (props && props.beakColor) ? props.beakColor : state.backgroundColor

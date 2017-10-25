@@ -15,6 +15,7 @@ import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
 import { Cursor } from "./../UI/components/Cursor"
 import { CursorLine } from "./../UI/components/CursorLine"
 import { TabsContainer } from "./../UI/components/Tabs"
+import { ToolTips } from "./../UI/components/ToolTip"
 
 import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarContainer"
 import { DefinitionContainer } from "./../UI/containers/DefinitionContainer"
@@ -76,6 +77,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                         <DefinitionContainer />
                         <ErrorsContainer />
                         <BufferScrollBarContainer />
+                        <ToolTips />
                     </ActiveWindowContainer>
                 </div>
                 <NeovimInput

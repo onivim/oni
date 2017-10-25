@@ -247,6 +247,8 @@ export type SimpleAction =
     IShowSignatureHelpAction |
     IHideQuickInfoAction |
     IShowQuickInfoAction |
+    IHideToolTipAction |
+    IShowToolTipAction |
     IShowMessageDialog |
     IHideMessageDialog |
     IHideDefinitionAction |

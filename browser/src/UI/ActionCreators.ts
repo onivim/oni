@@ -145,6 +145,9 @@ export const showToolTip = (id: string, element: JSX.Element, options?: Oni.Tool
 
 export const hideToolTip = (id: string) => ({
     type: "HIDE_TOOL_TIP",
+    payload: {
+        id,
+    }
 })
 
 export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({

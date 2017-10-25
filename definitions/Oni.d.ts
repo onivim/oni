@@ -220,6 +220,7 @@ declare namespace Oni {
         }
         export interface ToolTipOptions {
             position: PixelSpacePoint
+            openDirection: OpenDirection
         }
     }
 
