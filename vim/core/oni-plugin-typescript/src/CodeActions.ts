@@ -52,7 +52,7 @@ export const getCodeActions = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) 
     return flattenedCommands
 }
 
-export const executeCommand = (connection: LanguageConnection, host: TypeScriptServerHost) => async (protocolName: string, payload: any): Promise<any> => {
+export const executeCommand = (connection: LanguageConnection, oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (protocolName: string, payload: any): Promise<any> => {
 
     const command: string = payload.command
     const args: any[] = payload.args || []
@@ -68,9 +68,10 @@ export const executeCommand = (connection: LanguageConnection, host: TypeScriptS
                                 lastCodeActionRequestInfo.range.end.character + 1)
 
     const changes = val.edits.reduce((prev: any, codeEdit: protocol.FileCodeEdits) => {
+        const file = oni.language.wrapPathInFileUri(codeEdit.fileName)
         return <any>{
             ...prev,
-            [codeEdit.fileName]: codeEdit.textChanges.map((te) => Utility.convertCodeEditToTextEdit(te))
+            [file]: codeEdit.textChanges.map((te) => Utility.convertCodeEditToTextEdit(te))
         }
     }, {})
 

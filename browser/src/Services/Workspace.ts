@@ -11,6 +11,7 @@ import { Observable } from "rxjs/Observable"
 
 import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
+import "rxjs/add/operator/toPromise"
 import "rxjs/add/operator/concatMap"
 
 import { editorManager } from "./EditorManager"
@@ -57,11 +58,11 @@ export class Workspace implements Oni.Workspace {
             })
         })
 
-        Observable.from(deferredEdits)
+        await Observable.from(deferredEdits)
                 .concatMap(de => de)
-                .subscribe(() => { }, () => { }, () => {
-                    console.log("[Workspace] Edit application completed.")
-                })
+                .toPromise()
+
+        Log.verbose("[Workspace] Completed applying edits")
 
         // Hide modal
     }

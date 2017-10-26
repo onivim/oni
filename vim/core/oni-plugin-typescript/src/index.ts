@@ -132,5 +132,5 @@ export const activate = (oni: Oni.Plugin.Api) => {
     connection.subscribeToRequest("textDocument/rename",  doRename(oni, host))
     connection.subscribeToRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
 
-    connection.subscribeToRequest("workspace/executeCommand", executeCommand(connection, host))
+    connection.subscribeToRequest("workspace/executeCommand", executeCommand(connection, oni, host))
 }

@@ -4,10 +4,19 @@
  * Helpers to manage buffer state
  */
 
+import * as os from "os"
 import * as types from "vscode-languageserver-types"
+
+import { Observable } from "rxjs/Observable"
+
+import "rxjs/add/observable/defer"
+import "rxjs/add/observable/from"
+import "rxjs/add/operator/concatMap"
 
 import { NeovimInstance } from "./../neovim"
 import { languageManager } from "./../Services/Language"
+
+import * as Log from "./../Log"
 
 export class Buffer implements Oni.Buffer {
 
@@ -78,26 +87,38 @@ export class Buffer implements Oni.Buffer {
 
         const textEditsAsArray = textEdits instanceof Array ? textEdits : [textEdits]
 
-        await textEditsAsArray.map(async (te) => {
-            const range = te.range
+        const deferredEdits = textEditsAsArray.map((te) => {
+            return Observable.defer(async () => {
+                const range = te.range
+                Log.info("[Buffer] Applying edit")
 
-            const lineStart = range.start.line
-            const lineEnd = range.end.line
+                const characterStart = range.start.character
+                const lineStart = range.start.line
+                const lineEnd = range.end.line
+                const characterEnd = range.end.character
 
-            if (lineStart !== lineEnd) {
-                console.warn("Multi-line edits not currently supported")
-                return
-            }
+                if (lineStart === lineEnd) {
+                    const [lineContents] = await this.getLines(lineStart, lineStart + 1)
+                    const beginning = lineContents.substring(0, range.start.character)
+                    const end = lineContents.substring(range.end.character, lineContents.length)
+                    const newLine = beginning + te.newText + end
 
-            const [lineContents] = await this.getLines(lineStart, lineStart + 1)
-            const beginning = lineContents.substring(0, range.start.character)
-            const end = lineContents.substring(range.end.character, lineContents.length)
-            const newLine = beginning + te.newText + end
 
-            await this.setLines(lineStart, lineStart + 1, [newLine])
+                    const lines = newLine.split(os.EOL)
+
+                    await this.setLines(lineStart, lineStart + 1, lines)
+                } else if(characterEnd === 0 && characterStart === 0) {
+                    const lines = te.newText.split(os.EOL)
+                    await this.setLines(lineStart, lineEnd + 1, lines)
+                } else {
+                    console.warn("Multi-line mid character edits not currently supported")
+                }
+            })
         })
 
-        return Promise.resolve(null)
+        await Observable.from(deferredEdits)
+                .concatMap(de => de)
+                .toPromise()
     }
 
     public async setLines(start: number, end: number, lines: string[]): Promise<void> {

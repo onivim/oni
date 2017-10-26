@@ -197,8 +197,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
 
-        this._quickFix = new QuickFixList(this)
-        this._autoCommands = new NeovimAutoCommands(this)
+        this.newFunction();
+    }
+
+    private newFunction() {
+        this._quickFix = new QuickFixList(this);
     }
 
     public async chdir(directoryPath: string): Promise<void> {
