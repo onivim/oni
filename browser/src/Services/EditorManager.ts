@@ -56,7 +56,7 @@ class AllEditors implements Oni.Editor {
     private _activeEditor: Oni.Editor
     private _subscriptions: IDisposable[] = []
 
-    private _onModeChanged = new Event<string>()
+    private _onModeChanged = new Event<Oni.Vim.Mode>()
     private _onBufferEnter = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeave = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChanged = new Event<Oni.EditorBufferChangedEventArgs>()
@@ -101,7 +101,7 @@ class AllEditors implements Oni.Editor {
         return Promise.resolve([])
     }
 
-    public get onModeChanged(): IEvent<string> {
+    public get onModeChanged(): IEvent<Oni.Vim.Mode> {
         return this._onModeChanged
     }
 

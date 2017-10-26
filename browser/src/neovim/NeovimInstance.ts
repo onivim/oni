@@ -145,6 +145,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
     private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
     private _onScroll = new Event<Oni.EventContext>()
+    private _onModeChanged = new Event<Oni.Vim.Mode>()
 
     private _pendingScrollTimeout: number | null = null
 
@@ -162,6 +163,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onDirectoryChanged(): IEvent<string> {
         return this._onDirectoryChanged
+    }
+
+    public get onModeChanged(): IEvent<Oni.Vim.Mode> {
+        return this._onModeChanged
     }
 
     public get onOniCommand(): IEvent<string> {
@@ -515,7 +520,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 case "mode_change":
                     const newMode = a[a.length - 1][0]
                     this.emit("action", Actions.changeMode(newMode))
-                    this.emit("mode-change", newMode)
+                    this._onModeChanged.dispatch(newMode as Oni.Vim.Mode)
                     break
                 case "popupmenu_hide":
                     this.emit("hide-popup-menu")

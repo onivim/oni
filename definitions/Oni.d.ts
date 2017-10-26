@@ -68,7 +68,7 @@ declare namespace Oni {
 
     export interface Editor {
         mode: string
-        onModeChanged: IEvent<string>
+        onModeChanged: IEvent<Vim.Mode>
 
         activeBuffer: Buffer
 
@@ -204,6 +204,10 @@ declare namespace Oni {
         windowBottomLine: number
         windowWidth: number,
         windowHeight: number,
+    }
+
+    export namespace Vim {
+        export type Mode = "normal" | "visual" | "insert"
     }
 
     export namespace Coordinates {

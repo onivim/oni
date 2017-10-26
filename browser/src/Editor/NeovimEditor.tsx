@@ -64,7 +64,6 @@ export class NeovimEditor implements IEditor {
     private _element: HTMLElement
 
     private _currentMode: string
-    private _onModeChangedEvent = new Event<string>()
     private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChangedEvent = new Event<Oni.EditorBufferChangedEventArgs>()
@@ -100,8 +99,8 @@ export class NeovimEditor implements IEditor {
     }
 
     // Events
-    public get onModeChanged(): IEvent<string> {
-        return this._onModeChangedEvent
+    public get onModeChanged(): IEvent<Oni.Vim.Mode> {
+        return this._neovimInstance.onModeChanged
     }
 
     public get onBufferEnter(): IEvent<Oni.EditorBufferEventArgs> {
@@ -192,8 +191,6 @@ export class NeovimEditor implements IEditor {
             UI.Actions.setTabs(currentTabId, tabs)
         })
 
-        this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
-
         this._$bufferUpdates = this._neovimInstance.onBufferUpdate.asObservable()
         this._$bufferIncrementalUpdates = this._neovimInstance.onBufferUpdateIncremental.asObservable()
         this._$cursorMoved = this._neovimInstance.autoCommands.onCursorMoved.asObservable()
@@ -215,7 +212,9 @@ export class NeovimEditor implements IEditor {
                 this._onCursorMoved.dispatch(cursorMoved)
             })
 
-        this._$modeChanged = this._onModeChangedEvent.asObservable()
+        this._$modeChanged = this.onModeChanged.asObservable()
+
+        this.onModeChanged.subscribe((newMode) => this._onModeChanged)
 
         // Refactor to new method
         this._$bufferUpdates
@@ -387,9 +386,7 @@ export class NeovimEditor implements IEditor {
 
     private _onModeChanged(newMode: string): void {
         UI.Actions.setMode(newMode)
-
         this._currentMode = newMode
-        this._onModeChangedEvent.dispatch(newMode)
     }
 
     private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
