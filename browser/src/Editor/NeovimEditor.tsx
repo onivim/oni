@@ -476,6 +476,13 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onKeyDown(key: string): void {
+
         this._neovimInstance.input(key)
+
+        if (this.mode === "insert") {
+            window.setTimeout(() => {
+                UI.Actions.moveCursorOptimistic()
+            })
+        }
     }
 }

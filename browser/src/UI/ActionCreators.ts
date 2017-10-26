@@ -203,6 +203,19 @@ export const hideStatusBarItem = (id: string) => ({
     },
 })
 
+export const moveCursorOptimistic = () => (dispatch: DispatchFunction, getState: any) => {
+    const state = getState()
+    const newPixelX = state.cursorPixelX + state.fontPixelWidth
+    dispatch({
+        type: "MOVE_CURSOR_OPTIMISTIC",
+        payload: {
+            cursorPixelX: newPixelX,
+            cursorPixelY: state.cursorPixelY,
+        }
+    })
+}
+
+
 const $setCursorPosition = new Subject<any>()
 $setCursorPosition
     .distinctUntilChanged(isEqual)

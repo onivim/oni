@@ -73,6 +73,14 @@ export interface IHideToolTipAction {
     }
 }
 
+export interface IMoveCursorOptimistic {
+    type: "MOVE_CURSOR_OPTIMISTIC",
+    payload: {
+        cursorPixelX: number,
+        cursorPixelY: number,
+    }
+}
+
 export interface IBufferUpdateAction {
     type: "BUFFER_UPDATE",
     payload: {
@@ -260,6 +268,7 @@ export type SimpleAction =
     ISetCurrentBuffersAction |
     ISetTabs |
     ISetViewportAction |
+    IMoveCursorOptimistic |
     ISetWindowCursor |
     ISetWindowState
 
