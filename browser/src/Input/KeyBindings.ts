@@ -8,7 +8,6 @@ import * as Platform from "./../Platform"
 import { Configuration } from "./../Services/Configuration"
 
 export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configuration): void => {
-
     const { editors, input, menu } = oni
 
     input.unbindAll()
@@ -18,17 +17,25 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     const isInsertMode = () => editors.activeEditor.mode === "insert"
     const isInsertOrCommandMode = () => editors.activeEditor.mode === "insert" || editors.activeEditor.mode === "cmdline_normal"
 
+    const isMenuOpen = () => menu.isMenuOpen()
+
     if (Platform.isMac()) {
-        input.bind("<M-q>", "oni.quit")
+        input.bind("<m-q>", "oni.quit")
+        input.bind("<m-p>", "quickOpen.show")
+        input.bind("<m-s-p>", "commands.show")
 
         if (config.getValue("editor.clipboard.enabled")) {
-            input.bind("<M-c>", "editor.clipboard.yank", isVisualMode)
-            input.bind("<M-v>", "editor.clipboard.paste", isInsertOrCommandMode)
+            input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
+            input.bind("<m-v>", "editor.clipboard.paste", isInsertOrCommandMode)
         }
     } else {
+        input.bind("<a-f4>", "oni.quit")
+        input.bind("<c-p>", "quickOpen.show", () => isNormalMode() && !isMenuOpen())
+        input.bind("<s-c-p>", "commands.show", isNormalMode)
+
         if (config.getValue("editor.clipboard.enabled")) {
-            input.bind("<C-c>", "editor.clipboard.yank", isVisualMode)
-            input.bind("<C-v>", "editor.clipboard.paste", isInsertOrCommandMode)
+            input.bind("<c-c>", "editor.clipboard.yank", isVisualMode)
+            input.bind("<c-v>", "editor.clipboard.paste", isInsertOrCommandMode)
         }
     }
 
@@ -45,7 +52,6 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<C-pagedown>", "oni.process.cycleNext")
 
     // QuickOpen
-    input.bind("<C-p>", "quickOpen.show", isNormalMode)
     input.bind("<C-/>", "quickOpen.showBufferLines", isNormalMode)
     input.bind(["<c-enter", "<C-v>"], "quickOpen.openFileVertical")
     input.bind(["<s-enter", "<C-s>"], "quickOpen.openFileHorizontal")
