@@ -77,7 +77,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                         <DefinitionContainer />
                         <ErrorsContainer />
                         <BufferScrollBarContainer />
-                        <ToolTips />
                     </ActiveWindowContainer>
                 </div>
                 <NeovimInput
@@ -88,6 +87,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                     <ContextMenuHost />
                     <QuickInfoContainer />
                     <SignatureHelpContainer />
+                    <ToolTips />
                 </div>
             </div>
         </div>

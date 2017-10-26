@@ -9,6 +9,7 @@ import * as React from "react"
 import { TextInput } from "./../../UI/components/LightweightText"
 
 export interface IRenameViewProps {
+    tokenName: string
     onComplete: (val: string) => void
 }
 
@@ -20,9 +21,11 @@ export class RenameView extends React.PureComponent<IRenameViewProps, void> {
             marginBottom: "8px",
         }
 
+        const renameText = "Rename '" + this.props.tokenName + "' to:"
+
         return <div className="rename">
-                    <div style={titleStyle}>Rename:</div>
-                    <TextInput {...this.props} />
+                    <div style={titleStyle}>{renameText}</div>
+                    <TextInput {...this.props} defaultValue={this.props.tokenName} />
                 </div>
     }
 }

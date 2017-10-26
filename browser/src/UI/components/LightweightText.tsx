@@ -5,8 +5,6 @@ import * as State from "./../State"
 
 import { focusManager } from "./../../Services/FocusManager"
 
-// import { CursorPositioner } from "./CursorPositioner"
-
 export interface IToolTipsViewProps {
     onComplete?: (result: string) => void
 
@@ -37,7 +35,7 @@ export class TextInputView extends React.PureComponent<IToolTipsViewProps, void>
             transform: "translateY(0px)",
         }
 
-        const defaultValue = this.props.defaultValue || "newName"
+        const defaultValue = this.props.defaultValue || ""
 
         return <input type="text"
                     style={inputStyle}
