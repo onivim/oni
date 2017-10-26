@@ -41,6 +41,10 @@ export interface ITabsProps {
 
     backgroundColor: string
     foregroundColor: string
+
+    shouldWrap: boolean
+    maxWidth: string
+    height: string
 }
 
 export class Tabs extends React.PureComponent<ITabsProps, void> {
@@ -49,7 +53,18 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
             return null
         }
 
-        const tabBorderStyle = {
+        const wrapStyle: React.CSSProperties = {
+            flexWrap: "wrap",
+        }
+
+        const scrollStyle: React.CSSProperties = {
+            overflowX: "auto",
+        }
+
+        const overflowStyle = this.props.shouldWrap ? wrapStyle : scrollStyle
+
+        const tabBorderStyle: React.CSSProperties = {
+            ...overflowStyle,
             "borderBottom": `4px solid ${this.props.backgroundColor}`,
         }
 
@@ -61,6 +76,8 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
                 onClickClose={() => this._onClickClose(t.id)}
                 backgroundColor={this.props.backgroundColor}
                 foregroundColor={this.props.foregroundColor}
+                height={this.props.height}
+                maxWidth={this.props.maxWidth}
             />
         })
 
@@ -84,6 +101,9 @@ export interface ITabPropsWithClick extends ITabProps {
 
     backgroundColor: string
     foregroundColor: string
+
+    height: string
+    maxWidth: string
 }
 
 export const Tab = (props: ITabPropsWithClick) => {
@@ -97,6 +117,8 @@ export const Tab = (props: ITabPropsWithClick) => {
     const style = {
         backgroundColor: props.backgroundColor,
         color: props.foregroundColor,
+        maxWidth: props.maxWidth,
+        height: props.height,
     }
 
     return <div className={cssClasses} title={props.description} style={style}>
@@ -164,6 +186,10 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
 
     const visible = state.configuration["tabs.enabled"]
 
+    const height = state.configuration["tabs.height"]
+    const maxWidth = state.configuration["tabs.maxWidth"]
+    const shouldWrap = state.configuration["tabs.wrap"]
+
     const selectFunc = shouldUseVimTabs ? ownProps.onTabSelect : ownProps.onBufferSelect
     const closeFunc = shouldUseVimTabs ? ownProps.onTabClose : ownProps.onBufferClose
 
@@ -172,6 +198,9 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
         foregroundColor: state.foregroundColor,
         onSelect: selectFunc,
         onClose: closeFunc,
+        height,
+        maxWidth,
+        shouldWrap,
         visible,
         tabs,
     }
