@@ -6,10 +6,14 @@
 
 import * as os from "os"
 
+import * as isEqual from "lodash/isEqual"
+
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
 import "rxjs/add/observable/defer"
+import "rxjs/add/observable/concat"
+import "rxjs/add/operator/map"
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
 
@@ -222,7 +226,6 @@ export class NeovimEditor implements IEditor {
 
             const buf = this._bufferManager.updateBufferFromEvent(args)
             buf._notifyBufferUpdated(bufferUpdateEvent.bufferLines, args.version)
-            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
 
             this._onBufferChangedEvent.dispatch({
                 buffer: buf,
@@ -246,7 +249,6 @@ export class NeovimEditor implements IEditor {
                     }
 
                     buf._notifyBufferUpdatedAt(lineNumber - 1, changedLine, args.version)
-                    UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
 
                     this._onBufferChangedEvent.dispatch({
                         buffer: buf,
@@ -257,6 +259,24 @@ export class NeovimEditor implements IEditor {
                     })
 
             })
+
+        const mapArgs = (args: IIncrementalBufferUpdateEvent & IFullBufferUpdateEvent) => {
+            const context = args.context
+            return ({
+                bufferNumber: context.bufferNumber,
+                modified: context.modified,
+                totalLines: context.bufferTotalLines
+            })
+        }
+
+        Observable.concat(
+            this._$bufferIncrementalUpdates.map(mapArgs),
+            this._$bufferUpdates.map(mapArgs))
+            .distinctUntilChanged(isEqual)
+            .subscribe((args) => {
+                UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.bufferTotalLines)
+            })
+
 
         const $allUpdates = this._onBufferChangedEvent.asObservable()
         addInsertModeLanguageFunctionality(this._$cursorMovedI, this._$modeChanged)

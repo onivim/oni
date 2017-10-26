@@ -43,12 +43,11 @@ export const bufferEnter = (id: number, file: string, language: string, totalLin
     },
 })
 
-export const bufferUpdate = (id: number, modified: boolean, version: number, totalLines: number) => ({
+export const bufferUpdate = (id: number, modified: boolean, totalLines: number) => ({
     type: "BUFFER_UPDATE",
     payload: {
         id,
         modified,
-        version,
         totalLines,
     },
 })
