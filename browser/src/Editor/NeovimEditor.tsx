@@ -181,7 +181,9 @@ export class NeovimEditor implements IEditor {
             this._screen.dispatch(action)
 
             this._scheduleRender()
+        })
 
+        this._neovimInstance.onRedrawComplete.subscribe(() => {
             UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
             UI.Actions.setCursorPosition(this._screen)
         })
@@ -453,8 +455,6 @@ export class NeovimEditor implements IEditor {
 
     private _render(): void {
         this._pendingAnimationFrame = false
-
-        UI.Actions.setCursorPosition(this._screen)
 
         if (this._hasLoaded) {
             if (this._isFirstRender) {

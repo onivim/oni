@@ -64,6 +64,8 @@ export interface INeovimInstance {
 
     onBufferUpdateIncremental: IEvent<IIncrementalBufferUpdateEvent>
 
+    onRedrawComplete: IEvent<void>
+
     onScroll: IEvent<Oni.EventContext>
 
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
@@ -139,6 +141,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onDirectoryChanged = new Event<string>()
     private _onYank = new Event<INeovimYankInfo>()
     private _onOniCommand = new Event<string>()
+    private _onRedrawComplete = new Event<void>()
     private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
     private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
     private _onScroll = new Event<Oni.EventContext>()
@@ -163,6 +166,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onOniCommand(): IEvent<string> {
         return this._onOniCommand
+    }
+
+    public get onRedrawComplete(): IEvent<void> {
+        return this._onRedrawComplete
     }
 
     public get onScroll(): IEvent<Oni.EventContext> {
@@ -222,6 +229,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 this._neovim.on("notification", (method: any, args: any) => {
                     if (method === "redraw") {
                         this._handleNotification(method, args)
+                        this._onRedrawComplete.dispatch()
                     } else if (method === "oni_plugin_notify") {
                         const pluginArgs = args[0]
                         const pluginMethod = pluginArgs.shift()

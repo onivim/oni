@@ -9,11 +9,16 @@
 
 import * as types from "vscode-languageserver-types"
 
+import * as isEqual from "lodash/isEqual"
+import { Subject } from "rxjs/Subject"
+import "rxjs/add/operator/distinctUntilChanged"
+
 import { Rectangle } from "./Types"
 
 import * as Actions from "./Actions"
 import * as Coordinates from "./Coordinates"
 import * as State from "./State"
+import * as UI from "./index"
 
 import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
@@ -198,10 +203,20 @@ export const hideStatusBarItem = (id: string) => ({
     },
 })
 
+const $setCursorPosition = new Subject<any>()
+$setCursorPosition
+    .distinctUntilChanged(isEqual)
+    .subscribe((action) => {
+        UI.store.dispatch({
+            type: "SET_CURSOR_POSITION",
+            payload: action,
+        })
+    })
+
 export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunction) => {
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
-    dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
+    $setCursorPosition.next(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels).payload)
 }
 
 export const setColors = (foregroundColor: string, backgroundColor: string) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
