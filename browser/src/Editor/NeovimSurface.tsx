@@ -26,8 +26,6 @@ import { SignatureHelpContainer } from "./../UI/containers/SignatureHelpContaine
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
 
-import { ContextMenuContainer } from "./../Services/ContextMenu"
-
 export interface INeovimSurfaceProps {
     neovimInstance: NeovimInstance
     deltaRegionTracker: IncrementalDeltaRegionTracker
@@ -39,18 +37,6 @@ export interface INeovimSurfaceProps {
     onBufferSelect?: (bufferId: number) => void
     onTabClose?: (tabId: number) => void
     onTabSelect?: (tabId: number) => void
-}
-
-import { CursorPositioner } from "./../UI/components/CursorPositioner"
-
-export class ContextMenuHost extends React.PureComponent<{}, void> {
-
-    public render(): JSX.Element {
-            return <CursorPositioner beakColor={"transparent"} openDirection={2}>
-                <ContextMenuContainer />
-              </CursorPositioner>
-    }
-
 }
 
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
@@ -84,7 +70,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                     screen={this.props.screen}
                     onKeyDown={this.props.onKeyDown}/>
                 <div className="stack layer">
-                    <ContextMenuHost />
                     <QuickInfoContainer />
                     <SignatureHelpContainer />
                     <ToolTips />

@@ -4,6 +4,7 @@
  * Implements API surface area for working with the status bar
  */
 
+import * as React from "react"
 import { applyMiddleware, bindActionCreators, createStore } from "redux"
 import thunk from "redux-thunk"
 
@@ -14,6 +15,9 @@ import { Event, IEvent } from "./../../Event"
 import * as ActionCreators from "./../Menu/MenuActionCreators"
 import { createReducer } from "./../Menu/MenuReducer"
 import * as State from "./../Menu/MenuState"
+
+import * as UI from "./../../UI"
+import { ContextMenuContainer } from "./ContextMenuComponent"
 
 const reducer = createReducer<types.CompletionItem, types.CompletionItem>((opts, searchText) => {
 
@@ -129,9 +133,24 @@ export class ContextMenu {
         contextMenuActions.showPopupMenu(this._id, {
             onSelectedItemChanged: (item: any) => this._onSelectedItemChanged.dispatch(item),
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
-            onHide: () => this._onHide.dispatch(),
+            onHide: () => this._onHidden(),
             onFilterTextChanged: (newText) => this._onFilterTextChanged.dispatch(newText),
         }, items, filter)
+
+        UI.Actions.showToolTip(this._getContextMenuId(), <ContextMenuContainer />, {
+            openDirection: 2,
+            position: null,
+        })
+
+    }
+
+    private _onHidden(): void {
+        UI.Actions.hideToolTip(this._getContextMenuId())
+        this._onHide.dispatch()
+    }
+
+    private _getContextMenuId(): string {
+        return "context_menu_" + this._id.toString()
     }
 
     public updateItem(item: any): void {
