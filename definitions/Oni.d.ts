@@ -262,6 +262,7 @@ declare namespace Oni {
 
         export interface Api extends EventEmitter {
             configuration: Configuration
+            contextMenu: any /* TODO */
             diagnostics: Diagnostics.Api
             editors: EditorManager
             input: InputManager

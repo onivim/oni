@@ -10,6 +10,15 @@
 export type RequestHandler = (requestName: string, payload: any) => Promise<any>
 export type NotificationHandler = (notificationName: string, payload: any) => void
 
+export interface LanguageConnection {
+
+    sendRequest<T>(...): Promise<T>
+    sendNotification(...): Promise<T>
+
+    handleNotification(...): void
+    handleRequest(...): void
+}
+
 export class LightweightLanguageClient {
 
     private _subscriptions: { [key: string]: Oni.Event<any> } = { }

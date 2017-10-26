@@ -14,7 +14,6 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     const isVisualMode = () => editors.activeEditor.mode === "visual"
     const isNormalMode = () => editors.activeEditor.mode === "normal"
-    const isInsertMode = () => editors.activeEditor.mode === "insert"
     const isInsertOrCommandMode = () => editors.activeEditor.mode === "insert" || editors.activeEditor.mode === "cmdline_normal"
 
     const isMenuOpen = () => menu.isMenuOpen()
@@ -23,6 +22,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-q>", "oni.quit")
         input.bind("<m-p>", "quickOpen.show")
         input.bind("<m-s-p>", "commands.show")
+        input.bind("<m-enter>", "language.codeAction.expand")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
@@ -32,6 +32,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<a-f4>", "oni.quit")
         input.bind("<c-p>", "quickOpen.show", () => isNormalMode() && !isMenuOpen())
         input.bind("<s-c-p>", "commands.show", isNormalMode)
+        input.bind("<a-enter>", "language.codeAction.expand")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<c-c>", "editor.clipboard.yank", isVisualMode)
@@ -39,9 +40,10 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         }
     }
 
-    input.bind("<f2>", "language.rename")
+    input.bind("<f2>", "language.rename", () => isNormalMode()),
     input.bind("<esc>", "language.rename.cancel")
     input.bind("<enter>", "language.rename.commit")
+
 
     input.bind("<f3>", "language.formatDocument")
     input.bind(["<f12>"], "language.gotoDefinition", () => isNormalMode() && !menu.isMenuOpen())
@@ -58,9 +60,9 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<C-t>", "quickOpen.openFileNewTab")
 
     // Completion
-    input.bind(["<enter>", "<tab>"], "completion.complete", isInsertMode)
-    input.bind(["<down>", "<C-n>"], "completion.next", isInsertMode)
-    input.bind(["<up>", "<C-p>"], "completion.previous", isInsertMode)
+    input.bind(["<enter>", "<tab>"], "contextMenu.select")
+    input.bind(["<down>", "<C-n>"], "contextMenu.next")
+    input.bind(["<up>", "<C-p>"], "contextMenu.previous")
 
     // Menu
     input.bind(["<down>", "<C-n>"], "menu.next")

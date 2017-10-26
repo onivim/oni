@@ -12,6 +12,7 @@ import * as path from "path"
 
 import * as types from "vscode-languageserver-types"
 
+import { getCodeActions, executeCommand } from "./CodeActions"
 import { getCompletions, getCompletionDetails } from "./Completion"
 import { getDefinition } from "./Definition"
 import { findAllReferences } from "./FindAllReferences"
@@ -109,32 +110,20 @@ export const activate = (oni: Oni.Plugin.Api) => {
         }
     }
 
-    // TODO:
-    const getCodeActions = async (protocolName: string, payload: any): Promise<types.Command[]> => {
-
-        const textDocument = payload.textDocument
-        const range = payload.range
-        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-
-        const val = await host.getRefactors(filePath, range.start.line + 1, range.start.character + 1, range.end.line + 1, range.end.character + 1)
-
-        // TODO: Implement code actions
-        oni.log.verbose(val)
-        return val
-    }
-
     const onSaved = (protocolName: string, payload: any) => {
         const textDocument = payload.textDocument
         const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
         host.getErrorsAcrossProject(filePath)
     }
 
+    lightweightLanguageClient.handleRequest("completionItem/resolve", getCompletionDetails(host))
+
     lightweightLanguageClient.handleNotification("textDocument/didOpen", protocolOpenFile)
     lightweightLanguageClient.handleNotification("textDocument/didChange", protocolChangeFile)
     lightweightLanguageClient.handleNotification("textDocument/didSave", onSaved)
 
     lightweightLanguageClient.handleRequest("textDocument/completion", getCompletions(oni, host))
-    lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions)
+    lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/definition", getDefinition(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/rangeFormatting", formatRange(oni, host))
@@ -142,5 +131,5 @@ export const activate = (oni: Oni.Plugin.Api) => {
     lightweightLanguageClient.handleRequest("textDocument/rename",  doRename(oni, host))
     lightweightLanguageClient.handleRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
 
-    lightweightLanguageClient.handleRequest("completionItem/resolve", getCompletionDetails(host))
+    lightweightLanguageClient.handleRequest("workspace/executeCommand", executeCommand(host))
 }

@@ -15,6 +15,7 @@ import "rxjs/add/observable/never"
 import { contextMenuManager } from "./../ContextMenu"
 import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
+import { checkCodeActions } from "./CodeAction"
 import { commitCompletion, getCompletions, resolveCompletionItem } from "./Completion"
 import { getDefinition, hideDefinition } from "./Definition"
 import { checkAndShowQuickInfo, hideQuickInfo } from "./QuickInfo"
@@ -24,7 +25,7 @@ import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
 export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<Oni.EditorBufferChangedEventArgs>, $cursorMoved: Observable<Oni.Cursor>, $modeChanged: Observable<string>) => {
 
-    const $latestPositionAndVersion =
+    const latestPositionAndVersion$ =
         $bufferUpdates
            .combineLatest($cursorMoved)
            .map((combined: any[]) => {
@@ -39,13 +40,13 @@ export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<On
            })
            .distinctUntilChanged(isEqual)
 
-    $latestPositionAndVersion
+    latestPositionAndVersion$
         .subscribe(() => {
             hideQuickInfo()
             hideDefinition()
         })
 
-    const $shouldUpdateNormalModeAdorners = $latestPositionAndVersion
+    const shouldUpdateNormalModeAdorners$ = latestPositionAndVersion$
         .debounceTime(250) // TODO: Use config setting 'editor.quickInfo.delay'
         .combineLatest($modeChanged)
         .filter((combinedArgs: [any, string]) => {
@@ -57,12 +58,15 @@ export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<On
             return val
         })
 
+    shouldUpdateNormalModeAdorners$.subscribe(async (val: any) => {
+        await checkCodeActions(val.language, val.filePath, val.line, val.column)
+    })
 
-    $shouldUpdateNormalModeAdorners.subscribe(async (val: any) => {
+    shouldUpdateNormalModeAdorners$.subscribe(async (val: any) => {
         await getDefinition()
     })
 
-    $shouldUpdateNormalModeAdorners.subscribe(async (val: any) => {
+    shouldUpdateNormalModeAdorners$.subscribe(async (val: any) => {
         await checkAndShowQuickInfo(val.language, val.filePath, val.line, val.column)
     })
 }
@@ -153,7 +157,6 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
     newContextMenu.onSelectedItemChanged.subscribe(async (newItem) => {
         const result = await resolveCompletionItem(lastMeet.language, lastMeet.filePath, newItem.rawCompletion)
         newContextMenu.updateItem(result)
-        // console.log("Got resolution: " + JSON.stringify(result))
     })
 
     $modeChanged.subscribe((mode) => {

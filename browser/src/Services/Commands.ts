@@ -16,7 +16,7 @@ import { PluginManager } from "./../Plugins/PluginManager"
 import { configuration } from "./../Services/Configuration"
 import { contextMenuManager } from "./../Services/ContextMenu"
 import { editorManager } from "./../Services/EditorManager"
-import { /*commitCompletion,*/ cancelRename, commitRename, formatDocument, isRenameActive, startRename, findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
+import { /*commitCompletion,*/ cancelRename, expandCodeActions, commitRename, formatDocument, isRenameActive, startRename, findAllReferences, gotoDefinitionUnderCursor } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
@@ -56,6 +56,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("oni.editor.findAllReferences",null,null, () => findAllReferences()),
         new CallbackCommand("language.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences()),
 
+        new CallbackCommand("language.codeAction.expand", null, null, () => expandCodeActions()),
+
         new CallbackCommand("language.rename", null, null, () => startRename()),
         new CallbackCommand("language.rename.commit", null, null, () => commitRename(), isRenameActive),
         new CallbackCommand("language.rename.cancel", null, null, () => cancelRename(), isRenameActive),
@@ -75,9 +77,9 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("commands.show", null, null, () => tasks.show()),
 
         // Autocompletion
-        new CallbackCommand("completion.complete", null, null, selectCompletionItem),
-        new CallbackCommand("completion.next", null, null, nextCompletionItem),
-        new CallbackCommand("completion.previous", null, null, previousCompletionItem),
+        new CallbackCommand("contextMenu.select", null, null, selectContextMenuItem, isContextMenuOpen),
+        new CallbackCommand("contextMenu.next", null, null, nextContextMenuItem, isContextMenuOpen),
+        new CallbackCommand("contextMenu.previous", null, null, previousContextMenuItem, isContextMenuOpen),
 
         // Menu
         new CallbackCommand("menu.close", null, null, popupMenuClose),
@@ -86,7 +88,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("menu.select", null, null, popupMenuSelect),
 
         // QuickOpen
-        new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show()),
+        new CallbackCommand("quickOpen.show", null, null, () => quickOpen.show(), shouldShowMenu),
         new CallbackCommand("quickOpen.showBufferLines", null, null, () => quickOpen.showBufferLines()),
         new CallbackCommand("quickOpen.openFileNewTab", null, null, quickOpenFileNewTab(quickOpen)),
         new CallbackCommand("quickOpen.openFileVertical", null, null, quickOpenFileVertical(quickOpen)),
@@ -130,15 +132,21 @@ const contextMenuCommand = (innerCommand: Oni.ICommandCallback) => {
     }
 }
 
-const selectCompletionItem = contextMenuCommand(() => {
+const isContextMenuOpen = () => contextMenuManager.isMenuOpen()
+
+const shouldShowMenu = () => {
+    return !isContextMenuOpen() && !menuManager.isMenuOpen()
+}
+
+const selectContextMenuItem = contextMenuCommand(() => {
     contextMenuManager.selectMenuItem()
 })
 
-const nextCompletionItem = contextMenuCommand(() => {
+const nextContextMenuItem = contextMenuCommand(() => {
     contextMenuManager.nextMenuItem()
 })
 
-const previousCompletionItem = contextMenuCommand(() => {
+const previousContextMenuItem = contextMenuCommand(() => {
     contextMenuManager.previousMenuItem()
 })
 

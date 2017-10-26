@@ -91,13 +91,13 @@ export const pathToTextDocumentIdentifierParms = (path: string) => ({
     },
 })
 
-export const eventContextToCodeActionParams = (args: Oni.EventContext) => {
+export const eventContextToCodeActionParams = (filePath: string, line: number, column: number) => {
     const emptyDiagnostics: types.Diagnostic[] = []
     return {
         textDocument: {
-            uri: wrapPathInFileUri(args.bufferFullPath),
+            uri: wrapPathInFileUri(filePath),
         },
-        range: types.Range.create(types.Position.create(args.line - 1, 0), types.Position.create(args.line, 0)),
+        range: types.Range.create(types.Position.create(line - 1, 0), types.Position.create(line, 0)),
         context: { diagnostics: emptyDiagnostics },
     }
 }

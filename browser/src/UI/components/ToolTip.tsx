@@ -3,8 +3,8 @@ import { connect } from "react-redux"
 
 import { createSelector } from "reselect"
 
-import * as State from "./../State"
 import * as Colors from "./../Colors"
+import * as State from "./../State"
 
 import { CursorPositioner } from "./CursorPositioner"
 
@@ -21,8 +21,8 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, void> 
         const toolTipElements = this.props.toolTips.map((toolTip) => <ToolTipView {...toolTip} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor} />)
 
         return <div className="tool-tips">
-                {toolTipElements}
-            </div>
+            {toolTipElements}
+        </div>
     }
 }
 
@@ -50,10 +50,10 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, void> {
         }
 
         return <CursorPositioner position={position} openDirection={openDirection}>
-                <div className="tool-tip-container" style={toolTipStyle}>
-                    {this.props.element}
-                </div>
-                </CursorPositioner>
+            <div className="tool-tip-container" style={toolTipStyle}>
+                {this.props.element}
+            </div>
+        </CursorPositioner>
     }
 }
 
@@ -63,8 +63,8 @@ const getToolTipsSelector = createSelector(
     [getToolTips],
     (toolTips) => {
         return Object.keys(toolTips)
-                            .map((toolTipId) => toolTips[toolTipId])
-                            .filter((toolTipState) => toolTipState !== null)
+            .map((toolTipId) => toolTips[toolTipId])
+            .filter((toolTipState) => toolTipState !== null)
     })
 
 const mapStateToProps = (state: State.IState): IToolTipsViewProps => {
