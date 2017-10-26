@@ -1,6 +1,8 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
+import { createSelector } from "reselect"
+
 import * as State from "./../State"
 import * as Colors from "./../Colors"
 
@@ -24,7 +26,7 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, void> 
     }
 }
 
-export interface IToolTipViewProps extends State.IToolTip { 
+export interface IToolTipViewProps extends State.IToolTip {
     backgroundColor: string
     foregroundColor: string
 }
@@ -54,11 +56,19 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, void> {
     }
 }
 
+const getToolTips = (state: State.IState) => state.toolTips
+
+const getToolTipsSelector = createSelector(
+    [getToolTips],
+    (toolTips) => {
+        return Object.keys(toolTips)
+                            .map((toolTipId) => toolTips[toolTipId])
+                            .filter((toolTipState) => toolTipState !== null)
+    })
+
 const mapStateToProps = (state: State.IState): IToolTipsViewProps => {
 
-    const toolTips = Object.keys(state.toolTips)
-                        .map((toolTipId) => state.toolTips[toolTipId])
-                        .filter((toolTipState) => toolTipState !== null)
+    const toolTips = getToolTipsSelector(state)
 
     return {
         backgroundColor: state.backgroundColor,

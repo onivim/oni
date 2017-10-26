@@ -41,6 +41,16 @@ class CursorLineRenderer extends React.PureComponent<ICursorLineRendererProps, v
     }
 }
 
+const emptyProps: ICursorLineRendererProps = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    color: null,
+    visible: false,
+    opacity: 0,
+}
+
 const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
     const opacitySetting = props.lineType === "line" ? "editor.cursorLineOpacity" : "editor.cursorColumnOpacity"
     const opacity = state.configuration[opacitySetting]
@@ -49,6 +59,11 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
     const enabled = state.configuration[enabledSetting]
 
     const isNormalInsertOrVisualMode = state.mode === "normal" || state.mode === "insert" || state.mode === "visual"
+    const visible = enabled && isNormalInsertOrVisualMode
+
+    if (!visible) {
+        return emptyProps
+    }
 
     const activeWindowDimensions = Selectors.getActiveWindowPixelDimensions(state)
 
@@ -58,7 +73,7 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
         width: props.lineType === "line" ? activeWindowDimensions.width : state.cursorPixelWidth,
         height: props.lineType === "line" ? state.fontPixelHeight : activeWindowDimensions.height,
         color: state.foregroundColor,
-        visible: enabled && isNormalInsertOrVisualMode,
+        visible,
         opacity,
     }
 }
