@@ -214,7 +214,7 @@ export class NeovimEditor implements IEditor {
 
         this._$modeChanged = this.onModeChanged.asObservable()
 
-        this.onModeChanged.subscribe((newMode) => this._onModeChanged)
+        this.onModeChanged.subscribe((newMode) => this._onModeChanged(newMode))
 
         // Refactor to new method
         this._$bufferUpdates
