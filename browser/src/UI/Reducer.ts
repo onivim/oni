@@ -156,7 +156,6 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                     hidden: a.payload.hidden,
                     listed: a.payload.listed,
                     modified: false,
-                    lines: [],
                 },
             }
 
@@ -201,7 +200,6 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                     version: a.payload.version,
                     totalLines: a.payload.totalLines,
                     lastSaveVersion,
-                    lines: a.payload.lines,
                 },
             }
 

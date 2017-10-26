@@ -43,14 +43,13 @@ export const bufferEnter = (id: number, file: string, language: string, totalLin
     },
 })
 
-export const bufferUpdate = (id: number, modified: boolean, version: number, totalLines: number, lines?: string[]) => ({
+export const bufferUpdate = (id: number, modified: boolean, version: number, totalLines: number) => ({
     type: "BUFFER_UPDATE",
     payload: {
         id,
         modified,
         version,
         totalLines,
-        lines,
     },
 })
 
@@ -226,9 +225,11 @@ export const showSignatureHelp = (signatureHelp: types.SignatureHelp) => ({
     },
 })
 
-export const hideSignatureHelp = () => ({
-    type: "HIDE_SIGNATURE_HELP",
-})
+export const hideSignatureHelp = () => (dispatch: any, getState: any) => {
+    if (getState().signatureHelp) {
+        dispatch({type: "HIDE_SIGNATURE_HELP"})
+    }
+}
 
 export const showQuickInfo = (title: string, description: string): Actions.IShowQuickInfoAction => ({
     type: "SHOW_QUICK_INFO",
@@ -238,9 +239,11 @@ export const showQuickInfo = (title: string, description: string): Actions.IShow
     },
 })
 
-export const hideQuickInfo = () => ({
-    type: "HIDE_QUICK_INFO",
-})
+export const hideQuickInfo = () => (dispatch: any, getState: any) => {
+    if (getState().quickInfo) {
+    dispatch({type: "HIDE_QUICK_INFO"})
+    }
+}
 
 export const setDefinition = (token: Oni.IToken, definitionLocation: types.Location): Actions.IShowDefinitionAction => ({
     type: "SHOW_DEFINITION",

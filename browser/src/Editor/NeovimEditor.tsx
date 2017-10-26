@@ -222,10 +222,7 @@ export class NeovimEditor implements IEditor {
 
             const buf = this._bufferManager.updateBufferFromEvent(args)
             buf._notifyBufferUpdated(bufferUpdateEvent.bufferLines, args.version)
-
-            buf.getLines(0, buf.lineCount).then((lines: string[]) => {
-                UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, lines)
-            })
+            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
 
             this._onBufferChangedEvent.dispatch({
                 buffer: buf,
@@ -249,8 +246,7 @@ export class NeovimEditor implements IEditor {
                     }
 
                     buf._notifyBufferUpdatedAt(lineNumber - 1, changedLine, args.version)
-                    const lines: string[] = await buf.getLines(0, buf.lineCount)
-                    UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines, lines)
+                    UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
 
                     this._onBufferChangedEvent.dispatch({
                         buffer: buf,

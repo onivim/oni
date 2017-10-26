@@ -41,8 +41,12 @@ export class LanguageManager {
         editorManager.allEditors.onBufferEnter.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
             const { language, filePath } = bufferInfo
 
-            this._statusBar.show(language)
-            this._statusBar.setStatus(LanguageClientState.Initializing)
+            if (language) {
+                this._statusBar.show(language)
+                this._statusBar.setStatus(LanguageClientState.Initializing)
+            } else {
+                this._statusBar.hide()
+            }
 
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", () => {
                 this._statusBar.setStatus(LanguageClientState.Active)

@@ -80,7 +80,6 @@ export interface IBufferUpdateAction {
         modified: boolean,
         version: number,
         totalLines: number,
-        lines?: string[],
     }
 }
 

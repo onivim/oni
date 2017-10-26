@@ -7,25 +7,22 @@ import { createSelector } from "reselect"
 import * as Selectors from "./../Selectors"
 import * as State from "./../State"
 
-const getAllBuffersFromRootState = (state: State.IState) => getAllBuffers(state.buffers)
+const getBufferState = (state: State.IState) => state.buffers
 
-export const getAllBuffers = (buffers: State.IBufferState): State.IBuffer[] => {
-    return buffers.allIds.map((id) => buffers.byId[id]).filter((buf) => buf.listed)
-}
+export const getAllBuffers = createSelector(
+    [getBufferState],
+    (buffers) => buffers.allIds.map((id) => buffers.byId[id]).filter((buf) => buf.listed))
 
-export const getBufferByFilename = (fileName: string, buffers: State.IBufferState): State.IBuffer => {
-    const allBuffers = getAllBuffers(buffers)
-    const matchingBuffers = allBuffers.filter((buf) => buf.file === fileName)
-
-    if (matchingBuffers.length > 0) {
-        return matchingBuffers[0]
-    } else {
-        return null
-    }
-}
+export const getBufferMetadata = createSelector(
+    [getAllBuffers],
+    (buffers) => buffers.map((b) => ({
+        id: b.id,
+        file: b.file,
+        modified: b.modified,
+    })))
 
 export const getActiveBuffer = createSelector(
-    [Selectors.getActiveWindow, getAllBuffersFromRootState],
+    [Selectors.getActiveWindow, getAllBuffers],
     (win, buffers) => {
 
         if (!win || !win.file) {
@@ -38,17 +35,6 @@ export const getActiveBuffer = createSelector(
     },
 )
 
-export const getCurrentBufferLine = createSelector(
-    [Selectors.getActiveWindow, getActiveBuffer],
-    (win, buffer) => {
-        if (!buffer || !buffer.lines) {
-            return null
-        }
-
-        if (win.file !== buffer.file) {
-            return null
-        }
-
-        return buffer.lines[win.line]
-    },
-)
+export const getActiveBufferId = createSelector(
+    [getActiveBuffer],
+    (buf) => buf === null ? null : buf.id)
