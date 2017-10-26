@@ -50,20 +50,20 @@ export class Tasks extends EventEmitter {
 
     public show(): void {
         this._refreshTasks().then(() => {
-            const options: Oni.Menu.MenuOption[] = this._lastTasks.map((f) => {
-                return {
-                    icon: "tasks",
-                    label: f.name,
-                    detail: f.detail,
-                }
-            })
+            const options: Oni.Menu.MenuOption[] = this._lastTasks
+                        .filter((t) => t.name || t.detail)
+                        .map((f) => {
+                            return {
+                                icon: "tasks",
+                                label: f.name,
+                                detail: f.detail,
+                            }
+                        })
 
             this._menu = menuManager.create()
             this._menu.onItemSelected.subscribe((selection: any) => this._onItemSelected(selection))
             this._menu.show()
             this._menu.setItems(options)
-            // TODO
-            // UI.Actions.showPopupMenu("tasks", options)
         })
     }
 
@@ -74,7 +74,6 @@ export class Tasks extends EventEmitter {
 
         if (selectedTask) {
             await selectedTask.callback()
-            this.emit("task-executed", selectedTask.command)
 
             // TODO: we should make the callback return a bool so we can display either success/fail messages
             if (selectedTask.messageSuccess != null) {
