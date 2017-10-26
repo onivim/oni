@@ -27,15 +27,5 @@ export const formatRange = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => 
         throw new Error("No edits.")
     }
 
-    const mapLocsToTextEdit = (codeEdit: protocol.CodeEdit): types.TextEdit => {
-       const range = types.Range.create(codeEdit.start.line - 1, codeEdit.start.offset - 1, codeEdit.end.line - 1, codeEdit.end.offset - 1)
-       const newText = codeEdit.newText
-
-       return {
-           range,
-           newText,
-       }
-    }
-
-    return val.map((edit) => mapLocsToTextEdit(edit))
+    return val.map((edit) => Utility.convertCodeEditToTextEdit(edit))
 }

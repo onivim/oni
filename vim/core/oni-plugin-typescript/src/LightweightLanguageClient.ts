@@ -10,13 +10,28 @@
 export type RequestHandler = (requestName: string, payload: any) => Promise<any>
 export type NotificationHandler = (notificationName: string, payload: any) => void
 
-export interface LanguageConnection {
+export class LanguageConnection {
 
-    sendRequest<T>(...): Promise<T>
-    sendNotification(...): Promise<T>
+    constructor(private _client: LightweightLanguageClient) {
 
-    handleNotification(...): void
-    handleRequest(...): void
+    }
+
+    public request(requestName: string, language: string, payload: any): Promise<any> {
+        // TODO:
+
+        return Promise.resolve(null)
+    }
+
+    public notify(notificationName: string, language: string, payload: any) {
+        this._client._notify(notificationName, language, payload)
+    }
+
+    public subscribeToNotification(notificationName: string, notificationHandler: NotificationHandler): void {
+        this._client._handleNotification(notificationName, notificationHandler)
+    }
+    public subscribeToRequest(requestName: string, handler: RequestHandler): void {
+        this._client._handleRequest(requestName, handler)
+    }
 }
 
 export class LightweightLanguageClient {
@@ -25,6 +40,10 @@ export class LightweightLanguageClient {
 
     private _requestHandler: { [key: string]: RequestHandler } = { }
     private _notificationHandler: { [key: string]: NotificationHandler } = { }
+
+    public get connection(): LanguageConnection {
+        return
+    }
 
     public get serverCapabilities(): any {
         return {
@@ -76,15 +95,15 @@ export class LightweightLanguageClient {
         }
     }
 
-    public handleRequest(requestName: string, handler: RequestHandler): void {
+    public _handleRequest(requestName: string, handler: RequestHandler): void {
         this._requestHandler[requestName] = handler
     }
 
-    public handleNotification(notificationName: string, notificationHandler: NotificationHandler): void {
+    public _handleNotification(notificationName: string, notificationHandler: NotificationHandler): void {
         this._notificationHandler[notificationName] = notificationHandler
     }
 
-    public notify(notificationName: string, language: string, payload: any): void {
+    public _notify(notificationName: string, language: string, payload: any): void {
         const notifierEvent = this._subscriptions[notificationName]
 
         if (notifierEvent) {

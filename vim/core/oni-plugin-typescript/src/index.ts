@@ -17,19 +17,22 @@ import { getCompletions, getCompletionDetails } from "./Completion"
 import { getDefinition } from "./Definition"
 import { findAllReferences } from "./FindAllReferences"
 import { formatRange } from "./Formatting"
-import { LightweightLanguageClient } from "./LightweightLanguageClient"
+import { LanguageConnection, LightweightLanguageClient } from "./LightweightLanguageClient"
 import { getQuickInfo } from "./QuickInfo"
 import { doRename } from "./Rename"
 import { getSignatureHelp } from "./SignatureHelp"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
+import * as Utility from "./Utility"
 
 export const activate = (oni: Oni.Plugin.Api) => {
 
     const host = new TypeScriptServerHost(oni)
 
-    const lightweightLanguageClient = new LightweightLanguageClient()
-    oni.language.registerLanguageClient("typescript", lightweightLanguageClient)
-    oni.language.registerLanguageClient("javascript", lightweightLanguageClient)
+    const _lightweightLanguageClient = new LightweightLanguageClient()
+    oni.language.registerLanguageClient("typescript", _lightweightLanguageClient)
+    oni.language.registerLanguageClient("javascript", _lightweightLanguageClient)
+
+    const connection = new LanguageConnection(_lightweightLanguageClient)
 
     host.on("semanticDiag", (diagnostics) => {
         const fileName = diagnostics.file
@@ -52,11 +55,9 @@ export const activate = (oni: Oni.Plugin.Api) => {
             return ret
         })
 
+        const language = Utility.getLanguageFromFileName(fileName)
 
-        const extension = path.extname(fileName)
-        const language = extension === ".js" || extension === ".jsx" ? "javascript" : "typescript"
-
-        lightweightLanguageClient.notify("textDocument/publishDiagnostics", language, {
+        connection.notify("textDocument/publishDiagnostics", language, {
             uri: oni.language.wrapPathInFileUri(fileName),
             diagnostics: errors,
         })
@@ -116,20 +117,20 @@ export const activate = (oni: Oni.Plugin.Api) => {
         host.getErrorsAcrossProject(filePath)
     }
 
-    lightweightLanguageClient.handleRequest("completionItem/resolve", getCompletionDetails(host))
+    connection.subscribeToRequest("completionItem/resolve", getCompletionDetails(host))
 
-    lightweightLanguageClient.handleNotification("textDocument/didOpen", protocolOpenFile)
-    lightweightLanguageClient.handleNotification("textDocument/didChange", protocolChangeFile)
-    lightweightLanguageClient.handleNotification("textDocument/didSave", onSaved)
+    connection.subscribeToNotification("textDocument/didOpen", protocolOpenFile)
+    connection.subscribeToNotification("textDocument/didChange", protocolChangeFile)
+    connection.subscribeToNotification("textDocument/didSave", onSaved)
 
-    lightweightLanguageClient.handleRequest("textDocument/completion", getCompletions(oni, host))
-    lightweightLanguageClient.handleRequest("textDocument/codeAction", getCodeActions(oni, host))
-    lightweightLanguageClient.handleRequest("textDocument/definition", getDefinition(oni, host))
-    lightweightLanguageClient.handleRequest("textDocument/hover",  getQuickInfo(oni, host))
-    lightweightLanguageClient.handleRequest("textDocument/rangeFormatting", formatRange(oni, host))
-    lightweightLanguageClient.handleRequest("textDocument/references",  findAllReferences(oni, host))
-    lightweightLanguageClient.handleRequest("textDocument/rename",  doRename(oni, host))
-    lightweightLanguageClient.handleRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
+    connection.subscribeToRequest("textDocument/completion", getCompletions(oni, host))
+    connection.subscribeToRequest("textDocument/codeAction", getCodeActions(oni, host))
+    connection.subscribeToRequest("textDocument/definition", getDefinition(oni, host))
+    connection.subscribeToRequest("textDocument/hover",  getQuickInfo(oni, host))
+    connection.subscribeToRequest("textDocument/rangeFormatting", formatRange(oni, host))
+    connection.subscribeToRequest("textDocument/references",  findAllReferences(oni, host))
+    connection.subscribeToRequest("textDocument/rename",  doRename(oni, host))
+    connection.subscribeToRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
 
-    lightweightLanguageClient.handleRequest("workspace/executeCommand", executeCommand(host))
+    connection.subscribeToRequest("workspace/executeCommand", executeCommand(connection, host))
 }
