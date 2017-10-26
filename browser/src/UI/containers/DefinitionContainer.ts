@@ -9,6 +9,11 @@ import * as State from "./../State"
 
 import { Definition, IDefinitionProps } from "./../components/Definition"
 
+const emptyRange = types.Range.create(
+    types.Position.create(-1, -1),
+    types.Position.create(-1, -1),
+)
+
 const mapStateToProps = (state: State.IState): IDefinitionProps => {
 
     const window = Selectors.getActiveWindow(state)
@@ -17,10 +22,7 @@ const mapStateToProps = (state: State.IState): IDefinitionProps => {
 
     const activeDefinition = getActiveDefinition(state)
 
-    const range = activeDefinition ? activeDefinition.token.range : types.Range.create(
-        types.Position.create(-1, -1),
-        types.Position.create(-1, -1),
-    )
+    const range = activeDefinition ? activeDefinition.token.range : emptyRange
 
     return {
         color: state.foregroundColor,

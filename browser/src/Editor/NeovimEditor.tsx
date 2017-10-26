@@ -60,7 +60,6 @@ export class NeovimEditor implements IEditor {
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
 
-    private _pendingTimeout: any = null
     private _pendingAnimationFrame: boolean = false
     private _element: HTMLElement
 
@@ -184,10 +183,6 @@ export class NeovimEditor implements IEditor {
             this._scheduleRender()
 
             UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
-
-            if (!this._pendingTimeout) {
-                this._pendingTimeout = setTimeout(() => this._onUpdate(), 0)
-            }
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
@@ -265,7 +260,7 @@ export class NeovimEditor implements IEditor {
             return ({
                 bufferNumber: context.bufferNumber,
                 modified: context.modified,
-                totalLines: context.bufferTotalLines
+                totalLines: context.bufferTotalLines,
             })
         }
 
@@ -276,7 +271,6 @@ export class NeovimEditor implements IEditor {
             .subscribe((args) => {
                 UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.bufferTotalLines)
             })
-
 
         const $allUpdates = this._onBufferChangedEvent.asObservable()
         addInsertModeLanguageFunctionality(this._$cursorMovedI, this._$modeChanged)
@@ -444,17 +438,7 @@ export class NeovimEditor implements IEditor {
 
         this._isFirstRender = true
 
-        this._onUpdate()
         this._scheduleRender()
-    }
-
-    private _onUpdate(): void {
-        UI.Actions.setCursorPosition(this._screen)
-
-        if (!!this._pendingTimeout) {
-            clearTimeout(this._pendingTimeout) // FIXME: null
-            this._pendingTimeout = null
-        }
     }
 
     private _scheduleRender(): void {
@@ -469,9 +453,7 @@ export class NeovimEditor implements IEditor {
     private _render(): void {
         this._pendingAnimationFrame = false
 
-        if (this._pendingTimeout) {
-            UI.Actions.setCursorPosition(this._screen)
-        }
+        UI.Actions.setCursorPosition(this._screen)
 
         if (this._hasLoaded) {
             if (this._isFirstRender) {
