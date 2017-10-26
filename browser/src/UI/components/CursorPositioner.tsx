@@ -69,31 +69,29 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
     }
 
     public componentDidMount(): void {
-        this._measureElement(this._element)
+        if (this._element) {
+            this._measureElement(this._element)
 
-        this._resizeObserver = new window["ResizeObserver"]((entries: any) => {
+            this._resizeObserver = new window["ResizeObserver"]((entries: any) => {
 
-            if (this._timeout) {
-                window.clearTimeout(this._timeout)
-            }
+                if (this._timeout) {
+                    window.clearTimeout(this._timeout)
+                }
 
-            this._timeout = window.setTimeout(() => {
-                this._measureElement(this._element)
-                this._timeout = null
-            }, 250)
-        })
+                this._timeout = window.setTimeout(() => {
+                    this._measureElement(this._element)
+                    this._timeout = null
+                }, 250)
+            })
+
+            this._resizeObserver.observe(this._element)
+        }
     }
 
     public componentWillUnmount(): void {
         if (this._resizeObserver) {
             this._resizeObserver.disconnect()
             this._resizeObserver = null
-        }
-    }
-
-    public componentWillReceiveProps(nextProps: ICursorPositionerViewProps): void {
-        if (this.props !== nextProps) {
-            this.setState(InitialState)
         }
     }
 
@@ -155,7 +153,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             const bottomScreenPadding = 50
             const canOpenDownard = this.props.y + rect.height + this.props.lineHeight * 3 < this.props.containerHeight - margin - bottomScreenPadding
 
-            if (!this.state.isMeasured) {
+            // if (!this.state.isMeasured) {
                 const shouldOpenDownward = (this.props.openDirection !== OpenDirection.Down && !canOpenUpward) || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
 
                 const rightBounds = this.props.x + rect.width
@@ -175,7 +173,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
                     adjustedX,
                     isMeasured: true,
                 })
-            }
+            // }
         }
     }
 }
