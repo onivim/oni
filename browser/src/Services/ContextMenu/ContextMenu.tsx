@@ -140,6 +140,7 @@ export class ContextMenu {
         UI.Actions.showToolTip(this._getContextMenuId(), <ContextMenuContainer />, {
             openDirection: 2,
             position: null,
+            padding: "0px",
         })
 
     }

@@ -38,6 +38,7 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, void> {
         const options = this.props.options
         const position = options.position || null
         const openDirection = options.openDirection || 1
+        const padding = options.padding || "8px"
 
         const borderColorString = Colors.getBorderColor(this.props.backgroundColor, this.props.foregroundColor)
 
@@ -45,7 +46,7 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, void> {
             backgroundColor: this.props.backgroundColor,
             border: `1px solid ${borderColorString}`,
             color: this.props.foregroundColor,
-            padding: "8px",
+            padding,
         }
 
         return <CursorPositioner position={position} openDirection={openDirection}>

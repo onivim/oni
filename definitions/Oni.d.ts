@@ -223,8 +223,9 @@ declare namespace Oni {
             Down= 2,
         }
         export interface ToolTipOptions {
-            position: Coordinates.PixelSpacePoint
+            position?: Coordinates.PixelSpacePoint
             openDirection: OpenDirection
+            padding?: string
         }
     }
 
