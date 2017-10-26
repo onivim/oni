@@ -183,6 +183,7 @@ export class NeovimEditor implements IEditor {
             this._scheduleRender()
 
             UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
+            UI.Actions.setCursorPosition(this._screen)
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {

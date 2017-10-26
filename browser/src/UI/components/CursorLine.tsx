@@ -32,7 +32,7 @@ class CursorLineRenderer extends React.PureComponent<ICursorLineRendererProps, v
             top: this.props.y.toString() + "px", // Same as cursor
             width: width.toString() + "px", // Window width
 
-            height: this.props.height.toString() + "px", // Same as cursor
+            height: this.props.height ? this.props.height.toString() + "px" : "0px", // Same as cursor
             backgroundColor: this.props.color,
             opacity: this.props.opacity,
         }
