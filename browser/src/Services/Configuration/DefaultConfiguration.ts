@@ -73,6 +73,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "environment.additionalPaths": [],
 
+    "menu.caseSensitive": "smart",
+
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
 

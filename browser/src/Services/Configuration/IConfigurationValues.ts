@@ -121,6 +121,13 @@ export interface IConfigurationValues {
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
 
+    // Case-sensitivity strategy for menu filtering:
+    // - if `true`, is case sensitive
+    // - if `false`, is not case sensitive
+    // - if `'smart'`, is case sensitive if the query string
+    //   contains uppercase characters
+    "menu.caseSensitive": string | boolean
+
     // Output path to save screenshots and recordings
     "recorder.outputPath": string
 
