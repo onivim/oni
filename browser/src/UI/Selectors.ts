@@ -32,14 +32,18 @@ const getAllErrorsForFile = (fileName: string, errors: State.Errors) => {
     return flatten(arrayOfErrorsArray)
 }
 
-export const getActiveWindow = (state: State.IState): State.IWindow => {
-    if (state.windowState.activeWindow === null) {
-        return null
-    }
+const getWindows = (state: State.IState) => state.windowState
 
-    const activeWindow = state.windowState.activeWindow
-    return state.windowState.windows[activeWindow]
-}
+export const getActiveWindow = createSelector(
+    [getWindows],
+    (windowState) => {
+        if (windowState.activeWindow === null) {
+            return null
+        }
+
+        const activeWindow = windowState.activeWindow
+        return windowState.windows[activeWindow]
+    })
 
 export const getQuickInfo = (state: State.IState): State.IQuickInfo => state.quickInfo
 
