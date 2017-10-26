@@ -38,13 +38,6 @@ export class ContextMenuView extends React.PureComponent<IContextMenuProps, void
         }
 
         const highlightColor = Colors.getBorderColor(this.props.backgroundColor, this.props.foregroundColor)
-
-        const containerStyle: React.CSSProperties = {
-            backgroundColor: this.props.backgroundColor,
-            color: this.props.foregroundColor,
-            border: "1px solid " + highlightColor,
-        }
-
         // TODO: sync max display items (10) with value in Reducer.autoCompletionReducer() (Reducer.ts)
         const firstTenEntries = take(this.props.entries, 10)
 
@@ -55,7 +48,7 @@ export class ContextMenuView extends React.PureComponent<IContextMenuProps, void
         })
 
         const selectedItemDocumentation = getDocumentationFromItems(firstTenEntries, this.props.selectedIndex)
-        return <div style={containerStyle} className="autocompletion enable-mouse">
+        return <div className="autocompletion enable-mouse">
                     <div className="entries">
                         {entries}
                     </div>
@@ -128,10 +121,7 @@ export const ContextMenuDocumentation = (props: IContextMenuDocumentationProps) 
 
 const EmptyArray: any[] = []
 
-const mapStateToProps = (state: IMenus<types.CompletionItem, types.CompletionItem>) => {
-    const contextMenu = state.menu
-    if (!contextMenu) {
-        return {
+const EmptyProps = {
             visible: false,
             base: "",
             entries: EmptyArray,
@@ -139,6 +129,11 @@ const mapStateToProps = (state: IMenus<types.CompletionItem, types.CompletionIte
             backgroundColor: "",
             foregroundColor: "",
         }
+
+const mapStateToProps = (state: IMenus<types.CompletionItem, types.CompletionItem>) => {
+    const contextMenu = state.menu
+    if (!contextMenu) {
+        return EmptyProps
     } else {
         const ret: IContextMenuProps = {
             visible: true,
