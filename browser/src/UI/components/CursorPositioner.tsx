@@ -58,10 +58,37 @@ const InitialState = {
  */
 export class CursorPositionerView extends React.PureComponent<ICursorPositionerViewProps, ICursorPositionerViewState> {
 
+    private _element: HTMLElement
+    private _resizeObserver: any
+    private _timeout: any
+
     constructor(props: ICursorPositionerViewProps) {
         super(props)
 
         this.state = InitialState
+    }
+
+    public componentDidMount(): void {
+        this._measureElement(this._element)
+
+        this._resizeObserver = new window["ResizeObserver"]((entries: any) => {
+
+            if (this._timeout) {
+                window.clearTimeout(this._timeout)
+            }
+
+            this._timeout = window.setTimeout(() => {
+                this._measureElement(this._element)
+                this._timeout = null
+            }, 250)
+        })
+    }
+
+    public componentWillUnmount(): void {
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect()
+            this._resizeObserver = null
+        }
     }
 
     public componentWillReceiveProps(nextProps: ICursorPositionerViewProps): void {
@@ -109,7 +136,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
 
         return <div style={containerStyle}>
             <div style={childStyleWithAdjustments}>
-                <div ref={(elem) => this._measureElement(elem)}>
+                <div ref={(elem) => this._element = elem}>
                     {this.props.children}
                 </div>
             </div>
