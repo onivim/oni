@@ -34,6 +34,4 @@ export const formatDocument = async () => {
 
         await activeBuffer.applyTextEdits(result)
     }
-
-
 }

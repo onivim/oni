@@ -7,6 +7,8 @@ export type NotificationFunction = (capabilities: IServerCapabilities) => any
 export type NotificationFunctionWithPromise = (capabilities: IServerCapabilities) => Promise<any>
 export type NotificationValueOrThunk = NotificationFunction | NotificationFunctionWithPromise | any
 
+export type RequestHandler = (payload: any) => Promise<any>
+
 export const unwrapThunkOrValue = (val: NotificationValueOrThunk, args: any): Promise<any> => {
     if (typeof val !== "function") {
         return Promise.resolve(val)

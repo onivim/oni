@@ -7,7 +7,8 @@
 // TODO: Move this to Oni core, so that it can be leveraged as part of the API surface
 // (for lightweight completion scenarios, etc)
 
-export type RequestHandler = (requestName: string, payload: any) => Promise<any>
+export type ServerRequestHandler = (requestName: string, payload: any) => Promise<any>
+export type ClientRequestHandler = (payload: any) => Promise<any>
 export type NotificationHandler = (notificationName: string, payload: any) => void
 
 export class LanguageConnection {
@@ -17,9 +18,10 @@ export class LanguageConnection {
     }
 
     public request(requestName: string, language: string, payload: any): Promise<any> {
-        // TODO:
-
-        return Promise.resolve(null)
+        return this._client._getClientRequestHandler(requestName)({
+            language,
+            payload,
+        })
     }
 
     public notify(notificationName: string, language: string, payload: any) {
@@ -29,7 +31,7 @@ export class LanguageConnection {
     public subscribeToNotification(notificationName: string, notificationHandler: NotificationHandler): void {
         this._client._handleNotification(notificationName, notificationHandler)
     }
-    public subscribeToRequest(requestName: string, handler: RequestHandler): void {
+    public subscribeToRequest(requestName: string, handler: ServerRequestHandler): void {
         this._client._handleRequest(requestName, handler)
     }
 }
@@ -38,7 +40,13 @@ export class LightweightLanguageClient {
 
     private _subscriptions: { [key: string]: Oni.Event<any> } = { }
 
-    private _requestHandler: { [key: string]: RequestHandler } = { }
+    // This is confusing because the requests are handled both ways...
+    // This dictionary tracks handlers on the 'server' side
+    private _requestHandler: { [key: string]: ServerRequestHandler } = { }
+
+    private _clientRequestHandler: { [key: string]: ClientRequestHandler } = { }
+
+
     private _notificationHandler: { [key: string]: NotificationHandler } = { }
 
     public get connection(): LanguageConnection {
@@ -95,8 +103,16 @@ export class LightweightLanguageClient {
         }
     }
 
-    public _handleRequest(requestName: string, handler: RequestHandler): void {
+    public handleRequest(requestName: string, handler: ClientRequestHandler): void {
+        this._clientRequestHandler[requestName] = handler
+    }
+
+    public _handleRequest(requestName: string, handler: ServerRequestHandler): void {
         this._requestHandler[requestName] = handler
+    }
+
+    public _getClientRequestHandler(requestName): ClientRequestHandler {
+        return this._clientRequestHandler[requestName]
     }
 
     public _handleNotification(notificationName: string, notificationHandler: NotificationHandler): void {

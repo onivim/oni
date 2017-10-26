@@ -12,6 +12,7 @@ import * as LanguageClientTypes from "./LanguageClientTypes"
 export interface ILanguageClient {
     serverCapabilities: IServerCapabilities
     subscribe(notificationName: string, evt: Event<any>): void
+    handleRequest(requestName: string, handler: LanguageClientTypes.RequestHandler): void
 
     sendRequest<T>(fileName: string, requestName: string, protocolArguments: LanguageClientTypes.NotificationValueOrThunk): Promise<T>
     sendNotification(fileName: string, notificationName: string, protocolArguments: LanguageClientTypes.NotificationValueOrThunk): void
@@ -22,6 +23,7 @@ export class LanguageClient implements ILanguageClient {
 
     private _connection: rpc.MessageConnection
     private _subscriptions: { [key: string]: Event<any> } = {}
+    private _requestHandlers: { [key: string]: LanguageClientTypes.RequestHandler } = {}
 
     public get serverCapabilities(): IServerCapabilities {
         return this._languageClientProcess.serverCapabilities
@@ -43,6 +45,13 @@ export class LanguageClient implements ILanguageClient {
                     })
                 })
             })
+
+            Object.keys(this._requestHandlers).forEach((request) => {
+                const handler = this._requestHandlers[request]
+                if (handler) {
+                    this._connection.onRequest(request, handler)
+                }
+            })
         })
     }
 
@@ -57,6 +66,18 @@ export class LanguageClient implements ILanguageClient {
         }
 
         this._subscriptions[notificationName] = evt
+    }
+
+    public handleRequest(requestName: string, handler: (payload: any) => Promise<any>): void {
+        if (this._requestHandlers[requestName]) {
+            Log.error("Only one handler is allowed")
+        }
+
+        if (this._connection) {
+            this._connection.onRequest(requestName, handler)
+        }
+
+        this._requestHandlers[requestName] = handler
     }
 
     public sendRequest<T>(fileName: string, requestName: string, protocolArguments: LanguageClientTypes.NotificationValueOrThunk): Promise<T> {

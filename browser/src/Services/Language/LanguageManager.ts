@@ -22,6 +22,8 @@ import * as LanguageClientTypes from "./LanguageClientTypes"
 
 import { LanguageClientStatusBar, LanguageClientState } from "./LanguageClientStatusBar"
 
+import { listenForWorkspaceEdits } from "./Workspace"
+
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 export interface ILanguageServerNotificationResponse {
@@ -34,6 +36,7 @@ export class LanguageManager {
     private _languageServerInfo: { [language: string]: ILanguageClient } = {}
 
     private _notificationSubscriptions: { [notificationMessage: string]: Event<any> }  = {}
+    private _requestHandlers: { [request: string]: LanguageClientTypes.RequestHandler } = {}
 
     private _statusBar = new LanguageClientStatusBar()
 
@@ -101,6 +104,8 @@ export class LanguageManager {
         this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
             // logInfo("telemetry/event:" + JSON.stringify(args))
         })
+
+        listenForWorkspaceEdits(this)
     }
 
     public getCapabilitiesForLanguage(language: string): Promise<IServerCapabilities> {
@@ -167,6 +172,23 @@ export class LanguageManager {
         }
     }
 
+    // Register a handler for requests incoming from the language server
+    public handleLanguageServerRequest(protocolMessage: string, callback: (args: ILanguageServerNotificationResponse) => Promise<any>): void {
+
+        const currentHandler = this._requestHandlers[protocolMessage]
+
+        if (currentHandler) {
+            return
+        }
+
+        this._requestHandlers[protocolMessage] = callback
+
+        const languageClients = Object.values(this._languageServerInfo)
+        languageClients.forEach((ls) => {
+            ls.handleRequest(protocolMessage, callback)
+        })
+    }
+
     public subscribeToLanguageServerNotification(protocolMessage: string, callback: (args: ILanguageServerNotificationResponse) => void): IDisposable {
 
         const currentSubscription = this._notificationSubscriptions[protocolMessage]
@@ -202,6 +224,10 @@ export class LanguageManager {
 
         Object.keys(this._notificationSubscriptions).forEach((notification) => {
             languageClient.subscribe(notification, this._notificationSubscriptions[notification])
+        })
+
+        Object.keys(this._requestHandlers).forEach((request) => {
+            languageClient.handleRequest(request, this._requestHandlers[request])
         })
 
         this._languageServerInfo[language]  = languageClient
