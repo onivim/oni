@@ -3,55 +3,63 @@ import * as os from "os"
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
+import * as UI from "./../../UI"
 import * as Colors from "./../Colors"
+import { CodeActionHover } from "./../components/CodeActions"
 import { ErrorInfo } from "./../components/ErrorInfo"
 import { QuickInfoDocumentation, QuickInfoTitle } from "./../components/QuickInfo"
 import * as Selectors from "./../Selectors"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-export interface ITextProps {
-    text: string
-}
-
-export class TextComponent extends React.PureComponent<ITextProps, void> {
-
-}
-
-export class Text extends TextComponent {
-    public render(): JSX.Element {
-        return <span>{this.props.text}</span>
-    }
-}
-
-export class SelectedText extends TextComponent {
-    public render(): JSX.Element {
-        return <span className="selected">{this.props.text}</span>
-    }
-}
-
-export const renderQuickInfo = (hover: types.Hover, errors: types.Diagnostic[]) => {
+export const renderQuickInfo = (hover: types.Hover, actions: types.Command[], errors: types.Diagnostic[]) => {
     const quickInfoElements = getQuickInfoElementsFromHover(hover)
+
+    const state: any = UI.store.getState()
+    const { backgroundColor, foregroundColor } = state
+    const borderColor = Colors.getBorderColor(backgroundColor, foregroundColor)
 
     let customErrorStyle = { }
     if (quickInfoElements.length > 0) {
         // TODO:
-        const borderColor = Colors.getBorderColor("black", "white")
         customErrorStyle = {
             "border-bottom": "1px solid " + borderColor,
         }
     }
 
-    const errorElements = getErrorElements(errors, customErrorStyle)
-    const elements = errorElements.concat(quickInfoElements)
 
-    return <div className="quickinfo-container">
+    const errorElements = getErrorElements(errors, customErrorStyle)
+    const commandElements = getCommandElements(actions, backgroundColor, foregroundColor)
+
+    let derpElement: JSX.Element[] = []
+
+    if (actions.length > 0) {
+        derpElement = [<QuickInfoDocumentation text={`${actions.length} refactorings available`} />]
+    }
+    const elements = [...errorElements, ...quickInfoElements, ...derpElement ]
+
+    return <div className="quickinfo-container enable-mouse">
             <div className="quickinfo">
-            {elements}
+                <div className="container horizontal center">
+                    <div className="container fixed center">
+                    {commandElements}
+                    </div>
+                    <div className="container full">
+                    {elements}
+                    </div>
+                </div>
             </div>
            </div>
 }
 
+const getCommandElements = (commands: types.Command[], backgroundColor: string, foregroundColor: string): JSX.Element[] => {
+
+    if(!commands || !commands.length) {
+        return Selectors.EmptyArray
+    } else {
+        return [<CodeActionHover backgroundColor={backgroundColor} foregroundColor={foregroundColor}/>]
+    }
+}
 
 const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[] => {
     if (!errors || !errors.length) {
@@ -95,13 +103,11 @@ const getTitleAndContents = (result: types.Hover) => {
     }
 }
 
-const EmptyArray: any[] = []
-
 const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element[] => {
     const titleAndContents = getTitleAndContents(hover)
 
     if (!titleAndContents) {
-        return EmptyArray
+        return Selectors.EmptyArray
     }
 
     return [

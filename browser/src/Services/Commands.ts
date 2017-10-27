@@ -83,6 +83,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("contextMenu.select", null, null, selectContextMenuItem, isContextMenuOpen),
         new CallbackCommand("contextMenu.next", null, null, nextContextMenuItem, isContextMenuOpen),
         new CallbackCommand("contextMenu.previous", null, null, previousContextMenuItem, isContextMenuOpen),
+        new CallbackCommand("contextMenu.close", null, null, closeContextMenu, isContextMenuOpen),
 
         // Menu
         new CallbackCommand("menu.close", null, null, popupMenuClose),
@@ -147,6 +148,10 @@ const selectContextMenuItem = contextMenuCommand(() => {
 
 const nextContextMenuItem = contextMenuCommand(() => {
     contextMenuManager.nextMenuItem()
+})
+
+const closeContextMenu = contextMenuCommand(() => {
+    contextMenuManager.closeActiveMenu()
 })
 
 const previousContextMenuItem = contextMenuCommand(() => {
