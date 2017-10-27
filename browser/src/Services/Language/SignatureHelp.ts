@@ -14,25 +14,39 @@ import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
 import { ILatestCursorAndBufferInfo } from "./LanguageEditorIntegration"
 
+import { getElementFromType } from "./../../UI/containers/SignatureHelpContainer"
 
 export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>) => {
 
+    const signatureHelpToolTipName = "signature-help-tool-tip"
+
     // Show signature help as the cursor moves
     latestCursorAndBufferInfo$
-        .subscribe((val) => {
-            showSignatureHelp(val.language, val.filePath, val.cursorLine, val.cursorColumn)
+        .flatMap(async (val) => {
+            return await showSignatureHelp(val.language, val.filePath, val.cursorLine, val.cursorColumn)
+        })
+        .subscribe((result) => {
+            if (result) {
+                UI.Actions.showToolTip(signatureHelpToolTipName, getElementFromType(result), {
+                    position: null,
+                    openDirection: 1,
+                    padding: "0px",
+                })
+            } else {
+                UI.Actions.hideToolTip(signatureHelpToolTipName)
+            }
         })
 
     // Hide signature help when we leave insert mode
     modeChanged$
         .subscribe((newMode) => {
             if (newMode !== "insert") {
-                hideSignatureHelp()
+                UI.Actions.hideToolTip(signatureHelpToolTipName)
             }
         })
 }
 
-export const showSignatureHelp = async (language: string, filePath: string, line: number, column: number) => {
+export const showSignatureHelp = async (language: string, filePath: string, line: number, column: number): Promise<types.SignatureHelp> => {
     if (languageManager.isLanguageServerAvailable(language)) {
 
         const buffer = editorManager.activeEditor.activeBuffer
@@ -54,16 +68,14 @@ export const showSignatureHelp = async (language: string, filePath: string, line
             },
         }
 
-        let result: types.SignatureHelp
+        let result: types.SignatureHelp = null
         try {
             result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/signatureHelp", args)
         } catch (ex) { }
 
-        if (result) {
-            UI.Actions.showSignatureHelp(result)
-        } else {
-            UI.Actions.hideSignatureHelp()
-        }
+        return result
+    } else {
+        return null
     }
 }
 

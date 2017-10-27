@@ -1,6 +1,8 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
+import * as types from "vscode-languageserver-types"
+
 import { IState } from "./../State"
 
 import { EmptyArray } from "./../Selectors"
@@ -17,18 +19,18 @@ const emptyProps = {
     backgroundColor: "",
 }
 
-const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
-    const signatureHelp = getSignatureHelp(state)
-    if (!signatureHelp) {
-        return emptyProps
-    } else {
+export const getElementFromType = (signatureHelp: types.SignatureHelp): JSX.Element => {
+    return <div className="quickinfo-container"><div className="quickinfo">{getElementsFromType(signatureHelp)}</div></div>
+}
+
+export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Element[] => {
+        const elements = []
+
         const currentItem = signatureHelp.signatures[signatureHelp.activeSignature]
 
         if (!currentItem || !currentItem.label || !currentItem.parameters) {
-            return emptyProps
+            return null
         }
-
-        const elements = []
 
         const label = currentItem.label
         const parameters = currentItem.parameters
@@ -67,9 +69,24 @@ const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
             titleContents.push(<QuickInfoDocumentation text={selectedArgument.documentation} />)
         }
 
+        return titleContents
+}
+
+const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
+    const signatureHelp = getSignatureHelp(state)
+    if (!signatureHelp) {
+        return emptyProps
+    } else {
+
+        const elements = getElementsFromType(state.signatureHelp)
+
+        if (!elements) {
+            return emptyProps
+        }
+
         return {
             visible: true,
-            elements: titleContents,
+            elements,
             foregroundColor: state.foregroundColor,
             backgroundColor: state.backgroundColor,
         }
