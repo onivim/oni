@@ -1,3 +1,5 @@
+import * as os from "os"
+
 import * as React from "react"
 import { createSelector } from "reselect"
 import * as types from "vscode-languageserver-types"
@@ -7,6 +9,8 @@ import { ErrorInfo } from "./../components/ErrorInfo"
 import { QuickInfoDocumentation, QuickInfoTitle } from "./../components/QuickInfo"
 import * as Selectors from "./../Selectors"
 import { IQuickInfo, IState } from "./../State"
+
+import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 export interface ITextProps {
     text: string
@@ -29,6 +33,29 @@ export class SelectedText extends TextComponent {
 }
 
 export const getQuickInfo = (state: IState) => state.quickInfo
+
+export const renderQuickInfo = (hover: types.Hover, errors: types.Diagnostic[]) => {
+    const quickInfoElements = getQuickInfoElementsFromHover(hover)
+
+    let customErrorStyle = { }
+    if (quickInfoElements.length > 0) {
+        // TODO:
+        const borderColor = Colors.getBorderColor("black", "white")
+        customErrorStyle = {
+            "border-bottom": "1px solid " + borderColor,
+        }
+    }
+
+    const errorElements = getErrorElements(errors, customErrorStyle)
+    const elements = errorElements.concat(quickInfoElements)
+
+    return <div className="quickinfo-container">
+            <div className="quickinfo">
+            {elements}
+            </div>
+           </div>
+}
+
 
 export const getQuickInfoElement = createSelector(
     [getQuickInfo, Selectors.getErrorsForPosition, Selectors.getForegroundBackgroundColor],
@@ -59,6 +86,55 @@ const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[]
     } else {
         return [<ErrorInfo errors={errors} style={style} />]
     }
+
+}
+//
+const getTitleAndContents = (result: types.Hover) => {
+    if (!result || !result.contents) {
+        return null
+    }
+
+    const contents = Helpers.getTextFromContents(result.contents)
+
+    if (contents.length === 0) {
+        return null
+    } else if (contents.length === 1 && contents[0]) {
+        const title = contents[0].trim()
+
+        if (!title) {
+            return null
+        }
+
+        return {
+            title,
+            description: "",
+        }
+    } else {
+
+        const description = [...contents]
+        description.shift()
+        const descriptionContent = description.join(os.EOL)
+
+        return {
+            title: contents[0],
+            description: descriptionContent,
+        }
+    }
+}
+
+const EmptyArray: any[] = []
+
+const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element[] => {
+    const titleAndContents = getTitleAndContents(hover)
+
+    if (!titleAndContents) {
+        return EmptyArray
+    }
+
+    return [
+        <QuickInfoTitle text={titleAndContents.title} />,
+        <QuickInfoDocumentation text={titleAndContents.description} />,
+    ]
 
 }
 

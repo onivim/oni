@@ -15,11 +15,12 @@ import "rxjs/add/observable/never"
 import { contextMenuManager } from "./../ContextMenu"
 import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
-import { checkCodeActions } from "./CodeAction"
+// import { getCodeActions } from "./CodeAction"
 import { commitCompletion, getCompletions, resolveCompletionItem } from "./Completion"
-import { getDefinition, hideDefinition } from "./Definition"
-import { checkAndShowQuickInfo, hideQuickInfo } from "./QuickInfo"
+// import { checkAndShowQuickInfo, hideQuickInfo } from "./QuickInfo"
 import * as SignatureHelp from "./SignatureHelp"
+import * as Definition from "./Definition"
+import * as Hover from "./Hover"
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
@@ -27,24 +28,24 @@ export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<On
 
     const latestPositionAndVersion$ =
         bufferUpdates$
-           .combineLatest(cursorMoved$)
+           .combineLatest(cursorMoved$, modeChanged$)
            .map((combined: any[]) => {
-                const [bufferEvent, cursorPosition] = combined
+                const [bufferEvent, cursorPosition, mode] = combined
                 return {
                     language: bufferEvent.buffer.language,
                     filePath: bufferEvent.buffer.filePath,
                     version: bufferEvent.buffer.version,
                     line: cursorPosition.line,
                     column: cursorPosition.column,
+                    mode,
                 }
            })
            .distinctUntilChanged(isEqual)
 
-    latestPositionAndVersion$
-        .subscribe(() => {
-            hideQuickInfo()
-            hideDefinition()
-        })
+    // latestPositionAndVersion$
+    //     .subscribe(() => {
+    //         hideQuickInfo()
+    //     })
 
     const shouldUpdateNormalModeAdorners$ = latestPositionAndVersion$
         .debounceTime(250) // TODO: Use config setting 'editor.quickInfo.delay'
@@ -58,17 +59,16 @@ export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<On
             return val
         })
 
-    shouldUpdateNormalModeAdorners$.subscribe(async (val: any) => {
-        await checkCodeActions(val.language, val.filePath, val.line, val.column)
-    })
+    Definition.initDefinitionUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
+    Hover.initHoverUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
 
-    shouldUpdateNormalModeAdorners$.subscribe(async (val: any) => {
-        await getDefinition()
-    })
+    // shouldUpdateNormalModeAdorners$.subscribe(async (val: any) => {
+    //     await getCodeAction(val.language, val.filePath, val.line, val.column)
+    // })
 
-    shouldUpdateNormalModeAdorners$.subscribe(async (val: any) => {
-        await checkAndShowQuickInfo(val.language, val.filePath, val.line, val.column)
-    })
+    // shouldUpdateNormalModeAdorners$.subscribe(async (val: any) => {
+    //     await checkAndShowQuickInfo(val.language, val.filePath, val.line, val.column)
+    // })
 }
 
 export interface ILatestCursorAndBufferInfo {

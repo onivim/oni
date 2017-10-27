@@ -2,6 +2,8 @@
  * Definition.ts
  */
 
+import { Observable } from "rxjs/Observable"
+
 import * as types from "vscode-languageserver-types"
 
 import { editorManager } from "./../EditorManager"
@@ -11,32 +13,29 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import * as UI from "./../../UI"
 
-const getActiveBuffer = (): Oni.Buffer => {
-    const activeEditor = editorManager.activeEditor
+export const initDefinitionUI = (shouldHide$: Observable<any>, shouldUpdate$: Observable<void>) => {
+    shouldHide$.subscribe(() => UI.Actions.hideDefinition())
 
-    if (!activeEditor) {
-        return null
-    }
-
-    const activeBuffer = activeEditor.activeBuffer
-
-    if (!activeBuffer) {
-        return null
-    }
-
-    return activeBuffer
+    shouldUpdate$
+        .flatMap(async () => await getDefinition())
+        .subscribe((definitionResult: any) => {
+            if(!definitionResult || !definitionResult.result) {
+                UI.Actions.hideDefinition()
+            } else {
+                UI.Actions.setDefinition(definitionResult.token, definitionResult.result)
+            }
+        })
 }
 
 export const getDefinition = async () => {
 
-    const activeBuffer = getActiveBuffer()
+    const activeBuffer = editorManager.activeEditor.activeBuffer
 
     if (activeBuffer && languageManager.isLanguageServerAvailable(activeBuffer.language)) {
         const args = { ...Helpers.bufferToTextDocumentPositionParams(activeBuffer) }
 
         const { line, column } = activeBuffer.cursor
         const token = await activeBuffer.getTokenAt(line, column)
-        UI.Actions.hideDefinition()
         let result: types.Location = null
 
         try {
@@ -44,14 +43,13 @@ export const getDefinition = async () => {
         } catch (ex) {
         }
 
-        if (result) {
-            UI.Actions.setDefinition(token, result)
+        return {
+            token,
+            result
         }
+    } else {
+        return null
     }
-}
-
-export const hideDefinition = () => {
-    UI.Actions.hideDefinition()
 }
 
 export enum OpenType {

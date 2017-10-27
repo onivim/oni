@@ -9,6 +9,8 @@
 import * as flatten from "lodash/flatten"
 import { createSelector } from "reselect"
 
+import * as types from "vscode-languageserver-types"
+
 import * as Utility from "./../Utility"
 
 import * as State from "./State"
@@ -17,7 +19,7 @@ export const EmptyArray: any[] = []
 
 export const getErrors = (state: State.IState) => state.errors
 
-const getAllErrorsForFile = (fileName: string, errors: State.Errors) => {
+const getAllErrorsForFile = (fileName: string, errors: State.Errors): types.Diagnostic[] => {
     if (!fileName || !errors) {
         return EmptyArray
     }

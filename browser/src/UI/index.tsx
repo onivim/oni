@@ -1,9 +1,19 @@
+/**
+ * UI/index.tsx
+ *
+ * Root setup & state for the UI
+ * - Top-level render function lives here
+ */
+
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
 import { Provider } from "react-redux"
 import { applyMiddleware, bindActionCreators, compose, createStore } from "redux"
 import thunk from "redux-thunk"
+
+import { Observable } from "rxjs/Observable"
+import { Subject } from "rxjs/Subject"
 
 import { RootComponent } from "./RootComponent"
 
@@ -31,6 +41,10 @@ const enhancer = composeEnhancers(
 )
 
 export const store = createStore(reducer, defaultState, enhancer)
+
+const _state$: Subject<State.IState> = new Subject()
+export const state$: Observable<State.IState> = _state$
+store.subscribe(() => _state$.next(store.getState() as any))
 
 export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators as any, store.dispatch)
 

@@ -14,6 +14,7 @@ import { contextMenuManager } from "./../ContextMenu"
 import { languageManager } from "./LanguageManager"
 
 // import * as Log from "./../../Log"
+import { editorManager } from "./../EditorManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -28,7 +29,12 @@ codeActionsContextMenu.onItemSelected.subscribe(async (selectedItem) => {
     await languageManager.sendLanguageServerRequest(lastFileInfo.language, lastFileInfo.filePath, "workspace/executeCommand", { command: commandName })
 })
 
-export const checkCodeActions = async (language: string, filePath: string, line: number, column: number) => {
+export const getCodeActions = async (): Promise<types.Command[]> => {
+
+    const buffer = editorManager.activeEditor.activeBuffer
+
+    const { language, filePath } = buffer
+    const { line, column } = buffer.cursor
 
     if (languageManager.isLanguageServerAvailable(language)) {
         const result: types.Command[] = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/codeAction",
@@ -44,6 +50,10 @@ export const checkCodeActions = async (language: string, filePath: string, line:
             language,
             filePath,
         }
+
+        return result
+    } else {
+        return null
     }
 }
 
