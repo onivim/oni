@@ -263,6 +263,8 @@ export class TypeScriptServerHost extends events.EventEmitter {
             } else {
                 this._seqToPromises[seq].reject(new Error(response.message))
             }
+
+            this._seqToPromises[seq] = null
         } else {
             // If a sequence wasn't specified, it might be a call that returns multiple results
             // Like 'geterr' - returns both semanticDiag and syntaxDiag
