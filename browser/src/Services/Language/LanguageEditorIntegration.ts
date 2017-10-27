@@ -42,11 +42,6 @@ export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<On
            })
            .distinctUntilChanged(isEqual)
 
-    // latestPositionAndVersion$
-    //     .subscribe(() => {
-    //         hideQuickInfo()
-    //     })
-
     const shouldUpdateNormalModeAdorners$ = latestPositionAndVersion$
         .debounceTime(250) // TODO: Use config setting 'editor.quickInfo.delay'
         .combineLatest(modeChanged$)
@@ -61,14 +56,6 @@ export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<On
 
     Definition.initDefinitionUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
     Hover.initHoverUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
-
-    // shouldUpdateNormalModeAdorners$.subscribe(async (val: any) => {
-    //     await getCodeAction(val.language, val.filePath, val.line, val.column)
-    // })
-
-    // shouldUpdateNormalModeAdorners$.subscribe(async (val: any) => {
-    //     await checkAndShowQuickInfo(val.language, val.filePath, val.line, val.column)
-    // })
 }
 
 export interface ILatestCursorAndBufferInfo {

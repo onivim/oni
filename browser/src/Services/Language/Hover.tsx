@@ -57,11 +57,13 @@ export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observ
                 console.dir(errors)
                 console.log("Updating hover-------")
 
-                const elem = renderQuickInfo(hover, errors)
-                UI.Actions.showToolTip(hoverToolTipId, elem, {
-                    position: null,
-                    openDirection: 1,
-                    padding: "0px",
-                })
+                if (hover || (codeActions && codeActions.length) || (errors && errors.length)) {
+                    const elem = renderQuickInfo(hover, errors)
+                    UI.Actions.showToolTip(hoverToolTipId, elem, {
+                        position: null,
+                        openDirection: 1,
+                        padding: "0px",
+                    })
+                }
             })
 }
