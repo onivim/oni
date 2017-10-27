@@ -19,7 +19,7 @@ import { checkCodeActions } from "./CodeAction"
 import { commitCompletion, getCompletions, resolveCompletionItem } from "./Completion"
 import { getDefinition, hideDefinition } from "./Definition"
 import { checkAndShowQuickInfo, hideQuickInfo } from "./QuickInfo"
-import { hideSignatureHelp, showSignatureHelp } from "./SignatureHelp"
+import * as SignatureHelp from "./SignatureHelp"
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
@@ -71,9 +71,17 @@ export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<On
     })
 }
 
-export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<string>) => {
+export interface ILatestCursorAndBufferInfo {
+    filePath: string,
+    language: string,
+    cursorLine: number,
+    contents: string,
+    cursorColumn: number,
+}
 
-    const incrementalBufferUpdates$ = cursorMoved$
+export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<Oni.Vim.Mode>) => {
+
+    const latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo> = cursorMoved$
             .auditTime(10)
             .mergeMap(async (cursorPos) => {
                 const editor = editorManager.activeEditor
@@ -90,19 +98,9 @@ export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.
                 }
             })
 
-    incrementalBufferUpdates$
-        .subscribe((val) => {
-            showSignatureHelp(val.language, val.filePath, val.cursorLine, val.cursorColumn)
-        })
+    SignatureHelp.initUI(latestCursorAndBufferInfo$, modeChanged$)
 
-    modeChanged$
-        .subscribe((newMode) => {
-            if (newMode !== "i") {
-                hideSignatureHelp()
-            }
-        })
-
-    const currentCompletionMeet$ = incrementalBufferUpdates$
+    const currentCompletionMeet$ = latestCursorAndBufferInfo$
         .map((changeInfo) => {
             const token = languageManager.getTokenRegex(changeInfo.language)
             const meet = AutoCompletionUtility.getCompletionMeet(changeInfo.contents, changeInfo.cursorColumn, token)
@@ -160,7 +158,7 @@ export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.
     })
 
     modeChanged$.subscribe((mode) => {
-        if (mode !== "i") {
+        if (mode !== "insert") {
             newContextMenu.hide()
         }
     })

@@ -72,11 +72,11 @@ export class NeovimEditor implements IEditor {
     private _onBufferSavedEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onCursorMoved = new Event<Oni.Cursor>()
 
-    private _$modeChanged: Observable<string>
-    private _$cursorMoved: Observable<Oni.Cursor>
-    private _$cursorMovedI: Observable<Oni.Cursor>
-    private _$bufferUpdates: Observable<IFullBufferUpdateEvent>
-    private _$bufferIncrementalUpdates: Observable<IIncrementalBufferUpdateEvent>
+    private _modeChanged$: Observable<Oni.Vim.Mode>
+    private _cursorMoved$: Observable<Oni.Cursor>
+    private _cursorMovedI$: Observable<Oni.Cursor>
+    private _bufferUpdates$: Observable<IFullBufferUpdateEvent>
+    private _bufferIncrementalUpdates$: Observable<IIncrementalBufferUpdateEvent>
 
     private _hasLoaded: boolean = false
 
@@ -199,33 +199,33 @@ export class NeovimEditor implements IEditor {
             UI.Actions.setTabs(currentTabId, tabs)
         })
 
-        this._$bufferUpdates = this._neovimInstance.onBufferUpdate.asObservable()
-        this._$bufferIncrementalUpdates = this._neovimInstance.onBufferUpdateIncremental.asObservable()
-        this._$cursorMoved = this._neovimInstance.autoCommands.onCursorMoved.asObservable()
+        this._bufferUpdates$ = this._neovimInstance.onBufferUpdate.asObservable()
+        this._bufferIncrementalUpdates$ = this._neovimInstance.onBufferUpdateIncremental.asObservable()
+        this._cursorMoved$ = this._neovimInstance.autoCommands.onCursorMoved.asObservable()
             .map((evt): Oni.Cursor => ({
                 line: evt.line - 1,
                 column: evt.column - 1,
             }))
 
-        this._$cursorMovedI = this._neovimInstance.autoCommands.onCursorMovedI.asObservable()
+        this._cursorMovedI$ = this._neovimInstance.autoCommands.onCursorMovedI.asObservable()
             .map((evt): Oni.Cursor => ({
                 line: evt.line - 1,
                 column: evt.column - 1,
             }))
 
 
-        this._$cursorMoved
-            .merge(this._$cursorMovedI)
+        this._cursorMoved$
+            .merge(this._cursorMovedI$)
             .subscribe((cursorMoved) => {
                 this._onCursorMoved.dispatch(cursorMoved)
             })
 
-        this._$modeChanged = this.onModeChanged.asObservable()
+        this._modeChanged$ = this.onModeChanged.asObservable()
 
         this.onModeChanged.subscribe((newMode) => this._onModeChanged(newMode))
 
         // Refactor to new method
-        this._$bufferUpdates
+        this._bufferUpdates$
             .subscribe((bufferUpdateEvent: IFullBufferUpdateEvent) => {
             const args = bufferUpdateEvent.context
 
@@ -238,7 +238,7 @@ export class NeovimEditor implements IEditor {
             })
         })
 
-        this._$bufferIncrementalUpdates
+        this._bufferIncrementalUpdates$
             .subscribe(async (bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
 
                     const args = bufferUpdateArgs.context
@@ -275,16 +275,16 @@ export class NeovimEditor implements IEditor {
         }
 
         Observable.concat(
-            this._$bufferIncrementalUpdates.map(mapArgs),
-            this._$bufferUpdates.map(mapArgs))
+            this._bufferIncrementalUpdates$.map(mapArgs),
+            this._bufferUpdates$.map(mapArgs))
             .distinctUntilChanged(isEqual)
             .subscribe((args) => {
                 UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.bufferTotalLines)
             })
 
         const $allUpdates = this._onBufferChangedEvent.asObservable()
-        addInsertModeLanguageFunctionality(this._$cursorMovedI, this._$modeChanged)
-        addNormalModeLanguageFunctionality($allUpdates, this._$cursorMoved, this._$modeChanged)
+        addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
+        addNormalModeLanguageFunctionality($allUpdates, this._cursorMoved$, this._modeChanged$)
 
         this._render()
 

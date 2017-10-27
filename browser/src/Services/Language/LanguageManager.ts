@@ -53,7 +53,7 @@ export class LanguageManager {
 
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", () => {
                 this._statusBar.setStatus(LanguageClientState.Active)
-                Helpers.pathToTextDocumentIdentifierParms(filePath)
+                return Helpers.pathToTextDocumentIdentifierParms(filePath)
             })
         })
 
@@ -98,11 +98,11 @@ export class LanguageManager {
         })
 
         this.subscribeToLanguageServerNotification("window/logMessage", (args) => {
-            // logInfo("window/logMessage: " + JSON.stringify(args))
+            logVerbose(args)
         })
 
         this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
-            // logInfo("telemetry/event:" + JSON.stringify(args))
+            logDebug(args)
         })
 
         listenForWorkspaceEdits(this)
@@ -238,8 +238,16 @@ export class LanguageManager {
     }
 }
 
-// const logInfo = (msg: string) => {
-//     Log.info("[Language Manager] " + msg)
-// }
+const logVerbose = (args: any) => {
+    if (Log.isVerboseLoggingEnabled()) {
+        Log.verbose("[Language Manager] " + JSON.stringify(args))
+    }
+}
+
+const logDebug = (args: any) => {
+    if (Log.isDebugLoggingEnabled()) {
+        Log.debug("[Language Manager] " + JSON.stringify(args))
+    }
+}
 
 export const languageManager = new LanguageManager()

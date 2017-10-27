@@ -136,7 +136,9 @@ export class LightweightLanguageClient {
         } else {
             const val = valueOrThunk(this.serverCapabilities)
 
-            if (typeof(val.then) === "function") {
+            if (!val) {
+                return Promise.resolve(val)
+            } else if (typeof(val.then) === "function") {
                 return val
             } else {
                 return Promise.resolve(val)

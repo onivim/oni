@@ -42,6 +42,7 @@ export const error = (messageOrError: string | Error, errorDetails?: any): void 
 }
 
 export const isDebugLoggingEnabled = () => debugLoggingEnabled
+export const isVerboseLoggingEnabled = () => verboseLoggingEnabled
 
 export const enableDebugLogging = () => {
     debugLoggingEnabled = true

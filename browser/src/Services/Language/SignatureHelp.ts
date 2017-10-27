@@ -3,6 +3,8 @@
  *
  */
 
+import { Observable } from "rxjs/Observable"
+
 import * as types from "vscode-languageserver-types"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
@@ -10,6 +12,25 @@ import * as UI from "./../../UI"
 
 import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
+import { ILatestCursorAndBufferInfo } from "./LanguageEditorIntegration"
+
+
+export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>) => {
+
+    // Show signature help as the cursor moves
+    latestCursorAndBufferInfo$
+        .subscribe((val) => {
+            showSignatureHelp(val.language, val.filePath, val.cursorLine, val.cursorColumn)
+        })
+
+    // Hide signature help when we leave insert mode
+    modeChanged$
+        .subscribe((newMode) => {
+            if (newMode !== "insert") {
+                hideSignatureHelp()
+            }
+        })
+}
 
 export const showSignatureHelp = async (language: string, filePath: string, line: number, column: number) => {
     if (languageManager.isLanguageServerAvailable(language)) {
