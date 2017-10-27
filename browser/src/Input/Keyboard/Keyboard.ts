@@ -26,7 +26,9 @@ export const keyEventToVimKey = (evt: KeyboardEvent): string | null => {
         }
     }, evt.key)
 
-    Log.debug(`[Key event] Code: ${evt.code} Key: ${evt.key} CtrlKey: ${evt.ctrlKey} ShiftKey: ${evt.shiftKey} AltKey: ${evt.altKey} | Resolution: ${mappedKey}`)
+    if (Log.isDebugLoggingEnabled()) {
+        Log.debug(`[Key event] Code: ${evt.code} Key: ${evt.key} CtrlKey: ${evt.ctrlKey} ShiftKey: ${evt.shiftKey} AltKey: ${evt.altKey} | Resolution: ${mappedKey}`)
+    }
 
     return mappedKey
 }

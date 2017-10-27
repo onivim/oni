@@ -18,7 +18,6 @@
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
 
-
 ## Introduction
 
 Oni is a [neovim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/).
