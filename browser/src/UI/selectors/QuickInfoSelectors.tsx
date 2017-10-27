@@ -27,14 +27,14 @@ export const renderQuickInfo = (hover: types.Hover, actions: types.Command[], er
         }
     }
 
-
     const errorElements = getErrorElements(errors, customErrorStyle)
     const commandElements = getCommandElements(actions, backgroundColor, foregroundColor)
 
     let derpElement: JSX.Element[] = []
 
     if (actions.length > 0) {
-        derpElement = [<QuickInfoDocumentation text={`${actions.length} refactorings available`} />]
+        const text = actions.length === 1 ? "1 refactoring available." : actions.length.toString() + " refactorings available."
+        derpElement = [<QuickInfoDocumentation text={text} />]
     }
     const elements = [...errorElements, ...quickInfoElements, ...derpElement ]
 

@@ -43,58 +43,7 @@ export const getQuickInfo = async (): Promise<types.Hover> => {
 
 
         return result
-
-        // if (!result) {
-        //     hideQuickInfo()
-        // } else {
-        //     const titleAndContents = getTitleAndContents(result)
-
-        //     if (titleAndContents) {
-        //         showQuickInfo(titleAndContents.title, titleAndContents.description)
-        //     }
-        // }
     } else {
         return null
     }
 }
-
-// export const hideQuickInfo = (): void => {
-//     UI.Actions.hideQuickInfo()
-// }
-
-// const showQuickInfo = (title: string, contents: string): void => {
-//     UI.Actions.showQuickInfo(title, contents)
-// }
-
-// const getTitleAndContents = (result: types.Hover) => {
-//     if (!result || !result.contents) {
-//         return null
-//     }
-
-//     const contents = Helpers.getTextFromContents(result.contents)
-
-//     if (contents.length === 0) {
-//         return null
-//     } else if (contents.length === 1 && contents[0]) {
-//         const title = contents[0].trim()
-
-//         if (!title) {
-//             return null
-//         }
-
-//         return {
-//             title,
-//             description: "",
-//         }
-//     } else {
-
-//         const description = [...contents]
-//         description.shift()
-//         const descriptionContent = description.join(os.EOL)
-
-//         return {
-//             title: contents[0],
-//             description: descriptionContent,
-//         }
-//     }
-// }

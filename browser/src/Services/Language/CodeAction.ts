@@ -62,13 +62,13 @@ export const expandCodeActions = () => {
         return
     }
 
-    const mapCommandsToItem = (command: types.Command) => ({
+    const mapCommandsToItem = (command: types.Command, idx: number) => ({
         label: command.title,
-        icon: "wrench",
+        icon: "lightbulb-o",
         data: command.command,
     })
 
-    const contextMenuItems = lastCommands.map((c) => mapCommandsToItem(c))
+    const contextMenuItems = lastCommands.map(mapCommandsToItem)
 
     codeActionsContextMenu.show(contextMenuItems)
 }
