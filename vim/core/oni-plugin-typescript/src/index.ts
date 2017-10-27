@@ -21,6 +21,7 @@ import { LanguageConnection, LightweightLanguageClient } from "./LightweightLang
 import { getQuickInfo } from "./QuickInfo"
 import { doRename } from "./Rename"
 import { getSignatureHelp } from "./SignatureHelp"
+import { getDocumentSymbols, getWorkspaceSymbols } from "./Symbols"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
 import * as Utility from "./Utility"
 
@@ -131,6 +132,8 @@ export const activate = (oni: Oni.Plugin.Api) => {
     connection.subscribeToRequest("textDocument/references",  findAllReferences(oni, host))
     connection.subscribeToRequest("textDocument/rename",  doRename(oni, host))
     connection.subscribeToRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
+    connection.subscribeToRequest("textDocument/documentSymbol", getDocumentSymbols(oni, host))
 
     connection.subscribeToRequest("workspace/executeCommand", executeCommand(connection, oni, host))
+    connection.subscribeToRequest("workspace/symbol", getWorkspaceSymbols(oni, host))
 }

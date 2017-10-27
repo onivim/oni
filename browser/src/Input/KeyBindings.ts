@@ -23,6 +23,8 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-p>", "quickOpen.show")
         input.bind("<m-s-p>", "commands.show")
         input.bind("<m-enter>", "language.codeAction.expand")
+        input.bind("<m-t>", "language.symbols.workspace")
+        input.bind("<s-m-t>", "language.symbols.document")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
@@ -33,6 +35,8 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<c-p>", "quickOpen.show", () => isNormalMode() && !isMenuOpen())
         input.bind("<s-c-p>", "commands.show", isNormalMode)
         input.bind("<a-enter>", "language.codeAction.expand")
+        input.bind("<c-t>", "language.symbols.workspace")
+        input.bind("<s-c-t>", "language.symbols.document")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<c-c>", "editor.clipboard.yank", isVisualMode)

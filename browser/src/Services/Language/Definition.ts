@@ -72,13 +72,18 @@ export const gotoDefinitionUnderCursor = async (openType: OpenType = OpenType.Ne
     const line = range.start.line
     const column = range.start.character
 
-    const activeEditor = editorManager.activeEditor
+    gotoPositionInUri(uri, line, column, openType)
+}
+
+export const gotoPositionInUri = async (uri: string, line: number, column: number, openType: OpenType = OpenType.NewTab): Promise<void> => {
     const filePath = Helpers.unwrapFileUriPath(uri)
+
+    const activeEditor = editorManager.activeEditor
     const command = getCommandFromOpenType(openType)
 
-    activeEditor.neovim.command(`${command} ${filePath}`)
-    activeEditor.neovim.command(`cal cursor(${line + 1}, ${column + 1})`)
-    activeEditor.neovim.command("norm zz")
+    await activeEditor.neovim.command(`${command} ${filePath}`)
+    await activeEditor.neovim.command(`cal cursor(${line + 1}, ${column + 1})`)
+    await activeEditor.neovim.command("norm zz")
 }
 
 const getCommandFromOpenType = (openType: OpenType) => {

@@ -14,6 +14,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
     if (!searchString) {
         const opt = options.map((o) => {
             return {
+                ...o,
                 label: o.label,
                 detail: o.detail,
                 icon: o.icon,
@@ -75,6 +76,7 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
         })
 
         return {
+            ...f,
             icon: f.item.icon,
             pinned: f.item.pinned,
             label: f.item.label,

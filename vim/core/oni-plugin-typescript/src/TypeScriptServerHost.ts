@@ -215,6 +215,12 @@ export class TypeScriptServerHost extends events.EventEmitter {
             offset,
         })
     }
+    public navTo(file: string, query: string): Promise<protocol.NavtoItem[]> {
+        return this._makeTssRequest<protocol.NavtoItem[]>("navto", {
+            file,
+            searchValue: query,
+        })
+    }
 
     public rename(file: string, line: number, offset: number): Promise<protocol.RenameResponseBody> {
         return this._makeTssRequest<protocol.RenameResponseBody>("rename", {

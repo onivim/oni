@@ -42,3 +42,16 @@ export const convertToDisplayString = (displayParts: IDisplayPart[]) => {
 
     return ret
 }
+
+export const convertTypeScriptKindToSymbolKind = (kind: string): types.SymbolKind => {
+    return types.SymbolKind.Field
+}
+
+export const convertTextSpanToRange = (span: protocol.TextSpan): types.Range => {
+    return types.Range.create(span.start.line - 1, span.start.offset - 1, span.end.line - 1, span.end.offset - 1)
+}
+
+export const convertTextSpanToLocation = (fileUri: string, span: protocol.TextSpan): types.Location => {
+    const range = convertTextSpanToRange(span)
+    return types.Location.create(fileUri, range)
+}

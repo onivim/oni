@@ -17,11 +17,18 @@ export interface IDisplayPart {
     kind: string
 }
 
+export interface ITextDocumentParams {
+    textDocument: types.TextDocumentIdentifier
+}
+
+export interface ISymbolSearchParams extends ITextDocumentParams {
+    query: string
+}
+
 /**
  * TextDocumentPosition, from LSP
  */
-export interface ITextDocumentPositionParams {
-    textDocument: types.TextDocumentIdentifier
+export interface ITextDocumentPositionParams extends ITextDocumentParams {
     position: types.Position
 }
 
@@ -29,7 +36,7 @@ export interface IRenameParams extends ITextDocumentPositionParams {
     newName: string
 }
 
-export interface IDocumentRangeFormattingParams {
+export interface IDocumentRangeFormattingParams extends ITextDocumentParams {
     textDocument: types.TextDocumentIdentifier
     range: types.Range
     options: types.FormattingOptions
