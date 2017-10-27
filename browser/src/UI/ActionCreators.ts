@@ -232,20 +232,6 @@ export const setMode = (mode: string) => ({
     payload: { mode },
 })
 
-export const showQuickInfo = (title: string, description: string): Actions.IShowQuickInfoAction => ({
-    type: "SHOW_QUICK_INFO",
-    payload: {
-        title,
-        description,
-    },
-})
-
-export const hideQuickInfo = () => (dispatch: any, getState: any) => {
-    if (getState().quickInfo) {
-    dispatch({type: "HIDE_QUICK_INFO"})
-    }
-}
-
 export const setDefinition = (token: Oni.IToken, definitionLocation: types.Location): Actions.IShowDefinitionAction => ({
     type: "SHOW_DEFINITION",
     payload: {

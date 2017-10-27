@@ -47,8 +47,6 @@ export const getActiveWindow = createSelector(
         return windowState.windows[activeWindow]
     })
 
-export const getQuickInfo = (state: State.IState): State.IQuickInfo => state.quickInfo
-
 const emptyRectangle = {
     x: 0,
     y: 0,

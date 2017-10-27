@@ -189,18 +189,6 @@ export interface ISetColorsAction {
     }
 }
 
-export interface IShowQuickInfoAction {
-    type: "SHOW_QUICK_INFO",
-    payload: {
-        title: string,
-        description: string,
-    }
-}
-
-export interface IHideQuickInfoAction {
-    type: "HIDE_QUICK_INFO",
-}
-
 export interface IShowDefinitionAction {
     type: "SHOW_DEFINITION",
     payload: {
@@ -231,8 +219,6 @@ export type SimpleAction =
     ISetCursorPositionAction |
     ISetImeActive |
     ISetFont |
-    IHideQuickInfoAction |
-    IShowQuickInfoAction |
     IHideToolTipAction |
     IShowToolTipAction |
     IShowMessageDialog |

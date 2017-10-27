@@ -22,11 +22,6 @@ export interface IViewport {
     height: number
 }
 
-export interface IQuickInfo {
-    title: string,
-    description: string,
-}
-
 export interface IToolTip {
     id: string,
     options: Oni.ToolTip.ToolTipOptions,
@@ -46,7 +41,6 @@ export interface IState {
     backgroundColor: string
     foregroundColor: string
     definition: null | IDefinition
-    quickInfo: null | IQuickInfo
     cursorLineOpacity: number
     cursorColumnOpacity: number
     configuration: IConfigurationValues
@@ -181,7 +175,6 @@ export const createDefaultState = (): IState => ({
     mode: "normal",
     foregroundColor: "rgba(0, 0, 0, 0)",
     definition: null,
-    quickInfo: null,
     activeWindowDimensions: {
         x: 0,
         y: 0,

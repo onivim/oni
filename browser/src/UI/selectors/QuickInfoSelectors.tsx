@@ -1,14 +1,12 @@
 import * as os from "os"
 
 import * as React from "react"
-import { createSelector } from "reselect"
 import * as types from "vscode-languageserver-types"
 
 import * as Colors from "./../Colors"
 import { ErrorInfo } from "./../components/ErrorInfo"
 import { QuickInfoDocumentation, QuickInfoTitle } from "./../components/QuickInfo"
 import * as Selectors from "./../Selectors"
-import { IQuickInfo, IState } from "./../State"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -32,8 +30,6 @@ export class SelectedText extends TextComponent {
     }
 }
 
-export const getQuickInfo = (state: IState) => state.quickInfo
-
 export const renderQuickInfo = (hover: types.Hover, errors: types.Diagnostic[]) => {
     const quickInfoElements = getQuickInfoElementsFromHover(hover)
 
@@ -56,29 +52,6 @@ export const renderQuickInfo = (hover: types.Hover, errors: types.Diagnostic[]) 
            </div>
 }
 
-
-export const getQuickInfoElement = createSelector(
-    [getQuickInfo, Selectors.getErrorsForPosition, Selectors.getForegroundBackgroundColor],
-    (quickInfo, errors, colors) => {
-
-        if (!quickInfo && !errors) {
-            return Selectors.EmptyArray
-        } else {
-
-            const quickInfoElements = getQuickInfoElements(quickInfo)
-
-            let customErrorStyle = { }
-            if (quickInfoElements.length > 0) {
-                const borderColor = Colors.getBorderColor(colors.backgroundColor, colors.foregroundColor)
-                customErrorStyle = {
-                    "border-bottom": "1px solid " + borderColor,
-                }
-            }
-
-            const errorElements = getErrorElements(errors, customErrorStyle)
-            return errorElements.concat(quickInfoElements)
-        }
-    })
 
 const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[] => {
     if (!errors || !errors.length) {
@@ -135,18 +108,4 @@ const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element[] => {
         <QuickInfoTitle text={titleAndContents.title} />,
         <QuickInfoDocumentation text={titleAndContents.description} />,
     ]
-
-}
-
-const getQuickInfoElements = (quickInfo: IQuickInfo): JSX.Element[] => {
-
-    if (!quickInfo || (!quickInfo.title && !quickInfo.description)) {
-        return Selectors.EmptyArray
-    } else {
-        return [
-            <QuickInfoTitle text={quickInfo.title} />,
-            <QuickInfoDocumentation text={quickInfo.description} />,
-        ]
-    }
-
 }

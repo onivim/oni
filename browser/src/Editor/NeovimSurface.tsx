@@ -1,7 +1,7 @@
 /**
- * NeovimEditor.ts
+ * NeovimSurface.tsx
  *
- * IEditor implementation for Neovim
+ * UI layer for the Neovim editor surface
  */
 
 import * as React from "react"
@@ -20,7 +20,6 @@ import { ToolTips } from "./../UI/components/ToolTip"
 import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarContainer"
 import { DefinitionContainer } from "./../UI/containers/DefinitionContainer"
 import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
-import { QuickInfoContainer } from "./../UI/containers/QuickInfoContainer"
 
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -69,7 +68,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                     screen={this.props.screen}
                     onKeyDown={this.props.onKeyDown}/>
                 <div className="stack layer">
-                    <QuickInfoContainer />
                     <ToolTips />
                 </div>
             </div>

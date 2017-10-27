@@ -14,8 +14,6 @@ import * as pick from "lodash/pick"
 
 import * as types from "vscode-languageserver-types"
 
-import { quickInfoReducer } from "./reducers/QuickInfoReducers"
-
 export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>) {
 
     if (!s) {
@@ -70,7 +68,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     definition: definitionReducer(s.definition, a),
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
-                    quickInfo: quickInfoReducer(s.quickInfo, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     toolTips: toolTipsReducer(s.toolTips, a),
                     windowState: windowStateReducer(s.windowState, a)}
