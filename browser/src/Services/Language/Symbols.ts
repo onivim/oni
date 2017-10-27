@@ -63,7 +63,38 @@ const getDetailFromSymbol = (si: types.SymbolInformation) => {
 const symbolInfoToMenuItem = (si: types.SymbolInformation) => ({
     label: si.name,
     detail: getDetailFromSymbol(si),
+    icon: convertSymbolKindToIconName(si.kind),
 })
+
+const convertSymbolKindToIconName = (symbolKind: types.SymbolKind) => {
+
+    switch (symbolKind) {
+            case types.SymbolKind.Class:
+               return "cube"
+            case types.SymbolKind.Constructor:
+               return "building"
+            case types.SymbolKind.Enum:
+               return "sitemap"
+            case types.SymbolKind.Field:
+               return "var"
+            case types.SymbolKind.File:
+               return "file"
+            case types.SymbolKind.Function:
+               return "cog"
+            case types.SymbolKind.Interface:
+               return "plug"
+            case types.SymbolKind.Method:
+               return "flash"
+            case types.SymbolKind.Module:
+               return "cubes"
+            case types.SymbolKind.Property:
+               return "wrench"
+            case types.SymbolKind.Variable:
+               return "code"
+            default:
+                return "question"
+    }
+}
 
 export const openDocumentSymbolsMenu = async () => {
     const menu = menuManager.create()

@@ -44,7 +44,34 @@ export const convertToDisplayString = (displayParts: IDisplayPart[]) => {
 }
 
 export const convertTypeScriptKindToSymbolKind = (kind: string): types.SymbolKind => {
-    return types.SymbolKind.Field
+    switch (kind) {
+    case "var":
+    case "let":
+        return types.SymbolKind.Variable
+    case "property":
+    case "getter":
+        return types.SymbolKind.Property
+    case "const":
+        return types.SymbolKind.Constant
+    case "method":
+        return types.SymbolKind.Method
+    case "interface":
+        return types.SymbolKind.Interface
+    case "type":
+        return types.SymbolKind.Constructor
+    case "class":
+        return types.SymbolKind.Class
+    case "module":
+        return types.SymbolKind.Module
+    case "alias":
+        return types.SymbolKind.Variable
+    case "function":
+        return types.SymbolKind.Function
+    case "enum member":
+        return types.SymbolKind.Enum
+    default:
+        return types.SymbolKind.Field
+    }
 }
 
 export const convertTextSpanToRange = (span: protocol.TextSpan): types.Range => {
