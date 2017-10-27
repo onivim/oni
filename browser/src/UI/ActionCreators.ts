@@ -232,19 +232,6 @@ export const setMode = (mode: string) => ({
     payload: { mode },
 })
 
-export const showSignatureHelp = (signatureHelp: types.SignatureHelp) => ({
-    type: "SHOW_SIGNATURE_HELP",
-    payload: {
-        signatureHelp,
-    },
-})
-
-export const hideSignatureHelp = () => (dispatch: any, getState: any) => {
-    if (getState().signatureHelp) {
-        dispatch({type: "HIDE_SIGNATURE_HELP"})
-    }
-}
-
 export const showQuickInfo = (title: string, description: string): Actions.IShowQuickInfoAction => ({
     type: "SHOW_QUICK_INFO",
     payload: {

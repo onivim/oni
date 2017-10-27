@@ -189,17 +189,6 @@ export interface ISetColorsAction {
     }
 }
 
-export interface IShowSignatureHelpAction {
-    type: "SHOW_SIGNATURE_HELP",
-    payload: {
-        signatureHelp: types.SignatureHelp,
-    }
-}
-
-export interface IHideSignatureHelpAction {
-    type: "HIDE_SIGNATURE_HELP",
-}
-
 export interface IShowQuickInfoAction {
     type: "SHOW_QUICK_INFO",
     payload: {
@@ -242,8 +231,6 @@ export type SimpleAction =
     ISetCursorPositionAction |
     ISetImeActive |
     ISetFont |
-    IHideSignatureHelpAction |
-    IShowSignatureHelpAction |
     IHideQuickInfoAction |
     IShowQuickInfoAction |
     IHideToolTipAction |

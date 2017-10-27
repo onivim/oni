@@ -21,7 +21,6 @@ import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarCont
 import { DefinitionContainer } from "./../UI/containers/DefinitionContainer"
 import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
 import { QuickInfoContainer } from "./../UI/containers/QuickInfoContainer"
-import { SignatureHelpContainer } from "./../UI/containers/SignatureHelpContainer"
 
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -71,7 +70,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                     onKeyDown={this.props.onKeyDown}/>
                 <div className="stack layer">
                     <QuickInfoContainer />
-                    <SignatureHelpContainer />
                     <ToolTips />
                 </div>
             </div>

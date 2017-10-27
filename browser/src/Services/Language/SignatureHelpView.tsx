@@ -1,26 +1,18 @@
 import * as React from "react"
-import { connect } from "react-redux"
 
 import * as types from "vscode-languageserver-types"
 
-import { IState } from "./../State"
+import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
+import { SelectedText, Text } from "./../../UI/components/Text"
 
-import { EmptyArray } from "./../Selectors"
-
-import { IQuickInfoProps, QuickInfo, QuickInfoDocumentation } from "./../components/QuickInfo"
-import { SelectedText, Text } from "./../components/Text"
-
-import { getSignatureHelp } from "./../selectors/SignatureHelpSelectors"
-
-const emptyProps = {
-    visible: false,
-    elements: EmptyArray,
-    foregroundColor: "",
-    backgroundColor: "",
-}
-
-export const getElementFromType = (signatureHelp: types.SignatureHelp): JSX.Element => {
-    return <div className="quickinfo-container"><div className="quickinfo">{getElementsFromType(signatureHelp)}</div></div>
+export class SignatureHelpView extends React.PureComponent<types.SignatureHelp, void> {
+    public render(): JSX.Element {
+        return <div className="quickinfo-container">
+        <div className="quickinfo">
+        {getElementsFromType(this.props)}
+        </div>
+        </div>
+    }
 }
 
 export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Element[] => {
@@ -72,25 +64,6 @@ export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Ele
         return titleContents
 }
 
-const mapStateToSignatureHelpProps = (state: IState): IQuickInfoProps => {
-    const signatureHelp = getSignatureHelp(state)
-    if (!signatureHelp) {
-        return emptyProps
-    } else {
-
-        const elements = getElementsFromType(state.signatureHelp)
-
-        if (!elements) {
-            return emptyProps
-        }
-
-        return {
-            visible: true,
-            elements,
-            foregroundColor: state.foregroundColor,
-            backgroundColor: state.backgroundColor,
-        }
-    }
+export const render = (signatureHelp: types.SignatureHelp) => {
+    return <SignatureHelpView {...signatureHelp} />
 }
-
-export const SignatureHelpContainer = connect(mapStateToSignatureHelpProps)(QuickInfo)

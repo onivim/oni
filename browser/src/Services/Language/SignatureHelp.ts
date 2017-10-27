@@ -14,7 +14,7 @@ import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
 import { ILatestCursorAndBufferInfo } from "./LanguageEditorIntegration"
 
-import { getElementFromType } from "./../../UI/containers/SignatureHelpContainer"
+import * as SignatureHelp from "./SignatureHelpView"
 
 export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>) => {
 
@@ -27,7 +27,7 @@ export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBu
         })
         .subscribe((result) => {
             if (result) {
-                UI.Actions.showToolTip(signatureHelpToolTipName, getElementFromType(result), {
+                UI.Actions.showToolTip(signatureHelpToolTipName, SignatureHelp.render(result), {
                     position: null,
                     openDirection: 1,
                     padding: "0px",
@@ -55,7 +55,7 @@ export const showSignatureHelp = async (language: string, filePath: string, line
         const requestColumn = getSignatureHelpTriggerColumn(currentLine[0], column, ["("])
 
         if (requestColumn < 0) {
-            UI.Actions.hideSignatureHelp()
+            return null
         }
 
         const args = {
@@ -77,10 +77,6 @@ export const showSignatureHelp = async (language: string, filePath: string, line
     } else {
         return null
     }
-}
-
-export const hideSignatureHelp = () => {
-    UI.Actions.hideSignatureHelp()
 }
 
 // TODO: `getSignatureHelpTriggerColumn` rename to `getNearestTriggerCharacter`

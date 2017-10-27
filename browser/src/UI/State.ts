@@ -47,7 +47,6 @@ export interface IState {
     foregroundColor: string
     definition: null | IDefinition
     quickInfo: null | IQuickInfo
-    signatureHelp: null | types.SignatureHelp
     cursorLineOpacity: number
     cursorColumnOpacity: number
     configuration: IConfigurationValues
@@ -183,7 +182,6 @@ export const createDefaultState = (): IState => ({
     foregroundColor: "rgba(0, 0, 0, 0)",
     definition: null,
     quickInfo: null,
-    signatureHelp: null,
     activeWindowDimensions: {
         x: 0,
         y: 0,

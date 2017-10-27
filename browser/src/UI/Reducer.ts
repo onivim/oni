@@ -71,7 +71,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
                     quickInfo: quickInfoReducer(s.quickInfo, a),
-                    signatureHelp: signatureHelpReducer(s.signatureHelp, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     toolTips: toolTipsReducer(s.toolTips, a),
                     windowState: windowStateReducer(s.windowState, a)}
@@ -87,20 +86,6 @@ export const definitionReducer = (s: State.IDefinition, a: Actions.SimpleAction)
                     token,
                 }
         case "HIDE_DEFINITION":
-            return null
-        default:
-            return s
-    }
-}
-
-export const signatureHelpReducer = (s: types.SignatureHelp, a: Actions.SimpleAction) => {
-    switch (a.type) {
-        case "SHOW_SIGNATURE_HELP":
-            const { signatureHelp } = a.payload
-            return {
-                ...signatureHelp,
-            }
-        case "HIDE_SIGNATURE_HELP":
             return null
         default:
             return s
