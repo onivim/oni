@@ -44,6 +44,20 @@ export interface IIncrementalBufferUpdateEvent {
     lineContents: string
 }
 
+export interface INeovimCompletionItems {
+    word: string
+    kind: string
+    menu: string
+    info: string
+}
+
+export interface INeovimCompletionInfo {
+    items: INeovimCompletionItems[]
+    selectedIndex: number
+    row: number
+    col: number
+}
+
 // Limit for the number of lines to handle buffer updates
 // If the file is too large, it ends up being too much traffic
 // between Neovim <-> Oni <-> Language Servers - so
@@ -70,6 +84,9 @@ export interface INeovimInstance {
 
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
     onOniCommand: IEvent<string>
+
+    onHidePopupMenu: IEvent<void>
+    onShowPopupMenu: IEvent<INeovimCompletionInfo>
 
     autoCommands: INeovimAutoCommands
 
@@ -146,6 +163,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
     private _onScroll = new Event<Oni.EventContext>()
     private _onModeChanged = new Event<Oni.Vim.Mode>()
+    private _onHidePopupMenu = new Event<void>()
+    private _onShowPopupMenu = new Event<INeovimCompletionInfo>()
 
     private _pendingScrollTimeout: number | null = null
 
@@ -179,6 +198,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onScroll(): IEvent<Oni.EventContext> {
         return this._onScroll
+    }
+
+    public get onHidePopupMenu(): IEvent<void> {
+        return this._onHidePopupMenu
+    }
+
+    public get onShowPopupMenu(): IEvent<INeovimCompletionInfo> {
+        return this._onShowPopupMenu
     }
 
     public get onYank(): IEvent<INeovimYankInfo> {
@@ -523,11 +550,29 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     this._onModeChanged.dispatch(newMode as Oni.Vim.Mode)
                     break
                 case "popupmenu_hide":
-                    this.emit("hide-popup-menu")
+                    this._onHidePopupMenu.dispatch()
                     break
                 case "popupmenu_show":
-                    const completions = a[0][0]
-                    this.emit("show-popup-menu", completions)
+                    const [items, selected, row, col] = a[0]
+
+                    const mappedItems = items.map((item: string[]) => {
+                        const [word, kind, menu, info] = item
+                        return {
+                            word,
+                            kind,
+                            menu,
+                            info,
+                        }
+                    })
+
+                    const completionInfo: INeovimCompletionInfo = {
+                        items: mappedItems,
+                        selectedIndex: selected,
+                        row,
+                        col,
+                    }
+
+                    this._onShowPopupMenu.dispatch(completionInfo)
                     break
                 case "tabline_update":
                     const [currentTab, tabs] = a[0]

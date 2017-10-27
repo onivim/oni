@@ -71,9 +71,9 @@ export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<On
     })
 }
 
-export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.Cursor>, $modeChanged: Observable<string>) => {
+export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<string>) => {
 
-    const $incrementalBufferUpdates = $cursorMoved
+    const incrementalBufferUpdates$ = cursorMoved$
             .auditTime(10)
             .mergeMap(async (cursorPos) => {
                 const editor = editorManager.activeEditor
@@ -90,19 +90,19 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
                 }
             })
 
-    $incrementalBufferUpdates
+    incrementalBufferUpdates$
         .subscribe((val) => {
             showSignatureHelp(val.language, val.filePath, val.cursorLine, val.cursorColumn)
         })
 
-    $modeChanged
+    modeChanged$
         .subscribe((newMode) => {
             if (newMode !== "i") {
                 hideSignatureHelp()
             }
         })
 
-    const $currentCompletionMeet = $incrementalBufferUpdates
+    const currentCompletionMeet$ = incrementalBufferUpdates$
         .map((changeInfo) => {
             const token = languageManager.getTokenRegex(changeInfo.language)
             const meet = AutoCompletionUtility.getCompletionMeet(changeInfo.contents, changeInfo.cursorColumn, token)
@@ -119,9 +119,9 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
 
     let lastMeet: any = null
 
-    $currentCompletionMeet.subscribe((newMeet) => { lastMeet = newMeet })
+    currentCompletionMeet$.subscribe((newMeet) => { lastMeet = newMeet })
 
-    const $completions = $currentCompletionMeet
+    const $completions = currentCompletionMeet$
         .map((bufferMeetInfo) => ({
             language: bufferMeetInfo.language,
             filePath: bufferMeetInfo.filePath,
@@ -159,14 +159,14 @@ export const addInsertModeLanguageFunctionality = ($cursorMoved: Observable<Oni.
         newContextMenu.updateItem(result)
     })
 
-    $modeChanged.subscribe((mode) => {
+    modeChanged$.subscribe((mode) => {
         if (mode !== "i") {
             newContextMenu.hide()
         }
     })
 
     $completions
-        .combineLatest($currentCompletionMeet)
+        .combineLatest(currentCompletionMeet$)
         .subscribe((args: any[]) => {
 
         const [completionInfo, baseInfo] = args
