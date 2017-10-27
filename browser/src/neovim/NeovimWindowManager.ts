@@ -97,7 +97,7 @@ export class NeovimWindowManager {
             const height = values[2]
             const lines = values[3]
 
-            // The 'offset' (difference between `wincol` and `column`) is the size of the gutter
+            // The 'gutterOffset' (difference between `wincol` and `column`) is the size of the gutter
             // (for example, line numbers). The buffer isn't in that space, so we need to account
             // for that.
             const offset = context.wincol - context.column
@@ -114,6 +114,13 @@ export class NeovimWindowManager {
 
             const ranges = rangesOnScreen.slice(arrayStart, arrayEnd)
 
+            // If there is no text in the buffer, the range will be (line, 0) -> (line, 0).
+            // This means we we wouldn't be able to map positions that don't exist yet,
+            // so we should expand out the ranges to the full content width if they are less)
+            const expandedWidthRanges = ranges.map((r) => {
+                return types.Range.create(r.start.line, r.start.character, r.end.line, Math.max(r.end.character, contentWidth))
+            })
+
             const dimensions = {
                 x: col,
                 y: row,
@@ -129,7 +136,7 @@ export class NeovimWindowManager {
                     context.windowBottomLine - 1,
                     context.windowTopLine,
                     dimensions,
-                    getBufferToScreenFromRanges(offset, ranges))
+                    getBufferToScreenFromRanges(offset, expandedWidthRanges))
 
         } else {
             Log.warn("Measure request failed")
@@ -137,7 +144,7 @@ export class NeovimWindowManager {
     }
 }
 
-const getBufferToScreenFromRanges = (offset: number, ranges: types.Range[]) => (bufferPosition: types.Position) => {
+const getBufferToScreenFromRanges = (gutterOffset: number, ranges: types.Range[]) => (bufferPosition: types.Position) => {
     const screenLine = ranges.findIndex((v) => Utility.isInRange(bufferPosition.line, bufferPosition.character, v))
 
     if (screenLine === -1) {
@@ -146,7 +153,7 @@ const getBufferToScreenFromRanges = (offset: number, ranges: types.Range[]) => (
 
     const yPos = screenLine
     const range = ranges[screenLine]
-    const xPos = offset + bufferPosition.character - range.start.character
+    const xPos = gutterOffset + bufferPosition.character - range.start.character
 
     return {
         screenX: xPos,

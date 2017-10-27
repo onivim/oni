@@ -132,7 +132,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             visibility: this.props.hideArrow ? "hidden" : "visible",
         }
 
-        const childStyleWithAdjustments = this.state.isMeasured ? {
+        const childStyleWithAdjustments: React.CSSProperties = this.state.isMeasured ? {
             ...childStyle,
             left: this.state.isFullWidth ? "8px" : adjustedX.toString() + "px",
             right: this.state.isFullWidth ? "8px" : null,
@@ -190,9 +190,8 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
 }
 
 const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursorPositionerViewProps => {
-
-    const x = props.position ? props.position.pixelX : state.cursorPixelX - (state.fontPixelWidth / 2) - 2
-    const y = props.position ? props.position.pixelY : state.cursorPixelY - (state.fontPixelHeight * 1)
+    const x = props.position ? props.position.pixelX : state.cursorPixelX
+    const y = props.position ? props.position.pixelY : state.cursorPixelY
 
     const lineHeight = state.fontPixelHeight
 
@@ -201,8 +200,8 @@ const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursor
     return {
         beakColor,
         fontPixelWidth: state.fontPixelWidth,
-        x,
-        y,
+        x: x - (state.fontPixelWidth / 2),
+        y: y - (state.fontPixelHeight),
         containerWidth: state.viewport.width,
         containerHeight: state.viewport.height,
         lineHeight,
