@@ -23,11 +23,11 @@ import { hideSignatureHelp, showSignatureHelp } from "./SignatureHelp"
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
-export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<Oni.EditorBufferChangedEventArgs>, $cursorMoved: Observable<Oni.Cursor>, $modeChanged: Observable<string>) => {
+export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<Oni.EditorBufferChangedEventArgs>, cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<string>) => {
 
     const latestPositionAndVersion$ =
-        $bufferUpdates
-           .combineLatest($cursorMoved)
+        bufferUpdates$
+           .combineLatest(cursorMoved$)
            .map((combined: any[]) => {
                 const [bufferEvent, cursorPosition] = combined
                 return {
@@ -48,7 +48,7 @@ export const addNormalModeLanguageFunctionality = ($bufferUpdates: Observable<On
 
     const shouldUpdateNormalModeAdorners$ = latestPositionAndVersion$
         .debounceTime(250) // TODO: Use config setting 'editor.quickInfo.delay'
-        .combineLatest($modeChanged)
+        .combineLatest(modeChanged$)
         .filter((combinedArgs: [any, string]) => {
             const [, mode] = combinedArgs
             return mode === "normal"
