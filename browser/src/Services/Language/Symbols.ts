@@ -16,6 +16,8 @@ import { editorManager } from "./../EditorManager"
 import { gotoPositionInUri } from "./Definition"
 import { languageManager } from "./LanguageManager"
 
+import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
+
 // import * as Log from "./../../Log"
 
 export const openWorkspaceSymbolsMenu = async () => {
@@ -30,8 +32,23 @@ export const openWorkspaceSymbolsMenu = async () => {
 
     const filterTextChanged$ = menu.onFilterTextChanged.asObservable()
 
+    menu.onItemSelected.subscribe((selectedItem: Oni.Menu.MenuOption) => {
+        const key = selectedItem.label + selectedItem.detail
+
+        const loc = keyToLocation[key]
+
+        if (loc) {
+            gotoPositionInUri(loc.uri, loc.range.start.line, loc.range.start.character)
+        }
+
+    })
+
+    let keyToLocation: any = {}
+
+    const getKey = (si: types.SymbolInformation) => si.name + getDetailFromSymbol(si)
+
     filterTextChanged$
-        .auditTime(50)
+        .debounceTime(25)
         .do(() => menu.setLoading(true))
         .concatMap(async (newText: string) => {
             const buffer = editorManager.activeEditor.activeBuffer
@@ -46,6 +63,16 @@ export const openWorkspaceSymbolsMenu = async () => {
         .subscribe((newItems: types.SymbolInformation[]) => {
             menu.setLoading(false)
             menu.setItems(newItems.map(symbolInfoToMenuItem))
+
+
+            keyToLocation = newItems.reduce((prev, curr) => {
+                return {
+                    ...prev,
+                    [getKey(curr)]: curr.location
+                }
+            }, {})
+
+
         })
 }
 
@@ -129,51 +156,3 @@ export const openDocumentSymbolsMenu = async () => {
     menu.setItems(options)
     menu.setLoading(false)
 }
-
-import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-
-// let codeActionsContextMenu = contextMenuManager.create()
-
-// let lastCommands: types.Command[] = []
-// let lastFileInfo: any = {}
-
-// codeActionsContextMenu.onItemSelected.subscribe(async (selectedItem) => {
-
-//     const commandName = selectedItem.data
-//     await languageManager.sendLanguageServerRequest(lastFileInfo.language, lastFileInfo.filePath, "workspace/executeCommand", { command: commandName })
-// })
-
-// export const checkCodeActions = async (language: string, filePath: string, line: number, column: number) => {
-
-//     if (languageManager.isLanguageServerAvailable(language)) {
-//         const result: types.Command[] = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/codeAction",
-//             Helpers.eventContextToCodeActionParams(filePath, line, column))
-
-//         // TODO:
-//         if (result) {
-//             console.dir(result)
-//         }
-
-//         lastCommands = result
-//         lastFileInfo = {
-//             language,
-//             filePath,
-//         }
-//     }
-// }
-
-// export const expandCodeActions = () => {
-//     if (!lastCommands || !lastCommands.length) {
-//         return
-//     }
-
-//     const mapCommandsToItem = (command: types.Command) => ({
-//         label: command.title,
-//         icon: "wrench",
-//         data: command.command,
-//     })
-
-//     const contextMenuItems = lastCommands.map((c) => mapCommandsToItem(c))
-
-//     codeActionsContextMenu.show(contextMenuItems)
-// }

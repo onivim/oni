@@ -30,7 +30,7 @@ export const getWorkspaceSymbols = (oni: Oni.Plugin.Api, host: TypeScriptServerH
             name: item.name,
             kind: Utility.convertTypeScriptKindToSymbolKind(item.kind),
             containerName: item.containerName,
-            location: types.Location.create(textDocument.uri, types.Range.create(item.start.line - 1, item.start.offset - 1, item.end.line - 1, item.end.offset - 1)),
+            location: types.Location.create(oni.language.wrapPathInFileUri(item.file), types.Range.create(item.start.line - 1, item.start.offset - 1, item.end.line - 1, item.end.offset - 1)),
         }
     }
 
