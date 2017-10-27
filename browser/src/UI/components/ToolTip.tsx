@@ -49,7 +49,7 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, void> {
             padding,
         }
 
-        return <CursorPositioner position={position} openDirection={openDirection}>
+        return <CursorPositioner position={position} openDirection={openDirection} key={this.props.id}>
             <div className="tool-tip-container" style={toolTipStyle}>
                 {this.props.element}
             </div>

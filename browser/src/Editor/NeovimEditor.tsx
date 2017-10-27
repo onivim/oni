@@ -11,8 +11,8 @@ import * as isEqual from "lodash/isEqual"
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-import "rxjs/add/observable/defer"
 import "rxjs/add/observable/concat"
+import "rxjs/add/observable/defer"
 import "rxjs/add/operator/map"
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
@@ -45,6 +45,7 @@ import { IEditor } from "./Editor"
 import { InstallHelp } from "./../UI/components/InstallHelp"
 
 import { BufferManager } from "./BufferManager"
+import { NeovimPopupMenu } from "./NeovimPopupMenu"
 import { NeovimSurface } from "./NeovimSurface"
 
 import { tasks } from "./../Services/Tasks"
@@ -59,6 +60,7 @@ export class NeovimEditor implements IEditor {
     private _deltaRegionManager: IncrementalDeltaRegionTracker
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
+    private _popupMenu: NeovimPopupMenu
 
     private _pendingAnimationFrame: boolean = false
     private _element: HTMLElement
@@ -134,6 +136,12 @@ export class NeovimEditor implements IEditor {
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
+
+        this._popupMenu = new NeovimPopupMenu(
+            this._neovimInstance.onShowPopupMenu,
+            this._neovimInstance.onHidePopupMenu,
+            this._neovimInstance.onSelectPopupMenu
+        )
 
         this._renderer = new CanvasRenderer()
 

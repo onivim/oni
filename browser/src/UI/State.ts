@@ -28,6 +28,7 @@ export interface IQuickInfo {
 }
 
 export interface IToolTip {
+    id: string,
     options: Oni.ToolTip.ToolTipOptions,
     element: JSX.Element
 }

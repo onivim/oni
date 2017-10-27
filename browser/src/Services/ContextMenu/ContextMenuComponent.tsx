@@ -17,10 +17,16 @@ import { Icon } from "./../../UI/Icon"
 
 import { contextMenuStore } from "./ContextMenu"
 
+export interface IContextMenuItem {
+    label: string
+    detail?: string
+    documentation?: string
+}
+
 export interface IContextMenuProps {
     visible: boolean
     base: string
-    entries: any[]
+    entries: IContextMenuItem[]
     selectedIndex: number
 
     backgroundColor: string
@@ -63,7 +69,7 @@ const getDocumentationFromItems = (items: any[], selectedIndex: number): string 
         return null
     }
 
-    if (selectedIndex >= items.length) {
+    if (selectedIndex < 0 || selectedIndex >= items.length) {
         return null
     }
 

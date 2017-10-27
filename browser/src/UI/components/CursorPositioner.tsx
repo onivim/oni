@@ -22,6 +22,7 @@ export interface ICursorPositionerProps {
     beakColor?: string
     openDirection?: OpenDirection
     hideArrow?: boolean
+    key?: string
 }
 
 export interface ICursorPositionerViewProps extends ICursorPositionerProps {
@@ -43,6 +44,8 @@ export interface ICursorPositionerViewState {
     isFullWidth: boolean
     shouldOpenDownward: boolean,
     adjustedX: number
+    lastMeasuredHeight: number,
+    lastMeasuredWidth: number,
 }
 
 const InitialState = {
@@ -51,6 +54,9 @@ const InitialState = {
     isFullWidth: false,
     shouldOpenDownward: false,
     adjustedX: 0,
+
+    lastMeasuredHeight: 0,
+    lastMeasuredWidth: 0,
 }
 
 /**
@@ -81,7 +87,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
                 this._timeout = window.setTimeout(() => {
                     this._measureElement(this._element)
                     this._timeout = null
-                }, 250)
+                }, 50)
             })
 
             this._resizeObserver.observe(this._element)
@@ -148,12 +154,16 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         if (element) {
             const rect = element.getBoundingClientRect()
 
+            if (rect.height <= this.state.lastMeasuredHeight
+               && rect.width <= this.state.lastMeasuredWidth) {
+                return
+            }
+
             const margin = this.props.lineHeight * 2
             const canOpenUpward = this.props.y - rect.height > margin
             const bottomScreenPadding = 50
             const canOpenDownard = this.props.y + rect.height + this.props.lineHeight * 3 < this.props.containerHeight - margin - bottomScreenPadding
 
-            // if (!this.state.isMeasured) {
                 const shouldOpenDownward = (this.props.openDirection !== OpenDirection.Down && !canOpenUpward) || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
 
                 const rightBounds = this.props.x + rect.width
@@ -172,8 +182,9 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
                     shouldOpenDownward,
                     adjustedX,
                     isMeasured: true,
+                    lastMeasuredWidth: rect.width,
+                    lastMeasuredHeight: rect.height,
                 })
-            // }
         }
     }
 }

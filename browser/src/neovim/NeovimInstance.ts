@@ -44,7 +44,7 @@ export interface IIncrementalBufferUpdateEvent {
     lineContents: string
 }
 
-export interface INeovimCompletionItems {
+export interface INeovimCompletionItem {
     word: string
     kind: string
     menu: string
@@ -52,7 +52,7 @@ export interface INeovimCompletionItems {
 }
 
 export interface INeovimCompletionInfo {
-    items: INeovimCompletionItems[]
+    items: INeovimCompletionItem[]
     selectedIndex: number
     row: number
     col: number
@@ -165,6 +165,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onModeChanged = new Event<Oni.Vim.Mode>()
     private _onHidePopupMenu = new Event<void>()
     private _onShowPopupMenu = new Event<INeovimCompletionInfo>()
+    private _onSelectPopupMenu = new Event<number>()
 
     private _pendingScrollTimeout: number | null = null
 
@@ -202,6 +203,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onHidePopupMenu(): IEvent<void> {
         return this._onHidePopupMenu
+    }
+
+    public get onSelectPopupMenu(): IEvent<number> {
+        return this._onSelectPopupMenu
     }
 
     public get onShowPopupMenu(): IEvent<INeovimCompletionInfo> {
@@ -337,7 +342,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                         // TODO: #702 - Batch these calls via `nvim_call_atomic`
                         // Override completeopt so Oni works correctly with external popupmenu
-                        await this.command("set completeopt=longest,menu")
+                        // await this.command("set completeopt=longest,menu")
 
                         // set title after attaching listeners so we can get the initial title
                         await this.command("set title")
@@ -548,6 +553,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     const newMode = a[a.length - 1][0]
                     this.emit("action", Actions.changeMode(newMode))
                     this._onModeChanged.dispatch(newMode as Oni.Vim.Mode)
+                    break
+                case "popupmenu_select":
+                    this._onSelectPopupMenu.dispatch(a[0][0])
                     break
                 case "popupmenu_hide":
                     this._onHidePopupMenu.dispatch()
