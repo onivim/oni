@@ -57,6 +57,7 @@ export class Session extends EventEmitter {
                     const result = payload1 || payload2
                     log("Received response - "  + responseMessage + " : " + result)
                     this._pendingRequests[responseMessage](result)
+                    this._pendingRequests[responseMessage] = null
                     break
                 case 2 /* Notification */:
                     const [notificationMessage, payload] = remaining
