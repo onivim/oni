@@ -145,10 +145,11 @@ export class LanguageClientProcess {
         const oniLanguageClientParams: any = {
             clientName: "oni",
             rootPath,
+            rootUri: Helpers.wrapPathInFileUri(rootPath),
             capabilities: {},
         }
 
-        return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, oniLanguageClientParams)
+        return this._connection.sendRequest("initialize", oniLanguageClientParams)
             .then((response: any) => {
                 Log.info(`[LanguageClientManager]: Initialized`)
                 if (response && response.capabilities) {

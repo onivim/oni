@@ -4,8 +4,6 @@
  * Helper for registering language client information from config
  */
 
-import * as path from "path"
-
 import * as Log from "./../../Log"
 
 import { LanguageClient } from "./LanguageClient"
@@ -66,7 +64,7 @@ const expandConfigurationSetting = (rootObject: any, configurationPath: string[]
     }
 }
 
-const simplePathResolver = (filePath: string) => Promise.resolve(path.dirname(filePath))
+const simplePathResolver = (filePath: string) => Promise.resolve(filePath)
 
 const createLanguageClientFromConfig = (language: string, config: ILightweightLanguageConfiguration): void => {
     if (!config || !config.languageServer || !config.languageServer.command) {

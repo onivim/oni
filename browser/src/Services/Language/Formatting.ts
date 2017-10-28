@@ -22,7 +22,7 @@ export const formatDocument = async () => {
         textDocument: {
             uri: Helpers.wrapPathInFileUri(activeBuffer.filePath),
         },
-        range: types.Range.create(0, 0, activeBuffer.lineCount + 1, 0)
+        range: types.Range.create(0, 0, activeBuffer.lineCount -1, 0)
     }
 
     let result: types.TextEdit[] = null

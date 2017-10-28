@@ -37,12 +37,15 @@ export const getCodeActions = async (): Promise<types.Command[]> => {
     const { line, column } = buffer.cursor
 
     if (languageManager.isLanguageServerAvailable(language)) {
-        const result: types.Command[] = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/codeAction",
+        let result: types.Command[] = null
+        try {
+            result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/codeAction",
             Helpers.eventContextToCodeActionParams(filePath, line, column))
+        }
+        catch (ex) { }
 
-        // TODO:
-        if (result) {
-            console.dir(result)
+        if (!result) {
+            return null
         }
 
         lastCommands = result

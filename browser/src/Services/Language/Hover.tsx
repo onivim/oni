@@ -51,15 +51,7 @@ export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observ
             .combineLatest(quickInfoResults$, codeActionResults$, errors$)
             .debounceTime(100)
             .subscribe((args: [any, types.Hover, types.Command[], types.Diagnostic[]]) => {
-
-
                 const [,hover,codeActions,errors] = args
-
-                console.log("Updating hover-------")
-                console.dir(hover)
-                console.dir(codeActions)
-                console.dir(errors)
-                console.log("Updating hover-------")
 
                 if (hover || (codeActions && codeActions.length) || (errors && errors.length)) {
                     const elem = renderQuickInfo(hover, codeActions, errors)
@@ -92,7 +84,7 @@ export const renderQuickInfo = (hover: types.Hover, actions: types.Command[], er
 
     let derpElement: JSX.Element[] = []
 
-    if (actions.length > 0) {
+    if (actions && actions.length > 0) {
         const text = actions.length === 1 ? "1 refactoring available." : actions.length.toString() + " refactorings available."
         derpElement = [<QuickInfoDocumentation text={text} />]
     }
