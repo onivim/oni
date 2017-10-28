@@ -11,7 +11,7 @@ export type MenuFilterFunction<T, FilteredT extends T> = (options: T[], searchSt
 
 export function createReducer<T, FilteredT extends T>(filterFunc: MenuFilterFunction<T, FilteredT>) {
 
-    const reducer = function (s: State.IMenus<T, FilteredT>, a: Actions.MenuAction): State.IMenus<T, FilteredT> {
+    const reducer = function(s: State.IMenus<T, FilteredT>, a: Actions.MenuAction): State.IMenus<T, FilteredT> {
         return {
             ...s,
             menu: popupMenuReducer(s.menu, a),
@@ -49,7 +49,7 @@ export function createReducer<T, FilteredT extends T>(filterFunc: MenuFilterFunc
 
                 const options = s.options.map((entry) => {
                     // TODO: Decide on canonical interface for menu options
-                    if ((<any>entry).label === a.payload.detailedItem.label) {
+                    if ((entry as any).label === a.payload.detailedItem.label) {
                         return a.payload.detailedItem
                     } else {
                         return entry

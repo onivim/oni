@@ -26,7 +26,7 @@ export interface IStatusBarItem {
 export class StatusBarItem implements Oni.StatusBarItem {
     private _contents: JSX.Element
     private _visible: boolean = false
-    
+
     private _setContentsSubject: Subject<any> = new Subject<any>()
     private _subscription: Subscription
 
@@ -34,7 +34,7 @@ export class StatusBarItem implements Oni.StatusBarItem {
         private _id: string,
         private _alignment?: StatusBarAlignment | null,
         private _priority?: number | null,
-    ) { 
+    ) {
 
         this._subscription = this._setContentsSubject
             .debounceTime(25)

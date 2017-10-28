@@ -20,7 +20,7 @@ import { IServerCapabilities } from "./ServerCapabilities"
 
 import * as LanguageClientTypes from "./LanguageClientTypes"
 
-import { LanguageClientStatusBar, LanguageClientState } from "./LanguageClientStatusBar"
+import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
 
 import { listenForWorkspaceEdits } from "./Workspace"
 
@@ -129,7 +129,7 @@ export class LanguageManager {
     public isLanguageServerAvailable(language: string): boolean {
         return !!this._getLanguageClient(language)
     }
-    
+
     private _setStatus(protocolMessage: string, status: LanguageClientState): void {
 
         switch (protocolMessage) {

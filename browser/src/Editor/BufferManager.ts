@@ -84,7 +84,6 @@ export class Buffer implements Oni.Buffer {
 
     public async applyTextEdits(textEdits: types.TextEdit | types.TextEdit[]): Promise<void> {
 
-
         const textEditsAsArray = textEdits instanceof Array ? textEdits : [textEdits]
 
         const deferredEdits = textEditsAsArray.map((te) => {
@@ -103,11 +102,10 @@ export class Buffer implements Oni.Buffer {
                     const end = lineContents.substring(range.end.character, lineContents.length)
                     const newLine = beginning + te.newText + end
 
-
                     const lines = newLine.split(os.EOL)
 
                     await this.setLines(lineStart, lineStart + 1, lines)
-                } else if(characterEnd === 0 && characterStart === 0) {
+                } else if (characterEnd === 0 && characterStart === 0) {
                     const lines = te.newText.split(os.EOL)
                     await this.setLines(lineStart, lineEnd + 1, lines)
                 } else {

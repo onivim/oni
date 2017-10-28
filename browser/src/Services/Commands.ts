@@ -16,7 +16,7 @@ import { PluginManager } from "./../Plugins/PluginManager"
 import { configuration } from "./../Services/Configuration"
 import { contextMenuManager } from "./../Services/ContextMenu"
 import { editorManager } from "./../Services/EditorManager"
-import { /*commitCompletion,*/ cancelRename, expandCodeActions, commitRename, formatDocument, isRenameActive, startRename, findAllReferences, gotoDefinitionUnderCursor, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu } from "./../Services/Language"
+import { /*commitCompletion,*/ cancelRename, commitRename, expandCodeActions, findAllReferences, formatDocument, gotoDefinitionUnderCursor, isRenameActive, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu, startRename } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
@@ -47,13 +47,13 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
 
         // Language service
         // TODO: Deprecate
-        new CallbackCommand("oni.editor.gotoDefinition",null,null, () => gotoDefinitionUnderCursor()),
+        new CallbackCommand("oni.editor.gotoDefinition", null, null, () => gotoDefinitionUnderCursor()),
         new CallbackCommand("language.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => gotoDefinitionUnderCursor()),
         new CallbackCommand("language.gotoDefinition.openVertical", null, null, () => gotoDefinitionUnderCursor(1)),
         new CallbackCommand("language.gotoDefinition.openHorizontal", null, null, () => gotoDefinitionUnderCursor(2)),
 
         // TODO: Deprecate
-        new CallbackCommand("oni.editor.findAllReferences",null,null, () => findAllReferences()),
+        new CallbackCommand("oni.editor.findAllReferences", null, null, () => findAllReferences()),
         new CallbackCommand("language.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences()),
 
         new CallbackCommand("language.codeAction.expand", null, null, () => expandCodeActions()),

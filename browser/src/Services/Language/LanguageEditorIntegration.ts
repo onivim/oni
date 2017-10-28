@@ -14,13 +14,13 @@ import "rxjs/add/observable/never"
 
 import { contextMenuManager } from "./../ContextMenu"
 import { editorManager } from "./../EditorManager"
-import { languageManager } from "./LanguageManager"
 // import { getCodeActions } from "./CodeAction"
 import { commitCompletion, getCompletions, resolveCompletionItem } from "./Completion"
-// import { checkAndShowQuickInfo, hideQuickInfo } from "./QuickInfo"
-import * as SignatureHelp from "./SignatureHelp"
 import * as Definition from "./Definition"
 import * as Hover from "./Hover"
+import { languageManager } from "./LanguageManager"
+// import { checkAndShowQuickInfo, hideQuickInfo } from "./QuickInfo"
+import * as SignatureHelp from "./SignatureHelp"
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
@@ -50,7 +50,7 @@ export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<On
             return mode === "normal"
         })
         .map((combinedArgs: [any, string]) => {
-            const [val, ] = combinedArgs
+            const [val ] = combinedArgs
             return val
         })
 
@@ -125,12 +125,12 @@ export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.
                 return {
                     completions: results,
                     meetLine: completionInfo.line,
-                    meetPosition: completionInfo.character
+                    meetPosition: completionInfo.character,
                 }
             })
         })
 
-    const newContextMenu = window["__contextMenu"] = contextMenuManager.create()
+    const newContextMenu = contextMenuManager.create()
     newContextMenu.onItemSelected.subscribe((completionItem) => {
         const meetInfo = lastMeet
         if (meetInfo) {
@@ -160,7 +160,7 @@ export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.
 
         if (!completions || !completions.length || !baseInfo.shouldExpand) {
             newContextMenu.hide()
-        } else if(meetLine !== baseInfo.meetLine || meetPosition !== baseInfo.meetPosition) {
+        } else if (meetLine !== baseInfo.meetLine || meetPosition !== baseInfo.meetPosition) {
             newContextMenu.hide()
         } else {
             newContextMenu.show(completions, baseInfo.meetBase)

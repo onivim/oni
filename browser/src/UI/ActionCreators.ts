@@ -10,15 +10,15 @@
 import * as types from "vscode-languageserver-types"
 
 import * as isEqual from "lodash/isEqual"
-import { Subject } from "rxjs/Subject"
 import "rxjs/add/operator/distinctUntilChanged"
+import { Subject } from "rxjs/Subject"
 
 import { Rectangle } from "./Types"
 
 import * as Actions from "./Actions"
 import * as Coordinates from "./Coordinates"
-import * as State from "./State"
 import * as UI from "./index"
+import * as State from "./State"
 
 import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
@@ -143,14 +143,14 @@ export const showToolTip = (id: string, element: JSX.Element, options?: Oni.Tool
         id,
         element,
         options,
-    }
+    },
 })
 
 export const hideToolTip = (id: string) => ({
     type: "HIDE_TOOL_TIP",
     payload: {
         id,
-    }
+    },
 })
 
 export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({

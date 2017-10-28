@@ -18,7 +18,7 @@ import { editorManager } from "./../EditorManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-let codeActionsContextMenu = contextMenuManager.create()
+const codeActionsContextMenu = contextMenuManager.create()
 
 let lastCommands: types.Command[] = []
 let lastFileInfo: any = {}

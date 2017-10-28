@@ -41,7 +41,6 @@ export const getQuickInfo = async (): Promise<types.Hover> => {
             result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/hover", args)
         } catch (ex) { }
 
-
         return result
     } else {
         return null

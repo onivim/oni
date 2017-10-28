@@ -229,7 +229,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
 
-        this._quickFix = new QuickFixList(this);
+        this._quickFix = new QuickFixList(this)
         this._autoCommands = new NeovimAutoCommands(this)
     }
 
@@ -610,7 +610,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         }
 
         const bufferLines = await this.request<string[]>("nvim_buf_get_lines", [context.bufferNumber, startRange - 1, endRange, false])
-
 
         this._onFullBufferUpdateEvent.dispatch({
             context,

@@ -33,10 +33,8 @@ const reducer = createReducer<types.CompletionItem, types.CompletionItem>((opts,
     })
 })
 
-
 export const contextMenuStore = createStore(reducer, State.createDefaultState(), applyMiddleware(thunk))
 export const contextMenuActions: typeof ActionCreators = bindActionCreators(ActionCreators as any, contextMenuStore.dispatch)
-
 
 // TODO: This is essentially a duplicate of `MenuManager.ts` - can this be consolidated?
 // Can potentially move to a higher-order class that takes contextMenuActions/store as arguments

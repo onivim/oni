@@ -164,20 +164,20 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             const bottomScreenPadding = 50
             const canOpenDownard = this.props.y + rect.height + this.props.lineHeight * 3 < this.props.containerHeight - margin - bottomScreenPadding
 
-                const shouldOpenDownward = (this.props.openDirection !== OpenDirection.Down && !canOpenUpward) || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
+            const shouldOpenDownward = (this.props.openDirection !== OpenDirection.Down && !canOpenUpward) || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
 
-                const rightBounds = this.props.x + rect.width
+            const rightBounds = this.props.x + rect.width
 
-                const isFullWidth = rect.width > this.props.containerWidth
+            const isFullWidth = rect.width > this.props.containerWidth
 
-                let adjustedX = this.props.x
+            let adjustedX = this.props.x
 
-                if (!isFullWidth && rightBounds > this.props.containerWidth) {
+            if (!isFullWidth && rightBounds > this.props.containerWidth) {
                     const offset = rightBounds - this.props.containerWidth + 8
                     adjustedX = this.props.x - offset
                 }
 
-                this.setState({
+            this.setState({
                     isFullWidth,
                     shouldOpenDownward,
                     adjustedX,

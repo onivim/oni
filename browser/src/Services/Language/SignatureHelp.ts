@@ -11,8 +11,8 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 import * as UI from "./../../UI"
 
 import { editorManager } from "./../EditorManager"
-import { languageManager } from "./LanguageManager"
 import { ILatestCursorAndBufferInfo } from "./LanguageEditorIntegration"
+import { languageManager } from "./LanguageManager"
 
 import * as SignatureHelp from "./SignatureHelpView"
 

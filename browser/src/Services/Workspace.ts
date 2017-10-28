@@ -11,8 +11,8 @@ import { Observable } from "rxjs/Observable"
 
 import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
-import "rxjs/add/operator/toPromise"
 import "rxjs/add/operator/concatMap"
+import "rxjs/add/operator/toPromise"
 
 import { editorManager } from "./EditorManager"
 

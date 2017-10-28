@@ -78,7 +78,7 @@ export const definitionReducer = (s: State.IDefinition, a: Actions.SimpleAction)
     switch (a.type) {
         case "SHOW_DEFINITION":
             const { definitionLocation, token } = a.payload
-                return {
+            return {
                     definitionLocation,
                     token,
                 }

@@ -29,7 +29,7 @@ export const getCompletions = async (language: string, filePath: string, line: n
         let result
         try {
         result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/completion", args)
-        } catch(ex) {
+        } catch (ex) {
             return null
         }
 
@@ -54,7 +54,6 @@ export const resolveCompletionItem = async (language: string, filePath: string, 
 
     return _convertCompletionForContextMenu(result)
 }
-
 
 export const commitCompletion = async (line: number, originalLine: string, base: number, column: number, completion: string) => {
 
@@ -143,4 +142,4 @@ const _convertCompletionForContextMenu = (completion: types.CompletionItem): any
     insertText: completion.insertText,
     rawCompletion: completion,
 })
-
+

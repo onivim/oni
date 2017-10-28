@@ -14,8 +14,8 @@ import * as isEqual from "lodash/isEqual"
 
 import * as types from "vscode-languageserver-types"
 
-import { getQuickInfo } from "./QuickInfo"
 import { getCodeActions } from "./CodeAction"
+import { getQuickInfo } from "./QuickInfo"
 
 import { CodeActionHover } from "./../../UI/components/CodeActions"
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
@@ -51,7 +51,7 @@ export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observ
             .combineLatest(quickInfoResults$, codeActionResults$, errors$)
             .debounceTime(100)
             .subscribe((args: [any, types.Hover, types.Command[], types.Diagnostic[]]) => {
-                const [,hover,codeActions,errors] = args
+                const [, hover, codeActions, errors] = args
 
                 if (hover || (codeActions && codeActions.length) || (errors && errors.length)) {
                     const elem = renderQuickInfo(hover, codeActions, errors)
@@ -106,7 +106,7 @@ export const renderQuickInfo = (hover: types.Hover, actions: types.Command[], er
 
 const getCommandElements = (commands: types.Command[], backgroundColor: string, foregroundColor: string): JSX.Element[] => {
 
-    if(!commands || !commands.length) {
+    if (!commands || !commands.length) {
         return Selectors.EmptyArray
     } else {
         return [<CodeActionHover backgroundColor={backgroundColor} foregroundColor={foregroundColor}/>]

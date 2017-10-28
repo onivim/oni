@@ -10,8 +10,8 @@ import * as types from "vscode-languageserver-types"
 
 // import * as UI from "./../../UI"
 
-import { menuManager } from "./../Menu"
 import { editorManager } from "./../EditorManager"
+import { menuManager } from "./../Menu"
 
 import { gotoPositionInUri } from "./Definition"
 import { languageManager } from "./LanguageManager"
@@ -64,14 +64,12 @@ export const openWorkspaceSymbolsMenu = async () => {
             menu.setLoading(false)
             menu.setItems(newItems.map(symbolInfoToMenuItem))
 
-
             keyToLocation = newItems.reduce((prev, curr) => {
                 return {
                     ...prev,
-                    [getKey(curr)]: curr.location
+                    [getKey(curr)]: curr.location,
                 }
             }, {})
-
 
         })
 }
@@ -133,8 +131,8 @@ export const openDocumentSymbolsMenu = async () => {
 
     const result: types.SymbolInformation[] = await languageManager.sendLanguageServerRequest(buffer.language, buffer.filePath, "textDocument/documentSymbol", {
         textDocument: {
-            uri: Helpers.wrapPathInFileUri(buffer.filePath)
-        }
+            uri: Helpers.wrapPathInFileUri(buffer.filePath),
+        },
     })
 
     const options: Oni.Menu.MenuOption[] = result.map(symbolInfoToMenuItem)
@@ -148,7 +146,7 @@ export const openDocumentSymbolsMenu = async () => {
 
     menu.onItemSelected.subscribe((selectedItem) => {
         const location: types.Location = labelToLocation[selectedItem.label]
-        if(location) {
+        if (location) {
             gotoPositionInUri(location.uri, location.range.start.line, location.range.start.character)
         }
     })

@@ -9,7 +9,7 @@ import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
 import { IEvent } from "./../Event"
-import { INeovimCompletionItem, INeovimCompletionInfo } from "./../neovim"
+import { INeovimCompletionInfo, INeovimCompletionItem } from "./../neovim"
 
 import { editorManager } from "./../Services/EditorManager"
 
@@ -23,7 +23,7 @@ import { ContextMenuView, IContextMenuItem } from "./../Services/ContextMenu"
 const mapNeovimCompletionItemToContextMenuItem = (item: INeovimCompletionItem, idx: number, totalLength: number): IContextMenuItem  => ({
     label: item.word,
     detail: item.menu,
-    documentation: (idx + 1).toString() + " of " + totalLength.toString()
+    documentation: (idx + 1).toString() + " of " + totalLength.toString(),
 })
 
 export class NeovimPopupMenu {
@@ -83,7 +83,7 @@ export class NeovimPopupMenu {
         }
 
         const completionElement = <ContextMenuView visible={true} base={""} entries={itemsToRender} selectedIndex={adjustedIndex} backgroundColor={"black"} foregroundColor={"white"} />
-            UI.Actions.showToolTip("nvim-popup", completionElement, {
+        UI.Actions.showToolTip("nvim-popup", completionElement, {
                 position: this._position,
                 openDirection: 2,
                 padding: "0px",

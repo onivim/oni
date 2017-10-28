@@ -140,7 +140,7 @@ export class NeovimEditor implements IEditor {
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
             this._neovimInstance.onHidePopupMenu,
-            this._neovimInstance.onSelectPopupMenu
+            this._neovimInstance.onSelectPopupMenu,
         )
 
         this._renderer = new CanvasRenderer()
@@ -212,7 +212,6 @@ export class NeovimEditor implements IEditor {
                 line: evt.line - 1,
                 column: evt.column - 1,
             }))
-
 
         this._cursorMoved$
             .merge(this._cursorMovedI$)

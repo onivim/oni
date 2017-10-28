@@ -10,8 +10,8 @@ import thunk from "redux-thunk"
 import { Event, IEvent } from "./../../Event"
 
 import * as ActionCreators from "./MenuActionCreators"
-import { createReducer } from "./MenuReducer"
 import { filterMenuOptions } from "./MenuFilter"
+import { createReducer } from "./MenuReducer"
 import * as State from "./MenuState"
 
 export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {

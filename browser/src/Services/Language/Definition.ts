@@ -19,7 +19,7 @@ export const initDefinitionUI = (shouldHide$: Observable<any>, shouldUpdate$: Ob
     shouldUpdate$
         .flatMap(async () => await getDefinition())
         .subscribe((definitionResult: any) => {
-            if(!definitionResult || !definitionResult.result) {
+            if (!definitionResult || !definitionResult.result) {
                 UI.Actions.hideDefinition()
             } else {
                 UI.Actions.setDefinition(definitionResult.token, definitionResult.result)
@@ -45,7 +45,7 @@ export const getDefinition = async () => {
 
         return {
             token,
-            result
+            result,
         }
     } else {
         return null
