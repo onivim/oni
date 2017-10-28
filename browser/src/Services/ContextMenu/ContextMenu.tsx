@@ -143,15 +143,6 @@ export class ContextMenu {
 
     }
 
-    private _onHidden(): void {
-        UI.Actions.hideToolTip(this._getContextMenuId())
-        this._onHide.dispatch()
-    }
-
-    private _getContextMenuId(): string {
-        return "context_menu_" + this._id.toString()
-    }
-
     public updateItem(item: any): void {
         contextMenuActions.setDetailedMenuItem(item)
     }
@@ -178,6 +169,15 @@ export class ContextMenu {
         const index = (typeof idx === "number") ? idx : contextMenuState.menu.selectedIndex
 
         return contextMenuState.menu.filteredOptions[index]
+    }
+
+    private _onHidden(): void {
+        UI.Actions.hideToolTip(this._getContextMenuId())
+        this._onHide.dispatch()
+    }
+
+    private _getContextMenuId(): string {
+        return "context_menu_" + this._id.toString()
     }
 }
 

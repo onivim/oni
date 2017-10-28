@@ -11,7 +11,7 @@ export type MenuFilterFunction<T, FilteredT extends T> = (options: T[], searchSt
 
 export function createReducer<T, FilteredT extends T>(filterFunc: MenuFilterFunction<T, FilteredT>) {
 
-    const reducer = function(s: State.IMenus<T, FilteredT>, a: Actions.MenuAction): State.IMenus<T, FilteredT> {
+    const reducer = (s: State.IMenus<T, FilteredT>, a: Actions.MenuAction): State.IMenus<T, FilteredT> => {
         return {
             ...s,
             menu: popupMenuReducer(s.menu, a),

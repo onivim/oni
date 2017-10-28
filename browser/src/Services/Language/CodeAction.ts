@@ -13,7 +13,7 @@ import * as types from "vscode-languageserver-types"
 import { contextMenuManager } from "./../ContextMenu"
 import { languageManager } from "./LanguageManager"
 
-// import * as Log from "./../../Log"
+import * as Log from "./../../Log"
 import { editorManager } from "./../EditorManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
@@ -41,8 +41,7 @@ export const getCodeActions = async (): Promise<types.Command[]> => {
         try {
             result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/codeAction",
             Helpers.eventContextToCodeActionParams(filePath, line, column))
-        }
-        catch (ex) { }
+        } catch (ex) { Log.verbose(ex) }
 
         if (!result) {
             return null

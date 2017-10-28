@@ -11,6 +11,8 @@ import { languageManager } from "./LanguageManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
+import * as Log from "./../../Log"
+
 import * as UI from "./../../UI"
 
 export const initDefinitionUI = (shouldHide$: Observable<any>, shouldUpdate$: Observable<void>) => {
@@ -41,6 +43,7 @@ export const getDefinition = async () => {
         try {
             result = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/definition", args)
         } catch (ex) {
+            Log.warn(ex)
         }
 
         return {

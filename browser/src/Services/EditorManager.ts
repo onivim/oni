@@ -10,6 +10,7 @@
 
 import { Event, IEvent } from "./../Event"
 import { IDisposable } from "./../IDisposable"
+import * as Log from "./../Log"
 
 export class EditorManager implements Oni.EditorManager {
     private _activeEditor: Oni.Editor = null
@@ -92,12 +93,12 @@ class AllEditors implements Oni.Editor {
     }
 
     public openFile(file: string): Promise<Oni.Buffer> {
-        console.warn("Not implemented")
+        Log.warn("Not implemented")
         return Promise.resolve(null)
     }
 
     public openFiles(files: string[]): Promise<Oni.Buffer[]> {
-        console.warn("Not implemented")
+        Log.warn("Not implemented")
         return Promise.resolve([])
     }
 

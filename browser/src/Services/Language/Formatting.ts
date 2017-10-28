@@ -2,20 +2,17 @@
  * Rename.tsx
  */
 
-// import * as React from "react"
 
 import * as types from "vscode-languageserver-types"
 
+import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-// import * as UI from "./../../UI"
 
 import { editorManager } from "./../EditorManager"
-// import { workspace } from "./../Workspace"
 
 import { languageManager } from "./LanguageManager"
 
 export const formatDocument = async () => {
-
     const activeBuffer = editorManager.activeEditor.activeBuffer
 
     const args = {
@@ -28,10 +25,11 @@ export const formatDocument = async () => {
     let result: types.TextEdit[] = null
     try {
         result = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/rangeFormatting", args)
-    } catch (ex) { }
+    } catch (ex) {
+        Log.warn(ex)
+    }
 
     if (result) {
-
         await activeBuffer.applyTextEdits(result)
     }
 }

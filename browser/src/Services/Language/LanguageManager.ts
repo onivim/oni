@@ -34,10 +34,8 @@ export interface ILanguageServerNotificationResponse {
 export class LanguageManager {
 
     private _languageServerInfo: { [language: string]: ILanguageClient } = {}
-
     private _notificationSubscriptions: { [notificationMessage: string]: Event<any> }  = {}
     private _requestHandlers: { [request: string]: LanguageClientTypes.RequestHandler } = {}
-
     private _statusBar = new LanguageClientStatusBar()
 
     constructor() {
@@ -128,18 +126,6 @@ export class LanguageManager {
 
     public isLanguageServerAvailable(language: string): boolean {
         return !!this._getLanguageClient(language)
-    }
-
-    private _setStatus(protocolMessage: string, status: LanguageClientState): void {
-
-        switch (protocolMessage) {
-            case "textDocument/didOpen":
-            case "textDocument/didChange":
-                this._statusBar.setStatus(status)
-                break
-            default:
-                break
-        }
     }
 
     public async sendLanguageServerNotification(language: string, filePath: string, protocolMessage: string, protocolPayload: LanguageClientTypes.NotificationValueOrThunk): Promise<void> {
@@ -235,6 +221,18 @@ export class LanguageManager {
 
     private _getLanguageClient(language: string): ILanguageClient {
         return this._languageServerInfo[language]
+    }
+
+    private _setStatus(protocolMessage: string, status: LanguageClientState): void {
+
+        switch (protocolMessage) {
+            case "textDocument/didOpen":
+            case "textDocument/didChange":
+                this._statusBar.setStatus(status)
+                break
+            default:
+                break
+        }
     }
 }
 

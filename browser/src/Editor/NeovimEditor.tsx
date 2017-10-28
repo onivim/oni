@@ -39,6 +39,7 @@ import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
 import * as UI from "./../UI/index"
+import * as Log from "./../Log"
 
 import { IEditor } from "./Editor"
 
@@ -248,7 +249,7 @@ export class NeovimEditor implements IEditor {
 
                     // Don't process the update if it is behind the current version
                     if (args.version < buf.version) {
-                        console.warn("[Neovim Editor] Skipping incremental update because version is out of date")
+                        Log.warn("[Neovim Editor] Skipping incremental update because version is out of date")
                         return null
                     }
 
