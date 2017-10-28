@@ -57,6 +57,6 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     // Menu
     input.bind(["<down>", "<C-n>"], "menu.next")
     input.bind(["<up>", "<C-p>"], "menu.previous")
-    input.bind("<esc>", "menu.close")
+    input.bind(["<esc>", "<C-[>", "<C-C>"], "menu.close")
     input.bind("<enter>", "menu.select")
 }
