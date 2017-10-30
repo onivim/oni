@@ -2,6 +2,11 @@
  * Completion.ts
  */
 
+import * as isEqual from "lodash/isEqual"
+import { Observable } from "rxjs/Observable"
+import "rxjs/add/observable/combineLatest"
+import "rxjs/add/operator/withLatestFrom"
+
 import * as types from "vscode-languageserver-types"
 
 import { editorManager } from "./../EditorManager"
@@ -10,6 +15,120 @@ import { languageManager } from "./LanguageManager"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
+
+import { ILatestCursorAndBufferInfo } from "./LanguageEditorIntegration"
+
+import { contextMenuManager } from "./../ContextMenu"
+
+export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>) => {
+
+    // let lastMeet: any = null
+
+    const completionContextMenu = contextMenuManager.create()
+
+    // Observable that gets full completion context (cursor positon + meet info)
+    const completionMeet$ = latestCursorAndBufferInfo$
+        .map((changeInfo) => {
+            const token = languageManager.getTokenRegex(changeInfo.language)
+            const meet = AutoCompletionUtility.getCompletionMeet(changeInfo.contents, changeInfo.cursorColumn, token)
+            console.log(`[COMPLETION] Got meet at position: ${meet.position} with base: ${meet.base} - shouldExpand: ${meet.shouldExpandCompletions}`)
+            return {
+                ...changeInfo,
+                meetLine: changeInfo.cursorLine,
+                meetPosition: meet.position,
+                meetBase: meet.base,
+                shouldExpand: meet.shouldExpandCompletions,
+            }
+        })
+        .distinctUntilChanged(isEqual)
+
+
+    const completion$ = completionMeet$
+        // Extract out the parameters that are important for completion
+        .map((bufferMeetInfo) => ({
+            language: bufferMeetInfo.language,
+            filePath: bufferMeetInfo.filePath,
+            meetLine: bufferMeetInfo.cursorLine,
+            meetPosition: bufferMeetInfo.meetPosition,
+            shouldExpand: bufferMeetInfo.shouldExpand
+        }))
+        // Only care if they've changed, so we don't keep
+        // requesting completions for the same spot
+        .distinctUntilChanged(isEqual)
+        .filter((info) => info.shouldExpand)
+        .do(() => completionContextMenu.hide())
+        .mergeMap((completionInfo: any) => {
+            return Observable.defer(async () => {
+                console.log(`[COMPLETION] Requesting completions at line ${completionInfo.line} and character ${completionInfo.character}`)
+                const results = await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.meetLine, completionInfo.meetPosition)
+
+                return {
+                    completions: results,
+                    meetLine: completionInfo.meetLine,
+                    meetPosition: completionInfo.meetPosition,
+                }
+            })
+        })
+
+
+
+
+    // Subscribe to some event streams on the context menu
+    const completionMenuItemSelected$ = completionContextMenu.onItemSelected.asObservable()
+    completionMenuItemSelected$
+        .withLatestFrom(completionMeet$)
+        .subscribe((args: any[]) => {
+            const [completionItem, lastMeet] = args
+
+            if (lastMeet) {
+                commitCompletion(lastMeet.meetLine, lastMeet.contents, lastMeet.meetPosition, lastMeet.cursorColumn, completionItem.label)
+                completionContextMenu.hide()
+            }
+        })
+
+    const completionMenuSelectedItemChanged$ = completionContextMenu.onSelectedItemChanged.asObservable()
+    completionMenuSelectedItemChanged$
+        .withLatestFrom(completionMeet$)
+        .subscribe(async (args: any[]) => {
+            const [newItem, lastMeet] = args
+
+            const result = await resolveCompletionItem(lastMeet.language, lastMeet.filePath, newItem.rawCompletion)
+            completionContextMenu.updateItem(result)
+        })
+
+    // Core completion logic:
+    // Take the latest completion info, meet info, and mode
+    // and determine what to show in the context menu
+    Observable
+        .combineLatest(completion$, completionMeet$, modeChanged$)
+        .subscribe((args: any[]) => {
+
+            const [completionInfo, meetInfo, mode] = args
+
+
+            if (mode !== "insert") {
+                completionContextMenu.hide()
+                return
+            }
+
+            const { completions, meetLine, meetPosition } = completionInfo
+
+            if (!completions || !completions.length || !meetInfo.shouldExpand) {
+                completionContextMenu.hide()
+            } else if (meetLine !== meetInfo.meetLine || meetPosition !== meetInfo.meetPosition) {
+                completionContextMenu.hide()
+            } else {
+                completionContextMenu.show(completions, meetInfo.meetBase)
+            }
+        })
+
+
+
+
+
+
+    // currentCompletionMeet$.subscribe((newMeet) => { lastMeet = newMeet })
+}
 
 export const getCompletions = async (language: string, filePath: string, line: number, character: number): Promise<types.CompletionItem[]> => {
     const args = {
