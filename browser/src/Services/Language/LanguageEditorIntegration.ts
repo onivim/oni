@@ -20,7 +20,13 @@ import * as Hover from "./Hover"
 import * as SignatureHelp from "./SignatureHelp"
 import * as Completion from "./Completion"
 
+import * as UI from "./../../UI"
+import * as CodeActionUI from "./../../UI/components/CodeActions"
+
 export const addVisualModeLanguageFunctionality = (cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<Oni.Vim.Mode>) => {
+
+    cursorMoved$.subscribe(() => UI.Actions.hideToolTip("code-actions-tooltip"))
+
     cursorMoved$
         .debounceTime(250)
         .withLatestFrom(modeChanged$)
@@ -32,6 +38,11 @@ export const addVisualModeLanguageFunctionality = (cursorMoved$: Observable<Oni.
 
             const codeActions = await getCodeActions()
             if (codeActions) {
+                UI.Actions.showToolTip("code-actions-tooltip", CodeActionUI.renderCodeActionHover(), {
+                    position: null,
+                    openDirection: 1,
+                    padding: "8px",
+                })
                 console.log("code actions: " + codeActions.length)
             }
         })

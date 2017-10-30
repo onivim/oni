@@ -110,7 +110,7 @@ export class Buffer implements Oni.Buffer {
                     await this.setLines(lineStart, lineStart + 1, lines)
                 } else if (characterEnd === 0 && characterStart === 0) {
                     const lines = te.newText.split(os.EOL)
-                    await this.setLines(lineStart, lineEnd + 1, lines)
+                    await this.setLines(lineStart, lineEnd, lines)
                 } else {
                     console.warn("Multi-line mid character edits not currently supported")
                 }
