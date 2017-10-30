@@ -28,8 +28,8 @@ export class Buffer implements Oni.Buffer {
     private _modified: boolean
     private _lineCount: number
 
+    private _bufferLines: string[] = null
     private _lastBufferLineVersion: number = -1
-    private _bufferLines: string[]
 
     public get filePath(): string {
         return this._filePath
@@ -64,7 +64,7 @@ export class Buffer implements Oni.Buffer {
         this.updateFromEvent(evt)
     }
 
-    public async getLines(start?: number, end?: number): Promise<string[]> {
+    public async getLines(start?: number, end?: number, cached: boolean = true): Promise<string[]> {
 
         if (typeof start !== "number") {
             start = 0
@@ -74,7 +74,7 @@ export class Buffer implements Oni.Buffer {
             end = this._lineCount
         }
 
-        if (this._lastBufferLineVersion < this.version || !this._bufferLines) {
+        if (this._lastBufferLineVersion < this.version || !this._bufferLines || !cached) {
             const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [parseInt(this._id, 10), start, end, false])
             return lines
         }
@@ -99,7 +99,7 @@ export class Buffer implements Oni.Buffer {
                 const characterEnd = range.end.character
 
                 if (lineStart === lineEnd) {
-                    const [lineContents] = await this.getLines(lineStart, lineStart + 1)
+                    const [lineContents] = await this.getLines(lineStart, lineStart + 1, false /* force to get latest, because cached buffer may not be up-to-date */)
                     const beginning = lineContents.substring(0, range.start.character)
                     const end = lineContents.substring(range.end.character, lineContents.length)
                     const newLine = beginning + te.newText + end
