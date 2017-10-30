@@ -3,9 +3,9 @@
  */
 
 import * as isEqual from "lodash/isEqual"
-import { Observable } from "rxjs/Observable"
 import "rxjs/add/observable/combineLatest"
 import "rxjs/add/operator/withLatestFrom"
+import { Observable } from "rxjs/Observable"
 
 import * as types from "vscode-languageserver-types"
 
@@ -42,7 +42,6 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
         })
         .distinctUntilChanged(isEqual)
 
-
     const completion$ = completionMeet$
         // Extract out the parameters that are important for completion
         .map((bufferMeetInfo) => ({
@@ -50,7 +49,7 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
             filePath: bufferMeetInfo.filePath,
             meetLine: bufferMeetInfo.cursorLine,
             meetPosition: bufferMeetInfo.meetPosition,
-            shouldExpand: bufferMeetInfo.shouldExpand
+            shouldExpand: bufferMeetInfo.shouldExpand,
         }))
         // Only care if they've changed, so we don't keep
         // requesting completions for the same spot
@@ -69,9 +68,6 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
                 }
             })
         })
-
-
-
 
     // Subscribe to some event streams on the context menu
     const completionMenuItemSelected$ = completionContextMenu.onItemSelected.asObservable()
@@ -105,7 +101,6 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
 
             const [completionInfo, meetInfo, mode] = args
 
-
             if (mode !== "insert") {
                 completionContextMenu.hide()
                 return
@@ -121,11 +116,6 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
                 completionContextMenu.show(completions, meetInfo.meetBase)
             }
         })
-
-
-
-
-
 
     // currentCompletionMeet$.subscribe((newMeet) => { lastMeet = newMeet })
 }

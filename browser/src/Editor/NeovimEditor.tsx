@@ -7,8 +7,8 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-import "rxjs/add/observable/merge"
 import "rxjs/add/observable/defer"
+import "rxjs/add/observable/merge"
 import "rxjs/add/operator/map"
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
@@ -204,7 +204,7 @@ export class NeovimEditor implements IEditor {
                 column: evt.column - 1,
             }))
 
-            Observable.merge(this._cursorMoved$, this._cursorMovedI$)
+        Observable.merge(this._cursorMoved$, this._cursorMovedI$)
             .subscribe((cursorMoved) => {
                 this._onCursorMoved.dispatch(cursorMoved)
             })

@@ -2,7 +2,6 @@
  * Constants.ts
  */
 
-
 // Performance Constants
 export namespace Delay {
     export const INSTANT = 1

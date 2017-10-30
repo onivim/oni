@@ -14,8 +14,8 @@ import { Observable } from "rxjs/Observable"
 
 import "rxjs/add/observable/merge"
 
-import { BufferManager } from "./BufferManager"
 import { IFullBufferUpdateEvent, IIncrementalBufferUpdateEvent, NeovimInstance } from "./../neovim"
+import { BufferManager } from "./BufferManager"
 
 export const listenForBufferUpdates = (neovimInstance: NeovimInstance, bufferManager: BufferManager): Observable<Oni.EditorBufferChangedEventArgs> => {
 

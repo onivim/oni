@@ -138,8 +138,8 @@ export class Buffer implements Oni.Buffer {
         const startRange = await this._neovimInstance.callFunction("getpos", ["'<'"])
         const endRange = await this._neovimInstance.callFunction("getpos", ["'>"])
 
-        let [,startLine, startColumn,,] = startRange
-        let [,endLine, endColumn,,] = endRange
+        const [, startLine, startColumn, ] = startRange
+        let [, endLine, endColumn, ] = endRange
 
         if (startLine === 0 && startColumn === 0 && endLine === 0 && endColumn === 0) {
             return null

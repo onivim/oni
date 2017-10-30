@@ -16,6 +16,7 @@ import "rxjs/add/operator/toPromise"
 
 import { editorManager } from "./EditorManager"
 
+import { convertTextDocumentEditsToFileMap } from "./Language/Edits"
 import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import { Event, IEvent } from "./../Event"
@@ -35,19 +36,19 @@ export class Workspace implements Oni.Workspace {
 
     public async applyEdits(edits: types.WorkspaceEdit): Promise<void> {
 
+        let editsToUse = edits
         if (edits.documentChanges) {
-            console.warn("documentChanges not implemented yet")
-            return
+            editsToUse = convertTextDocumentEditsToFileMap(edits.documentChanges)
         }
 
-        const files = Object.keys(edits)
+        const files = Object.keys(editsToUse)
 
-        // Show modal to grab input
+        // TODO: Show modal to grab input
         // await editorManager.activeEditor.openFiles(files)
 
         const deferredEdits = await files.map((fileUri: string) => {
             return Observable.defer(async () => {
-                const changes = edits[fileUri]
+                const changes = editsToUse[fileUri]
                 const fileName = Helpers.unwrapFileUriPath(fileUri)
                 // TODO: Sort changes?
                 Log.verbose("[Workspace] Opening file: " + fileName)

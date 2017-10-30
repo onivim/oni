@@ -7,16 +7,16 @@
 
 import * as isEqual from "lodash/isEqual"
 
-import { Observable } from "rxjs/Observable"
 import "rxjs/add/observable/never"
+import { Observable } from "rxjs/Observable"
 
 // import * as types from "vscode-languageserver-types"
 
 import { editorManager } from "./../EditorManager"
+import * as Completion from "./Completion"
 import * as Definition from "./Definition"
 import * as Hover from "./Hover"
 import * as SignatureHelp from "./SignatureHelp"
-import * as Completion from "./Completion"
 
 export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<Oni.EditorBufferChangedEventArgs>, cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<string>) => {
 

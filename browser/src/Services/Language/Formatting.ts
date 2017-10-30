@@ -2,7 +2,6 @@
  * Rename.tsx
  */
 
-
 import * as types from "vscode-languageserver-types"
 
 import * as Log from "./../../Log"
