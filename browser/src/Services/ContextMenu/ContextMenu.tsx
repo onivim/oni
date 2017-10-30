@@ -27,9 +27,20 @@ const reducer = createReducer<types.CompletionItem, types.CompletionItem>((opts,
 
     const filterRegEx = new RegExp("^" + searchText.split("").join(".*") + ".*")
 
-    return opts.filter((f) => {
+    const filteredOptions = opts.filter((f) => {
         const textToFilterOn = f.filterText || f.label
         return textToFilterOn.match(filterRegEx)
+    })
+
+    return filteredOptions.sort((itemA, itemB) => {
+
+        const itemAFilterText = itemA.filterText || itemA.label
+        const itemBFilterText = itemB.filterText || itemB.label
+
+        const indexOfA = itemAFilterText.indexOf((searchText))
+        const indexOfB = itemBFilterText.indexOf((searchText))
+
+        return indexOfB - indexOfA
     })
 })
 
