@@ -124,6 +124,10 @@ export class LanguageManager {
         return ["("]
     }
 
+    public getCompletionTriggerCharacters(language: string): string[] {
+        return ["."]
+    }
+
     public isLanguageServerAvailable(language: string): boolean {
         return !!this._getLanguageClient(language)
     }

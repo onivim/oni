@@ -38,10 +38,14 @@ export interface CompletionMeetResult {
     shouldExpandCompletions: boolean
 }
 
+export const doesCharacterMatchTriggerCharacters = (character: string, triggerCharacters: string[]): boolean => {
+    return triggerCharacters.indexOf(character) >= 0
+}
+
 /**
  * Returns the start of the 'completion meet' along with the current base for completion
  */
-export function getCompletionMeet(line: string, cursorColumn: number, characterMatchRegex: RegExp): CompletionMeetResult {
+export function getCompletionMeet(line: string, cursorColumn: number, characterMatchRegex: RegExp, completionTriggerCharacters: string[]): CompletionMeetResult {
 
     // Clamp column to within string bands
     let col = Math.max(cursorColumn - 1, 0)
@@ -52,7 +56,7 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
     while (col >= 0 && col < line.length) {
         const currentCharacter = line[col]
 
-        if (!currentCharacter.match(characterMatchRegex)) {
+        if (!currentCharacter.match(characterMatchRegex) || doesCharacterMatchTriggerCharacters(currentCharacter, completionTriggerCharacters)) {
             break
         }
 
@@ -62,17 +66,16 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
 
     const basePos = col
 
-    const shouldExpandCompletions = currentPrefix.length > 0 || line[basePos] === "."
+    const isFromTriggerCharacter = doesCharacterMatchTriggerCharacters(line[basePos], completionTriggerCharacters)
 
-    // TODO: Refactor this into a 'trigger characters' array
-    // if (currentPrefix.length === 0 && line[basePos] !== ".") {
-    //     return null
-    // } else {
+    const shouldExpandCompletions = currentPrefix.length > 0 || isFromTriggerCharacter
+
+    // If the expansion is due to a letter, start the match at the letter position
+    const position = isFromTriggerCharacter ? basePos : basePos + 1
+
     return {
-        position: basePos + 1,
+        position: position + 1,
         base: currentPrefix,
         shouldExpandCompletions,
     }
-    // }
-
 }
