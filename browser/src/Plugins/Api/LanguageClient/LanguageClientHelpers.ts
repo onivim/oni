@@ -73,13 +73,13 @@ export const pathToTextDocumentIdentifierParms = (path: string) => ({
     },
 })
 
-export const eventContextToCodeActionParams = (filePath: string, line: number, column: number) => {
+export const eventContextToCodeActionParams = (filePath: string, range: types.Range) => {
     const emptyDiagnostics: types.Diagnostic[] = []
     return {
         textDocument: {
             uri: wrapPathInFileUri(filePath),
         },
-        range: types.Range.create(types.Position.create(line - 1, 0), types.Position.create(line, 0)),
+        range,
         context: { diagnostics: emptyDiagnostics },
     }
 }

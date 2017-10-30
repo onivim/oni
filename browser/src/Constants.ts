@@ -10,3 +10,7 @@ export namespace Delay {
     export const NEAR_REAL_TIME = 50
     export const NOT_REAL_TIME = 250
 }
+
+export namespace Vim {
+    export const MAX_VALUE = 2147483647
+}

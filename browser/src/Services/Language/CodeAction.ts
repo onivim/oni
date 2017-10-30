@@ -34,13 +34,17 @@ export const getCodeActions = async (): Promise<types.Command[]> => {
     const buffer = editorManager.activeEditor.activeBuffer
 
     const { language, filePath } = buffer
-    const { line, column } = buffer.cursor
+    const range = await buffer.getSelectionRange()
+
+    if (!range) {
+        return null
+    }
 
     if (languageManager.isLanguageServerAvailable(language)) {
         let result: types.Command[] = null
         try {
             result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/codeAction",
-            Helpers.eventContextToCodeActionParams(filePath, line, column))
+            Helpers.eventContextToCodeActionParams(filePath, range))
         } catch (ex) { Log.verbose(ex) }
 
         if (!result) {

@@ -13,13 +13,30 @@ import "rxjs/add/observable/never"
 // import * as types from "vscode-languageserver-types"
 
 import { editorManager } from "./../EditorManager"
-// import { getCodeActions } from "./CodeAction"
+import { getCodeActions } from "./CodeAction"
 import * as Definition from "./Definition"
 import * as Hover from "./Hover"
 // import { checkAndShowQuickInfo, hideQuickInfo } from "./QuickInfo"
 import * as SignatureHelp from "./SignatureHelp"
 import * as Completion from "./Completion"
 
+export const addVisualModeLanguageFunctionality = (cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<Oni.Vim.Mode>) => {
+    cursorMoved$
+        .debounceTime(250)
+        .withLatestFrom(modeChanged$)
+        .filter((combinedArgs: [any, string]) => {
+            const [, mode] = combinedArgs
+            return mode === "visual"
+        })
+        .subscribe(async () => {
+
+            const codeActions = await getCodeActions()
+            if (codeActions) {
+                console.log("code actions: " + codeActions.length)
+            }
+        })
+
+}
 export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<Oni.EditorBufferChangedEventArgs>, cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<string>) => {
 
     const latestPositionAndVersion$ =

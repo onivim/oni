@@ -101,6 +101,7 @@ declare namespace Oni {
         applyTextEdits(edit: types.TextEdit | types.TextEdit[]): Promise<void>
         getLines(start?: number, end?: number): Promise<string[]>
         getTokenAt(line: number, column: number): Promise<IToken>
+        getSelectionRange(): Promise<types.Range>
 
         setLines(start: number, end: number, lines: string[]): Promise<void>
         setCursorPosition(line: number, column: number): Promise<void>

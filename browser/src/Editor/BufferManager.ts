@@ -16,6 +16,7 @@ import "rxjs/add/operator/concatMap"
 import { NeovimInstance } from "./../neovim"
 import { languageManager, sortTextEdits } from "./../Services/Language"
 
+import * as Constants from "./../Constants"
 import * as Log from "./../Log"
 
 export class Buffer implements Oni.Buffer {
@@ -131,6 +132,25 @@ export class Buffer implements Oni.Buffer {
 
     public async setCursorPosition(row: number, column: number): Promise<void> {
         await this._neovimInstance.eval(`setpos(".", [0, ${row + 1}, ${column + 1}, 0])`)
+    }
+
+    public async getSelectionRange(): Promise<types.Range | null> {
+        const startRange = await this._neovimInstance.callFunction("getpos", ["'<'"])
+        const endRange = await this._neovimInstance.callFunction("getpos", ["'>"])
+
+        let [,startLine, startColumn,,] = startRange
+        let [,endLine, endColumn,,] = endRange
+
+        if (startLine === 0 && startColumn === 0 && endLine === 0 && endColumn === 0) {
+            return null
+        }
+
+        if (endColumn === Constants.Vim.MAX_VALUE) {
+            endLine++
+            endColumn = 1
+        }
+
+        return types.Range.create(startLine - 1, startColumn - 1, endLine - 1, endColumn - 1)
     }
 
     public async getTokenAt(line: number, column: number): Promise<Oni.IToken> {
