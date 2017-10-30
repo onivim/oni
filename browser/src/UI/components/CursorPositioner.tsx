@@ -78,7 +78,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         if (this._element) {
             this._measureElement(this._element)
 
-            this._resizeObserver = new window.ResizeObserver((entries: any) => {
+            this._resizeObserver = new window["ResizeObserver"]((entries: any) => { // tslint:disable-line
 
                 if (this._timeout) {
                     window.clearTimeout(this._timeout)
