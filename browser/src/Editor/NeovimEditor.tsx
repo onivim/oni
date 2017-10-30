@@ -4,25 +4,19 @@
  * IEditor implementation for Neovim
  */
 
-import * as os from "os"
-
-import * as isEqual from "lodash/isEqual"
-
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-import "rxjs/add/observable/concat"
+import "rxjs/add/observable/merge"
 import "rxjs/add/observable/defer"
 import "rxjs/add/operator/map"
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
 
-import * as types from "vscode-languageserver-types"
-
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
-import { IFullBufferUpdateEvent, IIncrementalBufferUpdateEvent, NeovimInstance, NeovimWindowManager } from "./../neovim"
+import { NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
@@ -39,13 +33,13 @@ import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
 import * as UI from "./../UI/index"
-import * as Log from "./../Log"
 
 import { IEditor } from "./Editor"
 
 import { InstallHelp } from "./../UI/components/InstallHelp"
 
 import { BufferManager } from "./BufferManager"
+import { listenForBufferUpdates } from "./BufferUpdates"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
 import { NeovimSurface } from "./NeovimSurface"
 
@@ -76,8 +70,6 @@ export class NeovimEditor implements IEditor {
     private _modeChanged$: Observable<Oni.Vim.Mode>
     private _cursorMoved$: Observable<Oni.Cursor>
     private _cursorMovedI$: Observable<Oni.Cursor>
-    private _bufferUpdates$: Observable<IFullBufferUpdateEvent>
-    private _bufferIncrementalUpdates$: Observable<IIncrementalBufferUpdateEvent>
 
     private _hasLoaded: boolean = false
 
@@ -200,8 +192,6 @@ export class NeovimEditor implements IEditor {
             UI.Actions.setTabs(currentTabId, tabs)
         })
 
-        this._bufferUpdates$ = this._neovimInstance.onBufferUpdate.asObservable()
-        this._bufferIncrementalUpdates$ = this._neovimInstance.onBufferUpdateIncremental.asObservable()
         this._cursorMoved$ = this._neovimInstance.autoCommands.onCursorMoved.asObservable()
             .map((evt): Oni.Cursor => ({
                 line: evt.line - 1,
@@ -214,8 +204,7 @@ export class NeovimEditor implements IEditor {
                 column: evt.column - 1,
             }))
 
-        this._cursorMoved$
-            .merge(this._cursorMovedI$)
+            Observable.merge(this._cursorMoved$, this._cursorMovedI$)
             .subscribe((cursorMoved) => {
                 this._onCursorMoved.dispatch(cursorMoved)
             })
@@ -224,67 +213,14 @@ export class NeovimEditor implements IEditor {
 
         this.onModeChanged.subscribe((newMode) => this._onModeChanged(newMode))
 
-        // Refactor to new method
-        this._bufferUpdates$
-            .subscribe((bufferUpdateEvent: IFullBufferUpdateEvent) => {
-            const args = bufferUpdateEvent.context
-
-            const buf = this._bufferManager.updateBufferFromEvent(args)
-            buf._notifyBufferUpdated(bufferUpdateEvent.bufferLines, args.version)
-
-            this._onBufferChangedEvent.dispatch({
-                buffer: buf,
-                contentChanges: [{ text: bufferUpdateEvent.bufferLines.join(os.EOL) }],
-            })
+        const bufferUpdates$ = listenForBufferUpdates(this._neovimInstance, this._bufferManager)
+        bufferUpdates$.subscribe((bufferUpdate) => {
+            this._onBufferChangedEvent.dispatch(bufferUpdate)
+            UI.Actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
         })
 
-        this._bufferIncrementalUpdates$
-            .subscribe(async (bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
-
-                    const args = bufferUpdateArgs.context
-                    const lineNumber = bufferUpdateArgs.lineNumber
-                    const changedLine = bufferUpdateArgs.lineContents
-
-                    const buf = this._bufferManager.updateBufferFromEvent(args)
-
-                    // Don't process the update if it is behind the current version
-                    if (args.version < buf.version) {
-                        Log.warn("[Neovim Editor] Skipping incremental update because version is out of date")
-                        return null
-                    }
-
-                    buf._notifyBufferUpdatedAt(lineNumber - 1, changedLine, args.version)
-
-                    this._onBufferChangedEvent.dispatch({
-                        buffer: buf,
-                        contentChanges: [{
-                            range: types.Range.create(lineNumber - 1, 0, lineNumber, 0),
-                            text: changedLine + os.EOL,
-                        }],
-                    })
-
-            })
-
-        const mapArgs = (args: IIncrementalBufferUpdateEvent & IFullBufferUpdateEvent) => {
-            const context = args.context
-            return ({
-                bufferNumber: context.bufferNumber,
-                modified: context.modified,
-                totalLines: context.bufferTotalLines,
-            })
-        }
-
-        Observable.concat(
-            this._bufferIncrementalUpdates$.map(mapArgs),
-            this._bufferUpdates$.map(mapArgs))
-            .distinctUntilChanged(isEqual)
-            .subscribe((args) => {
-                UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.bufferTotalLines)
-            })
-
-        const $allUpdates = this._onBufferChangedEvent.asObservable()
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
-        addNormalModeLanguageFunctionality($allUpdates, this._cursorMoved$, this._modeChanged$)
+        addNormalModeLanguageFunctionality(bufferUpdates$, this._cursorMoved$, this._modeChanged$)
 
         this._render()
 

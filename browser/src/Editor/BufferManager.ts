@@ -186,7 +186,9 @@ export class Buffer implements Oni.Buffer {
     }
 
     public _notifyBufferUpdatedAt(line: number, lineContents: string, version: number): void {
-        this._bufferLines[line] = lineContents
+        if (this._bufferLines) {
+            this._bufferLines[line] = lineContents
+        }
         this._lastBufferLineVersion = version
     }
 }
