@@ -14,10 +14,8 @@ import * as isEqual from "lodash/isEqual"
 
 import * as types from "vscode-languageserver-types"
 
-import { getCodeActions } from "./CodeAction"
 import { getQuickInfo } from "./QuickInfo"
 
-import { CodeActionHover } from "./../../UI/components/CodeActions"
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
 import { QuickInfoDocumentation, QuickInfoTitle } from "./../../UI/components/QuickInfo"
 
@@ -39,22 +37,18 @@ export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observ
         .flatMap(async () => await getQuickInfo())
         .merge(nullifier$)
 
-    const codeActionResults$ = shouldUpdate$
-        .flatMap(async () => await getCodeActions())
-        .merge(nullifier$)
-
     const errors$ = UI.state$
         .map((state) => Selectors.getErrorsForPosition(state))
         .distinctUntilChanged(isEqual)
 
     shouldUpdate$
-            .combineLatest(quickInfoResults$, codeActionResults$, errors$)
+            .combineLatest(quickInfoResults$, errors$)
             .debounceTime(100)
-            .subscribe((args: [any, types.Hover, types.Command[], types.Diagnostic[]]) => {
-                const [, hover, codeActions, errors] = args
+            .subscribe((args: [any, types.Hover, types.Diagnostic[]]) => {
+                const [, hover, errors] = args
 
-                if (hover || (codeActions && codeActions.length) || (errors && errors.length)) {
-                    const elem = renderQuickInfo(hover, codeActions, errors)
+                if (hover || (errors && errors.length)) {
+                    const elem = renderQuickInfo(hover, errors)
                     UI.Actions.showToolTip(hoverToolTipId, elem, {
                         position: null,
                         openDirection: 1,
@@ -64,7 +58,7 @@ export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observ
             })
 }
 
-export const renderQuickInfo = (hover: types.Hover, actions: types.Command[], errors: types.Diagnostic[]) => {
+export const renderQuickInfo = (hover: types.Hover, errors: types.Diagnostic[]) => {
     const quickInfoElements = getQuickInfoElementsFromHover(hover)
 
     const state: any = UI.store.getState()
@@ -80,37 +74,18 @@ export const renderQuickInfo = (hover: types.Hover, actions: types.Command[], er
     }
 
     const errorElements = getErrorElements(errors, customErrorStyle)
-    const commandElements = getCommandElements(actions, backgroundColor, foregroundColor)
 
-    let derpElement: JSX.Element[] = []
-
-    if (actions && actions.length > 0) {
-        const text = actions.length === 1 ? "1 refactoring available." : actions.length.toString() + " refactorings available."
-        derpElement = [<QuickInfoDocumentation text={text} />]
-    }
-    const elements = [...errorElements, ...quickInfoElements, ...derpElement ]
+    const elements = [...errorElements, ...quickInfoElements ]
 
     return <div className="quickinfo-container enable-mouse">
             <div className="quickinfo">
                 <div className="container horizontal center">
-                    <div className="container fixed center">
-                    {commandElements}
-                    </div>
                     <div className="container full">
                     {elements}
                     </div>
                 </div>
             </div>
            </div>
-}
-
-const getCommandElements = (commands: types.Command[], backgroundColor: string, foregroundColor: string): JSX.Element[] => {
-
-    if (!commands || !commands.length) {
-        return Selectors.EmptyArray
-    } else {
-        return [<CodeActionHover backgroundColor={backgroundColor} foregroundColor={foregroundColor}/>]
-    }
 }
 
 const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[] => {
