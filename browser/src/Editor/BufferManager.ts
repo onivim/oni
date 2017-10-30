@@ -14,7 +14,7 @@ import "rxjs/add/observable/from"
 import "rxjs/add/operator/concatMap"
 
 import { NeovimInstance } from "./../neovim"
-import { languageManager } from "./../Services/Language"
+import { languageManager, sortTextEdits } from "./../Services/Language"
 
 import * as Log from "./../Log"
 
@@ -86,7 +86,9 @@ export class Buffer implements Oni.Buffer {
 
         const textEditsAsArray = textEdits instanceof Array ? textEdits : [textEdits]
 
-        const deferredEdits = textEditsAsArray.map((te) => {
+        const sortedEdits = sortTextEdits(textEditsAsArray)
+
+        const deferredEdits = sortedEdits.map((te) => {
             return Observable.defer(async () => {
                 const range = te.range
                 Log.info("[Buffer] Applying edit")
@@ -120,6 +122,10 @@ export class Buffer implements Oni.Buffer {
     }
 
     public async setLines(start: number, end: number, lines: string[]): Promise<void> {
+        // Clear buffer lines, so that if we make subsequent edits, we are always getting the freshest line
+        // TODO: Speed this up by updating the `_bufferLines` cache instead
+        this._bufferLines = null
+
         await this._neovimInstance.request<any>("nvim_buf_set_lines", [parseInt(this._id, 10), start, end, false, lines])
     }
 
