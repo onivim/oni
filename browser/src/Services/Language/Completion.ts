@@ -23,7 +23,8 @@ import { contextMenuManager } from "./../ContextMenu"
 
 export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>) => {
 
-    // let lastMeet: any = null
+    let lastCompletedMeet: any = null
+    let lastSelection: string = null
 
     const completionContextMenu = contextMenuManager.create()
 
@@ -84,7 +85,10 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
             const [completionItem, lastMeet] = args
 
             if (lastMeet) {
-                commitCompletion(lastMeet.meetLine, lastMeet.contents, lastMeet.meetPosition, lastMeet.cursorColumn, completionItem.label)
+                const insertText = completionItem.insertText || completionItem.label
+                commitCompletion(lastMeet.meetLine, lastMeet.contents, lastMeet.meetPosition, lastMeet.cursorColumn, insertText)
+                lastCompletedMeet = lastMeet
+                lastSelection = insertText
                 completionContextMenu.hide()
             }
         })
@@ -109,14 +113,31 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
             const [completionInfo, meetInfo, mode] = args
 
             if (mode !== "insert") {
+                lastCompletedMeet = null
+                lastSelection = null
                 completionContextMenu.hide()
                 return
             }
+
+            if (lastCompletedMeet !== null
+                && lastCompletedMeet.meetLine === meetInfo.meetLine
+                && lastCompletedMeet.meetPosition === meetInfo.meetPosition
+                && lastSelection === meetInfo.meetBase) {
+                    completionContextMenu.hide()
+                    return
+                }
 
             const { completions, meetLine, meetPosition } = completionInfo
 
             if (!completions || !completions.length || !meetInfo.shouldExpand) {
                 completionContextMenu.hide()
+            } else if (completions.length === 1) {
+                const completionItem: types.CompletionItem = completions[0]
+                if (completionItem.insertText === meetInfo.meetBase) {
+                    completionContextMenu.hide()
+                } else {
+                    completionContextMenu.show(completions, meetInfo.meetBase)
+                }
             } else if (meetLine !== meetInfo.meetLine || meetPosition !== meetInfo.meetPosition) {
                 completionContextMenu.hide()
             } else {
