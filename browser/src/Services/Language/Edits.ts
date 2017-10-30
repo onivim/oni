@@ -21,7 +21,7 @@ export const convertTextDocumentEditsToFileMap = (edits: types.TextDocumentEdit[
     return edits.reduce((prev, curr) => {
         return {
             ...prev,
-            [curr.textDocument.uri]: edits
+            [curr.textDocument.uri]: edits,
         }
     }, {})
 }

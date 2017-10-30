@@ -4,6 +4,7 @@
 
 import * as React from "react"
 
+import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 import * as UI from "./../../UI"
 
@@ -76,7 +77,7 @@ export const doRename = async (newName: string): Promise<void> => {
     let result = null
     try {
         result = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/rename", args)
-        } catch (ex) { }
+        } catch (ex) { Log.debug(ex) }
 
     if (result) {
         await workspace.applyEdits(result)

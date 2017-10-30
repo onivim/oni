@@ -46,7 +46,11 @@ export class TextInputView extends React.PureComponent<IToolTipsViewProps, void>
 
     public componentWillUnmount(): void {
         if (this._element) {
-            this.props.onComplete && this.props.onComplete(this._element.value)
+
+            if (this.props.onComplete) {
+                this.props.onComplete(this._element.value)
+            }
+
             focusManager.popFocus(this._element)
             this._element = null
         }

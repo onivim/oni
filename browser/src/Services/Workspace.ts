@@ -5,22 +5,19 @@
  *  - The current / active directory (and 'Open Folder')
  */
 
-import * as types from "vscode-languageserver-types"
-
-import { Observable } from "rxjs/Observable"
-
 import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
 import "rxjs/add/operator/concatMap"
 import "rxjs/add/operator/toPromise"
-
-import { editorManager } from "./EditorManager"
-
-import { convertTextDocumentEditsToFileMap } from "./Language/Edits"
-import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
+import { Observable } from "rxjs/Observable"
+import * as types from "vscode-languageserver-types"
 
 import { Event, IEvent } from "./../Event"
 import * as Log from "./../Log"
+import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
+
+import { editorManager } from "./EditorManager"
+import { convertTextDocumentEditsToFileMap } from "./Language/Edits"
 
 export class Workspace implements Oni.Workspace {
     private _onDirectoryChangedEvent = new Event<string>()

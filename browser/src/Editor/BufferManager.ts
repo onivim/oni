@@ -112,7 +112,7 @@ export class Buffer implements Oni.Buffer {
                     const lines = te.newText.split(os.EOL)
                     await this.setLines(lineStart, lineEnd, lines)
                 } else {
-                    console.warn("Multi-line mid character edits not currently supported")
+                    Log.warn("Multi-line mid character edits not currently supported")
                 }
             })
         })
@@ -138,8 +138,8 @@ export class Buffer implements Oni.Buffer {
         const startRange = await this._neovimInstance.callFunction("getpos", ["'<'"])
         const endRange = await this._neovimInstance.callFunction("getpos", ["'>"])
 
-        const [, startLine, startColumn, ] = startRange
-        let [, endLine, endColumn, ] = endRange
+        const [, startLine, startColumn ] = startRange
+        let [, endLine, endColumn ] = endRange
 
         if (startLine === 0 && startColumn === 0 && endLine === 0 && endColumn === 0) {
             return null

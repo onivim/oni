@@ -12,6 +12,7 @@ import * as types from "vscode-languageserver-types"
 import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
 
+import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
@@ -31,7 +32,11 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
         .map((changeInfo) => {
             const token = languageManager.getTokenRegex(changeInfo.language)
             const meet = AutoCompletionUtility.getCompletionMeet(changeInfo.contents, changeInfo.cursorColumn, token)
-            console.log(`[COMPLETION] Got meet at position: ${meet.position} with base: ${meet.base} - shouldExpand: ${meet.shouldExpandCompletions}`)
+
+            if (Log.isDebugLoggingEnabled()) {
+                Log.debug(`[COMPLETION] Got meet at position: ${meet.position} with base: ${meet.base} - shouldExpand: ${meet.shouldExpandCompletions}`)
+            }
+
             return {
                 ...changeInfo,
                 meetLine: changeInfo.cursorLine,
@@ -58,7 +63,9 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
         .do(() => completionContextMenu.hide())
         .mergeMap((completionInfo: any) => {
             return Observable.defer(async () => {
-                console.log(`[COMPLETION] Requesting completions at line ${completionInfo.line} and character ${completionInfo.character}`)
+                if (Log.isDebugLoggingEnabled()) {
+                    Log.debug(`[COMPLETION] Requesting completions at line ${completionInfo.line} and character ${completionInfo.character}`)
+                }
                 const results = await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.meetLine, completionInfo.meetPosition)
 
                 return {

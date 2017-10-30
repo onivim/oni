@@ -4,16 +4,16 @@
  */
 
 import { Observable } from "rxjs/Observable"
-
 import * as types from "vscode-languageserver-types"
 
+import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 import * as UI from "./../../UI"
 
 import { editorManager } from "./../EditorManager"
+
 import { ILatestCursorAndBufferInfo } from "./LanguageEditorIntegration"
 import { languageManager } from "./LanguageManager"
-
 import * as SignatureHelp from "./SignatureHelpView"
 
 export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>) => {
@@ -71,7 +71,7 @@ export const showSignatureHelp = async (language: string, filePath: string, line
         let result: types.SignatureHelp = null
         try {
             result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/signatureHelp", args)
-        } catch (ex) { }
+        } catch (ex) { Log.debug(ex) }
 
         return result
     } else {
