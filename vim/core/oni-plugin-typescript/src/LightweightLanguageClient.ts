@@ -65,6 +65,8 @@ export class LightweightLanguageClient {
             },
             definitionProvider: true,
             referencesProvider: true,
+            formattingProvider: false,
+            rangeFormattingProvider: true,
 
             // TODO:
             // codelensprovider
