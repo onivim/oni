@@ -19,6 +19,8 @@ import * as State from "./../Menu/MenuState"
 import * as UI from "./../../UI"
 import { ContextMenuContainer } from "./ContextMenuComponent"
 
+
+// TODO: Remove filtering from the context menu responsibility
 const reducer = createReducer<types.CompletionItem, types.CompletionItem>((opts, searchText) => {
 
     if (!searchText) {
@@ -27,20 +29,9 @@ const reducer = createReducer<types.CompletionItem, types.CompletionItem>((opts,
 
     const filterRegEx = new RegExp("^" + searchText.split("").join(".*") + ".*")
 
-    const filteredOptions = opts.filter((f) => {
+    return opts.filter((f) => {
         const textToFilterOn = f.filterText || f.label
         return textToFilterOn.match(filterRegEx)
-    })
-
-    return filteredOptions.sort((itemA, itemB) => {
-
-        const itemAFilterText = itemA.filterText || itemA.label
-        const itemBFilterText = itemB.filterText || itemB.label
-
-        const indexOfA = itemAFilterText.indexOf((searchText))
-        const indexOfB = itemBFilterText.indexOf((searchText))
-
-        return indexOfB - indexOfA
     })
 })
 

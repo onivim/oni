@@ -127,25 +127,52 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
                     return
                 }
 
+
             const { completions, meetLine, meetPosition } = completionInfo
 
-            if (!completions || !completions.length || !meetInfo.shouldExpand) {
+            const filteredCompletions = filterCompletionOptions(completions, meetInfo.meetBase)
+
+            if (!filteredCompletions || !filteredCompletions.length || !meetInfo.shouldExpand) {
                 completionContextMenu.hide()
-            } else if (completions.length === 1) {
-                const completionItem: types.CompletionItem = completions[0]
+            } else if (filteredCompletions.length === 1) {
+                const completionItem: types.CompletionItem = filteredCompletions[0]
                 if (completionItem.insertText === meetInfo.meetBase) {
                     completionContextMenu.hide()
                 } else {
-                    completionContextMenu.show(completions, meetInfo.meetBase)
+                    completionContextMenu.show(filteredCompletions, meetInfo.meetBase)
                 }
             } else if (meetLine !== meetInfo.meetLine || meetPosition !== meetInfo.meetPosition) {
                 completionContextMenu.hide()
             } else {
-                completionContextMenu.show(completions, meetInfo.meetBase)
+                completionContextMenu.show(filteredCompletions, meetInfo.meetBase)
             }
         })
 
     // currentCompletionMeet$.subscribe((newMeet) => { lastMeet = newMeet })
+}
+
+export const filterCompletionOptions = (items: types.CompletionItem[], searchText: string): types.CompletionItem[] => {
+    if (!searchText) {
+        return items
+    }
+
+    const filterRegEx = new RegExp("^" + searchText.split("").join(".*") + ".*")
+
+    const filteredOptions = items.filter((f) => {
+        const textToFilterOn = f.filterText || f.label
+        return textToFilterOn.match(filterRegEx)
+    })
+
+    return filteredOptions.sort((itemA, itemB) => {
+
+        const itemAFilterText = itemA.filterText || itemA.label
+        const itemBFilterText = itemB.filterText || itemB.label
+
+        const indexOfA = itemAFilterText.indexOf((searchText))
+        const indexOfB = itemBFilterText.indexOf((searchText))
+
+        return indexOfB - indexOfA
+    })
 }
 
 export const getCompletions = async (language: string, filePath: string, line: number, character: number): Promise<types.CompletionItem[]> => {
