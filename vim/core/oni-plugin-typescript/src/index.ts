@@ -12,8 +12,8 @@ import * as path from "path"
 
 import * as types from "vscode-languageserver-types"
 
-import { getCodeActions, executeCommand } from "./CodeActions"
-import { getCompletions, getCompletionDetails } from "./Completion"
+import { executeCommand, getCodeActions } from "./CodeActions"
+import { getCompletionDetails, getCompletions } from "./Completion"
 import { getDefinition } from "./Definition"
 import { findAllReferences } from "./FindAllReferences"
 import { formatRange } from "./Formatting"

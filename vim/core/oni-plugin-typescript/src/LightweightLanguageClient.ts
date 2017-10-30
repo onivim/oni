@@ -46,7 +46,6 @@ export class LightweightLanguageClient {
 
     private _clientRequestHandler: { [key: string]: ClientRequestHandler } = { }
 
-
     private _notificationHandler: { [key: string]: NotificationHandler } = { }
 
     public get connection(): LanguageConnection {
@@ -123,7 +122,7 @@ export class LightweightLanguageClient {
         const notifierEvent = this._subscriptions[notificationName]
 
         if (notifierEvent) {
-            (<any>notifierEvent).dispatch({
+            (notifierEvent as any).dispatch({
                 language, // TODO: Generalize for JS too
                 payload,
             })
@@ -131,7 +130,7 @@ export class LightweightLanguageClient {
     }
 
     private _unwrapThunk(valueOrThunk?: any): Promise<any> {
-        if(typeof(valueOrThunk) !== "function") {
+        if (typeof(valueOrThunk) !== "function") {
             return valueOrThunk
         } else {
             const val = valueOrThunk(this.serverCapabilities)

@@ -87,7 +87,7 @@
     "test:unit": "npm run test:unit:browser",
     "test:unit:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
     "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
-    "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --config tslint.json",
+    "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json",
     "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
     "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
     "lint": "npm run lint:browser && npm run lint:main && npm run lint:test",

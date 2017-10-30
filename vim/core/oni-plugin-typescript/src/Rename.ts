@@ -23,7 +23,6 @@ export const doRename = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => asy
 
     const val = await host.rename(filePath, oneBasedPosition.line, oneBasedPosition.character)
 
-
     if (!val || !val.info.canRename) {
         throw new Error("Unable to rename.")
     }

@@ -37,14 +37,13 @@ export const getWorkspaceSymbols = (oni: Oni.Plugin.Api, host: TypeScriptServerH
     return result.map((item) => convertNavtoItemToSymbolInformation(item))
 }
 
-
 export const getDocumentSymbols = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (message: string, payload: ITextDocumentParams): Promise<types.SymbolInformation[]> => {
     const textDocument: types.TextDocumentIdentifier = payload.textDocument
     const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
 
     const items = await host.getNavigationTree(filePath)
 
-    const results = []
+    const ret = []
 
     const convertNavigationTreeToSymbolInformation = (item: protocol.NavigationTree): types.SymbolInformation => ({
         name: item.text,
@@ -57,12 +56,11 @@ export const getDocumentSymbols = (oni: Oni.Plugin.Api, host: TypeScriptServerHo
         results.push(convertNavigationTreeToSymbolInformation(item))
 
         if (item.childItems) {
-            item.childItems.forEach((item) => appendItemToResults(item, results))
+            item.childItems.forEach((childItem) => appendItemToResults(childItem, results))
         }
     }
 
-    appendItemToResults(items, results)
+    appendItemToResults(items, ret)
 
-    return results
+    return ret
 }
-

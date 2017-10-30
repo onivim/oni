@@ -52,4 +52,3 @@ export const getSignatureHelp = (oni: Oni.Plugin.Api, host: TypeScriptServerHost
         activeParameter: result.argumentIndex,
     }
 }
-

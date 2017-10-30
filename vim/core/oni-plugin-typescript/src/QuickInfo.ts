@@ -23,6 +23,6 @@ export const getQuickInfo = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) =>
     const val = await host.getQuickInfo(filePath, position.line + 1, position.character + 1)
 
     return {
-        contents: [val.displayString, val.documentation]
+        contents: [val.displayString, val.documentation],
     }
 }

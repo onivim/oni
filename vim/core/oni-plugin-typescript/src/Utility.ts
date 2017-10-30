@@ -13,7 +13,7 @@ export const zeroBasedPositionToOneBasedPosition = (zeroBasedPosition: types.Pos
     character: zeroBasedPosition.character + 1,
 })
 
-export const getLanguageFromFileName = (fileName:string) => {
+export const getLanguageFromFileName = (fileName: string) => {
     const extension = path.extname(fileName)
     const language = extension === ".js" || extension === ".jsx" ? "javascript" : "typescript"
     return language

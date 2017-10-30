@@ -69,10 +69,10 @@ export const executeCommand = (connection: LanguageConnection, oni: Oni.Plugin.A
 
     const changes = val.edits.reduce((prev: any, codeEdit: protocol.FileCodeEdits) => {
         const file = oni.language.wrapPathInFileUri(codeEdit.fileName)
-        return <any>{
+        return {
             ...prev,
-            [file]: codeEdit.textChanges.map((te) => Utility.convertCodeEditToTextEdit(te))
-        }
+            [file]: codeEdit.textChanges.map((te) => Utility.convertCodeEditToTextEdit(te)),
+        } as any
     }, {})
 
     await connection.request("workspace/applyEdit", language, { edit: { changes } })
