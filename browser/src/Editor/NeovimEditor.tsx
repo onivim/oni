@@ -28,7 +28,7 @@ import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality, addVisualModeLanguageFunctionality } from "./../Services/Language"
+import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
@@ -220,7 +220,6 @@ export class NeovimEditor implements IEditor {
         })
 
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
-        addVisualModeLanguageFunctionality(this._cursorMoved$, this._modeChanged$)
         addNormalModeLanguageFunctionality(bufferUpdates$, this._cursorMoved$, this._modeChanged$)
 
         this._render()

@@ -20,7 +20,6 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 const codeActionsContextMenu = contextMenuManager.create()
 
-let lastCommands: types.Command[] = []
 let lastFileInfo: any = {}
 
 codeActionsContextMenu.onItemSelected.subscribe(async (selectedItem) => {
@@ -29,7 +28,25 @@ codeActionsContextMenu.onItemSelected.subscribe(async (selectedItem) => {
     await languageManager.sendLanguageServerRequest(lastFileInfo.language, lastFileInfo.filePath, "workspace/executeCommand", { command: commandName })
 })
 
-export const getCodeActions = async (): Promise<types.Command[]> => {
+export const expandCodeActions = async () => {
+
+    const commands = await getCodeActions()
+    if (!commands || !commands.length) {
+        return
+    }
+
+    const mapCommandsToItem = (command: types.Command, idx: number) => ({
+        label: command.title,
+        icon: "lightbulb-o",
+        data: command.command,
+    })
+
+    const contextMenuItems = commands.map(mapCommandsToItem)
+
+    codeActionsContextMenu.show(contextMenuItems)
+}
+
+const getCodeActions = async (): Promise<types.Command[]> => {
 
     const buffer = editorManager.activeEditor.activeBuffer
 
@@ -51,7 +68,6 @@ export const getCodeActions = async (): Promise<types.Command[]> => {
             return null
         }
 
-        lastCommands = result
         lastFileInfo = {
             language,
             filePath,
@@ -63,18 +79,3 @@ export const getCodeActions = async (): Promise<types.Command[]> => {
     }
 }
 
-export const expandCodeActions = () => {
-    if (!lastCommands || !lastCommands.length) {
-        return
-    }
-
-    const mapCommandsToItem = (command: types.Command, idx: number) => ({
-        label: command.title,
-        icon: "lightbulb-o",
-        data: command.command,
-    })
-
-    const contextMenuItems = lastCommands.map(mapCommandsToItem)
-
-    codeActionsContextMenu.show(contextMenuItems)
-}

@@ -23,12 +23,13 @@ export class CodeActionHover extends React.PureComponent<{}, {}> {
             cursor: "pointer",
         }
 
-        return <div className="container horizontal"> 
+        return <div className="container horizontal quickinfo-container"> 
         <div className="container horizontal fixed" style={style} onClick={() => commandManager.executeCommand("language.codeAction.expand")}>
             <Icon name="lightbulb-o" size={IconSize.Large}/>
         </div>
-        <div className="container full">
-            Refactorings available
+        <div className="container full quickinfo">
+            <div className="title">Refactorings available</div>
+            <div className="documentation">Press alt-enter to expand</div>
         </div>
         </div>
     }
