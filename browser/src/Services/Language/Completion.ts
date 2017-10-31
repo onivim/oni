@@ -128,7 +128,6 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
                     return
                 }
 
-
             const { completions, meetLine, meetPosition } = completionInfo
 
             const filteredCompletions = filterCompletionOptions(completions, meetInfo.meetBase)

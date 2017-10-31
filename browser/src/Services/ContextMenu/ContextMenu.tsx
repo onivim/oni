@@ -19,7 +19,6 @@ import * as State from "./../Menu/MenuState"
 import * as UI from "./../../UI"
 import { ContextMenuContainer } from "./ContextMenuComponent"
 
-
 // TODO: Remove filtering from the context menu responsibility
 const reducer = createReducer<types.CompletionItem, types.CompletionItem>((opts, searchText) => {
 

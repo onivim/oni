@@ -11,7 +11,7 @@ import { editorManager } from "./../EditorManager"
 
 import { languageManager } from "./LanguageManager"
 
-export const format = async() => {
+export const format = async () => {
 
     const activeBuffer = editorManager.activeEditor.activeBuffer
 
