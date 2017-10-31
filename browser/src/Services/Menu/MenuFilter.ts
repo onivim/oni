@@ -70,9 +70,6 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
     // remove duplicate characters
     const searchSet = new Set(searchString)
 
-    // remove duplicate characters
-    const searchSet = new Set(searchString)
-
     // remove any items that don't have all the characters from searchString
     // For this first pass, ignore case
     const filteredOptions = options.filter((o) => {
