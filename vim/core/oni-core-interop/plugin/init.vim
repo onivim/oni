@@ -5,6 +5,8 @@ if exists("g:loaded_oni_interop_plugin")
     finish
 endif
 
+:set hidden
+
 let g:loaded_oni_interop_plugin = 1
 
 function OniNotify(args)
@@ -149,6 +151,7 @@ function! OniNextWindow( direction )
   endif
 endfunction
 
+nnoremap gd :call OniCommand("language.gotoDefinition")<CR>
 nnoremap <silent> <C-w>h :<C-u>call OniNextWindow('h')<CR>
 nnoremap <silent> <C-w>j :<C-u>call OniNextWindow('j')<CR>
 nnoremap <silent> <C-w>k :<C-u>call OniNextWindow('k')<CR>

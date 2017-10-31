@@ -4,6 +4,12 @@
  * Implements API surface area for working with the status bar
  */
 
+import { Subject } from "rxjs/Subject"
+import { Subscription } from "rxjs/Subscription"
+
+import "rxjs/add/operator/auditTime"
+import "rxjs/add/operator/debounceTime"
+
 import * as UI from "./../UI"
 
 export enum StatusBarAlignment {
@@ -21,11 +27,23 @@ export class StatusBarItem implements Oni.StatusBarItem {
     private _contents: JSX.Element
     private _visible: boolean = false
 
+    private _setContentsSubject: Subject<any> = new Subject<any>()
+    private _subscription: Subscription
+
     constructor(
         private _id: string,
         private _alignment?: StatusBarAlignment | null,
         private _priority?: number | null,
-    ) { }
+    ) {
+
+        this._subscription = this._setContentsSubject
+            .debounceTime(25)
+            .subscribe((contents: any) => {
+                if (this._visible) {
+                    this.show()
+                }
+            })
+    }
 
     public show(): void {
         this._visible = true
@@ -39,14 +57,15 @@ export class StatusBarItem implements Oni.StatusBarItem {
 
     public setContents(element: any): void {
         this._contents = element
-
-        if (this._visible) {
-            this.show()
-        }
+        this._setContentsSubject.next(element)
     }
 
     public dispose(): void {
-        throw new Error("Not implemented")
+        if (this._subscription) {
+            this._subscription.unsubscribe()
+            this._subscription = null
+            this._setContentsSubject = null
+        }
     }
 }
 

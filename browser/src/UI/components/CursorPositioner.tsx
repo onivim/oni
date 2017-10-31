@@ -18,9 +18,11 @@ export enum OpenDirection {
 }
 
 export interface ICursorPositionerProps {
+    position?: Oni.Coordinates.PixelSpacePoint,
     beakColor?: string
     openDirection?: OpenDirection
     hideArrow?: boolean
+    key?: string
 }
 
 export interface ICursorPositionerViewProps extends ICursorPositionerProps {
@@ -42,6 +44,8 @@ export interface ICursorPositionerViewState {
     isFullWidth: boolean
     shouldOpenDownward: boolean,
     adjustedX: number
+    lastMeasuredHeight: number,
+    lastMeasuredWidth: number,
 }
 
 const InitialState = {
@@ -50,6 +54,9 @@ const InitialState = {
     isFullWidth: false,
     shouldOpenDownward: false,
     adjustedX: 0,
+
+    lastMeasuredHeight: 0,
+    lastMeasuredWidth: 0,
 }
 
 /**
@@ -57,15 +64,40 @@ const InitialState = {
  */
 export class CursorPositionerView extends React.PureComponent<ICursorPositionerViewProps, ICursorPositionerViewState> {
 
+    private _element: HTMLElement
+    private _resizeObserver: any
+    private _timeout: any
+
     constructor(props: ICursorPositionerViewProps) {
         super(props)
 
         this.state = InitialState
     }
 
-    public componentWillReceiveProps(nextProps: ICursorPositionerViewProps): void {
-        if (this.props !== nextProps) {
-            this.setState(InitialState)
+    public componentDidMount(): void {
+        if (this._element) {
+            this._measureElement(this._element)
+
+            this._resizeObserver = new window["ResizeObserver"]((entries: any) => { // tslint:disable-line
+
+                if (this._timeout) {
+                    window.clearTimeout(this._timeout)
+                }
+
+                this._timeout = window.setTimeout(() => {
+                    this._measureElement(this._element)
+                    this._timeout = null
+                }, 50)
+            })
+
+            this._resizeObserver.observe(this._element)
+        }
+    }
+
+    public componentWillUnmount(): void {
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect()
+            this._resizeObserver = null
         }
     }
 
@@ -100,7 +132,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             visibility: this.props.hideArrow ? "hidden" : "visible",
         }
 
-        const childStyleWithAdjustments = this.state.isMeasured ? {
+        const childStyleWithAdjustments: React.CSSProperties = this.state.isMeasured ? {
             ...childStyle,
             left: this.state.isFullWidth ? "8px" : adjustedX.toString() + "px",
             right: this.state.isFullWidth ? "8px" : null,
@@ -108,7 +140,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
 
         return <div style={containerStyle}>
             <div style={childStyleWithAdjustments}>
-                <div ref={(elem) => this._measureElement(elem)}>
+                <div ref={(elem) => this._element = elem}>
                     {this.props.children}
                 </div>
             </div>
@@ -122,40 +154,45 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         if (element) {
             const rect = element.getBoundingClientRect()
 
+            if (rect.height <= this.state.lastMeasuredHeight
+               && rect.width <= this.state.lastMeasuredWidth) {
+                return
+            }
+
             const margin = this.props.lineHeight * 2
             const canOpenUpward = this.props.y - rect.height > margin
             const bottomScreenPadding = 50
             const canOpenDownard = this.props.y + rect.height + this.props.lineHeight * 3 < this.props.containerHeight - margin - bottomScreenPadding
 
-            if (!this.state.isMeasured) {
-                const shouldOpenDownward = (this.props.openDirection !== OpenDirection.Down && !canOpenUpward) || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
+            const shouldOpenDownward = (this.props.openDirection !== OpenDirection.Down && !canOpenUpward) || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
 
-                const rightBounds = this.props.x + rect.width
+            const rightBounds = this.props.x + rect.width
 
-                const isFullWidth = rect.width > this.props.containerWidth
+            const isFullWidth = rect.width > this.props.containerWidth
 
-                let adjustedX = this.props.x
+            let adjustedX = this.props.x
 
-                if (!isFullWidth && rightBounds > this.props.containerWidth) {
+            if (!isFullWidth && rightBounds > this.props.containerWidth) {
                     const offset = rightBounds - this.props.containerWidth + 8
                     adjustedX = this.props.x - offset
                 }
 
-                this.setState({
+            this.setState({
                     isFullWidth,
                     shouldOpenDownward,
                     adjustedX,
                     isMeasured: true,
+                    lastMeasuredWidth: rect.width,
+                    lastMeasuredHeight: rect.height,
                 })
-            }
         }
     }
 }
 
 const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursorPositionerViewProps => {
+    const x = props.position ? props.position.pixelX : state.cursorPixelX
+    const y = props.position ? props.position.pixelY : state.cursorPixelY
 
-    const x = state.cursorPixelX - (state.fontPixelWidth / 2) - 2
-    const y = state.cursorPixelY - (state.fontPixelHeight * 1)
     const lineHeight = state.fontPixelHeight
 
     const beakColor = (props && props.beakColor) ? props.beakColor : state.backgroundColor
@@ -163,8 +200,8 @@ const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursor
     return {
         beakColor,
         fontPixelWidth: state.fontPixelWidth,
-        x,
-        y,
+        x: x - (state.fontPixelWidth / 2),
+        y: y - (state.fontPixelHeight),
         containerWidth: state.viewport.width,
         containerHeight: state.viewport.height,
         lineHeight,

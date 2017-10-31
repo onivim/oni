@@ -2,6 +2,7 @@ import * as types from "vscode-languageserver-types"
 
 import { connect } from "react-redux"
 import * as Selectors from "./../Selectors"
+import { getActiveBuffer } from "./../selectors/BufferSelectors"
 import * as State from "./../State"
 
 import { BufferScrollBar, IBufferScrollBarProps, IScrollBarMarker } from "./../components/BufferScrollBar"
@@ -55,7 +56,7 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
     const dimensions = Selectors.getActiveWindowPixelDimensions(state)
 
     const file = activeWindow.file
-    const buffer = Selectors.getBufferByFilename(file, state.buffers)
+    const buffer = getActiveBuffer(state)
 
     if (file === null || !buffer) {
         return NoScrollBar

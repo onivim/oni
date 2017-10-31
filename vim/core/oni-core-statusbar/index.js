@@ -6,7 +6,6 @@ const activate = (Oni) => {
     const React = Oni.dependencies.React
 
     const workingDirectoryItem = Oni.statusBar.createItem(0, -1, "oni.status.workingDirectory")
-    const fileTypeItem = Oni.statusBar.createItem(0, 0, "oni.status.fileType")
     const lineNumberItem = Oni.statusBar.createItem(1, -1, "oni.status.lineNumber")
     const modeItem = Oni.statusBar.createItem(1, -2, "oni.status.mode")
 
@@ -66,40 +65,12 @@ const activate = (Oni) => {
         workingDirectoryItem.setContents(element)
     }
 
-    const setFileType = (fileType) => {
-
-        if (!fileType) {
-            fileTypeItem.hide()
-            return
-        }
-
-        const fileTypeStyle = {
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100%",
-            backgroundColor: "rgb(35, 35, 35)",
-            color: "rgb(200, 200, 200)",
-            paddingRight: "8px",
-            paddingLeft: "8px"
-        }
-
-        const element = React.createElement("div", { style: fileTypeStyle }, fileType)
-
-        fileTypeItem.setContents(element)
-        fileTypeItem.show()
-    }
-
     Oni.editors.activeEditor.onModeChanged.subscribe((newMode) => {
         setMode(newMode)
     })
 
-    Oni.on("cursor-moved", (evt) => {
-        setLineNumber(evt.line, evt.column)
-    })
-
-    Oni.on("buffer-enter", (evt) => {
-        setFileType(evt.filetype)
+    Oni.editors.activeEditor.onCursorMoved.subscribe((cursor) => {
+        setLineNumber(cursor.line + 1, cursor.column + 1)
     })
 
     Oni.workspace.onDirectoryChanged.subscribe((newDirectory) => {

@@ -7,25 +7,7 @@ import * as os from "os"
 import * as flatMap from "lodash/flatMap"
 import * as types from "vscode-languageserver-types"
 
-export const ProtocolConstants = {
-    Initialize: "initialize",
-    Telemetry: {
-        Event: "telemetry/event",
-    },
-    TextDocument: {
-        Completion: "textDocument/completion",
-        Hover: "textDocument/hover",
-        Definition: "textDocument/definition",
-        DocumentSymbol: "textDocument/documentSymbol",
-        DidChange: "textDocument/didChange",
-        References: "textDocument/references",
-        PublishDiagnostics: "textDocument/publishDiagnostics",
-    },
-    Window: {
-        LogMessage: "window/logMessage",
-        ShowMessage: "window/showMessage",
-    },
-}
+import * as Utility from "./../../../Utility"
 
 export namespace TextDocumentSyncKind {
     export const None = 0
@@ -54,7 +36,7 @@ export interface ServerCapabilities {
     documentSymbolProvider?: boolean
 }
 
-export const wrapPathInFileUri = (path: string) => getFilePrefix() + path
+export const wrapPathInFileUri = (path: string) => getFilePrefix() + Utility.normalizePath(path)
 
 export const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split(getFilePrefix())[1])
 
@@ -90,6 +72,17 @@ export const pathToTextDocumentIdentifierParms = (path: string) => ({
         uri: wrapPathInFileUri(path),
     },
 })
+
+export const eventContextToCodeActionParams = (filePath: string, range: types.Range) => {
+    const emptyDiagnostics: types.Diagnostic[] = []
+    return {
+        textDocument: {
+            uri: wrapPathInFileUri(filePath),
+        },
+        range,
+        context: { diagnostics: emptyDiagnostics },
+    }
+}
 
 export const eventContextToTextDocumentPositionParams = (args: Oni.EventContext) => ({
     textDocument: {

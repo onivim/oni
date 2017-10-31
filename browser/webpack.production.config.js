@@ -6,6 +6,7 @@ const OptimizeJsPlugin = require("optimize-js-plugin")
 const BabiliPlugin = require("babili-webpack-plugin")
 
 const productionConfig = Object.assign({}, baseConfig, {
+    devtool: false,
     plugins: [
         new webpack.DefinePlugin({
             "process.env.NODE_ENV":'"production"'

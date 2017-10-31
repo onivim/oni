@@ -23,11 +23,11 @@ export function getCompletionStart(bufferLine: string, cursorColumn: number, com
     return x + 1
 }
 
-export function replacePrefixWithCompletion(bufferLine: string, cursorColumn: number, completion: string): string {
-    const startPosition = getCompletionStart(bufferLine, cursorColumn, completion)
+export function replacePrefixWithCompletion(bufferLine: string, basePosition: number, cursorColumn: number, completion: string): string {
+    const startPosition = basePosition
 
     const before = bufferLine.substring(0, startPosition)
-    const after = bufferLine.substring(cursorColumn + 1, bufferLine.length)
+    const after = bufferLine.substring(cursorColumn, bufferLine.length)
 
     return before + completion + after
 }
@@ -35,24 +35,28 @@ export function replacePrefixWithCompletion(bufferLine: string, cursorColumn: nu
 export interface CompletionMeetResult {
     position: number
     base: string
+    shouldExpandCompletions: boolean
+}
+
+export const doesCharacterMatchTriggerCharacters = (character: string, triggerCharacters: string[]): boolean => {
+    return triggerCharacters.indexOf(character) >= 0
 }
 
 /**
  * Returns the start of the 'completion meet' along with the current base for completion
  */
-export function getCompletionMeet(line: string, cursorColumn: number, characterMatchRegex: RegExp): CompletionMeetResult {
+export function getCompletionMeet(line: string, cursorColumn: number, characterMatchRegex: RegExp, completionTriggerCharacters: string[]): CompletionMeetResult {
 
-    if (cursorColumn <= 1) {
-        return null
-    }
+    // Clamp column to within string bands
+    let col = Math.max(cursorColumn - 1, 0)
+    col = Math.min(col, line.length - 1)
 
-    let col = cursorColumn - 2
     let currentPrefix = ""
 
-    while (col >= 0) {
+    while (col >= 0 && col < line.length) {
         const currentCharacter = line[col]
 
-        if (!currentCharacter.match(characterMatchRegex)) {
+        if (!currentCharacter.match(characterMatchRegex) || doesCharacterMatchTriggerCharacters(currentCharacter, completionTriggerCharacters)) {
             break
         }
 
@@ -62,14 +66,16 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
 
     const basePos = col
 
-    // TODO: Refactor this into a 'trigger characters' array
-    if (currentPrefix.length === 0 && line[basePos] !== ".") {
-        return null
-    } else {
-        return {
-            position: basePos,
-            base: currentPrefix,
-        }
-    }
+    const isFromTriggerCharacter = doesCharacterMatchTriggerCharacters(line[basePos], completionTriggerCharacters)
 
+    const shouldExpandCompletions = currentPrefix.length > 0 || isFromTriggerCharacter
+
+    // If the expansion is due to a letter, start the match at the letter position
+    const position = isFromTriggerCharacter ? basePos : basePos + 1
+
+    return {
+        position: position + 1,
+        base: currentPrefix,
+        shouldExpandCompletions,
+    }
 }

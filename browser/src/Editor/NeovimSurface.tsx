@@ -1,7 +1,7 @@
 /**
- * NeovimEditor.ts
+ * NeovimSurface.tsx
  *
- * IEditor implementation for Neovim
+ * UI layer for the Neovim editor surface
  */
 
 import * as React from "react"
@@ -12,15 +12,14 @@ import { INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
-import { AutoCompletionContainer } from "./../UI/components/AutoCompletion"
 import { Cursor } from "./../UI/components/Cursor"
 import { CursorLine } from "./../UI/components/CursorLine"
 import { TabsContainer } from "./../UI/components/Tabs"
+import { ToolTips } from "./../UI/components/ToolTip"
 
 import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarContainer"
+import { DefinitionContainer } from "./../UI/containers/DefinitionContainer"
 import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
-import { QuickInfoContainer } from "./../UI/containers/QuickInfoContainer"
-import { SignatureHelpContainer } from "./../UI/containers/SignatureHelpContainer"
 
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -59,6 +58,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
                     <ActiveWindowContainer>
+                        <DefinitionContainer />
                         <ErrorsContainer />
                         <BufferScrollBarContainer />
                     </ActiveWindowContainer>
@@ -68,9 +68,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                     screen={this.props.screen}
                     onKeyDown={this.props.onKeyDown}/>
                 <div className="stack layer">
-                    <QuickInfoContainer />
-                    <SignatureHelpContainer />
-                    <AutoCompletionContainer />
+                    <ToolTips />
                 </div>
             </div>
         </div>

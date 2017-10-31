@@ -25,9 +25,11 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import * as Process from "./../../Plugins/Api/Process"
 
-export interface ILanguageClientProcess {
+import { IServerCapabilities } from "./ServerCapabilities"
 
+export interface ILanguageClientProcess {
     onConnectionChanged: IEvent<rpc.MessageConnection>
+    serverCapabilities: IServerCapabilities
 
     ensureActive(fileName: string): Promise<rpc.MessageConnection>
 }
@@ -65,12 +67,16 @@ export class LanguageClientProcess {
 
     private _lastWorkingDirectory: string = null
     private _lastRootPath: string = null
-    private _serverCapabilities: any = { }
+    private _serverCapabilities: IServerCapabilities = { }
 
     // Notifies when the connection has changed (due to process restart)
     // This allows consumers to re-subscribe to events
     public get onConnectionChanged(): IEvent<rpc.MessageConnection> {
         return this._onConnectionChangedEvent
+    }
+
+    public get serverCapabilities(): IServerCapabilities {
+        return this._serverCapabilities
     }
 
     constructor(
@@ -139,10 +145,11 @@ export class LanguageClientProcess {
         const oniLanguageClientParams: any = {
             clientName: "oni",
             rootPath,
+            rootUri: Helpers.wrapPathInFileUri(rootPath),
             capabilities: {},
         }
 
-        return this._connection.sendRequest(Helpers.ProtocolConstants.Initialize, oniLanguageClientParams)
+        return this._connection.sendRequest("initialize", oniLanguageClientParams)
             .then((response: any) => {
                 Log.info(`[LanguageClientManager]: Initialized`)
                 if (response && response.capabilities) {

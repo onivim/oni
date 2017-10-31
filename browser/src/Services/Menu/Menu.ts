@@ -10,10 +10,20 @@ import thunk from "redux-thunk"
 import { Event, IEvent } from "./../../Event"
 
 import * as ActionCreators from "./MenuActionCreators"
-import { reducer } from "./MenuReducer"
+import { filterMenuOptions } from "./MenuFilter"
+import { createReducer } from "./MenuReducer"
 import * as State from "./MenuState"
 
-export const menuStore = createStore(reducer, State.createDefaultState(), applyMiddleware(thunk))
+export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
+    labelHighlights: number[][],
+    detailHighlights: number[][]
+}
+
+export type MenuState = State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlights>
+
+const reducer = createReducer<Oni.Menu.MenuOption, IMenuOptionWithHighlights>(filterMenuOptions)
+
+export const menuStore = createStore<MenuState>(reducer, State.createDefaultState<Oni.Menu.MenuOption, IMenuOptionWithHighlights>(), applyMiddleware(thunk))
 
 export const menuActions: typeof ActionCreators = bindActionCreators(ActionCreators as any, menuStore.dispatch)
 

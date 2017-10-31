@@ -10,6 +10,7 @@
 
 import { Event, IEvent } from "./../Event"
 import { IDisposable } from "./../IDisposable"
+import * as Log from "./../Log"
 
 export class EditorManager implements Oni.EditorManager {
     private _activeEditor: Oni.Editor = null
@@ -56,7 +57,7 @@ class AllEditors implements Oni.Editor {
     private _activeEditor: Oni.Editor
     private _subscriptions: IDisposable[] = []
 
-    private _onModeChanged = new Event<string>()
+    private _onModeChanged = new Event<Oni.Vim.Mode>()
     private _onBufferEnter = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeave = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChanged = new Event<Oni.EditorBufferChangedEventArgs>()
@@ -91,7 +92,17 @@ class AllEditors implements Oni.Editor {
         return this._activeEditor.neovim
     }
 
-    public get onModeChanged(): IEvent<string> {
+    public openFile(file: string): Promise<Oni.Buffer> {
+        Log.warn("Not implemented")
+        return Promise.resolve(null)
+    }
+
+    public openFiles(files: string[]): Promise<Oni.Buffer[]> {
+        Log.warn("Not implemented")
+        return Promise.resolve([])
+    }
+
+    public get onModeChanged(): IEvent<Oni.Vim.Mode> {
         return this._onModeChanged
     }
 

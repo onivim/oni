@@ -55,7 +55,17 @@ export class CommandManager implements ITaskProvider {
     }
 
     public executeCommand(name: string, args?: any): boolean | void {
+
         const command = this._commandDictionary[name]
+
+        let enabled = true
+        if (typeof command.enabled === "function") {
+            enabled = command.enabled()
+        }
+
+        if (!enabled) {
+            return false
+        }
 
         if (!command) {
             Log.error(`Unable to find command: ${name}`)

@@ -9,11 +9,15 @@
 
 import * as types from "vscode-languageserver-types"
 
-import * as Events from "./Events"
+import * as isEqual from "lodash/isEqual"
+import "rxjs/add/operator/distinctUntilChanged"
+import { Subject } from "rxjs/Subject"
+
 import { Rectangle } from "./Types"
 
 import * as Actions from "./Actions"
 import * as Coordinates from "./Coordinates"
+import * as UI from "./index"
 import * as State from "./State"
 
 import { IScreen } from "./../Screen"
@@ -32,23 +36,23 @@ export const setViewport = (width: number, height: number) => ({
     },
 })
 
-export const bufferEnter = (id: number, file: string, totalLines: number, hidden: boolean, listed: boolean) => ({
+export const bufferEnter = (id: number, file: string, language: string, totalLines: number, hidden: boolean, listed: boolean) => ({
     type: "BUFFER_ENTER",
     payload: {
         id,
         file: normalizePath(file),
+        language,
         totalLines,
         hidden,
         listed,
     },
 })
 
-export const bufferUpdate = (id: number, modified: boolean, version: number, totalLines: number) => ({
+export const bufferUpdate = (id: number, modified: boolean, totalLines: number) => ({
     type: "BUFFER_UPDATE",
     payload: {
         id,
         modified,
-        version,
         totalLines,
     },
 })
@@ -133,20 +137,28 @@ export const setWindowState = (windowId: number,
     })
 }
 
+export const showToolTip = (id: string, element: JSX.Element, options?: Oni.ToolTip.ToolTipOptions) => ({
+    type: "SHOW_TOOL_TIP",
+    payload: {
+        id,
+        element,
+        options,
+    },
+})
+
+export const hideToolTip = (id: string) => ({
+    type: "HIDE_TOOL_TIP",
+    payload: {
+        id,
+    },
+})
+
 export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({
     type: "SET_ERRORS",
     payload: {
         file: normalizePath(file),
         key,
         errors,
-    },
-})
-
-export const clearErrors = (file: string, key: string) => ({
-    type: "CLEAR_ERRORS",
-    payload: {
-        file,
-        key,
     },
 })
 
@@ -191,42 +203,20 @@ export const hideStatusBarItem = (id: string) => ({
     },
 })
 
-export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    dispatch(_showAutoCompletion(result.base, result.completions))
-
-    if (result.completions.length > 0) {
-        emitCompletionItemSelectedEvent(getState())
-    }
-}
-
-export const previousCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    dispatch(_previousAutoCompletion())
-
-    emitCompletionItemSelectedEvent(getState())
-}
-
-export const nextCompletion = () => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    dispatch(_nextAutoCompletion())
-
-    emitCompletionItemSelectedEvent(getState())
-}
-
-function emitCompletionItemSelectedEvent(state: State.IState): void {
-    const autoCompletion = state.autoCompletion
-    if (autoCompletion != null) {
-        const entry = autoCompletion.entries[autoCompletion.selectedIndex]
-        Events.events.emit(Events.CompletionItemSelectedEvent, entry)
-    }
-}
+const $setCursorPosition = new Subject<any>()
+$setCursorPosition
+    .distinctUntilChanged(isEqual)
+    .subscribe((action) => {
+        UI.store.dispatch({
+            type: "SET_CURSOR_POSITION",
+            payload: action,
+        })
+    })
 
 export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunction) => {
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
-    if (screen.cursorRow === screen.height - 1) {
-        dispatch(hideQuickInfo())
-    }
-
-    dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
+    $setCursorPosition.next(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels).payload)
 }
 
 export const setColors = (foregroundColor: string, backgroundColor: string) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
@@ -242,45 +232,17 @@ export const setMode = (mode: string) => ({
     payload: { mode },
 })
 
-export const showSignatureHelp = (filePath: string, line: number, column: number, signatureHelp: types.SignatureHelp) => ({
-    type: "SHOW_SIGNATURE_HELP",
+export const setDefinition = (token: Oni.IToken, definitionLocation: types.Location): Actions.IShowDefinitionAction => ({
+    type: "SHOW_DEFINITION",
     payload: {
-        filePath: normalizePath(filePath),
-        line,
-        column,
-        signatureHelp,
+        token,
+        definitionLocation,
     },
 })
 
-export const showQuickInfo = (filePath: string, line: number, column: number, title: string, description: string): Actions.IShowQuickInfoAction => ({
-    type: "SHOW_QUICK_INFO",
-    payload: {
-        filePath: normalizePath(filePath),
-        line,
-        column,
-        title,
-        description,
-    },
+export const hideDefinition = () => ({
+    type: "HIDE_DEFINITION",
 })
-
-const _showAutoCompletion = (base: string, entries: Oni.Plugin.CompletionInfo[]) => ({
-    type: "SHOW_AUTO_COMPLETION",
-    payload: {
-        base,
-        entries,
-    },
-})
-
-export const setDetailedCompletionEntry = (detailedEntry: Oni.Plugin.CompletionInfo) => ({
-    type: "SET_AUTO_COMPLETION_DETAILS",
-    payload: {
-        detailedEntry,
-    },
-})
-
-export const hideCompletions = () => ({ type: "HIDE_AUTO_COMPLETION" })
-
-export const hideQuickInfo = () => ({ type: "HIDE_QUICK_INFO" })
 
 export const setCursorLineOpacity = (opacity: number) => ({
     type: "SET_CURSOR_LINE_OPACITY",
@@ -321,12 +283,4 @@ const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth
 const _setColors = (foregroundColor: string, backgroundColor: string) => ({
     type: "SET_COLORS",
     payload: { foregroundColor, backgroundColor },
-})
-
-const _nextAutoCompletion = () => ({
-    type: "NEXT_AUTO_COMPLETION",
-})
-
-const _previousAutoCompletion = () => ({
-    type: "PREVIOUS_AUTO_COMPLETION",
 })

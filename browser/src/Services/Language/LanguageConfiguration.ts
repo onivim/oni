@@ -4,10 +4,9 @@
  * Helper for registering language client information from config
  */
 
-import * as path from "path"
-
 import * as Log from "./../../Log"
 
+import { LanguageClient } from "./LanguageClient"
 import { InitializationOptions, LanguageClientProcess, ServerRunOptions } from "./LanguageClientProcess"
 import { languageManager } from "./LanguageManager"
 
@@ -18,6 +17,7 @@ export interface ILightweightLanguageConfiguration {
 }
 
 export interface ILightweightLanguageServerConfiguration {
+    arguments?: string[]
     command?: string
     rootFiles?: string[]
 }
@@ -64,7 +64,7 @@ const expandConfigurationSetting = (rootObject: any, configurationPath: string[]
     }
 }
 
-const simplePathResolver = (filePath: string) => Promise.resolve(path.dirname(filePath))
+const simplePathResolver = (filePath: string) => Promise.resolve(filePath)
 
 const createLanguageClientFromConfig = (language: string, config: ILightweightLanguageConfiguration): void => {
     if (!config || !config.languageServer || !config.languageServer.command) {
@@ -73,6 +73,7 @@ const createLanguageClientFromConfig = (language: string, config: ILightweightLa
 
     const lightweightCommand = config.languageServer.command
     const rootFiles = config.languageServer.rootFiles
+    const args = config.languageServer.arguments || []
 
     Log.info(`[Language Manager - Config] Registering info for language: ${language} - command: ${config.languageServer.command}`)
 
@@ -86,13 +87,13 @@ const createLanguageClientFromConfig = (language: string, config: ILightweightLa
 
     const serverRunOptions: ServerRunOptions = {
         ...commandOrModule,
-        args: [],
+        args,
         workingDirectory: pathResolver,
     }
 
     const initializationOptions: InitializationOptions = {
         rootPath: pathResolver,
     }
-
-    languageManager.registerLanguageClientFromProcess(language, new LanguageClientProcess(serverRunOptions, initializationOptions))
+    const languageClient = new LanguageClient(language, new LanguageClientProcess(serverRunOptions, initializationOptions))
+    languageManager.registerLanguageClient(language, languageClient)
 }

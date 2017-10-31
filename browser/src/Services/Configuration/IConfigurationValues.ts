@@ -152,4 +152,7 @@ export interface IConfigurationValues {
     // If `false`, a scrollbar will be shown.
     // If `true`, will wrap the tabs.
     "tabs.wrap": boolean
+
+    // Handle other, non-predefined configuration keys
+    [configurationKey: string]: any
 }

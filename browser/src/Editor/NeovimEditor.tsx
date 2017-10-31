@@ -4,17 +4,19 @@
  * IEditor implementation for Neovim
  */
 
-import * as os from "os"
-
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
-import * as types from "vscode-languageserver-types"
+import "rxjs/add/observable/defer"
+import "rxjs/add/observable/merge"
+import "rxjs/add/operator/map"
+import "rxjs/add/operator/mergeMap"
+import { Observable } from "rxjs/Observable"
 
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
-import { IFullBufferUpdateEvent, IIncrementalBufferUpdateEvent, NeovimInstance, NeovimWindowManager } from "./../neovim"
+import { NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
@@ -22,13 +24,11 @@ import { Event, IEvent } from "./../Event"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
-import { BufferUpdates } from "./../Services/BufferUpdates"
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { checkAndShowQuickInfo, showReferencesInQuickFix, showSignatureHelp } from "./../Services/Language"
-import { SyntaxHighlighter } from "./../Services/SyntaxHighlighter"
+import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
@@ -39,6 +39,8 @@ import { IEditor } from "./Editor"
 import { InstallHelp } from "./../UI/components/InstallHelp"
 
 import { BufferManager } from "./BufferManager"
+import { listenForBufferUpdates } from "./BufferUpdates"
+import { NeovimPopupMenu } from "./NeovimPopupMenu"
 import { NeovimSurface } from "./NeovimSurface"
 
 import { tasks } from "./../Services/Tasks"
@@ -48,23 +50,26 @@ import { normalizePath } from "./../Utility"
 import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
 
 export class NeovimEditor implements IEditor {
-
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
     private _deltaRegionManager: IncrementalDeltaRegionTracker
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
+    private _popupMenu: NeovimPopupMenu
 
-    private _pendingTimeout: any = null
     private _pendingAnimationFrame: boolean = false
     private _element: HTMLElement
 
     private _currentMode: string
-    private _onModeChangedEvent = new Event<string>()
     private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChangedEvent = new Event<Oni.EditorBufferChangedEventArgs>()
     private _onBufferSavedEvent = new Event<Oni.EditorBufferEventArgs>()
+    private _onCursorMoved = new Event<Oni.Cursor>()
+
+    private _modeChanged$: Observable<Oni.Vim.Mode>
+    private _cursorMoved$: Observable<Oni.Cursor>
+    private _cursorMovedI$: Observable<Oni.Cursor>
 
     private _hasLoaded: boolean = false
 
@@ -84,9 +89,13 @@ export class NeovimEditor implements IEditor {
         return this._bufferManager.getBufferById(this._lastBufferId)
     }
 
+    public get onCursorMoved(): IEvent<Oni.Cursor> {
+        return this._onCursorMoved
+    }
+
     // Events
-    public get onModeChanged(): IEvent<string> {
-        return this._onModeChangedEvent
+    public get onModeChanged(): IEvent<Oni.Vim.Mode> {
+        return this._neovimInstance.onModeChanged
     }
 
     public get onBufferEnter(): IEvent<Oni.EditorBufferEventArgs> {
@@ -121,23 +130,25 @@ export class NeovimEditor implements IEditor {
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
 
+        this._popupMenu = new NeovimPopupMenu(
+            this._neovimInstance.onShowPopupMenu,
+            this._neovimInstance.onHidePopupMenu,
+            this._neovimInstance.onSelectPopupMenu,
+        )
+
         this._renderer = new CanvasRenderer()
 
         // Services
-        const bufferUpdates = new BufferUpdates(this._neovimInstance, this._pluginManager)
         const errorService = new Errors(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
-        const syntaxHighlighter = new SyntaxHighlighter(this._neovimInstance, this._pluginManager)
 
-        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance, bufferUpdates)
+        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance)
 
         tasks.registerTaskProvider(commandManager)
         tasks.registerTaskProvider(errorService)
 
-        services.push(bufferUpdates)
         services.push(errorService)
         services.push(windowTitle)
-        services.push(syntaxHighlighter)
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
@@ -152,21 +163,6 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.onOniCommand.subscribe((command) => {
             commandManager.executeCommand(command)
-        })
-
-        this._neovimInstance.autoCommands.onVimResized.subscribe(() => {
-            this._windowManager.remeasure()
-        })
-
-        this._pluginManager.on("set-errors", (key: string, fileName: string, errors: types.Diagnostic[]) => {
-
-            UI.Actions.setErrors(fileName, key, errors)
-
-            errorService.setErrors(fileName, errors)
-        })
-
-        this._pluginManager.on("find-all-references", (references: Oni.Plugin.ReferencesResult) => {
-            showReferencesInQuickFix(references, this._neovimInstance)
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
@@ -185,49 +181,46 @@ export class NeovimEditor implements IEditor {
             this._screen.dispatch(action)
 
             this._scheduleRender()
+        })
 
+        this._neovimInstance.onRedrawComplete.subscribe(() => {
             UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
-
-            if (!this._pendingTimeout) {
-                this._pendingTimeout = setTimeout(() => this._onUpdate(), 0)
-            }
+            UI.Actions.setCursorPosition(this._screen)
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
             UI.Actions.setTabs(currentTabId, tabs)
         })
 
-        this._neovimInstance.on("mode-change", (newMode: string) => this._onModeChanged(newMode))
+        this._cursorMoved$ = this._neovimInstance.autoCommands.onCursorMoved.asObservable()
+            .map((evt): Oni.Cursor => ({
+                line: evt.line - 1,
+                column: evt.column - 1,
+            }))
 
-        this._neovimInstance.onBufferUpdate.subscribe((bufferUpdateEvent: IFullBufferUpdateEvent) => {
-            const args = bufferUpdateEvent.context
-            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
+        this._cursorMovedI$ = this._neovimInstance.autoCommands.onCursorMovedI.asObservable()
+            .map((evt): Oni.Cursor => ({
+                line: evt.line - 1,
+                column: evt.column - 1,
+            }))
 
-            const buf = this._bufferManager.updateBufferFromEvent(args)
-
-            this._onBufferChangedEvent.dispatch({
-                buffer: buf,
-                contentChanges: [{ text: bufferUpdateEvent.bufferLines.join(os.EOL) }],
+        Observable.merge(this._cursorMoved$, this._cursorMovedI$)
+            .subscribe((cursorMoved) => {
+                this._onCursorMoved.dispatch(cursorMoved)
             })
+
+        this._modeChanged$ = this.onModeChanged.asObservable()
+
+        this.onModeChanged.subscribe((newMode) => this._onModeChanged(newMode))
+
+        const bufferUpdates$ = listenForBufferUpdates(this._neovimInstance, this._bufferManager)
+        bufferUpdates$.subscribe((bufferUpdate) => {
+            this._onBufferChangedEvent.dispatch(bufferUpdate)
+            UI.Actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
         })
 
-        this._neovimInstance.onBufferUpdateIncremental.subscribe((bufferUpdateArgs: IIncrementalBufferUpdateEvent) => {
-            const args = bufferUpdateArgs.context
-            UI.Actions.bufferUpdate(args.bufferNumber, args.modified, args.version, args.bufferTotalLines)
-
-            const buf = this._bufferManager.updateBufferFromEvent(args)
-
-            const lineNumber = bufferUpdateArgs.lineNumber
-            const changedLine = bufferUpdateArgs.lineContents
-
-            this._onBufferChangedEvent.dispatch({
-                buffer: buf,
-                contentChanges: [{
-                    range: types.Range.create(lineNumber - 1, 0, lineNumber, 0),
-                    text: changedLine + os.EOL,
-                }],
-            })
-        })
+        addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
+        addNormalModeLanguageFunctionality(bufferUpdates$, this._cursorMoved$, this._modeChanged$)
 
         this._render()
 
@@ -285,6 +278,11 @@ export class NeovimEditor implements IEditor {
         }
     }
 
+    public async openFile(file: string): Promise<Oni.Buffer> {
+        await this._neovimInstance.command(":e " + file)
+        return this.activeBuffer
+    }
+
     public executeCommand(command: string): void {
         commandManager.executeCommand(command, null)
     }
@@ -332,24 +330,15 @@ export class NeovimEditor implements IEditor {
 
     private _onModeChanged(newMode: string): void {
         UI.Actions.setMode(newMode)
-
         this._currentMode = newMode
-        this._onModeChangedEvent.dispatch(newMode)
-
-        if (newMode === "normal") {
-            UI.Actions.hideCompletions()
-        } else if (newMode.indexOf("cmdline") >= 0) {
-            UI.Actions.hideCompletions()
-        }
     }
 
     private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
-        UI.Actions.setWindowCursor(evt.windowNumber, evt.line, evt.column)
+        UI.Actions.setWindowCursor(evt.windowNumber, evt.line - 1, evt.column - 1)
 
         tasks.onEvent(evt)
 
         const lastBuffer = this.activeBuffer
-
         const buf = this._bufferManager.updateBufferFromEvent(evt)
 
         if (eventName === "BufEnter") {
@@ -363,9 +352,7 @@ export class NeovimEditor implements IEditor {
             this._lastBufferId = evt.bufferNumber.toString()
             this._onBufferEnterEvent.dispatch(buf)
 
-            UI.Actions.hideCompletions()
-
-            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.bufferTotalLines, evt.hidden, evt.listed)
+            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.filetype, evt.bufferTotalLines, evt.hidden, evt.listed)
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
@@ -378,13 +365,6 @@ export class NeovimEditor implements IEditor {
 
             this._neovimInstance.getBufferIds()
                 .then((ids) => UI.Actions.setCurrentBuffers(ids))
-        } else if (eventName === "CursorMoved") {
-            if (configuration.getValue("editor.quickInfo.enabled")) {
-                // First, check if there is a language client registered...
-                checkAndShowQuickInfo(evt, this._pluginManager)
-            }
-        } else if (eventName === "CursorMovedI") {
-            showSignatureHelp(evt, this._pluginManager)
         }
     }
 
@@ -402,17 +382,7 @@ export class NeovimEditor implements IEditor {
 
         this._isFirstRender = true
 
-        this._onUpdate()
         this._scheduleRender()
-    }
-
-    private _onUpdate(): void {
-        UI.Actions.setCursorPosition(this._screen)
-
-        if (!!this._pendingTimeout) {
-            clearTimeout(this._pendingTimeout) // FIXME: null
-            this._pendingTimeout = null
-        }
     }
 
     private _scheduleRender(): void {
@@ -426,10 +396,6 @@ export class NeovimEditor implements IEditor {
 
     private _render(): void {
         this._pendingAnimationFrame = false
-
-        if (this._pendingTimeout) {
-            UI.Actions.setCursorPosition(this._screen)
-        }
 
         if (this._hasLoaded) {
             if (this._isFirstRender) {

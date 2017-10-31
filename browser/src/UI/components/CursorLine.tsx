@@ -32,13 +32,23 @@ class CursorLineRenderer extends React.PureComponent<ICursorLineRendererProps, v
             top: this.props.y.toString() + "px", // Same as cursor
             width: width.toString() + "px", // Window width
 
-            height: this.props.height.toString() + "px", // Same as cursor
+            height: this.props.height ? this.props.height.toString() + "px" : "0px", // Same as cursor
             backgroundColor: this.props.color,
             opacity: this.props.opacity,
         }
 
         return <div style={cursorStyle} className="cursorLine"></div>
     }
+}
+
+const emptyProps: ICursorLineRendererProps = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    color: null,
+    visible: false,
+    opacity: 0,
 }
 
 const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
@@ -49,6 +59,11 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
     const enabled = state.configuration[enabledSetting]
 
     const isNormalInsertOrVisualMode = state.mode === "normal" || state.mode === "insert" || state.mode === "visual"
+    const visible = enabled && isNormalInsertOrVisualMode
+
+    if (!visible) {
+        return emptyProps
+    }
 
     const activeWindowDimensions = Selectors.getActiveWindowPixelDimensions(state)
 
@@ -58,7 +73,7 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
         width: props.lineType === "line" ? activeWindowDimensions.width : state.cursorPixelWidth,
         height: props.lineType === "line" ? state.fontPixelHeight : activeWindowDimensions.height,
         color: state.foregroundColor,
-        visible: enabled && isNormalInsertOrVisualMode,
+        visible,
         opacity,
     }
 }

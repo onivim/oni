@@ -22,15 +22,10 @@ export interface IViewport {
     height: number
 }
 
-/**
- * Interface describing an item that is relative
- * to a particular file location
- */
-export interface ILocatable<T> {
-    filePath: string
-    line: number
-    column: number
-    data: T
+export interface IToolTip {
+    id: string,
+    options: Oni.ToolTip.ToolTipOptions,
+    element: JSX.Element
 }
 
 export interface IState {
@@ -45,9 +40,7 @@ export interface IState {
     mode: string
     backgroundColor: string
     foregroundColor: string
-    autoCompletion: null | IAutoCompletionInfo
-    quickInfo: null | ILocatable<Oni.Plugin.QuickInfo>
-    signatureHelp: null | ILocatable<types.SignatureHelp>
+    definition: null | IDefinition
     cursorLineOpacity: number
     cursorColumnOpacity: number
     configuration: IConfigurationValues
@@ -55,6 +48,7 @@ export interface IState {
     viewport: IViewport
 
     statusBar: { [id: string]: IStatusBarItem }
+    toolTips: { [id: string]: IToolTip }
 
     /**
      * Tabs refer to the Vim-concept of tabs
@@ -73,6 +67,11 @@ export interface IState {
     activeWindowDimensions: Rectangle
 
     activeMessageDialog: IMessageDialog
+}
+
+export interface IDefinition {
+    token: Oni.IToken
+    definitionLocation: types.Location
 }
 
 export enum MessageType {
@@ -142,9 +141,6 @@ export interface IWindow {
     bufferToScreen: Coordinates.BufferToScreen
     screenToPixel: Coordinates.ScreenToPixel
 
-    // winline: number
-    // wincolumn: number
-    // lineMapping: WindowLineMap
     dimensions: Rectangle
     topBufferLine: number
     bottomBufferLine: number
@@ -166,21 +162,6 @@ export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurat
     return conf[k]
 }
 
-export interface IAutoCompletionInfo {
-
-    /**
-     * Base entry being completed against
-     */
-    base: string
-
-    entries: Oni.Plugin.CompletionInfo[]
-
-    /**
-     * Label of selected entry
-     */
-    selectedIndex: number
-}
-
 export const createDefaultState = (): IState => ({
     cursorPixelX: 10,
     cursorPixelY: 10,
@@ -193,9 +174,7 @@ export const createDefaultState = (): IState => ({
     imeActive: false,
     mode: "normal",
     foregroundColor: "rgba(0, 0, 0, 0)",
-    autoCompletion: null,
-    quickInfo: null,
-    signatureHelp: null,
+    definition: null,
     activeWindowDimensions: {
         x: 0,
         y: 0,
@@ -231,5 +210,6 @@ export const createDefaultState = (): IState => ({
 
     errors: {},
     statusBar: {},
+    toolTips: {},
     activeMessageDialog: null,
 })

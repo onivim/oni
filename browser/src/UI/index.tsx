@@ -1,3 +1,10 @@
+/**
+ * UI/index.tsx
+ *
+ * Root setup & state for the UI
+ * - Top-level render function lives here
+ */
+
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
@@ -5,13 +12,14 @@ import { Provider } from "react-redux"
 import { applyMiddleware, bindActionCreators, compose, createStore } from "redux"
 import thunk from "redux-thunk"
 
+import { Observable } from "rxjs/Observable"
+import { Subject } from "rxjs/Subject"
+
 import { RootComponent } from "./RootComponent"
 
-// import * as Actions from "./Actions"
 import * as ActionCreators from "./ActionCreators"
-import * as Events from "./Events"
 import { reducer } from "./Reducer"
-import * as UnboundSelectors from "./Selectors"
+import { getActiveDefinition } from "./selectors/DefinitionSelectors"
 import * as State from "./State"
 
 import { editorManager } from "./../Services/EditorManager"
@@ -22,8 +30,6 @@ import { windowManager } from "./../Services/WindowManager"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
-
-export const events = Events.events
 
 const defaultState = State.createDefaultState()
 
@@ -36,12 +42,15 @@ const enhancer = composeEnhancers(
 
 export const store = createStore(reducer, defaultState, enhancer)
 
+const _state$: Subject<State.IState> = new Subject()
+export const state$: Observable<State.IState> = _state$
+store.subscribe(() => _state$.next(store.getState() as any))
+
 export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators as any, store.dispatch)
 
 // TODO: Is there a helper utility like `bindActionCreators`, but for selectors?
 export const Selectors = {
-    areCompletionsVisible: () => UnboundSelectors.areCompletionsVisible(store.getState() as any),
-    getSelectedCompletion: () => UnboundSelectors.getSelectedCompletion(store.getState() as any),
+    getActiveDefinition: () => getActiveDefinition(store.getState() as any),
 }
 
 export function init(pluginManager: PluginManager, args: any): void {
@@ -55,7 +64,10 @@ const updateViewport = () => {
     Actions.setViewport(width, height)
 }
 
-listenForDiagnostics()
+// TODO: WHy is this breaking?
+window.setTimeout(() => {
+    listenForDiagnostics()
+})
 
 window.addEventListener("resize", updateViewport)
 updateViewport()

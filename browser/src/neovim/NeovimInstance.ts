@@ -14,13 +14,11 @@ import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
 import { configuration } from "./../Services/Configuration"
 
-import { Buffer, IBuffer } from "./Buffer"
-import { NeovimBufferReference, NeovimWindowReference } from "./MsgPack"
+import { NeovimBufferReference } from "./MsgPack"
 import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
 import { startNeovim } from "./NeovimProcessSpawner"
 import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { Session } from "./Session"
-import { IWindow, Window } from "./Window"
 
 export interface INeovimYankInfo {
     operator: string
@@ -46,6 +44,20 @@ export interface IIncrementalBufferUpdateEvent {
     lineContents: string
 }
 
+export interface INeovimCompletionItem {
+    word: string
+    kind: string
+    menu: string
+    info: string
+}
+
+export interface INeovimCompletionInfo {
+    items: INeovimCompletionItem[]
+    selectedIndex: number
+    row: number
+    col: number
+}
+
 // Limit for the number of lines to handle buffer updates
 // If the file is too large, it ends up being too much traffic
 // between Neovim <-> Oni <-> Language Servers - so
@@ -66,10 +78,15 @@ export interface INeovimInstance {
 
     onBufferUpdateIncremental: IEvent<IIncrementalBufferUpdateEvent>
 
+    onRedrawComplete: IEvent<void>
+
     onScroll: IEvent<Oni.EventContext>
 
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
     onOniCommand: IEvent<string>
+
+    onHidePopupMenu: IEvent<void>
+    onShowPopupMenu: IEvent<INeovimCompletionInfo>
 
     autoCommands: INeovimAutoCommands
 
@@ -108,12 +125,6 @@ export interface INeovimInstance {
 
     getBufferIds(): Promise<number[]>
 
-    getCurrentBuffer(): Promise<IBuffer>
-    getCurrentWindow(): Promise<IWindow>
-
-    getCursorColumn(): Promise<number>
-    getCursorRow(): Promise<number>
-
     getApiVersion(): Promise<INeovimApiVersion>
 
     open(fileName: string): Promise<void>
@@ -147,9 +158,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onDirectoryChanged = new Event<string>()
     private _onYank = new Event<INeovimYankInfo>()
     private _onOniCommand = new Event<string>()
+    private _onRedrawComplete = new Event<void>()
     private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
     private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
     private _onScroll = new Event<Oni.EventContext>()
+    private _onModeChanged = new Event<Oni.Vim.Mode>()
+    private _onHidePopupMenu = new Event<void>()
+    private _onShowPopupMenu = new Event<INeovimCompletionInfo>()
+    private _onSelectPopupMenu = new Event<number>()
 
     private _pendingScrollTimeout: number | null = null
 
@@ -169,12 +185,32 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._onDirectoryChanged
     }
 
+    public get onModeChanged(): IEvent<Oni.Vim.Mode> {
+        return this._onModeChanged
+    }
+
     public get onOniCommand(): IEvent<string> {
         return this._onOniCommand
     }
 
+    public get onRedrawComplete(): IEvent<void> {
+        return this._onRedrawComplete
+    }
+
     public get onScroll(): IEvent<Oni.EventContext> {
         return this._onScroll
+    }
+
+    public get onHidePopupMenu(): IEvent<void> {
+        return this._onHidePopupMenu
+    }
+
+    public get onSelectPopupMenu(): IEvent<number> {
+        return this._onSelectPopupMenu
+    }
+
+    public get onShowPopupMenu(): IEvent<INeovimCompletionInfo> {
+        return this._onShowPopupMenu
     }
 
     public get onYank(): IEvent<INeovimYankInfo> {
@@ -230,6 +266,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 this._neovim.on("notification", (method: any, args: any) => {
                     if (method === "redraw") {
                         this._handleNotification(method, args)
+                        this._onRedrawComplete.dispatch()
                     } else if (method === "oni_plugin_notify") {
                         const pluginArgs = args[0]
                         const pluginMethod = pluginArgs.shift()
@@ -305,7 +342,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                         // TODO: #702 - Batch these calls via `nvim_call_atomic`
                         // Override completeopt so Oni works correctly with external popupmenu
-                        await this.command("set completeopt=longest,menu")
+                        // await this.command("set completeopt=longest,menu")
 
                         // set title after attaching listeners so we can get the initial title
                         await this.command("set title")
@@ -317,23 +354,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             })
 
         return this._initPromise
-    }
-
-    public getMode(): Promise<string> {
-        return this.eval<string>("mode()")
-    }
-
-    /**
-     * Returns the current cursor column in buffer-space
-     */
-    public getCursorColumn(): Promise<number> {
-        return this.eval<number>("col('.')")
-    }
-
-    /** Returns the current cursor row in buffer-space
-     */
-    public getCursorRow(): Promise<number> {
-        return this.eval<number>("line('.')")
     }
 
     public setFont(fontFamily: string, fontSize: string, linePadding: number): void {
@@ -383,11 +403,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request<void>("nvim_call_function", [functionName, args])
     }
 
-    public async getCurrentBuffer(): Promise<IBuffer> {
-        const bufferReference = await this._neovim.request<NeovimBufferReference>("nvim_get_current_buf", [])
-        return new Buffer(bufferReference, this._neovim)
-    }
-
     public async getBufferIds(): Promise<number[]> {
         const buffers = await this._neovim.request<NeovimBufferReference[]>("nvim_list_bufs", [])
 
@@ -397,11 +412,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public async getCurrentWorkingDirectory(): Promise<string> {
         const currentWorkingDirectory = await this.eval<string>("getcwd()")
         return path.normalize(currentWorkingDirectory)
-    }
-
-    public async getCurrentWindow(): Promise<IWindow> {
-        const windowReference = await this._neovim.request<NeovimWindowReference>("nvim_get_current_win", [])
-        return new Window(windowReference, this._neovim)
     }
 
     public get cursorPosition(): IPosition {
@@ -542,14 +552,35 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 case "mode_change":
                     const newMode = a[a.length - 1][0]
                     this.emit("action", Actions.changeMode(newMode))
-                    this.emit("mode-change", newMode)
+                    this._onModeChanged.dispatch(newMode as Oni.Vim.Mode)
+                    break
+                case "popupmenu_select":
+                    this._onSelectPopupMenu.dispatch(a[0][0])
                     break
                 case "popupmenu_hide":
-                    this.emit("hide-popup-menu")
+                    this._onHidePopupMenu.dispatch()
                     break
                 case "popupmenu_show":
-                    const completions = a[0][0]
-                    this.emit("show-popup-menu", completions)
+                    const [items, selected, row, col] = a[0]
+
+                    const mappedItems = items.map((item: string[]) => {
+                        const [word, kind, menu, info] = item
+                        return {
+                            word,
+                            kind,
+                            menu,
+                            info,
+                        }
+                    })
+
+                    const completionInfo: INeovimCompletionInfo = {
+                        items: mappedItems,
+                        selectedIndex: selected,
+                        row,
+                        col,
+                    }
+
+                    this._onShowPopupMenu.dispatch(completionInfo)
                     break
                 case "tabline_update":
                     const [currentTab, tabs] = a[0]
@@ -574,13 +605,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private async _onFullBufferUpdate(context: Oni.EventContext, startRange: number, endRange: number): Promise<void> {
 
-        const buffer = new Buffer(context.bufferNumber as any, this._neovim)
-
         if (endRange > MAX_LINES_FOR_BUFFER_UPDATE) {
             return
         }
 
-        const bufferLines = await buffer.getLines(startRange - 1, endRange, false)
+        const bufferLines = await this.request<string[]>("nvim_buf_get_lines", [context.bufferNumber, startRange - 1, endRange, false])
 
         this._onFullBufferUpdateEvent.dispatch({
             context,

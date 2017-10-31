@@ -1,3 +1,9 @@
+/**
+ * Reducer.ts
+ *
+ * Top-level reducer for UI state transforms
+ */
+
 import * as State from "./State"
 
 import * as Actions from "./Actions"
@@ -40,31 +46,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 foregroundColor: a.payload.foregroundColor,
                 backgroundColor: a.payload.backgroundColor,
             } }
-        case "SHOW_QUICK_INFO":
-            const { filePath, line, column, title, description } = a.payload
-            return {...s,
-                    quickInfo: {
-                        filePath,
-                        line,
-                        column,
-                        data: {
-                            title,
-                            description,
-                        },
-                }}
-        case "HIDE_QUICK_INFO":
-            return {...s,
-                    quickInfo: null}
-        case "SHOW_AUTO_COMPLETION":
-            return {...s,
-                    autoCompletion: {
-                    base: a.payload.base,
-                    entries: a.payload.entries,
-                    selectedIndex: 0,
-                }}
-        case "HIDE_AUTO_COMPLETION":
-            return {...s,
-                    autoCompletion: null}
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value
@@ -84,25 +65,25 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         default:
             return {...s,
                     buffers: buffersReducer(s.buffers, a),
+                    definition: definitionReducer(s.definition, a),
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
-                    autoCompletion: autoCompletionReducer(s.autoCompletion, a), // FIXME: null
-                    signatureHelp: signatureHelpReducer(s.signatureHelp, a),
                     statusBar: statusBarReducer(s.statusBar, a),
+                    toolTips: toolTipsReducer(s.toolTips, a),
                     windowState: windowStateReducer(s.windowState, a)}
     }
 }
 
-export const signatureHelpReducer = (s: State.ILocatable<types.SignatureHelp>, a: Actions.SimpleAction) => {
+export const definitionReducer = (s: State.IDefinition, a: Actions.SimpleAction) => {
     switch (a.type) {
-        case "SHOW_SIGNATURE_HELP":
-            const { filePath, line, column, signatureHelp } = a.payload
-            return {...s,
-                    filePath,
-                    line,
-                    column,
-                    data: signatureHelp,
-            }
+        case "SHOW_DEFINITION":
+            const { definitionLocation, token } = a.payload
+            return {
+                    definitionLocation,
+                    token,
+                }
+        case "HIDE_DEFINITION":
+            return null
         default:
             return s
     }
@@ -198,7 +179,6 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                     ...currentItem3,
                     id: a.payload.id,
                     modified: a.payload.modified,
-                    version: a.payload.version,
                     totalLines: a.payload.totalLines,
                     lastSaveVersion,
                 },
@@ -241,6 +221,29 @@ export const errorsReducer = (s: { [file: string]: { [key: string]: types.Diagno
                     ...currentFile,
                     [a.payload.key]: [...a.payload.errors],
                 },
+            }
+        default:
+            return s
+    }
+}
+
+export const toolTipsReducer = (s: { [key: string]: State.IToolTip }, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "SHOW_TOOL_TIP":
+            const existingItem = s[a.payload.id] || {}
+            const newItem = {
+                ...existingItem,
+                ...a.payload,
+            }
+
+            return {
+                ...s,
+                [a.payload.id]: newItem,
+            }
+        case "HIDE_TOOL_TIP":
+            return {
+                ...s,
+                [a.payload.id]: null,
             }
         default:
             return s
@@ -309,41 +312,6 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                     },
                 },
             }
-        default:
-            return s
-    }
-}
-
-export function autoCompletionReducer(s: State.IAutoCompletionInfo | null, a: Actions.SimpleAction) {
-    if (!s) {
-        return s
-    }
-
-    // TODO: sync max display items (10) with value in AutoCompletion.render() (AutoCompletion.tsx)
-    const currentEntryCount = Math.min(10, s.entries.length)
-
-    switch (a.type) {
-        case "NEXT_AUTO_COMPLETION":
-            return {...s,
-                    selectedIndex: (s.selectedIndex + 1) % currentEntryCount}
-        case "PREVIOUS_AUTO_COMPLETION":
-            return {...s,
-                    selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : currentEntryCount - 1}
-        default:
-            return {...s,
-                    entries: autoCompletionEntryReducer(s.entries, a)}
-    }
-}
-
-export function autoCompletionEntryReducer(s: Oni.Plugin.CompletionInfo[], action: Actions.SimpleAction) {
-    switch (action.type) {
-        case "SET_AUTO_COMPLETION_DETAILS":
-            return s.map((entry) => {
-                if (action.payload.detailedEntry && entry.label === action.payload.detailedEntry.label) {
-                    return action.payload.detailedEntry
-                }
-                return entry
-            })
         default:
             return s
     }

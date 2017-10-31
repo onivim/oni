@@ -4,185 +4,110 @@
  * Implements state-change logic for the menu
  */
 
-import * as Fuse from "fuse.js"
-import * as sortBy from "lodash/sortBy"
-
-import { configuration } from "./../../Services/Configuration"
-
 import * as Actions from "./MenuActions"
 import * as State from "./MenuState"
 
-export const reducer = (s: State.IMenus, a: Actions.MenuAction): State.IMenus => {
-    return {
-        ...s,
-        menu: popupMenuReducer(s.menu, a),
-    }
-}
+export type MenuFilterFunction<T, FilteredT extends T> = (options: T[], searchString: string) => FilteredT[]
 
-export function popupMenuReducer(s: State.IMenu | null, a: any): State.IMenu {
+export function createReducer<T, FilteredT extends T>(filterFunc: MenuFilterFunction<T, FilteredT>) {
 
-    // TODO: sync max display items (10) with value in Menu.render() (Menu.tsx)
-    const size = s ? Math.min(10, s.filteredOptions.length) : 0
-
-    switch (a.type) {
-        case "SHOW_MENU":
-            return {
-                ...a.payload.options,
-                id: a.payload.id,
-                filter: "",
-                filteredOptions: [],
-                options: [],
-                selectedIndex: 0,
-                isLoading: false,
-            }
-        case "SET_MENU_ITEMS":
-            if (!s || s.id !== a.payload.id) {
-                return s
-            }
-
-            const filteredOptions = filterMenuOptions(a.payload.items, s.filter)
-
-            return {
-                ...s,
-                options: a.payload.items,
-                filteredOptions,
-            }
-        case "SET_MENU_LOADING":
-            if (!s || s.id !== a.payload.id) {
-                return s
-            }
-
-            return {
-                ...s,
-                isLoading: a.payload.isLoading,
-            }
-        case "HIDE_MENU":
-            return null
-        case "NEXT_MENU":
-            return {...s,
-                    selectedIndex: (s.selectedIndex + 1) % size}
-        case "PREVIOUS_MENU":
-            return {...s,
-                    selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : size - 1}
-        case "FILTER_MENU":
-            if (!s) {
-                return s
-            }
-            // If we already had search results, and this search is a superset of the previous,
-            // just filter the already-pruned subset
-            const optionsToSearch = a.payload.filter.indexOf(s.filter) === 0 ? s.filteredOptions : s.options
-            const filteredOptionsSorted = filterMenuOptions(optionsToSearch, a.payload.filter)
-
-            return {...s,
-                    filter: a.payload.filter,
-                    filteredOptions: filteredOptionsSorted}
-        default:
-            return s
-    }
-}
-
-const shouldFilterbeCaseSensitive = (searchString: string): boolean => {
-
-    // TODO: Technically, this makes the reducer 'impure',
-    // which is not ideal - need to refactor eventually.
-    //
-    // One option is to plumb through the configuration setting
-    // from the top-level, but it might be worth extracting
-    // out the filter strategy in general.
-    const caseSensitivitySetting = configuration.getValue("menu.caseSensitive")
-
-    if (caseSensitivitySetting === false) {
-        return false
-    } else if (caseSensitivitySetting === true) {
-        return true
-    } else {
-        // "Smart" casing strategy
-        // If the string is all lower-case, not case sensitive..
-        if (searchString === searchString.toLowerCase()) {
-            return false
-        // Otherwise, it is case sensitive..
-        } else {
-            return true
-        }
-    }
-}
-
-export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string): State.IMenuOptionWithHighlights[] {
-
-    if (!searchString) {
-        const opt = options.map((o) => {
-            return {
-                label: o.label,
-                detail: o.detail,
-                icon: o.icon,
-                pinned: o.pinned,
-                detailHighlights: [],
-                labelHighlights: [],
-            }
-        })
-
-        return sortBy(opt, (o) => o.pinned ? 0 : 1)
-    }
-
-    const fuseOptions = {
-        keys: [{
-            name: "label",
-            weight: 0.6,
-        }, {
-            name: "detail",
-            weight: 0.4,
-        }],
-        caseSensitive: shouldFilterbeCaseSensitive(searchString),
-        include: ["matches"],
-    }
-
-    // remove duplicate characters
-    const searchSet = new Set(searchString)
-
-    // remove any items that don't have all the characters from searchString
-    // For this first pass, ignore case
-    const filteredOptions = options.filter((o) => {
-
-        if (!o.label && !o.detail) {
-            return false
-        }
-
-        const combined = o.label.toLowerCase() + o.detail.toLowerCase()
-
-        for (const c of searchSet) {
-            if (combined.indexOf(c.toLowerCase()) === -1) {
-                return false
-            }
-        }
-
-        return true
-    })
-
-    const fuse = new Fuse(filteredOptions, fuseOptions)
-    const results = fuse.search(searchString)
-
-    const highlightOptions = results.map((f: any) => {
-        let labelHighlights: number[][] = []
-        let detailHighlights: number[][] = []
-        // matches will have 1 or 2 items depending on
-        // whether one or both (label and detail) matched
-        f.matches.forEach((obj: any) => {
-            if (obj.key === "label") {
-                labelHighlights = obj.indices
-            } else {
-                detailHighlights = obj.indices
-            }
-        })
-
+    const reducer = (s: State.IMenus<T, FilteredT>, a: Actions.MenuAction): State.IMenus<T, FilteredT> => {
         return {
-            icon: f.item.icon,
-            pinned: f.item.pinned,
-            label: f.item.label,
-            detail: f.item.detail,
-            labelHighlights,
-            detailHighlights,
+            ...s,
+            menu: popupMenuReducer(s.menu, a),
         }
-    })
+    }
 
-    return highlightOptions
+    function popupMenuReducer(s: State.IMenu<T, FilteredT> | null, a: any): State.IMenu<T, FilteredT> {
+
+        // TODO: sync max display items (10) with value in Menu.render() (Menu.tsx)
+        const size = s ? Math.min(10, s.filteredOptions.length) : 0
+
+        switch (a.type) {
+
+            case "SHOW_MENU":
+                const options3 = a.payload.items || []
+                const filterText = a.payload.filter || ""
+                const filteredOptions3 = filterFunc(options3, filterText)
+                return {
+                    ...a.payload.options,
+                    id: a.payload.id,
+                    filter: filterText,
+                    filteredOptions: filteredOptions3,
+                    options: options3,
+                    selectedIndex: 0,
+                    isLoading: false,
+                }
+            case "SET_DETAILED_MENU_ITEM":
+                if (!s || !s.options) {
+                    return s
+                }
+
+                if (!a.payload.detailedItem) {
+                    return s
+                }
+
+                const options = s.options.map((entry) => {
+                    // TODO: Decide on canonical interface for menu options
+                    if ((entry as any).label === a.payload.detailedItem.label) {
+                        return a.payload.detailedItem
+                    } else {
+                        return entry
+                    }
+                })
+
+                const filteredOptions2 = filterFunc(options, s.filter)
+                return {
+                    ...s,
+                    options,
+                    filteredOptions: filteredOptions2,
+                }
+
+            case "SET_MENU_ITEMS":
+                if (!s || s.id !== a.payload.id) {
+                    return s
+                }
+
+                const filteredOptions = filterFunc(a.payload.items, s.filter)
+
+                return {
+                    ...s,
+                    options: a.payload.items,
+                    filteredOptions,
+                }
+            case "SET_MENU_LOADING":
+                if (!s || s.id !== a.payload.id) {
+                    return s
+                }
+
+                return {
+                    ...s,
+                    isLoading: a.payload.isLoading,
+                }
+            case "HIDE_MENU":
+                return null
+            case "NEXT_MENU":
+                return {...s,
+                        selectedIndex: (s.selectedIndex + 1) % size}
+            case "PREVIOUS_MENU":
+                return {...s,
+                        selectedIndex: s.selectedIndex > 0 ? s.selectedIndex - 1 : size - 1}
+            case "FILTER_MENU":
+                if (!s) {
+                    return s
+                }
+                // If we already had search results, and this search is a superset of the previous,
+                // just filter the already-pruned subset
+                const optionsToSearch = a.payload.filter.indexOf(s.filter) === 0 ? s.filteredOptions : s.options
+                const filteredOptionsSorted = filterFunc(optionsToSearch, a.payload.filter)
+
+                return {...s,
+                        filter: a.payload.filter,
+                        filteredOptions: filteredOptionsSorted}
+            default:
+                return s
+        }
+    }
+
+    return reducer
 }

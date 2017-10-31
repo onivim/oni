@@ -7,6 +7,7 @@
 export interface IMenuOptions {
     foregroundColor?: string
     backgroundColor?: string
+    onSelectedItemChanged?: (newItem: any) => void
     onSelectItem?: (idx: number) => void
     onHide?: () => void
     onFilterTextChanged?: (newText: string) => void
@@ -16,15 +17,24 @@ export interface IShowMenuAction {
     type: "SHOW_MENU",
     payload: {
         id: string,
-        options: IMenuOptions,
+        options?: IMenuOptions,
+        items?: any[],
+        filter?: string,
     }
 }
 
-export interface ISetMenuItems {
+export interface ISetDetailedMenuItem<T> {
+    type: "SET_DETAILED_MENU_ITEM",
+    payload: {
+        detailedItem: T,
+    }
+}
+
+export interface ISetMenuItems<T> {
     type: "SET_MENU_ITEMS",
     payload: {
         id: string,
-        items: Oni.Menu.MenuOption[],
+        items: T[],
     }
 }
 
@@ -59,7 +69,7 @@ export interface IPreviousMenuAction {
 export type MenuAction =
     IShowMenuAction |
     ISetMenuLoading |
-    ISetMenuItems |
+    ISetMenuItems<any> |
     IFilterMenuAction |
     IHideMenuAction |
     INextMenuAction |

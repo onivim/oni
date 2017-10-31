@@ -50,9 +50,26 @@ export interface IBufferEnterAction {
     payload: {
         id: number,
         file: string,
+        fileType: string,
         totalLines: number,
         hidden: boolean,
         listed: boolean,
+    }
+}
+
+export interface IShowToolTipAction {
+    type: "SHOW_TOOL_TIP",
+    payload: {
+        id: string,
+        element: JSX.Element,
+        options?: Oni.ToolTip.ToolTipOptions,
+    }
+}
+
+export interface IHideToolTipAction {
+    type: "HIDE_TOOL_TIP",
+    payload: {
+        id: string,
     }
 }
 
@@ -119,14 +136,6 @@ export interface ISetErrorsAction {
     }
 }
 
-export interface IClearErrorsAction {
-    type: "CLEAR_ERRORS",
-    payload: {
-        file: string,
-        key: string,
-    }
-}
-
 export interface ISetCursorPositionAction {
     type: "SET_CURSOR_POSITION",
     payload: {
@@ -180,56 +189,16 @@ export interface ISetColorsAction {
     }
 }
 
-export interface IShowSignatureHelpAction {
-    type: "SHOW_SIGNATURE_HELP",
+export interface IShowDefinitionAction {
+    type: "SHOW_DEFINITION",
     payload: {
-        filePath: string,
-        line: number,
-        column: number,
-        signatureHelp: types.SignatureHelp,
+        token: Oni.IToken,
+        definitionLocation: types.Location,
     }
 }
 
-export interface IShowQuickInfoAction {
-    type: "SHOW_QUICK_INFO",
-    payload: {
-        filePath: string,
-        line: number,
-        column: number,
-        title: string,
-        description: string,
-    }
-}
-
-export interface IShowAutoCompletionAction {
-    type: "SHOW_AUTO_COMPLETION",
-    payload: {
-        base: string
-        entries: Oni.Plugin.CompletionInfo[],
-    }
-}
-
-export interface ISetAutoCompletionDetails {
-    type: "SET_AUTO_COMPLETION_DETAILS",
-    payload: {
-        detailedEntry: Oni.Plugin.CompletionInfo,
-    }
-}
-
-export interface IHideAutoCompletionAction {
-    type: "HIDE_AUTO_COMPLETION"
-}
-
-export interface INextAutoCompletionAction {
-    type: "NEXT_AUTO_COMPLETION"
-}
-
-export interface IPreviousAutoCompletionAction {
-    type: "PREVIOUS_AUTO_COMPLETION"
-}
-
-export interface IHideQuickInfoAction {
-    type: "HIDE_QUICK_INFO"
+export interface IHideDefinitionAction {
+    type: "HIDE_DEFINITION",
 }
 
 export interface ISetConfigurationValue<K extends keyof IConfigurationValues> {
@@ -250,22 +219,17 @@ export type SimpleAction =
     ISetCursorPositionAction |
     ISetImeActive |
     ISetFont |
-    IShowSignatureHelpAction |
-    IShowQuickInfoAction |
-    IHideQuickInfoAction |
-    IShowAutoCompletionAction |
-    IHideAutoCompletionAction |
-    INextAutoCompletionAction |
-    IPreviousAutoCompletionAction |
-    ISetAutoCompletionDetails |
+    IHideToolTipAction |
+    IShowToolTipAction |
     IShowMessageDialog |
     IHideMessageDialog |
+    IHideDefinitionAction |
+    IShowDefinitionAction |
     ISetModeAction |
     ISetColorsAction |
     IStatusBarHideAction |
     IStatusBarShowAction |
     ISetErrorsAction |
-    IClearErrorsAction |
     ISetCurrentBuffersAction |
     ISetTabs |
     ISetViewportAction |

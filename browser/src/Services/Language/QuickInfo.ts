@@ -3,71 +3,39 @@
  *
  */
 
-import * as os from "os"
 import * as types from "vscode-languageserver-types"
 
-import { configuration } from "./../Configuration"
+import * as Log from "./../../Log"
+import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import * as UI from "./../../UI"
+import { editorManager } from "./../EditorManager"
 
 import { languageManager } from "./LanguageManager"
 
-import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-import { PluginManager } from "./../../Plugins/PluginManager"
+export const getQuickInfo = async (): Promise<types.Hover> => {
+    const buffer = editorManager.activeEditor.activeBuffer
+    const { language, filePath } = buffer
+    const { line, column } = buffer.cursor
 
-// TODO:
-// - Factor out event context to something simpler
-// - Remove plugin manager
-export const checkAndShowQuickInfo = async (evt: Oni.EventContext, pluginManager: PluginManager) => {
-    if (languageManager.isLanguageServerAvailable(evt.filetype)) {
-        const result = await languageManager.sendLanguageServerRequest(evt.filetype, evt.bufferFullPath, "textDocument/hover",
-            Helpers.eventContextToTextDocumentPositionParams(evt))
+    if (languageManager.isLanguageServerAvailable(language)) {
 
-        const titleAndContents = getTitleAndContents(result)
-
-        if (titleAndContents) {
-            showQuickInfo(evt, titleAndContents.title, titleAndContents.description)
+        const args = {
+                textDocument: {
+                    uri: Helpers.wrapPathInFileUri(filePath),
+                },
+                position: {
+                    line,
+                    character: column,
+                },
         }
+
+        let result: types.Hover = null
+        try {
+            result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/hover", args)
+        } catch (ex) { Log.debug(ex) }
+
+        return result
     } else {
-        pluginManager.checkHover(evt)
-    }
-}
-
-const showQuickInfo = (evt: Oni.EventContext, title: string, contents: string): void => {
-    setTimeout(() => {
-        UI.Actions.showQuickInfo(evt.bufferFullPath, evt.line, evt.column, title, contents)
-    }, configuration.getValue("editor.quickInfo.delay"))
-}
-
-const getTitleAndContents = (result: types.Hover) => {
-    if (!result || !result.contents) {
         return null
-    }
-
-    const contents = Helpers.getTextFromContents(result.contents)
-
-    if (contents.length === 0) {
-        return null
-    } else if (contents.length === 1 && contents[0]) {
-        const title = contents[0].trim()
-
-        if (!title) {
-            return null
-        }
-
-        return {
-            title,
-            description: "",
-        }
-    } else {
-
-        const description = [...contents]
-        description.shift()
-        const descriptionContent = description.join(os.EOL)
-
-        return {
-            title: contents[0],
-            description: descriptionContent,
-        }
     }
 }

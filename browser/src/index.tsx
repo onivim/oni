@@ -70,10 +70,6 @@ const start = (args: string[]) => {
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
 
-    UI.events.on("completion-item-selected", (item: any) => {
-        pluginManager.notifyCompletionItemSelected(item)
-    })
-
     UI.init(pluginManager, parsedArgs._)
 
     ipcRenderer.on("execute-command", (_evt: any, command: string) => {
