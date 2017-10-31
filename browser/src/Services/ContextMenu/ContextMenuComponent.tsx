@@ -21,6 +21,7 @@ export interface IContextMenuItem {
     label: string
     detail?: string
     documentation?: string
+    icon?: string
 }
 
 export interface IContextMenuProps {
