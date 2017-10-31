@@ -95,6 +95,10 @@ export class LanguageManager {
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didSave", Helpers.pathToTextDocumentIdentifierParms(filePath))
         })
 
+        this.subscribeToLanguageServerNotification("window/showMessage", (args) => {
+            Log.warn("window/showMessage not implemented: " + JSON.stringify(args.toString()))
+        })
+
         this.subscribeToLanguageServerNotification("window/logMessage", (args) => {
             logVerbose(args)
         })
@@ -102,6 +106,12 @@ export class LanguageManager {
         this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
             logDebug(args)
         })
+
+        this.handleLanguageServerRequest("window/showMessageRequest", async (req) => {
+            logVerbose(req)
+            return null
+        })
+
 
         listenForWorkspaceEdits(this)
     }

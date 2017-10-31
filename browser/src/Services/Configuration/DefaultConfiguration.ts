@@ -13,6 +13,35 @@ import { IConfigurationValues } from "./IConfigurationValues"
 
 const noop = () => { } // tslint:disable-line no-empty
 
+
+const ocamlAndReasonConfiguration = {
+    reason: {
+        codelens: {
+            enabled: true,
+            unicode: true,
+        },
+        bsb: {
+            enabled: true,
+        },
+        debounce: {
+            linter: 500,
+        },
+        diagnostic: {
+            tools: ["merlin"],
+        },
+        path: {
+            bsb: "bash -ic bsb",
+            ocamlfind: "bash -ic ocamlfind",
+            ocamlmerlin: "bash -ic ocamlmerlin",
+            opam: "bash -ic opam",
+            rebuild: "bash -ic rebuild",
+            refmt: "bash -ic refmt",
+            refmterr: "bash -ic refmterr",
+            rtop: "bash -ic rtop",
+        }
+    }
+}
+
 const BaseConfiguration: IConfigurationValues = {
     activate: noop,
     deactivate: noop,
@@ -77,6 +106,16 @@ const BaseConfiguration: IConfigurationValues = {
     "language.python.languageServer.command": "pyls",
     "language.cpp.languageServer.command": "clangd",
     "language.c.languageServer.command": "clangd",
+
+
+    "language.reason.languageServer.command": "ocaml-language-server",
+    "language.reason.languageServer.arguments": ["--stdio"],
+    "language.reason.languageServer.rootFiles": [".merlin", "bsconfig.json"],
+    "language.reason.languageServer.configuration": ocamlAndReasonConfiguration,
+
+    "language.ocaml.languageServer.command": "ocaml-language-server",
+    "language.ocaml.languageServer.arguments": ["--stdio"],
+    "language.ocaml.languageServer.configuration": ocamlAndReasonConfiguration,
 
     "menu.caseSensitive": "smart",
 
