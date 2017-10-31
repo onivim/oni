@@ -1,6 +1,6 @@
 import * as path from "path"
 
-import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
+import { app, autoUpdater, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
 import * as Log from "./Log"
 import { buildMenu } from "./menu"
@@ -164,5 +164,8 @@ function loadFileFromArguments(platform, args, workingDirectory) {
         createWindow(args.slice(2), workingDirectory)
     }
 }
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+
+// Check for updates
+// Stub right now, as the endpoint is a no-op (always returns 201)
+autoUpdater.setFeedURL(`https://api.onivim.io/v1/update?platform=${process.platform}&channel=release`)
+autoUpdater.checkForUpdates()
