@@ -1,7 +1,7 @@
 /**
- * DefaultConfiguration.ts
+ * ReasonConfiguration.ts
  *
- * Specifies Oni default settings
+ * Settings for ocaml / reason language server
  */
 
 import * as path from "path"
@@ -37,6 +37,6 @@ export const ocamlAndReasonConfiguration = {
             refmt: wrapCommand("refmt"),
             refmterr: wrapCommand("refmterr"),
             rtop: wrapCommand("rtop"),
-        }
-    }
+        },
+    },
 }

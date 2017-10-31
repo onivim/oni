@@ -112,7 +112,6 @@ export class LanguageManager {
             return null
         })
 
-
         listenForWorkspaceEdits(this)
     }
 

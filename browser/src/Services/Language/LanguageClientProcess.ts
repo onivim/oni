@@ -161,8 +161,7 @@ export class LanguageClientProcess {
                 Log.verbose("[LanguageClientProcess]: Sending configuration")
                 this._connection.sendNotification("workspace/didChangeConfiguration", { settings: this._configuration })
             }
-        }
-        catch (ex) {
+        } catch (ex) {
             Log.error(ex)
         }
     }
