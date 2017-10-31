@@ -7,7 +7,35 @@
 import * as Fuse from "fuse.js"
 import * as sortBy from "lodash/sortBy"
 
+import { configuration } from "./../../Services/Configuration"
+
 import { IMenuOptionWithHighlights } from "./Menu"
+
+const shouldFilterbeCaseSensitive = (searchString: string): boolean => {
+
+    // TODO: Technically, this makes the reducer 'impure',
+    // which is not ideal - need to refactor eventually.
+    //
+    // One option is to plumb through the configuration setting
+    // from the top-level, but it might be worth extracting
+    // out the filter strategy in general.
+    const caseSensitivitySetting = configuration.getValue("menu.caseSensitive")
+
+    if (caseSensitivitySetting === false) {
+        return false
+    } else if (caseSensitivitySetting === true) {
+        return true
+    } else {
+        // "Smart" casing strategy
+        // If the string is all lower-case, not case sensitive..
+        if (searchString === searchString.toLowerCase()) {
+            return false
+        // Otherwise, it is case sensitive..
+        } else {
+            return true
+        }
+    }
+}
 
 export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string): IMenuOptionWithHighlights[] {
 
@@ -35,23 +63,28 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
             name: "detail",
             weight: 0.4,
         }],
+        caseSensitive: shouldFilterbeCaseSensitive(searchString),
         include: ["matches"],
     }
 
     // remove duplicate characters
     const searchSet = new Set(searchString)
 
+    // remove duplicate characters
+    const searchSet = new Set(searchString)
+
     // remove any items that don't have all the characters from searchString
+    // For this first pass, ignore case
     const filteredOptions = options.filter((o) => {
 
         if (!o.label && !o.detail) {
             return false
         }
 
-        const combined = o.label + o.detail
+        const combined = o.label.toLowerCase() + o.detail.toLowerCase()
 
         for (const c of searchSet) {
-            if (combined.indexOf(c) === -1) {
+            if (combined.indexOf(c.toLowerCase()) === -1) {
                 return false
             }
         }

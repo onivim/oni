@@ -17,8 +17,9 @@ Thanks to the following backers for making Oni possible:
 
 ## Backers
 
-- @ayohan
 - @adambard
+- @akin_so
+- @ayohan
 - @badosu
 - @josemarluedke
 - @napcode

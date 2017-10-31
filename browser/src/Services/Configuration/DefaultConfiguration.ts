@@ -78,6 +78,8 @@ const BaseConfiguration: IConfigurationValues = {
     "language.cpp.languageServer.command": "clangd",
     "language.c.languageServer.command": "clangd",
 
+    "menu.caseSensitive": "smart",
+
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
 
@@ -86,6 +88,9 @@ const BaseConfiguration: IConfigurationValues = {
 
     "tabs.enabled": true,
     "tabs.showVimTabs": false,
+    "tabs.height": "2.5em",
+    "tabs.maxWidth": "30em",
+    "tabs.wrap": false,
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {

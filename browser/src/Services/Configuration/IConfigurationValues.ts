@@ -121,6 +121,13 @@ export interface IConfigurationValues {
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
 
+    // Case-sensitivity strategy for menu filtering:
+    // - if `true`, is case sensitive
+    // - if `false`, is not case sensitive
+    // - if `'smart'`, is case sensitive if the query string
+    //   contains uppercase characters
+    "menu.caseSensitive": string | boolean
+
     // Output path to save screenshots and recordings
     "recorder.outputPath": string
 
@@ -134,6 +141,17 @@ export interface IConfigurationValues {
 
     "tabs.enabled": boolean
     "tabs.showVimTabs": boolean
+
+    // Height of individual tabs in the tab strip
+    "tabs.height": string
+
+    // Maximum width of a tab
+    "tabs.maxWidth": string
+
+    // Whether or not tabs should wrap.
+    // If `false`, a scrollbar will be shown.
+    // If `true`, will wrap the tabs.
+    "tabs.wrap": boolean
 
     // Handle other, non-predefined configuration keys
     [configurationKey: string]: any
