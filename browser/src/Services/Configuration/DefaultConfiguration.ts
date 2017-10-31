@@ -10,38 +10,9 @@ import * as path from "path"
 import * as Platform from "./../../Platform"
 
 import { IConfigurationValues } from "./IConfigurationValues"
+import { ocamlLanguageServerPath, ocamlAndReasonConfiguration } from "./ReasonConfiguration"
 
 const noop = () => { } // tslint:disable-line no-empty
-
-const ocamlLanguageServerPath = Platform.isWindows() ? path.join(__dirname, "node_modules", ".bin", "ocaml-language-server.cmd") : path.join(__dirname, "node_modules", ".bin", "ocaml-language-server")
-
-const ocamlAndReasonConfiguration = {
-    reason: {
-        codelens: {
-            enabled: true,
-            unicode: true,
-        },
-        bsb: {
-            enabled: true,
-        },
-        debounce: {
-            linter: 500,
-        },
-        diagnostic: {
-            tools: ["merlin"],
-        },
-        path: {
-            bsb: "bash -ic bsb",
-            ocamlfind: "bash -ic ocamlfind",
-            ocamlmerlin: "bash -ic ocamlmerlin",
-            opam: "bash -ic opam",
-            rebuild: "bash -ic rebuild",
-            refmt: "bash -ic refmt",
-            refmterr: "bash -ic refmterr",
-            rtop: "bash -ic rtop",
-        }
-    }
-}
 
 const BaseConfiguration: IConfigurationValues = {
     activate: noop,
