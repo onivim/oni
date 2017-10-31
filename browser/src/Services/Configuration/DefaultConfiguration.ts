@@ -10,6 +10,7 @@ import * as path from "path"
 import * as Platform from "./../../Platform"
 
 import { IConfigurationValues } from "./IConfigurationValues"
+import { ocamlAndReasonConfiguration, ocamlLanguageServerPath } from "./ReasonConfiguration"
 
 const noop = () => { } // tslint:disable-line no-empty
 
@@ -77,6 +78,15 @@ const BaseConfiguration: IConfigurationValues = {
     "language.python.languageServer.command": "pyls",
     "language.cpp.languageServer.command": "clangd",
     "language.c.languageServer.command": "clangd",
+
+    "language.reason.languageServer.command": ocamlLanguageServerPath,
+    "language.reason.languageServer.arguments": ["--stdio"],
+    "language.reason.languageServer.rootFiles": [".merlin", "bsconfig.json"],
+    "language.reason.languageServer.configuration": ocamlAndReasonConfiguration,
+
+    "language.ocaml.languageServer.command": ocamlLanguageServerPath,
+    "language.ocaml.languageServer.arguments": ["--stdio"],
+    "language.ocaml.languageServer.configuration": ocamlAndReasonConfiguration,
 
     "menu.caseSensitive": "smart",
 

@@ -81,7 +81,8 @@ export class LanguageClientProcess {
 
     constructor(
         private _serverOptions: ServerRunOptions,
-        private _initializationOptions: InitializationOptions) {
+        private _initializationOptions: InitializationOptions,
+        private _configuration: any = null) {
     }
 
     public async ensureActive(fileName: string): Promise<rpc.MessageConnection> {
@@ -149,15 +150,20 @@ export class LanguageClientProcess {
             capabilities: {},
         }
 
-        return this._connection.sendRequest("initialize", oniLanguageClientParams)
-            .then((response: any) => {
-                Log.info(`[LanguageClientManager]: Initialized`)
-                if (response && response.capabilities) {
-                    this._serverCapabilities = response.capabilities
-                }
-            }, (err) => {
-                Log.error(err)
-            })
+        try {
+            const response: any = await this._connection.sendRequest("initialize", oniLanguageClientParams)
+            Log.info(`[LanguageClientManager]: Initialized`)
+            if (response && response.capabilities) {
+                this._serverCapabilities = response.capabilities
+            }
+
+            if (this._configuration) {
+                Log.verbose("[LanguageClientProcess]: Sending configuration")
+                this._connection.sendNotification("workspace/didChangeConfiguration", { settings: this._configuration })
+            }
+        } catch (ex) {
+            Log.error(ex)
+        }
     }
 
     private _end(): void {
