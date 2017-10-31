@@ -13,6 +13,7 @@ import { IConfigurationValues } from "./IConfigurationValues"
 
 const noop = () => { } // tslint:disable-line no-empty
 
+const ocamlLanguageServerPath = Platform.isWindows() ? path.join(__dirname, "node_modules", ".bin", "ocaml-language-server.cmd") : path.join(__dirname, "node_modules", ".bin", "ocaml-language-server")
 
 const ocamlAndReasonConfiguration = {
     reason: {
@@ -108,12 +109,12 @@ const BaseConfiguration: IConfigurationValues = {
     "language.c.languageServer.command": "clangd",
 
 
-    "language.reason.languageServer.command": "ocaml-language-server",
+    "language.reason.languageServer.command": ocamlLanguageServerPath,
     "language.reason.languageServer.arguments": ["--stdio"],
     "language.reason.languageServer.rootFiles": [".merlin", "bsconfig.json"],
     "language.reason.languageServer.configuration": ocamlAndReasonConfiguration,
 
-    "language.ocaml.languageServer.command": "ocaml-language-server",
+    "language.ocaml.languageServer.command": ocamlLanguageServerPath,
     "language.ocaml.languageServer.arguments": ["--stdio"],
     "language.ocaml.languageServer.configuration": ocamlAndReasonConfiguration,
 
