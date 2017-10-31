@@ -33,8 +33,16 @@ export function replacePrefixWithCompletion(bufferLine: string, basePosition: nu
 }
 
 export interface CompletionMeetResult {
+    // Position - where the meet starts
     position: number
+
+    // PositionToQuery - where the query request should start
+    positionToQuery: number
+
+    // Base - the currentg prefix of the completion
     base: string
+
+    // Whether or not completiosn should be expanded / queriried
     shouldExpandCompletions: boolean
 }
 
@@ -64,17 +72,17 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
         col--
     }
 
-    const basePos = col
+    const basePos = col + 1
 
-    const isFromTriggerCharacter = doesCharacterMatchTriggerCharacters(line[basePos], completionTriggerCharacters)
+    const isFromTriggerCharacter = doesCharacterMatchTriggerCharacters(line[basePos - 1], completionTriggerCharacters)
 
     const shouldExpandCompletions = currentPrefix.length > 0 || isFromTriggerCharacter
 
-    // If the expansion is due to a letter, start the match at the letter position
-    const position = isFromTriggerCharacter ? basePos : basePos + 1
+    const positionToQuery = isFromTriggerCharacter ? basePos : basePos + 1
 
     return {
-        position: position + 1,
+        position: basePos,
+        positionToQuery,
         base: currentPrefix,
         shouldExpandCompletions,
     }
