@@ -8,6 +8,7 @@ import * as os from "os"
 
 import { Observable } from "rxjs/Observable"
 import { Registry } from "vscode-textmate"
+import * as types from "vscode-languageserver-types"
 
 import { NeovimInstance } from "./../../neovim"
 
@@ -26,11 +27,25 @@ export const registerTextMateHighlighter = (bufferUpdate$: Observable<Oni.Editor
 
             console.warn("Updating highlights!")
 
+            let tokens: any[] = []
+
+
+            // TODO: Evaluate performance
             const lines = firstChange.text.split(os.EOL)
             for (var i = 0; i < lines.length; i++) {
                 var r = grammar.tokenizeLine(lines[i], ruleStack)
+
+                const tokensWithPosition = r.tokens.map((t) => ({
+                    range: types.Range.create(i, t.startIndex, i, t.endIndex),
+                    scopes: t.scopes
+                }))
+
+                tokens = tokens.concat(tokensWithPosition)
+
                 ruleStack = r.ruleStack
             }
+
+            console.dir(tokens)
         }
 
 
@@ -41,7 +56,7 @@ export const registerTextMateHighlighter = (bufferUpdate$: Observable<Oni.Editor
 export const getRegistry = () => {
 
     const registry = new Registry()
-    const grammar = registry.loadGrammarFromPathSync("C:/oni/languages/javascript/syntax/JavaScript.tmLanguage.json")
+    const grammar = registry.loadGrammarFromPathSync("C:/oni/languages/javascript/syntaxes/JavaScript.tmLanguage.json")
 
     return grammar
 }
