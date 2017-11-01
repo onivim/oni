@@ -43,6 +43,7 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
                 ...changeInfo,
                 meetLine: changeInfo.cursorLine,
                 meetPosition: meet.position,
+                queryPosition: meet.positionToQuery,
                 meetBase: meet.base,
                 shouldExpand: meet.shouldExpandCompletions,
             }
@@ -56,6 +57,7 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
             filePath: bufferMeetInfo.filePath,
             meetLine: bufferMeetInfo.cursorLine,
             meetPosition: bufferMeetInfo.meetPosition,
+            queryPosition: bufferMeetInfo.queryPosition,
             shouldExpand: bufferMeetInfo.shouldExpand,
         }))
         // Only care if they've changed, so we don't keep
@@ -65,10 +67,7 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
         .do(() => completionContextMenu.hide())
         .mergeMap((completionInfo: any) => {
             return Observable.defer(async () => {
-                if (Log.isDebugLoggingEnabled()) {
-                    Log.debug(`[COMPLETION] Requesting completions at line ${completionInfo.line} and character ${completionInfo.character}`)
-                }
-                const results = await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.meetLine, completionInfo.meetPosition)
+                const results = await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.meetLine, completionInfo.queryPosition)
 
                 return {
                     completions: results,
@@ -156,6 +155,10 @@ export const filterCompletionOptions = (items: types.CompletionItem[], searchTex
         return items
     }
 
+    if (!items || !items.length) {
+        return null
+    }
+
     const filterRegEx = new RegExp("^" + searchText.split("").join(".*") + ".*")
 
     const filteredOptions = items.filter((f) => {
@@ -185,11 +188,18 @@ export const getCompletions = async (language: string, filePath: string, line: n
             character,
         },
     }
+    if (Log.isDebugLoggingEnabled()) {
+        Log.debug(`[COMPLETION] Requesting completions at line ${line} and character ${character}`)
+    }
 
-    let result
+    let result = null
     try {
         result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/completion", args)
     } catch (ex) {
+        Log.verbose(ex)
+    }
+
+    if (!result) {
         return null
     }
 
@@ -197,6 +207,10 @@ export const getCompletions = async (language: string, filePath: string, line: n
 
     if (!items) {
         return null
+    }
+
+    if (Log.isDebugLoggingEnabled()) {
+        Log.debug(`[COMPLETION] Got completions: ${items}`)
     }
 
     const completions = items.map((i) => _convertCompletionForContextMenu(i))

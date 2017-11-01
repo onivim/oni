@@ -78,7 +78,10 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
             return false
         }
 
-        const combined = o.label.toLowerCase() + o.detail.toLowerCase()
+        const label = o.label ? o.label.toLowerCase() : ""
+        const detail = o.detail ? o.detail.toLowerCase() : ""
+
+        const combined = label + detail
 
         for (const c of searchSet) {
             if (combined.indexOf(c.toLowerCase()) === -1) {
