@@ -15,7 +15,7 @@ export interface IToolTipsViewProps {
 
 }
 
-export class TextInputView extends React.PureComponent<IToolTipsViewProps, void> {
+export class TextInputView extends React.PureComponent<IToolTipsViewProps, {}> {
 
     private _element: HTMLInputElement
 

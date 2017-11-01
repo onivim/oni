@@ -37,7 +37,7 @@ export interface INeovimSurfaceProps {
     onTabSelect?: (tabId: number) => void
 }
 
-export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
+export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> {
     public render(): JSX.Element {
         return <div className="container vertical full">
             <div className="container fixed">

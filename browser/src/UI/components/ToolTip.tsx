@@ -14,7 +14,7 @@ export interface IToolTipsViewProps {
     foregroundColor: string,
 }
 
-export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, void> {
+export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
 
     public render(): JSX.Element {
 
@@ -31,7 +31,7 @@ export interface IToolTipViewProps extends State.IToolTip {
     foregroundColor: string
 }
 
-export class ToolTipView extends React.PureComponent<IToolTipViewProps, void> {
+export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
 
     public render(): JSX.Element {
 

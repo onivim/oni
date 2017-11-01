@@ -47,7 +47,7 @@ export interface ITabsProps {
     height: string
 }
 
-export class Tabs extends React.PureComponent<ITabsProps, void> {
+export class Tabs extends React.PureComponent<ITabsProps, {}> {
     public render(): JSX.Element {
         if (!this.props.visible) {
             return null

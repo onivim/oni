@@ -19,7 +19,7 @@ export interface INeovimInputProps {
     onKeyDown?: (key: string) => void
 }
 
-export class NeovimInput extends React.PureComponent<INeovimInputProps, void> {
+export class NeovimInput extends React.PureComponent<INeovimInputProps, {}> {
     private _mouseElement: HTMLDivElement
     private _mouse: Mouse
 
