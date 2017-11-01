@@ -35,9 +35,9 @@ export const initDefinitionUI = (shouldHide$: Observable<any>, shouldUpdate$: Ob
                         return
                     }
 
-                    UI.Actions.setDefinition(definitionResult.token, result[0]) 
+                    UI.Actions.setDefinition(definitionResult.token, result[0])
                 } else {
-                    UI.Actions.setDefinition(definitionResult.token, result) 
+                    UI.Actions.setDefinition(definitionResult.token, result)
                 }
             }
         })
