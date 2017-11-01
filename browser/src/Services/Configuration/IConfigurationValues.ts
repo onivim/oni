@@ -25,8 +25,6 @@ export interface IConfigurationValues {
 
     // Experimental feature flags
 
-    "experimental.enableLanguageServerFromConfig": boolean
-
     // Production settings
 
     // Bell sound effect to use

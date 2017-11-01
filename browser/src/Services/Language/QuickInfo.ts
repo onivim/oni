@@ -8,6 +8,7 @@ import * as types from "vscode-languageserver-types"
 import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
+import { configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
 
 import { languageManager } from "./LanguageManager"
@@ -16,6 +17,10 @@ export const getQuickInfo = async (): Promise<types.Hover> => {
     const buffer = editorManager.activeEditor.activeBuffer
     const { language, filePath } = buffer
     const { line, column } = buffer.cursor
+
+    if (!configuration.getValue("editor.quickInfo.enabled")) {
+        return null
+    }
 
     if (languageManager.isLanguageServerAvailable(language)) {
 
