@@ -9,6 +9,7 @@ import { Observable } from "rxjs/Observable"
 
 import * as types from "vscode-languageserver-types"
 
+import { configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
 
@@ -69,6 +70,10 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
             return Observable.defer(async () => {
                 const results = await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.meetLine, completionInfo.queryPosition)
 
+                if (!results || !results.length) {
+                    return null
+                }
+
                 return {
                     completions: results,
                     meetLine: completionInfo.meetLine,
@@ -111,6 +116,10 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
         .subscribe((args: any[]) => {
 
             const [completionInfo, meetInfo, mode] = args
+
+            if (!completionInfo) {
+                return
+            }
 
             if (mode !== "insert") {
                 lastCompletedMeet = null
@@ -179,6 +188,15 @@ export const filterCompletionOptions = (items: types.CompletionItem[], searchTex
 }
 
 export const getCompletions = async (language: string, filePath: string, line: number, character: number): Promise<types.CompletionItem[]> => {
+
+    if (!configuration.getValue("editor.completions.enabled")) {
+        return null
+    }
+
+    if (Log.isDebugLoggingEnabled()) {
+        Log.debug(`[COMPLETION] Requesting completions at line ${line} and character ${character}`)
+    }
+
     const args = {
         textDocument: {
             uri: Helpers.wrapPathInFileUri(filePath),
@@ -188,10 +206,6 @@ export const getCompletions = async (language: string, filePath: string, line: n
             character,
         },
     }
-    if (Log.isDebugLoggingEnabled()) {
-        Log.debug(`[COMPLETION] Requesting completions at line ${line} and character ${character}`)
-    }
-
     let result = null
     try {
         result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/completion", args)

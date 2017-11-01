@@ -23,8 +23,6 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.persistOnNeovimExit": false,
     "debug.detailedSessionLogging": false,
 
-    "experimental.enableLanguageServerFromConfig": false,
-
     "oni.audio.bellUrl": path.join(__dirname, "audio", "beep.wav"),
 
     "oni.useDefaultConfig": true,
