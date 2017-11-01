@@ -116,7 +116,8 @@
     "vscode-jsonrpc": "3.4.1",
     "vscode-languageserver": "3.4.3",
     "vscode-languageserver-types": "3.4.0",
-    "vscode-ripgrep": "0.6.0-patch.0"
+    "vscode-ripgrep": "0.6.0-patch.0",
+    "vscode-textmate": "3.2.0"
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
