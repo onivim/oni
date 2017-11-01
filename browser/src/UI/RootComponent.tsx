@@ -4,6 +4,7 @@ import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { inputManager } from "./../Services/InputManager"
 import { MenuContainer } from "./../Services/Menu"
+import { NotificationsView } from "./../Services/Notifications"
 import * as WindowManager from "./../Services/WindowManager"
 
 import { Background } from "./components/Background"
@@ -27,6 +28,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
                             <EditorWindows windowManager={this.props.windowManager} />
                         </div>
                         <div className="stack layer">
+                            <NotificationsView notifications={[]}/>
                             <MenuContainer />
                         </div>
                     </div>
