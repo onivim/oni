@@ -28,7 +28,7 @@ import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
+import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality, registerTextMateHighlighter } from "./../Services/Language"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
@@ -221,6 +221,8 @@ export class NeovimEditor implements IEditor {
 
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
         addNormalModeLanguageFunctionality(bufferUpdates$, this._cursorMoved$, this._modeChanged$)
+
+        registerTextMateHighlighter(bufferUpdates$, this._neovimInstance)
 
         this._render()
 
