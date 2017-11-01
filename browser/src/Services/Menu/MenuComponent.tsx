@@ -31,7 +31,7 @@ export interface IMenuProps {
     foregroundColor: string
 }
 
-export class MenuView extends React.PureComponent<IMenuProps, void> {
+export class MenuView extends React.PureComponent<IMenuProps, {}> {
 
     private _inputElement: HTMLInputElement = null
 
@@ -154,7 +154,7 @@ export interface IMenuItemProps {
     onClick: () => void
 }
 
-export class MenuItem extends React.PureComponent<IMenuItemProps, void> {
+export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
 
     public render(): JSX.Element {
         let className = "item"

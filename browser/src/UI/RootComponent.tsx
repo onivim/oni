@@ -14,7 +14,7 @@ interface IRootComponentProps {
     windowManager: WindowManager.WindowManager
 }
 
-export class RootComponent extends React.PureComponent<IRootComponentProps, void> {
+export class RootComponent extends React.PureComponent<IRootComponentProps, {}> {
     public render() {
         return <div className="stack disable-mouse" onKeyDownCapture={(evt) => this._onRootKeyDown(evt)}>
             <div className="stack">

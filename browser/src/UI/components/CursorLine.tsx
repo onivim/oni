@@ -17,7 +17,7 @@ export interface ICursorLineProps {
     lineType: string
 }
 
-class CursorLineRenderer extends React.PureComponent<ICursorLineRendererProps, void> {
+class CursorLineRenderer extends React.PureComponent<ICursorLineRendererProps, {}> {
 
     public render(): null |  JSX.Element {
         if (!this.props.visible) {

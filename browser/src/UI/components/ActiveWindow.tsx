@@ -18,7 +18,7 @@ export interface IActiveWindowProps {
     pixelHeight: number
 }
 
-export class ActiveWindow extends React.PureComponent<IActiveWindowProps, void> {
+export class ActiveWindow extends React.PureComponent<IActiveWindowProps, {}> {
     public render(): JSX.Element {
 
         const px = (str: number): string => `${str}px`

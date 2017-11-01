@@ -13,7 +13,7 @@ export interface IErrorInfoProps {
 /**
  * Helper component to render errors in the QuickInfo bubble
  */
-export class ErrorInfo extends React.PureComponent<IErrorInfoProps, void> {
+export class ErrorInfo extends React.PureComponent<IErrorInfoProps, {}> {
 
     public render(): null | JSX.Element {
         if (!this.props.errors) {

@@ -23,7 +23,7 @@ export interface StatusBarItemProps {
     priority: number
 }
 
-export class StatusBar extends React.PureComponent<StatusBarProps, void> {
+export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
 
     public render() {
         if (!this.props.enabled) {
@@ -66,7 +66,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
     }
 }
 
-export class StatusBarItem extends React.PureComponent<StatusBarItemProps, void> {
+export class StatusBarItem extends React.PureComponent<StatusBarItemProps, {}> {
     public render() {
         return <div className="status-bar-item">{this.props.contents}</div>
     }
