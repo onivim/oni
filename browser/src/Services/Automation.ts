@@ -4,10 +4,10 @@
  * Helper methods for running automated tests
  */
 
-import { inputManager } from "./InputManager"
-import { editorManager } from "./EditorManager"
-
 import * as Utility from "./../Utility"
+
+import { editorManager } from "./EditorManager"
+import { inputManager } from "./InputManager"
 
 export interface ITestResult {
     passed: boolean
@@ -35,7 +35,7 @@ export class Automation implements Oni.Automation.Api {
         const interval = 1000
 
         while (time <= timeout) {
-            if(condition()) {
+            if (condition()) {
                 return
             }
             await this.sleep(interval)
@@ -55,7 +55,7 @@ export class Automation implements Oni.Automation.Api {
             const testCase: any = Utility.nodeRequire(testPath2)
             await testCase.test(new Oni())
             this._reportResult(true)
-        } catch(ex) {
+        } catch (ex) {
             this._reportResult(false, ex)
         }
     }
@@ -76,7 +76,7 @@ export class Automation implements Oni.Automation.Api {
 
         resultElement.textContent = JSON.stringify({
             passed,
-            exception: exception || null
+            exception: exception || null,
         })
     }
 
