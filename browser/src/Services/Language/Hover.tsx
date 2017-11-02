@@ -31,19 +31,16 @@ export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observ
 
     shouldHide$.subscribe(() => UI.Actions.hideToolTip(hoverToolTipId))
 
-    const nullifier$ = shouldHide$.map(() => null)
-
     const quickInfoResults$ = shouldUpdate$
         .flatMap(async () => await getQuickInfo())
-        .merge(nullifier$)
 
     const errors$ = UI.state$
+        .filter((state) => state.mode === "normal")
         .map((state) => Selectors.getErrorsForPosition(state))
         .distinctUntilChanged(isEqual)
 
     shouldUpdate$
             .combineLatest(quickInfoResults$, errors$)
-            .debounceTime(100)
             .subscribe((args: [any, types.Hover, types.Diagnostic[]]) => {
                 const [, hover, errors] = args
 
