@@ -8,10 +8,10 @@ import { Observable } from "rxjs/Observable"
 
 import * as types from "vscode-languageserver-types"
 
-import * as AutoCompletionUtility from "./../AutoCompletionUtility"
-import { editorManager } from "./../EditorManager"
+import { contextMenuManager } from "./../../ContextMenu"
+import { editorManager } from "./../../EditorManager"
 
-import { contextMenuManager } from "./../ContextMenu"
+import * as CompletionUtility from "./CompletionUtility"
 
 import { ICompletionMeetInfo, IResolvedCompletions, resolveCompletionItem } from "./Completion"
 
@@ -108,7 +108,7 @@ export const commitCompletion = async (line: number, base: number, completion: s
 
     const originalLine = currentLines[0]
 
-    const newLine = AutoCompletionUtility.replacePrefixWithCompletion(originalLine, base, column, completion)
+    const newLine = CompletionUtility.replacePrefixWithCompletion(originalLine, base, column, completion)
     await buffer.setLines(line, line + 1, [newLine])
     const cursorOffset = newLine.length - originalLine.length
     await buffer.setCursorPosition(line, column + cursorOffset)

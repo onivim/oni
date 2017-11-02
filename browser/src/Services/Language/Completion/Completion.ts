@@ -9,17 +9,15 @@ import { Observable } from "rxjs/Observable"
 
 import * as types from "vscode-languageserver-types"
 
-import { configuration } from "./../Configuration"
-import { languageManager } from "./LanguageManager"
+import { configuration } from "./../../Configuration"
+import * as Log from "./../../../Log"
+import * as Helpers from "./../../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import * as Log from "./../../Log"
-import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-
-import * as AutoCompletionUtility from "./../AutoCompletionUtility"
-
-import { ILatestCursorAndBufferInfo } from "./LanguageEditorIntegration"
+import { ILatestCursorAndBufferInfo } from "./../LanguageEditorIntegration"
+import { languageManager } from "./../LanguageManager"
 
 import { createCompletionMenu } from "./CompletionMenu"
+import * as CompletionUtility from "./CompletionUtility"
 
 export interface ICompletionMeetInfo {
     language: string
@@ -44,7 +42,7 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
         .map((changeInfo) => {
             const token = languageManager.getTokenRegex(changeInfo.language)
             const completionCharacters = languageManager.getCompletionTriggerCharacters(changeInfo.language)
-            const meet = AutoCompletionUtility.getCompletionMeet(changeInfo.contents, changeInfo.cursorColumn, token, completionCharacters)
+            const meet = CompletionUtility.getCompletionMeet(changeInfo.contents, changeInfo.cursorColumn, token, completionCharacters)
 
             if (Log.isDebugLoggingEnabled()) {
                 Log.debug(`[COMPLETION] Got meet at position: ${meet.position} with base: ${meet.base} - shouldExpand: ${meet.shouldExpandCompletions}`)
@@ -242,7 +240,7 @@ const _convertCompletionForContextMenu = (completion: types.CompletionItem): any
     label: completion.label,
     detail: completion.detail,
     documentation: getCompletionDocumentation(completion),
-    icon: AutoCompletionUtility.convertKindToIconName(completion.kind),
+    icon: CompletionUtility.convertKindToIconName(completion.kind),
     insertText: completion.insertText,
     rawCompletion: completion,
 })

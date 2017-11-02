@@ -1,5 +1,5 @@
 /**
- * AutoCompletionUtility.ts
+ * CompletionUtility.ts
  *
  * Helper functions for auto completion
  */
