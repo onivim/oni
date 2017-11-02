@@ -49,6 +49,10 @@ export const diff = (newObject: any, oldObject: any) => {
     return [...updatedProperties, ...deletedProperties]
 }
 
+export const delay = (timeoutInMs: number = 100): Promise<void> => {
+    return new Promise<void>((r) => window.setTimeout(() => r(), timeoutInMs))
+}
+
 export const doesFileNameMatchGlobPatterns = (fileName: string, globPatterns: string[]): boolean => {
 
     if (!fileName) {

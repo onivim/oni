@@ -10,7 +10,6 @@ import { Observable } from "rxjs/Observable"
 import * as types from "vscode-languageserver-types"
 
 import { configuration } from "./../Configuration"
-import { editorManager } from "./../EditorManager"
 import { languageManager } from "./LanguageManager"
 
 import * as Log from "./../../Log"
@@ -20,17 +19,29 @@ import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
 import { ILatestCursorAndBufferInfo } from "./LanguageEditorIntegration"
 
-import { contextMenuManager } from "./../ContextMenu"
+import { createCompletionMenu } from "./CompletionMenu"
+
+export interface ICompletionMeetInfo {
+    language: string
+    filePath: string
+    meetLine: number
+    meetPosition: number
+    queryPosition: number
+    meetBase: string
+    shouldExpand: boolean
+}
+
+export interface ICompletionResults {
+    completions: types.CompletionItem[]
+    meetLine: number
+    meetPosition: number
+}
 
 export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>) => {
 
-    let lastCompletedMeet: any = null
-    let lastSelection: string = null
-
-    const completionContextMenu = contextMenuManager.create()
 
     // Observable that gets full completion context (cursor positon + meet info)
-    const completionMeet$ = latestCursorAndBufferInfo$
+    const completionMeet$: Observable<ICompletionMeetInfo> = latestCursorAndBufferInfo$
         .map((changeInfo) => {
             const token = languageManager.getTokenRegex(changeInfo.language)
             const completionCharacters = languageManager.getCompletionTriggerCharacters(changeInfo.language)
@@ -41,7 +52,8 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
             }
 
             return {
-                ...changeInfo,
+                language: changeInfo.language,
+                filePath: changeInfo.filePath,
                 meetLine: changeInfo.cursorLine,
                 meetPosition: meet.position,
                 queryPosition: meet.positionToQuery,
@@ -49,24 +61,13 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
                 shouldExpand: meet.shouldExpandCompletions,
             }
         })
-        .distinctUntilChanged(isEqual)
 
-    const completion$ = completionMeet$
-        // Extract out the parameters that are important for completion
-        .map((bufferMeetInfo) => ({
-            language: bufferMeetInfo.language,
-            filePath: bufferMeetInfo.filePath,
-            meetLine: bufferMeetInfo.cursorLine,
-            meetPosition: bufferMeetInfo.meetPosition,
-            queryPosition: bufferMeetInfo.queryPosition,
-            shouldExpand: bufferMeetInfo.shouldExpand,
-        }))
-        // Only care if they've changed, so we don't keep
+    const completion$: Observable<ICompletionResults> = completionMeet$
+        // Only check for completion if the meets have actually changed
         // requesting completions for the same spot
         .distinctUntilChanged(isEqual)
         .filter((info) => info.shouldExpand)
-        .do(() => completionContextMenu.hide())
-        .mergeMap((completionInfo: any) => {
+        .mergeMap((completionInfo: ICompletionMeetInfo) => {
             return Observable.defer(async () => {
                 const results = await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.meetLine, completionInfo.queryPosition)
 
@@ -82,81 +83,54 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
             })
         })
 
-    // Subscribe to some event streams on the context menu
-    const completionMenuItemSelected$ = completionContextMenu.onItemSelected.asObservable()
-    completionMenuItemSelected$
-        .withLatestFrom(completionMeet$)
-        .subscribe((args: any[]) => {
-            const [completionItem, lastMeet] = args
-
-            if (lastMeet) {
-                const insertText = completionItem.insertText || completionItem.label
-                commitCompletion(lastMeet.meetLine, lastMeet.contents, lastMeet.meetPosition, lastMeet.cursorColumn, insertText)
-                lastCompletedMeet = lastMeet
-                lastSelection = insertText
-                completionContextMenu.hide()
-            }
-        })
-
-    const completionMenuSelectedItemChanged$ = completionContextMenu.onSelectedItemChanged.asObservable()
-    completionMenuSelectedItemChanged$
-        .withLatestFrom(completionMeet$)
-        .subscribe(async (args: any[]) => {
-            const [newItem, lastMeet] = args
-
-            const result = await resolveCompletionItem(lastMeet.language, lastMeet.filePath, newItem.rawCompletion)
-            completionContextMenu.updateItem(result)
-        })
-
     // Core completion logic:
     // Take the latest completion info, meet info, and mode
     // and determine what to show in the context menu
-    Observable
-        .combineLatest(completion$, completionMeet$, modeChanged$)
-        .subscribe((args: any[]) => {
+    const resolvedCompletion$ = Observable
+        .combineLatest(completion$, completionMeet$)
+        .map((args: [ICompletionResults, ICompletionMeetInfo]) => {
 
-            const [completionInfo, meetInfo, mode] = args
-
-            if (!completionInfo) {
-                return
-            }
-
-            if (mode !== "insert") {
-                lastCompletedMeet = null
-                lastSelection = null
-                completionContextMenu.hide()
-                return
-            }
-
-            if (lastCompletedMeet !== null
-                && lastCompletedMeet.meetLine === meetInfo.meetLine
-                && lastCompletedMeet.meetPosition === meetInfo.meetPosition
-                && lastSelection === meetInfo.meetBase) {
-                    completionContextMenu.hide()
-                    return
-                }
-
-            const { completions, meetLine, meetPosition } = completionInfo
-
-            const filteredCompletions = filterCompletionOptions(completions, meetInfo.meetBase)
-
-            if (!filteredCompletions || !filteredCompletions.length || !meetInfo.shouldExpand) {
-                completionContextMenu.hide()
-            } else if (filteredCompletions.length === 1) {
-                const completionItem: types.CompletionItem = filteredCompletions[0]
-                if (completionItem.insertText === meetInfo.meetBase) {
-                    completionContextMenu.hide()
-                } else {
-                    completionContextMenu.show(filteredCompletions, meetInfo.meetBase)
-                }
-            } else if (meetLine !== meetInfo.meetLine || meetPosition !== meetInfo.meetPosition) {
-                completionContextMenu.hide()
-            } else {
-                completionContextMenu.show(filteredCompletions, meetInfo.meetBase)
-            }
+            const [completionInfo, meetInfo] = args
+            return resolveCompletionsFromCurrentState(completionInfo, meetInfo)
         })
 
-    // currentCompletionMeet$.subscribe((newMeet) => { lastMeet = newMeet })
+    createCompletionMenu(completionMeet$, resolvedCompletion$, modeChanged$)
+}
+
+export interface IResolvedCompletions {
+    completions: types.CompletionItem[]
+    meetInfo: ICompletionMeetInfo
+}
+
+export const resolveCompletionsFromCurrentState = (completionInfo: ICompletionResults, meetInfo: ICompletionMeetInfo): IResolvedCompletions  => {
+    if (!completionInfo) {
+        return null
+    }
+
+    const { completions, meetLine, meetPosition } = completionInfo
+
+    const filteredCompletions = filterCompletionOptions(completions, meetInfo.meetBase)
+
+    if (!filteredCompletions || !filteredCompletions.length || !meetInfo.shouldExpand) {
+        return null
+    } else if (meetLine !== meetInfo.meetLine || meetPosition !== meetInfo.meetPosition) {
+        return null
+    } else if (filteredCompletions.length === 1) {
+        const completionItem: types.CompletionItem = filteredCompletions[0]
+        if (completionItem.insertText === meetInfo.meetBase) {
+            return null
+        } else {
+            return {
+                completions: filteredCompletions,
+                meetInfo: meetInfo,
+            }
+        }
+    } else {
+        return {
+            completions: filteredCompletions,
+            meetInfo: meetInfo,
+        }
+    }
 }
 
 export const filterCompletionOptions = (items: types.CompletionItem[], searchText: string): types.CompletionItem[] => {
@@ -243,63 +217,6 @@ export const resolveCompletionItem = async (language: string, filePath: string, 
     return _convertCompletionForContextMenu(result)
 }
 
-export const commitCompletion = async (line: number, originalLine: string, base: number, column: number, completion: string) => {
-
-    const buffer = editorManager.activeEditor.activeBuffer
-
-    const newLine = AutoCompletionUtility.replacePrefixWithCompletion(originalLine, base, column, completion)
-
-    await buffer.setLines(line, line + 1, [newLine])
-
-    const cursorOffset = newLine.length - originalLine.length
-
-    await buffer.setCursorPosition(line, column + cursorOffset)
-}
-
-const convertKindToIconName = (completionKind: types.CompletionItemKind) => {
-
-    switch (completionKind) {
-        case types.CompletionItemKind.Class:
-            return "cube"
-        case types.CompletionItemKind.Color:
-            return "paint-brush"
-        case types.CompletionItemKind.Constructor:
-            return "building"
-        case types.CompletionItemKind.Enum:
-            return "sitemap"
-        case types.CompletionItemKind.Field:
-            return "var"
-        case types.CompletionItemKind.File:
-            return "file"
-        case types.CompletionItemKind.Function:
-            return "cog"
-        case types.CompletionItemKind.Interface:
-            return "plug"
-        case types.CompletionItemKind.Keyword:
-            return "key"
-        case types.CompletionItemKind.Method:
-            return "flash"
-        case types.CompletionItemKind.Module:
-            return "cubes"
-        case types.CompletionItemKind.Property:
-            return "wrench"
-        case types.CompletionItemKind.Reference:
-            return "chain"
-        case types.CompletionItemKind.Snippet:
-            return "align-justify"
-        case types.CompletionItemKind.Text:
-            return "align-justify"
-        case types.CompletionItemKind.Unit:
-            return "tag"
-        case types.CompletionItemKind.Value:
-            return "lock"
-        case types.CompletionItemKind.Variable:
-            return "code"
-        default:
-            return "question"
-    }
-}
-
 const getCompletionItems = (items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[] => {
     if (!items) {
         return []
@@ -326,7 +243,7 @@ const _convertCompletionForContextMenu = (completion: types.CompletionItem): any
     label: completion.label,
     detail: completion.detail,
     documentation: getCompletionDocumentation(completion),
-    icon: convertKindToIconName(completion.kind),
+    icon: AutoCompletionUtility.convertKindToIconName(completion.kind),
     insertText: completion.insertText,
     rawCompletion: completion,
 })
