@@ -79,7 +79,7 @@
     "dist:win": "build --arch ia32 --publish never",
     "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
     "test": "npm run test:unit && npm run test:integration",
-    "test:integration": "npm run build:test && mocha -t 30000 --recursive lib_test/test/ci",
+    "test:integration": "npm run build:test && mocha -t 30000 lib_test/test/CiTests.js",
     "test:stability": "npm run build:test && mocha -t 600000 --recursive lib_test/test/stability",
     "test:unit": "npm run test:unit:browser",
     "test:unit:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
