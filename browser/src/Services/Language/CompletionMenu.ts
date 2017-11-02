@@ -6,6 +6,8 @@ import "rxjs/add/observable/combineLatest"
 import "rxjs/add/operator/withLatestFrom"
 import { Observable } from "rxjs/Observable"
 
+import * as types from "vscode-languageserver-types"
+
 import { editorManager } from "./../EditorManager"
 import * as AutoCompletionUtility from "./../AutoCompletionUtility"
 
@@ -44,8 +46,7 @@ export const createCompletionMenu = (completionMeet$: Observable<ICompletionMeet
         .subscribe(async (args: [any, ICompletionMeetInfo]) => {
             const [newItem, lastMeet] = args
 
-            const result = await resolveCompletionItem(lastMeet.language, lastMeet.filePath, newItem.rawCompletion)
-            completionContextMenu.updateItem(result)
+            await updateCompletionItemDetails(completionContextMenu, lastMeet.language, lastMeet.filePath, newItem.rawCompletion)
         })
 
     completion$
@@ -54,7 +55,7 @@ export const createCompletionMenu = (completionMeet$: Observable<ICompletionMeet
 
                 const [completions, mode] = result
 
-                if (!completions) {
+                if (!completions || !completions.completions || !completions.completions.length) {
                     completionContextMenu.hide()
                     return
                 }
@@ -85,10 +86,16 @@ export const createCompletionMenu = (completionMeet$: Observable<ICompletionMeet
                         return
                     }
 
-
                 completionContextMenu.show(completions.completions,  meetInfo.meetBase)
+                updateCompletionItemDetails(completionContextMenu, meetInfo.language, meetInfo.filePath, completions.completions[0])
         })
 }
+
+export const updateCompletionItemDetails = async (menu: any, language: string, filePath: string, completionItem: types.CompletionItem)  => {
+    const result = await resolveCompletionItem(language, filePath, completionItem)
+    menu.updateItem(result)
+}
+
 
 export const commitCompletion = async (line: number, base: number, completion: string) => {
     const buffer = editorManager.activeEditor.activeBuffer
