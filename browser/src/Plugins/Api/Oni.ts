@@ -7,6 +7,7 @@ import * as Process from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
+import { automation } from "./../../Services/Automation"
 import { commandManager } from "./../../Services/CommandManager"
 import { configuration } from "./../../Services/Configuration"
 import { contextMenuManager } from "./../../Services/ContextMenu"
@@ -44,6 +45,10 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     private _diagnostics: Oni.Plugin.Diagnostics.Api
     private _ui: Ui
     private _services: Services
+
+    public get automation(): Oni.Automation.Api {
+        return automation
+    }
 
     public get commands(): Oni.Commands {
         return commandManager

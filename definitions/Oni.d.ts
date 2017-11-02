@@ -211,6 +211,16 @@ declare namespace Oni {
         export type Mode = "normal" | "visual" | "insert"
     }
 
+    export namespace Automation {
+        // Api surface area for automated testing
+        export interface Api {
+            sendKeys(input: string): void
+            waitFor(condition: () => boolean, timeout: number): Promise<void>
+
+            runTest(testPath: string): Promise<void>
+        }
+    }
+
     export namespace Coordinates {
         export interface PixelSpacePoint {
             pixelX: number
@@ -262,6 +272,7 @@ declare namespace Oni {
         }
 
         export interface Api extends EventEmitter {
+            automation: Automation.Api
             configuration: Configuration
             contextMenu: any /* TODO */
             diagnostics: Diagnostics.Api

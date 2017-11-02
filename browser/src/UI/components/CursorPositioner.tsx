@@ -44,6 +44,8 @@ export interface ICursorPositionerViewState {
     isFullWidth: boolean
     shouldOpenDownward: boolean,
     adjustedX: number
+    lastMeasuredX: number,
+    lastMeasuredY: number,
     lastMeasuredHeight: number,
     lastMeasuredWidth: number,
 }
@@ -55,6 +57,8 @@ const InitialState = {
     shouldOpenDownward: false,
     adjustedX: 0,
 
+    lastMeasuredX: -1,
+    lastMeasuredY: -1,
     lastMeasuredHeight: 0,
     lastMeasuredWidth: 0,
 }
@@ -154,7 +158,9 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         if (element) {
             const rect = element.getBoundingClientRect()
 
-            if (rect.height <= this.state.lastMeasuredHeight
+            if (rect.left === this.state.lastMeasuredX
+                && rect.top === this.state.lastMeasuredY
+                && rect.height <= this.state.lastMeasuredHeight
                && rect.width <= this.state.lastMeasuredWidth) {
                 return
             }
@@ -182,6 +188,8 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
                     shouldOpenDownward,
                     adjustedX,
                     isMeasured: true,
+                    lastMeasuredX: rect.left,
+                    lastMeasuredY: rect.top,
                     lastMeasuredWidth: rect.width,
                     lastMeasuredHeight: rect.height,
                 })
