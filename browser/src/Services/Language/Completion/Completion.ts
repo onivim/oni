@@ -9,9 +9,9 @@ import { Observable } from "rxjs/Observable"
 
 import * as types from "vscode-languageserver-types"
 
-import { configuration } from "./../../Configuration"
 import * as Log from "./../../../Log"
 import * as Helpers from "./../../../Plugins/Api/LanguageClient/LanguageClientHelpers"
+import { configuration } from "./../../Configuration"
 
 import { ILatestCursorAndBufferInfo } from "./../LanguageEditorIntegration"
 import { languageManager } from "./../LanguageManager"

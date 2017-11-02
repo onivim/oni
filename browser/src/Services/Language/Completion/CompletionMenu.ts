@@ -113,4 +113,3 @@ export const commitCompletion = async (line: number, base: number, completion: s
     const cursorOffset = newLine.length - originalLine.length
     await buffer.setCursorPosition(line, column + cursorOffset)
 }
-

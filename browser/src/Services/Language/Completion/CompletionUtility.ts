@@ -133,4 +133,3 @@ export const convertKindToIconName = (completionKind: types.CompletionItemKind) 
             return "question"
     }
 }
-
