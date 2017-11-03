@@ -8,6 +8,10 @@ branches:
         - master
         - /^release.*/
 
+cache:
+    directories:
+        - node_modules
+
 matrix:
     include:
         - os: linux
