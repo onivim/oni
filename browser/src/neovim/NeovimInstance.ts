@@ -20,6 +20,8 @@ import { startNeovim } from "./NeovimProcessSpawner"
 import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { Session } from "./Session"
 
+derp
+
 export interface INeovimYankInfo {
     operator: string
     regcontents: string[]

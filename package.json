@@ -35,10 +35,12 @@
       "!lib_test",
       "!test"
     ],
-    "extraResources": [{
+    "extraResources": [
+      {
         "from": "node_modules/typescript/lib",
         "to": "app/node_modules/typescript/lib"
-    }],
+      }
+    ],
     "mac": {
       "artifactName": "${productName}-${version}-osx.${ext}",
       "category": "public.app-category.developer-tools",
