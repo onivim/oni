@@ -57,7 +57,7 @@ export class NeovimWindowManager {
             .withLatestFrom(this._scrollObservable)
             .subscribe((args: [any, Oni.EventContext]) => {
 
-                const [,evt] = args
+                const [, evt] = args
                 this._remeasureWindow(evt, false)
             })
     }
