@@ -41,7 +41,7 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
             oni.client.execute("Oni.automation.runTest('" + normalizedTestPath + "')")
 
             console.log("Waiting for result...") // tslint:disable-line
-            await oni.client.waitForExist(".automated-test-result")
+            await oni.client.waitForExist(".automated-test-result", 30000)
             const resultText = await oni.client.getText(".automated-test-result")
             console.log("Got result: " + resultText) // tslint:disable-line
 
