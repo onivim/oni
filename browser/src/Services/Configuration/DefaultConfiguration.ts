@@ -88,6 +88,10 @@ const BaseConfiguration: IConfigurationValues = {
     "language.ocaml.languageServer.arguments": ["--stdio"],
     "language.ocaml.languageServer.configuration": ocamlAndReasonConfiguration,
 
+    "language.typescript.completionTriggerCharacters": [".", "/", "\\"],
+
+    "language.javascript.completionTriggerCharacters": [".", "/", "\\"],
+
     "menu.caseSensitive": "smart",
 
     "recorder.copyScreenshotToClipboard": false,

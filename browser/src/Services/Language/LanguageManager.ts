@@ -137,7 +137,13 @@ export class LanguageManager {
     }
 
     public getCompletionTriggerCharacters(language: string): string[] {
-        return ["."]
+        const languageSpecificTriggerChars = configuration.getValue(`language.${language}.completionTriggerCharacters`)
+
+        if (languageSpecificTriggerChars) {
+            return languageSpecificTriggerChars
+        } else {
+            return ["."]
+        }
     }
 
     public isLanguageServerAvailable(language: string): boolean {
