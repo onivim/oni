@@ -33,11 +33,12 @@
       "!build",
       "!examples",
       "!lib_test",
-      "!test"
+      "!test",
+      "!node_modules/typescript"
     ],
     "extraResources": [{
-        "from": "node_modules/typescript/lib",
-        "to": "app/node_modules/typescript/lib"
+        "from": "node_modules/typescript",
+        "to": "app/node_modules/typescript"
     }],
     "mac": {
       "artifactName": "${productName}-${version}-osx.${ext}",
