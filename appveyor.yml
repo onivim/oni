@@ -29,7 +29,7 @@ artifacts:
 
 deploy:
     provider: GitHub
-    repository: bryphe/oni
+    repository: onivim/oni
     auth_token:
         secure: 7+dYCBtYLMoaH4xvTno1mAw8mb4CPFYAcosPI8kRTmcqYKehzmhpChU825uGdaB6
     draft: false
