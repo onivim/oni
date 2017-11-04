@@ -114,7 +114,7 @@ export const resolveCompletionsFromCurrentState = (completionInfo: ICompletionRe
         return null
     } else if (filteredCompletions.length === 1) {
         const completionItem: types.CompletionItem = filteredCompletions[0]
-        if (completionItem.insertText === meetInfo.meetBase) {
+        if (CompletionUtility.getInsertText(completionItem) === meetInfo.meetBase) {
             return null
         } else {
             return {

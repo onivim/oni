@@ -30,7 +30,7 @@ export const createCompletionMenu = (completionMeet$: Observable<ICompletionMeet
             const [completionItem, lastMeet] = args
 
             if (lastMeet) {
-                const insertText = completionItem.insertText || completionItem.label
+                const insertText = CompletionUtility.getInsertText(completionItem)
                 commitCompletion(lastMeet.meetLine, lastMeet.meetPosition, insertText)
 
                 lastCompletedMeet = lastMeet

@@ -25,6 +25,10 @@ export function getCompletionStart(bufferLine: string, cursorColumn: number, com
     return x + 1
 }
 
+export const getInsertText = (completionItem: types.CompletionItem): string => {
+    return completionItem.insertText || completionItem.label
+}
+
 export function replacePrefixWithCompletion(bufferLine: string, basePosition: number, cursorColumn: number, completion: string): string {
     const startPosition = basePosition
 
