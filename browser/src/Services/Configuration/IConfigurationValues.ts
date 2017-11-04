@@ -23,6 +23,9 @@ export interface IConfigurationValues {
     "debug.persistOnNeovimExit": boolean
     "debug.detailedSessionLogging": boolean
 
+    // Simulate slow language server, for debugging
+    "debug.fakeLag.languageServer": number
+
     // Experimental feature flags
 
     // Production settings

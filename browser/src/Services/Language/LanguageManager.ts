@@ -25,6 +25,8 @@ import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientSt
 
 import { listenForWorkspaceEdits } from "./Workspace"
 
+import * as Utility from "./../../Utility"
+
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 export interface ILanguageServerNotificationResponse {
@@ -151,6 +153,8 @@ export class LanguageManager {
     public async sendLanguageServerNotification(language: string, filePath: string, protocolMessage: string, protocolPayload: LanguageClientTypes.NotificationValueOrThunk): Promise<void> {
         const languageClient = this._getLanguageClient(language)
 
+        await this._simulateFakeLag()
+
         if (languageClient) {
             await languageClient.sendNotification(filePath, protocolMessage, protocolPayload)
         } else {
@@ -162,6 +166,8 @@ export class LanguageManager {
         const languageClient = this._getLanguageClient(language)
 
         Log.verbose("[LANGUAGE] Sending request: " + protocolMessage + "|" + JSON.stringify(protocolPayload))
+
+        await this._simulateFakeLag()
 
         if (languageClient) {
             try {
@@ -252,6 +258,15 @@ export class LanguageManager {
                 break
             default:
                 break
+        }
+    }
+
+    private async _simulateFakeLag(): Promise<void> {
+        const delay = configuration.getValue("debug.fakeLag.languageServer")
+        if (!delay) {
+            return
+        } else {
+            await Utility.delay(delay)
         }
     }
 }
