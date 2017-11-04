@@ -27,21 +27,26 @@ export class TextInputView extends React.PureComponent<IToolTipsViewProps, {}> {
 
     public render(): JSX.Element {
 
+        const containerStyle: React.CSSProperties = {
+            padding: "4px",
+            border: "1px solid " + this.props.foregroundColor,
+        }
+
         const inputStyle: React.CSSProperties = {
             outline: "none",
             color: this.props.foregroundColor,
             backgroundColor: this.props.backgroundColor,
-            border: "1px solid " + this.props.foregroundColor,
+            border: "0px",
             transform: "translateY(0px)",
         }
 
         const defaultValue = this.props.defaultValue || ""
 
-        return <input type="text"
+        return <div style={containerStyle}><input type="text"
                     style={inputStyle}
                     placeholder={defaultValue}
                     onFocus={(evt) => evt.currentTarget.select()}
-                    ref={(elem) => this._element = elem} />
+                    ref={(elem) => this._element = elem} /></div>
     }
 
     public componentWillUnmount(): void {

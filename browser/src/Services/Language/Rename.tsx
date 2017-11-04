@@ -19,7 +19,9 @@ let _isRenameCommitted = false
 
 import { RenameView } from "./RenameView"
 
-export const isRenameActive = () => _isRenameActive
+export const isRenameActive = () => {
+    return _isRenameActive
+}
 
 export const startRename = async () => {
     if (_isRenameActive) {
@@ -39,24 +41,36 @@ export const startRename = async () => {
     UI.Actions.showToolTip(_renameToolTipName, <RenameView onComplete={onRenameClosed} tokenName={activeToken.tokenName} />, {
         position: null,
         openDirection: 2,
+        onDismiss: () => cancelRename(),
     })
 }
 
 export const commitRename = () => {
+    Log.verbose("[RENAME] Committing rename")
     _isRenameCommitted = true
-    UI.Actions.hideToolTip(_renameToolTipName)
+    _isRenameActive = false
+    closeToolTip()
 }
 
 export const cancelRename = () => {
+    Log.verbose("[RENAME] Cancelling")
     _isRenameCommitted = false
-    UI.Actions.hideToolTip(_renameToolTipName)
+    closeToolTip()
 }
 
 export const onRenameClosed = (newValue: string) => {
-    _isRenameActive = false
+    Log.verbose("[RENAME] onRenameClosed")
     if (_isRenameCommitted) {
+        _isRenameCommitted = false
         doRename(newValue)
     }
+    closeToolTip()
+}
+
+const closeToolTip = () => {
+    Log.verbose("[RENAME] closeToolTip")
+    _isRenameActive = false
+    UI.Actions.hideToolTip(_renameToolTipName)
 }
 
 export const doRename = async (newName: string): Promise<void> => {

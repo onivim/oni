@@ -237,6 +237,7 @@ declare namespace Oni {
             position?: Coordinates.PixelSpacePoint
             openDirection: OpenDirection
             padding?: string
+            onDismiss?: () => void
         }
     }
 
