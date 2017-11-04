@@ -145,8 +145,6 @@ Thank you!
 
 MIT License. Copyright (c) Bryan Phelps
 
-There are a few image and audio assets bundled with Oni - see [ASSETS.md](ASSETS.md) for attribution.
-
 Windows and OSX have a bundled version of Neovim, which is covered under [Neovim's license](https://github.com/neovim/neovim/blob/master/LICENSE)
 
 ### Bundled Plugins
