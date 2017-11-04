@@ -87,7 +87,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
         return str.replace(/(\r\n|\n|\r)/gm, "")
     }
 
-    const protocolChangeFile = (message: string, payload: any) => {
+    const protocolChangeFile = async (message: string, payload: any) => {
 
         const textDocument: types.TextDocumentIdentifier = payload.textDocument
         const contentChanges: types.TextDocumentContentChangeEvent[] = payload.contentChanges
@@ -110,6 +110,9 @@ export const activate = (oni: Oni.Plugin.Api) => {
         } else {
             oni.log.warn("Unhandled change request!")
         }
+
+        // Update errors for modified file
+        host.getErrors(filePath)
     }
 
     const onSaved = (protocolName: string, payload: any) => {

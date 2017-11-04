@@ -5,7 +5,6 @@
  */
 
 import * as os from "os"
-import * as path from "path"
 
 import * as Platform from "./../../Platform"
 
@@ -25,7 +24,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "debug.fakeLag.languageServer": null,
 
-    "oni.audio.bellUrl": path.join(__dirname, "audio", "beep.wav"),
+    "oni.audio.bellUrl": null,
 
     "oni.useDefaultConfig": true,
 

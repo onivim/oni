@@ -185,6 +185,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
     public getErrors(fullFilePath: string): Promise<void> {
         return this._makeTssRequest<void>("geterr", {
             files: [fullFilePath],
+            delay: 500,
         })
     }
 
