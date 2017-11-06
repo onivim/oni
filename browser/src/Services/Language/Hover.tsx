@@ -24,6 +24,11 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 import * as UI from "./../../UI"
 import * as Colors from "./../../UI/Colors"
 import * as Selectors from "./../../UI/Selectors"
+import * as Utility from "./../../Utility"
+
+import { IResultWithPosition } from "./LanguageClientTypes"
+
+import { editorManager } from "./../EditorManager"
 
 export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observable<void>) => {
 
@@ -31,8 +36,7 @@ export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observ
 
     shouldHide$.subscribe(() => UI.Actions.hideToolTip(hoverToolTipId))
 
-    const quickInfoResults$ = shouldUpdate$
-        .flatMap(async () => await getQuickInfo())
+    const quickInfoResults$ = Utility.ignoreWhilePendingPromise(shouldUpdate$, () => getQuickInfo())
 
     const errors$ = UI.state$
         .filter((state) => state.mode === "normal")
@@ -41,8 +45,16 @@ export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observ
 
     shouldUpdate$
             .combineLatest(quickInfoResults$, errors$)
-            .subscribe((args: [any, types.Hover, types.Diagnostic[]]) => {
-                const [, hover, errors] = args
+            .subscribe((args: [any, IResultWithPosition<types.Hover>, types.Diagnostic[]]) => {
+                const [, result, errors] = args
+
+                const activeCursor = editorManager.activeEditor.activeBuffer.cursor
+
+                let hover = null
+
+                if (result && (result.position.line === activeCursor.line && result.position.character === activeCursor.column)) {
+                    hover = result.result
+                }
 
                 if (hover || (errors && errors.length)) {
                     const elem = renderQuickInfo(hover, errors)
