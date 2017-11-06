@@ -4,8 +4,9 @@
  * Provides information about Oni's pkg
  */
 
-import * as path from "path"
 import * as fs from "fs"
+import * as os from "os"
+import * as path from "path"
 
 export interface IMetadata {
     name: string
@@ -37,5 +38,14 @@ export const getMetadata = async (): Promise<IMetadata> => {
 
 export const showAboutMessage = async () => {
     const metadata = await getMetadata()
-    alert(`${metadata.name} ${metadata.version}`)
+
+    const infoLines = [
+    `${metadata.name} version ${metadata.version}`,
+    "https://www.onivim.io",
+    "",
+    "Copyright 2017 Bryan Phelps",
+    "MIT License",
+    ]
+
+    alert(infoLines.join(os.EOL))
 }

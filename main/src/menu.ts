@@ -609,20 +609,36 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Learn more",
                 click(item, focusedWindow) {
-                    shell.openExternal("https://github.com/extr0py/oni#introduction")
+                    shell.openExternal("https://github.com/onivim/oni#introduction")
                 },
             },
             {
                 label: "Issues",
                 click(item, focusedWindow) {
-                    shell.openExternal("https://github.com/extr0py/oni/issues")
+                    shell.openExternal("https://github.com/onivim/oni/issues")
                 },
             },
             {
                 label: "Github",
-                sublabel: "https://github.com/extr0py/oni",
+                sublabel: "https://github.com/onivim/oni",
                 click(item, focusedWindow) {
-                    shell.openExternal("https://github.com/extr0py/oni")
+                    shell.openExternal("https://github.com/onivim/oni")
+                },
+            },
+            {
+                label: "Website",
+                sublabel: "https://www.onivim.io",
+                click(item, focusedWindow) {
+                    shell.openExternal("https://www.onivim.io")
+                },
+            },
+            {
+                type: "separator",
+            },
+            {
+                label: "About Oni",
+                click(item, focusedWindow) {
+                    executeOniCommand("oni.about")
                 },
             },
             {
