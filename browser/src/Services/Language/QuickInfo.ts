@@ -13,7 +13,9 @@ import { editorManager } from "./../EditorManager"
 
 import { languageManager } from "./LanguageManager"
 
-export const getQuickInfo = async (): Promise<types.Hover> => {
+import { IResultWithPosition } from "./LanguageClientTypes"
+
+export const getQuickInfo = async (): Promise<IResultWithPosition<types.Hover>> => {
     const buffer = editorManager.activeEditor.activeBuffer
     const { language, filePath } = buffer
     const { line, column } = buffer.cursor
@@ -34,9 +36,13 @@ export const getQuickInfo = async (): Promise<types.Hover> => {
                 },
         }
 
-        let result: types.Hover = null
+        let result: IResultWithPosition<types.Hover> = null
         try {
-            result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/hover", args)
+            const hoverResult = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/hover", args)
+            result = {
+                position: types.Position.create(line, column),
+                result: hoverResult,
+            }
         } catch (ex) { Log.debug(ex) }
 
         return result
