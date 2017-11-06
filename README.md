@@ -2,10 +2,8 @@
 
 ### IDE powered by Neovim + React + Electron
 
-[![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni)
-[![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)
-[![Join the chat at https://gitter.im/extr0py/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
+[![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)
+[![Join the chat at https://gitter.im/extr0py/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/oni/sponsors/badge.svg)](#sponsors) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 [![Total Downloads](https://img.shields.io/github/downloads/onivim/oni/total.svg)](https://github.com/onivim/oni/releases)
 
 - [Introduction](#introduction)
@@ -140,6 +138,36 @@ Oni is an independent project and is made possible by the support of some except
 Several other great neovim front-end UIs [here](https://github.com/neovim/neovim/wiki/Related-projects) served as a reference, especially [NyaoVim](https://github.com/rhysd/NyaoVim) and [VimR](https://github.com/qvacua/vimr). I encourage you to check those out!
 
 Thank you!
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
+<a href="graphs/contributors"><img src="https://opencollective.com/oni/contributors.svg?width=890" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/oni#backer)]
+
+<a href="https://opencollective.com/oni#backers" target="_blank"><img src="https://opencollective.com/oni/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/oni#sponsor)]
+
+<a href="https://opencollective.com/oni/sponsor/0/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/oni/sponsor/1/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/oni/sponsor/2/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/oni/sponsor/3/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/oni/sponsor/4/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/oni/sponsor/5/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/oni/sponsor/6/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/oni/sponsor/7/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/oni/sponsor/8/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/oni/sponsor/9/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/9/avatar.svg"></a>
+
+
 
 ## License
 
