@@ -16,7 +16,7 @@ import { PluginManager } from "./../Plugins/PluginManager"
 import { configuration } from "./../Services/Configuration"
 import { contextMenuManager } from "./../Services/ContextMenu"
 import { editorManager } from "./../Services/EditorManager"
-import { /*commitCompletion,*/ cancelRename, commitRename, expandCodeActions, findAllReferences, formatDocument, gotoDefinitionUnderCursor, isRenameActive, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu, startRename } from "./../Services/Language"
+import { /*commitCompletion,*/ cancelRename, commitRename, expandCodeActions, findAllReferences, format, gotoDefinitionUnderCursor, isRenameActive, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu, startRename } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { showAboutMessage } from "./../Services/Metadata"
 import { multiProcess } from "./../Services/MultiProcess"
@@ -65,7 +65,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("language.rename.commit", null, null, () => commitRename(), isRenameActive),
         new CallbackCommand("language.rename.cancel", null, null, () => cancelRename(), isRenameActive),
 
-        new CallbackCommand("language.formatDocument", null, null, () => formatDocument()),
+        new CallbackCommand("language.format", null, null, () => format()),
 
         new CallbackCommand("language.symbols.document", null, null, () => openDocumentSymbolsMenu()),
         new CallbackCommand("language.symbols.workspace", null, null, () => openWorkspaceSymbolsMenu()),
