@@ -18,6 +18,7 @@ import { contextMenuManager } from "./../Services/ContextMenu"
 import { editorManager } from "./../Services/EditorManager"
 import { /*commitCompletion,*/ cancelRename, commitRename, expandCodeActions, findAllReferences, formatDocument, gotoDefinitionUnderCursor, isRenameActive, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu, startRename } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
+import { showAboutMessage } from "./../Services/Metadata"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
 import { tasks } from "./../Services/Tasks"
@@ -36,6 +37,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
     const commands = [
         new CallbackCommand("editor.clipboard.paste", "Clipboard: Paste", "Paste clipboard contents into active text", () => pasteContents(neovimInstance)),
         new CallbackCommand("editor.clipboard.yank", "Clipboard: Yank", "Yank contents to clipboard", () => neovimInstance.input("y")),
+
+        new CallbackCommand("oni.about", null, null, () => showAboutMessage()),
 
         new CallbackCommand("oni.quit", null, null, () => remote.app.quit()),
 

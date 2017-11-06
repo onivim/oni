@@ -34,6 +34,8 @@ export interface IConfigurationValues {
     // See `:help bell` for instances where the bell sound would be used
     "oni.audio.bellUrl": string
 
+    "autoUpdate.enabled": boolean
+
     // Set this to `true` to enable additional syntax highlighting
     // from Oni & language integrations
     "oni.enhancedSyntaxHighlighting": boolean

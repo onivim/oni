@@ -17,6 +17,8 @@ const BaseConfiguration: IConfigurationValues = {
     activate: noop,
     deactivate: noop,
 
+    "autoUpdate.enabled": true,
+
     "debug.fixedSize": null,
     "debug.neovimPath": null,
     "debug.persistOnNeovimExit": false,

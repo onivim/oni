@@ -11,6 +11,7 @@ import * as minimist from "minimist"
 import * as Log from "./Log"
 import { PluginManager } from "./Plugins/PluginManager"
 
+import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
 import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
 
@@ -79,9 +80,20 @@ const start = (args: string[]) => {
     if (configuration.getValue("experimental.enableLanguageServerFromConfig")) {
         createLanguageClientsFromConfiguration(configuration.getValues())
     }
+
+    checkForUpdates()
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {
     process.chdir(message.workingDirectory)
     start(message.args)
 })
+
+const checkForUpdates = async () => {
+    const feedUrl = await constructFeedUrl("https://api.onivim.io/v1/update")
+
+    autoUpdater.onUpdateAvailable.subscribe(() => Log.info("Update available."))
+    autoUpdater.onUpdateNotAvailable.subscribe(() => Log.info("Update not available."))
+
+    autoUpdater.checkForUpdates(feedUrl)
+}
