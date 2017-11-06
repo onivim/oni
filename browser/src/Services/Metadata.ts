@@ -8,6 +8,7 @@ import * as path from "path"
 import * as fs from "fs"
 
 export interface IMetadata {
+    name: string
     version: string
 }
 
@@ -25,10 +26,16 @@ export const getMetadata = async (): Promise<IMetadata> => {
             const pkg = JSON.parse(data)
 
             const metadata = {
+                name: pkg.name,
                 version: pkg.version,
             }
 
             resolve(metadata)
         })
     })
+}
+
+export const showAboutMessage = async () => {
+    const metadata = await getMetadata()
+    alert(`${metadata.name} ${metadata.version}`)
 }

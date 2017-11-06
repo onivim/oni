@@ -90,6 +90,6 @@ ipcRenderer.on("init", (_evt: any, message: any) => {
 })
 
 const checkForUpdates = async () => {
-    const feedUrl = await constructFeedUrl("https://api.onivim.io/v0/updates")
+    const feedUrl = await constructFeedUrl("https://api.onivim.io/v1/update")
     autoUpdater.checkForUpdates(feedUrl)
 }
