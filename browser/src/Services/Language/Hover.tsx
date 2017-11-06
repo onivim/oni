@@ -28,23 +28,28 @@ import * as Utility from "./../../Utility"
 
 import { IResultWithPosition } from "./LanguageClientTypes"
 
+import { configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
 
 export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observable<void>) => {
 
     const hoverToolTipId = "hover-tool-tip"
 
+    shouldUpdate$.subscribe(() => UI.Actions.hideToolTip(hoverToolTipId))
     shouldHide$.subscribe(() => UI.Actions.hideToolTip(hoverToolTipId))
 
-    const quickInfoResults$ = Utility.ignoreWhilePendingPromise(shouldUpdate$, () => getQuickInfo())
+    const shouldUpdateQuickInfo$ = shouldUpdate$
+        .debounceTime(configuration.getValue("editor.quickInfo.delay"))
+
+    const quickInfoResults$ = Utility.ignoreWhilePendingPromise(shouldUpdateQuickInfo$, () => getQuickInfo())
 
     const errors$ = UI.state$
         .filter((state) => state.mode === "normal")
         .map((state) => Selectors.getErrorsForPosition(state))
         .distinctUntilChanged(isEqual)
 
-    shouldUpdate$
-            .combineLatest(quickInfoResults$, errors$)
+    quickInfoResults$
+            .withLatestFrom(quickInfoResults$, errors$)
             .subscribe((args: [any, IResultWithPosition<types.Hover>, types.Diagnostic[]]) => {
                 const [, result, errors] = args
 
@@ -63,6 +68,8 @@ export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observ
                         openDirection: 1,
                         padding: "0px",
                     })
+                } else {
+                    UI.Actions.hideToolTip(hoverToolTipId)
                 }
             })
 }

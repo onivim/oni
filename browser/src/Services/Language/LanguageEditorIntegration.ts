@@ -12,7 +12,6 @@ import { Observable } from "rxjs/Observable"
 
 // import * as types from "vscode-languageserver-types"
 
-import { configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
 import * as Completion from "./Completion"
 import * as Definition from "./Definition"
@@ -38,7 +37,6 @@ export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<On
            .distinctUntilChanged(isEqual)
 
     const shouldUpdateNormalModeAdorners$ = latestPositionAndVersion$
-        .debounceTime(configuration.getValue("editor.quickInfo.delay")) // TODO: Use config setting 'editor.quickInfo.delay'
         .withLatestFrom(modeChanged$)
         .filter((combinedArgs: [any, string]) => {
             const [, mode] = combinedArgs
