@@ -115,9 +115,13 @@ export const isInRange = (line: number, column: number, range: types.Range): boo
         && line <= range.end.line && column <= range.end.character)
 }
 
-export const ignoreWhilePendingPromise = <T, U>(observable$: Observable<T>, promiseFunction: (input: T) => Promise<U>): Observable<U> {
-
+/**
+ * Helper function to ignore incoming values while a promise is waiting to complete
+ * This is lossy, in that any input that comes in will be dropped while the promise
+ * is in-progress.
+ */
+export function ignoreWhilePendingPromise<T, U>(observable$: Observable<T>, promiseFunction: (input: T) => Promise<U>): Observable<U> {
     return observable$
-            .flatMap(
-
+            // .flatMap((input) => promiseFunction(input))
+            .flatMap((input) => Observable.defer(() => promiseFunction(input)))
 }
