@@ -13,7 +13,7 @@ export interface IMetadata {
 }
 
 export const getMetadata = async (): Promise<IMetadata> => {
-    const packageMetadata = path.join(__dirname, "pkg.json")
+    const packageMetadata = path.join(__dirname, "package.json")
 
     return new Promise<IMetadata>((resolve, reject) => {
         fs.readFile(packageMetadata, "utf8", (err: NodeJS.ErrnoException, data: string) => {
