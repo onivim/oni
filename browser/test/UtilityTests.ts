@@ -13,8 +13,6 @@ const createPromiseFunction = (): PromiseCreationResult => {
     const promiseCreator = (input: any) => {
         inputs.push(input)
 
-        console.log("called")
-
         return new Promise((resolve, reject) => {
             info.push({ resolve, reject })
         })
@@ -29,7 +27,7 @@ const createPromiseFunction = (): PromiseCreationResult => {
 
 describe("Utility", () => {
 
-    describe("ignoreWhilePendingPromise", () => {
+    describe.only("ignoreWhilePendingPromise", () => {
 
             let subject: rxjs.Subject<any>
 
@@ -37,7 +35,7 @@ describe("Utility", () => {
                 subject = new rxjs.Subject()
             })
 
-            it.only("Executes promise function in response to observable input", () => {
+            it("Executes promise function in response to observable input", () => {
                 const promiseFunction = createPromiseFunction()
 
                 const outputObservable$ = Utility.ignoreWhilePendingPromise(subject, promiseFunction.promiseCreator)
@@ -49,16 +47,14 @@ describe("Utility", () => {
                 subject.next(5)
                 promiseFunction.info[0].resolve("a")
 
-                subject.complete()
-
-                return outputObservable$.delay(1).toPromise()
+                return outputObservable$.take(1).toPromise()
                     .then(() => {
-                        assert.strictEqual(promiseFunction.inputs.length, 1)
+                        assert.deepEqual(promiseFunction.inputs, [5])
                         assert.deepEqual(outputs, ["a"])
-                    })
+                    }, (err) => console.log("ERROR"))
             })
 
-            it.only("Does not dispatch promise function while previous is still pending", () => {
+            it("Does not dispatch promise function while previous is still pending", () => {
                 const promiseFunction = createPromiseFunction()
 
                 const outputObservable$ = Utility.ignoreWhilePendingPromise(subject, promiseFunction.promiseCreator)
@@ -70,16 +66,17 @@ describe("Utility", () => {
                 subject.next(5)
                 subject.next(6)
                 subject.next(7)
+                subject.next(8)
                 promiseFunction.info[0].resolve("a")
 
-                subject.complete()
 
-                return outputObservable$.delay(1).toPromise()
+                return outputObservable$.take(1).toPromise()
                     .then(() => {
-                        // Only 5 should've been dispatched to the function,
+                        // Only 5 & 7 should've been dispatched to the function,
                         // because the observable should've been held
-                        // while the first promise was in flight.
-                        assert.deepEqual(promiseFunction.inputs, [5])
+                        // while the first promise was in flight,
+                        // and 8 would've been dispatched when the promise for 5 was completed.
+                        assert.deepEqual(promiseFunction.inputs, [5, 8])
                         assert.deepEqual(outputs, ["a"])
                     })
             })

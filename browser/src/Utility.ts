@@ -13,6 +13,7 @@ import * as isEqual from "lodash/isEqual"
 import * as reduce from "lodash/reduce"
 
 import { Observable } from "rxjs/Observable"
+import { Subject } from "rxjs/Subject"
 
 import * as types from "vscode-languageserver-types"
 
@@ -121,7 +122,46 @@ export const isInRange = (line: number, column: number, range: types.Range): boo
  * is in-progress.
  */
 export function ignoreWhilePendingPromise<T, U>(observable$: Observable<T>, promiseFunction: (input: T) => Promise<U>): Observable<U> {
-    return observable$
-            // .flatMap((input) => promiseFunction(input))
-            .flatMap((input) => Observable.defer(() => promiseFunction(input)))
+
+    // There must be a more 'RxJS' way to do this with `buffer` and `switchMap`,
+    // but I'm still amateur with this :)
+
+    const ret = new Subject<U>()
+
+    let pendingInputs: T[] = []
+    let isPromiseInFlight = false
+
+    const promiseExecutor = () => {
+
+        if (pendingInputs.length > 0) {
+            const latestValue = pendingInputs[pendingInputs.length - 1]
+            pendingInputs = []
+
+            isPromiseInFlight = true
+            promiseFunction(latestValue)
+                .then((v) => {
+                    ret.next(v)
+
+                    isPromiseInFlight = false
+                    promiseExecutor()
+                }, (err) => {
+                     isPromiseInFlight = false
+                     promiseExecutor()
+                     throw err
+                })
+
+        }
+    }
+
+    observable$.subscribe((val: T) => {
+        pendingInputs.push(val)
+
+        if (!isPromiseInFlight) {
+            promiseExecutor()
+        }
+    },
+    (err) => ret.error(err),
+    () => ret.complete())
+
+    return ret
 }
