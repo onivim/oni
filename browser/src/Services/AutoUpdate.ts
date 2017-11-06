@@ -39,11 +39,11 @@ export class AutoUpdater implements IAutoUpdater {
     public get onUpdateNotAvailable(): Observable<void> {
         return this._onUpdateNotAvailable
     }
-    public get onUpdateAvailable() : Observable<void> {
+    public get onUpdateAvailable(): Observable<void> {
         return this._onUpdateAvailable
     }
 
-    checkForUpdates(url: string): void {
+    public checkForUpdates(url: string): void {
         if (!configuration.getValue("autoUpdate.enabled")) {
             return
         }
