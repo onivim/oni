@@ -4,11 +4,11 @@ import * as rxjs from "rxjs"
 
 import * as Utility from "./../src/Utility"
 
-type PromiseInfo = { resolve: Function, reject: Function } 
-type PromiseCreationResult = { info: PromiseInfo[], inputs: any[], promiseCreator: (input: any) => Promise<any> }
+interface PromiseInfo { resolve: (val: any) => void, reject: (err: Error) => void }
+interface PromiseCreationResult { info: PromiseInfo[], inputs: any[], promiseCreator: (input: any) => Promise<any> }
 const createPromiseFunction = (): PromiseCreationResult => {
-    let info: any[] = []
-    let inputs: any[] = []
+    const info: any[] = []
+    const inputs: any[] = []
 
     const promiseCreator = (input: any) => {
         inputs.push(input)
@@ -26,8 +26,7 @@ const createPromiseFunction = (): PromiseCreationResult => {
 }
 
 describe("Utility", () => {
-
-    describe.only("ignoreWhilePendingPromise", () => {
+    describe("ignoreWhilePendingPromise", () => {
 
             let subject: rxjs.Subject<any>
 
@@ -40,7 +39,7 @@ describe("Utility", () => {
 
                 const outputObservable$ = Utility.ignoreWhilePendingPromise(subject, promiseFunction.promiseCreator)
 
-                let outputs: any[] = []
+                const outputs: any[] = []
                 outputObservable$.subscribe((val) => { outputs.push(val) })
 
                 // Resolve the promise that gets fired as a result of subject triggered
@@ -51,7 +50,7 @@ describe("Utility", () => {
                     .then(() => {
                         assert.deepEqual(promiseFunction.inputs, [5])
                         assert.deepEqual(outputs, ["a"])
-                    }, (err) => console.log("ERROR"))
+                    })
             })
 
             it("Does not dispatch promise function while previous is still pending", () => {
@@ -59,7 +58,7 @@ describe("Utility", () => {
 
                 const outputObservable$ = Utility.ignoreWhilePendingPromise(subject, promiseFunction.promiseCreator)
 
-                let outputs: any[] = []
+                const outputs: any[] = []
                 outputObservable$.subscribe((val) => { outputs.push(val) })
 
                 // Bring in multiple inputs
@@ -68,7 +67,6 @@ describe("Utility", () => {
                 subject.next(7)
                 subject.next(8)
                 promiseFunction.info[0].resolve("a")
-
 
                 return outputObservable$.take(1).toPromise()
                     .then(() => {
