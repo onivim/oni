@@ -12,6 +12,8 @@ import * as find from "lodash/find"
 import * as isEqual from "lodash/isEqual"
 import * as reduce from "lodash/reduce"
 
+import { Observable } from "rxjs/Observable"
+
 import * as types from "vscode-languageserver-types"
 
 /**
@@ -111,4 +113,11 @@ export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
 export const isInRange = (line: number, column: number, range: types.Range): boolean => {
     return (line >= range.start.line && column >= range.start.character
         && line <= range.end.line && column <= range.end.character)
+}
+
+export const ignoreWhilePendingPromise = <T, U>(observable$: Observable<T>, promiseFunction: (input: T) => Promise<U>): Observable<U> {
+
+    return observable$
+            .flatMap(
+
 }
