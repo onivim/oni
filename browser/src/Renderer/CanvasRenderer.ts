@@ -18,7 +18,7 @@ export interface IRenderState {
 
 const isWhiteSpace = (text: string) => text === null || text === "" || text === " "
 
-const cellsAreTheSame = (cell1: ICell, cell2: ICell): boolean => {
+const cellsAreSameColor = (cell1: ICell, cell2: ICell): boolean => {
     if (!cell1 || !cell2) {
         return false
     }
@@ -26,6 +26,19 @@ const cellsAreTheSame = (cell1: ICell, cell2: ICell): boolean => {
     return cell1.backgroundColor === cell2.backgroundColor
         && cell1.foregroundColor === cell2.foregroundColor
         && cell1.characterWidth === 1 && cell2.characterWidth === 1
+}
+
+const cellsAreEqual = (cell1: ICell, cell2: ICell): boolean => {
+
+    if (cell1 === cell2) {
+        return true
+    }
+
+    if (cellsAreSameColor(cell1, cell2) && cell1.character === cell2.character) {
+        return true
+    }
+
+    return false
 }
 
 export class CanvasRenderer implements INeovimRenderer {
@@ -85,7 +98,7 @@ export class CanvasRenderer implements INeovimRenderer {
                 const lastCell = this._lastRenderGrid.getCell(x, y)
                 const currentCell = screenInfo.getCell(x, y)
 
-                if (!cellsAreTheSame(lastCell, currentCell)) {
+                if (!cellsAreEqual(lastCell, currentCell)) {
                     cellsToUpdate.push({ x, y})
                     this._lastRenderGrid.setCell(x, y, currentCell)
                 }
@@ -131,14 +144,14 @@ export class CanvasRenderer implements INeovimRenderer {
                 let updatedStartX = span.startX
                 let updatedEndX = span.endX
 
-                if (cellsAreTheSame(currentCell, gridCellBefore)) {
+                if (cellsAreSameColor(currentCell, gridCellBefore)) {
                     const previousCell = this._grid.getCell(span.startX - 1, rowIndex)
                     if (previousCell) {
                         updatedStartX = previousCell.startX
                     }
                 }
 
-                if (cellsAreTheSame(currentCell, gridCellAfter)) {
+                if (cellsAreSameColor(currentCell, gridCellAfter)) {
                     const afterCell = this._grid.getCell(span.endX + 1, rowIndex)
 
                     if (afterCell) {
