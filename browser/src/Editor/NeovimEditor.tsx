@@ -22,7 +22,7 @@ import { NeovimScreen } from "./../Screen"
 
 import { Event, IEvent } from "./../Event"
 
-import { PluginManager } from "./../Plugins/PluginManager"
+import { pluginManager } from "./../Plugins/PluginManager"
 
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
@@ -120,12 +120,11 @@ export class NeovimEditor implements IEditor {
     }
 
     constructor(
-        private _pluginManager: PluginManager,
         private _config = configuration,
     ) {
         const services: any[] = []
 
-        this._neovimInstance = new NeovimInstance(this._pluginManager, 100, 100)
+        this._neovimInstance = new NeovimInstance(100, 100)
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
@@ -288,7 +287,7 @@ export class NeovimEditor implements IEditor {
     }
 
     public init(filesToOpen: string[]): void {
-        this._neovimInstance.start(filesToOpen)
+        this._neovimInstance.start(filesToOpen, { runtimePaths: pluginManager.getAllRuntimePaths() })
             .then(() => {
                 this._hasLoaded = true
                 VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
@@ -319,7 +318,6 @@ export class NeovimEditor implements IEditor {
 
         return <NeovimSurface renderer={this._renderer}
             neovimInstance={this._neovimInstance}
-            deltaRegionTracker={this._deltaRegionManager}
             screen={this._screen}
             onKeyDown={onKeyDown}
             onBufferClose={onBufferClose}
