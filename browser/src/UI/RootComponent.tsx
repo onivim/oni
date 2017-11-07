@@ -7,8 +7,8 @@ import { MenuContainer } from "./../Services/Menu"
 import * as WindowManager from "./../Services/WindowManager"
 
 import { Background } from "./components/Background"
-import { WindowSplits } from "./components/WindowSplits"
 import StatusBar from "./components/StatusBar"
+import { WindowSplits } from "./components/WindowSplits"
 
 interface IRootComponentProps {
     windowManager: WindowManager.WindowManager
