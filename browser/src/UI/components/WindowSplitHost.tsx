@@ -1,5 +1,5 @@
 /**
- * EditorHost.tsx
+ * ISplitHost.tsx
  *
  * React component that hosts an IEditor implementation
  */
@@ -8,16 +8,19 @@ import * as React from "react"
 
 import { IEditor } from "./../../Editor/Editor"
 
-export interface IEditorHostProps {
-    editor: IEditor
+export interface IWindowSplitHostProps {
+    split: Oni.IWindowSplit
 }
 
-export class EditorHost extends React.PureComponent<IEditorHostProps, {}> {
+/**
+ * Component responsible for rendering an individual window split
+ */
+export class WindowSplitHost extends React.PureComponent<IWindowSplitHostProps, {}> {
 
     public render(): JSX.Element {
         return <div className="container vertical full">
                 <div className="editor">
-                    {this.props.editor.render()}
+                    {this.props.split.render()}
                 </div>
         </div>
     }
