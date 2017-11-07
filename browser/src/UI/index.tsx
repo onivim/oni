@@ -29,7 +29,7 @@ import { windowManager } from "./../Services/WindowManager"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
-import { NeovimEditor } from "./../Editor/NeovimEditor"
+import { OniEditor } from "./../Editor/NeovimEditor"
 
 const defaultState = State.createDefaultState()
 
@@ -75,7 +75,7 @@ updateViewport()
 function render(_state: State.IState, pluginManager: PluginManager, args: any): void {
     const hostElement = document.getElementById("host")
 
-    const editor = new NeovimEditor()
+    const editor = new OniEditor()
     editor.init(args)
 
     editorManager.setActiveEditor(editor)

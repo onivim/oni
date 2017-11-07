@@ -1,5 +1,5 @@
 /**
- * NeovimEditor.ts
+ * OniEditor.ts
  *
  * IEditor implementation for Neovim
  */
@@ -50,17 +50,14 @@ import { normalizePath } from "./../Utility"
 import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
 
 export class NeovimEditor implements IEditor {
-    private _bufferManager: BufferManager
-    private _neovimInstance: NeovimInstance
+
+    protected _bufferManager: BufferManager
+    protected _neovimInstance: NeovimInstance
     private _deltaRegionManager: IncrementalDeltaRegionTracker
     private _renderer: INeovimRenderer
-    private _screen: NeovimScreen
-    private _popupMenu: NeovimPopupMenu
-
-    private _pendingAnimationFrame: boolean = false
-    private _element: HTMLElement
-
+    protected _screen: NeovimScreen
     private _currentMode: string
+
     private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChangedEvent = new Event<Oni.EditorBufferChangedEventArgs>()
@@ -71,15 +68,8 @@ export class NeovimEditor implements IEditor {
     private _cursorMoved$: Observable<Oni.Cursor>
     private _cursorMovedI$: Observable<Oni.Cursor>
 
-    private _hasLoaded: boolean = false
-
-    private _windowManager: NeovimWindowManager
-
-    private _errorStartingNeovim: boolean = false
-
-    private _isFirstRender: boolean = true
-
     private _lastBufferId: string = null
+
 
     public get mode(): string {
         return this._currentMode
@@ -119,23 +109,61 @@ export class NeovimEditor implements IEditor {
         return this._neovimInstance
     }
 
+    private _hasLoaded: boolean = false
+
     constructor(
         private _config = configuration,
     ) {
-        const services: any[] = []
-
         this._neovimInstance = new NeovimInstance(100, 100)
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._deltaRegionManager = new IncrementalDeltaRegionTracker()
         this._screen = new NeovimScreen(this._deltaRegionManager)
+
+        this._renderer = new CanvasRenderer()
+
+            this._neovimInstance.on("action", (action: any) => {
+                this._renderer.onAction(action)
+                this._screen.dispatch(action)
+
+                this._scheduleRender()
+            })
+
+        }
+
+    public init(filesToOpen: string[]): void {
+        this._neovimInstance.start(filesToOpen, { runtimePaths: pluginManager.getAllRuntimePaths() })
+            .then(() => {
+                this._hasLoaded = true
+                VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+            })
+    }
+
+
+}
+
+export class OniEditor extends NeovimEditor implements IEditor {
+    private _popupMenu: NeovimPopupMenu
+
+    private _pendingAnimationFrame: boolean = false
+    private _element: HTMLElement
+
+    private _windowManager: NeovimWindowManager
+
+    private _errorStartingNeovim: boolean = false
+
+    private _isFirstRender: boolean = true
+
+    constructor(
+        private _config = configuration,
+    ) {
+        super(_config)
+        const services: any[] = []
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
             this._neovimInstance.onHidePopupMenu,
             this._neovimInstance.onSelectPopupMenu,
         )
-
-        this._renderer = new CanvasRenderer()
 
         // Services
         const errorService = new Errors(this._neovimInstance)
@@ -173,13 +201,6 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.onDirectoryChanged.subscribe((newDirectory) => {
             workspace.changeDirectory(newDirectory)
-        })
-
-        this._neovimInstance.on("action", (action: any) => {
-            this._renderer.onAction(action)
-            this._screen.dispatch(action)
-
-            this._scheduleRender()
         })
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
@@ -281,14 +302,6 @@ export class NeovimEditor implements IEditor {
 
     public executeCommand(command: string): void {
         commandManager.executeCommand(command, null)
-    }
-
-    public init(filesToOpen: string[]): void {
-        this._neovimInstance.start(filesToOpen, { runtimePaths: pluginManager.getAllRuntimePaths() })
-            .then(() => {
-                this._hasLoaded = true
-                VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
-            })
     }
 
     public render(): JSX.Element {
