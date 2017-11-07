@@ -73,6 +73,15 @@ export const pathToTextDocumentIdentifierParms = (path: string) => ({
     },
 })
 
+export const pathToTextDocumentItemParams = (path: string, language: string, text: string, version: number) => ({
+    textDocument: {
+        uri: wrapPathInFileUri(path),
+        languageId: language,
+        text,
+        version,
+    },
+})
+
 export const eventContextToCodeActionParams = (filePath: string, range: types.Range) => {
     const emptyDiagnostics: types.Diagnostic[] = []
     return {
