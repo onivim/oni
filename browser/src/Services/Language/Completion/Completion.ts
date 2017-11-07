@@ -208,6 +208,10 @@ export const resolveCompletionItem = async (language: string, filePath: string, 
     try {
         result = await languageManager.sendLanguageServerRequest(language, filePath, "completionItem/resolve", completionItem)
     } catch (ex) {
+        Log.verbose(ex)
+    }
+
+    if (!result) {
         return null
     }
 
