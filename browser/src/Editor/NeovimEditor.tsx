@@ -236,9 +236,6 @@ export class NeovimEditor implements IEditor {
         this._onConfigChanged(this._config.getValues())
         this._config.onConfigurationChanged.subscribe((newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues))
 
-        window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
-        window["__screen"] = this._screen // tslint:disable-line no-string-literal
-
         ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
             if (message.startsWith(":")) {
                 this._neovimInstance.command("exec \"" + message + "\"")
