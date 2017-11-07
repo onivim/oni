@@ -17,9 +17,9 @@ matrix:
         - os: linux
           sudo: required
           dist: trusty
-          node_js: 6
+          node_js: 8
         - os: osx
-          node_js: 6
+          node_js: 8
 
 addons:
     apt:
