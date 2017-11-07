@@ -142,7 +142,7 @@ export class NeovimEditor implements IEditor {
         const errorService = new Errors(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
 
-        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance)
+        registerBuiltInCommands(commandManager, this._neovimInstance)
 
         tasks.registerTaskProvider(commandManager)
         tasks.registerTaskProvider(errorService)
