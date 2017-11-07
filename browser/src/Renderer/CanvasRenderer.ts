@@ -38,6 +38,7 @@ export class CanvasRenderer implements INeovimRenderer {
 
     private _isOpaque: boolean
 
+    private _lastRenderGrid: Grid<ICell> = new Grid<ICell>()
     private _grid: Grid<ISpan> = new Grid<ISpan>()
     private _devicePixelRatio: number
 
@@ -63,16 +64,38 @@ export class CanvasRenderer implements INeovimRenderer {
             this._canvasContext.clearRect(0, 0, this._width, this._height)
         }
 
+        this._lastRenderGrid.clear()
+
         for (let x = 0; x < screenInfo.width; x++) {
             for (let y = 0; y < screenInfo.height; y++) {
+                const cell = screenInfo.getCell(x, y)
                 cellsToUpdate.push({ x, y })
+                this._lastRenderGrid.setCell(x, y , cell)
             }
         }
 
-        this.draw(screenInfo, cellsToUpdate)
+        this._draw(screenInfo, cellsToUpdate)
     }
 
-    public draw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
+    public draw(screenInfo: IScreen): void {
+        const cellsToUpdate: IPosition[] = []
+        for (let x = 0; x < screenInfo.width; x++) {
+            for (let y = 0; y < screenInfo.height; y++) {
+
+                const lastCell = this._lastRenderGrid.getCell(x, y)
+                const currentCell = screenInfo.getCell(x, y)
+
+                if (!cellsAreTheSame(lastCell, currentCell)) {
+                    cellsToUpdate.push({ x, y})
+                    this._lastRenderGrid.setCell(x, y, currentCell)
+                }
+            }
+        }
+
+        this._draw(screenInfo, cellsToUpdate)
+    }
+
+    public _draw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
         Performance.mark("CanvasRenderer.update.start")
 
         this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
