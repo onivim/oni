@@ -637,6 +637,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 rgb: true,
                 popupmenu_external: true,
                 ext_tabline: true,
+                ext_cmdline: true,
+                ext_wildmenu: true,
             }
         } else if (major === 0 && minor === 2) {
             // 0.1 and below does not support external tabline
