@@ -21,9 +21,11 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
     public render(): JSX.Element {
 
         const toolTipElements = this.props.toolTips.map((toolTip) => {
-                        return <CSSTransition
-                timeout={1000}
+            return <CSSTransition
+                timeout={250}
                 classNames="fade"
+                unmountOnExit={true}
+                exit={false}
             >
             <ToolTipView {...toolTip} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor} key={toolTip.id}/>
             </CSSTransition>
