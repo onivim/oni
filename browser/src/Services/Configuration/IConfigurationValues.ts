@@ -156,6 +156,9 @@ export interface IConfigurationValues {
     // If `true`, will wrap the tabs.
     "tabs.wrap": boolean
 
+    "ui.fontFamily": string
+    "ui.fontSize": string
+
     // Handle other, non-predefined configuration keys
     [configurationKey: string]: any
 }
