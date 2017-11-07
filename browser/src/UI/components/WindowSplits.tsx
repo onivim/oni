@@ -17,6 +17,11 @@ export interface IWindowSplitsProps {
 
 export interface IWindowSplitsState {
     splitRoot: ISplitInfo<Oni.IWindowSplit>
+
+    topDockedSplits: Oni.IWindowSplit[]
+    bottomDockedSplits: Oni.IWindowSplit[]
+    leftDockedSplits: Oni.IWindowSplit[]
+    rightDockedSplits: Oni.IWindowSplit[]
 }
 
 export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindowSplitsState> {
@@ -26,6 +31,11 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
 
         this.state = {
             splitRoot: props.windowManager.splitRoot,
+
+            topDockedSplits: [],
+            bottomDockedSplits: [],
+            leftDockedSplits: [],
+            rightDockedSplits: []
         }
     }
 
@@ -44,7 +54,7 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
 
         const containerStyle = {
             "display": "flex",
-            "flex-direction": "row",
+            "flex-direction": "horizontal",
             "width": "100%",
             "height": "100%",
         }
@@ -64,7 +74,13 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
         })
 
         return <div style={containerStyle}>
-                    {editors}
-                </div>
+            <div className="dock container horizontal fixed">
+            </div>
+            <div className="workspace container vertical full">
+                {editors}
+            </div>
+            <div className="dock container horizontal fixed">
+            </div>
+        </div>
     }
 }
