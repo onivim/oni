@@ -46,8 +46,6 @@ declare namespace Oni {
     }
 
     export interface IWindowSplit {
-        enter(): void
-        leave(): void
         render(): JSX.Element
     }
 

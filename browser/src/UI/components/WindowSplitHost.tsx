@@ -6,8 +6,6 @@
 
 import * as React from "react"
 
-import { IEditor } from "./../../Editor/Editor"
-
 export interface IWindowSplitHostProps {
     split: Oni.IWindowSplit
 }
