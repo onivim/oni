@@ -93,7 +93,10 @@ export const createCompletionMenu = (completionMeet$: Observable<ICompletionMeet
 
 export const updateCompletionItemDetails = async (menu: any, language: string, filePath: string, completionItem: types.CompletionItem)  => {
     const result = await resolveCompletionItem(language, filePath, completionItem)
-    menu.updateItem(result)
+
+    if (result) {
+        menu.updateItem(result)
+    }
 }
 
 export const commitCompletion = async (line: number, base: number, completion: string) => {
