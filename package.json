@@ -117,9 +117,9 @@
     "msgpack-lite": "0.1.26",
     "ocaml-language-server": "1.0.1",
     "typescript": "2.5.3",
-    "vscode-jsonrpc": "3.4.1",
-    "vscode-languageserver": "3.4.3",
-    "vscode-languageserver-types": "3.4.0",
+    "vscode-jsonrpc": "3.5.0",
+    "vscode-languageserver": "3.5.0",
+    "vscode-languageserver-types": "3.5.0",
     "vscode-ripgrep": "0.6.0-patch.0"
   },
   "devDependencies": {
