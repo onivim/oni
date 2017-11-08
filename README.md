@@ -144,14 +144,6 @@ Thank you!
 This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
 <a href="graphs/contributors"><img src="https://opencollective.com/oni/contributors.svg?width=890" /></a>
 
-
-## Backers
-
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/oni#backer)]
-
-<a href="https://opencollective.com/oni#backers" target="_blank"><img src="https://opencollective.com/oni/backers.svg?width=890"></a>
-
-
 ## Sponsors
 
 Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/oni#sponsor)]
@@ -166,8 +158,6 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/oni/sponsor/7/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/7/avatar.svg"></a>
 <a href="https://opencollective.com/oni/sponsor/8/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/8/avatar.svg"></a>
 <a href="https://opencollective.com/oni/sponsor/9/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/9/avatar.svg"></a>
-
-
 
 ## License
 
