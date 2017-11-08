@@ -116,7 +116,7 @@
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",
     "ocaml-language-server": "1.0.1",
-    "typescript": "2.5.3",
+    "typescript": "2.6.1",
     "vscode-jsonrpc": "3.5.0",
     "vscode-languageserver": "3.5.0",
     "vscode-languageserver-types": "3.5.0",
