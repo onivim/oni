@@ -6,16 +6,11 @@
 [![Join the chat at https://gitter.im/extr0py/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/oni/sponsors/badge.svg)](#sponsors) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 [![Total Downloads](https://img.shields.io/github/downloads/onivim/oni/total.svg)](https://github.com/onivim/oni/releases)
 
-- [Introduction](#introduction)
-- [Features](#features)
-- [Installation](#installation)
-    - [Windows](#windows)
-    - [Mac](#mac)
-    - [Linux](#linux)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
-- [Acknowledgements](#acknowledgements)
-- [License](#license)
+<h2 align="center">Supporting Oni<h2>
+
+Oni is an MIT-licensed open source project. Please consider supporting Oni by:
+- [Become a backer or sponsor on Open Collective](https://opencollective/oni)
+- [Become a backer on BountySource](https://www.bountysource.com/teams/oni)
 
 ## Introduction
 
