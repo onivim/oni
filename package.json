@@ -36,10 +36,12 @@
       "!test",
       "!node_modules/typescript"
     ],
-    "extraResources": [{
+    "extraResources": [
+      {
         "from": "node_modules/typescript",
         "to": "app/node_modules/typescript"
-    }],
+      }
+    ],
     "mac": {
       "artifactName": "${productName}-${version}-osx.${ext}",
       "category": "public.app-category.developer-tools",
@@ -103,7 +105,7 @@
     "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch",
     "uninstall-global": "npm rm -g oni-vim",
     "install-global": "npm install -g oni-vim",
-    "postinstall": "electron-rebuild"
+    "postinstall": "electron-rebuild && opencollective postinstall"
   },
   "repository": {
     "type": "git",
@@ -116,6 +118,7 @@
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",
     "ocaml-language-server": "1.0.1",
+    "opencollective": "^1.0.3",
     "typescript": "2.5.3",
     "vscode-jsonrpc": "3.5.0",
     "vscode-languageserver": "3.5.0",
@@ -181,5 +184,10 @@
     "wcwidth": "1.0.1",
     "webpack": "3.5.3",
     "webpack-dev-server": "2.7.1"
+  },
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/oni",
+    "logo": "https://opencollective.com/opencollective/logo.txt"
   }
 }
