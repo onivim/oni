@@ -75,7 +75,7 @@ updateViewport()
 function render(_state: State.IState, pluginManager: PluginManager, args: any): void {
     const hostElement = document.getElementById("host")
 
-    const editor = new NeovimEditor(pluginManager)
+    const editor = new NeovimEditor()
     editor.init(args)
 
     editorManager.setActiveEditor(editor)

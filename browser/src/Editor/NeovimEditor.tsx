@@ -21,7 +21,7 @@ import { NeovimScreen } from "./../Screen"
 
 import { Event, IEvent } from "./../Event"
 
-import { PluginManager } from "./../Plugins/PluginManager"
+import { pluginManager } from "./../Plugins/PluginManager"
 
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
@@ -118,12 +118,11 @@ export class NeovimEditor implements IEditor {
     }
 
     constructor(
-        private _pluginManager: PluginManager,
         private _config = configuration,
     ) {
         const services: any[] = []
 
-        this._neovimInstance = new NeovimInstance(this._pluginManager, 100, 100)
+        this._neovimInstance = new NeovimInstance(100, 100)
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._screen = new NeovimScreen()
 
@@ -139,7 +138,7 @@ export class NeovimEditor implements IEditor {
         const errorService = new Errors(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
 
-        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance)
+        registerBuiltInCommands(commandManager, this._neovimInstance)
 
         tasks.registerTaskProvider(commandManager)
         tasks.registerTaskProvider(errorService)
@@ -234,9 +233,6 @@ export class NeovimEditor implements IEditor {
         this._onConfigChanged(this._config.getValues())
         this._config.onConfigurationChanged.subscribe((newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues))
 
-        window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
-        window["__screen"] = this._screen // tslint:disable-line no-string-literal
-
         ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
             if (message.startsWith(":")) {
                 this._neovimInstance.command("exec \"" + message + "\"")
@@ -285,7 +281,7 @@ export class NeovimEditor implements IEditor {
     }
 
     public init(filesToOpen: string[]): void {
-        this._neovimInstance.start(filesToOpen)
+        this._neovimInstance.start(filesToOpen, { runtimePaths: pluginManager.getAllRuntimePaths() })
             .then(() => {
                 this._hasLoaded = true
                 VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
