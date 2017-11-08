@@ -9,7 +9,7 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
   sudo apt-get install software-properties-common
   sudo apt-get install python-software-properties
-  sudo add-apt repository ppa:neovim-ppa/stable
+  sudo add-apt-repository ppa:neovim-ppa/stable
   sudo apt-get update
   sudo apt-get install neovim
 
