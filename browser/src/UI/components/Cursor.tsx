@@ -3,9 +3,12 @@ import { connect } from "react-redux"
 
 import * as State from "./../State"
 
+import { Motion, spring } from "react-motion"
+
 export interface ICursorProps {
     x: number
     y: number
+    scale: number
     width: number
     height: number
     mode: string
@@ -45,7 +48,15 @@ class CursorRenderer extends React.PureComponent<ICursorProps, {}> {
             fontSize,
         }
 
-        return <div style={cursorStyle} className="cursor">{characterToShow}</div>
+        return <Motion defaultStyle={{scale: 0}} style={{scale: spring(this.props.scale, { stiffness: 120, damping: 8})}}>
+        {(val) => {
+            const style = {
+                ...cursorStyle,
+                transform: "scale(" + val.scale + ")",
+            }
+            return <div style={style} className="cursor">{characterToShow}</div>
+        }}
+        </Motion>
     }
 }
 
@@ -53,6 +64,7 @@ const mapStateToProps = (state: State.IState): ICursorProps => {
     return {
         x: state.cursorPixelX,
         y: state.cursorPixelY,
+        scale: state.mode === "operator" ? 0.75 : state.cursorScale,
         width: state.cursorPixelWidth,
         height: state.fontPixelHeight,
         mode: state.mode,
