@@ -10,6 +10,4 @@ npm run test:unit
 npm run lint
 npm run pack
 
-if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    npm run test:integration
-fi
+npm run test:integration
