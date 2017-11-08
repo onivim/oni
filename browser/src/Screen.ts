@@ -1,5 +1,4 @@
 import * as Actions from "./actions"
-import { IDeltaRegionTracker } from "./DeltaRegionTracker"
 import { Grid } from "./Grid"
 
 export type Mode = "insert" | "normal" | "visual" | "cmdline_normal"
@@ -72,7 +71,6 @@ export class NeovimScreen implements IScreen {
     private _currentHighlight: IHighlight = {}
     private _cursorColumn: number = 0
     private _cursorRow: number = 0
-    private _deltaTracker: IDeltaRegionTracker
     private _fontFamily: null | string = null
     private _fontHeightInPixels: number
     private _fontSize: null | string = null
@@ -84,10 +82,6 @@ export class NeovimScreen implements IScreen {
     private _scrollRegion: IScrollRegion
     private _width: number = 80
     private _linePaddingInPixels: number
-
-    constructor(deltaTracker: IDeltaRegionTracker) {
-        this._deltaTracker = deltaTracker
-    }
 
     public get width(): number {
         return this._width
@@ -224,7 +218,6 @@ export class NeovimScreen implements IScreen {
             }
             case Actions.CLEAR:
                 this._grid.clear()
-                this._notifyAllCellsModified()
 
                 this._cursorColumn = 0
                 this._cursorRow = 0
@@ -232,7 +225,6 @@ export class NeovimScreen implements IScreen {
             case Actions.RESIZE:
                 this._width = action.columns
                 this._height = action.rows
-                this._notifyAllCellsModified()
                 break
             case Actions.SET_FONT:
                 this._fontFamily = action.fontFamily
@@ -274,13 +266,6 @@ export class NeovimScreen implements IScreen {
                 regionToScroll.shiftRows(count)
 
                 this._grid.setRegionFromGrid(regionToScroll, left, top)
-
-                for (let y = top; y <= bottom; y++) {
-                    for (let x = left; x <= right; x++) {
-                        this._deltaTracker.notifyCellModified(x, y)
-                    }
-                }
-
                 break
             }
             default:
@@ -311,15 +296,6 @@ export class NeovimScreen implements IScreen {
             }
         }
 
-        this._deltaTracker.notifyCellModified(x, y)
         this._grid.setCell(x, y, cell)
-    }
-
-    private _notifyAllCellsModified(): void {
-        for (let x = 0; x < this.width; x++) {
-            for (let y = 0; y < this.height; y++) {
-                this._deltaTracker.notifyCellModified(x, y)
-            }
-        }
     }
 }

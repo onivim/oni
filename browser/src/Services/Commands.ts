@@ -11,7 +11,6 @@ import * as path from "path"
 import { clipboard, remote } from "electron"
 
 import { INeovimInstance } from "./../neovim"
-import { PluginManager } from "./../Plugins/PluginManager"
 
 import { configuration } from "./../Services/Configuration"
 import { contextMenuManager } from "./../Services/ContextMenu"
@@ -31,7 +30,7 @@ import { CallbackCommand, CommandManager } from "./CommandManager"
 import * as Platform from "./../Platform"
 import { replaceAll } from "./../Utility"
 
-export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance) => {
+export const registerBuiltInCommands = (commandManager: CommandManager, neovimInstance: INeovimInstance) => {
     const quickOpen = new QuickOpen(neovimInstance)
 
     const commands = [

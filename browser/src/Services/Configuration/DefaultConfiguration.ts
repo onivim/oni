@@ -106,6 +106,9 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.height": "2.5em",
     "tabs.maxWidth": "30em",
     "tabs.wrap": false,
+
+    "ui.fontFamily": "BlinkMacSystemFont, 'Lucide Grande', 'Segoe UI', Ubuntu, Cantarell, sans-seriff",
+    "ui.fontSize": "13px",
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {

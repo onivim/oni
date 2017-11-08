@@ -105,7 +105,7 @@
     "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch",
     "uninstall-global": "npm rm -g oni-vim",
     "install-global": "npm install -g oni-vim",
-    "postinstall": "electron-rebuild"
+    "postinstall": "electron-rebuild && opencollective postinstall"
   },
   "repository": {
     "type": "git",
@@ -120,9 +120,9 @@
     "ocaml-language-server": "1.0.1",
     "oni-neovim-binaries": "0.0.5",
     "typescript": "2.5.3",
-    "vscode-jsonrpc": "3.4.1",
-    "vscode-languageserver": "3.4.3",
-    "vscode-languageserver-types": "3.4.0",
+    "vscode-jsonrpc": "3.5.0",
+    "vscode-languageserver": "3.5.0",
+    "vscode-languageserver-types": "3.5.0",
     "vscode-ripgrep": "0.6.0-patch.0"
   },
   "devDependencies": {
@@ -165,6 +165,7 @@
     "minimatch": "3.0.4",
     "mkdirp": "0.5.1",
     "mocha": "3.1.2",
+    "opencollective": "1.0.3",
     "optimize-js-plugin": "0.0.4",
     "react": "16.0.0",
     "react-dom": "16.0.0",
@@ -185,5 +186,10 @@
     "wcwidth": "1.0.1",
     "webpack": "3.5.3",
     "webpack-dev-server": "2.7.1"
+  },
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/oni",
+    "logo": "https://opencollective.com/opencollective/logo.txt"
   }
 }
