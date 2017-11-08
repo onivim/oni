@@ -19,7 +19,9 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
 
     const nvimWindowsProcessPath = path.join(__dirname, "node_modules", "oni-neovim-binaries", "bin", "Neovim", "bin", "nvim.exe")
     const nvimMacProcessPath = path.join(__dirname, "node_modules", "oni-neovim-binaries", "bin", "nvim-osx64", "bin", "nvim")
-    const nvimLinuxPath = path.join(__dirname, "node_modules", "oni-neovim-binaries", "bin", "nvim.appimage")
+
+    const nvimLinuxPath = "nvim"
+    // const nvimLinuxPath = path.join(__dirname, "node_modules", "oni-neovim-binaries", "bin", "nvim.appimage")
 
     let nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
 
