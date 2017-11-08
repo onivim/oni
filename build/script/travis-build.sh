@@ -7,11 +7,11 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
   sh -e /etc/init.d/xvfb start
   sleep 3
 
-  sudo apt-get install software-properties-common
-  sudo apt-get install python-software-properties
+  sudo apt-get --assume-yes install software-properties-common
+  sudo apt-get --assume-yes install python-software-properties
   sudo add-apt-repository ppa:neovim-ppa/stable
   sudo apt-get update
-  sudo apt-get install neovim
+  sudo apt-get --assume-yes install neovim
 
   nvim --version
 fi
