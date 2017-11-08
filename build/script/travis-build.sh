@@ -12,6 +12,8 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
   sudo add-apt repository ppa:neovim-ppa/stable
   sudo apt-get update
   sudo apt-get install neovim
+
+  nvim --version
 fi
 
 node --version
