@@ -119,11 +119,11 @@
     "msgpack-lite": "0.1.26",
     "ocaml-language-server": "1.0.1",
     "oni-neovim-binaries": "0.0.6",
+    "oni-ripgrep": "0.0.3",
     "typescript": "2.5.3",
     "vscode-jsonrpc": "3.5.0",
     "vscode-languageserver": "3.5.0",
-    "vscode-languageserver-types": "3.5.0",
-    "vscode-ripgrep": "0.6.0-patch.0"
+    "vscode-languageserver-types": "3.5.0"
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
@@ -165,6 +165,7 @@
     "minimatch": "3.0.4",
     "mkdirp": "0.5.1",
     "mocha": "3.1.2",
+    "oni-release-downloader": "0.0.4",
     "opencollective": "1.0.3",
     "optimize-js-plugin": "0.0.4",
     "react": "16.0.0",
