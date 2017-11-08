@@ -9,7 +9,7 @@
 <h2 align="center">Supporting Oni</h2>
 
 Oni is an MIT-licensed open source project. Please consider supporting Oni by:
-- [Become a backer or sponsor on Open Collective](https://opencollective/oni)
+- [Become a backer or sponsor on Open Collective](https://opencollective.com/oni)
 - [Become a backer on BountySource](https://www.bountysource.com/teams/oni)
 
 
