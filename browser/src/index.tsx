@@ -45,8 +45,8 @@ const start = (args: string[]) => {
             UI.Actions.setConfigValue(prop, newConfigValues[prop])
         }
 
-        document.body.style.fontFamily = configuration.getValue("editor.fontFamily")
-        document.body.style.fontSize = configuration.getValue("editor.fontSize")
+        document.body.style.fontFamily = configuration.getValue("ui.fontFamily")
+        document.body.style.fontSize = configuration.getValue("ui.fontSize")
         document.body.style.fontVariant = configuration.getValue("editor.fontLigatures") ? "normal" : "none"
 
         const hideMenu: boolean = configuration.getValue("oni.hideMenu")
