@@ -15,7 +15,6 @@ import { Observable } from "rxjs/Observable"
 
 import { clipboard, ipcRenderer, remote } from "electron"
 
-import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
@@ -52,7 +51,6 @@ import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSyn
 export class NeovimEditor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
-    private _deltaRegionManager: IncrementalDeltaRegionTracker
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
     private _popupMenu: NeovimPopupMenu
@@ -127,8 +125,7 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance = new NeovimInstance(this._pluginManager, 100, 100)
         this._bufferManager = new BufferManager(this._neovimInstance)
-        this._deltaRegionManager = new IncrementalDeltaRegionTracker()
-        this._screen = new NeovimScreen(this._deltaRegionManager)
+        this._screen = new NeovimScreen()
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
@@ -319,7 +316,6 @@ export class NeovimEditor implements IEditor {
 
         return <NeovimSurface renderer={this._renderer}
             neovimInstance={this._neovimInstance}
-            deltaRegionTracker={this._deltaRegionManager}
             screen={this._screen}
             onKeyDown={onKeyDown}
             onBufferClose={onBufferClose}
@@ -402,18 +398,9 @@ export class NeovimEditor implements IEditor {
                 this._isFirstRender = false
                 this._renderer.redrawAll(this._screen)
             } else {
-                const modifiedCells = this._deltaRegionManager.getModifiedCells()
-
-                if (modifiedCells.length === 0) {
-                    return
-                }
-
-                modifiedCells.forEach((c) => this._deltaRegionManager.notifyCellRendered(c.x, c.y))
-                this._renderer.draw(this._screen, modifiedCells)
+                this._renderer.draw(this._screen)
             }
         }
-
-        this._deltaRegionManager.cleanUpRenderedCells()
     }
 
     private _onKeyDown(key: string): void {
