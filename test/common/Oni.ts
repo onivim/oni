@@ -29,8 +29,10 @@ export class Oni {
     }
 
     public async start(args: string[] = []): Promise<void> {
+        const executablePath = getExecutablePath()
+        log("Using executable path: " + executablePath)
         this._app = new Application({
-            path: getExecutablePath(),
+            path: executablePath,
             args,
         })
 
