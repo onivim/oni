@@ -15,14 +15,13 @@ import { Observable } from "rxjs/Observable"
 
 import { clipboard, ipcRenderer, remote } from "electron"
 
-import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import { Event, IEvent } from "./../Event"
 
-import { PluginManager } from "./../Plugins/PluginManager"
+import { pluginManager } from "./../Plugins/PluginManager"
 
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
@@ -52,7 +51,6 @@ import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSyn
 export class NeovimEditor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
-    private _deltaRegionManager: IncrementalDeltaRegionTracker
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
     private _popupMenu: NeovimPopupMenu
@@ -120,15 +118,13 @@ export class NeovimEditor implements IEditor {
     }
 
     constructor(
-        private _pluginManager: PluginManager,
         private _config = configuration,
     ) {
         const services: any[] = []
 
-        this._neovimInstance = new NeovimInstance(this._pluginManager, 100, 100)
+        this._neovimInstance = new NeovimInstance(100, 100)
         this._bufferManager = new BufferManager(this._neovimInstance)
-        this._deltaRegionManager = new IncrementalDeltaRegionTracker()
-        this._screen = new NeovimScreen(this._deltaRegionManager)
+        this._screen = new NeovimScreen()
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
@@ -142,7 +138,7 @@ export class NeovimEditor implements IEditor {
         const errorService = new Errors(this._neovimInstance)
         const windowTitle = new WindowTitle(this._neovimInstance)
 
-        registerBuiltInCommands(commandManager, this._pluginManager, this._neovimInstance)
+        registerBuiltInCommands(commandManager, this._neovimInstance)
 
         tasks.registerTaskProvider(commandManager)
         tasks.registerTaskProvider(errorService)
@@ -237,9 +233,6 @@ export class NeovimEditor implements IEditor {
         this._onConfigChanged(this._config.getValues())
         this._config.onConfigurationChanged.subscribe((newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues))
 
-        window["__neovim"] = this._neovimInstance // tslint:disable-line no-string-literal
-        window["__screen"] = this._screen // tslint:disable-line no-string-literal
-
         ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
             if (message.startsWith(":")) {
                 this._neovimInstance.command("exec \"" + message + "\"")
@@ -288,7 +281,7 @@ export class NeovimEditor implements IEditor {
     }
 
     public init(filesToOpen: string[]): void {
-        this._neovimInstance.start(filesToOpen)
+        this._neovimInstance.start(filesToOpen, { runtimePaths: pluginManager.getAllRuntimePaths() })
             .then(() => {
                 this._hasLoaded = true
                 VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
@@ -319,7 +312,6 @@ export class NeovimEditor implements IEditor {
 
         return <NeovimSurface renderer={this._renderer}
             neovimInstance={this._neovimInstance}
-            deltaRegionTracker={this._deltaRegionManager}
             screen={this._screen}
             onKeyDown={onKeyDown}
             onBufferClose={onBufferClose}
@@ -402,18 +394,9 @@ export class NeovimEditor implements IEditor {
                 this._isFirstRender = false
                 this._renderer.redrawAll(this._screen)
             } else {
-                const modifiedCells = this._deltaRegionManager.getModifiedCells()
-
-                if (modifiedCells.length === 0) {
-                    return
-                }
-
-                modifiedCells.forEach((c) => this._deltaRegionManager.notifyCellRendered(c.x, c.y))
-                this._renderer.draw(this._screen, modifiedCells)
+                this._renderer.draw(this._screen)
             }
         }
-
-        this._deltaRegionManager.cleanUpRenderedCells()
     }
 
     private _onKeyDown(key: string): void {

@@ -9,7 +9,7 @@ import * as path from "path"
 import * as Platform from "./../../Platform"
 
 export const getCommand = () => {
-    const rootPath = path.join(__dirname, "node_modules", "vscode-ripgrep", "bin")
+    const rootPath = path.join(__dirname, "node_modules", "oni-ripgrep", "bin")
     const executableName = Platform.isWindows() ? "rg.exe" : "rg"
 
     // Wrap in quotes in case there are spaces in the path

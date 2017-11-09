@@ -14,6 +14,7 @@ export interface StatusBarProps {
     items: StatusBarItemProps[]
     enabled: boolean
     fontSize: string
+    fontFamily: string
 }
 
 export interface StatusBarItemProps {
@@ -40,6 +41,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
             .sort((a, b) => b.priority - a.priority)
 
         const statusBarStyle = {
+            "fontFamily": this.props.fontFamily,
             "fontSize": this.props.fontSize,
         }
 
@@ -94,7 +96,8 @@ const mapStateToProps = (state: IState): StatusBarProps => {
     const statusBarItems = getStatusBarItems(state)
 
     return {
-        fontSize: state.configuration["statusbar.fontSize"],
+        fontFamily: state.configuration["ui.fontFamily"],
+        fontSize: state.configuration["statusbar.fontSize"] || state.configuration["ui.fontSize"],
         items: statusBarItems,
         enabled: state.configuration["statusbar.enabled"],
     }

@@ -3,7 +3,7 @@
   "author": "",
   "email": "bryphe@outlook.com",
   "homepage": "https://www.onivim.io",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "description": "NeoVim front-end with IDE-style extensibility",
   "keywords": [
     "vim",
@@ -36,10 +36,12 @@
       "!test",
       "!node_modules/typescript"
     ],
-    "extraResources": [{
+    "extraResources": [
+      {
         "from": "node_modules/typescript",
         "to": "app/node_modules/typescript"
-    }],
+      }
+    ],
     "mac": {
       "artifactName": "${productName}-${version}-osx.${ext}",
       "category": "public.app-category.developer-tools",
@@ -103,7 +105,7 @@
     "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch",
     "uninstall-global": "npm rm -g oni-vim",
     "install-global": "npm install -g oni-vim",
-    "postinstall": "electron-rebuild"
+    "postinstall": "electron-rebuild && opencollective postinstall"
   },
   "repository": {
     "type": "git",
@@ -116,11 +118,12 @@
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",
     "ocaml-language-server": "1.0.1",
+    "oni-neovim-binaries": "0.0.6",
+    "oni-ripgrep": "0.0.3",
     "typescript": "2.5.3",
     "vscode-jsonrpc": "3.5.0",
     "vscode-languageserver": "3.5.0",
-    "vscode-languageserver-types": "3.5.0",
-    "vscode-ripgrep": "0.6.0-patch.0"
+    "vscode-languageserver-types": "3.5.0"
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
@@ -152,6 +155,7 @@
     "electron-rebuild": "1.6.0",
     "extract-zip": "1.6.0",
     "fuse.js": "2.6.2",
+    "github-releases": "^0.4.1",
     "innosetup-compiler": "5.5.9",
     "jsdom": "11.0.0",
     "less": "2.7.1",
@@ -161,6 +165,8 @@
     "minimatch": "3.0.4",
     "mkdirp": "0.5.1",
     "mocha": "3.1.2",
+    "oni-release-downloader": "0.0.4",
+    "opencollective": "1.0.3",
     "optimize-js-plugin": "0.0.4",
     "react": "16.0.0",
     "react-dom": "16.0.0",
@@ -181,5 +187,10 @@
     "wcwidth": "1.0.1",
     "webpack": "3.5.3",
     "webpack-dev-server": "2.7.1"
+  },
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/oni",
+    "logo": "https://opencollective.com/opencollective/logo.txt"
   }
 }
