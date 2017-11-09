@@ -17,6 +17,10 @@ export class PluginManager extends EventEmitter {
     private _neovimInstance: INeovimInstance
     private _anonymousPlugin: AnonymousPlugin
 
+    public get plugins(): Plugin[] {
+        return this._plugins
+    }
+
     constructor() {
         super()
 
@@ -33,8 +37,8 @@ export class PluginManager extends EventEmitter {
     public startPlugins(neovimInstance: INeovimInstance): Oni.Plugin.Api {
         this._neovimInstance = neovimInstance
 
-        const allPlugins = this._getAllPluginPaths()
-        this._plugins = allPlugins.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
+        const allPluginPaths = this._getAllPluginPaths()
+        this._plugins = allPluginPaths.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
 
         this._anonymousPlugin = new AnonymousPlugin()
 

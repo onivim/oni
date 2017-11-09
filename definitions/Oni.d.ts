@@ -81,6 +81,8 @@ declare namespace Oni {
 
         // Optional capabilities for the editor to implement
         neovim?: NeovimEditorCapability
+
+        dispose(): void
     }
 
     export interface EditorBufferChangedEventArgs {

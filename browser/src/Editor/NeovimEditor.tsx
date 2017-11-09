@@ -267,6 +267,12 @@ export class NeovimEditor implements IEditor {
         }
     }
 
+    public dispose(): void {
+        // TODO: Implement full disposal logic
+        this._popupMenu = null
+        this._windowManager = null
+    }
+
     public async openFile(file: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":e " + file)
         return this.activeBuffer
