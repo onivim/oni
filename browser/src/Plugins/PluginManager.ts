@@ -1,7 +1,6 @@
 import { EventEmitter } from "events"
 import * as fs from "fs"
 import * as path from "path"
-import { INeovimInstance } from "./../neovim"
 import { configuration } from "./../Services/Configuration"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
@@ -14,7 +13,6 @@ export class PluginManager extends EventEmitter {
     private _config = configuration
     private _rootPluginPaths: string[] = []
     private _plugins: Plugin[] = []
-    private _neovimInstance: INeovimInstance
     private _anonymousPlugin: AnonymousPlugin
 
     public get plugins(): Plugin[] {
@@ -34,9 +32,7 @@ export class PluginManager extends EventEmitter {
         this._rootPluginPaths.push(path.join(this._config.getUserFolder(), "plugins"))
     }
 
-    public startPlugins(neovimInstance: INeovimInstance): Oni.Plugin.Api {
-        this._neovimInstance = neovimInstance
-
+    public startPlugins(): Oni.Plugin.Api {
         const allPluginPaths = this._getAllPluginPaths()
         this._plugins = allPluginPaths.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
 

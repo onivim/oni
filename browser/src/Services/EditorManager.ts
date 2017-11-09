@@ -122,6 +122,9 @@ class AllEditors implements Oni.Editor {
         return this._onBufferSaved
     }
 
+    public dispose(): void {
+    }
+
     /**
      * Internal methods
      */

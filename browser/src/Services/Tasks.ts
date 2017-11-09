@@ -31,7 +31,6 @@ export interface ITaskProvider {
 
 export class Tasks extends EventEmitter {
     private _lastTasks: ITask[] = []
-    private _currentBufferPath: string
 
     private _menu: Menu
 
@@ -42,10 +41,6 @@ export class Tasks extends EventEmitter {
     // it is shown.
     public registerTaskProvider(taskProvider: ITaskProvider): void {
         this._providers.push(taskProvider)
-    }
-
-    public onEvent(event: Oni.EventContext): void {
-        this._currentBufferPath = event.bufferFullPath
     }
 
     public show(): void {
