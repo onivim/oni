@@ -64,4 +64,8 @@ export class NeovimPopupMenu {
                 padding: "0px",
             })
     }
+
+    public dispose(): void {
+        // TODO: Implement 'unsubscribe' logic here
+    }
 }

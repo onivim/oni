@@ -262,7 +262,10 @@ export class NeovimEditor implements IEditor {
 
     public dispose(): void {
         // TODO: Implement full disposal logic
+        this._popupMenu.dispose()
         this._popupMenu = null
+
+        this._windowManager.dispose()
         this._windowManager = null
     }
 
