@@ -80,6 +80,8 @@ const BaseConfiguration: IConfigurationValues = {
     "language.cpp.languageServer.command": "clangd",
     "language.c.languageServer.command": "clangd",
 
+    "language.markdown.languageServer.command": path.join(__dirname, "languages", "markdown", "server.js"),
+
     "language.reason.languageServer.command": ocamlLanguageServerPath,
     "language.reason.languageServer.arguments": ["--stdio"],
     "language.reason.languageServer.rootFiles": [".merlin", "bsconfig.json"],
