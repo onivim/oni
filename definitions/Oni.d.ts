@@ -36,12 +36,17 @@ declare namespace Oni {
     }
 
     export interface IWindowManager {
-        split(direction: number, editor: Oni.Editor, sourceEditor?: Oni.Editor)
+        split(direction: number, split: IWindowSplit)
+        showDock(direction: number, split: IWindowSplit)
         moveLeft(): void
         moveRight(): void
         moveDown(): void
         moveUp(): void
         close(editor: Oni.Editor)
+    }
+
+    export interface IWindowSplit {
+        render(): JSX.Element
     }
 
     export interface EditorManager {

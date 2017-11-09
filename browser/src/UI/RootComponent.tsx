@@ -7,8 +7,8 @@ import { MenuContainer } from "./../Services/Menu"
 import * as WindowManager from "./../Services/WindowManager"
 
 import { Background } from "./components/Background"
-import { EditorWindows } from "./components/EditorWindows"
 import StatusBar from "./components/StatusBar"
+import { WindowSplits } from "./components/WindowSplits"
 
 interface IRootComponentProps {
     windowManager: WindowManager.WindowManager
@@ -24,7 +24,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
                 <div className="container vertical full">
                     <div className="container full">
                         <div className="stack">
-                            <EditorWindows windowManager={this.props.windowManager} />
+                            <WindowSplits windowManager={this.props.windowManager} />
                         </div>
                         <div className="stack layer">
                             <MenuContainer />

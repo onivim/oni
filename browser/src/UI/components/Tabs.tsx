@@ -45,6 +45,9 @@ export interface ITabsProps {
     shouldWrap: boolean
     maxWidth: string
     height: string
+
+    fontFamily: string
+    fontSize: string
 }
 
 export class Tabs extends React.PureComponent<ITabsProps, {}> {
@@ -66,6 +69,8 @@ export class Tabs extends React.PureComponent<ITabsProps, {}> {
         const tabBorderStyle: React.CSSProperties = {
             ...overflowStyle,
             "borderBottom": `4px solid ${this.props.backgroundColor}`,
+            fontFamily: this.props.fontFamily,
+            fontSize: this.props.fontSize,
         }
 
         const tabs = this.props.tabs.map((t) => {
@@ -191,6 +196,8 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
     const closeFunc = shouldUseVimTabs ? ownProps.onTabClose : ownProps.onBufferClose
 
     return {
+        fontFamily: state.configuration["ui.fontFamily"],
+        fontSize: state.configuration["ui.fontSize"],
         backgroundColor: state.backgroundColor,
         foregroundColor: state.foregroundColor,
         onSelect: selectFunc,

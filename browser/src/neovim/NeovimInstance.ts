@@ -10,7 +10,6 @@ import * as Log from "./../Log"
 import * as Actions from "./../actions"
 import { measureFont } from "./../Font"
 import * as Platform from "./../Platform"
-import { PluginManager } from "./../Plugins/PluginManager"
 import { IPixelPosition, IPosition } from "./../Screen"
 import { configuration } from "./../Services/Configuration"
 
@@ -131,6 +130,10 @@ export interface INeovimInstance {
     openInitVim(): Promise<void>
 }
 
+export interface INeovimStartOptions {
+    runtimePaths?: string[]
+}
+
 /**
  * Integration with NeoVim API
  */
@@ -152,7 +155,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _rows: number
     private _cols: number
 
-    private _pluginManager: PluginManager
     private _quickFix: QuickFixList
 
     private _onDirectoryChanged = new Event<string>()
@@ -221,10 +223,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._autoCommands
     }
 
-    constructor(pluginManager: PluginManager, widthInPixels: number, heightInPixels: number) {
+    constructor(widthInPixels: number, heightInPixels: number) {
         super()
-
-        this._pluginManager = pluginManager
 
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
@@ -246,10 +246,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.callFunction("OniGetContext", [])
     }
 
-    public start(filesToOpen?: string[]): Promise<void> {
+    public start(filesToOpen?: string[], startOptions?: INeovimStartOptions): Promise<void> {
         filesToOpen = filesToOpen || []
 
-        this._initPromise = Promise.resolve(startNeovim(this._pluginManager.getAllRuntimePaths(), filesToOpen))
+        startOptions = startOptions || { }
+        const runtimePaths = startOptions.runtimePaths || []
+
+        this._initPromise = Promise.resolve(startNeovim(runtimePaths, filesToOpen))
             .then((nv) => {
                 Log.info("NeovimInstance: Neovim started")
 
@@ -333,12 +336,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 return this._attachUI(size.cols, size.rows)
                     .then(async () => {
                         Log.info("Attach success")
-
-                        performance.mark("NeovimInstance.Plugins.Start")
-                        const api = this._pluginManager.startPlugins(this)
-                        performance.mark("NeovimInstance.Plugins.End")
-
-                        configuration.activate(api)
 
                         // TODO: #702 - Batch these calls via `nvim_call_atomic`
                         // Override completeopt so Oni works correctly with external popupmenu
