@@ -26,7 +26,7 @@ export interface ISetViewportAction {
 export interface ISetCursorScaleAction {
     type: "SET_CURSOR_SCALE",
     payload: {
-        cursorScale: number
+        cursorScale: number,
     }
 }
 

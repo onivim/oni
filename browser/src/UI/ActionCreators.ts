@@ -40,7 +40,7 @@ export const setCursorScale = (cursorScale: number) => ({
     type: "SET_CURSOR_SCALE",
     payload: {
         cursorScale,
-    }
+    },
 })
 
 export const bufferEnter = (id: number, file: string, language: string, totalLines: number, hidden: boolean, listed: boolean) => ({
