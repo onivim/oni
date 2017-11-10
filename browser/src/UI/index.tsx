@@ -30,7 +30,7 @@ import { DockPosition, windowManager } from "./../Services/WindowManager"
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
-import { FileExplorerSplit } from "./../Editor/FileExplorerSplit"
+import { FileExplorerSplit } from "./../Services/FileExplorer/FileExplorerSplit"
 
 const defaultState = State.createDefaultState()
 

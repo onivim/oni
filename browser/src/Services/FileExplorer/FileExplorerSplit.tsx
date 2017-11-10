@@ -8,7 +8,7 @@ import * as React from "react"
 
 import * as fs from "fs"
 
-import { Icon } from "./../UI/Icon"
+import { Icon } from "./../../UI/Icon"
 
 require("./FileExplorer.less")
 
