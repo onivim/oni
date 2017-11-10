@@ -9,7 +9,7 @@
 import { ipcRenderer, remote } from "electron"
 import * as minimist from "minimist"
 import * as Log from "./Log"
-import { PluginManager } from "./Plugins/PluginManager"
+import { pluginManager } from "./Plugins/PluginManager"
 
 import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
 import { commandManager } from "./Services/CommandManager"
@@ -30,8 +30,6 @@ const start = (args: string[]) => {
     window["UI"] = UI // tslint:disable-line no-string-literal
     require("./overlay.less")
 
-    const pluginManager = new PluginManager()
-
     const initialConfigParsingError = configuration.getParsingError()
     if (initialConfigParsingError) {
         Log.error(initialConfigParsingError)
@@ -45,8 +43,8 @@ const start = (args: string[]) => {
             UI.Actions.setConfigValue(prop, newConfigValues[prop])
         }
 
-        document.body.style.fontFamily = configuration.getValue("editor.fontFamily")
-        document.body.style.fontSize = configuration.getValue("editor.fontSize")
+        document.body.style.fontFamily = configuration.getValue("ui.fontFamily")
+        document.body.style.fontSize = configuration.getValue("ui.fontSize")
         document.body.style.fontVariant = configuration.getValue("editor.fontLigatures") ? "normal" : "none"
 
         const hideMenu: boolean = configuration.getValue("oni.hideMenu")
@@ -80,6 +78,12 @@ const start = (args: string[]) => {
     if (configuration.getValue("experimental.enableLanguageServerFromConfig")) {
         createLanguageClientsFromConfiguration(configuration.getValues())
     }
+
+    performance.mark("NeovimInstance.Plugins.Start")
+    const api = pluginManager.startPlugins()
+    performance.mark("NeovimInstance.Plugins.End")
+
+    configuration.activate(api)
 
     checkForUpdates()
 }

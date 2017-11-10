@@ -6,12 +6,16 @@
 
 import * as os from "os"
 
+import * as path from "path"
+
 import * as Platform from "./../../Platform"
 
 import { IConfigurationValues } from "./IConfigurationValues"
 import { ocamlAndReasonConfiguration, ocamlLanguageServerPath } from "./ReasonConfiguration"
 
 const noop = () => { } // tslint:disable-line no-empty
+
+const cssLanguageServerPath = path.join(__dirname, "node_modules", "css-language-server", "lib", "cli.js")
 
 const BaseConfiguration: IConfigurationValues = {
     activate: noop,
@@ -80,6 +84,15 @@ const BaseConfiguration: IConfigurationValues = {
     "language.cpp.languageServer.command": "clangd",
     "language.c.languageServer.command": "clangd",
 
+    "language.css.languageServer.command": cssLanguageServerPath,
+    "language.css.languageServer.arguments": ["--stdio"],
+
+    "language.less.languageServer.command": cssLanguageServerPath,
+    "language.less.languageServer.arguments": ["--stdio"],
+
+    "language.sass.languageServer.command": cssLanguageServerPath,
+    "language.sass.languageServer.arguments": ["--stdio"],
+
     "language.reason.languageServer.command": ocamlLanguageServerPath,
     "language.reason.languageServer.arguments": ["--stdio"],
     "language.reason.languageServer.rootFiles": [".merlin", "bsconfig.json"],
@@ -106,6 +119,9 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.height": "2.5em",
     "tabs.maxWidth": "30em",
     "tabs.wrap": false,
+
+    "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
+    "ui.fontSize": "13px",
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {
