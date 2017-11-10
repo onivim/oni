@@ -7,7 +7,6 @@
 export interface IFolderState {
     type: "folder"
     fullPath: string
-    expanded: boolean
 }
 
 export interface IFileState {
@@ -39,7 +38,7 @@ export const reducer: Reducer<IFileExplorerState> = (
     return state
 }
 
-import { applyMiddleware, createStore, Reducer } from "redux"
+import { applyMiddleware, createStore, Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
 const nullAction = { type: null } as IFileExplorerAction
@@ -50,8 +49,10 @@ const updateContentsEpic: Epic<IFileExplorerAction, IFileExplorerState> = (actio
             return nullAction
         })
 
-export const fileExplorerStore = createStore(reducer,
+export const fileExplorerStore: Store<IFileExplorerState> = createStore(reducer,
     applyMiddleware(createEpicMiddleware(combineEpics(
         updateContentsEpic
     )))
 )
+
+fileExplorerStore.dispatch({ type: "SET_ROOT_DIRECTORY", newRootPath: process.cwd() })
