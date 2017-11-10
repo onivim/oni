@@ -120,6 +120,7 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.maxWidth": "30em",
     "tabs.wrap": false,
 
+    "ui.animations.enabled": true,
     "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
 }
