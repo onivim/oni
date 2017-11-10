@@ -9,7 +9,11 @@ import * as React from "react"
 import { Icon } from "./../../UI/Icon"
 import { Event } from "./../../Event"
 
+import { NeovimInstance } from "./../../neovim/NeovimInstance"
+
 import { KeyboardInputView } from "./../../Editor/KeyboardInput"
+
+import { pluginManager } from "./../../Plugins/PluginManager"
 
 require("./FileExplorer.less")
 
@@ -19,6 +23,7 @@ export interface IFileExplorerProps {
     rootPath: string
     filesOrFolders: FolderOrFile[],
     isLoading: boolean
+    cursorPath: string
 }
 
 export class FileExplorerView extends React.PureComponent<IFileExplorerProps, {}> {
@@ -39,14 +44,19 @@ export class FileExplorerView extends React.PureComponent<IFileExplorerProps, {}
             }
         })
 
+
+
         const elements = sortedFilesAndFolders.map((f) => {
+
+            const className = this.props.cursorPath === f.fullPath ? f.type + " cursor" : f.type
+
             if (f.type === "folder") {
-                return <div className="folder">
+                return <div className={className}>
                     <Icon className="icon" name="caret-right" />
                     <span className="name">{f.fullPath}</span>
                 </div> 
             } else {
-                return <div className="file">
+                return <div className={className}>
                     <Icon className="icon" name="file" />
                     <span className="name">{f.fullPath}</span>
                 </div> 
@@ -76,13 +86,60 @@ export class FileExplorerSplit implements Oni.IWindowSplit {
 
     private _onActive: Event<void> = new Event<void>()
 
+    private _neovimInstance: NeovimInstance
+    private _initPromise: Promise<void> = null
+
+    constructor() {
+        this._neovimInstance = new NeovimInstance(100, 100)
+        this._initPromise = this._neovimInstance.start([], { runtimePaths: pluginManager.getAllRuntimePaths() })
+
+        window["__fxNeovimInstance"] = this._neovimInstance
+
+        this._initPromise.then(async () => {
+            
+            // const newState = fileExplorerStore.getState()
+
+            await this._initPromise
+            const currentBufId = await this._neovimInstance.eval("bufnr('%')")
+
+            await this._neovimInstance.request("nvim_buf_set_lines", [currentBufId, 0, 1, false, ["a", "b", "c"]])
+            console.log("set some lines!")
+        })
+
+        this._neovimInstance.onModeChanged.subscribe((mode: string) => console.log("mode changed: " + mode))
+
+
+        this._neovimInstance.on("event", (eventName: string, evt: any) => {
+            console.log("Vim event: " + eventName)
+            console.dir(evt)
+
+            if (eventName === "CursorMoved") {
+                fileExplorerStore.dispatch({
+                    type: "SET_CURSOR",
+                    cursorPath: fileExplorerStore.getState().filesOrFolders[evt.line - 1].fullPath
+                })
+            }
+        })
+        this._neovimInstance.onBufferUpdateIncremental.subscribe(() => console.log("BUFFER UPDATE"))
+    }
+
     public enter(): void {
         this._onActive.dispatch()
         // alert("enter")
+
+        fileExplorerStore.dispatch({
+            type: "SET_CURSOR",
+            cursorPath: fileExplorerStore.getState().filesOrFolders[0].fullPath,
+        })
     }
 
     public leave(): void {
         // alert("leave")
+    }
+
+    private async _onKeyDown(keyPress: string): Promise<void> {
+        await this._initPromise
+        this._neovimInstance.input(keyPress)
     }
 
     public render(): JSX.Element {
@@ -106,7 +163,7 @@ export class FileExplorerSplit implements Oni.IWindowSplit {
                 left={0}
                 height={12}
                 onActivate={this._onActive}
-                onKeyDown={() => console.log("Keydown")}
+                onKeyDown={(key) => this._onKeyDown(key)}
                 foregroundColor= {"white"}
                 fontFamily={ "Segoe UI"}
                 fontSize={"12px"}

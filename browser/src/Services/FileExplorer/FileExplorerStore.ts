@@ -4,6 +4,8 @@
  * Redux store for file explorer
  */
 
+import { workspace } from "./../Workspace"
+
 export interface IFolderState {
     type: "folder"
     fullPath: string
@@ -20,6 +22,9 @@ export interface IFileExplorerState {
     rootPath: string
     filesOrFolders: FolderOrFile[]
     isLoading: boolean
+    
+    // The path that is currently highlighted by the cursor
+    cursorPath: string
 }
 
 export type IFileExplorerAction = {
@@ -28,6 +33,9 @@ export type IFileExplorerAction = {
 } | {
     type: "UPDATE_FILES_AND_FOLDERS",
     filesAndFolders: FolderOrFile[],
+} | {
+    type: "SET_CURSOR",
+    cursorPath: string,
 }
 
 export const reducer: Reducer<IFileExplorerState> = (
@@ -35,6 +43,7 @@ export const reducer: Reducer<IFileExplorerState> = (
         rootPath: null,
         filesOrFolders: [],
         isLoading: true,
+        cursorPath: null,
     },
     action: IFileExplorerAction
 ) => {
@@ -50,6 +59,11 @@ export const reducer: Reducer<IFileExplorerState> = (
             return {
             ...state,
             filesOrFolders: action.filesAndFolders,
+        }
+        case "SET_CURSOR":
+            return {
+            ...state,
+            cursorPath: action.cursorPath,
         }
 
         default:
@@ -99,3 +113,7 @@ export const fileExplorerStore: Store<IFileExplorerState> = createStore(reducer,
 )
 
 fileExplorerStore.dispatch({ type: "SET_ROOT_DIRECTORY", newRootPath: process.cwd() })
+
+workspace.onDirectoryChanged.subscribe((dir) => {
+    fileExplorerStore.dispatch({ type: "SET_ROOT_DIRECTORY", newRootPath: dir })
+})
