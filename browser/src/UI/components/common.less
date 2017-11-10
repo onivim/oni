@@ -121,3 +121,29 @@
     animation-duration: 4s;
     animation-iteration-count: infinite;
 }
+
+.fade-enter {
+  opacity: 0;
+  transform: translateX(3px);
+}
+
+.fade-enter.fade-enter-active {
+  opacity: 1;
+  transform: translateX(0px);
+  transition-property: transform opacity;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in;
+}
+
+.fade-exit {
+  opacity: 1;
+  transform: translateX(0px);
+}
+
+.fade-exit.fade-exit-active {
+  transform: translateX(-2px);
+  opacity: 0;
+  transition-property: transform opacity;
+  transition-duration: 150ms;
+  transition-timing-function: ease-in;
+}

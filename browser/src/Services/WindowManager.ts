@@ -13,16 +13,16 @@ import { Event, IEvent } from "./../Event"
 import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, ISplitInfo, ISplitLeaf, SplitDirection } from "./WindowSplit"
 
 export class WindowManager {
-    private _activeSplit: ISplitLeaf<Oni.Editor>
-    private _splitRoot: ISplitInfo<Oni.Editor>
+    private _activeSplit: ISplitLeaf<Oni.IWindowSplit>
+    private _splitRoot: ISplitInfo<Oni.IWindowSplit>
 
-    private _onSplitChanged = new Event<ISplitInfo<Oni.Editor>>()
+    private _onSplitChanged = new Event<ISplitInfo<Oni.IWindowSplit>>()
 
-    public get onSplitChanged(): IEvent<ISplitInfo<Oni.Editor>> {
+    public get onSplitChanged(): IEvent<ISplitInfo<Oni.IWindowSplit>> {
         return this._onSplitChanged
     }
 
-    public get splitRoot(): ISplitInfo<Oni.Editor> {
+    public get splitRoot(): ISplitInfo<Oni.IWindowSplit> {
         return this._splitRoot
     }
 
@@ -31,8 +31,8 @@ export class WindowManager {
         this._activeSplit = null
     }
 
-    public split(direction: SplitDirection, newEditor: Oni.Editor) {
-        const newLeaf = createSplitLeaf(newEditor)
+    public split(direction: SplitDirection, newSplit: Oni.IWindowSplit) {
+        const newLeaf = createSplitLeaf(newSplit)
         this._splitRoot = applySplit(this._splitRoot, direction, newLeaf)
 
         this._onSplitChanged.dispatch(this._splitRoot)
@@ -54,12 +54,12 @@ export class WindowManager {
         // TODO
     }
 
-    public showDock(direction: SplitDirection, newEditor: Oni.Editor) {
+    public showDock(direction: SplitDirection, split: Oni.IWindowSplit) {
         // TODO
     }
 
-    public close(editor: Oni.Editor) {
-        this._splitRoot = closeSplit(this._splitRoot, editor)
+    public close(split: Oni.IWindowSplit) {
+        this._splitRoot = closeSplit(this._splitRoot, split)
         this._onSplitChanged.dispatch(this._splitRoot)
     }
 }

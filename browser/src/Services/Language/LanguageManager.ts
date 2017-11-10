@@ -52,9 +52,12 @@ export class LanguageManager {
                 this._statusBar.hide()
             }
 
-            return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", () => {
+            return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", async () => {
+                const lines = await editorManager.activeEditor.activeBuffer.getLines()
+                const text = lines.join(os.EOL)
+                const version = editorManager.activeEditor.activeBuffer.version
                 this._statusBar.setStatus(LanguageClientState.Active)
-                return Helpers.pathToTextDocumentIdentifierParms(filePath)
+                return Helpers.pathToTextDocumentItemParams(filePath, language, text, version)
             })
         })
 
@@ -108,6 +111,11 @@ export class LanguageManager {
 
         this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
             logDebug(args)
+        })
+
+        this.handleLanguageServerRequest("workspace/configuration", async (req) => {
+            Log.warn("workspace/configuration not implemented: " + JSON.stringify(req.toString()))
+            return null
         })
 
         this.handleLanguageServerRequest("window/showMessageRequest", async (req) => {

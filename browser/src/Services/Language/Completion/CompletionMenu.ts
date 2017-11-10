@@ -91,8 +91,21 @@ export const createCompletionMenu = (completionMeet$: Observable<ICompletionMeet
         })
 }
 
+let lastDetailsRequestInfo: { label: string, result: types.CompletionItem } = { label: null, result: null }
+
 export const updateCompletionItemDetails = async (menu: any, language: string, filePath: string, completionItem: types.CompletionItem)  => {
+
+    if (lastDetailsRequestInfo.label === completionItem.label && lastDetailsRequestInfo.result) {
+        menu.updateItem(lastDetailsRequestInfo.result)
+        return
+    }
+
     const result = await resolveCompletionItem(language, filePath, completionItem)
+
+    lastDetailsRequestInfo = {
+        label: completionItem.label,
+        result,
+    }
 
     if (result) {
         menu.updateItem(result)

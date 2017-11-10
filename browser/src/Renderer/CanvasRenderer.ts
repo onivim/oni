@@ -18,7 +18,7 @@ export interface IRenderState {
 
 const isWhiteSpace = (text: string) => text === null || text === "" || text === " "
 
-const cellsAreTheSame = (cell1: ICell, cell2: ICell): boolean => {
+const cellsAreSameColor = (cell1: ICell, cell2: ICell): boolean => {
     if (!cell1 || !cell2) {
         return false
     }
@@ -26,6 +26,19 @@ const cellsAreTheSame = (cell1: ICell, cell2: ICell): boolean => {
     return cell1.backgroundColor === cell2.backgroundColor
         && cell1.foregroundColor === cell2.foregroundColor
         && cell1.characterWidth === 1 && cell2.characterWidth === 1
+}
+
+const cellsAreEqual = (cell1: ICell, cell2: ICell): boolean => {
+
+    if (cell1 === cell2) {
+        return true
+    }
+
+    if (cellsAreSameColor(cell1, cell2) && cell1.character === cell2.character) {
+        return true
+    }
+
+    return false
 }
 
 export class CanvasRenderer implements INeovimRenderer {
@@ -38,6 +51,7 @@ export class CanvasRenderer implements INeovimRenderer {
 
     private _isOpaque: boolean
 
+    private _lastRenderGrid: Grid<ICell> = new Grid<ICell>()
     private _grid: Grid<ISpan> = new Grid<ISpan>()
     private _devicePixelRatio: number
 
@@ -63,16 +77,38 @@ export class CanvasRenderer implements INeovimRenderer {
             this._canvasContext.clearRect(0, 0, this._width, this._height)
         }
 
+        this._lastRenderGrid.clear()
+
         for (let x = 0; x < screenInfo.width; x++) {
             for (let y = 0; y < screenInfo.height; y++) {
+                const cell = screenInfo.getCell(x, y)
                 cellsToUpdate.push({ x, y })
+                this._lastRenderGrid.setCell(x, y , cell)
             }
         }
 
-        this.draw(screenInfo, cellsToUpdate)
+        this._draw(screenInfo, cellsToUpdate)
     }
 
-    public draw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
+    public draw(screenInfo: IScreen): void {
+        const cellsToUpdate: IPosition[] = []
+        for (let x = 0; x < screenInfo.width; x++) {
+            for (let y = 0; y < screenInfo.height; y++) {
+
+                const lastCell = this._lastRenderGrid.getCell(x, y)
+                const currentCell = screenInfo.getCell(x, y)
+
+                if (!cellsAreEqual(lastCell, currentCell)) {
+                    cellsToUpdate.push({ x, y})
+                    this._lastRenderGrid.setCell(x, y, currentCell)
+                }
+            }
+        }
+
+        this._draw(screenInfo, cellsToUpdate)
+    }
+
+    public _draw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
         Performance.mark("CanvasRenderer.update.start")
 
         this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
@@ -108,14 +144,14 @@ export class CanvasRenderer implements INeovimRenderer {
                 let updatedStartX = span.startX
                 let updatedEndX = span.endX
 
-                if (cellsAreTheSame(currentCell, gridCellBefore)) {
+                if (cellsAreSameColor(currentCell, gridCellBefore)) {
                     const previousCell = this._grid.getCell(span.startX - 1, rowIndex)
                     if (previousCell) {
                         updatedStartX = previousCell.startX
                     }
                 }
 
-                if (cellsAreTheSame(currentCell, gridCellAfter)) {
+                if (cellsAreSameColor(currentCell, gridCellAfter)) {
                     const afterCell = this._grid.getCell(span.endX + 1, rowIndex)
 
                     if (afterCell) {

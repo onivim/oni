@@ -1,6 +1,8 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
+import { CSSTransition, TransitionGroup } from "react-transition-group"
+
 import { createSelector } from "reselect"
 
 import * as Colors from "./../Colors"
@@ -18,10 +20,21 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
 
     public render(): JSX.Element {
 
-        const toolTipElements = this.props.toolTips.map((toolTip) => <ToolTipView {...toolTip} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor} key={toolTip.id}/>)
+        const toolTipElements = this.props.toolTips.map((toolTip) => {
+            return <CSSTransition
+                timeout={250}
+                classNames="fade"
+                unmountOnExit={true}
+                exit={false}
+            >
+            <ToolTipView {...toolTip} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor} key={toolTip.id}/>
+            </CSSTransition>
+        })
 
-        return <div className="tool-tips">
+        return <div className="tool-tips" key={"tool-tip-container"}>
+        <TransitionGroup>
             {toolTipElements}
+        </TransitionGroup>
         </div>
     }
 }
@@ -71,9 +84,9 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
         }
 
         return <CursorPositioner position={position} openDirection={openDirection} key={this.props.id}>
-            <div className="tool-tip-container enable-mouse" style={toolTipStyle} ref={(elem) => this._setContainer(elem)}>
-                {this.props.element}
-            </div>
+                <div className="tool-tip-container enable-mouse" style={toolTipStyle} ref={(elem) => this._setContainer(elem)}>
+                    {this.props.element}
+                </div>
         </CursorPositioner>
     }
 

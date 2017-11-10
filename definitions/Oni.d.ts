@@ -36,12 +36,17 @@ declare namespace Oni {
     }
 
     export interface IWindowManager {
-        split(direction: number, editor: Oni.Editor, sourceEditor?: Oni.Editor)
+        split(direction: number, split: IWindowSplit)
+        showDock(direction: number, split: IWindowSplit)
         moveLeft(): void
         moveRight(): void
         moveDown(): void
         moveUp(): void
         close(editor: Oni.Editor)
+    }
+
+    export interface IWindowSplit {
+        render(): JSX.Element
     }
 
     export interface EditorManager {
@@ -266,12 +271,6 @@ declare namespace Oni {
             }
         }
 
-        export interface FormattingEditsResponse {
-            filePath: string
-            version: number
-            edits: any[]
-        }
-
         export interface Api extends EventEmitter {
             automation: Automation.Api
             configuration: Configuration
@@ -285,10 +284,6 @@ declare namespace Oni {
             process: Process
             statusBar: StatusBar
             workspace: Workspace
-        }
-
-        export interface LanguageService {
-            getFormattingEdits?(position: EventContext): Promise<FormattingEditsResponse>
         }
     }
 }

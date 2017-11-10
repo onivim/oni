@@ -10,7 +10,7 @@ export interface INeovimRenderer {
 
     redrawAll(screenInfo: IScreen): void
 
-    draw(screenInfo: IScreen, cells: IPosition[]): void
+    draw(screenInfo: IScreen): void
 
     onAction(action: any): void
 }
