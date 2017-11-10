@@ -25,6 +25,9 @@ export interface IFileExplorerState {
 export type IFileExplorerAction = {
     type: "SET_ROOT_DIRECTORY",
     newRootPath: string,
+} | {
+    type: "UPDATE_FILES_AND_FOLDERS",
+    filesAndFolders: FolderOrFile[],
 }
 
 export const reducer: Reducer<IFileExplorerState> = (
@@ -35,18 +38,58 @@ export const reducer: Reducer<IFileExplorerState> = (
     },
     action: IFileExplorerAction
 ) => {
-    return state
+
+    switch (action.type) {
+        case "SET_ROOT_DIRECTORY":
+            return {
+            ...state,
+            isLoading: true,
+            rootPath: action.newRootPath,
+        }
+        case "UPDATE_FILES_AND_FOLDERS":
+            return {
+            ...state,
+            filesOrFolders: action.filesAndFolders,
+        }
+
+        default:
+            return state
+    }
 }
+
+import * as fs from "fs"
 
 import { applyMiddleware, createStore, Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
-const nullAction = { type: null } as IFileExplorerAction
-
 const updateContentsEpic: Epic<IFileExplorerAction, IFileExplorerState> = (action$, store) =>
     action$.ofType("SET_ROOT_DIRECTORY")
         .map((action) => {
-            return nullAction
+
+            const rootPath = (action as any).newRootPath
+            const files = fs.readdirSync(rootPath)
+            const filesAndFolders = files.map((f) => {
+
+                const stat = fs.statSync(f)
+
+                if (stat.isDirectory()) {
+                    return {
+                        type: "folder",
+                        fullPath: f
+                    }
+                } else {
+                    return {
+                        type: "file",
+                        fullPath: f,
+                    }
+                }
+
+            })
+
+            return {
+                type: "UPDATE_FILES_AND_FOLDERS",
+                filesAndFolders,
+           } as IFileExplorerAction
         })
 
 export const fileExplorerStore: Store<IFileExplorerState> = createStore(reducer,
