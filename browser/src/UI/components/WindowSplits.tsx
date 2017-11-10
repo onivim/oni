@@ -6,7 +6,7 @@
 
 import * as React from "react"
 
-import { WindowSplitHost } from "./WindowSplitHost"
+import { EditorSplitHost, WindowSplitHost } from "./WindowSplitHost"
 
 import { DockPosition, WindowManager } from "./../../Services/WindowManager"
 import { ISplitInfo } from "./../../Services/WindowSplit"
@@ -16,18 +16,20 @@ export interface IWindowSplitsProps {
 }
 
 export interface IWindowSplitsState {
+    activeSplit: Oni.IWindowSplit
     splitRoot: ISplitInfo<Oni.IWindowSplit>
     leftDock: Oni.IWindowSplit[]
 }
 
 export interface IDockProps {
+    activeSplit: Oni.IWindowSplit
     splits: Oni.IWindowSplit[]
 }
 
 export class Dock extends React.PureComponent<IDockProps, {}> {
     public render(): JSX.Element {
 
-        const docks = this.props.splits.map((s) => s.render())
+        const docks = this.props.splits.map((s) => <WindowSplitHost split={s} isFocused={this.props.activeSplit === s} />)
 
         return <div className="dock container fixed horizontal">
             {docks}
@@ -41,12 +43,20 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
         super(props)
 
         this.state = {
+            activeSplit: props.windowManager.activeSplit,
             splitRoot: props.windowManager.splitRoot,
             leftDock: props.windowManager.getDocks(DockPosition.Left),
         }
     }
 
     public componentDidMount(): void {
+
+        this.props.windowManager.onActiveSplitChanged.subscribe((newSplit) => {
+            this.setState({
+                activeSplit: newSplit,
+            })
+        })
+
         this.props.windowManager.onSplitChanged.subscribe((newSplit) => {
             this.setState({
                 splitRoot: newSplit,
@@ -81,14 +91,14 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
                 if (!split) {
                     return <div className="container vertical full">TODO: Implement an editor here...</div>
                 } else {
-                    return <WindowSplitHost split={split} />
+                    return <EditorSplitHost split={split} isFocused={split === this.state.activeSplit} />
                 }
             }
         })
 
         return <div style={containerStyle}>
                 <div className="container horizontal full">
-                    <Dock splits={this.state.leftDock} />
+                    <Dock splits={this.state.leftDock} activeSplit={this.state.activeSplit}/>
                     {editors}
                 </div>
                 </div>

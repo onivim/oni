@@ -45,7 +45,12 @@ declare namespace Oni {
         close(editor: Oni.Editor)
     }
 
-    export interface IWindowSplit {
+    export interface Focusable {
+        enter?(): void
+        leave?(): void
+    }
+
+    export interface IWindowSplit extends Focusable {
         render(): JSX.Element
     }
 
@@ -71,7 +76,7 @@ declare namespace Oni {
         command(command: string): Promise<void>
     }
 
-    export interface Editor {
+    export interface Editor extends Focusable {
         mode: string
         onModeChanged: IEvent<Vim.Mode>
 

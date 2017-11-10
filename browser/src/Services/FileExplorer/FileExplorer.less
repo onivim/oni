@@ -1,8 +1,11 @@
+@import (reference) "./../../UI/components/common.less";
 
 .file-explorer {
-    padding-left: 8px;
-    padding-top: 8px;
+    margin-right: 16px;
 
+    .split.focus & {
+        .box-shadow-left-right;
+    }
 
     .title {
         font-size: 1.2em;

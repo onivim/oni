@@ -10,23 +10,33 @@
 
 import { Event, IEvent } from "./../Event"
 
-import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, ISplitInfo, ISplitLeaf, SplitDirection } from "./WindowSplit"
+import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, ISplitInfo, /*ISplitLeaf,*/ SplitDirection } from "./WindowSplit"
 
 export enum DockPosition {
-    Top,
-    Bottom,
+    // TODO: Other dock positions
+    // Top,
+    // Bottom,
     Left,
-    Right
+    // Right
 }
 
 export class WindowManager {
-    private _activeSplit: ISplitLeaf<Oni.IWindowSplit>
+    private _activeSplit: Oni.IWindowSplit
     private _splitRoot: ISplitInfo<Oni.IWindowSplit>
 
+    private _onActiveSplitChanged = new Event<Oni.IWindowSplit>()
     private _onSplitChanged = new Event<ISplitInfo<Oni.IWindowSplit>>()
     private _onDocksChanged = new Event<void>()
 
     private _docks: { [key: number]: Oni.IWindowSplit[] } = { }
+
+    public get activeSplit(): Oni.IWindowSplit {
+        return this._activeSplit
+    }
+
+    public get onActiveSplitChanged(): IEvent<Oni.IWindowSplit> {
+        return this._onActiveSplitChanged
+    }
 
     public get onSplitChanged(): IEvent<ISplitInfo<Oni.IWindowSplit>> {
         return this._onSplitChanged
@@ -45,16 +55,16 @@ export class WindowManager {
         this._activeSplit = null
 
         this._docks = {
-            [DockPosition.Top]: [],
-            [DockPosition.Bottom]: [],
             [DockPosition.Left]: [],
-            [DockPosition.Right]: [],
         }
     }
 
     public split(direction: SplitDirection, newSplit: Oni.IWindowSplit) {
         const newLeaf = createSplitLeaf(newSplit)
         this._splitRoot = applySplit(this._splitRoot, direction, newLeaf)
+
+
+        this._focusNewSplit(newSplit)
 
         this._onSplitChanged.dispatch(this._splitRoot)
     }
@@ -63,8 +73,25 @@ export class WindowManager {
         return this._docks[direction]
     }
 
+    private _focusNewSplit(newSplit: Oni.IWindowSplit): void {
+        if (this._activeSplit && this._activeSplit.leave) {
+            this._activeSplit.leave()
+        }
+
+        this._activeSplit = newSplit
+
+        if (newSplit && newSplit.enter) {
+            newSplit.enter()
+        }
+
+        this._onActiveSplitChanged.dispatch(this._activeSplit)
+    }
+
     public moveLeft(): void {
-        // TODO
+        if (this._docks[DockPosition.Left].length) {
+            this._focusNewSplit(this._docks[DockPosition.Left][0])
+        }
+
     }
 
     public moveRight(): void {

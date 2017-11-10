@@ -10,6 +10,8 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
+import { IEvent } from "./../Event"
+
 import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { IState } from "./../UI/State"
@@ -21,6 +23,7 @@ interface IKeyboardInputViewProps {
     top: number
     left: number
     height: number
+    onActivate?: IEvent<void>
     onKeyDown?: (key: string) => void
     foregroundColor: string
     fontFamily: string
@@ -51,7 +54,7 @@ export interface IKeyboardInputProps {
  *
  * Helper for managing state and sanitizing input from dead keys, IME, etc
  */
-class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKeyboardInputViewState> {
+export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKeyboardInputViewState> {
     private _keyboardElement: HTMLInputElement
 
     constructor() {
@@ -63,11 +66,15 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
         }
     }
 
-    public focus() {
-        this._keyboardElement.focus()
-    }
-
     public componentDidMount(): void {
+
+
+        if (this.props.onActivate) {
+            this.props.onActivate.subscribe(() => {
+                focusManager.pushFocus(this._keyboardElement)
+            })
+        }
+
         if (this._keyboardElement) {
             focusManager.pushFocus(this._keyboardElement)
         }

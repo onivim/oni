@@ -7,6 +7,9 @@
 import * as React from "react"
 
 import { Icon } from "./../../UI/Icon"
+import { Event } from "./../../Event"
+
+import { KeyboardInputView } from "./../../Editor/KeyboardInput"
 
 require("./FileExplorer.less")
 
@@ -71,6 +74,17 @@ const FileExplorer = connect(mapStateToProps)(FileExplorerView)
 
 export class FileExplorerSplit implements Oni.IWindowSplit {
 
+    private _onActive: Event<void> = new Event<void>()
+
+    public enter(): void {
+        this._onActive.dispatch()
+        // alert("enter")
+    }
+
+    public leave(): void {
+        // alert("leave")
+    }
+
     public render(): JSX.Element {
 
         const style = {
@@ -87,6 +101,17 @@ export class FileExplorerSplit implements Oni.IWindowSplit {
             <Provider store={fileExplorerStore}>
                 <FileExplorer />
             </Provider>
+            <KeyboardInputView
+                top={0}
+                left={0}
+                height={12}
+                onActivate={this._onActive}
+                onKeyDown={() => console.log("Keydown")}
+                foregroundColor= {"white"}
+                fontFamily={ "Segoe UI"}
+                fontSize={"12px"}
+                fontCharacterWidthInPixels={12}
+                />
         </div>
         </div>
     }

@@ -57,7 +57,7 @@ export function applySplit<T>(originalSplit: ISplitInfo<T>, direction: SplitDire
 }
 
 export function closeSplit<T>(originalSplit: ISplitInfo<T>, contents: T): ISplitInfo<T> {
-    // TODO: Implement this in the recursive case, for nesetd splits
+    // TODO: Implement this in the recursive case, for nested splits
 
     const filteredSplits = originalSplit.splits.filter((s) => {
         switch (s.type) {
