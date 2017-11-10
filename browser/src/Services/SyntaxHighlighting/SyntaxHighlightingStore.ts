@@ -6,17 +6,27 @@
 
 import * as types from "vscode-languageserver-types"
 
+import { StackElement } from "vscode-textmate"
+
+import { getSyntaxTokensForBuffer } from "./getSyntaxTokensForBuffer"
+
 export interface ISyntaxHighlightTokenInfo {
     scopes: string[]
     range: types.Range
 }
 
+export interface ISyntaxHighlightLineInfo {
+    ruleStack: StackElement
+    tokens: ISyntaxHighlightTokenInfo[]
+    version: number
+}
+
 export interface IBufferSyntaxHighlightState {
     bufferId: string
-    version: number
     lines: {
-        [key: number]: ISyntaxHighlightTokenInfo[]
+        [key: number]: ISyntaxHighlightLineInfo
     }
+}
 
 export interface ISyntaxHighlightState {
     bufferToHighlights: {
@@ -25,36 +35,71 @@ export interface ISyntaxHighlightState {
 }
 
 export type ISyntaxHighlightAction = {
-        type: "UPDATE_BUFFER",
-        lines: string[]
-    } | {
-        type: "UPDATE_BUFFER_LINE",
-        lineNumber: number
-        line: string
-    } | {
-        type: "UPDATE_SYNTAX_FOR_LINE",
+    type: "SYNTAX_UPDATE_BUFFER",
+    bufferId: string,
+    lines: string[]
+    version: number,
+} | {
+        type: "SYNTAX_UPDATE_BUFFER_LINE",
+        bufferId: string,
         lineNumber: number,
-        tokens: ISyntaxHighlightTokenInfo[]
+        line: string,
+        version: number,
+    } | {
+        type: "SYNTAX_UPDATE_TOKENS_FOR_LINES",
+        bufferId: string,
+        updatedLines: { [key: number]: ISyntaxHighlightLineInfo },
     }
 
-const nullAction = { type: null } as ISyntaxHighlightAction
+// const nullAction = { type: null } as ISyntaxHighlightAction
 
 import { applyMiddleware, createStore, Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
 const reducer: Reducer<ISyntaxHighlightState> = (
-    state: ISyntaxHighlightState {
-        bufferToHighlights: { }
+    state: ISyntaxHighlightState = {
+        bufferToHighlights: {}
+    },
+    action: ISyntaxHighlightAction
+) => {
+
+    return {
+        ...state,
+        bufferToHighlights: bufferToHighlightsReducer(state.bufferToHighlights, action)
+    }
+}
+
+const bufferToHighlightsReducer: Reducer<{ [bufferId: string]: IBufferSyntaxHighlightState }> = (
+    state: { [bufferId: string]: IBufferSyntaxHighlightState } = {},
+    action: ISyntaxHighlightAction
+) => {
+    return {
+        ...state,
+        [action.bufferId]: bufferReducer(state[action.bufferId], action)
+    }
+}
+
+const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
+    state: IBufferSyntaxHighlightState = {
+        bufferId: null,
+        lines: {}
     },
     action: ISyntaxHighlightAction
 ) => {
     return state
 }
 
+
 const fullBufferUpdateEpic: Epic<ISyntaxHighlightAction, ISyntaxHighlightState> = (action$, store) =>
-    action$.ofType("UPDATE_BUFFER")
-        .map((action) => {
-            return nullAction
+    action$.ofType("SYNTAX_UPDATE_BUFFER")
+        .flatMap(async (action) => {
+            const update = await getSyntaxTokensForBuffer(0, null)
+
+            return {
+                type: "SYNTAX_UPDATE_TOKENS_FOR_LINES",
+                bufferId: update.bufferId,
+                updatedLines: update.lines,
+            } as ISyntaxHighlightAction
         })
 
 
