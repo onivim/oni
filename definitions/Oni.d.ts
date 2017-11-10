@@ -93,6 +93,14 @@ declare namespace Oni {
         contentChanges: types.TextDocumentContentChangeEvent[]
     }
 
+    export interface IHighlight {
+        foregroundColor: string
+        backgroundColor: string
+    }
+
+    export type HighlightGroupId = string
+    export type HighlightInfo = { range: types.Range, highlightGroup: HighlightGroupId }
+
     export interface Buffer {
         id: string
         language: string
@@ -107,6 +115,9 @@ declare namespace Oni {
         getLines(start?: number, end?: number): Promise<string[]>
         getTokenAt(line: number, column: number): Promise<IToken>
         getSelectionRange(): Promise<types.Range>
+
+        getOrCreateHighlightGroup(highlight: IHighlight | string): Promise<HighlightGroupId>
+        setHighlights(highlights: HighlightInfo[]): Promise<void>
 
         setLines(start: number, end: number, lines: string[]): Promise<void>
         setCursorPosition(line: number, column: number): Promise<void>

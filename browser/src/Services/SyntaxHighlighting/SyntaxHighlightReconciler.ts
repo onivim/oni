@@ -4,47 +4,70 @@
  * Handles enhanced syntax highlighting
  */
 
-import * as os from "os"
+import * as flatten from "lodash/flatten"
 
-import { Observable } from "rxjs/Observable"
-// import { Registry } from "vscode-textmate"
-// import * as types from "vscode-languageserver-types"
+import { editorManager } from "./../EditorManager"
+import { ISyntaxHighlightLineInfo, ISyntaxHighlightState } from "./SyntaxHighlightingStore"
 
-// import { editorManager } from "./../EditorManager"
-import { NeovimInstance } from "./../../neovim"
+import { Store, Unsubscribe } from "redux"
 
-import { createSyntaxHighlightStore } from "./SyntaxHighlightingStore"
+// SyntaxHighlightReconciler
+//
+// Essentially a renderer / reconciler, that will push
+// highlight calls to the active buffer based on the active
+// window and viewport
+export class SyntaxHighlightReconciler {
 
-import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
+    private _unsubscribe: Unsubscribe
 
-export const registerTextMateHighlighter = (bufferUpdate$: Observable<Oni.EditorBufferChangedEventArgs>, neovimInstance: NeovimInstance) => {
+    constructor(
+        private _store: Store<ISyntaxHighlightState>,
+    ) {
 
-    const syntaxHighlightStore = createSyntaxHighlightStore()
+        // TODO: Also listen to viewport change event
 
-    const subscription = bufferUpdate$.subscribe(async (evt: Oni.EditorBufferChangedEventArgs) => {
-        const firstChange = evt.contentChanges[0]
-        if (!firstChange.range && !firstChange.rangeLength) {
+        this._unsubscribe = this._store.subscribe(() => {
 
-            const lines = firstChange.text.split(os.EOL)
-            syntaxHighlightStore.dispatch({
-                type: "SYNTAX_UPDATE_BUFFER",
-                lines,
-            })
-        } else {
-            // Incremental update
-            syntaxHighlightStore.dispatch({
-                type: "SYNTAX_UPDATE_BUFFER_LINE",
-                lineNumber: firstChange.range.start.line,
-                lines: firstChange.text,
-            })
+            const state = this._store.getState()
+
+            const activeBuffer = editorManager.activeEditor.activeBuffer
+
+            const bufferId = activeBuffer.id
+
+            const currentHighlightState = state.bufferToHighlights[bufferId]
+
+            if (currentHighlightState && currentHighlightState.lines) {
+                const lineNumbers = Object.keys(currentHighlightState.lines) 
+
+                const allHighlights = lineNumbers.map((li) => {
+                    const line: ISyntaxHighlightLineInfo = currentHighlightState.lines[li]
+                    return line.tokens
+                })
+
+                // TODO: Only set highlights for tokens in the viewable portion
+                const consolidatedTokens = flatten(allHighlights)
+
+                const tokensWithHighlights = consolidatedTokens.map((t): Oni.HighlightInfo => ({
+                    highlightGroup: this._getHighlightGroupFromScope(t.scopes),
+                    range: t.range,
+                }))
+
+                activeBuffer.setHighlights(tokensWithHighlights)
+            }
+
+        })
+
+    }
+    
+    private _getHighlightGroupFromScope( /* TODO */scopes: any): Oni.HighlightGroupId {
+        return "Function"
+    }
+
+    public dispose(): void {
+        if (this._unsubscribe) {
+            this._unsubscribe()
+            this._unsubscribe = null
         }
-    })
-
-    const reconciler = new SyntaxHighlightReconciler(syntaxHighlightStore)
-
-    return () => {
-        subscription.unsubscribe()
-        reconciler.dispose()
     }
 }
 

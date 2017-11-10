@@ -86,7 +86,20 @@ const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
     },
     action: ISyntaxHighlightAction
 ) => {
-    return state
+
+    switch(action.type) {
+        case "SYNTAX_UPDATE_TOKENS_FOR_LINES":
+            return {
+            ...state,
+            bufferId: action.bufferId,
+            lines: {
+                ...state.lines,
+                ...action.updatedLines,
+            }
+        }
+        default:
+        return state
+    }
 }
 
 
@@ -95,16 +108,20 @@ const fullBufferUpdateEpic: Epic<ISyntaxHighlightAction, ISyntaxHighlightState> 
         .flatMap(async (action) => {
             const update = await getSyntaxTokensForBuffer(0, null)
 
-            return {
+            return <ISyntaxHighlightAction>{
                 type: "SYNTAX_UPDATE_TOKENS_FOR_LINES",
                 bufferId: update.bufferId,
                 updatedLines: update.lines,
-            } as ISyntaxHighlightAction
+            }
         })
 
+export const createSyntaxHighlightStore = (): Store<ISyntaxHighlightState> => {
 
-export const syntaxHighlightStore: Store<ISyntaxHighlightState> = createStore(reducer,
-    applyMiddleware(createEpicMiddleware(combineEpics(
-        fullBufferUpdateEpic
-    )))
-)
+    const syntaxHighlightStore: Store<ISyntaxHighlightState> = createStore(reducer,
+        applyMiddleware(createEpicMiddleware(combineEpics(
+            fullBufferUpdateEpic
+        )))
+    )
+
+    return syntaxHighlightStore
+}

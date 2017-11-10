@@ -122,6 +122,28 @@ export class Buffer implements Oni.Buffer {
                 .toPromise()
     }
 
+    public async getOrCreateHighlightGroup(highlight: Oni.IHighlight | string): Promise<Oni.HighlightGroupId> {
+        if (typeof highlight === "string") {
+            return highlight
+        } else {
+            // TODO: needed for theming integration!
+            return null
+        }
+    }
+
+    public async setHighlights(highlightInfo: Oni.HighlightInfo[]): Promise<void> {
+
+        const bufferId = parseInt(this._id, 10)
+
+        // TODO: Batch these calls for efficiencey
+        const promises = highlightInfo.map(async (hi) => {
+            return await this._neovimInstance.request("nvim_buf_add_highlight", [bufferId, 0, hi.highlightGroup, hi.range.start.line, hi.range.start.character, hi.range.end.character])
+        })
+
+        await Promise.all(promises)
+    }
+
+
     public async setLines(start: number, end: number, lines: string[]): Promise<void> {
         // Clear buffer lines, so that if we make subsequent edits, we are always getting the freshest line
         // TODO: Speed this up by updating the `_bufferLines` cache instead
