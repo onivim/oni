@@ -11,13 +11,13 @@ import * as path from "path"
 import { clipboard, remote } from "electron"
 
 import { INeovimInstance } from "./../neovim"
-import { PluginManager } from "./../Plugins/PluginManager"
 
 import { configuration } from "./../Services/Configuration"
 import { contextMenuManager } from "./../Services/ContextMenu"
 import { editorManager } from "./../Services/EditorManager"
-import { /*commitCompletion,*/ cancelRename, commitRename, expandCodeActions, findAllReferences, formatDocument, gotoDefinitionUnderCursor, isRenameActive, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu, startRename } from "./../Services/Language"
+import { /*commitCompletion,*/ cancelRename, commitRename, expandCodeActions, findAllReferences, format, gotoDefinitionUnderCursor, isRenameActive, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu, startRename } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
+import { showAboutMessage } from "./../Services/Metadata"
 import { multiProcess } from "./../Services/MultiProcess"
 import { QuickOpen } from "./../Services/QuickOpen"
 import { tasks } from "./../Services/Tasks"
@@ -30,12 +30,14 @@ import { CallbackCommand, CommandManager } from "./CommandManager"
 import * as Platform from "./../Platform"
 import { replaceAll } from "./../Utility"
 
-export const registerBuiltInCommands = (commandManager: CommandManager, pluginManager: PluginManager, neovimInstance: INeovimInstance) => {
+export const registerBuiltInCommands = (commandManager: CommandManager, neovimInstance: INeovimInstance) => {
     const quickOpen = new QuickOpen(neovimInstance)
 
     const commands = [
         new CallbackCommand("editor.clipboard.paste", "Clipboard: Paste", "Paste clipboard contents into active text", () => pasteContents(neovimInstance)),
         new CallbackCommand("editor.clipboard.yank", "Clipboard: Yank", "Yank contents to clipboard", () => neovimInstance.input("y")),
+
+        new CallbackCommand("oni.about", null, null, () => showAboutMessage()),
 
         new CallbackCommand("oni.quit", null, null, () => remote.app.quit()),
 
@@ -62,7 +64,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, pluginMa
         new CallbackCommand("language.rename.commit", null, null, () => commitRename(), isRenameActive),
         new CallbackCommand("language.rename.cancel", null, null, () => cancelRename(), isRenameActive),
 
-        new CallbackCommand("language.formatDocument", null, null, () => formatDocument()),
+        new CallbackCommand("language.format", null, null, () => format()),
 
         new CallbackCommand("language.symbols.document", null, null, () => openDocumentSymbolsMenu()),
         new CallbackCommand("language.symbols.workspace", null, null, () => openWorkspaceSymbolsMenu()),

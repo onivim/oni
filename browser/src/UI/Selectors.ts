@@ -85,7 +85,7 @@ export const getActiveWindowPixelDimensions = createSelector(
 export const getErrorsForActiveFile = createSelector(
     [getActiveWindow, getErrors],
     (win, errors) => {
-        const errorsForFile = (win && win.file) ? getAllErrorsForFile(win.file, errors) : EmptyArray
+        const errorsForFile: types.Diagnostic[] = (win && win.file) ? getAllErrorsForFile(win.file, errors) : (EmptyArray as types.Diagnostic[])
         return errorsForFile
     })
 

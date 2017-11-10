@@ -29,6 +29,7 @@ export interface IToolTip {
 }
 
 export interface IState {
+    cursorScale: number
     cursorPixelX: number
     cursorPixelY: number
     cursorPixelWidth: number
@@ -163,6 +164,7 @@ export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurat
 }
 
 export const createDefaultState = (): IState => ({
+    cursorScale: 1,
     cursorPixelX: 10,
     cursorPixelY: 10,
     cursorPixelWidth: 10,

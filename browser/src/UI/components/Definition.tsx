@@ -22,7 +22,7 @@ export interface IDefinitionProps {
     screenToPixel: ScreenToPixel
 }
 
-export class Definition extends React.PureComponent<IDefinitionProps, void> {
+export class Definition extends React.PureComponent<IDefinitionProps, {}> {
     public render(): JSX.Element {
         if (!this.props.range || !this.props.bufferToScreen) {
             return null

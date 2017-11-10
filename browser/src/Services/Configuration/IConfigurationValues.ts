@@ -23,15 +23,18 @@ export interface IConfigurationValues {
     "debug.persistOnNeovimExit": boolean
     "debug.detailedSessionLogging": boolean
 
-    // Experimental feature flags
+    // Simulate slow language server, for debugging
+    "debug.fakeLag.languageServer": number
 
-    "experimental.enableLanguageServerFromConfig": boolean
+    // Experimental feature flags
 
     // Production settings
 
     // Bell sound effect to use
     // See `:help bell` for instances where the bell sound would be used
     "oni.audio.bellUrl": string
+
+    "autoUpdate.enabled": boolean
 
     // Set this to `true` to enable additional syntax highlighting
     // from Oni & language integrations
@@ -152,6 +155,10 @@ export interface IConfigurationValues {
     // If `false`, a scrollbar will be shown.
     // If `true`, will wrap the tabs.
     "tabs.wrap": boolean
+
+    "ui.animations.enabled": boolean
+    "ui.fontFamily": string
+    "ui.fontSize": string
 
     // Handle other, non-predefined configuration keys
     [configurationKey: string]: any

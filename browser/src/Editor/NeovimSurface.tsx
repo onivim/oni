@@ -6,7 +6,6 @@
 
 import * as React from "react"
 
-import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance } from "./../neovim"
 import { INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
@@ -26,7 +25,6 @@ import { NeovimRenderer } from "./NeovimRenderer"
 
 export interface INeovimSurfaceProps {
     neovimInstance: NeovimInstance
-    deltaRegionTracker: IncrementalDeltaRegionTracker
     renderer: INeovimRenderer
     screen: NeovimScreen
 
@@ -37,7 +35,7 @@ export interface INeovimSurfaceProps {
     onTabSelect?: (tabId: number) => void
 }
 
-export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
+export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> {
     public render(): JSX.Element {
         return <div className="container vertical full">
             <div className="container fixed">

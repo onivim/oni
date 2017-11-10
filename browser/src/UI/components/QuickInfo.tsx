@@ -16,7 +16,7 @@ export interface IQuickInfoProps {
     foregroundColor: string
 }
 
-export class QuickInfo extends React.PureComponent<IQuickInfoProps, void> {
+export class QuickInfo extends React.PureComponent<IQuickInfoProps, {}> {
 
     public render(): null | JSX.Element {
         if (!this.props.elements || !this.props.elements.length) {
@@ -46,7 +46,7 @@ export interface ITextProps {
     text: string
 }
 
-export class TextComponent extends React.PureComponent<ITextProps, void> {
+export class TextComponent extends React.PureComponent<ITextProps, {}> {
 
 }
 
