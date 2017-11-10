@@ -56,7 +56,6 @@ export const registerTextMateHighlighter = (bufferUpdate$: Observable<Oni.Editor
 
             // let tokens: any[] = []
 
-
             // for (var i = 0; i < lines.length; i++) {
             //     var r = grammar.tokenizeLine(lines[i], ruleStack)
 
@@ -87,7 +86,7 @@ export const registerTextMateHighlighter = (bufferUpdate$: Observable<Oni.Editor
                 // } else if (scopes.find((f) => f.indexOf("entity.name.function") === 0)) {
                 //     const result: any = await neovimInstance.request("nvim_buf_add_highlight", [parseInt(bufferId, 10), 0, "Function", t.range.start.line, t.range.start.character, t.range.end.character])
                 //     console.dir(result)
-                // } 
+                // }
 
             // })
             // console.dir(tokens)

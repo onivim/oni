@@ -37,7 +37,7 @@ export class SyntaxHighlightReconciler {
             const currentHighlightState = state.bufferToHighlights[bufferId]
 
             if (currentHighlightState && currentHighlightState.lines) {
-                const lineNumbers = Object.keys(currentHighlightState.lines) 
+                const lineNumbers = Object.keys(currentHighlightState.lines)
 
                 const allHighlights = lineNumbers.map((li) => {
                     const line: ISyntaxHighlightLineInfo = currentHighlightState.lines[li]
@@ -58,8 +58,8 @@ export class SyntaxHighlightReconciler {
         })
 
     }
-    
-    private _getHighlightGroupFromScope( /* TODO */scopes: any): Oni.HighlightGroupId {
+
+    private _getHighlightGroupFromScope(/* TODO */scopes: any): Oni.HighlightGroupId {
         return "Function"
     }
 
@@ -78,7 +78,6 @@ export class SyntaxHighlightReconciler {
             // console.warn("Updating highlights!")
 
             // let tokens: any[] = []
-
 
             // for (var i = 0; i < lines.length; i++) {
             //     var r = grammar.tokenizeLine(lines[i], ruleStack)
@@ -110,7 +109,7 @@ export class SyntaxHighlightReconciler {
                 // } else if (scopes.find((f) => f.indexOf("entity.name.function") === 0)) {
                 //     const result: any = await neovimInstance.request("nvim_buf_add_highlight", [parseInt(bufferId, 10), 0, "Function", t.range.start.line, t.range.start.character, t.range.end.character])
                 //     console.dir(result)
-                // } 
+                // }
 
             // })
             // console.dir(tokens)

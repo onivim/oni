@@ -143,7 +143,6 @@ export class Buffer implements Oni.Buffer {
         await Promise.all(promises)
     }
 
-
     public async setLines(start: number, end: number, lines: string[]): Promise<void> {
         // Clear buffer lines, so that if we make subsequent edits, we are always getting the freshest line
         // TODO: Speed this up by updating the `_bufferLines` cache instead

@@ -24,13 +24,13 @@ export interface ISyntaxHighlightLineInfo {
 export interface IBufferSyntaxHighlightState {
     bufferId: string
     lines: {
-        [key: number]: ISyntaxHighlightLineInfo
+        [key: number]: ISyntaxHighlightLineInfo,
     }
 }
 
 export interface ISyntaxHighlightState {
     bufferToHighlights: {
-        [bufferId: string]: IBufferSyntaxHighlightState
+        [bufferId: string]: IBufferSyntaxHighlightState,
     }
 }
 
@@ -58,36 +58,36 @@ import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
 const reducer: Reducer<ISyntaxHighlightState> = (
     state: ISyntaxHighlightState = {
-        bufferToHighlights: {}
+        bufferToHighlights: {},
     },
-    action: ISyntaxHighlightAction
+    action: ISyntaxHighlightAction,
 ) => {
 
     return {
         ...state,
-        bufferToHighlights: bufferToHighlightsReducer(state.bufferToHighlights, action)
+        bufferToHighlights: bufferToHighlightsReducer(state.bufferToHighlights, action),
     }
 }
 
 const bufferToHighlightsReducer: Reducer<{ [bufferId: string]: IBufferSyntaxHighlightState }> = (
     state: { [bufferId: string]: IBufferSyntaxHighlightState } = {},
-    action: ISyntaxHighlightAction
+    action: ISyntaxHighlightAction,
 ) => {
     return {
         ...state,
-        [action.bufferId]: bufferReducer(state[action.bufferId], action)
+        [action.bufferId]: bufferReducer(state[action.bufferId], action),
     }
 }
 
 const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
     state: IBufferSyntaxHighlightState = {
         bufferId: null,
-        lines: {}
+        lines: {},
     },
-    action: ISyntaxHighlightAction
+    action: ISyntaxHighlightAction,
 ) => {
 
-    switch(action.type) {
+    switch (action.type) {
         case "SYNTAX_UPDATE_TOKENS_FOR_LINES":
             return {
             ...state,
@@ -95,32 +95,31 @@ const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
             lines: {
                 ...state.lines,
                 ...action.updatedLines,
-            }
+            },
         }
         default:
         return state
     }
 }
 
-
 const fullBufferUpdateEpic: Epic<ISyntaxHighlightAction, ISyntaxHighlightState> = (action$, store) =>
     action$.ofType("SYNTAX_UPDATE_BUFFER")
         .flatMap(async (action) => {
             const update = await getSyntaxTokensForBuffer(0, null)
 
-            return <ISyntaxHighlightAction>{
+            return {
                 type: "SYNTAX_UPDATE_TOKENS_FOR_LINES",
                 bufferId: update.bufferId,
                 updatedLines: update.lines,
-            }
+            } as ISyntaxHighlightAction
         })
 
 export const createSyntaxHighlightStore = (): Store<ISyntaxHighlightState> => {
 
     const syntaxHighlightStore: Store<ISyntaxHighlightState> = createStore(reducer,
         applyMiddleware(createEpicMiddleware(combineEpics(
-            fullBufferUpdateEpic
-        )))
+            fullBufferUpdateEpic,
+        ))),
     )
 
     return syntaxHighlightStore

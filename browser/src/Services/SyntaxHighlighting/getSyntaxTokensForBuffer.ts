@@ -33,11 +33,11 @@ export const getSyntaxTokensForBuffer = async (startLine: number, initialRuleSta
 
     let ruleStack = initialRuleStack
     for (let i = startLine; i < bufferLines.length; i++) {
-        var r = grammar.tokenizeLine(bufferLines[i], ruleStack)
+        let r = grammar.tokenizeLine(bufferLines[i], ruleStack)
 
         const tokens = r.tokens.map((t) => ({
             range: types.Range.create(i, t.startIndex, i, t.endIndex),
-            scopes: t.scopes
+            scopes: t.scopes,
         }))
 
         ruleStack = r.ruleStack
@@ -51,7 +51,7 @@ export const getSyntaxTokensForBuffer = async (startLine: number, initialRuleSta
 
     return {
         bufferId: editorManager.activeEditor.activeBuffer.id,
-        lines
+        lines,
     }
 }
             // const grammar = getRegistry()
@@ -61,7 +61,6 @@ export const getSyntaxTokensForBuffer = async (startLine: number, initialRuleSta
             // console.warn("Updating highlights!")
 
             // let tokens: any[] = []
-
 
             // for (var i = 0; i < lines.length; i++) {
             //     var r = grammar.tokenizeLine(lines[i], ruleStack)
@@ -93,7 +92,7 @@ export const getSyntaxTokensForBuffer = async (startLine: number, initialRuleSta
                 // } else if (scopes.find((f) => f.indexOf("entity.name.function") === 0)) {
                 //     const result: any = await neovimInstance.request("nvim_buf_add_highlight", [parseInt(bufferId, 10), 0, "Function", t.range.start.line, t.range.start.character, t.range.end.character])
                 //     console.dir(result)
-                // } 
+                // }
 
             // })
             // console.dir(tokens)
