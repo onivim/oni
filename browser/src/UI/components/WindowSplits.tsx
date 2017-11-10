@@ -8,7 +8,7 @@ import * as React from "react"
 
 import { WindowSplitHost } from "./WindowSplitHost"
 
-import { WindowManager } from "./../../Services/WindowManager"
+import { DockPosition, WindowManager } from "./../../Services/WindowManager"
 import { ISplitInfo } from "./../../Services/WindowSplit"
 
 export interface IWindowSplitsProps {
@@ -17,6 +17,22 @@ export interface IWindowSplitsProps {
 
 export interface IWindowSplitsState {
     splitRoot: ISplitInfo<Oni.IWindowSplit>
+    leftDock: Oni.IWindowSplit[]
+}
+
+export interface IDockProps {
+    splits: Oni.IWindowSplit[]
+}
+
+export class Dock extends React.PureComponent<IDockProps, {}> {
+    public render(): JSX.Element {
+
+        const docks = this.props.splits.map((s) => s.render())
+
+        return <div className="dock container fixed horizontal">
+            {docks}
+        </div>
+    }
 }
 
 export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindowSplitsState> {
@@ -26,6 +42,7 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
 
         this.state = {
             splitRoot: props.windowManager.splitRoot,
+            leftDock: props.windowManager.getDocks(DockPosition.Left),
         }
     }
 
@@ -33,6 +50,12 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
         this.props.windowManager.onSplitChanged.subscribe((newSplit) => {
             this.setState({
                 splitRoot: newSplit,
+            })
+        })
+
+        this.props.windowManager.onDocksChanged.subscribe(() => {
+            this.setState({
+                leftDock: this.props.windowManager.getDocks(DockPosition.Left),
             })
         })
     }
@@ -64,7 +87,10 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
         })
 
         return <div style={containerStyle}>
+                <div className="container horizontal full">
+                    <Dock splits={this.state.leftDock} />
                     {editors}
+                </div>
                 </div>
     }
 }
