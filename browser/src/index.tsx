@@ -75,9 +75,7 @@ const start = (args: string[]) => {
         commandManager.executeCommand(command, null)
     })
 
-    if (configuration.getValue("experimental.enableLanguageServerFromConfig")) {
-        createLanguageClientsFromConfiguration(configuration.getValues())
-    }
+    createLanguageClientsFromConfiguration(configuration.getValues())
 
     performance.mark("NeovimInstance.Plugins.Start")
     const api = pluginManager.startPlugins()
