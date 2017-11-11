@@ -9,7 +9,7 @@ import { connect } from "react-redux"
 
 import * as classNames from "classnames"
 
-import * as Selectors from "./../Selectors"
+import * as BufferSelectors from "./../selectors/BufferSelectors"
 import * as State from "./../State"
 
 import { Icon } from "./../Icon"
@@ -41,16 +41,36 @@ export interface ITabsProps {
 
     backgroundColor: string
     foregroundColor: string
+
+    shouldWrap: boolean
+    maxWidth: string
+    height: string
+
+    fontFamily: string
+    fontSize: string
 }
 
-export class Tabs extends React.PureComponent<ITabsProps, void> {
+export class Tabs extends React.PureComponent<ITabsProps, {}> {
     public render(): JSX.Element {
         if (!this.props.visible) {
             return null
         }
 
-        const tabBorderStyle = {
+        const wrapStyle: React.CSSProperties = {
+            flexWrap: "wrap",
+        }
+
+        const scrollStyle: React.CSSProperties = {
+            overflowX: "auto",
+        }
+
+        const overflowStyle = this.props.shouldWrap ? wrapStyle : scrollStyle
+
+        const tabBorderStyle: React.CSSProperties = {
+            ...overflowStyle,
             "borderBottom": `4px solid ${this.props.backgroundColor}`,
+            fontFamily: this.props.fontFamily,
+            fontSize: this.props.fontSize,
         }
 
         const tabs = this.props.tabs.map((t) => {
@@ -61,6 +81,8 @@ export class Tabs extends React.PureComponent<ITabsProps, void> {
                 onClickClose={() => this._onClickClose(t.id)}
                 backgroundColor={this.props.backgroundColor}
                 foregroundColor={this.props.foregroundColor}
+                height={this.props.height}
+                maxWidth={this.props.maxWidth}
             />
         })
 
@@ -84,6 +106,9 @@ export interface ITabPropsWithClick extends ITabProps {
 
     backgroundColor: string
     foregroundColor: string
+
+    height: string
+    maxWidth: string
 }
 
 export const Tab = (props: ITabPropsWithClick) => {
@@ -97,6 +122,8 @@ export const Tab = (props: ITabPropsWithClick) => {
     const style = {
         backgroundColor: props.backgroundColor,
         color: props.foregroundColor,
+        maxWidth: props.maxWidth,
+        height: props.height,
     }
 
     return <div className={cssClasses} title={props.description} style={style}>
@@ -127,18 +154,15 @@ const getTabName = (name: string): string => {
 
 import { createSelector } from "reselect"
 
-const getBufferState = (state: State.IState) => state.buffers
-
 const getTabState = (state: State.IState) => state.tabState
 
 const getTabsFromBuffers = createSelector(
-    [getBufferState],
-    (buffers) => {
-        const allBuffers = Selectors.getAllBuffers(buffers)
+    [BufferSelectors.getBufferMetadata, BufferSelectors.getActiveBufferId],
+    (allBuffers, activeBufferId) => {
         const tabs = allBuffers.map((buf): ITabProps => ({
             id: buf.id,
             name: getTabName(buf.file),
-            isSelected: buf.id === buffers.activeBufferId,
+            isSelected: activeBufferId !== null && buf.id === activeBufferId,
             isDirty: buf.modified,
             description: buf.file,
         }))
@@ -160,25 +184,27 @@ const getTabsFromVimTabs = createSelector(
 const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITabsProps => {
 
     const shouldUseVimTabs = state.configuration["tabs.showVimTabs"]
-
-    let tabs: ITabProps[]
-
-    if (shouldUseVimTabs) {
-        tabs = getTabsFromVimTabs(state)
-    } else {
-        tabs = getTabsFromBuffers(state)
-    }
+    const tabs = shouldUseVimTabs ? getTabsFromVimTabs(state) : getTabsFromBuffers(state)
 
     const visible = state.configuration["tabs.enabled"]
+
+    const height = state.configuration["tabs.height"]
+    const maxWidth = state.configuration["tabs.maxWidth"]
+    const shouldWrap = state.configuration["tabs.wrap"]
 
     const selectFunc = shouldUseVimTabs ? ownProps.onTabSelect : ownProps.onBufferSelect
     const closeFunc = shouldUseVimTabs ? ownProps.onTabClose : ownProps.onBufferClose
 
     return {
+        fontFamily: state.configuration["ui.fontFamily"],
+        fontSize: state.configuration["ui.fontSize"],
         backgroundColor: state.backgroundColor,
         foregroundColor: state.foregroundColor,
         onSelect: selectFunc,
         onClose: closeFunc,
+        height,
+        maxWidth,
+        shouldWrap,
         visible,
         tabs,
     }

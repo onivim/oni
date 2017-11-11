@@ -7,12 +7,28 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
-import * as Config from "./../Config"
-import { ILog } from "./Logs"
-import { IMessageDialog, ITab, StatusBarAlignment, WindowLineMap } from "./State"
+import * as Coordinates from "./Coordinates"
+import { IMessageDialog, ITab, StatusBarAlignment } from "./State"
 import { Rectangle } from "./Types"
 
+import { IConfigurationValues } from "./../Services/Configuration"
+
 import * as types from "vscode-languageserver-types"
+
+export interface ISetViewportAction {
+    type: "SET_VIEWPORT",
+    payload: {
+        width: number,
+        height: number,
+    }
+}
+
+export interface ISetCursorScaleAction {
+    type: "SET_CURSOR_SCALE",
+    payload: {
+        cursorScale: number,
+    }
+}
 
 export interface ISetCurrentBuffersAction {
     type: "SET_CURRENT_BUFFERS",
@@ -21,14 +37,46 @@ export interface ISetCurrentBuffersAction {
     }
 }
 
+export interface ISetImeActive {
+    type: "SET_IME_ACTIVE",
+    payload: {
+        imeActive: boolean,
+    }
+}
+
+export interface ISetFont {
+    type: "SET_FONT",
+    payload: {
+        fontFamily: string,
+        fontSize: string,
+    }
+}
+
 export interface IBufferEnterAction {
     type: "BUFFER_ENTER",
     payload: {
         id: number,
         file: string,
+        fileType: string,
         totalLines: number,
         hidden: boolean,
         listed: boolean,
+    }
+}
+
+export interface IShowToolTipAction {
+    type: "SHOW_TOOL_TIP",
+    payload: {
+        id: string,
+        element: JSX.Element,
+        options?: Oni.ToolTip.ToolTipOptions,
+    }
+}
+
+export interface IHideToolTipAction {
+    type: "HIDE_TOOL_TIP",
+    payload: {
+        id: string,
     }
 }
 
@@ -59,6 +107,15 @@ export interface ISetTabs {
     }
 }
 
+export interface ISetWindowCursor {
+    type: "SET_WINDOW_CURSOR",
+    payload: {
+        windowId: number,
+        line: number,
+        column: number,
+    },
+}
+
 export interface ISetWindowState {
     type: "SET_WINDOW_STATE",
     payload: {
@@ -66,26 +123,14 @@ export interface ISetWindowState {
         file: string,
         column: number,
         line: number,
-        winline: number,
-        wincolumn: number,
-        windowTopLine: number,
-        windowBottomLine: number,
-    }
-}
 
-export interface ISetWindowLineMapping {
-    type: "SET_WINDOW_LINE_MAP",
-    payload: {
-        windowId: number,
-        lineMapping: WindowLineMap,
-    }
-}
+        dimensions: Rectangle
 
-export interface ISetWindowDimensions {
-    type: "SET_WINDOW_DIMENSIONS",
-    payload: {
-        windowId: number,
-        dimensions: Rectangle,
+        bufferToScreen: Coordinates.BufferToScreen
+        screenToPixel: Coordinates.ScreenToPixel
+
+        topBufferLine: number
+        bottomBufferLine: number,
     }
 }
 
@@ -95,14 +140,6 @@ export interface ISetErrorsAction {
         file: string,
         key: string,
         errors: types.Diagnostic[],
-    }
-}
-
-export interface IClearErrorsAction {
-    type: "CLEAR_ERRORS",
-    payload: {
-        file: string,
-        key: string,
     }
 }
 
@@ -159,124 +196,27 @@ export interface ISetColorsAction {
     }
 }
 
-export interface IShowSignatureHelpAction {
-    type: "SHOW_SIGNATURE_HELP",
-    payload: Oni.Plugin.SignatureHelpResult
-}
-
-export interface IHideSignatureHelpAction {
-    type: "HIDE_SIGNATURE_HELP"
-}
-
-export interface IShowMenuAction {
-    type: "SHOW_MENU",
+export interface IShowDefinitionAction {
+    type: "SHOW_DEFINITION",
     payload: {
-        id: string
-        options: Oni.Menu.MenuOption[],
+        token: Oni.IToken,
+        definitionLocation: types.Location,
     }
 }
 
-export interface IFilterMenuAction {
-    type: "FILTER_MENU",
-    payload: {
-        filter: string,
-    }
+export interface IHideDefinitionAction {
+    type: "HIDE_DEFINITION",
 }
 
-export interface IHideMenuAction {
-    type: "HIDE_MENU"
-}
-
-export interface INextMenuAction {
-    type: "NEXT_MENU"
-}
-
-export interface IPreviousMenuAction {
-    type: "PREVIOUS_MENU"
-}
-
-export interface IShowQuickInfoAction {
-    type: "SHOW_QUICK_INFO",
-    payload: {
-        title: string
-        description: string,
-    }
-}
-
-export interface IShowAutoCompletionAction {
-    type: "SHOW_AUTO_COMPLETION",
-    payload: {
-        base: string
-        entries: Oni.Plugin.CompletionInfo[],
-    }
-}
-
-export interface ISetAutoCompletionDetails {
-    type: "SET_AUTO_COMPLETION_DETAILS",
-    payload: {
-        detailedEntry: Oni.Plugin.CompletionInfo,
-    }
-}
-
-export interface IHideAutoCompletionAction {
-    type: "HIDE_AUTO_COMPLETION"
-}
-
-export interface INextAutoCompletionAction {
-    type: "NEXT_AUTO_COMPLETION"
-}
-
-export interface IPreviousAutoCompletionAction {
-    type: "PREVIOUS_AUTO_COMPLETION"
-}
-
-export interface IHideQuickInfoAction {
-    type: "HIDE_QUICK_INFO"
-}
-
-export interface IShowCursorLineAction {
-    type: "SHOW_CURSOR_LINE"
-}
-
-export interface IHideCurorLineAction {
-    type: "HIDE_CURSOR_LINE"
-}
-
-export interface IShowCursorColumnAction {
-    type: "SHOW_CURSOR_COLUMN"
-}
-
-export interface IHideCursorColumnAction {
-    type: "HIDE_CURSOR_COLUMN"
-}
-
-export interface ISetConfigurationValue<K extends keyof Config.IConfigValues> {
+export interface ISetConfigurationValue<K extends keyof IConfigurationValues> {
     type: "SET_CONFIGURATION_VALUE"
     payload: {
         key: K,
-        value: Config.IConfigValues[K],
-    }
-}
-export interface IToggleLogFold {
-    type: "TOGGLE_LOG_FOLD"
-    payload: {
-        index: number,
-    }
-}
-export interface IChangeLogsVisibility {
-    type: "CHANGE_LOGS_VISIBILITY",
-    payload: {
-        visibility: boolean,
-    }
-}
-export interface IMakeLog {
-    type: "MAKE_LOG",
-    payload: {
-        log: ILog,
+        value: IConfigurationValues[K],
     }
 }
 
-export type Action<K extends keyof Config.IConfigValues> =
+export type Action<K extends keyof IConfigurationValues> =
     SimpleAction | ActionWithGeneric<K>
 
 export type SimpleAction =
@@ -284,40 +224,25 @@ export type SimpleAction =
     IBufferSaveAction |
     IBufferUpdateAction |
     ISetCursorPositionAction |
-    IShowSignatureHelpAction |
-    IHideSignatureHelpAction |
-    IShowQuickInfoAction |
-    IHideQuickInfoAction |
-    IShowAutoCompletionAction |
-    IHideAutoCompletionAction |
-    INextAutoCompletionAction |
-    IPreviousAutoCompletionAction |
-    ISetAutoCompletionDetails |
-    IShowMenuAction |
-    IHideMenuAction |
+    ISetImeActive |
+    ISetFont |
+    IHideToolTipAction |
+    IShowToolTipAction |
     IShowMessageDialog |
     IHideMessageDialog |
-    IPreviousMenuAction |
-    INextMenuAction |
-    IFilterMenuAction |
+    IHideDefinitionAction |
+    IShowDefinitionAction |
     ISetModeAction |
+    ISetCursorScaleAction |
     ISetColorsAction |
     IStatusBarHideAction |
     IStatusBarShowAction |
-    IHideCurorLineAction |
-    IHideCursorColumnAction |
     ISetErrorsAction |
-    IClearErrorsAction |
-    IShowCursorLineAction |
-    IShowCursorColumnAction |
-    IToggleLogFold |
-    IChangeLogsVisibility |
-    IMakeLog |
     ISetCurrentBuffersAction |
     ISetTabs |
-    ISetWindowDimensions |
-    ISetWindowLineMapping |
+    ISetViewportAction |
+    ISetWindowCursor |
     ISetWindowState
 
-export type ActionWithGeneric<K extends keyof Config.IConfigValues> =
+export type ActionWithGeneric<K extends keyof IConfigurationValues> =
     ISetConfigurationValue<K>

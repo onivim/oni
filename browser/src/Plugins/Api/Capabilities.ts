@@ -21,24 +21,11 @@ export interface ICommandInfo {
 }
 
 /**
- * Interface describing 
+ * Interface describing
  */
 export interface IPluginFilter {
     fileType: string
     requiredCapabilities: Capabilities
-}
-
-export const createPluginFilter = (fileType: string, requiredCapabilities?: Capabilities) => ({
-    fileType,
-    requiredCapabilities,
-})
-
-export const createPluginFilterForCommand = (fileType: string, command: string) => {
-    const commands = {}
-    commands[command] = null
-    return createPluginFilter(fileType, {
-        commands,
-    })
 }
 
 export interface IPluginMetadata {
@@ -51,39 +38,4 @@ export interface IPluginMetadata {
 export interface IPluginCapabilities extends Capabilities {
     activationMode?: ActivationMode
     supportedFileTypes?: string[]
-}
-
-/**
- * Returns true if the metadata matches the filter, false otherwise
- */
-export const doesMetadataMatchFilter = (metadata: IPluginMetadata, filter: IPluginFilter) => {
-
-    if (!filter) {
-        return true
-    }
-
-    const expectedFileType = filter.fileType
-
-    if (!metadata.oni) {
-        return false
-    }
-
-    if (!doesPluginSupportFiletype(metadata.oni, expectedFileType)) {
-        return false
-    }
-
-    return true
-}
-
-export const doesPluginSupportFiletype = (pluginCapabilities: IPluginCapabilities, fileType: string) => {
-
-    if (!pluginCapabilities.supportedFileTypes || !pluginCapabilities.supportedFileTypes.length) {
-        return false
-    }
-
-    const matches = pluginCapabilities.supportedFileTypes.filter((ft) => {
-            return ft === "*" || ft === fileType
-    })
-
-    return matches.length > 0
 }

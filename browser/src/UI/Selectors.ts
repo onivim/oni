@@ -6,91 +6,101 @@
  * http://redux.js.org/docs/recipes/ComputingDerivedData.html
  */
 
+import * as flatten from "lodash/flatten"
+import { createSelector } from "reselect"
+
+import * as types from "vscode-languageserver-types"
+
+import * as Utility from "./../Utility"
+
 import * as State from "./State"
 
-import { Rectangle } from "./Types"
-
-import * as flatten from "lodash/flatten"
-
-export const isPopupMenuOpen = (state: State.IState) => {
-    const popupMenu = state.popupMenu
-    return !!popupMenu
-}
-
-export const areCompletionsVisible = (state: State.IState) => {
-    const autoCompletion = state.autoCompletion
-    const entryCount = (autoCompletion && autoCompletion.entries) ? autoCompletion.entries.length : 0
-
-    if (entryCount === 0) {
-        return false
-    }
-
-    if (entryCount > 1) {
-        return true
-    }
-
-    // In the case of a single entry, should not be visible if the base is equal to the selected item
-    return autoCompletion != null && autoCompletion.base !== getSelectedCompletion(state)
-}
-
-export const getSelectedCompletion = (state: State.IState) => {
-    const autoCompletion = state.autoCompletion
-    return autoCompletion ? autoCompletion.entries[autoCompletion.selectedIndex].label : null
-}
-
-export const getAllBuffers = (buffers: State.IBufferState): State.IBuffer[] => {
-    return buffers.allIds.map((id) => buffers.byId[id]).filter((buf) => !buf.hidden && buf.listed)
-}
-
-export const getBufferByFilename = (fileName: string, buffers: State.IBufferState): State.IBuffer => {
-    const allBuffers = getAllBuffers(buffers)
-    const matchingBuffers = allBuffers.filter((buf) => buf.file === fileName)
-
-    if (matchingBuffers.length > 0) {
-        return matchingBuffers[0]
-    } else {
-        return null
-    }
-}
+export const EmptyArray: any[] = []
 
 export const getErrors = (state: State.IState) => state.errors
 
-export const getAllErrorsForFile = (fileName: string, errors: State.Errors) => {
+const getAllErrorsForFile = (fileName: string, errors: State.Errors): types.Diagnostic[] => {
     if (!fileName || !errors) {
-        return []
+        return EmptyArray
     }
 
     const allErrorsByKey = errors[fileName]
 
     if (!allErrorsByKey) {
-        return []
+        return EmptyArray
     }
 
     const arrayOfErrorsArray = Object.values(allErrorsByKey)
     return flatten(arrayOfErrorsArray)
 }
 
-export const getActiveWindow = (state: State.IState): State.IWindow => {
-    if (state.windowState.activeWindow === null) {
-        return null
-    }
+const getWindows = (state: State.IState) => state.windowState
 
-    const activeWindow = state.windowState.activeWindow
-    return state.windowState.windows[activeWindow]
+export const getActiveWindow = createSelector(
+    [getWindows],
+    (windowState) => {
+        if (windowState.activeWindow === null) {
+            return null
+        }
+
+        const activeWindow = windowState.activeWindow
+        return windowState.windows[activeWindow]
+    })
+
+const emptyRectangle = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
 }
 
-export const getActiveWindowDimensions = (state: State.IState): Rectangle => {
-    const emptyRectangle = {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-    }
+export const getFontPixelWidthHeight = (state: State.IState) => ({
+    fontPixelWidth: state.fontPixelWidth,
+    fontPixelHeight: state.fontPixelHeight,
+})
 
-    const window = getActiveWindow(state)
-    if (!window) {
-        return emptyRectangle
-    }
+export const getActiveWindowScreenDimensions = createSelector(
+    [getActiveWindow],
+    (win) => {
+        if (!win || !win.dimensions) {
+            return emptyRectangle
+        }
 
-    return window.dimensions || emptyRectangle
-}
+        return win.dimensions
+    })
+
+export const getActiveWindowPixelDimensions = createSelector(
+    [getActiveWindowScreenDimensions, getFontPixelWidthHeight],
+    (dimensions, fontSize) => {
+        const pixelDimensions = {
+            x: dimensions.x * fontSize.fontPixelWidth,
+            y: dimensions.y * fontSize.fontPixelHeight,
+            width: dimensions.width * fontSize.fontPixelWidth,
+            height: dimensions.height * fontSize.fontPixelHeight,
+        }
+
+        return pixelDimensions
+    })
+
+export const getErrorsForActiveFile = createSelector(
+    [getActiveWindow, getErrors],
+    (win, errors) => {
+        const errorsForFile: types.Diagnostic[] = (win && win.file) ? getAllErrorsForFile(win.file, errors) : (EmptyArray as types.Diagnostic[])
+        return errorsForFile
+    })
+
+export const getErrorsForPosition = createSelector(
+    [getActiveWindow, getErrorsForActiveFile],
+    (win, errors) => {
+        if (!win) {
+            return EmptyArray
+        }
+
+        const { line, column } = win
+        return errors.filter((diag) => Utility.isInRange(line, column, diag.range))
+    })
+
+export const getForegroundBackgroundColor = (state: State.IState) => ({
+    foregroundColor: state.foregroundColor,
+    backgroundColor: state.backgroundColor,
+})

@@ -4,37 +4,52 @@
  * This file describes the Redux state of the app
  */
 
-import * as Config from "./../Config"
-import { ILog } from "./Logs"
-import { Rectangle } from "./Types"
-
 import * as types from "vscode-languageserver-types"
 
-export type Buffers = { [filePath: string]: IBuffer }
-export type Errors = { [file: string]: { [key: string]: types.Diagnostic[] } }
-export type WindowLineMap = { [key: number]: number }
+import { configuration , IConfigurationValues } from "./../Services/Configuration"
+
+import * as Coordinates from "./Coordinates"
+import { Rectangle } from "./Types"
+
+export interface Buffers { [filePath: string]: IBuffer }
+export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
+
+/**
+ * Viewport encompasses the actual 'app' height
+ */
+export interface IViewport {
+    width: number
+    height: number
+}
+
+export interface IToolTip {
+    id: string,
+    options: Oni.ToolTip.ToolTipOptions,
+    element: JSX.Element
+}
 
 export interface IState {
+    cursorScale: number
     cursorPixelX: number
     cursorPixelY: number
     cursorPixelWidth: number
     cursorCharacter: string
     fontPixelWidth: number
     fontPixelHeight: number
+    fontFamily: string
+    fontSize: string
     mode: string
     backgroundColor: string
     foregroundColor: string
-    autoCompletion: null | IAutoCompletionInfo
-    quickInfo: null | Oni.Plugin.QuickInfo
-    popupMenu: null | IMenu
-    signatureHelp: null | Oni.Plugin.SignatureHelpResult
-    cursorLineVisible: boolean
+    definition: null | IDefinition
     cursorLineOpacity: number
-    cursorColumnVisible: boolean
     cursorColumnOpacity: number
-    configuration: Config.IConfigValues
+    configuration: IConfigurationValues
+    imeActive: boolean
+    viewport: IViewport
 
     statusBar: { [id: string]: IStatusBarItem }
+    toolTips: { [id: string]: IToolTip }
 
     /**
      * Tabs refer to the Vim-concept of tabs
@@ -45,18 +60,19 @@ export interface IState {
 
     windowState: IWindowState
 
-    logsVisible: boolean
-    logs: Array<{
-        log: ILog,
-        folded: boolean,
-    }>
-
     errors: Errors
 
     // Dimensions of active window, in pixels
+    // TODO: This is relevant only to a specific 'editor',
+    // so this should be factored to a per-editor store
     activeWindowDimensions: Rectangle
 
     activeMessageDialog: IMessageDialog
+}
+
+export interface IDefinition {
+    token: Oni.IToken
+    definitionLocation: types.Location
 }
 
 export enum MessageType {
@@ -122,12 +138,13 @@ export interface IWindow {
     file: string
     column: number
     line: number
-    winline: number
-    wincolumn: number
-    lineMapping: WindowLineMap
+
+    bufferToScreen: Coordinates.BufferToScreen
+    screenToPixel: Coordinates.ScreenToPixel
+
     dimensions: Rectangle
-    windowTopLine: number
-    windowBottomLine: number
+    topBufferLine: number
+    bottomBufferLine: number
 }
 
 export enum StatusBarAlignment {
@@ -142,64 +159,35 @@ export interface IStatusBarItem {
     visible: boolean
 }
 
-export function readConf<K extends keyof Config.IConfigValues>(conf: Config.IConfigValues, k: K): Config.IConfigValues[K] {
+export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurationValues, k: K): IConfigurationValues[K] {
     return conf[k]
 }
 
-export interface IMenu {
-    id: string,
-    filter: string,
-    filteredOptions: IMenuOptionWithHighlights[],
-    options: Oni.Menu.MenuOption[],
-    selectedIndex: number
-}
-
-export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
-    labelHighlights: number[][],
-    detailHighlights: number[][]
-}
-
-export interface IAutoCompletionInfo {
-
-    /**
-     * Base entry being completed against
-     */
-    base: string
-
-    entries: Oni.Plugin.CompletionInfo[]
-
-    /**
-     * Label of selected entry
-     */
-    selectedIndex: number
-}
 export const createDefaultState = (): IState => ({
+    cursorScale: 1,
     cursorPixelX: 10,
     cursorPixelY: 10,
     cursorPixelWidth: 10,
     cursorCharacter: "",
     fontPixelWidth: 10,
     fontPixelHeight: 10,
+    fontFamily: "",
+    fontSize: "",
+    imeActive: false,
     mode: "normal",
     foregroundColor: "rgba(0, 0, 0, 0)",
-    autoCompletion: null,
-    quickInfo: null,
-    popupMenu: null,
-    signatureHelp: null,
+    definition: null,
     activeWindowDimensions: {
         x: 0,
         y: 0,
         width: 0,
         height: 0,
     },
-    cursorLineVisible: false,
     cursorLineOpacity: 0,
-    cursorColumnVisible: false,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
-    logsVisible: false,
-    logs: [],
-    configuration: Config.instance().getValues(),
+
+    configuration: configuration.getValues(),
 
     buffers: {
         activeBufferId: null,
@@ -217,7 +205,13 @@ export const createDefaultState = (): IState => ({
         windows: {},
     },
 
+    viewport: {
+        width: 0,
+        height: 0,
+    },
+
     errors: {},
     statusBar: {},
+    toolTips: {},
     activeMessageDialog: null,
 })

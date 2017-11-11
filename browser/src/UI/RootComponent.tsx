@@ -1,84 +1,33 @@
 import * as React from "react"
 
+import { keyEventToVimKey } from "./../Input/Keyboard"
+import { focusManager } from "./../Services/FocusManager"
+import { inputManager } from "./../Services/InputManager"
+import { MenuContainer } from "./../Services/Menu"
+import * as WindowManager from "./../Services/WindowManager"
+
 import { Background } from "./components/Background"
-import { EditorHost } from "./components/EditorHost"
-import { Logs } from "./components/Logs"
-import { MenuContainer } from "./components/Menu"
 import StatusBar from "./components/StatusBar"
 
-// import { IEditor } from "./../Editor/Editor"
+import { WindowSplits } from "./components/WindowSplits"
 
-import * as WindowManager from "./../Services/WindowManager"
+
+
+
+import * as marked from "marked"
+console.log(marked("**Hello**"))
+
+
+
+
 
 interface IRootComponentProps {
     windowManager: WindowManager.WindowManager
 }
 
-export interface IWindowManagerProps {
-    windowManager: WindowManager.WindowManager
-}
-
-export interface IWindowManagerState {
-    splitRoot: WindowManager.ISplitInfo
-}
-
-import * as marked from "marked"
-
-console.log(marked("**Hello**"))
-
-export class WindowManagerComponent extends React.PureComponent<IWindowManagerProps, IWindowManagerState> {
-
-    constructor(props: IWindowManagerProps) {
-        super(props)
-
-        this.state = {
-            splitRoot: props.windowManager.splitRoot,
-        }
-    }
-
-    public componentDidMount(): void {
-        this.props.windowManager.onSplitChanged.subscribe((newSplit) => {
-            this.setState({
-                splitRoot: newSplit,
-            })
-        })
-    }
-
+export class RootComponent extends React.PureComponent<IRootComponentProps, {}> {
     public render() {
-        if (!this.state.splitRoot) {
-            return null
-        }
-
-        const containerStyle = {
-            "display": "flex",
-            "flex-direction": "row",
-            "width": " 100%",
-            "height": " 100%",
-        }
-
-        const editors = this.state.splitRoot.splits.map((split) => {
-            if (split.type === "Split") {
-                return null
-            } else {
-                const anyEditor: any = split.editor
-
-                if (!anyEditor) {
-                    return <div className="container vertical full">test</div>
-                } else {
-                    return <EditorHost editor={anyEditor} />
-                }
-            }
-        })
-
-        return <div style={containerStyle}>
-                    {editors}
-                </div>
-    }
-}
-
-export class RootComponent extends React.PureComponent<IRootComponentProps, void> {
-    public render() {
-        return <div className="stack disable-mouse">
+        return <div className="stack disable-mouse" onKeyDownCapture={(evt) => this._onRootKeyDown(evt)}>
             <div className="stack">
                 <Background />
             </div>
@@ -86,10 +35,9 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
                 <div className="container vertical full">
                     <div className="container full">
                         <div className="stack">
-                            <WindowManagerComponent windowManager={this.props.windowManager} />
+                            <WindowSplits windowManager={this.props.windowManager} />
                         </div>
                         <div className="stack layer">
-                            <Logs />
                             <MenuContainer />
                         </div>
                     </div>
@@ -99,5 +47,15 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, void
                 </div>
             </div>
         </div>
+    }
+
+    private _onRootKeyDown(evt: React.KeyboardEvent<HTMLElement>): void {
+        const vimKey = keyEventToVimKey(evt.nativeEvent)
+        if (inputManager.handleKey(vimKey)) {
+            evt.stopPropagation()
+            evt.preventDefault()
+        } else {
+            focusManager.enforceFocus()
+        }
     }
 }

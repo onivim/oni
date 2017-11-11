@@ -6,17 +6,17 @@
 
 import * as React from "react"
 
-import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance } from "./../neovim"
 import { INeovimRenderer } from "./../Renderer"
+import { IScreen } from "./../Screen"
 
 export interface INeovimRendererProps {
     neovimInstance: NeovimInstance
-    deltaRegionTracker: IncrementalDeltaRegionTracker
+    screen: IScreen
     renderer: INeovimRenderer
 }
 
-export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, void> {
+export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, {}> {
 
     private _element: HTMLDivElement
     private _boundOnResizeMethod: any
@@ -66,6 +66,6 @@ export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, vo
         const height = this._element.offsetHeight
 
         this.props.neovimInstance.resize(width, height)
-        this.props.renderer.onResize()
+        this.props.renderer.redrawAll(this.props.screen)
     }
 }

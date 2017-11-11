@@ -1,40 +1,41 @@
 /**
- * NeovimEditor.ts
+ * NeovimSurface.tsx
  *
- * IEditor implementation for Neovim
+ * UI layer for the Neovim editor surface
  */
 
 import * as React from "react"
 
-import { IncrementalDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { NeovimInstance } from "./../neovim"
 import { INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
-import { AutoCompletionContainer } from "./../UI/components/AutoCompletion"
-import { ConnectedBufferScrollBar } from "./../UI/components/BufferScrollBar"
 import { Cursor } from "./../UI/components/Cursor"
 import { CursorLine } from "./../UI/components/CursorLine"
-import { ErrorsContainer } from "./../UI/components/Error"
-import { QuickInfoContainer, SignatureHelpContainer } from "./../UI/components/QuickInfo"
 import { TabsContainer } from "./../UI/components/Tabs"
+import { ToolTips } from "./../UI/components/ToolTip"
+
+import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarContainer"
+import { DefinitionContainer } from "./../UI/containers/DefinitionContainer"
+import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
 
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
 
 export interface INeovimSurfaceProps {
     neovimInstance: NeovimInstance
-    deltaRegionTracker: IncrementalDeltaRegionTracker
     renderer: INeovimRenderer
     screen: NeovimScreen
+
+    onKeyDown?: (key: string) => void
     onBufferClose?: (bufferId: number) => void
     onBufferSelect?: (bufferId: number) => void
     onTabClose?: (tabId: number) => void
     onTabSelect?: (tabId: number) => void
 }
 
-export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void> {
+export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> {
     public render(): JSX.Element {
         return <div className="container vertical full">
             <div className="container fixed">
@@ -48,23 +49,24 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, void
                 <div className="stack">
                     <NeovimRenderer renderer={this.props.renderer}
                         neovimInstance={this.props.neovimInstance}
-                        deltaRegionTracker={this.props.deltaRegionTracker} />
+                        screen={this.props.screen} />
                 </div>
                 <div className="stack layer">
                     <Cursor />
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
                     <ActiveWindowContainer>
+                        <DefinitionContainer />
                         <ErrorsContainer />
-                        <ConnectedBufferScrollBar />
+                        <BufferScrollBarContainer />
                     </ActiveWindowContainer>
                 </div>
-                <NeovimInput neovimInstance={this.props.neovimInstance}
-                    screen={this.props.screen} />
+                <NeovimInput
+                    neovimInstance={this.props.neovimInstance}
+                    screen={this.props.screen}
+                    onKeyDown={this.props.onKeyDown}/>
                 <div className="stack layer">
-                    <QuickInfoContainer />
-                    <SignatureHelpContainer />
-                    <AutoCompletionContainer />
+                    <ToolTips />
                 </div>
             </div>
         </div>

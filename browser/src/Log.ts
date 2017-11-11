@@ -4,34 +4,58 @@
  * Utilities for logging in Oni
  */
 
-import * as UI from "./UI/index"
+// Log levels are the same as `npm`:
+// - error
+// - warn
+// - info
+// - verbose
+// - debug
 
-export function info(message: string): void {
-    UI.Actions.makeLog({
-        type: "info",
-        message,
-        details: null,
-    })
+// Debug is not enabled unless explicitly opted in via `enableDebugLogging` (can be executed in the console via `Oni.log.enableDebugLogging()`)
+// Verbose is enabled for debug builds, and off for production builds
 
+let verboseLoggingEnabled = process.env["NODE_ENV"] === "development" // tslint:disable-line no-string-literal
+let debugLoggingEnabled = false
+
+export const debug = (message: string): void => {
+    if (debugLoggingEnabled) {
+        console.log(message) // tslint:disable-line no-console
+    }
+}
+
+export const verbose = (message: string): void => {
+    if (verboseLoggingEnabled || debugLoggingEnabled) {
+        console.log(message) // tslint:disable-line no-console
+    }
+}
+
+export const info = (message: string): void  => {
     console.log(message) // tslint:disable-line no-console
 }
 
-export function warn(message: string): void {
-    UI.Actions.makeLog({
-        type: "warning",
-        message,
-        details: null,
-    })
-
+export const warn = (message: string): void  => {
     console.warn(message) // tslint:disable-line no-console
 }
 
-export function error(message: string, errorDetails?: any): void {
-    UI.Actions.makeLog({
-        type: "error",
-        message,
-        details: errorDetails || null,
-    })
+export const error = (messageOrError: string | Error, errorDetails?: any): void => {
+    console.error(messageOrError) // tslint:disable-line no-console
+}
 
-    console.error(message, errorDetails) // tslint:disable-line no-console
+export const isDebugLoggingEnabled = () => debugLoggingEnabled
+export const isVerboseLoggingEnabled = () => verboseLoggingEnabled
+
+export const enableDebugLogging = () => {
+    debugLoggingEnabled = true
+}
+
+export const disableDebugLogging = () => {
+    debugLoggingEnabled = false
+}
+
+export const enableVerboseLogging = () => {
+    verboseLoggingEnabled = true
+}
+
+export const disableVerboseLogging = () => {
+    verboseLoggingEnabled = false
 }

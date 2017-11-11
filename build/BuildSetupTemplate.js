@@ -42,7 +42,12 @@ const fileExtensions = {
 }
 
 const addToEnv = `
-Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}'))`
+Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}'))
+
+Root: HKCU; Subkey: "SOFTWARE\\Classes\\*\\shell\\${prodName}"; ValueType: expandsz; ValueName: ""; ValueData: "Open with ${prodName}"; Tasks: addToRightClickMenu; Flags: uninsdeletekey
+Root: HKCU; Subkey: "SOFTWARE\\Classes\\*\\shell\\${prodName}"; ValueType: expandsz; ValueName: "Icon"; ValueData: "{app}\\resources\\app\\images\\oni.ico"; Tasks: addToRightClickMenu
+Root: HKCU; Subkey: "SOFTWARE\\Classes\\*\\shell\\${prodName}\\command"; ValueType: expandsz; ValueName: ""; ValueData: """{app}\\${prodName}.exe"" ""%1"""; Tasks: addToRightClickMenu
+`
 
 function getFileRegKey(ext, desc) {
 

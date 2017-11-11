@@ -4,7 +4,6 @@ import * as path from "path"
 import * as Log from "./../Log"
 
 import * as Capabilities from "./Api/Capabilities"
-import { IChannel } from "./Api/Channel"
 import { Oni } from "./Api/Oni"
 
 import * as PackageMetadataParser from "./PackageMetadataParser"
@@ -15,7 +14,6 @@ export interface IPluginCommandInfo extends Capabilities.ICommandInfo {
 
 export class Plugin {
     private _oniPluginMetadata: Capabilities.IPluginMetadata
-    private _channel: IChannel
     private _commands: IPluginCommandInfo[]
     private _oni: Oni
 
@@ -25,10 +23,8 @@ export class Plugin {
 
     constructor(
         private _pluginRootDirectory: string,
-        channel: IChannel,
     ) {
         const packageJsonPath = path.join(this._pluginRootDirectory, "package.json")
-        this._channel = channel
 
         if (fs.existsSync(packageJsonPath)) {
             this._oniPluginMetadata = PackageMetadataParser.parseFromString(fs.readFileSync(packageJsonPath, "utf8"))
@@ -38,8 +34,8 @@ export class Plugin {
             } else {
                 if (this._oniPluginMetadata.main) {
 
-                    this._oni = new Oni(this._channel.createPluginChannel(this._oniPluginMetadata,
-                        () => this._onActivate()))
+                    this._oni = new Oni()
+                    this._onActivate()
 
                     this._commands = PackageMetadataParser.getAllCommandsFromMetadata(this._oniPluginMetadata)
                 }

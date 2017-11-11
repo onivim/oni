@@ -17,17 +17,27 @@ declare namespace Oni {
         (val: T): void
     }
 
+    export interface IToken {
+        tokenName: string
+        range: types.Range
+    }
+
     export interface Event<T> {
         subscribe(callback: EventCallback<T>)
     }
 
     export interface Configuration {
-        onConfigurationChangedEvent: Event<void>
+        onConfigurationChanged: Event<any>
         getValue<T>(configValue: string, defaultValue?: T): T
     }
 
+    export interface Workspace {
+        onDirectoryChanged: Event<string>
+    }
+
     export interface IWindowManager {
-        split(direction: number, editor: Oni.Editor, sourceEditor?: Oni.Editor)
+        split(direction: number, split: IWindowSplit)
+        showDock(direction: number, split: IWindowSplit)
         moveLeft(): void
         moveRight(): void
         moveDown(): void
@@ -35,7 +45,12 @@ declare namespace Oni {
         close(editor: Oni.Editor)
     }
 
+    export interface IWindowSplit {
+        render(): JSX.Element
+    }
+
     export interface EditorManager {
+        allEditors: Editor
         activeEditor: Editor
     }
 
@@ -49,15 +64,100 @@ declare namespace Oni {
         contents: string[]
     }
 
+    export interface InputManager {
+        bind(keyChord: string | string[], actionFunction: any, filterFunction?: () => boolean)
+        unbind(keyChord: string | string[])
+        unbindAll()
+    }
+
+    export interface NeovimEditorCapability {
+        // Send a direct set of key inputs to Neovim
+        input(keys: string): Promise<void>
+
+        // Evaluate an expression, and return the result
+        eval(expression: string): Promise<any>
+
+        // Execute a command
+        command(command: string): Promise<void>
+    }
+
     export interface Editor {
         mode: string
-        onModeChanged: IEvent<string>
-        onBufferEntered: IEvent<IBufferEnteredEventInfo>
-        onBufferChanged: IEvent<IBufferChangedEventInfo>
+        onModeChanged: IEvent<Vim.Mode>
+
+        activeBuffer: Buffer
+
+        openFile(file: string): Promise<Buffer>
+
+        onBufferEnter: IEvent<EditorBufferEventArgs>
+        onBufferLeave: IEvent<EditorBufferEventArgs>
+        onBufferChanged: IEvent<EditorBufferChangedEventArgs>
+        onBufferSaved: IEvent<EditorBufferEventArgs>
+
+        // Optional capabilities for the editor to implement
+        neovim?: NeovimEditorCapability
+    }
+
+    export interface EditorBufferChangedEventArgs {
+        buffer: Oni.Buffer
+        contentChanges: types.TextDocumentContentChangeEvent[]
+    }
+
+    export interface Buffer {
+        id: string
+        language: string
+        filePath: string
+        cursor: Cursor
+        version: number
+        modified: boolean
+
+        lineCount: number
+
+        applyTextEdits(edit: types.TextEdit | types.TextEdit[]): Promise<void>
+        getLines(start?: number, end?: number): Promise<string[]>
+        getTokenAt(line: number, column: number): Promise<IToken>
+        getSelectionRange(): Promise<types.Range>
+
+        setLines(start: number, end: number, lines: string[]): Promise<void>
+        setCursorPosition(line: number, column: number): Promise<void>
+    }
+
+    // Zero-based position of the cursor
+    // Note that in Vim, this is a 1-based position
+    export interface Cursor {
+        line: number
+        column: number
+    }
+
+    // TODO: Remove this, replace with buffer
+    export interface EditorBufferEventArgs {
+        language: string
+        filePath: string
+    }
+
+    export type ICommandCallback = (args?: any) => any
+    export type ICommandEnabledCallback = () => boolean
+
+    export interface ICommand {
+        command: string
+        name: string
+        detail: string
+        enabled?: ICommandEnabledCallback
+        messageSuccess?: string
+        messageFail?: string
+        execute: ICommandCallback
     }
 
     export interface Commands {
-        registerCommand(commandName: string, callback: (args?: any) => void): void
+        registerCommand(command: ICommand): void
+    }
+
+    export interface Log {
+        verbose(msg: string): void
+        info(msg: string): void
+
+        disableVerboseLogging(): void
+        enableVerboseLogging(): void
     }
 
     export interface StatusBar {
@@ -76,20 +176,6 @@ declare namespace Oni {
         hide(): void
         setContents(element: JSX.Element): void
         dispose(): void
-    }
-
-    export interface Position {
-        line: number
-        column: number
-    }
-
-    export interface Range {
-        start: Position
-        end: Position
-    }
-
-    export interface TextEdit extends Range {
-        newValue: string
     }
 
     /**
@@ -127,25 +213,48 @@ declare namespace Oni {
         byte: number
         filetype: string
 
-        /**
-         * Actual column position within the window
-         * Includes line number, gutter, etc
-         */
         windowNumber: number
         wincol: number
         winline: number
         windowTopLine: number
         windowBottomLine: number
+        windowWidth: number,
+        windowHeight: number,
     }
 
-    // export interface TextDocumentPosition {
-    //     // TODO: Reconcile these - remove buffer
-    //     bufferFullPath?: string
-    //     filePath?: string
-    //     line: number
-    //     column: number
-    //     byte?: number
-    // }
+    export namespace Vim {
+        export type Mode = "normal" | "visual" | "insert"
+    }
+
+    export namespace Automation {
+        // Api surface area for automated testing
+        export interface Api {
+            sendKeys(input: string): void
+            waitFor(condition: () => boolean, timeout: number): Promise<void>
+
+            runTest(testPath: string): Promise<void>
+        }
+    }
+
+    export namespace Coordinates {
+        export interface PixelSpacePoint {
+            pixelX: number
+            pixelY: number
+        }
+    }
+
+    export namespace ToolTip {
+        export enum OpenDirection {
+            Up = 1,
+            Down= 2,
+        }
+        export interface ToolTipOptions {
+            position?: Coordinates.PixelSpacePoint
+            openDirection: OpenDirection
+            padding?: string
+            onDismiss?: () => void
+        }
+    }
 
     export namespace Menu {
         export interface MenuOption {
@@ -155,7 +264,7 @@ declare namespace Oni {
             icon?: string
 
             label: string
-            detail: string
+            detail?: string
 
             /**
              * A pinned option is always shown first in the menu,
@@ -169,120 +278,22 @@ declare namespace Oni {
         export namespace Diagnostics {
             export interface Api {
                 setErrors(key: string, fileName: string, errors: types.Diagnostic[])
-                clearErrors(key: string)
             }
         }
 
-        export interface QuickInfo {
-            title: string
-            description: string
-
-            error?: string
-        }
-
-        export interface GotoDefinitionResponse extends Position {
-            filePath: string
-        }
-
-        export interface FormattingEditsResponse {
-            filePath: string
-            version: number
-            edits: TextEdit[]
-        }
-
         export interface Api extends EventEmitter {
+            automation: Automation.Api
             configuration: Configuration
+            contextMenu: any /* TODO */
             diagnostics: Diagnostics.Api
             editors: EditorManager
+            input: InputManager
+            language: any /* TODO */
+            log: any /* TODO */
+            menu: any /* TODO */
             process: Process
             statusBar: StatusBar
-
-            registerLanguageService(languageService: LanguageService)
-
-            clearHighlights(file: string, key: string)
-            setHighlights(file: string, key: string, highlights: SyntaxHighlight[])
-        }
-
-        export interface CompletionResult {
-
-            /**
-             * Base entry being completed against
-             */
-            base: string
-            completions: CompletionInfo[]
-
-            error?: string
-        }
-
-        export interface SyntaxHighlight {
-            highlightKind: types.SymbolKind
-            token: string
-        }
-
-        //export type CompletionKind = "method" | "function" | "var"
-
-        export interface CompletionInfo {
-            highlightColor?: string,
-            kind?: types.CompletionItemKind
-            label: string
-            detail?: string
-            documentation?: string
-        }
-
-        export interface EvaluationResult {
-            line: number
-            result: any
-            variables?: any
-            output?: string[]
-            errors?: string[]
-        }
-
-        export interface SignatureHelpItem {
-            variableArguments: boolean
-            prefix: string
-            suffix: string
-            separator: string
-            parameters: SignatureHelpParameter[]
-        }
-
-        export interface SignatureHelpParameter {
-            text: string
-            documentation: string
-        }
-
-        export interface SignatureHelpResult {
-            items: SignatureHelpItem[]
-            selectedItemIndex: number
-            argumentIndex: number
-            argumentCount: number
-
-            error?: string
-        }
-
-        export interface ReferencesResultItem extends Position {
-            fullPath: string
-            lineText?: string
-        }
-
-        export interface ReferencesResult {
-            tokenName: string
-            items: ReferencesResultItem[]
-        }
-
-        export interface LanguageService {
-            getCompletions?(position: EventContext): Promise<CompletionResult>
-            getCompletionDetails?(position: EventContext, completionInfo: CompletionInfo): Promise<CompletionInfo>
-
-            findAllReferences?(position: EventContext): Promise<ReferencesResult>
-
-            getSignatureHelp?(position: EventContext): Promise<SignatureHelpResult>
-
-            getQuickInfo?(position: EventContext): Promise<QuickInfo>
-            getDefinition?(position: EventContext): Promise<GotoDefinitionResponse>
-
-            getFormattingEdits?(position: EventContext): Promise<FormattingEditsResponse>
-
-            evaluateBlock?(context: EventContext, id: string, fileName: string, code: string): Promise<EvaluationResult>
+            workspace: Workspace
         }
     }
 }

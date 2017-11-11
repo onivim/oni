@@ -1,8 +1,8 @@
 import * as cp from "child_process"
 import * as path from "path"
 
-import * as Config from "./../Config"
 import * as Platform from "./../Platform"
+import { configuration } from "./../Services/Configuration"
 
 import { Session } from "./Session"
 
@@ -17,26 +17,37 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
 
     const noopInitVimPath = remapPathToUnpackedAsar(path.join(__dirname, "vim", "noop.vim"))
 
-    const nvimWindowsProcessPath = path.join(__dirname, "bin", "x86", "Neovim", "bin", "nvim.exe")
-    const nvimMacProcessPath = path.join(__dirname, "bin", "osx", "neovim", "bin", "nvim")
+    const nvimWindowsProcessPath = path.join(__dirname, "node_modules", "oni-neovim-binaries", "bin", "Neovim", "bin", "nvim.exe")
+    const nvimMacProcessPath = path.join(__dirname, "node_modules", "oni-neovim-binaries", "bin", "nvim-osx64", "bin", "nvim")
 
-    // For Linux, assume there is a locally installed neovim
+    // Assume nvim is available in path for Linux
     const nvimLinuxPath = "nvim"
 
     let nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
 
     nvimProcessPath = remapPathToUnpackedAsar(nvimProcessPath)
 
+    const neovimPath = configuration.getValue("debug.neovimPath")
+
+    if (neovimPath) {
+        nvimProcessPath = neovimPath
+    }
+
     const joinedRuntimePaths = runtimePaths
                                     .map((p) => remapPathToUnpackedAsar(p))
                                     .join(",")
 
-    const shouldLoadInitVim = Config.instance().getValue("oni.loadInitVim")
-    const useDefaultConfig = Config.instance().getValue("oni.useDefaultConfig")
+    const loadInitVimConfigOption = configuration.getValue("oni.loadInitVim")
+    const useDefaultConfig = configuration.getValue("oni.useDefaultConfig")
 
-    const vimRcArg = (shouldLoadInitVim || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
+    let initVimArg = []
+    initVimArg = (loadInitVimConfigOption || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
 
-    const argsToPass = vimRcArg
+    if (typeof(loadInitVimConfigOption) === "string") {
+        initVimArg = ["-u", loadInitVimConfigOption]
+    }
+
+    const argsToPass = initVimArg
         .concat(["--cmd", `let &rtp.='${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
         .concat(args)
 

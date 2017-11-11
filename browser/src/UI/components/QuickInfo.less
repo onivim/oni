@@ -1,19 +1,23 @@
 @import (reference) "./common.less";
 
 .quickinfo-container {
-    transition: all 0.5s;
-    animation-name: appear;
-    animation-duration: 0.5s;
     -webkit-user-select: none;
     cursor: default;
 
     .quickinfo {
-        .box-shadow;
-
-        background-color: @background-color;
-        color: @text-color;
         text-overflow: ellipsis;
         overflow: hidden;
+
+        .diagnostic {
+            margin: 8px;
+
+            display: flex;
+            flex-direction: row;
+
+            .icon-container {
+                margin-right: 8px;
+            }
+        }
 
         .title {
             width: 100%;
@@ -24,7 +28,6 @@
         .documentation {
             .box-shadow-inset;
             padding: 8px;
-            color: @text-color-detail;
             font-size: @font-size-small;
             min-width: 300px;
             max-height: 48px;
@@ -36,9 +39,4 @@
             text-decoration: underline;
         }
     }
-}
-
-@keyframes appear {
-    from {opacity: 0;}
-    to {opacity: 1;}
 }

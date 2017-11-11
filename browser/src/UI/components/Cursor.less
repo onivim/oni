@@ -1,12 +1,8 @@
-@keyframes blink {
-    0% { opacity: 0.5 }
-    100% { opacity: 1 }
-}
-
 .cursor {
     opacity: 1;
-    // animation-name: blink;
-    // animation-duration: 0.5s;
-    // animation-iteration-count: infinite;
-    // animation-direction: alternate;
+
+    /* Cover up 'holes' due to subpixel rendering on canvas */
+    padding-left: 1px;
+    padding-right: 1px;
+    margin-left: -1px;
 }

@@ -1,22 +1,26 @@
 import * as ChildProcess from "child_process"
 import { EventEmitter } from "events"
 
-import { IPluginChannel } from "./Channel"
-
-import { Commands } from "./Commands"
-import { Configuration } from "./Configuration"
 import { Diagnostics } from "./Diagnostics"
-import { StatusBar } from "./StatusBar"
 
-import { DebouncedLanguageService } from "./DebouncedLanguageService"
-import { InitializationParamsCreator, LanguageClient, ServerRunOptions } from "./LanguageClient/LanguageClient"
-
-import { Process } from "./Process"
+import * as Process from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
+import { automation } from "./../../Services/Automation"
+import { commandManager } from "./../../Services/CommandManager"
+import { configuration } from "./../../Services/Configuration"
+import { contextMenuManager } from "./../../Services/ContextMenu"
 import { editorManager } from "./../../Services/EditorManager"
+import { inputManager } from "./../../Services/InputManager"
+import { languageManager } from "./../../Services/Language"
+import { menuManager } from "./../../Services/Menu"
+import { recorder } from "./../../Services/Recorder"
+import { statusBar } from "./../../Services/StatusBar"
 import { windowManager, WindowManager } from "./../../Services/WindowManager"
+import { workspace } from "./../../Services/Workspace"
+
+import * as Log from "./../../Log"
 
 import * as throttle from "lodash/throttle"
 
@@ -37,22 +41,33 @@ const helpers = {
  */
 export class Oni extends EventEmitter implements Oni.Plugin.Api {
 
-    private _configuration: Oni.Configuration
     private _dependencies: Dependencies
-    private _statusBar: StatusBar
-    private _commands: Commands
-    private _languageService: Oni.Plugin.LanguageService
     private _diagnostics: Oni.Plugin.Diagnostics.Api
     private _ui: Ui
     private _services: Services
-    private _process: Process
+
+    public get automation(): Oni.Automation.Api {
+        return automation
+    }
 
     public get commands(): Oni.Commands {
-        return this._commands
+        return commandManager
+    }
+
+    public get log(): Oni.Log {
+        return Log
+    }
+
+    public get recorder(): any {
+        return recorder
     }
 
     public get configuration(): Oni.Configuration {
-        return this._configuration
+        return configuration
+    }
+
+    public get contextMenu(): any {
+        return contextMenuManager
     }
 
     public get diagnostics(): Oni.Plugin.Diagnostics.Api {
@@ -67,12 +82,24 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return editorManager
     }
 
-    public get process(): Oni.Process {
-        return this._process
+    public get input(): Oni.InputManager {
+        return inputManager
     }
 
-    public get statusBar(): StatusBar {
-        return this._statusBar
+    public get language(): any {
+        return languageManager
+    }
+
+    public get menu(): any /* TODO */ {
+        return menuManager
+    }
+
+    public get process(): Oni.Process {
+        return Process
+    }
+
+    public get statusBar(): Oni.StatusBar {
+        return statusBar
     }
 
     public get ui(): Ui {
@@ -87,39 +114,27 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return windowManager
     }
 
+    public get workspace(): Oni.Workspace {
+        return workspace
+    }
+
     public get helpers(): any {
         return helpers
     }
 
-    constructor(private _channel: IPluginChannel) {
+    constructor() {
         super()
 
-        this._configuration = new Configuration()
-        this._diagnostics = new Diagnostics(this._channel)
+        this._diagnostics = new Diagnostics()
         this._dependencies = new Dependencies()
-        this._commands = new Commands(this._channel)
-        this._statusBar = new StatusBar(this._channel)
         this._ui = new Ui(react)
         this._services = new Services()
-        this._process = new Process()
-
-        this._channel.onRequest((arg: any) => {
-            this._handleNotification(arg)
-        })
-    }
-
-    public createLanguageClient(startOptions: ServerRunOptions, initializationParamsCreator: InitializationParamsCreator): LanguageClient {
-        return new LanguageClient(startOptions, initializationParamsCreator, this)
-    }
-
-    public registerLanguageService(languageService: Oni.Plugin.LanguageService): void {
-        this._languageService = new DebouncedLanguageService(languageService)
     }
 
     public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
-        console.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead") // tslint:disable-line no-console-log
+        Log.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead")
 
-        return this._process.execNodeScript(scriptPath, args, options, callback)
+        return Process.execNodeScript(scriptPath, args, options, callback)
     }
 
     /**
@@ -127,128 +142,8 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
      */
     public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
 
-        console.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead") // tslint:disable-line no-console-log
+        Log.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead")
 
-        return this._process.spawnNodeScript(scriptPath, args, options)
-    }
-
-    public setHighlights(file: string, key: string, highlights: Oni.Plugin.SyntaxHighlight[]) {
-        this._channel.send("set-syntax-highlights", null, {
-            file,
-            key,
-            highlights,
-        })
-    }
-
-    public clearHighlights(file: string, key: string): void {
-        this._channel.send("clear-syntax-highlights", null, {
-            file,
-            key,
-        })
-    }
-
-    private _handleNotification(arg: any): void {
-        if (arg.type === "buffer-update") {
-            this.emit("buffer-update", arg.payload)
-        } else if (arg.type === "buffer-update-incremental") {
-            this.emit("buffer-update-incremental", arg.payload)
-        } else if (arg.type === "event") {
-
-            if (arg.payload.name === "CursorMoved") {
-                this.emit("cursor-moved", arg.payload.context)
-            } else if (arg.payload.name === "CursorMovedI") {
-                this.emit("cursor-moved", arg.payload.context)
-            } else if (arg.payload.name === "BufWritePost") {
-                this.emit("buffer-saved", arg.payload.context)
-            } else if (arg.payload.name === "BufEnter") {
-                this.emit("buffer-enter", arg.payload.context)
-            } else if (arg.payload.name === "BufLeave") {
-                this.emit("buffer-leave", arg.payload.context)
-            }
-
-            this.emit(arg.payload.name, arg.payload.context)
-        } else if (arg.type === "command") {
-            this._commands.onCommand(arg.payload.command, arg.payload.args)
-        } else if (arg.type === "request") {
-            const requestType = arg.payload.name
-
-            const originalContext = arg.payload.context
-
-            const languageService = this._languageService || null
-            if (!languageService) {
-                return
-            }
-
-            switch (requestType) {
-                case "quick-info":
-                    this._languageService.getQuickInfo(arg.payload.context)
-                        .then((quickInfo) => {
-                            if (quickInfo && quickInfo.title) {
-                                this._channel.send("show-quick-info", originalContext, {
-                                    info: quickInfo.title,
-                                    documentation: quickInfo.description,
-                                })
-                            } else {
-                                this._channel.send("clear-quick-info", originalContext, null)
-                            }
-                        }, (err) => {
-                            this._channel.sendError("show-quick-info", originalContext, err)
-                        })
-                    break
-                case "goto-definition":
-                    languageService.getDefinition(arg.payload.context)
-                        .then((definitionPosition) => {
-                            this._channel.send("goto-definition", originalContext, {
-                                filePath: definitionPosition.filePath,
-                                line: definitionPosition.line,
-                                column: definitionPosition.column,
-                            })
-                        })
-                    break
-                case "find-all-references":
-                    languageService.findAllReferences(arg.payload.context)
-                        .then((references) => {
-                            this._channel.send("find-all-references", originalContext, {
-                                references,
-                            })
-                        })
-                    break
-                case "completion-provider":
-                    languageService.getCompletions(arg.payload.context)
-                        .then((completions) => {
-                            this._channel.send("completion-provider", originalContext, completions)
-                        }, (err) => {
-                            this._channel.sendError("completion-provider", originalContext, err)
-                        })
-                    break
-                case "completion-provider-item-selected":
-                    languageService.getCompletionDetails(arg.payload.context, arg.payload.item)
-                        .then((details) => {
-                            this._channel.send("completion-provider-item-selected", originalContext, {
-                                details,
-                            })
-                        })
-                    break
-                case "format":
-                    languageService.getFormattingEdits(arg.payload.context)
-                        .then((formattingResponse) => {
-                            this._channel.send("format", originalContext, formattingResponse)
-                        })
-                    break
-                case "signature-help":
-                    languageService.getSignatureHelp(arg.payload.context)
-                        .then((val) => {
-                            this._channel.send("signature-help-response", originalContext, val)
-                        }, (err) => {
-                            this._channel.sendError("signature-help-response", originalContext, err)
-                        })
-                    break
-                default:
-                    console.warn(`Unknown request type: ${requestType}`)
-
-            }
-        } else {
-            console.warn("Unknown notification type")
-        }
+        return Process.spawnNodeScript(scriptPath, args, options)
     }
 }

@@ -1,5 +1,4 @@
 import * as Actions from "./actions"
-import { IDeltaRegionTracker } from "./DeltaRegionTracker"
 import { Grid } from "./Grid"
 
 export type Mode = "insert" | "normal" | "visual" | "cmdline_normal"
@@ -29,6 +28,7 @@ export interface IScreen {
     fontWidthInPixels: number
     foregroundColor: string
     height: number
+    linePaddingInPixels: number
     mode: string
     width: number
     dispatch(action: Actions.IAction): void
@@ -71,7 +71,6 @@ export class NeovimScreen implements IScreen {
     private _currentHighlight: IHighlight = {}
     private _cursorColumn: number = 0
     private _cursorRow: number = 0
-    private _deltaTracker: IDeltaRegionTracker
     private _fontFamily: null | string = null
     private _fontHeightInPixels: number
     private _fontSize: null | string = null
@@ -82,10 +81,7 @@ export class NeovimScreen implements IScreen {
     private _mode: Mode = "normal"
     private _scrollRegion: IScrollRegion
     private _width: number = 80
-
-    constructor(deltaTracker: IDeltaRegionTracker) {
-        this._deltaTracker = deltaTracker
-    }
+    private _linePaddingInPixels: number
 
     public get width(): number {
         return this._width
@@ -109,6 +105,10 @@ export class NeovimScreen implements IScreen {
 
     public get fontHeightInPixels(): number {
         return this._fontHeightInPixels
+    }
+
+    public get linePaddingInPixels(): number {
+        return this._linePaddingInPixels
     }
 
     public get cursorRow(): number {
@@ -218,7 +218,6 @@ export class NeovimScreen implements IScreen {
             }
             case Actions.CLEAR:
                 this._grid.clear()
-                this._notifyAllCellsModified()
 
                 this._cursorColumn = 0
                 this._cursorRow = 0
@@ -226,13 +225,13 @@ export class NeovimScreen implements IScreen {
             case Actions.RESIZE:
                 this._width = action.columns
                 this._height = action.rows
-                this._notifyAllCellsModified()
                 break
             case Actions.SET_FONT:
                 this._fontFamily = action.fontFamily
                 this._fontSize = action.fontSize
                 this._fontWidthInPixels = action.fontWidthInPixels
                 this._fontHeightInPixels = action.fontHeightInPixels
+                this._linePaddingInPixels = action.linePaddingInPixels
                 break
             case Actions.CHANGE_MODE:
                 this._mode = action.mode
@@ -267,13 +266,6 @@ export class NeovimScreen implements IScreen {
                 regionToScroll.shiftRows(count)
 
                 this._grid.setRegionFromGrid(regionToScroll, left, top)
-
-                for (let y = top; y <= bottom; y++) {
-                    for (let x = left; x <= right; x++) {
-                        this._deltaTracker.notifyCellModified(x, y)
-                    }
-                }
-
                 break
             }
             default:
@@ -304,15 +296,6 @@ export class NeovimScreen implements IScreen {
             }
         }
 
-        this._deltaTracker.notifyCellModified(x, y)
         this._grid.setCell(x, y, cell)
-    }
-
-    private _notifyAllCellsModified(): void {
-        for (let x = 0; x < this.width; x++) {
-            for (let y = 0; y < this.height; y++) {
-                this._deltaTracker.notifyCellModified(x, y)
-            }
-        }
     }
 }

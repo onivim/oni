@@ -49,7 +49,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
 
         this._tssProcess.stderr.on("data", (data, err) => {
-            console.error("Error from tss: " + data)
+            console.error("Error from tss: " + data) // tslint:disable-line no-console
         })
 
         this._tssProcess.on("error", (data) => {
@@ -92,8 +92,8 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public getFormattingEdits(file: string, line: number, offset: number, endLine: number, endOffset: number): Promise<any> {
-        return this._makeTssRequest<void>("format", {
+    public getFormattingEdits(file: string, line: number, offset: number, endLine: number, endOffset: number): Promise<protocol.CodeEdit[]> {
+        return this._makeTssRequest<protocol.CodeEdit[]>("format", {
             file,
             line,
             offset,
@@ -120,6 +120,27 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
+    public getRefactors(file: string, startLine: number, startOffset: number, endLine: number, endOffset: number): Promise<protocol.ApplicableRefactorInfo[]> {
+        return this._makeTssRequest<protocol.ApplicableRefactorInfo[]>("getApplicableRefactors", {
+            file,
+            startLine,
+            startOffset,
+            endLine,
+            endOffset,
+        })
+    }
+
+    public getEditsForRefactor(refactor: string, action: string, file: string, startLine: number, startOffset: number, endLine: number, endOffset: number): Promise<protocol.RefactorEditInfo> {
+        return this._makeTssRequest<protocol.RefactorEditInfo>("getEditsForRefactor", {
+                                        refactor,
+                                        action,
+                                        file,
+                                        startLine,
+                                        startOffset,
+                                        endLine,
+                                        endOffset})
+    }
+
     public updateFile(file: string, fileContent: string): Promise<void> {
         return this._makeTssRequest<void>("open", {
             file,
@@ -138,7 +159,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public getQuickInfo(file: string, line: number, offset: number): Promise<void> {
+    public getQuickInfo(file: string, line: number, offset: number): Promise<any> {
         return this._makeTssRequest<void>("quickinfo", {
             file,
             line,
@@ -164,6 +185,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
     public getErrors(fullFilePath: string): Promise<void> {
         return this._makeTssRequest<void>("geterr", {
             files: [fullFilePath],
+            delay: 500,
         })
     }
 
@@ -192,6 +214,22 @@ export class TypeScriptServerHost extends events.EventEmitter {
             file,
             line,
             offset,
+        })
+    }
+    public navTo(file: string, query: string): Promise<protocol.NavtoItem[]> {
+        return this._makeTssRequest<protocol.NavtoItem[]>("navto", {
+            file,
+            searchValue: query,
+        })
+    }
+
+    public rename(file: string, line: number, offset: number): Promise<protocol.RenameResponseBody> {
+        return this._makeTssRequest<protocol.RenameResponseBody>("rename", {
+            file,
+            line,
+            offset,
+            findInComments: true,
+            findInStrings: true,
         })
     }
 
@@ -226,6 +264,8 @@ export class TypeScriptServerHost extends events.EventEmitter {
             } else {
                 this._seqToPromises[seq].reject(new Error(response.message))
             }
+
+            this._seqToPromises[seq] = null
         } else {
             // If a sequence wasn't specified, it might be a call that returns multiple results
             // Like 'geterr' - returns both semanticDiag and syntaxDiag
@@ -238,8 +278,8 @@ export class TypeScriptServerHost extends events.EventEmitter {
     }
 
     private _createDeferredPromise<T>(): any {
-        let resolve: Function
-        let reject: Function
+        let resolve
+        let reject
         const promise = new Promise((res, rej) => {
             resolve = res
             reject = rej

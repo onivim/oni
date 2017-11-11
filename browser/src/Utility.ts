@@ -1,8 +1,21 @@
 /**
  * Utility.ts
  *
- * Grab bag for functions that don't have another home. 
+ * Grab bag for functions that don't have another home.
  */
+
+import * as fs from "fs"
+import * as minimatch from "minimatch"
+import * as path from "path"
+
+import * as find from "lodash/find"
+import * as isEqual from "lodash/isEqual"
+import * as reduce from "lodash/reduce"
+
+import { Observable } from "rxjs/Observable"
+import { Subject } from "rxjs/Subject"
+
+import * as types from "vscode-languageserver-types"
 
 /**
  * Use a `node` require instead of a `webpack` require
@@ -10,6 +23,7 @@
  * into the module. For most modules, we want the webpack behavior,
  * but for some (like node modules), we want to explicitly require them.
  */
+
 export function nodeRequire(moduleName: string): any {
     return window["require"](moduleName) // tslint:disable-line
 }
@@ -24,4 +38,130 @@ export const replaceAll = (str: string, wordsToReplace: { [key: string]: string 
     const re = new RegExp(Object.keys(wordsToReplace).join("|"), "gi")
 
     return str.replace(re, (matched) => wordsToReplace[matched.toLowerCase()])
+}
+
+export const diff = (newObject: any, oldObject: any) => {
+    // Return changed properties between newObject and oldObject
+    const updatedProperties = reduce(newObject, (result, value, key) => {
+        return isEqual(value, oldObject[key]) ? result : [...result, key]
+    }, [])
+
+    const keysInNewObject = Object.keys(newObject)
+    const deletedProperties = Object.keys(oldObject).filter((key) => keysInNewObject.indexOf(key) === -1)
+
+    return [...updatedProperties, ...deletedProperties]
+}
+
+export const delay = (timeoutInMs: number = 100): Promise<void> => {
+    return new Promise<void>((r) => window.setTimeout(() => r(), timeoutInMs))
+}
+
+export const doesFileNameMatchGlobPatterns = (fileName: string, globPatterns: string[]): boolean => {
+
+    if (!fileName) {
+        return false
+    }
+
+    if (!globPatterns || !globPatterns.length) {
+        return false
+    }
+
+    for (const filePattern of globPatterns) {
+        if (minimatch(fileName, filePattern)) {
+            return true
+        }
+    }
+
+    return false
+}
+
+export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
+
+    const getFilesForDirectory = (fullPath: string): Promise<string[]> => {
+        return new Promise((res, rej) => {
+            fs.readdir(fullPath, (err, files) => {
+                if (err) {
+                    rej(err)
+                } else {
+                    res(files)
+                }
+            })
+        })
+    }
+
+    const getRootProjectFile = async (fullPath: string): Promise<string> => {
+
+        const parentDir = path.dirname(fullPath)
+
+        // Test for root folder
+        if (parentDir === fullPath) {
+            return Promise.reject("Unable to find root csproj file")
+        }
+
+        const files = await getFilesForDirectory(fullPath)
+        const proj = find(files, (f) =>  doesFileNameMatchGlobPatterns(f, patternsToMatch))
+
+        if (proj) {
+            return fullPath
+        } else {
+            return getRootProjectFile(path.dirname(fullPath))
+        }
+    }
+
+    return getRootProjectFile
+}
+
+export const isInRange = (line: number, column: number, range: types.Range): boolean => {
+    return (line >= range.start.line && column >= range.start.character
+        && line <= range.end.line && column <= range.end.character)
+}
+
+/**
+ * Helper function to ignore incoming values while a promise is waiting to complete
+ * This is lossy, in that any input that comes in will be dropped while the promise
+ * is in-progress.
+ */
+export function ignoreWhilePendingPromise<T, U>(observable$: Observable<T>, promiseFunction: (input: T) => Promise<U>): Observable<U> {
+
+    // There must be a more 'RxJS' way to do this with `buffer` and `switchMap`,
+    // but I'm still amateur with this :)
+
+    const ret = new Subject<U>()
+
+    let pendingInputs: T[] = []
+    let isPromiseInFlight = false
+
+    const promiseExecutor = () => {
+
+        if (pendingInputs.length > 0) {
+            const latestValue = pendingInputs[pendingInputs.length - 1]
+            pendingInputs = []
+
+            isPromiseInFlight = true
+            promiseFunction(latestValue)
+                .then((v) => {
+                    ret.next(v)
+
+                    isPromiseInFlight = false
+                    promiseExecutor()
+                }, (err) => {
+                     isPromiseInFlight = false
+                     promiseExecutor()
+                     throw err
+                })
+
+        }
+    }
+
+    observable$.subscribe((val: T) => {
+        pendingInputs.push(val)
+
+        if (!isPromiseInFlight) {
+            promiseExecutor()
+        }
+    },
+    (err) => ret.error(err),
+    () => ret.complete())
+
+    return ret
 }

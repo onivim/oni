@@ -7,11 +7,14 @@ module.exports = {
     ],
     target: "electron-renderer",
     externals: {
-        "vscode-languageserver-types": "require('vscode-languageserver-types')"
+        "vscode-languageserver-types": "require('vscode-languageserver-types')",
+        "keyboard-layout": "require('keyboard-layout')",
+        "gifshot": "require('gifshot')"
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".less"]
     },
+    devtool: "cheap-module-eval-source-map",
     module: {
         rules: [
             {

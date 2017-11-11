@@ -6,11 +6,14 @@ yarn.lock
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
 
+# Python
+.mypy_cache
+
 # Local app data
 $LOCALAPPDATA
 
 # Output
-lib
+/lib
 lib_test
 dist
 
@@ -49,6 +52,9 @@ jspm_packages
 
 # Optional npm cache directory
 .npm
+
+# npm package-lock files
+package-lock.json
 
 # Optional eslint cache
 .eslintcache

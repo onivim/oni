@@ -1,10 +1,10 @@
-import { IDeltaRegionTracker } from "./../DeltaRegionTracker"
 import { Grid } from "./../Grid"
 import * as Performance from "./../Performance"
 import { ICell, IScreen } from "./../Screen"
 import { INeovimRenderer } from "./INeovimRenderer"
+import { getSpansToEdit, IPosition, ISpan } from "./Span"
 
-import { getSpansToEdit, ISpan } from "./Span"
+import { configuration } from "./../Services/Configuration"
 
 export interface IRenderState {
     isWhitespace: boolean
@@ -18,7 +18,7 @@ export interface IRenderState {
 
 const isWhiteSpace = (text: string) => text === null || text === "" || text === " "
 
-const cellsAreTheSame = (cell1: ICell, cell2: ICell): boolean => {
+const cellsAreSameColor = (cell1: ICell, cell2: ICell): boolean => {
     if (!cell1 || !cell2) {
         return false
     }
@@ -28,45 +28,87 @@ const cellsAreTheSame = (cell1: ICell, cell2: ICell): boolean => {
         && cell1.characterWidth === 1 && cell2.characterWidth === 1
 }
 
+const cellsAreEqual = (cell1: ICell, cell2: ICell): boolean => {
+
+    if (cell1 === cell2) {
+        return true
+    }
+
+    if (cellsAreSameColor(cell1, cell2) && cell1.character === cell2.character) {
+        return true
+    }
+
+    return false
+}
+
 export class CanvasRenderer implements INeovimRenderer {
     private _editorElement: HTMLDivElement
     private _canvasElement: HTMLCanvasElement
     private _canvasContext: CanvasRenderingContext2D
-    private _grid: Grid<ISpan> = new Grid<ISpan>()
 
+    private _width: number
+    private _height: number
+
+    private _isOpaque: boolean
+
+    private _lastRenderGrid: Grid<ICell> = new Grid<ICell>()
+    private _grid: Grid<ISpan> = new Grid<ISpan>()
     private _devicePixelRatio: number
 
     public start(element: HTMLDivElement): void {
         this._editorElement = element
 
-        this._canvasElement = document.createElement("canvas")
-        this._canvasElement.style.width = "100%"
-        this._canvasElement.style.height = "100%"
-
-        this._devicePixelRatio = window.devicePixelRatio
-        this._canvasContext = this._canvasElement.getContext("2d")
-
-        this._editorElement.appendChild(this._canvasElement)
-
-        this._setContextDimensions()
+        this._setContext()
     }
 
     public onAction(_action: any): void {
         // In the future, something like scrolling could be potentially optimized here
     }
 
-    public onResize(): void {
-        this._setContextDimensions()
-    }
+    public redrawAll(screenInfo: IScreen): void {
+        const cellsToUpdate: IPosition[] = []
 
-    public update(screenInfo: IScreen, deltaRegionTracker: IDeltaRegionTracker): void {
+        this._setContext()
 
-        const modifiedCells = deltaRegionTracker.getModifiedCells()
-
-        if (modifiedCells.length === 0) {
-            return
+        if (this._isOpaque) {
+            this._canvasContext.fillStyle = screenInfo.backgroundColor
+            this._canvasContext.fillRect(0, 0, this._width, this._height)
+        } else {
+            this._canvasContext.clearRect(0, 0, this._width, this._height)
         }
 
+        this._lastRenderGrid.clear()
+
+        for (let x = 0; x < screenInfo.width; x++) {
+            for (let y = 0; y < screenInfo.height; y++) {
+                const cell = screenInfo.getCell(x, y)
+                cellsToUpdate.push({ x, y })
+                this._lastRenderGrid.setCell(x, y , cell)
+            }
+        }
+
+        this._draw(screenInfo, cellsToUpdate)
+    }
+
+    public draw(screenInfo: IScreen): void {
+        const cellsToUpdate: IPosition[] = []
+        for (let x = 0; x < screenInfo.width; x++) {
+            for (let y = 0; y < screenInfo.height; y++) {
+
+                const lastCell = this._lastRenderGrid.getCell(x, y)
+                const currentCell = screenInfo.getCell(x, y)
+
+                if (!cellsAreEqual(lastCell, currentCell)) {
+                    cellsToUpdate.push({ x, y})
+                    this._lastRenderGrid.setCell(x, y, currentCell)
+                }
+            }
+        }
+
+        this._draw(screenInfo, cellsToUpdate)
+    }
+
+    public _draw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
         Performance.mark("CanvasRenderer.update.start")
 
         this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
@@ -79,10 +121,8 @@ export class CanvasRenderer implements INeovimRenderer {
 
         const rowsToEdit = getSpansToEdit(this._grid, modifiedCells)
 
-        modifiedCells.forEach((c) => deltaRegionTracker.notifyCellRendered(c.x, c.y))
-
-        for (let y of Object.keys(rowsToEdit)) {
-            const row = rowsToEdit[y]
+        for (const y of Object.keys(rowsToEdit)) {
+            const row: ISpan[] = rowsToEdit[y]
 
             if (!row) {
                 return
@@ -91,28 +131,28 @@ export class CanvasRenderer implements INeovimRenderer {
             row.forEach((span: ISpan) => {
                 // All spans that have changed in current rendering pass
 
-                const row = Number.parseInt(y)
+                const rowIndex = Number.parseInt(y)
 
-                const currentCell = screenInfo.getCell(span.startX, row)
+                const currentCell = screenInfo.getCell(span.startX, rowIndex)
 
                 // Check spans before & after, to see if they can be merged
                 // (In other words, if they should be re-rendered together)
                 // This is important for ligature cases.
-                const gridCellBefore = screenInfo.getCell(span.startX - 1, row)
-                const gridCellAfter = screenInfo.getCell(span.endX + 1, row)
+                const gridCellBefore = screenInfo.getCell(span.startX - 1, rowIndex)
+                const gridCellAfter = screenInfo.getCell(span.endX + 1, rowIndex)
 
                 let updatedStartX = span.startX
                 let updatedEndX = span.endX
 
-                if (cellsAreTheSame(currentCell, gridCellBefore)) {
-                    const previousCell = this._grid.getCell(span.startX - 1, row)
+                if (cellsAreSameColor(currentCell, gridCellBefore)) {
+                    const previousCell = this._grid.getCell(span.startX - 1, rowIndex)
                     if (previousCell) {
                         updatedStartX = previousCell.startX
                     }
                 }
 
-                if (cellsAreTheSame(currentCell, gridCellAfter)) {
-                    const afterCell = this._grid.getCell(span.endX + 1, row)
+                if (cellsAreSameColor(currentCell, gridCellAfter)) {
+                    const afterCell = this._grid.getCell(span.endX + 1, rowIndex)
 
                     if (afterCell) {
                         updatedEndX = afterCell.endX
@@ -124,7 +164,7 @@ export class CanvasRenderer implements INeovimRenderer {
                     endX: updatedEndX,
                 }
 
-                this._renderSpan(updatedSpan, row, screenInfo)
+                this._renderSpan(updatedSpan, rowIndex, screenInfo)
             })
         }
 
@@ -166,7 +206,8 @@ export class CanvasRenderer implements INeovimRenderer {
 
         if (cell.foregroundColor !== currentState.foregroundColor
             || cell.backgroundColor !== currentState.backgroundColor
-            || isCurrentCellWhiteSpace !== currentState.isWhitespace) {
+            || isCurrentCellWhiteSpace !== currentState.isWhitespace
+            || cell.characterWidth > 1) {
             return {
                 isWhitespace: isCurrentCellWhiteSpace,
                 foregroundColor: cell.foregroundColor,
@@ -210,21 +251,33 @@ export class CanvasRenderer implements INeovimRenderer {
 
         const { backgroundColor, foregroundColor, text, startX, y } = state
 
-        const fontWidth = screenInfo.fontWidthInPixels
-        const fontHeight = screenInfo.fontHeightInPixels
+        const { fontWidthInPixels, fontHeightInPixels, linePaddingInPixels } = screenInfo
 
-        if (backgroundColor && backgroundColor !== screenInfo.backgroundColor) {
+        const boundsStartX = startX * fontWidthInPixels
+        const boundsWidth = state.width * fontWidthInPixels
 
-            this._canvasContext.fillStyle = backgroundColor
-            // TODO: Width of non-english characters
-            this._canvasContext.fillRect(startX * fontWidth, y * fontHeight, state.width * fontWidth, fontHeight)
+        // This normalization is required to fix "cracks" due to anti-aliasing and rendering
+        // rectangles on subpixel boundaries. Sometimes, the rectangle will not "connect"
+        // between adjacent boundaries, and there is a crack between the blocks. Worse,
+        // sometimes when clearing a rectangle, a thin line will be left.
+        //
+        // This normalization addresses it by making sure the rectangle bounds are aligned
+        // to the nearest integer pixel.
+        const normalizedBoundsStartX = Math.floor(boundsStartX)
+        const delta = boundsStartX - normalizedBoundsStartX
+        const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
+
+        this._canvasContext.fillStyle = backgroundColor || screenInfo.backgroundColor
+
+        if (this._isOpaque || (backgroundColor && backgroundColor !== screenInfo.backgroundColor)) {
+            this._canvasContext.fillRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
         } else {
-            this._canvasContext.clearRect(startX * fontWidth, y * fontHeight, state.width * fontWidth, fontHeight)
+            this._canvasContext.clearRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
         }
 
         if (!state.isWhitespace) {
             this._canvasContext.fillStyle = foregroundColor
-            this._canvasContext.fillText(text, startX * fontWidth, y * fontHeight)
+            this._canvasContext.fillText(text, boundsStartX, y * fontHeightInPixels + linePaddingInPixels / 2)
         }
 
         // Commit span dimensions to grid
@@ -238,8 +291,26 @@ export class CanvasRenderer implements INeovimRenderer {
         }
     }
 
-    private _setContextDimensions(): void {
-        this._canvasElement.width = this._canvasElement.offsetWidth * this._devicePixelRatio
-        this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
+    private _setContext(): void {
+        this._editorElement.innerHTML = ""
+
+        this._canvasElement = document.createElement("canvas")
+        this._canvasElement.style.width = "100%"
+        this._canvasElement.style.height = "100%"
+
+        this._devicePixelRatio = window.devicePixelRatio
+
+        this._editorElement.appendChild(this._canvasElement)
+
+        this._width = this._canvasElement.width = this._canvasElement.offsetWidth * this._devicePixelRatio
+        this._height = this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
+
+        if (configuration.getValue("editor.backgroundImageUrl") && configuration.getValue("editor.backgroundOpacity") < 1.0) {
+            this._canvasContext = this._canvasElement.getContext("2d", { alpha: true })
+            this._isOpaque = false
+        } else {
+            this._canvasContext = this._canvasElement.getContext("2d", { alpha: false })
+            this._isOpaque = true
+        }
     }
 }

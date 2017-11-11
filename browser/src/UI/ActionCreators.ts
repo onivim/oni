@@ -9,35 +9,57 @@
 
 import * as types from "vscode-languageserver-types"
 
-import * as Events from "./Events"
+import * as isEqual from "lodash/isEqual"
+import "rxjs/add/operator/distinctUntilChanged"
+import { Subject } from "rxjs/Subject"
+
 import { Rectangle } from "./Types"
 
 import * as Actions from "./Actions"
-import { events } from "./Events"
-import { ILog } from "./Logs"
+import * as Coordinates from "./Coordinates"
+import * as UI from "./index"
 import * as State from "./State"
 
-import * as Config from "./../Config"
 import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
 
-export const bufferEnter = (id: number, file: string, totalLines: number, hidden: boolean, listed: boolean) => ({
+import { IConfigurationValues } from "./../Services/Configuration"
+
+export type DispatchFunction = (action: any) => void
+export type GetStateFunction = () => State.IState
+
+export const setViewport = (width: number, height: number) => ({
+    type: "SET_VIEWPORT",
+    payload: {
+        width,
+        height,
+    },
+})
+
+export const setCursorScale = (cursorScale: number) => ({
+    type: "SET_CURSOR_SCALE",
+    payload: {
+        cursorScale,
+    },
+})
+
+export const bufferEnter = (id: number, file: string, language: string, totalLines: number, hidden: boolean, listed: boolean) => ({
     type: "BUFFER_ENTER",
     payload: {
         id,
         file: normalizePath(file),
+        language,
         totalLines,
         hidden,
         listed,
     },
 })
 
-export const bufferUpdate = (id: number, modified: boolean, version: number, totalLines: number) => ({
+export const bufferUpdate = (id: number, modified: boolean, totalLines: number) => ({
     type: "BUFFER_UPDATE",
     payload: {
         id,
         modified,
-        version,
         totalLines,
     },
 })
@@ -58,6 +80,21 @@ export const setCurrentBuffers = (bufferIds: number[]) => ({
     },
 })
 
+export const setImeActive = (imeActive: boolean) => ({
+    type: "SET_IME_ACTIVE",
+    payload: {
+        imeActive,
+    },
+})
+
+export const setFont = (fontFamily: string, fontSize: string) => ({
+    type: "SET_FONT",
+    payload: {
+        fontFamily,
+        fontSize,
+    },
+})
+
 export const setTabs = (selectedTabId: number, tabs: State.ITab[]): Actions.ISetTabs => ({
     type: "SET_TABS",
     payload: {
@@ -66,33 +103,60 @@ export const setTabs = (selectedTabId: number, tabs: State.ITab[]): Actions.ISet
     },
 })
 
-export const setWindowState = (windowId: number, file: string, column: number, line: number, winline: number, wincolumn: number, windowTopLine: number, windowBottomLine: number) => ({
-    type: "SET_WINDOW_STATE",
+export const setWindowCursor = (windowId: number, line: number, column: number) => ({
+    type: "SET_WINDOW_CURSOR",
     payload: {
         windowId,
-        file: normalizePath(file),
-        column,
         line,
-        winline,
-        wincolumn,
-        windowTopLine,
-        windowBottomLine,
+        column,
     },
 })
 
-export const setWindowLineMapping = (windowId: number, lineMapping: State.WindowLineMap) => ({
-    type: "SET_WINDOW_LINE_MAP",
+export const setWindowState = (windowId: number,
+                               file: string,
+                               column: number,
+                               line: number,
+                               bottomBufferLine: number,
+                               topBufferLine: number,
+                               dimensions: Rectangle,
+                               bufferToScreen: Coordinates.BufferToScreen) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
+
+    const { fontPixelWidth, fontPixelHeight } = getState()
+
+    const screenToPixel = (screenSpace: Coordinates.ScreenSpacePoint) => ({
+            pixelX: screenSpace.screenX * fontPixelWidth,
+            pixelY: screenSpace.screenY * fontPixelHeight,
+    })
+
+    dispatch({
+        type: "SET_WINDOW_STATE",
+        payload: {
+            windowId,
+            file: normalizePath(file),
+            column,
+            dimensions,
+            line,
+            bufferToScreen,
+            screenToPixel,
+            bottomBufferLine,
+            topBufferLine,
+        },
+    })
+}
+
+export const showToolTip = (id: string, element: JSX.Element, options?: Oni.ToolTip.ToolTipOptions) => ({
+    type: "SHOW_TOOL_TIP",
     payload: {
-        windowId,
-        lineMapping,
+        id,
+        element,
+        options,
     },
 })
 
-export const setWindowDimensions = (windowId: number, dimensions: Rectangle) => ({
-    type: "SET_WINDOW_DIMENSIONS",
+export const hideToolTip = (id: string) => ({
+    type: "HIDE_TOOL_TIP",
     payload: {
-        windowId,
-        dimensions,
+        id,
     },
 })
 
@@ -102,14 +166,6 @@ export const setErrors = (file: string, key: string, errors: types.Diagnostic[])
         file: normalizePath(file),
         key,
         errors,
-    },
-})
-
-export const clearErrors = (file: string, key: string) => ({
-    type: "CLEAR_ERRORS",
-    payload: {
-        file,
-        key,
     },
 })
 
@@ -127,7 +183,7 @@ export const hideMessageDialog = (): Actions.IHideMessageDialog => ({
     type: "HIDE_MESSAGE_DIALOG",
 })
 
-export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => (dispatch: Function, getState: Function) => {
+export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
 
     const currentStatusBarItem = getState().statusBar[id]
 
@@ -154,46 +210,23 @@ export const hideStatusBarItem = (id: string) => ({
     },
 })
 
-export const showCompletions = (result: Oni.Plugin.CompletionResult) => (dispatch: Function, getState: Function) => {
-    dispatch(_showAutoCompletion(result.base, result.completions))
+const $setCursorPosition = new Subject<any>()
+$setCursorPosition
+    .distinctUntilChanged(isEqual)
+    .subscribe((action) => {
+        UI.store.dispatch({
+            type: "SET_CURSOR_POSITION",
+            payload: action,
+        })
+    })
 
-    if (result.completions.length > 0) {
-        emitCompletionItemSelectedEvent(getState())
-    }
-}
-
-export const previousCompletion = () => (dispatch: Function, getState: Function) => {
-    dispatch(_previousAutoCompletion())
-
-    emitCompletionItemSelectedEvent(getState())
-}
-
-export const nextCompletion = () => (dispatch: Function, getState: Function) => {
-    dispatch(_nextAutoCompletion())
-
-    emitCompletionItemSelectedEvent(getState())
-}
-
-function emitCompletionItemSelectedEvent(state: State.IState): void {
-    const autoCompletion = state.autoCompletion
-    if (autoCompletion != null) {
-        const entry = autoCompletion.entries[autoCompletion.selectedIndex]
-        events.emit(Events.CompletionItemSelectedEvent, entry)
-    }
-}
-
-export const setCursorPosition = (screen: IScreen) => (dispatch: Function) => {
+export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunction) => {
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
-    if (screen.cursorRow === screen.height - 1) {
-        dispatch(hideQuickInfo())
-        dispatch(hideSignatureHelp())
-    }
-
-    dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
+    $setCursorPosition.next(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels).payload)
 }
 
-export const setColors = (foregroundColor: string, backgroundColor: string) => (dispatch: Function, getState: Function) => {
+export const setColors = (foregroundColor: string, backgroundColor: string) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     if (foregroundColor === getState().foregroundColor && backgroundColor === getState().backgroundColor) {
         return
     }
@@ -206,92 +239,17 @@ export const setMode = (mode: string) => ({
     payload: { mode },
 })
 
-export const showSignatureHelp = (signatureHelpResult: Oni.Plugin.SignatureHelpResult) => ({
-    type: "SHOW_SIGNATURE_HELP",
-    payload: signatureHelpResult,
-})
-
-export const hideSignatureHelp = () => ({
-    type: "HIDE_SIGNATURE_HELP",
-})
-
-export const showPopupMenu = (id: string, options: Oni.Menu.MenuOption[]) => ({
-    type: "SHOW_MENU",
+export const setDefinition = (token: Oni.IToken, definitionLocation: types.Location): Actions.IShowDefinitionAction => ({
+    type: "SHOW_DEFINITION",
     payload: {
-        id,
-        options,
+        token,
+        definitionLocation,
     },
 })
 
-export const hidePopupMenu = () => ({
-    type: "HIDE_MENU",
+export const hideDefinition = () => ({
+    type: "HIDE_DEFINITION",
 })
-
-export const previousMenuItem = () => ({
-    type: "PREVIOUS_MENU",
-})
-
-export const filterMenu = (filterString: string) => ({
-    type: "FILTER_MENU",
-    payload: {
-        filter: filterString,
-    },
-})
-
-export const nextMenuItem = () => ({
-    type: "NEXT_MENU",
-})
-
-export const selectMenuItem = (openInSplit: string, index?: number) => (dispatch: Function, getState: Function) => {
-
-    const state = getState()
-
-    if (!state || !state.popupMenu) {
-        return
-    }
-
-    const selectedIndex = index || state.popupMenu.selectedIndex
-    const selectedOption = state.popupMenu.filteredOptions[selectedIndex]
-
-    Events.events.emit("menu-item-selected:" + state.popupMenu.id, { selectedOption, openInSplit })
-
-    dispatch(hidePopupMenu())
-}
-
-export const showQuickInfo = (title: string, description: string) => ({
-    type: "SHOW_QUICK_INFO",
-    payload: {
-        title,
-        description,
-    },
-})
-
-const _showAutoCompletion = (base: string, entries: Oni.Plugin.CompletionInfo[]) => ({
-    type: "SHOW_AUTO_COMPLETION",
-    payload: {
-        base,
-        entries,
-    },
-})
-
-export const setDetailedCompletionEntry = (detailedEntry: Oni.Plugin.CompletionInfo) => ({
-    type: "SET_AUTO_COMPLETION_DETAILS",
-    payload: {
-        detailedEntry,
-    },
-})
-
-export const hideCompletions = () => ({ type: "HIDE_AUTO_COMPLETION" })
-
-export const hideQuickInfo = () => ({ type: "HIDE_QUICK_INFO" })
-
-export const hideCursorLine = () => ({ type: "HIDE_CURSOR_LINE" })
-
-export const showCursorLine = () => ({ type: "SHOW_CURSOR_LINE" })
-
-export const showCursorColumn = () => ({ type: "SHOW_CURSOR_COLUMN" })
-
-export const hideCursorColumn = () => ({ type: "HIDE_CURSOR_COLUMN" })
 
 export const setCursorLineOpacity = (opacity: number) => ({
     type: "SET_CURSOR_LINE_OPACITY",
@@ -307,7 +265,7 @@ export const setCursorColumnOpacity = (opacity: number) => ({
     },
 })
 
-export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Config.IConfigValues[K]): Actions.ISetConfigurationValue<K> {
+export function setConfigValue<K extends keyof IConfigurationValues>(k: K, v: IConfigurationValues[K]): Actions.ISetConfigurationValue<K> {
     return {
         type: "SET_CONFIGURATION_VALUE",
         payload: {
@@ -316,18 +274,6 @@ export function setConfigValue<K extends keyof Config.IConfigValues>(k: K, v: Co
         },
     }
 }
-export const toggleLogFold = (index: number): Actions.IToggleLogFold => ({
-    type: "TOGGLE_LOG_FOLD",
-    payload: { index },
-})
-export const changeLogsVisibility = (visibility: boolean): Actions.IChangeLogsVisibility => ({
-    type: "CHANGE_LOGS_VISIBILITY",
-    payload: { visibility },
-})
-export const makeLog = (log: ILog): Actions.IMakeLog => ({
-    type: "MAKE_LOG",
-    payload: { log },
-})
 
 const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
     type: "SET_CURSOR_POSITION",
@@ -344,12 +290,4 @@ const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth
 const _setColors = (foregroundColor: string, backgroundColor: string) => ({
     type: "SET_COLORS",
     payload: { foregroundColor, backgroundColor },
-})
-
-const _nextAutoCompletion = () => ({
-    type: "NEXT_AUTO_COMPLETION",
-})
-
-const _previousAutoCompletion = () => ({
-    type: "PREVIOUS_AUTO_COMPLETION",
 })

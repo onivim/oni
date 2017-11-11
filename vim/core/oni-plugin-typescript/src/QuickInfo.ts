@@ -1,27 +1,28 @@
 /**
- * QuickInfo.ts
+ * index.ts
  *
- * Show QuickInfo (or error) as cursor moves in normal mode
+ * Entry point for ONI's TypeScript Language Service integraiton
  */
-import {TypeScriptServerHost} from "./TypeScriptServerHost"
 
-export class QuickInfo {
-    private _host: TypeScriptServerHost
-    private _oni: any
+/// <reference path="./../../../../definitions/Oni.d.ts" />
+/// <reference path="./../../../../node_modules/typescript/lib/protocol.d.ts" />
 
-    constructor(oni: any, host: TypeScriptServerHost) {
-        this._oni = oni
-        this._host = host
-        // this._errorManager = errorManager;
-    }
+import * as os from "os"
+import * as path from "path"
 
-    public showQuickInfo(fullBufferPath: string, line: number, col: number): void {
-        this._host.getQuickInfo(fullBufferPath, line, col).then((val: any) => {
-            console.log("Quick info: " + JSON.stringify(val)) // tslint:disable-line no-console
+import * as types from "vscode-languageserver-types"
 
-            // Truncate display string if over 100 characters
+import { TypeScriptServerHost } from "./TypeScriptServerHost"
 
-            this._oni.showQuickInfo(val.displayString, val.documentation)
-        })
+export const getQuickInfo = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (protocolName: string, payload: any): Promise<types.Hover> => {
+
+    const textDocument: types.TextDocument  = payload.textDocument
+    const position: types.Position = payload.position
+
+    const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
+    const val = await host.getQuickInfo(filePath, position.line + 1, position.character + 1)
+
+    return {
+        contents: [val.displayString, val.documentation],
     }
 }

@@ -6,16 +6,15 @@ import * as React from "react"
 
 import { connect } from "react-redux"
 
-import * as State from "./../State"
+import { IState, StatusBarAlignment } from "./../State"
 
 require("./StatusBar.less") // tslint:disable-line no-var-requires
-
-import { StatusBarAlignment } from "./../State"
 
 export interface StatusBarProps {
     items: StatusBarItemProps[]
     enabled: boolean
     fontSize: string
+    fontFamily: string
 }
 
 export interface StatusBarItemProps {
@@ -25,7 +24,7 @@ export interface StatusBarItemProps {
     priority: number
 }
 
-export class StatusBar extends React.PureComponent<StatusBarProps, void> {
+export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
 
     public render() {
         if (!this.props.enabled) {
@@ -42,6 +41,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
             .sort((a, b) => b.priority - a.priority)
 
         const statusBarStyle = {
+            "fontFamily": this.props.fontFamily,
             "fontSize": this.props.fontSize,
         }
 
@@ -68,7 +68,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps, void> {
     }
 }
 
-export class StatusBarItem extends React.PureComponent<StatusBarItemProps, void> {
+export class StatusBarItem extends React.PureComponent<StatusBarItemProps, {}> {
     public render() {
         return <div className="status-bar-item">{this.props.contents}</div>
     }
@@ -76,7 +76,7 @@ export class StatusBarItem extends React.PureComponent<StatusBarItemProps, void>
 
 import { createSelector } from "reselect"
 
-const getStatusBar = (state: State.IState) => state.statusBar
+const getStatusBar = (state: IState) => state.statusBar
 
 const getStatusBarItems = createSelector(
     [getStatusBar],
@@ -91,12 +91,13 @@ const getStatusBarItems = createSelector(
         return statusBarItems
     })
 
-const mapStateToProps = (state: State.IState): StatusBarProps => {
+const mapStateToProps = (state: IState): StatusBarProps => {
 
     const statusBarItems = getStatusBarItems(state)
 
     return {
-        fontSize: state.configuration["statusbar.fontSize"],
+        fontFamily: state.configuration["ui.fontFamily"],
+        fontSize: state.configuration["statusbar.fontSize"] || state.configuration["ui.fontSize"],
         items: statusBarItems,
         enabled: state.configuration["statusbar.enabled"],
     }

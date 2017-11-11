@@ -1,9 +1,24 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es5",
+        "moduleResolution": "node",
+        "target": "es2015",
         "noImplicitAny": false,
         "sourceMap": false,
-        "outDir": "../lib_test/test"
-    }
+        "outDir": "../lib_test/test",
+        "lib": [
+            "dom",
+            "es2017"
+        ],
+        "skipLibCheck": true
+    },
+    "files": [
+        "./../definitions/Oni.d.ts"
+    ],
+    "include": [
+        "**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }
