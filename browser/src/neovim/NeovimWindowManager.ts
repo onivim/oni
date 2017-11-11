@@ -5,6 +5,13 @@
  * with the current state of the neovim instance.
  */
 
+import { Observable } from "rxjs/Observable"
+import { Subject } from "rxjs/Subject"
+
+import "rxjs/add/operator/distinctUntilChanged"
+
+import * as isEqual from "lodash/isEqual"
+
 import * as types from "vscode-languageserver-types"
 
 import { NeovimInstance } from "./index"
@@ -15,44 +22,49 @@ import * as Utility from "./../Utility"
 
 export class NeovimWindowManager {
 
-    private _lastEvent: Oni.EventContext
+    private _scrollObservable: Subject<Oni.EventContext>
 
     constructor(
         private _neovimInstance: NeovimInstance,
     ) {
-        this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
-        this._neovimInstance.autoCommands.onBufWinEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
-        this._neovimInstance.autoCommands.onWinEnter.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
-        this._neovimInstance.autoCommands.onCursorMoved.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
-        this._neovimInstance.autoCommands.onVimResized.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
-        this._neovimInstance.onScroll.subscribe((evt: Oni.EventContext) => this._remeasureWindow(evt))
+
+        this._scrollObservable = new Subject<Oni.EventContext>()
+
+        const updateScroll = (evt: Oni.EventContext) => this._scrollObservable.next(evt)
+
+        this._neovimInstance.autoCommands.onBufEnter.subscribe(updateScroll)
+        this._neovimInstance.autoCommands.onBufWinEnter.subscribe(updateScroll)
+        this._neovimInstance.onBufferUpdate.subscribe((buf) => updateScroll(buf.context))
+        this._neovimInstance.autoCommands.onWinEnter.subscribe(updateScroll)
+        this._neovimInstance.autoCommands.onCursorMoved.subscribe(updateScroll)
+        this._neovimInstance.autoCommands.onVimResized.subscribe(updateScroll)
+        this._neovimInstance.onScroll.subscribe(updateScroll)
+
+        const shouldMeasure$: Observable<void> = this._scrollObservable
+            .auditTime(25)
+            .map((evt: Oni.EventContext) => ({
+                version: evt.version,
+                bufferTotalLines: evt.bufferTotalLines,
+                windowNumber: evt.windowNumber,
+                windowTopLine: evt.windowTopLine,
+                windowBottomLine: evt.windowBottomLine,
+                windowWidth: evt.windowWidth,
+                windowHeight: evt.windowHeight,
+            }))
+            .distinctUntilChanged(isEqual)
+
+        shouldMeasure$
+            .withLatestFrom(this._scrollObservable)
+            .subscribe((args: [any, Oni.EventContext]) => {
+
+                const [, evt] = args
+                this._remeasureWindow(evt, false)
+            })
     }
 
     public async remeasure(): Promise<void> {
-        if (this._lastEvent) {
-            const newContext = await this._neovimInstance.getContext()
-            this._remeasureWindow(newContext, true)
-        }
-    }
-
-    private _shouldRemeasure(context: Oni.EventContext): boolean {
-
-        if (!this._lastEvent) {
-            return true
-        }
-
-        if (context.version === this._lastEvent.version
-            && context.bufferTotalLines === this._lastEvent.bufferTotalLines
-            && context.bufferNumber === this._lastEvent.bufferNumber
-            && context.windowNumber === this._lastEvent.windowNumber
-            && context.windowTopLine === this._lastEvent.windowTopLine
-            && context.windowBottomLine === this._lastEvent.windowBottomLine
-            && context.windowWidth === this._lastEvent.windowWidth
-            && context.windowHeight === this._lastEvent.windowHeight) {
-                return false
-            } else {
-                return true
-            }
+        const newContext = await this._neovimInstance.getContext()
+        this._scrollObservable.next(newContext)
     }
 
     // The goal of this function is to acquire functions for the current window:
@@ -69,13 +81,6 @@ export class NeovimWindowManager {
     //
     // We can derive these from information coming from the event handlers, along with screen width
     private async _remeasureWindow(context: Oni.EventContext, force: boolean = false): Promise<void> {
-
-        if (!force && !this._shouldRemeasure(context)) {
-            return Promise.resolve()
-        }
-
-        this._lastEvent = context
-
         const currentWin: any = await this._neovimInstance.request("nvim_get_current_win", [])
 
         const atomicCalls = [

@@ -24,36 +24,53 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 import * as UI from "./../../UI"
 import * as Colors from "./../../UI/Colors"
 import * as Selectors from "./../../UI/Selectors"
+import * as Utility from "./../../Utility"
+
+import { IResultWithPosition } from "./LanguageClientTypes"
+
+import { configuration } from "./../Configuration"
+import { editorManager } from "./../EditorManager"
 
 export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observable<void>) => {
 
     const hoverToolTipId = "hover-tool-tip"
 
+    shouldUpdate$.subscribe(() => UI.Actions.hideToolTip(hoverToolTipId))
     shouldHide$.subscribe(() => UI.Actions.hideToolTip(hoverToolTipId))
 
-    const nullifier$ = shouldHide$.map(() => null)
+    const shouldUpdateQuickInfo$ = shouldUpdate$
+        .debounceTime(configuration.getValue("editor.quickInfo.delay"))
 
-    const quickInfoResults$ = shouldUpdate$
-        .flatMap(async () => await getQuickInfo())
-        .merge(nullifier$)
+    const quickInfoResults$ = Utility.ignoreWhilePendingPromise(shouldUpdateQuickInfo$, () => getQuickInfo())
 
     const errors$ = UI.state$
+        .filter((state) => state.mode === "normal")
         .map((state) => Selectors.getErrorsForPosition(state))
         .distinctUntilChanged(isEqual)
 
-    shouldUpdate$
-            .combineLatest(quickInfoResults$, errors$)
-            .debounceTime(100)
-            .subscribe((args: [any, types.Hover, types.Diagnostic[]]) => {
-                const [, hover, errors] = args
+    quickInfoResults$
+            .withLatestFrom(quickInfoResults$, errors$)
+            .subscribe((args: [any, IResultWithPosition<types.Hover>, types.Diagnostic[]]) => {
+                const [, result, errors] = args
+
+                const activeCursor = editorManager.activeEditor.activeBuffer.cursor
+
+                let hover = null
+
+                if (result && (result.position.line === activeCursor.line && result.position.character === activeCursor.column)) {
+                    hover = result.result
+                }
 
                 if (hover || (errors && errors.length)) {
+                    const state: any = UI.store.getState()
                     const elem = renderQuickInfo(hover, errors)
                     UI.Actions.showToolTip(hoverToolTipId, elem, {
-                        position: null,
+                        position: { pixelX: state.cursorPixelX, pixelY: state.cursorPixelY },
                         openDirection: 1,
                         padding: "0px",
                     })
+                } else {
+                    UI.Actions.hideToolTip(hoverToolTipId)
                 }
             })
 }

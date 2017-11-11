@@ -27,7 +27,7 @@ export interface IErrorsProps {
 
 const padding = 8
 
-export class Errors extends React.PureComponent<IErrorsProps, void> {
+export class Errors extends React.PureComponent<IErrorsProps, {}> {
     public render(): JSX.Element {
         const errors = this.props.errors || []
 
@@ -98,7 +98,7 @@ export interface IErrorMarkerProps {
     color: string
 }
 
-export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, void> {
+export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, {}> {
 
     public render(): JSX.Element {
 
@@ -134,7 +134,7 @@ export interface IErrorSquiggleProps {
     color: string,
 }
 
-export class ErrorSquiggle extends React.PureComponent<IErrorSquiggleProps, void> {
+export class ErrorSquiggle extends React.PureComponent<IErrorSquiggleProps, {}> {
     public render(): JSX.Element {
 
         const { x, y, width, height, color } = this.props

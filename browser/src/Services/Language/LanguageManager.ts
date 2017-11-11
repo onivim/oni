@@ -13,6 +13,7 @@ import { Event } from "./../../Event"
 import { IDisposable } from "./../../IDisposable"
 import * as Log from "./../../Log"
 
+import { configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
 
 import { ILanguageClient } from "./LanguageClient"
@@ -23,6 +24,8 @@ import * as LanguageClientTypes from "./LanguageClientTypes"
 import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
 
 import { listenForWorkspaceEdits } from "./Workspace"
+
+import * as Utility from "./../../Utility"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -49,9 +52,12 @@ export class LanguageManager {
                 this._statusBar.hide()
             }
 
-            return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", () => {
+            return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", async () => {
+                const lines = await editorManager.activeEditor.activeBuffer.getLines()
+                const text = lines.join(os.EOL)
+                const version = editorManager.activeEditor.activeBuffer.version
                 this._statusBar.setStatus(LanguageClientState.Active)
-                return Helpers.pathToTextDocumentIdentifierParms(filePath)
+                return Helpers.pathToTextDocumentItemParams(filePath, language, text, version)
             })
         })
 
@@ -107,6 +113,11 @@ export class LanguageManager {
             logDebug(args)
         })
 
+        this.handleLanguageServerRequest("workspace/configuration", async (req) => {
+            Log.warn("workspace/configuration not implemented: " + JSON.stringify(req.toString()))
+            return null
+        })
+
         this.handleLanguageServerRequest("window/showMessageRequest", async (req) => {
             logVerbose(req)
             return null
@@ -134,7 +145,13 @@ export class LanguageManager {
     }
 
     public getCompletionTriggerCharacters(language: string): string[] {
-        return ["."]
+        const languageSpecificTriggerChars = configuration.getValue(`language.${language}.completionTriggerCharacters`)
+
+        if (languageSpecificTriggerChars) {
+            return languageSpecificTriggerChars
+        } else {
+            return ["."]
+        }
     }
 
     public isLanguageServerAvailable(language: string): boolean {
@@ -143,6 +160,8 @@ export class LanguageManager {
 
     public async sendLanguageServerNotification(language: string, filePath: string, protocolMessage: string, protocolPayload: LanguageClientTypes.NotificationValueOrThunk): Promise<void> {
         const languageClient = this._getLanguageClient(language)
+
+        await this._simulateFakeLag()
 
         if (languageClient) {
             await languageClient.sendNotification(filePath, protocolMessage, protocolPayload)
@@ -155,6 +174,8 @@ export class LanguageManager {
         const languageClient = this._getLanguageClient(language)
 
         Log.verbose("[LANGUAGE] Sending request: " + protocolMessage + "|" + JSON.stringify(protocolPayload))
+
+        await this._simulateFakeLag()
 
         if (languageClient) {
             try {
@@ -245,6 +266,15 @@ export class LanguageManager {
                 break
             default:
                 break
+        }
+    }
+
+    private async _simulateFakeLag(): Promise<void> {
+        const delay = configuration.getValue("debug.fakeLag.languageServer")
+        if (!delay) {
+            return
+        } else {
+            await Utility.delay(delay)
         }
     }
 }

@@ -118,11 +118,16 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
                 ref={(elem) => this._keyboardElement = elem}
                 type={"text"}
                 onKeyDown={(evt) => this._onKeyDown(evt)}
+                onKeyUp={(evt) => this._onKeyUp(evt)}
                 onCompositionEnd={(evt) => this._onCompositionEnd(evt)}
                 onCompositionUpdate={(evt) => this._onCompositionUpdate(evt)}
                 onCompositionStart={(evt) => this._onCompositionStart(evt)}
                 onInput={(evt) => this._onInput(evt)} />
         </div>
+    }
+
+    private _onKeyUp(evt: React.KeyboardEvent<HTMLInputElement>) {
+        UI.Actions.setCursorScale(1)
     }
 
     private _onKeyDown(evt: React.KeyboardEvent<HTMLInputElement>) {
@@ -135,6 +140,8 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
         if (this.state.isComposing) {
             return
         }
+
+        UI.Actions.setCursorScale(1.1)
 
         const key = keyEventToVimKey(evt.nativeEvent)
 

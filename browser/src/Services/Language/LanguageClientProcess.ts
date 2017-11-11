@@ -147,7 +147,36 @@ export class LanguageClientProcess {
             clientName: "oni",
             rootPath,
             rootUri: Helpers.wrapPathInFileUri(rootPath),
-            capabilities: {},
+            capabilities: {
+                workspace: {
+                    applyEdit: true,
+                    configuration: true,
+                    workspaceEdit: {
+                        documentChanges: false,
+                    },
+                    didChangeConfiguration: true,
+                    didChangeWatchedFiles: false,
+                    symbol: true,
+                    executeCommand: true,
+                },
+                textDocument: {
+                    synchronization: true,
+                    completion: true,
+                    hover: true,
+                    signatureHelp: true,
+                    references: true,
+                    documentHighlight: false,
+                    documentSymbol: true,
+                    formatting: true,
+                    rangeFormatting: true,
+                    onTypeFormatting: false,
+                    definition: true,
+                    codeAction: true,
+                    codeLens: true,
+                    documentLink: false,
+                    rename: true,
+                },
+            },
         }
 
         try {

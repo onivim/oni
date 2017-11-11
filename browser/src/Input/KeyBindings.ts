@@ -48,7 +48,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<esc>", "language.rename.cancel")
     input.bind("<enter>", "language.rename.commit")
 
-    input.bind("<f3>", "language.formatDocument")
+    input.bind("<f3>", "language.format")
     input.bind(["<f12>"], "language.gotoDefinition", () => isNormalMode() && !menu.isMenuOpen())
     input.bind(["<c-enter>", "<c-f12>"], "language.gotoDefinition.openVertical", () => isNormalMode() && !menu.isMenuOpen())
     input.bind(["<s-enter>", "<s-f12>"], "language.gotoDefinition.openHorizontal", () => isNormalMode() && !menu.IsMenuOpen())

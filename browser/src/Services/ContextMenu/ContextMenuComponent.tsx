@@ -21,6 +21,7 @@ export interface IContextMenuItem {
     label: string
     detail?: string
     documentation?: string
+    icon?: string
 }
 
 export interface IContextMenuProps {
@@ -35,7 +36,7 @@ export interface IContextMenuProps {
 
 require("./ContextMenu.less") // tslint:disable-line no-var-requires
 
-export class ContextMenuView extends React.PureComponent<IContextMenuProps, void> {
+export class ContextMenuView extends React.PureComponent<IContextMenuProps, {}> {
 
     public render(): null | JSX.Element {
 
@@ -82,7 +83,7 @@ export interface IContextMenuItemProps extends Oni.Menu.MenuOption {
     highlightColor?: string
 }
 
-export class ContextMenuItem extends React.PureComponent<IContextMenuItemProps, void> {
+export class ContextMenuItem extends React.PureComponent<IContextMenuItemProps, {}> {
     public render(): JSX.Element {
 
         let className = "entry"

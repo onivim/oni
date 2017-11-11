@@ -24,7 +24,21 @@ export const initDefinitionUI = (shouldHide$: Observable<any>, shouldUpdate$: Ob
             if (!definitionResult || !definitionResult.result) {
                 UI.Actions.hideDefinition()
             } else {
-                UI.Actions.setDefinition(definitionResult.token, definitionResult.result)
+                const result: types.Location | types.Location[] = definitionResult.result
+
+                if (!result) {
+                    return
+                }
+
+                if (result instanceof Array) {
+                    if (!result.length) {
+                        return
+                    }
+
+                    UI.Actions.setDefinition(definitionResult.token, result[0])
+                } else {
+                    UI.Actions.setDefinition(definitionResult.token, result)
+                }
             }
         })
 }

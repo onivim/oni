@@ -13,7 +13,7 @@ export interface IRenameViewProps {
     onComplete: (val: string) => void
 }
 
-export class RenameView extends React.PureComponent<IRenameViewProps, void> {
+export class RenameView extends React.PureComponent<IRenameViewProps, {}> {
 
     public render(): JSX.Element {
 

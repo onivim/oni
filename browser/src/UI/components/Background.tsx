@@ -10,7 +10,7 @@ export interface IBackgroundProps {
     backgroundOpacity: number
 }
 
-export class BackgroundView extends React.PureComponent<IBackgroundProps, void> {
+export class BackgroundView extends React.PureComponent<IBackgroundProps, {}> {
     public render(): JSX.Element {
         const coverStyle = {
             backgroundColor: this.props.backgroundColor,

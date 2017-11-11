@@ -16,7 +16,7 @@ export interface INeovimRendererProps {
     renderer: INeovimRenderer
 }
 
-export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, void> {
+export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, {}> {
 
     private _element: HTMLDivElement
     private _boundOnResizeMethod: any
