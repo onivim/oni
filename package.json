@@ -115,6 +115,7 @@
   "dependencies": {
     "css-language-server": "0.0.2",
     "find-up": "2.1.0",
+    "fix-path": "^2.1.0",
     "keyboard-layout": "2.0.13",
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",

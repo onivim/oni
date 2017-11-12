@@ -1,4 +1,5 @@
 import * as ChildProcess from "child_process"
+import * as fp from "fix-path"
 
 import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
