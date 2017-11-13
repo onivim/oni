@@ -118,7 +118,7 @@
     "keyboard-layout": "2.0.13",
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",
-    "ocaml-language-server": "1.0.1",
+    "ocaml-language-server": "1.0.12",
     "oni-neovim-binaries": "^0.0.7",
     "oni-ripgrep": "0.0.3",
     "typescript": "2.5.3",
