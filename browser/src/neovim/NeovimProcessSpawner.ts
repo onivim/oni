@@ -48,7 +48,7 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
     }
 
     const argsToPass = initVimArg
-        .concat(["--cmd", `let &rtp.='${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
+        .concat(["--cmd", `let &rtp.=',${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
         .concat(args)
 
     const nvimProc = spawnProcess(nvimProcessPath, argsToPass, {})
