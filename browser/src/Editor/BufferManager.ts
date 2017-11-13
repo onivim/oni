@@ -200,6 +200,10 @@ export class Buffer implements Oni.Buffer {
         }
     }
 
+    public async setCursor(line: number, column: number): Promise<void> {
+        this._neovimInstance.callFunction("setpos", [".", [this._id, line + 1, column + 1, 0]])
+    }
+
     public _notifyBufferUpdated(lines: string[], version: number): void {
         this._bufferLines = lines
         this._lastBufferLineVersion = version
