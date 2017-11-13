@@ -1,4 +1,5 @@
 import * as ChildProcess from "child_process"
+import * as shellEnv from "shell-env"
 
 import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
@@ -27,7 +28,8 @@ const mergeSpawnOptions = (originalSpawnOptions: ChildProcess.ExecOptions | Chil
         },
     }
 
-    const existingPath = process.env.Path || process.env.PATH
+    const shellEnvironment = shellEnv.sync()
+    const existingPath = shellEnvironment.PATH || process.env.Path || process.env.PATH
 
     requiredOptions.env.PATH = mergePathEnvironmentVariable(existingPath, configuration.getValue("environment.additionalPaths"))
 
