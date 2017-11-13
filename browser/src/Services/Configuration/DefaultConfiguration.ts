@@ -30,6 +30,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "debug.fakeLag.languageServer": null,
 
+    "experimental.autoClosingPairs.enabled": false,
+
     "oni.audio.bellUrl": null,
 
     "oni.useDefaultConfig": true,
