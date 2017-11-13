@@ -38,7 +38,7 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
             await neovim.input(pair.open + pair.close)
 
             const pos = await neovim.callFunction("getpos", ["."])
-            const [,oneBasedLine,oneBasedColumn] = pos
+            const [, oneBasedLine, oneBasedColumn] = pos
             await editor.activeBuffer.setCursorPosition(oneBasedLine - 1, oneBasedColumn - 2)
         })
 

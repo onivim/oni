@@ -202,7 +202,6 @@ export class NeovimEditor implements IEditor {
 
         Observable.merge(this._cursorMoved$, this._cursorMovedI$)
             .subscribe((cursorMoved) => {
-                console.log("Cursor moved: " + cursorMoved.toString())
                 this._onCursorMoved.dispatch(cursorMoved)
             })
 
