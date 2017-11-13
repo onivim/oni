@@ -5,6 +5,8 @@ import * as types from "vscode-languageserver-types"
 
 declare namespace Oni {
 
+    export type DisposeFunction = () => void
+
     export interface IDisposable {
         dispose(): void
     }

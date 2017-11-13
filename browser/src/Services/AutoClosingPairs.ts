@@ -23,7 +23,7 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
 
     const insertModeFilter = () => editorManager.activeEditor.mode === "insert"
 
-    let subscriptions: Function[] = []
+    let subscriptions: Oni.DisposeFunction[] = []
 
     // Use a queue to order requests - since there is latency between entering the '()'
     // and resolving the cursor position, we can run into issues when a key is held down.

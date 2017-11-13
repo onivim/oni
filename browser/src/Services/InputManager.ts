@@ -23,7 +23,7 @@ export class InputManager implements Oni.InputManager {
     /**
      * API Methods
      */
-    public bind(keyChord: string | string[], action: ActionOrCommand, filterFunction?: () => boolean): Function {
+    public bind(keyChord: string | string[], action: ActionOrCommand, filterFunction?: () => boolean): Oni.DisposeFunction {
         if (Array.isArray(keyChord)) {
             const disposalFunctions = keyChord.map((key) => this.bind(key, action, filterFunction))
             return () => disposalFunctions.forEach((df) => df())
