@@ -28,6 +28,7 @@ export interface IConfigurationValues {
 
     // Experimental feature flags
     "experimental.autoClosingPairs.enabled": boolean
+    "experimental.autoClosingPairs.default": any
 
     // Production settings
 

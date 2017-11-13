@@ -401,35 +401,6 @@ export class NeovimEditor implements IEditor {
     }
 
     private async _onKeyDown(key: string): Promise<void> {
-
-
-        if (this.mode === "insert") {
-            if (key === "(") {
-                await this._neovimInstance.input("()")
-                const pos = await this._neovimInstance.callFunction("getpos", ["."])
-                console.dir(pos)
-                const [,oneBasedLine,oneBasedColumn] = pos
-                await (this.activeBuffer as any).setCursor(oneBasedLine - 1, oneBasedColumn - 2)
-                
-
-                console.log("DONE")
-                return
-            } else if (key === ")") {
-
-                const lines = await this.activeBuffer.getLines(this.activeBuffer.cursor.line, this.activeBuffer.cursor.line + 1)
-                const line = lines[0]
-                if (line[this.activeBuffer.cursor.column] === ")") {
-                    console.log("MATCH")
-
-                    await (this.activeBuffer as any).setCursor(this.activeBuffer.cursor.line, this.activeBuffer.cursor.column + 1)
-                } else {
-                    await this._neovimInstance.input(")")
-                }
-                
-                return
-            }
-        }
-
         await this._neovimInstance.input(key)
     }
 }

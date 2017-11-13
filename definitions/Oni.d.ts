@@ -61,6 +61,10 @@ declare namespace Oni {
     }
 
     export interface NeovimEditorCapability {
+
+        // Call a VimL function and return the result
+        callFunction(functionName: string, args: any[]): Promise<any>
+
         // Send a direct set of key inputs to Neovim
         input(keys: string): Promise<void>
 

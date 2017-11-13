@@ -31,6 +31,11 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.languageServer": null,
 
     "experimental.autoClosingPairs.enabled": false,
+    "experimental.autoClosingPairs.default": [
+        { "open": "{", "close": "}" },
+        { "open": "[", "close": "]" },
+        { "open": "(", "close": ")" },
+    ],
 
     "oni.audio.bellUrl": null,
 
