@@ -3,6 +3,8 @@ import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 
+import { mkdirp } from "mkdirp"
+
 import { Oni } from "./common"
 
 const LongTimeout = 5000
@@ -46,11 +48,19 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
     // Retry up to two times
     this.retries(2)
 
+    const configFolder = path.join(Platform.getUserHome(), ".oni")
     const configPath = path.join(Platform.getUserHome(), ".oni", "config.js")
 
     const temporaryConfigPath = path.join(os.tmpdir(), "config.js")
 
     before(() => {
+
+        if (!fs.existsSync(configFolder) {
+            console.log("Config folder doesn't exist - creating.")
+            mkdirp.sync(configFolder)
+            console.log("Config folder created successfully.")
+        }
+
         if (fs.existsSync(configPath)) {
             console.log("Backing up config to: " + temporaryConfigPath)
             const configContents = fs.readFileSync(configPath, "utf8")
