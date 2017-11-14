@@ -10,18 +10,18 @@ import { NeovimInstance } from "./NeovimInstance"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 
-export interface INeovimMenuOption {
+export interface INeovimMenuOption<T> {
     id: string
-    data: any
+    data: T
 }
 
-export interface INeovimMenuInstance {
+export interface INeovimMenuInstance<T> {
 
-    setOptions(options: INeovimMenuOption[]): Promise<void>
+    setOptions(options: INeovimMenuOption<T>[]): Promise<void>
 
     input(input: string): Promise<void>
 
-    onCursorPositionChanged: IEvent<INeovimMenuOption>
+    onCursorPositionChanged: IEvent<INeovimMenuOption<T>>
 
     // onSelectionChanged(): IEvent<INeovimMenuOption[]>
 }
@@ -29,24 +29,23 @@ export interface INeovimMenuInstance {
 // TODO: We should not be making multiple instances of this class for each menu UI
 // Need to come with a paradigm to reuse them across instances (attach/detach)
 
-export class NeovimMenuInstance implements INeovimMenuInstance {
+export class NeovimMenuInstance<T> implements INeovimMenuInstance<T> {
 
     private _initPromise: Promise<void>
     private _neovimInstance: NeovimInstance
 
-    private _currentOptions: INeovimMenuOption[] = []
-    private _cursorPositionChangedEvent: Event<INeovimMenuOption> = new Event<INeovimMenuOption>()
+    private _currentOptions: INeovimMenuOption<T>[] = []
+    private _cursorPositionChangedEvent: Event<INeovimMenuOption<T>> = new Event<INeovimMenuOption<T>>()
 
-    public get onCursorPositionChanged(): IEvent<INeovimMenuOption> {
+    public get onCursorPositionChanged(): IEvent<INeovimMenuOption<T>> {
         return this._cursorPositionChangedEvent
     }
 
     constructor() {
         this._neovimInstance = new NeovimInstance(5, 5)
-        this._initPromise = this._neovimInstance.start([], { runtimePaths: pluginManager.getAllRuntimePaths() })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => {
-            const line = evt.line
+            const line = evt.line - 1
 
             if (eventName === "CursorMoved") {
                 if (line < this._currentOptions.length) {
@@ -56,17 +55,23 @@ export class NeovimMenuInstance implements INeovimMenuInstance {
         })
     }
 
+    public async start(): Promise<void> {
+        this._initPromise = this._neovimInstance.start([], { runtimePaths: pluginManager.getAllRuntimePaths() })
+
+        await this._initPromise
+    }
+
     public async input(input: string): Promise<void> {
         await this._neovimInstance.input(input)
     }
 
-    public async setOptions(options: INeovimMenuOption[]): Promise<void> {
+    public async setOptions(options: INeovimMenuOption<T>[]): Promise<void> {
 
         this._currentOptions = options
 
         await this._initPromise
 
-        const currentBufId = await this._neovimInstance.eval("bufnr('%)'")
+        const currentBufId = await this._neovimInstance.eval("bufnr('%')")
 
         const elems = []
 

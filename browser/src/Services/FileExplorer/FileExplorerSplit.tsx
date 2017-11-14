@@ -9,11 +9,9 @@ import * as React from "react"
 import { Icon, IconSize } from "./../../UI/Icon"
 import { Event } from "./../../Event"
 
-import { NeovimInstance } from "./../../neovim/NeovimInstance"
+import { INeovimMenuOption, NeovimMenuInstance } from "./../../neovim/NeovimMenuInstance"
 
 import { KeyboardInputView } from "./../../Editor/KeyboardInput"
-
-import { pluginManager } from "./../../Plugins/PluginManager"
 
 require("./FileExplorer.less")
 
@@ -87,56 +85,37 @@ export class FileExplorerSplit implements Oni.IWindowSplit {
 
     private _onActive: Event<void> = new Event<void>()
 
-    private _neovimInstance: NeovimInstance
+    private _neovimInstance: NeovimMenuInstance<string>
     private _initPromise: Promise<void> = null
 
     constructor() {
-        this._neovimInstance = new NeovimInstance(100, 100)
-        this._initPromise = this._neovimInstance.start([], { runtimePaths: pluginManager.getAllRuntimePaths() })
+        this._neovimInstance = new NeovimMenuInstance()
 
-        window["__fxNeovimInstance"] = this._neovimInstance
-
-        this._initPromise.then(async () => {
-            
-            // const newState = fileExplorerStore.getState()
-
-            await this._initPromise
-            const currentBufId = await this._neovimInstance.eval("bufnr('%')")
-
-            await this._neovimInstance.request("nvim_buf_set_lines", [currentBufId, 0, 1, false, ["a", "b", "c"]])
-            console.log("set some lines!")
+        this._neovimInstance.onCursorPositionChanged.subscribe((menuOption) => {
+            fileExplorerStore.dispatch({
+                type: "SET_CURSOR",
+                cursorPath: menuOption.data,
+            })
         })
 
-        this._neovimInstance.onModeChanged.subscribe((mode: string) => console.log("mode changed: " + mode))
-
-
-        this._neovimInstance.on("event", (eventName: string, evt: any) => {
-            console.log("Vim event: " + eventName)
-            console.dir(evt)
-
-            if (eventName === "CursorMoved") {
-                fileExplorerStore.dispatch({
-                    type: "SET_CURSOR",
-                    cursorPath: fileExplorerStore.getState().filesOrFolders[evt.line - 1].fullPath
-                })
-            }
-        })
-
-        this._neovimInstance.onOniCommand.subscribe((command) => {
-            console.log(command)
-        })
-
-        this._neovimInstance.onBufferUpdateIncremental.subscribe(() => console.log("BUFFER UPDATE"))
+        this._neovimInstance.start()
     }
 
     public enter(): void {
         this._onActive.dispatch()
-        // alert("enter")
+        const filesAndFolders = fileExplorerStore.getState().filesOrFolders
 
         fileExplorerStore.dispatch({
             type: "SET_CURSOR",
-            cursorPath: fileExplorerStore.getState().filesOrFolders[0].fullPath,
+            cursorPath: filesAndFolders[0].fullPath,
         })
+
+        const options = filesAndFolders.map((f): INeovimMenuOption<string> => ({
+            id: f.fullPath,
+            data: f.fullPath,
+        }))
+
+        this._neovimInstance.setOptions(options)
     }
 
     public leave(): void {
