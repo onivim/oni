@@ -14,7 +14,21 @@ const remapPathToUnpackedAsar = (originalPath: string) => {
     return originalPath.split("app.asar").join("app.asar.unpacked")
 }
 
-export const startNeovim = async (runtimePaths: string[], args: string[]): Promise<Session> => {
+export type MsgPackTransport = "stdio" | "pipe"
+
+export interface INeovimStartOptions {
+    args: string[]
+    runtimePaths?: string[]
+    transport?: MsgPackTransport
+}
+
+const DefaultStartOptions: INeovimStartOptions = {
+    args: []
+    runtimePaths: [],
+    transport: "stdio",
+}
+
+export const startNeovim = async (options: INeovimStartOptions): Promise<Session> => {
 
     const noopInitVimPath = remapPathToUnpackedAsar(path.join(__dirname, "vim", "noop.vim"))
 
