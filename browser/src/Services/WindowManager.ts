@@ -96,6 +96,7 @@ export class WindowManager {
 
     public moveRight(): void {
         // TODO
+        console.log("MOVE RIGHT")
     }
 
     public moveUp(): void {

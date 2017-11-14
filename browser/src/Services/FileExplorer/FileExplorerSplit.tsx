@@ -82,6 +82,7 @@ const mapStateToProps = (state: IFileExplorerState): IFileExplorerProps => {
 
 const FileExplorer = connect(mapStateToProps)(FileExplorerView)
 
+
 export class FileExplorerSplit implements Oni.IWindowSplit {
 
     private _onActive: Event<void> = new Event<void>()
@@ -120,6 +121,11 @@ export class FileExplorerSplit implements Oni.IWindowSplit {
                 })
             }
         })
+
+        this._neovimInstance.onOniCommand.subscribe((command) => {
+            console.log(command)
+        })
+
         this._neovimInstance.onBufferUpdateIncremental.subscribe(() => console.log("BUFFER UPDATE"))
     }
 
