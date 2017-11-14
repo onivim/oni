@@ -24,8 +24,6 @@ import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
 
-
-
 export interface INeovimSurfaceProps {
     neovimInstance: NeovimInstance
     renderer: INeovimRenderer

@@ -31,8 +31,8 @@ export type GetStateFunction = () => State.IState
 export const setNeovimError = (neovimError: boolean) => ({
     type: "SET_NEOVIM_ERROR",
     payload: {
-        neovimError: neovimError,
-    }
+        neovimError,
+    },
 })
 
 export const setViewport = (width: number, height: number) => ({
