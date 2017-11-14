@@ -252,7 +252,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         startOptions = startOptions || { }
         const runtimePaths = startOptions.runtimePaths || []
 
-        this._initPromise = Promise.resolve(startNeovim(runtimePaths, filesToOpen))
+        this._initPromise = startNeovim(runtimePaths, filesToOpen)
             .then((nv) => {
                 Log.info("NeovimInstance: Neovim started")
 

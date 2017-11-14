@@ -1,3 +1,4 @@
+import * as net from "net"
 import * as path from "path"
 
 import * as Platform from "./../Platform"
@@ -13,7 +14,7 @@ const remapPathToUnpackedAsar = (originalPath: string) => {
     return originalPath.split("app.asar").join("app.asar.unpacked")
 }
 
-export const startNeovim = (runtimePaths: string[], args: string[]): Session => {
+export const startNeovim = async (runtimePaths: string[], args: string[]): Promise<Session> => {
 
     const noopInitVimPath = remapPathToUnpackedAsar(path.join(__dirname, "vim", "noop.vim"))
 
@@ -55,5 +56,18 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
 
     console.log(`Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console
 
-    return new Session(nvimProc.stdin, nvimProc.stdout)
+    const session1 = new Session(nvimProc.stdin, nvimProc.stdout)
+
+    return session1.request("nvim_eval", ["v:servername"]).then((result: string) => {
+        const pipe = result
+
+
+        const client = net.createConnection(pipe, () => {
+            console.log("connected")
+
+        })
+
+        return new Session(client, client)
+
+    })
 }
