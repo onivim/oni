@@ -32,6 +32,11 @@ export class Configuration implements Oni.Configuration {
         Performance.mark("Config.load.start")
 
         this.applyConfig()
+
+        if (!fs.existsSync(this.getUserFolder())) {
+            mkdirp.sync(this.getUserFolder())
+        }
+
         // use watch() on the directory rather than on config.js because it watches
         // file references and changing a file in Vim typically saves a tmp file
         // then moves it over to the original filename, causing watch() to lose its
@@ -39,18 +44,14 @@ export class Configuration implements Oni.Configuration {
         // and continue to fire when file references are swapped out.
         // Unfortunately, this also means the 'change' event fires twice.
         // I could use watchFile() but that polls every 5 seconds.  Not ideal.
-        if (fs.existsSync(this.getUserFolder())) {
-            fs.watch(this.getUserFolder(), (event, filename) => {
-                if ((event === "change" && filename === "config.js") ||
-                     (event === "rename" && filename === "config.js")) {
-                    // invalidate the Config currently stored in cache
-                    delete global["require"].cache[global["require"].resolve(this.userJsConfig)] // tslint:disable-line no-string-literal
-                    this.applyConfig()
-                }
-            })
-        } else {
-            mkdirp.sync(this.getUserFolder())
-        }
+        fs.watch(this.getUserFolder(), (event, filename) => {
+            if ((event === "change" && filename === "config.js") ||
+                (event === "rename" && filename === "config.js")) {
+                // invalidate the Config currently stored in cache
+                delete global["require"].cache[global["require"].resolve(this.userJsConfig)] // tslint:disable-line no-string-literal
+                this.applyConfig()
+            }
+        })
 
         Performance.mark("Config.load.end")
     }
