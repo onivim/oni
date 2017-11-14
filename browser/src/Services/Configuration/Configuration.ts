@@ -2,6 +2,7 @@ import * as fs from "fs"
 import * as cloneDeep from "lodash/cloneDeep"
 import * as isError from "lodash/isError"
 import * as path from "path"
+import * as mkdirp from "mkdirp"
 
 import { Event, IEvent } from "./../../Event"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
@@ -47,6 +48,8 @@ export class Configuration implements Oni.Configuration {
                     this.applyConfig()
                 }
             })
+        } else {
+            mkdirp.sync(this.getUserFolder())
         }
 
         Performance.mark("Config.load.end")
