@@ -3,7 +3,7 @@ import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 
-import { mkdirp } from "mkdirp"
+import * as mkdirp from "mkdirp"
 
 import { Oni } from "./common"
 
