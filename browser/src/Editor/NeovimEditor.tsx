@@ -5,7 +5,6 @@
  */
 
 import * as React from "react"
-import * as ReactDOM from "react-dom"
 
 import "rxjs/add/observable/defer"
 import "rxjs/add/observable/merge"
@@ -35,8 +34,6 @@ import * as UI from "./../UI/index"
 
 import { IEditor } from "./Editor"
 
-import { InstallHelp } from "./../UI/components/InstallHelp"
-
 import { BufferManager } from "./BufferManager"
 import { listenForBufferUpdates } from "./BufferUpdates"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
@@ -56,7 +53,6 @@ export class NeovimEditor implements IEditor {
     private _popupMenu: NeovimPopupMenu
 
     private _pendingAnimationFrame: boolean = false
-    private _element: HTMLElement
 
     private _currentMode: string
     private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
@@ -72,8 +68,6 @@ export class NeovimEditor implements IEditor {
     private _hasLoaded: boolean = false
 
     private _windowManager: NeovimWindowManager
-
-    private _errorStartingNeovim: boolean = false
 
     private _isFirstRender: boolean = true
 
@@ -157,15 +151,21 @@ export class NeovimEditor implements IEditor {
             }
         })
 
+        this._neovimInstance.onLeave.subscribe(() => {
+            // TODO: Only leave if all editors are closed...
+            if (!configuration.getValue("debug.persistOnNeovimExit")) {
+                remote.getCurrentWindow().close()
+            }
+        })
+
         this._neovimInstance.onOniCommand.subscribe((command) => {
             commandManager.executeCommand(command)
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
 
-        this._neovimInstance.on("error", (_err: string) => {
-            this._errorStartingNeovim = true
-            ReactDOM.render(<InstallHelp />, this._element.parentElement)
+        this._neovimInstance.onError.subscribe((err) => {
+            UI.Actions.setNeovimError(true)
         })
 
         this._neovimInstance.onDirectoryChanged.subscribe((newDirectory) => {
@@ -399,7 +399,7 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    private _onKeyDown(key: string): void {
-        this._neovimInstance.input(key)
+    private async _onKeyDown(key: string): Promise<void> {
+        await this._neovimInstance.input(key)
     }
 }

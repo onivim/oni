@@ -48,6 +48,8 @@ export interface IState {
     imeActive: boolean
     viewport: IViewport
 
+    neovimError: boolean
+
     statusBar: { [id: string]: IStatusBarItem }
     toolTips: { [id: string]: IToolTip }
 
@@ -186,6 +188,7 @@ export const createDefaultState = (): IState => ({
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
+    neovimError: false,
 
     configuration: configuration.getValues(),
 
