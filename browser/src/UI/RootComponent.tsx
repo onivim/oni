@@ -11,16 +11,6 @@ import StatusBar from "./components/StatusBar"
 
 import { WindowSplits } from "./components/WindowSplits"
 
-
-
-
-import * as marked from "marked"
-console.log(marked("**Hello**"))
-
-
-
-
-
 interface IRootComponentProps {
     windowManager: WindowManager.WindowManager
 }
