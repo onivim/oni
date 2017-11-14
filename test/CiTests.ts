@@ -1,5 +1,6 @@
 import * as assert from "assert"
 import * as fs from "fs"
+import * as os from "os"
 import * as path from "path"
 
 import { Oni } from "./common"
@@ -45,6 +46,34 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
     // Retry up to two times
     this.retries(2)
 
+    const configPath = path.join(Platform.getUserHome(), ".oni", "config.js")
+
+    const temporaryConfigPath = path.join(os.tmpdir(), "config.js")
+
+    before(() => {
+        if (fs.existsSync(configPath)) {
+            console.log("Backing up config to: " + temporaryConfigPath)
+            const configContents = fs.readFileSync(configPath, "utf8")
+            fs.writeFileSync(temporaryConfigPath, configContents)
+            console.log("Config backed up.")
+            console.log("Removing existing config..")
+            fs.unlinkSync(configPath)
+            console.log("Existing config removed")
+        }
+    })
+
+    after(() => {
+        if (fs.existsSync(temporaryConfigPath)) {
+            console.log("Restoring config from: " + temporaryConfigPath)
+            const configContents = fs.readFileSync(temporaryConfigPath, "utf8")
+            fs.writeFileSync(configPath, configContents)
+            console.log("Config restored to: " + configPath)
+            console.log("Deleting temporary config.")
+            fs.unlinkSync(temporaryConfigPath)
+            console.log("Temporary config successfuly deleted.")
+        }
+    })
+
     CiTests.forEach((test) => {
 
         describe(test, () => {
@@ -54,13 +83,6 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
             let oni: Oni
 
             beforeEach(async () => {
-
-                const configPath = path.join(Platform.getUserHome(), ".oni", "config.js")
-
-                if (fs.existsSync(configPath)) {
-                    console.log("--Removing existing config..")
-                    fs.unlinkSync(configPath)
-                }
 
                 if (testCase.configPath) {
                     console.log("Writing config from: " + testCase.configPath)
@@ -74,7 +96,12 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
             })
 
             afterEach(async () => {
-                return oni.close()
+                await oni.close()
+
+                if (fs.existsSync(configPath)) {
+                    console.log("--Removing existing config..")
+                    fs.unlinkSync(configPath)
+                }
             })
 
             it("ci test: " + test, async () => {
