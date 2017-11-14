@@ -6,7 +6,7 @@
 
 import * as React from "react"
 
-import { Icon } from "./../../UI/Icon"
+import { Icon, IconSize } from "./../../UI/Icon"
 import { Event } from "./../../Event"
 
 import { NeovimInstance } from "./../../neovim/NeovimInstance"
@@ -64,7 +64,7 @@ export class FileExplorerView extends React.PureComponent<IFileExplorerProps, {}
 
         })
 
-        return <div>
+        return <div className="tree">
             <div>{this.props.rootPath}</div>
             {elements}
         </div>
@@ -148,28 +148,35 @@ export class FileExplorerSplit implements Oni.IWindowSplit {
             width: "250px",
             fontFamily: "Segoe UI",
             fontSize: "12px",
-            color: "gray",
         }
 
-        return <div style={style}>
-        
-        <div className="file-explorer enable-mouse">
-            <div className="title">Project</div>
-            <Provider store={fileExplorerStore}>
-                <FileExplorer />
-            </Provider>
-            <KeyboardInputView
-                top={0}
-                left={0}
-                height={12}
-                onActivate={this._onActive}
-                onKeyDown={(key) => this._onKeyDown(key)}
-                foregroundColor= {"white"}
-                fontFamily={ "Segoe UI"}
-                fontSize={"12px"}
-                fontCharacterWidthInPixels={12}
-                />
+        return <div className="container horizontal fixed" style={{backgroundColor:"rgb(40, 44, 52)"}}>
+        <div className="sidebar enable-mouse">
+            <div className="sidebar-icon-container">
+                <div className="sidebar-icon">
+                    <Icon name="files-o" size={IconSize.Large} />
+                </div>
+            </div>
         </div>
+        <div style={style}>
+            <div className="file-explorer enable-mouse">
+                <div className="title">Project</div>
+                <Provider store={fileExplorerStore}>
+                    <FileExplorer />
+                </Provider>
+                <KeyboardInputView
+                    top={0}
+                    left={0}
+                    height={12}
+                    onActivate={this._onActive}
+                    onKeyDown={(key) => this._onKeyDown(key)}
+                    foregroundColor= {"white"}
+                    fontFamily={ "Segoe UI"}
+                    fontSize={"12px"}
+                    fontCharacterWidthInPixels={12}
+                    />
+            </div>
+            </div>
         </div>
     }
 }
