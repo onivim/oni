@@ -1,8 +1,8 @@
 import * as fs from "fs"
 import * as cloneDeep from "lodash/cloneDeep"
 import * as isError from "lodash/isError"
-import * as path from "path"
 import * as mkdirp from "mkdirp"
+import * as path from "path"
 
 import { Event, IEvent } from "./../../Event"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
