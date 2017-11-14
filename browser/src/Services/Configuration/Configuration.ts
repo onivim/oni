@@ -69,7 +69,8 @@ export class Configuration implements Oni.Configuration {
     }
 
     public getUserFolder(): string {
-        return path.join(Platform.getUserHome(), ".oni")
+        return Platform.isWindows() ? path.join(Platform.getUserHome(), "oni") :
+                                      path.join(Platform.getUserHome(), ".oni")
     }
 
     // Emitting event is not enough, at startup nobody's listening yet
