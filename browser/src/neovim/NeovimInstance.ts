@@ -1,4 +1,3 @@
-import { remote } from "electron"
 import { EventEmitter } from "events"
 import * as path from "path"
 
@@ -140,6 +139,7 @@ export interface INeovimStartOptions {
 export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _neovim: Session
     private _initPromise: Promise<void>
+    private _isLeaving: boolean
 
     private _config = configuration
     private _autoCommands: NeovimAutoCommands
@@ -158,6 +158,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _quickFix: QuickFixList
 
     private _onDirectoryChanged = new Event<string>()
+    private _onErrorEvent = new Event<Error | string>()
     private _onYank = new Event<INeovimYankInfo>()
     private _onOniCommand = new Event<string>()
     private _onRedrawComplete = new Event<void>()
@@ -168,6 +169,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onHidePopupMenu = new Event<void>()
     private _onShowPopupMenu = new Event<INeovimCompletionInfo>()
     private _onSelectPopupMenu = new Event<number>()
+    private _onLeave = new Event<void>()
 
     private _pendingScrollTimeout: number | null = null
 
@@ -185,6 +187,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onDirectoryChanged(): IEvent<string> {
         return this._onDirectoryChanged
+    }
+
+    public get onError(): IEvent<Error | string> {
+        return this._onErrorEvent
+    }
+
+    public get onLeave(): IEvent<void> {
+        return this._onLeave
     }
 
     public get onModeChanged(): IEvent<Oni.Vim.Mode> {
@@ -225,7 +235,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     constructor(widthInPixels: number, heightInPixels: number) {
         super()
-
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
 
@@ -263,7 +272,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 this._neovim = nv
 
                 this._neovim.on("error", (err: Error) => {
-                    Log.error(err)
+                    this._onError(err)
                 })
 
                 this._neovim.on("notification", (method: any, args: any) => {
@@ -292,6 +301,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                             if (eventName === "DirChanged") {
                                 this._updateProcessDirectory()
+                            } else if (eventName === "VimLeave") {
+                                this._isLeaving = true
+                                this._onLeave.dispatch()
                             }
 
                             this._autoCommands.notifyAutocommand(eventName, eventContext)
@@ -321,9 +333,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 })
 
                 this._neovim.on("disconnect", () => {
-
-                    if (!configuration.getValue("debug.persistOnNeovimExit")) {
-                        remote.getCurrentWindow().close()
+                    if (!this._isLeaving) {
+                        this._onError("Neovim disconnected. This likely means that the Neovim process crashed.")
                     }
                 })
 
@@ -346,7 +357,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         await this.callFunction("OniConnect", [])
                     },
                     (err: any) => {
-                        this.emit("error", err)
+                        this._onError(err)
                     })
             })
 
@@ -611,6 +622,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             context,
             bufferLines,
         })
+    }
+
+    private _onError(error: Error | string): void {
+        Log.error(error)
+        this._onErrorEvent.dispatch(error)
     }
 
     private async _updateProcessDirectory(): Promise<void> {

@@ -65,7 +65,14 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
 
         if (!configuration.getValue("experimental.autoClosingPairs.enabled")) {
             Log.verbose("[Auto Closing Pairs] Not enabled.")
+            return
         }
+
+        if (subscriptions && subscriptions.length) {
+            subscriptions.forEach((df) => df())
+        }
+
+        subscriptions = []
 
         const autoClosingPairs = getAutoClosingPairs(configuration, newBuffer.language)
 
@@ -74,11 +81,6 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
             subscriptions.push(inputManager.bind(pair.close, handleCloseCharacter(pair, editorManager.activeEditor), insertModeFilter))
         })
 
-    })
-
-    editorManager.activeEditor.onBufferLeave.subscribe((newBuffer) => {
-        subscriptions.forEach((df) => df())
-        subscriptions = []
     })
 }
 
