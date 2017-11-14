@@ -73,8 +73,6 @@ export class NeovimEditor implements IEditor {
 
     private _windowManager: NeovimWindowManager
 
-    private _errorStartingNeovim: boolean = false
-
     private _isFirstRender: boolean = true
 
     private _lastBufferId: string = null
@@ -157,14 +155,20 @@ export class NeovimEditor implements IEditor {
             }
         })
 
+        this._neovimInstance.onLeave.subscribe(() => {
+            // TODO: Only leave if all editors are closed...
+            if (!configuration.getValue("debug.persistOnNeovimExit")) {
+                remote.getCurrentWindow().close()
+            }
+        })
+
         this._neovimInstance.onOniCommand.subscribe((command) => {
             commandManager.executeCommand(command)
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
 
-        this._neovimInstance.on("error", (_err: string) => {
-            this._errorStartingNeovim = true
+        this._neovimInstance.onError.subscribe((err) => {
             ReactDOM.render(<InstallHelp />, this._element.parentElement)
         })
 
