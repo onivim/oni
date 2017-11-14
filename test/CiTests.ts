@@ -56,8 +56,8 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
                 const configPath = path.join(Platform.getUserHome(), ".oni", "config.js")
 
                 if (fs.existsSync(configPath)) {
-                    // console.log("--Removing existing config..")
-                    // fs.unlinkSync(configPath)
+                    console.log("--Removing existing config..")
+                    fs.unlinkSync(configPath)
                 }
 
                 if (testCase.configPath) {
