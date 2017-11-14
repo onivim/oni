@@ -426,8 +426,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public input(inputString: string): Promise<void> {
-        this._neovim.request("nvim_input", [inputString])
-        return Promise.resolve(null)
+        return this._neovim.request("nvim_input", [inputString])
     }
 
     public resize(widthInPixels: number, heightInPixels: number): void {
