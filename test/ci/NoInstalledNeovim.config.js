@@ -4,4 +4,4 @@
 
 module.exports = {
     "debug.neovimPath": "/derp/not-a-valid-neovim-binary",
-}
+};

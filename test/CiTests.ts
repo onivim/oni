@@ -13,6 +13,8 @@ const CiTests = [
     "NoInstalledNeovim",
 ]
 
+// tslint:disable:no-console
+
 import * as Platform from "./../browser/src/Platform"
 
 export interface ITestCase {

@@ -27,5 +27,5 @@ export const test = async (oni: any) => {
 }
 
 export const settings = {
-    configPath: "NoInstalledNeovim.config.js"
+    configPath: "NoInstalledNeovim.config.js",
 }
