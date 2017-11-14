@@ -27,6 +27,8 @@ export interface IConfigurationValues {
     "debug.fakeLag.languageServer": number
 
     // Experimental feature flags
+    "experimental.autoClosingPairs.enabled": boolean
+    "experimental.autoClosingPairs.default": any
 
     // Production settings
 

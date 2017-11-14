@@ -399,7 +399,7 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    private _onKeyDown(key: string): void {
-        this._neovimInstance.input(key)
+    private async _onKeyDown(key: string): Promise<void> {
+        await this._neovimInstance.input(key)
     }
 }
