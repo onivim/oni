@@ -13,7 +13,7 @@ const remapPathToUnpackedAsar = (originalPath: string) => {
     return originalPath.split("app.asar").join("app.asar.unpacked")
 }
 
-export const startNeovim = (runtimePaths: string[], args: string[]): Session => {
+export const startNeovim = async (runtimePaths: string[], args: string[]): Promise<Session> => {
 
     const noopInitVimPath = remapPathToUnpackedAsar(path.join(__dirname, "vim", "noop.vim"))
 
@@ -51,9 +51,9 @@ export const startNeovim = (runtimePaths: string[], args: string[]): Session => 
         .concat(["--cmd", `let &rtp.='${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
         .concat(args)
 
-    const nvimProc = spawnProcess(nvimProcessPath, argsToPass, {})
+    const nvimProc = await spawnProcess(nvimProcessPath, argsToPass, {})
 
     console.log(`Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console
 
-    return new Session(nvimProc.stdin, nvimProc.stdout)
+    return await new Session(nvimProc.stdin, nvimProc.stdout)
 }
