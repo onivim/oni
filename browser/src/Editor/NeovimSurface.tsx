@@ -13,6 +13,7 @@ import { NeovimScreen } from "./../Screen"
 import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
 import { Cursor } from "./../UI/components/Cursor"
 import { CursorLine } from "./../UI/components/CursorLine"
+import { InstallHelp } from "./../UI/components/InstallHelp"
 import { TabsContainer } from "./../UI/components/Tabs"
 import { ToolTips } from "./../UI/components/ToolTip"
 
@@ -22,6 +23,8 @@ import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
 
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
+
+
 
 export interface INeovimSurfaceProps {
     neovimInstance: NeovimInstance
@@ -68,6 +71,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                 <div className="stack layer">
                     <ToolTips />
                 </div>
+                <InstallHelp />
             </div>
         </div>
     }

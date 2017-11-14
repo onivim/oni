@@ -5,7 +5,6 @@
  */
 
 import * as React from "react"
-import * as ReactDOM from "react-dom"
 
 import "rxjs/add/observable/defer"
 import "rxjs/add/observable/merge"
@@ -35,8 +34,6 @@ import * as UI from "./../UI/index"
 
 import { IEditor } from "./Editor"
 
-import { InstallHelp } from "./../UI/components/InstallHelp"
-
 import { BufferManager } from "./BufferManager"
 import { listenForBufferUpdates } from "./BufferUpdates"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
@@ -56,7 +53,6 @@ export class NeovimEditor implements IEditor {
     private _popupMenu: NeovimPopupMenu
 
     private _pendingAnimationFrame: boolean = false
-    private _element: HTMLElement
 
     private _currentMode: string
     private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
@@ -169,7 +165,7 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
 
         this._neovimInstance.onError.subscribe((err) => {
-            ReactDOM.render(<InstallHelp />, this._element.parentElement)
+            UI.Actions.setNeovimError(true)
         })
 
         this._neovimInstance.onDirectoryChanged.subscribe((newDirectory) => {

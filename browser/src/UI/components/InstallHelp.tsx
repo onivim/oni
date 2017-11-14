@@ -12,19 +12,29 @@ export const InstallHelp = () => {
         evt.preventDefault()
     }
 
-    return <div className="install-help">
+    const _onClickIssue = (evt: any) => {
+        remote.shell.openExternal("https://github.com/onivim/oni/issues")
+        evt.preventDefault()
+    }
+
+    return <div className="install-help enable-mouse">
         <div className="title">
             <Icon name="warning" size={IconSize.FiveX} />
-            <h1>Unable to launch NeoVim</h1>
+            <h1>Uh oh! Unable to launch Neovim...</h1>
+            <p>Neovim v0.2.1 is required to run Oni.</p>
         </div>
         <div className="instructions">
             <ul>
                 <li>
-                    <span>Install NeoVim from here:</span>
+                    <span>Install neovim from here: </span>
                     <a href="#" onClick={(evt) => _onClick(evt)}>Installing Neovim</a>
                 </li>
+                <li>Run `nvim --version` from your command prompt to verify you're good to go!</li>
                 <li>Close and re-open Oni</li>
             </ul>
+        </div>
+        <div>
+            If this issue persists, help us by logging an <a href="#" onClick={(evt) => _onClickIssue}>issue!</a>
         </div>
     </div>
 }
