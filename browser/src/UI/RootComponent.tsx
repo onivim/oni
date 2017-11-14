@@ -14,6 +14,38 @@ interface IRootComponentProps {
     windowManager: WindowManager.WindowManager
 }
 
+import * as State from "./State"
+import { connect } from "react-redux"
+
+export interface IOniLoadingViewProps {
+    visible: boolean
+}
+
+export class OniLoadingView extends React.PureComponent<IOniLoadingViewProps, {}> {
+    public render(): JSX.Element {
+        if (!this.props.visible) {
+            return null
+        }
+
+        const style: React.CSSProperties = {
+            position: "absolute",
+            top: "0px",
+            left: "0px",
+            right: "0px",
+            bottom: "0px",
+            backgroundColor: "black",
+        }
+
+        return <div style={style}>LOADING</div>
+    }
+}
+
+const mapStateToProps = (state: State.IState): IOniLoadingViewProps => ({
+    visible: state.isLoading
+})
+
+export const OniLoading = connect(mapStateToProps)(OniLoadingView)
+
 export class RootComponent extends React.PureComponent<IRootComponentProps, {}> {
     public render() {
         return <div className="stack disable-mouse" onKeyDownCapture={(evt) => this._onRootKeyDown(evt)}>
@@ -35,6 +67,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
                     </div>
                 </div>
             </div>
+            <OniLoading />
         </div>
     }
 

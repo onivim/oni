@@ -41,6 +41,7 @@ export interface IState {
     mode: string
     backgroundColor: string
     foregroundColor: string
+    isLoading: boolean
     definition: null | IDefinition
     cursorLineOpacity: number
     cursorColumnOpacity: number
@@ -183,6 +184,7 @@ export const createDefaultState = (): IState => ({
         width: 0,
         height: 0,
     },
+    isLoading: true,
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",

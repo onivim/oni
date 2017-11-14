@@ -28,6 +28,10 @@ import { IConfigurationValues } from "./../Services/Configuration"
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
 
+export const setLoadingComplete = () => ({
+    type: "SET_LOADING_COMPLETE",
+})
+
 export const setViewport = (width: number, height: number) => ({
     type: "SET_VIEWPORT",
     payload: {

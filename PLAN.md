@@ -1,0 +1,4 @@
+- Animate startup
+- Add loading spinner
+- Add transition-out for loading screen
+- Add transition-in for tabs + statusbar

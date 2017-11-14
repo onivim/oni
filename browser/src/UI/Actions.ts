@@ -23,6 +23,10 @@ export interface ISetViewportAction {
     }
 }
 
+export interface ISetLoadingCompletionAction {
+    type: "SET_LOADING_COMPLETE",
+}
+
 export interface ISetCursorScaleAction {
     type: "SET_CURSOR_SCALE",
     payload: {
@@ -232,6 +236,7 @@ export type SimpleAction =
     IHideMessageDialog |
     IHideDefinitionAction |
     IShowDefinitionAction |
+    ISetLoadingCompletionAction |
     ISetModeAction |
     ISetCursorScaleAction |
     ISetColorsAction |

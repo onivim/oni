@@ -21,23 +21,20 @@ import { languageManager } from "./Services/Language"
 
 import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
+import { Startup } from "./Lifecycle/Startup"
+
 import * as UI from "./UI/index"
 
-const start = (args: string[]) => {
-
-    const parsedArgs = minimist(args)
-
-    let loadInitVim: boolean = false
-    let maximizeScreenOnStart: boolean = false
-
-    // Helper for debugging:
-    window["UI"] = UI // tslint:disable-line no-string-literal
-    require("./overlay.less")
-
+const checkConfig = async (): Promise<void> => {
     const initialConfigParsingError = configuration.getParsingError()
     if (initialConfigParsingError) {
         Log.error(initialConfigParsingError)
     }
+}
+
+const listenForConfigChanges = async(): Promise<void> => {
+    let loadInitVim: boolean = false
+    let maximizeScreenOnStart: boolean = false
 
     const browserWindow = remote.getCurrentWindow()
 
@@ -72,23 +69,46 @@ const start = (args: string[]) => {
 
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
+}
 
-    UI.init(pluginManager, parsedArgs._)
+const startUI = (args?: any) => async (): Promise<void> => {
+    UI.init(pluginManager, args)
+}
+
+const startPlugins = async (): Promise<void> => {
+    const api = pluginManager.startPlugins()
+    configuration.activate(api)
+    AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+}
+
+const start = async (args: string[]) => {
+
+    const parsedArgs = minimist(args)
+    const startup = new Startup()
+
+    // Helper for debugging:
+    window["UI"] = UI // tslint:disable-line no-string-literal
+    require("./overlay.less")
+
+    startup.enqueueTask("CheckConfigForErrors", checkConfig)
+    startup.enqueueTask("ListenForConfigChanges", listenForConfigChanges)
+    startup.enqueueTask("StartUI", startUI(parsedArgs._))
 
     ipcRenderer.on("execute-command", (_evt: any, command: string) => {
         commandManager.executeCommand(command, null)
     })
 
-    createLanguageClientsFromConfiguration(configuration.getValues())
+    startup.enqueueTask("CreateLanguageClients", async () => createLanguageClientsFromConfiguration(configuration.getValues()))
 
-    performance.mark("NeovimInstance.Plugins.Start")
-    const api = pluginManager.startPlugins()
-    performance.mark("NeovimInstance.Plugins.End")
+    startup.enqueueTask("StartPluginsAndActivateConfiguration", startPlugins)
 
-    configuration.activate(api)
+    await startup.start()
 
-    AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+    // TODO:
+    // UI.Actions.setLoadingComplete()
 
+    // Checking for updates isn't on the critical path for startup,
+    // so it doesn't need ot be queued
     checkForUpdates()
 }
 
