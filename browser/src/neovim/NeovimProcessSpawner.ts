@@ -48,7 +48,7 @@ export const startNeovim = async (runtimePaths: string[], args: string[]): Promi
     }
 
     const argsToPass = initVimArg
-        .concat(["--cmd", `let &rtp.='${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
+        .concat(["--cmd", `let &rtp.=',${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
         .concat(args)
 
     const nvimProc = await spawnProcess(nvimProcessPath, argsToPass, {})

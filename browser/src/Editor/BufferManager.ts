@@ -131,7 +131,7 @@ export class Buffer implements Oni.Buffer {
     }
 
     public async setCursorPosition(row: number, column: number): Promise<void> {
-        await this._neovimInstance.eval(`setpos(".", [0, ${row + 1}, ${column + 1}, 0])`)
+        await this._neovimInstance.eval(`setpos(".", [${this._id}, ${row + 1}, ${column + 1}, 0])`)
     }
 
     public async getSelectionRange(): Promise<types.Range | null> {
