@@ -55,7 +55,7 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
 
     before(() => {
 
-        if (!fs.existsSync(configFolder) {
+        if (!fs.existsSync(configFolder)) {
             console.log("Config folder doesn't exist - creating.")
             mkdirp.sync(configFolder)
             console.log("Config folder created successfully.")
