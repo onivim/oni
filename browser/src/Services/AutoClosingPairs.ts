@@ -68,7 +68,6 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
             return
         }
 
-
         if (subscriptions && subscriptions.length) {
             subscriptions.forEach((df) => df())
         }
