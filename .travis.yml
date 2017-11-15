@@ -33,7 +33,8 @@ addons:
             - bsdtar
 
 install:
-    - npm install
+    - npm install -g yarn
+    - yarn install
 
 script:
     - ./build/script/travis-build.sh
