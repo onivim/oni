@@ -14,7 +14,7 @@ import { Observable } from "rxjs/Observable"
 
 import { clipboard, ipcRenderer, remote } from "electron"
 
-import { NeovimInstance, NeovimWindowManager } from "./../neovim"
+import { INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
@@ -281,7 +281,13 @@ export class NeovimEditor implements IEditor {
     }
 
     public init(filesToOpen: string[]): void {
-        this._neovimInstance.start(filesToOpen, { runtimePaths: pluginManager.getAllRuntimePaths() })
+        const startOptions: INeovimStartOptions = {
+            args: filesToOpen,
+            runtimePaths: pluginManager.getAllRuntimePaths(),
+            transport: configuration.getValue("experimental.neovim.transport"),
+        }
+
+        this._neovimInstance.start(startOptions)
             .then(() => {
                 this._hasLoaded = true
                 VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())

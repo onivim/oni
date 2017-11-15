@@ -37,6 +37,10 @@ const BaseConfiguration: IConfigurationValues = {
         { "open": "(", "close": ")" },
     ],
 
+    "experimental.neovim.transport": "stdio",
+    // TODO: Enable pipe transport for Windows
+    // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
+
     "oni.audio.bellUrl": null,
 
     "oni.useDefaultConfig": true,
