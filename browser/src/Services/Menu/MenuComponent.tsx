@@ -97,7 +97,7 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
 }
 
 const EmptyArray: any[] = []
-const noop = () => { }
+const noop = () => { } // tslint:disable-line
 
 const mapStateToProps = (state: State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlights>) => {
     if (!state.menu) {
