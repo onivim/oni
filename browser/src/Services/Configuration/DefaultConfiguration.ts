@@ -6,12 +6,16 @@
 
 import * as os from "os"
 
+import * as path from "path"
+
 import * as Platform from "./../../Platform"
 
 import { IConfigurationValues } from "./IConfigurationValues"
 import { ocamlAndReasonConfiguration, ocamlLanguageServerPath } from "./ReasonConfiguration"
 
 const noop = () => { } // tslint:disable-line no-empty
+
+const cssLanguageServerPath = path.join(__dirname, "node_modules", "css-language-server", "lib", "cli.js")
 
 const BaseConfiguration: IConfigurationValues = {
     activate: noop,
@@ -25,6 +29,13 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.detailedSessionLogging": false,
 
     "debug.fakeLag.languageServer": null,
+
+    "experimental.autoClosingPairs.enabled": false,
+    "experimental.autoClosingPairs.default": [
+        { "open": "{", "close": "}" },
+        { "open": "[", "close": "]" },
+        { "open": "(", "close": ")" },
+    ],
 
     "oni.audio.bellUrl": null,
 
@@ -80,6 +91,15 @@ const BaseConfiguration: IConfigurationValues = {
     "language.cpp.languageServer.command": "clangd",
     "language.c.languageServer.command": "clangd",
 
+    "language.css.languageServer.command": cssLanguageServerPath,
+    "language.css.languageServer.arguments": ["--stdio"],
+
+    "language.less.languageServer.command": cssLanguageServerPath,
+    "language.less.languageServer.arguments": ["--stdio"],
+
+    "language.sass.languageServer.command": cssLanguageServerPath,
+    "language.sass.languageServer.arguments": ["--stdio"],
+
     "language.reason.languageServer.command": ocamlLanguageServerPath,
     "language.reason.languageServer.arguments": ["--stdio"],
     "language.reason.languageServer.rootFiles": [".merlin", "bsconfig.json"],
@@ -107,6 +127,7 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.maxWidth": "30em",
     "tabs.wrap": false,
 
+    "ui.animations.enabled": true,
     "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
 }

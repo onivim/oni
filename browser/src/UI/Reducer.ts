@@ -21,9 +21,17 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     }
 
     switch (a.type) {
+        case "SET_NEOVIM_ERROR":
+            return { ...s,
+                     neovimError: a.payload.neovimError }
         case "SET_VIEWPORT":
             return { ...s,
                      viewport: viewportReducer(s.viewport, a) }
+        case "SET_CURSOR_SCALE":
+            return {
+            ...s,
+            cursorScale: a.payload.cursorScale,
+        }
         case "SET_CURSOR_POSITION":
             return {...s,
                     cursorPixelX: a.payload.pixelX,

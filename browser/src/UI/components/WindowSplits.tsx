@@ -1,27 +1,27 @@
 /**
- * EditorWindows.tsx
+ * WindowSplits.tsx
  *
  * UI that hosts all the `Editor` instances
  */
 
 import * as React from "react"
 
-import { EditorHost } from "./EditorHost"
+import { WindowSplitHost } from "./WindowSplitHost"
 
 import { WindowManager } from "./../../Services/WindowManager"
 import { ISplitInfo } from "./../../Services/WindowSplit"
 
-export interface IEditorWindowsProps {
+export interface IWindowSplitsProps {
     windowManager: WindowManager
 }
 
-export interface IEditorWindowsState {
-    splitRoot: ISplitInfo<Oni.Editor>
+export interface IWindowSplitsState {
+    splitRoot: ISplitInfo<Oni.IWindowSplit>
 }
 
-export class EditorWindows extends React.PureComponent<IEditorWindowsProps, IEditorWindowsState> {
+export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindowSplitsState> {
 
-    constructor(props: IEditorWindowsProps) {
+    constructor(props: IWindowSplitsProps) {
         super(props)
 
         this.state = {
@@ -49,16 +49,16 @@ export class EditorWindows extends React.PureComponent<IEditorWindowsProps, IEdi
             "height": "100%",
         }
 
-        const editors = this.state.splitRoot.splits.map((split) => {
-            if (split.type === "Split") {
+        const editors = this.state.splitRoot.splits.map((splitNode) => {
+            if (splitNode.type === "Split") {
                 return null
             } else {
-                const anyEditor: any = split.contents
+                const split: Oni.IWindowSplit = splitNode.contents
 
-                if (!anyEditor) {
+                if (!split) {
                     return <div className="container vertical full">TODO: Implement an editor here...</div>
                 } else {
-                    return <EditorHost editor={anyEditor} />
+                    return <WindowSplitHost split={split} />
                 }
             }
         })

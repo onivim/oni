@@ -11,9 +11,13 @@ import * as minimist from "minimist"
 import * as Log from "./Log"
 import { pluginManager } from "./Plugins/PluginManager"
 
+import * as AutoClosingPairs from "./Services/AutoClosingPairs"
 import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
 import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
+import { editorManager } from "./Services/EditorManager"
+import { inputManager } from "./Services/InputManager"
+import { languageManager } from "./Services/Language"
 
 import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
@@ -75,15 +79,15 @@ const start = (args: string[]) => {
         commandManager.executeCommand(command, null)
     })
 
-    if (configuration.getValue("experimental.enableLanguageServerFromConfig")) {
-        createLanguageClientsFromConfiguration(configuration.getValues())
-    }
+    createLanguageClientsFromConfiguration(configuration.getValues())
 
     performance.mark("NeovimInstance.Plugins.Start")
     const api = pluginManager.startPlugins()
     performance.mark("NeovimInstance.Plugins.End")
 
     configuration.activate(api)
+
+    AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
 
     checkForUpdates()
 }

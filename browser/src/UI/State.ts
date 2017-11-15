@@ -29,6 +29,7 @@ export interface IToolTip {
 }
 
 export interface IState {
+    cursorScale: number
     cursorPixelX: number
     cursorPixelY: number
     cursorPixelWidth: number
@@ -46,6 +47,8 @@ export interface IState {
     configuration: IConfigurationValues
     imeActive: boolean
     viewport: IViewport
+
+    neovimError: boolean
 
     statusBar: { [id: string]: IStatusBarItem }
     toolTips: { [id: string]: IToolTip }
@@ -163,6 +166,7 @@ export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurat
 }
 
 export const createDefaultState = (): IState => ({
+    cursorScale: 1,
     cursorPixelX: 10,
     cursorPixelY: 10,
     cursorPixelWidth: 10,
@@ -184,6 +188,7 @@ export const createDefaultState = (): IState => ({
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
+    neovimError: false,
 
     configuration: configuration.getValues(),
 

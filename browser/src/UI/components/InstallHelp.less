@@ -7,7 +7,7 @@
     right: 0px;
     bottom: 0px;
 
-    background-color: @background-color;
+    background-color: rgb(40, 44, 52);
     color: @text-color;
 
     display: flex;
@@ -17,6 +17,10 @@
 
     .title {
         text-align: center;
+
+        p {
+            font-weight: bold;
+        }
     }
 
     .instructions {
@@ -26,8 +30,9 @@
             margin: 8px;
         }
 
-        a {
-            color: @text-color-highlight;
-        }
+    }
+
+    a {
+        color: @text-color-highlight;
     }
 }

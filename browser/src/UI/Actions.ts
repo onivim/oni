@@ -23,6 +23,20 @@ export interface ISetViewportAction {
     }
 }
 
+export interface ISetNeovimErrorAction {
+    type: "SET_NEOVIM_ERROR",
+    payload: {
+        neovimError: boolean,
+    }
+}
+
+export interface ISetCursorScaleAction {
+    type: "SET_CURSOR_SCALE",
+    payload: {
+        cursorScale: number,
+    }
+}
+
 export interface ISetCurrentBuffersAction {
     type: "SET_CURRENT_BUFFERS",
     payload: {
@@ -226,11 +240,13 @@ export type SimpleAction =
     IHideDefinitionAction |
     IShowDefinitionAction |
     ISetModeAction |
+    ISetCursorScaleAction |
     ISetColorsAction |
     IStatusBarHideAction |
     IStatusBarShowAction |
     ISetErrorsAction |
     ISetCurrentBuffersAction |
+    ISetNeovimErrorAction |
     ISetTabs |
     ISetViewportAction |
     ISetWindowCursor |

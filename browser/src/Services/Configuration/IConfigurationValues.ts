@@ -27,6 +27,8 @@ export interface IConfigurationValues {
     "debug.fakeLag.languageServer": number
 
     // Experimental feature flags
+    "experimental.autoClosingPairs.enabled": boolean
+    "experimental.autoClosingPairs.default": any
 
     // Production settings
 
@@ -156,6 +158,7 @@ export interface IConfigurationValues {
     // If `true`, will wrap the tabs.
     "tabs.wrap": boolean
 
+    "ui.animations.enabled": boolean
     "ui.fontFamily": string
     "ui.fontSize": string
 

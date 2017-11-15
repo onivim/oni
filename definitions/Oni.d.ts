@@ -5,6 +5,8 @@ import * as types from "vscode-languageserver-types"
 
 declare namespace Oni {
 
+    export type DisposeFunction = () => void
+
     export interface IDisposable {
         dispose(): void
     }
@@ -36,12 +38,17 @@ declare namespace Oni {
     }
 
     export interface IWindowManager {
-        split(direction: number, editor: Oni.Editor, sourceEditor?: Oni.Editor)
+        split(direction: number, split: IWindowSplit)
+        showDock(direction: number, split: IWindowSplit)
         moveLeft(): void
         moveRight(): void
         moveDown(): void
         moveUp(): void
         close(editor: Oni.Editor)
+    }
+
+    export interface IWindowSplit {
+        render(): JSX.Element
     }
 
     export interface EditorManager {
@@ -56,6 +63,10 @@ declare namespace Oni {
     }
 
     export interface NeovimEditorCapability {
+
+        // Call a VimL function and return the result
+        callFunction(functionName: string, args: any[]): Promise<any>
+
         // Send a direct set of key inputs to Neovim
         input(keys: string): Promise<void>
 
@@ -266,12 +277,6 @@ declare namespace Oni {
             }
         }
 
-        export interface FormattingEditsResponse {
-            filePath: string
-            version: number
-            edits: any[]
-        }
-
         export interface Api extends EventEmitter {
             automation: Automation.Api
             configuration: Configuration
@@ -285,10 +290,6 @@ declare namespace Oni {
             process: Process
             statusBar: StatusBar
             workspace: Workspace
-        }
-
-        export interface LanguageService {
-            getFormattingEdits?(position: EventContext): Promise<FormattingEditsResponse>
         }
     }
 }
