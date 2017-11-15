@@ -48,7 +48,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
             }
 
             oni = new Oni()
-            return oni.start()
+            return oni.start(["test.txt"])
         })
 
         afterEach(async () => {
