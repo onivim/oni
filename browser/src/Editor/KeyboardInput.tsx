@@ -46,6 +46,7 @@ interface IKeyboardInputViewState {
 }
 
 export interface IKeyboardInputProps {
+    onActivate: IEvent<void>
     onKeyDown?: (key: string) => void
 }
 

@@ -10,7 +10,7 @@
 
 import { Event, IEvent } from "./../Event"
 
-import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, ISplitInfo, /*ISplitLeaf,*/ SplitDirection } from "./WindowSplit"
+import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, getFurthestSplitInDirection, ISplitInfo, /*ISplitLeaf,*/ Split, SplitDirection } from "./WindowSplit"
 
 export enum DockPosition {
     // TODO: Other dock positions
@@ -95,8 +95,16 @@ export class WindowManager {
     }
 
     public moveRight(): void {
-        // TODO
-        console.log("MOVE RIGHT")
+        const activeSplit = this._activeSplit
+        const leftDocks = this._docks[DockPosition.Left]
+
+        if (leftDocks.indexOf(activeSplit) >= 0) {
+            const newSplit = getFurthestSplitInDirection(this._splitRoot, Split.Left)
+
+            if (newSplit) {
+                this._focusNewSplit(newSplit.contents)
+            }
+        }
     }
 
     public moveUp(): void {

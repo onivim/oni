@@ -6,6 +6,7 @@
 
 import * as React from "react"
 
+// import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
 import { Icon, IconSize } from "./../../UI/Icon"
 import { Event } from "./../../Event"
 
@@ -42,11 +43,13 @@ export class FileExplorerView extends React.PureComponent<IFileExplorerProps, {}
             }
         })
 
-
-
         const elements = sortedFilesAndFolders.map((f) => {
 
-            const className = this.props.cursorPath === f.fullPath ? f.type + " cursor" : f.type
+            const isCursor = this.props.cursorPath === f.fullPath
+            const className = isCursor ? f.type + " cursor" : f.type
+
+
+            // const cursorElem: JSX.Element = isCursor ? <ArrowComponent />: null
 
             if (f.type === "folder") {
                 return <div className={className}>
@@ -63,7 +66,7 @@ export class FileExplorerView extends React.PureComponent<IFileExplorerProps, {}
         })
 
         return <div className="tree">
-            <div>{this.props.rootPath}</div>
+            <div className="root">{this.props.rootPath}</div>
             {elements}
         </div>
 

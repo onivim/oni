@@ -9,6 +9,7 @@ import { Event, IEvent } from "./../Event"
 import { NeovimInstance } from "./NeovimInstance"
 
 import { pluginManager } from "./../Plugins/PluginManager"
+import { commandManager } from "./../Services/CommandManager"
 
 export interface INeovimMenuOption<T> {
     id: string
@@ -52,6 +53,10 @@ export class NeovimMenuInstance<T> implements INeovimMenuInstance<T> {
                     this._cursorPositionChangedEvent.dispatch(this._currentOptions[line])
                 }
             }
+        })
+
+        this._neovimInstance.onOniCommand.subscribe((command: string) => {
+            commandManager.executeCommand(command)
         })
     }
 

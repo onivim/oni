@@ -271,6 +271,14 @@ export class NeovimEditor implements IEditor {
         }
     }
 
+    public enter(): void {
+        console.log("Neovim editor: entered")
+    }
+
+    public leave(): void {
+        console.log("Neovim editor: left")
+    }
+
     public async openFile(file: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":e " + file)
         return this.activeBuffer

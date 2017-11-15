@@ -9,7 +9,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background-color:rgb(40, 44, 52);
+        background-color:rgb(30, 30, 30);
 
         .sidebar-icon {
             margin-top: 16px;
@@ -34,15 +34,17 @@
         text-align: center;
     }
 
-    .tree {
+    .root {
         margin-left: 16px;
     }
 
     .folder, .file {
         margin: 4px;
+        padding-left: 16px;
+        position: relative;
 
         &.cursor {
-            background-color: black;
+            background-color: rgb(50, 50, 50);
         }
 
         .icon {
