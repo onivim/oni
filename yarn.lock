@@ -100,9 +100,9 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-redux@4.4.38":
-  version "4.4.38"
-  resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-4.4.38.tgz#771c9293fa835107eb5ac2e4ef8d52e54f2ed4ff"
+"@types/react-redux@5.0.12":
+  version "5.0.12"
+  resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-5.0.12.tgz#c066812eb970009b373372f439d08265ed2a6f8e"
   dependencies:
     "@types/react" "*"
     redux "^3.6.0"
@@ -113,13 +113,9 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*":
+"@types/react@*", "@types/react@16.0.23":
   version "16.0.23"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.0.23.tgz#f0f713b07912c6fd8e10c9ccc539443ceb06dbca"
-
-"@types/react@16.0.19":
-  version "16.0.19"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.0.19.tgz#f804a0fcd6d94c17df92cf2fd46671bbbc862329"
 
 "@types/sinon@1.16.32":
   version "1.16.32"
