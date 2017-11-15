@@ -15,7 +15,7 @@ import { configuration } from "./../Services/Configuration"
 
 import { NeovimBufferReference } from "./MsgPack"
 import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
-import { startNeovim, INeovimStartOptions } from "./NeovimProcessSpawner"
+import { INeovimStartOptions, startNeovim } from "./NeovimProcessSpawner"
 import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { Session } from "./Session"
 

@@ -31,7 +31,7 @@ const DefaultStartOptions: INeovimStartOptions = {
     transport: "stdio",
 }
 
-const getSessionFromProcess = async (neovimProcess: ChildProcess, transport: MsgPackTransport = "stdio") : Promise<Session> => {
+const getSessionFromProcess = async (neovimProcess: ChildProcess, transport: MsgPackTransport = "stdio"): Promise<Session> => {
 
     Log.info("Initializing neovim process using transport: " + transport)
 
@@ -98,4 +98,3 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
     return getSessionFromProcess(nvimProc, options.transport)
 
 }
-
