@@ -53,7 +53,13 @@ export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observ
             .subscribe((args: [any, IResultWithPosition<types.Hover>, types.Diagnostic[]]) => {
                 const [, result, errors] = args
 
-                const activeCursor = editorManager.activeEditor.activeBuffer.cursor
+                const buffer = editorManager.activeEditor.activeBuffer
+
+                if (!buffer) {
+                    return
+                }
+
+                const activeCursor = buffer.cursor
 
                 let hover = null
 

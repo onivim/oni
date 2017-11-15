@@ -8,7 +8,9 @@ import * as React from "react"
 
 // import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
 import { Icon, IconSize } from "./../../UI/Icon"
-import { Event } from "./../../Event"
+import { Event, IEvent } from "./../../Event"
+
+import { editorManager } from "./../../Services/EditorManager"
 
 import { INeovimMenuOption, NeovimMenuInstance } from "./../../neovim/NeovimMenuInstance"
 
@@ -28,7 +30,6 @@ export interface IFileExplorerProps {
 export class FileExplorerView extends React.PureComponent<IFileExplorerProps, {}> {
 
     public render(): JSX.Element {
-
         const sortedFilesAndFolders = this.props.filesOrFolders.sort((a, b) => {
             if (a.type < b.type) {
                 return 1
@@ -84,7 +85,54 @@ const mapStateToProps = (state: IFileExplorerState): IFileExplorerProps => {
 const FileExplorer = connect(mapStateToProps)(FileExplorerView)
 
 
-export class FileExplorerSplit implements Oni.IWindowSplit {
+export class PseudoEditor implements Oni.Editor {
+    private _noopEvent = new Event<any>()
+
+    private _modeChangedEvent = new Event<any>()
+
+    public get onModeChanged(): IEvent<Oni.Vim.Mode> {
+        return this._modeChangedEvent
+    }
+
+    public get activeBuffer(): Oni.Buffer {
+        return null
+    }
+
+    public openFile(file: string): Promise<any> {
+        return Promise.resolve<any>(null)
+    }
+
+    public get onBufferEnter(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._noopEvent
+    }
+
+    public get onBufferLeave(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._noopEvent
+    }
+
+    public get onBufferChanged(): IEvent<Oni.EditorBufferChangedEventArgs> {
+        return this._noopEvent
+    }
+
+    public get onBufferSaved(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._noopEvent
+    }
+
+    public get mode(): string {
+        return "FX_NORMAL"
+    }
+
+    public enter(): void {
+        editorManager.setActiveEditor(this)
+
+        this._modeChangedEvent.dispatch(this.mode)
+    }
+
+    public leave(): void {
+    }
+}
+
+export class FileExplorerSplit extends PseudoEditor implements Oni.IWindowSplit, Oni.Editor {
 
     private _onActive: Event<void> = new Event<void>()
 
@@ -92,6 +140,7 @@ export class FileExplorerSplit implements Oni.IWindowSplit {
     private _initPromise: Promise<void> = null
 
     constructor() {
+        super()
         this._neovimInstance = new NeovimMenuInstance()
 
         this._neovimInstance.onCursorPositionChanged.subscribe((menuOption) => {
@@ -105,7 +154,9 @@ export class FileExplorerSplit implements Oni.IWindowSplit {
     }
 
     public enter(): void {
+        super.enter()
         this._onActive.dispatch()
+
         const filesAndFolders = fileExplorerStore.getState().filesOrFolders
 
         fileExplorerStore.dispatch({
@@ -119,10 +170,6 @@ export class FileExplorerSplit implements Oni.IWindowSplit {
         }))
 
         this._neovimInstance.setOptions(options)
-    }
-
-    public leave(): void {
-        // alert("leave")
     }
 
     private async _onKeyDown(keyPress: string): Promise<void> {
