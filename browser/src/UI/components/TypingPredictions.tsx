@@ -43,8 +43,9 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionProps, {
                 fontFamily: this.props.fontFamily,
                 fontSize: this.props.fontSize,
                 textAlign: "center",
-                backgroundColor: "red",
-                color: "white"
+                // backgroundColor: "red",
+                // color: "white"
+                color: this.props.color,
             }
 
             return <div className="predicted-text" style={style}>{tp.character}</div>
