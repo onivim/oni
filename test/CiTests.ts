@@ -48,8 +48,9 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
     // Retry up to two times
     this.retries(2)
 
-    const configFolder = path.join(Platform.getUserHome(), ".oni")
-    const configPath = path.join(Platform.getUserHome(), ".oni", "config.js")
+    const configFolder = Platform.isWindows() ? path.join(Platform.getUserHome(), "oni") :
+                                                path.join(Platform.getUserHome(), ".oni")
+    const configPath = path.join(configFolder, "config.js")
 
     const temporaryConfigPath = path.join(os.tmpdir(), "config.js")
 
