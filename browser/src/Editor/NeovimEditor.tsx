@@ -54,6 +54,8 @@ export class NeovimEditor implements IEditor {
 
     private _pendingAnimationFrame: boolean = false
 
+    private _onEditorEnter = new Event<void>()
+
     private _currentMode: string
     private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
@@ -272,6 +274,7 @@ export class NeovimEditor implements IEditor {
     }
 
     public enter(): void {
+        this._onEditorEnter.dispatch()
         console.log("Neovim editor: entered")
     }
 
@@ -321,6 +324,7 @@ export class NeovimEditor implements IEditor {
         return <NeovimSurface renderer={this._renderer}
             neovimInstance={this._neovimInstance}
             screen={this._screen}
+            onActivate={this._onEditorEnter}
             onKeyDown={onKeyDown}
             onBufferClose={onBufferClose}
             onBufferSelect={onBufferSelect}

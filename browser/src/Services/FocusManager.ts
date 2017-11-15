@@ -13,6 +13,12 @@ class FocusManager {
         element.focus()
     }
 
+    public setFocus(element: HTMLElement) {
+
+        this._focusElementStack = [element]
+        element.focus()
+    }
+
     public popFocus(element: HTMLElement) {
         this._focusElementStack = this._focusElementStack.filter((elem) => elem !== element)
 

@@ -72,7 +72,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
         if (this.props.onActivate) {
             this.props.onActivate.subscribe(() => {
-                focusManager.pushFocus(this._keyboardElement)
+                focusManager.setFocus(this._keyboardElement)
             })
         }
 

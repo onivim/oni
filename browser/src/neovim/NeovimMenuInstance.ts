@@ -77,6 +77,7 @@ export class NeovimMenuInstance<T> implements INeovimMenuInstance<T> {
         await this._initPromise
 
         const currentBufId = await this._neovimInstance.eval("bufnr('%')")
+        const bufferLength = await this._neovimInstance.eval<number>("line('$')")
 
         const elems = []
 
@@ -84,6 +85,6 @@ export class NeovimMenuInstance<T> implements INeovimMenuInstance<T> {
             elems.push(i.toString())
         }
 
-        await this._neovimInstance.request("nvim_buf_set_lines", [currentBufId, 0, 1, false, elems])
+        await this._neovimInstance.request("nvim_buf_set_lines", [currentBufId, 0, bufferLength - 1, false, elems])
     }
 }
