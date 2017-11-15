@@ -29,24 +29,6 @@ export interface ITestCase {
     configPath: string
 }
 
-const normalizePath = (p) => p.split("\\").join("/")
-
-const loadTest = (testName: string): ITestCase => {
-    const ciPath = path.join(__dirname, "ci")
-    const testPath = path.join(ciPath, testName + ".js")
-
-    const testMeta = require(testPath)
-    const testDescription = testMeta.settings || {}
-
-    const normalizedMeta: ITestCase = {
-        name: testDescription.name || testName,
-        testPath: normalizePath(testPath),
-        configPath: testDescription.configPath ? normalizePath(path.join(ciPath, testDescription.configPath)) : "",
-    }
-
-    return normalizedMeta
-}
-
 describe("ci tests", function() { // tslint:disable-line only-arrow-functions
     // Retry up to two times
     this.retries(2)

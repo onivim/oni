@@ -14,8 +14,7 @@ export interface ITestCase {
 const normalizePath = (p) => p.split("\\").join("/")
 
 const loadTest = (rootPath: string, testName: string): ITestCase => {
-    const ciPath = path.join(__dirname, rootPath)
-    const testPath = path.join(ciPath, testName + ".js")
+    const testPath = path.join(rootPath, testName + ".js")
 
     const testMeta = require(testPath)
     const testDescription = testMeta.settings || {}
@@ -23,7 +22,7 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
     const normalizedMeta: ITestCase = {
         name: testDescription.name || testName,
         testPath: normalizePath(testPath),
-        configPath: testDescription.configPath ? normalizePath(path.join(ciPath, testDescription.configPath)) : "",
+        configPath: testDescription.configPath ? normalizePath(path.join(rootPath, testDescription.configPath)) : "",
     }
 
     return normalizedMeta
@@ -63,7 +62,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
             Config.restoreConfig()
         })
 
-        it("ci test: " + test, async () => {
+        it("ci test: " + testName, async () => {
             await oni.client.waitForExist(".editor", timeout)
             const text = await oni.client.getText(".editor")
             assert(text && text.length > 0, "Validate editor element is present")

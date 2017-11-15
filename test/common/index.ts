@@ -1,2 +1,2 @@
 export * from "./Oni"
-export * from "./runInProcTest
+export * from "./runInProcTest"
