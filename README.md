@@ -3,7 +3,7 @@
 ### IDE powered by Neovim + React + Electron
 
 [![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)
-[![Join the chat at https://gitter.im/extr0py/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/oni/sponsors/badge.svg)](#sponsors) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
+[![Join the chat at https://gitter.im/extr0py/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![Sponsors on Open Collective](https://opencollective.com/oni/sponsors/badge.svg)](https://opencollective.com/oni#sponsor) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 [![Total Downloads](https://img.shields.io/github/downloads/onivim/oni/total.svg)](https://github.com/onivim/oni/releases)
 
 <h2 align="center">Supporting Oni</h2>
@@ -15,7 +15,7 @@ Oni is an MIT-licensed open source project. Please consider supporting Oni by:
 
 <h3 align="center">Sponsors via OpenCollective</h3>
 
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/oni#sponsor)]
+Support this project by [becoming a sponsor](https://opencollective.com/oni#sponsor). Your logo will show up here with a link to your website.
 
 <a href="https://opencollective.com/oni/sponsor/0/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/0/avatar.svg"></a>
 <a href="https://opencollective.com/oni/sponsor/1/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/1/avatar.svg"></a>
