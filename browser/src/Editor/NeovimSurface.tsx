@@ -16,6 +16,7 @@ import { CursorLine } from "./../UI/components/CursorLine"
 import { InstallHelp } from "./../UI/components/InstallHelp"
 import { TabsContainer } from "./../UI/components/Tabs"
 import { ToolTips } from "./../UI/components/ToolTip"
+import { TypingPrediction } from "./../UI/components/TypingPredictions"
 
 import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarContainer"
 import { DefinitionContainer } from "./../UI/containers/DefinitionContainer"
@@ -53,6 +54,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                         screen={this.props.screen} />
                 </div>
                 <div className="stack layer">
+                    <TypingPrediction />
                     <Cursor />
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />

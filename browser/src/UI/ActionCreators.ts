@@ -28,6 +28,21 @@ import { IConfigurationValues } from "./../Services/Configuration"
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
 
+export const addTypingPrediction = (id: number, character: string) => ({
+    type: "ADD_TYPING_PREDICTION",
+    payload: {
+        id,
+        character,
+    }
+})
+
+export const clearTypingPrediction = (id: number) => ({
+    type: "CLEAR_TYPING_PREDICTION",
+    payload: {
+        id,
+    }
+})
+
 export const setNeovimError = (neovimError: boolean) => ({
     type: "SET_NEOVIM_ERROR",
     payload: {

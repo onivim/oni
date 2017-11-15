@@ -86,7 +86,7 @@ class CursorRenderer extends React.PureComponent<ICursorProps, {}> {
 const mapStateToProps = (state: State.IState): ICursorProps => {
     return {
         animated: State.readConf(state.configuration, "ui.animations.enabled"),
-        x: state.cursorPixelX,
+        x: state.cursorPixelX + state.typingPredictions.length * state.cursorPixelWidth,
         y: state.cursorPixelY,
         scale: state.mode === "operator" ? 0.8 : state.cursorScale,
         width: state.cursorPixelWidth,

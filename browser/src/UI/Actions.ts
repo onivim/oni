@@ -15,6 +15,21 @@ import { IConfigurationValues } from "./../Services/Configuration"
 
 import * as types from "vscode-languageserver-types"
 
+export interface IAddTypingPrediction {
+    type: "ADD_TYPING_PREDICTION",
+    payload: {
+        id: number,
+        character: string,
+    }
+}
+
+export interface IClearTypingPrediction {
+    type: "CLEAR_TYPING_PREDICTION",
+    payload: {
+        id: number,
+    }
+}
+
 export interface ISetViewportAction {
     type: "SET_VIEWPORT",
     payload: {
@@ -227,9 +242,11 @@ export type Action<K extends keyof IConfigurationValues> =
     SimpleAction | ActionWithGeneric<K>
 
 export type SimpleAction =
+    IAddTypingPrediction |
     IBufferEnterAction |
     IBufferSaveAction |
     IBufferUpdateAction |
+    IClearTypingPrediction |
     ISetCursorPositionAction |
     ISetImeActive |
     ISetFont |
