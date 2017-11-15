@@ -220,10 +220,7 @@ export const createDefaultState = (): IState => ({
         height: 0,
     },
 
-    typingPredictions: [{
-        id: 1,
-        character: "h",
-    }],
+    typingPredictions: [],
 
     errors: {},
     statusBar: {},

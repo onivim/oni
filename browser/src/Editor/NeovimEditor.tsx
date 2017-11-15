@@ -397,9 +397,30 @@ export class NeovimEditor implements IEditor {
                 this._renderer.draw(this._screen)
             }
         }
+
+        this._completedPredictions.forEach((id) => {
+            UI.Actions.clearTypingPrediction(id)
+        })
+        this._completedPredictions = []
     }
+    private _predictionId: number = 1
+    private _completedPredictions: number[] = []
 
     private async _onKeyDown(key: string): Promise<void> {
+
+        let predictionId: number | null = null
+        if (key.length === 1 && this.mode === "insert") {
+
+            predictionId = this._predictionId + 1
+            this._predictionId++
+
+            UI.Actions.addTypingPrediction(predictionId, key)
+        }
+
         await this._neovimInstance.input(key)
+
+        if (predictionId) {
+            this._completedPredictions.push(predictionId)
+        }
     }
 }
