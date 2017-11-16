@@ -6,6 +6,8 @@
         "oni": "^0.0.1"
     },
     "scripts": {
+        "build": "tsc",
+        "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
     },
     "oni": {
         "supportedFileTypes": [
@@ -19,7 +21,7 @@
         }
     },
     "dependencies": {
+        "typescript": "2.5.3"
     },
-    "devDependencies": {
-    }
+    "devDependencies": {}
 }
