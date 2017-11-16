@@ -21,6 +21,9 @@ export class TypingPredictionManager {
     private _completedPredictions: TypingPredictionId[] = []
     private _enabled: boolean = false
 
+    private _line: number = 0
+    private _column: number = 0
+
     public get onPredictionsChanged(): IEvent<IPredictedCharacter[]> {
         return this._predictionsChanged
     }
@@ -31,6 +34,10 @@ export class TypingPredictionManager {
 
     public disable(): void {
         this._enabled = false
+    }
+
+
+    public setCursorPosition(line: number, column: number): void {
     }
 
     public addPrediction(character: string): TypingPredictionId | null {
