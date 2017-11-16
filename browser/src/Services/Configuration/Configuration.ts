@@ -20,6 +20,8 @@ export class Configuration implements Oni.Configuration {
     private _oniApi: Oni.Plugin.Api = null
     private _config: IConfigurationValues = null
 
+    private _setValues: { [configValue: string]: any } = { }
+
     public get userJsConfig(): string {
         return path.join(this.getUserFolder(), "config.js")
     }
@@ -60,6 +62,18 @@ export class Configuration implements Oni.Configuration {
         return !!this.getValue(configValue)
     }
 
+    public setValues(configValues: { [configValue: string]: any }): void {
+
+        this._setValues = configValues
+
+        this._config = {
+            ...this._config,
+            ...configValues,
+        }
+
+        this._onConfigurationChangedEvent.dispatch(configValues)
+    }
+
     public getValue<K extends keyof IConfigurationValues>(configValue: K, defaultValue?: any) {
         if (typeof this._config[configValue] === "undefined") {
             return defaultValue
@@ -90,15 +104,15 @@ export class Configuration implements Oni.Configuration {
         this._activateIfOniObjectIsAvailable()
     }
 
-    private applyConfig(): void {
+    private applyConfig(shouldReactivate: boolean = true): void {
         const previousConfig = this._config
 
         const userRuntimeConfigOrError = this.getUserRuntimeConfig()
         if (isError(userRuntimeConfigOrError)) {
             Log.error(userRuntimeConfigOrError)
-            this._config = { ...DefaultConfiguration }
+            this._config = { ...DefaultConfiguration, ...this._setValues }
         } else {
-            this._config = { ...DefaultConfiguration, ...userRuntimeConfigOrError}
+            this._config = { ...DefaultConfiguration, ...this._setValues, ...userRuntimeConfigOrError}
         }
 
         this._deactivate()
