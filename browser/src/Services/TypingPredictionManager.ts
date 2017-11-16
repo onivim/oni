@@ -15,14 +15,13 @@ export interface IPredictedCharacter {
 
 export class TypingPredictionManager {
 
-    private _nextPredictionId = 1
     private _predictionsChanged: Event<IPredictedCharacter[]> = new Event<IPredictedCharacter[]>()
     private _predictions: IPredictedCharacter[] = []
     private _completedPredictions: TypingPredictionId[] = []
     private _enabled: boolean = false
 
-    private _line: number = 0
-    private _column: number = 0
+    private _line: number = null
+    private _column: number = null
 
     public get onPredictionsChanged(): IEvent<IPredictedCharacter[]> {
         return this._predictionsChanged
@@ -38,6 +37,19 @@ export class TypingPredictionManager {
 
 
     public setCursorPosition(line: number, column: number): void {
+
+        if (this._line !== line) {
+            this.clearAllPredictions()
+        }
+
+        this._line = line
+        this._column = column
+
+        this._predictions = this._predictions.filter((pd) => {
+            return pd.id > this._column
+        })
+
+        this._notifyPredictionsChanged()
     }
 
     public addPrediction(character: string): TypingPredictionId | null {
@@ -46,8 +58,7 @@ export class TypingPredictionManager {
             return null
         }
 
-        const id = this._nextPredictionId
-        this._nextPredictionId++
+        const id = this._column + this._predictions.length + 1
 
         this._predictions = [
             ...this._predictions,

@@ -185,6 +185,7 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.onRedrawComplete.subscribe(() => {
             UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
             UI.Actions.setCursorPosition(this._screen)
+            this._typingPredictionManager.setCursorPosition(this._screen.cursorRow, this._screen.cursorColumn)
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
@@ -414,8 +415,6 @@ export class NeovimEditor implements IEditor {
                 this._renderer.draw(this._screen)
             }
         }
-
-        this._typingPredictionManager.clearCompletedPredictions()
     }
 
     private async _sleep(): Promise<any> {
@@ -435,8 +434,8 @@ export class NeovimEditor implements IEditor {
         await this._sleep()
         await this._neovimInstance.input(key)
 
-        if (id) {
-            this._typingPredictionManager.notifyPredictionComplete(id)
-        }
+        // if (id) {
+        //     this._typingPredictionManager.notifyPredictionComplete(id)
+        // }
     }
 }

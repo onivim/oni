@@ -71,7 +71,7 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
                         elem.style.lineHeight = this.props.height.toString() + "px"
 
                         // elem.style.color = "white"
-                        elem.style.backgroundColor = "rgba(255, 0, 0, 0.5)"
+                        // elem.style.backgroundColor = "rgba(255, 0, 0, 0.5)"
                         elem.textContent = up.character
 
                         this._containerElement.appendChild(elem)
