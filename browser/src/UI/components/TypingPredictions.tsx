@@ -35,6 +35,11 @@ export interface ITypingPredictionViewState {
 
 class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProps, ITypingPredictionViewState> {
 
+    private _containerElement: HTMLElement
+    private _lastWidth: number
+
+    private _predictedElements: { [id: number]: HTMLElement } = {}
+
     constructor(props: ITypingPredictionViewProps) {
         super(props)
 
@@ -45,41 +50,86 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
 
     public componentDidMount(): void {
 
-        this.props.typingPrediction.onPredictionsChanged.subscribe((updatedPredictions: IPredictedCharacter[]) => {
+            this.props.typingPrediction.onPredictionsChanged.subscribe((updatedPredictions: IPredictedCharacter[]) => {
 
-            this.setState({
-                predictions: updatedPredictions,
+                if (!this._containerElement) {
+                    return
+                }
+
+                this._containerElement.innerHTML = ""
+
+                // Add new predictions
+                updatedPredictions.forEach((up, idx) => {
+                    // if (!this._predictedElements[up.id]) {
+                        const elem = document.createElement("div")
+                        elem.className = "predicted-text"
+                        elem.style.position = "absolute"
+                        elem.style.top = this.props.y.toString() + "px"
+                        elem.style.left = (this.props.startX + idx * this.props.width).toString() + "px"
+                        elem.style.width = (this.props.width.toString()) + "px"
+                        elem.style.height = (this.props.height.toString()) + "px"
+                        elem.style.lineHeight = this.props.height.toString() + "px"
+
+                        // elem.style.color = "white"
+                        elem.style.backgroundColor = "rgba(255, 0, 0, 0.5)"
+                        elem.textContent = up.character
+
+                        this._containerElement.appendChild(elem)
+
+                        // Force paint:
+
+                        this._predictedElements[up.id] = this._containerElement
+
+                    // }
+                })
+
+                // Force re-layout
+                this._lastWidth = this._containerElement.offsetWidth
+
+                // Remove old predictions
+
+                // this.setState({
+                //     predictions: updatedPredictions,
+                // })
             })
-        })
     }
 
     public render(): JSX.Element {
 
-        if (!this.props.visible) {
-            return null
+        // if (!this.props.visible) {
+        //     return null
+        // }
+
+        const containerStyle: React.CSSProperties = {
+            willChange: "transform",
+            color: this.props.color,
+            fontFamily: this.props.fontFamily,
+            fontSize: this.props.fontSize,
         }
 
-        const predictions = this.state.predictions.map((tp, idx) => {
+        // const predictions = this.state.predictions.map((tp, idx) => {
 
-            const style: React.CSSProperties = {
-                position: "absolute",
-                top: this.props.y.toString() + "px",
-                left: (this.props.startX + idx * this.props.width).toString() + "px",
-                width: this.props.width.toString() + "px",
-                height: this.props.height.toString() + "px",
-                lineHeight: this.props.height.toString() + "px",
-                fontFamily: this.props.fontFamily,
-                fontSize: this.props.fontSize,
-                textAlign: "center",
-                backgroundColor: "red",
-                color: "white"
-                // color: this.props.color,
-            }
 
-            return <div className="predicted-text" style={style}>{tp.character}</div>
-        })
+        //     const style: React.CSSProperties = {
+        //         position: "absolute",
+        //         top: this.props.y.toString() + "px",
+        //         left: (this.props.startX + idx * this.props.width).toString() + "px",
+        //         width: this.props.width.toString() + "px",
+        //         height: this.props.height.toString() + "px",
+        //         lineHeight: this.props.height.toString() + "px",
+        //         fontFamily: this.props.fontFamily,
+        //         fontSize: this.props.fontSize,
+        //         textAlign: "center",
+        //         // backgroundColor: "red",
+        //         // color: "white",
+        //         willChange: "transform",
+        //         color: this.props.color,
+        //     }
 
-        return <div className="typing-predictions">{predictions}</div>
+        // return <div className="predicted-text" key={"predicted-text"} style={containerStyle} ref={(elem) => this._containerElement = elem}>{tp.character}</div>
+        // })
+
+        return <div className="typing-predictions" key={"typing-predictions"} style={containerStyle} ref={(elem) => this._containerElement = elem}></div>
     }
 }
 
@@ -94,7 +144,7 @@ const mapStateToProps = (state: State.IState, props: ITypingPredictionProps): IT
         textColor: state.backgroundColor,
         fontFamily: State.readConf(state.configuration, "editor.fontFamily"),
         fontSize: State.readConf(state.configuration, "editor.fontSize"),
-        visible: state.mode === "insert" && !state.imeActive,
+        visible: true,
     }
 }
 

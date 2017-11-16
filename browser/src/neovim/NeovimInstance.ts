@@ -93,7 +93,7 @@ export interface INeovimInstance {
     /**
      * Supply input (keyboard/mouse) to Neovim
      */
-    input(inputString: string): void
+    input(inputString: string): Promise<void>
 
     /**
      * Call a VimL function

@@ -418,10 +418,25 @@ export class NeovimEditor implements IEditor {
         this._typingPredictionManager.clearCompletedPredictions()
     }
 
+    private async _sleep(): Promise<any> {
+        return new Promise((res) => {
+            window.setTimeout(() => res(), 1000)
+
+        })
+    }
+
     private async _onKeyDown(key: string): Promise<void> {
 
-        const id = this._typingPredictionManager.getLatestPredictionForCharacter(key)
+        // const id = this._typingPredictionManager.getLatestPredictionForCharacter(key)
+        let id = null
+        if (key.length === 1){
+        id = this._typingPredictionManager.addPrediction(key)
+        }
+        await this._sleep()
         await this._neovimInstance.input(key)
-        this._typingPredictionManager.notifyPredictionComplete(id)
+
+        if (id) {
+            this._typingPredictionManager.notifyPredictionComplete(id)
+        }
     }
 }
