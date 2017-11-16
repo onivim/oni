@@ -2,8 +2,10 @@ import * as assert from "assert"
 import * as fs from "fs"
 import * as path from "path"
 
-import { Oni } from "./Oni"
 import * as Config from "./Config"
+import { Oni } from "./Oni"
+
+// tslint:disable:no-console
 
 export interface ITestCase {
     name: string
