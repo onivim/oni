@@ -27,6 +27,7 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
 import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
+import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
@@ -72,6 +73,8 @@ export class NeovimEditor implements IEditor {
     private _isFirstRender: boolean = true
 
     private _lastBufferId: string = null
+
+    private _typingPredictionManager: TypingPredictionManager = new TypingPredictionManager()
 
     public get mode(): string {
         return this._currentMode
@@ -317,6 +320,7 @@ export class NeovimEditor implements IEditor {
         }
 
         return <NeovimSurface renderer={this._renderer}
+            typingPrediction={this._typingPredictionManager}
             neovimInstance={this._neovimInstance}
             screen={this._screen}
             onKeyDown={onKeyDown}
@@ -327,6 +331,13 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onModeChanged(newMode: string): void {
+
+        if (newMode === "insert") {
+            this._typingPredictionManager.enable()
+        } else {
+            this._typingPredictionManager.disable()
+        }
+
         UI.Actions.setMode(newMode)
         this._currentMode = newMode
     }
@@ -404,29 +415,13 @@ export class NeovimEditor implements IEditor {
             }
         }
 
-        this._completedPredictions.forEach((id) => {
-            UI.Actions.clearTypingPrediction(id)
-        })
-        this._completedPredictions = []
+        this._typingPredictionManager.clearCompletedPredictions()
     }
-    private _predictionId: number = 1
-    private _completedPredictions: number[] = []
 
     private async _onKeyDown(key: string): Promise<void> {
 
-        let predictionId: number | null = null
-        if (key.length === 1 && this.mode === "insert") {
-
-            predictionId = this._predictionId + 1
-            this._predictionId++
-
-            UI.Actions.addTypingPrediction(predictionId, key)
-        }
-
+        const id = this._typingPredictionManager.getLatestPredictionForCharacter(key)
         await this._neovimInstance.input(key)
-
-        if (predictionId) {
-            this._completedPredictions.push(predictionId)
-        }
+        this._typingPredictionManager.notifyPredictionComplete(id)
     }
 }

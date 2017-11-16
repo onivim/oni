@@ -22,6 +22,8 @@ import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarCont
 import { DefinitionContainer } from "./../UI/containers/DefinitionContainer"
 import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
 
+import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
+
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
 
@@ -29,6 +31,7 @@ export interface INeovimSurfaceProps {
     neovimInstance: NeovimInstance
     renderer: INeovimRenderer
     screen: NeovimScreen
+    typingPrediction: TypingPredictionManager
 
     onKeyDown?: (key: string) => void
     onBufferClose?: (bufferId: number) => void
@@ -54,7 +57,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                         screen={this.props.screen} />
                 </div>
                 <div className="stack layer">
-                    <TypingPrediction />
+                    <TypingPrediction typingPrediction={this.props.typingPrediction}/>
                     <Cursor />
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
@@ -65,6 +68,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     </ActiveWindowContainer>
                 </div>
                 <NeovimInput
+                    typingPrediction={this.props.typingPrediction}
                     neovimInstance={this.props.neovimInstance}
                     screen={this.props.screen}
                     onKeyDown={this.props.onKeyDown}/>

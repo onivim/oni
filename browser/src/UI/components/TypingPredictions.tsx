@@ -10,7 +10,13 @@ import { connect } from "react-redux"
 
 import * as State from "./../State"
 
+import { IPredictedCharacter, TypingPredictionManager } from "./../../Services/TypingPredictionManager"
+
 export interface ITypingPredictionProps {
+    typingPrediction: TypingPredictionManager
+}
+
+export interface ITypingPredictionViewProps {
     startX: number
     y: number
     width: number
@@ -20,10 +26,32 @@ export interface ITypingPredictionProps {
     fontFamily: string
     fontSize: string
     visible: boolean
-    typingPredictions: State.IPredictedCharacter[]
+    typingPrediction: TypingPredictionManager
 }
 
-class TypingPredictionView extends React.PureComponent<ITypingPredictionProps, {}> {
+export interface ITypingPredictionViewState {
+    predictions: IPredictedCharacter[]
+}
+
+class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProps, ITypingPredictionViewState> {
+
+    constructor(props: ITypingPredictionViewProps) {
+        super(props)
+
+        this.state = {
+            predictions: []
+        }
+    }
+
+    public componentDidMount(): void {
+
+        this.props.typingPrediction.onPredictionsChanged.subscribe((updatedPredictions: IPredictedCharacter[]) => {
+
+            this.setState({
+                predictions: updatedPredictions,
+            })
+        })
+    }
 
     public render(): JSX.Element {
 
@@ -31,7 +59,7 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionProps, {
             return null
         }
 
-        const predictions = this.props.typingPredictions.map((tp, idx) => {
+        const predictions = this.state.predictions.map((tp, idx) => {
 
             const style: React.CSSProperties = {
                 position: "absolute",
@@ -43,9 +71,9 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionProps, {
                 fontFamily: this.props.fontFamily,
                 fontSize: this.props.fontSize,
                 textAlign: "center",
-                // backgroundColor: "red",
-                // color: "white"
-                color: this.props.color,
+                backgroundColor: "red",
+                color: "white"
+                // color: this.props.color,
             }
 
             return <div className="predicted-text" style={style}>{tp.character}</div>
@@ -55,15 +83,15 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionProps, {
     }
 }
 
-const mapStateToProps = (state: State.IState): ITypingPredictionProps => {
+const mapStateToProps = (state: State.IState, props: ITypingPredictionProps): ITypingPredictionViewProps => {
     return {
+        ...props,
         startX: state.cursorPixelX,
         y: state.cursorPixelY,
         width: state.cursorPixelWidth,
         height: state.fontPixelHeight,
         color: state.foregroundColor,
         textColor: state.backgroundColor,
-        typingPredictions: state.typingPredictions,
         fontFamily: State.readConf(state.configuration, "editor.fontFamily"),
         fontSize: State.readConf(state.configuration, "editor.fontSize"),
         visible: state.mode === "insert" && !state.imeActive,
