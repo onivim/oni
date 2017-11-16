@@ -28,11 +28,6 @@ export interface IToolTip {
     element: JSX.Element
 }
 
-export interface IPredictedCharacter {
-    character: string
-    id: number
-}
-
 export interface IState {
     cursorScale: number
     cursorPixelX: number
@@ -57,8 +52,6 @@ export interface IState {
 
     statusBar: { [id: string]: IStatusBarItem }
     toolTips: { [id: string]: IToolTip }
-
-    typingPredictions: IPredictedCharacter[]
 
     /**
      * Tabs refer to the Vim-concept of tabs
@@ -219,8 +212,6 @@ export const createDefaultState = (): IState => ({
         width: 0,
         height: 0,
     },
-
-    typingPredictions: [],
 
     errors: {},
     statusBar: {},

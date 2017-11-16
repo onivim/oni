@@ -21,15 +21,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     }
 
     switch (a.type) {
-        case "ADD_TYPING_PREDICTION":
-            return { ...s,
-                typingPredictions: [...s.typingPredictions, a.payload ]
-        }
-        case "CLEAR_TYPING_PREDICTION":
-            return {
-            ...s,
-            typingPredictions: s.typingPredictions.filter((item) => item.id !== a.payload.id)
-        }
         case "SET_NEOVIM_ERROR":
             return { ...s,
                      neovimError: a.payload.neovimError }
