@@ -1,7 +1,7 @@
 {
     "name": "oni-markdown-preview",
     "version": "0.0.1",
-    "main": "lib/index.js",
+    "main": "lib/vim/core/oni-markdown-preview/src/index.js",
     "engines": {
         "oni": "^0.0.1"
     },

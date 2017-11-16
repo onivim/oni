@@ -63,8 +63,6 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
             }
         })
 
-        return <div style={containerStyle}>
-                    {editors}
-                </div>
+        return <div style={containerStyle}>{editors}</div>
     }
 }

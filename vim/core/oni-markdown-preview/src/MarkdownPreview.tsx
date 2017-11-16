@@ -1,14 +1,15 @@
-/*
 import * as marked from "marked"
 import * as React from "react"
 
 export class MarkdownPreview extends React.PureComponent<void, void> {
     public render(): JSX.Element {
+        const containerStyle: React.CSSProperties = {
+            padding: "1em 1em 1em 1em",
+        }
         const htmlContent = marked("**ACDC**\r\n# Lad!")
-        return <div className="Container" dangerouslySetInnerHTML={{__html: htmlContent}}></div>
+        return <div style={containerStyle} dangerouslySetInnerHTML={{__html: htmlContent}}></div>
     }
 }
-*/
 
 /*
 const os = require("os");
