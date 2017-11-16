@@ -14,7 +14,7 @@ import { configuration } from "./../Services/Configuration"
 
 import { NeovimBufferReference } from "./MsgPack"
 import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
-import { startNeovim } from "./NeovimProcessSpawner"
+import { INeovimStartOptions, startNeovim } from "./NeovimProcessSpawner"
 import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { Session } from "./Session"
 
@@ -127,10 +127,6 @@ export interface INeovimInstance {
 
     open(fileName: string): Promise<void>
     openInitVim(): Promise<void>
-}
-
-export interface INeovimStartOptions {
-    runtimePaths?: string[]
 }
 
 /**
@@ -255,13 +251,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.callFunction("OniGetContext", [])
     }
 
-    public start(filesToOpen?: string[], startOptions?: INeovimStartOptions): Promise<void> {
-        filesToOpen = filesToOpen || []
-
-        startOptions = startOptions || { }
-        const runtimePaths = startOptions.runtimePaths || []
-
-        this._initPromise = Promise.resolve(startNeovim(runtimePaths, filesToOpen))
+    public start(startOptions?: INeovimStartOptions): Promise<void> {
+        this._initPromise = startNeovim(startOptions)
             .then((nv) => {
                 Log.info("NeovimInstance: Neovim started")
 

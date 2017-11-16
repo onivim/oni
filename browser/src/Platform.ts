@@ -10,7 +10,7 @@ export const isMac = () => os.platform() === "darwin"
 export const isLinux = () => os.platform() === "linux"
 
 export const getUserHome = () =>
-    isWindows() ? process.env["USERPROFILE"] : process.env["HOME"] // tslint:disable-line no-string-literal
+    isWindows() ? process.env["APPDATA"] : process.env["HOME"] // tslint:disable-line no-string-literal
 
 export const getLinkPath = () => isMac() ? "/usr/local/bin/oni" : "" // TODO: windows + linux
 export const isAddedToPath = () => {

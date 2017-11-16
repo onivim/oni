@@ -31,6 +31,7 @@ declare namespace Oni {
     export interface Configuration {
         onConfigurationChanged: Event<any>
         getValue<T>(configValue: string, defaultValue?: T): T
+        setValues(configurationValues: { [configValue: string]: any }): void
     }
 
     export interface Workspace {
