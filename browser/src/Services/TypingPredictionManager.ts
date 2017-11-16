@@ -72,33 +72,6 @@ export class TypingPredictionManager {
         return id
     }
 
-    public getLatestPredictionForCharacter(character: string): TypingPredictionId | null {
-        for (let i = this._predictions.length - 1; i >= 0; i--) {
-            if (this._predictions[i].character === character) {
-                console.log("get latest prediction for character: " + character + " id: " + this._predictions[i].id)
-                return this._predictions[i].id
-            }
-        }
-
-        return null
-    }
-
-    public notifyPredictionComplete(id: TypingPredictionId): void {
-        console.log("Prediction complete: " + id)
-        this._completedPredictions.push(id)
-    }
-
-    public clearCompletedPredictions(): void {
-        console.log("clearCompletedPredictions")
-        this._predictions = this._predictions.filter((prediction) => {
-            return this._completedPredictions.indexOf(prediction.id) === -1
-        })
-
-        this._completedPredictions = []
-
-        this._notifyPredictionsChanged()
-    }
-
     public clearAllPredictions(): void {
         console.log("clearAllPredictions")
         this._predictions = []
