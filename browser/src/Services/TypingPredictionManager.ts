@@ -35,7 +35,6 @@ export class TypingPredictionManager {
         this._enabled = false
     }
 
-
     public setCursorPosition(line: number, column: number): void {
 
         if (this._line !== line) {
@@ -62,18 +61,15 @@ export class TypingPredictionManager {
 
         this._predictions = [
             ...this._predictions,
-            { id, character }
+            { id, character },
         ]
 
         this._notifyPredictionsChanged()
-
-        console.log("Added prediction with character: " + character + " and id: " + id)
 
         return id
     }
 
     public clearAllPredictions(): void {
-        console.log("clearAllPredictions")
         this._predictions = []
         this._completedPredictions = []
 

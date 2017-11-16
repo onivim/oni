@@ -38,14 +38,14 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
         super(props)
 
         this.state = {
-            predictedCharacters: 0
+            predictedCharacters: 0,
         }
     }
 
     public componentDidMount(): void {
         this.props.typingPrediction.onPredictionsChanged.subscribe((predictions) => {
             this.setState({
-                predictedCharacters: predictions.length
+                predictedCharacters: predictions.length,
             })
         })
     }

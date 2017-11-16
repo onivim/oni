@@ -122,7 +122,6 @@ export const sleep = async (timeInMilliseconds: number): Promise<void> => {
     })
 }
 
-
 /**
  * Helper function to ignore incoming values while a promise is waiting to complete
  * This is lossy, in that any input that comes in will be dropped while the promise
