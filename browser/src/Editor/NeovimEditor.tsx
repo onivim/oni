@@ -417,12 +417,12 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    private async _sleep(): Promise<any> {
-        return new Promise((res) => {
-            window.setTimeout(() => res(), 1000)
+    // private async _sleep(): Promise<any> {
+    //     return new Promise((res) => {
+    //         window.setTimeout(() => res(), 1000)
 
-        })
-    }
+    //     })
+    // }
 
     private async _onKeyDown(key: string): Promise<void> {
 
@@ -431,7 +431,7 @@ export class NeovimEditor implements IEditor {
         if (key.length === 1){
         id = this._typingPredictionManager.addPrediction(key)
         }
-        await this._sleep()
+        // await this._sleep()
         await this._neovimInstance.input(key)
 
         // if (id) {
