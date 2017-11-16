@@ -29,6 +29,7 @@ export interface ITypingPredictionViewProps {
     fontSize: string
     visible: boolean
     typingPrediction: TypingPredictionManager
+    highlightPredictions: boolean
 }
 
 export interface ITypingPredictionViewState {
@@ -63,10 +64,11 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
                 elem.style.height = (this.props.height.toString()) + "px"
                 elem.style.lineHeight = this.props.height.toString() + "px"
 
-                // TODO: Use `debug.showTypingPrediction` variable
+                if (this.props.highlightPredictions) {
+                    elem.style.color = "white"
+                    elem.style.backgroundColor = "rgba(255, 0, 0, 0.5)"
+                }
 
-                // elem.style.color = "white"
-                // elem.style.backgroundColor = "rgba(255, 0, 0, 0.5)"
                 elem.textContent = up.character
 
                 this._containerElement.appendChild(elem)
@@ -102,6 +104,7 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
 const mapStateToProps = (state: State.IState, props: ITypingPredictionProps): ITypingPredictionViewProps => {
     return {
         ...props,
+        highlightPredictions: state.configuration["debug.showTypingPrediction"],
         startX: state.cursorPixelX,
         y: state.cursorPixelY,
         width: state.cursorPixelWidth,

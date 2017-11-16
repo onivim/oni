@@ -42,7 +42,7 @@ import { NeovimSurface } from "./NeovimSurface"
 
 import { tasks } from "./../Services/Tasks"
 
-import { normalizePath } from "./../Utility"
+import { normalizePath, sleep } from "./../Utility"
 
 import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
 
@@ -333,7 +333,7 @@ export class NeovimEditor implements IEditor {
 
     private _onModeChanged(newMode: string): void {
 
-        if (newMode === "insert") {
+        if (newMode === "insert" && configuration.getValue("experimental.editor.typingPrediction")) {
             this._typingPredictionManager.enable()
         } else {
             this._typingPredictionManager.disable()
@@ -417,25 +417,11 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    // private async _sleep(): Promise<any> {
-    //     return new Promise((res) => {
-    //         window.setTimeout(() => res(), 1000)
-
-    //     })
-    // }
-
     private async _onKeyDown(key: string): Promise<void> {
+        if (configuration.getValue("debug.fakeLag.neovimInput")) {
+            await sleep(configuration.getValue("debug.fakeLag.neovimInput")
+        }
 
-        // const id = this._typingPredictionManager.getLatestPredictionForCharacter(key)
-        // let id = null
-        // if (key.length === 1){
-        // id = this._typingPredictionManager.addPrediction(key)
-        // }
-        // await this._sleep()
         await this._neovimInstance.input(key)
-
-        // if (id) {
-        //     this._typingPredictionManager.notifyPredictionComplete(id)
-        // }
     }
 }
