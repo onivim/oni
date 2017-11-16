@@ -101,8 +101,8 @@ const BaseConfiguration: IConfigurationValues = {
     "language.less.languageServer.command": cssLanguageServerPath,
     "language.less.languageServer.arguments": ["--stdio"],
 
-    "language.sass.languageServer.command": cssLanguageServerPath,
-    "language.sass.languageServer.arguments": ["--stdio"],
+    "language.scss.languageServer.command": cssLanguageServerPath,
+    "language.scss.languageServer.arguments": ["--stdio"],
 
     "language.reason.languageServer.command": ocamlLanguageServerPath,
     "language.reason.languageServer.arguments": ["--stdio"],
