@@ -11,7 +11,7 @@ export const getRootPath = () => {
 }
 
 export const getDistPath = () => {
-    const distPath = path.join(getRootPath(), "dist")
+    const distPath = path.join(getRootPath(), "dist", "media")
     mkdirp.sync(distPath)
     return distPath
 }

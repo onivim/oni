@@ -23,6 +23,9 @@ const getCompletionElement = () => {
 
 export const test = async (oni: any) => {
 
+    let lastAlertText = null
+    window.alert = (myText) => lastAlertText = myText
+
     // Use the `Completion.ts` file as the screenshot source
     remote.getCurrentWindow().setSize(800, 600)
 
@@ -60,4 +63,6 @@ export const test = async (oni: any) => {
     await oni.automation.sleep(500)
 
     oni.recorder.takeScreenshot("demo-screenshot.png")
+
+    await oni.automation.waitFor(() => lastAlertText !== null)
 }
