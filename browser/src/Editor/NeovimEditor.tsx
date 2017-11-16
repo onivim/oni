@@ -419,7 +419,7 @@ export class NeovimEditor implements IEditor {
 
     private async _onKeyDown(key: string): Promise<void> {
         if (configuration.getValue("debug.fakeLag.neovimInput")) {
-            await sleep(configuration.getValue("debug.fakeLag.neovimInput")
+            await sleep(configuration.getValue("debug.fakeLag.neovimInput"))
         }
 
         await this._neovimInstance.input(key)
