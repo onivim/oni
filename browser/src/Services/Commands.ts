@@ -47,6 +47,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
 
         new CallbackCommand("oni.editor.maximize", "Maximize Window", "Maximize the current window", () => remote.getCurrentWindow().maximize()),
 
+        new CallbackCommand("oni.editor.minimize", "Minimize Window", "Minimize the current window", () => remote.getCurrentWindow().minimize()),
+
         // Language service
         // TODO: Deprecate
         new CallbackCommand("oni.editor.gotoDefinition", null, null, () => gotoDefinitionUnderCursor()),
