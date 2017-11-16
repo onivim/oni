@@ -12,7 +12,7 @@ import { Event, IEvent } from "./../Event"
 
 import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, ISplitInfo, ISplitLeaf, SplitDirection } from "./WindowSplit"
 
-export class WindowManager {
+export class WindowManager implements Oni.IWindowManager {
     private _activeSplit: ISplitLeaf<Oni.IWindowSplit>
     private _splitRoot: ISplitInfo<Oni.IWindowSplit>
 

@@ -1,5 +1,6 @@
 import * as ChildProcess from "child_process"
 import { EventEmitter } from "events"
+import { SplitDirection } from "./../browser/src/Services/WindowSplit"
 
 import * as types from "vscode-languageserver-types"
 
@@ -42,7 +43,7 @@ declare namespace Oni {
         moveRight(): void
         moveDown(): void
         moveUp(): void
-        close(editor: Oni.Editor)
+        close(editor: Oni.IWindowSplit)
     }
 
     export interface IWindowSplit {
@@ -283,6 +284,7 @@ declare namespace Oni {
 
         export interface Api extends EventEmitter {
             automation: Automation.Api
+            commands: Commands
             configuration: Configuration
             contextMenu: any /* TODO */
             diagnostics: Diagnostics.Api
@@ -294,6 +296,7 @@ declare namespace Oni {
             process: Process
             statusBar: StatusBar
             workspace: Workspace
+            windows: IWindowManager
         }
     }
 }
