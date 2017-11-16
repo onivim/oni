@@ -427,10 +427,10 @@ export class NeovimEditor implements IEditor {
     private async _onKeyDown(key: string): Promise<void> {
 
         // const id = this._typingPredictionManager.getLatestPredictionForCharacter(key)
-        let id = null
-        if (key.length === 1){
-        id = this._typingPredictionManager.addPrediction(key)
-        }
+        // let id = null
+        // if (key.length === 1){
+        // id = this._typingPredictionManager.addPrediction(key)
+        // }
         // await this._sleep()
         await this._neovimInstance.input(key)
 

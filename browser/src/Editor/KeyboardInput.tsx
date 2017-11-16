@@ -161,7 +161,7 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             evt.preventDefault()
             return
         } else {
-            // this.props.typingPrediction.addPrediction(key)
+            this.props.typingPrediction.addPrediction(key)
         }
     }
 
