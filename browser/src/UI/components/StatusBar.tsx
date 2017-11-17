@@ -48,12 +48,12 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
         return <div className="status-bar enable-mouse" style={statusBarStyle}>
             <div className="status-bar-inner">
                 <div className="status-bar-container left">
-                    {leftItems.map((item) => <StatusBarItem {...item} />)}
+                    {leftItems.map((item) => <StatusBarItem {...item} key={item.id}/>)}
                 </div>
                 <div className="status-bar-container center">
                 </div>
                 <div className="status-bar-container right">
-                    {rightItems.map((item) => <StatusBarItem {...item} />)}
+                    {rightItems.map((item) => <StatusBarItem {...item} key={item.id}/>)}
                     <div className="status-bar-item" onClick={() => this._openGithub()}>
                         <span><i className="fa fa-github" /></span>
                     </div>
