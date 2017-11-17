@@ -42,9 +42,9 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
             return null
         }
 
-        const containerStyle = {
+        const containerStyle: React.CSSProperties = {
             "display": "flex",
-            "flex-direction": "row",
+            "flexDirection": "row",
             "width": "100%",
             "height": "100%",
         }
@@ -58,7 +58,7 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
                 if (!split) {
                     return <div className="container vertical full">TODO: Implement an editor here...</div>
                 } else {
-                    return <WindowSplitHost split={split}/>
+                    return <WindowSplitHost split={split} />
                 }
             }
         })
