@@ -5,21 +5,35 @@ export interface IState {
     source: string
 }
 
-export class MarkdownPreviewEditor extends React.PureComponent<void, IState> {
-
-    private _fs = require('fs')
-    private _oni: Oni.Plugin.Api
-    private _isOpen: boolean
-
+export class MarkdownPreviewEditor implements Oni.IWindowSplit {
     constructor(
-        private oni: any
-    ) {
-        super()
-        this.state = {source: ""}
-        this._oni = oni
-        this._isOpen = false
+        private _oni: Oni.Plugin.Api
+    ) { }
 
-        oni.editors.allEditors.onBufferEnter.subscribe((a) => this.onBufferEnter(a))
+    public render(): JSX.Element {
+        return <MarkdownPreview bufferEnter={this._oni.editors.activeEditor.onBufferEnter} />
+    }
+}
+
+/**
+ * Props are like the constructor arguments
+ * for the React component (immutable)
+ */
+export interface IMarkdownPreviewProps {
+    bufferEnter: Oni.IEvent<Oni.EditorBufferEventArgs>
+}
+
+export interface IMarkdownPreviewState {
+    source: string
+}
+
+export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdownPreviewState> {
+    private _fs = require('fs')
+
+    constructor(props: IMarkdownPreviewProps) {
+        super(props)
+
+        this.state = { source: "" }
     }
 
     private onBufferEnter(bufferInfo: Oni.EditorBufferEventArgs): void {
@@ -43,19 +57,17 @@ export class MarkdownPreviewEditor extends React.PureComponent<void, IState> {
     }
 
     private previewString(str: string): void {
-        if (!this._isOpen) {
-            this._isOpen = true
-            this._oni.windows.split(/*SplitDirection.Horizontal*/1, this)
-        }
-
         this.setState({source: str})
     }
 
+
     componentDidMount() {
+        this.props.bufferEnter.subscribe((onBufferEnterArgs) => this.onBufferEnter(onBufferEnterArgs))
         console.warn("Mounted");
     }
 
     componentWillUnmount() {
+        // TODO: Dispose of subscription above
         console.warn("Unmounted");
     }
 
@@ -71,10 +83,12 @@ export class MarkdownPreviewEditor extends React.PureComponent<void, IState> {
 
 var preview: MarkdownPreviewEditor = null
 
-export const activate = (oni: Oni.Plugin.Api) => {
+export const activate = (oni: any) => {
     if (!preview) {
         preview = new MarkdownPreviewEditor(oni)
     }
+
+    oni.windows.split(1, new MarkdownPreviewEditor(oni))
 
     //oni.commands.registerCommand("markdown.preview", openPreview)
 };
