@@ -15,6 +15,25 @@ import * as CompletionUtility from "./CompletionUtility"
 
 import { ICompletionMeetInfo, IResolvedCompletions, resolveCompletionItem } from "./Completion"
 
+import { ICompletionState } from "./CompletionStore"
+
+// TODO: Factor into closure
+const completionContextMenu2 = contextMenuManager.create()
+
+import { getFilteredCompletions } from "./CompletionSelectors"
+
+export const render = (state: ICompletionState): void => {
+
+    const filteredCompletions = getFilteredCompletions(state)
+
+    if (filteredCompletions && filteredCompletions.length) {
+        completionContextMenu2.show(filteredCompletions, state.meetInfo.meetBase)
+    } else {
+        completionContextMenu2.hide()
+    }
+
+}
+
 export const createCompletionMenu = (completionMeet$: Observable<ICompletionMeetInfo>, completion$: Observable<IResolvedCompletions>, modeChanged$: Observable<Oni.Vim.Mode>): void => {
 
     const completionContextMenu = contextMenuManager.create()

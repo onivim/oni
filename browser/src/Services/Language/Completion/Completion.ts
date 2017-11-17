@@ -3,8 +3,8 @@
  */
 
 import * as isEqual from "lodash/isEqual"
-import "rxjs/add/observable/combineLatest"
-import "rxjs/add/operator/withLatestFrom"
+// import "rxjs/add/observable/combineLatest"
+// import "rxjs/add/operator/withLatestFrom"
 import { Observable } from "rxjs/Observable"
 
 import * as types from "vscode-languageserver-types"
@@ -16,7 +16,7 @@ import { configuration } from "./../../Configuration"
 import { ILatestCursorAndBufferInfo } from "./../LanguageEditorIntegration"
 import { languageManager } from "./../LanguageManager"
 
-import { createCompletionMenu } from "./CompletionMenu"
+import { render } from "./CompletionMenu"
 import * as CompletionUtility from "./CompletionUtility"
 
 export interface ICompletionMeetInfo {
@@ -39,61 +39,113 @@ import { createStore } from "./CompletionStore"
 
 export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>) => {
 
-    // Observable that gets full completion context (cursor positon + meet info)
-    const completionMeet$: Observable<ICompletionMeetInfo> = latestCursorAndBufferInfo$
-        .map((changeInfo) => {
-            const token = languageManager.getTokenRegex(changeInfo.language)
-            const completionCharacters = languageManager.getCompletionTriggerCharacters(changeInfo.language)
-            const meet = CompletionUtility.getCompletionMeet(changeInfo.contents, changeInfo.cursorColumn, token, completionCharacters)
+    const store = createStore()
 
-            if (Log.isDebugLoggingEnabled()) {
-                Log.debug(`[COMPLETION] Got meet at position: ${meet.position} with base: ${meet.base} - shouldExpand: ${meet.shouldExpandCompletions}`)
-            }
+    // TODO: Can we un-split latestCursorAndBufferInfo$ to bufferEnter$ and cursorMove$ observables?
 
-            return {
-                language: changeInfo.language,
-                filePath: changeInfo.filePath,
-                meetLine: changeInfo.cursorLine,
-                meetPosition: meet.position,
-                queryPosition: meet.positionToQuery,
-                meetBase: meet.base,
-                shouldExpand: meet.shouldExpandCompletions,
-            }
-        })
+    store.subscribe(() => {
+        const newState = store.getState()
+        render(newState)
+    })
 
-    const completion$: Observable<ICompletionResults> = completionMeet$
-        // Only check for completion if the meets have actually changed
-        // requesting completions for the same spot
+    // Hook up BUFFER_ENTER events to the store
+    latestCursorAndBufferInfo$
+        .map((changeInfo) => ({
+            language: changeInfo.language,
+            filePath: changeInfo.filePath,
+        }))
         .distinctUntilChanged(isEqual)
-        .filter((info) => info.shouldExpand)
-        .mergeMap((completionInfo: ICompletionMeetInfo) => {
-            return Observable.defer(async () => {
-                const results = await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.meetLine, completionInfo.queryPosition)
-
-                if (!results || !results.length) {
-                    return null
-                }
-
-                return {
-                    completions: results,
-                    meetLine: completionInfo.meetLine,
-                    meetPosition: completionInfo.meetPosition,
-                }
+        .subscribe(({language, filePath}) => {
+            store.dispatch({
+                type: "BUFFER_ENTER",
+                language,
+                filePath,
             })
         })
+
+    // Hook up CURSOR_MOVED events to the store
+    latestCursorAndBufferInfo$
+        .map((changeInfo) => ({
+            line: changeInfo.cursorLine,
+            lineContents: changeInfo.contents,
+            column: changeInfo.cursorColumn,
+        }))
+        .distinctUntilChanged(isEqual)
+        .subscribe(({column, line, lineContents}) => {
+            console.log("Cursor moved!")
+            store.dispatch({
+                type: "CURSOR_MOVED",
+                column,
+                line,
+                lineContents,
+            })
+        })
+
+    // Hook up MODE_CHANGED events to the store
+    modeChanged$
+        .distinctUntilChanged()
+        .subscribe((newMode: string) => {
+            store.dispatch({
+                type: "MODE_CHANGED",
+                mode: newMode,
+            })
+        })
+
+    // Observable that gets full completion context (cursor positon + meet info)
+    // const completionMeet$: Observable<ICompletionMeetInfo> = latestCursorAndBufferInfo$
+    //     .map((changeInfo) => {
+    //         const token = languageManager.getTokenRegex(changeInfo.language)
+    //         const completionCharacters = languageManager.getCompletionTriggerCharacters(changeInfo.language)
+    //         const meet = CompletionUtility.getCompletionMeet(changeInfo.contents, changeInfo.cursorColumn, token, completionCharacters)
+
+    //         if (Log.isDebugLoggingEnabled()) {
+    //             Log.debug(`[COMPLETION] Got meet at position: ${meet.position} with base: ${meet.base} - shouldExpand: ${meet.shouldExpandCompletions}`)
+    //         }
+
+    //         return {
+    //             language: changeInfo.language,
+    //             filePath: changeInfo.filePath,
+    //             meetLine: changeInfo.cursorLine,
+    //             meetPosition: meet.position,
+    //             queryPosition: meet.positionToQuery,
+    //             meetBase: meet.base,
+    //             shouldExpand: meet.shouldExpandCompletions,
+    //         }
+    //     })
+
+    // const completion$: Observable<ICompletionResults> = completionMeet$
+    //     // Only check for completion if the meets have actually changed
+    //     // requesting completions for the same spot
+    //     .distinctUntilChanged(isEqual)
+    //     .filter((info) => info.shouldExpand)
+    //     .mergeMap((completionInfo: ICompletionMeetInfo) => {
+    //         return Observable.defer(async () => {
+    //             const results = await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.meetLine, completionInfo.queryPosition)
+
+    //             if (!results || !results.length) {
+    //                 return null
+    //             }
+
+    //             return {
+    //                 completions: results,
+    //                 meetLine: completionInfo.meetLine,
+    //                 meetPosition: completionInfo.meetPosition,
+    //             }
+    //         })
+    //     })
 
     // Core completion logic:
     // Take the latest completion info, meet info, and mode
     // and determine what to show in the context menu
-    const resolvedCompletion$ = Observable
-        .combineLatest(completion$, completionMeet$)
-        .map((args: [ICompletionResults, ICompletionMeetInfo]) => {
+    // const resolvedCompletion$ = Observable
+    //     .combineLatest(completion$, completionMeet$)
+    //     .map((args: [ICompletionResults, ICompletionMeetInfo]) => {
 
-            const [completionInfo, meetInfo] = args
-            return resolveCompletionsFromCurrentState(completionInfo, meetInfo)
-        })
+    //         const [completionInfo, meetInfo] = args
+    //         return resolveCompletionsFromCurrentState(completionInfo, meetInfo)
+    //     })
 
-    createCompletionMenu(completionMeet$, resolvedCompletion$, modeChanged$)
+    // createCompletionMenu(completionMeet$, resolvedCompletion$, modeChanged$)
 }
 
 export interface IResolvedCompletions {
