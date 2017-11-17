@@ -21,6 +21,9 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     }
 
     switch (a.type) {
+        case "SET_NEOVIM_ERROR":
+            return { ...s,
+                     neovimError: a.payload.neovimError }
         case "SET_VIEWPORT":
             return { ...s,
                      viewport: viewportReducer(s.viewport, a) }

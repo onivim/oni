@@ -30,6 +30,17 @@ const BaseConfiguration: IConfigurationValues = {
 
     "debug.fakeLag.languageServer": null,
 
+    "experimental.autoClosingPairs.enabled": false,
+    "experimental.autoClosingPairs.default": [
+        { "open": "{", "close": "}" },
+        { "open": "[", "close": "]" },
+        { "open": "(", "close": ")" },
+    ],
+
+    "experimental.neovim.transport": "stdio",
+    // TODO: Enable pipe transport for Windows
+    // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
+
     "oni.audio.bellUrl": null,
 
     "oni.useDefaultConfig": true,
@@ -90,8 +101,8 @@ const BaseConfiguration: IConfigurationValues = {
     "language.less.languageServer.command": cssLanguageServerPath,
     "language.less.languageServer.arguments": ["--stdio"],
 
-    "language.sass.languageServer.command": cssLanguageServerPath,
-    "language.sass.languageServer.arguments": ["--stdio"],
+    "language.scss.languageServer.command": cssLanguageServerPath,
+    "language.scss.languageServer.arguments": ["--stdio"],
 
     "language.reason.languageServer.command": ocamlLanguageServerPath,
     "language.reason.languageServer.arguments": ["--stdio"],

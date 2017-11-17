@@ -27,6 +27,12 @@ export interface IConfigurationValues {
     "debug.fakeLag.languageServer": number
 
     // Experimental feature flags
+    "experimental.autoClosingPairs.enabled": boolean
+    "experimental.autoClosingPairs.default": any
+
+    // The transport to use for Neovim
+    // Valid values are "stdio" and "pipe"
+    "experimental.neovim.transport": string
 
     // Production settings
 

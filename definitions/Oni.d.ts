@@ -6,6 +6,8 @@ import * as types from "vscode-languageserver-types"
 
 declare namespace Oni {
 
+    export type DisposeFunction = () => void
+
     export interface IDisposable {
         dispose(): void
     }
@@ -30,6 +32,7 @@ declare namespace Oni {
     export interface Configuration {
         onConfigurationChanged: Event<any>
         getValue<T>(configValue: string, defaultValue?: T): T
+        setValues(configurationValues: { [configValue: string]: any }): void
     }
 
     export interface Workspace {
@@ -72,6 +75,10 @@ declare namespace Oni {
     }
 
     export interface NeovimEditorCapability {
+
+        // Call a VimL function and return the result
+        callFunction(functionName: string, args: any[]): Promise<any>
+
         // Send a direct set of key inputs to Neovim
         input(keys: string): Promise<void>
 

@@ -54,8 +54,8 @@ export interface IKeyboardInputProps {
 class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKeyboardInputViewState> {
     private _keyboardElement: HTMLInputElement
 
-    constructor() {
-        super()
+    constructor(props: IKeyboardInputViewProps) {
+        super(props)
 
         this.state = {
             isComposing: false,
