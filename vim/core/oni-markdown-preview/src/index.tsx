@@ -6,7 +6,7 @@ import * as React from "react"
  * for the React component (immutable)
  */
 export interface IMarkdownPreviewProps {
-    bufferEnter: Oni.IEvent<Oni.EditorBufferEventArgs>
+    oni: Oni.Plugin.Api
 }
 
 export interface IMarkdownPreviewState {
@@ -15,6 +15,7 @@ export interface IMarkdownPreviewState {
 
 export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdownPreviewState> {
     private _fs = require('fs')
+    private _subscriptions: Array<Oni.IDisposable> = []
 
     constructor(props: IMarkdownPreviewProps) {
         super(props)
@@ -22,37 +23,38 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
         this.state = { source: "" }
     }
 
-    private onBufferEnter(bufferInfo: Oni.EditorBufferEventArgs): void {
-        if (bufferInfo.language == "markdown") {
-            this.previewFile(bufferInfo.filePath)
+    componentDidMount() {
+        const editor = this.props.oni.editors.activeEditor
+        this.subscribe(editor.onBufferChanged, (args) => this.onBufferChanged(args))
+        //TODO: Subscribe "onFocusChanged"
+
+        this.previewBuffer(this.props.oni.editors.activeEditor.activeBuffer)
+    }
+
+    componentWillUnmount() {
+        for (let subscription of this._subscriptions) {
+            subscription.dispose()
+        }
+        this._subscriptions = []
+    }
+
+    private subscribe<T>(editorEvent: Oni.IEvent<T>, eventCallback: Oni.EventCallback<T>): void {
+        this._subscriptions.push(editorEvent.subscribe(eventCallback))
+    }
+
+    private onBufferChanged(bufferInfo: Oni.EditorBufferChangedEventArgs): void {
+        if (bufferInfo.buffer.language == "markdown") {
+            this.previewBuffer(bufferInfo.buffer)
         }
     }
 
-    private previewFile(filePath: string): void {
+    private previewBuffer(buffer: Oni.Buffer): void {
         this.previewString("# Loading preview...")
-        this._fs.readFile(filePath, (a, b) => this.fileLoaded(a, b))
-    }
-
-    private fileLoaded(err, data): void {
-        if (err) {
-            this.previewString("# Error while loading the file\r\n" + err)
-            console.error(err);
-        } else {
-            this.previewString(data.toString())
-        }
+        buffer.getLines().then((lines: string[]) => {this.previewString(lines.join("\n"))})
     }
 
     private previewString(str: string): void {
         this.setState({source: str})
-    }
-
-
-    componentDidMount() {
-        this.props.bufferEnter.subscribe((onBufferEnterArgs) => this.onBufferEnter(onBufferEnterArgs))
-    }
-
-    componentWillUnmount() {
-        // TODO: Dispose of subscriptions above
     }
 
     public render(): JSX.Element {
@@ -66,12 +68,45 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
 }
 
 export class MarkdownPreviewEditor implements Oni.IWindowSplit {
+
+    private _open: boolean = false
+
     constructor(
         private _oni: Oni.Plugin.Api
-    ) { }
+    ) {
+        this._oni.editors.activeEditor.onBufferEnter.subscribe((args) => this.onBufferEnter(args))
+    }
+
+    private onBufferEnter(bufferInfo: Oni.EditorBufferEventArgs): void {
+        if (bufferInfo.language == "markdown") {
+            this.open()
+        }
+    }
+
+    public toggle(): void {
+        if (this._open) {
+            this.close()
+        } else {
+            this.open()
+        }
+    }
+
+    public open(): void {
+        if (!this._open) {
+            this._open = true
+            this._oni.windows.split(1, this)
+        }
+    }
+
+    public close(): void {
+        if (this._open) {
+            this._open = false
+            this._oni.windows.close(this)
+        }
+    }
 
     public render(): JSX.Element {
-        return <MarkdownPreview bufferEnter={this._oni.editors.activeEditor.onBufferEnter} />
+        return <MarkdownPreview oni={this._oni} />
     }
 }
 
@@ -82,69 +117,34 @@ export const activate = (oni: any) => {
         preview = new MarkdownPreviewEditor(oni)
     }
 
-    oni.windows.split(1, new MarkdownPreviewEditor(oni))
+    oni.commands.registerCommand(new Command(
+        "markdown.openPreview",
+        "Open Markdown Preview",
+        "Open the Markdown preview pane if it is not already opened",
+        () => { preview.open() }
+    ))
 
-    //oni.commands.registerCommand("markdown.preview", openPreview)
+    oni.commands.registerCommand(new Command(
+        "markdown.closePreview",
+        "Close Markdown Preview",
+        "Close the Markdown preview pane if it is not already closed",
+        () => { preview.close() }
+    ))
+
+    oni.commands.registerCommand(new Command(
+        "markdown.togglePreview",
+        "Toggle Markdown Preview",
+        "Open the Markdown preview pane if it is closed, otherwise open it",
+        () => { preview.toggle() }
+    ))
 };
 
-/*
-const os = require("os");
-
-import { editorManager } from "./../../../../browser/Services/EditorManager"
-
-
-editorManager.allEditors.onBufferEnter.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
-    const { language, filePath } = bufferInfo
-
-    if (language) {
-        this._statusBar.show(language)
-        this._statusBar.setStatus(LanguageClientState.Initializing)
-    } else {
-        this._statusBar.hide()
-    }
-
-    return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", async () => {
-        const lines = await editorManager.activeEditor.activeBuffer.getLines()
-        const text = lines.join(os.EOL)
-        const version = editorManager.activeEditor.activeBuffer.version
-        this._statusBar.setStatus(LanguageClientState.Active)
-        return Helpers.pathToTextDocumentItemParams(filePath, language, text, version)
-    })
-})
-
-editorManager.allEditors.onBufferLeave.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
-    const { language, filePath } = bufferInfo
-    return this.sendLanguageServerNotification(language, filePath, "textDocument/didClose", Helpers.pathToTextDocumentIdentifierParms(filePath))
-})
-
-editorManager.allEditors.onBufferChanged.subscribe(async (change: Oni.EditorBufferChangedEventArgs) => {
-
-    const { language, filePath } = change.buffer
-
-    const sendBufferThunk = async (capabilities: IServerCapabilities) => {
-        const textDocument = {
-            uri: Helpers.wrapPathInFileUri(filePath),
-            version: change.buffer.version,
-        }
-
-        // If the service supports incremental capabilities, just pass it directly
-        if (capabilities.textDocumentSync === 2) {
-            return {
-                textDocument,
-                contentChanges: change.contentChanges,
-            }
-        // Otherwise, get the whole buffer and send it up
-        } else {
-            const allBufferLines = await change.buffer.getLines()
-
-            return {
-                textDocument,
-                contentChanges: [{ text: allBufferLines.join(os.EOL) }],
-            }
-        }
-    }
-
-    return this.sendLanguageServerNotification(language, filePath, "textDocument/didChange", sendBufferThunk)
-})
-*/
+class Command implements Oni.ICommand {
+    constructor(
+        public command: string,
+        public name: string,
+        public detail: string,
+        public execute: Oni.ICommandCallback
+    ) {}
+}
 
