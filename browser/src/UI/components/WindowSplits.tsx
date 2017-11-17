@@ -58,7 +58,7 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
                 if (!split) {
                     return <div className="container vertical full">TODO: Implement an editor here...</div>
                 } else {
-                    return <WindowSplitHost split={split} />
+                    return <WindowSplitHost split={split}/>
                 }
             }
         })
