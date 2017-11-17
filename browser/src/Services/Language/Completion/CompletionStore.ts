@@ -323,23 +323,18 @@ const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, s
             return ret
         })
 
-const getCompletionDetailsForFirstItemEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
-    action$.ofType("GET_COMPLETIONS_RESULT")
+const getCompletionDetailsEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
+    action$.ofType("SELECT_ITEM")
         .mergeMap((action) => {
 
-            if (action.type !== "GET_COMPLETIONS_RESULT") {
+            if (action.type !== "SELECT_ITEM") {
                 return Observable.of(nullAction)
             }
 
             return Observable.defer(async () => {
                 const state = store.getState()
-                const filteredItems = CompletionSelects.filterCompletionOptions(action.completions, state.meetInfo.meetBase)
 
-                if (!filteredItems || !filteredItems.length) {
-                    return null
-                }
-
-                const result = await resolveCompletionItem(state.bufferInfo.language, state.bufferInfo.filePath, filteredItems[0])
+                const result = await resolveCompletionItem(state.bufferInfo.language, state.bufferInfo.filePath, action.completionItem)
                 return result
             }).map((itemResult: types.CompletionItem) => {
                 if (itemResult) {
@@ -351,6 +346,29 @@ const getCompletionDetailsForFirstItemEpic: Epic<CompletionAction, ICompletionSt
                     return nullAction
                 }
             })
+        })
+
+
+const selectFirstItemEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
+    action$.ofType("GET_COMPLETIONS_RESULT")
+        .map((action) => {
+
+            if (action.type !== "GET_COMPLETIONS_RESULT") {
+                return nullAction
+            }
+
+            const state = store.getState()
+            const filteredItems = CompletionSelects.filterCompletionOptions(action.completions, state.meetInfo.meetBase)
+
+            if (!filteredItems || !filteredItems.length) {
+                return nullAction
+            }
+
+            return {
+                type: "SELECT_ITEM",
+                completionItem: filteredItems[0]
+            } as CompletionAction
+
         })
 
 export const createStore = (): Store<ICompletionState> => {
@@ -367,6 +385,7 @@ export const createStore = (): Store<ICompletionState> => {
             commitCompletionEpic,
             getCompletionMeetEpic,
             getCompletionsEpic,
-            getCompletionDetailsForFirstItemEpic,
+            getCompletionDetailsEpic,
+            selectFirstItemEpic,
         ))))
 }
