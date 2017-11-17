@@ -6,7 +6,7 @@
         "oni": "^0.0.1"
     },
     "scripts": {
-        "build": "tsc",
+        "build": "rimraf lib && tsc",
         "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
     },
     "oni": {
@@ -21,7 +21,8 @@
         }
     },
     "dependencies": {
-        "typescript": "2.5.3"
+        "typescript": "2.5.3",
+        "rimraf": "2.6.2"
     },
     "devDependencies": {}
 }
