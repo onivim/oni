@@ -161,6 +161,17 @@ export const completionResultsReducer: Reducer<ICompletionResults> = (
                 meetPosition: action.meetPosition,
                 completions: action.completions,
             }
+        case "GET_COMPLETION_ITEM_DETAILS_RESULT":
+            return {
+                ...state,
+                completions: state.completions.map((completion) => {
+                    if (completion.label === action.completionItemWithDetails.label) {
+                        return action.completionItemWithDetails
+                    } else {
+                        return completion
+                    }
+                }),
+        }
         default:
             return state
     }
