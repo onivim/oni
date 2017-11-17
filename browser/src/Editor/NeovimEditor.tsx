@@ -333,6 +333,8 @@ export class NeovimEditor implements IEditor {
 
     private _onModeChanged(newMode: string): void {
 
+        this._typingPredictionManager.clearAllPredictions()
+
         if (newMode === "insert" && configuration.getValue("experimental.editor.typingPrediction")) {
             this._typingPredictionManager.enable()
         } else {
