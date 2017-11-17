@@ -92,19 +92,26 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
             color: this.props.textColor,
         }
 
-        return <Motion defaultStyle={{scale: 0}} style={{scale: spring(this.props.scale, { stiffness: 120, damping: 8})}}>
-        {(val) => {
-            const cursorStyle = this.props.animated ? {
-                ...cursorBlockStyle,
-                transform: "scale(" + val.scale + ")",
-            } : cursorBlockStyle
+        if (!this.props.animated) {
+            return this._renderCursor(containerStyle, cursorBlockStyle, cursorCharacterStyle, characterToShow)
+        } else {
+            return <Motion defaultStyle={{scale: 0}} style={{scale: spring(this.props.scale, { stiffness: 120, damping: 8})}}>
+            {(val) => {
+                const cursorStyle = {
+                    ...cursorBlockStyle,
+                    transform: "scale(" + val.scale + ")",
+                }
+                return this._renderCursor(containerStyle, cursorStyle, cursorCharacterStyle, characterToShow)
+            }}
+            </Motion>
+        }
+    }
 
+    private _renderCursor(containerStyle: React.CSSProperties, cursorBlockStyle: React.CSSProperties, cursorCharacterStyle: React.CSSProperties, characterToShow: string): JSX.Element {
             return <div style={containerStyle} className="cursor">
-                <div style={cursorStyle} />
+                <div style={cursorBlockStyle} />
                 <div style={cursorCharacterStyle}>{characterToShow}</div>
             </div>
-        }}
-        </Motion>
     }
 }
 
