@@ -37,7 +37,7 @@ export interface ILanguageServerNotificationResponse {
 export class LanguageManager {
 
     private _languageServerInfo: { [language: string]: ILanguageClient } = {}
-    private _notificationSubscriptions: { [notificationMessage: string]: Event<any> }  = {}
+    private _notificationSubscriptions: { [notificationMessage: string]: Event<any> } = {}
     private _requestHandlers: { [request: string]: LanguageClientTypes.RequestHandler } = {}
     private _statusBar = new LanguageClientStatusBar()
 
@@ -47,9 +47,12 @@ export class LanguageManager {
 
             if (language) {
                 this._statusBar.show(language)
-                this._statusBar.setStatus(LanguageClientState.Initializing)
-            } else {
-                this._statusBar.hide()
+
+                if (this._hasLanguageClient(language)) {
+                    this._statusBar.setStatus(LanguageClientState.Initializing)
+                } else {
+                    this._statusBar.setStatus(LanguageClientState.NotAvailable)
+                }
             }
 
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", async () => {
@@ -82,7 +85,7 @@ export class LanguageManager {
                         textDocument,
                         contentChanges: change.contentChanges,
                     }
-                // Otherwise, get the whole buffer and send it up
+                    // Otherwise, get the whole buffer and send it up
                 } else {
                     const allBufferLines = await change.buffer.getLines()
 
@@ -97,7 +100,7 @@ export class LanguageManager {
         })
 
         editorManager.allEditors.onBufferSaved.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
-            const { language, filePath} = bufferInfo
+            const { language, filePath } = bufferInfo
             return this.sendLanguageServerNotification(language, filePath, "textDocument/didSave", Helpers.pathToTextDocumentIdentifierParms(filePath))
         })
 
@@ -179,15 +182,15 @@ export class LanguageManager {
 
         if (languageClient) {
             try {
-            const result = await languageClient.sendRequest(filePath, protocolMessage, protocolPayload)
-            this._setStatus(protocolMessage, LanguageClientState.Active)
-            return result
+                const result = await languageClient.sendRequest(filePath, protocolMessage, protocolPayload)
+                this._setStatus(protocolMessage, LanguageClientState.Active)
+                return result
             } catch (ex) {
                 this._setStatus(protocolMessage, LanguageClientState.Error)
                 throw ex
             }
         } else {
-            this._setStatus(protocolMessage, LanguageClientState.Error)
+            this._setStatus(protocolMessage, LanguageClientState.NotAvailable)
             return Promise.reject("No language server registered")
         }
     }
@@ -250,7 +253,7 @@ export class LanguageManager {
             languageClient.handleRequest(request, this._requestHandlers[request])
         })
 
-        this._languageServerInfo[language]  = languageClient
+        this._languageServerInfo[language] = languageClient
     }
 
     private _getLanguageClient(language: string): ILanguageClient {
@@ -263,6 +266,10 @@ export class LanguageManager {
         const normalizedLanguage = language.split(".")[0]
 
         return this._languageServerInfo[normalizedLanguage]
+    }
+
+    private _hasLanguageClient(language: string): boolean {
+        return !!this._languageServerInfo[language]
     }
 
     private _setStatus(protocolMessage: string, status: LanguageClientState): void {
