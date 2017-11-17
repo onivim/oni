@@ -11,9 +11,10 @@ import { applyMiddleware, combineReducers, createStore as reduxCreateStore, Redu
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
 import * as CompletionUtility from "./CompletionUtility"
+import * as CompletionSelects from "./CompletionSelectors"
 import { languageManager } from "./../LanguageManager"
 
-import { getCompletions } from "./Completion"
+import { commitCompletion, getCompletions, resolveCompletionItem } from "./Completion"
 
 export interface ICompletionMeetInfo {
     meetLine: number
@@ -34,6 +35,18 @@ const DefaultMeetInfo: ICompletionMeetInfo = {
 export interface ICompletionBufferInfo {
     language: string
     filePath: string
+}
+
+export interface ILastCompletionInfo {
+    meetLine: number
+    meetPosition: number
+    completedText: string
+}
+
+const DefaultLastCompletionInfo: ILastCompletionInfo = {
+    meetLine: -1,
+    meetPosition: -1,
+    completedText: "",
 }
 
 export interface ICompletionResults {
@@ -66,6 +79,7 @@ export interface ICompletionState {
     bufferInfo: ICompletionBufferInfo
     meetInfo: ICompletionMeetInfo
     completionResults: ICompletionResults
+    lastCompletionInfo: ILastCompletionInfo
 }
 
 export type CompletionAction = {
@@ -82,6 +96,10 @@ export type CompletionAction = {
     filePath: string,
 } | {
     type: "COMMIT_COMPLETION"
+    meetBase: string
+    meetLine: number
+    meetPosition: number
+    completionText: string
 } | {
     type: "MEET_CHANGED",
     currentMeet: ICompletionMeetInfo
@@ -152,7 +170,16 @@ export const cursorInfoReducer: Reducer<ICursorInfo> = (
     state: ICursorInfo = DefaultCursorInfo,
     action: CompletionAction
 ) => {
-    return state
+    switch (action.type) {
+        case "CURSOR_MOVED":
+            return {
+            line: action.line,
+            lineContents: action.lineContents,
+            column: action.column,
+        }
+        default:
+            return state
+    }
 }
 
 export const enabledReducer: Reducer<boolean> = (
@@ -167,16 +194,31 @@ export const enabledReducer: Reducer<boolean> = (
     }
 }
 
+export const lastCompletionInfoReducer: Reducer<ILastCompletionInfo> = (
+    state: ILastCompletionInfo = DefaultLastCompletionInfo,
+    action: CompletionAction,
+) => {
+    switch(action.type) {
+        case "MODE_CHANGED":
+        case "BUFFER_ENTER":
+            return DefaultLastCompletionInfo
+        case "COMMIT_COMPLETION":
+            return {
+                meetLine: action.meetLine,
+                meetPosition: action.meetPosition,
+                completedText: action.completionText,
+        }
+        default:
+            return state
+    }
+}
+
 const nullAction = { type: null } as CompletionAction
 
 const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
-    action$.ofType("CURSOR_MOVED")
+    action$.ofType("CURSOR_MOVED", "MODE_CHANGED")
         .map((action: CompletionAction) => {
             const currentState: ICompletionState = store.getState()
-
-            if (action.type !== "CURSOR_MOVED") {
-                return nullAction
-            }
 
             if (!currentState.enabled) {
                 return nullAction
@@ -191,11 +233,11 @@ const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$
             const token = languageManager.getTokenRegex(bufferInfo.language)
             const completionCharacters = languageManager.getCompletionTriggerCharacters(bufferInfo.language)
 
-            const meet = CompletionUtility.getCompletionMeet(action.lineContents, action.column, token, completionCharacters)
+            const meet = CompletionUtility.getCompletionMeet(currentState.cursorInfo.lineContents, currentState.cursorInfo.column, token, completionCharacters)
 
             const meetForAction: ICompletionMeetInfo = {
                 meetPosition: meet.position,
-                meetLine: action.line,
+                meetLine: currentState.cursorInfo.line,
                 queryPosition: meet.positionToQuery,
                 meetBase: meet.base,
                 shouldExpand: meet.shouldExpandCompletions
@@ -208,6 +250,16 @@ const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$
                 currentMeet: meetForAction
             } as CompletionAction
         })
+
+const commitCompletionEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
+    action$.ofType("COMMIT_COMPLETION")
+        .do(async (action) => {
+            if (action.type !== "COMMIT_COMPLETION") {
+                return
+            }
+
+            await commitCompletion(action.meetLine, action.meetPosition, action.completionText)
+        }).map(_ => nullAction)
 
 const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, store) => 
     action$.ofType("MEET_CHANGED")
@@ -260,6 +312,36 @@ const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, s
             return ret
         })
 
+const getCompletionDetailsForFirstItemEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
+    action$.ofType("GET_COMPLETIONS_RESULT")
+        .mergeMap((action) => {
+
+            if (action.type !== "GET_COMPLETIONS_RESULT") {
+                return Observable.of(nullAction)
+            }
+
+            return Observable.defer(async () => {
+                const state = store.getState()
+                const filteredItems = CompletionSelects.filterCompletionOptions(action.completions, state.meetInfo.meetBase)
+
+                if (!filteredItems || !filteredItems.length) {
+                    return null
+                }
+
+                const result = await resolveCompletionItem(state.bufferInfo.language, state.bufferInfo.filePath, filteredItems[0])
+                return result
+            }).map((itemResult: types.CompletionItem) => {
+                if (itemResult) {
+                    return {
+                        type: "GET_COMPLETION_ITEM_DETAILS_RESULT",
+                        completionItemWithDetails: itemResult
+                    } as CompletionAction 
+                } else {
+                    return nullAction
+                }
+            })
+        })
+
 export const createStore = (): Store<ICompletionState> => {
     return reduxCreateStore(
         combineReducers<ICompletionState>({
@@ -267,9 +349,13 @@ export const createStore = (): Store<ICompletionState> => {
             bufferInfo: bufferInfoReducer,
             meetInfo: meetInfoReducer,
             completionResults: completionResultsReducer,
+            lastCompletionInfo: lastCompletionInfoReducer,
+            cursorInfo: cursorInfoReducer,
         }),
         applyMiddleware(createEpicMiddleware(combineEpics(
+            commitCompletionEpic,
             getCompletionMeetEpic,
             getCompletionsEpic,
+            getCompletionDetailsForFirstItemEpic,
         ))))
 }

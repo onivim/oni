@@ -7,6 +7,8 @@ import * as isEqual from "lodash/isEqual"
 // import "rxjs/add/operator/withLatestFrom"
 import { Observable } from "rxjs/Observable"
 
+import { editorManager } from "./../../EditorManager"
+
 import * as types from "vscode-languageserver-types"
 
 import * as Log from "./../../../Log"
@@ -16,7 +18,7 @@ import { configuration } from "./../../Configuration"
 import { ILatestCursorAndBufferInfo } from "./../LanguageEditorIntegration"
 import { languageManager } from "./../LanguageManager"
 
-import { render } from "./CompletionMenu"
+import { createContextMenu } from "./CompletionMenu"
 import * as CompletionUtility from "./CompletionUtility"
 
 export interface ICompletionMeetInfo {
@@ -41,12 +43,10 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
 
     const store = createStore()
 
+    createContextMenu(store)
+
     // TODO: Can we un-split latestCursorAndBufferInfo$ to bufferEnter$ and cursorMove$ observables?
 
-    store.subscribe(() => {
-        const newState = store.getState()
-        render(newState)
-    })
 
     // Hook up BUFFER_ENTER events to the store
     latestCursorAndBufferInfo$
@@ -148,70 +148,6 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
     // createCompletionMenu(completionMeet$, resolvedCompletion$, modeChanged$)
 }
 
-export interface IResolvedCompletions {
-    completions: types.CompletionItem[]
-    meetInfo: ICompletionMeetInfo
-}
-
-export const resolveCompletionsFromCurrentState = (completionInfo: ICompletionResults, meetInfo: ICompletionMeetInfo): IResolvedCompletions  => {
-    if (!completionInfo) {
-        return null
-    }
-
-    const { completions, meetLine, meetPosition } = completionInfo
-
-    const filteredCompletions = filterCompletionOptions(completions, meetInfo.meetBase)
-
-    if (!filteredCompletions || !filteredCompletions.length || !meetInfo.shouldExpand) {
-        return null
-    } else if (meetLine !== meetInfo.meetLine || meetPosition !== meetInfo.meetPosition) {
-        return null
-    } else if (filteredCompletions.length === 1) {
-        const completionItem: types.CompletionItem = filteredCompletions[0]
-        if (CompletionUtility.getInsertText(completionItem) === meetInfo.meetBase) {
-            return null
-        } else {
-            return {
-                completions: filteredCompletions,
-                meetInfo,
-            }
-        }
-    } else {
-        return {
-            completions: filteredCompletions,
-            meetInfo,
-        }
-    }
-}
-
-export const filterCompletionOptions = (items: types.CompletionItem[], searchText: string): types.CompletionItem[] => {
-    if (!searchText) {
-        return items
-    }
-
-    if (!items || !items.length) {
-        return null
-    }
-
-    const filterRegEx = new RegExp("^" + searchText.split("").join(".*") + ".*")
-
-    const filteredOptions = items.filter((f) => {
-        const textToFilterOn = f.filterText || f.label
-        return textToFilterOn.match(filterRegEx)
-    })
-
-    return filteredOptions.sort((itemA, itemB) => {
-
-        const itemAFilterText = itemA.filterText || itemA.label
-        const itemBFilterText = itemB.filterText || itemB.label
-
-        const indexOfA = itemAFilterText.indexOf((searchText))
-        const indexOfB = itemBFilterText.indexOf((searchText))
-
-        return indexOfB - indexOfA
-    })
-}
-
 export const getCompletions = async (language: string, filePath: string, line: number, character: number): Promise<types.CompletionItem[]> => {
 
     if (!configuration.getValue("editor.completions.enabled")) {
@@ -270,6 +206,24 @@ export const resolveCompletionItem = async (language: string, filePath: string, 
     }
 
     return _convertCompletionForContextMenu(result)
+}
+
+export const commitCompletion = async (line: number, base: number, completion: string) => {
+    const buffer = editorManager.activeEditor.activeBuffer
+    const currentLines = await buffer.getLines(line, line + 1)
+
+    const column = buffer.cursor.column
+
+    if (!currentLines || !currentLines.length) {
+        return
+    }
+
+    const originalLine = currentLines[0]
+
+    const newLine = CompletionUtility.replacePrefixWithCompletion(originalLine, base, column, completion)
+    await buffer.setLines(line, line + 1, [newLine])
+    const cursorOffset = newLine.length - originalLine.length
+    await buffer.setCursorPosition(line, column + cursorOffset)
 }
 
 const getCompletionItems = (items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[] => {
