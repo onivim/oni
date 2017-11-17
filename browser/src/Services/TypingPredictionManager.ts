@@ -36,19 +36,32 @@ export class TypingPredictionManager {
     }
 
     public setCursorPosition(line: number, column: number): void {
+        let shouldClearAll = false
 
+        // If we changed lines, our predictions are no longer valid
         if (this._line !== line) {
-            this.clearAllPredictions()
+            shouldClearAll = true
+        }
+
+        // In the case where auto-indent pushes us back,
+        // we don't have a good sense of current predictions,
+        // so just clear them all out
+        if (column < this._column) {
+            shouldClearAll = true
         }
 
         this._line = line
         this._column = column
 
-        this._predictions = this._predictions.filter((pd) => {
-            return pd.id > this._column
-        })
+        if (shouldClearAll) {
+            this.clearAllPredictions()
+        } else {
+            this._predictions = this._predictions.filter((pd) => {
+                return pd.id > this._column
+            })
 
-        this._notifyPredictionsChanged()
+            this._notifyPredictionsChanged()
+        }
     }
 
     public addPrediction(character: string): TypingPredictionId | null {
