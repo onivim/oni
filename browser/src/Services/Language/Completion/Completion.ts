@@ -3,8 +3,6 @@
  */
 
 import * as isEqual from "lodash/isEqual"
-// import "rxjs/add/observable/combineLatest"
-// import "rxjs/add/operator/withLatestFrom"
 import { Observable } from "rxjs/Observable"
 
 import { editorManager } from "./../../EditorManager"

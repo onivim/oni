@@ -4,15 +4,15 @@
 
 import * as types from "vscode-languageserver-types"
 
-import { Observable } from "rxjs/Observable"
 import "rxjs/add/operator/mergeMap"
+import { Observable } from "rxjs/Observable"
 
 import { applyMiddleware, combineReducers, createStore as reduxCreateStore, Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
-import * as CompletionUtility from "./CompletionUtility"
-import * as CompletionSelects from "./CompletionSelectors"
 import { languageManager } from "./../LanguageManager"
+import * as CompletionSelects from "./CompletionSelectors"
+import * as CompletionUtility from "./CompletionUtility"
 
 import { commitCompletion, getCompletions, resolveCompletionItem } from "./Completion"
 
@@ -86,10 +86,10 @@ export type CompletionAction = {
     type: "CURSOR_MOVED",
     line: number,
     column: number
-    lineContents: string
+    lineContents: string,
 } | {
     type: "MODE_CHANGED",
-    mode: string
+    mode: string,
 } | {
     type: "BUFFER_ENTER",
     language: string
@@ -99,28 +99,28 @@ export type CompletionAction = {
     meetBase: string
     meetLine: number
     meetPosition: number
-    completionText: string
+    completionText: string,
 } | {
     type: "MEET_CHANGED",
-    currentMeet: ICompletionMeetInfo
+    currentMeet: ICompletionMeetInfo,
 } | {
     type: "GET_COMPLETIONS_RESULT"
     meetLine: number
     meetPosition: number
-    completions: types.CompletionItem[]
+    completions: types.CompletionItem[],
 } | {
     type: "SELECT_ITEM",
-    completionItem: types.CompletionItem
+    completionItem: types.CompletionItem,
 } | {
     type: "GET_COMPLETION_ITEM_DETAILS_RESULT"
-    completionItemWithDetails: types.CompletionItem
+    completionItemWithDetails: types.CompletionItem,
 }
 
 const bufferInfoReducer: Reducer<ICompletionBufferInfo> = (
     state: ICompletionBufferInfo = {
         language: null,
-        filePath: null
-    }, action: CompletionAction
+        filePath: null,
+    }, action: CompletionAction,
 ) => {
     switch (action.type) {
         case "BUFFER_ENTER":
@@ -135,7 +135,7 @@ const bufferInfoReducer: Reducer<ICompletionBufferInfo> = (
 
 const meetInfoReducer: Reducer<ICompletionMeetInfo> = (
     state: ICompletionMeetInfo = DefaultMeetInfo,
-    action: CompletionAction
+    action: CompletionAction,
 ) => {
     switch (action.type) {
         case "MEET_CHANGED":
@@ -149,7 +149,7 @@ const meetInfoReducer: Reducer<ICompletionMeetInfo> = (
 
 export const completionResultsReducer: Reducer<ICompletionResults> = (
     state: ICompletionResults = DefaultCompletionResults,
-    action: CompletionAction
+    action: CompletionAction,
 ) => {
     switch (action.type) {
         case "MODE_CHANGED":
@@ -179,7 +179,7 @@ export const completionResultsReducer: Reducer<ICompletionResults> = (
 
 export const cursorInfoReducer: Reducer<ICursorInfo> = (
     state: ICursorInfo = DefaultCursorInfo,
-    action: CompletionAction
+    action: CompletionAction,
 ) => {
     switch (action.type) {
         case "CURSOR_MOVED":
@@ -195,9 +195,9 @@ export const cursorInfoReducer: Reducer<ICursorInfo> = (
 
 export const enabledReducer: Reducer<boolean> = (
     state: boolean = false,
-    action: CompletionAction
+    action: CompletionAction,
 ) => {
-    switch(action.type) {
+    switch (action.type) {
         case "MODE_CHANGED":
             return action.mode === "insert"
         default:
@@ -209,7 +209,7 @@ export const lastCompletionInfoReducer: Reducer<ILastCompletionInfo> = (
     state: ILastCompletionInfo = DefaultLastCompletionInfo,
     action: CompletionAction,
 ) => {
-    switch(action.type) {
+    switch (action.type) {
         case "MODE_CHANGED":
         case "BUFFER_ENTER":
             return DefaultLastCompletionInfo
@@ -239,7 +239,7 @@ const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$
                 return nullAction
             }
 
-            const {bufferInfo }= currentState
+            const {bufferInfo } = currentState
 
             const token = languageManager.getTokenRegex(bufferInfo.language)
             const completionCharacters = languageManager.getCompletionTriggerCharacters(bufferInfo.language)
@@ -251,14 +251,14 @@ const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$
                 meetLine: currentState.cursorInfo.line,
                 queryPosition: meet.positionToQuery,
                 meetBase: meet.base,
-                shouldExpand: meet.shouldExpandCompletions
+                shouldExpand: meet.shouldExpandCompletions,
             }
 
             console.log("DISPATCHING MEET_CHANGED")
 
             return {
                 type: "MEET_CHANGED",
-                currentMeet: meetForAction
+                currentMeet: meetForAction,
             } as CompletionAction
         })
 
@@ -272,7 +272,7 @@ const commitCompletionEpic: Epic<CompletionAction, ICompletionState> = (action$,
             await commitCompletion(action.meetLine, action.meetPosition, action.completionText)
         }).map(_ => nullAction)
 
-const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, store) => 
+const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
     action$.ofType("MEET_CHANGED")
         .filter(() => store.getState().enabled)
         .filter((action) => {
@@ -340,14 +340,13 @@ const getCompletionDetailsEpic: Epic<CompletionAction, ICompletionState> = (acti
                 if (itemResult) {
                     return {
                         type: "GET_COMPLETION_ITEM_DETAILS_RESULT",
-                        completionItemWithDetails: itemResult
-                    } as CompletionAction 
+                        completionItemWithDetails: itemResult,
+                    } as CompletionAction
                 } else {
                     return nullAction
                 }
             })
         })
-
 
 const selectFirstItemEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
     action$.ofType("GET_COMPLETIONS_RESULT")
@@ -366,7 +365,7 @@ const selectFirstItemEpic: Epic<CompletionAction, ICompletionState> = (action$, 
 
             return {
                 type: "SELECT_ITEM",
-                completionItem: filteredItems[0]
+                completionItem: filteredItems[0],
             } as CompletionAction
 
         })

@@ -34,7 +34,7 @@ export const createContextMenu = (store: Store<ICompletionState>) => {
             type: "COMMIT_COMPLETION",
             meetLine: state.meetInfo.meetLine,
             meetPosition: state.meetInfo.meetPosition,
-            completionText: CompletionUtility.getInsertText(completionItem)
+            completionText: CompletionUtility.getInsertText(completionItem),
         })
 
     })
