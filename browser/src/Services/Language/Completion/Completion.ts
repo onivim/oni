@@ -35,6 +35,8 @@ export interface ICompletionResults {
     meetPosition: number
 }
 
+import { createStore } from "./CompletionStore"
+
 export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>) => {
 
     // Observable that gets full completion context (cursor positon + meet info)
