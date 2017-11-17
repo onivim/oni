@@ -45,9 +45,6 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
 
     createContextMenu(store)
 
-    // TODO: Can we un-split latestCursorAndBufferInfo$ to bufferEnter$ and cursorMove$ observables?
-
-
     // Hook up BUFFER_ENTER events to the store
     latestCursorAndBufferInfo$
         .map((changeInfo) => ({
@@ -90,62 +87,6 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
                 mode: newMode,
             })
         })
-
-    // Observable that gets full completion context (cursor positon + meet info)
-    // const completionMeet$: Observable<ICompletionMeetInfo> = latestCursorAndBufferInfo$
-    //     .map((changeInfo) => {
-    //         const token = languageManager.getTokenRegex(changeInfo.language)
-    //         const completionCharacters = languageManager.getCompletionTriggerCharacters(changeInfo.language)
-    //         const meet = CompletionUtility.getCompletionMeet(changeInfo.contents, changeInfo.cursorColumn, token, completionCharacters)
-
-    //         if (Log.isDebugLoggingEnabled()) {
-    //             Log.debug(`[COMPLETION] Got meet at position: ${meet.position} with base: ${meet.base} - shouldExpand: ${meet.shouldExpandCompletions}`)
-    //         }
-
-    //         return {
-    //             language: changeInfo.language,
-    //             filePath: changeInfo.filePath,
-    //             meetLine: changeInfo.cursorLine,
-    //             meetPosition: meet.position,
-    //             queryPosition: meet.positionToQuery,
-    //             meetBase: meet.base,
-    //             shouldExpand: meet.shouldExpandCompletions,
-    //         }
-    //     })
-
-    // const completion$: Observable<ICompletionResults> = completionMeet$
-    //     // Only check for completion if the meets have actually changed
-    //     // requesting completions for the same spot
-    //     .distinctUntilChanged(isEqual)
-    //     .filter((info) => info.shouldExpand)
-    //     .mergeMap((completionInfo: ICompletionMeetInfo) => {
-    //         return Observable.defer(async () => {
-    //             const results = await getCompletions(completionInfo.language, completionInfo.filePath, completionInfo.meetLine, completionInfo.queryPosition)
-
-    //             if (!results || !results.length) {
-    //                 return null
-    //             }
-
-    //             return {
-    //                 completions: results,
-    //                 meetLine: completionInfo.meetLine,
-    //                 meetPosition: completionInfo.meetPosition,
-    //             }
-    //         })
-    //     })
-
-    // Core completion logic:
-    // Take the latest completion info, meet info, and mode
-    // and determine what to show in the context menu
-    // const resolvedCompletion$ = Observable
-    //     .combineLatest(completion$, completionMeet$)
-    //     .map((args: [ICompletionResults, ICompletionMeetInfo]) => {
-
-    //         const [completionInfo, meetInfo] = args
-    //         return resolveCompletionsFromCurrentState(completionInfo, meetInfo)
-    //     })
-
-    // createCompletionMenu(completionMeet$, resolvedCompletion$, modeChanged$)
 }
 
 export const getCompletions = async (language: string, filePath: string, line: number, character: number): Promise<types.CompletionItem[]> => {
