@@ -254,7 +254,15 @@ export class LanguageManager {
     }
 
     private _getLanguageClient(language: string): ILanguageClient {
-        return this._languageServerInfo[language]
+        if (!language) {
+            return null
+        }
+
+        // Fix for #882 - handle cases like `javascript.jsx` where there is
+        // some scoping to the filetype / language name
+        const normalizedLanguage = language.split(".")[0]
+
+        return this._languageServerInfo[normalizedLanguage]
     }
 
     private _setStatus(protocolMessage: string, status: LanguageClientState): void {
