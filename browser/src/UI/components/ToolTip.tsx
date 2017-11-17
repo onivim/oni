@@ -21,7 +21,6 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
     public render(): JSX.Element {
 
         const toolTipElements = this.props.toolTips.map((toolTip) => {
-            console.log("Rendering tooltip: " + toolTip.id)
             return <CSSTransition
                 timeout={250}
                 classNames="fade"
