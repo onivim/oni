@@ -1,20 +1,6 @@
 import * as marked from "marked"
 import * as React from "react"
 
-export interface IState {
-    source: string
-}
-
-export class MarkdownPreviewEditor implements Oni.IWindowSplit {
-    constructor(
-        private _oni: Oni.Plugin.Api
-    ) { }
-
-    public render(): JSX.Element {
-        return <MarkdownPreview bufferEnter={this._oni.editors.activeEditor.onBufferEnter} />
-    }
-}
-
 /**
  * Props are like the constructor arguments
  * for the React component (immutable)
@@ -63,12 +49,10 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
 
     componentDidMount() {
         this.props.bufferEnter.subscribe((onBufferEnterArgs) => this.onBufferEnter(onBufferEnterArgs))
-        console.warn("Mounted");
     }
 
     componentWillUnmount() {
-        // TODO: Dispose of subscription above
-        console.warn("Unmounted");
+        // TODO: Dispose of subscriptions above
     }
 
     public render(): JSX.Element {
@@ -78,6 +62,16 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
 
         const html = marked(this.state.source)
         return <div style={containerStyle} dangerouslySetInnerHTML={{__html: html}}></div>
+    }
+}
+
+export class MarkdownPreviewEditor implements Oni.IWindowSplit {
+    constructor(
+        private _oni: Oni.Plugin.Api
+    ) { }
+
+    public render(): JSX.Element {
+        return <MarkdownPreview bufferEnter={this._oni.editors.activeEditor.onBufferEnter} />
     }
 }
 
