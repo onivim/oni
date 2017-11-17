@@ -21,13 +21,15 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
     public render(): JSX.Element {
 
         const toolTipElements = this.props.toolTips.map((toolTip) => {
+            console.log("Rendering tooltip: " + toolTip.id)
             return <CSSTransition
                 timeout={250}
                 classNames="fade"
                 unmountOnExit={true}
                 exit={false}
+                key={toolTip.id}
             >
-            <ToolTipView {...toolTip} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor} key={toolTip.id}/>
+            <ToolTipView {...toolTip} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor}/>
             </CSSTransition>
         })
 
@@ -83,7 +85,7 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
             padding,
         }
 
-        return <CursorPositioner position={position} openDirection={openDirection} key={this.props.id}>
+        return <CursorPositioner position={position} openDirection={openDirection}>
                 <div className="tool-tip-container enable-mouse" style={toolTipStyle} ref={(elem) => this._setContainer(elem)}>
                     {this.props.element}
                 </div>
