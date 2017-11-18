@@ -61,7 +61,7 @@ export class Tabs extends React.PureComponent<ITabsProps, {}> {
         }
 
         const scrollStyle: React.CSSProperties = {
-            overflowX: "auto",
+            overflowX: "auto", // TODO: dynamically set overflow needs to change
         }
 
         const overflowStyle = this.props.shouldWrap ? wrapStyle : scrollStyle
