@@ -135,8 +135,15 @@ export class Buffer implements Oni.Buffer {
     }
 
     public async getSelectionRange(): Promise<types.Range | null> {
-        const startRange = await this._neovimInstance.callFunction("getpos", ["'<'"])
-        const endRange = await this._neovimInstance.callFunction("getpos", ["'>"])
+
+        const result: any = await this._neovimInstance.request("nvim_get_mode", [])
+
+        if (result.mode !== "v" && result.mode !== "V") {
+            return types.Range.create(this._cursor.line, this._cursor.column, this._cursor.line, this._cursor.column + 1)
+        }
+
+        const startRange = await this._neovimInstance.callFunction("getpos", ["v"])
+        const endRange = await this._neovimInstance.callFunction("getpos", ["."])
 
         const [, startLine, startColumn ] = startRange
         let [, endLine, endColumn ] = endRange
