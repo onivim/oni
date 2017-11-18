@@ -38,6 +38,7 @@ export const expandCodeActions = () => {
             label: command.title,
             icon: "lightbulb-o",
             data: command.command,
+            documentation: "Press enter to apply action.",
         })
 
         const contextMenuItems = codeActions.map(mapCommandsToItem)
@@ -68,8 +69,14 @@ export const initCodeActionUI = (bufferUpdate$: Observable<Oni.EditorBufferChang
         .distinctUntilChanged(isEqual)
         .subscribe((newRange: types.Range) => {
 
+            const line0 = newRange.start.line
+            const line1 = newRange.end.line
+
+            const startLine = Math.min(line0, line1)
+            const endLine = Math.max(line0, line1)
+
             // Clamp range to lines
-            const adjustedRange = types.Range.create(newRange.start.line, 0, newRange.end.line + 1, 0)
+            const adjustedRange = types.Range.create(startLine, 0, endLine + 1, 0)
 
             store.dispatch({
                 type: "SELECTION_CHANGED",

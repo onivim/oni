@@ -7,7 +7,7 @@
 import * as types from "vscode-languageserver-types"
 
 import "rxjs/add/operator/mergeMap"
-// import { Observable } from "rxjs/Observable"
+import { Observable } from "rxjs/Observable"
 
 import { applyMiddleware, createStore as reduxCreateStore, Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
@@ -88,8 +88,13 @@ const codeActionReducer: Reducer<ICodeActionState> = (
 
 const getCodeActionsEpic: Epic<CodeActionAction, ICodeActionState> = (action$, store) =>
     action$.ofType("SELECTION_CHANGED")
-        .mergeMap(async (action: CodeActionAction) => {
-            return await getCodeActions((<any>action).range)
+        .switchMap((action: CodeActionAction) => {
+            return Observable.defer(async () => {
+            console.log("--STARTING CODE ACTION REQUEST")
+            const result =  await getCodeActions((<any>action).range)
+            console.log("--ENDING CODE ACTION REQUEST")
+            return result
+            })
         })
 
         .map((result) => {
