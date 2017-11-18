@@ -119,7 +119,7 @@
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",
     "ocaml-language-server": "1.0.12",
-    "oni-neovim-binaries": "^0.0.7",
+    "oni-neovim-binaries": "0.0.8",
     "oni-ripgrep": "0.0.3",
     "typescript": "2.5.3",
     "vscode-jsonrpc": "3.5.0",
