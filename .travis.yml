@@ -35,7 +35,7 @@ addons:
 
 install:
     - npm install -g yarn
-    - yarn install --verbose
+    - yarn install
 
 script:
     - ./build/script/travis-build.sh
