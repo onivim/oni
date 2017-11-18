@@ -46,4 +46,10 @@ export const synchronizeConfiguration = (neovimInstance: INeovimInstance, config
         const globalSettingName = key.substring(vimGlobalPrefix.length, key.length)
         neovimInstance.command(`let g:${globalSettingName}=${vimGlobalValue}`)
     })
+
+    // Synchronize colors
+    const colorScheme = configuration["vim.colorscheme"]
+    if (configuration["vim.colorscheme"]) {
+        neovimInstance.command(":color " + colorScheme)
+    }
 }

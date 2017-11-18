@@ -138,6 +138,8 @@ const BaseConfiguration: IConfigurationValues = {
     "ui.animations.enabled": true,
     "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
+
+    "vim.colorscheme": "onedark",
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {
