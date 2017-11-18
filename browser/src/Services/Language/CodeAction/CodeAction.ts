@@ -22,30 +22,6 @@ import * as Helpers from "./../../../Plugins/Api/LanguageClient/LanguageClientHe
 
 import { ICodeActionQuery } from "./CodeActionStore"
 
-// codeActionsContextMenu.onItemSelected.subscribe(async (selectedItem) => {
-
-//     const commandName = selectedItem.data
-//     await languageManager.sendLanguageServerRequest(lastFileInfo.language, lastFileInfo.filePath, "workspace/executeCommand", { command: commandName })
-// })
-
-// export const expandCodeActions = async () => {
-
-//     const commands = await getCodeActions()
-//     if (!commands || !commands.length) {
-//         return
-//     }
-
-//     const mapCommandsToItem = (command: types.Command, idx: number) => ({
-//         label: command.title,
-//         icon: "lightbulb-o",
-//         data: command.command,
-//     })
-
-//     const contextMenuItems = commands.map(mapCommandsToItem)
-
-//     codeActionsContextMenu.show(contextMenuItems)
-// }
-
 interface ICodeActionResult {
     query: ICodeActionQuery
     commands: types.Command[]
@@ -53,12 +29,11 @@ interface ICodeActionResult {
 
 const EmptyCommands: types.Command[] = []
 
-export const getCodeActions = async (): Promise<ICodeActionResult> => {
+export const getCodeActions = async (range: types.Range): Promise<ICodeActionResult> => {
 
     const buffer = editorManager.activeEditor.activeBuffer
 
     const { language, filePath } = buffer
-    const range = await buffer.getSelectionRange()
 
     const result = {
         query: {

@@ -50,7 +50,6 @@ export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<On
 
     Definition.initDefinitionUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
     Hover.initHoverUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
-
     CodeAction.initCodeActionUI(bufferUpdates$, cursorMoved$)
 }
 

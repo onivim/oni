@@ -89,8 +89,9 @@ const codeActionReducer: Reducer<ICodeActionState> = (
 const getCodeActionsEpic: Epic<CodeActionAction, ICodeActionState> = (action$, store) =>
     action$.ofType("SELECTION_CHANGED")
         .mergeMap(async (action: CodeActionAction) => {
-            return await getCodeActions()
+            return await getCodeActions((<any>action).range)
         })
+
         .map((result) => {
             return {
                 type: "GET_CODE_ACTION_RESULT",

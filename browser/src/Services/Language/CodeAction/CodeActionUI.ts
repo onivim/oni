@@ -14,10 +14,39 @@ import { Observable } from "rxjs/Observable"
 
 import { editorManager } from "./../../EditorManager"
 
+import { languageManager } from "./../LanguageManager"
+import { contextMenuManager } from "./../../ContextMenu"
+
+// TODO: Confine this to a closure
+const contextMenu = contextMenuManager.create()
+const store = createStore()
+
+contextMenu.onItemSelected.subscribe(async (selectedItem) => {
+
+    const state = store.getState()
+    const { language, filePath } = state.lastQuery
+
+    const commandName = selectedItem.data
+    await languageManager.sendLanguageServerRequest(language, filePath, "workspace/executeCommand", { command: commandName })
+})
+
+export const expandCodeActions = () => {
+    const codeActions = store.getState().availableCodeActions
+
+    if (codeActions && codeActions.length) {
+        const mapCommandsToItem = (command: types.Command, idx: number) => ({
+            label: command.title,
+            icon: "lightbulb-o",
+            data: command.command,
+        })
+
+        const contextMenuItems = codeActions.map(mapCommandsToItem)
+
+        contextMenu.show(contextMenuItems)
+    }
+}
+
 export const initCodeActionUI = (bufferUpdate$: Observable<Oni.EditorBufferChangedEventArgs>, cursorMoved$: Observable<Oni.Cursor>) => {
-
-    const store = createStore()
-
     bufferUpdate$
         .map((bu) => ({
             filePath: bu.buffer.filePath,
@@ -38,15 +67,17 @@ export const initCodeActionUI = (bufferUpdate$: Observable<Oni.EditorBufferChang
         })
         .distinctUntilChanged(isEqual)
         .subscribe((newRange: types.Range) => {
+
+            // Clamp range to lines
+            const adjustedRange = types.Range.create(newRange.start.line, 0, newRange.end.line + 1, 0)
+
             store.dispatch({
                 type: "SELECTION_CHANGED",
-                range: newRange,
+                range: adjustedRange,
             })
         })
-
 
     store.subscribe(() => {
         console.dir(store.getState())
     })
-
 }
