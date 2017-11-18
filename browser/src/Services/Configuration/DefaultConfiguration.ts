@@ -27,8 +27,10 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.neovimPath": null,
     "debug.persistOnNeovimExit": false,
     "debug.detailedSessionLogging": false,
+    "debug.showTypingPrediction": false,
 
     "debug.fakeLag.languageServer": null,
+    "debug.fakeLag.neovimInput": null,
 
     "experimental.autoClosingPairs.enabled": false,
     "experimental.autoClosingPairs.default": [
@@ -36,6 +38,8 @@ const BaseConfiguration: IConfigurationValues = {
         { "open": "[", "close": "]" },
         { "open": "(", "close": ")" },
     ],
+
+    "experimental.editor.typingPrediction": false,
 
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows

@@ -116,6 +116,12 @@ export const isInRange = (line: number, column: number, range: types.Range): boo
         && line <= range.end.line && column <= range.end.character)
 }
 
+export const sleep = async (timeInMilliseconds: number): Promise<void> => {
+    return new Promise<void>((res) => {
+        window.setTimeout(() => res(), timeInMilliseconds)
+    })
+}
+
 /**
  * Helper function to ignore incoming values while a promise is waiting to complete
  * This is lossy, in that any input that comes in will be dropped while the promise
