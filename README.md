@@ -131,7 +131,7 @@ There many ways to contribute to Oni:
 - [Submit bugs](https://github.com/onivim/oni/issues) or propose new features.
 - Review and and upate our [documentation](https://github.com/onivim/oni/wiki)
 - Try out the latest [released build](https://github.com/onivim/oni/releases)
-- Contribute a bug fix or code change - start by checking our [Debugging Page](https://github.com/onivim/oni/wiki/Debugging)
+- Contribute a bug fix or code change - start by checking our [Development Page](https://github.com/onivim/oni/wiki/Development)
 
 ## Acknowledgements
 
