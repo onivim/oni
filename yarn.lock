@@ -4049,6 +4049,10 @@ oni-ripgrep@0.0.3:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/oni-ripgrep/-/oni-ripgrep-0.0.3.tgz#fce3ae21f41b587e09827cb3c6e4dce91928c6a7"
 
+oni-types@0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/oni-types/-/oni-types-0.0.4.tgz#97bc435565d5f4c3bdc50bd1700fd24dd5b6704b"
+
 opencollective@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/opencollective/-/opencollective-1.0.3.tgz#aee6372bc28144583690c3ca8daecfc120dd0ef1"

@@ -4,7 +4,7 @@
  * Handles typing-prediction state management
  */
 
-import { Event, IEvent } from "./../Event"
+import { Event, IEvent } from "oni-types"
 
 export type TypingPredictionId = number
 

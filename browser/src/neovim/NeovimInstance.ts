@@ -3,7 +3,8 @@ import * as path from "path"
 
 import * as mkdirp from "mkdirp"
 
-import { Event, IEvent } from "./../Event"
+import { Event, IEvent } from "oni-types"
+
 import * as Log from "./../Log"
 
 import * as Actions from "./../actions"
