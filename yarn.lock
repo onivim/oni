@@ -2293,7 +2293,7 @@ extract-zip@1.6.0:
     mkdirp "0.5.0"
     yauzl "2.4.1"
 
-extract-zip@^1.0.3, extract-zip@^1.6.0:
+extract-zip@^1.0.3, extract-zip@^1.6.0, extract-zip@^1.6.6:
   version "1.6.6"
   resolved "https://registry.yarnpkg.com/extract-zip/-/extract-zip-1.6.6.tgz#1290ede8d20d0872b429fd3f351ca128ec5ef85c"
   dependencies:
@@ -4031,19 +4031,19 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-neovim-binaries@^0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/oni-neovim-binaries/-/oni-neovim-binaries-0.0.7.tgz#a6a23a4dbdf4300c86961e1e270beb051d6e5596"
+oni-neovim-binaries@0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/oni-neovim-binaries/-/oni-neovim-binaries-0.1.0.tgz#3852b654b2db8aa53e72c053163ade50eb80ee5b"
+
+oni-release-downloader@0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/oni-release-downloader/-/oni-release-downloader-0.0.8.tgz#7796cfd0c6df9a7ebcd7573389bdb387351c843a"
   dependencies:
-    oni-release-downloader "^0.0.5"
-
-oni-release-downloader@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/oni-release-downloader/-/oni-release-downloader-0.0.5.tgz#fb91ad3b5649f388c475baf4397bfda7ccf92500"
-
-oni-release-downloader@^0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/oni-release-downloader/-/oni-release-downloader-0.0.7.tgz#3852036c539489e1d89fbe5cbb2af7f1339c25bc"
+    extract-zip "^1.6.6"
+    fs-extra "^4.0.2"
+    github-releases "^0.4.1"
+    mkdirp "^0.5.1"
+    rimraf "^2.6.2"
 
 oni-ripgrep@0.0.3:
   version "0.0.3"
@@ -5117,7 +5117,7 @@ right-align@^0.1.1:
   dependencies:
     align-text "^0.1.1"
 
-rimraf@2, rimraf@2.6.2, rimraf@^2.2.8, rimraf@^2.5.1, rimraf@^2.5.2, rimraf@^2.6.1:
+rimraf@2, rimraf@2.6.2, rimraf@^2.2.8, rimraf@^2.5.1, rimraf@^2.5.2, rimraf@^2.6.1, rimraf@^2.6.2:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.6.2.tgz#2ed8150d24a16ea8651e6d6ef0f47c4158ce7a36"
   dependencies:
