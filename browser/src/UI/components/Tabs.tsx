@@ -60,11 +60,7 @@ export class Tabs extends React.PureComponent<ITabsProps, {}> {
             flexWrap: "wrap",
         }
 
-        const scrollStyle: React.CSSProperties = {
-            overflowX: "auto",
-        }
-
-        const overflowStyle = this.props.shouldWrap ? wrapStyle : scrollStyle
+        const overflowStyle = this.props.shouldWrap ? wrapStyle : {}
 
         const tabBorderStyle: React.CSSProperties = {
             ...overflowStyle,
