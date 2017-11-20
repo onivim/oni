@@ -12,6 +12,7 @@ import { connect } from "react-redux"
 
 import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
+import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { IState } from "./../UI/State"
 
 import { measureFont } from "./../Font"
@@ -22,6 +23,7 @@ interface IKeyboardInputViewProps {
     left: number
     height: number
     onKeyDown?: (key: string) => void
+    typingPrediction: TypingPredictionManager
     foregroundColor: string
     fontFamily: string
     fontSize: string
@@ -44,6 +46,7 @@ interface IKeyboardInputViewState {
 
 export interface IKeyboardInputProps {
     onKeyDown?: (key: string) => void
+    typingPrediction: TypingPredictionManager
 }
 
 /**
@@ -157,11 +160,16 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             this._commit(key)
             evt.preventDefault()
             return
+        } else {
+            this.props.typingPrediction.addPrediction(key)
         }
     }
 
     private _onCompositionStart(evt: React.CompositionEvent<HTMLInputElement>) {
         UI.Actions.setImeActive(true)
+
+        this.props.typingPrediction.clearAllPredictions()
+
         this.setState({
             isComposing: true,
         })

@@ -16,10 +16,13 @@ import { CursorLine } from "./../UI/components/CursorLine"
 import { InstallHelp } from "./../UI/components/InstallHelp"
 import { TabsContainer } from "./../UI/components/Tabs"
 import { ToolTips } from "./../UI/components/ToolTip"
+import { TypingPrediction } from "./../UI/components/TypingPredictions"
 
 import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarContainer"
 import { DefinitionContainer } from "./../UI/containers/DefinitionContainer"
 import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
+
+import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -28,6 +31,7 @@ export interface INeovimSurfaceProps {
     neovimInstance: NeovimInstance
     renderer: INeovimRenderer
     screen: NeovimScreen
+    typingPrediction: TypingPredictionManager
 
     onKeyDown?: (key: string) => void
     onBufferClose?: (bufferId: number) => void
@@ -53,7 +57,8 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                         screen={this.props.screen} />
                 </div>
                 <div className="stack layer">
-                    <Cursor />
+                    <TypingPrediction typingPrediction={this.props.typingPrediction}/>
+                    <Cursor typingPrediction={this.props.typingPrediction}/>
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
                     <ActiveWindowContainer>
@@ -63,6 +68,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     </ActiveWindowContainer>
                 </div>
                 <NeovimInput
+                    typingPrediction={this.props.typingPrediction}
                     neovimInstance={this.props.neovimInstance}
                     screen={this.props.screen}
                     onKeyDown={this.props.onKeyDown}/>

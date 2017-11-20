@@ -27,6 +27,7 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
 import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
+import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
@@ -41,7 +42,7 @@ import { NeovimSurface } from "./NeovimSurface"
 
 import { tasks } from "./../Services/Tasks"
 
-import { normalizePath } from "./../Utility"
+import { normalizePath, sleep } from "./../Utility"
 
 import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
 
@@ -72,6 +73,8 @@ export class NeovimEditor implements IEditor {
     private _isFirstRender: boolean = true
 
     private _lastBufferId: string = null
+
+    private _typingPredictionManager: TypingPredictionManager = new TypingPredictionManager()
 
     public get mode(): string {
         return this._currentMode
@@ -182,6 +185,7 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.onRedrawComplete.subscribe(() => {
             UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
             UI.Actions.setCursorPosition(this._screen)
+            this._typingPredictionManager.setCursorPosition(this._screen.cursorRow, this._screen.cursorColumn)
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
@@ -317,6 +321,7 @@ export class NeovimEditor implements IEditor {
         }
 
         return <NeovimSurface renderer={this._renderer}
+            typingPrediction={this._typingPredictionManager}
             neovimInstance={this._neovimInstance}
             screen={this._screen}
             onKeyDown={onKeyDown}
@@ -327,6 +332,15 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onModeChanged(newMode: string): void {
+
+        this._typingPredictionManager.clearAllPredictions()
+
+        if (newMode === "insert" && configuration.getValue("experimental.editor.typingPrediction")) {
+            this._typingPredictionManager.enable()
+        } else {
+            this._typingPredictionManager.disable()
+        }
+
         UI.Actions.setMode(newMode)
         this._currentMode = newMode
     }
@@ -406,6 +420,10 @@ export class NeovimEditor implements IEditor {
     }
 
     private async _onKeyDown(key: string): Promise<void> {
+        if (configuration.getValue("debug.fakeLag.neovimInput")) {
+            await sleep(configuration.getValue("debug.fakeLag.neovimInput"))
+        }
+
         await this._neovimInstance.input(key)
     }
 }
