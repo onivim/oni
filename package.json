@@ -124,7 +124,6 @@
     "shell-env": "0.3.0",
     "spawn-sync": "1.0.15",
     "thread-sleep": "2.0.0",
-    "try-thread-sleep": "1.0.2",
     "typescript": "2.5.3",
     "vscode-jsonrpc": "3.5.0",
     "vscode-languageserver": "3.5.0",
