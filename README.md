@@ -61,7 +61,7 @@ Oni is cross-platform and supports Windows, OS X, and Linux.
 
 - Download the [Oni installer](https://github.com/onivim/oni/releases/download/v0.2.17/Oni-0.2.17-ia32-win.exe) for Windows
 - Once it is downloaded, run the installer. This will only take a minute.
-- By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine. 
+- By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine.
 
 You can also find install via a [zip archive](https://github.com/onivim/oni/releases/download/v0.2.17/Oni-0.2.17-ia32-win.zip)
 
@@ -129,7 +129,7 @@ There many ways to contribute to Oni:
 
 - Support Oni financially by making a donation via [Bountysource](https://salt.bountysource.com/teams/oni)
 - [Submit bugs](https://github.com/onivim/oni/issues) or propose new features.
-- Review and and upate our [documentation](https://github.com/onivim/oni/wiki)
+- Review and upate our [documentation](https://github.com/onivim/oni/wiki)
 - Try out the latest [released build](https://github.com/onivim/oni/releases)
 - Contribute a bug fix or code change - start by checking our [Development Page](https://github.com/onivim/oni/wiki/Development)
 
