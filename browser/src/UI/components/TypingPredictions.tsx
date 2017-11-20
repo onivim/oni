@@ -1,0 +1,120 @@
+/**
+ * TypingPredictions
+ *
+ * Component to render characters entered by the user, prior to round-tripping through Neovim
+ * The purpose of this is to provide a very low-latency typing experience
+ */
+
+import { IDisposable } from "./../../IDisposable"
+
+import * as React from "react"
+import { connect } from "react-redux"
+
+import * as State from "./../State"
+
+import { IPredictedCharacter, TypingPredictionManager } from "./../../Services/TypingPredictionManager"
+
+export interface ITypingPredictionProps {
+    typingPrediction: TypingPredictionManager
+}
+
+export interface ITypingPredictionViewProps {
+    startX: number
+    y: number
+    width: number
+    height: number
+    color: string
+    textColor: string
+    fontFamily: string
+    fontSize: string
+    visible: boolean
+    typingPrediction: TypingPredictionManager
+    highlightPredictions: boolean
+}
+
+export interface ITypingPredictionViewState {
+    predictions: IPredictedCharacter[]
+}
+
+class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProps, ITypingPredictionViewState> {
+
+    private _containerElement: HTMLElement
+    private _lastWidth: number
+    private _subscription: IDisposable
+
+    private _predictedElements: { [id: number]: HTMLElement } = {}
+
+    public componentDidMount(): void {
+        this._subscription = this.props.typingPrediction.onPredictionsChanged.subscribe((updatedPredictions: IPredictedCharacter[]) => {
+
+            if (!this._containerElement) {
+                return
+            }
+
+            this._containerElement.innerHTML = ""
+
+            // Add new predictions
+            updatedPredictions.forEach((up, idx) => {
+                const elem = document.createElement("div")
+                elem.className = "predicted-text"
+                elem.style.position = "absolute"
+                elem.style.top = this.props.y.toString() + "px"
+                elem.style.left = (this.props.startX + idx * this.props.width).toString() + "px"
+                elem.style.width = (this.props.width.toString()) + "px"
+                elem.style.height = (this.props.height.toString()) + "px"
+                elem.style.lineHeight = this.props.height.toString() + "px"
+
+                if (this.props.highlightPredictions) {
+                    elem.style.color = "white"
+                    elem.style.backgroundColor = "rgba(255, 0, 0, 0.5)"
+                }
+
+                elem.textContent = up.character
+
+                this._containerElement.appendChild(elem)
+
+                this._predictedElements[up.id] = this._containerElement
+
+            })
+
+            // Force re-layout
+            this._lastWidth = this._containerElement.offsetWidth
+        })
+    }
+
+    public componentWillUnmount(): void {
+        if (this._subscription) {
+            this._subscription.dispose()
+            this._subscription = null
+        }
+    }
+
+    public render(): JSX.Element {
+        const containerStyle: React.CSSProperties = {
+            willChange: "transform",
+            color: this.props.color,
+            fontFamily: this.props.fontFamily,
+            fontSize: this.props.fontSize,
+        }
+
+        return <div className="typing-predictions" key={"typing-predictions"} style={containerStyle} ref={(elem) => this._containerElement = elem}></div>
+    }
+}
+
+const mapStateToProps = (state: State.IState, props: ITypingPredictionProps): ITypingPredictionViewProps => {
+    return {
+        ...props,
+        highlightPredictions: state.configuration["debug.showTypingPrediction"],
+        startX: state.cursorPixelX,
+        y: state.cursorPixelY,
+        width: state.cursorPixelWidth,
+        height: state.fontPixelHeight,
+        color: state.foregroundColor,
+        textColor: state.backgroundColor,
+        fontFamily: State.readConf(state.configuration, "editor.fontFamily"),
+        fontSize: State.readConf(state.configuration, "editor.fontSize"),
+        visible: true,
+    }
+}
+
+export const TypingPrediction = connect(mapStateToProps)(TypingPredictionView)

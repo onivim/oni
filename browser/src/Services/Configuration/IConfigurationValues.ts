@@ -22,9 +22,11 @@ export interface IConfigurationValues {
 
     "debug.persistOnNeovimExit": boolean
     "debug.detailedSessionLogging": boolean
+    "debug.showTypingPrediction": boolean
 
     // Simulate slow language server, for debugging
-    "debug.fakeLag.languageServer": number
+    "debug.fakeLag.languageServer": number | null
+    "debug.fakeLag.neovimInput": number | null
 
     // Experimental feature flags
     "experimental.autoClosingPairs.enabled": boolean
@@ -33,6 +35,7 @@ export interface IConfigurationValues {
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
+    "experimental.editor.typingPrediction": boolean
 
     // Production settings
 
