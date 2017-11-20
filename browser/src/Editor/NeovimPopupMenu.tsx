@@ -6,7 +6,7 @@
 
 import * as React from "react"
 
-import { IEvent } from "./../Event"
+import { IEvent } from "oni-types"
 import { INeovimCompletionInfo, INeovimCompletionItem } from "./../neovim"
 
 import * as UI from "./../UI"

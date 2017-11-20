@@ -121,6 +121,7 @@
     "ocaml-language-server": "1.0.12",
     "oni-neovim-binaries": "0.1.0",
     "oni-ripgrep": "0.0.3",
+    "oni-types": "0.0.4",
     "typescript": "2.5.3",
     "vscode-jsonrpc": "3.5.0",
     "vscode-languageserver": "3.5.0",
