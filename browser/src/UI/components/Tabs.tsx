@@ -186,7 +186,7 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
     const shouldUseVimTabs = state.configuration["tabs.showVimTabs"]
     const tabs = shouldUseVimTabs ? getTabsFromVimTabs(state) : getTabsFromBuffers(state)
 
-    const visible = state.configuration["tabs.enabled"]
+    const visible = state.configuration["tabs.enabled"] && shouldUseVimTabs !== "native"
 
     const height = state.configuration["tabs.height"]
     const maxWidth = state.configuration["tabs.maxWidth"]

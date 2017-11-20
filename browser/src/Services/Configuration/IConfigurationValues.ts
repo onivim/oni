@@ -152,7 +152,7 @@ export interface IConfigurationValues {
     "statusbar.fontSize": string
 
     "tabs.enabled": boolean
-    "tabs.showVimTabs": boolean
+    "tabs.showVimTabs": boolean | string
 
     // Height of individual tabs in the tab strip
     "tabs.height": string
