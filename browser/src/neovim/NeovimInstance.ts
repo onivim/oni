@@ -628,8 +628,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private async _attachUI(columns: number, rows: number): Promise<void> {
         const version = await this.getApiVersion()
-        const externaliseTabline = configuration.getValue("tabs.showVimTabs") !== "native" ||
-                                   configuration.getValue("tabs.enabled") === false
+
+        const useNativeTabs = configuration.getValue("tabs.showVimTabs") === "native"
+        const oniTabsEnabled = configuration.getValue("tabs.enabled")
+
+        const externaliseTabline = oniTabsEnabled && !useNativeTabs
+
         console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`) // tslint:disable-line no-console
 
         const startupOptions = this._getStartupOptionsForVersion(version.major,
