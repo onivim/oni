@@ -7,8 +7,8 @@
 
 import { Event, IEvent } from "oni-types"
 
-import { NeovimInstance } from "./NeovimInstance"
 import { EventContext } from "./EventContext"
+import { NeovimInstance } from "./NeovimInstance"
 
 export interface INeovimAutoCommands {
     // Autocommands

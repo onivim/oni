@@ -14,8 +14,8 @@ import * as isEqual from "lodash/isEqual"
 
 import * as types from "vscode-languageserver-types"
 
-import { NeovimInstance } from "./index"
 import { EventContext } from "./EventContext"
+import { NeovimInstance } from "./index"
 
 import * as Log from "./../Log"
 import * as UI from "./../UI"

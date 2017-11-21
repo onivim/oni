@@ -7,9 +7,6 @@
         "sourceMap": true,
         "target": "ES5"
     },
-    "files": [
-        "./../../../definitions/Oni.d.ts"
-    ],
     "include": [
         "test/**/*.ts",
         "src/**/*.ts"
