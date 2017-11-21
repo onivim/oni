@@ -29,7 +29,7 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
 import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
-import { themeManager } from "./../Services/Themes"
+import { getThemeManagerInstance } from "./../Services/Themes"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
@@ -120,7 +120,7 @@ export class NeovimEditor implements IEditor {
 
     constructor(
         private _config = configuration,
-        private _themeManager = themeManager,
+        private _themeManager = getThemeManagerInstance(),
     ) {
         const services: any[] = []
 
@@ -171,14 +171,6 @@ export class NeovimEditor implements IEditor {
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
-
-        this._themeManager.onThemeChanged.subscribe(() => {
-            const newTheme = themeManager.activeTheme
-
-            if (newTheme.baseVimTheme && newTheme.baseVimTheme !== this._currentColorScheme) {
-                this._neovimInstance.command(":color " + newTheme.baseVimTheme)
-            }
-        })
 
         this._neovimInstance.onColorsChanged.subscribe(() => {
             this._onColorsChanged()
@@ -312,6 +304,18 @@ export class NeovimEditor implements IEditor {
             .then(() => {
                 this._hasLoaded = true
                 VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+
+                this._themeManager.onThemeChanged.subscribe(() => {
+                    const newTheme = this._themeManager.activeTheme
+
+                    if (newTheme.baseVimTheme && newTheme.baseVimTheme !== this._currentColorScheme) {
+                        this._neovimInstance.command(":color " + newTheme.baseVimTheme)
+                    }
+                })
+
+                if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
+                    this._neovimInstance.command(":color " + this._themeManager.activeTheme.baseVimTheme)
+                }
             })
     }
 

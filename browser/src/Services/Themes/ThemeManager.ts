@@ -228,7 +228,7 @@ export class ThemeManager {
 
     public async setTheme(name: string): Promise<void> {
         // TODO: Load theme...
-        if (name === this._activeTheme.name) {
+        if (!name || name === this._activeTheme.name) {
             return
         }
 
@@ -289,4 +289,11 @@ export class ThemeManager {
 }
 
 
-export const themeManager = new ThemeManager()
+let _themeManager: ThemeManager = null
+export const getThemeManagerInstance = () => {
+    if (!_themeManager) {
+        _themeManager = new ThemeManager()
+    }
+
+    return _themeManager
+}
