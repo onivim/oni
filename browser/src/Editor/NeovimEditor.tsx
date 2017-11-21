@@ -14,11 +14,11 @@ import { Observable } from "rxjs/Observable"
 
 import { clipboard, ipcRenderer, remote } from "electron"
 
+import { Event, IEvent } from "oni-types"
+
 import { INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
-
-import { Event, IEvent } from "./../Event"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 
