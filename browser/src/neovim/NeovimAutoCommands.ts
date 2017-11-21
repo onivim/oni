@@ -5,6 +5,7 @@
  * - To add a new autocommand, make sure it is registered in `init.vim` in the `OniEventListeners` augroup
  */
 
+import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 import { NeovimInstance } from "./NeovimInstance"

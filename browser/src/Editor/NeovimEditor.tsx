@@ -14,6 +14,7 @@ import { Observable } from "rxjs/Observable"
 
 import { clipboard, ipcRenderer, remote } from "electron"
 
+import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 import { INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"

@@ -4,6 +4,8 @@
  * Helper methods for running automated tests
  */
 
+import * as OniApi from "oni-api"
+
 import * as Utility from "./../Utility"
 
 import { editorManager } from "./EditorManager"
@@ -16,7 +18,7 @@ export interface ITestResult {
 
 import { Oni } from "./../Plugins/Api/Oni"
 
-export class Automation implements Oni.Automation.Api {
+export class Automation implements OniApi.Automation.Api {
 
     public sendKeys(keys: string): void {
 

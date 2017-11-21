@@ -13,6 +13,8 @@ import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
 import "rxjs/add/operator/concatMap"
 
+import * as Oni from "oni-api"
+
 import { NeovimInstance } from "./../neovim"
 import { languageManager, sortTextEdits } from "./../Services/Language"
 
