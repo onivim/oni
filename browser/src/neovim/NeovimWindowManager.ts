@@ -17,6 +17,7 @@ import * as types from "vscode-languageserver-types"
 import * as Oni from "oni-api"
 
 import { NeovimInstance } from "./index"
+import { EventContext } from "./EventContext"
 
 import * as Log from "./../Log"
 import * as UI from "./../UI"
@@ -24,15 +25,15 @@ import * as Utility from "./../Utility"
 
 export class NeovimWindowManager {
 
-    private _scrollObservable: Subject<Oni.EventContext>
+    private _scrollObservable: Subject<EventContext>
 
     constructor(
         private _neovimInstance: NeovimInstance,
     ) {
 
-        this._scrollObservable = new Subject<Oni.EventContext>()
+        this._scrollObservable = new Subject<EventContext>()
 
-        const updateScroll = (evt: Oni.EventContext) => this._scrollObservable.next(evt)
+        const updateScroll = (evt: EventContext) => this._scrollObservable.next(evt)
 
         this._neovimInstance.autoCommands.onBufEnter.subscribe(updateScroll)
         this._neovimInstance.autoCommands.onBufWinEnter.subscribe(updateScroll)
@@ -44,7 +45,7 @@ export class NeovimWindowManager {
 
         const shouldMeasure$: Observable<void> = this._scrollObservable
             .auditTime(25)
-            .map((evt: Oni.EventContext) => ({
+            .map((evt: EventContext) => ({
                 version: evt.version,
                 bufferTotalLines: evt.bufferTotalLines,
                 windowNumber: evt.windowNumber,
@@ -57,7 +58,7 @@ export class NeovimWindowManager {
 
         shouldMeasure$
             .withLatestFrom(this._scrollObservable)
-            .subscribe((args: [any, Oni.EventContext]) => {
+            .subscribe((args: [any, EventContext]) => {
 
                 const [, evt] = args
                 this._remeasureWindow(evt, false)
@@ -82,7 +83,7 @@ export class NeovimWindowManager {
     // - How each buffer line maps to the screen space
     //
     // We can derive these from information coming from the event handlers, along with screen width
-    private async _remeasureWindow(context: Oni.EventContext, force: boolean = false): Promise<void> {
+    private async _remeasureWindow(context: EventContext, force: boolean = false): Promise<void> {
         const currentWin: any = await this._neovimInstance.request("nvim_get_current_win", [])
 
         const atomicCalls = [
