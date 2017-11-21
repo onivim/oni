@@ -17,7 +17,7 @@ import { clipboard, ipcRenderer, remote } from "electron"
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
-import { INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
+import { EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
@@ -346,7 +346,7 @@ export class NeovimEditor implements IEditor {
         this._currentMode = newMode
     }
 
-    private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
+    private _onVimEvent(eventName: string, evt: EventContext): void {
         UI.Actions.setWindowCursor(evt.windowNumber, evt.line - 1, evt.column - 1)
 
         tasks.onEvent(evt)

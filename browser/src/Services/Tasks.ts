@@ -16,6 +16,8 @@ import * as flatten from "lodash/flatten"
 
 import * as Oni from "oni-api"
 
+import { EventContext } from "./../neovim"
+
 import { Menu, menuManager } from "./../Services/Menu"
 
 export interface ITask {
@@ -46,7 +48,7 @@ export class Tasks extends EventEmitter {
         this._providers.push(taskProvider)
     }
 
-    public onEvent(event: Oni.EventContext): void {
+    public onEvent(event: EventContext): void {
         this._currentBufferPath = event.bufferFullPath
     }
 
