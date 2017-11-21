@@ -5,6 +5,9 @@
  */
 
 import { Event, IEvent } from "oni-types"
+import { configuration, Configuration } from "./../Configuration"
+
+import { DefaultLoader, IThemeLoader } from "./ThemeLoader"
 
 export interface IThemeColors {
     "background": string
@@ -162,53 +165,100 @@ export const DefaultThemeColors: IThemeColors = {
     "fileExplorer.cursor.foreground": NormalMode,
 }
 
-export interface ITokenTheme {
-    name: string
-    scope: string[]
-    settings: ITokenColorSettings
-}
+// export interface ITokenTheme {
+//     name: string
+//     scope: string[]
+//     settings: ITokenColorSettings
+// }
 
-export interface ITokenColorSettings {
-    background?: string
-    foreground?: string
+// export interface ITokenColorSettings {
+//     background?: string
+//     foreground?: string
 
-    bold: boolean
-    italic: boolean
-}
+//     bold: boolean
+//     italic: boolean
+// }
 
 export interface IThemeMetadata {
     name: string
     baseVimTheme?: string
     colors: Partial<IThemeColors>
-    tokenColors: ITokenTheme[]
+    // tokenColors: ITokenTheme[]
 }
 
-export interface ITheme {
-    getColor(color: keyof IThemeColors): void
-    getTokenColor(scope: string): ITokenColorSettings
+export const DefaultTheme: IThemeMetadata = {
+    name: "default",
+    baseVimTheme: "default",
+    colors: DefaultThemeColors,
+    // tokenColors: [],
+}
+
+const mergeColorsWithConfiguration = (colors: Partial<IThemeColors>, configManager: Configuration): IThemeColors => {
+    const colorsWithConfigurationColors = Object.keys(colors).reduce((previous: Partial<IThemeColors>, currentValue: string) => {
+        const valueFromConfig = configManager.getValue("colors." + currentValue)
+        const valueFromTheme = colors[currentValue]
+
+        const color = valueFromConfig || valueFromTheme
+
+        return {
+            ...previous,
+            [currentValue]: color,
+        }
+    }, {} as Partial<IThemeColors>)
+
+    return {
+        ...DefaultThemeColors,
+        ...colorsWithConfigurationColors,
+    }
 }
 
 export class ThemeManager {
-    private _onThemeChangedEvent: Event<ITheme> = new Event<ITheme>()
+    private _onThemeChangedEvent: Event<void> = new Event<void>()
 
-    public setTheme(name: string): void {
+    private _activeTheme: IThemeMetadata = DefaultTheme
 
+    // _colors stores the current theme colors mixed with configuration
+    private _colors: IThemeColors = DefaultThemeColors
+
+    constructor(
+        private _themeLoader: IThemeLoader = new DefaultLoader()
+    ) { }
+
+    public async setTheme(name: string): Promise<void> {
+        // TODO: Load theme...
+        if (name === this._activeTheme.name) {
+            return
+        }
+
+        const theme = await this._themeLoader.getThemeByName(name)
+        this._updateTheme(theme)
     }
 
-    public get onThemeChanged(): IEvent<ITheme> {
+    public notifyVimThemeChanged(vimName: string): void {
+
+        // If the vim colorscheme changed, for example, via `:co <sometheme>`,
+        // then we should update our theme to match
+        if (this._activeTheme.baseVimTheme && this._activeTheme.baseVimTheme !== vimName && this._activeTheme.baseVimTheme !== "*") {
+            // TODO: Find matching theme
+        }
+    }
+
+    public get onThemeChanged(): IEvent<void> {
         return this._onThemeChangedEvent
     }
 
+    private _updateTheme(theme: IThemeMetadata): void {
+        this._activeTheme = theme
+
+        this._colors = mergeColorsWithConfiguration(this._activeTheme.colors, configuration)
+
+        this._onThemeChangedEvent.dispatch()
+    }
+
     public getColors(): IThemeColors {
-        return null
-    }
-
-    public getColor(color: keyof IThemeColors): string {
-        return null
-    }
-
-    public getTokenColor(scope: string): ITokenColorSettings {
-        return null
+        return this._colors
     }
 }
 
+
+export const themeManager = new ThemeManager()

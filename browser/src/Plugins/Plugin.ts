@@ -8,18 +8,9 @@ import { Oni } from "./Api/Oni"
 
 import * as PackageMetadataParser from "./PackageMetadataParser"
 
-export interface IPluginCommandInfo extends Capabilities.ICommandInfo {
-    command: string
-}
-
 export class Plugin {
     private _oniPluginMetadata: Capabilities.IPluginMetadata
-    private _commands: IPluginCommandInfo[]
     private _oni: Oni
-
-    public get commands(): IPluginCommandInfo[] {
-        return this._commands
-    }
 
     constructor(
         private _pluginRootDirectory: string,
@@ -36,8 +27,6 @@ export class Plugin {
 
                     this._oni = new Oni()
                     this._onActivate()
-
-                    this._commands = PackageMetadataParser.getAllCommandsFromMetadata(this._oniPluginMetadata)
                 }
             }
         }

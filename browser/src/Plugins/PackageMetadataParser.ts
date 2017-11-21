@@ -10,11 +10,6 @@ import * as Capabilities from "./Api/Capabilities"
 
 import * as Log from "./../Log"
 
-export const PluginDefaults: Partial<Capabilities.IPluginCapabilities> = {
-    commands: {},
-    activationMode: "on-demand",
-}
-
 export const parseFromString = (packageJson: string): Capabilities.IPluginMetadata | null => {
     const metadata: Capabilities.IPluginMetadata = JSON.parse(packageJson)
 
@@ -23,18 +18,19 @@ export const parseFromString = (packageJson: string): Capabilities.IPluginMetada
         return null
     }
 
-    const pluginData = metadata.oni || {}
-
-    metadata.oni = {
-        ...PluginDefaults,
-        ...pluginData,
+    const contributes = {
+        ...Capabilities.DefaultContributions,
+        metadata.contributes,
     }
 
-    return metadata
+    return {
+        ...metadata,
+        contributes,
+    }
 }
 
 export const getAllCommandsFromMetadata = (metadata: Capabilities.IPluginMetadata) => {
-    if (!metadata || !metadata.oni) {
+    if (!metadata || !metadata.contributes) {
         return []
     }
 
