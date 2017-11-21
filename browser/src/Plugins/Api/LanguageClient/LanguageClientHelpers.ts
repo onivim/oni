@@ -7,6 +7,8 @@ import * as os from "os"
 import * as flatMap from "lodash/flatMap"
 import * as types from "vscode-languageserver-types"
 
+import * as Oni from "oni-api"
+
 import * as Utility from "./../../../Utility"
 
 export namespace TextDocumentSyncKind {
