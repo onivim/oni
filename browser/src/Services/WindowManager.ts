@@ -8,7 +8,7 @@
  * to the active editor, and managing transitions between editors.
  */
 
-import { Event, IEvent } from "./../Event"
+import { Event, IEvent } from "oni-types"
 
 import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, ISplitInfo, ISplitLeaf, SplitDirection } from "./WindowSplit"
 

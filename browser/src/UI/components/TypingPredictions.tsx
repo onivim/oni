@@ -5,7 +5,7 @@
  * The purpose of this is to provide a very low-latency typing experience
  */
 
-import { IDisposable } from "./../../IDisposable"
+import { IDisposable } from "oni-types"
 
 import * as React from "react"
 import { connect } from "react-redux"

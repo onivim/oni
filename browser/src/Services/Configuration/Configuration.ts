@@ -4,7 +4,7 @@ import * as isError from "lodash/isError"
 import * as mkdirp from "mkdirp"
 import * as path from "path"
 
-import { Event, IEvent } from "./../../Event"
+import { Event, IEvent } from "oni-types"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
 import * as Log from "./../../Log"
 import * as Performance from "./../../Performance"
