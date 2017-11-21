@@ -188,7 +188,7 @@ export class Buffer implements Oni.Buffer {
         return getToken(result[0], column)
     }
 
-    public updateFromEvent(evt: Oni.EventContext): void {
+    public updateFromEvent(evt: EventContext): void {
         this._id = evt.bufferNumber.toString()
         this._filePath = evt.bufferFullPath
         this._language = evt.filetype
@@ -222,7 +222,7 @@ export class BufferManager {
 
     constructor(private _neovimInstance: NeovimInstance) { }
 
-    public updateBufferFromEvent(evt: Oni.EventContext): Buffer {
+    public updateBufferFromEvent(evt: EventContext): Buffer {
         const id = evt.bufferNumber.toString()
         const currentBuffer = this.getBufferById(id)
 
