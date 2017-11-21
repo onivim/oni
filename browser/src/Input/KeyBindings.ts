@@ -14,6 +14,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     const isVisualMode = () => editors.activeEditor.mode === "visual"
     const isNormalMode = () => editors.activeEditor.mode === "normal"
+    const isNotInsertMode = () => editors.activeEditor.mode !== "insert"
     const isInsertOrCommandMode = () => editors.activeEditor.mode === "insert" || editors.activeEditor.mode === "cmdline_normal"
 
     const isMenuOpen = () => menu.isMenuOpen()
@@ -67,7 +68,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind(["<enter>", "<tab>"], "contextMenu.select")
     input.bind(["<down>", "<C-n>"], "contextMenu.next")
     input.bind(["<up>", "<C-p>"], "contextMenu.previous")
-    input.bind(["<esc>"], "contextMenu.close")
+    input.bind(["<esc>"], "contextMenu.close", isNotInsertMode /* In insert mode, the mode change will close the popupmenu anyway */)
 
     // Menu
     input.bind(["<down>", "<C-n>"], "menu.next")
