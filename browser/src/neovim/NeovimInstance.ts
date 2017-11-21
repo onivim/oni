@@ -630,9 +630,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         const version = await this.getApiVersion()
 
         const useNativeTabs = configuration.getValue("tabs.mode") === "native"
-        const oniTabsEnabled = configuration.getValue("tabs.enabled")
 
-        const externaliseTabline = oniTabsEnabled && !useNativeTabs
+        const externaliseTabline = !useNativeTabs
 
         console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`) // tslint:disable-line no-console
 
