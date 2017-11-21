@@ -16,8 +16,6 @@ import * as flatten from "lodash/flatten"
 
 import * as Oni from "oni-api"
 
-import { EventContext } from "./../neovim"
-
 import { Menu, menuManager } from "./../Services/Menu"
 
 export interface ITask {
