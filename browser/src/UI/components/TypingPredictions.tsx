@@ -36,7 +36,7 @@ export interface ITypingPredictionViewState {
     predictions: IPredictedCharacter[]
 }
 
-const noop = (val?: any): void => { }
+const noop = (val?: any): void => { } // tslint:disable-line
 
 class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProps, ITypingPredictionViewState> {
 

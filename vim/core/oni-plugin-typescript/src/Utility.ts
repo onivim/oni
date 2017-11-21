@@ -6,7 +6,7 @@ import * as path from "path"
 
 import * as types from "vscode-languageserver-types"
 
-import { CodeEdit, TextSpan } from "typescript/lib/protocol"
+import { CodeEdit, TextSpan } from "typescript/lib/protocol" // tslint:disable-line
 
 import { IDisplayPart } from "./Types"
 

@@ -124,6 +124,7 @@ class AllEditors implements Oni.Editor {
     }
 
     public dispose(): void {
+        // tslint:disable-line
     }
 
     /**
