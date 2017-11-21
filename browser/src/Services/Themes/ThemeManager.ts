@@ -7,7 +7,7 @@
 import { Event, IEvent } from "oni-types"
 import { configuration, Configuration } from "./../Configuration"
 
-import { DefaultLoader, IThemeLoader } from "./ThemeLoader"
+import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
 
 export interface IThemeColors {
     "background": string
@@ -222,8 +222,12 @@ export class ThemeManager {
     // _colors stores the current theme colors mixed with configuration
     private _colors: IThemeColors = DefaultThemeColors
 
+    public get activeTheme(): IThemeMetadata {
+        return this._activeTheme
+    }
+
     constructor(
-        private _themeLoader: IThemeLoader = new DefaultLoader()
+        private _themeLoader: IThemeLoader = new PluginThemeLoader()
     ) { }
 
     public async setTheme(name: string): Promise<void> {
