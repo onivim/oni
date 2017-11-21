@@ -7,7 +7,7 @@
 import { Event, IEvent } from "oni-types"
 import { configuration, Configuration } from "./../Configuration"
 
-import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
+import { PluginThemeLoader } from "./ThemeLoader"
 
 export interface IThemeColors {
     "background": string
@@ -226,17 +226,15 @@ export class ThemeManager {
         return this._activeTheme
     }
 
-    constructor(
-        private _themeLoader: IThemeLoader = new PluginThemeLoader()
-    ) { }
-
     public async setTheme(name: string): Promise<void> {
         // TODO: Load theme...
         if (name === this._activeTheme.name) {
             return
         }
 
-        const theme = await this._themeLoader.getThemeByName(name)
+        const themeLoader = new PluginThemeLoader()
+
+        const theme = await themeLoader.getThemeByName(name)
 
         if (!theme) {
             // If we couldn't find the theme... we'll try 
@@ -261,8 +259,15 @@ export class ThemeManager {
         // If the vim colorscheme changed, for example, via `:co <sometheme>`,
         // then we should update our theme to match
         if (this._isAnonymousTheme || (this._activeTheme.baseVimTheme && this._activeTheme.baseVimTheme !== vimName && this._activeTheme.baseVimTheme !== "*")) {
+            this._isAnonymousTheme = false
 
-            // TODO: Find matching theme
+            const vimTheme: IThemeMetadata = {
+                name: vimName,
+                baseVimTheme: vimName,
+                colors: getColorsFromForegroundAndBackground(backgroundColor, foregroundColor),
+            }
+
+            this._updateTheme(vimTheme)
         }
     }
 
