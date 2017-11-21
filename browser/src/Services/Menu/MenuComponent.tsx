@@ -3,6 +3,8 @@ import { connect, Provider } from "react-redux"
 
 import * as take from "lodash/take"
 
+import * as Oni from "oni-api"
+
 import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
 import { Visible } from "./../../UI/components/Visible"
 import { Icon, IconSize } from "./../../UI/Icon"
@@ -97,6 +99,7 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
 }
 
 const EmptyArray: any[] = []
+const noop = () => { } // tslint:disable-line
 
 const mapStateToProps = (state: State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlights>) => {
     if (!state.menu) {
@@ -107,6 +110,7 @@ const mapStateToProps = (state: State.IMenus<Oni.Menu.MenuOption, IMenuOptionWit
             items: EmptyArray,
             backgroundColor: "black",
             foregroundColor: "white",
+            onSelect: noop,
             isLoading: true,
         }
     } else {

@@ -14,11 +14,12 @@ import { Observable } from "rxjs/Observable"
 
 import { clipboard, ipcRenderer, remote } from "electron"
 
-import { NeovimInstance, NeovimWindowManager } from "./../neovim"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
+
+import { EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
-
-import { Event, IEvent } from "./../Event"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 
@@ -27,6 +28,7 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
 import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
+import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
@@ -41,7 +43,7 @@ import { NeovimSurface } from "./NeovimSurface"
 
 import { tasks } from "./../Services/Tasks"
 
-import { normalizePath } from "./../Utility"
+import { normalizePath, sleep } from "./../Utility"
 
 import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
 
@@ -72,6 +74,8 @@ export class NeovimEditor implements IEditor {
     private _isFirstRender: boolean = true
 
     private _lastBufferId: string = null
+
+    private _typingPredictionManager: TypingPredictionManager = new TypingPredictionManager()
 
     public get mode(): string {
         return this._currentMode
@@ -151,11 +155,22 @@ export class NeovimEditor implements IEditor {
             }
         })
 
+        this._neovimInstance.onLeave.subscribe(() => {
+            // TODO: Only leave if all editors are closed...
+            if (!configuration.getValue("debug.persistOnNeovimExit")) {
+                remote.getCurrentWindow().close()
+            }
+        })
+
         this._neovimInstance.onOniCommand.subscribe((command) => {
             commandManager.executeCommand(command)
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
+
+        this._neovimInstance.onError.subscribe((err) => {
+            UI.Actions.setNeovimError(true)
+        })
 
         this._neovimInstance.onDirectoryChanged.subscribe((newDirectory) => {
             workspace.changeDirectory(newDirectory)
@@ -171,6 +186,7 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.onRedrawComplete.subscribe(() => {
             UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
             UI.Actions.setCursorPosition(this._screen)
+            this._typingPredictionManager.setCursorPosition(this._screen.cursorRow, this._screen.cursorColumn)
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
@@ -279,7 +295,13 @@ export class NeovimEditor implements IEditor {
     }
 
     public init(filesToOpen: string[]): void {
-        this._neovimInstance.start(filesToOpen, { runtimePaths: pluginManager.getAllRuntimePaths() })
+        const startOptions: INeovimStartOptions = {
+            args: filesToOpen,
+            runtimePaths: pluginManager.getAllRuntimePaths(),
+            transport: configuration.getValue("experimental.neovim.transport"),
+        }
+
+        this._neovimInstance.start(startOptions)
             .then(() => {
                 this._hasLoaded = true
                 VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
@@ -309,6 +331,7 @@ export class NeovimEditor implements IEditor {
         }
 
         return <NeovimSurface renderer={this._renderer}
+            typingPrediction={this._typingPredictionManager}
             neovimInstance={this._neovimInstance}
             screen={this._screen}
             onKeyDown={onKeyDown}
@@ -319,11 +342,20 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onModeChanged(newMode: string): void {
+
+        this._typingPredictionManager.clearAllPredictions()
+
+        if (newMode === "insert" && configuration.getValue("experimental.editor.typingPrediction")) {
+            this._typingPredictionManager.enable()
+        } else {
+            this._typingPredictionManager.disable()
+        }
+
         UI.Actions.setMode(newMode)
         this._currentMode = newMode
     }
 
-    private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
+    private _onVimEvent(eventName: string, evt: EventContext): void {
         UI.Actions.setWindowCursor(evt.windowNumber, evt.line - 1, evt.column - 1)
 
         const lastBuffer = this.activeBuffer
@@ -395,7 +427,11 @@ export class NeovimEditor implements IEditor {
         }
     }
 
-    private _onKeyDown(key: string): void {
-        this._neovimInstance.input(key)
+    private async _onKeyDown(key: string): Promise<void> {
+        if (configuration.getValue("debug.fakeLag.neovimInput")) {
+            await sleep(configuration.getValue("debug.fakeLag.neovimInput"))
+        }
+
+        await this._neovimInstance.input(key)
     }
 }

@@ -6,6 +6,8 @@
 
 import * as React from "react"
 
+import * as Oni from "oni-api"
+
 export interface IWindowSplitHostProps {
     split: Oni.IWindowSplit
 }

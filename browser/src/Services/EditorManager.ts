@@ -8,8 +8,9 @@
  * to the active editor, and managing transitions between editors.
  */
 
-import { Event, IEvent } from "./../Event"
-import { IDisposable } from "./../IDisposable"
+import * as Oni from "oni-api"
+import { Event, IDisposable, IEvent } from "oni-types"
+
 import * as Log from "./../Log"
 
 export class EditorManager implements Oni.EditorManager {

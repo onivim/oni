@@ -4,9 +4,9 @@
  * Manages communication with the external finder process
  */
 
-import { Event, IEvent } from "./../../Event"
-
 import { ChildProcess, spawn } from "child_process"
+
+import { Event, IEvent } from "oni-types"
 
 export class FinderProcess {
 

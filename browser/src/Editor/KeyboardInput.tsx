@@ -12,6 +12,7 @@ import { connect } from "react-redux"
 
 import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
+import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { IState } from "./../UI/State"
 
 import { measureFont } from "./../Font"
@@ -22,6 +23,7 @@ interface IKeyboardInputViewProps {
     left: number
     height: number
     onKeyDown?: (key: string) => void
+    typingPrediction: TypingPredictionManager
     foregroundColor: string
     fontFamily: string
     fontSize: string
@@ -44,6 +46,7 @@ interface IKeyboardInputViewState {
 
 export interface IKeyboardInputProps {
     onKeyDown?: (key: string) => void
+    typingPrediction: TypingPredictionManager
 }
 
 /**
@@ -54,8 +57,8 @@ export interface IKeyboardInputProps {
 class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKeyboardInputViewState> {
     private _keyboardElement: HTMLInputElement
 
-    constructor() {
-        super()
+    constructor(props: IKeyboardInputViewProps) {
+        super(props)
 
         this.state = {
             isComposing: false,
@@ -118,11 +121,16 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
                 ref={(elem) => this._keyboardElement = elem}
                 type={"text"}
                 onKeyDown={(evt) => this._onKeyDown(evt)}
+                onKeyUp={(evt) => this._onKeyUp(evt)}
                 onCompositionEnd={(evt) => this._onCompositionEnd(evt)}
                 onCompositionUpdate={(evt) => this._onCompositionUpdate(evt)}
                 onCompositionStart={(evt) => this._onCompositionStart(evt)}
                 onInput={(evt) => this._onInput(evt)} />
         </div>
+    }
+
+    private _onKeyUp(evt: React.KeyboardEvent<HTMLInputElement>) {
+        UI.Actions.setCursorScale(1)
     }
 
     private _onKeyDown(evt: React.KeyboardEvent<HTMLInputElement>) {
@@ -135,6 +143,8 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
         if (this.state.isComposing) {
             return
         }
+
+        UI.Actions.setCursorScale(1.1)
 
         const key = keyEventToVimKey(evt.nativeEvent)
 
@@ -150,11 +160,16 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             this._commit(key)
             evt.preventDefault()
             return
+        } else {
+            this.props.typingPrediction.addPrediction(key)
         }
     }
 
     private _onCompositionStart(evt: React.CompositionEvent<HTMLInputElement>) {
         UI.Actions.setImeActive(true)
+
+        this.props.typingPrediction.clearAllPredictions()
+
         this.setState({
             isComposing: true,
         })

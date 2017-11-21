@@ -75,6 +75,7 @@ augroup OniEventListeners
     autocmd! InsertEnter * :call OniNotifyEvent("InsertEnter")
     autocmd! DirChanged * :call OniNotifyEvent("DirChanged")
     autocmd! VimResized * :call OniNotifyEvent("VimResized")
+    autocmd! VimLeave * :call OniNotifyEvent("VimLeave")
 augroup END
 
 augroup OniNotifyBufferUpdates

@@ -13,6 +13,8 @@ import * as isEqual from "lodash/isEqual"
 import "rxjs/add/operator/distinctUntilChanged"
 import { Subject } from "rxjs/Subject"
 
+import * as Oni from "oni-api"
+
 import { Rectangle } from "./Types"
 
 import * as Actions from "./Actions"
@@ -28,11 +30,25 @@ import { IConfigurationValues } from "./../Services/Configuration"
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
 
+export const setNeovimError = (neovimError: boolean) => ({
+    type: "SET_NEOVIM_ERROR",
+    payload: {
+        neovimError,
+    },
+})
+
 export const setViewport = (width: number, height: number) => ({
     type: "SET_VIEWPORT",
     payload: {
         width,
         height,
+    },
+})
+
+export const setCursorScale = (cursorScale: number) => ({
+    type: "SET_CURSOR_SCALE",
+    payload: {
+        cursorScale,
     },
 })
 

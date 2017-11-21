@@ -6,6 +6,8 @@
  * because dependent packages or plugins may have their own set of configuration
  */
 
+import * as Oni from "oni-api"
+
 export interface IConfigurationValues {
 
     "activate": (oni: Oni.Plugin.Api) => void
@@ -22,11 +24,20 @@ export interface IConfigurationValues {
 
     "debug.persistOnNeovimExit": boolean
     "debug.detailedSessionLogging": boolean
+    "debug.showTypingPrediction": boolean
 
     // Simulate slow language server, for debugging
-    "debug.fakeLag.languageServer": number
+    "debug.fakeLag.languageServer": number | null
+    "debug.fakeLag.neovimInput": number | null
 
     // Experimental feature flags
+    "experimental.autoClosingPairs.enabled": boolean
+    "experimental.autoClosingPairs.default": any
+
+    // The transport to use for Neovim
+    // Valid values are "stdio" and "pipe"
+    "experimental.neovim.transport": string
+    "experimental.editor.typingPrediction": boolean
 
     // Production settings
 
@@ -156,6 +167,7 @@ export interface IConfigurationValues {
     // If `true`, will wrap the tabs.
     "tabs.wrap": boolean
 
+    "ui.animations.enabled": boolean
     "ui.fontFamily": string
     "ui.fontSize": string
 

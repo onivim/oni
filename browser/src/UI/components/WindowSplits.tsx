@@ -6,6 +6,8 @@
 
 import * as React from "react"
 
+import * as Oni from "oni-api"
+
 import { WindowSplitHost } from "./WindowSplitHost"
 
 import { WindowManager } from "./../../Services/WindowManager"
@@ -42,9 +44,9 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
             return null
         }
 
-        const containerStyle = {
+        const containerStyle: React.CSSProperties = {
             "display": "flex",
-            "flex-direction": "row",
+            "flexDirection": "row",
             "width": "100%",
             "height": "100%",
         }

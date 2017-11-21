@@ -7,6 +7,8 @@
 import * as Fuse from "fuse.js"
 import * as sortBy from "lodash/sortBy"
 
+import * as Oni from "oni-api"
+
 import { configuration } from "./../../Services/Configuration"
 
 import { IMenuOptionWithHighlights } from "./Menu"

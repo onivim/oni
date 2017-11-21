@@ -30,4 +30,8 @@ Thanks you to all our backers for making Oni possible!
 
 ## Backers via OpenCollective
 
+- @TalAmuyal
+
+## Backers via OpenCollective
+
 <a href="https://opencollective.com/oni#backers" target="_blank"><img src="https://opencollective.com/oni/backers.svg?width=890"></a>
