@@ -9,7 +9,9 @@
 
 import * as os from "os"
 
+import * as Oni from "oni-api"
 import { Event, IDisposable } from "oni-types"
+
 import * as Log from "./../../Log"
 
 import { configuration } from "./../Configuration"

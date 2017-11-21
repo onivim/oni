@@ -10,6 +10,8 @@ import * as path from "path"
 
 import { clipboard, remote } from "electron"
 
+import * as Oni from "oni-api"
+
 import { INeovimInstance } from "./../neovim"
 
 import { configuration } from "./../Services/Configuration"

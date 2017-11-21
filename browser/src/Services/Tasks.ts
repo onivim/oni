@@ -14,6 +14,8 @@ import {EventEmitter} from "events"
 import * as find from "lodash/find"
 import * as flatten from "lodash/flatten"
 
+import * as Oni from "oni-api"
+
 import { Menu, menuManager } from "./../Services/Menu"
 
 export interface ITask {

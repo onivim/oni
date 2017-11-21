@@ -10,6 +10,8 @@ import { Subscription } from "rxjs/Subscription"
 import "rxjs/add/operator/auditTime"
 import "rxjs/add/operator/debounceTime"
 
+import * as Oni from "oni-api"
+
 import * as UI from "./../UI"
 
 export enum StatusBarAlignment {
