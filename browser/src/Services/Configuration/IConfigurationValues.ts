@@ -151,7 +151,6 @@ export interface IConfigurationValues {
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
 
-    "tabs.enabled": boolean
     "tabs.mode": string
 
     // Height of individual tabs in the tab strip

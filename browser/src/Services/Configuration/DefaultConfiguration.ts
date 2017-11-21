@@ -129,7 +129,6 @@ const BaseConfiguration: IConfigurationValues = {
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
 
-    "tabs.enabled": true,
     "tabs.mode": "buffers",
     "tabs.height": "2.5em",
     "tabs.maxWidth": "30em",

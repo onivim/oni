@@ -184,12 +184,11 @@ const getTabsFromVimTabs = createSelector(
 const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITabsProps => {
 
     const oniTabMode = state.configuration["tabs.mode"]
-    const oniTabsEnabled = state.configuration["tabs.enabled"]
-
     const shouldUseVimTabs = oniTabMode === "tabs"
+
     const tabs = shouldUseVimTabs ? getTabsFromVimTabs(state) : getTabsFromBuffers(state)
 
-    const visible = oniTabsEnabled && oniTabMode !== "native"
+    const visible = oniTabMode !== "native" && oniTabMode !== "hidden"
 
     const height = state.configuration["tabs.height"]
     const maxWidth = state.configuration["tabs.maxWidth"]
