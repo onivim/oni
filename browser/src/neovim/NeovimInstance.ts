@@ -3,9 +3,11 @@ import * as path from "path"
 
 import * as mkdirp from "mkdirp"
 
+import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 import * as Log from "./../Log"
+import { EventContext } from "./EventContext"
 
 import * as Actions from "./../actions"
 import { measureFont } from "./../Font"
@@ -33,12 +35,12 @@ export interface INeovimApiVersion {
 }
 
 export interface IFullBufferUpdateEvent {
-    context: Oni.EventContext
+    context: EventContext
     bufferLines: string[]
 }
 
 export interface IIncrementalBufferUpdateEvent {
-    context: Oni.EventContext
+    context: EventContext
     lineNumber: number
     lineContents: string
 }
@@ -79,7 +81,7 @@ export interface INeovimInstance {
 
     onRedrawComplete: IEvent<void>
 
-    onScroll: IEvent<Oni.EventContext>
+    onScroll: IEvent<EventContext>
 
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
     onOniCommand: IEvent<string>
@@ -161,7 +163,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onRedrawComplete = new Event<void>()
     private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
     private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
-    private _onScroll = new Event<Oni.EventContext>()
+    private _onScroll = new Event<EventContext>()
     private _onModeChanged = new Event<Oni.Vim.Mode>()
     private _onHidePopupMenu = new Event<void>()
     private _onShowPopupMenu = new Event<INeovimCompletionInfo>()
@@ -206,7 +208,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._onRedrawComplete
     }
 
-    public get onScroll(): IEvent<Oni.EventContext> {
+    public get onScroll(): IEvent<EventContext> {
         return this._onScroll
     }
 
@@ -248,7 +250,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request<T>(request, args)
     }
 
-    public async getContext(): Promise<Oni.EventContext> {
+    public async getContext(): Promise<EventContext> {
         return this.callFunction("OniGetContext", [])
     }
 
@@ -278,7 +280,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         // TODO: Update pluginManager to subscribe from event here, instead of dupliating this
 
                         if (pluginMethod === "buffer_update") {
-                            const eventContext: Oni.EventContext = args[0][0]
+                            const eventContext: EventContext = args[0][0]
                             const startRange: number = args[0][1]
                             const endRange: number = args[0][2]
 
@@ -603,8 +605,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         })
     }
 
-    private async _onFullBufferUpdate(context: Oni.EventContext, startRange: number, endRange: number): Promise<void> {
-
+    private async _onFullBufferUpdate(context: EventContext, startRange: number, endRange: number): Promise<void> {
         if (endRange > MAX_LINES_FOR_BUFFER_UPDATE) {
             return
         }

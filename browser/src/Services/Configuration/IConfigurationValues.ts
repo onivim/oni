@@ -6,6 +6,8 @@
  * because dependent packages or plugins may have their own set of configuration
  */
 
+import * as Oni from "oni-api"
+
 export interface IConfigurationValues {
 
     "activate": (oni: Oni.Plugin.Api) => void

@@ -4,11 +4,12 @@
  * Entry point for ONI's TypeScript Language Service integraiton
  */
 
-/// <reference path="./../../../../definitions/Oni.d.ts" />
 /// <reference path="./../../../../node_modules/typescript/lib/protocol.d.ts" />
 
 import * as os from "os"
 import * as path from "path"
+
+import * as Oni from "oni-api"
 
 import * as types from "vscode-languageserver-types"
 

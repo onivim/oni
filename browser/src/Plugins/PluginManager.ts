@@ -1,6 +1,9 @@
 import { EventEmitter } from "events"
 import * as fs from "fs"
 import * as path from "path"
+
+import * as Oni from "oni-api"
+
 import { configuration } from "./../Services/Configuration"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
