@@ -1,5 +1,14 @@
+/**
+ * OniApi.ts
+ *
+ * Implementation of OniApi's API surface
+ * TODO: Gradually move over to `oni-api`
+ */
+
 import * as ChildProcess from "child_process"
 import { EventEmitter } from "events"
+
+import * as OniApi from "oni-api"
 
 import { Diagnostics } from "./Diagnostics"
 
@@ -37,24 +46,24 @@ const helpers = {
 }
 
 /**
- * API instance for interacting with Oni (and vim)
+ * API instance for interacting with OniApi (and vim)
  */
-export class Oni extends EventEmitter implements Oni.Plugin.Api {
+export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     private _dependencies: Dependencies
-    private _diagnostics: Oni.Plugin.Diagnostics.Api
+    private _diagnostics: OniApi.Plugin.Diagnostics.Api
     private _ui: Ui
     private _services: Services
 
-    public get automation(): Oni.Automation.Api {
+    public get automation(): OniApi.Automation.Api {
         return automation
     }
 
-    public get commands(): Oni.Commands {
+    public get commands(): OniApi.Commands {
         return commandManager
     }
 
-    public get log(): Oni.Log {
+    public get log(): OniApi.Log {
         return Log
     }
 
@@ -62,7 +71,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return recorder
     }
 
-    public get configuration(): Oni.Configuration {
+    public get configuration(): OniApi.Configuration {
         return configuration
     }
 
@@ -70,7 +79,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return contextMenuManager
     }
 
-    public get diagnostics(): Oni.Plugin.Diagnostics.Api {
+    public get diagnostics(): OniApi.Plugin.Diagnostics.Api {
         return this._diagnostics
     }
 
@@ -78,11 +87,11 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return this._dependencies
     }
 
-    public get editors(): Oni.EditorManager {
+    public get editors(): OniApi.EditorManager {
         return editorManager
     }
 
-    public get input(): Oni.InputManager {
+    public get input(): OniApi.InputManager {
         return inputManager
     }
 
@@ -94,11 +103,11 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return menuManager
     }
 
-    public get process(): Oni.Process {
+    public get process(): OniApi.Process {
         return Process
     }
 
-    public get statusBar(): Oni.StatusBar {
+    public get statusBar(): OniApi.StatusBar {
         return statusBar
     }
 
@@ -114,7 +123,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
         return windowManager
     }
 
-    public get workspace(): Oni.Workspace {
+    public get workspace(): OniApi.Workspace {
         return workspace
     }
 
@@ -132,7 +141,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
     }
 
     public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
-        Log.warn("WARNING: `Oni.execNodeScript` is deprecated. Please use `Oni.process.execNodeScript` instead")
+        Log.warn("WARNING: `OniApi.execNodeScript` is deprecated. Please use `OniApi.process.execNodeScript` instead")
 
         return Process.execNodeScript(scriptPath, args, options, callback)
     }
@@ -142,7 +151,7 @@ export class Oni extends EventEmitter implements Oni.Plugin.Api {
      */
     public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
 
-        Log.warn("WARNING: `Oni.spawnNodeScript` is deprecated. Please use `Oni.process.spawnNodeScript` instead")
+        Log.warn("WARNING: `OniApi.spawnNodeScript` is deprecated. Please use `OniApi.process.spawnNodeScript` instead")
 
         return Process.spawnNodeScript(scriptPath, args, options)
     }

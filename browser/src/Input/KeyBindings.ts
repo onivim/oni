@@ -4,6 +4,8 @@
  * Default, out-of-the-box keybindings for Oni
  */
 
+import * as Oni from "oni-api"
+
 import * as Platform from "./../Platform"
 import { Configuration } from "./../Services/Configuration"
 

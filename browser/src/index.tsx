@@ -4,8 +4,6 @@
  * Entry point for the BrowserWindow process
  */
 
-/// <reference path="./../../definitions/Oni.d.ts" />
-
 import { ipcRenderer, remote } from "electron"
 import * as minimist from "minimist"
 import * as Log from "./Log"
