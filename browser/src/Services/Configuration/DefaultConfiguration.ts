@@ -130,7 +130,7 @@ const BaseConfiguration: IConfigurationValues = {
     "statusbar.fontSize": "0.9em",
 
     "tabs.enabled": true,
-    "tabs.showVimTabs": false,
+    "tabs.mode": "buffers",
     "tabs.height": "2.5em",
     "tabs.maxWidth": "30em",
     "tabs.wrap": false,
