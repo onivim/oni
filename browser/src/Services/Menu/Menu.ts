@@ -99,6 +99,7 @@ export class Menu {
 
     public show(): void {
         menuActions.showPopupMenu(this._id, {
+            // TODO: Add menu colors here
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
             onHide: () => this._onHide.dispatch(),
             onFilterTextChanged: (newText) => this._onFilterTextChanged.dispatch(newText),

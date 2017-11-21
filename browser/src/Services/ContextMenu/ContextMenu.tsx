@@ -130,6 +130,7 @@ export class ContextMenu {
 
     public show(items?: any[], filter?: string): void {
         contextMenuActions.showPopupMenu(this._id, {
+            // TODO: Add foreground / background / border / highlight colors here
             onSelectedItemChanged: (item: any) => this._onSelectedItemChanged.dispatch(item),
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
             onHide: () => this._onHidden(),

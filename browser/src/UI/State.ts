@@ -8,6 +8,8 @@ import * as types from "vscode-languageserver-types"
 
 import { configuration , IConfigurationValues } from "./../Services/Configuration"
 
+import { DefaultThemeColors, IThemeColors } from "./../Services/Themes"
+
 import * as Coordinates from "./Coordinates"
 import { Rectangle } from "./Types"
 
@@ -49,6 +51,8 @@ export interface IState {
     viewport: IViewport
 
     neovimError: boolean
+
+    colors: IThemeColors
 
     statusBar: { [id: string]: IStatusBarItem }
     toolTips: { [id: string]: IToolTip }
@@ -185,6 +189,7 @@ export const createDefaultState = (): IState => ({
         width: 0,
         height: 0,
     },
+    colors: DefaultThemeColors,
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",

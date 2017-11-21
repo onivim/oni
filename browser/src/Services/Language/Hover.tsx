@@ -22,7 +22,6 @@ import { QuickInfoDocumentation, QuickInfoTitle } from "./../../UI/components/Qu
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import * as UI from "./../../UI"
-import * as Colors from "./../../UI/Colors"
 import * as Selectors from "./../../UI/Selectors"
 import * as Utility from "./../../Utility"
 
@@ -79,8 +78,7 @@ export const renderQuickInfo = (hover: types.Hover, errors: types.Diagnostic[]) 
     const quickInfoElements = getQuickInfoElementsFromHover(hover)
 
     const state: any = UI.store.getState()
-    const { backgroundColor, foregroundColor } = state
-    const borderColor = Colors.getBorderColor(backgroundColor, foregroundColor)
+    const borderColor = state.colors["toolTip.border"]
 
     let customErrorStyle = { }
     if (quickInfoElements.length > 0) {

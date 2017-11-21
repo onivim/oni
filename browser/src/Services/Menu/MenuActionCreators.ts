@@ -31,6 +31,8 @@ export const showPopupMenu = (id: string, opts?: MenuActions.IMenuOptions, items
     const defaultOptions = {
         backgroundColor,
         foregroundColor,
+        borderColor: foregroundColor,
+        highlightColor: backgroundColor,
     }
 
     const options = {
