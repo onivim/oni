@@ -37,6 +37,9 @@ export interface IThemeColors {
     "fileExplorer.cursor.background": string
     "fileExplorer.cursor.foreground": string
 
+    // TODO: Quick info?
+    // TODO: Context menu
+    // TODO: Menu
 }
 
 export interface ITokenTheme {
