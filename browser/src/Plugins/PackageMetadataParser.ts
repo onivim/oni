@@ -9,7 +9,17 @@ import * as Capabilities from "./Api/Capabilities"
 import * as Log from "./../Log"
 
 export const parseFromString = (packageJson: string): Capabilities.IPluginMetadata | null => {
-    const metadata: Capabilities.IPluginMetadata = JSON.parse(packageJson)
+
+    let metadata: Capabilities.IPluginMetadata = null
+    try {
+        metadata = JSON.parse(packageJson) as Capabilities.IPluginMetadata
+    } catch (ex) {
+        Log.error(ex)
+    }
+
+    if (!metadata) {
+        return null
+    }
 
     if (!metadata.engines || !metadata.engines["oni"]) { // tslint:disable-line no-string-literal
         Log.warn("Aborting plugin load as Oni engine version not specified")

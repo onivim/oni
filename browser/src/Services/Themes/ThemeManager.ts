@@ -217,6 +217,8 @@ export class ThemeManager {
 
     private _activeTheme: IThemeMetadata = DefaultTheme
 
+    private _isAnonymousTheme: boolean = false
+
     // _colors stores the current theme colors mixed with configuration
     private _colors: IThemeColors = DefaultThemeColors
 
@@ -231,14 +233,31 @@ export class ThemeManager {
         }
 
         const theme = await this._themeLoader.getThemeByName(name)
-        this._updateTheme(theme)
+
+        if (!theme) {
+            // If we couldn't find the theme... we'll try 
+            // loading vim-style, and derive a theme from
+            // that.
+            this._isAnonymousTheme = true
+
+            const temporaryVimTheme = {
+                name,
+                baseVimTheme: name,
+                colors: DefaultThemeColors,
+            }
+
+            this._updateTheme(temporaryVimTheme)
+        } else {
+            this._updateTheme(theme)
+        }
     }
 
-    public notifyVimThemeChanged(vimName: string): void {
+    public notifyVimThemeChanged(vimName: string, backgroundColor: string, foregroundColor: string): void {
 
         // If the vim colorscheme changed, for example, via `:co <sometheme>`,
         // then we should update our theme to match
-        if (this._activeTheme.baseVimTheme && this._activeTheme.baseVimTheme !== vimName && this._activeTheme.baseVimTheme !== "*") {
+        if (this._isAnonymousTheme || (this._activeTheme.baseVimTheme && this._activeTheme.baseVimTheme !== vimName && this._activeTheme.baseVimTheme !== "*")) {
+
             // TODO: Find matching theme
         }
     }
