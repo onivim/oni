@@ -8,6 +8,8 @@ import { Observable } from "rxjs/Observable"
 
 import * as types from "vscode-languageserver-types"
 
+import * as Oni from "oni-api"
+
 import { contextMenuManager } from "./../../ContextMenu"
 import { editorManager } from "./../../EditorManager"
 
