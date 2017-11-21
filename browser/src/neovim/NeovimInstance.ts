@@ -630,19 +630,27 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private async _attachUI(columns: number, rows: number): Promise<void> {
         const version = await this.getApiVersion()
+
+        const useNativeTabs = configuration.getValue("tabs.mode") === "native"
+
+        const externaliseTabline = !useNativeTabs
+
         console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`) // tslint:disable-line no-console
 
-        const startupOptions = this._getStartupOptionsForVersion(version.major, version.minor, version.patch)
+        const startupOptions = this._getStartupOptionsForVersion(version.major,
+                                                                 version.minor,
+                                                                 version.patch,
+                                                                 externaliseTabline)
 
         await this._neovim.request("nvim_ui_attach", [columns, rows, startupOptions])
     }
 
-    private _getStartupOptionsForVersion(major: number, minor: number, patch: number) {
+    private _getStartupOptionsForVersion(major: number, minor: number, patch: number, shouldExtTabs: boolean) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
             return {
                 rgb: true,
                 popupmenu_external: true,
-                ext_tabline: true,
+                ext_tabline: shouldExtTabs,
             }
         } else if (major === 0 && minor === 2) {
             // 0.1 and below does not support external tabline
