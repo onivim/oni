@@ -79,7 +79,7 @@ export class LightweightLanguageClient {
         }
     }
 
-    public subscribe(notificationName: string, evt: Oni.Event<any>) {
+    public subscribe(notificationName: string, evt: Event<any>) {
         this._subscriptions[notificationName] = evt
     }
 
