@@ -12,6 +12,10 @@ export class Plugin {
     private _oniPluginMetadata: Capabilities.IPluginMetadata
     private _oni: Oni
 
+    public get metadata(): Capabilities.IPluginMetadata {
+        return this._oniPluginMetadata
+    }
+
     constructor(
         private _pluginRootDirectory: string,
     ) {
