@@ -13,9 +13,6 @@
         ],
         "skipLibCheck": true
     },
-    "files": [
-        "./../definitions/Oni.d.ts"
-    ],
     "include": [
         "**/*.ts",
         "**/*.js"
