@@ -276,6 +276,15 @@ export class NeovimEditor implements IEditor {
         }
     }
 
+    public dispose(): void {
+        // TODO: Implement full disposal logic
+        this._popupMenu.dispose()
+        this._popupMenu = null
+
+        this._windowManager.dispose()
+        this._windowManager = null
+    }
+
     public async openFile(file: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":e " + file)
         return this.activeBuffer
@@ -348,8 +357,6 @@ export class NeovimEditor implements IEditor {
 
     private _onVimEvent(eventName: string, evt: EventContext): void {
         UI.Actions.setWindowCursor(evt.windowNumber, evt.line - 1, evt.column - 1)
-
-        tasks.onEvent(evt)
 
         const lastBuffer = this.activeBuffer
         const buf = this._bufferManager.updateBufferFromEvent(evt)

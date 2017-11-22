@@ -17,7 +17,6 @@ export class TypingPredictionManager {
 
     private _predictionsChanged: Event<IPredictedCharacter[]> = new Event<IPredictedCharacter[]>()
     private _predictions: IPredictedCharacter[] = []
-    private _completedPredictions: TypingPredictionId[] = []
     private _enabled: boolean = false
 
     private _line: number = null
@@ -84,7 +83,6 @@ export class TypingPredictionManager {
 
     public clearAllPredictions(): void {
         this._predictions = []
-        this._completedPredictions = []
 
         this._notifyPredictionsChanged()
     }

@@ -63,6 +63,10 @@ export class NeovimWindowManager {
             })
     }
 
+    public dispose(): void {
+        // TODO: Implement 'unsubscribe' logic here
+    }
+
     public async remeasure(): Promise<void> {
         const newContext = await this._neovimInstance.getContext()
         this._scrollObservable.next(newContext)
