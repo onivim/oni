@@ -36,7 +36,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     }
 
     public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
-        console.log("no-op")
+        // tslint: disable-line
     }
 
     public async notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void> {
