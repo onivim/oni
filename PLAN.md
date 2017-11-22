@@ -1,10 +1,10 @@
-- test out just 'variable' names
-    - driven by config :)
 
-- hook up configuration tokens
+
+- set up textmate from config
 - hook up current buffer viewport to syntax reconciler
 
-- Handle case where no grammar is available
+- JavaScript
+- TypeScript
 
 POST CSS work:
 - grammar loading - create `IGrammarLoader`, wire up to plugin metadata
@@ -12,8 +12,6 @@ POST CSS work:
     - decouple from current implementation
 
 - Initial language set:
-    - JavaScript
-    - TypeScript
     - CSS
     - LESS
     - SASS

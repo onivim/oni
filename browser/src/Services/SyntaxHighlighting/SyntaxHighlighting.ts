@@ -53,12 +53,14 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             const lines = firstChange.text.split(os.EOL)
             this._store.dispatch({
                 type: "SYNTAX_UPDATE_BUFFER",
+                language: evt.buffer.language,
                 lines,
             })
         } else {
             // Incremental update
             this._store.dispatch({
                 type: "SYNTAX_UPDATE_BUFFER_LINE",
+                language: evt.buffer.language,
                 lineNumber: firstChange.range.start.line,
                 lines: firstChange.text,
             })

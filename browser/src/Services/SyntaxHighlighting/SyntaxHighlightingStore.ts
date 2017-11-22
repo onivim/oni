@@ -9,6 +9,7 @@ import * as types from "vscode-languageserver-types"
 import { StackElement } from "vscode-textmate"
 
 import { getSyntaxTokensForBuffer } from "./getSyntaxTokensForBuffer"
+import { GrammarLoader } from "./GrammarLoader"
 
 export interface ISyntaxHighlightTokenInfo {
     scopes: string[]
@@ -36,11 +37,13 @@ export interface ISyntaxHighlightState {
 
 export type ISyntaxHighlightAction = {
     type: "SYNTAX_UPDATE_BUFFER",
+    language: string
     bufferId: string,
     lines: string[]
     version: number,
 } | {
         type: "SYNTAX_UPDATE_BUFFER_LINE",
+        language: string
         bufferId: string,
         lineNumber: number,
         line: string,
@@ -102,16 +105,33 @@ const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
     }
 }
 
+const nullAction: any = { type: null }
+
+const grammarLoader = new GrammarLoader()
+
 const fullBufferUpdateEpic: Epic<ISyntaxHighlightAction, ISyntaxHighlightState> = (action$, store) =>
     action$.ofType("SYNTAX_UPDATE_BUFFER")
         .flatMap(async (action) => {
-            const update = await getSyntaxTokensForBuffer(0, null)
 
-            return {
+            if (action.type !== "SYNTAX_UPDATE_BUFFER") {
+                return nullAction
+            }
+
+            const grammar = await grammarLoader.getGrammarForLanguage(action.language)
+
+            if (!grammar) {
+                return nullAction
+            }
+
+            const update = await getSyntaxTokensForBuffer(grammar, 0, null)
+
+            const ret: ISyntaxHighlightAction = {
                 type: "SYNTAX_UPDATE_TOKENS_FOR_LINES",
                 bufferId: update.bufferId,
                 updatedLines: update.lines,
-            } as ISyntaxHighlightAction
+            }
+
+            return ret
         })
 
 export const createSyntaxHighlightStore = (): Store<ISyntaxHighlightState> => {

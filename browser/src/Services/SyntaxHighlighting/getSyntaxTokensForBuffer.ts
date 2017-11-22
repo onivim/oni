@@ -6,7 +6,7 @@
 
 import * as types from "vscode-languageserver-types"
 
-import { Registry, StackElement } from "vscode-textmate"
+import { IGrammar, Registry, StackElement } from "vscode-textmate"
 
 import { editorManager } from "./../EditorManager"
 
@@ -26,14 +26,12 @@ export const getRegistry = () => {
     return _grammar
 }
 
-export const getSyntaxTokensForBuffer = async (startLine: number, initialRuleStack: StackElement): Promise<IBufferSyntaxHighlightState> => {
+export const getSyntaxTokensForBuffer = async (grammar: IGrammar, startLine: number, initialRuleStack: StackElement): Promise<IBufferSyntaxHighlightState> => {
 
     startLine = initialRuleStack ? startLine : 0
 
     const totalLines = editorManager.activeEditor.activeBuffer.lineCount
     const bufferLines = await editorManager.activeEditor.activeBuffer.getLines(startLine, totalLines)
-
-    const grammar = getRegistry()
 
     const lines: { [bufferId: string]: ISyntaxHighlightLineInfo } = { }
 

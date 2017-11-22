@@ -129,25 +129,31 @@ const BaseConfiguration: IConfigurationValues = {
 
     "language.css.languageServer.command": cssLanguageServerPath,
     "language.css.languageServer.arguments": ["--stdio"],
+    "language.css.textMateGrammar": path.join(__dirname, "extensions", "css", "syntaxes", "css.tmLanguage.json"),
 
     "language.less.languageServer.command": cssLanguageServerPath,
     "language.less.languageServer.arguments": ["--stdio"],
+    "language.less.textMateGrammar": path.join(__dirname, "extensions", "less", "syntaxes", "less.tmLanguage.json"),
 
     "language.scss.languageServer.command": cssLanguageServerPath,
     "language.scss.languageServer.arguments": ["--stdio"],
+    "language.scss.textMateGrammar": path.join(__dirname, "extensions", "scss", "syntaxes", "scss.json"),
 
     "language.reason.languageServer.command": ocamlLanguageServerPath,
     "language.reason.languageServer.arguments": ["--stdio"],
     "language.reason.languageServer.rootFiles": [".merlin", "bsconfig.json"],
     "language.reason.languageServer.configuration": ocamlAndReasonConfiguration,
+    "language.reason.textMateGrammar": path.join(__dirname, "extensions", "reason", "syntaxes", "reason.json"),
 
     "language.ocaml.languageServer.command": ocamlLanguageServerPath,
     "language.ocaml.languageServer.arguments": ["--stdio"],
     "language.ocaml.languageServer.configuration": ocamlAndReasonConfiguration,
 
     "language.typescript.completionTriggerCharacters": [".", "/", "\\"],
+    "language.typescript.textMateGrammar": path.join(__dirname, "extensions", "typescript", "syntaxes", "TypeScript.tmLanguage.json"),
 
     "language.javascript.completionTriggerCharacters": [".", "/", "\\"],
+    "language.javascript.textMateGrammar": path.join(__dirname, "extensions", "javascript", "syntaxes", "JavaScript.tmLanguage.json"),
 
     "menu.caseSensitive": "smart",
 
