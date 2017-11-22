@@ -4,15 +4,34 @@
  * Responsible for parsing and normalizing package.json for ONI plugins
  */
 
+import * as fs from "fs"
+import * as path from "path"
+
 import * as Capabilities from "./Api/Capabilities"
 
 import * as Log from "./../Log"
 
-export const parseFromString = (packageJson: string): Capabilities.IPluginMetadata | null => {
+const remapToAbsolutePaths = (packageRoot: string, contributes: Capabilities.IContributions): Capabilities.IContributions => {
+    const remapThemePath = (themes: Capabilities.IThemeContribution): Capabilities.IThemeContribution => {
+        return {
+            ...themes,
+            path: path.join(packageRoot, themes.path),
+        }
+    }
+
+    return {
+        ...contributes,
+        themes: contributes.themes.map((t) => remapThemePath(t))
+    }
+}
+
+export const readMetadata = (packagePath: string): Capabilities.IPluginMetadata | null => {
+
+    const packageContents = fs.readFileSync(packagePath, "utf8")
 
     let metadata: Capabilities.IPluginMetadata = null
     try {
-        metadata = JSON.parse(packageJson) as Capabilities.IPluginMetadata
+        metadata = JSON.parse(packageContents) as Capabilities.IPluginMetadata
     } catch (ex) {
         Log.error(ex)
     }
@@ -20,6 +39,8 @@ export const parseFromString = (packageJson: string): Capabilities.IPluginMetada
     if (!metadata) {
         return null
     }
+
+
 
     if (!metadata.engines || !metadata.engines["oni"]) { // tslint:disable-line no-string-literal
         Log.warn("Aborting plugin load as Oni engine version not specified")
@@ -33,6 +54,6 @@ export const parseFromString = (packageJson: string): Capabilities.IPluginMetada
 
     return {
         ...metadata,
-        contributes,
+        contributes: remapToAbsolutePaths(path.dirname(packagePath), contributes),
     }
 }

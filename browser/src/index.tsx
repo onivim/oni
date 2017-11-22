@@ -18,7 +18,7 @@ import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
 import { inputManager } from "./Services/InputManager"
 import { languageManager } from "./Services/Language"
-import { getThemeManagerInstance } from "./Services/Themes"
+import * as Themes from "./Services/Themes"
 
 import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
@@ -69,9 +69,6 @@ const start = (args: string[]) => {
         }
 
         browserWindow.setFullScreen(configuration.getValue("editor.fullScreenOnStart"))
-
-        const colorscheme = newConfigValues["ui.colorscheme"]
-        getThemeManagerInstance().setTheme(colorscheme)
     }
 
     configChange(configuration.getValues()) // initialize values
@@ -92,6 +89,7 @@ const start = (args: string[]) => {
     configuration.activate(api)
 
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+    Themes.activate(configuration)
 
     checkForUpdates()
 }

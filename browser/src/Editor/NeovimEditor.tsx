@@ -192,7 +192,6 @@ export class NeovimEditor implements IEditor {
         })
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
-            UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
             UI.Actions.setCursorPosition(this._screen)
             this._typingPredictionManager.setCursorPosition(this._screen.cursorRow, this._screen.cursorColumn)
         })
@@ -293,30 +292,33 @@ export class NeovimEditor implements IEditor {
         commandManager.executeCommand(command, null)
     }
 
-    public init(filesToOpen: string[]): void {
+    public async init(filesToOpen: string[]): Promise<void> {
         const startOptions: INeovimStartOptions = {
             args: filesToOpen,
             runtimePaths: pluginManager.getAllRuntimePaths(),
             transport: configuration.getValue("experimental.neovim.transport"),
         }
 
-        this._neovimInstance.start(startOptions)
-            .then(() => {
-                this._hasLoaded = true
-                VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+        await this._neovimInstance.start(startOptions)
+        VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
 
-                this._themeManager.onThemeChanged.subscribe(() => {
-                    const newTheme = this._themeManager.activeTheme
+        this._themeManager.onThemeChanged.subscribe(() => {
+            const newTheme = this._themeManager.activeTheme
 
-                    if (newTheme.baseVimTheme && newTheme.baseVimTheme !== this._currentColorScheme) {
-                        this._neovimInstance.command(":color " + newTheme.baseVimTheme)
-                    }
-                })
+            if (newTheme.baseVimTheme && newTheme.baseVimTheme !== this._currentColorScheme) {
+                this._neovimInstance.command(":color " + newTheme.baseVimTheme)
+                UI.Actions.setColors(this._themeManager.getColors())
+            }
+        })
 
-                if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
-                    this._neovimInstance.command(":color " + this._themeManager.activeTheme.baseVimTheme)
-                }
-            })
+        if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
+            await this._neovimInstance.command(":color " + this._themeManager.activeTheme.baseVimTheme)
+            UI.Actions.setColors(this._themeManager.getColors())
+        }
+
+        this._hasLoaded = true
+        this._isFirstRender = true
+        this._scheduleRender()
     }
 
     public render(): JSX.Element {

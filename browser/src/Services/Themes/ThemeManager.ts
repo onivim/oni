@@ -27,6 +27,9 @@ export interface IThemeColors {
     "highlight.mode.operator.foreground": string
     "highlight.mode.operator.background": string
 
+    "tabs.background": string
+    "tabs.foreground": string
+
     // Tool tip is used for some contextual information,
     // like hover, as well as for rename.
     "toolTip.background": string
@@ -156,6 +159,9 @@ export const DefaultThemeColors: IThemeColors = {
 
     "sidebar.background": StatusBarBackground,
     "sidebar.foreground": StatusBarForeground,
+
+    "tabs.background": ColorBlack,
+    "tabs.foreground": ColorWhite,
 
     "fileExplorer.background": StatusBarBackground,
     "fileExplorer.foreground": StatusBarForeground,

@@ -1,0 +1,15 @@
+{
+    "name": "onedark",
+    "baseVimTheme": "onedark",
+    "colors": {
+        "background": "black",
+        "foreground": "white",
+
+        "tabs.background": "gray",
+        "tabs.foreground": "yellow",
+
+        "toolTip.background": "yellow",
+        "toolTip.foreground": "yellow",
+        "toolTip.border": "yellow"
+    }
+}

@@ -22,13 +22,12 @@ export class Plugin {
         const packageJsonPath = path.join(this._pluginRootDirectory, "package.json")
 
         if (fs.existsSync(packageJsonPath)) {
-            this._oniPluginMetadata = PackageMetadataParser.parseFromString(fs.readFileSync(packageJsonPath, "utf8"))
+            this._oniPluginMetadata = PackageMetadataParser.readMetadata(packageJsonPath)
 
             if (!this._oniPluginMetadata) {
                 Log.error(`[PLUGIN] Aborting plugin load, invalid package.json: ${packageJsonPath}`)
             } else {
                 if (this._oniPluginMetadata.main) {
-
                     this._oni = new Oni()
                     this._onActivate()
                 }
