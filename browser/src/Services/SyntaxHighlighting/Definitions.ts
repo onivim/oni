@@ -11,4 +11,4 @@ export interface IHighlight {
 
 export type HighlightGroupId = string
 
-export type HighlightInfo = { range: types.Range, highlightGroup: HighlightGroupId }
+export interface HighlightInfo { range: types.Range, highlightGroup: HighlightGroupId }

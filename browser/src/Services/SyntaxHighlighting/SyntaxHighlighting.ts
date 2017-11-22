@@ -8,8 +8,8 @@ import * as os from "os"
 
 import * as types from "vscode-languageserver-types"
 
-import { IDisposable }from "oni-types"
 import * as Oni from "oni-api"
+import { IDisposable }from "oni-types"
 
 import { Store } from "redux"
 
@@ -39,8 +39,7 @@ export class NullSyntaxHighlighter implements ISyntaxHighlighter {
 export class SyntaxHighlighter implements ISyntaxHighlighter {
 
     private _store: Store<ISyntaxHighlightState>
-    private _reconciler: SyntaxHighlightReconciler 
-
+    private _reconciler: SyntaxHighlightReconciler
 
     constructor() {
         this._store = createSyntaxHighlightStore()
@@ -76,7 +75,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
         }
 
         const line = buffer.lines[position.line]
-        
+
         if (!line) {
             return null
         }

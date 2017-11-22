@@ -39,7 +39,7 @@ export const getSyntaxTokensForBuffer = async (startLine: number, initialRuleSta
 
     let ruleStack = initialRuleStack
     for (let i = startLine; i < bufferLines.length; i++) {
-        let r = grammar.tokenizeLine(bufferLines[i], ruleStack)
+        const r = grammar.tokenizeLine(bufferLines[i], ruleStack)
 
         const tokens = r.tokens.map((t: any) => ({
             range: types.Range.create(i, t.startIndex, i, t.endIndex),

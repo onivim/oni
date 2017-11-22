@@ -214,7 +214,7 @@ export class NeovimEditor implements IEditor {
                 const currentBuffer = this.activeBuffer.id
                 console.dir(this._syntaxHighlighter.getHighlightTokenAt(currentBuffer, {
                     line: cursorMoved.line,
-                    character: cursorMoved.column
+                    character: cursorMoved.column,
                 }))
             })
 
