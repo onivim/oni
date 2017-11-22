@@ -41,8 +41,6 @@ export interface IState {
     fontFamily: string
     fontSize: string
     mode: string
-    backgroundColor: string
-    foregroundColor: string
     definition: null | IDefinition
     cursorLineOpacity: number
     cursorColumnOpacity: number
@@ -181,7 +179,6 @@ export const createDefaultState = (): IState => ({
     fontSize: "",
     imeActive: false,
     mode: "normal",
-    foregroundColor: "rgba(0, 0, 0, 0)",
     definition: null,
     activeWindowDimensions: {
         x: 0,
@@ -192,7 +189,6 @@ export const createDefaultState = (): IState => ({
     colors: DefaultThemeColors,
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
-    backgroundColor: "#000000",
     neovimError: false,
 
     configuration: configuration.getValues(),
