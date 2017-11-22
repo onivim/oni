@@ -14,6 +14,7 @@ import { Observable } from "rxjs/Observable"
 import * as Oni from "oni-api"
 
 import { editorManager } from "./../EditorManager"
+import * as CodeAction from "./CodeAction"
 import * as Completion from "./Completion"
 import * as Definition from "./Definition"
 import * as Hover from "./Hover"
@@ -50,6 +51,7 @@ export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<On
 
     Definition.initDefinitionUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
     Hover.initHoverUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
+    CodeAction.initCodeActionUI(bufferUpdates$, cursorMoved$)
 }
 
 export interface ILatestCursorAndBufferInfo {
