@@ -22,18 +22,7 @@ import * as Utility from "./../../Utility"
 export interface ISyntaxHighlighter extends IDisposable {
     notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void>
     getHighlightTokenAt(bufferId: string, position: types.Position): ISyntaxHighlightTokenInfo
-}
-
-export class NullSyntaxHighlighter implements ISyntaxHighlighter {
-    public notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void> {
-        return Promise.resolve(null)
-    }
-
-    public getHighlightTokenAt(bufferId: string, position: types.Position): ISyntaxHighlightTokenInfo {
-        return null
-    }
-
-    public dispose(): void { } // tslint:disable-line
+    notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void
 }
 
 export class SyntaxHighlighter implements ISyntaxHighlighter {
@@ -44,6 +33,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     constructor() {
         this._store = createSyntaxHighlightStore()
         this._reconciler = new SyntaxHighlightReconciler(this._store)
+    }
+
+    public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
+        console.log("no-op")
     }
 
     public async notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void> {
@@ -91,4 +84,20 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             this._reconciler = null
         }
     }
+}
+
+export class NullSyntaxHighlighter implements ISyntaxHighlighter {
+    public notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void> {
+        return Promise.resolve(null)
+    }
+
+    public getHighlightTokenAt(bufferId: string, position: types.Position): ISyntaxHighlightTokenInfo {
+        return null
+    }
+
+    public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
+        // tslint: disable-line
+    }
+
+    public dispose(): void { } // tslint:disable-line
 }
