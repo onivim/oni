@@ -51,7 +51,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
 
         this._tssProcess.stderr.on("data", (data, err) => {
-            console.error("Error from tss: " + data) // tslint:disable-line no-console
+            console.warn("Error from tss: " + data) // tslint:disable-line no-console
         })
 
         this._tssProcess.on("error", (data) => {
