@@ -75,17 +75,20 @@ export class SyntaxHighlightReconciler {
 
 
         for (let i = 0; i < scopes.length; i++) {
-            if (scopes[i].indexOf("variable.object") === 0) {
-                return "Identifier"
-            } else if (scopes[i].indexOf("variable.other") === 0) {
-                return "Identifier"
-            } else if (scopes[i].indexOf("variable.parameter") === 0) {
-                return "Identifier"
-            } else if (scopes[i].indexOf("support.function") === 0) {
-                return "Function"
-            } else if (scopes[i].indexOf("entity.name") === 0) {
-                return "Function"
-            }
+            // if (scopes[i].indexOf("variable.object") === 0) {
+            //     return "Identifier"
+            // }
+            // } else if (scopes[i].indexOf("variable.other.constant") === 0) {
+            //     return "Constant"
+            // } else if (scopes[i].indexOf("variable.other") === 0) {
+            //     return "Identifier"
+            // } else if (scopes[i].indexOf("variable.parameter") === 0) {
+            //     return "Identifier"
+            // } else if (scopes[i].indexOf("support.function") === 0) {
+            //     return "Function"
+            // } else if (scopes[i].indexOf("entity.name") === 0) {
+            //     return "Special"
+            // }
         }
 
 
