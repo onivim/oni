@@ -1,21 +1,13 @@
-
-
-- set up textmate from config
 - hook up current buffer viewport to syntax reconciler
 
-- JavaScript
-- TypeScript
+- handle tsx files
+
+
 
 POST CSS work:
 - grammar loading - create `IGrammarLoader`, wire up to plugin metadata
     - dependent on CSS change?
     - decouple from current implementation
-
-- Initial language set:
-    - CSS
-    - LESS
-    - SASS
-    - Reason
 
 - create action
     - SET_BUFFER_VIEWPORT
