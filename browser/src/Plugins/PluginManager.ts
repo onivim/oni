@@ -18,6 +18,10 @@ export class PluginManager extends EventEmitter {
     private _plugins: Plugin[] = []
     private _anonymousPlugin: AnonymousPlugin
 
+    public get plugins(): Plugin[] {
+        return this._plugins
+    }
+
     constructor() {
         super()
 
@@ -32,8 +36,8 @@ export class PluginManager extends EventEmitter {
     }
 
     public startPlugins(): Oni.Plugin.Api {
-        const allPlugins = this._getAllPluginPaths()
-        this._plugins = allPlugins.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
+        const allPluginPaths = this._getAllPluginPaths()
+        this._plugins = allPluginPaths.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
 
         this._anonymousPlugin = new AnonymousPlugin()
 

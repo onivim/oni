@@ -6,6 +6,8 @@ import * as path from "path"
 
 import * as types from "vscode-languageserver-types"
 
+import { CodeEdit, TextSpan } from "typescript/lib/protocol" // tslint:disable-line
+
 import { IDisplayPart } from "./Types"
 
 export const zeroBasedPositionToOneBasedPosition = (zeroBasedPosition: types.Position) => ({
@@ -19,7 +21,7 @@ export const getLanguageFromFileName = (fileName: string) => {
     return language
 }
 
-export const convertCodeEditToTextEdit = (codeEdit: protocol.CodeEdit): types.TextEdit => {
+export const convertCodeEditToTextEdit = (codeEdit: CodeEdit): types.TextEdit => {
        const range = types.Range.create(codeEdit.start.line - 1, codeEdit.start.offset - 1, codeEdit.end.line - 1, codeEdit.end.offset - 1)
        const newText = codeEdit.newText
 
@@ -74,7 +76,7 @@ export const convertTypeScriptKindToSymbolKind = (kind: string): types.SymbolKin
     }
 }
 
-export const convertTextSpanToRange = (span: protocol.TextSpan): types.Range => {
+export const convertTextSpanToRange = (span: TextSpan): types.Range => {
     return types.Range.create(span.start.line - 1, span.start.offset - 1, span.end.line - 1, span.end.offset - 1)
 }
 

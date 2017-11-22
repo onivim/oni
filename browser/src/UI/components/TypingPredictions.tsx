@@ -36,10 +36,11 @@ export interface ITypingPredictionViewState {
     predictions: IPredictedCharacter[]
 }
 
+const noop = (val?: any): void => { } // tslint:disable-line
+
 class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProps, ITypingPredictionViewState> {
 
     private _containerElement: HTMLElement
-    private _lastWidth: number
     private _subscription: IDisposable
 
     private _predictedElements: { [id: number]: HTMLElement } = {}
@@ -78,7 +79,7 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
             })
 
             // Force re-layout
-            this._lastWidth = this._containerElement.offsetWidth
+            noop(this._containerElement.offsetWidth)
         })
     }
 
