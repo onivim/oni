@@ -6,6 +6,8 @@
 
 import * as types from "vscode-languageserver-types"
 
+import * as Oni from "oni-api"
+
 import { configuration , IConfigurationValues } from "./../Services/Configuration"
 
 import * as Coordinates from "./Coordinates"
@@ -47,6 +49,8 @@ export interface IState {
     configuration: IConfigurationValues
     imeActive: boolean
     viewport: IViewport
+
+    neovimError: boolean
 
     statusBar: { [id: string]: IStatusBarItem }
     toolTips: { [id: string]: IToolTip }
@@ -186,6 +190,7 @@ export const createDefaultState = (): IState => ({
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
     backgroundColor: "#000000",
+    neovimError: false,
 
     configuration: configuration.getValues(),
 

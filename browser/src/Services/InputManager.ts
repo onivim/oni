@@ -1,4 +1,6 @@
 
+import * as Oni from "oni-api"
+
 import { commandManager } from "./CommandManager"
 
 export type ActionFunction = () => boolean
@@ -23,10 +25,10 @@ export class InputManager implements Oni.InputManager {
     /**
      * API Methods
      */
-    public bind(keyChord: string | string[], action: ActionOrCommand, filterFunction?: () => boolean) {
+    public bind(keyChord: string | string[], action: ActionOrCommand, filterFunction?: () => boolean): Oni.DisposeFunction {
         if (Array.isArray(keyChord)) {
-            keyChord.forEach((key) => this.bind(key, action, filterFunction))
-            return
+            const disposalFunctions = keyChord.map((key) => this.bind(key, action, filterFunction))
+            return () => disposalFunctions.forEach((df) => df())
         }
 
         const normalizedKeyChord = keyChord.toLowerCase()
@@ -34,6 +36,10 @@ export class InputManager implements Oni.InputManager {
         const newBinding = { action, filter: filterFunction }
 
         this._boundKeys[normalizedKeyChord] = [...currentBinding, newBinding]
+
+        return () => {
+            this._boundKeys[normalizedKeyChord] = this._boundKeys[normalizedKeyChord].filter((f) => f !== newBinding)
+        }
     }
 
     public unbind(keyChord: string | string[]) {

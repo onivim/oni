@@ -7,7 +7,8 @@
 import { applyMiddleware, bindActionCreators, createStore } from "redux"
 import thunk from "redux-thunk"
 
-import { Event, IEvent } from "./../../Event"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
 
 import * as ActionCreators from "./MenuActionCreators"
 import { filterMenuOptions } from "./MenuFilter"

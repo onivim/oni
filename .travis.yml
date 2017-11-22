@@ -9,6 +9,7 @@ branches:
         - /^release.*/
 
 cache:
+    yarn: true
     directories:
         - node_modules
 
@@ -33,7 +34,8 @@ addons:
             - bsdtar
 
 install:
-    - npm install
+    - npm install -g yarn
+    - yarn install
 
 script:
     - ./build/script/travis-build.sh

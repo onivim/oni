@@ -6,6 +6,8 @@
 // import * as os from "os"
 import * as types from "vscode-languageserver-types"
 
+import * as Oni from "oni-api"
+
 // import { configuration } from "./../Configuration"
 
 // import * as UI from "./../../UI"

@@ -5,12 +5,14 @@
  * Useful for testing the plugin API
  */
 
+import * as OniApi from "oni-api"
+
 import { Oni } from "./Api/Oni"
 
 export class AnonymousPlugin {
-    private _oni: Oni.Plugin.Api
+    private _oni: OniApi.Plugin.Api
 
-    public get oni(): Oni.Plugin.Api {
+    public get oni(): OniApi.Plugin.Api {
         return this._oni
     }
 

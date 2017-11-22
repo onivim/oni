@@ -8,6 +8,8 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
+import * as Oni from "oni-api"
+
 import { IState } from "./../State"
 
 import { Arrow, ArrowDirection } from "./Arrow"

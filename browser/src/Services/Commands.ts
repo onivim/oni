@@ -10,6 +10,8 @@ import * as path from "path"
 
 import { clipboard, remote } from "electron"
 
+import * as Oni from "oni-api"
+
 import { INeovimInstance } from "./../neovim"
 
 import { configuration } from "./../Services/Configuration"
@@ -46,6 +48,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
         new CallbackCommand("oni.debug.reload", "Reload Oni", "Reloads the Oni instance. You will lose all unsaved changes", () => remote.getCurrentWindow().reload()),
 
         new CallbackCommand("oni.editor.maximize", "Maximize Window", "Maximize the current window", () => remote.getCurrentWindow().maximize()),
+
+        new CallbackCommand("oni.editor.minimize", "Minimize Window", "Minimize the current window", () => remote.getCurrentWindow().minimize()),
 
         // Language service
         // TODO: Deprecate

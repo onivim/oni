@@ -1,11 +1,13 @@
-import { remote } from "electron"
 import { EventEmitter } from "events"
 import * as path from "path"
 
 import * as mkdirp from "mkdirp"
 
-import { Event, IEvent } from "./../Event"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
+
 import * as Log from "./../Log"
+import { EventContext } from "./EventContext"
 
 import * as Actions from "./../actions"
 import { measureFont } from "./../Font"
@@ -15,7 +17,7 @@ import { configuration } from "./../Services/Configuration"
 
 import { NeovimBufferReference } from "./MsgPack"
 import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
-import { startNeovim } from "./NeovimProcessSpawner"
+import { INeovimStartOptions, startNeovim } from "./NeovimProcessSpawner"
 import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { Session } from "./Session"
 
@@ -33,12 +35,12 @@ export interface INeovimApiVersion {
 }
 
 export interface IFullBufferUpdateEvent {
-    context: Oni.EventContext
+    context: EventContext
     bufferLines: string[]
 }
 
 export interface IIncrementalBufferUpdateEvent {
-    context: Oni.EventContext
+    context: EventContext
     lineNumber: number
     lineContents: string
 }
@@ -79,7 +81,7 @@ export interface INeovimInstance {
 
     onRedrawComplete: IEvent<void>
 
-    onScroll: IEvent<Oni.EventContext>
+    onScroll: IEvent<EventContext>
 
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
     onOniCommand: IEvent<string>
@@ -94,7 +96,7 @@ export interface INeovimInstance {
     /**
      * Supply input (keyboard/mouse) to Neovim
      */
-    input(inputString: string): void
+    input(inputString: string): Promise<void>
 
     /**
      * Call a VimL function
@@ -130,16 +132,13 @@ export interface INeovimInstance {
     openInitVim(): Promise<void>
 }
 
-export interface INeovimStartOptions {
-    runtimePaths?: string[]
-}
-
 /**
  * Integration with NeoVim API
  */
 export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _neovim: Session
     private _initPromise: Promise<void>
+    private _isLeaving: boolean
 
     private _config = configuration
     private _autoCommands: NeovimAutoCommands
@@ -158,16 +157,18 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _quickFix: QuickFixList
 
     private _onDirectoryChanged = new Event<string>()
+    private _onErrorEvent = new Event<Error | string>()
     private _onYank = new Event<INeovimYankInfo>()
     private _onOniCommand = new Event<string>()
     private _onRedrawComplete = new Event<void>()
     private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
     private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
-    private _onScroll = new Event<Oni.EventContext>()
+    private _onScroll = new Event<EventContext>()
     private _onModeChanged = new Event<Oni.Vim.Mode>()
     private _onHidePopupMenu = new Event<void>()
     private _onShowPopupMenu = new Event<INeovimCompletionInfo>()
     private _onSelectPopupMenu = new Event<number>()
+    private _onLeave = new Event<void>()
 
     private _pendingScrollTimeout: number | null = null
 
@@ -187,6 +188,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._onDirectoryChanged
     }
 
+    public get onError(): IEvent<Error | string> {
+        return this._onErrorEvent
+    }
+
+    public get onLeave(): IEvent<void> {
+        return this._onLeave
+    }
+
     public get onModeChanged(): IEvent<Oni.Vim.Mode> {
         return this._onModeChanged
     }
@@ -199,7 +208,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._onRedrawComplete
     }
 
-    public get onScroll(): IEvent<Oni.EventContext> {
+    public get onScroll(): IEvent<EventContext> {
         return this._onScroll
     }
 
@@ -225,7 +234,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     constructor(widthInPixels: number, heightInPixels: number) {
         super()
-
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
 
@@ -242,17 +250,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request<T>(request, args)
     }
 
-    public async getContext(): Promise<Oni.EventContext> {
+    public async getContext(): Promise<EventContext> {
         return this.callFunction("OniGetContext", [])
     }
 
-    public start(filesToOpen?: string[], startOptions?: INeovimStartOptions): Promise<void> {
-        filesToOpen = filesToOpen || []
-
-        startOptions = startOptions || { }
-        const runtimePaths = startOptions.runtimePaths || []
-
-        this._initPromise = Promise.resolve(startNeovim(runtimePaths, filesToOpen))
+    public start(startOptions?: INeovimStartOptions): Promise<void> {
+        this._initPromise = startNeovim(startOptions)
             .then((nv) => {
                 Log.info("NeovimInstance: Neovim started")
 
@@ -263,7 +266,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 this._neovim = nv
 
                 this._neovim.on("error", (err: Error) => {
-                    Log.error(err)
+                    this._onError(err)
                 })
 
                 this._neovim.on("notification", (method: any, args: any) => {
@@ -277,7 +280,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         // TODO: Update pluginManager to subscribe from event here, instead of dupliating this
 
                         if (pluginMethod === "buffer_update") {
-                            const eventContext: Oni.EventContext = args[0][0]
+                            const eventContext: EventContext = args[0][0]
                             const startRange: number = args[0][1]
                             const endRange: number = args[0][2]
 
@@ -292,6 +295,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                             if (eventName === "DirChanged") {
                                 this._updateProcessDirectory()
+                            } else if (eventName === "VimLeave") {
+                                this._isLeaving = true
+                                this._onLeave.dispatch()
                             }
 
                             this._autoCommands.notifyAutocommand(eventName, eventContext)
@@ -321,9 +327,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 })
 
                 this._neovim.on("disconnect", () => {
-
-                    if (!configuration.getValue("debug.persistOnNeovimExit")) {
-                        remote.getCurrentWindow().close()
+                    if (!this._isLeaving) {
+                        this._onError("Neovim disconnected. This likely means that the Neovim process crashed.")
                     }
                 })
 
@@ -346,7 +351,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         await this.callFunction("OniConnect", [])
                     },
                     (err: any) => {
-                        this.emit("error", err)
+                        this._onError(err)
                     })
             })
 
@@ -378,7 +383,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             return this.open(loadInitVim)
         } else {
             // Use path from: https://github.com/neovim/neovim/wiki/FAQ
-            const rootFolder = Platform.isWindows() ? path.join(Platform.getUserHome(), "AppData", "Local", "nvim") : path.join(Platform.getUserHome(), ".config", "nvim")
+            const rootFolder = Platform.isWindows() ? path.join(process.env["LOCALAPPDATA"], "nvim") : // tslint:disable-line no-string-literal
+                                                      path.join(Platform.getUserHome(), ".config", "nvim")
 
             mkdirp.sync(rootFolder)
             const initVimPath = path.join(rootFolder, "init.vim")
@@ -426,8 +432,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public input(inputString: string): Promise<void> {
-        this._neovim.request("nvim_input", [inputString])
-        return Promise.resolve(null)
+        return this._neovim.request("nvim_input", [inputString])
     }
 
     public resize(widthInPixels: number, heightInPixels: number): void {
@@ -600,8 +605,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         })
     }
 
-    private async _onFullBufferUpdate(context: Oni.EventContext, startRange: number, endRange: number): Promise<void> {
-
+    private async _onFullBufferUpdate(context: EventContext, startRange: number, endRange: number): Promise<void> {
         if (endRange > MAX_LINES_FOR_BUFFER_UPDATE) {
             return
         }
@@ -614,6 +618,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         })
     }
 
+    private _onError(error: Error | string): void {
+        Log.error(error)
+        this._onErrorEvent.dispatch(error)
+    }
+
     private async _updateProcessDirectory(): Promise<void> {
         const newDirectory = await this.getCurrentWorkingDirectory()
         this._onDirectoryChanged.dispatch(newDirectory)
@@ -621,19 +630,27 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private async _attachUI(columns: number, rows: number): Promise<void> {
         const version = await this.getApiVersion()
+
+        const useNativeTabs = configuration.getValue("tabs.mode") === "native"
+
+        const externaliseTabline = !useNativeTabs
+
         console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`) // tslint:disable-line no-console
 
-        const startupOptions = this._getStartupOptionsForVersion(version.major, version.minor, version.patch)
+        const startupOptions = this._getStartupOptionsForVersion(version.major,
+                                                                 version.minor,
+                                                                 version.patch,
+                                                                 externaliseTabline)
 
         await this._neovim.request("nvim_ui_attach", [columns, rows, startupOptions])
     }
 
-    private _getStartupOptionsForVersion(major: number, minor: number, patch: number) {
+    private _getStartupOptionsForVersion(major: number, minor: number, patch: number, shouldExtTabs: boolean) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
             return {
                 rgb: true,
                 popupmenu_external: true,
-                ext_tabline: true,
+                ext_tabline: shouldExtTabs,
             }
         } else if (major === 0 && minor === 2) {
             // 0.1 and below does not support external tabline

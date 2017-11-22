@@ -5,18 +5,17 @@
         "target": "es2015",
         "noImplicitAny": false,
         "sourceMap": false,
-        "outDir": "../lib_test/test",
+        "allowJs": true,
+        "outDir": "../lib_test",
         "lib": [
             "dom",
             "es2017"
         ],
         "skipLibCheck": true
     },
-    "files": [
-        "./../definitions/Oni.d.ts"
-    ],
     "include": [
-        "**/*.ts"
+        "**/*.ts",
+        "**/*.js"
     ],
     "exclude": [
         "node_modules"

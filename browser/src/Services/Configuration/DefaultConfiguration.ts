@@ -27,8 +27,23 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.neovimPath": null,
     "debug.persistOnNeovimExit": false,
     "debug.detailedSessionLogging": false,
+    "debug.showTypingPrediction": false,
 
     "debug.fakeLag.languageServer": null,
+    "debug.fakeLag.neovimInput": null,
+
+    "experimental.autoClosingPairs.enabled": false,
+    "experimental.autoClosingPairs.default": [
+        { "open": "{", "close": "}" },
+        { "open": "[", "close": "]" },
+        { "open": "(", "close": ")" },
+    ],
+
+    "experimental.editor.typingPrediction": false,
+
+    "experimental.neovim.transport": "stdio",
+    // TODO: Enable pipe transport for Windows
+    // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
     "oni.audio.bellUrl": null,
 
@@ -90,8 +105,8 @@ const BaseConfiguration: IConfigurationValues = {
     "language.less.languageServer.command": cssLanguageServerPath,
     "language.less.languageServer.arguments": ["--stdio"],
 
-    "language.sass.languageServer.command": cssLanguageServerPath,
-    "language.sass.languageServer.arguments": ["--stdio"],
+    "language.scss.languageServer.command": cssLanguageServerPath,
+    "language.scss.languageServer.arguments": ["--stdio"],
 
     "language.reason.languageServer.command": ocamlLanguageServerPath,
     "language.reason.languageServer.arguments": ["--stdio"],
@@ -114,8 +129,7 @@ const BaseConfiguration: IConfigurationValues = {
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
 
-    "tabs.enabled": true,
-    "tabs.showVimTabs": false,
+    "tabs.mode": "buffers",
     "tabs.height": "2.5em",
     "tabs.maxWidth": "30em",
     "tabs.wrap": false,

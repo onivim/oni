@@ -7,6 +7,8 @@
 import * as electron from "electron"
 import * as React from "react"
 
+import * as Oni from "oni-api"
+
 import { Icon } from "./../../UI/Icon"
 
 import { statusBar } from "./../StatusBar"

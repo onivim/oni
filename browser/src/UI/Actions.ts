@@ -7,6 +7,8 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
+import * as Oni from "oni-api"
+
 import * as Coordinates from "./Coordinates"
 import { IMessageDialog, ITab, StatusBarAlignment } from "./State"
 import { Rectangle } from "./Types"
@@ -20,6 +22,13 @@ export interface ISetViewportAction {
     payload: {
         width: number,
         height: number,
+    }
+}
+
+export interface ISetNeovimErrorAction {
+    type: "SET_NEOVIM_ERROR",
+    payload: {
+        neovimError: boolean,
     }
 }
 
@@ -239,6 +248,7 @@ export type SimpleAction =
     IStatusBarShowAction |
     ISetErrorsAction |
     ISetCurrentBuffersAction |
+    ISetNeovimErrorAction |
     ISetTabs |
     ISetViewportAction |
     ISetWindowCursor |
