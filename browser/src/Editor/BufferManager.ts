@@ -18,6 +18,8 @@ import * as Oni from "oni-api"
 import { EventContext, NeovimInstance } from "./../neovim"
 import { languageManager, sortTextEdits } from "./../Services/Language"
 
+import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
+
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
 
@@ -124,7 +126,7 @@ export class Buffer implements Oni.Buffer {
                 .toPromise()
     }
 
-    public async getOrCreateHighlightGroup(highlight: Oni.IHighlight | string): Promise<Oni.HighlightGroupId> {
+    public async getOrCreateHighlightGroup(highlight: SyntaxHighlighting.IHighlight | string): Promise<SyntaxHighlighting.HighlightGroupId> {
         if (typeof highlight === "string") {
             return highlight
         } else {
@@ -133,7 +135,7 @@ export class Buffer implements Oni.Buffer {
         }
     }
 
-    public async setHighlights(highlightInfo: Oni.HighlightInfo[]): Promise<void> {
+    public async setHighlights(highlightInfo: SyntaxHighlighting.HighlightInfo[]): Promise<void> {
 
         const bufferId = parseInt(this._id, 10)
 

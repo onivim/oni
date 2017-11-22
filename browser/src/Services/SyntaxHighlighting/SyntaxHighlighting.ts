@@ -6,6 +6,8 @@
 
 import * as os from "os"
 
+import * as Oni from "oni-api"
+
 import { Observable } from "rxjs/Observable"
 // import { Registry } from "vscode-textmate"
 // import * as types from "vscode-languageserver-types"

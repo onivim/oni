@@ -7,6 +7,7 @@
 import * as flatten from "lodash/flatten"
 
 import { editorManager } from "./../EditorManager"
+import { HighlightGroupId, HighlightInfo  } from "./Definitions"
 import { ISyntaxHighlightLineInfo, ISyntaxHighlightState } from "./SyntaxHighlightingStore"
 
 import { Store, Unsubscribe } from "redux"
@@ -30,7 +31,7 @@ export class SyntaxHighlightReconciler {
 
             const state = this._store.getState()
 
-            const activeBuffer = editorManager.activeEditor.activeBuffer
+            const activeBuffer: any = editorManager.activeEditor.activeBuffer
 
             const bufferId = activeBuffer.id
 
@@ -47,7 +48,7 @@ export class SyntaxHighlightReconciler {
                 // TODO: Only set highlights for tokens in the viewable portion
                 const consolidatedTokens = flatten(allHighlights)
 
-                const tokensWithHighlights = consolidatedTokens.map((t): Oni.HighlightInfo => ({
+                const tokensWithHighlights: any = consolidatedTokens.map((t): HighlightInfo => ({
                     highlightGroup: this._getHighlightGroupFromScope(t.scopes),
                     range: t.range,
                 }))
@@ -59,7 +60,7 @@ export class SyntaxHighlightReconciler {
 
     }
 
-    private _getHighlightGroupFromScope(/* TODO */scopes: any): Oni.HighlightGroupId {
+    private _getHighlightGroupFromScope(/* TODO */scopes: any): HighlightGroupId {
         return "Function"
     }
 
