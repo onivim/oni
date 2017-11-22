@@ -75,7 +75,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
 
     public async openFile(file: string, text?: string): Promise<any> {
 
-        if (this._openedFiles.indexOf(file) >= 0 ){
+        if (this._openedFiles.indexOf(file) >= 0) {
             return
         }
 
