@@ -39,6 +39,8 @@ const BaseConfiguration: IConfigurationValues = {
         { "open": "(", "close": ")" },
     ],
 
+    "experimental.editor.textMateHighlighting.enabled": false,
+
     "experimental.editor.typingPrediction": false,
 
     "experimental.neovim.transport": "stdio",
@@ -91,6 +93,23 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.cursorColumn": false,
     "editor.cursorColumnOpacity": 0.1,
+
+    "editor.tokenColors": [{
+        scope: "variable.object",
+        settings: "Identifier",
+    }, {
+        scope: "variable.other",
+        settings: "Identifier",
+    }, {
+        scope: "variable.parameter",
+        settings: "Identifier",
+    }, {
+        scope: "support.function",
+        settings: "Function",
+    }, {
+        scope: "entity.name",
+        settings: "Function",
+    }],
 
     "environment.additionalPaths": [],
 

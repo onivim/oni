@@ -139,7 +139,7 @@ export class Buffer implements Oni.Buffer {
 
         const bufferId = parseInt(this._id, 10)
 
-        // TODO: Batch these calls for efficiencey
+        // TODO: Batch these calls for efficiency
         const promises = highlightInfo.map(async (hi) => {
             return await this._neovimInstance.request("nvim_buf_add_highlight", [bufferId, 0, hi.highlightGroup, hi.range.start.line, hi.range.start.character, hi.range.end.character])
         })

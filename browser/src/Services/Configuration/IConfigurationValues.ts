@@ -8,6 +8,13 @@
 
 import * as Oni from "oni-api"
 
+import { IHighlight } from "./../SyntaxHighlighting"
+
+export interface ITokenColorsSetting {
+    scope: string
+    settings: IHighlight | string
+}
+
 export interface IConfigurationValues {
 
     "activate": (oni: Oni.Plugin.Api) => void
@@ -33,6 +40,7 @@ export interface IConfigurationValues {
     // Experimental feature flags
     "experimental.autoClosingPairs.enabled": boolean
     "experimental.autoClosingPairs.default": any
+    "experimental.editor.textMateHighlighting.enabled": boolean
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
@@ -112,6 +120,9 @@ export interface IConfigurationValues {
 
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
+
+    // Allow overriding token colors for specific textmate scopes
+    "editor.tokenColors": ITokenColorsSetting[]
 
     // Additional paths to include when launching sub-process from Oni
     // (and available in terminal integration, later)

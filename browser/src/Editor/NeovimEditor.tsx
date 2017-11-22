@@ -28,7 +28,7 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
 import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
-import { registerTextMateHighlighter } from "./../Services/SyntaxHighlighting"
+import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
@@ -77,6 +77,7 @@ export class NeovimEditor implements IEditor {
     private _lastBufferId: string = null
 
     private _typingPredictionManager: TypingPredictionManager = new TypingPredictionManager()
+    private _syntaxHighlighter: ISyntaxHighlighter
 
     public get mode(): string {
         return this._currentMode
@@ -209,6 +210,12 @@ export class NeovimEditor implements IEditor {
         Observable.merge(this._cursorMoved$, this._cursorMovedI$)
             .subscribe((cursorMoved) => {
                 this._onCursorMoved.dispatch(cursorMoved)
+
+                const currentBuffer = this.activeBuffer.id
+                console.dir(this._syntaxHighlighter.getHighlightTokenAt(currentBuffer, {
+                    line: cursorMoved.line,
+                    character: cursorMoved.column
+                }))
             })
 
         this._modeChanged$ = this.onModeChanged.asObservable()
@@ -219,12 +226,15 @@ export class NeovimEditor implements IEditor {
         bufferUpdates$.subscribe((bufferUpdate) => {
             this._onBufferChangedEvent.dispatch(bufferUpdate)
             UI.Actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
+
+            this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
         })
 
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
         addNormalModeLanguageFunctionality(bufferUpdates$, this._cursorMoved$, this._modeChanged$)
 
-        registerTextMateHighlighter(bufferUpdates$, this._neovimInstance)
+        const textMateHighlightingEnabled = this._config.getValue("experimental.editor.textMateHighlighting.enabled")
+        this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
         this._render()
 
@@ -276,6 +286,13 @@ export class NeovimEditor implements IEditor {
             for (let i = 1; i < files.length; i++) {
                 this._neovimInstance.command("exec \":tabe " + normalizePath(files.item(i).path) + "\"")
             }
+        }
+    }
+
+    public dispose(): void {
+        if (this._syntaxHighlighter) {
+            this._syntaxHighlighter.dispose()
+            this._syntaxHighlighter = null
         }
     }
 

@@ -21,6 +21,8 @@ export class SyntaxHighlightReconciler {
 
     private _unsubscribe: Unsubscribe
 
+    private _previousState: { [line: number]: ISyntaxHighlightLineInfo} = {}
+
     constructor(
         private _store: Store<ISyntaxHighlightState>,
     ) {
@@ -40,7 +42,11 @@ export class SyntaxHighlightReconciler {
             if (currentHighlightState && currentHighlightState.lines) {
                 const lineNumbers = Object.keys(currentHighlightState.lines)
 
-                const allHighlights = lineNumbers.map((li) => {
+                const filteredLines = lineNumbers.filter((line) => {
+                    return this._previousState[line] !== currentHighlightState.lines[line]
+                })
+
+                const allHighlights = filteredLines.map((li) => {
                     const line: ISyntaxHighlightLineInfo = currentHighlightState.lines[li]
                     return line.tokens
                 })
@@ -52,6 +58,11 @@ export class SyntaxHighlightReconciler {
                     highlightGroup: this._getHighlightGroupFromScope(t.scopes),
                     range: t.range,
                 }))
+                .filter((t) => !!t.highlightGroup)
+
+                filteredLines.forEach((li) => {
+                    this._previousState[li] = currentHighlightState.lines[li]
+                })
 
                 activeBuffer.setHighlights(tokensWithHighlights)
             }
@@ -60,8 +71,25 @@ export class SyntaxHighlightReconciler {
 
     }
 
-    private _getHighlightGroupFromScope(/* TODO */scopes: any): HighlightGroupId {
-        return "Function"
+    private _getHighlightGroupFromScope(/* TODO */scopes: string[]): HighlightGroupId {
+
+
+        for (let i = 0; i < scopes.length; i++) {
+            if (scopes[i].indexOf("variable.object") === 0) {
+                return "Identifier"
+            } else if (scopes[i].indexOf("variable.other") === 0) {
+                return "Identifier"
+            } else if (scopes[i].indexOf("variable.parameter") === 0) {
+                return "Identifier"
+            } else if (scopes[i].indexOf("support.function") === 0) {
+                return "Function"
+            } else if (scopes[i].indexOf("entity.name") === 0) {
+                return "Function"
+            }
+        }
+
+
+        return null
     }
 
     public dispose(): void {
@@ -71,67 +99,3 @@ export class SyntaxHighlightReconciler {
         }
     }
 }
-
-            // const grammar = getRegistry()
-
-            // var ruleStack = null
-
-            // console.warn("Updating highlights!")
-
-            // let tokens: any[] = []
-
-            // for (var i = 0; i < lines.length; i++) {
-            //     var r = grammar.tokenizeLine(lines[i], ruleStack)
-
-            //     const tokensWithPosition = r.tokens.map((t) => ({
-            //         range: types.Range.create(i, t.startIndex, i, t.endIndex),
-            //         scopes: t.scopes
-            //     }))
-
-            //     tokens = tokens.concat(tokensWithPosition)
-
-            //     ruleStack = r.ruleStack
-            // }
-
-            // const bufferId = editorManager.activeEditor.activeBuffer.id
-
-            // const keys = Object.keys(scopeToVimHighlightGroup)
-            // tokens.forEach(async (t) => {
-
-                // const matchingKey = keys.find((k) => t.
-
-                // const scopes: string[] = t.scopes
-                // if (scopes.find((f) => f.indexOf("support.class.builtin") === 0)) {
-                //     const result: any = await neovimInstance.request("nvim_buf_add_highlight", [parseInt(bufferId, 10), 0, "Type", t.range.start.line, t.range.start.character, t.range.end.character])
-                //     console.dir(result)
-                // } else if (scopes.find((f) => f.indexOf("variable") === 0)) {
-                //     const result: any = await neovimInstance.request("nvim_buf_add_highlight", [parseInt(bufferId, 10), 0, "Identifier", t.range.start.line, t.range.start.character, t.range.end.character])
-                //     console.dir(result)
-                // } else if (scopes.find((f) => f.indexOf("entity.name.function") === 0)) {
-                //     const result: any = await neovimInstance.request("nvim_buf_add_highlight", [parseInt(bufferId, 10), 0, "Function", t.range.start.line, t.range.start.character, t.range.end.character])
-                //     console.dir(result)
-                // }
-
-            // })
-            // console.dir(tokens)
-        // }
-    // })
-// }
-
-// const scopeToVimHighlightGroup = {
-//     "variable": "Identifier",
-//     "entity.name.function": "Function",
-//     "keyword": "Keyword",
-//     "constant.character": "Character",
-//     "constant.other": "Constant",
-//     "constant.language": "COnstant",
-
-// }
-
-// export const getRegistry = () => {
-
-//     const registry = new Registry()
-//     const grammar = registry.loadGrammarFromPathSync("C:/oni/languages/javascript/syntaxes/JavaScript.tmLanguage.json")
-
-//     return grammar
-// }
