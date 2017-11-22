@@ -98,6 +98,15 @@ const BaseConfiguration: IConfigurationValues = {
         scope: "variable.object",
         settings: "Identifier",
     }, {
+        scope: "variable.other.constant",
+        settings: "Constant",
+    }, {
+        scope: "variable.parameter",
+        settings: "Constant",
+    }, {
+        scope: "variable.other.readwrite",
+        settings: "Constant",
+    }, {
         scope: "variable.other",
         settings: "Identifier",
     }, {

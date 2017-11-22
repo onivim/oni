@@ -6,6 +6,8 @@
 
 import * as flatten from "lodash/flatten"
 
+import { configuration, Configuration } from "./../Configuration"
+
 import { editorManager } from "./../EditorManager"
 import { HighlightGroupId, HighlightInfo  } from "./Definitions"
 import { ISyntaxHighlightLineInfo, ISyntaxHighlightState } from "./SyntaxHighlightingStore"
@@ -25,6 +27,7 @@ export class SyntaxHighlightReconciler {
 
     constructor(
         private _store: Store<ISyntaxHighlightState>,
+        private _configuration: Configuration = configuration,
     ) {
 
         // TODO: Also listen to viewport change event
@@ -73,24 +76,17 @@ export class SyntaxHighlightReconciler {
 
     private _getHighlightGroupFromScope(/* TODO */scopes: string[]): HighlightGroupId {
 
+        const configurationColors = this._configuration.getValue("editor.tokenColors")
 
         for (let i = 0; i < scopes.length; i++) {
-            // if (scopes[i].indexOf("variable.object") === 0) {
-            //     return "Identifier"
-            // }
-            // } else if (scopes[i].indexOf("variable.other.constant") === 0) {
-            //     return "Constant"
-            // } else if (scopes[i].indexOf("variable.other") === 0) {
-            //     return "Identifier"
-            // } else if (scopes[i].indexOf("variable.parameter") === 0) {
-            //     return "Identifier"
-            // } else if (scopes[i].indexOf("support.function") === 0) {
-            //     return "Function"
-            // } else if (scopes[i].indexOf("entity.name") === 0) {
-            //     return "Special"
-            // }
-        }
 
+            const matchingRule = configurationColors.find((c: any) => scopes[i].indexOf(c.scope) === 0)
+
+            if (matchingRule) {
+                // TODO: Convert to highlight group id
+                return matchingRule.settings
+            }
+        }
 
         return null
     }
