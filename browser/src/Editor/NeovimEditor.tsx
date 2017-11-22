@@ -210,12 +210,6 @@ export class NeovimEditor implements IEditor {
         Observable.merge(this._cursorMoved$, this._cursorMovedI$)
             .subscribe((cursorMoved) => {
                 this._onCursorMoved.dispatch(cursorMoved)
-
-                const currentBuffer = this.activeBuffer.id
-                console.dir(this._syntaxHighlighter.getHighlightTokenAt(currentBuffer, {
-                    line: cursorMoved.line,
-                    character: cursorMoved.column,
-                }))
             })
 
         this._modeChanged$ = this.onModeChanged.asObservable()

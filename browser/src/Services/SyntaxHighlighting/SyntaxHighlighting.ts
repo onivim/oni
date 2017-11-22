@@ -9,7 +9,7 @@ import * as os from "os"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
-import { IDisposable }from "oni-types"
+import { IDisposable } from "oni-types"
 
 import { Store } from "redux"
 
@@ -33,7 +33,7 @@ export class NullSyntaxHighlighter implements ISyntaxHighlighter {
         return null
     }
 
-    public dispose(): void { }
+    public dispose(): void { } // tslint:disable-line
 }
 
 export class SyntaxHighlighter implements ISyntaxHighlighter {

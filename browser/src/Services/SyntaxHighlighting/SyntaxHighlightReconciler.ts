@@ -69,18 +69,22 @@ export class SyntaxHighlightReconciler {
 
                 activeBuffer.setHighlights(tokensWithHighlights)
             }
-
         })
+    }
 
+    public dispose(): void {
+        if (this._unsubscribe) {
+            this._unsubscribe()
+            this._unsubscribe = null
+        }
     }
 
     private _getHighlightGroupFromScope(/* TODO */scopes: string[]): HighlightGroupId {
 
         const configurationColors = this._configuration.getValue("editor.tokenColors")
 
-        for (let i = 0; i < scopes.length; i++) {
-
-            const matchingRule = configurationColors.find((c: any) => scopes[i].indexOf(c.scope) === 0)
+        for (const scope of scopes) {
+            const matchingRule = configurationColors.find((c: any) => scope.indexOf(c.scope) === 0)
 
             if (matchingRule) {
                 // TODO: Convert to highlight group id
@@ -89,12 +93,5 @@ export class SyntaxHighlightReconciler {
         }
 
         return null
-    }
-
-    public dispose(): void {
-        if (this._unsubscribe) {
-            this._unsubscribe()
-            this._unsubscribe = null
-        }
     }
 }

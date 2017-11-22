@@ -21,7 +21,7 @@ export class GrammarLoader implements IGrammarLoader {
     private _grammarCache: { [language: string]: IGrammar } = {}
 
     constructor(
-        private _registry: Registry = new Registry()
+        private _registry: Registry = new Registry(),
     ) {}
 
     public async getGrammarForLanguage(language: string): Promise<IGrammar> {
