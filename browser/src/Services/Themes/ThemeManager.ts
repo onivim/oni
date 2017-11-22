@@ -58,7 +58,7 @@ export interface IThemeColors {
     "fileExplorer.cursor.background": string
     "fileExplorer.cursor.foreground": string
 
-    // LATER: 
+    // LATER:
     //  - Notifications?
     //  - Alert / message?
 }
@@ -204,7 +204,7 @@ const mergeColorsWithConfiguration = (colors: Partial<IThemeColors>, configManag
             ...previous,
             [currentValue]: color,
         }
-    }, {} as Partial<IThemeColors>)
+    }, {})
 
     return {
         ...DefaultThemeColors,
@@ -237,7 +237,7 @@ export class ThemeManager {
         const theme = await themeLoader.getThemeByName(name)
 
         if (!theme) {
-            // If we couldn't find the theme... we'll try 
+            // If we couldn't find the theme... we'll try
             // loading vim-style, and derive a theme from
             // that.
             this._isAnonymousTheme = true
@@ -275,6 +275,10 @@ export class ThemeManager {
         return this._onThemeChangedEvent
     }
 
+    public getColors(): IThemeColors {
+        return this._colors
+    }
+
     private _updateTheme(theme: IThemeMetadata): void {
         this._activeTheme = theme
 
@@ -282,12 +286,7 @@ export class ThemeManager {
 
         this._onThemeChangedEvent.dispatch()
     }
-
-    public getColors(): IThemeColors {
-        return this._colors
-    }
 }
-
 
 let _themeManager: ThemeManager = null
 export const getThemeManagerInstance = () => {

@@ -8,8 +8,8 @@ import * as fs from "fs"
 
 import { DefaultTheme, IThemeMetadata } from "./ThemeManager"
 
-import { pluginManager, PluginManager } from "./../../Plugins/PluginManager"
 import { IThemeContribution } from "./../../Plugins/Api/Capabilities"
+import { pluginManager, PluginManager } from "./../../Plugins/PluginManager"
 
 export interface IThemeLoader {
     getThemeByName(name: string): Promise<IThemeMetadata>
@@ -24,7 +24,7 @@ export class DefaultLoader implements IThemeLoader {
 export class PluginThemeLoader implements IThemeLoader {
 
     constructor(
-        private _pluginManager: PluginManager = pluginManager
+        private _pluginManager: PluginManager = pluginManager,
     ) { }
 
     public async getThemeByName(name: string): Promise<IThemeMetadata> {
@@ -32,7 +32,7 @@ export class PluginThemeLoader implements IThemeLoader {
         const plugins = this._pluginManager.plugins
 
         const pluginsWithThemes = plugins.filter((p) => {
-            p.metadata && p.metadata.contributes && p.metadata.contributes.themes
+            return p.metadata && p.metadata.contributes && p.metadata.contributes.themes
         })
 
         const allThemes = pluginsWithThemes.reduce((previous: IThemeContribution[], current) => {
@@ -53,7 +53,7 @@ export class PluginThemeLoader implements IThemeLoader {
     }
 
     private async _loadThemeFromFile(themeJsonPath: string): Promise<IThemeMetadata> {
-        const data = await new Promise<string>((resolve, reject) => {
+        const contents = await new Promise<string>((resolve, reject) => {
             fs.readFile(themeJsonPath, "utf8", (err, data: string) => {
                 if (err) {
                     reject(err)
@@ -64,6 +64,6 @@ export class PluginThemeLoader implements IThemeLoader {
             })
         })
 
-        return JSON.parse(data) as IThemeMetadata
+        return JSON.parse(contents) as IThemeMetadata
     }
 }

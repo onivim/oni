@@ -28,7 +28,7 @@ export const parseFromString = (packageJson: string): Capabilities.IPluginMetada
 
     const contributes = {
         ...Capabilities.DefaultContributions,
-        ...metadata.contributes
+        ...metadata.contributes,
     }
 
     return {
