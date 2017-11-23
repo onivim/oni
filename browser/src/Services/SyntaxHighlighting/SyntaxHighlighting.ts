@@ -36,7 +36,12 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     }
 
     public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
-        // tslint: disable-line
+        this._store.dispatch({
+            type: "SYNTAX_UPDATE_BUFFER_VIEWPORT",
+            bufferId,
+            topVisibleLine: topLineInView,
+            bottomVisibleLine: bottomLineInView,
+        })
     }
 
     public async notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void> {

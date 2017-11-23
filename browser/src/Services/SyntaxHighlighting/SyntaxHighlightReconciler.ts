@@ -38,6 +38,10 @@ export class SyntaxHighlightReconciler {
 
             const activeBuffer: any = editorManager.activeEditor.activeBuffer
 
+            if (!activeBuffer) {
+                return
+            }
+
             const bufferId = activeBuffer.id
 
             const currentHighlightState = state.bufferToHighlights[bufferId]
@@ -46,6 +50,15 @@ export class SyntaxHighlightReconciler {
                 const lineNumbers = Object.keys(currentHighlightState.lines)
 
                 const filteredLines = lineNumbers.filter((line) => {
+
+                    const lineNumber = parseInt(line)
+
+                    // Ignore lines that are not in current view
+                    if (lineNumber < currentHighlightState.topVisibleLine
+                        || lineNumber > currentHighlightState.bottomVisibleLine) {
+                        return false
+                    }
+
                     return this._previousState[line] !== currentHighlightState.lines[line]
                 })
 

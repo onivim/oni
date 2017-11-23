@@ -24,6 +24,11 @@ export interface ISyntaxHighlightLineInfo {
 
 export interface IBufferSyntaxHighlightState {
     bufferId: string
+
+    // This doesn't work quite right if we have a buffer open in a separate window...
+    topVisibleLine: number
+    bottomVisibleLine: number
+
     lines: {
         [key: number]: ISyntaxHighlightLineInfo,
     }
@@ -52,6 +57,11 @@ export type ISyntaxHighlightAction = {
         type: "SYNTAX_UPDATE_TOKENS_FOR_LINES",
         bufferId: string,
         updatedLines: { [key: number]: ISyntaxHighlightLineInfo },
+    } | {
+        type: "SYNTAX_UPDATE_BUFFER_VIEWPORT",
+        bufferId: string,
+        topVisibleLine: number,
+        bottomVisibleLine: number,
     }
 
 // const nullAction = { type: null } as ISyntaxHighlightAction
@@ -85,23 +95,31 @@ const bufferToHighlightsReducer: Reducer<{ [bufferId: string]: IBufferSyntaxHigh
 const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
     state: IBufferSyntaxHighlightState = {
         bufferId: null,
+        topVisibleLine: -1,
+        bottomVisibleLine: -1,
         lines: {},
     },
     action: ISyntaxHighlightAction,
 ) => {
 
     switch (action.type) {
+        case "SYNTAX_UPDATE_BUFFER_VIEWPORT":
+            return {
+                ...state,
+                topVisibleLine: action.topVisibleLine,
+                bottomVisibleLine: action.bottomVisibleLine,
+            }
         case "SYNTAX_UPDATE_TOKENS_FOR_LINES":
             return {
-            ...state,
-            bufferId: action.bufferId,
-            lines: {
-                ...state.lines,
-                ...action.updatedLines,
-            },
-        }
+                ...state,
+                bufferId: action.bufferId,
+                lines: {
+                    ...state.lines,
+                    ...action.updatedLines,
+                },
+            }
         default:
-        return state
+            return state
     }
 }
 

@@ -26,7 +26,7 @@ export const getRegistry = () => {
     return _grammar
 }
 
-export const getSyntaxTokensForBuffer = async (grammar: IGrammar, startLine: number, initialRuleStack: StackElement): Promise<IBufferSyntaxHighlightState> => {
+export const getSyntaxTokensForBuffer = async (grammar: IGrammar, startLine: number, initialRuleStack: StackElement): Promise<Partial<IBufferSyntaxHighlightState>> => {
 
     startLine = initialRuleStack ? startLine : 0
 
