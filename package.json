@@ -113,6 +113,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@types/redux-batched-subscribe": "^0.1.2",
     "css-language-server": "0.0.2",
     "find-up": "2.1.0",
     "keyboard-layout": "2.0.13",
@@ -123,6 +124,7 @@
     "oni-neovim-binaries": "0.1.0",
     "oni-ripgrep": "0.0.3",
     "oni-types": "0.0.4",
+    "redux-batched-subscribe": "^0.1.6",
     "typescript": "2.6.1",
     "vscode-jsonrpc": "3.5.0",
     "vscode-languageserver": "3.5.0",
