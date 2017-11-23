@@ -143,7 +143,7 @@ export class Buffer implements Oni.Buffer {
         const bufferId = parseInt(this._id, 10)
 
         // Get an id to associate the group with
-        const newSrcId = await this._neovimInstance.request<number>("nvim_buf_add_highlight", [bufferId, 0, "", 0, 0, 0, 0])
+        const newSrcId = await this._neovimInstance.request<number>("nvim_buf_add_highlight", [bufferId, 0, "", 0, 0, 0])
 
         const updater = new BufferHighlightUpdater()
         updater.start(this._highlightState, newSrcId)
@@ -152,9 +152,11 @@ export class Buffer implements Oni.Buffer {
             updater.updateHighlight(hl)
         })
 
+
         const results = updater.end()
         console.dir(results)
 
+        this._highlightState = results.newState
 
         // TODO: Batch these calls for efficiency
         const promises = highlightInfo.map(async (hi) => {

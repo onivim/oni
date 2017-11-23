@@ -53,7 +53,7 @@ export const doesHighlightAlreadyExist = (highlightInfo: SyntaxHighlighting.High
 
 import * as Utility from "./../Utility"
 
-export const removeOverlappingHighlights = (highlightInfo: SyntaxHighlighting.HighlightInfo, highlights: SyntaxHighlighting.HighlightInfo[]): SyntaxHighlighting.HighlightInfo[] {
+export const removeOverlappingHighlights = (highlightInfo: SyntaxHighlighting.HighlightInfo, highlights: SyntaxHighlighting.HighlightInfo[]): SyntaxHighlighting.HighlightInfo[] => {
     // TODO: Test this...
     
     return highlights.filter((hl) => {
@@ -116,10 +116,12 @@ export class BufferHighlightUpdater implements IBufferHighlightUpdater {
         const newHighlights = removeOverlappingHighlights(highlightInfo, currentLine.highlights)
         newHighlights.push(highlightInfo)
 
-        this._linesToClear.push({
-            srcId: currentLine.srcId,
-            line: lineNumber,
-        })
+        if (currentLine.srcId !== this._newSrcId) {
+            this._linesToClear.push({
+                srcId: currentLine.srcId,
+                line: lineNumber,
+            })
+        }
 
         this._linesToUpdate.push(lineNumber)
         this._state[lineNumber] = {

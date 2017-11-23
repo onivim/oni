@@ -80,7 +80,9 @@ export class SyntaxHighlightReconciler {
                     this._previousState[li] = currentHighlightState.lines[li]
                 })
 
-                activeBuffer.setHighlights(tokensWithHighlights)
+                if (tokensWithHighlights.length > 0) {
+                    activeBuffer.setHighlights(tokensWithHighlights)
+                }
             }
         })
     }

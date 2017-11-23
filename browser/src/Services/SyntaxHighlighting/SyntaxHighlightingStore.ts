@@ -17,9 +17,9 @@ export interface ISyntaxHighlightTokenInfo {
 }
 
 export interface ISyntaxHighlightLineInfo {
+    line: string
     ruleStack: StackElement
     tokens: ISyntaxHighlightTokenInfo[]
-    version: number
 }
 
 export interface IBufferSyntaxHighlightState {
@@ -45,14 +45,12 @@ export type ISyntaxHighlightAction = {
     language: string
     bufferId: string,
     lines: string[]
-    version: number,
 } | {
         type: "SYNTAX_UPDATE_BUFFER_LINE",
         language: string
         bufferId: string,
         lineNumber: number,
         line: string,
-        version: number,
     } | {
         type: "SYNTAX_UPDATE_TOKENS_FOR_LINES",
         bufferId: string,
@@ -140,8 +138,11 @@ const fullBufferUpdateEpic: Epic<ISyntaxHighlightAction, ISyntaxHighlightState> 
             if (!grammar) {
                 return nullAction
             }
+            
+            const state = store.getState()
+            const bufferState = state.bufferToHighlights[action.bufferId]
 
-            const update = await getSyntaxTokensForBuffer(grammar, 0, null)
+            const update = await getSyntaxTokensForBuffer(grammar, bufferState)
 
             const ret: ISyntaxHighlightAction = {
                 type: "SYNTAX_UPDATE_TOKENS_FOR_LINES",
