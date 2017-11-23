@@ -13,7 +13,9 @@ import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
 import "rxjs/add/operator/concatMap"
 
-import { NeovimInstance } from "./../neovim"
+import * as Oni from "oni-api"
+
+import { EventContext, NeovimInstance } from "./../neovim"
 import { languageManager, sortTextEdits } from "./../Services/Language"
 
 import * as Constants from "./../Constants"
@@ -61,7 +63,7 @@ export class Buffer implements Oni.Buffer {
     }
 
     constructor(private _neovimInstance: NeovimInstance,
-                evt: Oni.EventContext) {
+                evt: EventContext) {
         this.updateFromEvent(evt)
     }
 
@@ -186,7 +188,7 @@ export class Buffer implements Oni.Buffer {
         return getToken(result[0], column)
     }
 
-    public updateFromEvent(evt: Oni.EventContext): void {
+    public updateFromEvent(evt: EventContext): void {
         this._id = evt.bufferNumber.toString()
         this._filePath = evt.bufferFullPath
         this._language = evt.filetype
@@ -220,7 +222,7 @@ export class BufferManager {
 
     constructor(private _neovimInstance: NeovimInstance) { }
 
-    public updateBufferFromEvent(evt: Oni.EventContext): Buffer {
+    public updateBufferFromEvent(evt: EventContext): Buffer {
         const id = evt.bufferNumber.toString()
         const currentBuffer = this.getBufferById(id)
 

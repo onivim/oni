@@ -14,11 +14,12 @@ import { Observable } from "rxjs/Observable"
 
 import { clipboard, ipcRenderer, remote } from "electron"
 
-import { INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
+
+import { EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
-
-import { Event, IEvent } from "./../Event"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 
@@ -275,6 +276,15 @@ export class NeovimEditor implements IEditor {
         }
     }
 
+    public dispose(): void {
+        // TODO: Implement full disposal logic
+        this._popupMenu.dispose()
+        this._popupMenu = null
+
+        this._windowManager.dispose()
+        this._windowManager = null
+    }
+
     public async openFile(file: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":e " + file)
         return this.activeBuffer
@@ -345,10 +355,8 @@ export class NeovimEditor implements IEditor {
         this._currentMode = newMode
     }
 
-    private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
+    private _onVimEvent(eventName: string, evt: EventContext): void {
         UI.Actions.setWindowCursor(evt.windowNumber, evt.line - 1, evt.column - 1)
-
-        tasks.onEvent(evt)
 
         const lastBuffer = this.activeBuffer
         const buf = this._bufferManager.updateBufferFromEvent(evt)

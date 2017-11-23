@@ -66,6 +66,11 @@ export interface IScrollRegion {
     right: number
 }
 
+const DefaultCell: ICell = {
+    character: "",
+    characterWidth: 1,
+}
+
 export class NeovimScreen implements IScreen {
     private _backgroundColor: string = "#000000"
     private _currentHighlight: IHighlight = {}
@@ -140,17 +145,12 @@ export class NeovimScreen implements IScreen {
     }
 
     public getCell(x: number, y: number): ICell {
-        const defaultCell = {
-            character: "",
-            characterWidth: 1,
-        }
-
         const cell = this._grid.getCell(x, y)
 
         if (cell) {
             return cell
         } else {
-            return defaultCell
+            return DefaultCell
         }
     }
 

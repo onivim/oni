@@ -3,6 +3,8 @@ import { connect, Provider } from "react-redux"
 
 import * as take from "lodash/take"
 
+import * as Oni from "oni-api"
+
 import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
 import { Visible } from "./../../UI/components/Visible"
 import { Icon, IconSize } from "./../../UI/Icon"

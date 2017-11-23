@@ -6,6 +6,8 @@
  * because dependent packages or plugins may have their own set of configuration
  */
 
+import * as Oni from "oni-api"
+
 export interface IConfigurationValues {
 
     "activate": (oni: Oni.Plugin.Api) => void
@@ -151,8 +153,7 @@ export interface IConfigurationValues {
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
 
-    "tabs.enabled": boolean
-    "tabs.showVimTabs": boolean
+    "tabs.mode": string
 
     // Height of individual tabs in the tab strip
     "tabs.height": string

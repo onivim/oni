@@ -4,6 +4,8 @@
  * Service to enable auto-closing pair key bindings
  */
 
+import * as Oni from "oni-api"
+
 import { Configuration } from "./Configuration"
 import { EditorManager } from "./EditorManager"
 import { InputManager } from "./InputManager"

@@ -7,6 +7,8 @@ import * as os from "os"
 import * as flatMap from "lodash/flatMap"
 import * as types from "vscode-languageserver-types"
 
+import * as Oni from "oni-api"
+
 import * as Utility from "./../../../Utility"
 
 export namespace TextDocumentSyncKind {
@@ -48,25 +50,6 @@ export const getTextFromContents = (contents: types.MarkedString | types.MarkedS
     }
 }
 
-export const bufferUpdateToTextDocumentItem = (args: Oni.BufferUpdateContext): types.TextDocumentItem => {
-    const lines = args.bufferLines
-    const { bufferFullPath, filetype, version } = args.eventContext
-    const text = lines.join(os.EOL)
-
-    return {
-        uri: wrapPathInFileUri(bufferFullPath),
-        languageId: filetype,
-        version,
-        text,
-    }
-}
-
-export const eventContextToTextDocumentIdentifierParams = (args: Oni.BufferUpdateContext) => ({
-    textDocument: {
-        uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
-    },
-})
-
 export const pathToTextDocumentIdentifierParms = (path: string) => ({
     textDocument: {
         uri: wrapPathInFileUri(path),
@@ -93,16 +76,6 @@ export const eventContextToCodeActionParams = (filePath: string, range: types.Ra
     }
 }
 
-export const eventContextToTextDocumentPositionParams = (args: Oni.EventContext) => ({
-    textDocument: {
-        uri: wrapPathInFileUri(args.bufferFullPath),
-    },
-    position: {
-        line: args.line - 1,
-        character: args.column - 1,
-    },
-})
-
 export const bufferToTextDocumentPositionParams = (buffer: Oni.Buffer) => ({
     textDocument: {
         uri: wrapPathInFileUri(buffer.filePath),
@@ -123,23 +96,6 @@ export const createDidChangeTextDocumentParams = (bufferFullPath: string, lines:
         },
         contentChanges: [{
             text,
-        }],
-    }
-}
-
-export const incrementalBufferUpdateToDidChangeTextDocumentParams = (args: Oni.IncrementalBufferUpdateContext, previousLine: string) => {
-    const changedLine = args.bufferLine
-    const lineNumber = args.lineNumber
-    const previousLineLength = previousLine.length
-
-    return {
-        textDocument: {
-            uri: wrapPathInFileUri(args.eventContext.bufferFullPath),
-            version: args.eventContext.version,
-        },
-        contentChanges: [{
-            range: types.Range.create(lineNumber - 1, 0, lineNumber - 1, previousLineLength),
-            text: changedLine,
         }],
     }
 }

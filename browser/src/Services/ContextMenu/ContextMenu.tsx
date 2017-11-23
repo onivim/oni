@@ -10,7 +10,8 @@ import thunk from "redux-thunk"
 
 import * as types from "vscode-languageserver-types"
 
-import { Event, IEvent } from "./../../Event"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
 
 import * as ActionCreators from "./../Menu/MenuActionCreators"
 import { createReducer } from "./../Menu/MenuReducer"
