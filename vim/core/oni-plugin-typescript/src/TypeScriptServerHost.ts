@@ -20,6 +20,8 @@ export class TypeScriptServerHost extends events.EventEmitter {
     private _seqToPromises = {}
     private _rl: any
 
+    private _openedFiles: string[] = []
+
     public get pid(): number {
         return this._tssProcess.pid
     }
@@ -49,7 +51,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
 
         this._tssProcess.stderr.on("data", (data, err) => {
-            console.error("Error from tss: " + data) // tslint:disable-line no-console
+            console.warn("Error from tss: " + data) // tslint:disable-line no-console
         })
 
         this._tssProcess.on("error", (data) => {
@@ -71,9 +73,17 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public openFile(file: string): Promise<any> {
+    public async openFile(file: string, text?: string): Promise<any> {
+
+        if (this._openedFiles.indexOf(file) >= 0) {
+            return
+        }
+
+        this._openedFiles.push(file)
+
         return this._makeTssRequest("open", {
             file,
+            fileContent: text,
         })
     }
 
@@ -141,10 +151,15 @@ export class TypeScriptServerHost extends events.EventEmitter {
                                         endOffset})
     }
 
-    public updateFile(file: string, fileContent: string): Promise<void> {
-        return this._makeTssRequest<void>("open", {
+    public  updateFile(file: string, fileContent: string): Promise<void> {
+        const totalLines = fileContent.split(os.EOL)
+        return this._makeTssRequest<void>("change", {
             file,
-            fileContent,
+            line: 1,
+            offset: 1,
+            endLine: totalLines.length + 1,
+            endOffset: 1,
+            insertString: fileContent,
         })
     }
 
