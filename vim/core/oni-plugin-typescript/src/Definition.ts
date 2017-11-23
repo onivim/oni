@@ -25,6 +25,10 @@ export const getDefinition = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) =
 
     const resultPos = val[0]
 
+    if (!resultPos) {
+        return null
+    }
+
     const range = types.Range.create(resultPos.start.line - 1, resultPos.start.offset - 1, resultPos.end.line - 1, resultPos.end.offset - 1)
 
     return {
