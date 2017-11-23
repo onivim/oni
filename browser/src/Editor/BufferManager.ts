@@ -20,6 +20,8 @@ import { languageManager, sortTextEdits } from "./../Services/Language"
 
 import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
 
+import { BufferHighlightState, BufferHighlightUpdater } from "./BufferHighlights"
+
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
 
@@ -35,6 +37,7 @@ export class Buffer implements Oni.Buffer {
 
     private _bufferLines: string[] = null
     private _lastBufferLineVersion: number = -1
+    private _highlightState: BufferHighlightState = {}
 
     public get filePath(): string {
         return this._filePath
@@ -138,6 +141,20 @@ export class Buffer implements Oni.Buffer {
     public async setHighlights(highlightInfo: SyntaxHighlighting.HighlightInfo[]): Promise<void> {
 
         const bufferId = parseInt(this._id, 10)
+
+        // Get an id to associate the group with
+        const newSrcId = await this._neovimInstance.request<number>("nvim_buf_add_highlight", [bufferId, 0, "", 0, 0, 0, 0])
+
+        const updater = new BufferHighlightUpdater()
+        updater.start(this._highlightState, newSrcId)
+
+        highlightInfo.forEach((hl) => {
+            updater.updateHighlight(hl)
+        })
+
+        const results = updater.end()
+        console.dir(results)
+
 
         // TODO: Batch these calls for efficiency
         const promises = highlightInfo.map(async (hi) => {
