@@ -31,7 +31,7 @@ export class Configuration implements Oni.Configuration {
         return this._onConfigurationChangedEvent
     }
 
-    constructor() {
+    public start(): void {
         Performance.mark("Config.load.start")
 
         this.applyConfig()

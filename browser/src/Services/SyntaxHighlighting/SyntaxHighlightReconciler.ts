@@ -59,7 +59,7 @@ export class SyntaxHighlightReconciler {
                         return false
                     }
 
-                    return this._previousState[line] !== currentHighlightState.lines[line]
+                    return true
                 })
 
                 const allHighlights = filteredLines.map((li) => {

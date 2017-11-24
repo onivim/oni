@@ -8,8 +8,12 @@ import * as types from "vscode-languageserver-types"
 
 import { StackElement } from "vscode-textmate"
 
-import { getSyntaxTokensForBuffer } from "./getSyntaxTokensForBuffer"
+// import { getSyntaxTokensForBuffer } from "./getSyntaxTokensForBuffer"
+import { SyntaxHighlightingPeriodicJob } from "./SyntaxHighlightingPeriodicJob"
 import { GrammarLoader } from "./GrammarLoader"
+
+import * as PeriodicJobs from "./../../PeriodicJobs"
+const syntaxHighlightingJobs = new PeriodicJobs.PeriodicJobManager()
 
 export interface ISyntaxHighlightTokenInfo {
     scopes: string[]
@@ -23,16 +27,17 @@ export interface ISyntaxHighlightLineInfo {
     dirty: boolean,
 }
 
+export type SyntaxHighlightLines = {[key: number]: ISyntaxHighlightLineInfo}
+
 export interface IBufferSyntaxHighlightState {
     bufferId: string
+    language: string
 
     // This doesn't work quite right if we have a buffer open in a separate window...
     topVisibleLine: number
     bottomVisibleLine: number
 
-    lines: {
-        [key: number]: ISyntaxHighlightLineInfo,
-    }
+    lines: SyntaxHighlightLines
 }
 
 export interface ISyntaxHighlightState {
@@ -53,9 +58,11 @@ export type ISyntaxHighlightAction = {
         lineNumber: number,
         line: string,
     } | {
-        type: "SYNTAX_UPDATE_TOKENS_FOR_LINES",
+        type: "SYNTAX_UPDATE_TOKENS_FOR_LINE",
         bufferId: string,
-        updatedLines: { [key: number]: ISyntaxHighlightLineInfo },
+        lineNumber: number,
+        tokens: ISyntaxHighlightTokenInfo[],
+        ruleStack: StackElement,
     } | {
         type: "SYNTAX_UPDATE_BUFFER_VIEWPORT",
         bufferId: string,
@@ -63,95 +70,40 @@ export type ISyntaxHighlightAction = {
         bottomVisibleLine: number,
     }
 
-// const nullAction = { type: null } as ISyntaxHighlightAction
-
-import { applyMiddleware, createStore, Reducer, Store } from "redux"
+import { applyMiddleware, createStore, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
-
-const reducer: Reducer<ISyntaxHighlightState> = (
-    state: ISyntaxHighlightState = {
-        bufferToHighlights: {},
-    },
-    action: ISyntaxHighlightAction,
-) => {
-
-    return {
-        ...state,
-        bufferToHighlights: bufferToHighlightsReducer(state.bufferToHighlights, action),
-    }
-}
-
-const bufferToHighlightsReducer: Reducer<{ [bufferId: string]: IBufferSyntaxHighlightState }> = (
-    state: { [bufferId: string]: IBufferSyntaxHighlightState } = {},
-    action: ISyntaxHighlightAction,
-) => {
-    return {
-        ...state,
-        [action.bufferId]: bufferReducer(state[action.bufferId], action),
-    }
-}
-
-const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
-    state: IBufferSyntaxHighlightState = {
-        bufferId: null,
-        topVisibleLine: -1,
-        bottomVisibleLine: -1,
-        lines: {},
-    },
-    action: ISyntaxHighlightAction,
-) => {
-
-    switch (action.type) {
-        case "SYNTAX_UPDATE_BUFFER_VIEWPORT":
-            return {
-                ...state,
-                topVisibleLine: action.topVisibleLine,
-                bottomVisibleLine: action.bottomVisibleLine,
-            }
-        case "SYNTAX_UPDATE_TOKENS_FOR_LINES":
-            return {
-                ...state,
-                bufferId: action.bufferId,
-                lines: {
-                    ...state.lines,
-                    ...action.updatedLines,
-                },
-            }
-        default:
-            return state
-    }
-}
+import { reducer } from "./SyntaxHighlightingReducer"
 
 const nullAction: any = { type: null }
 
 const grammarLoader = new GrammarLoader()
 
 const fullBufferUpdateEpic: Epic<ISyntaxHighlightAction, ISyntaxHighlightState> = (action$, store) =>
-    action$.ofType("SYNTAX_UPDATE_BUFFER")
+    action$.ofType("SYNTAX_UPDATE_BUFFER", "SYNTAX_UPDATE_BUFFER_LINE", "SYNTAX_UPDATE_BUFFER_VIEWPORT")
         .flatMap(async (action) => {
 
-            if (action.type !== "SYNTAX_UPDATE_BUFFER") {
+            const bufferId = action.bufferId
+            const state = store.getState()
+
+            const language = state.bufferToHighlights[bufferId].language
+
+            if (!language) {
                 return nullAction
             }
 
-            const grammar = await grammarLoader.getGrammarForLanguage(action.language)
+            const grammar = await grammarLoader.getGrammarForLanguage(language)
 
             if (!grammar) {
                 return nullAction
             }
-            
-            const state = store.getState()
-            const bufferState = state.bufferToHighlights[action.bufferId]
 
-            const update = await getSyntaxTokensForBuffer(grammar, bufferState)
+            syntaxHighlightingJobs.startJob(new SyntaxHighlightingPeriodicJob(
+                store as any,
+                action.bufferId,
+                grammar
+            ))
 
-            const ret: ISyntaxHighlightAction = {
-                type: "SYNTAX_UPDATE_TOKENS_FOR_LINES",
-                bufferId: update.bufferId,
-                updatedLines: update.lines,
-            }
-
-            return ret
+            return nullAction
         })
 
 export const createSyntaxHighlightStore = (): Store<ISyntaxHighlightState> => {

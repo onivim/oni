@@ -48,11 +48,11 @@ export const getAtomicCallsForUpdatedLines = (bufferId: number, linesToUpdate: n
 
 export const setHighlightsFromResult = async (bufferId: number, neovimInstance: NeovimInstance, result: IBufferHighlightUpdates): Promise<void> => {
 
-    const clearCalls = getAtomicCallsForClearedLines(bufferId, result.linesToClear)
+    // const clearCalls = getAtomicCallsForClearedLines(bufferId, result.linesToClear)
     const updateCalls = getAtomicCallsForUpdatedLines(bufferId, result.linesToUpdate, result.newState)
 
     const allCalls = [
-        ...clearCalls,
+        // ...clearCalls,
         ...updateCalls
     ]
 

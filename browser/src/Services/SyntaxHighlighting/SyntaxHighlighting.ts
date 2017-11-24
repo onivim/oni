@@ -52,15 +52,16 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             this._store.dispatch({
                 type: "SYNTAX_UPDATE_BUFFER",
                 language: evt.buffer.language,
+                bufferId: evt.buffer.id,
                 lines,
             })
         } else {
             // Incremental update
             this._store.dispatch({
                 type: "SYNTAX_UPDATE_BUFFER_LINE",
-                language: evt.buffer.language,
+                bufferId: evt.buffer.id,
                 lineNumber: firstChange.range.start.line,
-                lines: firstChange.text,
+                line: firstChange.text,
             })
         }
     }
