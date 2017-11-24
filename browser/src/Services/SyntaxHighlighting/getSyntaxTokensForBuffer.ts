@@ -28,13 +28,14 @@ export const getRegistry = () => {
 
 export const getSyntaxTokensForBuffer = async (grammar: IGrammar, originalState: IBufferSyntaxHighlightState): Promise<Partial<IBufferSyntaxHighlightState>> => {
 
+
     // startLine = initialRuleStack ? startLine : 0
 
     // Don't bother refreshing the whole state... just go to the end of the viewport
     const totalLines = editorManager.activeEditor.activeBuffer.lineCount
     const bufferLines = await editorManager.activeEditor.activeBuffer.getLines(0, totalLines)
-    const endLine = Math.min(originalState.bottomVisibleLine + 1, totalLines)
-
+    //const endLine = Math.min(originalState.bottomVisibleLine + 1, totalLines)
+    const endLine = totalLines
 
     const outputLines: { [bufferId: string]: ISyntaxHighlightLineInfo } = { }
 
@@ -82,6 +83,7 @@ export const getSyntaxTokensForBuffer = async (grammar: IGrammar, originalState:
             line: bufferLines[i],
             ruleStack,
             tokens,
+            dirty: false,
         }
     }
 
@@ -91,6 +93,7 @@ export const getSyntaxTokensForBuffer = async (grammar: IGrammar, originalState:
             line: null,
             ruleStack: null,
             tokens: [],
+            dirty: true,
         }
     }
 

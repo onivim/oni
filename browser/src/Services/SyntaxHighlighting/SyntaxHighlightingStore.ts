@@ -20,6 +20,7 @@ export interface ISyntaxHighlightLineInfo {
     line: string
     ruleStack: StackElement
     tokens: ISyntaxHighlightTokenInfo[]
+    dirty: boolean,
 }
 
 export interface IBufferSyntaxHighlightState {

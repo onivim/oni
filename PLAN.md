@@ -1,6 +1,36 @@
-- handle tsx files
+- Show token scopes
+
+- BufferManager
+    - create batch for 'clear_highlight'
+    - create batch for 'add_highlight'
+    - use those calls
+
+- Store
+    - add `dirty` flag for line
+    - when setting lines, if line is different, bump `dirty` flag
+
+- Job
+
+    store.getState()
+    ptr = 0
+    while(count < batchSize && ptr < length) {
+        // find first 'dirty' value
+        
+        // tokenize line
+        // if new ruleStack !== old rulestack, flip dirty bit for next vaule
+    }
+
+    UI.Actions.tokenizeLines()
 
 - put limit on syntax highlight (editor.textMateHighlighting.maxLines)
+- put limit on batch size (editor.textMateHighlighting.batchSize)
+
+- handle tsx files
+
+https://code.visualstudio.com/blogs/2017/02/08/syntax-highlighting-optimizations
+- May not need to clear lines below, if the rulestack is unchanged
+- Check end state to see if an update is needed
+- How does this relate to lines being changed?
 
 - `BufferManager` - handle the delta results that come from `BufferHighlightUpdater`
     - Remove duplicates of `linesToUpdate`

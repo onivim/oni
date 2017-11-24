@@ -6,9 +6,11 @@
 
 import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
 
+import * as flatten from "lodash/flatten"
 
-export type BufferHighlightState = { [key: number]: IBufferHighlightLineState
-}
+import { NeovimInstance } from "./../neovim"
+
+export type BufferHighlightState = { [key: number]: IBufferHighlightLineState }
 
 export interface IBufferHighlightLineState {
 
@@ -22,6 +24,39 @@ export interface IBufferHighlightLineState {
 export interface IClearInfo {
     srcId: number
     line: number
+}
+
+export const getAtomicCallsForClearedLines = (bufferId: number, clearedLines: IClearInfo[]): any[] => {
+    return clearedLines.map((cl) => {
+        return ["nvim_buf_clear_highlight", [bufferId, cl.srcId, cl.line, cl.line + 1]]
+    })
+}
+
+export const getAtomicCallsForUpdatedLines = (bufferId: number, linesToUpdate: number[], newState: BufferHighlightState): any[] => {
+
+    const ret = linesToUpdate.map((ltu) => {
+        const srcId = newState[ltu].srcId
+        const tokens = newState[ltu].highlights
+
+        return tokens.map((val) => {
+            return ["nvim_buf_add_highlight", [bufferId, srcId, val.highlightGroup, val.range.start.line, val.range.start.character, val.range.end.character]]
+        })
+    })
+
+    return flatten(ret)
+}
+
+export const setHighlightsFromResult = async (bufferId: number, neovimInstance: NeovimInstance, result: IBufferHighlightUpdates): Promise<void> => {
+
+    const clearCalls = getAtomicCallsForClearedLines(bufferId, result.linesToClear)
+    const updateCalls = getAtomicCallsForUpdatedLines(bufferId, result.linesToUpdate, result.newState)
+
+    const allCalls = [
+        ...clearCalls,
+        ...updateCalls
+    ]
+
+    return neovimInstance.request<void>("nvim_call_atomic", [allCalls])
 }
 
 export interface IBufferHighlightUpdates {
@@ -98,7 +133,11 @@ export class BufferHighlightUpdater implements IBufferHighlightUpdater {
         const lineNumber = highlightInfo.range.start.line
 
         if (!this._state[lineNumber]) {
-            this._linesToUpdate.push(lineNumber)
+
+            if (this._linesToUpdate.indexOf(lineNumber) === -1) {
+                this._linesToUpdate.push(lineNumber)
+            }
+
             this._state[lineNumber] = {
                 srcId: this._newSrcId,
                 highlights: [highlightInfo],
@@ -123,7 +162,10 @@ export class BufferHighlightUpdater implements IBufferHighlightUpdater {
             })
         }
 
-        this._linesToUpdate.push(lineNumber)
+        if (this._linesToUpdate.indexOf(lineNumber) === -1) {
+            this._linesToUpdate.push(lineNumber)
+        }
+
         this._state[lineNumber] = {
                 srcId: this._newSrcId,
                 highlights: newHighlights,

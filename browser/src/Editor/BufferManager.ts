@@ -20,7 +20,7 @@ import { languageManager, sortTextEdits } from "./../Services/Language"
 
 import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
 
-import { BufferHighlightState, BufferHighlightUpdater } from "./BufferHighlights"
+import { BufferHighlightState, BufferHighlightUpdater, setHighlightsFromResult } from "./BufferHighlights"
 
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
@@ -152,18 +152,18 @@ export class Buffer implements Oni.Buffer {
             updater.updateHighlight(hl)
         })
 
-
         const results = updater.end()
-        console.dir(results)
+
+        await setHighlightsFromResult(bufferId, this._neovimInstance, results)
 
         this._highlightState = results.newState
 
-        // TODO: Batch these calls for efficiency
-        const promises = highlightInfo.map(async (hi) => {
-            return await this._neovimInstance.request("nvim_buf_add_highlight", [bufferId, 0, hi.highlightGroup, hi.range.start.line, hi.range.start.character, hi.range.end.character])
-        })
+        // // TODO: Batch these calls for efficiency
+        // const promises = highlightInfo.map(async (hi) => {
+        //     return await this._neovimInstance.request("nvim_buf_add_highlight", [bufferId, 0, hi.highlightGroup, hi.range.start.line, hi.range.start.character, hi.range.end.character])
+        // })
 
-        await Promise.all(promises)
+        // await Promise.all(promises)
     }
 
     public async setLines(start: number, end: number, lines: string[]): Promise<void> {
