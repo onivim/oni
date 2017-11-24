@@ -22,7 +22,7 @@ import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
 import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
 
-// import { BufferHighlightState, /*BufferHighlightUpdater*/, /*setHighlightsFromResult*/ } from "./BufferHighlights"
+import { IBufferHighlightsUpdater2, BufferHighlightsUpdater2 } from "./BufferHighlights"
 
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
@@ -140,39 +140,19 @@ export class Buffer implements Oni.Buffer {
         }
     }
 
-    private _lastHighlight: number = null
+    // private _lastHighlight: number = null
     private _promiseQueue = new PromiseQueue()
-    public async setHighlights(highlightInfo: SyntaxHighlighting.HighlightInfo[]): Promise<void> {
+    private _previousHighlightState: any = {}
+
+    public async updateHighlights(updateFunction: (highlightsUpdater: IBufferHighlightsUpdater2) => void): Promise<void> {
         this._promiseQueue.enqueuePromise(async () => {
             const bufferId = parseInt(this._id, 10)
+            const bufferUpdater = new BufferHighlightsUpdater2(bufferId, this._neovimInstance, this._previousHighlightState)
+            await bufferUpdater.start()
 
-            if (this._lastHighlight !== null) {
-                await this._neovimInstance.request<number>("nvim_buf_clear_highlight", [bufferId, this._lastHighlight, 1, -1])
-            }
+            updateFunction(bufferUpdater)
 
-            // // Get an id to associate the group with
-            const newSrcId = await this._neovimInstance.request<number>("nvim_buf_add_highlight", [bufferId, 0, "", 0, 0, 0])
-            this._lastHighlight = newSrcId
-
-            // const updater = new BufferHighlightUpdater()
-            // updater.start(this._highlightState, newSrcId)
-
-            // highlightInfo.forEach((hl) => {
-            //     updater.updateHighlight(hl)
-            // })
-
-            // const results = updater.end()
-
-            // await setHighlightsFromResult(bufferId, this._neovimInstance, results)
-
-            // this._highlightState = results.newState
-
-            // // TODO: Batch these calls for efficiency
-            const promises = highlightInfo.map(async (hi) => {
-                return await this._neovimInstance.request("nvim_buf_add_highlight", [bufferId, newSrcId, hi.highlightGroup, hi.range.start.line, hi.range.start.character, hi.range.end.character])
-            })
-
-            await Promise.all(promises)
+            this._previousHighlightState = await bufferUpdater.apply()
         })
     }
 

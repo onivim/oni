@@ -4,16 +4,17 @@
  * Handles enhanced syntax highlighting
  */
 
-import * as flatten from "lodash/flatten"
+// import * as flatten from "lodash/flatten"
 import * as debounce from "lodash/debounce"
 
 import { configuration, Configuration } from "./../Configuration"
 
 import { editorManager } from "./../EditorManager"
-import { HighlightGroupId, HighlightInfo  } from "./Definitions"
-import { ISyntaxHighlightLineInfo, ISyntaxHighlightState } from "./SyntaxHighlightingStore"
+import { HighlightGroupId } from "./Definitions"
+import { ISyntaxHighlightLineInfo, ISyntaxHighlightState, ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
 
 import { Store, Unsubscribe } from "redux"
+
 
 // SyntaxHighlightReconciler
 //
@@ -60,30 +61,58 @@ export class SyntaxHighlightReconciler {
                         return false
                     }
 
-                    return true
+                    return this._previousState[line] !== currentHighlightState.lines[line]
                 })
 
-                const allHighlights = filteredLines.map((li) => {
-                    const line: ISyntaxHighlightLineInfo = currentHighlightState.lines[li]
-                    return line.tokens
+                const mapTokenToHighlight = (token: ISyntaxHighlightTokenInfo) => ({
+                    highlightGroup: this._getHighlightGroupFromScope(token.scopes),
+                    range: token.range,
                 })
 
-                // TODO: Only set highlights for tokens in the viewable portion
-                const consolidatedTokens = flatten(allHighlights)
+                const mapTokensToHighlights = (tokens: ISyntaxHighlightTokenInfo[]) => {
+                    return tokens.map(mapTokenToHighlight)
+                            .filter((t) => !!t.highlightGroup)
+                }
 
-                const tokensWithHighlights: any = consolidatedTokens.map((t): HighlightInfo => ({
-                    highlightGroup: this._getHighlightGroupFromScope(t.scopes),
-                    range: t.range,
-                }))
-                .filter((t) => !!t.highlightGroup)
+                const tokens = filteredLines.map((li) => {
+                    const line = currentHighlightState.lines[li]
+                    const tokens = line.tokens
+
+                    const highlights = mapTokensToHighlights(tokens)
+                    return {
+                        line: parseInt(li, 10),
+                        highlights
+                    }
+                })
 
                 filteredLines.forEach((li) => {
                     this._previousState[li] = currentHighlightState.lines[li]
                 })
 
-                if (tokensWithHighlights.length > 0) {
-                    activeBuffer.setHighlights(tokensWithHighlights)
+                if (tokens.length > 0) {
+                    activeBuffer.updateHighlights((highlightUpdater: any) => {
+                        tokens.forEach((token) => {
+                            const line = token.line
+                            const highlights = token.highlights
+
+                            highlightUpdater.setHighlightsForLine(line, highlights)
+                        })
+                    })
                 }
+
+                // const allHighlights = filteredLines.map((li) => {
+                //     const line: ISyntaxHighlightLineInfo = currentHighlightState.lines[li]
+                //     return line.tokens
+                // })
+
+                // // TODO: Only set highlights for tokens in the viewable portion
+                // const consolidatedTokens = flatten(allHighlights)
+
+                // if (tokensWithHighlights.length > 0) {
+                //     activeBuffer.updateHighlights((highlightUpdater) => {
+                //     })
+                //     // activeBuffer.setHighlights(tokensWithHighlights)
+                // }
             }
         }))
     }

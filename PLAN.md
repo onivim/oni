@@ -1,8 +1,15 @@
+- Pivot on implementation
+    - setHighlightsForLine
+    - clearHighlightsFor
 
-
-[1hr]
-- Debug - where is the syntax highlighting breaking down?
-    - WHy isn't first line getting highlighted?
+- BufferHighlights:
+    - updateHighlights((highlightUpdater) => {
+            highlightUpdater.setHighlightsForLine(...)
+            highlightUpdater.clearHighlightsForLine(...)
+        })
+         - setHighlightsForLine(...)
+         - clearHighlightsForLine(...)
+         - applyUpdate()
 
 - Expose state globally
 - Minimal repro
