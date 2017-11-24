@@ -4,7 +4,6 @@
  * Handles enhanced syntax highlighting
  */
 
-// import * as flatten from "lodash/flatten"
 import * as debounce from "lodash/debounce"
 
 import { configuration, Configuration } from "./../Configuration"
@@ -14,7 +13,6 @@ import { HighlightGroupId } from "./Definitions"
 import { ISyntaxHighlightLineInfo, ISyntaxHighlightState, ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
 
 import { Store, Unsubscribe } from "redux"
-
 
 // SyntaxHighlightReconciler
 //
@@ -99,20 +97,6 @@ export class SyntaxHighlightReconciler {
                         })
                     })
                 }
-
-                // const allHighlights = filteredLines.map((li) => {
-                //     const line: ISyntaxHighlightLineInfo = currentHighlightState.lines[li]
-                //     return line.tokens
-                // })
-
-                // // TODO: Only set highlights for tokens in the viewable portion
-                // const consolidatedTokens = flatten(allHighlights)
-
-                // if (tokensWithHighlights.length > 0) {
-                //     activeBuffer.updateHighlights((highlightUpdater) => {
-                //     })
-                //     // activeBuffer.setHighlights(tokensWithHighlights)
-                // }
             }
         }))
     }
