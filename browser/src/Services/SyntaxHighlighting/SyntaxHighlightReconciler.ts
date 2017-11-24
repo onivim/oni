@@ -5,6 +5,7 @@
  */
 
 import * as flatten from "lodash/flatten"
+import * as debounce from "lodash/debounce"
 
 import { configuration, Configuration } from "./../Configuration"
 
@@ -32,7 +33,7 @@ export class SyntaxHighlightReconciler {
 
         // TODO: Also listen to viewport change event
 
-        this._unsubscribe = this._store.subscribe(() => {
+        this._unsubscribe = this._store.subscribe(debounce(() => {
 
             const state = this._store.getState()
 
@@ -84,7 +85,7 @@ export class SyntaxHighlightReconciler {
                     activeBuffer.setHighlights(tokensWithHighlights)
                 }
             }
-        })
+        }))
     }
 
     public dispose(): void {

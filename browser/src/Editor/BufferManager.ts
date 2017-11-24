@@ -15,8 +15,10 @@ import "rxjs/add/operator/concatMap"
 
 import * as Oni from "oni-api"
 
+
 import { EventContext, NeovimInstance } from "./../neovim"
 import { languageManager, sortTextEdits } from "./../Services/Language"
+import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
 import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
 
@@ -139,37 +141,39 @@ export class Buffer implements Oni.Buffer {
     }
 
     private _lastHighlight: number = null
+    private _promiseQueue = new PromiseQueue()
     public async setHighlights(highlightInfo: SyntaxHighlighting.HighlightInfo[]): Promise<void> {
+        this._promiseQueue.enqueuePromise(async () => {
+            const bufferId = parseInt(this._id, 10)
 
-        const bufferId = parseInt(this._id, 10)
+            if (this._lastHighlight !== null) {
+                await this._neovimInstance.request<number>("nvim_buf_clear_highlight", [bufferId, this._lastHighlight, 1, -1])
+            }
 
-        if (this._lastHighlight !== null) {
-            await this._neovimInstance.request<number>("nvim_buf_clear_highlight", [bufferId, this._lastHighlight, 1, -1])
-        }
+            // // Get an id to associate the group with
+            const newSrcId = await this._neovimInstance.request<number>("nvim_buf_add_highlight", [bufferId, 0, "", 0, 0, 0])
+            this._lastHighlight = newSrcId
 
-        // Get an id to associate the group with
-        const newSrcId = await this._neovimInstance.request<number>("nvim_buf_add_highlight", [bufferId, 0, "", 0, 0, 0])
-        this._lastHighlight = newSrcId
+            // const updater = new BufferHighlightUpdater()
+            // updater.start(this._highlightState, newSrcId)
 
-        // const updater = new BufferHighlightUpdater()
-        // updater.start(this._highlightState, newSrcId)
+            // highlightInfo.forEach((hl) => {
+            //     updater.updateHighlight(hl)
+            // })
 
-        // highlightInfo.forEach((hl) => {
-        //     updater.updateHighlight(hl)
-        // })
+            // const results = updater.end()
 
-        // const results = updater.end()
+            // await setHighlightsFromResult(bufferId, this._neovimInstance, results)
 
-        // await setHighlightsFromResult(bufferId, this._neovimInstance, results)
+            // this._highlightState = results.newState
 
-        // this._highlightState = results.newState
+            // // TODO: Batch these calls for efficiency
+            const promises = highlightInfo.map(async (hi) => {
+                return await this._neovimInstance.request("nvim_buf_add_highlight", [bufferId, newSrcId, hi.highlightGroup, hi.range.start.line, hi.range.start.character, hi.range.end.character])
+            })
 
-        // // TODO: Batch these calls for efficiency
-        const promises = highlightInfo.map(async (hi) => {
-            return await this._neovimInstance.request("nvim_buf_add_highlight", [bufferId, newSrcId, hi.highlightGroup, hi.range.start.line, hi.range.start.character, hi.range.end.character])
+            await Promise.all(promises)
         })
-
-        await Promise.all(promises)
     }
 
     public async setLines(start: number, end: number, lines: string[]): Promise<void> {
