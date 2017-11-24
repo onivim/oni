@@ -10,28 +10,30 @@ import { NeovimInstance } from "./../neovim"
 
 // Line number to highlight src id, for clearing
 export type HighlightSourceId = number
-export type BufferHighlightState2 = { [key: number]: HighlightSourceId }
+export interface BufferHighlightState { [key: number]: HighlightSourceId }
 
-export interface IBufferHighlightsUpdater2 {
+export interface IBufferHighlightsUpdater {
     setHighlightsForLine(line: number, highlights: SyntaxHighlighting.HighlightInfo[]): void
     clearHighlightsForLine(line: number): void
 }
 
-export class BufferHighlightsUpdater2 implements IBufferHighlightsUpdater2 {
+// Helper class to efficiently update
+// buffer highlights in a batch.
+export class BufferHighlightsUpdater implements IBufferHighlightsUpdater {
 
     private _newSrcId: number
     private _calls: any[] = []
-    private _newState: BufferHighlightState2
+    private _newState: BufferHighlightState
 
     constructor(
         private _bufferId: number,
         private _neovimInstance: NeovimInstance,
-        private _previousState: BufferHighlightState2,
+        private _previousState: BufferHighlightState,
     ) {}
 
     public async start(): Promise<void> {
         this._newState = {
-            ...this._previousState
+            ...this._previousState,
         }
 
         this._newSrcId = await this._neovimInstance.request<number>("nvim_buf_add_highlight", [this._bufferId, 0, "", 0, 0, 0])
@@ -66,9 +68,8 @@ export class BufferHighlightsUpdater2 implements IBufferHighlightsUpdater2 {
         this._calls.push(["nvim_buf_clear_highlight", [this._bufferId, oldSrcId, line, line + 1]])
     }
 
-    public async apply(): Promise<BufferHighlightState2> {
+    public async apply(): Promise<BufferHighlightState> {
         await this._neovimInstance.request<void>("nvim_call_atomic", [this._calls])
         return this._newState
     }
-
 }

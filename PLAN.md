@@ -1,22 +1,8 @@
-- Pivot on implementation
-    - setHighlightsForLine
-    - clearHighlightsFor
+SOCIAL PUSH
 
-- BufferHighlights:
-    - updateHighlights((highlightUpdater) => {
-            highlightUpdater.setHighlightsForLine(...)
-            highlightUpdater.clearHighlightsForLine(...)
-        })
-         - setHighlightsForLine(...)
-         - clearHighlightsForLine(...)
-         - applyUpdate()
-
-- Expose state globally
-- Minimal repro
-- Show token scopes
-    - Add setting `debug.textMateHighlighting.showScopesInQuickInfo"
-
-- [1hr]
+[1hr]
+- Why does the `export interface` case fail for `test.ts`?
+- Why are diagnostics going crazy in `npm run start` when going to NeovimInstance?
 - why isn't highlighting happening immediately?
 - put limit on syntax highlight (editor.textMateHighlighting.maxLines)
 - put limit on batch size (editor.textMateHighlighting.batchSize)

@@ -18,7 +18,7 @@ describe("SyntaxHighlightingReducer", () => {
                     lines: [
                         "line1",
                         "line2",
-                    ]
+                    ],
                 }
 
                 const newState = SyntaxHighlighting.linesReducer(originalState, updateBufferAction)
@@ -41,13 +41,13 @@ describe("SyntaxHighlightingReducer", () => {
                         tokens: [],
                         line: "line1",
                         dirty: false,
-                    }, 
+                    },
                     "1": {
                         ruleStack: null,
                         tokens: [],
                         line: "line2",
                         dirty: false,
-                    }
+                    },
                 }
 
                 const updateBufferAction: SyntaxHighlighting.ISyntaxHighlightAction = {
@@ -57,7 +57,7 @@ describe("SyntaxHighlightingReducer", () => {
                     lines: [
                         "line1",
                         "line2_update",
-                    ]
+                    ],
                 }
 
                 const newState = SyntaxHighlighting.linesReducer(originalState, updateBufferAction)
@@ -79,4 +79,4 @@ describe("SyntaxHighlightingReducer", () => {
         })
     })
 })
-
+

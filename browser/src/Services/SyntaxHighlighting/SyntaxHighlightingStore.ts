@@ -9,8 +9,8 @@ import * as types from "vscode-languageserver-types"
 import { StackElement } from "vscode-textmate"
 
 // import { getSyntaxTokensForBuffer } from "./getSyntaxTokensForBuffer"
-import { SyntaxHighlightingPeriodicJob } from "./SyntaxHighlightingPeriodicJob"
 import { GrammarLoader } from "./GrammarLoader"
+import { SyntaxHighlightingPeriodicJob } from "./SyntaxHighlightingPeriodicJob"
 
 import * as PeriodicJobs from "./../../PeriodicJobs"
 const syntaxHighlightingJobs = new PeriodicJobs.PeriodicJobManager()
@@ -27,7 +27,7 @@ export interface ISyntaxHighlightLineInfo {
     dirty: boolean,
 }
 
-export type SyntaxHighlightLines = {[key: number]: ISyntaxHighlightLineInfo}
+export interface SyntaxHighlightLines {[key: number]: ISyntaxHighlightLineInfo}
 
 export interface IBufferSyntaxHighlightState {
     bufferId: string
@@ -50,7 +50,7 @@ export type ISyntaxHighlightAction = {
     type: "SYNTAX_UPDATE_BUFFER",
     language: string
     bufferId: string,
-    lines: string[]
+    lines: string[],
 } | {
         type: "SYNTAX_UPDATE_BUFFER_LINE",
         language: string
@@ -100,7 +100,7 @@ const fullBufferUpdateEpic: Epic<ISyntaxHighlightAction, ISyntaxHighlightState> 
             syntaxHighlightingJobs.startJob(new SyntaxHighlightingPeriodicJob(
                 store as any,
                 action.bufferId,
-                grammar
+                grammar,
             ))
 
             return nullAction

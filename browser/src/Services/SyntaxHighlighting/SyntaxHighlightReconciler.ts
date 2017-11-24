@@ -30,8 +30,6 @@ export class SyntaxHighlightReconciler {
         private _configuration: Configuration = configuration,
     ) {
 
-        // TODO: Also listen to viewport change event
-
         this._unsubscribe = this._store.subscribe(debounce(() => {
 
             const state = this._store.getState()
@@ -49,8 +47,8 @@ export class SyntaxHighlightReconciler {
             if (currentHighlightState && currentHighlightState.lines) {
                 const lineNumbers = Object.keys(currentHighlightState.lines)
 
-                const filteredLines = lineNumbers.filter((line) => {
 
+                const filteredLines = lineNumbers.filter((line) => {
                     const lineNumber = parseInt(line)
 
                     // Ignore lines that are not in current view
@@ -59,6 +57,7 @@ export class SyntaxHighlightReconciler {
                         return false
                     }
 
+                    // Or lines that haven't been updated
                     return this._previousState[line] !== currentHighlightState.lines[line]
                 })
 
@@ -79,7 +78,7 @@ export class SyntaxHighlightReconciler {
                     const highlights = mapTokensToHighlights(tokens)
                     return {
                         line: parseInt(li, 10),
-                        highlights
+                        highlights,
                     }
                 })
 
@@ -108,7 +107,7 @@ export class SyntaxHighlightReconciler {
         }
     }
 
-    private _getHighlightGroupFromScope(/* TODO */scopes: string[]): HighlightGroupId {
+    private _getHighlightGroupFromScope(scopes: string[]): HighlightGroupId {
 
         const configurationColors = this._configuration.getValue("editor.tokenColors")
 

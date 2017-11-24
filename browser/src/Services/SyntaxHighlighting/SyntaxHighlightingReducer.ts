@@ -2,8 +2,7 @@
 //
 // Reducers for handling state changes from ISyntaxHighlightActions
 
-
-import { ISyntaxHighlightAction, ISyntaxHighlightState, IBufferSyntaxHighlightState, SyntaxHighlightLines } from "./SyntaxHighlightingStore"
+import { IBufferSyntaxHighlightState, ISyntaxHighlightAction, ISyntaxHighlightState, SyntaxHighlightLines } from "./SyntaxHighlightingStore"
 
 import { Reducer } from "redux"
 
@@ -52,7 +51,7 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
         case "SYNTAX_UPDATE_BUFFER_LINE":
             return {
                 ...state,
-                lines: linesReducer(state.lines, action)
+                lines: linesReducer(state.lines, action),
             }
         case "SYNTAX_UPDATE_BUFFER_VIEWPORT":
             return {
@@ -98,7 +97,7 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
             if (shouldDirtyNextLine && nextLine) {
                 newState[action.lineNumber + 1] = {
                     ...nextLine,
-                    dirty: true
+                    dirty: true,
                 }
             }
 
@@ -150,4 +149,4 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
     return state
 
 }
-
+

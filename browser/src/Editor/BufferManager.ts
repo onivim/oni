@@ -15,14 +15,13 @@ import "rxjs/add/operator/concatMap"
 
 import * as Oni from "oni-api"
 
-
 import { EventContext, NeovimInstance } from "./../neovim"
 import { languageManager, sortTextEdits } from "./../Services/Language"
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
 import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
 
-import { IBufferHighlightsUpdater2, BufferHighlightsUpdater2 } from "./BufferHighlights"
+import { BufferHighlightsUpdater, IBufferHighlightsUpdater } from "./BufferHighlights"
 
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
@@ -144,10 +143,10 @@ export class Buffer implements Oni.Buffer {
     private _promiseQueue = new PromiseQueue()
     private _previousHighlightState: any = {}
 
-    public async updateHighlights(updateFunction: (highlightsUpdater: IBufferHighlightsUpdater2) => void): Promise<void> {
+    public async updateHighlights(updateFunction: (highlightsUpdater: IBufferHighlightsUpdater) => void): Promise<void> {
         this._promiseQueue.enqueuePromise(async () => {
             const bufferId = parseInt(this._id, 10)
-            const bufferUpdater = new BufferHighlightsUpdater2(bufferId, this._neovimInstance, this._previousHighlightState)
+            const bufferUpdater = new BufferHighlightsUpdater(bufferId, this._neovimInstance, this._previousHighlightState)
             await bufferUpdater.start()
 
             updateFunction(bufferUpdater)

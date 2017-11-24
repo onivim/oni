@@ -29,7 +29,7 @@ export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
 
         let iterations = 0
 
-        while(iterations < this._batchSize) {
+        while (iterations < this._batchSize) {
             const currentState = this._store.getState()
             const bufferState = currentState.bufferToHighlights[this._bufferId]
 
