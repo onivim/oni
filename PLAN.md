@@ -1,9 +1,11 @@
 [1hr]
-- Get tests passing
 - Add selector / rationalize places that use `topLine` and `bottomLine`
 - Add `START_INSERT_MODE` and `END_INSERT_MODE` action
 - Add `isInsertMode` to state
 - Add `currentInsertModeLine` to state
+
+[1hr]
+- Update syntax highlighter to have a time budget (ie, 4ms) vs fixed iterations
 
 [1hr]
 - Insert mode woes

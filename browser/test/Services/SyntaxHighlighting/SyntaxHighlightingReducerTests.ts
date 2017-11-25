@@ -26,11 +26,15 @@ describe("SyntaxHighlightingReducer", () => {
                 assert.deepEqual(newState["0"], {
                     line: "line1",
                     dirty: true,
+                    ruleStack: null,
+                    tokens: [],
                 })
 
                 assert.deepEqual(newState["1"], {
                     line: "line2",
                     dirty: true,
+                    ruleStack: null,
+                    tokens: [],
                 })
             })
 
