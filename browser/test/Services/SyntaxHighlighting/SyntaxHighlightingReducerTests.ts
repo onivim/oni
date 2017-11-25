@@ -13,6 +13,7 @@ describe("SyntaxHighlightingReducer", () => {
 
                 const updateBufferAction: SyntaxHighlighting.ISyntaxHighlightAction = {
                     type: "SYNTAX_UPDATE_BUFFER",
+                    extension: "ts",
                     language: "any",
                     bufferId: "1",
                     lines: [
@@ -56,6 +57,7 @@ describe("SyntaxHighlightingReducer", () => {
 
                 const updateBufferAction: SyntaxHighlighting.ISyntaxHighlightAction = {
                     type: "SYNTAX_UPDATE_BUFFER",
+                    extension: "ts",
                     language: "any",
                     bufferId: "1",
                     lines: [

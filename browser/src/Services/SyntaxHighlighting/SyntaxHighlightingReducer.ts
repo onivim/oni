@@ -50,6 +50,7 @@ export const bufferToHighlightsReducer: Reducer<{ [bufferId: string]: IBufferSyn
 export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
     state: IBufferSyntaxHighlightState = {
         bufferId: null,
+        extension: null,
         language: null,
         topVisibleLine: -1,
         bottomVisibleLine: -1,
@@ -70,6 +71,7 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
                 ...state,
                 bufferId: action.bufferId,
                 language: action.language,
+                extension: action.extension,
                 lines: linesReducer(state.lines, action),
             }
         case "SYNTAX_UPDATE_BUFFER_LINE":
@@ -174,5 +176,4 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
     }
 
     return state
-
 }

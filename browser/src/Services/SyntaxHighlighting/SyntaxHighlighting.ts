@@ -5,6 +5,7 @@
  */
 
 import * as os from "os"
+import * as path from "path"
 
 import * as types from "vscode-languageserver-types"
 
@@ -79,6 +80,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
 
         this._store.dispatch({
             type: "SYNTAX_UPDATE_BUFFER",
+            extension: path.extname(buffer.filePath),
             language: buffer.language,
             bufferId: buffer.id,
             lines,
@@ -91,6 +93,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             const lines = firstChange.text.split(os.EOL)
             this._store.dispatch({
                 type: "SYNTAX_UPDATE_BUFFER",
+                extension: path.extname(evt.buffer.filePath),
                 language: evt.buffer.language,
                 bufferId: evt.buffer.id,
                 lines,

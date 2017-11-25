@@ -151,10 +151,16 @@ const BaseConfiguration: IConfigurationValues = {
     "language.ocaml.languageServer.configuration": ocamlAndReasonConfiguration,
 
     "language.typescript.completionTriggerCharacters": [".", "/", "\\"],
-    "language.typescript.textMateGrammar": path.join(__dirname, "extensions", "typescript", "syntaxes", "TypeScript.tmLanguage.json"),
+    "language.typescript.textMateGrammar": {
+        ".ts": path.join(__dirname, "extensions", "typescript", "syntaxes", "TypeScript.tmLanguage.json"),
+        ".tsx": path.join(__dirname, "extensions", "typescript", "syntaxes", "TypeScriptReact.tmLanguage.json"),
+    },
 
     "language.javascript.completionTriggerCharacters": [".", "/", "\\"],
-    "language.javascript.textMateGrammar": path.join(__dirname, "extensions", "javascript", "syntaxes", "JavaScript.tmLanguage.json"),
+    "language.javascript.textMateGrammar": {
+        ".js": path.join(__dirname, "extensions", "javascript", "syntaxes", "JavaScript.tmLanguage.json"),
+        ".jsx": path.join(__dirname, "extensions", "javascript", "syntaxes", "JavaScriptReact.tmLanguage.json"),
+    },
 
     "menu.caseSensitive": "smart",
 

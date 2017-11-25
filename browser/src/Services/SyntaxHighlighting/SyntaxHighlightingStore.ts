@@ -36,6 +36,7 @@ export interface SyntaxHighlightLines {[key: number]: ISyntaxHighlightLineInfo}
 export interface IBufferSyntaxHighlightState {
     bufferId: string
     language: string
+    extension: string
 
     // This doesn't work quite right if we have a buffer open in a separate window...
     topVisibleLine: number
@@ -57,12 +58,12 @@ export interface ISyntaxHighlightState {
 
 export type ISyntaxHighlightAction = {
     type: "SYNTAX_UPDATE_BUFFER",
-    language: string
+    language: string,
+    extension: string,
     bufferId: string,
     lines: string[],
 } | {
         type: "SYNTAX_UPDATE_BUFFER_LINE",
-        language: string
         bufferId: string,
         lineNumber: number,
         line: string,
@@ -101,12 +102,13 @@ const updateTokenMiddleware = (store: any) => (next: any) => (action: any) => {
             const bufferId = action.bufferId
 
             const language = state.bufferToHighlights[bufferId].language
+            const extension = state.bufferToHighlights[bufferId].extension
 
-            if (!language) {
+            if (!language || !extension) {
                 return result
             }
 
-            grammarLoader.getGrammarForLanguage(language)
+            grammarLoader.getGrammarForLanguage(language, extension)
             .then((grammar) => {
 
                 if (!grammar) {
