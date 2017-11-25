@@ -80,9 +80,13 @@ export type ISyntaxHighlightAction = {
     } | {
         type: "START_INSERT_MODE",
         bufferId: string
+    } | {
+        type: "END_INSERT_MODE",
+        bufferId: string
     }
 
 import { applyMiddleware, createStore, Store } from "redux"
+import { batchedSubscribe } from "redux-batched-subscribe"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 import { reducer } from "./SyntaxHighlightingReducer"
 
@@ -129,12 +133,26 @@ const fullBufferUpdateEpic: Epic<ISyntaxHighlightAction, ISyntaxHighlightState> 
             return nullAction
         })
 
+let timeoutId: any = null
+
+const setTimeoutUpdateBatcher = (notify: any) => {
+    if (timeoutId) {
+        return
+    }
+
+    timeoutId = window.setTimeout(() => {
+        timeoutId = null
+        notify()
+    }, 1)
+}
+
 export const createSyntaxHighlightStore = (): Store<ISyntaxHighlightState> => {
 
     const syntaxHighlightStore: Store<ISyntaxHighlightState> = createStore(reducer,
         applyMiddleware(createEpicMiddleware(combineEpics(
             fullBufferUpdateEpic,
-        ))),
+        ))) as any,
+        batchedSubscribe(setTimeoutUpdateBatcher),
     )
 
     return syntaxHighlightStore

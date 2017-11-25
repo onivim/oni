@@ -23,7 +23,7 @@ export const reducer: Reducer<ISyntaxHighlightState> = (
                 isInsertMode: true,
             }
             break
-        case "SYNTAX_UPDATE_BUFFER":
+        case "END_INSERT_MODE":
             newState = {
                 ...state,
                 isInsertMode: false, // If we're getting a full buffer update, assume we're not in insert mode

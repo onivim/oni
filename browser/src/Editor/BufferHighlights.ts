@@ -69,7 +69,9 @@ export class BufferHighlightsUpdater implements IBufferHighlightsUpdater {
     }
 
     public async apply(): Promise<BufferHighlightState> {
-        await this._neovimInstance.request<void>("nvim_call_atomic", [this._calls])
+        if (this._calls.length > 0) {
+            await this._neovimInstance.request<void>("nvim_call_atomic", [this._calls])
+        }
         return this._newState
     }
 }

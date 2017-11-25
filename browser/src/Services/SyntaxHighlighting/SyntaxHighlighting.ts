@@ -22,8 +22,8 @@ import * as Utility from "./../../Utility"
 export interface ISyntaxHighlighter extends IDisposable {
     notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void>
     notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void
-    notifyStartInsertMode(bufferId: string): void
-    notifyEndInsertMode(bufferId: string): void
+    notifyStartInsertMode(buffer: Oni.Buffer): void
+    notifyEndInsertMode(buffer: Oni.Buffer): void
 
     getHighlightTokenAt(bufferId: string, position: types.Position): ISyntaxHighlightTokenInfo
 }
@@ -39,6 +39,18 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     }
 
     public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
+
+        const state = this._store.getState()
+        const previousBufferState = state.bufferToHighlights[bufferId]
+
+        if (!previousBufferState) {
+            return
+        }
+
+        if (topLineInView === previousBufferState.topVisibleLine && bottomLineInView === previousBufferState.bottomVisibleLine) {
+            return
+        }
+
         this._store.dispatch({
             type: "SYNTAX_UPDATE_BUFFER_VIEWPORT",
             bufferId,
@@ -46,17 +58,31 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             bottomVisibleLine: bottomLineInView,
         })
     }
-    public notifyStartInsertMode(bufferId: string): void {
+
+    public notifyStartInsertMode(buffer: Oni.Buffer): void {
         this._store.dispatch({
             type: "START_INSERT_MODE",
-            bufferId,
+            bufferId: buffer.id,
         })
     }
 
-    public notifyEndInsertMode(buffer: Oni.Buffer ): void {
+    public async notifyEndInsertMode(buffer: any): Promise<void> {
+
+        const lines = await buffer.getLines(0, buffer.lineCount, false)
+
+        // const currentState = this._store.getState()
+
+        // Send a full refresh of the lines
         this._store.dispatch({
             type: "END_INSERT_MODE",
-            bufferId,
+            bufferId: buffer.id,
+        })
+
+        this._store.dispatch({
+            type: "SYNTAX_UPDATE_BUFFER",
+            language: buffer.language,
+            bufferId: buffer.id,
+            lines,
         })
     }
 
@@ -119,11 +145,11 @@ export class NullSyntaxHighlighter implements ISyntaxHighlighter {
     public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
         // tslint: disable-line
     }
-    public notifyStartInsertMode(bufferId: string): void {
+    public notifyStartInsertMode(buffer: Oni.Buffer): void {
         // tslint: disable-line
     }
 
-    public notifyEndInsertMode(bufferId: string): void {
+    public notifyEndInsertMode(buffer: Oni.Buffer): void {
         // tslint: disable-line
     }
 

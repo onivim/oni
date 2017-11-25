@@ -4,8 +4,6 @@
  * Handles enhanced syntax highlighting
  */
 
-import * as throttle from "lodash/throttle"
-
 import { configuration, Configuration } from "./../Configuration"
 
 import { editorManager } from "./../EditorManager"
@@ -15,6 +13,8 @@ import { ISyntaxHighlightLineInfo, ISyntaxHighlightState, ISyntaxHighlightTokenI
 import * as Selectors from "./SyntaxHighlightSelectors"
 
 import { Store, Unsubscribe } from "redux"
+
+import * as Log from "./../../Log"
 
 // SyntaxHighlightReconciler
 //
@@ -32,7 +32,7 @@ export class SyntaxHighlightReconciler {
         private _configuration: Configuration = configuration,
     ) {
 
-        this._unsubscribe = this._store.subscribe(throttle(() => {
+        this._unsubscribe = this._store.subscribe(() => {
 
             const state = this._store.getState()
 
@@ -60,6 +60,13 @@ export class SyntaxHighlightReconciler {
                         return false
                     }
 
+                    const latestLine = currentHighlightState.lines[line]
+
+                    // If dirty (haven't processed tokens yet) - skip
+                    if (latestLine.dirty) {
+                        return false
+                    }
+
                     // Or lines that haven't been updated
                     return this._previousState[line] !== currentHighlightState.lines[line]
                 })
@@ -84,12 +91,16 @@ export class SyntaxHighlightReconciler {
                             const line = token.line
                             const highlights = token.highlights
 
+                            if (Log.isDebugLoggingEnabled()) {
+                                Log.debug("[SyntaxHighlightingReconciler] Updating tokens for line: " + token.line + " | " + JSON.stringify(highlights))
+                            }
+
                             highlightUpdater.setHighlightsForLine(line, highlights)
                         })
                     })
                 }
             }
-        }, 10))
+        })
     }
 
     public dispose(): void {
