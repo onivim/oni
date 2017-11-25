@@ -12,10 +12,6 @@ export const getPathForLanguage = (language: string): string => {
     return textMatePath || null
 }
 
-// export const registryOptions: RegistryOptions = {
-//     getFilePath: locatorFunction
-// }
-
 export class GrammarLoader implements IGrammarLoader {
 
     private _grammarCache: { [language: string]: IGrammar } = {}
