@@ -17,8 +17,8 @@ import { createSyntaxHighlightStore, ISyntaxHighlightState, ISyntaxHighlightToke
 
 import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
 
-import * as Utility from "./../../Utility"
 import * as Log from "./../../Log"
+import * as Utility from "./../../Utility"
 
 export interface ISyntaxHighlighter extends IDisposable {
     notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void>

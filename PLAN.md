@@ -1,8 +1,4 @@
 [1hr]
-- Why is it not refreshing on initial load? Same problem as before...
-- Seems like the periodic jobs aren't even being kicked off - should we log the buffer update actions?
-
-[1hr]
 - Scroll event
 
 [1hr]
