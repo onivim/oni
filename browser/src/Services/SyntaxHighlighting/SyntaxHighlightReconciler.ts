@@ -9,7 +9,7 @@ import * as throttle from "lodash/throttle"
 import { configuration, Configuration } from "./../Configuration"
 
 import { editorManager } from "./../EditorManager"
-import { HighlightGroupId } from "./Definitions"
+import { HighlightGroupId, HighlightInfo } from "./Definitions"
 import { ISyntaxHighlightLineInfo, ISyntaxHighlightState, ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
 
 import { Store, Unsubscribe } from "redux"
@@ -48,7 +48,7 @@ export class SyntaxHighlightReconciler {
                 const lineNumbers = Object.keys(currentHighlightState.lines)
 
                 const filteredLines = lineNumbers.filter((line) => {
-                    const lineNumber = parseInt(line)
+                    const lineNumber = parseInt(line, 10)
 
                     // Ignore lines that are not in current view
                     if (lineNumber < currentHighlightState.topVisibleLine
@@ -60,21 +60,10 @@ export class SyntaxHighlightReconciler {
                     return this._previousState[line] !== currentHighlightState.lines[line]
                 })
 
-                const mapTokenToHighlight = (token: ISyntaxHighlightTokenInfo) => ({
-                    highlightGroup: this._getHighlightGroupFromScope(token.scopes),
-                    range: token.range,
-                })
-
-                const mapTokensToHighlights = (tokens: ISyntaxHighlightTokenInfo[]) => {
-                    return tokens.map(mapTokenToHighlight)
-                            .filter((t) => !!t.highlightGroup)
-                }
-
                 const tokens = filteredLines.map((li) => {
                     const line = currentHighlightState.lines[li]
-                    const tokens = line.tokens
 
-                    const highlights = mapTokensToHighlights(tokens)
+                    const highlights = this._mapTokensToHighlights(line.tokens)
                     return {
                         line: parseInt(li, 10),
                         highlights,
@@ -104,6 +93,17 @@ export class SyntaxHighlightReconciler {
             this._unsubscribe()
             this._unsubscribe = null
         }
+    }
+
+    private _mapTokensToHighlights(tokens: ISyntaxHighlightTokenInfo[]): HighlightInfo[] {
+
+        const mapTokenToHighlight = (token: ISyntaxHighlightTokenInfo) => ({
+            highlightGroup: this._getHighlightGroupFromScope(token.scopes),
+            range: token.range,
+        })
+
+        return tokens.map(mapTokenToHighlight)
+                .filter((t) => !!t.highlightGroup)
     }
 
     private _getHighlightGroupFromScope(scopes: string[]): HighlightGroupId {

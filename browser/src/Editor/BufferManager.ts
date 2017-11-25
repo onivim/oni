@@ -21,7 +21,7 @@ import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
 import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
 
-import { BufferHighlightsUpdater, IBufferHighlightsUpdater } from "./BufferHighlights"
+import { BufferHighlightState, BufferHighlightsUpdater, IBufferHighlightsUpdater } from "./BufferHighlights"
 
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
@@ -38,7 +38,9 @@ export class Buffer implements Oni.Buffer {
 
     private _bufferLines: string[] = null
     private _lastBufferLineVersion: number = -1
-    // private _highlightState: BufferHighlightState = {}
+
+    private _promiseQueue = new PromiseQueue()
+    private _previousHighlightState: BufferHighlightState = {}
 
     public get filePath(): string {
         return this._filePath
@@ -138,10 +140,6 @@ export class Buffer implements Oni.Buffer {
             return null
         }
     }
-
-    // private _lastHighlight: number = null
-    private _promiseQueue = new PromiseQueue()
-    private _previousHighlightState: any = {}
 
     public async updateHighlights(updateFunction: (highlightsUpdater: IBufferHighlightsUpdater) => void): Promise<void> {
         this._promiseQueue.enqueuePromise(async () => {
