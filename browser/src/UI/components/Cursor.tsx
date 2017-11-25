@@ -60,7 +60,7 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
         const width = isInsertCursor ? 0 : this.props.width
         const characterToShow = isInsertCursor ? "" : this.props.character
 
-        const position = this.props.mode === "insert" && this.state.predictedCursorColumn >= 0 ? 
+        const position = this.props.mode === "insert" && this.state.predictedCursorColumn >= 0 ?
                             this.state.predictedCursorColumn * this.props.fontPixelWidth :
                             this.props.x
 
