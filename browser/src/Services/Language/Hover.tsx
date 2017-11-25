@@ -119,7 +119,7 @@ const getDebugScopesElement = (): JSX.Element => {
     const cursor = editorManager.activeEditor.activeBuffer.cursor
     const scopeInfo = editor.syntaxHighlighter.getHighlightTokenAt(editorManager.activeEditor.activeBuffer.id, {
         line: cursor.line,
-        character: cursor.column
+        character: cursor.column,
     })
 
     if (!scopeInfo || !scopeInfo.scopes) {
