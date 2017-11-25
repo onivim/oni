@@ -4,7 +4,7 @@
  * Handles enhanced syntax highlighting
  */
 
-import * as debounce from "lodash/debounce"
+import * as throttle from "lodash/throttle"
 
 import { configuration, Configuration } from "./../Configuration"
 
@@ -30,7 +30,7 @@ export class SyntaxHighlightReconciler {
         private _configuration: Configuration = configuration,
     ) {
 
-        this._unsubscribe = this._store.subscribe(debounce(() => {
+        this._unsubscribe = this._store.subscribe(throttle(() => {
 
             const state = this._store.getState()
 
@@ -96,7 +96,7 @@ export class SyntaxHighlightReconciler {
                     })
                 }
             }
-        }))
+        }, 10))
     }
 
     public dispose(): void {

@@ -38,7 +38,7 @@ export class PeriodicJobManager {
             if (!completed) {
                 this._scheduleJobs()
             }
-        }, Constants.Delay.REAL_TIME)
+        }, Constants.Delay.INSTANT)
 
         Log.verbose("[PeriodicJobManager]::_scheduleJobs - " + this._currentScheduledJob)
     }
