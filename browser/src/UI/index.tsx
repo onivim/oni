@@ -53,7 +53,7 @@ require("./components/common.less") // tslint:disable-line no-var-requires
 const composeEnhancers = window["__REDUX_DEVTOOLS_EXTENSION__COMPOSE__"] || compose // tslint:disable-line no-string-literal
 const enhancer = composeEnhancers(
     applyMiddleware(thunk),
-    batchedSubscribe(rafUpdateBatcher)
+    batchedSubscribe(rafUpdateBatcher),
 )
 
 export const store = createStore(reducer, defaultState, enhancer)
