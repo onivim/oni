@@ -8,11 +8,14 @@ import * as types from "vscode-languageserver-types"
 
 import { StackElement } from "vscode-textmate"
 
-// import { getSyntaxTokensForBuffer } from "./getSyntaxTokensForBuffer"
+import * as Log from "./../../Log"
+import * as PeriodicJobs from "./../../PeriodicJobs"
+
+import { configuration } from "./../Configuration"
+
 import { GrammarLoader } from "./GrammarLoader"
 import { SyntaxHighlightingPeriodicJob } from "./SyntaxHighlightingPeriodicJob"
 
-import * as PeriodicJobs from "./../../PeriodicJobs"
 const syntaxHighlightingJobs = new PeriodicJobs.PeriodicJobManager()
 
 export interface ISyntaxHighlightTokenInfo {
@@ -94,6 +97,13 @@ const fullBufferUpdateEpic: Epic<ISyntaxHighlightAction, ISyntaxHighlightState> 
             const grammar = await grammarLoader.getGrammarForLanguage(language)
 
             if (!grammar) {
+                return nullAction
+            }
+
+            const buffer = state.bufferToHighlights[bufferId]
+
+            if (buffer.lines.length >= configuration.getValue("experimental.editor.textMateHighlighting.maxLines")) {
+                Log.info("[SyntaxHighlighting - fullBufferUpdateEpic]: Not applying syntax highlighting as the maxLines limit was exceeded")
                 return nullAction
             }
 

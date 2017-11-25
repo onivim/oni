@@ -6,7 +6,6 @@
 
 [1hr]
 - Why does the `export interface` case fail for `test.ts`?
-- Why are diagnostics going crazy in `npm run start` when going to NeovimInstance?
 - put limit on syntax highlight (editor.textMateHighlighting.maxLines)
 - put limit on batch size (editor.textMateHighlighting.batchSize)
 

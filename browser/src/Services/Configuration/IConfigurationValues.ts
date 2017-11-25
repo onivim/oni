@@ -38,9 +38,14 @@ export interface IConfigurationValues {
     "debug.fakeLag.neovimInput": number | null
 
     // Experimental feature flags
+    // - autoClosingPairs
     "experimental.autoClosingPairs.enabled": boolean
     "experimental.autoClosingPairs.default": any
+
+    // - textMateHighlighting
     "experimental.editor.textMateHighlighting.enabled": boolean
+    // If a file has more lines than this value, syntax highlighting will be disabled
+    "experimental.editor.textMateHighlighting.maxLines": number
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"

@@ -17,6 +17,8 @@ import { createSyntaxHighlightStore, ISyntaxHighlightState, ISyntaxHighlightToke
 
 import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
 
+import { Configuration } from "./../Configuration"
+
 import * as Utility from "./../../Utility"
 
 export interface ISyntaxHighlighter extends IDisposable {
@@ -30,7 +32,9 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     private _store: Store<ISyntaxHighlightState>
     private _reconciler: SyntaxHighlightReconciler
 
-    constructor() {
+    constructor(
+        private _configuration: Configuration
+    ) {
         this._store = createSyntaxHighlightStore()
         this._reconciler = new SyntaxHighlightReconciler(this._store)
     }
@@ -47,7 +51,6 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     public async notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void> {
         const firstChange = evt.contentChanges[0]
         if (!firstChange.range && !firstChange.rangeLength) {
-
             const lines = firstChange.text.split(os.EOL)
             this._store.dispatch({
                 type: "SYNTAX_UPDATE_BUFFER",

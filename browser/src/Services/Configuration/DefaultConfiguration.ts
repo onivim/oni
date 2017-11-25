@@ -40,6 +40,7 @@ const BaseConfiguration: IConfigurationValues = {
     ],
 
     "experimental.editor.textMateHighlighting.enabled": false,
+    "experimental.editor.textMateHighlighting.maxLines": 2000,
 
     "experimental.editor.typingPrediction": false,
 
