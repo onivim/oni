@@ -12,6 +12,8 @@ import { editorManager } from "./../EditorManager"
 import { HighlightGroupId, HighlightInfo } from "./Definitions"
 import { ISyntaxHighlightLineInfo, ISyntaxHighlightState, ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
 
+import * as Selectors from "./SyntaxHighlightSelectors"
+
 import { Store, Unsubscribe } from "redux"
 
 // SyntaxHighlightReconciler
@@ -47,12 +49,14 @@ export class SyntaxHighlightReconciler {
             if (currentHighlightState && currentHighlightState.lines) {
                 const lineNumbers = Object.keys(currentHighlightState.lines)
 
+                const relevantRange = Selectors.getRelevantRange(state, bufferId)
+
                 const filteredLines = lineNumbers.filter((line) => {
                     const lineNumber = parseInt(line, 10)
 
                     // Ignore lines that are not in current view
-                    if (lineNumber < currentHighlightState.topVisibleLine
-                        || lineNumber > currentHighlightState.bottomVisibleLine) {
+                    if (lineNumber < relevantRange.top
+                        || lineNumber > relevantRange.bottom) {
                         return false
                     }
 

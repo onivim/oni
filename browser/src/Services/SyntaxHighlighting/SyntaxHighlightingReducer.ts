@@ -8,6 +8,7 @@ import { Reducer } from "redux"
 
 export const reducer: Reducer<ISyntaxHighlightState> = (
     state: ISyntaxHighlightState = {
+        isInsertMode: false,
         bufferToHighlights: {},
     },
     action: ISyntaxHighlightAction,

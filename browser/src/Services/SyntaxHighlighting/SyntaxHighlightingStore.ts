@@ -15,6 +15,7 @@ import { configuration } from "./../Configuration"
 
 import { GrammarLoader } from "./GrammarLoader"
 import { SyntaxHighlightingPeriodicJob } from "./SyntaxHighlightingPeriodicJob"
+import * as Selectors from "./SyntaxHighlightSelectors"
 
 const syntaxHighlightingJobs = new PeriodicJobs.PeriodicJobManager()
 
@@ -44,6 +45,7 @@ export interface IBufferSyntaxHighlightState {
 }
 
 export interface ISyntaxHighlightState {
+    isInsertMode: boolean
     bufferToHighlights: {
         [bufferId: string]: IBufferSyntaxHighlightState,
     }
@@ -107,10 +109,14 @@ const fullBufferUpdateEpic: Epic<ISyntaxHighlightAction, ISyntaxHighlightState> 
                 return nullAction
             }
 
+            const relevantRange = Selectors.getRelevantRange(state, bufferId)
+
             syntaxHighlightingJobs.startJob(new SyntaxHighlightingPeriodicJob(
                 store as any,
                 action.bufferId,
                 grammar,
+                relevantRange.top,
+                relevantRange.bottom,
             ))
 
             return nullAction

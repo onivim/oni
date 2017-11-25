@@ -22,6 +22,8 @@ export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
         private _store: Store<SyntaxHighlighting.ISyntaxHighlightState>,
         private _bufferId: string,
         private _grammar: IGrammar,
+        private _topLine: number,
+        private _bottomLine: number,
     ) {
     }
 
@@ -51,9 +53,9 @@ export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
 
     private _tokenizeFirstDirtyLine(state: SyntaxHighlighting.IBufferSyntaxHighlightState): boolean {
 
-        let index = 0
+        let index = this._topLine
 
-        while (index <= state.bottomVisibleLine) {
+        while (index <= this._bottomLine) {
 
             const line = state.lines[index]
 
