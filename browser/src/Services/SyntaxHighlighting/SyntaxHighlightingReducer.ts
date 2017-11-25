@@ -149,4 +149,3 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
     return state
 
 }
-

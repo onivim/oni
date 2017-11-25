@@ -47,7 +47,6 @@ export class SyntaxHighlightReconciler {
             if (currentHighlightState && currentHighlightState.lines) {
                 const lineNumbers = Object.keys(currentHighlightState.lines)
 
-
                 const filteredLines = lineNumbers.filter((line) => {
                     const lineNumber = parseInt(line)
 

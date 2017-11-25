@@ -79,4 +79,3 @@ describe("SyntaxHighlightingReducer", () => {
         })
     })
 })
-
