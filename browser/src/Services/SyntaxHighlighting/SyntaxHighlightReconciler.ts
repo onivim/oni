@@ -4,6 +4,8 @@
  * Handles enhanced syntax highlighting
  */
 
+import * as throttle from "lodash/throttle"
+
 import { configuration, Configuration } from "./../Configuration"
 
 import { editorManager } from "./../EditorManager"
@@ -32,7 +34,9 @@ export class SyntaxHighlightReconciler {
         private _configuration: Configuration = configuration,
     ) {
 
-        this._unsubscribe = this._store.subscribe(() => {
+        this._unsubscribe = this._store.subscribe(throttle(() => {
+
+            Log.info("[SyntaxHighlightReconciler] Got state update.")
 
             const state = this._store.getState()
 
@@ -86,6 +90,7 @@ export class SyntaxHighlightReconciler {
                 })
 
                 if (tokens.length > 0) {
+                    Log.info("[SyntaxHighlightReconciler] Applying changes to " + tokens.length + " lines.")
                     activeBuffer.updateHighlights((highlightUpdater: any) => {
                         tokens.forEach((token) => {
                             const line = token.line
@@ -100,7 +105,7 @@ export class SyntaxHighlightReconciler {
                     })
                 }
             }
-        })
+        }, 100))
     }
 
     public dispose(): void {

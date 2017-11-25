@@ -43,11 +43,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
         const state = this._store.getState()
         const previousBufferState = state.bufferToHighlights[bufferId]
 
-        if (!previousBufferState) {
-            return
-        }
-
-        if (topLineInView === previousBufferState.topVisibleLine && bottomLineInView === previousBufferState.bottomVisibleLine) {
+        if (previousBufferState && topLineInView === previousBufferState.topVisibleLine && bottomLineInView === previousBufferState.bottomVisibleLine) {
             return
         }
 

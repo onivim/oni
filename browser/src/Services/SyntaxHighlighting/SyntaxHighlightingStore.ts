@@ -86,74 +86,66 @@ export type ISyntaxHighlightAction = {
     }
 
 import { applyMiddleware, createStore, Store } from "redux"
-import { batchedSubscribe } from "redux-batched-subscribe"
-import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 import { reducer } from "./SyntaxHighlightingReducer"
-
-const nullAction: any = { type: null }
 
 const grammarLoader = new GrammarLoader()
 
-const fullBufferUpdateEpic: Epic<ISyntaxHighlightAction, ISyntaxHighlightState> = (action$, store) =>
-    action$.ofType("SYNTAX_UPDATE_BUFFER", "SYNTAX_UPDATE_BUFFER_LINE", "SYNTAX_UPDATE_BUFFER_VIEWPORT")
-        .flatMap(async (action) => {
+const updateTokenMiddleware = (store: any) => (next: any) => (action: any) => {
+    const result: ISyntaxHighlightAction = next(action)
 
-            const bufferId = action.bufferId
+    if (action.type === "SYNTAX_UPDATE_BUFFER"
+        || action.type === "SYNTAX_UPDATE_BUFFER_LINE"
+        || action.type === "SYNTAX_UPDATE_BUFFER_VIEWPORT") {
+
             const state = store.getState()
+            const bufferId = action.bufferId
 
             const language = state.bufferToHighlights[bufferId].language
 
             if (!language) {
-                return nullAction
+                return result
             }
 
-            const grammar = await grammarLoader.getGrammarForLanguage(language)
+        grammarLoader.getGrammarForLanguage(language)
+            .then((grammar) => {
 
-            if (!grammar) {
-                return nullAction
-            }
+                if (!grammar) {
+                    return
+                }
 
-            const buffer = state.bufferToHighlights[bufferId]
+                const buffer = state.bufferToHighlights[bufferId]
 
-            if (Object.keys(buffer.lines).length >= configuration.getValue("experimental.editor.textMateHighlighting.maxLines")) {
-                Log.info("[SyntaxHighlighting - fullBufferUpdateEpic]: Not applying syntax highlighting as the maxLines limit was exceeded")
-                return nullAction
-            }
+                if (Object.keys(buffer.lines).length >= configuration.getValue("experimental.editor.textMateHighlighting.maxLines")) {
+                    Log.info("[SyntaxHighlighting - fullBufferUpdateEpic]: Not applying syntax highlighting as the maxLines limit was exceeded")
+                    return
+                }
 
-            const relevantRange = Selectors.getRelevantRange(state, bufferId)
+                const relevantRange = Selectors.getRelevantRange(state, bufferId)
 
-            syntaxHighlightingJobs.startJob(new SyntaxHighlightingPeriodicJob(
-                store as any,
-                action.bufferId,
-                grammar,
-                relevantRange.top,
-                relevantRange.bottom,
-            ))
-
-            return nullAction
-        })
-
-let timeoutId: any = null
-
-const setTimeoutUpdateBatcher = (notify: any) => {
-    if (timeoutId) {
-        return
+                syntaxHighlightingJobs.startJob(new SyntaxHighlightingPeriodicJob(
+                    store as any,
+                    action.bufferId,
+                    grammar,
+                    relevantRange.top,
+                    relevantRange.bottom,
+                ))
+            })
     }
 
-    timeoutId = window.setTimeout(() => {
-        timeoutId = null
-        notify()
-    }, 1)
+    return result
+}
+
+const logger = (store: any) => (next: any) => (action: any) => {
+    // console.log("dispatching action: " + action.type +  "|" + JSON.stringify(action))
+    return next(action)
 }
 
 export const createSyntaxHighlightStore = (): Store<ISyntaxHighlightState> => {
-
     const syntaxHighlightStore: Store<ISyntaxHighlightState> = createStore(reducer,
-        applyMiddleware(createEpicMiddleware(combineEpics(
-            fullBufferUpdateEpic,
-        ))) as any,
-        batchedSubscribe(setTimeoutUpdateBatcher),
+        applyMiddleware(updateTokenMiddleware, logger) as any,
     )
+
+    window["__syntax"] = syntaxHighlightStore
 
     return syntaxHighlightStore
 }

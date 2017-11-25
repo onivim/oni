@@ -11,12 +11,13 @@ import * as types from "vscode-languageserver-types"
 import { IGrammar } from "vscode-textmate"
 
 import * as SyntaxHighlighting from "./SyntaxHighlightingStore"
+import * as Selectors from "./SyntaxHighlightSelectors"
 
 import { IPeriodicJob } from "./../../PeriodicJobs"
 
-export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
+export const SYNTAX_JOB_BUDGET = 10 // Budget in milliseconds - time to allow the job to run for
 
-    private _batchSize: number = 50
+export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
 
     constructor(
         private _store: Store<SyntaxHighlighting.ISyntaxHighlightState>,
@@ -29,9 +30,24 @@ export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
 
     public execute(): boolean {
 
-        let iterations = 0
+        const start = new Date().getTime()
 
-        while (iterations < this._batchSize) {
+        // If the window has changed, we should bail
+        const currentWindow = Selectors.getRelevantRange(this._store.getState(), this._bufferId)
+
+        if (currentWindow.top !== this._topLine || currentWindow.bottom !== this._bottomLine) {
+            console.log("[SyntaxHighlightingPeriodicJob.execute] Completing without doing work, as window size has changed.")
+            return true
+        }
+
+        while (true) {
+
+            const current = new Date().getTime()
+
+            if (current - start > SYNTAX_JOB_BUDGET) {
+                return false
+            }
+
             const currentState = this._store.getState()
             const bufferState = currentState.bufferToHighlights[this._bufferId]
 
@@ -44,11 +60,7 @@ export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
             if (!anyDirty) {
                 return true
             }
-
-            iterations++
         }
-
-        return false
     }
 
     private _tokenizeFirstDirtyLine(state: SyntaxHighlighting.IBufferSyntaxHighlightState): boolean {
