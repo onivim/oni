@@ -3,13 +3,19 @@ import { IGrammar, Registry } from "vscode-textmate"
 import { configuration } from "./../Configuration"
 
 export interface IGrammarLoader {
-    getGrammarForLanguage(language: string): Promise<IGrammar>
+    getGrammarForLanguage(language: string, extension: string): Promise<IGrammar>
 }
 
-export const getPathForLanguage = (language: string): string => {
-    const textMatePath = configuration.getValue("language." + language + ".textMateGrammar")
+export type ExtensionToGrammarMap = { [extension: string]: string }
 
-    return textMatePath || null
+export const getPathForLanguage = (language: string, extension: string): string => {
+    const grammar: string | ExtensionToGrammarMap = configuration.getValue("language." + language + ".textMateGrammar")
+
+    if (typeof grammar === "string") {
+        return grammar
+    } else {
+        return grammar[extension] || null
+    }
 }
 
 export class GrammarLoader implements IGrammarLoader {
@@ -20,7 +26,7 @@ export class GrammarLoader implements IGrammarLoader {
         private _registry: Registry = new Registry(),
     ) {}
 
-    public async getGrammarForLanguage(language: string): Promise<IGrammar> {
+    public async getGrammarForLanguage(language: string, extension: string): Promise<IGrammar> {
 
         if (!language) {
             return null
@@ -30,7 +36,7 @@ export class GrammarLoader implements IGrammarLoader {
             return this._grammarCache[language]
         }
 
-        const filePath = getPathForLanguage(language)
+        const filePath = getPathForLanguage(language, extension)
 
         if (!filePath) {
             return null
