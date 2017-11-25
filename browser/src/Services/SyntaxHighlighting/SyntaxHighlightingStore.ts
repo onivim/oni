@@ -145,7 +145,5 @@ export const createSyntaxHighlightStore = (): Store<ISyntaxHighlightState> => {
         applyMiddleware(updateTokenMiddleware, logger) as any,
     )
 
-    window.__syntax = syntaxHighlightStore
-
     return syntaxHighlightStore
 }
