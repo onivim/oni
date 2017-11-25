@@ -1,8 +1,5 @@
 [1hr]
-- Add selector / rationalize places that use `topLine` and `bottomLine`
-- Add `START_INSERT_MODE` and `END_INSERT_MODE` action
-- Add `isInsertMode` to state
-- Add `currentInsertModeLine` to state
+- Simple case - 'o' + go back to normal mode - still seems problematic?
 
 [1hr]
 - Update syntax highlighter to have a time budget (ie, 4ms) vs fixed iterations

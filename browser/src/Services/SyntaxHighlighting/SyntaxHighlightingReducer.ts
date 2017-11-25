@@ -14,8 +14,25 @@ export const reducer: Reducer<ISyntaxHighlightState> = (
     action: ISyntaxHighlightAction,
 ) => {
 
+    let newState = state
+
+    switch (action.type) {
+        case "START_INSERT_MODE":
+            newState = {
+                ...state,
+                isInsertMode: true,
+            }
+            break
+        case "SYNTAX_UPDATE_BUFFER":
+            newState = {
+                ...state,
+                isInsertMode: false, // If we're getting a full buffer update, assume we're not in insert mode
+            }
+            break
+    }
+
     return {
-        ...state,
+        ...newState,
         bufferToHighlights: bufferToHighlightsReducer(state.bufferToHighlights, action),
     }
 }
@@ -36,12 +53,18 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
         language: null,
         topVisibleLine: -1,
         bottomVisibleLine: -1,
+        activeInsertModeLine: -1,
         lines: {},
     },
     action: ISyntaxHighlightAction,
 ) => {
 
     switch (action.type) {
+        case "START_INSERT_MODE":
+            return {
+                ...state,
+                activeInsertModeLine: -1,
+            }
         case "SYNTAX_UPDATE_BUFFER":
             return {
                 ...state,
@@ -52,6 +75,7 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
         case "SYNTAX_UPDATE_BUFFER_LINE":
             return {
                 ...state,
+                activeInsertModeLine: action.lineNumber,
                 lines: linesReducer(state.lines, action),
             }
         case "SYNTAX_UPDATE_BUFFER_VIEWPORT":

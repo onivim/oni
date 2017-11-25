@@ -369,6 +369,15 @@ export class NeovimEditor implements IEditor {
 
         UI.Actions.setMode(newMode)
         this._currentMode = newMode
+
+
+        const activeBufferId = this.activeBuffer.id
+        if (newMode === "insert") {
+            this._syntaxHighlighter.notifyStartInsertMode(activeBufferId)
+        } else {
+            this._syntaxHighlighter.notifyEndInsertMode(activeBufferId)
+        }
+
     }
 
     private _onVimEvent(eventName: string, evt: EventContext): void {

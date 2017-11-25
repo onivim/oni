@@ -41,6 +41,10 @@ export interface IBufferSyntaxHighlightState {
     topVisibleLine: number
     bottomVisibleLine: number
 
+    // When in insert mode, we'll just syntax highlight that line
+    // Upon leaving insert mode, we'll refresh the whole view
+    activeInsertModeLine: number
+
     lines: SyntaxHighlightLines
 }
 
@@ -73,6 +77,9 @@ export type ISyntaxHighlightAction = {
         bufferId: string,
         topVisibleLine: number,
         bottomVisibleLine: number,
+    } | {
+        type: "START_INSERT_MODE",
+        bufferId: string
     }
 
 import { applyMiddleware, createStore, Store } from "redux"

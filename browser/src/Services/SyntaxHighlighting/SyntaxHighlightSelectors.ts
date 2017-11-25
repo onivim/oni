@@ -16,8 +16,15 @@ export const getRelevantRange = (state: ISyntaxHighlightState, bufferId: number 
 
     const buffer = state.bufferToHighlights[bufferId]
 
-    return {
-        top: buffer.topVisibleLine,
-        bottom: buffer.bottomVisibleLine
+    if (!state.isInsertMode) {
+        return {
+            top: buffer.topVisibleLine,
+            bottom: buffer.bottomVisibleLine
+        }
+    } else {
+        return {
+            top: buffer.activeInsertModeLine,
+            bottom: buffer.activeInsertModeLine,
+        }
     }
 }
