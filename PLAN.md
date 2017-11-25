@@ -6,8 +6,6 @@
 
 [1hr]
 - Why does the `export interface` case fail for `test.ts`?
-- put limit on syntax highlight (editor.textMateHighlighting.maxLines)
-- put limit on batch size (editor.textMateHighlighting.batchSize)
 
 [1hr]
 - handle tsx files

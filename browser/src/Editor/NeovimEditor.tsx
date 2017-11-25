@@ -117,6 +117,10 @@ export class NeovimEditor implements IEditor {
         return this._neovimInstance
     }
 
+    public get syntaxHighlighter(): ISyntaxHighlighter {
+        return this._syntaxHighlighter
+    }
+
     constructor(
         private _config = configuration,
     ) {

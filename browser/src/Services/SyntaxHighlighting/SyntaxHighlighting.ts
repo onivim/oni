@@ -17,8 +17,6 @@ import { createSyntaxHighlightStore, ISyntaxHighlightState, ISyntaxHighlightToke
 
 import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
 
-import { Configuration } from "./../Configuration"
-
 import * as Utility from "./../../Utility"
 
 export interface ISyntaxHighlighter extends IDisposable {
@@ -32,9 +30,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     private _store: Store<ISyntaxHighlightState>
     private _reconciler: SyntaxHighlightReconciler
 
-    constructor(
-        private _configuration: Configuration
-    ) {
+    constructor() {
         this._store = createSyntaxHighlightStore()
         this._reconciler = new SyntaxHighlightReconciler(this._store)
     }

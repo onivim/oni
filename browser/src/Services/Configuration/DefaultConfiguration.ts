@@ -103,15 +103,9 @@ const BaseConfiguration: IConfigurationValues = {
         settings: "Constant",
     }, {
         scope: "variable.parameter",
-        settings: "Constant",
-    }, {
-        scope: "variable.other.readwrite",
-        settings: "Constant",
-    }, {
-        scope: "variable.other",
         settings: "Identifier",
     }, {
-        scope: "variable.parameter",
+        scope: "variable.other",
         settings: "Identifier",
     }, {
         scope: "support.function",
@@ -119,6 +113,9 @@ const BaseConfiguration: IConfigurationValues = {
     }, {
         scope: "entity.name",
         settings: "Function",
+    }, {
+        scope: "entity.other",
+        settings: "Constant",
     }],
 
     "environment.additionalPaths": [],

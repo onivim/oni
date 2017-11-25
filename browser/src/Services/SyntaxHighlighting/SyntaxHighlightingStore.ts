@@ -102,7 +102,7 @@ const fullBufferUpdateEpic: Epic<ISyntaxHighlightAction, ISyntaxHighlightState> 
 
             const buffer = state.bufferToHighlights[bufferId]
 
-            if (buffer.lines.length >= configuration.getValue("experimental.editor.textMateHighlighting.maxLines")) {
+            if (Object.keys(buffer.lines).length >= configuration.getValue("experimental.editor.textMateHighlighting.maxLines")) {
                 Log.info("[SyntaxHighlighting - fullBufferUpdateEpic]: Not applying syntax highlighting as the maxLines limit was exceeded")
                 return nullAction
             }
