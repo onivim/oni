@@ -102,8 +102,8 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
                     fs.writeFileSync(configPath, configContents)
                 }
 
-                oni = new Oni()
-                return oni.start()
+                oni = await new Oni()
+                return await oni.start()
             })
 
             afterEach(async () => {
