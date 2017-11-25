@@ -1,33 +1,21 @@
-SOCIAL PUSH
+- Insert mode woes
+    - When pressing enter, it gets messed up, because the calculations for lower lines are problematic
+    - If we're in insert mode, only care about the range we're working on
+        - UPDATE_BUFFER_LINE
+    - If we're in normal mode (or larger update), use top/bottom visible
 
 [1hr]
 - Why does the `export interface` case fail for `test.ts`?
 - Why are diagnostics going crazy in `npm run start` when going to NeovimInstance?
-- why isn't highlighting happening immediately?
 - put limit on syntax highlight (editor.textMateHighlighting.maxLines)
 - put limit on batch size (editor.textMateHighlighting.batchSize)
 
 [1hr]
 - handle tsx files
 
-https://code.visualstudio.com/blogs/2017/02/08/syntax-highlighting-optimizations
-- May not need to clear lines below, if the rulestack is unchanged
-- Check end state to see if an update is needed
-- How does this relate to lines being changed?
-
-- Optimizations on the highlight pipeline
-    - store 'language' in the store
-    - add a 'VIEWPORT_UPDATE' epic
-        - need to recalculate highlight tokens in that case
-        - need to get language from call...
-
-- In the `getSyntaxTokensForBuffer`, we'd look for the first line where ruleStack is null, and start evaluating from there, and we wouldn't need to do any clearing... we'd just send the results for the lines we do care about
+- Fix token issues, add additional tokens for Reason
 
 - good info here:
+
+- Add info in the wiki:
     https://www.sublimetext.com/docs/3/scope_naming.html
-
-- set highlights
-    - use a batch call (nvim_call_atomic)
-
-- only update viewable portion
-    - Update renderer to listen to current viewport, and only set highlights for the viewport
