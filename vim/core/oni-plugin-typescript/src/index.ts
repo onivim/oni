@@ -66,9 +66,10 @@ export const activate = (oni: Oni.Plugin.Api) => {
     })
 
     const protocolOpenFile = (message: string, payload: any) => {
-        const textDocument: types.TextDocumentIdentifier = payload.textDocument
+        const textDocument: any = payload.textDocument
         const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-        host.openFile(filePath)
+
+        host.openFile(filePath, textDocument.text)
     }
 
     const isSingleLineChange = (range: types.Range): boolean => {

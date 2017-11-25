@@ -51,16 +51,16 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
             "height": "100%",
         }
 
-        const editors = this.state.splitRoot.splits.map((splitNode) => {
+        const editors = this.state.splitRoot.splits.map((splitNode, i) => {
             if (splitNode.type === "Split") {
                 return null
             } else {
                 const split: Oni.IWindowSplit = splitNode.contents
 
                 if (!split) {
-                    return <div className="container vertical full">TODO: Implement an editor here...</div>
+                    return <div className="container vertical full" key={i}>TODO: Implement an editor here...</div>
                 } else {
-                    return <WindowSplitHost split={split} />
+                    return <WindowSplitHost key={i} split={split} />
                 }
             }
         })
