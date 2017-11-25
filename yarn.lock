@@ -80,13 +80,9 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@^8.0.24":
+"@types/node@*", "@types/node@^8.0.24", "@types/node@^8.0.53":
   version "8.0.53"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.0.53.tgz#396b35af826fa66aad472c8cb7b8d5e277f4e6d8"
-
-"@types/node@6.0.48":
-  version "6.0.48"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-6.0.48.tgz#86ccc15f66b73cbbc5eb3483398936c585122b3c"
 
 "@types/react-dom@16.0.3":
   version "16.0.3"
@@ -1370,7 +1366,7 @@ concat-stream@1.5.0:
     readable-stream "~2.0.0"
     typedarray "~0.0.5"
 
-concat-stream@1.6.0, concat-stream@^1.4.7, concat-stream@^1.5.1:
+concat-stream@1.6.0, concat-stream@^1.5.1:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/concat-stream/-/concat-stream-1.6.0.tgz#0aac662fd52be78964d5532f694784e70110acf7"
   dependencies:
@@ -1509,13 +1505,6 @@ cross-env@3.1.3:
 cross-spawn@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-3.0.1.tgz#1256037ecb9f0c5f79e3d6ef135e30770184b982"
-  dependencies:
-    lru-cache "^4.0.1"
-    which "^1.2.9"
-
-cross-spawn@^4.0.0:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-4.0.2.tgz#7b9247621c23adfdd3856004a823cbe397424d41"
   dependencies:
     lru-cache "^4.0.1"
     which "^1.2.9"
@@ -1746,10 +1735,6 @@ deepmerge@~1.3.2:
 deepmerge@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.0.1.tgz#25c1c24f110fb914f80001b925264dd77f3f4312"
-
-default-shell@^1.0.0:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/default-shell/-/default-shell-1.0.1.tgz#752304bddc6174f49eb29cb988feea0b8813c8bc"
 
 defaults@^1.0.3:
   version "1.0.3"
@@ -2251,18 +2236,6 @@ evp_bytestokey@^1.0.0, evp_bytestokey@^1.0.3:
     md5.js "^1.3.4"
     safe-buffer "^5.1.1"
 
-execa@^0.5.0:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/execa/-/execa-0.5.1.tgz#de3fb85cb8d6e91c85bcbceb164581785cb57b36"
-  dependencies:
-    cross-spawn "^4.0.0"
-    get-stream "^2.2.0"
-    is-stream "^1.1.0"
-    npm-run-path "^2.0.0"
-    p-finally "^1.0.0"
-    signal-exit "^3.0.0"
-    strip-eof "^1.0.0"
-
 execa@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/execa/-/execa-0.7.0.tgz#944becd34cc41ee32a63a9faf27ad5a65fc59777"
@@ -2600,13 +2573,6 @@ get-caller-file@^1.0.1:
 get-stdin@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/get-stdin/-/get-stdin-4.0.1.tgz#b968c6b0a04384324902e8bf1a5df32579a450fe"
-
-get-stream@^2.2.0:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/get-stream/-/get-stream-2.3.1.tgz#5f38f93f346009666ee0150a054167f91bdd95de"
-  dependencies:
-    object-assign "^4.0.1"
-    pinkie-promise "^2.0.0"
 
 get-stream@^3.0.0:
   version "3.0.0"
@@ -4222,10 +4188,6 @@ os-locale@^2.0.0:
     lcid "^1.0.0"
     mem "^1.1.0"
 
-os-shim@^0.1.2:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/os-shim/-/os-shim-0.1.3.tgz#6b62c3791cf7909ea35ed46e17658bb417cb3917"
-
 os-tmpdir@^1.0.0, os-tmpdir@^1.0.1, os-tmpdir@~1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/os-tmpdir/-/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
@@ -5419,14 +5381,6 @@ shebang-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-1.0.0.tgz#da42f49740c0b42db2ca9728571cb190c98efea3"
 
-shell-env@0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/shell-env/-/shell-env-0.3.0.tgz#2250339022989165bda4eb7bf383afeaaa92dc34"
-  dependencies:
-    default-shell "^1.0.0"
-    execa "^0.5.0"
-    strip-ansi "^3.0.0"
-
 shelljs@0.7.7:
   version "0.7.7"
   resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.7.7.tgz#b2f5c77ef97148f4b4f6e22682e10bba8667cff1"
@@ -5572,13 +5526,6 @@ spawn-rx@^2.0.10:
     debug "^2.5.1"
     lodash.assign "^4.2.0"
     rxjs "^5.1.1"
-
-spawn-sync@1.0.15:
-  version "1.0.15"
-  resolved "https://registry.yarnpkg.com/spawn-sync/-/spawn-sync-1.0.15.tgz#b00799557eb7fb0c8376c29d44e8a1ea67e57476"
-  dependencies:
-    concat-stream "^1.4.7"
-    os-shim "^0.1.2"
 
 spdx-correct@~1.0.0:
   version "1.0.2"
@@ -5905,10 +5852,6 @@ term-size@^1.2.0:
   resolved "https://registry.yarnpkg.com/term-size/-/term-size-1.2.0.tgz#458b83887f288fc56d6fffbfad262e26638efa69"
   dependencies:
     execa "^0.7.0"
-
-thread-sleep@2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/thread-sleep/-/thread-sleep-2.0.0.tgz#4bc400170a2f6fb52323970dc60e1c9e1e63f301"
 
 throttleit@0.0.2:
   version "0.0.2"

@@ -1,14 +1,17 @@
 import * as ChildProcess from "child_process"
-import * as shellEnv from "shell-env"
+import * as util from "util"
 
 import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
+
+const exec = util.promisify(ChildProcess.exec)
+type ExecReturn = string | { stdout: string, stderr: string }
 
 const getPathSeparator = () => {
     return Platform.isWindows() ? ";" : ":"
 }
 
-const mergePathEnvironmentVariable = (currentPath: string, pathsToAdd: string[]): string => {
+const mergePathEnvironmentVariable = (currentPath: ExecReturn, pathsToAdd: string[]): ExecReturn => {
     if (!pathsToAdd || !pathsToAdd.length) {
         return currentPath
     }
@@ -28,11 +31,13 @@ const mergeSpawnOptions = async (originalSpawnOptions: ChildProcess.ExecOptions 
         },
     }
 
-    let existingPath: string
+    let existingPath: ExecReturn
 
     try {
-        const shellEnvironment = await shellEnv()
-        existingPath = shellEnvironment.PATH || process.env.Path || process.env.PATH
+        const pathCommand = Platform.isWindows() ? "echo %PATH%" : "echo $PATH"
+        const path = await exec(pathCommand)
+
+        existingPath = path || process.env.Path || process.env.PATH
     } catch (e) {
         existingPath = process.env.Path || process.env.PATH
     }
