@@ -6,7 +6,7 @@ export interface IGrammarLoader {
     getGrammarForLanguage(language: string, extension: string): Promise<IGrammar>
 }
 
-export type ExtensionToGrammarMap = { [extension: string]: string }
+export interface ExtensionToGrammarMap { [extension: string]: string }
 
 export const getPathForLanguage = (language: string, extension: string): string => {
     const grammar: string | ExtensionToGrammarMap = configuration.getValue("language." + language + ".textMateGrammar")
