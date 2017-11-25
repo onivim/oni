@@ -15,6 +15,8 @@ import * as Selectors from "./SyntaxHighlightSelectors"
 
 import { IPeriodicJob } from "./../../PeriodicJobs"
 
+import * as Log from "./../../Log"
+
 export const SYNTAX_JOB_BUDGET = 10 // Budget in milliseconds - time to allow the job to run for
 
 export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
@@ -36,7 +38,7 @@ export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
         const currentWindow = Selectors.getRelevantRange(this._store.getState(), this._bufferId)
 
         if (currentWindow.top !== this._topLine || currentWindow.bottom !== this._bottomLine) {
-            console.log("[SyntaxHighlightingPeriodicJob.execute] Completing without doing work, as window size has changed.")
+            Log.verbose("[SyntaxHighlightingPeriodicJob.execute] Completing without doing work, as window size has changed.")
             return true
         }
 
@@ -45,6 +47,7 @@ export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
             const current = new Date().getTime()
 
             if (current - start > SYNTAX_JOB_BUDGET) {
+                Log.verbose("[SyntaxHighlightingPeriodicJob.execute] Pending due to exceeding budget.")
                 return false
             }
 

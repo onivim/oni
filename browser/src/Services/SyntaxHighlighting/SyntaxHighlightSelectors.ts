@@ -4,7 +4,7 @@
 
 import { ISyntaxHighlightState } from "./SyntaxHighlightingStore"
 
-export type SyntaxHighlightRange = { top: number, bottom: number }
+export interface SyntaxHighlightRange { top: number, bottom: number }
 
 export const NullRange: SyntaxHighlightRange = { top: -1, bottom: -1 }
 
@@ -19,7 +19,7 @@ export const getRelevantRange = (state: ISyntaxHighlightState, bufferId: number 
     if (!state.isInsertMode) {
         return {
             top: buffer.topVisibleLine,
-            bottom: buffer.bottomVisibleLine
+            bottom: buffer.bottomVisibleLine,
         }
     } else {
         return {

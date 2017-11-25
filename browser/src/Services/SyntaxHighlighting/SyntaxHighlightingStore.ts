@@ -79,10 +79,10 @@ export type ISyntaxHighlightAction = {
         bottomVisibleLine: number,
     } | {
         type: "START_INSERT_MODE",
-        bufferId: string
+        bufferId: string,
     } | {
         type: "END_INSERT_MODE",
-        bufferId: string
+        bufferId: string,
     }
 
 import { applyMiddleware, createStore, Store } from "redux"
@@ -106,7 +106,7 @@ const updateTokenMiddleware = (store: any) => (next: any) => (action: any) => {
                 return result
             }
 
-        grammarLoader.getGrammarForLanguage(language)
+            grammarLoader.getGrammarForLanguage(language)
             .then((grammar) => {
 
                 if (!grammar) {
@@ -145,7 +145,7 @@ export const createSyntaxHighlightStore = (): Store<ISyntaxHighlightState> => {
         applyMiddleware(updateTokenMiddleware, logger) as any,
     )
 
-    window["__syntax"] = syntaxHighlightStore
+    window.__syntax = syntaxHighlightStore
 
     return syntaxHighlightStore
 }
