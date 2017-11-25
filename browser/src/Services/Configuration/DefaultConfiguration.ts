@@ -102,6 +102,9 @@ const BaseConfiguration: IConfigurationValues = {
         scope: "variable.other.constant",
         settings: "Constant",
     }, {
+        scope: "variable.language",
+        settings: "Identifier",
+    }, {
         scope: "variable.parameter",
         settings: "Identifier",
     }, {
