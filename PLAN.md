@@ -1,3 +1,6 @@
+- Bring in batched subscribe -> investigate typing predictions issue
+
+[1hr]
 - Insert mode woes
     - When pressing enter, it gets messed up, because the calculations for lower lines are problematic
     - If we're in insert mode, only care about the range we're working on
@@ -5,12 +8,9 @@
     - If we're in normal mode (or larger update), use top/bottom visible
 
 [1hr]
-- Why does the `export interface` case fail for `test.ts`?
-
-[1hr]
 - handle tsx files
 
-- Fix token issues, add additional tokens for Reason
+- Do a pass over reason files
 
 - good info here:
 
