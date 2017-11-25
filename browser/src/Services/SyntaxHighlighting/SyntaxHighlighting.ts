@@ -18,6 +18,7 @@ import { createSyntaxHighlightStore, ISyntaxHighlightState, ISyntaxHighlightToke
 import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
 
 import * as Utility from "./../../Utility"
+import * as Log from "./../../Log"
 
 export interface ISyntaxHighlighter extends IDisposable {
     notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void>
@@ -39,6 +40,8 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     }
 
     public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
+
+        Log.info("[SyntaxHighlighting.notifyViewportChanged] - bufferId: " + bufferId + " topLineInView: " + topLineInView + " bottomLineInView: " + bottomLineInView)
 
         const state = this._store.getState()
         const previousBufferState = state.bufferToHighlights[bufferId]
