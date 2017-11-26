@@ -140,19 +140,19 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         this._services = new Services()
     }
 
-    public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
+    public async execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): Promise<ChildProcess.ChildProcess> {
         Log.warn("WARNING: `OniApi.execNodeScript` is deprecated. Please use `OniApi.process.execNodeScript` instead")
 
-        return Process.execNodeScript(scriptPath, args, options, callback)
+        return await Process.execNodeScript(scriptPath, args, options, callback)
     }
 
     /**
      * Wrapper around `child_process.exec` to run using electron as opposed to node
      */
-    public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
+    public async spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): Promise<ChildProcess.ChildProcess> {
 
         Log.warn("WARNING: `OniApi.spawnNodeScript` is deprecated. Please use `OniApi.process.spawnNodeScript` instead")
 
-        return Process.spawnNodeScript(scriptPath, args, options)
+        return await Process.spawnNodeScript(scriptPath, args, options)
     }
 }

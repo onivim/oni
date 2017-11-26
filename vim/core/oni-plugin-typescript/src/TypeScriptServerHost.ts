@@ -19,6 +19,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
     private _seqNumber = 0
     private _seqToPromises = {}
     private _rl: any
+    private _initPromise: Promise<void>
 
     private _openedFiles: string[] = []
 
@@ -28,7 +29,6 @@ export class TypeScriptServerHost extends events.EventEmitter {
 
     constructor(Oni: any) {
         super()
-
         // Other tries for creating process:
         // this._tssProcess = childProcess.spawn("node", [tssPath], { stdio: "pipe", detached: true, shell: false });
         // this._tssProcess = childProcess.fork(tssPath, [], { stdio: "pipe "})
@@ -41,7 +41,11 @@ export class TypeScriptServerHost extends events.EventEmitter {
         // This has some info on using eventPort: https://github.com/Microsoft/TypeScript/blob/master/src/server/server.ts
         // which might be more reliable
         // Can create the port using this here: https://github.com/Microsoft/TypeScript/blob/master/src/server/server.ts
-        this._tssProcess = Oni.process.spawnNodeScript(tssPath)
+        this._initPromise = this._startTypescriptServer(Oni)
+    }
+
+    public async _startTypescriptServer(Oni): Promise<void> {
+        this._tssProcess = await Oni.process.spawnNodeScript(tssPath)
         console.log("Process ID: " + this._tssProcess.pid) // tslint:disable-line no-console
 
         this._rl = readline.createInterface({
@@ -248,7 +252,8 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public _makeTssRequest<T>(commandName: string, args: any): Promise<T> {
+    public async _makeTssRequest<T>(commandName: string, args: any): Promise<T> {
+        await this._initPromise
         const seq = this._seqNumber++
         const payload = {
             seq,
