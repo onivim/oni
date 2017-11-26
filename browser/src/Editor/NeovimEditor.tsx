@@ -28,6 +28,7 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
 import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
+import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
@@ -76,6 +77,7 @@ export class NeovimEditor implements IEditor {
     private _lastBufferId: string = null
 
     private _typingPredictionManager: TypingPredictionManager = new TypingPredictionManager()
+    private _syntaxHighlighter: ISyntaxHighlighter
 
     public get mode(): string {
         return this._currentMode
@@ -113,6 +115,10 @@ export class NeovimEditor implements IEditor {
     // Capabilities
     public get neovim(): Oni.NeovimEditorCapability {
         return this._neovimInstance
+    }
+
+    public get syntaxHighlighter(): ISyntaxHighlighter {
+        return this._syntaxHighlighter
     }
 
     constructor(
@@ -218,10 +224,15 @@ export class NeovimEditor implements IEditor {
         bufferUpdates$.subscribe((bufferUpdate) => {
             this._onBufferChangedEvent.dispatch(bufferUpdate)
             UI.Actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
+
+            this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
         })
 
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
         addNormalModeLanguageFunctionality(bufferUpdates$, this._cursorMoved$, this._modeChanged$)
+
+        const textMateHighlightingEnabled = this._config.getValue("experimental.editor.textMateHighlighting.enabled")
+        this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
         this._render()
 
@@ -277,6 +288,11 @@ export class NeovimEditor implements IEditor {
     }
 
     public dispose(): void {
+        if (this._syntaxHighlighter) {
+            this._syntaxHighlighter.dispose()
+            this._syntaxHighlighter = null
+        }
+
         // TODO: Implement full disposal logic
         this._popupMenu.dispose()
         this._popupMenu = null
@@ -353,10 +369,20 @@ export class NeovimEditor implements IEditor {
 
         UI.Actions.setMode(newMode)
         this._currentMode = newMode
+
+        if (newMode === "insert") {
+            this._syntaxHighlighter.notifyStartInsertMode(this.activeBuffer)
+        } else {
+            this._syntaxHighlighter.notifyEndInsertMode(this.activeBuffer)
+        }
+
     }
 
     private _onVimEvent(eventName: string, evt: EventContext): void {
         UI.Actions.setWindowCursor(evt.windowNumber, evt.line - 1, evt.column - 1)
+
+        // Convert to 0-based positions
+        this._syntaxHighlighter.notifyViewportChanged(evt.bufferNumber.toString(), evt.windowTopLine - 1, evt.windowBottomLine - 1)
 
         const lastBuffer = this.activeBuffer
         const buf = this._bufferManager.updateBufferFromEvent(evt)

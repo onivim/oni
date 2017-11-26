@@ -121,7 +121,8 @@
     "typescript": "2.6.1",
     "vscode-jsonrpc": "3.5.0",
     "vscode-languageserver": "3.5.0",
-    "vscode-languageserver-types": "3.5.0"
+    "vscode-languageserver-types": "3.5.0",
+    "vscode-textmate": "3.2.0"
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
@@ -174,6 +175,7 @@
     "react-redux": "5.0.6",
     "react-transition-group": "2.2.1",
     "redux": "3.7.2",
+    "redux-observable": "^0.17.0",
     "redux-thunk": "2.2.0",
     "reselect": "3.0.1",
     "rxjs": "5.5.0",

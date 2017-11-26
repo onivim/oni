@@ -68,8 +68,15 @@ const start = (args: string[]) => {
         browserWindow.setFullScreen(configuration.getValue("editor.fullScreenOnStart"))
     }
 
+    configuration.start()
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
+
+    performance.mark("NeovimInstance.Plugins.Start")
+    const api = pluginManager.startPlugins()
+    performance.mark("NeovimInstance.Plugins.End")
+
+    configuration.activate(api)
 
     UI.init(pluginManager, parsedArgs._)
 
@@ -78,12 +85,6 @@ const start = (args: string[]) => {
     })
 
     createLanguageClientsFromConfiguration(configuration.getValues())
-
-    performance.mark("NeovimInstance.Plugins.Start")
-    const api = pluginManager.startPlugins()
-    performance.mark("NeovimInstance.Plugins.End")
-
-    configuration.activate(api)
 
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
 

@@ -22,8 +22,7 @@ export class PluginManager extends EventEmitter {
         return this._plugins
     }
 
-    constructor() {
-        super()
+    public startPlugins(): Oni.Plugin.Api {
 
         this._rootPluginPaths.push(corePluginsRoot)
 
@@ -33,9 +32,7 @@ export class PluginManager extends EventEmitter {
         }
 
         this._rootPluginPaths.push(path.join(this._config.getUserFolder(), "plugins"))
-    }
 
-    public startPlugins(): Oni.Plugin.Api {
         const allPluginPaths = this._getAllPluginPaths()
         this._plugins = allPluginPaths.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
 

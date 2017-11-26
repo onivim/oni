@@ -1,2 +1,0 @@
-- How does this work with typing predictions? Seems like there may be artifacts that weren't present before
-- Any regressions?

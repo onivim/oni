@@ -17,6 +17,11 @@ import * as Oni from "oni-api"
 
 import { EventContext, NeovimInstance } from "./../neovim"
 import { languageManager, sortTextEdits } from "./../Services/Language"
+import { PromiseQueue } from "./../Services/Language/PromiseQueue"
+
+import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
+
+import { BufferHighlightState, BufferHighlightsUpdater, IBufferHighlightsUpdater } from "./BufferHighlights"
 
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
@@ -33,6 +38,9 @@ export class Buffer implements Oni.Buffer {
 
     private _bufferLines: string[] = null
     private _lastBufferLineVersion: number = -1
+
+    private _promiseQueue = new PromiseQueue()
+    private _previousHighlightState: BufferHighlightState = {}
 
     public get filePath(): string {
         return this._filePath
@@ -122,6 +130,27 @@ export class Buffer implements Oni.Buffer {
         await Observable.from(deferredEdits)
                 .concatMap(de => de)
                 .toPromise()
+    }
+
+    public async getOrCreateHighlightGroup(highlight: SyntaxHighlighting.IHighlight | string): Promise<SyntaxHighlighting.HighlightGroupId> {
+        if (typeof highlight === "string") {
+            return highlight
+        } else {
+            // TODO: needed for theming integration!
+            return null
+        }
+    }
+
+    public async updateHighlights(updateFunction: (highlightsUpdater: IBufferHighlightsUpdater) => void): Promise<void> {
+        this._promiseQueue.enqueuePromise(async () => {
+            const bufferId = parseInt(this._id, 10)
+            const bufferUpdater = new BufferHighlightsUpdater(bufferId, this._neovimInstance, this._previousHighlightState)
+            await bufferUpdater.start()
+
+            updateFunction(bufferUpdater)
+
+            this._previousHighlightState = await bufferUpdater.apply()
+        })
     }
 
     public async setLines(start: number, end: number, lines: string[]): Promise<void> {
