@@ -56,8 +56,6 @@ const BaseConfiguration: IConfigurationValues = {
 
     "oni.loadInitVim": false,
 
-    "oni.useExternalPopupMenu": true,
-
     "oni.hideMenu": false,
 
     "oni.exclude": ["node_modules", ".git"],
@@ -73,6 +71,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickInfo.delay": 500,
 
     "editor.completions.enabled": true,
+    "editor.completions.mode": "oni",
     "editor.errors.slideOnFocus": true,
     "editor.formatting.formatOnSwitchToNormalMode": false,
 

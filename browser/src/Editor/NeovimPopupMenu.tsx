@@ -12,6 +12,7 @@ import { INeovimCompletionInfo, INeovimCompletionItem } from "./../neovim"
 import * as UI from "./../UI"
 
 import { ContextMenuView, IContextMenuItem } from "./../Services/ContextMenu"
+import { configuration } from "./../Services/Configuration"
 
 const mapNeovimCompletionItemToContextMenuItem = (item: INeovimCompletionItem, idx: number, totalLength: number): IContextMenuItem  => ({
     label: item.word,
@@ -52,6 +53,12 @@ export class NeovimPopupMenu {
     }
 
     private _renderCompletionMenu(selectedIndex: number): void {
+
+        const popUpWindowsHidden = configuration.getValue("editor.completions.mode") === "hidden"
+        
+        if (popUpWindowsHidden)
+            return
+
         let itemsToRender: IContextMenuItem[] = []
         let adjustedIndex = selectedIndex
 
