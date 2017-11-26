@@ -64,7 +64,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
 
     private _openGithub(): void {
         // TODO: Open this in an internal window once that capability is available
-        electron.shell.openExternal("https://www.github.com/extr0py/oni")
+        electron.shell.openExternal("https://www.github.com/onivim/oni")
     }
 }
 
