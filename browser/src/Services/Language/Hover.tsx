@@ -94,6 +94,10 @@ export const renderQuickInfo = (hover: types.Hover, errors: types.Diagnostic[]) 
 
     const elements = [...errorElements, ...quickInfoElements ]
 
+    if (configuration.getValue("experimental.editor.textMateHighlighting.debugScopes")) {
+        elements.push(getDebugScopesElement())
+    }
+
     return <div className="quickinfo-container enable-mouse">
             <div className="quickinfo">
                 <div className="container horizontal center">
@@ -103,6 +107,31 @@ export const renderQuickInfo = (hover: types.Hover, errors: types.Diagnostic[]) 
                 </div>
             </div>
            </div>
+}
+
+const getDebugScopesElement = (): JSX.Element => {
+    const editor: any = editorManager.activeEditor
+
+    if (!editor || !editor.syntaxHighlighter) {
+        return null
+    }
+
+    const cursor = editorManager.activeEditor.activeBuffer.cursor
+    const scopeInfo = editor.syntaxHighlighter.getHighlightTokenAt(editorManager.activeEditor.activeBuffer.id, {
+        line: cursor.line,
+        character: cursor.column,
+    })
+
+    if (!scopeInfo || !scopeInfo.scopes) {
+        return null
+    }
+    const items = scopeInfo.scopes.map((si: string) => <li>{si}</li>)
+    return <div className="documentation">
+            <div>DEBUG: TextMate Scopes:</div>
+            <ul>
+                {items}
+            </ul>
+        </div>
 }
 
 const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[] => {

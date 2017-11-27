@@ -103,7 +103,7 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
                 }
 
                 oni = new Oni()
-                return oni.start()
+                await oni.start()
             })
 
             afterEach(async () => {

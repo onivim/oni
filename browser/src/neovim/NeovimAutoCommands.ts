@@ -5,53 +5,54 @@
  * - To add a new autocommand, make sure it is registered in `init.vim` in the `OniEventListeners` augroup
  */
 
-import { Event, IEvent } from "./../Event"
+import { Event, IEvent } from "oni-types"
 
+import { EventContext } from "./EventContext"
 import { NeovimInstance } from "./NeovimInstance"
 
 export interface INeovimAutoCommands {
     // Autocommands
-    onBufEnter: IEvent<Oni.EventContext>
-    onBufWinEnter: IEvent<Oni.EventContext>
-    onWinEnter: IEvent<Oni.EventContext>
-    onCursorMoved: IEvent<Oni.EventContext>
-    onCursorMovedI: IEvent<Oni.EventContext>
-    onVimResized: IEvent<Oni.EventContext>
+    onBufEnter: IEvent<EventContext>
+    onBufWinEnter: IEvent<EventContext>
+    onWinEnter: IEvent<EventContext>
+    onCursorMoved: IEvent<EventContext>
+    onCursorMovedI: IEvent<EventContext>
+    onVimResized: IEvent<EventContext>
 
     executeAutoCommand(autoCommand: string): Promise<void>
 }
 
 export class NeovimAutoCommands {
     // Autocommand events
-    private _nameToEvent: { [key: string]: Event<Oni.EventContext> }
-    private _onBufEnterEvent = new Event<Oni.EventContext>()
-    private _onBufWinEnterEvent = new Event<Oni.EventContext>()
-    private _onWinEnterEvent = new Event<Oni.EventContext>()
-    private _onCursorMovedEvent = new Event<Oni.EventContext>()
-    private _onCursorMovedIEvent = new Event<Oni.EventContext>()
-    private _onVimResizedEvent = new Event<Oni.EventContext>()
+    private _nameToEvent: { [key: string]: Event<EventContext> }
+    private _onBufEnterEvent = new Event<EventContext>()
+    private _onBufWinEnterEvent = new Event<EventContext>()
+    private _onWinEnterEvent = new Event<EventContext>()
+    private _onCursorMovedEvent = new Event<EventContext>()
+    private _onCursorMovedIEvent = new Event<EventContext>()
+    private _onVimResizedEvent = new Event<EventContext>()
 
-    public get onBufEnter(): IEvent<Oni.EventContext> {
+    public get onBufEnter(): IEvent<EventContext> {
         return this._onBufEnterEvent
     }
 
-    public get onBufWinEnter(): IEvent<Oni.EventContext> {
+    public get onBufWinEnter(): IEvent<EventContext> {
         return this._onBufWinEnterEvent
     }
 
-    public get onWinEnter(): IEvent<Oni.EventContext> {
+    public get onWinEnter(): IEvent<EventContext> {
         return this._onWinEnterEvent
     }
 
-    public get onCursorMoved(): IEvent<Oni.EventContext> {
+    public get onCursorMoved(): IEvent<EventContext> {
         return this._onCursorMovedEvent
     }
 
-    public get onCursorMovedI(): IEvent<Oni.EventContext> {
+    public get onCursorMovedI(): IEvent<EventContext> {
         return this._onCursorMovedIEvent
     }
 
-    public get onVimResized(): IEvent<Oni.EventContext> {
+    public get onVimResized(): IEvent<EventContext> {
         return this._onVimResizedEvent
     }
 
@@ -66,7 +67,7 @@ export class NeovimAutoCommands {
         }
     }
 
-    public notifyAutocommand(autoCommandName: string, context: Oni.EventContext): void {
+    public notifyAutocommand(autoCommandName: string, context: EventContext): void {
 
         const evt = this._nameToEvent[autoCommandName]
 

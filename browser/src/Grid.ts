@@ -55,16 +55,13 @@ export class Grid<T> {
 
         let dir: any
         let start: any
-        let end: any
 
         if (rowsToShift >= 0) {
             dir = 1
             start = 0
-            end = this._height
         } else {
             dir = -1
             start = this._height - 1
-            end = 0
         }
 
         let current = start

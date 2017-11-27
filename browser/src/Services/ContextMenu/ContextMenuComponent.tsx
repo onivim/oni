@@ -8,6 +8,8 @@ import * as types from "vscode-languageserver-types"
 
 import { connect, Provider } from "react-redux"
 
+import * as Oni from "oni-api"
+
 import { IMenus } from "./../Menu/MenuState"
 
 import * as Colors from "./../../UI/Colors"

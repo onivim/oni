@@ -14,11 +14,12 @@ import { Observable } from "rxjs/Observable"
 
 import { clipboard, ipcRenderer, remote } from "electron"
 
-import { INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
+
+import { EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
-
-import { Event, IEvent } from "./../Event"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 
@@ -27,6 +28,8 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
 import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
+import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
+import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
@@ -41,7 +44,7 @@ import { NeovimSurface } from "./NeovimSurface"
 
 import { tasks } from "./../Services/Tasks"
 
-import { normalizePath } from "./../Utility"
+import { normalizePath, sleep } from "./../Utility"
 
 import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
 
@@ -72,6 +75,9 @@ export class NeovimEditor implements IEditor {
     private _isFirstRender: boolean = true
 
     private _lastBufferId: string = null
+
+    private _typingPredictionManager: TypingPredictionManager = new TypingPredictionManager()
+    private _syntaxHighlighter: ISyntaxHighlighter
 
     public get mode(): string {
         return this._currentMode
@@ -109,6 +115,10 @@ export class NeovimEditor implements IEditor {
     // Capabilities
     public get neovim(): Oni.NeovimEditorCapability {
         return this._neovimInstance
+    }
+
+    public get syntaxHighlighter(): ISyntaxHighlighter {
+        return this._syntaxHighlighter
     }
 
     constructor(
@@ -182,6 +192,7 @@ export class NeovimEditor implements IEditor {
         this._neovimInstance.onRedrawComplete.subscribe(() => {
             UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
             UI.Actions.setCursorPosition(this._screen)
+            this._typingPredictionManager.setCursorPosition(this._screen.cursorRow, this._screen.cursorColumn)
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
@@ -213,10 +224,15 @@ export class NeovimEditor implements IEditor {
         bufferUpdates$.subscribe((bufferUpdate) => {
             this._onBufferChangedEvent.dispatch(bufferUpdate)
             UI.Actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
+
+            this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
         })
 
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
         addNormalModeLanguageFunctionality(bufferUpdates$, this._cursorMoved$, this._modeChanged$)
+
+        const textMateHighlightingEnabled = this._config.getValue("experimental.editor.textMateHighlighting.enabled")
+        this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
         this._render()
 
@@ -271,6 +287,20 @@ export class NeovimEditor implements IEditor {
         }
     }
 
+    public dispose(): void {
+        if (this._syntaxHighlighter) {
+            this._syntaxHighlighter.dispose()
+            this._syntaxHighlighter = null
+        }
+
+        // TODO: Implement full disposal logic
+        this._popupMenu.dispose()
+        this._popupMenu = null
+
+        this._windowManager.dispose()
+        this._windowManager = null
+    }
+
     public async openFile(file: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":e " + file)
         return this.activeBuffer
@@ -317,6 +347,7 @@ export class NeovimEditor implements IEditor {
         }
 
         return <NeovimSurface renderer={this._renderer}
+            typingPrediction={this._typingPredictionManager}
             neovimInstance={this._neovimInstance}
             screen={this._screen}
             onKeyDown={onKeyDown}
@@ -327,14 +358,31 @@ export class NeovimEditor implements IEditor {
     }
 
     private _onModeChanged(newMode: string): void {
+
+        this._typingPredictionManager.clearAllPredictions()
+
+        if (newMode === "insert" && configuration.getValue("experimental.editor.typingPrediction")) {
+            this._typingPredictionManager.enable()
+        } else {
+            this._typingPredictionManager.disable()
+        }
+
         UI.Actions.setMode(newMode)
         this._currentMode = newMode
+
+        if (newMode === "insert") {
+            this._syntaxHighlighter.notifyStartInsertMode(this.activeBuffer)
+        } else {
+            this._syntaxHighlighter.notifyEndInsertMode(this.activeBuffer)
+        }
+
     }
 
-    private _onVimEvent(eventName: string, evt: Oni.EventContext): void {
+    private _onVimEvent(eventName: string, evt: EventContext): void {
         UI.Actions.setWindowCursor(evt.windowNumber, evt.line - 1, evt.column - 1)
 
-        tasks.onEvent(evt)
+        // Convert to 0-based positions
+        this._syntaxHighlighter.notifyViewportChanged(evt.bufferNumber.toString(), evt.windowTopLine - 1, evt.windowBottomLine - 1)
 
         const lastBuffer = this.activeBuffer
         const buf = this._bufferManager.updateBufferFromEvent(evt)
@@ -406,6 +454,10 @@ export class NeovimEditor implements IEditor {
     }
 
     private async _onKeyDown(key: string): Promise<void> {
+        if (configuration.getValue("debug.fakeLag.neovimInput")) {
+            await sleep(configuration.getValue("debug.fakeLag.neovimInput"))
+        }
+
         await this._neovimInstance.input(key)
     }
 }

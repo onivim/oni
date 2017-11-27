@@ -18,6 +18,8 @@ platform:
 
 # Install scripts. (runs after repo cloning)
 install:
+  # Ensure the Git Submoduldes have been pulled down too
+  - git submodule update --init --recursive
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
   # Workaround https://github.com/npm/npm/issues/18380

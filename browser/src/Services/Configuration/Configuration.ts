@@ -4,7 +4,8 @@ import * as isError from "lodash/isError"
 import * as mkdirp from "mkdirp"
 import * as path from "path"
 
-import { Event, IEvent } from "./../../Event"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
 import * as Log from "./../../Log"
 import * as Performance from "./../../Performance"
@@ -30,7 +31,7 @@ export class Configuration implements Oni.Configuration {
         return this._onConfigurationChangedEvent
     }
 
-    constructor() {
+    public start(): void {
         Performance.mark("Config.load.start")
 
         this.applyConfig()
