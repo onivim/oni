@@ -10,8 +10,8 @@ import { Oni } from "./common"
 const LongTimeout = 5000
 
 const CiTests = [
-    "AutoCompletionTest",
     "BasicEditingTest",
+    "AutoCompletionTest",
     "QuickOpenTest",
     "NoInstalledNeovim",
 ]
