@@ -227,7 +227,6 @@ export class NeovimEditor implements IEditor {
             this._onBufferChangedEvent.dispatch(bufferUpdate)
             UI.Actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
 
-            this._completion.notifyBufferUpdate(bufferUpdate)
             this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
         })
 
@@ -409,8 +408,6 @@ export class NeovimEditor implements IEditor {
             this._onBufferEnterEvent.dispatch(buf)
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.filetype, evt.bufferTotalLines, evt.hidden, evt.listed)
-
-            this._completion.notifyBufferEnter(buf)
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)

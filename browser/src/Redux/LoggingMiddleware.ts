@@ -19,7 +19,7 @@ export const createLoggingMiddleware = (storeName: string) => (store: Store<any>
 
     if (Log.isDebugLoggingEnabled()) {
         Log.debug("[REDUX - " + storeName + "] New State: ")
-        console.dir(store.getState()) // tslint: disable-line
+        console.dir(store.getState()) // tslint:disable-line
     }
 
     return result
