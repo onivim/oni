@@ -3,16 +3,15 @@
  */
 
 import * as Oni from "oni-api"
-
 import { IDisposable } from "oni-types"
-
 import { Store } from "redux"
+import { Subject } from "rxjs/Subject"
 
 import { createContextMenu } from "./CompletionMenu"
 
 import { ICompletionState } from "./CompletionState"
 
-import { createStore } from "./CompletionStore"
+import { createStore, CompletionAction } from "./CompletionStore"
 
 export class Completion implements IDisposable {
 
@@ -20,10 +19,17 @@ export class Completion implements IDisposable {
     private _store: Store<ICompletionState>
     private _subscriptions: IDisposable[]
 
+    private _throttledCursorUpdates: Subject<CompletionAction> = new Subject<CompletionAction>()
+
     constructor(
         private _editor: Oni.Editor,
     ) {
         this._store = createStore()
+        this._throttledCursorUpdates
+            .auditTime(10)
+            .subscribe((update: CompletionAction) => {
+                this._store.dispatch(update)
+            })
 
         const sub1 = this._editor.onBufferEnter.subscribe((buf: Oni.Buffer) => {
             this._onBufferEnter(buf)
@@ -87,7 +93,7 @@ export class Completion implements IDisposable {
         const newLine = firstChange.text
 
         if (range.start.line === this._lastCursorPosition.line) {
-            this._store.dispatch({
+            this._throttledCursorUpdates.next({
                 type: "CURSOR_MOVED",
                 line: this._lastCursorPosition.line,
                 column: this._lastCursorPosition.column,
@@ -100,7 +106,7 @@ export class Completion implements IDisposable {
         if (newMode === "insert" && this._lastCursorPosition) {
 
             const [latestLine] = await this._editor.activeBuffer.getLines(this._lastCursorPosition.line, this._lastCursorPosition.line + 1)
-            this._store.dispatch({
+            this._throttledCursorUpdates.next({
                 type: "CURSOR_MOVED",
                 line: this._lastCursorPosition.line,
                 column: this._lastCursorPosition.column,

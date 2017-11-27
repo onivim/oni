@@ -20,6 +20,7 @@ export const createContextMenu = (store: Store<ICompletionState>) => {
     })
 
     contextMenu.onSelectedItemChanged.subscribe((completionItem: types.Command) => {
+
         store.dispatch({
             type: "SELECT_ITEM",
             completionItem,
@@ -46,6 +47,7 @@ export const render = (contextMenu: ContextMenu, state: ICompletionState): void 
     if (filteredCompletions && filteredCompletions.length) {
         if (contextMenu.isOpen()) {
             contextMenu.setItems(filteredCompletions)
+            contextMenu.setFilter(state.meetInfo.meetBase)
         } else {
             contextMenu.show(filteredCompletions, state.meetInfo.meetBase)
         }

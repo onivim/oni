@@ -384,7 +384,6 @@ export class NeovimEditor implements IEditor {
         } else {
             this._syntaxHighlighter.notifyEndInsertMode(this.activeBuffer)
         }
-
     }
 
     private _onVimEvent(eventName: string, evt: EventContext): void {
