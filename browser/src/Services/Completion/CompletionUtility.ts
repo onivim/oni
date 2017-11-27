@@ -82,7 +82,9 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
 
     const isFromTriggerCharacter = doesCharacterMatchTriggerCharacters(line[basePos - 1], completionTriggerCharacters)
 
-    const shouldExpandCompletions = currentPrefix.length > 0 || isFromTriggerCharacter
+    const isCharacterAfterCursor = (cursorColumn < line.length) && line[cursorColumn].match(characterMatchRegex)
+
+    const shouldExpandCompletions = (currentPrefix.length > 0 || isFromTriggerCharacter) && !isCharacterAfterCursor
 
     const positionToQuery = isFromTriggerCharacter ? basePos : basePos + 1
 
