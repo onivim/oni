@@ -11,9 +11,9 @@ const LongTimeout = 5000
 
 const CiTests = [
     "AutoCompletionTest",
-    // "BasicEditingTest",
-    // "QuickOpenTest",
-    // "NoInstalledNeovim",
+    "BasicEditingTest",
+    "QuickOpenTest",
+    "NoInstalledNeovim",
 ]
 
 // tslint:disable:no-console

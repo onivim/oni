@@ -122,13 +122,6 @@ class LoggingRedirector {
         console.error = this._redirect("ERROR", this._oldError)
     }
 
-    private _redirect(type: string, oldFunction: any): any {
-        return (...args: any[]) => {
-            this._logs.push("[" + type + "][" + new Date().getTime() + "]: " + JSON.stringify(args))
-            oldFunction(args)
-        }
-    }
-
     public getAllLogs(): string[] {
         return this._logs
     }
@@ -143,5 +136,12 @@ class LoggingRedirector {
         this._oldInfo = null
         this._oldWarn = null
         this._oldError = null
+    }
+
+    private _redirect(type: string, oldFunction: any): any {
+        return (...args: any[]) => {
+            this._logs.push("[" + type + "][" + new Date().getTime() + "]: " + JSON.stringify(args))
+            oldFunction(args)
+        }
     }
 }
