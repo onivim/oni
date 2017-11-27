@@ -61,7 +61,7 @@ export const doesCharacterMatchTriggerCharacters = (character: string, triggerCh
  */
 export function getCompletionMeet(line: string, cursorColumn: number, characterMatchRegex: RegExp, completionTriggerCharacters: string[]): CompletionMeetResult {
 
-    // Clamp column to within string bands
+    // Clamp column to within string bounds
     let col = Math.max(cursorColumn - 1, 0)
     col = Math.min(col, line.length - 1)
 

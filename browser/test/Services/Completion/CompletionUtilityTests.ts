@@ -14,4 +14,14 @@ describe("CompletionUtility", () => {
             assert.strictEqual(completionStart, 2)
         })
     })
+
+    describe("getCompletionMeet", () => {
+        it("shouldExpandCompletions is true when at end of word", () => {
+            assert.ok(false)
+        })
+
+        it("shouldExpandCompletions is false when in the middle of a word", () => {
+            assert.ok(false)
+        })
+    })
 })
