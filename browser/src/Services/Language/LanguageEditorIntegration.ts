@@ -12,8 +12,6 @@ import { Observable } from "rxjs/Observable"
 
 import * as Oni from "oni-api"
 
-import * as Completion from "./../Completion"
-
 import { editorManager } from "./../EditorManager"
 import * as Definition from "./Definition"
 import * as Hover from "./Hover"
@@ -79,6 +77,5 @@ export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.
                 }
             })
 
-    Completion.initCompletionUI(latestCursorAndBufferInfo$, modeChanged$)
     SignatureHelp.initUI(latestCursorAndBufferInfo$, modeChanged$)
 }

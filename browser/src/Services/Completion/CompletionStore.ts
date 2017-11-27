@@ -16,7 +16,7 @@ import { languageManager } from "./../Language"
 import * as CompletionSelects from "./CompletionSelectors"
 import * as CompletionUtility from "./CompletionUtility"
 
-import { commitCompletion, getCompletions, resolveCompletionItem } from "./Completion"
+import { commitCompletion, getCompletions, resolveCompletionItem } from "./CompletionProvider"
 
 import { DefaultCompletionResults, DefaultCompletionState, DefaultCursorInfo, DefaultLastCompletionInfo, DefaultMeetInfo, ICompletionBufferInfo, ICompletionMeetInfo, ICompletionResults, ICompletionState, ICursorInfo, ILastCompletionInfo } from "./CompletionState"
 
@@ -178,6 +178,10 @@ const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$
                 return nullAction
             }
 
+            if (!currentState.cursorInfo || !currentState.cursorInfo.lineContents) {
+                return nullAction
+            }
+
             const { bufferInfo } = currentState
 
             const token = languageManager.getTokenRegex(bufferInfo.language)
@@ -236,6 +240,10 @@ const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, s
 
             // Helper to let TypeScript know that we can assume this is 'MEET_CHANGED'...
             if (action.type !== "MEET_CHANGED") {
+                return Observable.of(nullAction)
+            }
+
+            if (!state.enabled) {
                 return Observable.of(nullAction)
             }
 

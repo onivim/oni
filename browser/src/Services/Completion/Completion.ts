@@ -2,195 +2,126 @@
  * Completion.ts
  */
 
-import * as isEqual from "lodash/isEqual"
-import { Observable } from "rxjs/Observable"
+// import { editorManager } from "./../EditorManager"
 
-import { editorManager } from "./../EditorManager"
-
-import * as types from "vscode-languageserver-types"
+// import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import * as Log from "./../../Log"
-import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-import { configuration } from "./../Configuration"
-import { ILatestCursorAndBufferInfo, languageManager } from "./../Language"
+import { IDisposable } from "oni-types"
+
+// import * as Log from "./../../Log"
+// import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
+// import { configuration } from "./../Configuration"
+// import { ILatestCursorAndBufferInfo, languageManager } from "./../Language"
+
+import { Store } from "redux"
 
 import { createContextMenu } from "./CompletionMenu"
-import * as CompletionUtility from "./CompletionUtility"
+// import * as CompletionUtility from "./CompletionUtility"
 
-export interface ICompletionMeetInfo {
-    language: string
-    filePath: string
-    meetLine: number
-    meetPosition: number
-    queryPosition: number
-    meetBase: string
-    shouldExpand: boolean
-}
-
-export interface ICompletionResults {
-    completions: types.CompletionItem[]
-    meetLine: number
-    meetPosition: number
-}
+import { ICompletionState } from "./CompletionState"
 
 import { createStore } from "./CompletionStore"
 
-export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>) => {
+export class Completion implements IDisposable {
 
-    const store = createStore()
+    private _lastCursorPosition: Oni.Cursor
+    private _store: Store<ICompletionState>
+    private _subscriptions: IDisposable[]
 
-    createContextMenu(store)
+    constructor(
+        private _editor: Oni.Editor
+    ) {
+        this._store = createStore()
 
-    // Hook up BUFFER_ENTER events to the store
-    latestCursorAndBufferInfo$
-        .map((changeInfo) => ({
-            language: changeInfo.language,
-            filePath: changeInfo.filePath,
-        }))
-        .distinctUntilChanged(isEqual)
-        .subscribe(({language, filePath}) => {
-            store.dispatch({
-                type: "BUFFER_ENTER",
-                language,
-                filePath,
-            })
+        const sub1 = this._editor.onBufferEnter.subscribe((buf: Oni.Buffer) => {
+            this.notifyBufferEnter(buf)
         })
 
-    // Hook up CURSOR_MOVED events to the store
-    latestCursorAndBufferInfo$
-        .map((changeInfo) => ({
-            line: changeInfo.cursorLine,
-            lineContents: changeInfo.contents,
-            column: changeInfo.cursorColumn,
-        }))
-        .distinctUntilChanged(isEqual)
-        .subscribe(({column, line, lineContents}) => {
-            store.dispatch({
+        const sub2 = this._editor.onBufferChanged.subscribe((buf: Oni.EditorBufferChangedEventArgs) => {
+            this.notifyBufferUpdate(buf)
+        })
+
+        const sub3 = this._editor.onModeChanged.subscribe((newMode: string) => {
+            this.notifyModeChanged(newMode)
+        })
+
+        const sub4 = (<any>this._editor).onCursorMoved.subscribe((cursor: Oni.Cursor) => {
+            this._onCursorMoved(cursor)
+        })
+
+        this._subscriptions = [sub1, sub2, sub3, sub4]
+
+        createContextMenu(this._store)
+    }
+
+    private _onCursorMoved(cursor: Oni.Cursor): void {
+        this._lastCursorPosition = cursor
+    }
+
+    public notifyBufferEnter(buffer: Oni.Buffer): void {
+        this._store.dispatch({
+            type: "BUFFER_ENTER",
+            language: buffer.language,
+            filePath: buffer.filePath,
+        })
+    }
+
+    public notifyBufferUpdate(bufferUpdate: Oni.EditorBufferChangedEventArgs): void {
+
+        // Ignore if this is a full update
+        const firstChange = bufferUpdate.contentChanges[0]
+
+        if (!firstChange || !firstChange.range) {
+            return
+        }
+
+        const range = firstChange.range
+
+        // We only work with single line changes, for now.
+        // Perhaps we could get the latest line by querying the activeBuffer
+        // from cursorMoved, but right now, the update comes _after_
+        // the cursorMoved event - so this is the most reliable way.
+        if (range.start.line + 1 !== range.end.line) {
+            return
+        }
+
+        const newLine = firstChange.text
+
+        if (range.start.line === this._lastCursorPosition.line) {
+            this._store.dispatch({
                 type: "CURSOR_MOVED",
-                column,
-                line,
-                lineContents,
+                line: this._lastCursorPosition.line,
+                column: this._lastCursorPosition.column,
+                lineContents: newLine,
             })
-        })
+        }
+    }
 
-    // Hook up MODE_CHANGED events to the store
-    modeChanged$
-        .distinctUntilChanged()
-        .subscribe((newMode: string) => {
-            store.dispatch({
-                type: "MODE_CHANGED",
-                mode: newMode,
+    public async notifyModeChanged(newMode: string): Promise<void> {
+        if (newMode === "insert" && this._lastCursorPosition) {
+
+            const [latestLine] = await this._editor.activeBuffer.getLines(this._lastCursorPosition.line, this._lastCursorPosition.line + 1)
+            this._store.dispatch({
+                type: "CURSOR_MOVED",
+                line: this._lastCursorPosition.line,
+                column: this._lastCursorPosition.column,
+                lineContents: latestLine,
             })
+        }
+
+        this._store.dispatch({
+            type: "MODE_CHANGED",
+            mode: newMode,
         })
+    }
+
+    public dispose(): void {
+        if (this._subscriptions) {
+            this._subscriptions.forEach((disposable) => disposable.dispose())
+            this._subscriptions = null
+        }
+    }
+
 }
-
-export const getCompletions = async (language: string, filePath: string, line: number, character: number): Promise<types.CompletionItem[]> => {
-
-    if (!configuration.getValue("editor.completions.enabled")) {
-        return null
-    }
-
-    if (Log.isDebugLoggingEnabled()) {
-        Log.debug(`[COMPLETION] Requesting completions at line ${line} and character ${character}`)
-    }
-
-    const args = {
-        textDocument: {
-            uri: Helpers.wrapPathInFileUri(filePath),
-        },
-        position: {
-            line,
-            character,
-        },
-    }
-    let result = null
-    try {
-        result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/completion", args)
-    } catch (ex) {
-        Log.verbose(ex)
-    }
-
-    if (!result) {
-        return null
-    }
-
-    const items = getCompletionItems(result)
-
-    if (!items) {
-        return null
-    }
-
-    if (Log.isDebugLoggingEnabled()) {
-        Log.debug(`[COMPLETION] Got completions: ${items.length}`)
-    }
-
-    const completions = items.map((i) => _convertCompletionForContextMenu(i))
-
-    return completions
-}
-
-export const resolveCompletionItem = async (language: string, filePath: string, completionItem: types.CompletionItem): Promise<types.CompletionItem> => {
-    let result
-    try {
-        result = await languageManager.sendLanguageServerRequest(language, filePath, "completionItem/resolve", completionItem)
-    } catch (ex) {
-        Log.verbose(ex)
-    }
-
-    if (!result) {
-        return null
-    }
-
-    return _convertCompletionForContextMenu(result)
-}
-
-export const commitCompletion = async (line: number, base: number, completion: string) => {
-    const buffer = editorManager.activeEditor.activeBuffer
-    const currentLines = await buffer.getLines(line, line + 1)
-
-    const column = buffer.cursor.column
-
-    if (!currentLines || !currentLines.length) {
-        return
-    }
-
-    const originalLine = currentLines[0]
-
-    const newLine = CompletionUtility.replacePrefixWithCompletion(originalLine, base, column, completion)
-    await buffer.setLines(line, line + 1, [newLine])
-    const cursorOffset = newLine.length - originalLine.length
-    await buffer.setCursorPosition(line, column + cursorOffset)
-}
-
-const getCompletionItems = (items: types.CompletionItem[] | types.CompletionList): types.CompletionItem[] => {
-    if (!items) {
-        return []
-    }
-
-    if (Array.isArray(items)) {
-        return items
-    } else {
-        return items.items || []
-    }
-}
-
-const getCompletionDocumentation = (item: types.CompletionItem): string | null => {
-    if (item.documentation) {
-        return item.documentation
-    } else if (item.data && item.data.documentation) {
-        return item.data.documentation
-    } else {
-        return null
-    }
-}
-
-const _convertCompletionForContextMenu = (completion: types.CompletionItem): any => ({
-    label: completion.label,
-    detail: completion.detail,
-    documentation: getCompletionDocumentation(completion),
-    icon: CompletionUtility.convertKindToIconName(completion.kind),
-    insertText: completion.insertText,
-    rawCompletion: completion,
-})
