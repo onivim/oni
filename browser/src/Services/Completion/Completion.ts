@@ -11,10 +11,10 @@ import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import { configuration } from "./../Configuration"
-import { languageManager, ILatestCursorAndBufferInfo } from "./../Language"
 import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
+import { configuration } from "./../Configuration"
+import { ILatestCursorAndBufferInfo, languageManager } from "./../Language"
 
 import { createContextMenu } from "./CompletionMenu"
 import * as CompletionUtility from "./CompletionUtility"
@@ -67,7 +67,6 @@ export const initCompletionUI = (latestCursorAndBufferInfo$: Observable<ILatestC
         }))
         .distinctUntilChanged(isEqual)
         .subscribe(({column, line, lineContents}) => {
-            console.log("Cursor moved!")
             store.dispatch({
                 type: "CURSOR_MOVED",
                 column,

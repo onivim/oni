@@ -16,7 +16,7 @@ import * as CompletionUtility from "./CompletionUtility"
 
 import { commitCompletion, getCompletions, resolveCompletionItem } from "./Completion"
 
-import { ICompletionBufferInfo, ICompletionMeetInfo, DefaultCursorInfo, DefaultLastCompletionInfo, DefaultCompletionResults, DefaultMeetInfo, ICompletionState, ICursorInfo, ICompletionResults, ILastCompletionInfo } from "./CompletionState"
+import { DefaultCompletionResults, DefaultCursorInfo, DefaultLastCompletionInfo, DefaultMeetInfo, ICompletionBufferInfo, ICompletionMeetInfo, ICompletionResults, ICompletionState, ICursorInfo, ILastCompletionInfo } from "./CompletionState"
 
 export type CompletionAction = {
     type: "CURSOR_MOVED",
@@ -24,39 +24,40 @@ export type CompletionAction = {
     column: number
     lineContents: string,
 } | {
-    type: "MODE_CHANGED",
-    mode: string,
-} | {
-    type: "BUFFER_ENTER",
-    language: string
-    filePath: string,
-} | {
-    type: "COMMIT_COMPLETION"
-    meetBase: string
-    meetLine: number
-    meetPosition: number
-    completionText: string,
-} | {
-    type: "MEET_CHANGED",
-    currentMeet: ICompletionMeetInfo,
-} | {
-    type: "GET_COMPLETIONS_RESULT"
-    meetLine: number
-    meetPosition: number
-    completions: types.CompletionItem[],
-} | {
-    type: "SELECT_ITEM",
-    completionItem: types.CompletionItem,
-} | {
-    type: "GET_COMPLETION_ITEM_DETAILS_RESULT"
-    completionItemWithDetails: types.CompletionItem,
-}
+        type: "MODE_CHANGED",
+        mode: string,
+    } | {
+        type: "BUFFER_ENTER",
+        language: string
+        filePath: string,
+    } | {
+        type: "COMMIT_COMPLETION"
+        meetBase: string
+        meetLine: number
+        meetPosition: number
+        completionText: string,
+    } | {
+        type: "MEET_CHANGED",
+        currentMeet: ICompletionMeetInfo,
+    } | {
+        type: "GET_COMPLETIONS_RESULT"
+        meetLine: number
+        meetPosition: number
+        completions: types.CompletionItem[],
+    } | {
+        type: "SELECT_ITEM",
+        completionItem: types.CompletionItem,
+    } | {
+        type: "GET_COMPLETION_ITEM_DETAILS_RESULT"
+        completionItemWithDetails: types.CompletionItem,
+    }
 
 const bufferInfoReducer: Reducer<ICompletionBufferInfo> = (
     state: ICompletionBufferInfo = {
         language: null,
         filePath: null,
-    }, action: CompletionAction,
+    },
+    action: CompletionAction,
 ) => {
     switch (action.type) {
         case "BUFFER_ENTER":
@@ -107,7 +108,7 @@ export const completionResultsReducer: Reducer<ICompletionResults> = (
                         return completion
                     }
                 }),
-        }
+            }
         default:
             return state
     }
@@ -120,10 +121,10 @@ export const cursorInfoReducer: Reducer<ICursorInfo> = (
     switch (action.type) {
         case "CURSOR_MOVED":
             return {
-            line: action.line,
-            lineContents: action.lineContents,
-            column: action.column,
-        }
+                line: action.line,
+                lineContents: action.lineContents,
+                column: action.column,
+            }
         default:
             return state
     }
@@ -154,13 +155,13 @@ export const lastCompletionInfoReducer: Reducer<ILastCompletionInfo> = (
                 meetLine: action.meetLine,
                 meetPosition: action.meetPosition,
                 completedText: action.completionText,
-        }
+            }
         default:
             return state
     }
 }
 
-const nullAction = { type: null } as CompletionAction
+const nullAction: CompletionAction = { type: null } as CompletionAction
 
 const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
     action$.ofType("CURSOR_MOVED", "MODE_CHANGED")
@@ -175,7 +176,7 @@ const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$
                 return nullAction
             }
 
-            const {bufferInfo } = currentState
+            const { bufferInfo } = currentState
 
             const token = languageManager.getTokenRegex(bufferInfo.language)
             const completionCharacters = languageManager.getCompletionTriggerCharacters(bufferInfo.language)
@@ -189,8 +190,6 @@ const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$
                 meetBase: meet.base,
                 shouldExpand: meet.shouldExpandCompletions,
             }
-
-            console.log("DISPATCHING MEET_CHANGED")
 
             return {
                 type: "MEET_CHANGED",
@@ -224,7 +223,7 @@ const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, s
 
             if (action.currentMeet.meetLine === state.completionResults.meetLine
                 && action.currentMeet.meetPosition === state.completionResults.meetPosition) {
-                    return false
+                return false
             }
 
             return true
