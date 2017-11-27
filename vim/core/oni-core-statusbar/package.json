@@ -1,0 +1,17 @@
+{
+    "name": "oni-plugin-statusbar",
+    "version": "0.0.1",
+    "main": "index.js",
+    "engines": {
+        "oni": "^0.2.3"
+    },
+    "scripts": {
+    },
+    "oni": {
+        "supportedFileTypes": ["*"]
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
+    }
+}
