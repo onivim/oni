@@ -7,8 +7,10 @@ import * as types from "vscode-languageserver-types"
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
 
-import { applyMiddleware, combineReducers, createStore as reduxCreateStore, Reducer, Store } from "redux"
+import { combineReducers, Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
+
+import { createStore as oniCreateStore } from "./../../Redux"
 
 import { languageManager } from "./../Language"
 import * as CompletionSelects from "./CompletionSelectors"
@@ -305,7 +307,7 @@ const selectFirstItemEpic: Epic<CompletionAction, ICompletionState> = (action$, 
         })
 
 export const createStore = (): Store<ICompletionState> => {
-    return reduxCreateStore(
+    return oniCreateStore("COMPLETION_STORE",
         combineReducers<ICompletionState>({
             enabled: enabledReducer,
             bufferInfo: bufferInfoReducer,
@@ -314,11 +316,12 @@ export const createStore = (): Store<ICompletionState> => {
             lastCompletionInfo: lastCompletionInfoReducer,
             cursorInfo: cursorInfoReducer,
         }),
-        applyMiddleware(createEpicMiddleware(combineEpics(
+        [createEpicMiddleware(combineEpics(
             commitCompletionEpic,
             getCompletionMeetEpic,
             getCompletionsEpic,
             getCompletionDetailsEpic,
             selectFirstItemEpic,
-        ))))
+        ))]
+    )
 }
