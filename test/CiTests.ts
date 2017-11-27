@@ -11,9 +11,9 @@ const LongTimeout = 5000
 
 const CiTests = [
     "AutoCompletionTest",
-    "BasicEditingTest",
-    "QuickOpenTest",
-    "NoInstalledNeovim",
+    // "BasicEditingTest",
+    // "QuickOpenTest",
+    // "NoInstalledNeovim",
 ]
 
 // tslint:disable:no-console
@@ -127,7 +127,20 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
                 console.log("Waiting for result...") // tslint:disable-line
                 await oni.client.waitForExist(".automated-test-result", 30000)
                 const resultText = await oni.client.getText(".automated-test-result")
-                console.log("Got result: " + resultText) // tslint:disable-line
+                console.log("---RESULT")
+                console.log(resultText) // tslint:disable-line
+                console.log("---")
+                console.log("")
+
+                console.log("Retrieving logs...")
+
+                await oni.client.waitForExist(".automated-test-logs")
+                const clientLogs = await oni.client.getText(".automated-test-logs")
+                console.log("---LOGS (During run): ")
+
+                const logs = JSON.parse(clientLogs).forEach((log) => console.log(log))
+
+                console.log("---")
 
                 const result = JSON.parse(resultText)
                 assert.ok(result.passed)
