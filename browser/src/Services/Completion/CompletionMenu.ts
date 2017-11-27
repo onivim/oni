@@ -5,7 +5,7 @@
 import { Store } from "redux"
 import * as types from "vscode-languageserver-types"
 
-import { ContextMenu, contextMenuManager } from "./../../ContextMenu"
+import { ContextMenu, contextMenuManager } from "./../ContextMenu"
 
 import { getFilteredCompletions } from "./CompletionSelectors"
 import { ICompletionState } from "./CompletionStore"

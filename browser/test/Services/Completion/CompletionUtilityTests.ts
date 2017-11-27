@@ -1,6 +1,6 @@
 import * as assert from "assert"
 
-import * as CompletionUtility from "./../../../../src/Services/Language/Completion/CompletionUtility"
+import * as CompletionUtility from "./../../../src/Services/Completion/CompletionUtility"
 
 describe("CompletionUtility", () => {
 

@@ -10,11 +10,11 @@ import * as isEqual from "lodash/isEqual"
 import "rxjs/add/observable/never"
 import { Observable } from "rxjs/Observable"
 
-// import * as types from "vscode-languageserver-types"
 import * as Oni from "oni-api"
 
+import * as Completion from "./../Completion"
+
 import { editorManager } from "./../EditorManager"
-import * as Completion from "./Completion"
 import * as Definition from "./Definition"
 import * as Hover from "./Hover"
 import * as SignatureHelp from "./SignatureHelp"

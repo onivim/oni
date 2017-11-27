@@ -10,7 +10,7 @@ import { Observable } from "rxjs/Observable"
 import { applyMiddleware, combineReducers, createStore as reduxCreateStore, Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
-import { languageManager } from "./../LanguageManager"
+import { languageManager } from "./../Language"
 import * as CompletionSelects from "./CompletionSelectors"
 import * as CompletionUtility from "./CompletionUtility"
 

@@ -5,18 +5,16 @@
 import * as isEqual from "lodash/isEqual"
 import { Observable } from "rxjs/Observable"
 
-import { editorManager } from "./../../EditorManager"
+import { editorManager } from "./../EditorManager"
 
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import * as Log from "./../../../Log"
-import * as Helpers from "./../../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-import { configuration } from "./../../Configuration"
-
-import { ILatestCursorAndBufferInfo } from "./../LanguageEditorIntegration"
-import { languageManager } from "./../LanguageManager"
+import { configuration } from "./../Configuration"
+import { languageManager, ILatestCursorAndBufferInfo } from "./../Language"
+import * as Log from "./../../Log"
+import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import { createContextMenu } from "./CompletionMenu"
 import * as CompletionUtility from "./CompletionUtility"
