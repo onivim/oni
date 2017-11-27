@@ -5,8 +5,6 @@
 import { Store } from "redux"
 import * as types from "vscode-languageserver-types"
 
-import * as Oni from "oni-api"
-
 import { ContextMenu, contextMenuManager } from "./../../ContextMenu"
 
 import { getFilteredCompletions } from "./CompletionSelectors"
