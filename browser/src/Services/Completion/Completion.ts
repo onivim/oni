@@ -124,7 +124,7 @@ export const getCompletions = async (language: string, filePath: string, line: n
     }
 
     if (Log.isDebugLoggingEnabled()) {
-        Log.debug(`[COMPLETION] Got completions: ${items}`)
+        Log.debug(`[COMPLETION] Got completions: ${items.length}`)
     }
 
     const completions = items.map((i) => _convertCompletionForContextMenu(i))

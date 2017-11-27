@@ -8,7 +8,7 @@ import * as types from "vscode-languageserver-types"
 import { ContextMenu, contextMenuManager } from "./../ContextMenu"
 
 import { getFilteredCompletions } from "./CompletionSelectors"
-import { ICompletionState } from "./CompletionStore"
+import { ICompletionState } from "./CompletionState"
 import * as CompletionUtility from "./CompletionUtility"
 
 export const createContextMenu = (store: Store<ICompletionState>) => {

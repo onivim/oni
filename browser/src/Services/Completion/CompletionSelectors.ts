@@ -4,7 +4,7 @@
  * Selectors are functions that take a state and derive a value from it.
  */
 
-import { ICompletionState } from "./CompletionStore"
+import { ICompletionState } from "./CompletionState"
 
 import * as types from "vscode-languageserver-types"
 

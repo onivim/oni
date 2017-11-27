@@ -16,71 +16,7 @@ import * as CompletionUtility from "./CompletionUtility"
 
 import { commitCompletion, getCompletions, resolveCompletionItem } from "./Completion"
 
-export interface ICompletionMeetInfo {
-    meetLine: number
-    meetPosition: number
-    queryPosition: number
-    meetBase: string
-    shouldExpand: boolean
-}
-
-const DefaultMeetInfo: ICompletionMeetInfo = {
-    meetLine: -1,
-    meetPosition: -1,
-    queryPosition: -1,
-    meetBase: "",
-    shouldExpand: false,
-}
-
-export interface ICompletionBufferInfo {
-    language: string
-    filePath: string
-}
-
-export interface ILastCompletionInfo {
-    meetLine: number
-    meetPosition: number
-    completedText: string
-}
-
-const DefaultLastCompletionInfo: ILastCompletionInfo = {
-    meetLine: -1,
-    meetPosition: -1,
-    completedText: "",
-}
-
-export interface ICompletionResults {
-    completions: types.CompletionItem[]
-    meetLine: number
-    meetPosition: number
-}
-
-const DefaultCompletionResults: ICompletionResults = {
-    completions: [],
-    meetLine: -1,
-    meetPosition: -1,
-}
-
-export interface ICursorInfo {
-    line: number
-    column: number
-    lineContents: string
-}
-
-const DefaultCursorInfo: ICursorInfo = {
-    line: -1,
-    column: -1,
-    lineContents: "",
-}
-
-export interface ICompletionState {
-    enabled: boolean
-    cursorInfo: ICursorInfo
-    bufferInfo: ICompletionBufferInfo
-    meetInfo: ICompletionMeetInfo
-    completionResults: ICompletionResults
-    lastCompletionInfo: ILastCompletionInfo
-}
+import { ICompletionBufferInfo, ICompletionMeetInfo, DefaultCursorInfo, DefaultLastCompletionInfo, DefaultCompletionResults, DefaultMeetInfo, ICompletionState, ICursorInfo, ICompletionResults, ILastCompletionInfo } from "./CompletionState"
 
 export type CompletionAction = {
     type: "CURSOR_MOVED",
@@ -311,7 +247,6 @@ const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, s
             })
 
             const ret = requestResult.map((completions) => {
-                console.log("Got completions: " + completions.length)
                 return {
                     type: "GET_COMPLETIONS_RESULT",
                     meetLine: action.currentMeet.meetLine,
