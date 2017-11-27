@@ -81,5 +81,5 @@ export const DefaultCompletionState: ICompletionState = {
     bufferInfo: DefaultCompletionBufferInfo,
     meetInfo: DefaultMeetInfo,
     completionResults: DefaultCompletionResults,
-    lastCompletionInfo: DefaultLastCompletionInfo
+    lastCompletionInfo: DefaultLastCompletionInfo,
 }

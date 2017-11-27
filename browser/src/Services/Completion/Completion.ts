@@ -2,23 +2,13 @@
  * Completion.ts
  */
 
-// import { editorManager } from "./../EditorManager"
-
-// import * as types from "vscode-languageserver-types"
-
 import * as Oni from "oni-api"
 
 import { IDisposable } from "oni-types"
 
-// import * as Log from "./../../Log"
-// import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-// import { configuration } from "./../Configuration"
-// import { ILatestCursorAndBufferInfo, languageManager } from "./../Language"
-
 import { Store } from "redux"
 
 import { createContextMenu } from "./CompletionMenu"
-// import * as CompletionUtility from "./CompletionUtility"
 
 import { ICompletionState } from "./CompletionState"
 
@@ -31,23 +21,23 @@ export class Completion implements IDisposable {
     private _subscriptions: IDisposable[]
 
     constructor(
-        private _editor: Oni.Editor
+        private _editor: Oni.Editor,
     ) {
         this._store = createStore()
 
         const sub1 = this._editor.onBufferEnter.subscribe((buf: Oni.Buffer) => {
-            this.notifyBufferEnter(buf)
+            this._onBufferEnter(buf)
         })
 
         const sub2 = this._editor.onBufferChanged.subscribe((buf: Oni.EditorBufferChangedEventArgs) => {
-            this.notifyBufferUpdate(buf)
+            this._onBufferUpdate(buf)
         })
 
         const sub3 = this._editor.onModeChanged.subscribe((newMode: string) => {
-            this.notifyModeChanged(newMode)
+            this._onModeChanged(newMode)
         })
 
-        const sub4 = (<any>this._editor).onCursorMoved.subscribe((cursor: Oni.Cursor) => {
+        const sub4 = (this._editor as any).onCursorMoved.subscribe((cursor: Oni.Cursor) => {
             this._onCursorMoved(cursor)
         })
 
@@ -60,7 +50,7 @@ export class Completion implements IDisposable {
         this._lastCursorPosition = cursor
     }
 
-    public notifyBufferEnter(buffer: Oni.Buffer): void {
+    public _onBufferEnter(buffer: Oni.Buffer): void {
         this._store.dispatch({
             type: "BUFFER_ENTER",
             language: buffer.language,
@@ -68,7 +58,7 @@ export class Completion implements IDisposable {
         })
     }
 
-    public notifyBufferUpdate(bufferUpdate: Oni.EditorBufferChangedEventArgs): void {
+    public _onBufferUpdate(bufferUpdate: Oni.EditorBufferChangedEventArgs): void {
 
         // Ignore if this is a full update
         const firstChange = bufferUpdate.contentChanges[0]
@@ -99,7 +89,7 @@ export class Completion implements IDisposable {
         }
     }
 
-    public async notifyModeChanged(newMode: string): Promise<void> {
+    public async _onModeChanged(newMode: string): Promise<void> {
         if (newMode === "insert" && this._lastCursorPosition) {
 
             const [latestLine] = await this._editor.activeBuffer.getLines(this._lastCursorPosition.line, this._lastCursorPosition.line + 1)

@@ -4,7 +4,7 @@
  * Helper method to 'batch' dispatches to redux store
  * subscriptions, based on animation frames.
  *
- * This helps 'debounce' the rendering logic - 
+ * This helps 'debounce' the rendering logic -
  * otherwise we'd be re-rendering the UI every time
  * an action is dispatched.
  */

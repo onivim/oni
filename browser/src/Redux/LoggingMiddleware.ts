@@ -4,7 +4,6 @@
  * Logging strategy for Redux, specific to Oni
  */
 
-
 import { Store } from "redux"
 
 import * as Log from "./../Log"
@@ -13,14 +12,14 @@ export const createLoggingMiddleware = (storeName: string) => (store: Store<any>
     Log.verbose("[REDUX - " + storeName + "] Applying action - " + action.type + ":")
 
     if (Log.isDebugLoggingEnabled()) {
-        console.dir(action)
+        console.dir(action) // tslint:disable-line
     }
 
     const result = next(action)
 
     if (Log.isDebugLoggingEnabled()) {
-        console.log("[REDUX - " + storeName + "] New State: ")
-        console.dir(store.getState())
+        Log.debug("[REDUX - " + storeName + "] New State: ")
+        console.dir(store.getState()) // tslint: disable-line
     }
 
     return result

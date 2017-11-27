@@ -331,6 +331,6 @@ export const createStore = (): Store<ICompletionState> => {
             getCompletionsEpic,
             getCompletionDetailsEpic,
             selectFirstItemEpic,
-        ))]
+        ))],
     )
 }
