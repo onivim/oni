@@ -10,8 +10,8 @@ import { Oni } from "./common"
 const LongTimeout = 5000
 
 const CiTests = [
-    "AutoCompletionTest",
     "BasicEditingTest",
+    "AutoCompletionTest",
     "QuickOpenTest",
     "NoInstalledNeovim",
 ]
@@ -45,8 +45,6 @@ const loadTest = (testName: string): ITestCase => {
 }
 
 describe("ci tests", function() { // tslint:disable-line only-arrow-functions
-    // Retry up to two times
-    this.retries(2)
 
     const configFolder = Platform.isWindows() ? path.join(Platform.getUserHome(), "oni") :
                                                 path.join(Platform.getUserHome(), ".oni")
@@ -89,12 +87,16 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
 
         describe(test, () => {
 
+            // Retry up to two times
+            this.retries(2)
+
             const testCase = loadTest(test)
 
             let oni: Oni
 
             beforeEach(async () => {
 
+                console.log("[BEFORE EACH]: " + test)
                 if (testCase.configPath) {
                     console.log("Writing config from: " + testCase.configPath)
                     const configContents = fs.readFileSync(testCase.configPath)
@@ -107,6 +109,7 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
             })
 
             afterEach(async () => {
+                console.log("[AFTER EACH]: " + test)
                 await oni.close()
 
                 if (fs.existsSync(configPath)) {
@@ -116,9 +119,12 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
             })
 
             it("ci test: " + test, async () => {
+                console.log("[TEST]: " + test)
+                console.log("Waiting for editor element...")
                 await oni.client.waitForExist(".editor", LongTimeout)
+                console.log("Found editor element. Getting editor element text: ")
                 const text = await oni.client.getText(".editor")
-                assert(text && text.length > 0, "Validate editor element is present")
+                console.log("Editor element text: " + text)
 
                 console.log("Test path: " + testCase.testPath) // tslint:disable-line
 
@@ -127,7 +133,20 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
                 console.log("Waiting for result...") // tslint:disable-line
                 await oni.client.waitForExist(".automated-test-result", 30000)
                 const resultText = await oni.client.getText(".automated-test-result")
-                console.log("Got result: " + resultText) // tslint:disable-line
+                console.log("---RESULT")
+                console.log(resultText) // tslint:disable-line
+                console.log("---")
+                console.log("")
+
+                console.log("Retrieving logs...")
+
+                await oni.client.waitForExist(".automated-test-logs")
+                const clientLogs = await oni.client.getText(".automated-test-logs")
+                console.log("---LOGS (During run): ")
+
+                const logs = JSON.parse(clientLogs).forEach((log) => console.log(log))
+
+                console.log("---")
 
                 const result = JSON.parse(resultText)
                 assert.ok(result.passed)
