@@ -116,8 +116,11 @@ describe("ci tests", function() { // tslint:disable-line only-arrow-functions
             })
 
             it("ci test: " + test, async () => {
+                console.log("Waiting for editor element...")
                 await oni.client.waitForExist(".editor", LongTimeout)
+                console.log("Found editor element. Getting editor element text: ")
                 const text = await oni.client.getText(".editor")
+                console.log("Editor text length: " + text.length)
                 assert(text && text.length > 0, "Validate editor element is present")
 
                 console.log("Test path: " + testCase.testPath) // tslint:disable-line
