@@ -18,7 +18,7 @@ import * as CompletionUtility from "./CompletionUtility"
 
 import { commitCompletion, getCompletions, resolveCompletionItem } from "./Completion"
 
-import { DefaultCompletionResults, DefaultCursorInfo, DefaultLastCompletionInfo, DefaultMeetInfo, ICompletionBufferInfo, ICompletionMeetInfo, ICompletionResults, ICompletionState, ICursorInfo, ILastCompletionInfo } from "./CompletionState"
+import { DefaultCompletionResults, DefaultCompletionState, DefaultCursorInfo, DefaultLastCompletionInfo, DefaultMeetInfo, ICompletionBufferInfo, ICompletionMeetInfo, ICompletionResults, ICompletionState, ICursorInfo, ILastCompletionInfo } from "./CompletionState"
 
 export type CompletionAction = {
     type: "CURSOR_MOVED",
@@ -316,6 +316,7 @@ export const createStore = (): Store<ICompletionState> => {
             lastCompletionInfo: lastCompletionInfoReducer,
             cursorInfo: cursorInfoReducer,
         }),
+        DefaultCompletionState,
         [createEpicMiddleware(combineEpics(
             commitCompletionEpic,
             getCompletionMeetEpic,

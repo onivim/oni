@@ -9,11 +9,17 @@
  */
 
 
-import { applyMiddleware, createStore as reduxCreateStore, Middleware, Reducer, Store } from "redux"
+import { applyMiddleware, compose, createStore as reduxCreateStore, Middleware, Reducer, Store } from "redux"
+import { batchedSubscribe } from "redux-batched-subscribe"
 
-export const createStore = <TState>(name: string, reducer: Reducer<TState>, optionalMiddleware: Middleware[] = []): Store<TState> => {
+import { RAFNotifyBatcher } from "./RAFNotifyBatcher"
 
-    const mdw = applyMiddleware(...optionalMiddleware)
+export const createStore = <TState>(name: string, reducer: Reducer<TState>, defaultState: TState, optionalMiddleware: Middleware[] = []): Store<TState> => {
 
-    return reduxCreateStore(reducer, mdw)
+    const composeEnhancers = window["__REDUX_DEVTOOLS_EXTENSION__COMPOSE__"] || compose // tslint:disable-line no-string-literal
+    const enhancer = composeEnhancers(
+        applyMiddleware(...optionalMiddleware),
+        batchedSubscribe(RAFNotifyBatcher),
+    )
+    return reduxCreateStore(reducer, defaultState, enhancer)
 }

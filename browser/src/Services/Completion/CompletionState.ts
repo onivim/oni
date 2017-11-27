@@ -34,6 +34,11 @@ export interface ICompletionBufferInfo {
     filePath: string
 }
 
+export const DefaultCompletionBufferInfo: ICompletionBufferInfo = {
+    language: null,
+    filePath: null,
+}
+
 export interface ILastCompletionInfo {
     meetLine: number
     meetPosition: number
@@ -68,4 +73,13 @@ export const DefaultCursorInfo: ICursorInfo = {
     line: -1,
     column: -1,
     lineContents: "",
+}
+
+export const DefaultCompletionState: ICompletionState = {
+    enabled: false,
+    cursorInfo: DefaultCursorInfo,
+    bufferInfo: DefaultCompletionBufferInfo,
+    meetInfo: DefaultMeetInfo,
+    completionResults: DefaultCompletionResults,
+    lastCompletionInfo: DefaultLastCompletionInfo
 }
