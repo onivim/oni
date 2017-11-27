@@ -46,11 +46,18 @@ export class Completion implements IDisposable {
         createContextMenu(this._store)
     }
 
+    public dispose(): void {
+        if (this._subscriptions) {
+            this._subscriptions.forEach((disposable) => disposable.dispose())
+            this._subscriptions = null
+        }
+    }
+
     private _onCursorMoved(cursor: Oni.Cursor): void {
         this._lastCursorPosition = cursor
     }
 
-    public _onBufferEnter(buffer: Oni.Buffer): void {
+    private _onBufferEnter(buffer: Oni.Buffer): void {
         this._store.dispatch({
             type: "BUFFER_ENTER",
             language: buffer.language,
@@ -58,7 +65,7 @@ export class Completion implements IDisposable {
         })
     }
 
-    public _onBufferUpdate(bufferUpdate: Oni.EditorBufferChangedEventArgs): void {
+    private _onBufferUpdate(bufferUpdate: Oni.EditorBufferChangedEventArgs): void {
 
         // Ignore if this is a full update
         const firstChange = bufferUpdate.contentChanges[0]
@@ -89,7 +96,7 @@ export class Completion implements IDisposable {
         }
     }
 
-    public async _onModeChanged(newMode: string): Promise<void> {
+    private async _onModeChanged(newMode: string): Promise<void> {
         if (newMode === "insert" && this._lastCursorPosition) {
 
             const [latestLine] = await this._editor.activeBuffer.getLines(this._lastCursorPosition.line, this._lastCursorPosition.line + 1)
@@ -106,12 +113,4 @@ export class Completion implements IDisposable {
             mode: newMode,
         })
     }
-
-    public dispose(): void {
-        if (this._subscriptions) {
-            this._subscriptions.forEach((disposable) => disposable.dispose())
-            this._subscriptions = null
-        }
-    }
-
 }
