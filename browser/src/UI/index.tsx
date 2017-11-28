@@ -9,7 +9,7 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 
 import { Provider } from "react-redux"
-import { applyMiddleware, bindActionCreators, compose, createStore } from "redux"
+import { bindActionCreators } from "redux"
 import thunk from "redux-thunk"
 
 import { Observable } from "rxjs/Observable"
@@ -31,32 +31,13 @@ import { PluginManager } from "./../Plugins/PluginManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
 
-import { batchedSubscribe } from "redux-batched-subscribe"
-
-let rafId: any = null
-
-const rafUpdateBatcher = (notify: any) => {
-    if (rafId) {
-        return
-    }
-
-    rafId = window.requestAnimationFrame(() => {
-        rafId = null
-        notify()
-    })
-}
+import { createStore } from "./../Redux"
 
 const defaultState = State.createDefaultState()
 
 require("./components/common.less") // tslint:disable-line no-var-requires
 
-const composeEnhancers = window["__REDUX_DEVTOOLS_EXTENSION__COMPOSE__"] || compose // tslint:disable-line no-string-literal
-const enhancer = composeEnhancers(
-    applyMiddleware(thunk),
-    batchedSubscribe(rafUpdateBatcher),
-)
-
-export const store = createStore(reducer, defaultState, enhancer)
+export const store = createStore("SHELL", reducer, defaultState, [thunk])
 
 const _state$: Subject<State.IState> = new Subject()
 export const state$: Observable<State.IState> = _state$
