@@ -117,6 +117,7 @@ class LoggingRedirector {
         this._oldInfo = console.log
         this._oldWarn = console.warn
         this._oldError = console.error
+        this._oldDir = console.dir
 
         console.log = this._redirect("INFO", this._oldInfo)
         console.warn = this._redirect("WARN", this._oldWarn)
