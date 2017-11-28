@@ -3,8 +3,12 @@
  */
 
 export const getCompletionElement = () => {
+    return getElementByClassName("autocompletion")
+}
 
-    const elements = document.body.getElementsByClassName("autocompletion")
+export const getElementByClassName = (className: string) => {
+
+    const elements = document.body.getElementsByClassName(className)
 
     if (!elements || !elements.length) {
         return null
