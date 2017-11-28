@@ -73,12 +73,12 @@ const start = (args: string[]) => {
     configuration.onConfigurationChanged.subscribe(configChange)
 
     performance.mark("NeovimInstance.Plugins.Start")
-    const api = pluginManager.startPlugins()
+    pluginManager.startPlugins()
     performance.mark("NeovimInstance.Plugins.End")
-
-    configuration.activate(api)
-
     UI.init(pluginManager, parsedArgs._)
+
+    const api = pluginManager.startApi()
+    configuration.activate(api)
 
     ipcRenderer.on("execute-command", (_evt: any, command: string) => {
         commandManager.executeCommand(command, null)
