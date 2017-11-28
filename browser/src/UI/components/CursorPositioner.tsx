@@ -227,7 +227,7 @@ const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursor
         containerWidth: state.viewport.width,
         containerHeight: state.viewport.height,
         lineHeight,
-        backgroundColor: backgroundColor,
+        backgroundColor,
     }
 }
 

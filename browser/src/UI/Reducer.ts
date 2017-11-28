@@ -21,7 +21,7 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     }
 
     switch (a.type) {
-        case "SET_COLORS": 
+        case "SET_COLORS":
             return {
                 ...s,
                 colors: a.payload.colors,

@@ -21,7 +21,7 @@ const remapToAbsolutePaths = (packageRoot: string, contributes: Capabilities.ICo
 
     return {
         ...contributes,
-        themes: contributes.themes.map((t) => remapThemePath(t))
+        themes: contributes.themes.map((t) => remapThemePath(t)),
     }
 }
 
@@ -39,8 +39,6 @@ export const readMetadata = (packagePath: string): Capabilities.IPluginMetadata 
     if (!metadata) {
         return null
     }
-
-
 
     if (!metadata.engines || !metadata.engines["oni"]) { // tslint:disable-line no-string-literal
         Log.warn("Aborting plugin load as Oni engine version not specified")

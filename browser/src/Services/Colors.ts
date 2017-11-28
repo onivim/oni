@@ -6,12 +6,12 @@
  * - Also will handle 'fallback logic' for colors
  */
 
-import { Event, IEvent, IDisposable } from "oni-types"
+import { Event, IDisposable, IEvent } from "oni-types"
 
 import { configuration, Configuration, IConfigurationValues } from "./Configuration"
-import { ThemeManager, getThemeManagerInstance } from "./Themes"
+import { getThemeManagerInstance, ThemeManager } from "./Themes"
 
-export type ColorsDictionary = { [colorName: string]: string}
+export interface ColorsDictionary { [colorName: string]: string}
 
 export class Colors implements IDisposable {
 
@@ -75,13 +75,8 @@ export class Colors implements IDisposable {
 
             const colorFromConfiguration = this._configuration.getValue(configurationName)
 
-            if (colorFromConfiguration) {
-                this._colors[themeColor] = colorFromConfiguration
-            } else {
-                this._colors[themeColor] = currentThemeColors[themeColor]
-            }
+            this._colors[themeColor] = colorFromConfiguration ? colorFromConfiguration : currentThemeColors[themeColor]
         })
-
 
         this._onColorsChangedEvent.dispatch()
     }
