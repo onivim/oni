@@ -11,7 +11,7 @@ import { createContextMenu } from "./CompletionMenu"
 
 import { ICompletionState } from "./CompletionState"
 
-import { createStore, CompletionAction } from "./CompletionStore"
+import { CompletionAction, createStore } from "./CompletionStore"
 
 export class Completion implements IDisposable {
 
