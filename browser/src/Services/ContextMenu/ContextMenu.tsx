@@ -5,7 +5,7 @@
  */
 
 import * as React from "react"
-import { applyMiddleware, bindActionCreators, createStore } from "redux"
+import { bindActionCreators } from "redux"
 import thunk from "redux-thunk"
 
 import * as types from "vscode-languageserver-types"
@@ -16,6 +16,8 @@ import { Event, IEvent } from "oni-types"
 import * as ActionCreators from "./../Menu/MenuActionCreators"
 import { createReducer } from "./../Menu/MenuReducer"
 import * as State from "./../Menu/MenuState"
+
+import { createStore } from "./../../Redux"
 
 import * as UI from "./../../UI"
 import { ContextMenuContainer } from "./ContextMenuComponent"
@@ -35,7 +37,7 @@ const reducer = createReducer<types.CompletionItem, types.CompletionItem>((opts,
     })
 })
 
-export const contextMenuStore = createStore(reducer, State.createDefaultState(), applyMiddleware(thunk))
+export const contextMenuStore = createStore("CONTEXT-MENU", reducer, State.createDefaultState(), [thunk])
 export const contextMenuActions: typeof ActionCreators = bindActionCreators(ActionCreators as any, contextMenuStore.dispatch)
 
 // TODO: This is essentially a duplicate of `MenuManager.ts` - can this be consolidated?
@@ -111,7 +113,12 @@ export class ContextMenu {
     }
 
     public setFilter(filter: string): void {
-        contextMenuActions.filterMenu(filter)
+
+        const contextMenuState = contextMenuStore.getState()
+
+        if (contextMenuState.menu && contextMenuState.menu.filter !== filter) {
+            contextMenuActions.filterMenu(filter)
+        }
     }
 
     public setLoading(isLoading: boolean): void {

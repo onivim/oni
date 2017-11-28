@@ -27,6 +27,7 @@ import { pluginManager } from "./../Plugins/PluginManager"
 
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
+import { Completion } from "./../Services/Completion"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
 import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
@@ -82,6 +83,7 @@ export class NeovimEditor implements IEditor {
 
     private _typingPredictionManager: TypingPredictionManager = new TypingPredictionManager()
     private _syntaxHighlighter: ISyntaxHighlighter
+    private _completion: Completion
 
     public get mode(): string {
         return this._currentMode
@@ -242,6 +244,8 @@ export class NeovimEditor implements IEditor {
         const textMateHighlightingEnabled = this._config.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
+        this._completion = new Completion(this)
+
         this._render()
 
         const browserWindow = remote.getCurrentWindow()
@@ -299,6 +303,11 @@ export class NeovimEditor implements IEditor {
         if (this._syntaxHighlighter) {
             this._syntaxHighlighter.dispose()
             this._syntaxHighlighter = null
+        }
+
+        if (this._completion) {
+            this._completion.dispose()
+            this._completion = null
         }
 
         // TODO: Implement full disposal logic
@@ -398,7 +407,6 @@ export class NeovimEditor implements IEditor {
         } else {
             this._syntaxHighlighter.notifyEndInsertMode(this.activeBuffer)
         }
-
     }
 
     private _onVimEvent(eventName: string, evt: EventContext): void {
