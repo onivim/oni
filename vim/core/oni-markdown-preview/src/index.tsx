@@ -24,11 +24,11 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
     }
 
     componentDidMount() {
-        const editor = this.props.oni.editors.activeEditor
-        this.subscribe(editor.onBufferChanged, (args) => this.onBufferChanged(args))
+        const activeEditor: Oni.Editor = this.props.oni.editors.activeEditor
+        this.subscribe(activeEditor.onBufferChanged, (args) => this.onBufferChanged(args))
         //TODO: Subscribe "onFocusChanged"
 
-        this.previewBuffer(this.props.oni.editors.activeEditor.activeBuffer)
+        this.previewBuffer(activeEditor.activeBuffer)
     }
 
     componentWillUnmount() {
@@ -60,10 +60,11 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
     public render(): JSX.Element {
         const containerStyle: React.CSSProperties = {
             padding: "1em 1em 1em 1em",
+            "overflow-y": "auto",
         }
 
         const html = marked(this.state.source)
-        return <div style={containerStyle} dangerouslySetInnerHTML={{__html: html}}></div>
+        return <div className="stack enable-mouse" style={containerStyle} dangerouslySetInnerHTML={{__html: html}}></div>
     }
 }
 
