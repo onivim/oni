@@ -168,7 +168,8 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             <div style={arrowStyleWithAdjustments}>
                 <Arrow
                     direction={this.state.shouldOpenDownward
-                        ? ArrowDirection.Up : ArrowDirection.Down}
+                        ? ArrowDirection.Up
+                        : ArrowDirection.Down}
                     size={5}
                     color={this.props.beakColor}
                 />
@@ -190,9 +191,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             const margin = this.props.lineHeight * 2
             const canOpenUpward = this.props.y - rect.height > margin
             const bottomScreenPadding = 50
-            const canOpenDownard = this.props.y +
-                rect.height + this.props.lineHeight * 3 < this.props.containerHeight
-                - margin - bottomScreenPadding
+            const canOpenDownard = this.props.y + rect.height + this.props.lineHeight * 3 < this.props.containerHeight - margin - bottomScreenPadding
 
             const shouldOpenDownward = (this.props.openDirection !== OpenDirection.Down && !canOpenUpward) || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
 
