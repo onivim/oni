@@ -59,7 +59,7 @@ export class NeovimEditor implements IEditor {
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
     private _popupMenu: NeovimPopupMenu
-    private _colors: Colors
+    private _colors: Colors // TODO: Factor this out to the UI 'Shell'
 
     private _pendingAnimationFrame: boolean = false
 

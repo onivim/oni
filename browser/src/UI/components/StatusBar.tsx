@@ -15,6 +15,8 @@ export interface StatusBarProps {
     enabled: boolean
     fontSize: string
     fontFamily: string
+    backgroundColor: string
+    foregroundColor: string
 }
 
 export interface StatusBarItemProps {
@@ -43,6 +45,8 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
         const statusBarStyle = {
             "fontFamily": this.props.fontFamily,
             "fontSize": this.props.fontSize,
+            backgroundColor: this.props.backgroundColor,
+            color: this.props.foregroundColor,
         }
 
         return <div className="status-bar enable-mouse" style={statusBarStyle}>
@@ -96,6 +100,8 @@ const mapStateToProps = (state: IState): StatusBarProps => {
     const statusBarItems = getStatusBarItems(state)
 
     return {
+        backgroundColor: state.colors["statusBar.background"],
+        foregroundColor: state.colors["statusBar.foreground"],
         fontFamily: state.configuration["ui.fontFamily"],
         fontSize: state.configuration["statusbar.fontSize"] || state.configuration["ui.fontSize"],
         items: statusBarItems,
