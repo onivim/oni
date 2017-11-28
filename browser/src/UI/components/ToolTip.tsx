@@ -1,8 +1,6 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import { CSSTransition, TransitionGroup } from "react-transition-group"
-
 import { createSelector } from "reselect"
 
 import * as Colors from "./../Colors"
@@ -21,21 +19,11 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
     public render(): JSX.Element {
 
         const toolTipElements = this.props.toolTips.map((toolTip) => {
-            return <CSSTransition
-                timeout={250}
-                classNames="fade"
-                unmountOnExit={true}
-                exit={false}
-                key={toolTip.id}
-            >
-            <ToolTipView {...toolTip} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor}/>
-            </CSSTransition>
+            return <ToolTipView {...toolTip} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor} key={toolTip.id}/>
         })
 
         return <div className="tool-tips" key={"tool-tip-container"}>
-        <TransitionGroup>
             {toolTipElements}
-        </TransitionGroup>
         </div>
     }
 }

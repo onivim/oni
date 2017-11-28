@@ -62,10 +62,9 @@ export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observ
                 }
 
                 if (hover || (errors && errors.length)) {
-                    const state: any = UI.store.getState()
                     const elem = renderQuickInfo(hover, errors)
                     UI.Actions.showToolTip(hoverToolTipId, elem, {
-                        position: { pixelX: state.cursorPixelX, pixelY: state.cursorPixelY },
+                        position: null, // use cursor position
                         openDirection: 1,
                         padding: "0px",
                     })

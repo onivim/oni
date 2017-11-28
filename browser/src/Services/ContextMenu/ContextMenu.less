@@ -3,11 +3,9 @@
 .autocompletion {
     /* Promote to a layer, to improve paint performance when autocomplete is open */
     .layer;
+    .appear-animation;
 
-    width: 600px;
     overflow: hidden;
-    animation-name: appear;
-    animation-duration: 0.1s;
 
     .entry {
         &.selected {
@@ -19,7 +17,7 @@
             }
 
             .detail {
-                visibility: visible;
+                opacity: 0.8;
             }
         }
 
@@ -64,8 +62,7 @@
             margin-left: 16px;
 
             font-size: 0.8em;
-            opacity: 0.8;
-            visibility: hidden;
+            opacity: 0.0;
         }
     }
 
@@ -76,10 +73,5 @@
         max-height: 48px;
         overflow-y: auto;
     }
-}
-
-@keyframes appear {
-    from {opacity: 0;}
-    to {opacity: 1;}
 }
 

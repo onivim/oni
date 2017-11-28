@@ -147,3 +147,20 @@
   transition-duration: 150ms;
   transition-timing-function: ease-in;
 }
+
+.appear-animation {
+    animation-name: appear;
+    animation-duration: 0.2s;
+    animation-timing-function: ease-in;
+}
+
+@keyframes appear {
+    from {
+        transform: translateX(2px);
+        opacity: 0.5;
+    }
+    to {
+        transform: translateX(0px);
+        opacity: 1;
+    }
+}
