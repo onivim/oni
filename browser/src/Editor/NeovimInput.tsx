@@ -9,7 +9,6 @@ import * as React from "react"
 import { Mouse } from "./../Input/Mouse"
 import { NeovimInstance } from "./../neovim"
 import { NeovimScreen } from "./../Screen"
-// import * as UI from "./../UI/index"
 
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 

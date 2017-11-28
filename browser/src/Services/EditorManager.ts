@@ -8,7 +8,9 @@
  * to the active editor, and managing transitions between editors.
  */
 
+import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
+
 import * as Log from "./../Log"
 
 export class EditorManager implements Oni.EditorManager {
@@ -119,6 +121,10 @@ class AllEditors implements Oni.Editor {
 
     public get onBufferSaved(): IEvent<Oni.EditorBufferEventArgs> {
         return this._onBufferSaved
+    }
+
+    public dispose(): void {
+        // tslint:disable-line
     }
 
     /**

@@ -1,6 +1,6 @@
 // For more information on customizing Oni,
 // check out our wiki page:
-// https://github.com/extr0py/oni/wiki/Configuration
+// https://github.com/onivim/oni/wiki/Configuration
 
 const activate = (oni) => {
     console.log("config activated")

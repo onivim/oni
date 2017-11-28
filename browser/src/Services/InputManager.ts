@@ -1,4 +1,6 @@
 
+import * as Oni from "oni-api"
+
 import { commandManager } from "./CommandManager"
 
 export type ActionFunction = () => boolean

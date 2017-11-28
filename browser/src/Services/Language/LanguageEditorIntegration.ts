@@ -11,6 +11,7 @@ import "rxjs/add/observable/never"
 import { Observable } from "rxjs/Observable"
 
 // import * as types from "vscode-languageserver-types"
+import * as Oni from "oni-api"
 
 import { editorManager } from "./../EditorManager"
 import * as Completion from "./Completion"

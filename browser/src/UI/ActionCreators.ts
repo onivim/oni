@@ -13,6 +13,8 @@ import * as isEqual from "lodash/isEqual"
 import "rxjs/add/operator/distinctUntilChanged"
 import { Subject } from "rxjs/Subject"
 
+import * as Oni from "oni-api"
+
 import { Rectangle } from "./Types"
 
 import * as Actions from "./Actions"

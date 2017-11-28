@@ -6,6 +6,15 @@
  * because dependent packages or plugins may have their own set of configuration
  */
 
+import * as Oni from "oni-api"
+
+import { IHighlight } from "./../SyntaxHighlighting"
+
+export interface ITokenColorsSetting {
+    scope: string
+    settings: IHighlight | string
+}
+
 export interface IConfigurationValues {
 
     "activate": (oni: Oni.Plugin.Api) => void
@@ -29,8 +38,14 @@ export interface IConfigurationValues {
     "debug.fakeLag.neovimInput": number | null
 
     // Experimental feature flags
+    // - autoClosingPairs
     "experimental.autoClosingPairs.enabled": boolean
     "experimental.autoClosingPairs.default": any
+
+    // - textMateHighlighting
+    "experimental.editor.textMateHighlighting.enabled": boolean
+    // If a file has more lines than this value, syntax highlighting will be disabled
+    "experimental.editor.textMateHighlighting.maxLines": number
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
@@ -111,6 +126,9 @@ export interface IConfigurationValues {
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
 
+    // Allow overriding token colors for specific textmate scopes
+    "editor.tokenColors": ITokenColorsSetting[]
+
     // Additional paths to include when launching sub-process from Oni
     // (and available in terminal integration, later)
     "environment.additionalPaths": string[]
@@ -151,8 +169,7 @@ export interface IConfigurationValues {
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
 
-    "tabs.enabled": boolean
-    "tabs.showVimTabs": boolean
+    "tabs.mode": string
 
     // Height of individual tabs in the tab strip
     "tabs.height": string

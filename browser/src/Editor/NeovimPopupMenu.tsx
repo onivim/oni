@@ -46,6 +46,11 @@ export class NeovimPopupMenu {
         })
     }
 
+    public dispose(): void {
+        // TODO: Implement 'unsubscribe' logic here
+        // tslint:disable-line
+    }
+
     private _renderCompletionMenu(selectedIndex: number): void {
         let itemsToRender: IContextMenuItem[] = []
         let adjustedIndex = selectedIndex

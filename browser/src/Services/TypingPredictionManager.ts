@@ -13,17 +13,21 @@ export interface IPredictedCharacter {
     id: number
 }
 
+export interface ITypingPrediction {
+    predictedCharacters: IPredictedCharacter[]
+    predictedCursorColumn: number
+}
+
 export class TypingPredictionManager {
 
-    private _predictionsChanged: Event<IPredictedCharacter[]> = new Event<IPredictedCharacter[]>()
+    private _predictionsChanged: Event<ITypingPrediction> = new Event<ITypingPrediction>()
     private _predictions: IPredictedCharacter[] = []
-    private _completedPredictions: TypingPredictionId[] = []
     private _enabled: boolean = false
 
     private _line: number = null
     private _column: number = null
 
-    public get onPredictionsChanged(): IEvent<IPredictedCharacter[]> {
+    public get onPredictionsChanged(): IEvent<ITypingPrediction> {
         return this._predictionsChanged
     }
 
@@ -84,12 +88,14 @@ export class TypingPredictionManager {
 
     public clearAllPredictions(): void {
         this._predictions = []
-        this._completedPredictions = []
 
         this._notifyPredictionsChanged()
     }
 
     private _notifyPredictionsChanged(): void {
-        this._predictionsChanged.dispatch(this._predictions)
+        this._predictionsChanged.dispatch({
+            predictedCharacters: this._predictions,
+            predictedCursorColumn: this._column + this._predictions.length,
+        })
     }
 }

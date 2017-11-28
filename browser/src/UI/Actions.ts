@@ -7,6 +7,8 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
+import * as Oni from "oni-api"
+
 import * as Coordinates from "./Coordinates"
 import { IMessageDialog, ITab, StatusBarAlignment } from "./State"
 import { Rectangle } from "./Types"
