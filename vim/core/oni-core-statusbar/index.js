@@ -43,7 +43,7 @@ const activate = (Oni) => {
             backgroundColor: getColorForMode(mode)
         }
 
-        const modeElement  = React.createElement("div", { style }, parseMode(mode))
+        const modeElement  = React.createElement("div", { style, className: "mode" }, parseMode(mode))
         modeItem.setContents(modeElement)
     }
 
