@@ -17,6 +17,8 @@ const activate = (Oni) => {
                     return Oni.colors.getColor("highlight.mode.insert.background")
                 case "operator":
                     return Oni.colors.getColor("highlight.mode.operator.background")
+                case "visual":
+                    return Oni.colors.getColor("highlight.mode.visual.background")
                 default:
                     return Oni.colors.getColor("highlight.mode.normal.background")
             }
@@ -29,6 +31,8 @@ const activate = (Oni) => {
                     return Oni.colors.getColor("highlight.mode.insert.foreground")
                 case "operator":
                     return Oni.colors.getColor("highlight.mode.operator.foreground")
+                case "visual":
+                    return Oni.colors.getColor("highlight.mode.visual.foreground")
                 default:
                     return Oni.colors.getColor("highlight.mode.normal.foreground")
             }
