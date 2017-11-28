@@ -22,7 +22,7 @@ export class PluginManager extends EventEmitter {
         return this._plugins
     }
 
-    public startPlugins(): void {
+    public discoverPlugins(): void {
 
         this._rootPluginPaths.push(corePluginsRoot)
 
@@ -40,6 +40,11 @@ export class PluginManager extends EventEmitter {
     }
 
     public startApi(): Oni.Plugin.Api {
+
+        this._plugins.forEach((plugin) => {
+            plugin.activate()
+        })
+
         return this._anonymousPlugin.oni
     }
 

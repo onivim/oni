@@ -72,9 +72,9 @@ const start = (args: string[]) => {
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
 
-    performance.mark("NeovimInstance.Plugins.Start")
-    pluginManager.startPlugins()
-    performance.mark("NeovimInstance.Plugins.End")
+    performance.mark("NeovimInstance.Plugins.Discover.Start")
+    pluginManager.discoverPlugins()
+    performance.mark("NeovimInstance.Plugins.Discover.End")
     UI.init(pluginManager, parsedArgs._)
 
     const api = pluginManager.startApi()
