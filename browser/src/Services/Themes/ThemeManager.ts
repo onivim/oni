@@ -5,7 +5,6 @@
  */
 
 import { Event, IEvent } from "oni-types"
-import { configuration, Configuration } from "./../Configuration"
 
 import { PluginThemeLoader } from "./ThemeLoader"
 
@@ -202,25 +201,6 @@ export const DefaultTheme: IThemeMetadata = {
     // tokenColors: [],
 }
 
-const mergeColorsWithConfiguration = (colors: Partial<IThemeColors>, configManager: Configuration): IThemeColors => {
-    const colorsWithConfigurationColors = Object.keys(colors).reduce((previous: Partial<IThemeColors>, currentValue: string) => {
-        const valueFromConfig = configManager.getValue("colors." + currentValue)
-        const valueFromTheme = colors[currentValue]
-
-        const color = valueFromConfig || valueFromTheme
-
-        return {
-            ...previous,
-            [currentValue]: color,
-        }
-    }, {})
-
-    return {
-        ...DefaultThemeColors,
-        ...colorsWithConfigurationColors,
-    }
-}
-
 export class ThemeManager {
     private _onThemeChangedEvent: Event<void> = new Event<void>()
 
@@ -291,7 +271,10 @@ export class ThemeManager {
     private _updateTheme(theme: IThemeMetadata): void {
         this._activeTheme = theme
 
-        this._colors = mergeColorsWithConfiguration(this._activeTheme.colors, configuration)
+        this._colors = {
+            ...DefaultThemeColors,
+            ...this._activeTheme.colors,
+        }
 
         this._onThemeChangedEvent.dispatch()
     }

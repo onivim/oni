@@ -16,7 +16,7 @@ export type ColorsDictionary = { [colorName: string]: string}
 export class Colors implements IDisposable {
 
     private _subscriptions: IDisposable[] = []
-    private _colors: ColorsDictionary
+    private _colors: ColorsDictionary = {}
     private _onColorsChangedEvent: Event<void> = new Event<void>()
 
     public get onColorsChanged(): IEvent<void> {
@@ -42,6 +42,7 @@ export class Colors implements IDisposable {
         })
 
         this._subscriptions = [sub1, sub2]
+        this._updateColorsFromConfig()
     }
 
     public getColors(): ColorsDictionary {
@@ -65,7 +66,7 @@ export class Colors implements IDisposable {
             return
         }
 
-        const currentThemeColors = this._themeManager.activeTheme.colors
+        const currentThemeColors = this._themeManager.getColors()
         this._colors = {}
 
         Object.keys(currentThemeColors).forEach((themeColor) => {
