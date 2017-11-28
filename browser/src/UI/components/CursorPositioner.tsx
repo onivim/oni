@@ -148,13 +148,15 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             visibility: this.props.hideArrow ? "hidden" : "visible",
         }
 
+        const leftSidePositioning = (x: number) =>  Math.sign(x) !== -1
+            ? x.toString() + "px"
+            : (x * -1).toString() + "px"
+
         const childStyleWithAdjustments: React.CSSProperties = this.state.isMeasured ? {
             ...childStyle,
-            left: this.state.isFullWidth ? "8px" : Math.sign(adjustedX) !== -1 ?
-                adjustedX.toString() + "px" :
-                (adjustedX * -1).toString() + "px",
+            left: this.state.isFullWidth ? "8px" : leftSidePositioning(adjustedX),
             right: this.state.isFullWidth ? "8px" : null,
-            "max-width": "95%",
+            maxWidth: "95%",
         } : childStyle
 
         return <div style={containerStyle} key={this.props.key}>
