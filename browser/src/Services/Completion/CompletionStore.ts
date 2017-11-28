@@ -168,7 +168,7 @@ export const lastCompletionInfoReducer: Reducer<ILastCompletionInfo> = (
 const nullAction: CompletionAction = { type: null } as CompletionAction
 
 const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
-    action$.ofType("CURSOR_MOVED", "MODE_CHANGED")
+    action$.ofType("CURSOR_MOVED")
         .map((action: CompletionAction) => {
             const currentState: ICompletionState = store.getState()
 
