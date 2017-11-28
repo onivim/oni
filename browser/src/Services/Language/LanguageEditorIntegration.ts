@@ -10,11 +10,9 @@ import * as isEqual from "lodash/isEqual"
 import "rxjs/add/observable/never"
 import { Observable } from "rxjs/Observable"
 
-// import * as types from "vscode-languageserver-types"
 import * as Oni from "oni-api"
 
 import { editorManager } from "./../EditorManager"
-import * as Completion from "./Completion"
 import * as Definition from "./Definition"
 import * as Hover from "./Hover"
 import * as SignatureHelp from "./SignatureHelp"
@@ -79,6 +77,5 @@ export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.
                 }
             })
 
-    Completion.initCompletionUI(latestCursorAndBufferInfo$, modeChanged$)
     SignatureHelp.initUI(latestCursorAndBufferInfo$, modeChanged$)
 }

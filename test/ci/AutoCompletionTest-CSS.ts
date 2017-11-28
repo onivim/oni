@@ -10,13 +10,13 @@ import { getCompletionElement } from "./Common"
 
 export const test = async (oni: any) => {
     const dir = os.tmpdir()
-    const testFileName = `testFile-${new Date().getTime()}.ts`
+    const testFileName = `testFile-${new Date().getTime()}.css`
     const tempFilePath = path.join(dir, testFileName)
     oni.automation.sendKeys(":e " + tempFilePath)
     oni.automation.sendKeys("<cr>")
     await oni.automation.sleep(500)
     oni.automation.sendKeys("i")
-    oni.automation.sendKeys("window.a")
+    oni.automation.sendKeys(".test { pos")
 
     // Wait for completion popup to show
     await oni.automation.waitFor(() => getCompletionElement() !== null)
@@ -25,5 +25,5 @@ export const test = async (oni: any) => {
     const completionElement = getCompletionElement()
     const textContent = completionElement.textContent
 
-    assert.ok(textContent.indexOf("alert") >= 0, "Verify 'alert' was presented as a completion")
+    assert.ok(textContent.indexOf("position") >= 0, "Verify 'position' was presented as a completion")
 }
