@@ -25,6 +25,7 @@ import { NeovimScreen } from "./../Screen"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 
+import { Colors } from "./../Services/Colors"
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Completion } from "./../Services/Completion"
@@ -58,6 +59,7 @@ export class NeovimEditor implements IEditor {
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
     private _popupMenu: NeovimPopupMenu
+    private _colors: Colors
 
     private _pendingAnimationFrame: boolean = false
 
@@ -137,6 +139,8 @@ export class NeovimEditor implements IEditor {
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._screen = new NeovimScreen()
 
+        this._colors = new Colors(this._themeManager, this._config)
+
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
             this._neovimInstance.onHidePopupMenu,
@@ -156,6 +160,11 @@ export class NeovimEditor implements IEditor {
 
         services.push(errorService)
         services.push(windowTitle)
+
+        this._colors.onColorsChanged.subscribe(() => {
+            const updatedColors: any = this._colors.getColors()
+            UI.Actions.setColors(updatedColors)
+        })
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
@@ -303,6 +312,11 @@ export class NeovimEditor implements IEditor {
         if (this._syntaxHighlighter) {
             this._syntaxHighlighter.dispose()
             this._syntaxHighlighter = null
+        }
+
+        if (this._colors) {
+            this._colors.dispose()
+            this._colors = null
         }
 
         if (this._completion) {
