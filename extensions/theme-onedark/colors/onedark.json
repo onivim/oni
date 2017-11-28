@@ -22,7 +22,7 @@
         "contextMenu.background": "#282C34",
         "contextMenu.foreground": "#ABB2BF",
         "contextMenu.border": "#505050",
-        "contextMenu.highlight": "#A0A0A0",
+        "contextMenu.highlight": "#3F3F3F",
 
         "statusBar.background": "#282828",
         "statusBar.foreground": "#c8c8c8"

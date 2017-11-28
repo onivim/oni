@@ -79,7 +79,7 @@ export const getBorderColor = (bgColor: string, fgColor: string): string => {
     return borderColor.rgb().toString()
 }
 
-export const getColorsFromForegroundAndBackground = (foreground: string, background: string) => {
+export const getColorsFromBackgroundAndForeground = (background: string, foreground: string) => {
     const borderColor = getBorderColor(background, foreground)
     return {
         ...DefaultThemeColors,
@@ -91,6 +91,9 @@ export const getColorsFromForegroundAndBackground = (foreground: string, backgro
         "toolTip.background": background,
         "toolTip.foreground": foreground,
         "toolTip.border": borderColor,
+
+        "tabs.background": background,
+        "tabs.foreground": foreground,
 
         // Context menu is used for completion, refactoring
         "contextMenu.background": background,
@@ -270,7 +273,7 @@ export class ThemeManager {
             const vimTheme: IThemeMetadata = {
                 name: vimName,
                 baseVimTheme: vimName,
-                colors: getColorsFromForegroundAndBackground(backgroundColor, foregroundColor),
+                colors: getColorsFromBackgroundAndForeground(backgroundColor, foregroundColor),
             }
 
             this._updateTheme(vimTheme)
