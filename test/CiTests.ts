@@ -14,6 +14,7 @@ const CiTests = [
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-TypeScript",
     "QuickOpenTest",
+    "StatusBar-Mode",
     "NoInstalledNeovim",
 ]
 

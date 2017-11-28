@@ -12,3 +12,14 @@ export const getCompletionElement = () => {
         return elements[0]
     }
 }
+
+export const getElementByClassName = (className: string) => {
+
+    const elements = document.body.getElementsByClassName(className)
+
+    if (!elements || !elements.length) {
+        return null
+    } else {
+        return elements[0]
+    }
+}
