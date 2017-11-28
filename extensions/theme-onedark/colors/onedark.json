@@ -2,17 +2,26 @@
     "name": "onedark",
     "baseVimTheme": "onedark",
     "colors": {
-        "background": "green",
-        "foreground": "white",
+        "background": "#1F1F1F",
+        "foreground": "#ABB2BF",
 
-        "editor.background": "gray",
-        "editor.foreground": "yellow",
+        "editor.background": "#282C34",
+        "editor.foreground": "#ABB2BF",
 
-        "tabs.background": "gray",
-        "tabs.foreground": "yellow",
+        "tabs.background": "#282C34",
+        "tabs.foreground": "#ABB3BF",
 
-        "toolTip.background": "yellow",
-        "toolTip.foreground": "black",
-        "toolTip.border": "yellow"
+        "toolTip.background": "#282C34",
+        "toolTip.foreground": "#ABB2BF",
+        "toolTip.border": "#505050",
+
+        "menu.background": "#282C34",
+        "menu.foreground": "#ABB2BF",
+        "menu.border": "#505050",
+
+        "contextMenu.background": "#282C34",
+        "contextMenu.foreground": "#ABB2BF",
+        "contextMenu.border": "#505050",
+        "contextMenu.highlight": "#A0A0A0"
     }
 }
