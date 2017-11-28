@@ -77,6 +77,8 @@ const meetInfoReducer: Reducer<ICompletionMeetInfo> = (
     action: CompletionAction,
 ) => {
     switch (action.type) {
+        case "MODE_CHANGED":
+            return DefaultMeetInfo
         case "MEET_CHANGED":
             return {
                 ...action.currentMeet,
