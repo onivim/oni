@@ -141,3 +141,5 @@ $RECYCLE.BIN/
 
 # OCaml / Reason
 .merlin
+
+yarn.lock

@@ -3,7 +3,7 @@
 ### IDE powered by Neovim + React + Electron
 
 [![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)
-[![Join the chat at https://gitter.im/extr0py/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![Sponsors on Open Collective](https://opencollective.com/oni/sponsors/badge.svg)](https://opencollective.com/oni#sponsor) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
+[![Join the chat at https://gitter.im/onivim/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![Sponsors on Open Collective](https://opencollective.com/oni/sponsors/badge.svg)](https://opencollective.com/oni#sponsor) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 [![Total Downloads](https://img.shields.io/github/downloads/onivim/oni/total.svg)](https://github.com/onivim/oni/releases)
 
 <h2 align="center">Supporting Oni</h2>
@@ -61,7 +61,7 @@ Oni is cross-platform and supports Windows, OS X, and Linux.
 
 - Download the [Oni installer](https://github.com/onivim/oni/releases/download/v0.2.17/Oni-0.2.17-ia32-win.exe) for Windows
 - Once it is downloaded, run the installer. This will only take a minute.
-- By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine. 
+- By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine.
 
 You can also find install via a [zip archive](https://github.com/onivim/oni/releases/download/v0.2.17/Oni-0.2.17-ia32-win.zip)
 
@@ -129,9 +129,9 @@ There many ways to contribute to Oni:
 
 - Support Oni financially by making a donation via [Bountysource](https://salt.bountysource.com/teams/oni)
 - [Submit bugs](https://github.com/onivim/oni/issues) or propose new features.
-- Review and and upate our [documentation](https://github.com/onivim/oni/wiki)
+- Review and upate our [documentation](https://github.com/onivim/oni/wiki)
 - Try out the latest [released build](https://github.com/onivim/oni/releases)
-- Contribute a bug fix or code change - start by checking our [Debugging Page](https://github.com/onivim/oni/wiki/Debugging)
+- Contribute a bug fix or code change - start by checking our [Development Page](https://github.com/onivim/oni/wiki/Development)
 
 ## Acknowledgements
 

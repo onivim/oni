@@ -33,17 +33,19 @@ export class Plugin {
                 Log.error(`[PLUGIN] Aborting plugin load, invalid package.json: ${packageJsonPath}`)
             } else {
                 if (this._oniPluginMetadata.main) {
-
-                    this._oni = new Oni()
-                    this._onActivate()
-
                     this._commands = PackageMetadataParser.getAllCommandsFromMetadata(this._oniPluginMetadata)
                 }
             }
         }
     }
 
-    private _onActivate(): void {
+    public activate(): void {
+
+        if (!this._oniPluginMetadata || !this._oniPluginMetadata.main) {
+            return
+        }
+
+        this._oni = new Oni()
         const vm = require("vm")
         Log.info(`[PLUGIN] Activating: ${this._oniPluginMetadata.name}`)
 

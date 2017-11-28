@@ -1,4 +1,5 @@
-import { Event, IEvent } from "./../../Event"
+import { Event, IEvent } from "oni-types"
+
 import * as Log from "./../../Log"
 import * as Platform from "./../../Platform"
 

@@ -35,15 +35,15 @@ const activate = (Oni) => {
             width: "100%",
             height: "100%",
             display: "flex",
-            "align-items": "center",
-            "padding-left": "8px",
-            "padding-right": "8px",
-            "text-transform": "uppercase",
+            "alignItems": "center",
+            "paddingLeft": "8px",
+            "paddingRight": "8px",
+            "textTransform": "uppercase",
             color: rgb(220, 220, 220),
             backgroundColor: getColorForMode(mode)
         }
 
-        const modeElement  = React.createElement("div", { style }, parseMode(mode))
+        const modeElement  = React.createElement("div", { style, className: "mode" }, parseMode(mode))
         modeItem.setContents(modeElement)
     }
 

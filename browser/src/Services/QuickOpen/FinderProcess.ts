@@ -4,15 +4,14 @@
  * Manages communication with the external finder process
  */
 
-import { Event, IEvent } from "./../../Event"
-
 import { ChildProcess, spawn } from "child_process"
+
+import { Event, IEvent } from "oni-types"
 
 export class FinderProcess {
 
     private _process: ChildProcess
 
-    private _isExplicitlyStopped: boolean = false
     private _lastData: string = ""
 
     private _onData = new Event<string[]>()
@@ -68,7 +67,6 @@ export class FinderProcess {
     }
 
     public stop(): void {
-        this._isExplicitlyStopped = true
         this._process.kill()
     }
 }

@@ -7,6 +7,7 @@ module.exports = {
     ],
     target: "electron-renderer",
     externals: {
+        "vscode-textmate": "require('vscode-textmate')",
         "vscode-languageserver-types": "require('vscode-languageserver-types')",
         "keyboard-layout": "require('keyboard-layout')",
         "gifshot": "require('gifshot')"

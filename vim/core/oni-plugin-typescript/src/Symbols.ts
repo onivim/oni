@@ -2,13 +2,14 @@
  * Formatting.ts
  */
 
-/// <reference path="./../../../../definitions/Oni.d.ts" />
 /// <reference path="./../../../../node_modules/typescript/lib/protocol.d.ts" />
 
 import * as os from "os"
 import * as path from "path"
 
 import * as types from "vscode-languageserver-types"
+
+import * as Oni from "oni-api"
 
 import { ISymbolSearchParams, ITextDocumentParams } from "./Types"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
