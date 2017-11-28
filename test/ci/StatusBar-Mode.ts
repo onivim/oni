@@ -5,14 +5,11 @@
  */
 
 import * as assert from "assert"
-import * as os from "os"
 import * as path from "path"
 
-import { getCompletionElement } from "./Common"
+import { getElementByClassName } from "./Common"
 
 export const test = async (oni: any) => {
-    const dir = os.tmpdir()
-
     // Wait for completion popup to show
     await oni.automation.waitFor(() => getElementByClassName("mode") !== null)
 
