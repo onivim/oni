@@ -152,7 +152,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             ...childStyle,
             left: this.state.isFullWidth ? "8px" : adjustedX.toString() + "px",
             right: this.state.isFullWidth ? "8px" : null,
-
+            "max-width": "95%",
         } : childStyle
 
         return <div style={containerStyle} key={this.props.key}>
