@@ -39,6 +39,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
         let oni: Oni
 
         beforeEach(async () => {
+            console.log("[BEFORE EACH]: " + testName)
 
             Config.backupConfig()
 
@@ -54,6 +55,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
         })
 
         afterEach(async () => {
+            console.log("[AFTER EACH]: " + test)
             await oni.close()
 
             if (fs.existsSync(configPath)) {
@@ -65,9 +67,13 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
         })
 
         it("ci test: " + testName, async () => {
+            console.log("[TEST]: " + testName)
+            console.log("Waiting for editor element...")
             await oni.client.waitForExist(".editor", timeout)
+
+            console.log("Found editor element. Getting editor element text: ")
             const text = await oni.client.getText(".editor")
-            assert(text && text.length > 0, "Validate editor element is present")
+            console.log("Editor element text: " + text)
 
             console.log("Test path: " + testCase.testPath) // tslint:disable-line
 
@@ -76,11 +82,24 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
             console.log("Waiting for result...") // tslint:disable-line
             await oni.client.waitForExist(".automated-test-result", 30000)
             const resultText = await oni.client.getText(".automated-test-result")
-            console.log("Got result: " + resultText) // tslint:disable-line
+
+            console.log("---RESULT")
+            console.log(resultText) // tslint:disable-line
+            console.log("---")
+            console.log("")
+
+            console.log("Retrieving logs...")
+
+            await oni.client.waitForExist(".automated-test-logs")
+            const clientLogs = await oni.client.getText(".automated-test-logs")
+            console.log("---LOGS (During run): ")
+
+            const logs = JSON.parse(clientLogs).forEach((log) => console.log(log))
+
+            console.log("---")
 
             const result = JSON.parse(resultText)
             assert.ok(result.passed)
         })
     })
-
 }

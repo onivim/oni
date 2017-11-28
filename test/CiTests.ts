@@ -10,8 +10,9 @@ import { Oni, runInProcTest } from "./common"
 const LongTimeout = 5000
 
 const CiTests = [
-    "AutoCompletionTest",
     "BasicEditingTest",
+    "AutoCompletionTest-CSS",
+    "AutoCompletionTest-TypeScript",
     "QuickOpenTest",
     "NoInstalledNeovim",
 ]
@@ -29,8 +30,6 @@ export interface ITestCase {
 }
 
 describe("ci tests", function() { // tslint:disable-line only-arrow-functions
-    // Retry up to two times
-    this.retries(2)
 
     CiTests.forEach((test) => {
         runInProcTest(path.join(__dirname, "ci"), test)

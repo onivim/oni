@@ -6,6 +6,8 @@
 
 import * as types from "vscode-languageserver-types"
 
+import * as Oni from "oni-api"
+
 import { configuration , IConfigurationValues } from "./../Services/Configuration"
 
 import * as Coordinates from "./Coordinates"

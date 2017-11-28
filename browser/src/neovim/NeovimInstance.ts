@@ -3,8 +3,11 @@ import * as path from "path"
 
 import * as mkdirp from "mkdirp"
 
-import { Event, IEvent } from "./../Event"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
+
 import * as Log from "./../Log"
+import { EventContext } from "./EventContext"
 
 import * as Actions from "./../actions"
 import { measureFont } from "./../Font"
@@ -32,12 +35,12 @@ export interface INeovimApiVersion {
 }
 
 export interface IFullBufferUpdateEvent {
-    context: Oni.EventContext
+    context: EventContext
     bufferLines: string[]
 }
 
 export interface IIncrementalBufferUpdateEvent {
-    context: Oni.EventContext
+    context: EventContext
     lineNumber: number
     lineContents: string
 }
@@ -78,7 +81,7 @@ export interface INeovimInstance {
 
     onRedrawComplete: IEvent<void>
 
-    onScroll: IEvent<Oni.EventContext>
+    onScroll: IEvent<EventContext>
 
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
     onOniCommand: IEvent<string>
@@ -93,7 +96,7 @@ export interface INeovimInstance {
     /**
      * Supply input (keyboard/mouse) to Neovim
      */
-    input(inputString: string): void
+    input(inputString: string): Promise<void>
 
     /**
      * Call a VimL function
@@ -160,7 +163,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onRedrawComplete = new Event<void>()
     private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
     private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
-    private _onScroll = new Event<Oni.EventContext>()
+    private _onScroll = new Event<EventContext>()
     private _onModeChanged = new Event<Oni.Vim.Mode>()
     private _onHidePopupMenu = new Event<void>()
     private _onShowPopupMenu = new Event<INeovimCompletionInfo>()
@@ -205,7 +208,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._onRedrawComplete
     }
 
-    public get onScroll(): IEvent<Oni.EventContext> {
+    public get onScroll(): IEvent<EventContext> {
         return this._onScroll
     }
 
@@ -247,7 +250,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request<T>(request, args)
     }
 
-    public async getContext(): Promise<Oni.EventContext> {
+    public async getContext(): Promise<EventContext> {
         return this.callFunction("OniGetContext", [])
     }
 
@@ -277,7 +280,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         // TODO: Update pluginManager to subscribe from event here, instead of dupliating this
 
                         if (pluginMethod === "buffer_update") {
-                            const eventContext: Oni.EventContext = args[0][0]
+                            const eventContext: EventContext = args[0][0]
                             const startRange: number = args[0][1]
                             const endRange: number = args[0][2]
 
@@ -380,7 +383,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             return this.open(loadInitVim)
         } else {
             // Use path from: https://github.com/neovim/neovim/wiki/FAQ
-            const rootFolder = Platform.isWindows() ? path.join(Platform.getUserHome(), "AppData", "Local", "nvim") : path.join(Platform.getUserHome(), ".config", "nvim")
+            const rootFolder = Platform.isWindows() ? path.join(process.env["LOCALAPPDATA"], "nvim") : // tslint:disable-line no-string-literal
+                                                      path.join(Platform.getUserHome(), ".config", "nvim")
 
             mkdirp.sync(rootFolder)
             const initVimPath = path.join(rootFolder, "init.vim")
@@ -601,8 +605,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         })
     }
 
-    private async _onFullBufferUpdate(context: Oni.EventContext, startRange: number, endRange: number): Promise<void> {
-
+    private async _onFullBufferUpdate(context: EventContext, startRange: number, endRange: number): Promise<void> {
         if (endRange > MAX_LINES_FOR_BUFFER_UPDATE) {
             return
         }
@@ -627,19 +630,27 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private async _attachUI(columns: number, rows: number): Promise<void> {
         const version = await this.getApiVersion()
+
+        const useNativeTabs = configuration.getValue("tabs.mode") === "native"
+
+        const externaliseTabline = !useNativeTabs
+
         console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`) // tslint:disable-line no-console
 
-        const startupOptions = this._getStartupOptionsForVersion(version.major, version.minor, version.patch)
+        const startupOptions = this._getStartupOptionsForVersion(version.major,
+                                                                 version.minor,
+                                                                 version.patch,
+                                                                 externaliseTabline)
 
         await this._neovim.request("nvim_ui_attach", [columns, rows, startupOptions])
     }
 
-    private _getStartupOptionsForVersion(major: number, minor: number, patch: number) {
+    private _getStartupOptionsForVersion(major: number, minor: number, patch: number, shouldExtTabs: boolean) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
             return {
                 rgb: true,
                 popupmenu_external: true,
-                ext_tabline: true,
+                ext_tabline: shouldExtTabs,
             }
         } else if (major === 0 && minor === 2) {
             // 0.1 and below does not support external tabline

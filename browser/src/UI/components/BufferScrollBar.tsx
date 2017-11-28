@@ -52,7 +52,7 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
                 width: "100%",
             }
 
-            return <div style={markerStyle} />
+            return <div style={markerStyle} key={m.line.toString() + m.color}/>
         })
 
         return <div className="scroll-bar-container">

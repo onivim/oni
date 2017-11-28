@@ -1,0 +1,12 @@
+[submodule "vim/default/bundle/targets.vim"]
+	path = vim/default/bundle/targets.vim
+	url = https://github.com/wellle/targets.vim
+[submodule "vim/default/bundle/vim-commentary"]
+	path = vim/default/bundle/vim-commentary
+	url = https://github.com/tpope/vim-commentary
+[submodule "vim/default/bundle/vim-unimpaired"]
+	path = vim/default/bundle/vim-unimpaired
+	url = https://github.com/tpope/vim-unimpaired
+[submodule "vim/core/typescript-vim"]
+	path = vim/core/typescript-vim
+	url = https://github.com/leafgarland/typescript-vim

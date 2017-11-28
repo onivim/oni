@@ -96,10 +96,8 @@ export function createReducer<T, FilteredT extends T>(filterFunc: MenuFilterFunc
                 if (!s) {
                     return s
                 }
-                // If we already had search results, and this search is a superset of the previous,
-                // just filter the already-pruned subset
-                const optionsToSearch = a.payload.filter.indexOf(s.filter) === 0 ? s.filteredOptions : s.options
-                const filteredOptionsSorted = filterFunc(optionsToSearch, a.payload.filter)
+
+                const filteredOptionsSorted = filterFunc(s.options, a.payload.filter)
 
                 return {...s,
                         filter: a.payload.filter,

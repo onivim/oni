@@ -4,11 +4,12 @@
  * Entry point for ONI's TypeScript Language Service integraiton
  */
 
-/// <reference path="./../../../../definitions/Oni.d.ts" />
 /// <reference path="./../../../../node_modules/typescript/lib/protocol.d.ts" />
 
 import * as os from "os"
 import * as path from "path"
+
+import * as Oni from "oni-api"
 
 import * as types from "vscode-languageserver-types"
 
@@ -65,9 +66,10 @@ export const activate = (oni: Oni.Plugin.Api) => {
     })
 
     const protocolOpenFile = (message: string, payload: any) => {
-        const textDocument: types.TextDocumentIdentifier = payload.textDocument
+        const textDocument: any = payload.textDocument
         const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-        host.openFile(filePath)
+
+        host.openFile(filePath, textDocument.text)
     }
 
     const isSingleLineChange = (range: types.Range): boolean => {

@@ -1,6 +1,9 @@
 import { EventEmitter } from "events"
 import * as fs from "fs"
 import * as path from "path"
+
+import * as Oni from "oni-api"
+
 import { configuration } from "./../Services/Configuration"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
@@ -15,8 +18,11 @@ export class PluginManager extends EventEmitter {
     private _plugins: Plugin[] = []
     private _anonymousPlugin: AnonymousPlugin
 
-    constructor() {
-        super()
+    public get plugins(): Plugin[] {
+        return this._plugins
+    }
+
+    public startPlugins(): Oni.Plugin.Api {
 
         this._rootPluginPaths.push(corePluginsRoot)
 
@@ -26,11 +32,9 @@ export class PluginManager extends EventEmitter {
         }
 
         this._rootPluginPaths.push(path.join(this._config.getUserFolder(), "plugins"))
-    }
 
-    public startPlugins(): Oni.Plugin.Api {
-        const allPlugins = this._getAllPluginPaths()
-        this._plugins = allPlugins.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
+        const allPluginPaths = this._getAllPluginPaths()
+        this._plugins = allPluginPaths.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
 
         this._anonymousPlugin = new AnonymousPlugin()
 

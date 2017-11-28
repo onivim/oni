@@ -8,6 +8,8 @@ import { lstatSync } from "fs"
 
 import * as path from "path"
 
+import * as Oni from "oni-api"
+
 import { INeovimInstance } from "./../../neovim"
 
 import { commandManager } from "./../CommandManager"

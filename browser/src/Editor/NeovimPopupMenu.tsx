@@ -6,7 +6,7 @@
 
 import * as React from "react"
 
-import { IEvent } from "./../Event"
+import { IEvent } from "oni-types"
 import { INeovimCompletionInfo, INeovimCompletionItem } from "./../neovim"
 
 import * as UI from "./../UI"
@@ -44,6 +44,11 @@ export class NeovimPopupMenu {
         this._popupMenuHideEvent.subscribe(() => {
             UI.Actions.hideToolTip("nvim-popup")
         })
+    }
+
+    public dispose(): void {
+        // TODO: Implement 'unsubscribe' logic here
+        // tslint:disable-line
     }
 
     private _renderCompletionMenu(selectedIndex: number): void {

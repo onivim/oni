@@ -4,6 +4,8 @@
  * Default, out-of-the-box keybindings for Oni
  */
 
+import * as Oni from "oni-api"
+
 import * as Platform from "./../Platform"
 import { Configuration } from "./../Services/Configuration"
 
@@ -14,6 +16,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     const isVisualMode = () => editors.activeEditor.mode === "visual"
     const isNormalMode = () => editors.activeEditor.mode === "normal"
+    const isNotInsertMode = () => editors.activeEditor.mode !== "insert"
     const isInsertOrCommandMode = () => editors.activeEditor.mode === "insert" || editors.activeEditor.mode === "cmdline_normal"
 
     const isMenuOpen = () => menu.isMenuOpen()
@@ -25,6 +28,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-enter>", "language.codeAction.expand")
         input.bind("<m-t>", "language.symbols.workspace", () => !menu.isMenuOpen())
         input.bind("<s-m-t>", "language.symbols.document")
+        input.bind("<m-m>", "oni.editor.minimize")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
@@ -66,7 +70,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind(["<enter>", "<tab>"], "contextMenu.select")
     input.bind(["<down>", "<C-n>"], "contextMenu.next")
     input.bind(["<up>", "<C-p>"], "contextMenu.previous")
-    input.bind(["<esc>"], "contextMenu.close")
+    input.bind(["<esc>"], "contextMenu.close", isNotInsertMode /* In insert mode, the mode change will close the popupmenu anyway */)
 
     // Menu
     input.bind(["<down>", "<C-n>"], "menu.next")

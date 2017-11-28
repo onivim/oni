@@ -6,7 +6,10 @@ branches:
   - master
   - /^release.*/
 cache:
-  yarn: true
+    yarn: true
+    directories:
+        - node_modules
+
 matrix:
   include:
   - os: linux
