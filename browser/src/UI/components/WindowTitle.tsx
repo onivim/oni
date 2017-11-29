@@ -20,13 +20,20 @@ export interface IWindowTitleViewProps {
 export class WindowTitleView extends React.PureComponent<IWindowTitleViewProps, {}> {
 
     public render(): null | JSX.Element {
+
+        if (!this.props.visible) {
+            return null
+        }
+
         const style = {
             height: "22px",
             lineHeight: "22px",
             zoom: 1, // Don't allow this to be impacted by zoom
             backgroundColor: this.props.backgroundColor,
-            foregroundColor: this.props.foregroundColor,
-            textAlign: "center"
+            color: this.props.foregroundColor,
+            textAlign: "center",
+            "-webkit-app-region": "drag",
+            "-webkit-user-select": "none",
         }
 
         return <div style={style}>{this.props.title}</div>
@@ -41,8 +48,8 @@ export const mapStateToProps = (state: State.IState, props: IWindowTitleProps): 
     return {
         ...props,
         title: state.windowTitle,
-        backgroundColor: "red", // TODO: Integrate theming
-        foregroundColor: "white", // TODO: Integrate theming
+        backgroundColor: state.colors["title.background"],
+        foregroundColor: state.colors["title.foreground"],
     }
 }
 

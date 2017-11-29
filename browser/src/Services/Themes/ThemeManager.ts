@@ -53,6 +53,9 @@ export interface IThemeColors {
     "sidebar.background": string
     "sidebar.foreground": string
 
+    "title.background": string
+    "title.foreground": string
+
     "fileExplorer.background": string
     "fileExplorer.foreground": string
     "fileExplorer.selection.background": string
@@ -94,6 +97,9 @@ export const getColorsFromBackgroundAndForeground = (background: string, foregro
         "tabs.background": background,
         "tabs.foreground": foreground,
 
+        "title.background": background,
+        "title.foreground": foreground,
+
         // Context menu is used for completion, refactoring
         "contextMenu.background": background,
         "contextMenu.foreground": foreground,
@@ -125,6 +131,9 @@ export const DefaultThemeColors: IThemeColors = {
 
     "editor.background": ColorBlack,
     "editor.foreground": ColorWhite,
+
+    "title.background": ColorBlack,
+    "title.foreground": ColorWhite,
 
     "highlight.mode.insert.foreground": HighlightForeground,
     "highlight.mode.insert.background": InsertMode,

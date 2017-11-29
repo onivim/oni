@@ -5,6 +5,9 @@
         "background": "#1F1F1F",
         "foreground": "#ABB2BF",
 
+        "title.background": "#1F1F1F",
+        "title.foreground": "#ABB2BF",
+
         "editor.background": "#282C34",
         "editor.foreground": "#ABB2BF",
 
