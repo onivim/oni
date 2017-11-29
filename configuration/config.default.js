@@ -30,4 +30,8 @@ module.exports = {
    //"oni.loadInitVim": false,
    //"editor.fontSize": "14px",
    //"editor.fontFamily": "Monaco"
+
+   // UI customizations
+    "ui.animations.enabled": true,
+    "ui.fontSmoothing": "auto",
 }
