@@ -5,50 +5,72 @@
  * and hooking up the language service functionality.
  */
 
-import * as isEqual from "lodash/isEqual"
+// import * as isEqual from "lodash/isEqual"
 
 import "rxjs/add/observable/never"
 import { Observable } from "rxjs/Observable"
 
 import * as Oni from "oni-api"
+import * as OniTypes from "oni-types"
 
 import { editorManager } from "./../EditorManager"
-import * as Definition from "./Definition"
-import * as Hover from "./Hover"
+// import * as Definition from "./Definition"
+// import * as Hover from "./Hover"
 import * as SignatureHelp from "./SignatureHelp"
 
-export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<Oni.EditorBufferChangedEventArgs>, cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<string>) => {
+// export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<Oni.EditorBufferChangedEventArgs>, cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<string>) => {
 
-    const latestPositionAndVersion$ =
-        bufferUpdates$
-           .combineLatest(cursorMoved$, modeChanged$)
-           .map((combined: any[]) => {
-                const [bufferEvent, cursorPosition, mode] = combined
-                return {
-                    language: bufferEvent.buffer.language,
-                    filePath: bufferEvent.buffer.filePath,
-                    version: bufferEvent.buffer.version,
-                    line: cursorPosition.line,
-                    column: cursorPosition.column,
-                    mode,
-                }
-           })
-           .distinctUntilChanged(isEqual)
+export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
-    const shouldUpdateNormalModeAdorners$ = latestPositionAndVersion$
-        .withLatestFrom(modeChanged$)
-        .filter((combinedArgs: [any, string]) => {
-            const [, mode] = combinedArgs
-            return mode === "normal"
-        })
-        .map((combinedArgs: [any, string]) => {
-            const [val ] = combinedArgs
-            return val
+    private _subscriptions: OniTypes.IDisposable[] = []
+
+    constructor(private _editor: Oni.Editor) {
+
+        const sub1 = this._editor.onModeChanged.subscribe((newMode: string) => {
+
         })
 
-    Definition.initDefinitionUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
-    Hover.initHoverUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
+        const sub2 = this._editor.onBufferEnter.subscribe((newMode: string) => {
+
+        })
+
+    }
+
+    public dispose(): void {
+
+    }
 }
+
+//     const latestPositionAndVersion$ =
+//         bufferUpdates$
+//            .combineLatest(cursorMoved$, modeChanged$)
+//            .map((combined: any[]) => {
+//                 const [bufferEvent, cursorPosition, mode] = combined
+//                 return {
+//                     language: bufferEvent.buffer.language,
+//                     filePath: bufferEvent.buffer.filePath,
+//                     version: bufferEvent.buffer.version,
+//                     line: cursorPosition.line,
+//                     column: cursorPosition.column,
+//                     mode,
+//                 }
+//            })
+//            .distinctUntilChanged(isEqual)
+
+//     const shouldUpdateNormalModeAdorners$ = latestPositionAndVersion$
+//         .withLatestFrom(modeChanged$)
+//         .filter((combinedArgs: [any, string]) => {
+//             const [, mode] = combinedArgs
+//             return mode === "normal"
+//         })
+//         .map((combinedArgs: [any, string]) => {
+//             const [val ] = combinedArgs
+//             return val
+//         })
+
+//     Definition.initDefinitionUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
+//     Hover.initHoverUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
+// }
 
 export interface ILatestCursorAndBufferInfo {
     filePath: string,
