@@ -39,7 +39,7 @@ export const setWindowTitle = (title: string) => {
         type: "SET_WINDOW_TITLE",
         payload: {
             title,
-        }
+        },
     }
 }
 
