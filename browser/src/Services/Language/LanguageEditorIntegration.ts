@@ -5,9 +5,6 @@
  * and hooking up the language service functionality.
  */
 
-// import * as isEqual from "lodash/isEqual"
-import * as types from "vscode-languageserver-types"
-
 import "rxjs/add/observable/never"
 import { Observable } from "rxjs/Observable"
 
@@ -15,6 +12,8 @@ import { Store, Unsubscribe } from "redux"
 
 import * as Oni from "oni-api"
 import * as OniTypes from "oni-types"
+
+import { Configuration } from "./../Configuration"
 
 import { editorManager } from "./../EditorManager"
 import * as SignatureHelp from "./SignatureHelp"
@@ -24,6 +23,7 @@ import { createStore, DefaultLanguageState, ILanguageState } from "./LanguageSto
 import { languageManager } from "./LanguageManager"
 
 import { IDefinitionResult, LanguageServiceDefinitionRequestor } from "./DefinitionRequestor"
+import { IHoverResult, LanguageServiceHoverRequestor } from "./HoverRequestor"
 
 export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
@@ -35,7 +35,7 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
     private _onShowDefinition: OniTypes.Event<IDefinitionResult> = new OniTypes.Event<IDefinitionResult>()
     private _onHideDefinition: OniTypes.Event<void> = new OniTypes.Event<void>()
 
-    private _onShowHover: OniTypes.Event<types.Hover> = new OniTypes.Event<types.Hover>()
+    private _onShowHover: OniTypes.Event<IHoverResult> = new OniTypes.Event<IHoverResult>()
     private _onHideHover: OniTypes.Event<void> = new OniTypes.Event<void>()
 
     public get onShowDefinition(): OniTypes.IEvent<IDefinitionResult> {
@@ -45,17 +45,24 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
         return this._onHideDefinition
     }
 
-    public get onShowHover(): OniTypes.IEvent<types.Hover> {
+    public get onShowHover(): OniTypes.IEvent<IHoverResult> {
         return this._onShowHover
     }
     public get onHideHover(): OniTypes.IEvent<void> {
         return this._onHideHover
     }
 
-    constructor(private _editor: Oni.Editor) {
+    constructor(
+        private _editor: Oni.Editor,
+        private _configuration: Configuration,
+    ) {
+
+        const hoverDelayFunction = () => this._configuration.getValue("editor.quickInfo.delay")
 
         const definitionRequestor = new LanguageServiceDefinitionRequestor(languageManager, this._editor)
-        this._store = createStore(250, definitionRequestor)
+        const hoverRequestor = new LanguageServiceHoverRequestor(languageManager, this._configuration)
+
+        this._store = createStore(hoverDelayFunction, hoverRequestor, definitionRequestor)
 
         const sub1 = this._editor.onModeChanged.subscribe((newMode: string) => {
             this._store.dispatch({

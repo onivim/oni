@@ -20,6 +20,7 @@ import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 import { createStore as oniCreateStore } from "./../../Redux"
 
 import { IDefinitionRequestor, IDefinitionResult } from "./DefinitionRequestor"
+import { IHoverRequestor, IHoverResult } from "./HoverRequestor"
 
 // import { LanguageManager } from "./LanguageManager"
 
@@ -62,7 +63,7 @@ export const DefaultCursorPosition: ICursorPositionState = {
     column: -1,
 }
 
-export type HoverResult = ILocationBasedResult<types.Hover | null>
+export type HoverResult = ILocationBasedResult<IHoverResult>
 export type DefinitionResult = ILocationBasedResult<IDefinitionResult>
 
 export interface ILanguageState {
@@ -100,7 +101,7 @@ export type LanguageAction = {
     location: ILocation,
 } | {
     type: "HOVER_QUERY_RESULT",
-    result: ILocationBasedResult<types.Hover>
+    result: ILocationBasedResult<IHoverResult>
 } | {
     type: "DEFINITION_QUERY_RESULT",
     result: ILocationBasedResult<IDefinitionResult>
@@ -186,22 +187,21 @@ export const languageStateReducer = combineReducers<ILanguageState>({
     hoverResult: hoverResultReducer,
 })
 
-export const createStore = (hoverDelay: number, definitionRequestor: IDefinitionRequestor, /*hoverRequestor: IHoverRequestor*/): Store<ILanguageState> => {
-
+export const createStore = (hoverDelayFunction: () => number, hoverRequestor: IHoverRequestor, definitionRequestor: IDefinitionRequestor): Store<ILanguageState> => {
 
     const epicMiddleware = createEpicMiddleware(combineEpics(
-        queryForDefinitionAndHoverEpic(hoverDelay),
+        queryForDefinitionAndHoverEpic(hoverDelayFunction),
         queryDefinitionEpic(definitionRequestor),
-        // queryHoverEpic(hoverRequestor),
+        queryHoverEpic(hoverRequestor),
     ))
 
     return oniCreateStore<ILanguageState>("LANGUAGE", languageStateReducer, DefaultLanguageState, [epicMiddleware])
 }
 
-export const queryForDefinitionAndHoverEpic = (hoverDelay: number): Epic<LanguageAction, ILanguageState> => (action$, store) => 
+export const queryForDefinitionAndHoverEpic = (hoverDelayFunction: () => number): Epic<LanguageAction, ILanguageState> => (action$, store) => 
     action$.ofType("CURSOR_MOVED")
         .filter(() => store.getState().mode === "normal")
-        .debounceTime(hoverDelay)
+        .debounceTime(hoverDelayFunction())
         .filter(() => store.getState().mode === "normal")
         .mergeMap((action: LanguageAction) => {
 
@@ -286,41 +286,3 @@ export const queryHoverEpic = (hoverRequestor: IHoverRequestor): Epic<LanguageAc
                 } as LanguageAction
             })
         })
-
-// const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
-//     action$.ofType("CURSOR_MOVED", "MODE_CHANGED")
-//         .map((action: CompletionAction) => {
-//             const currentState: ICompletionState = store.getState()
-
-//             if (!currentState.enabled) {
-//                 return nullAction
-//             }
-
-//             if (!currentState.bufferInfo || !currentState.bufferInfo.language) {
-//                 return nullAction
-//             }
-
-//             if (!currentState.cursorInfo || !currentState.cursorInfo.lineContents) {
-//                 return nullAction
-//             }
-
-//             const { bufferInfo } = currentState
-
-//             const token = languageManager.getTokenRegex(bufferInfo.language)
-//             const completionCharacters = languageManager.getCompletionTriggerCharacters(bufferInfo.language)
-
-//             const meet = CompletionUtility.getCompletionMeet(currentState.cursorInfo.lineContents, currentState.cursorInfo.column, token, completionCharacters)
-
-//             const meetForAction: ICompletionMeetInfo = {
-//                 meetPosition: meet.position,
-//                 meetLine: currentState.cursorInfo.line,
-//                 queryPosition: meet.positionToQuery,
-//                 meetBase: meet.base,
-//                 shouldExpand: meet.shouldExpandCompletions,
-//             }
-
-//             return {
-//                 type: "MEET_CHANGED",
-//                 currentMeet: meetForAction,
-//             } as CompletionAction
-//         })

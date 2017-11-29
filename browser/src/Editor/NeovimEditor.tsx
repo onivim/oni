@@ -17,8 +17,6 @@ import { clipboard, ipcRenderer, remote } from "electron"
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
-import * as types from "vscode-languageserver-types"
-
 import * as Log from "./../Log"
 
 import { EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
@@ -258,9 +256,9 @@ export class NeovimEditor implements IEditor {
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
         this._completion = new Completion(this)
-        this._languageIntegration = new LanguageEditorIntegration(this)
+        this._languageIntegration = new LanguageEditorIntegration(this, this._config)
 
-        this._languageIntegration.onShowHover.subscribe((hover: types.Hover) => {
+        this._languageIntegration.onShowHover.subscribe((hover) => {
             console.log("Hover!" + JSON.stringify(hover))
         })
 
