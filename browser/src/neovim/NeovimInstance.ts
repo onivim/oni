@@ -83,6 +83,8 @@ export interface INeovimInstance {
 
     onScroll: IEvent<EventContext>
 
+    onTitleChanged: IEvent<string>
+
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
     onOniCommand: IEvent<string>
 
@@ -166,6 +168,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
     private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
     private _onScroll = new Event<EventContext>()
+    private _onTitleChanged = new Event<string>()
     private _onModeChanged = new Event<Oni.Vim.Mode>()
     private _onHidePopupMenu = new Event<void>()
     private _onShowPopupMenu = new Event<INeovimCompletionInfo>()
@@ -218,6 +221,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onScroll(): IEvent<EventContext> {
         return this._onScroll
+    }
+
+    public get onTitleChanged(): IEvent<string> {
+        return this._onTitleChanged
     }
 
     public get onHidePopupMenu(): IEvent<void> {
@@ -542,7 +549,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     this.emit("action", Actions.resize(a[0][0], a[0][1]))
                     break
                 case "set_title":
-                    this.emit("set-title", a[0][0])
+                    this._onTitleChanged.dispatch(a[0][0])
                     break
                 case "set_icon":
                     // window title when minimized, no-op

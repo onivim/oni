@@ -35,7 +35,6 @@ import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality 
 import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
 import { getThemeManagerInstance } from "./../Services/Themes"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
-import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
 import * as UI from "./../UI/index"
@@ -151,7 +150,6 @@ export class NeovimEditor implements IEditor {
 
         // Services
         const errorService = new Errors(this._neovimInstance)
-        const windowTitle = new WindowTitle(this._neovimInstance)
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
 
@@ -159,7 +157,6 @@ export class NeovimEditor implements IEditor {
         tasks.registerTaskProvider(errorService)
 
         services.push(errorService)
-        services.push(windowTitle)
 
         this._colors.onColorsChanged.subscribe(() => {
             const updatedColors: any = this._colors.getColors()
@@ -175,6 +172,11 @@ export class NeovimEditor implements IEditor {
             if (configuration.getValue("editor.clipboard.enabled")) {
                 clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
             }
+        })
+
+        this._neovimInstance.onTitleChanged.subscribe((newTitle) => {
+            const title = newTitle.replace(" - NVIM", " - ONI")
+            UI.Actions.setWindowTitle(title)
         })
 
         this._neovimInstance.onLeave.subscribe(() => {
