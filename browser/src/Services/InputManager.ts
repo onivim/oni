@@ -38,7 +38,11 @@ export class InputManager implements Oni.InputManager {
         this._boundKeys[normalizedKeyChord] = [...currentBinding, newBinding]
 
         return () => {
-            this._boundKeys[normalizedKeyChord] = this._boundKeys[normalizedKeyChord].filter((f) => f !== newBinding)
+            const existingBindings = this._boundKeys[normalizedKeyChord]
+
+            if (existingBindings) {
+                this._boundKeys[normalizedKeyChord] = existingBindings.filter((f) => f !== newBinding)
+            }
         }
     }
 
