@@ -2,44 +2,11 @@
  * Definition.ts
  */
 
-// import { Observable } from "rxjs/Observable"
-
-// import * as types from "vscode-languageserver-types"
-
 import { editorManager } from "./../EditorManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-
 import * as UI from "./../../UI"
-
-// export const initDefinitionUI = (shouldHide$: Observable<any>, shouldUpdate$: Observable<void>) => {
-//     shouldHide$.subscribe(() => UI.Actions.hideDefinition())
-
-//     shouldUpdate$
-//         .flatMap(async () => await getDefinition())
-//         .subscribe((definitionResult: any) => {
-//             if (!definitionResult || !definitionResult.result) {
-//                 UI.Actions.hideDefinition()
-//             } else {
-//                 const result: types.Location | types.Location[] = definitionResult.result
-
-//                 if (!result) {
-//                     return
-//                 }
-
-//                 if (result instanceof Array) {
-//                     if (!result.length) {
-//                         return
-//                     }
-
-//                     UI.Actions.setDefinition(definitionResult.token, result[0])
-//                 } else {
-//                     UI.Actions.setDefinition(definitionResult.token, result)
-//                 }
-//             }
-//         })
-// }
 
 export enum OpenType {
     NewTab = 0,

@@ -82,7 +82,7 @@ export const createTextDocumentPositionParams = (filePath: string, line: number,
     },
     position: {
         line,
-        column,
+        character: column,
     }
 })
 

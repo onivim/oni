@@ -263,8 +263,17 @@ export class NeovimEditor implements IEditor {
         this._languageIntegration.onShowHover.subscribe((hover: types.Hover) => {
             console.log("Hover!" + JSON.stringify(hover))
         })
+
         this._languageIntegration.onHideHover.subscribe(() => {
             console.log("HIDE HOVER")
+        })
+
+        this._languageIntegration.onShowDefinition.subscribe((definition) => {
+            UI.Actions.setDefinition(definition.token, definition.location)
+        })
+
+        this._languageIntegration.onHideDefinition.subscribe((definition) => {
+            UI.Actions.hideDefinition()
         })
 
         this._render()

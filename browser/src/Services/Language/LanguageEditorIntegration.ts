@@ -23,7 +23,7 @@ import { createStore, DefaultLanguageState, ILanguageState } from "./LanguageSto
 
 import { languageManager } from "./LanguageManager"
 
-import { LanguageServiceDefinitionRequestor } from "./DefinitionRequestor"
+import { IDefinitionResult, LanguageServiceDefinitionRequestor } from "./DefinitionRequestor"
 
 export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
@@ -32,13 +32,13 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
     private _storeUnsubscribe: Unsubscribe = null
     private _lastState: ILanguageState = DefaultLanguageState
 
-    private _onShowDefinition: OniTypes.Event<types.Definition> = new OniTypes.Event<types.Definition>()
+    private _onShowDefinition: OniTypes.Event<IDefinitionResult> = new OniTypes.Event<IDefinitionResult>()
     private _onHideDefinition: OniTypes.Event<void> = new OniTypes.Event<void>()
 
     private _onShowHover: OniTypes.Event<types.Hover> = new OniTypes.Event<types.Hover>()
     private _onHideHover: OniTypes.Event<void> = new OniTypes.Event<void>()
 
-    public get onShowDefinition(): OniTypes.IEvent<types.Definition> {
+    public get onShowDefinition(): OniTypes.IEvent<IDefinitionResult> {
         return this._onShowDefinition
     }
     public get onHideDefinition(): OniTypes.IEvent<void> {
@@ -54,7 +54,7 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
     constructor(private _editor: Oni.Editor) {
 
-        const definitionRequestor = new LanguageServiceDefinitionRequestor(languageManager)
+        const definitionRequestor = new LanguageServiceDefinitionRequestor(languageManager, this._editor)
         this._store = createStore(250, definitionRequestor)
 
         const sub1 = this._editor.onModeChanged.subscribe((newMode: string) => {

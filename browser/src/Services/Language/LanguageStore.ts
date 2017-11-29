@@ -19,7 +19,7 @@ import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
 import { createStore as oniCreateStore } from "./../../Redux"
 
-import { IDefinitionRequestor } from "./DefinitionRequestor"
+import { IDefinitionRequestor, IDefinitionResult } from "./DefinitionRequestor"
 
 // import { LanguageManager } from "./LanguageManager"
 
@@ -63,7 +63,7 @@ export const DefaultCursorPosition: ICursorPositionState = {
 }
 
 export type HoverResult = ILocationBasedResult<types.Hover | null>
-export type DefinitionResult = ILocationBasedResult<types.Location | null>
+export type DefinitionResult = ILocationBasedResult<IDefinitionResult>
 
 export interface ILanguageState {
     mode: string
@@ -103,7 +103,7 @@ export type LanguageAction = {
     result: ILocationBasedResult<types.Hover>
 } | {
     type: "DEFINITION_QUERY_RESULT",
-    result: ILocationBasedResult<types.Location>
+    result: ILocationBasedResult<IDefinitionResult>
 }
 
 export const modeReducer: Reducer<string> = (
