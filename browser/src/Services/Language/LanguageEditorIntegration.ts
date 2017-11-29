@@ -6,32 +6,56 @@
  */
 
 // import * as isEqual from "lodash/isEqual"
+import * as types from "vscode-languageserver-types"
 
 import "rxjs/add/observable/never"
 import { Observable } from "rxjs/Observable"
 
-import { Store } from "redux"
+import { Store, Unsubscribe } from "redux"
 
 import * as Oni from "oni-api"
 import * as OniTypes from "oni-types"
 
 import { editorManager } from "./../EditorManager"
-// import * as Definition from "./Definition"
-// import * as Hover from "./Hover"
 import * as SignatureHelp from "./SignatureHelp"
 
-import { createStore, ILanguageState } from "./LanguageStore"
+import { createStore, DefaultLanguageState, ILanguageState } from "./LanguageStore"
 
-// export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<Oni.EditorBufferChangedEventArgs>, cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<string>) => {
+import { languageManager } from "./LanguageManager"
+
+import { LanguageServiceDefinitionRequestor } from "./DefinitionRequestor"
 
 export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
     private _subscriptions: OniTypes.IDisposable[] = []
     private _store: Store<ILanguageState>
+    private _storeUnsubscribe: Unsubscribe = null
+    private _lastState: ILanguageState = DefaultLanguageState
+
+    private _onShowDefinition: OniTypes.Event<types.Definition> = new OniTypes.Event<types.Definition>()
+    private _onHideDefinition: OniTypes.Event<void> = new OniTypes.Event<void>()
+
+    private _onShowHover: OniTypes.Event<types.Hover> = new OniTypes.Event<types.Hover>()
+    private _onHideHover: OniTypes.Event<void> = new OniTypes.Event<void>()
+
+    public get onShowDefinition(): OniTypes.IEvent<types.Definition> {
+        return this._onShowDefinition
+    }
+    public get onHideDefinition(): OniTypes.IEvent<void> {
+        return this._onHideDefinition
+    }
+
+    public get onShowHover(): OniTypes.IEvent<types.Hover> {
+        return this._onShowHover
+    }
+    public get onHideHover(): OniTypes.IEvent<void> {
+        return this._onHideHover
+    }
 
     constructor(private _editor: Oni.Editor) {
 
-        this._store = createStore()
+        const definitionRequestor = new LanguageServiceDefinitionRequestor(languageManager)
+        this._store = createStore(250, definitionRequestor)
 
         const sub1 = this._editor.onModeChanged.subscribe((newMode: string) => {
             this._store.dispatch({
@@ -57,7 +81,32 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
             })
         })
 
+        this._storeUnsubscribe = this._store.subscribe(() => this._onStateUpdate(this._store.getState()))
+
         this._subscriptions = [sub1, sub2, sub3]
+    }
+
+    private _onStateUpdate(newState: ILanguageState): void {
+
+        if (newState.definitionResult.result && !this._lastState.definitionResult.result) {
+            // TODO: Check that cursor position matches
+            this._onShowDefinition.dispatch(newState.definitionResult.result)
+        }
+
+        if (!newState.definitionResult.result && this._lastState.definitionResult.result) {
+            this._onHideDefinition.dispatch()
+        }
+
+        if (newState.hoverResult.result && !this._lastState.hoverResult.result) {
+            // TODO: Check that cursor position matches
+            this._onShowHover.dispatch(newState.hoverResult.result)
+        }
+
+        if (!newState.hoverResult.result && this._lastState.hoverResult.result) {
+            this._onHideHover.dispatch()
+        }
+
+        this._lastState = newState
     }
 
     public dispose(): void {
@@ -65,39 +114,13 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
             this._subscriptions.forEach((disposable) => disposable.dispose())
             this._subscriptions = null
         }
+
+        if (this._storeUnsubscribe) {
+            this._storeUnsubscribe()
+            this._storeUnsubscribe = null
+        }
     }
 }
-
-//     const latestPositionAndVersion$ =
-//         bufferUpdates$
-//            .combineLatest(cursorMoved$, modeChanged$)
-//            .map((combined: any[]) => {
-//                 const [bufferEvent, cursorPosition, mode] = combined
-//                 return {
-//                     language: bufferEvent.buffer.language,
-//                     filePath: bufferEvent.buffer.filePath,
-//                     version: bufferEvent.buffer.version,
-//                     line: cursorPosition.line,
-//                     column: cursorPosition.column,
-//                     mode,
-//                 }
-//            })
-//            .distinctUntilChanged(isEqual)
-
-//     const shouldUpdateNormalModeAdorners$ = latestPositionAndVersion$
-//         .withLatestFrom(modeChanged$)
-//         .filter((combinedArgs: [any, string]) => {
-//             const [, mode] = combinedArgs
-//             return mode === "normal"
-//         })
-//         .map((combinedArgs: [any, string]) => {
-//             const [val ] = combinedArgs
-//             return val
-//         })
-
-//     Definition.initDefinitionUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
-//     Hover.initHoverUI(latestPositionAndVersion$, shouldUpdateNormalModeAdorners$)
-// }
 
 export interface ILatestCursorAndBufferInfo {
     filePath: string,

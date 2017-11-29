@@ -17,6 +17,8 @@ import { clipboard, ipcRenderer, remote } from "electron"
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
+import * as types from "vscode-languageserver-types"
+
 import * as Log from "./../Log"
 
 import { EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
@@ -255,6 +257,13 @@ export class NeovimEditor implements IEditor {
 
         this._completion = new Completion(this)
         this._languageIntegration = new LanguageEditorIntegration(this)
+
+        this._languageIntegration.onShowHover.subscribe((hover: types.Hover) => {
+            console.log("Hover!" + JSON.stringify(hover))
+        })
+        this._languageIntegration.onHideHover.subscribe(() => {
+            console.log("HIDE HOVER")
+        })
 
         this._render()
 

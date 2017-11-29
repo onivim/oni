@@ -7,13 +7,21 @@
 
 import * as types from "vscode-languageserver-types"
 
-// import "rxjs/add/operator/mergeMap"
-// import { Observable } from "rxjs/Observable"
+import "rxjs/add/observable/of"
+import { Observable } from "rxjs/Observable"
+
+// import * as Oni from "oni-api"
 
 import { combineReducers, Reducer, Store } from "redux"
-// import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
+import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
+
+// import * as Log from "./../../Log"
 
 import { createStore as oniCreateStore } from "./../../Redux"
+
+import { IDefinitionRequestor } from "./DefinitionRequestor"
+
+// import { LanguageManager } from "./LanguageManager"
 
 export interface ILocation {
     filePath: string
@@ -149,6 +157,8 @@ export const hoverResultReducer: Reducer<HoverResult> = (
     switch(action.type) {
         case "HOVER_QUERY_RESULT": 
             return action.result
+        case "CURSOR_MOVED":
+            return DefaultLocationBasedResult
         default:
             return state
     }
@@ -161,6 +171,8 @@ export const definitionResultReducer: Reducer<DefinitionResult> = (
     switch(action.type) {
         case "DEFINITION_QUERY_RESULT":
             return action.result
+        case "CURSOR_MOVED":
+            return DefaultLocationBasedResult
         default:
             return state
     }
@@ -174,9 +186,106 @@ export const languageStateReducer = combineReducers<ILanguageState>({
     hoverResult: hoverResultReducer,
 })
 
-export const createStore = (): Store<ILanguageState> => {
-    return oniCreateStore<ILanguageState>("LANGUAGE", languageStateReducer, DefaultLanguageState, [])
+export const createStore = (hoverDelay: number, definitionRequestor: IDefinitionRequestor, /*hoverRequestor: IHoverRequestor*/): Store<ILanguageState> => {
+
+
+    const epicMiddleware = createEpicMiddleware(combineEpics(
+        queryForDefinitionAndHoverEpic(hoverDelay),
+        queryDefinitionEpic(definitionRequestor),
+        // queryHoverEpic(hoverRequestor),
+    ))
+
+    return oniCreateStore<ILanguageState>("LANGUAGE", languageStateReducer, DefaultLanguageState, [epicMiddleware])
 }
+
+export const queryForDefinitionAndHoverEpic = (hoverDelay: number): Epic<LanguageAction, ILanguageState> => (action$, store) => 
+    action$.ofType("CURSOR_MOVED")
+        .filter(() => store.getState().mode === "normal")
+        .debounceTime(hoverDelay)
+        .filter(() => store.getState().mode === "normal")
+        .mergeMap((action: LanguageAction) => {
+
+            const currentState = store.getState()
+            const filePath = currentState.activeBuffer.filePath
+            const language = currentState.activeBuffer.language
+            const line =  currentState.cursor.line
+            const column =  currentState.cursor.column
+
+            const location = {
+                filePath,
+                language,
+                line,
+                column
+            }
+
+            const hoverObservable = Observable.of({
+                type: "HOVER_QUERY",
+                location,
+            } as LanguageAction)
+
+            const queryObservable = Observable.of({
+                type: "DEFINITION_QUERY",
+                location
+            } as LanguageAction)
+
+            return Observable.merge(hoverObservable, queryObservable)
+        })
+
+export const NullAction = { type: null } as LanguageAction
+
+export interface IHoverRequestor {
+    getHover(fileLanguage: string, filePath: string, line: number, column: number): Promise<types.Hover>
+}
+
+// TODO: Consolidate / refactor these into higher-order functions
+export const queryDefinitionEpic = (definitionRequestor: IDefinitionRequestor): Epic<LanguageAction, ILanguageState> => (action$, store) =>
+    action$.ofType("DEFINITION_QUERY")
+        .switchMap(() => {
+
+            const state = store.getState()
+
+            const { filePath, language } = state.activeBuffer
+            const { line, column } = state.cursor
+
+            return Observable.defer(async () => {
+
+                const result = await definitionRequestor.getDefinition(language, filePath, line, column)
+                return {
+                    type: "DEFINITION_QUERY_RESULT",
+                    result: {
+                        filePath,
+                        language,
+                        line,
+                        column,
+                        result,
+                    }
+                } as LanguageAction
+            })
+        })
+
+export const queryHoverEpic = (hoverRequestor: IHoverRequestor): Epic<LanguageAction, ILanguageState> => (action$, store) =>
+    action$.ofType("HOVER_QUERY")
+        .switchMap(() => {
+            const state = store.getState()
+
+            const { filePath, language } = state.activeBuffer
+            const { line, column } = state.cursor
+
+            return Observable.defer(async () => {
+
+                const result = await hoverRequestor.getHover(language, filePath, line, column)
+                return {
+                    type: "HOVER_QUERY_RESULT",
+                    result: {
+                        filePath,
+                        language,
+                        line,
+                        column,
+                        result,
+                    }
+                } as LanguageAction
+            })
+        })
 
 // const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
 //     action$.ofType("CURSOR_MOVED", "MODE_CHANGED")
