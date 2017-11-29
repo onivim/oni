@@ -33,12 +33,10 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
             </CSSTransition>
         })
 
-
         const style: React.CSSProperties = {
             fontFamily: this.props.fontFamily,
             fontSize: this.props.fontSize,
         }
-
 
         return <div className="tool-tips" key={"tool-tip-container"} style={style}>
         <TransitionGroup>
