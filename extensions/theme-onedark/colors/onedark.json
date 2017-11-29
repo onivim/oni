@@ -1,0 +1,42 @@
+{
+    "name": "onedark",
+    "baseVimTheme": "onedark",
+    "colors": {
+        "background": "#1F1F1F",
+        "foreground": "#ABB2BF",
+
+        "editor.background": "#282C34",
+        "editor.foreground": "#ABB2BF",
+
+        "tabs.background": "#282C34",
+        "tabs.foreground": "#ABB3BF",
+
+        "toolTip.background": "#282C34",
+        "toolTip.foreground": "#ABB2BF",
+        "toolTip.border": "#505050",
+
+        "menu.background": "#282C34",
+        "menu.foreground": "#ABB2BF",
+        "menu.border": "#505050",
+
+        "contextMenu.background": "#282C34",
+        "contextMenu.foreground": "#ABB2BF",
+        "contextMenu.border": "#505050",
+        "contextMenu.highlight": "#3F4652",
+
+        "statusBar.background": "#282828",
+        "statusBar.foreground": "#c8c8c8",
+
+        "highlight.mode.insert.background": "#98c379",
+        "highlight.mode.insert.foreground": "#282c34",
+
+        "highlight.mode.normal.background": "#61afef",
+        "highlight.mode.normal.foreground": "#282c34",
+
+        "highlight.mode.operator.background": "#d19a66",
+        "highlight.mode.operator.foreground": "#282c34",
+
+        "highlight.mode.visual.background": "#56b6c2",
+        "highlight.mode.visual.foreground": "#282c34"
+    }
+}

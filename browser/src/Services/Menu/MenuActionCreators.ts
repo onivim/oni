@@ -26,11 +26,17 @@ const notifySelectedItemChange = (contextMenuState: any) => {
 
 export const showPopupMenu = (id: string, opts?: MenuActions.IMenuOptions, items?: any, filter?: string) => {
 
-    const { backgroundColor, foregroundColor }  = UI.store.getState() as any
+    const state: any = UI.store.getState()
+    const backgroundColor = state.colors["menu.background"]
+    const foregroundColor = state.colors["menu.foreground"]
+    const borderColor = state.colors["menu.border"] || backgroundColor
+    const highlightColor = state.colors["menu.highlight"] || backgroundColor
 
     const defaultOptions = {
         backgroundColor,
         foregroundColor,
+        borderColor,
+        highlightColor,
     }
 
     const options = {

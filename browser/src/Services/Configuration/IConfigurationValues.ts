@@ -183,6 +183,7 @@ export interface IConfigurationValues {
     "tabs.wrap": boolean
 
     "ui.animations.enabled": boolean
+    "ui.colorscheme": string
     "ui.fontFamily": string
     "ui.fontSize": string
 

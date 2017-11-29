@@ -19,6 +19,8 @@ export interface IMenu<T, FilteredT> {
 
     backgroundColor: string
     foregroundColor: string
+    borderColor: string
+    highlightColor: string
 
     onFilterTextChanged: (newText: string) => void
     onSelectedItemChanged: (newItem: FilteredT) => void

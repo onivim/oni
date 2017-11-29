@@ -17,12 +17,15 @@ import { clipboard, ipcRenderer, remote } from "electron"
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
+import * as Log from "./../Log"
+
 import { EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 
+import { Colors } from "./../Services/Colors"
 import { commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Completion } from "./../Services/Completion"
@@ -30,6 +33,7 @@ import { configuration, IConfigurationValues } from "./../Services/Configuration
 import { Errors } from "./../Services/Errors"
 import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
 import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
+import { getThemeManagerInstance } from "./../Services/Themes"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
@@ -55,6 +59,7 @@ export class NeovimEditor implements IEditor {
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
     private _popupMenu: NeovimPopupMenu
+    private _colors: Colors // TODO: Factor this out to the UI 'Shell'
 
     private _pendingAnimationFrame: boolean = false
 
@@ -73,6 +78,7 @@ export class NeovimEditor implements IEditor {
 
     private _windowManager: NeovimWindowManager
 
+    private _currentColorScheme: string = ""
     private _isFirstRender: boolean = true
 
     private _lastBufferId: string = null
@@ -125,12 +131,15 @@ export class NeovimEditor implements IEditor {
 
     constructor(
         private _config = configuration,
+        private _themeManager = getThemeManagerInstance(),
     ) {
         const services: any[] = []
 
         this._neovimInstance = new NeovimInstance(100, 100)
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._screen = new NeovimScreen()
+
+        this._colors = new Colors(this._themeManager, this._config)
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
@@ -151,6 +160,11 @@ export class NeovimEditor implements IEditor {
 
         services.push(errorService)
         services.push(windowTitle)
+
+        this._colors.onColorsChanged.subscribe(() => {
+            const updatedColors: any = this._colors.getColors()
+            UI.Actions.setColors(updatedColors)
+        })
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
@@ -176,6 +190,10 @@ export class NeovimEditor implements IEditor {
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
 
+        this._neovimInstance.onColorsChanged.subscribe(() => {
+            this._onColorsChanged()
+        })
+
         this._neovimInstance.onError.subscribe((err) => {
             UI.Actions.setNeovimError(true)
         })
@@ -192,7 +210,6 @@ export class NeovimEditor implements IEditor {
         })
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
-            UI.Actions.setColors(this._screen.foregroundColor, this._screen.backgroundColor)
             UI.Actions.setCursorPosition(this._screen)
             this._typingPredictionManager.setCursorPosition(this._screen.cursorRow, this._screen.cursorColumn)
         })
@@ -297,6 +314,11 @@ export class NeovimEditor implements IEditor {
             this._syntaxHighlighter = null
         }
 
+        if (this._colors) {
+            this._colors.dispose()
+            this._colors = null
+        }
+
         if (this._completion) {
             this._completion.dispose()
             this._completion = null
@@ -319,18 +341,33 @@ export class NeovimEditor implements IEditor {
         commandManager.executeCommand(command, null)
     }
 
-    public init(filesToOpen: string[]): void {
+    public async init(filesToOpen: string[]): Promise<void> {
         const startOptions: INeovimStartOptions = {
             args: filesToOpen,
             runtimePaths: pluginManager.getAllRuntimePaths(),
             transport: configuration.getValue("experimental.neovim.transport"),
         }
 
-        this._neovimInstance.start(startOptions)
-            .then(() => {
-                this._hasLoaded = true
-                VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
-            })
+        await this._neovimInstance.start(startOptions)
+        VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+
+        this._themeManager.onThemeChanged.subscribe(() => {
+            const newTheme = this._themeManager.activeTheme
+
+            if (newTheme.baseVimTheme && newTheme.baseVimTheme !== this._currentColorScheme) {
+                this._neovimInstance.command(":color " + newTheme.baseVimTheme)
+                UI.Actions.setColors(this._themeManager.getColors())
+            }
+        })
+
+        if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
+            await this._neovimInstance.command(":color " + this._themeManager.activeTheme.baseVimTheme)
+            UI.Actions.setColors(this._themeManager.getColors())
+        }
+
+        this._hasLoaded = true
+        this._isFirstRender = true
+        this._scheduleRender()
     }
 
     public render(): JSX.Element {
@@ -436,6 +473,21 @@ export class NeovimEditor implements IEditor {
 
         this._isFirstRender = true
 
+        this._scheduleRender()
+    }
+
+    private async _onColorsChanged(): Promise<void> {
+        const newColorScheme = await this._neovimInstance.eval<string>("g:colors_name")
+        this._currentColorScheme = newColorScheme
+        const backgroundColor = this._screen.backgroundColor
+        const foregroundColor = this._screen.foregroundColor
+
+        Log.info(`[NeovimEditor] Colors changed: ${newColorScheme} - background: ${backgroundColor} foreground: ${foregroundColor}`)
+
+        this._themeManager.notifyVimThemeChanged(newColorScheme, backgroundColor, foregroundColor)
+
+        // Flip first render to force a full redraw
+        this._isFirstRender = true
         this._scheduleRender()
     }
 

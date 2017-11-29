@@ -89,6 +89,8 @@ export interface INeovimInstance {
     onHidePopupMenu: IEvent<void>
     onShowPopupMenu: IEvent<INeovimCompletionInfo>
 
+    onColorsChanged: IEvent<void>
+
     autoCommands: INeovimAutoCommands
 
     screenToPixels(row: number, col: number): IPixelPosition
@@ -170,6 +172,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onSelectPopupMenu = new Event<number>()
     private _onLeave = new Event<void>()
 
+    private _onColorsChanged = new Event<void>()
+
     private _pendingScrollTimeout: number | null = null
 
     public get quickFix(): IQuickFixList {
@@ -182,6 +186,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onBufferUpdateIncremental(): IEvent<IIncrementalBufferUpdateEvent> {
         return this._onIncrementalBufferUpdateEvent
+    }
+
+    public get onColorsChanged(): IEvent<void> {
+        return this._onColorsChanged
     }
 
     public get onDirectoryChanged(): IEvent<string> {
@@ -298,6 +306,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             } else if (eventName === "VimLeave") {
                                 this._isLeaving = true
                                 this._onLeave.dispatch()
+                            } else if (eventName === "ColorScheme") {
+                                this._onColorsChanged.dispatch()
                             }
 
                             this._autoCommands.notifyAutocommand(eventName, eventContext)
@@ -397,9 +407,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request("nvim_eval", [expression])
     }
 
-    public command(command: string): Promise<void> {
+    public command(command: string): Promise<any> {
+        // await this._initPromise
         Log.verbose("[NeovimInstance] Executing command: " + command)
-        return this._neovim.request("nvim_command", [command])
+        return this._neovim.request<any>("nvim_command", [command])
     }
 
     public callFunction(functionName: string, args: any[]): Promise<any> {

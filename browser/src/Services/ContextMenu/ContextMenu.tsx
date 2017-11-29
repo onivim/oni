@@ -137,12 +137,28 @@ export class ContextMenu {
     }
 
     public show(items?: any[], filter?: string): void {
+
+        const state: any = UI.store.getState()
+
+        const backgroundColor = state.colors["contextMenu.background"]
+        const foregroundColor = state.colors["contextMenu.foreground"]
+        const borderColor = state.colors["contextMenu.border"] || backgroundColor
+        const highlightColor = state.colors["contextMenu.highlight"] || backgroundColor
+
+        const colors = {
+            backgroundColor,
+            foregroundColor,
+            borderColor,
+            highlightColor,
+        }
+
         contextMenuActions.showPopupMenu(this._id, {
+            ...colors,
             onSelectedItemChanged: (item: any) => this._onSelectedItemChanged.dispatch(item),
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
             onHide: () => this._onHidden(),
-            onFilterTextChanged: (newText) => this._onFilterTextChanged.dispatch(newText),
-        }, items, filter)
+            onFilterTextChanged: (newText: string) => this._onFilterTextChanged.dispatch(newText),
+        } as any, items, filter)
 
         UI.Actions.showToolTip(this._getContextMenuId(), <ContextMenuContainer />, {
             openDirection: 2,
