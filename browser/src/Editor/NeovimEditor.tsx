@@ -31,7 +31,6 @@ import { Errors } from "./../Services/Errors"
 import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
 import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
-import { WindowTitle } from "./../Services/WindowTitle"
 import { workspace } from "./../Services/Workspace"
 
 import * as UI from "./../UI/index"
@@ -142,7 +141,6 @@ export class NeovimEditor implements IEditor {
 
         // Services
         const errorService = new Errors(this._neovimInstance)
-        const windowTitle = new WindowTitle(this._neovimInstance)
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
 
@@ -150,7 +148,6 @@ export class NeovimEditor implements IEditor {
         tasks.registerTaskProvider(errorService)
 
         services.push(errorService)
-        services.push(windowTitle)
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
@@ -161,6 +158,11 @@ export class NeovimEditor implements IEditor {
             if (configuration.getValue("editor.clipboard.enabled")) {
                 clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
             }
+        })
+
+        this._neovimInstance.onTitleChanged.subscribe((newTitle) => {
+            const title = newTitle.replace(" - NVIM", " - ONI")
+            UI.Actions.setWindowTitle(title)
         })
 
         this._neovimInstance.onLeave.subscribe(() => {

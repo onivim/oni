@@ -49,6 +49,7 @@ export interface IState {
     configuration: IConfigurationValues
     imeActive: boolean
     viewport: IViewport
+    windowTitle: string
 
     neovimError: boolean
 
@@ -219,4 +220,5 @@ export const createDefaultState = (): IState => ({
     statusBar: {},
     toolTips: {},
     activeMessageDialog: null,
+    windowTitle: "",
 })

@@ -17,6 +17,13 @@ import { IConfigurationValues } from "./../Services/Configuration"
 
 import * as types from "vscode-languageserver-types"
 
+export interface ISetWindowTitleAction {
+    type: "SET_WINDOW_TITLE",
+    payload: {
+        title: string,
+    }
+}
+
 export interface ISetViewportAction {
     type: "SET_VIEWPORT",
     payload: {
@@ -252,7 +259,8 @@ export type SimpleAction =
     ISetTabs |
     ISetViewportAction |
     ISetWindowCursor |
-    ISetWindowState
+    ISetWindowState |
+    ISetWindowTitleAction
 
 export type ActionWithGeneric<K extends keyof IConfigurationValues> =
     ISetConfigurationValue<K>

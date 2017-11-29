@@ -30,6 +30,18 @@ import { IConfigurationValues } from "./../Services/Configuration"
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
 
+export const setWindowTitle = (title: string) => {
+
+    document.title = title
+
+    return {
+        type: "SET_WINDOW_TITLE",
+        payload: {
+            title,
+        }
+    }
+}
+
 export const setNeovimError = (neovimError: boolean) => ({
     type: "SET_NEOVIM_ERROR",
     payload: {

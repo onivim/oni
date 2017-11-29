@@ -9,6 +9,7 @@ import * as WindowManager from "./../Services/WindowManager"
 import { Background } from "./components/Background"
 import StatusBar from "./components/StatusBar"
 import { WindowSplits } from "./components/WindowSplits"
+import { WindowTitle } from "./components/WindowTitle"
 
 interface IRootComponentProps {
     windowManager: WindowManager.WindowManager
@@ -22,6 +23,9 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
             </div>
             <div className="stack">
                 <div className="container vertical full">
+                    <div className="container fixed">
+                        <WindowTitle backgroundColor={"red"} foregroundColor={"white"} visible={true} title={"Hello World"} />
+                    </div>
                     <div className="container full">
                         <div className="stack">
                             <WindowSplits windowManager={this.props.windowManager} />
