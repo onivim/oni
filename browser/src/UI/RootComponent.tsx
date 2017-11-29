@@ -1,5 +1,7 @@
 import * as React from "react"
 
+import * as Platform from "./../Platform"
+
 import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { inputManager } from "./../Services/InputManager"
@@ -9,10 +11,13 @@ import * as WindowManager from "./../Services/WindowManager"
 import { Background } from "./components/Background"
 import StatusBar from "./components/StatusBar"
 import { WindowSplits } from "./components/WindowSplits"
+import { WindowTitle } from "./components/WindowTitle"
 
 interface IRootComponentProps {
     windowManager: WindowManager.WindowManager
 }
+
+const titleBarVisible = Platform.isMac()
 
 export class RootComponent extends React.PureComponent<IRootComponentProps, {}> {
     public render() {
@@ -22,6 +27,9 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
             </div>
             <div className="stack">
                 <div className="container vertical full">
+                    <div className="container fixed">
+                        <WindowTitle visible={titleBarVisible} />
+                    </div>
                     <div className="container full">
                         <div className="stack">
                             <WindowSplits windowManager={this.props.windowManager} />

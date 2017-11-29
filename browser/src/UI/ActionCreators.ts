@@ -31,6 +31,18 @@ import { IThemeColors } from "./../Services/Themes"
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
 
+export const setWindowTitle = (title: string) => {
+
+    document.title = title
+
+    return {
+        type: "SET_WINDOW_TITLE",
+        payload: {
+            title,
+        },
+    }
+}
+
 export const setColors = (colors: IThemeColors) => ({
     type: "SET_COLORS",
     payload: {
