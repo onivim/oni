@@ -168,7 +168,7 @@ export const lastCompletionInfoReducer: Reducer<ILastCompletionInfo> = (
 const nullAction: CompletionAction = { type: null } as CompletionAction
 
 const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
-    action$.ofType("CURSOR_MOVED", "MODE_CHANGED")
+    action$.ofType("CURSOR_MOVED")
         .map((action: CompletionAction) => {
             const currentState: ICompletionState = store.getState()
 
@@ -236,7 +236,7 @@ const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, s
 
             return true
         })
-        .mergeMap((action: CompletionAction): Observable<CompletionAction> => {
+        .switchMap((action: CompletionAction): Observable<CompletionAction> => {
 
             const state = store.getState()
 
@@ -271,7 +271,7 @@ const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, s
 
 const getCompletionDetailsEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
     action$.ofType("SELECT_ITEM")
-        .mergeMap((action) => {
+        .switchMap((action) => {
 
             if (action.type !== "SELECT_ITEM") {
                 return Observable.of(nullAction)

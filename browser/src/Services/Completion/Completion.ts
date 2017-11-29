@@ -103,7 +103,7 @@ export class Completion implements IDisposable {
     }
 
     private async _onModeChanged(newMode: string): Promise<void> {
-        if (newMode === "insert" && this._lastCursorPosition) {
+       if (newMode === "insert" && this._lastCursorPosition) {
 
             const [latestLine] = await this._editor.activeBuffer.getLines(this._lastCursorPosition.line, this._lastCursorPosition.line + 1)
             this._throttledCursorUpdates.next({
@@ -114,7 +114,7 @@ export class Completion implements IDisposable {
             })
         }
 
-        this._store.dispatch({
+       this._store.dispatch({
             type: "MODE_CHANGED",
             mode: newMode,
         })
