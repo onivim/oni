@@ -27,7 +27,7 @@ export interface IDiagnosticsDataSource {
 export class DiagnosticsDataSource {
     public getErrorsForPosition(filePath: string, line: number, column: number): types.Diagnostic[] {
         const state: any = UI.store.getState()
-        const errors = Selectors.getAllErrorsForFile(filePath, state)
+        const errors = Selectors.getAllErrorsForFile(Utility.normalizePath(filePath), state)
 
         return errors.filter((diagnostic) => {
             return Utility.isInRange(line, column, diagnostic.range)
