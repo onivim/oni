@@ -31,7 +31,7 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { Completion } from "./../Services/Completion"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
+import { addInsertModeLanguageFunctionality, LanguageEditorIntegration } from "./../Services/Language"
 import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
 import { getThemeManagerInstance } from "./../Services/Themes"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
@@ -85,6 +85,7 @@ export class NeovimEditor implements IEditor {
 
     private _typingPredictionManager: TypingPredictionManager = new TypingPredictionManager()
     private _syntaxHighlighter: ISyntaxHighlighter
+    private _languageIntegration: LanguageEditorIntegration
     private _completion: Completion
 
     public get mode(): string {
@@ -248,12 +249,12 @@ export class NeovimEditor implements IEditor {
         })
 
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
-        addNormalModeLanguageFunctionality(bufferUpdates$, this._cursorMoved$, this._modeChanged$)
 
         const textMateHighlightingEnabled = this._config.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
         this._completion = new Completion(this)
+        this._languageIntegration = new LanguageEditorIntegration(this)
 
         this._render()
 
@@ -312,6 +313,11 @@ export class NeovimEditor implements IEditor {
         if (this._syntaxHighlighter) {
             this._syntaxHighlighter.dispose()
             this._syntaxHighlighter = null
+        }
+
+        if (this._languageIntegration) {
+            this._languageIntegration.dispose()
+            this._languageIntegration = null
         }
 
         if (this._colors) {

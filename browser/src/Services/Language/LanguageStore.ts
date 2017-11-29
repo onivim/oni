@@ -7,11 +7,11 @@
 
 import * as types from "vscode-languageserver-types"
 
-import "rxjs/add/operator/mergeMap"
-import { Observable } from "rxjs/Observable"
+// import "rxjs/add/operator/mergeMap"
+// import { Observable } from "rxjs/Observable"
 
 import { combineReducers, Reducer, Store } from "redux"
-import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
+// import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
 import { createStore as oniCreateStore } from "./../../Redux"
 
@@ -95,7 +95,7 @@ export type LanguageAction = {
     result: ILocationBasedResult<types.Hover>
 } | {
     type: "DEFINITION_QUERY_RESULT",
-    result: ILocationBasedResult<types.Definition>
+    result: ILocationBasedResult<types.Location>
 }
 
 export const modeReducer: Reducer<string> = (
@@ -104,7 +104,7 @@ export const modeReducer: Reducer<string> = (
 ) => {
     switch (action.type) {
         case "MODE_CHANGED":
-            return action.mode,
+            return action.mode
         default:
             return state
     }
@@ -166,13 +166,17 @@ export const definitionResultReducer: Reducer<DefinitionResult> = (
     }
 }
 
-export const languageStateReducer = combineReducers({
-    mode: modeReducer
+export const languageStateReducer = combineReducers<ILanguageState>({
+    mode: modeReducer,
     activeBuffer: activeBufferReducer,
-    cursor: cursorMovedReducer
+    cursor: cursorMovedReducer,
     definitionResult: definitionResultReducer,
     hoverResult: hoverResultReducer,
 })
+
+export const createStore = (): Store<ILanguageState> => {
+    return oniCreateStore<ILanguageState>("LANGUAGE", languageStateReducer, DefaultLanguageState, [])
+}
 
 // const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
 //     action$.ofType("CURSOR_MOVED", "MODE_CHANGED")

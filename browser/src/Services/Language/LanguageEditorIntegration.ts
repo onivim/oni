@@ -10,6 +10,8 @@
 import "rxjs/add/observable/never"
 import { Observable } from "rxjs/Observable"
 
+import { Store } from "redux"
+
 import * as Oni from "oni-api"
 import * as OniTypes from "oni-types"
 
@@ -18,26 +20,51 @@ import { editorManager } from "./../EditorManager"
 // import * as Hover from "./Hover"
 import * as SignatureHelp from "./SignatureHelp"
 
+import { createStore, ILanguageState } from "./LanguageStore"
+
 // export const addNormalModeLanguageFunctionality = (bufferUpdates$: Observable<Oni.EditorBufferChangedEventArgs>, cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<string>) => {
 
 export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
     private _subscriptions: OniTypes.IDisposable[] = []
+    private _store: Store<ILanguageState>
 
     constructor(private _editor: Oni.Editor) {
 
+        this._store = createStore()
+
         const sub1 = this._editor.onModeChanged.subscribe((newMode: string) => {
-
+            this._store.dispatch({
+                type: "MODE_CHANGED",
+                mode: newMode,
+            })
         })
 
-        const sub2 = this._editor.onBufferEnter.subscribe((newMode: string) => {
-
+        const sub2 = this._editor.onBufferEnter.subscribe((bufferEvent: Oni.EditorBufferEventArgs) => {
+            this._store.dispatch({
+                type: "BUFFER_ENTER",
+                filePath: bufferEvent.filePath,
+                language: bufferEvent.language,
+            })
         })
 
+        // TODO: Promote cursor moved to API
+        const sub3 = (<any>this._editor).onCursorMoved.subscribe((cursorMoveEvent: Oni.Cursor) => {
+            this._store.dispatch({
+                type: "CURSOR_MOVED",
+                line: cursorMoveEvent.line,
+                column: cursorMoveEvent.column,
+            })
+        })
+
+        this._subscriptions = [sub1, sub2, sub3]
     }
 
     public dispose(): void {
-
+        if (this._subscriptions && this._subscriptions.length) {
+            this._subscriptions.forEach((disposable) => disposable.dispose())
+            this._subscriptions = null
+        }
     }
 }
 
