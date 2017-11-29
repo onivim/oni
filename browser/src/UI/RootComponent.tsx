@@ -1,5 +1,7 @@
 import * as React from "react"
 
+import * as Platform from "./../Platform"
+
 import { keyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { inputManager } from "./../Services/InputManager"
@@ -15,6 +17,8 @@ interface IRootComponentProps {
     windowManager: WindowManager.WindowManager
 }
 
+const titleBarVisible = Platform.isMac()
+
 export class RootComponent extends React.PureComponent<IRootComponentProps, {}> {
     public render() {
         return <div className="stack disable-mouse" onKeyDownCapture={(evt) => this._onRootKeyDown(evt)}>
@@ -24,7 +28,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
             <div className="stack">
                 <div className="container vertical full">
                     <div className="container fixed">
-                        <WindowTitle visible={true} />
+                        <WindowTitle visible={titleBarVisible} />
                     </div>
                     <div className="container full">
                         <div className="stack">
