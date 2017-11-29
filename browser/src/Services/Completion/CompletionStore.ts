@@ -236,7 +236,7 @@ const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, s
 
             return true
         })
-        .mergeMap((action: CompletionAction): Observable<CompletionAction> => {
+        .switchMap((action: CompletionAction): Observable<CompletionAction> => {
 
             const state = store.getState()
 
@@ -271,7 +271,7 @@ const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, s
 
 const getCompletionDetailsEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
     action$.ofType("SELECT_ITEM")
-        .mergeMap((action) => {
+        .switchMap((action) => {
 
             if (action.type !== "SELECT_ITEM") {
                 return Observable.of(nullAction)
