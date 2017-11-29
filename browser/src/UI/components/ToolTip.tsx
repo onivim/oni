@@ -14,12 +14,13 @@ export interface IToolTipsViewProps {
     backgroundColor: string
     foregroundColor: string
     borderColor: string
+    fontFamily: string
+    fontSize: string
 }
 
 export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
 
     public render(): JSX.Element {
-
         const toolTipElements = this.props.toolTips.map((toolTip) => {
             return <CSSTransition
                 timeout={250}
@@ -32,7 +33,12 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
             </CSSTransition>
         })
 
-        return <div className="tool-tips" key={"tool-tip-container"}>
+        const style: React.CSSProperties = {
+            fontFamily: this.props.fontFamily,
+            fontSize: this.props.fontSize,
+        }
+
+        return <div className="tool-tips" key={"tool-tip-container"} style={style}>
         <TransitionGroup>
             {toolTipElements}
         </TransitionGroup>
@@ -122,6 +128,8 @@ const mapStateToProps = (state: State.IState): IToolTipsViewProps => {
         borderColor: state.colors["toolTip.border"],
         backgroundColor: state.colors["toolTip.background"],
         foregroundColor: state.colors["toolTip.foreground"],
+        fontFamily: state.fontFamily,
+        fontSize: state.fontSize,
         toolTips,
     }
 }
