@@ -26,9 +26,17 @@ import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
 
 import { IConfigurationValues } from "./../Services/Configuration"
+import { IThemeColors } from "./../Services/Themes"
 
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
+
+export const setColors = (colors: IThemeColors) => ({
+    type: "SET_COLORS",
+    payload: {
+        colors,
+    },
+})
 
 export const setNeovimError = (neovimError: boolean) => ({
     type: "SET_NEOVIM_ERROR",
@@ -235,14 +243,6 @@ export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunctio
     $setCursorPosition.next(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels).payload)
 }
 
-export const setColors = (foregroundColor: string, backgroundColor: string) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    if (foregroundColor === getState().foregroundColor && backgroundColor === getState().backgroundColor) {
-        return
-    }
-
-    dispatch(_setColors(foregroundColor, backgroundColor))
-}
-
 export const setMode = (mode: string) => ({
     type: "SET_MODE",
     payload: { mode },
@@ -294,9 +294,4 @@ const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth
         cursorCharacter,
         cursorPixelWidth,
     },
-})
-
-const _setColors = (foregroundColor: string, backgroundColor: string) => ({
-    type: "SET_COLORS",
-    payload: { foregroundColor, backgroundColor },
 })

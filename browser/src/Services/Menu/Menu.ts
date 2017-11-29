@@ -99,6 +99,7 @@ export class Menu {
     }
 
     public show(): void {
+
         menuActions.showPopupMenu(this._id, {
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
             onHide: () => this._onHide.dispatch(),

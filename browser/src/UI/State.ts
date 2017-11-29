@@ -10,6 +10,8 @@ import * as Oni from "oni-api"
 
 import { configuration , IConfigurationValues } from "./../Services/Configuration"
 
+import { DefaultThemeColors, IThemeColors } from "./../Services/Themes"
+
 import * as Coordinates from "./Coordinates"
 import { Rectangle } from "./Types"
 
@@ -41,8 +43,6 @@ export interface IState {
     fontFamily: string
     fontSize: string
     mode: string
-    backgroundColor: string
-    foregroundColor: string
     definition: null | IDefinition
     cursorLineOpacity: number
     cursorColumnOpacity: number
@@ -51,6 +51,8 @@ export interface IState {
     viewport: IViewport
 
     neovimError: boolean
+
+    colors: IThemeColors
 
     statusBar: { [id: string]: IStatusBarItem }
     toolTips: { [id: string]: IToolTip }
@@ -179,7 +181,6 @@ export const createDefaultState = (): IState => ({
     fontSize: "",
     imeActive: false,
     mode: "normal",
-    foregroundColor: "rgba(0, 0, 0, 0)",
     definition: null,
     activeWindowDimensions: {
         x: 0,
@@ -187,9 +188,9 @@ export const createDefaultState = (): IState => ({
         width: 0,
         height: 0,
     },
+    colors: DefaultThemeColors,
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
-    backgroundColor: "#000000",
     neovimError: false,
 
     configuration: configuration.getValues(),

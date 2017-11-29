@@ -10,15 +10,31 @@ const activate = (Oni) => {
     const modeItem = Oni.statusBar.createItem(1, -2, "oni.status.mode")
 
     const setMode = (mode) => {
-        const getColorForMode = (m) => {
+        const getBackgroundColorForMode = (m) => {
             switch (m) {
                 case "insert":
                 case "replace":
-                   return rgb(0, 200, 100)
+                    return Oni.colors.getColor("highlight.mode.insert.background")
                 case "operator":
-                    return rgb(255, 100, 0)
+                    return Oni.colors.getColor("highlight.mode.operator.background")
+                case "visual":
+                    return Oni.colors.getColor("highlight.mode.visual.background")
                 default:
-                    return rgb(0, 100, 255)
+                    return Oni.colors.getColor("highlight.mode.normal.background")
+            }
+        }
+
+        const getForegroundColorForMode = (m) => {
+            switch (m) {
+                case "insert":
+                case "replace":
+                    return Oni.colors.getColor("highlight.mode.insert.foreground")
+                case "operator":
+                    return Oni.colors.getColor("highlight.mode.operator.foreground")
+                case "visual":
+                    return Oni.colors.getColor("highlight.mode.visual.foreground")
+                default:
+                    return Oni.colors.getColor("highlight.mode.normal.foreground")
             }
         }
 
@@ -39,8 +55,8 @@ const activate = (Oni) => {
             "paddingLeft": "8px",
             "paddingRight": "8px",
             "textTransform": "uppercase",
-            color: rgb(220, 220, 220),
-            backgroundColor: getColorForMode(mode)
+            color: getForegroundColorForMode(mode),
+            backgroundColor: getBackgroundColorForMode(mode)
         }
 
         const modeElement  = React.createElement("div", { style, className: "mode" }, parseMode(mode))

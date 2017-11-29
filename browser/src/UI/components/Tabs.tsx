@@ -196,8 +196,8 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
     return {
         fontFamily: state.configuration["ui.fontFamily"],
         fontSize: state.configuration["ui.fontSize"],
-        backgroundColor: state.backgroundColor,
-        foregroundColor: state.foregroundColor,
+        backgroundColor: state.colors["tabs.background"],
+        foregroundColor: state.colors["tabs.foreground"],
         onSelect: selectFunc,
         onClose: closeFunc,
         height,

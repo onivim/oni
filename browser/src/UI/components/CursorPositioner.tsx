@@ -222,7 +222,9 @@ const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursor
 
     const lineHeight = state.fontPixelHeight
 
-    const beakColor = (props && props.beakColor) ? props.beakColor : state.backgroundColor
+    const backgroundColor = state.colors["editor.background"]
+
+    const beakColor = (props && props.beakColor) ? props.beakColor : backgroundColor
 
     return {
         beakColor,
@@ -232,7 +234,7 @@ const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursor
         containerWidth: state.viewport.width,
         containerHeight: state.viewport.height,
         lineHeight,
-        backgroundColor: state.backgroundColor,
+        backgroundColor,
     }
 }
 
