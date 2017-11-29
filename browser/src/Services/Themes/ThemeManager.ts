@@ -53,6 +53,9 @@ export interface IThemeColors {
     "sidebar.background": string
     "sidebar.foreground": string
 
+    "title.background": string
+    "title.foreground": string
+
     "fileExplorer.background": string
     "fileExplorer.foreground": string
     "fileExplorer.selection.background": string
@@ -78,11 +81,16 @@ export const getBorderColor = (bgColor: string, fgColor: string): string => {
     return borderColor.rgb().toString()
 }
 
+export const getBackgroundColor = (editorBackground: string): string => {
+    return Color(editorBackground).darken(0.25).toString()
+}
+
 export const getColorsFromBackgroundAndForeground = (background: string, foreground: string) => {
+    const shellBackground = getBackgroundColor(background)
     const borderColor = getBorderColor(background, foreground)
     return {
         ...DefaultThemeColors,
-        "background": background,
+        "background": shellBackground,
         "foreground": foreground,
         "editor.background": background,
         "editor.foreground": foreground,
@@ -93,6 +101,9 @@ export const getColorsFromBackgroundAndForeground = (background: string, foregro
 
         "tabs.background": background,
         "tabs.foreground": foreground,
+
+        "title.background": shellBackground,
+        "title.foreground": foreground,
 
         // Context menu is used for completion, refactoring
         "contextMenu.background": background,
@@ -125,6 +136,9 @@ export const DefaultThemeColors: IThemeColors = {
 
     "editor.background": ColorBlack,
     "editor.foreground": ColorWhite,
+
+    "title.background": ColorBlack,
+    "title.foreground": ColorWhite,
 
     "highlight.mode.insert.foreground": HighlightForeground,
     "highlight.mode.insert.background": InsertMode,

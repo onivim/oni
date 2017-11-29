@@ -18,6 +18,13 @@ import { IThemeColors } from "./../Services/Themes"
 
 import * as types from "vscode-languageserver-types"
 
+export interface ISetWindowTitleAction {
+    type: "SET_WINDOW_TITLE",
+    payload: {
+        title: string,
+    }
+}
+
 export interface ISetColorsAction {
     type: "SET_COLORS",
     payload: {
@@ -252,7 +259,8 @@ export type SimpleAction =
     ISetTabs |
     ISetViewportAction |
     ISetWindowCursor |
-    ISetWindowState
+    ISetWindowState |
+    ISetWindowTitleAction
 
 export type ActionWithGeneric<K extends keyof IConfigurationValues> =
     ISetConfigurationValue<K>

@@ -21,6 +21,11 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     }
 
     switch (a.type) {
+        case "SET_WINDOW_TITLE":
+            return {
+                ...s,
+                windowTitle: a.payload.title,
+            }
         case "SET_COLORS":
             return {
                 ...s,
