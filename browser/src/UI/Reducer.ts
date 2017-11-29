@@ -26,6 +26,11 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 ...s,
                 windowTitle: a.payload.title,
             }
+        case "SET_COLORS":
+            return {
+                ...s,
+                colors: a.payload.colors,
+                    }
         case "SET_NEOVIM_ERROR":
             return { ...s,
                      neovimError: a.payload.neovimError }
@@ -54,11 +59,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                      fontSize: a.payload.fontSize }
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }
-        case "SET_COLORS":
-            return { ...s, ...{
-                foregroundColor: a.payload.foregroundColor,
-                backgroundColor: a.payload.backgroundColor,
-            } }
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value

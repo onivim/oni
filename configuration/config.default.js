@@ -25,6 +25,9 @@ module.exports = {
     activate,
     deactivate,
    //add custom config here, such as
+
+   "ui.colorscheme": "onedark",
+
    //"oni.useDefaultConfig": true,
    //"oni.bookmarks": ["~/Documents",]
    //"oni.loadInitVim": false,

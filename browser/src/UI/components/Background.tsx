@@ -41,7 +41,7 @@ export const BackgroundImageView = (props: IBackgroundProps) => {
 const mapStateToProps = (state: State.IState): IBackgroundProps => {
     const conf = state.configuration
     return {
-        backgroundColor: state.backgroundColor,
+        backgroundColor: state.colors.background,
         backgroundImageUrl: State.readConf(conf, "editor.backgroundImageUrl"),
         backgroundImageSize: State.readConf(conf, "editor.backgroundImageSize"),
         backgroundOpacity: State.readConf(conf, "editor.backgroundOpacity"),

@@ -62,7 +62,7 @@ export class NeovimPopupMenu {
             adjustedIndex = itemsToRender.length - 1
         }
 
-        const completionElement = <ContextMenuView visible={true} base={""} entries={itemsToRender} selectedIndex={adjustedIndex} backgroundColor={"black"} foregroundColor={"white"} />
+        const completionElement = <ContextMenuView visible={true} base={""} entries={itemsToRender} selectedIndex={adjustedIndex} backgroundColor={"black"} borderColor={"black"} highlightColor={"black"} foregroundColor={"white"} />
         UI.Actions.showToolTip("nvim-popup", completionElement, {
                 position: null,
                 openDirection: 2,

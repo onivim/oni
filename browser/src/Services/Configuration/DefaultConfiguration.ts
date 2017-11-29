@@ -176,6 +176,7 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.wrap": false,
 
     "ui.animations.enabled": true,
+    "ui.colorscheme": "onedark",
     "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
 }

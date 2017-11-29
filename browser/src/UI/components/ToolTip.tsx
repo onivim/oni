@@ -5,15 +5,15 @@ import { CSSTransition, TransitionGroup } from "react-transition-group"
 
 import { createSelector } from "reselect"
 
-import * as Colors from "./../Colors"
 import * as State from "./../State"
 
 import { CursorPositioner } from "./CursorPositioner"
 
 export interface IToolTipsViewProps {
     toolTips: State.IToolTip[]
-    backgroundColor: string,
-    foregroundColor: string,
+    backgroundColor: string
+    foregroundColor: string
+    borderColor: string
 }
 
 export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
@@ -28,7 +28,7 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
                 exit={false}
                 key={toolTip.id}
             >
-            <ToolTipView {...toolTip} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor}/>
+            <ToolTipView {...toolTip} borderColor={this.props.borderColor} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor}/>
             </CSSTransition>
         })
 
@@ -43,6 +43,7 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
 export interface IToolTipViewProps extends State.IToolTip {
     backgroundColor: string
     foregroundColor: string
+    borderColor: string
 }
 
 export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
@@ -75,11 +76,9 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
         const openDirection = options.openDirection || 1
         const padding = options.padding || "8px"
 
-        const borderColorString = Colors.getBorderColor(this.props.backgroundColor, this.props.foregroundColor)
-
         const toolTipStyle: React.CSSProperties = {
             backgroundColor: this.props.backgroundColor,
-            border: `1px solid ${borderColorString}`,
+            border: `1px solid ${this.props.borderColor}`,
             color: this.props.foregroundColor,
             padding,
         }
@@ -120,8 +119,9 @@ const mapStateToProps = (state: State.IState): IToolTipsViewProps => {
     const toolTips = getToolTipsSelector(state)
 
     return {
-        backgroundColor: state.backgroundColor,
-        foregroundColor: state.foregroundColor,
+        borderColor: state.colors["toolTip.border"],
+        backgroundColor: state.colors["toolTip.background"],
+        foregroundColor: state.colors["toolTip.foreground"],
         toolTips,
     }
 }
