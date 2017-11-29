@@ -111,18 +111,15 @@ class LoggingRedirector {
     private _oldInfo: any
     private _oldWarn: any
     private _oldError: any
-    private _oldDir: any
 
     constructor() {
         this._oldInfo = console.log
         this._oldWarn = console.warn
         this._oldError = console.error
-        this._oldDir = console.dir
 
         console.log = this._redirect("INFO", this._oldInfo)
         console.warn = this._redirect("WARN", this._oldWarn)
         console.error = this._redirect("ERROR", this._oldError)
-        console.dir = this._redirect("DIR", this._oldDir)
     }
 
     public getAllLogs(): string[] {
@@ -132,12 +129,10 @@ class LoggingRedirector {
     public dispose(): void {
         this._logs = null
 
-        console.dir = this._oldDir
         console.log = this._oldInfo
         console.warn = this._oldWarn
         console.error = this._oldError
 
-        this._oldDir = null
         this._oldInfo = null
         this._oldWarn = null
         this._oldError = null
