@@ -83,7 +83,7 @@ export const createTextDocumentPositionParams = (filePath: string, line: number,
     position: {
         line,
         character: column,
-    }
+    },
 })
 
 export const bufferToTextDocumentPositionParams = (buffer: Oni.Buffer) => {

@@ -40,7 +40,7 @@ export const DefaultLocationBasedResult: ILocationBasedResult<any> = {
     language: null,
     line: -1,
     column: -1,
-    result: null
+    result: null,
 }
 
 export interface IActiveBufferState {
@@ -84,15 +84,15 @@ export const DefaultLanguageState: ILanguageState = {
 
 export type LanguageAction = {
     type: "MODE_CHANGED",
-    mode: string
+    mode: string,
 } | {
     type: "CURSOR_MOVED",
     line: number,
-    column: number
+    column: number,
 } | {
     type: "BUFFER_ENTER",
     filePath: string,
-    language: string
+    language: string,
 } | {
     type: "HOVER_QUERY",
     location: ILocation,
@@ -101,10 +101,10 @@ export type LanguageAction = {
     location: ILocation,
 } | {
     type: "HOVER_QUERY_RESULT",
-    result: ILocationBasedResult<IHoverResult>
+    result: ILocationBasedResult<IHoverResult>,
 } | {
     type: "DEFINITION_QUERY_RESULT",
-    result: ILocationBasedResult<IDefinitionResult>
+    result: ILocationBasedResult<IDefinitionResult>,
 }
 
 export const modeReducer: Reducer<string> = (
@@ -121,7 +121,7 @@ export const modeReducer: Reducer<string> = (
 
 export const activeBufferReducer: Reducer<IActiveBufferState> = (
     state: IActiveBufferState = DefaultActiveBuffer,
-    action: LanguageAction
+    action: LanguageAction,
 ) => {
     switch (action.type) {
         case "BUFFER_ENTER":
@@ -137,7 +137,7 @@ export const activeBufferReducer: Reducer<IActiveBufferState> = (
 
 export const cursorMovedReducer: Reducer<ICursorPositionState> = (
     state: ICursorPositionState = DefaultCursorPosition,
-    action: LanguageAction
+    action: LanguageAction,
 ) => {
     switch (action.type) {
         case "CURSOR_MOVED":
@@ -155,8 +155,8 @@ export const hoverResultReducer: Reducer<HoverResult> = (
     state: HoverResult = DefaultLocationBasedResult,
     action: LanguageAction,
 ) => {
-    switch(action.type) {
-        case "HOVER_QUERY_RESULT": 
+    switch (action.type) {
+        case "HOVER_QUERY_RESULT":
             return action.result
         case "CURSOR_MOVED":
         case "BUFFER_ENTER":
@@ -170,7 +170,7 @@ export const definitionResultReducer: Reducer<DefinitionResult> = (
     state: DefinitionResult = DefaultLocationBasedResult,
     action: LanguageAction,
 ) => {
-    switch(action.type) {
+    switch (action.type) {
         case "DEFINITION_QUERY_RESULT":
             return action.result
         case "CURSOR_MOVED":
@@ -200,7 +200,7 @@ export const createStore = (hoverDelayFunction: () => number, hoverRequestor: IH
     return oniCreateStore<ILanguageState>("LANGUAGE", languageStateReducer, DefaultLanguageState, [epicMiddleware])
 }
 
-export const queryForDefinitionAndHoverEpic = (hoverDelayFunction: () => number): Epic<LanguageAction, ILanguageState> => (action$, store) => 
+export const queryForDefinitionAndHoverEpic = (hoverDelayFunction: () => number): Epic<LanguageAction, ILanguageState> => (action$, store) =>
     action$.ofType("CURSOR_MOVED")
         .filter(() => store.getState().mode === "normal")
         .debounceTime(hoverDelayFunction())
@@ -217,7 +217,7 @@ export const queryForDefinitionAndHoverEpic = (hoverDelayFunction: () => number)
                 filePath,
                 language,
                 line,
-                column
+                column,
             }
 
             const hoverObservable = Observable.of({
@@ -227,7 +227,7 @@ export const queryForDefinitionAndHoverEpic = (hoverDelayFunction: () => number)
 
             const queryObservable = Observable.of({
                 type: "DEFINITION_QUERY",
-                location
+                location,
             } as LanguageAction)
 
             return Observable.merge(hoverObservable, queryObservable)
@@ -260,7 +260,7 @@ export const queryDefinitionEpic = (definitionRequestor: IDefinitionRequestor): 
                         line,
                         column,
                         result,
-                    }
+                    },
                 } as LanguageAction
             })
         })
@@ -284,7 +284,7 @@ export const queryHoverEpic = (hoverRequestor: IHoverRequestor): Epic<LanguageAc
                         line,
                         column,
                         result,
-                    }
+                    },
                 } as LanguageAction
             })
         })

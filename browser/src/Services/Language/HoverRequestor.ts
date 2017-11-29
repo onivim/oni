@@ -36,7 +36,7 @@ export class LanguageServiceHoverRequestor {
         if (!this._configuration.getValue("editor.quickInfo.enabled")) {
             return {
                 hover: null,
-                errors: []
+                errors: [],
             }
         }
 

@@ -26,7 +26,7 @@ export class LanguageServiceDefinitionRequestor {
 
     constructor(
         private _languageManager: LanguageManager,
-        private _editor: Oni.Editor
+        private _editor: Oni.Editor,
     ) { }
 
     public async getDefinition(fileLanguage: string, filePath: string, line: number, column: number): Promise<IDefinitionResult> {
@@ -37,7 +37,7 @@ export class LanguageServiceDefinitionRequestor {
         if (!token) {
             return {
                 token: null,
-                location: null
+                location: null,
             }
         }
 
