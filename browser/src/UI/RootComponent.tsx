@@ -24,7 +24,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
             <div className="stack">
                 <div className="container vertical full">
                     <div className="container fixed">
-                        <WindowTitle backgroundColor={"red"} foregroundColor={"white"} visible={true} title={"Hello World"} />
+                        <WindowTitle visible={true} />
                     </div>
                     <div className="container full">
                         <div className="stack">

@@ -6,17 +6,20 @@
 
 import * as React from "react"
 
-export interface IWindowTitleProps {
+import { connect } from "react-redux"
+
+import * as State from "./../State"
+
+export interface IWindowTitleViewProps {
     visible: boolean
     title: string
     backgroundColor: string
     foregroundColor: string
 }
 
-export class WindowTitle extends React.PureComponent<IWindowTitleProps, {}> {
+export class WindowTitleView extends React.PureComponent<IWindowTitleViewProps, {}> {
 
     public render(): null | JSX.Element {
-
         const style = {
             height: "22px",
             lineHeight: "22px",
@@ -29,3 +32,18 @@ export class WindowTitle extends React.PureComponent<IWindowTitleProps, {}> {
         return <div style={style}>{this.props.title}</div>
     }
 }
+
+export interface IWindowTitleProps {
+    visible: boolean
+}
+
+export const mapStateToProps = (state: State.IState, props: IWindowTitleProps): IWindowTitleViewProps => {
+    return {
+        ...props,
+        title: state.windowTitle,
+        backgroundColor: "red", // TODO: Integrate theming
+        foregroundColor: "white", // TODO: Integrate theming
+    }
+}
+
+export const WindowTitle = connect(mapStateToProps)(WindowTitleView)
