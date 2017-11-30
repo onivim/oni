@@ -57,8 +57,6 @@ describe("LanguageEditorIntegration", () => {
 
         await global["waitForPromiseResolution"]()
 
-        console.log("Before a bunch of ticks...")
-
         clock.runAll()
 
         assert.strictEqual(showDefinitionCount, 1, "Definition was shown")
