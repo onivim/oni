@@ -62,12 +62,6 @@ const updateViewport = () => {
 }
 
 // TODO: WHy is this breaking?
-window.setTimeout(() => {
-    listenForDiagnostics()
-})
-
-window.addEventListener("resize", updateViewport)
-updateViewport()
 
 function render(_state: State.IState, pluginManager: PluginManager, args: any): void {
     const hostElement = document.getElementById("host")
@@ -85,4 +79,15 @@ function render(_state: State.IState, pluginManager: PluginManager, args: any): 
         </Provider>, hostElement)
 }
 
-document.body.addEventListener("click", () => focusManager.enforceFocus())
+// Don't execute code that depends on DOM in unit-tests
+if (global["window"]) {
+    updateViewport()
+
+    window.setTimeout(() => {
+        listenForDiagnostics()
+    })
+
+    window.addEventListener("resize", updateViewport)
+
+    document.body.addEventListener("click", () => focusManager.enforceFocus())
+}

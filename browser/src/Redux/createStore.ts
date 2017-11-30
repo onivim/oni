@@ -17,7 +17,7 @@ import { RequestAnimationFrameNotifyBatcher } from "./RequestAnimationFrameNotif
 
 export const createStore = <TState>(name: string, reducer: Reducer<TState>, defaultState: TState, optionalMiddleware: Middleware[] = []): Store<TState> => {
 
-    const composeEnhancers = window["__REDUX_DEVTOOLS_EXTENSION__COMPOSE__"] || compose // tslint:disable-line no-string-literal
+    const composeEnhancers = (global["window"] && window["__REDUX_DEVTOOLS_EXTENSION__COMPOSE__"]) || compose // tslint:disable-line no-string-literal
 
     const loggingMiddleware: Middleware = createLoggingMiddleware(name)
 
