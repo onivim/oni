@@ -24,7 +24,6 @@ const NoScrollBar: IBufferScrollBarProps = {
     windowBottomLine: -1,
     markers: [],
     visible: false,
-    id: null,
 }
 
 export const getMarkers = createSelector(
