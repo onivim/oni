@@ -91,7 +91,6 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
     }
 
     private _onStateUpdate(newState: ILanguageState): void {
-
         if (newState.definitionResult.result && !this._lastState.definitionResult.result) {
             // TODO: Check that cursor position matches
             this._onShowDefinition.dispatch(newState.definitionResult.result)

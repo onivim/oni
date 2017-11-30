@@ -86,26 +86,26 @@ export type LanguageAction = {
     type: "MODE_CHANGED",
     mode: string,
 } | {
-    type: "CURSOR_MOVED",
-    line: number,
-    column: number,
-} | {
-    type: "BUFFER_ENTER",
-    filePath: string,
-    language: string,
-} | {
-    type: "HOVER_QUERY",
-    location: ILocation,
-} | {
-    type: "DEFINITION_QUERY",
-    location: ILocation,
-} | {
-    type: "HOVER_QUERY_RESULT",
-    result: ILocationBasedResult<IHoverResult>,
-} | {
-    type: "DEFINITION_QUERY_RESULT",
-    result: ILocationBasedResult<IDefinitionResult>,
-}
+        type: "CURSOR_MOVED",
+        line: number,
+        column: number,
+    } | {
+        type: "BUFFER_ENTER",
+        filePath: string,
+        language: string,
+    } | {
+        type: "HOVER_QUERY",
+        location: ILocation,
+    } | {
+        type: "DEFINITION_QUERY",
+        location: ILocation,
+    } | {
+        type: "HOVER_QUERY_RESULT",
+        result: ILocationBasedResult<IHoverResult>,
+    } | {
+        type: "DEFINITION_QUERY_RESULT",
+        result: ILocationBasedResult<IDefinitionResult>,
+    }
 
 export const modeReducer: Reducer<string> = (
     state: string = null,
@@ -210,8 +210,8 @@ export const queryForDefinitionAndHoverEpic = (hoverDelayFunction: () => number)
             const currentState = store.getState()
             const filePath = currentState.activeBuffer.filePath
             const language = currentState.activeBuffer.language
-            const line =  currentState.cursor.line
-            const column =  currentState.cursor.column
+            const line = currentState.cursor.line
+            const column = currentState.cursor.column
 
             const location = {
                 filePath,
@@ -239,7 +239,6 @@ export interface IHoverRequestor {
     getHover(fileLanguage: string, filePath: string, line: number, column: number): Promise<types.Hover>
 }
 
-// TODO: Consolidate / refactor these into higher-order functions
 export const queryDefinitionEpic = (definitionRequestor: IDefinitionRequestor): Epic<LanguageAction, ILanguageState> => (action$, store) =>
     action$.ofType("DEFINITION_QUERY")
         .switchMap(() => {
@@ -274,7 +273,6 @@ export const queryHoverEpic = (hoverRequestor: IHoverRequestor): Epic<LanguageAc
             const { line, column } = state.cursor
 
             return Observable.defer(async () => {
-
                 const result = await hoverRequestor.getHover(language, filePath, line, column)
                 return {
                     type: "HOVER_QUERY_RESULT",
@@ -284,7 +282,7 @@ export const queryHoverEpic = (hoverRequestor: IHoverRequestor): Epic<LanguageAc
                         line,
                         column,
                         result,
-                    },
+                    }
                 } as LanguageAction
             })
         })

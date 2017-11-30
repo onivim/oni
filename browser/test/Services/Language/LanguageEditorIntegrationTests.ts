@@ -4,93 +4,65 @@
 
 import * as assert from "assert"
 
-// import * as types from "vscode-languageserver-types"
-
-import { Editor } from "./../../../src/Editor/Editor"
 import * as Language from "./../../../src/Services/Language"
-import { ICompletablePromise, createCompletablePromise } from "./../../../src/Utility"
 
-export class MockConfiguration {
-
-    private _configurationValues: any = {}
-
-    public getValue(key: string): any {
-        return this._configurationValues[key]
-    }
-
-    public setValue(key: string, value: any): void {
-        this._configurationValues[key] = value
-    }
-}
-
-export class MockEditor extends Editor {
-    public simulateModeChange(newMode: string): void {
-        this.setMode(newMode as any)
-    }
-
-    public simulateCursorMoved(line: number, column: number): void {
-    }
-
-    public simulateBufferEnter(buffer: MockBuffer): void {
-        this.notifyBufferEnter(buffer as any)
-    }
-}
-
-export class MockBuffer {
-}
-
-export class MockRequestor<T> {
-
-    private _completablePromises: ICompletablePromise<T>[] = []
-
-    public get(language: string, filePath: string, line: number, column: number): Promise<T> {
-
-        const newPromise = createCompletablePromise<T>()
-
-        this._completablePromises.push(newPromise)
-
-        return newPromise.promise
-    }
-
-    public resolve(val: T): void {
-        const firstPromise = this._completablePromises.shift()
-        firstPromise.resolve(val)
-    }
-
-    public reject(err?: Error): void {
-        const firstPromise = this._completablePromises.shift()
-        firstPromise.reject(err)
-    }
-}
-
-export class MockDefinitionRequestor extends MockRequestor<Language.IDefinitionResult> implements Language.IDefinitionRequestor {
-    public getDefinition(language: string, filePath: string, line: number, column: number): Promise<Language.IDefinitionResult> {
-        return this.get(language, filePath, line, column)
-    }
-}
-
-export class MockHoverRequestor extends MockRequestor<Language.IHoverResult> implements Language.IHoverRequestor {
-    public getHover(language: string, filePath: string, line: number, column: number): Promise<Language.IHoverResult> {
-        return this.get(language, filePath, line, column)
-    }
-}
+import * as Mocks from "./../../Mocks"
 
 describe("LanguageEditorIntegration", () => {
+    let clock: any = global["clock"]
 
-    it("shows hover", () => {
-        const mockConfiguration = new MockConfiguration()
-        const mockEditor = new MockEditor()
+    // Mocks
+    let mockConfiguration: Mocks.MockConfiguration
+    let mockEditor: Mocks.MockEditor
+    let mockDefinitionRequestor: Mocks.MockDefinitionRequestor
+    let mockHoverRequestor: Mocks.MockHoverRequestor
 
-        const mockDefinitionRequestor = new MockDefinitionRequestor()
-        const mockHoverRequestor = new MockHoverRequestor()
+    // Class under test
+    let languageEditorIntegration: Language.LanguageEditorIntegration
 
-        const lei = new Language.LanguageEditorIntegration(mockEditor, mockConfiguration as any, null, mockDefinitionRequestor, mockHoverRequestor)
+    beforeEach(() => {
+        mockConfiguration = new Mocks.MockConfiguration({
+            "editor.quickInfo.delay": 1,
+        })
+
+        mockEditor = new Mocks.MockEditor()
+        mockDefinitionRequestor = new Mocks.MockDefinitionRequestor()
+        mockHoverRequestor = new Mocks.MockHoverRequestor()
+        languageEditorIntegration = new Language.LanguageEditorIntegration(mockEditor, mockConfiguration as any, null, mockDefinitionRequestor, mockHoverRequestor)
+    })
+
+    afterEach(() => {
+        languageEditorIntegration.dispose()
+    })
+
+    it("shows hover and definition", async () => {
+        let showDefinitionCount = 0
+        let showHoverCount = 0
+
+        languageEditorIntegration.onShowDefinition.subscribe(() => showDefinitionCount++)
+        languageEditorIntegration.onShowHover.subscribe(() => showHoverCount++)
 
         mockEditor.simulateModeChange("normal")
-        mockEditor.simulateBufferEnter(new MockBuffer())
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer())
+        mockEditor.simulateCursorMoved(1, 1)
 
-        lei.dispose()
-        assert.ok(false, "fails")
+        clock.tick(1) // Account for the quickInfo.delay
+
+        assert.strictEqual(mockDefinitionRequestor.pendingCallCount, 1)
+        assert.strictEqual(mockHoverRequestor.pendingCallCount, 1)
+
+        // Resolve the calls
+        mockDefinitionRequestor.resolve({} as any)
+        mockHoverRequestor.resolve({} as any)
+
+        await global["waitForPromiseResolution"]()
+
+        console.log("Before a bunch of ticks...")
+
+        clock.runAll()
+
+        assert.strictEqual(showDefinitionCount, 1, "Definition was shown")
+        assert.strictEqual(showHoverCount, 1, "Hover was shown")
     })
 
     it("respects editor.quickInfo.delay setting for hover", () => {
@@ -101,13 +73,13 @@ describe("LanguageEditorIntegration", () => {
         assert.ok(false, "TODO")
     })
 
-    it("doesn't show slow request that completes after buffer changed", () => {
+    it("doesn't show slow request that completes after cursor moves", () => {
         assert.ok(false, "TODO")
     })
 
     it("does not show hover when changing buffers", () => {
-        const mockConfiguration = new MockConfiguration()
-        const mockEditor = new MockEditor()
+        const mockConfiguration = new Mocks.MockConfiguration()
+        const mockEditor = new Mocks.MockEditor()
 
         const lei = new Language.LanguageEditorIntegration(mockEditor, mockConfiguration as any, null, null, null)
 
