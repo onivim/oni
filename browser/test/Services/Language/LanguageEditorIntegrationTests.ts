@@ -9,7 +9,7 @@ import * as Language from "./../../../src/Services/Language"
 import * as Mocks from "./../../Mocks"
 
 describe("LanguageEditorIntegration", () => {
-    let clock: any = global["clock"]
+    const clock: any = global.clock
 
     // Mocks
     let mockConfiguration: Mocks.MockConfiguration
@@ -55,7 +55,7 @@ describe("LanguageEditorIntegration", () => {
         mockDefinitionRequestor.resolve({} as any)
         mockHoverRequestor.resolve({} as any)
 
-        await global["waitForPromiseResolution"]()
+        await global.waitForPromiseResolution()
 
         clock.runAll()
 
@@ -106,7 +106,7 @@ describe("LanguageEditorIntegration", () => {
 
         // Complete the hover request, and let the promises drain
         mockHoverRequestor.resolve({} as any)
-        await global["waitForPromiseResolution"]()
+        await global.waitForPromiseResolution()
 
         // Let clock drain as well
         clock.runAll()

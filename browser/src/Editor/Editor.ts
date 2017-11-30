@@ -24,7 +24,7 @@ export class Editor implements Oni.Editor {
     private _onBufferSavedEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onCursorMoved = new Event<Oni.Cursor>()
     private _onModeChangedEvent = new Event<Oni.Vim.Mode>()
-    
+
     public get mode(): string {
         return this._currentMode
     }
@@ -61,7 +61,6 @@ export class Editor implements Oni.Editor {
     public /* virtual */ openFile(filePath: string): Promise<Oni.Buffer> {
         return Promise.reject("Not implemented")
     }
-
 
     protected setMode(mode: Oni.Vim.Mode): void {
         if (mode !== this._currentMode) {

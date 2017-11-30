@@ -7,12 +7,12 @@
 
 import { Editor } from "./../../src/Editor/Editor"
 import * as Language from "./../../src/Services/Language"
-import { ICompletablePromise, createCompletablePromise } from "./../../src/Utility"
+import { createCompletablePromise, ICompletablePromise } from "./../../src/Utility"
 
 export class MockConfiguration {
 
     constructor(
-        private _configurationValues: any = {}
+        private _configurationValues: any = {},
     ) {}
 
     public getValue(key: string): any {
@@ -46,7 +46,7 @@ export class MockBuffer {
 
 export class MockRequestor<T> {
 
-    private _completablePromises: ICompletablePromise<T>[] = []
+    private _completablePromises: Array<ICompletablePromise<T>> = []
 
     public get pendingCallCount(): number {
         return this._completablePromises.length
@@ -64,7 +64,7 @@ export class MockRequestor<T> {
     public resolve(val: T): Promise<T> {
         const firstPromise = this._completablePromises.shift()
         firstPromise.resolve(val)
-        return global["waitForPromiseResolution"](firstPromise.promise)
+        return global.waitForPromiseResolution(firstPromise.promise)
     }
 }
 

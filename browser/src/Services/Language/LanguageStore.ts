@@ -283,7 +283,7 @@ export const queryHoverEpic = (hoverRequestor: IHoverRequestor): Epic<LanguageAc
                         line,
                         column,
                         result,
-                    }
+                    },
                 } as LanguageAction
             })
         })
