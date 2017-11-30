@@ -92,7 +92,8 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
     public render(): JSX.Element {
         const containerStyle: React.CSSProperties = {
             willChange: "transform",
-            color: this.props.color,
+            backgroundColor: this.props.color,
+            color: this.props.textColor,
             fontFamily: this.props.fontFamily,
             fontSize: this.props.fontSize,
         }
