@@ -5,24 +5,16 @@
  * hover & definition
  */
 
-import * as types from "vscode-languageserver-types"
-
 import "rxjs/add/observable/of"
 import { Observable } from "rxjs/Observable"
 
-// import * as Oni from "oni-api"
-
 import { combineReducers, Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
-
-// import * as Log from "./../../Log"
 
 import { createStore as oniCreateStore } from "./../../Redux"
 
 import { IDefinitionRequestor, IDefinitionResult } from "./DefinitionRequestor"
 import { IHoverRequestor, IHoverResult } from "./HoverRequestor"
-
-// import { LanguageManager } from "./LanguageManager"
 
 export interface ILocation {
     filePath: string
@@ -235,8 +227,10 @@ export const queryForDefinitionAndHoverEpic = (hoverDelayFunction: () => number)
 
 export const NullAction = { type: null } as LanguageAction
 
-export interface IHoverRequestor {
-    getHover(fileLanguage: string, filePath: string, line: number, column: number): Promise<types.Hover>
+export const doesLocationBasedResultMatchCursorPosition = (result: ILocationBasedResult<any>, state: ILanguageState) => {
+    return result.filePath === state.activeBuffer.filePath
+    && result.line === state.cursor.line
+    && result.column === state.cursor.column
 }
 
 export const queryDefinitionEpic = (definitionRequestor: IDefinitionRequestor): Epic<LanguageAction, ILanguageState> => (action$, store) =>
@@ -263,6 +257,13 @@ export const queryDefinitionEpic = (definitionRequestor: IDefinitionRequestor): 
                 } as LanguageAction
             })
         })
+        .filter((action) => {
+            if (action.type !== "DEFINITION_QUERY_RESULT") {
+                return false
+            }
+
+            return doesLocationBasedResultMatchCursorPosition(action.result, store.getState())
+        })
 
 export const queryHoverEpic = (hoverRequestor: IHoverRequestor): Epic<LanguageAction, ILanguageState> => (action$, store) =>
     action$.ofType("HOVER_QUERY")
@@ -285,4 +286,11 @@ export const queryHoverEpic = (hoverRequestor: IHoverRequestor): Epic<LanguageAc
                     }
                 } as LanguageAction
             })
+        })
+        .filter((action) => {
+            if (action.type !== "HOVER_QUERY_RESULT") {
+                return false
+            }
+
+            return doesLocationBasedResultMatchCursorPosition(action.result, store.getState())
         })

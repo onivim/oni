@@ -22,7 +22,7 @@ describe("LanguageEditorIntegration", () => {
 
     beforeEach(() => {
         mockConfiguration = new Mocks.MockConfiguration({
-            "editor.quickInfo.delay": 1,
+            "editor.quickInfo.delay": 500,
         })
 
         mockEditor = new Mocks.MockEditor()
@@ -46,7 +46,7 @@ describe("LanguageEditorIntegration", () => {
         mockEditor.simulateBufferEnter(new Mocks.MockBuffer())
         mockEditor.simulateCursorMoved(1, 1)
 
-        clock.tick(1) // Account for the quickInfo.delay
+        clock.tick(501) // Account for the quickInfo.delay
 
         assert.strictEqual(mockDefinitionRequestor.pendingCallCount, 1)
         assert.strictEqual(mockHoverRequestor.pendingCallCount, 1)
@@ -65,8 +65,7 @@ describe("LanguageEditorIntegration", () => {
         assert.strictEqual(showHoverCount, 1, "Hover was shown")
     })
 
-    it.only("respects editor.quickInfo.delay setting for hover", () => {
-        mockConfiguration.setValue("editor.quickInfo.delay", 500)
+    it("respects editor.quickInfo.delay setting for hover", () => {
 
         // Get the editor primed for a request
         mockEditor.simulateModeChange("normal")
@@ -75,30 +74,47 @@ describe("LanguageEditorIntegration", () => {
 
         // There shouldn't be any requests yet, because
         // we haven't hit the delay..
-        assert.strictEqual(mockHoverRequestor.pendingCallCount, 0)
+        assert.strictEqual(mockHoverRequestor.pendingCallCount, 0, "Should be no request queued yet...")
 
-        // Tick just past the delay
-        clock.tick(501)
+        // Tick just before the delay....
+        clock.tick(499)
+
+        assert.strictEqual(mockHoverRequestor.pendingCallCount, 0, "Should be no request queued, right before the time limit..")
+
+        // Tick just after the delay...
+        clock.tick(2)
 
         // There should now be a request queued up
-        assert.strictEqual(mockHoverRequestor.pendingCallCount, 1)
+        assert.strictEqual(mockHoverRequestor.pendingCallCount, 1, "Should now be a request pending, because we've exceeded the limit")
     })
 
-    it("hides quick info and hover when cursor moves", () => {
-        assert.ok(false, "TODO")
+    it("doesn't show slow hover response that completes after cursor moves", async () => {
+        mockEditor.simulateModeChange("normal")
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer())
+        mockEditor.simulateCursorMoved(1, 1)
+
+        let hoverShowCount = 0
+
+        languageEditorIntegration.onShowHover.subscribe(() => hoverShowCount++)
+
+        // Go past the clock timer, so we should get a request now
+        clock.tick(501)
+
+        assert.strictEqual(mockHoverRequestor.pendingCallCount, 1, "Verify we have a request queued up")
+
+        // While the request is pending, lets move the cursor
+
+        mockEditor.simulateCursorMoved(2, 2)
+
+        // Complete the hover request, and let the promises drain
+        mockHoverRequestor.resolve({} as any)
+        await global["waitForPromiseResolution"]()
+
+        // Let clock drain as well
+        clock.runAll()
+
+        assert.strictEqual(hoverShowCount, 0, "Hover should never be shown, because the cursor moved.")
+
     })
 
-    it("doesn't show slow request that completes after cursor moves", () => {
-        assert.ok(false, "TODO")
-    })
-
-    it("does not show hover when changing buffers", () => {
-        const mockConfiguration = new Mocks.MockConfiguration()
-        const mockEditor = new Mocks.MockEditor()
-
-        const lei = new Language.LanguageEditorIntegration(mockEditor, mockConfiguration as any, null, null, null)
-
-        lei.dispose()
-        assert.ok(false, "fails")
-    })
 })
