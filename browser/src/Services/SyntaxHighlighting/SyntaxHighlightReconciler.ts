@@ -36,8 +36,6 @@ export class SyntaxHighlightReconciler {
 
         this._unsubscribe = this._store.subscribe(throttle(() => {
 
-            Log.info("[SyntaxHighlightReconciler] Got state update.")
-
             const state = this._store.getState()
 
             const activeBuffer: any = editorManager.activeEditor.activeBuffer
@@ -90,7 +88,7 @@ export class SyntaxHighlightReconciler {
                 })
 
                 if (tokens.length > 0) {
-                    Log.info("[SyntaxHighlightReconciler] Applying changes to " + tokens.length + " lines.")
+                    Log.verbose("[SyntaxHighlightReconciler] Applying changes to " + tokens.length + " lines.")
                     activeBuffer.updateHighlights((highlightUpdater: any) => {
                         tokens.forEach((token) => {
                             const line = token.line
