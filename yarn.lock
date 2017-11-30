@@ -4082,9 +4082,9 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.5.tgz#d690565e3dc1af8c4cfaea3a69a3896206877928"
+oni-api@0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.6.tgz#8f7e76394a86f564a3182ed1fb901397cb917aa2"
 
 oni-neovim-binaries@0.1.0:
   version "0.1.0"
@@ -5029,7 +5029,7 @@ redux-batched-subscribe@^0.1.6:
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/redux-batched-subscribe/-/redux-batched-subscribe-0.1.6.tgz#de928602708df7198b4d0c98c7119df993780d59"
 
-redux-observable@^0.17.0:
+redux-observable@0.17.0:
   version "0.17.0"
   resolved "https://registry.yarnpkg.com/redux-observable/-/redux-observable-0.17.0.tgz#23e29e3f3c39204b7ed6a14b67a29e317c03106b"
 
