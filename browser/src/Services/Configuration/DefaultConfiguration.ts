@@ -86,6 +86,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.scrollBar.visible": true,
 
+    "editor.scrollBar.cursorTick.visible": true,
+
     "editor.fullScreenOnStart": false,
     "editor.maximizeScreenOnStart": false,
 
@@ -124,6 +126,8 @@ const BaseConfiguration: IConfigurationValues = {
     "environment.additionalPaths": [],
 
     "language.go.languageServer.command": "go-langserver",
+    "language.go.textMateGrammar": path.join(__dirname, "extensions", "go", "syntaxes", "go.json"),
+
     "language.python.languageServer.command": "pyls",
     "language.cpp.languageServer.command": "clangd",
     "language.c.languageServer.command": "clangd",

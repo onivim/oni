@@ -2,6 +2,8 @@ import { IGrammar, Registry } from "vscode-textmate"
 
 import { configuration } from "./../Configuration"
 
+import * as Log from "./../../Log"
+
 export interface IGrammarLoader {
     getGrammarForLanguage(language: string, extension: string): Promise<IGrammar>
 }
@@ -11,7 +13,10 @@ export interface ExtensionToGrammarMap { [extension: string]: string }
 export const getPathForLanguage = (language: string, extension: string): string => {
     const grammar: string | ExtensionToGrammarMap = configuration.getValue("language." + language + ".textMateGrammar")
 
-    if (typeof grammar === "string") {
+    if (!grammar) {
+        Log.warn("No grammar found for language: " + language)
+        return null
+    } else if (typeof grammar === "string") {
         return grammar
     } else {
         return grammar[extension] || null

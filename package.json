@@ -5,7 +5,14 @@
   "homepage": "https://www.onivim.io",
   "version": "0.2.18",
   "description": "NeoVim front-end with IDE-style extensibility",
-  "keywords": ["vim", "neovim", "text", "editor", "ide", "vim"],
+  "keywords": [
+    "vim",
+    "neovim",
+    "text",
+    "editor",
+    "ide",
+    "vim"
+  ],
   "main": "./lib/main/src/main.js",
   "bin": {
     "oni": "./cli/oni",
@@ -38,63 +45,63 @@
     "mac": {
       "artifactName": "${productName}-${version}-osx.${ext}",
       "category": "public.app-category.developer-tools",
-      "target": ["dmg", "zip"],
-      "files": ["bin/osx/**/*"]
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "files": [
+        "bin/osx/**/*"
+      ]
     },
     "linux": {
       "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
       "maintainer": "bryphe@outlook.com",
-      "target": ["tar.gz", "deb", "rpm"]
+      "target": [
+        "tar.gz",
+        "deb",
+        "rpm"
+      ]
     },
     "win": {
-      "target": ["zip", "dir"],
-      "files": ["bin/x86/**/*"]
+      "target": [
+        "zip",
+        "dir"
+      ],
+      "files": [
+        "bin/x86/**/*"
+      ]
     }
   },
   "scripts": {
-    "build":
-      "npm run build:browser && npm run build:main && npm run build:plugins",
+    "build": "npm run build:browser && npm run build:main && npm run build:plugins",
     "build-debug": "npm run build:browser-debug && npm run build:plugins",
     "build:browser": "webpack --config browser/webpack.production.config.js",
     "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
     "build:main": "cd main && tsc -p tsconfig.json",
     "build:plugins": "npm run build:plugin:oni-plugin-typescript",
-    "build:plugin:oni-plugin-typescript":
-      "cd vim/core/oni-plugin-typescript && npm run build",
+    "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && npm run build",
     "build:test": "cd test && tsc -p tsconfig.json",
     "pack": "build --publish never",
     "copy-icons": "node build/CopyIcons.js",
     "dist:win": "build --arch ia32 --publish never",
-    "pack:win":
-      "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
+    "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
     "test": "npm run test:unit && npm run test:integration",
-    "test:integration":
-      "npm run build:test && mocha -t 30000 lib_test/test/CiTests.js",
-    "test:stability":
-      "npm run build:test && mocha -t 600000 --recursive lib_test/test/stability",
+    "test:integration": "npm run build:test && mocha -t 30000 lib_test/test/CiTests.js",
+    "test:stability": "npm run build:test && mocha -t 600000 --recursive lib_test/test/stability",
     "test:unit": "npm run test:unit:browser",
-    "test:unit:browser":
-      "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
-    "fix-lint":
-      "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
-    "fix-lint:browser":
-      "tslint --fix --project browser/tsconfig.json --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json",
-    "fix-lint:main":
-      "tslint --fix --project main/tsconfig.json --config tslint.json",
-    "fix-lint:test":
-      "tslint --fix --project test/tsconfig.json --config tslint.json",
+    "test:unit:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
+    "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
+    "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json",
+    "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
+    "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
     "lint": "npm run lint:browser && npm run lint:main && npm run lint:test",
-    "lint:browser":
-      "tslint --project browser/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
+    "lint:browser": "tslint --project browser/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
     "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
-    "lint:test":
-      "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
-    "start":
-      "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
+    "lint:test": "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts",
+    "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
     "start-hot": "cross-env NODE_ENV=development electron lib/main/src/main.js",
     "start-not-dev": "cross-env electron main.js",
-    "watch:browser":
-      "webpack-dev-server --config browser/webpack.debug.config.js --host localhost --port 8191",
+    "watch:browser": "webpack-dev-server --config browser/webpack.debug.config.js --host localhost --port 8191",
     "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch",
     "uninstall-global": "npm rm -g oni-vim",
     "install-global": "npm install -g oni-vim",
@@ -113,7 +120,7 @@
     "minimist": "1.2.0",
     "msgpack-lite": "0.1.26",
     "ocaml-language-server": "1.0.12",
-    "oni-api": "0.0.5",
+    "oni-api": "0.0.6",
     "oni-neovim-binaries": "0.1.0",
     "oni-ripgrep": "0.0.3",
     "oni-types": "0.0.4",
