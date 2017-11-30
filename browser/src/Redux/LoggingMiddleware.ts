@@ -9,7 +9,7 @@ import { Store } from "redux"
 import * as Log from "./../Log"
 
 export const createLoggingMiddleware = (storeName: string) => (store: Store<any>) => (next: any) => (action: any): any => {
-    Log.verbose("[REDUX - " + storeName + "] Applying action - " + action.type + ":")
+    Log.verbose("[REDUX - " + storeName + "][ACTION] " + action.type)
 
     if (Log.isDebugLoggingEnabled()) {
         console.dir(action) // tslint:disable-line
