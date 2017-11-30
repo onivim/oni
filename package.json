@@ -83,6 +83,7 @@
     "build:test": "cd test && tsc -p tsconfig.json",
     "pack": "build --publish never",
     "copy-icons": "node build/CopyIcons.js",
+    "debug:test:unit:browser": "cd browser && tsc -p tsconfig.json && electron-mocha --interactive --debug --debug-brk --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
     "dist:win": "build --arch ia32 --publish never",
     "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
     "test": "npm run test:unit && npm run test:integration",
