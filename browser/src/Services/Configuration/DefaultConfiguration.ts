@@ -86,6 +86,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.scrollBar.visible": true,
 
+    "editor.scrollBar.cursorTick.visible": true,
+
     "editor.fullScreenOnStart": false,
     "editor.maximizeScreenOnStart": false,
 

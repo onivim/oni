@@ -30,8 +30,14 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
             return null
         }
 
-        const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine + 1) / this.props.bufferSize) * this.props.height
-        const windowTop = ((this.props.windowTopLine - 1) / this.props.bufferSize) * this.props.height
+        // The total 'scrollable area' is defined as 'bufferSize' + 'windowHeight' - 1
+        const totalHeight = this.props.bufferSize + this.props.height - 1
+
+        // The top of the 'gray grip', in scrollbar-space, can be mapped via a ratio:
+        //
+        const windowTop = ((this.props.windowTopLine - 1) / totalHeight) * totalHeight
+
+        const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine + 1) / totalHeight) * totalHeight
 
         const windowStyle: React.CSSProperties  = {
             top: windowTop + "px",
@@ -56,7 +62,7 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
             return <div style={markerStyle} key={m.line.toString() + m.color}/>
         })
 
-        return <div className="scroll-bar-container" key={id}>
+        return <div className="scroll-bar-container" key={this.props.id}>
                 <div className="scroll-window" style={windowStyle}></div>
                 {markerElements}
             </div>
