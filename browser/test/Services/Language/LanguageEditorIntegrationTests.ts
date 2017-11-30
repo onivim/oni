@@ -65,8 +65,23 @@ describe("LanguageEditorIntegration", () => {
         assert.strictEqual(showHoverCount, 1, "Hover was shown")
     })
 
-    it("respects editor.quickInfo.delay setting for hover", () => {
-        assert.ok(false, "TODO")
+    it.only("respects editor.quickInfo.delay setting for hover", () => {
+        mockConfiguration.setValue("editor.quickInfo.delay", 500)
+
+        // Get the editor primed for a request
+        mockEditor.simulateModeChange("normal")
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer())
+        mockEditor.simulateCursorMoved(1, 1)
+
+        // There shouldn't be any requests yet, because
+        // we haven't hit the delay..
+        assert.strictEqual(mockHoverRequestor.pendingCallCount, 0)
+
+        // Tick just past the delay
+        clock.tick(501)
+
+        // There should now be a request queued up
+        assert.strictEqual(mockHoverRequestor.pendingCallCount, 1)
     })
 
     it("hides quick info and hover when cursor moves", () => {
