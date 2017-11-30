@@ -116,4 +116,36 @@ describe("LanguageEditorIntegration", () => {
 
     })
 
+    it("hides hover on mode change", async () => {
+        let showHoverCount = 0
+        let hideHoverCount = 0
+
+        languageEditorIntegration.onShowHover.subscribe(() => showHoverCount++)
+        languageEditorIntegration.onHideHover.subscribe(() => hideHoverCount++)
+
+        mockEditor.simulateModeChange("normal")
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer())
+        mockEditor.simulateCursorMoved(1, 1)
+
+        clock.tick(501) // Account for the quickInfo.delay
+
+        assert.strictEqual(mockHoverRequestor.pendingCallCount, 1)
+
+        // Resolve the calls
+        mockHoverRequestor.resolve({} as any)
+
+        await waitForPromiseResolution()
+
+        clock.runAll()
+
+        assert.strictEqual(showHoverCount, 1, "Hover was shown")
+        assert.strictEqual(hideHoverCount, 0, "No calls to hide hover yet")
+
+        mockEditor.simulateModeChange("cmdline")
+
+        clock.runAll()
+
+        assert.strictEqual(showHoverCount, 1, "Hover show count should be unchanged")
+        assert.strictEqual(hideHoverCount, 1, "There should now be a call to hide the hover")
+    })
 })

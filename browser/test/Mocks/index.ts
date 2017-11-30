@@ -61,10 +61,9 @@ export class MockRequestor<T> {
         return newPromise.promise
     }
 
-    public resolve(val: T): Promise<T> {
+    public resolve(val: T): void {
         const firstPromise = this._completablePromises.shift()
         firstPromise.resolve(val)
-        return global.waitForPromiseResolution(firstPromise.promise)
     }
 }
 
