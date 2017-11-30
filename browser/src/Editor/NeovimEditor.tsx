@@ -203,9 +203,8 @@ export class NeovimEditor extends Editor implements IEditor {
                 this.notifyCursorMoved(cursorMoved)
             })
 
-        this._modeChanged$ = this.onModeChanged.asObservable()
-
-        this.onModeChanged.subscribe((newMode) => this._onModeChanged(newMode))
+        this._modeChanged$ = this._neovimInstance.onModeChanged.asObservable()
+        this._neovimInstance.onModeChanged.subscribe((newMode) => this._onModeChanged(newMode))
 
         const bufferUpdates$ = listenForBufferUpdates(this._neovimInstance, this._bufferManager)
         bufferUpdates$.subscribe((bufferUpdate) => {
