@@ -2,7 +2,6 @@
  * Hover.tsx
  */
 
-
 import * as Oni from "oni-api"
 import * as os from "os"
 import * as React from "react"
@@ -24,7 +23,7 @@ export class HoverRenderer {
 
     constructor(
         private _editor: Oni.Editor,
-        private _configuration: Configuration
+        private _configuration: Configuration,
     ) {
     }
 
@@ -46,7 +45,6 @@ export class HoverRenderer {
 
     private _renderQuickInfoElement(hover: types.Hover, errors: types.Diagnostic[]): JSX.Element {
         const quickInfoElements = getQuickInfoElementsFromHover(hover)
-
 
         const state: any = UI.store.getState()
         const borderColor = state.colors["toolTip.border"]

@@ -54,12 +54,10 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
         private _hoverRequestor?: IHoverRequestor,
     ) {
 
-        const hoverDelayFunction = () => this._configuration.getValue("editor.quickInfo.delay")
-
         this._definitionRequestor = this._definitionRequestor || new LanguageServiceDefinitionRequestor(this._languageManager, this._editor)
-        this._hoverRequestor = this._hoverRequestor || new LanguageServiceHoverRequestor(this._languageManager, this._configuration)
+        this._hoverRequestor = this._hoverRequestor || new LanguageServiceHoverRequestor(this._languageManager)
 
-        this._store = createStore(hoverDelayFunction, this._hoverRequestor, this._definitionRequestor)
+        this._store = createStore(this._configuration, this._hoverRequestor, this._definitionRequestor)
 
         const sub1 = this._editor.onModeChanged.subscribe((newMode: string) => {
             this._store.dispatch({
@@ -88,6 +86,20 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
         this._storeUnsubscribe = this._store.subscribe(() => this._onStateUpdate(this._store.getState()))
 
         this._subscriptions = [sub1, sub2, sub3]
+    }
+
+    // Explicit gesture to show hover - ignores the setting
+    public showHover(): void {
+        const state = this._store.getState()
+        this._store.dispatch({
+            type: "HOVER_QUERY",
+            location: {
+                filePath: state.activeBuffer.filePath,
+                language: state.activeBuffer.language,
+                line: state.cursor.line,
+                column: state.cursor.column,
+            }
+        })
     }
 
     public dispose(): void {

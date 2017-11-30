@@ -25,7 +25,7 @@ import { NeovimScreen } from "./../Screen"
 import { pluginManager } from "./../Plugins/PluginManager"
 
 import { Colors } from "./../Services/Colors"
-import { commandManager } from "./../Services/CommandManager"
+import { CallbackCommand, commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Completion } from "./../Services/Completion"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
@@ -122,6 +122,13 @@ export class NeovimEditor extends Editor implements IEditor {
         const errorService = new Errors(this._neovimInstance)
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
+
+        commandManager.registerCommand(new CallbackCommand(
+            "editor.quickInfo.show",
+            null,
+            null,
+            () => this._languageIntegration.showHover(),
+        ))
 
         tasks.registerTaskProvider(commandManager)
         tasks.registerTaskProvider(errorService)

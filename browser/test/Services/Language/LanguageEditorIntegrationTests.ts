@@ -9,8 +9,8 @@ import * as Language from "./../../../src/Services/Language"
 import * as Mocks from "./../../Mocks"
 
 describe("LanguageEditorIntegration", () => {
-    const clock: any = global["clock"]
-    const waitForPromiseResolution: any = global["waitForPromiseResolution"]
+    const clock: any = global["clock"] // tslint:disable-line
+    const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
 
     // Mocks
     let mockConfiguration: Mocks.MockConfiguration
@@ -24,6 +24,7 @@ describe("LanguageEditorIntegration", () => {
     beforeEach(() => {
         mockConfiguration = new Mocks.MockConfiguration({
             "editor.quickInfo.delay": 500,
+            "editor.quickInfo.enabled": true,
         })
 
         mockEditor = new Mocks.MockEditor()

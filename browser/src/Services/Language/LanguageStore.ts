@@ -13,6 +13,8 @@ import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
 import { createStore as oniCreateStore } from "./../../Redux"
 
+import { Configuration } from "./../Configuration"
+
 import { IDefinitionRequestor, IDefinitionResult } from "./DefinitionRequestor"
 import { IHoverRequestor, IHoverResult } from "./HoverRequestor"
 
@@ -183,10 +185,10 @@ export const languageStateReducer = combineReducers<ILanguageState>({
     hoverResult: hoverResultReducer,
 })
 
-export const createStore = (hoverDelayFunction: () => number, hoverRequestor: IHoverRequestor, definitionRequestor: IDefinitionRequestor): Store<ILanguageState> => {
+export const createStore = (configuration: Configuration, hoverRequestor: IHoverRequestor, definitionRequestor: IDefinitionRequestor): Store<ILanguageState> => {
 
     const epicMiddleware = createEpicMiddleware(combineEpics(
-        queryForDefinitionAndHoverEpic(hoverDelayFunction),
+        queryForDefinitionAndHoverEpic(configuration),
         queryDefinitionEpic(definitionRequestor),
         queryHoverEpic(hoverRequestor),
     ))
@@ -194,10 +196,10 @@ export const createStore = (hoverDelayFunction: () => number, hoverRequestor: IH
     return oniCreateStore<ILanguageState>("LANGUAGE", languageStateReducer, DefaultLanguageState, [epicMiddleware])
 }
 
-export const queryForDefinitionAndHoverEpic = (hoverDelayFunction: () => number): Epic<LanguageAction, ILanguageState> => (action$, store) =>
+export const queryForDefinitionAndHoverEpic = (configuration: Configuration): Epic<LanguageAction, ILanguageState> => (action$, store) =>
     action$.ofType("CURSOR_MOVED")
-        .filter(() => store.getState().mode === "normal")
-        .debounceTime(hoverDelayFunction())
+        .filter(() => store.getState().mode === "normal" && configuration.getValue("editor.quickInfo.enabled"))
+        .debounceTime(configuration.getValue("editor.quickInfo.delay"))
         .filter(() => store.getState().mode === "normal")
         .mergeMap((action: LanguageAction) => {
 
