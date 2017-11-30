@@ -1,3 +1,4 @@
+export * from "./addInsertModeLanguageFunctionality"
 export * from "./CodeAction"
 export * from "./Definition"
 export * from "./Diagnostics"

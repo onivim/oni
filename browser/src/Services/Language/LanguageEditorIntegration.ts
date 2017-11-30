@@ -5,9 +5,6 @@
  * and hooking up the language service functionality.
  */
 
-import "rxjs/add/observable/never"
-import { Observable } from "rxjs/Observable"
-
 import { Store, Unsubscribe } from "redux"
 
 import * as Oni from "oni-api"
@@ -15,15 +12,12 @@ import * as OniTypes from "oni-types"
 
 import { Configuration } from "./../Configuration"
 
-import { editorManager } from "./../EditorManager"
-import * as SignatureHelp from "./SignatureHelp"
-
 import { createStore, DefaultLanguageState, ILanguageState } from "./LanguageStore"
 
-import { languageManager } from "./LanguageManager"
+import { LanguageManager } from "./LanguageManager"
 
-import { IDefinitionResult, LanguageServiceDefinitionRequestor } from "./DefinitionRequestor"
-import { IHoverResult, LanguageServiceHoverRequestor } from "./HoverRequestor"
+import { IDefinitionRequestor, IDefinitionResult, LanguageServiceDefinitionRequestor } from "./DefinitionRequestor"
+import { IHoverRequestor, IHoverResult, LanguageServiceHoverRequestor } from "./HoverRequestor"
 
 export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
@@ -55,14 +49,17 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
     constructor(
         private _editor: Oni.Editor,
         private _configuration: Configuration,
+        private _languageManager?: LanguageManager,
+        private _definitionRequestor?: IDefinitionRequestor,
+        private _hoverRequestor?: IHoverRequestor,
     ) {
 
         const hoverDelayFunction = () => this._configuration.getValue("editor.quickInfo.delay")
 
-        const definitionRequestor = new LanguageServiceDefinitionRequestor(languageManager, this._editor)
-        const hoverRequestor = new LanguageServiceHoverRequestor(languageManager, this._configuration)
+        this._definitionRequestor = this._definitionRequestor || new LanguageServiceDefinitionRequestor(this._languageManager, this._editor)
+        this._hoverRequestor = this._hoverRequestor || new LanguageServiceHoverRequestor(this._languageManager, this._configuration)
 
-        this._store = createStore(hoverDelayFunction, hoverRequestor, definitionRequestor)
+        this._store = createStore(hoverDelayFunction, this._hoverRequestor, this._definitionRequestor)
 
         const sub1 = this._editor.onModeChanged.subscribe((newMode: string) => {
             this._store.dispatch({
@@ -127,34 +124,4 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
             this._storeUnsubscribe = null
         }
     }
-}
-
-export interface ILatestCursorAndBufferInfo {
-    filePath: string,
-    language: string,
-    cursorLine: number,
-    contents: string,
-    cursorColumn: number,
-}
-
-export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<Oni.Vim.Mode>) => {
-
-    const latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo> = cursorMoved$
-            .auditTime(10)
-            .mergeMap(async (cursorPos) => {
-                const editor = editorManager.activeEditor
-                const buffer = editor.activeBuffer
-
-                const changedLines: string[] = await buffer.getLines(cursorPos.line, cursorPos.line + 1)
-                const changedLine = changedLines[0]
-                return {
-                    filePath: buffer.filePath,
-                    language: buffer.language,
-                    cursorLine: cursorPos.line,
-                    contents: changedLine,
-                    cursorColumn: cursorPos.column,
-                }
-            })
-
-    SignatureHelp.initUI(latestCursorAndBufferInfo$, modeChanged$)
 }
