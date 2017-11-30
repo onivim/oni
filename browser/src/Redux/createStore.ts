@@ -25,7 +25,7 @@ export const createStore = <TState>(name: string, reducer: Reducer<TState>, defa
 
     const enhancer = composeEnhancers(
         applyMiddleware(...middleware),
-        batchedSubscribe(RequestAnimationFrameNotifyBatcher),
+        batchedSubscribe(RequestAnimationFrameNotifyBatcher()),
     )
     return reduxCreateStore(reducer, defaultState, enhancer)
 }

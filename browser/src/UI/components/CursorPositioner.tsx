@@ -150,8 +150,9 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
 
         const childStyleWithAdjustments: React.CSSProperties = this.state.isMeasured ? {
             ...childStyle,
-            left: this.state.isFullWidth ? "8px" : adjustedX.toString() + "px",
+            left: this.state.isFullWidth ? "8px" : Math.abs(adjustedX).toString() + "px",
             right: this.state.isFullWidth ? "8px" : null,
+            maxWidth: "95%",
         } : childStyle
 
         return <div style={containerStyle} key={this.props.key}>
@@ -161,7 +162,13 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
                 </div>
             </div>
             <div style={arrowStyleWithAdjustments}>
-                <Arrow direction={this.state.shouldOpenDownward ? ArrowDirection.Up : ArrowDirection.Down} size={5} color={this.props.beakColor} />
+                <Arrow
+                    direction={this.state.shouldOpenDownward
+                        ? ArrowDirection.Up
+                        : ArrowDirection.Down}
+                    size={5}
+                    color={this.props.beakColor}
+                />
             </div>
         </div>
     }
@@ -215,7 +222,9 @@ const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursor
 
     const lineHeight = state.fontPixelHeight
 
-    const beakColor = (props && props.beakColor) ? props.beakColor : state.backgroundColor
+    const backgroundColor = state.colors["editor.background"]
+
+    const beakColor = (props && props.beakColor) ? props.beakColor : backgroundColor
 
     return {
         beakColor,
@@ -225,7 +234,7 @@ const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursor
         containerWidth: state.viewport.width,
         containerHeight: state.viewport.height,
         lineHeight,
-        backgroundColor: state.backgroundColor,
+        backgroundColor,
     }
 }
 

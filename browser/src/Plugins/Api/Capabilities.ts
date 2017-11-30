@@ -9,33 +9,30 @@
  * `immediate` means the plugin will be executed at startup,
  * `on-demand` means the plugin will be executed when it encounters a command or event it can handle
  */
-export type ActivationMode = "immediate" | "on-demand"
-
-export interface Capabilities {
-    commands?: { [commandName: string]: ICommandInfo }
+export interface IContributions {
+    commands: ICommandContribution[]
+    themes: IThemeContribution[]
 }
 
-export interface ICommandInfo {
+export const DefaultContributions: IContributions = {
+    commands: [],
+    themes: [],
+}
+
+export interface ICommandContribution {
+    command: string /* ie, myExtension.myCommand */
+    title: string /* My Extension Command */
+    category: string /* Testing */
+}
+
+export interface IThemeContribution {
     name: string
-    details: string
-}
-
-/**
- * Interface describing
- */
-export interface IPluginFilter {
-    fileType: string
-    requiredCapabilities: Capabilities
+    path: string
 }
 
 export interface IPluginMetadata {
     name: string
     main: string
     engines: any
-    oni: IPluginCapabilities
-}
-
-export interface IPluginCapabilities extends Capabilities {
-    activationMode?: ActivationMode
-    supportedFileTypes?: string[]
+    contributes: IContributions
 }

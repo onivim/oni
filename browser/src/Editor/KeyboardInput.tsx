@@ -222,7 +222,7 @@ const mapStateToProps = (state: IState, originalProps: IKeyboardInputProps): IKe
         top: state.cursorPixelY,
         left: state.cursorPixelX,
         height: state.fontPixelHeight,
-        foregroundColor: state.foregroundColor,
+        foregroundColor: state.colors["editor.foreground"],
         fontFamily: state.fontFamily,
         fontSize: state.fontSize,
         fontCharacterWidthInPixels: state.fontPixelWidth,

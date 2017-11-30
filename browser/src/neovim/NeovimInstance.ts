@@ -83,11 +83,15 @@ export interface INeovimInstance {
 
     onScroll: IEvent<EventContext>
 
+    onTitleChanged: IEvent<string>
+
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
     onOniCommand: IEvent<string>
 
     onHidePopupMenu: IEvent<void>
     onShowPopupMenu: IEvent<INeovimCompletionInfo>
+
+    onColorsChanged: IEvent<void>
 
     autoCommands: INeovimAutoCommands
 
@@ -164,11 +168,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
     private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
     private _onScroll = new Event<EventContext>()
+    private _onTitleChanged = new Event<string>()
     private _onModeChanged = new Event<Oni.Vim.Mode>()
     private _onHidePopupMenu = new Event<void>()
     private _onShowPopupMenu = new Event<INeovimCompletionInfo>()
     private _onSelectPopupMenu = new Event<number>()
     private _onLeave = new Event<void>()
+
+    private _onColorsChanged = new Event<void>()
 
     private _pendingScrollTimeout: number | null = null
 
@@ -182,6 +189,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onBufferUpdateIncremental(): IEvent<IIncrementalBufferUpdateEvent> {
         return this._onIncrementalBufferUpdateEvent
+    }
+
+    public get onColorsChanged(): IEvent<void> {
+        return this._onColorsChanged
     }
 
     public get onDirectoryChanged(): IEvent<string> {
@@ -210,6 +221,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onScroll(): IEvent<EventContext> {
         return this._onScroll
+    }
+
+    public get onTitleChanged(): IEvent<string> {
+        return this._onTitleChanged
     }
 
     public get onHidePopupMenu(): IEvent<void> {
@@ -298,6 +313,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             } else if (eventName === "VimLeave") {
                                 this._isLeaving = true
                                 this._onLeave.dispatch()
+                            } else if (eventName === "ColorScheme") {
+                                this._onColorsChanged.dispatch()
                             }
 
                             this._autoCommands.notifyAutocommand(eventName, eventContext)
@@ -397,9 +414,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._neovim.request("nvim_eval", [expression])
     }
 
-    public command(command: string): Promise<void> {
+    public command(command: string): Promise<any> {
+        // await this._initPromise
         Log.verbose("[NeovimInstance] Executing command: " + command)
-        return this._neovim.request("nvim_command", [command])
+        return this._neovim.request<any>("nvim_command", [command])
     }
 
     public callFunction(functionName: string, args: any[]): Promise<any> {
@@ -531,7 +549,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     this.emit("action", Actions.resize(a[0][0], a[0][1]))
                     break
                 case "set_title":
-                    this.emit("set-title", a[0][0])
+                    this._onTitleChanged.dispatch(a[0][0])
                     break
                 case "set_icon":
                     // window title when minimized, no-op

@@ -15,6 +15,8 @@ export interface ITokenColorsSetting {
     settings: IHighlight | string
 }
 
+export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiased" | "none"
+
 export interface IConfigurationValues {
 
     "activate": (oni: Oni.Plugin.Api) => void
@@ -183,8 +185,10 @@ export interface IConfigurationValues {
     "tabs.wrap": boolean
 
     "ui.animations.enabled": boolean
+    "ui.colorscheme": string
     "ui.fontFamily": string
     "ui.fontSize": string
+    "ui.fontSmoothing": FontSmoothingOptions
 
     // Handle other, non-predefined configuration keys
     [configurationKey: string]: any

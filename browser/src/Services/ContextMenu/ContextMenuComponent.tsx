@@ -12,7 +12,6 @@ import * as Oni from "oni-api"
 
 import { IMenus } from "./../Menu/MenuState"
 
-import * as Colors from "./../../UI/Colors"
 import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
 import { HighlightText } from "./../../UI/components/HighlightText"
 import { Icon } from "./../../UI/Icon"
@@ -34,6 +33,8 @@ export interface IContextMenuProps {
 
     backgroundColor: string
     foregroundColor: string
+    borderColor: string
+    highlightColor: string
 }
 
 require("./ContextMenu.less") // tslint:disable-line no-var-requires
@@ -46,14 +47,13 @@ export class ContextMenuView extends React.PureComponent<IContextMenuProps, {}> 
             return null
         }
 
-        const highlightColor = Colors.getBorderColor(this.props.backgroundColor, this.props.foregroundColor)
         // TODO: sync max display items (10) with value in Reducer.autoCompletionReducer() (Reducer.ts)
         const firstTenEntries = take(this.props.entries, 10)
 
         const entries = firstTenEntries.map((s, i) => {
             const isSelected = i === this.props.selectedIndex
 
-            return <ContextMenuItem {...s} isSelected={isSelected} base={this.props.base} highlightColor={highlightColor}/>
+            return <ContextMenuItem {...s} isSelected={isSelected} base={this.props.base} highlightColor={this.props.highlightColor}/>
         })
 
         const selectedItemDocumentation = getDocumentationFromItems(firstTenEntries, this.props.selectedIndex)
@@ -137,6 +137,8 @@ const EmptyProps = {
             selectedIndex: 0,
             backgroundColor: "",
             foregroundColor: "",
+            borderColor: "",
+            highlightColor: "",
         }
 
 const mapStateToProps = (state: IMenus<types.CompletionItem, types.CompletionItem>) => {
@@ -151,6 +153,8 @@ const mapStateToProps = (state: IMenus<types.CompletionItem, types.CompletionIte
             selectedIndex: contextMenu.selectedIndex,
             foregroundColor: contextMenu.foregroundColor,
             backgroundColor: contextMenu.backgroundColor,
+            borderColor: contextMenu.borderColor,
+            highlightColor: contextMenu.highlightColor,
         }
         return ret
     }

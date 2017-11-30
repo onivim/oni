@@ -16,6 +16,7 @@ export const test = async (oni: any) => {
     oni.automation.sendKeys("<cr>")
     await oni.automation.sleep(500)
     oni.automation.sendKeys("i")
+    await oni.automation.sleep(500)
     oni.automation.sendKeys(".test { pos")
 
     // Wait for completion popup to show
