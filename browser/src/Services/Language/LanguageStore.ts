@@ -152,6 +152,7 @@ export const hoverResultReducer: Reducer<HoverResult> = (
             return action.result
         case "CURSOR_MOVED":
         case "BUFFER_ENTER":
+        case "MODE_CHANGED":
             return DefaultLocationBasedResult
         default:
             return state
@@ -167,6 +168,7 @@ export const definitionResultReducer: Reducer<DefinitionResult> = (
             return action.result
         case "CURSOR_MOVED":
         case "BUFFER_ENTER":
+        case "MODE_CHANGED":
             return DefaultLocationBasedResult
         default:
             return state
