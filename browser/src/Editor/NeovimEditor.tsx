@@ -30,7 +30,7 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { Completion } from "./../Services/Completion"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { addInsertModeLanguageFunctionality, LanguageEditorIntegration } from "./../Services/Language"
+import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, languageManager } from "./../Services/Language"
 import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
 import { getThemeManagerInstance } from "./../Services/Themes"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
@@ -224,7 +224,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
         this._completion = new Completion(this)
-        this._languageIntegration = new LanguageEditorIntegration(this, this._config)
+        this._languageIntegration = new LanguageEditorIntegration(this, this._config, languageManager)
 
         this._languageIntegration.onShowHover.subscribe((hover) => {
             this._hoverRenderer.showQuickInfo(hover.hover, hover.errors)

@@ -2,14 +2,10 @@
  * Hover.tsx
  */
 
-import * as os from "os"
-
-import * as React from "react"
-
-import * as isEqual from "lodash/isEqual"
 
 import * as Oni from "oni-api"
-
+import * as os from "os"
+import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
 import { ErrorInfo } from "./../UI/components/ErrorInfo"
@@ -19,7 +15,6 @@ import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import * as UI from "./../UI"
 import * as Selectors from "./../UI/Selectors"
-import * as Utility from "./../Utility"
 
 import { Configuration } from "./../Services/Configuration"
 
@@ -35,8 +30,11 @@ export class HoverRenderer {
 
     public showQuickInfo(hover: types.Hover, errors: types.Diagnostic[]): void {
         const elem = this._renderQuickInfoElement(hover, errors)
+
+        const state: any = UI.store.getState()
+
         UI.Actions.showToolTip(HoverToolTipId, elem, {
-            position: null,
+            position: { pixelX: state.cursorPixelX, pixelY: state.cursorPixelY },
             openDirection: 1,
             padding: "0px",
         })
@@ -79,6 +77,7 @@ export class HoverRenderer {
             </div>
         </div>
     }
+
     private _getDebugScopesElement(): JSX.Element {
         const editor: any = this._editor
 
@@ -111,11 +110,8 @@ const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[]
     } else {
         return [<ErrorInfo errors={errors} style={style} />]
     }
-
-}
 }
 
-//
 const getTitleAndContents = (result: types.Hover) => {
     if (!result || !result.contents) {
         return null

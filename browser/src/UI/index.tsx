@@ -71,7 +71,7 @@ function render(_state: State.IState, pluginManager: PluginManager, args: any): 
 }
 
 // Don't execute code that depends on DOM in unit-tests
-if (global.window) {
+if (global["window"]) {
     updateViewport()
 
     // TODO: Why is this breaking?
