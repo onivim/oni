@@ -24,6 +24,7 @@ const NoScrollBar: IBufferScrollBarProps = {
     windowBottomLine: -1,
     markers: [],
     visible: false,
+    id: null,
 }
 
 export const getMarkers = createSelector(
@@ -73,6 +74,7 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
         markers,
         height: dimensions.height,
         visible,
+        id: file,
     }
 }
 

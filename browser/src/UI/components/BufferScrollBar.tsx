@@ -9,6 +9,7 @@ export interface IBufferScrollBarProps {
     windowBottomLine: number
     markers: IScrollBarMarker[]
     visible: boolean
+    id: string
 }
 
 export interface IScrollBarMarker {
@@ -55,7 +56,7 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
             return <div style={markerStyle} key={m.line.toString() + m.color}/>
         })
 
-        return <div className="scroll-bar-container">
+        return <div className="scroll-bar-container" key={id}>
                 <div className="scroll-window" style={windowStyle}></div>
                 {markerElements}
             </div>
