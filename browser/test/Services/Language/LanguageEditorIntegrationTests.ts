@@ -113,7 +113,34 @@ describe("LanguageEditorIntegration", () => {
         clock.runAll()
 
         assert.strictEqual(hoverShowCount, 0, "Hover should never be shown, because the cursor moved.")
+    })
 
+    it("doesn't show slow hover response that completes after mode changes", async () => {
+        mockEditor.simulateModeChange("normal")
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer())
+        mockEditor.simulateCursorMoved(1, 1)
+
+        let hoverShowCount = 0
+
+        languageEditorIntegration.onShowHover.subscribe(() => hoverShowCount++)
+
+        // Go past the clock timer, so we should get a request now
+        clock.tick(501)
+
+        assert.strictEqual(mockHoverRequestor.pendingCallCount, 1, "Verify we have a request queued up")
+
+        // While the request is pending, lets move the cursor
+
+        mockEditor.simulateModeChange("insert")
+
+        // Complete the hover request, and let the promises drain
+        mockHoverRequestor.resolve({} as any)
+        await waitForPromiseResolution()
+
+        // Let clock drain as well
+        clock.runAll()
+
+        assert.strictEqual(hoverShowCount, 0, "Hover should never be shown, because the cursor moved.")
     })
 
     it("hides hover on mode change", async () => {
