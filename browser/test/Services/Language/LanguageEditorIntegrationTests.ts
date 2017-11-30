@@ -27,6 +27,20 @@ export class MockEditor extends Editor {
 }
 
 describe("LanguageEditorIntegration", () => {
+
+    it("shows hover", () => {
+        assert.ok(false, "fails")
+    })
+
+    it("respects editor.quickInfo.delay setting for hover", () => {
+    
+    })
+
+
+    it("hides quick info and hover when cursor moves", () => {
+    
+    })
+
     it("does not show hover when changing buffers", () => {
         const mockConfiguration = new MockConfiguration()
         const mockEditor = new MockEditor()
