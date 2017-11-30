@@ -5029,7 +5029,7 @@ redux-batched-subscribe@^0.1.6:
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/redux-batched-subscribe/-/redux-batched-subscribe-0.1.6.tgz#de928602708df7198b4d0c98c7119df993780d59"
 
-redux-observable@^0.17.0:
+redux-observable@0.17.0:
   version "0.17.0"
   resolved "https://registry.yarnpkg.com/redux-observable/-/redux-observable-0.17.0.tgz#23e29e3f3c39204b7ed6a14b67a29e317c03106b"
 
