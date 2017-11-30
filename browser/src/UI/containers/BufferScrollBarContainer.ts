@@ -74,7 +74,6 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
         markers,
         height: dimensions.height,
         visible,
-        id: file,
     }
 }
 
