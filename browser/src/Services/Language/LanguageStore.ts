@@ -233,6 +233,7 @@ export const doesLocationBasedResultMatchCursorPosition = (result: ILocationBase
     return result.filePath === state.activeBuffer.filePath
     && result.line === state.cursor.line
     && result.column === state.cursor.column
+    && state.mode === "normal"
 }
 
 export const queryDefinitionEpic = (definitionRequestor: IDefinitionRequestor): Epic<LanguageAction, ILanguageState> => (action$, store) =>
