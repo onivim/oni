@@ -98,7 +98,7 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
                 language: state.activeBuffer.language,
                 line: state.cursor.line,
                 column: state.cursor.column,
-            }
+            },
         })
     }
 
