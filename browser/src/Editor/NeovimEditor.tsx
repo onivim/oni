@@ -42,6 +42,7 @@ import { Editor, IEditor } from "./Editor"
 
 import { BufferManager } from "./BufferManager"
 import { listenForBufferUpdates } from "./BufferUpdates"
+import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
 import { NeovimSurface } from "./NeovimSurface"
 
@@ -78,6 +79,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _syntaxHighlighter: ISyntaxHighlighter
     private _languageIntegration: LanguageEditorIntegration
     private _completion: Completion
+    private _hoverRenderer: HoverRenderer
 
     public /* override */ get activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
@@ -105,6 +107,8 @@ export class NeovimEditor extends Editor implements IEditor {
         this._screen = new NeovimScreen()
 
         this._colors = new Colors(this._themeManager, this._config)
+
+        this._hoverRenderer = new HoverRenderer(this, this._config)
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
@@ -223,11 +227,11 @@ export class NeovimEditor extends Editor implements IEditor {
         this._languageIntegration = new LanguageEditorIntegration(this, this._config)
 
         this._languageIntegration.onShowHover.subscribe((hover) => {
-            console.log("Hover!" + JSON.stringify(hover))
+            this._hoverRenderer.showQuickInfo(hover.hover, hover.errors)
         })
 
         this._languageIntegration.onHideHover.subscribe(() => {
-            console.log("HIDE HOVER")
+            this._hoverRenderer.hideQuickInfo()
         })
 
         this._languageIntegration.onShowDefinition.subscribe((definition) => {

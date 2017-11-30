@@ -6,130 +6,103 @@ import * as os from "os"
 
 import * as React from "react"
 
-import { Observable } from "rxjs/Observable"
-
-import "rxjs/add/operator/combineLatest"
-
 import * as isEqual from "lodash/isEqual"
+
+import * as Oni from "oni-api"
 
 import * as types from "vscode-languageserver-types"
 
-import { getQuickInfo } from "./QuickInfo"
+import { ErrorInfo } from "./../UI/components/ErrorInfo"
+import { QuickInfoDocumentation, QuickInfoTitle } from "./../UI/components/QuickInfo"
 
-import { ErrorInfo } from "./../../UI/components/ErrorInfo"
-import { QuickInfoDocumentation, QuickInfoTitle } from "./../../UI/components/QuickInfo"
+import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
+import * as UI from "./../UI"
+import * as Selectors from "./../UI/Selectors"
+import * as Utility from "./../Utility"
 
-import * as UI from "./../../UI"
-import * as Selectors from "./../../UI/Selectors"
-import * as Utility from "./../../Utility"
+import { Configuration } from "./../Services/Configuration"
 
-import { IResultWithPosition } from "./LanguageClientTypes"
+const HoverToolTipId = "hover-tool-tip"
 
-import { configuration } from "./../Configuration"
-import { editorManager } from "./../EditorManager"
+export class HoverRenderer {
 
-export const initHoverUI = (shouldHide$: Observable<void>, shouldUpdate$: Observable<void>) => {
+    constructor(
+        private _editor: Oni.Editor,
+        private _configuration: Configuration
+    ) {
+    }
 
-    const hoverToolTipId = "hover-tool-tip"
+    public showQuickInfo(hover: types.Hover, errors: types.Diagnostic[]): void {
+        const elem = this._renderQuickInfoElement(hover, errors)
+        UI.Actions.showToolTip(HoverToolTipId, elem, {
+            position: null,
+            openDirection: 1,
+            padding: "0px",
+        })
+    }
 
-    shouldUpdate$.subscribe(() => UI.Actions.hideToolTip(hoverToolTipId))
-    shouldHide$.subscribe(() => UI.Actions.hideToolTip(hoverToolTipId))
+    public hideQuickInfo(): void {
+        UI.Actions.hideToolTip(HoverToolTipId)
+    }
 
-    const shouldUpdateQuickInfo$ = shouldUpdate$
-        .debounceTime(configuration.getValue("editor.quickInfo.delay"))
+    private _renderQuickInfoElement(hover: types.Hover, errors: types.Diagnostic[]): JSX.Element {
+        const quickInfoElements = getQuickInfoElementsFromHover(hover)
 
-    const quickInfoResults$ = Utility.ignoreWhilePendingPromise(shouldUpdateQuickInfo$, () => getQuickInfo())
 
-    const errors$ = UI.state$
-        .filter((state) => state.mode === "normal")
-        .map((state) => Selectors.getErrorsForPosition(state))
-        .distinctUntilChanged(isEqual)
+        const state: any = UI.store.getState()
+        const borderColor = state.colors["toolTip.border"]
 
-    quickInfoResults$
-            .withLatestFrom(quickInfoResults$, errors$)
-            .subscribe((args: [any, IResultWithPosition<types.Hover>, types.Diagnostic[]]) => {
-                const [, result, errors] = args
-
-                const activeCursor = editorManager.activeEditor.activeBuffer.cursor
-
-                let hover = null
-
-                if (result && (result.position.line === activeCursor.line && result.position.character === activeCursor.column)) {
-                    hover = result.result
-                }
-
-                if (hover || (errors && errors.length)) {
-                    const state: any = UI.store.getState()
-                    const elem = renderQuickInfo(hover, errors)
-                    UI.Actions.showToolTip(hoverToolTipId, elem, {
-                        position: { pixelX: state.cursorPixelX, pixelY: state.cursorPixelY },
-                        openDirection: 1,
-                        padding: "0px",
-                    })
-                } else {
-                    UI.Actions.hideToolTip(hoverToolTipId)
-                }
-            })
-}
-
-export const renderQuickInfo = (hover: types.Hover, errors: types.Diagnostic[]) => {
-    const quickInfoElements = getQuickInfoElementsFromHover(hover)
-
-    const state: any = UI.store.getState()
-    const borderColor = state.colors["toolTip.border"]
-
-    let customErrorStyle = { }
-    if (quickInfoElements.length > 0) {
-        // TODO:
-        customErrorStyle = {
-            "border-bottom": "1px solid " + borderColor,
+        let customErrorStyle = {}
+        if (quickInfoElements.length > 0) {
+            // TODO:
+            customErrorStyle = {
+                "border-bottom": "1px solid " + borderColor,
+            }
         }
-    }
 
-    const errorElements = getErrorElements(errors, customErrorStyle)
+        const errorElements = getErrorElements(errors, customErrorStyle)
 
-    const elements = [...errorElements, ...quickInfoElements ]
+        const elements = [...errorElements, ...quickInfoElements]
 
-    if (configuration.getValue("experimental.editor.textMateHighlighting.debugScopes")) {
-        elements.push(getDebugScopesElement())
-    }
+        if (this._configuration.getValue("experimental.editor.textMateHighlighting.debugScopes")) {
+            elements.push(this._getDebugScopesElement())
+        }
 
-    return <div className="quickinfo-container enable-mouse">
+        return <div className="quickinfo-container enable-mouse">
             <div className="quickinfo">
                 <div className="container horizontal center">
                     <div className="container full">
-                    {elements}
+                        {elements}
                     </div>
                 </div>
             </div>
-           </div>
-}
-
-const getDebugScopesElement = (): JSX.Element => {
-    const editor: any = editorManager.activeEditor
-
-    if (!editor || !editor.syntaxHighlighter) {
-        return null
+        </div>
     }
+    private _getDebugScopesElement(): JSX.Element {
+        const editor: any = this._editor
 
-    const cursor = editorManager.activeEditor.activeBuffer.cursor
-    const scopeInfo = editor.syntaxHighlighter.getHighlightTokenAt(editorManager.activeEditor.activeBuffer.id, {
-        line: cursor.line,
-        character: cursor.column,
-    })
+        if (!editor || !editor.syntaxHighlighter) {
+            return null
+        }
 
-    if (!scopeInfo || !scopeInfo.scopes) {
-        return null
-    }
-    const items = scopeInfo.scopes.map((si: string) => <li>{si}</li>)
-    return <div className="documentation">
+        const cursor = editor.activeBuffer.cursor
+        const scopeInfo = editor.syntaxHighlighter.getHighlightTokenAt(editor.activeBuffer.id, {
+            line: cursor.line,
+            character: cursor.column,
+        })
+
+        if (!scopeInfo || !scopeInfo.scopes) {
+            return null
+        }
+        const items = scopeInfo.scopes.map((si: string) => <li>{si}</li>)
+        return <div className="documentation">
             <div>DEBUG: TextMate Scopes:</div>
             <ul>
                 {items}
             </ul>
         </div>
+    }
 }
 
 const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[] => {
@@ -140,6 +113,8 @@ const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[]
     }
 
 }
+}
+
 //
 const getTitleAndContents = (result: types.Hover) => {
     if (!result || !result.contents) {

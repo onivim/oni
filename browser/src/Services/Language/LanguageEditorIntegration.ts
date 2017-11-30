@@ -90,6 +90,18 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
         this._subscriptions = [sub1, sub2, sub3]
     }
 
+    public dispose(): void {
+        if (this._subscriptions && this._subscriptions.length) {
+            this._subscriptions.forEach((disposable) => disposable.dispose())
+            this._subscriptions = null
+        }
+
+        if (this._storeUnsubscribe) {
+            this._storeUnsubscribe()
+            this._storeUnsubscribe = null
+        }
+    }
+
     private _onStateUpdate(newState: ILanguageState): void {
         if (newState.definitionResult.result && !this._lastState.definitionResult.result) {
             this._onShowDefinition.dispatch(newState.definitionResult.result)
@@ -108,17 +120,5 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
         }
 
         this._lastState = newState
-    }
-
-    public dispose(): void {
-        if (this._subscriptions && this._subscriptions.length) {
-            this._subscriptions.forEach((disposable) => disposable.dispose())
-            this._subscriptions = null
-        }
-
-        if (this._storeUnsubscribe) {
-            this._storeUnsubscribe()
-            this._storeUnsubscribe = null
-        }
     }
 }

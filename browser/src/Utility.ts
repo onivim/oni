@@ -129,8 +129,8 @@ export interface ICompletablePromise<T> {
 }
 
 export const createCompletablePromise = <T>(): ICompletablePromise<T> => {
-
-    let resolve, reject
+    let resolve = null
+    let reject = null
 
     const promise = new Promise<T>((res, rej) => {
         resolve = res
