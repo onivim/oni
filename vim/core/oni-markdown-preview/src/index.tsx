@@ -28,6 +28,8 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
         this.subscribe(activeEditor.onBufferChanged, (args) => this.onBufferChanged(args))
         //TODO: Subscribe "onFocusChanged"
 
+        this.subscribe(activeEditor.onBufferScrolled, (args) => console.error('[123] DAG MALUAH'))
+
         this.previewBuffer(activeEditor.activeBuffer)
     }
 
