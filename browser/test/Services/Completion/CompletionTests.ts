@@ -69,7 +69,7 @@ describe("Completion", () => {
         completion.dispose()
     })
 
-    it.only("shows completions, filtered by base", async () => {
+    it("shows completions, filtered by base", async () => {
         mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
 
         // Switch to insert mode
@@ -85,7 +85,6 @@ describe("Completion", () => {
         completion.onShowCompletionItems.subscribe((items) => lastItems = items)
 
         // Validate we have a request for completions
-
         assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
 
         const completionResults = [
@@ -100,5 +99,81 @@ describe("Completion", () => {
 
         assert.deepEqual(lastItems.filteredCompletions, completionResults, "There should now be completion results available")
         assert.deepEqual(lastItems.base, "w", "The base should be set correctly")
+    })
+
+    it("if there is a completion matching the base, it should be the first shown", async () => {
+
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
+
+        // Switch to insert mode
+        mockEditor.simulateModeChange("insert")
+
+        // Simulate typing
+        mockEditor.simulateCursorMoved(0, 3)
+        mockEditor.setActiveBufferLine(0, "win")
+
+        clock.runAll()
+
+        let lastItems: Completion.ICompletionShowEventArgs = null
+        completion.onShowCompletionItems.subscribe((items) => lastItems = items)
+
+        // Validate we have a request for completions
+        assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
+
+        const completionResults = [
+            createMockCompletionItem("window"),
+            createMockCompletionItem("win"),
+        ]
+
+        mockCompletionRequestor.completionsRequestor.resolve(completionResults)
+
+        await waitForPromiseResolution()
+        clock.runAll()
+
+        assert.strictEqual(lastItems.filteredCompletions.length, 2, "Completions were resolved successfully")
+        assert.deepEqual(lastItems.filteredCompletions[0], completionResults[1], "The second completion should be the first one shown, as it matches the base")
+    })
+
+    it.only("if mode changed while a request was in progress, there should be no completions shown", async () => {
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
+
+        // Switch to insert mode
+        mockEditor.simulateModeChange("insert")
+
+        // Simulate typing
+        mockEditor.simulateCursorMoved(0, 3)
+        mockEditor.setActiveBufferLine(0, "win")
+
+        clock.runAll()
+
+        let lastItems: Completion.ICompletionShowEventArgs = null
+        completion.onShowCompletionItems.subscribe((items) => lastItems = items)
+
+        // Validate we have a request for completions
+        assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
+
+        // While the result is pending, we'll leave insert mode -
+        // we shouldn't get any completions, now!
+
+        mockEditor.simulateModeChange("normal")
+
+        clock.runAll()
+
+        // Resolve the slow request...
+        const completionResults = [
+            createMockCompletionItem("window"),
+            createMockCompletionItem("win"),
+        ]
+
+        mockCompletionRequestor.completionsRequestor.resolve(completionResults)
+
+        await waitForPromiseResolution()
+        clock.runAll()
+
+        assert.strictEqual(lastItems, null, "Completions should be null, as we shouldn't have received them after the mode change")
+    })
+
+    it("if meet changed while the request was in progress, there should be no completions shown", async () => {
+
     })
 })
