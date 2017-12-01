@@ -32,9 +32,17 @@ export class MockCompletionRequestor implements Completion.ICompletionsRequestor
 
 }
 
+const createMockCompletionItem = (label: string): types.CompletionItem => {
+    const ci: types.CompletionItem = {
+        label: label,
+        kind: types.CompletionItemKind.Variable,
+    }
+    return ci
+}
+
 describe("Completion", () => {
     const clock: any = global["clock"] // tslint:disable-line
-    // const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
+    const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
 
     // Mocks
     // let mockConfiguration: Mocks.MockConfiguration
@@ -61,7 +69,7 @@ describe("Completion", () => {
         completion.dispose()
     })
 
-    it.only("shows completions, filtered by base", () => {
+    it.only("shows completions, filtered by base", async () => {
         mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
 
         // Switch to insert mode
@@ -71,10 +79,26 @@ describe("Completion", () => {
         mockEditor.simulateCursorMoved(0, 1)
         mockEditor.setActiveBufferLine(0, "w")
 
-        clock.tick(50)
+        clock.runAll()
 
+        let lastItems: Completion.ICompletionShowEventArgs = null
+        completion.onShowCompletionItems.subscribe((items) => lastItems = items)
 
+        // Validate we have a request for completions
 
-        assert.ok(false, "fails")
+        assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
+
+        const completionResults = [
+            createMockCompletionItem("win"),
+            createMockCompletionItem("window"),
+        ]
+
+        mockCompletionRequestor.completionsRequestor.resolve(completionResults)
+
+        await waitForPromiseResolution()
+        clock.runAll()
+
+        assert.deepEqual(lastItems.filteredCompletions, completionResults, "There should now be completion results available")
+        assert.deepEqual(lastItems.base, "w", "The base should be set correctly")
     })
 })
