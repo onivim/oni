@@ -11,7 +11,8 @@ export interface IGrammarLoader {
 export interface ExtensionToGrammarMap { [extension: string]: string }
 
 export const getPathForLanguage = (language: string, extension: string): string => {
-    const grammar: string | ExtensionToGrammarMap = configuration.getValue("language." + language + ".textMateGrammar")
+    const verifiedLanguage = language.includes(".") ? language.split(".")[0] : language
+    const grammar: string | ExtensionToGrammarMap = configuration.getValue("language." + verifiedLanguage + ".textMateGrammar")
 
     if (!grammar) {
         Log.warn("No grammar found for language: " + language)
