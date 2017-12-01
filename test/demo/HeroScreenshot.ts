@@ -35,7 +35,7 @@ export const test = async (oni: any) => {
 
     const filePath = path.join(getRootPath(), "browser", "src", "Services", "Language", "LanguageStore.ts")
 
-    oni.automation.sendKeys(":e test.py<CR>")
+    oni.automation.sendKeys(":e WELCOME.md<CR>")
 
     await oni.automation.sleep(500)
 
