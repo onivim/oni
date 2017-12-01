@@ -12,12 +12,13 @@ import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
 import { createStore as oniCreateStore } from "./../../Redux"
 
+import { Configuration } from "./../Configuration"
 import { LanguageManager } from "./../Language"
+
+import { commitCompletion } from "./CompletionProvider"
 import * as CompletionSelects from "./CompletionSelectors"
 import { ICompletionsRequestor } from "./CompletionsRequestor"
 import * as CompletionUtility from "./CompletionUtility"
-
-import { commitCompletion } from "./CompletionProvider"
 
 import { DefaultCompletionResults, DefaultCompletionState, DefaultCursorInfo, DefaultLastCompletionInfo, DefaultMeetInfo, ICompletionBufferInfo, ICompletionMeetInfo, ICompletionResults, ICompletionState, ICursorInfo, ILastCompletionInfo } from "./CompletionState"
 
@@ -168,7 +169,7 @@ export const lastCompletionInfoReducer: Reducer<ILastCompletionInfo> = (
 
 const nullAction: CompletionAction = { type: null } as CompletionAction
 
-const createGetCompletionMeetEpic = (languageManager: LanguageManager): Epic<CompletionAction, ICompletionState> => (action$, store) =>
+const createGetCompletionMeetEpic = (languageManager: LanguageManager, configuration: Configuration): Epic<CompletionAction, ICompletionState> => (action$, store) =>
     action$.ofType("CURSOR_MOVED")
         .auditTime(10)
         .map((action: CompletionAction) => {
@@ -335,7 +336,7 @@ const selectFirstItemEpic: Epic<CompletionAction, ICompletionState> = (action$, 
 
         })
 
-export const createStore = (languageManager: LanguageManager, completionsRequestor: ICompletionsRequestor): Store<ICompletionState> => {
+export const createStore = (languageManager: LanguageManager, configuration: Configuration, completionsRequestor: ICompletionsRequestor): Store<ICompletionState> => {
     return oniCreateStore("COMPLETION_STORE",
         combineReducers<ICompletionState>({
             enabled: enabledReducer,
@@ -348,7 +349,7 @@ export const createStore = (languageManager: LanguageManager, completionsRequest
         DefaultCompletionState,
         [createEpicMiddleware(combineEpics(
             commitCompletionEpic,
-            createGetCompletionMeetEpic(languageManager),
+            createGetCompletionMeetEpic(languageManager, configuration),
             createGetCompletionsEpic(completionsRequestor),
             createGetCompletionDetailsEpic(completionsRequestor),
             selectFirstItemEpic,

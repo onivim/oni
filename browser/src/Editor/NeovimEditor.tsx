@@ -232,7 +232,7 @@ export class NeovimEditor extends Editor implements IEditor {
         const textMateHighlightingEnabled = this._config.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
-        this._completion = new Completion(this, languageManager)
+        this._completion = new Completion(this, languageManager, configuration)
         this._completionMenu = new CompletionMenu()
 
         this._completion.onShowCompletionItems.subscribe((completions) => {

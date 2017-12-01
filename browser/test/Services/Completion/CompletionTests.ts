@@ -45,7 +45,7 @@ describe("Completion", () => {
     const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
 
     // Mocks
-    // let mockConfiguration: Mocks.MockConfiguration
+    let mockConfiguration: Mocks.MockConfiguration
     let mockEditor: Mocks.MockEditor
     let mockLanguageManager: Mocks.MockLanguageManager
     let mockCompletionRequestor: MockCompletionRequestor
@@ -54,15 +54,14 @@ describe("Completion", () => {
     let completion: Completion.Completion
 
     beforeEach(() => {
-        // mockConfiguration = new Mocks.MockConfiguration({
-        //     "editor.quickInfo.delay": 500,
-        //     "editor.quickInfo.enabled": true,
-        // })
+        mockConfiguration = new Mocks.MockConfiguration({
+            "editor.completions.mode": "oni",
+        })
 
         mockEditor = new Mocks.MockEditor()
         mockLanguageManager = new Mocks.MockLanguageManager()
         mockCompletionRequestor = new MockCompletionRequestor()
-        completion = new Completion.Completion(mockEditor, mockLanguageManager as any, mockCompletionRequestor)
+        completion = new Completion.Completion(mockEditor, mockLanguageManager as any, mockConfiguration as any, mockCompletionRequestor)
     })
 
     afterEach(() => {
@@ -99,6 +98,25 @@ describe("Completion", () => {
 
         assert.deepEqual(lastItems.filteredCompletions, completionResults, "There should now be completion results available")
         assert.deepEqual(lastItems.base, "w", "The base should be set correctly")
+    })
+
+    it("doesn't fetch completions if 'editor.completions.mode' === 'hidden'", () => {
+
+        mockConfiguration.setValue("editor.completions.mode", "hidden")
+
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
+
+        // Switch to insert mode
+        mockEditor.simulateModeChange("insert")
+
+        // Simulate typing
+        mockEditor.simulateCursorMoved(0, 3)
+        mockEditor.setActiveBufferLine(0, "win")
+
+        clock.runAll()
+
+        // Validate we do not have requests for completion, because completions are turned off.
+        assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 0, "There should be no completion requests, because 'editor.completions.mode' is set to 'hidden'")
     })
 
     it("if there is a completion matching the base, it should be the first shown", async () => {
