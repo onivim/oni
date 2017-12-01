@@ -92,7 +92,8 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
     public render(): JSX.Element {
         const containerStyle: React.CSSProperties = {
             willChange: "transform",
-            color: this.props.color,
+            backgroundColor: this.props.color,
+            color: this.props.textColor,
             fontFamily: this.props.fontFamily,
             fontSize: this.props.fontSize,
         }
@@ -109,8 +110,8 @@ const mapStateToProps = (state: State.IState, props: ITypingPredictionProps): IT
         y: state.cursorPixelY,
         width: state.cursorPixelWidth,
         height: state.fontPixelHeight,
-        color: state.foregroundColor,
-        textColor: state.backgroundColor,
+        color: state.colors["editor.background"],
+        textColor: state.colors["editor.foreground"],
         fontFamily: State.readConf(state.configuration, "editor.fontFamily"),
         fontSize: State.readConf(state.configuration, "editor.fontSize"),
         visible: true,

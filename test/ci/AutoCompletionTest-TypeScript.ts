@@ -6,16 +6,7 @@ import * as assert from "assert"
 import * as os from "os"
 import * as path from "path"
 
-const getCompletionElement = () => {
-
-    const elements = document.body.getElementsByClassName("autocompletion")
-
-    if (!elements || !elements.length) {
-        return null
-    } else {
-        return elements[0]
-    }
-}
+import { getCompletionElement } from "./Common"
 
 export const test = async (oni: any) => {
     const dir = os.tmpdir()
@@ -25,6 +16,7 @@ export const test = async (oni: any) => {
     oni.automation.sendKeys("<cr>")
     await oni.automation.sleep(500)
     oni.automation.sendKeys("i")
+    await oni.automation.sleep(500)
     oni.automation.sendKeys("window.a")
 
     // Wait for completion popup to show

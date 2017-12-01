@@ -25,7 +25,7 @@ const mapStateToProps = (state: State.IState): IDefinitionProps => {
     const range = activeDefinition ? activeDefinition.token.range : emptyRange
 
     return {
-        color: state.foregroundColor,
+        color: state.colors["editor.foreground"],
         range,
         fontWidthInPixels: state.fontPixelWidth,
         fontHeightInPixels: state.fontPixelHeight,

@@ -1,4 +1,3 @@
-export * from "./Completion"
 export * from "./CodeAction"
 export * from "./Definition"
 export * from "./Diagnostics"

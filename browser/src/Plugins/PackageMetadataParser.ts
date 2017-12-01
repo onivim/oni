@@ -4,50 +4,54 @@
  * Responsible for parsing and normalizing package.json for ONI plugins
  */
 
-import * as keys from "lodash/keys"
+import * as fs from "fs"
+import * as path from "path"
 
 import * as Capabilities from "./Api/Capabilities"
 
 import * as Log from "./../Log"
 
-export const PluginDefaults: Partial<Capabilities.IPluginCapabilities> = {
-    commands: {},
-    activationMode: "on-demand",
+const remapToAbsolutePaths = (packageRoot: string, contributes: Capabilities.IContributions): Capabilities.IContributions => {
+    const remapThemePath = (themes: Capabilities.IThemeContribution): Capabilities.IThemeContribution => {
+        return {
+            ...themes,
+            path: path.join(packageRoot, themes.path),
+        }
+    }
+
+    return {
+        ...contributes,
+        themes: contributes.themes.map((t) => remapThemePath(t)),
+    }
 }
 
-export const parseFromString = (packageJson: string): Capabilities.IPluginMetadata | null => {
-    const metadata: Capabilities.IPluginMetadata = JSON.parse(packageJson)
+export const readMetadata = (packagePath: string): Capabilities.IPluginMetadata | null => {
+
+    const packageContents = fs.readFileSync(packagePath, "utf8")
+
+    let metadata: Capabilities.IPluginMetadata = null
+    try {
+        metadata = JSON.parse(packageContents) as Capabilities.IPluginMetadata
+    } catch (ex) {
+        Log.error(ex)
+    }
+
+    if (!metadata) {
+        return null
+    }
 
     if (!metadata.engines || !metadata.engines["oni"]) { // tslint:disable-line no-string-literal
         Log.warn("Aborting plugin load as Oni engine version not specified")
         return null
     }
 
-    const pluginData = metadata.oni || {}
-
-    metadata.oni = {
-        ...PluginDefaults,
-        ...pluginData,
+    const contributes = {
+        ...Capabilities.DefaultContributions,
+        ...metadata.contributes,
     }
 
-    return metadata
-}
-
-export const getAllCommandsFromMetadata = (metadata: Capabilities.IPluginMetadata) => {
-    if (!metadata || !metadata.oni) {
-        return []
+    return {
+        ...metadata,
+        contributes: remapToAbsolutePaths(path.dirname(packagePath), contributes),
     }
-
-    const commands = metadata.oni.commands
-
-    if (!commands) {
-        return []
-    }
-
-    const commandNames = keys(commands)
-    return commandNames.map((command) => ({
-        command,
-        name: commands[command].name,
-        details: commands[command].details,
-    }))
 }

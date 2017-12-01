@@ -15,6 +15,8 @@ export interface ITokenColorsSetting {
     settings: IHighlight | string
 }
 
+export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiased" | "none"
+
 export interface IConfigurationValues {
 
     "activate": (oni: Oni.Plugin.Api) => void
@@ -130,6 +132,9 @@ export interface IConfigurationValues {
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
 
+    // If true (default), the cursor tick will be shown in the scrollbar.
+    "editor.scrollBar.cursorTick.visible": boolean
+
     // Allow overriding token colors for specific textmate scopes
     "editor.tokenColors": ITokenColorsSetting[]
 
@@ -187,8 +192,10 @@ export interface IConfigurationValues {
     "tabs.wrap": boolean
 
     "ui.animations.enabled": boolean
+    "ui.colorscheme": string
     "ui.fontFamily": string
     "ui.fontSize": string
+    "ui.fontSmoothing": FontSmoothingOptions
 
     // Handle other, non-predefined configuration keys
     [configurationKey: string]: any

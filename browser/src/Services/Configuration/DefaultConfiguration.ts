@@ -84,6 +84,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.scrollBar.visible": true,
 
+    "editor.scrollBar.cursorTick.visible": true,
+
     "editor.fullScreenOnStart": false,
     "editor.maximizeScreenOnStart": false,
 
@@ -122,6 +124,8 @@ const BaseConfiguration: IConfigurationValues = {
     "environment.additionalPaths": [],
 
     "language.go.languageServer.command": "go-langserver",
+    "language.go.textMateGrammar": path.join(__dirname, "extensions", "go", "syntaxes", "go.json"),
+
     "language.python.languageServer.command": "pyls",
     "language.cpp.languageServer.command": "clangd",
     "language.c.languageServer.command": "clangd",
@@ -174,8 +178,10 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.wrap": false,
 
     "ui.animations.enabled": true,
+    "ui.colorscheme": "onedark",
     "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
+    "ui.fontSmoothing": "auto",
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {
