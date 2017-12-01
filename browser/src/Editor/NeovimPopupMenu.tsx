@@ -52,6 +52,7 @@ export class NeovimPopupMenu {
     }
 
     private _renderCompletionMenu(selectedIndex: number): void {
+
         let itemsToRender: IContextMenuItem[] = []
         let adjustedIndex = selectedIndex
 
