@@ -64,7 +64,7 @@ export const test = async (oni: any) => {
 
     await oni.automation.sleep(500)
 
-    oni.recorder.takeScreenshot("demo-screenshot.png")
+    oni.recorder.takeScreenshot(`screenshot-${process.platform}.png`)
 
     await oni.automation.waitFor(() => lastAlertText !== null)
 }
