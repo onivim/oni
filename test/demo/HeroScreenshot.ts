@@ -60,11 +60,11 @@ export const test = async (oni: any) => {
 
     await oni.automation.sleep(500)
 
-    await oni.automation.waitFor(() => getCompletionElement() !== null)
+    await oni.automation.waitFor(() => getCompletionElement() !== null, 20000)
 
     await oni.automation.sleep(500)
 
     oni.recorder.takeScreenshot(`screenshot-${process.platform}.png`)
 
-    await oni.automation.waitFor(() => lastAlertText !== null)
+    await oni.automation.waitFor(() => lastAlertText !== null, 20000)
 }
