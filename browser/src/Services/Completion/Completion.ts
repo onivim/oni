@@ -5,7 +5,6 @@
 import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 import { Store, Unsubscribe } from "redux"
-import { Subject } from "rxjs/Subject"
 import * as types from "vscode-languageserver-types"
 
 import { getFilteredCompletions } from "./CompletionSelectors"
@@ -13,7 +12,7 @@ import { ICompletionsRequestor, LanguageServiceCompletionsRequestor  } from "./C
 
 import { ICompletionState } from "./CompletionState"
 
-import { CompletionAction, createStore } from "./CompletionStore"
+import { createStore } from "./CompletionStore"
 
 import { LanguageManager } from "./../Language"
 import * as CompletionUtility from "./CompletionUtility"
@@ -29,7 +28,6 @@ export class Completion implements IDisposable {
     private _store: Store<ICompletionState>
     private _storeUnsubscribe: Unsubscribe = null
     private _subscriptions: IDisposable[]
-    private _throttledCursorUpdates: Subject<CompletionAction> = new Subject<CompletionAction>()
 
     private _onShowCompletionItemsEvent: Event<ICompletionShowEventArgs> = new Event<ICompletionShowEventArgs>()
     private _onHideCompletionItemsEvent: Event<void> = new Event<void>()
@@ -49,11 +47,6 @@ export class Completion implements IDisposable {
     ) {
         this._completionsRequestor = this._completionsRequestor || new LanguageServiceCompletionsRequestor(this._languageManager)
         this._store = createStore(this._languageManager, this._completionsRequestor)
-        this._throttledCursorUpdates
-            .auditTime(10)
-            .subscribe((update: CompletionAction) => {
-                this._store.dispatch(update)
-            })
 
         const sub1 = this._editor.onBufferEnter.subscribe((buf: Oni.Buffer) => {
             this._onBufferEnter(buf)
@@ -152,7 +145,7 @@ export class Completion implements IDisposable {
         const newLine = firstChange.text
 
         if (range.start.line === this._lastCursorPosition.line) {
-            this._throttledCursorUpdates.next({
+            this._store.dispatch({
                 type: "CURSOR_MOVED",
                 line: this._lastCursorPosition.line,
                 column: this._lastCursorPosition.column,
@@ -165,7 +158,8 @@ export class Completion implements IDisposable {
        if (newMode === "insert" && this._lastCursorPosition) {
 
             const [latestLine] = await this._editor.activeBuffer.getLines(this._lastCursorPosition.line, this._lastCursorPosition.line + 1)
-            this._throttledCursorUpdates.next({
+
+            this._store.dispatch({
                 type: "CURSOR_MOVED",
                 line: this._lastCursorPosition.line,
                 column: this._lastCursorPosition.column,

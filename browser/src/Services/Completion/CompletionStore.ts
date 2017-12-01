@@ -2,7 +2,7 @@
  * CompletionStore.ts
  */
 
-import * as types from "vscode-languageserver-types"
+import * as types from "vscode-languageserver-completions"
 
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
@@ -170,6 +170,7 @@ const nullAction: CompletionAction = { type: null } as CompletionAction
 
 const createGetCompletionMeetEpic = (languageManager: LanguageManager): Epic<CompletionAction, ICompletionState> => (action$, store) =>
     action$.ofType("CURSOR_MOVED")
+        .auditTime(10)
         .map((action: CompletionAction) => {
             const currentState: ICompletionState = store.getState()
 
@@ -254,8 +255,8 @@ const createGetCompletionsEpic = (completionsRequestor: ICompletionsRequestor): 
             const requestResult: Observable<types.CompletionItem[]> = Observable.defer(async () => {
                 const results = await completionsRequestor.getCompletions(state.bufferInfo.language, state.bufferInfo.filePath, action.currentMeet.meetLine, action.currentMeet.queryPosition)
                 const completions = results || []
-                return completions
-
+                const orderedCompletions = orderCompletions(completions, action.currentMeet.meetBase)
+                return orderedCompletions
             })
 
             const ret = requestResult.map((completions) => {
@@ -269,6 +270,23 @@ const createGetCompletionsEpic = (completionsRequestor: ICompletionsRequestor): 
 
             return ret
         })
+
+export const orderCompletions = (completions: types.CompletionItem[], base: string): types.CompletionItem[] => {
+    if (!completions || !completions.length) {
+        return completions
+    }
+
+    const anyCompletionsMatchCurrentBase = completions.find((item) => CompletionUtility.getInsertText(item) === base)
+
+    if (!anyCompletionsMatchCurrentBase) {
+        return completions
+    }
+
+    const filteredCompletions = completions.filter((item) => item !== anyCompletionsMatchCurrentBase)
+
+    const ret = [anyCompletionsMatchCurrentBase, ...filteredCompletions)
+    return ret
+}
 
 const createGetCompletionDetailsEpic = (completionsRequestor: ICompletionsRequestor): Epic<CompletionAction, ICompletionState> => (action$, store) =>
     action$.ofType("GET_COMPLETION_ITEM_DETAILS")
