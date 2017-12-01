@@ -70,7 +70,6 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickInfo.enabled": true,
     "editor.quickInfo.delay": 500,
 
-    "editor.completions.enabled": true,
     "editor.completions.mode": "oni",
     "editor.errors.slideOnFocus": true,
     "editor.formatting.formatOnSwitchToNormalMode": false,
