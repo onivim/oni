@@ -11,7 +11,7 @@ import * as Mocks from "./../../Mocks"
 describe("LanguageEditorIntegration", () => {
     const clock: any = global["clock"] // tslint:disable-line
     const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
-    // 
+
     // Mocks
     let mockConfiguration: Mocks.MockConfiguration
     let mockEditor: Mocks.MockEditor
