@@ -13,10 +13,11 @@ import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 import { createStore as oniCreateStore } from "./../../Redux"
 
 import { LanguageManager } from "./../Language"
+import { ICompletionsRequestor } from "./CompletionsRequestor"
 import * as CompletionSelects from "./CompletionSelectors"
 import * as CompletionUtility from "./CompletionUtility"
 
-import { commitCompletion, getCompletions, resolveCompletionItem } from "./CompletionProvider"
+import { commitCompletion } from "./CompletionProvider"
 
 import { DefaultCompletionResults, DefaultCompletionState, DefaultCursorInfo, DefaultLastCompletionInfo, DefaultMeetInfo, ICompletionBufferInfo, ICompletionMeetInfo, ICompletionResults, ICompletionState, ICursorInfo, ILastCompletionInfo } from "./CompletionState"
 
@@ -215,7 +216,7 @@ const commitCompletionEpic: Epic<CompletionAction, ICompletionState> = (action$,
             await commitCompletion(action.meetLine, action.meetPosition, action.completionText)
         }).map(_ => nullAction)
 
-const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
+const createGetCompletionsEpic = (completionsRequestor: ICompletionsRequestor): Epic<CompletionAction, ICompletionState> => (action$, store) =>
     action$.ofType("MEET_CHANGED")
         .filter(() => store.getState().enabled)
         .filter((action) => {
@@ -251,7 +252,7 @@ const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, s
 
             // Check if the meet is different from the last meet we queried
             const requestResult: Observable<types.CompletionItem[]> = Observable.defer(async () => {
-                const results = await getCompletions(state.bufferInfo.language, state.bufferInfo.filePath, action.currentMeet.meetLine, action.currentMeet.queryPosition)
+                const results = await completionsRequestor.getCompletions(state.bufferInfo.language, state.bufferInfo.filePath, action.currentMeet.meetLine, action.currentMeet.queryPosition)
                 const completions = results || []
                 return completions
 
@@ -269,7 +270,7 @@ const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, s
             return ret
         })
 
-const getCompletionDetailsEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
+const createGetCompletionDetailsEpic = (completionsRequestor: ICompletionsRequestor): Epic<CompletionAction, ICompletionState> => (action$, store) =>
     action$.ofType("GET_COMPLETION_ITEM_DETAILS")
         .switchMap((action) => {
 
@@ -280,7 +281,7 @@ const getCompletionDetailsEpic: Epic<CompletionAction, ICompletionState> = (acti
             return Observable.defer(async () => {
                 const state = store.getState()
 
-                const result = await resolveCompletionItem(state.bufferInfo.language, state.bufferInfo.filePath, action.completionItem)
+                const result = await completionsRequestor.getCompletionDetails(state.bufferInfo.language, state.bufferInfo.filePath, action.completionItem)
                 return result
             }).map((itemResult: types.CompletionItem) => {
                 if (itemResult) {
@@ -316,7 +317,7 @@ const selectFirstItemEpic: Epic<CompletionAction, ICompletionState> = (action$, 
 
         })
 
-export const createStore = (languageManager: LanguageManager): Store<ICompletionState> => {
+export const createStore = (languageManager: LanguageManager, completionsRequestor: ICompletionsRequestor): Store<ICompletionState> => {
     return oniCreateStore("COMPLETION_STORE",
         combineReducers<ICompletionState>({
             enabled: enabledReducer,
@@ -330,8 +331,8 @@ export const createStore = (languageManager: LanguageManager): Store<ICompletion
         [createEpicMiddleware(combineEpics(
             commitCompletionEpic,
             createGetCompletionMeetEpic(languageManager),
-            getCompletionsEpic,
-            getCompletionDetailsEpic,
+            createGetCompletionsEpic(completionsRequestor),
+            createGetCompletionDetailsEpic(completionsRequestor),
             selectFirstItemEpic,
         ))],
     )

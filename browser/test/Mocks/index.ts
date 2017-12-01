@@ -121,7 +121,7 @@ export class MockRequestor<T> {
         return this._completablePromises.length
     }
 
-    public get(language: string, filePath: string, line: number, column: number): Promise<T> {
+    public get(...args: any[]): Promise<T> {
 
         const newPromise = createCompletablePromise<T>()
 

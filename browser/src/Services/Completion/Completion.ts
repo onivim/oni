@@ -8,7 +8,7 @@ import { Store, Unsubscribe } from "redux"
 import { Subject } from "rxjs/Subject"
 import * as types from "vscode-languageserver-types"
 
-// import { createContextMenu } from "./CompletionMenu"
+import { ICompletionsRequestor, LanguageServiceCompletionsRequestor  } from "./CompletionsRequestor"
 import { getFilteredCompletions } from "./CompletionSelectors"
 
 import { ICompletionState } from "./CompletionState"
@@ -45,8 +45,10 @@ export class Completion implements IDisposable {
     constructor(
         private _editor: Oni.Editor,
         private _languageManager: LanguageManager,
+        private _completionsRequestor?: ICompletionsRequestor
     ) {
-        this._store = createStore(this._languageManager)
+        this._completionsRequestor = this._completionsRequestor || new LanguageServiceCompletionsRequestor(this._languageManager)
+        this._store = createStore(this._languageManager, this._completionsRequestor)
         this._throttledCursorUpdates
             .auditTime(10)
             .subscribe((update: CompletionAction) => {
