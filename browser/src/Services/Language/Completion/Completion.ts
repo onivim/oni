@@ -162,7 +162,7 @@ export const filterCompletionOptions = (items: types.CompletionItem[], searchTex
 
 export const getCompletions = async (language: string, filePath: string, line: number, character: number): Promise<types.CompletionItem[]> => {
 
-    if (!configuration.getValue("editor.completions.enabled")) {
+    if (configuration.getValue("editor.completions.mode") != "oni") {
         return null
     }
 
