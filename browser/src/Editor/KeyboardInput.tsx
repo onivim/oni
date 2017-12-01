@@ -10,7 +10,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import { keyEventToVimKey } from "./../Input/Keyboard"
+import { getKeyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { IState } from "./../UI/State"
@@ -146,7 +146,7 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
 
         UI.Actions.setCursorScale(1.1)
 
-        const key = keyEventToVimKey(evt.nativeEvent)
+        const key = getKeyEventToVimKey()(evt.nativeEvent)
 
         if (!key) {
             return
