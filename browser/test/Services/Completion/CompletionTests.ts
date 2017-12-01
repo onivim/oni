@@ -134,7 +134,7 @@ describe("Completion", () => {
         assert.deepEqual(lastItems.filteredCompletions[0], completionResults[1], "The second completion should be the first one shown, as it matches the base")
     })
 
-    it.only("if mode changed while a request was in progress, there should be no completions shown", async () => {
+    it("if mode changed while a request was in progress, there should be no completions shown", async () => {
         mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
 
         // Switch to insert mode
@@ -174,6 +174,42 @@ describe("Completion", () => {
     })
 
     it("if meet changed while the request was in progress, there should be no completions shown", async () => {
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
 
+        // Switch to insert mode
+        mockEditor.simulateModeChange("insert")
+
+        // Simulate typing
+        mockEditor.simulateCursorMoved(0, 3)
+        mockEditor.setActiveBufferLine(0, "win")
+
+        clock.runAll()
+
+        let lastItems: Completion.ICompletionShowEventArgs = null
+        completion.onShowCompletionItems.subscribe((items) => lastItems = items)
+
+        // Validate we have a request for completions
+        assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
+
+        // While the result is pending, we'll keep typing...
+        // That first result should be ignored
+
+        mockEditor.simulateCursorMoved(0, 5)
+        mockEditor.setActiveBufferLine(0, "win.s")
+
+        clock.runAll()
+
+        // Resolve the slow request...
+        const oldCompletionResults = [
+            createMockCompletionItem("window"),
+            createMockCompletionItem("win"),
+        ]
+
+        mockCompletionRequestor.completionsRequestor.resolve(oldCompletionResults)
+
+        await waitForPromiseResolution()
+        clock.runAll()
+
+        assert.strictEqual(lastItems, null, "Completions should be null, as the only request that was completed was outdated")
     })
 })
