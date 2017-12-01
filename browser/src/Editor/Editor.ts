@@ -22,6 +22,7 @@ export class Editor implements Oni.Editor {
     private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChangedEvent = new Event<Oni.EditorBufferChangedEventArgs>()
     private _onBufferSavedEvent = new Event<Oni.EditorBufferEventArgs>()
+    private _onBufferScrolledEvent = new Event<Oni.EditorBufferScrolledEventArgs>()
     private _onCursorMoved = new Event<Oni.Cursor>()
     private _onModeChangedEvent = new Event<Oni.Vim.Mode>()
 
@@ -58,6 +59,10 @@ export class Editor implements Oni.Editor {
         return this._onBufferSavedEvent
     }
 
+    public get onBufferScrolled(): IEvent<Oni.EditorBufferScrolledEventArgs> {
+        return this._onBufferScrolledEvent
+    }
+
     public /* virtual */ openFile(filePath: string): Promise<Oni.Buffer> {
         return Promise.reject("Not implemented")
     }
@@ -87,5 +92,9 @@ export class Editor implements Oni.Editor {
 
     protected notifyBufferSaved(bufferEvent: Oni.EditorBufferEventArgs): void {
         this._onBufferSavedEvent.dispatch(bufferEvent)
+    }
+
+    protected notifyBufferScrolled(bufferScrollEvent: Oni.EditorBufferScrolledEventArgs): void {
+        this._onBufferScrolledEvent.dispatch(bufferScrollEvent)
     }
 }
