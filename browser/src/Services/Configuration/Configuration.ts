@@ -109,6 +109,12 @@ export class Configuration implements Oni.Configuration {
         const previousConfig = this._config
 
         const userRuntimeConfigOrError = this.getUserRuntimeConfig()
+
+        if (userRuntimeConfigOrError === null) {
+            Log.info("Configuration was null; skipping")
+            return
+        }
+
         if (isError(userRuntimeConfigOrError)) {
             Log.error(userRuntimeConfigOrError)
             this._config = { ...DefaultConfiguration, ...this._setValues }
