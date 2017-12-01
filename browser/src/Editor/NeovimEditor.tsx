@@ -62,6 +62,8 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private _pendingAnimationFrame: boolean = false
 
+    private _onBufferScrolledEvent = new Event<Oni.EditorBufferScrolledEventArgs>()
+
     private _modeChanged$: Observable<Oni.Vim.Mode>
     private _cursorMoved$: Observable<Oni.Cursor>
     private _cursorMovedI$: Observable<Oni.Cursor>
@@ -83,6 +85,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
     public /* override */ get activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
+    }
+
+    public get onBufferScrolled(): IEvent<Oni.EditorBufferScrolledEventArgs> {
+        return this._onBufferScrolledEvent
     }
 
     // Capabilities
@@ -223,6 +229,15 @@ export class NeovimEditor extends Editor implements IEditor {
             UI.Actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
 
             this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
+        })
+
+        this._neovimInstance.onScroll.subscribe((args: EventContext) => {
+            const converted_args: Oni.EditorBufferScrolledEventArgs = {
+                bufferTotalLines: args.bufferTotalLines,
+                windowTopLine: args.windowTopLine,
+                windowBottomLine: args.windowBottomLine,
+            }
+            this._onBufferScrolledEvent.dispatch(converted_args)
         })
 
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
