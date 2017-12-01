@@ -30,6 +30,10 @@ export class HoverRenderer {
     public showQuickInfo(hover: types.Hover, errors: types.Diagnostic[]): void {
         const elem = this._renderQuickInfoElement(hover, errors)
 
+        if (!elem) {
+            return
+        }
+
         const state: any = UI.store.getState()
 
         UI.Actions.showToolTip(HoverToolTipId, elem, {
@@ -63,6 +67,10 @@ export class HoverRenderer {
 
         if (this._configuration.getValue("experimental.editor.textMateHighlighting.debugScopes")) {
             elements.push(this._getDebugScopesElement())
+        }
+
+        if (elements.length === 0) {
+            return null
         }
 
         return <div className="quickinfo-container enable-mouse">
