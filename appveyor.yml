@@ -65,6 +65,7 @@ test_script:
   - npm run pack:win
   # run integration tests
   - npm run test:integration
+  - npm run demo
 
 # Don't actually build.
 build: off
