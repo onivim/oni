@@ -8,8 +8,8 @@ import { Store, Unsubscribe } from "redux"
 import { Subject } from "rxjs/Subject"
 import * as types from "vscode-languageserver-types"
 
-import { ICompletionsRequestor, LanguageServiceCompletionsRequestor  } from "./CompletionsRequestor"
 import { getFilteredCompletions } from "./CompletionSelectors"
+import { ICompletionsRequestor, LanguageServiceCompletionsRequestor  } from "./CompletionsRequestor"
 
 import { ICompletionState } from "./CompletionState"
 
@@ -45,7 +45,7 @@ export class Completion implements IDisposable {
     constructor(
         private _editor: Oni.Editor,
         private _languageManager: LanguageManager,
-        private _completionsRequestor?: ICompletionsRequestor
+        private _completionsRequestor?: ICompletionsRequestor,
     ) {
         this._completionsRequestor = this._completionsRequestor || new LanguageServiceCompletionsRequestor(this._languageManager)
         this._store = createStore(this._languageManager, this._completionsRequestor)

@@ -13,8 +13,8 @@ import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 import { createStore as oniCreateStore } from "./../../Redux"
 
 import { LanguageManager } from "./../Language"
-import { ICompletionsRequestor } from "./CompletionsRequestor"
 import * as CompletionSelects from "./CompletionSelectors"
+import { ICompletionsRequestor } from "./CompletionsRequestor"
 import * as CompletionUtility from "./CompletionUtility"
 
 import { commitCompletion } from "./CompletionProvider"

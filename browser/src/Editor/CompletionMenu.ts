@@ -12,7 +12,6 @@ import { Event, IEvent } from "oni-types"
 
 import { ContextMenu, contextMenuManager } from "./../Services/ContextMenu"
 
-
 export class CompletionMenu {
     private _contextMenu: ContextMenu = null
     private _onItemFocusedEvent: Event<types.CompletionItem> = new Event<types.CompletionItem>()

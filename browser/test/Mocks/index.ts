@@ -53,8 +53,8 @@ export class MockEditor extends Editor {
             buffer: this._activeBuffer as any,
             contentChanges: [{
                 range: types.Range.create(line, 0, line + 1, 0),
-                text: lineContents
-            }]
+                text: lineContents,
+            }],
         })
     }
 }
@@ -68,7 +68,6 @@ export class MockBuffer {
     public get filePath(): string {
         return this._filePath
     }
-
 
     public constructor(
         private _language: string = "test_language",
@@ -89,7 +88,6 @@ export class MockBuffer {
 
         this._lines[line] = lineContents
     }
-
 
     public getLines(start: number = 0, end?: number): Promise<string[]> {
         if (typeof end !== "number") {

@@ -34,7 +34,7 @@ export class MockCompletionRequestor implements Completion.ICompletionsRequestor
 
 const createMockCompletionItem = (label: string): types.CompletionItem => {
     const ci: types.CompletionItem = {
-        label: label,
+        label,
         kind: types.CompletionItemKind.Variable,
     }
     return ci
