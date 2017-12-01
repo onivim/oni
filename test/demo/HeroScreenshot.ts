@@ -33,7 +33,7 @@ export const test = async (oni: any) => {
 
     oni.configuration.setValues({"recorder.outputPath": outputPath})
 
-    const filePath = path.join(getRootPath(), "browser", "src", "Services", "Language", "Completion", "Completion.ts")
+    const filePath = path.join(getRootPath(), "browser", "src", "Services", "Language", "LanguageStore.ts")
 
     oni.automation.sendKeys(":e test.py<CR>")
 
@@ -43,7 +43,7 @@ export const test = async (oni: any) => {
 
     await oni.automation.sleep(500)
 
-    oni.automation.sendKeys("/distinctUntil<CR>")
+    oni.automation.sendKeys("/switchMap<CR>")
 
     await oni.automation.sleep(500)
 
@@ -51,12 +51,14 @@ export const test = async (oni: any) => {
 
     await oni.automation.sleep(500)
 
-    oni.automation.sendKeys("o")
-    oni.automation.sendKeys(".m")
+    oni.automation.sendKeys("O")
+    oni.automation.sendKeys("<TAB><TAB>.audi")
 
     await oni.automation.sleep(500)
 
-    oni.automation.sendKeys("er")
+    oni.automation.sendKeys("tTime((action")
+
+    await oni.automation.sleep(500)
 
     await oni.automation.waitFor(() => getCompletionElement() !== null)
 

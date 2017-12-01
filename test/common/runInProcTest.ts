@@ -55,7 +55,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
         })
 
         afterEach(async () => {
-            console.log("[AFTER EACH]: " + test)
+            console.log("[AFTER EACH]: " + testName)
             await oni.close()
 
             if (fs.existsSync(configPath)) {
