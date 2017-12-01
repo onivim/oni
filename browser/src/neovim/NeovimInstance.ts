@@ -650,24 +650,31 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         const version = await this.getApiVersion()
 
         const useNativeTabs = configuration.getValue("tabs.mode") === "native"
+        const useNativePopupWindows = configuration.getValue("editor.completions.mode") === "native"
 
         const externaliseTabline = !useNativeTabs
+        const externalisePopupWindows = !useNativePopupWindows
 
         console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`) // tslint:disable-line no-console
 
         const startupOptions = this._getStartupOptionsForVersion(version.major,
                                                                  version.minor,
                                                                  version.patch,
-                                                                 externaliseTabline)
+                                                                 externaliseTabline,
+                                                                 externalisePopupWindows)
 
         await this._neovim.request("nvim_ui_attach", [columns, rows, startupOptions])
     }
 
-    private _getStartupOptionsForVersion(major: number, minor: number, patch: number, shouldExtTabs: boolean) {
+    private _getStartupOptionsForVersion(major: number,
+                                         minor: number,
+                                         patch: number,
+                                         shouldExtTabs: boolean,
+                                         shouldExtPopups: boolean) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
             return {
                 rgb: true,
-                popupmenu_external: true,
+                popupmenu_external: shouldExtPopups,
                 ext_tabline: shouldExtTabs,
             }
         } else if (major === 0 && minor === 2) {
@@ -675,7 +682,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             // See #579 for more info on the manifestation.
             return {
                 rgb: true,
-                popupmenu_external: true,
+                popupmenu_external: shouldExtPopups,
             }
         } else {
             throw new Error("Unsupported version of Neovim.")
