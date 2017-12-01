@@ -80,6 +80,9 @@ export class LanguageServiceCompletionsRequestor implements ICompletionsRequesto
     }
 }
 
+// TODO: Should this be moved to another level? Like over to the menu renderer?
+// It'd be nice if this layer only cared about `types.CompletionItem` and didn't
+// have to worry about presentational aspects..
 const _convertCompletionForContextMenu = (completion: types.CompletionItem): any => ({
     label: completion.label,
     detail: completion.detail,
