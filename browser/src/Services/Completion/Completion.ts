@@ -16,6 +16,7 @@ import { ICompletionState } from "./CompletionState"
 import { CompletionAction, createStore } from "./CompletionStore"
 
 import { LanguageManager } from "./../Language"
+import * as CompletionUtility from "./CompletionUtility"
 
 export interface ICompletionShowEventArgs {
     filteredCompletions: types.CompletionItem[]
@@ -70,6 +71,23 @@ export class Completion implements IDisposable {
 
         this._subscriptions = [sub1, sub2, sub3, sub4]
         this._storeUnsubscribe = this._store.subscribe(() => this._onStateChanged(this._store.getState()))
+    }
+
+    public resolveItem(completionItem: types.CompletionItem): void {
+        this._store.dispatch({
+            type: "GET_COMPLETION_ITEM_DETAILS",
+            completionItem,
+        })
+    }
+
+    public commitItem(completionItem: types.CompletionItem): void {
+        const state = this._store.getState()
+        this._store.dispatch({
+            type: "COMMIT_COMPLETION",
+            meetLine: state.meetInfo.meetLine,
+            meetPosition: state.meetInfo.meetPosition,
+            completionText: CompletionUtility.getInsertText(completionItem),
+        })
     }
 
     public dispose(): void {

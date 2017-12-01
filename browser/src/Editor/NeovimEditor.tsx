@@ -41,6 +41,7 @@ import * as UI from "./../UI/index"
 import { Editor, IEditor } from "./Editor"
 
 import { BufferManager } from "./BufferManager"
+import { CompletionMenu } from "./CompletionMenu"
 import { listenForBufferUpdates } from "./BufferUpdates"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
@@ -57,6 +58,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _neovimInstance: NeovimInstance
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
+    private _completionMenu: CompletionMenu
     private _popupMenu: NeovimPopupMenu
     private _colors: Colors // TODO: Factor this out to the UI 'Shell'
 
@@ -230,14 +232,23 @@ export class NeovimEditor extends Editor implements IEditor {
         const textMateHighlightingEnabled = this._config.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
-        this._completion = new Completion(this)
+        this._completion = new Completion(this, languageManager)
+        this._completionMenu = new CompletionMenu()
 
         this._completion.onShowCompletionItems.subscribe((completions) => {
-            console.log("Completions: " + JSON.stringify(completions))
+            this._completionMenu.show(completions.filteredCompletions, completions.base)
         })
 
         this._completion.onHideCompletionItems.subscribe((completions) => {
-            console.log("Hide completions!")
+            this._completionMenu.hide()
+        })
+
+        this._completionMenu.onItemFocused.subscribe((item) => {
+            this._completion.resolveItem(item)
+        })
+
+        this._completionMenu.onItemSelected.subscribe((item) => {
+            this._completion.commitItem(item)
         })
 
         this._languageIntegration = new LanguageEditorIntegration(this, this._config, languageManager)

@@ -47,7 +47,7 @@ export type CompletionAction = {
         meetPosition: number
         completions: types.CompletionItem[],
     } | {
-        type: "SELECT_ITEM",
+        type: "GET_COMPLETION_ITEM_DETAILS",
         completionItem: types.CompletionItem,
     } | {
         type: "GET_COMPLETION_ITEM_DETAILS_RESULT"
@@ -270,10 +270,10 @@ const getCompletionsEpic: Epic<CompletionAction, ICompletionState> = (action$, s
         })
 
 const getCompletionDetailsEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
-    action$.ofType("SELECT_ITEM")
+    action$.ofType("GET_COMPLETION_ITEM_DETAILS")
         .switchMap((action) => {
 
-            if (action.type !== "SELECT_ITEM") {
+            if (action.type !== "GET_COMPLETION_ITEM_DETAILS") {
                 return Observable.of(nullAction)
             }
 
@@ -310,7 +310,7 @@ const selectFirstItemEpic: Epic<CompletionAction, ICompletionState> = (action$, 
             }
 
             return {
-                type: "SELECT_ITEM",
+                type: "GET_COMPLETION_ITEM_DETAILS",
                 completionItem: filteredItems[0],
             } as CompletionAction
 
