@@ -15,7 +15,6 @@ import { Observable } from "rxjs/Observable"
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import * as Oni from "oni-api"
-import { Event, IEvent } from "oni-types"
 
 import * as Log from "./../Log"
 
@@ -26,12 +25,12 @@ import { NeovimScreen } from "./../Screen"
 import { pluginManager } from "./../Plugins/PluginManager"
 
 import { Colors } from "./../Services/Colors"
-import { commandManager } from "./../Services/CommandManager"
+import { CallbackCommand, commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Completion } from "./../Services/Completion"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { addInsertModeLanguageFunctionality, addNormalModeLanguageFunctionality } from "./../Services/Language"
+import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, languageManager } from "./../Services/Language"
 import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
 import { getThemeManagerInstance } from "./../Services/Themes"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
@@ -39,10 +38,11 @@ import { workspace } from "./../Services/Workspace"
 
 import * as UI from "./../UI/index"
 
-import { IEditor } from "./Editor"
+import { Editor, IEditor } from "./Editor"
 
 import { BufferManager } from "./BufferManager"
 import { listenForBufferUpdates } from "./BufferUpdates"
+import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
 import { NeovimSurface } from "./NeovimSurface"
 
@@ -52,7 +52,7 @@ import { normalizePath, sleep } from "./../Utility"
 
 import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSynchronizer"
 
-export class NeovimEditor implements IEditor {
+export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
     private _renderer: INeovimRenderer
@@ -61,13 +61,6 @@ export class NeovimEditor implements IEditor {
     private _colors: Colors // TODO: Factor this out to the UI 'Shell'
 
     private _pendingAnimationFrame: boolean = false
-
-    private _currentMode: string
-    private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
-    private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
-    private _onBufferChangedEvent = new Event<Oni.EditorBufferChangedEventArgs>()
-    private _onBufferSavedEvent = new Event<Oni.EditorBufferEventArgs>()
-    private _onCursorMoved = new Event<Oni.Cursor>()
 
     private _modeChanged$: Observable<Oni.Vim.Mode>
     private _cursorMoved$: Observable<Oni.Cursor>
@@ -84,39 +77,12 @@ export class NeovimEditor implements IEditor {
 
     private _typingPredictionManager: TypingPredictionManager = new TypingPredictionManager()
     private _syntaxHighlighter: ISyntaxHighlighter
+    private _languageIntegration: LanguageEditorIntegration
     private _completion: Completion
+    private _hoverRenderer: HoverRenderer
 
-    public get mode(): string {
-        return this._currentMode
-    }
-
-    public get activeBuffer(): Oni.Buffer {
+    public /* override */ get activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
-    }
-
-    public get onCursorMoved(): IEvent<Oni.Cursor> {
-        return this._onCursorMoved
-    }
-
-    // Events
-    public get onModeChanged(): IEvent<Oni.Vim.Mode> {
-        return this._neovimInstance.onModeChanged
-    }
-
-    public get onBufferEnter(): IEvent<Oni.EditorBufferEventArgs> {
-        return this._onBufferEnterEvent
-    }
-
-    public get onBufferLeave(): IEvent<Oni.EditorBufferEventArgs> {
-        return this._onBufferLeaveEvent
-    }
-
-    public get onBufferChanged(): IEvent<Oni.EditorBufferChangedEventArgs> {
-        return this._onBufferChangedEvent
-    }
-
-    public get onBufferSaved(): IEvent<Oni.EditorBufferEventArgs> {
-        return this._onBufferSavedEvent
     }
 
     // Capabilities
@@ -132,6 +98,8 @@ export class NeovimEditor implements IEditor {
         private _config = configuration,
         private _themeManager = getThemeManagerInstance(),
     ) {
+        super()
+
         const services: any[] = []
 
         this._neovimInstance = new NeovimInstance(100, 100)
@@ -139,6 +107,8 @@ export class NeovimEditor implements IEditor {
         this._screen = new NeovimScreen()
 
         this._colors = new Colors(this._themeManager, this._config)
+
+        this._hoverRenderer = new HoverRenderer(this, this._config)
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
@@ -152,6 +122,13 @@ export class NeovimEditor implements IEditor {
         const errorService = new Errors(this._neovimInstance)
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
+
+        commandManager.registerCommand(new CallbackCommand(
+            "editor.quickInfo.show",
+            null,
+            null,
+            () => this._languageIntegration.showHover(),
+        ))
 
         tasks.registerTaskProvider(commandManager)
         tasks.registerTaskProvider(errorService)
@@ -234,28 +211,43 @@ export class NeovimEditor implements IEditor {
 
         Observable.merge(this._cursorMoved$, this._cursorMovedI$)
             .subscribe((cursorMoved) => {
-                this._onCursorMoved.dispatch(cursorMoved)
+                this.notifyCursorMoved(cursorMoved)
             })
 
-        this._modeChanged$ = this.onModeChanged.asObservable()
-
-        this.onModeChanged.subscribe((newMode) => this._onModeChanged(newMode))
+        this._modeChanged$ = this._neovimInstance.onModeChanged.asObservable()
+        this._neovimInstance.onModeChanged.subscribe((newMode) => this._onModeChanged(newMode))
 
         const bufferUpdates$ = listenForBufferUpdates(this._neovimInstance, this._bufferManager)
         bufferUpdates$.subscribe((bufferUpdate) => {
-            this._onBufferChangedEvent.dispatch(bufferUpdate)
+            this.notifyBufferChanged(bufferUpdate)
             UI.Actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
 
             this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
         })
 
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
-        addNormalModeLanguageFunctionality(bufferUpdates$, this._cursorMoved$, this._modeChanged$)
 
         const textMateHighlightingEnabled = this._config.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
         this._completion = new Completion(this)
+        this._languageIntegration = new LanguageEditorIntegration(this, this._config, languageManager)
+
+        this._languageIntegration.onShowHover.subscribe((hover) => {
+            this._hoverRenderer.showQuickInfo(hover.hover, hover.errors)
+        })
+
+        this._languageIntegration.onHideHover.subscribe(() => {
+            this._hoverRenderer.hideQuickInfo()
+        })
+
+        this._languageIntegration.onShowDefinition.subscribe((definition) => {
+            UI.Actions.setDefinition(definition.token, definition.location)
+        })
+
+        this._languageIntegration.onHideDefinition.subscribe((definition) => {
+            UI.Actions.hideDefinition()
+        })
 
         this._render()
 
@@ -314,6 +306,11 @@ export class NeovimEditor implements IEditor {
         if (this._syntaxHighlighter) {
             this._syntaxHighlighter.dispose()
             this._syntaxHighlighter = null
+        }
+
+        if (this._languageIntegration) {
+            this._languageIntegration.dispose()
+            this._languageIntegration = null
         }
 
         if (this._colors) {
@@ -416,7 +413,7 @@ export class NeovimEditor implements IEditor {
         }
 
         UI.Actions.setMode(newMode)
-        this._currentMode = newMode
+        this.setMode(newMode as Oni.Vim.Mode)
 
         if (newMode === "insert") {
             this._syntaxHighlighter.notifyStartInsertMode(this.activeBuffer)
@@ -436,21 +433,21 @@ export class NeovimEditor implements IEditor {
 
         if (eventName === "BufEnter") {
             if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
-                this._onBufferLeaveEvent.dispatch({
+                this.notifyBufferLeave({
                     filePath: lastBuffer.filePath,
                     language: lastBuffer.language,
                 })
             }
 
             this._lastBufferId = evt.bufferNumber.toString()
-            this._onBufferEnterEvent.dispatch(buf)
+            this.notifyBufferEnter(buf)
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.filetype, evt.bufferTotalLines, evt.hidden, evt.listed)
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
 
-            this._onBufferSavedEvent.dispatch({
+            this.notifyBufferSaved({
                 filePath: evt.bufferFullPath,
                 language: evt.filetype,
             })

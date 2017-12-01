@@ -46,8 +46,7 @@
       "artifactName": "${productName}-${version}-osx.${ext}",
       "category": "public.app-category.developer-tools",
       "target": [
-        "dmg",
-        "zip"
+        "dmg"
       ],
       "files": [
         "bin/osx/**/*"
@@ -83,13 +82,14 @@
     "build:test": "cd test && tsc -p tsconfig.json",
     "pack": "build --publish never",
     "copy-icons": "node build/CopyIcons.js",
+    "debug:test:unit:browser": "cd browser && tsc -p tsconfig.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
     "dist:win": "build --arch ia32 --publish never",
     "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
     "test": "npm run test:unit && npm run test:integration",
     "test:integration": "npm run build:test && mocha -t 30000 lib_test/test/CiTests.js",
     "test:stability": "npm run build:test && mocha -t 600000 --recursive lib_test/test/stability",
     "test:unit": "npm run test:unit:browser",
-    "test:unit:browser": "cd browser && tsc -p tsconfig.json && mocha --recursive ../lib_test/browser/test",
+    "test:unit:browser": "cd browser && tsc -p tsconfig.json && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
     "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
     "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json",
     "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
@@ -136,6 +136,7 @@
     "@types/color": "2.0.0",
     "@types/jsdom": "11.0.0",
     "@types/lodash": "4.14.38",
+    "@types/lolex": "2.1.0",
     "@types/minimatch": "3.0.1",
     "@types/minimist": "1.1.29",
     "@types/mkdirp": "0.3.29",
@@ -158,6 +159,7 @@
     "electron": "1.8.1",
     "electron-builder": "19.46.4",
     "electron-devtools-installer": "2.2.0",
+    "electron-mocha": "5.0.0",
     "electron-rebuild": "1.6.0",
     "extract-zip": "1.6.0",
     "fs-extra": "4.0.2",
@@ -169,6 +171,7 @@
     "less-loader": "4.0.5",
     "less-plugin-autoprefix": "1.5.1",
     "lodash": "4.17.0",
+    "lolex": "2.3.1",
     "minimatch": "3.0.4",
     "mkdirp": "0.5.1",
     "mocha": "3.1.2",

@@ -2,7 +2,7 @@ import * as React from "react"
 
 import * as Platform from "./../Platform"
 
-import { keyEventToVimKey } from "./../Input/Keyboard"
+import { getKeyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { inputManager } from "./../Services/InputManager"
 import { MenuContainer } from "./../Services/Menu"
@@ -20,6 +20,7 @@ interface IRootComponentProps {
 const titleBarVisible = Platform.isMac()
 
 export class RootComponent extends React.PureComponent<IRootComponentProps, {}> {
+
     public render() {
         return <div className="stack disable-mouse" onKeyDownCapture={(evt) => this._onRootKeyDown(evt)}>
             <div className="stack">
@@ -47,7 +48,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
     }
 
     private _onRootKeyDown(evt: React.KeyboardEvent<HTMLElement>): void {
-        const vimKey = keyEventToVimKey(evt.nativeEvent)
+        const vimKey = getKeyEventToVimKey()(evt.nativeEvent)
         if (inputManager.handleKey(vimKey)) {
             evt.stopPropagation()
             evt.preventDefault()
