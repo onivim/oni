@@ -2,7 +2,7 @@
  * CompletionStore.ts
  */
 
-import * as types from "vscode-languageserver-completions"
+import * as types from "vscode-languageserver-types"
 
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
@@ -284,7 +284,7 @@ export const orderCompletions = (completions: types.CompletionItem[], base: stri
 
     const filteredCompletions = completions.filter((item) => item !== anyCompletionsMatchCurrentBase)
 
-    const ret = [anyCompletionsMatchCurrentBase, ...filteredCompletions)
+    const ret = [anyCompletionsMatchCurrentBase, ...filteredCompletions]
     return ret
 }
 
