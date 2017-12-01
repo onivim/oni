@@ -63,7 +63,7 @@ export class Automation implements OniApi.Automation.Api {
         const testPath2 = testPath
 
         const loggingRedirector = new LoggingRedirector()
-        Log.enableDebugLogging()
+        Log.enableVerboseLogging()
         try {
             Log.info("[AUTOMATION] Starting test: " + testPath)
             const testCase: any = Utility.nodeRequire(testPath2)
