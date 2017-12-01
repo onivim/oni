@@ -226,12 +226,12 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onScroll.subscribe((args: EventContext) => {
-            const converted_args: Oni.EditorBufferScrolledEventArgs = {
+            const convertedArgs: Oni.EditorBufferScrolledEventArgs = {
                 bufferTotalLines: args.bufferTotalLines,
                 windowTopLine: args.windowTopLine,
                 windowBottomLine: args.windowBottomLine,
             }
-            this.notifyBufferScrolled(converted_args)
+            this.notifyBufferScrolled(convertedArgs)
         })
 
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
