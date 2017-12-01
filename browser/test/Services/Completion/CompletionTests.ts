@@ -101,7 +101,7 @@ describe("Completion", () => {
         assert.deepEqual(lastItems.base, "w", "The base should be set correctly")
     })
 
-    it.only("if there is a completion matching the base, it should be the first shown", async () => {
+    it("if there is a completion matching the base, it should be the first shown", async () => {
 
         mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
 
