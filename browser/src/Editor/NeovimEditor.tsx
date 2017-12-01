@@ -231,6 +231,15 @@ export class NeovimEditor extends Editor implements IEditor {
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
         this._completion = new Completion(this)
+
+        this._completion.onShowCompletionItems.subscribe((completions) => {
+            console.log("Completions: " + JSON.stringify(completions))
+        })
+
+        this._completion.onHideCompletionItems.subscribe((completions) => {
+            console.log("Hide completions!")
+        })
+
         this._languageIntegration = new LanguageEditorIntegration(this, this._config, languageManager)
 
         this._languageIntegration.onShowHover.subscribe((hover) => {

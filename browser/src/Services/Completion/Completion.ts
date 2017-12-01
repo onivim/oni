@@ -3,28 +3,49 @@
  */
 
 import * as Oni from "oni-api"
-import { IDisposable } from "oni-types"
-import { Store } from "redux"
+import { Event, IDisposable, IEvent } from "oni-types"
+import { Store, Unsubscribe } from "redux"
 import { Subject } from "rxjs/Subject"
+import * as types from "vscode-languageserver-types"
 
-import { createContextMenu } from "./CompletionMenu"
+// import { createContextMenu } from "./CompletionMenu"
+import { getFilteredCompletions } from "./CompletionSelectors"
 
 import { ICompletionState } from "./CompletionState"
 
 import { CompletionAction, createStore } from "./CompletionStore"
 
+import { LanguageManager } from "./../Language"
+
+export interface ICompletionShowEventArgs {
+    filteredCompletions: types.CompletionItem[]
+    base: string
+}
+
 export class Completion implements IDisposable {
 
     private _lastCursorPosition: Oni.Cursor
     private _store: Store<ICompletionState>
+    private _storeUnsubscribe: Unsubscribe = null
     private _subscriptions: IDisposable[]
-
     private _throttledCursorUpdates: Subject<CompletionAction> = new Subject<CompletionAction>()
+
+    private _onShowCompletionItemsEvent: Event<ICompletionShowEventArgs> = new Event<ICompletionShowEventArgs>()
+    private _onHideCompletionItemsEvent: Event<void> = new Event<void>()
+
+    public get onShowCompletionItems(): IEvent<ICompletionShowEventArgs> {
+        return this._onShowCompletionItemsEvent
+    }
+
+    public get onHideCompletionItems(): IEvent<void> {
+        return this._onHideCompletionItemsEvent
+    }
 
     constructor(
         private _editor: Oni.Editor,
+        private _languageManager: LanguageManager,
     ) {
-        this._store = createStore()
+        this._store = createStore(this._languageManager)
         this._throttledCursorUpdates
             .auditTime(10)
             .subscribe((update: CompletionAction) => {
@@ -48,14 +69,32 @@ export class Completion implements IDisposable {
         })
 
         this._subscriptions = [sub1, sub2, sub3, sub4]
-
-        createContextMenu(this._store)
+        this._storeUnsubscribe = this._store.subscribe(() => this._onStateChanged(this._store.getState()))
     }
 
     public dispose(): void {
         if (this._subscriptions) {
             this._subscriptions.forEach((disposable) => disposable.dispose())
             this._subscriptions = null
+        }
+
+        if (this._storeUnsubscribe) {
+            this._storeUnsubscribe()
+            this._storeUnsubscribe = null
+        }
+    }
+
+    private _onStateChanged(newState: ICompletionState): void {
+
+        const filteredCompletions = getFilteredCompletions(newState)
+
+        if (filteredCompletions && filteredCompletions.length) {
+            this._onShowCompletionItemsEvent.dispatch({
+                filteredCompletions,
+                base: newState.meetInfo.meetBase,
+            })
+        } else {
+            this._onHideCompletionItemsEvent.dispatch()
         }
     }
 

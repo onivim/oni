@@ -12,7 +12,7 @@ import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
 import { createStore as oniCreateStore } from "./../../Redux"
 
-import { languageManager } from "./../Language"
+import { LanguageManager } from "./../Language"
 import * as CompletionSelects from "./CompletionSelectors"
 import * as CompletionUtility from "./CompletionUtility"
 
@@ -167,7 +167,7 @@ export const lastCompletionInfoReducer: Reducer<ILastCompletionInfo> = (
 
 const nullAction: CompletionAction = { type: null } as CompletionAction
 
-const getCompletionMeetEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
+const createGetCompletionMeetEpic = (languageManager: LanguageManager): Epic<CompletionAction, ICompletionState> => (action$, store) =>
     action$.ofType("CURSOR_MOVED")
         .map((action: CompletionAction) => {
             const currentState: ICompletionState = store.getState()
@@ -316,7 +316,7 @@ const selectFirstItemEpic: Epic<CompletionAction, ICompletionState> = (action$, 
 
         })
 
-export const createStore = (): Store<ICompletionState> => {
+export const createStore = (languageManager: LanguageManager): Store<ICompletionState> => {
     return oniCreateStore("COMPLETION_STORE",
         combineReducers<ICompletionState>({
             enabled: enabledReducer,
@@ -329,7 +329,7 @@ export const createStore = (): Store<ICompletionState> => {
         DefaultCompletionState,
         [createEpicMiddleware(combineEpics(
             commitCompletionEpic,
-            getCompletionMeetEpic,
+            createGetCompletionMeetEpic(languageManager),
             getCompletionsEpic,
             getCompletionDetailsEpic,
             selectFirstItemEpic,
