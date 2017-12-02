@@ -16,6 +16,10 @@ export interface IMarkdownPreviewState {
     source: string
 }
 
+const generateScrollingAnchorId = (line: number) => {
+    return "scrolling-anchor-id-" + line
+}
+
 export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdownPreviewState> {
     private _subscriptions: Array<IDisposable> = []
 
@@ -29,8 +33,7 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
         const activeEditor: Oni.Editor = this.props.oni.editors.activeEditor
         this.subscribe(activeEditor.onBufferChanged, (args) => this.onBufferChanged(args))
         //TODO: Subscribe "onFocusChanged"
-
-        this.subscribe(activeEditor.onBufferScrolled, (args) => console.error('[123] DAG MALUAH'))
+        this.subscribe(activeEditor.onBufferScrolled, (args) => this.onBufferScrolled(args))
 
         this.previewBuffer(activeEditor.activeBuffer)
     }
@@ -52,6 +55,17 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
         }
     }
 
+    private onBufferScrolled(args: Oni.EditorBufferScrolledEventArgs): void {
+        var anchor = null
+        for (var line = args.windowTopLine - 1; !anchor && line < args.bufferTotalLines; line++) {
+            anchor = document.getElementById(generateScrollingAnchorId(line))
+        }
+
+        if (anchor) {
+            anchor.scrollIntoView()
+        }
+    }
+
     private previewBuffer(buffer: Oni.Buffer): void {
         this.previewString("# Loading preview...")
         buffer.getLines().then((lines: string[]) => {this.previewString(lines.join("\n"))})
@@ -64,10 +78,26 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
     public render(): JSX.Element {
         const containerStyle: React.CSSProperties = {
             padding: "1em 1em 1em 1em",
-            "overflow-y": "auto",
+            overflowY: "auto",
         }
 
-        const html = marked(this.state.source)
+        var markdownLines = this.state.source.split("\n")
+
+        const generateAnchor = (line: number) => {
+            return "<a id=\"" + generateScrollingAnchorId(line) + "\"></a>"
+        }
+
+        const originalLinesCount = markdownLines.length - 1
+        for (var i = originalLinesCount; i > 0; i--) {
+            if (markdownLines[i].trim() != "") {
+                markdownLines.splice(i, 0, generateAnchor(i))
+            }
+        }
+        markdownLines.splice(0, 0, generateAnchor(i))
+        markdownLines.push(generateAnchor(originalLinesCount - 1))
+
+        const html = marked(markdownLines.join("\n"))
+        console.info(html)
         return <div className="stack enable-mouse" style={containerStyle} dangerouslySetInnerHTML={{__html: html}}></div>
     }
 }
