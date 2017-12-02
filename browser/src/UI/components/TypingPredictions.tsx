@@ -50,7 +50,6 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
 
             this._containerElement.innerHTML = ""
 
-
             const updatedPredictions = prediction.predictedCharacters
             const startX = (prediction.predictedCursorColumn - prediction.predictedCharacters.length) * this.props.width
 
