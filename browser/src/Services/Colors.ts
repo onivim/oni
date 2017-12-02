@@ -13,6 +13,16 @@ import { getThemeManagerInstance, ThemeManager } from "./Themes"
 
 export interface ColorsDictionary { [colorName: string]: string}
 
+let _colors: Colors = null
+export const getInstance = (): Colors => {
+
+    if (_colors === null) {
+        _colors = new Colors()
+    }
+
+    return _colors
+}
+
 export class Colors implements IDisposable {
 
     private _subscriptions: IDisposable[] = []

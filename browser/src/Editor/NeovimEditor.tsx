@@ -384,13 +384,11 @@ export class NeovimEditor extends Editor implements IEditor {
 
             if (newTheme.baseVimTheme && newTheme.baseVimTheme !== this._currentColorScheme) {
                 this._neovimInstance.command(":color " + newTheme.baseVimTheme)
-                UI.Actions.setColors(this._themeManager.getColors())
             }
         })
 
         if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
             await this._neovimInstance.command(":color " + this._themeManager.activeTheme.baseVimTheme)
-            UI.Actions.setColors(this._themeManager.getColors())
         }
 
         this._hasLoaded = true
