@@ -6,8 +6,8 @@
 
 import * as React from "react"
 
-import { EditorSplitHost, WindowSplitHost } from "./WindowSplitHost"
 import * as Oni from "oni-api"
+import { EditorSplitHost, WindowSplitHost } from "./WindowSplitHost"
 
 import { DockPosition, WindowManager } from "./../../Services/WindowManager"
 import { ISplitInfo } from "./../../Services/WindowSplit"

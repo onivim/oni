@@ -19,7 +19,7 @@ export interface INeovimMenuOption<T> {
 
 export interface INeovimMenuInstance<T> {
 
-    setOptions(options: INeovimMenuOption<T>[]): Promise<void>
+    setOptions(options: Array<INeovimMenuOption<T>>): Promise<void>
 
     input(input: string): Promise<void>
 
@@ -36,7 +36,7 @@ export class NeovimMenuInstance<T> implements INeovimMenuInstance<T> {
     private _initPromise: Promise<void>
     private _neovimInstance: NeovimInstance
 
-    private _currentOptions: INeovimMenuOption<T>[] = []
+    private _currentOptions: Array<INeovimMenuOption<T>> = []
     private _cursorPositionChangedEvent: Event<INeovimMenuOption<T>> = new Event<INeovimMenuOption<T>>()
 
     public get onCursorPositionChanged(): IEvent<INeovimMenuOption<T>> {
@@ -76,7 +76,7 @@ export class NeovimMenuInstance<T> implements INeovimMenuInstance<T> {
         await this._neovimInstance.input(input)
     }
 
-    public async setOptions(options: INeovimMenuOption<T>[]): Promise<void> {
+    public async setOptions(options: Array<INeovimMenuOption<T>>): Promise<void> {
 
         this._currentOptions = options
 

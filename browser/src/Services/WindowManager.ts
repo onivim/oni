@@ -21,9 +21,8 @@ export enum DockPosition {
     // Right
 }
 
-
 export class WindowManager implements Oni.IWindowManager {
-    private _activeSplit: any; // TODO: Port over new methods to oni-api
+    private _activeSplit: any // TODO: Port over new methods to oni-api
     private _splitRoot: ISplitInfo<Oni.IWindowSplit>
 
     private _onActiveSplitChanged = new Event<Oni.IWindowSplit>()
@@ -64,7 +63,6 @@ export class WindowManager implements Oni.IWindowManager {
     public split(direction: SplitDirection, newSplit: Oni.IWindowSplit) {
         const newLeaf = createSplitLeaf(newSplit)
         this._splitRoot = applySplit(this._splitRoot, direction, newLeaf)
-
 
         this._focusNewSplit(newSplit)
 

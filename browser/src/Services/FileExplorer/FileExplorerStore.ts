@@ -22,7 +22,7 @@ export interface IFileExplorerState {
     rootPath: string
     filesOrFolders: FolderOrFile[]
     isLoading: boolean
-    
+
     // The path that is currently highlighted by the cursor
     cursorPath: string
 }
@@ -45,7 +45,7 @@ export const reducer: Reducer<IFileExplorerState> = (
         isLoading: true,
         cursorPath: null,
     },
-    action: IFileExplorerAction
+    action: IFileExplorerAction,
 ) => {
 
     switch (action.type) {
@@ -89,7 +89,7 @@ const updateContentsEpic: Epic<IFileExplorerAction, IFileExplorerState> = (actio
                 if (stat.isDirectory()) {
                     return {
                         type: "folder",
-                        fullPath: f
+                        fullPath: f,
                     }
                 } else {
                     return {
@@ -108,8 +108,8 @@ const updateContentsEpic: Epic<IFileExplorerAction, IFileExplorerState> = (actio
 
 export const fileExplorerStore: Store<IFileExplorerState> = createStore(reducer,
     applyMiddleware(createEpicMiddleware(combineEpics(
-        updateContentsEpic
-    )))
+        updateContentsEpic,
+    ))),
 )
 
 fileExplorerStore.dispatch({ type: "SET_ROOT_DIRECTORY", newRootPath: process.cwd() })

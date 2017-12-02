@@ -34,7 +34,7 @@ export class FileExplorerView extends React.PureComponent<IFileExplorerProps, {}
         const sortedFilesAndFolders = this.props.filesOrFolders.sort((a, b) => {
             if (a.type < b.type) {
                 return 1
-            } else if(a.type > b.type) {
+            } else if (a.type > b.type) {
                 return -1
             } else {
                 if (a.fullPath < b.fullPath) {
@@ -50,19 +50,18 @@ export class FileExplorerView extends React.PureComponent<IFileExplorerProps, {}
             const isCursor = this.props.cursorPath === f.fullPath
             const className = isCursor ? f.type + " cursor" : f.type
 
-
             // const cursorElem: JSX.Element = isCursor ? <ArrowComponent />: null
 
             if (f.type === "folder") {
                 return <div className={className}>
                     <Icon className="icon" name="caret-right" />
                     <span className="name">{f.fullPath}</span>
-                </div> 
+                </div>
             } else {
                 return <div className={className}>
                     <Icon className="icon" name="file" />
                     <span className="name">{f.fullPath}</span>
-                </div> 
+                </div>
             }
 
         })
@@ -84,7 +83,6 @@ const mapStateToProps = (state: IFileExplorerState): IFileExplorerProps => {
 }
 
 const FileExplorer = connect(mapStateToProps)(FileExplorerView)
-
 
 export class PseudoEditor implements Oni.Editor {
     private _noopEvent = new Event<any>()
@@ -186,7 +184,7 @@ export class FileExplorerSplit extends PseudoEditor implements Oni.IWindowSplit,
             fontSize: "12px",
         }
 
-        return <div className="container horizontal fixed" style={{backgroundColor:"rgb(40, 44, 52)"}}>
+        return <div className="container horizontal fixed" style={{backgroundColor: "rgb(40, 44, 52)"}}>
         <div className="sidebar enable-mouse">
             <div className="sidebar-icon-container">
                 <div className="sidebar-icon">
