@@ -15,6 +15,7 @@ import { Observable } from "rxjs/Observable"
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import * as Oni from "oni-api"
+import { Event } from "oni-types"
 
 import * as Log from "./../Log"
 

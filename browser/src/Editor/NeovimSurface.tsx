@@ -6,7 +6,7 @@
 
 import * as React from "react"
 
-import { IEvent } from "./../Event"
+import { IEvent } from "oni-types"
 
 import { NeovimInstance } from "./../neovim"
 import { INeovimRenderer } from "./../Renderer"

@@ -4,7 +4,7 @@
  * Specialized instance of Neovim, equipped for dealing with menu UX
  */
 
-import { Event, IEvent } from "./../Event"
+import { Event, IEvent } from "oni-types"
 
 import { NeovimInstance } from "./NeovimInstance"
 

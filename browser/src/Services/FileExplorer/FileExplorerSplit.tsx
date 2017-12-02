@@ -6,9 +6,10 @@
 
 import * as React from "react"
 
-// import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
+
 import { Icon, IconSize } from "./../../UI/Icon"
-import { Event, IEvent } from "./../../Event"
 
 import { editorManager } from "./../../Services/EditorManager"
 
