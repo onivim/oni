@@ -97,12 +97,13 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
             })
 
             if (matchingPair) {
+                const whiteSpacePrefix = getWhiteSpacePrefix(line)
                 const beforePair = line.substring(0, column)
                 const afterPair = line.substring(column, line.length)
 
                 const pos = await neovim.callFunction("getpos", ["."])
                 const [, oneBasedLine ] = pos
-                await activeBuffer.setLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, [beforePair, "", afterPair])
+                await activeBuffer.setLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, [beforePair, whiteSpacePrefix, whiteSpacePrefix + afterPair])
                 await activeBuffer.setCursorPosition(oneBasedLine, 0)
                 await neovim.input("<tab>")
 
@@ -154,6 +155,18 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         subscriptions.push(inputManager.bind("<enter>", handleEnterCharacter(autoClosingPairs, editorManager.activeEditor), insertModeFilter))
 
     })
+}
+
+const nonWhiteSpaceRegEx = /\S/
+
+export const getWhiteSpacePrefix = (str: string): string => {
+    const firstIndex = str.search(nonWhiteSpaceRegEx)
+
+    if (firstIndex === -1) {
+        return ""
+    } else {
+        return str.substring(0, firstIndex)
+    }
 }
 
 const getAutoClosingPairs = (configuration: Configuration, language: string): IAutoClosingPair[] => {
