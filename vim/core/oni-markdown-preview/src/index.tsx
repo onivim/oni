@@ -17,7 +17,6 @@ export interface IMarkdownPreviewState {
 }
 
 export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdownPreviewState> {
-    private _fs = require('fs')
     private _subscriptions: Array<IDisposable> = []
 
     constructor(props: IMarkdownPreviewProps) {
