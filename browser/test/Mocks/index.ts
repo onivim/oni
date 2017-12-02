@@ -5,6 +5,8 @@
  * to exercise boundaries of class implementations
  */
 
+import * as types from "vscode-languageserver-types"
+
 import { Editor } from "./../../src/Editor/Editor"
 import * as Language from "./../../src/Services/Language"
 import { createCompletablePromise, ICompletablePromise } from "./../../src/Utility"
@@ -25,6 +27,9 @@ export class MockConfiguration {
 }
 
 export class MockEditor extends Editor {
+
+    private _activeBuffer: MockBuffer = null
+
     public simulateModeChange(newMode: string): void {
         this.setMode(newMode as any)
     }
@@ -37,11 +42,73 @@ export class MockEditor extends Editor {
     }
 
     public simulateBufferEnter(buffer: MockBuffer): void {
+        this._activeBuffer = buffer
         this.notifyBufferEnter(buffer as any)
+    }
+
+    public setActiveBufferLine(line: number, lineContents: string): void {
+        this._activeBuffer.setLineSync(line, lineContents)
+
+        this.notifyBufferChanged({
+            buffer: this._activeBuffer as any,
+            contentChanges: [{
+                range: types.Range.create(line, 0, line + 1, 0),
+                text: lineContents,
+            }],
+        })
     }
 }
 
 export class MockBuffer {
+
+    public get language(): string {
+        return this._language
+    }
+
+    public get filePath(): string {
+        return this._filePath
+    }
+
+    public constructor(
+        private _language: string = "test_language",
+        private _filePath: string = "test_filepath",
+        private _lines: string[] = [],
+    ) {
+    }
+
+    public setLinesSync(lines: string[]): void {
+        this._lines = lines
+    }
+
+    public setLineSync(line: number, lineContents: string): void {
+
+        while (this._lines.length <= line) {
+            this._lines.push("")
+        }
+
+        this._lines[line] = lineContents
+    }
+
+    public getLines(start: number = 0, end?: number): Promise<string[]> {
+        if (typeof end !== "number") {
+            end = this._lines.length
+        }
+
+        return Promise.resolve(this._lines.slice(start, end))
+    }
+}
+
+const DefaultCursorMatchRegEx = /[a-z]/i
+const DefaultTriggerCharacters = ["."]
+
+export class MockLanguageManager {
+    public getTokenRegex(language: string): RegExp {
+        return DefaultCursorMatchRegEx
+    }
+
+    public getCompletionTriggerCharacters(language: string): string[] {
+        return DefaultTriggerCharacters
+    }
 }
 
 export class MockRequestor<T> {
@@ -52,7 +119,7 @@ export class MockRequestor<T> {
         return this._completablePromises.length
     }
 
-    public get(language: string, filePath: string, line: number, column: number): Promise<T> {
+    public get(...args: any[]): Promise<T> {
 
         const newPromise = createCompletablePromise<T>()
 
