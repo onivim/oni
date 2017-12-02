@@ -104,7 +104,7 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
                 const pos = await neovim.callFunction("getpos", ["."])
                 const [, oneBasedLine ] = pos
                 await activeBuffer.setLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, [beforePair, whiteSpacePrefix, whiteSpacePrefix + afterPair])
-                await activeBuffer.setCursorPosition(oneBasedLine, 0)
+                await activeBuffer.setCursorPosition(oneBasedLine, whiteSpacePrefix.length)
                 await neovim.input("<tab>")
 
             } else {
