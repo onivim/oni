@@ -7,6 +7,7 @@
 import { Event, IEvent } from "oni-types"
 
 import { NeovimInstance } from "./NeovimInstance"
+import { INeovimStartOptions } from "./NeovimProcessSpawner"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 import { commandManager } from "./../Services/CommandManager"
@@ -61,7 +62,12 @@ export class NeovimMenuInstance<T> implements INeovimMenuInstance<T> {
     }
 
     public async start(): Promise<void> {
-        this._initPromise = this._neovimInstance.start([], { runtimePaths: pluginManager.getAllRuntimePaths() })
+        const startOptions: INeovimStartOptions = {
+            args: [],
+            runtimePaths: pluginManager.getAllRuntimePaths(),
+        }
+
+        this._initPromise = this._neovimInstance.start(startOptions)
 
         await this._initPromise
     }

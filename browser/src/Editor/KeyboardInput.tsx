@@ -26,7 +26,7 @@ interface IKeyboardInputViewProps {
     height: number
     onActivate?: IEvent<void>
     onKeyDown?: (key: string) => void
-    typingPrediction: TypingPredictionManager
+    typingPrediction?: TypingPredictionManager
     foregroundColor: string
     fontFamily: string
     fontSize: string
@@ -50,7 +50,7 @@ interface IKeyboardInputViewState {
 export interface IKeyboardInputProps {
     onActivate: IEvent<void>
     onKeyDown?: (key: string) => void
-    typingPrediction: TypingPredictionManager
+    typingPrediction?: TypingPredictionManager
 }
 
 /**
@@ -169,14 +169,18 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             evt.preventDefault()
             return
         } else {
-            this.props.typingPrediction.addPrediction(key)
+            if (this.props.typingPrediction) {
+                this.props.typingPrediction.addPrediction(key)
+            }
         }
     }
 
     private _onCompositionStart(evt: React.CompositionEvent<HTMLInputElement>) {
         UI.Actions.setImeActive(true)
 
-        this.props.typingPrediction.clearAllPredictions()
+        if (this.props.typingPrediction) {
+            this.props.typingPrediction.clearAllPredictions()
+        }
 
         this.setState({
             isComposing: true,

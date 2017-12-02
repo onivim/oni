@@ -75,7 +75,7 @@ export class WindowManager implements Oni.IWindowManager {
         return this._docks[direction]
     }
 
-    private _focusNewSplit(newSplit: Oni.IWindowSplit): void {
+    private _focusNewSplit(newSplit: any/*Oni.IWindowSplit*/): void {
         if (this._activeSplit && this._activeSplit.leave) {
             this._activeSplit.leave()
         }
