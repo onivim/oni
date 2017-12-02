@@ -3,33 +3,52 @@
  */
 
 import * as Oni from "oni-api"
-import { IDisposable } from "oni-types"
-import { Store } from "redux"
-import { Subject } from "rxjs/Subject"
+import { Event, IDisposable, IEvent } from "oni-types"
+import { Store, Unsubscribe } from "redux"
+import * as types from "vscode-languageserver-types"
 
-import { createContextMenu } from "./CompletionMenu"
+import { getFilteredCompletions } from "./CompletionSelectors"
+import { ICompletionsRequestor, LanguageServiceCompletionsRequestor  } from "./CompletionsRequestor"
 
 import { ICompletionState } from "./CompletionState"
 
-import { CompletionAction, createStore } from "./CompletionStore"
+import { createStore } from "./CompletionStore"
+
+import { Configuration } from "./../Configuration"
+import { LanguageManager } from "./../Language"
+import * as CompletionUtility from "./CompletionUtility"
+
+export interface ICompletionShowEventArgs {
+    filteredCompletions: types.CompletionItem[]
+    base: string
+}
 
 export class Completion implements IDisposable {
 
     private _lastCursorPosition: Oni.Cursor
     private _store: Store<ICompletionState>
+    private _storeUnsubscribe: Unsubscribe = null
     private _subscriptions: IDisposable[]
 
-    private _throttledCursorUpdates: Subject<CompletionAction> = new Subject<CompletionAction>()
+    private _onShowCompletionItemsEvent: Event<ICompletionShowEventArgs> = new Event<ICompletionShowEventArgs>()
+    private _onHideCompletionItemsEvent: Event<void> = new Event<void>()
+
+    public get onShowCompletionItems(): IEvent<ICompletionShowEventArgs> {
+        return this._onShowCompletionItemsEvent
+    }
+
+    public get onHideCompletionItems(): IEvent<void> {
+        return this._onHideCompletionItemsEvent
+    }
 
     constructor(
         private _editor: Oni.Editor,
+        private _languageManager: LanguageManager,
+        private _configuration: Configuration,
+        private _completionsRequestor?: ICompletionsRequestor,
     ) {
-        this._store = createStore()
-        this._throttledCursorUpdates
-            .auditTime(10)
-            .subscribe((update: CompletionAction) => {
-                this._store.dispatch(update)
-            })
+        this._completionsRequestor = this._completionsRequestor || new LanguageServiceCompletionsRequestor(this._languageManager)
+        this._store = createStore(this._languageManager, this._configuration, this._completionsRequestor)
 
         const sub1 = this._editor.onBufferEnter.subscribe((buf: Oni.Buffer) => {
             this._onBufferEnter(buf)
@@ -48,14 +67,49 @@ export class Completion implements IDisposable {
         })
 
         this._subscriptions = [sub1, sub2, sub3, sub4]
+        this._storeUnsubscribe = this._store.subscribe(() => this._onStateChanged(this._store.getState()))
+    }
 
-        createContextMenu(this._store)
+    public resolveItem(completionItem: types.CompletionItem): void {
+        this._store.dispatch({
+            type: "GET_COMPLETION_ITEM_DETAILS",
+            completionItem,
+        })
+    }
+
+    public commitItem(completionItem: types.CompletionItem): void {
+        const state = this._store.getState()
+        this._store.dispatch({
+            type: "COMMIT_COMPLETION",
+            meetLine: state.meetInfo.meetLine,
+            meetPosition: state.meetInfo.meetPosition,
+            completionText: CompletionUtility.getInsertText(completionItem),
+        })
     }
 
     public dispose(): void {
         if (this._subscriptions) {
             this._subscriptions.forEach((disposable) => disposable.dispose())
             this._subscriptions = null
+        }
+
+        if (this._storeUnsubscribe) {
+            this._storeUnsubscribe()
+            this._storeUnsubscribe = null
+        }
+    }
+
+    private _onStateChanged(newState: ICompletionState): void {
+
+        const filteredCompletions = getFilteredCompletions(newState)
+
+        if (filteredCompletions && filteredCompletions.length) {
+            this._onShowCompletionItemsEvent.dispatch({
+                filteredCompletions,
+                base: newState.meetInfo.meetBase,
+            })
+        } else {
+            this._onHideCompletionItemsEvent.dispatch()
         }
     }
 
@@ -93,7 +147,7 @@ export class Completion implements IDisposable {
         const newLine = firstChange.text
 
         if (range.start.line === this._lastCursorPosition.line) {
-            this._throttledCursorUpdates.next({
+            this._store.dispatch({
                 type: "CURSOR_MOVED",
                 line: this._lastCursorPosition.line,
                 column: this._lastCursorPosition.column,
@@ -106,7 +160,8 @@ export class Completion implements IDisposable {
        if (newMode === "insert" && this._lastCursorPosition) {
 
             const [latestLine] = await this._editor.activeBuffer.getLines(this._lastCursorPosition.line, this._lastCursorPosition.line + 1)
-            this._throttledCursorUpdates.next({
+
+            this._store.dispatch({
                 type: "CURSOR_MOVED",
                 line: this._lastCursorPosition.line,
                 column: this._lastCursorPosition.column,
