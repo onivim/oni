@@ -27,8 +27,15 @@
     align-items: flex-end;
 
     width: 100%;
-    color: #c8c8c8;
-    background-color: rgba(0, 0, 0, 0.2);
+    overflow-x: hidden;
+
+    &:hover {
+        overflow-x: overlay;
+    }
+}
+
+.tabs::-webkit-scrollbar {
+    height: 3px;
 }
 
 .tab {
@@ -46,6 +53,7 @@
 
     overflow: hidden;
     text-overflow: ellipsis;
+    user-select: none;
 
     .name {
         flex: 1 1 auto;

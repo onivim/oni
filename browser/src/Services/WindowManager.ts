@@ -8,7 +8,8 @@
  * to the active editor, and managing transitions between editors.
  */
 
-import { Event, IEvent } from "./../Event"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
 
 import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, getFurthestSplitInDirection, ISplitInfo, /*ISplitLeaf,*/ Split, SplitDirection } from "./WindowSplit"
 
@@ -20,8 +21,8 @@ export enum DockPosition {
     // Right
 }
 
-export class WindowManager {
-    private _activeSplit: Oni.IWindowSplit
+export class WindowManager implements Oni.IWindowManager {
+    private _activeSplit: ISplitLeaf<Oni.IWindowSplit>
     private _splitRoot: ISplitInfo<Oni.IWindowSplit>
 
     private _onActiveSplitChanged = new Event<Oni.IWindowSplit>()

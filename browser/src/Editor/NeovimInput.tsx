@@ -11,7 +11,8 @@ import { IEvent } from "./../Event"
 import { Mouse } from "./../Input/Mouse"
 import { NeovimInstance } from "./../neovim"
 import { NeovimScreen } from "./../Screen"
-// import * as UI from "./../UI/index"
+
+import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 
 import { KeyboardInput } from "./KeyboardInput"
 
@@ -20,6 +21,8 @@ export interface INeovimInputProps {
     screen: NeovimScreen
     onActivate: IEvent<void>
     onKeyDown?: (key: string) => void
+
+    typingPrediction: TypingPredictionManager
 }
 
 export class NeovimInput extends React.PureComponent<INeovimInputProps, {}> {
@@ -39,7 +42,7 @@ export class NeovimInput extends React.PureComponent<INeovimInputProps, {}> {
 
     public render(): JSX.Element {
         return <div ref={(elem) => this._mouseElement = elem} className="stack enable-mouse">
-            <KeyboardInput onActivate={this.props.onActivate} onKeyDown={this.props.onKeyDown} />
+            <KeyboardInput onActivate={this.props.onActivate} typingPrediction={this.props.typingPrediction} onKeyDown={this.props.onKeyDown} />
         </div>
     }
 }

@@ -10,10 +10,11 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import { IEvent } from "./../Event"
+import { IEvent } from "oni-types"
 
-import { keyEventToVimKey } from "./../Input/Keyboard"
+import { getKeyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
+import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { IState } from "./../UI/State"
 
 import { measureFont } from "./../Font"
@@ -25,6 +26,7 @@ interface IKeyboardInputViewProps {
     height: number
     onActivate?: IEvent<void>
     onKeyDown?: (key: string) => void
+    typingPrediction: TypingPredictionManager
     foregroundColor: string
     fontFamily: string
     fontSize: string
@@ -48,6 +50,7 @@ interface IKeyboardInputViewState {
 export interface IKeyboardInputProps {
     onActivate: IEvent<void>
     onKeyDown?: (key: string) => void
+    typingPrediction: TypingPredictionManager
 }
 
 /**
@@ -58,8 +61,8 @@ export interface IKeyboardInputProps {
 export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKeyboardInputViewState> {
     private _keyboardElement: HTMLInputElement
 
-    constructor() {
-        super()
+    constructor(props: IKeyboardInputViewProps) {
+        super(props)
 
         this.state = {
             isComposing: false,
@@ -151,7 +154,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
         UI.Actions.setCursorScale(1.1)
 
-        const key = keyEventToVimKey(evt.nativeEvent)
+        const key = getKeyEventToVimKey()(evt.nativeEvent)
 
         if (!key) {
             return
@@ -165,11 +168,16 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             this._commit(key)
             evt.preventDefault()
             return
+        } else {
+            this.props.typingPrediction.addPrediction(key)
         }
     }
 
     private _onCompositionStart(evt: React.CompositionEvent<HTMLInputElement>) {
         UI.Actions.setImeActive(true)
+
+        this.props.typingPrediction.clearAllPredictions()
+
         this.setState({
             isComposing: true,
         })
@@ -222,7 +230,7 @@ const mapStateToProps = (state: IState, originalProps: IKeyboardInputProps): IKe
         top: state.cursorPixelY,
         left: state.cursorPixelX,
         height: state.fontPixelHeight,
-        foregroundColor: state.foregroundColor,
+        foregroundColor: state.colors["editor.foreground"],
         fontFamily: state.fontFamily,
         fontSize: state.fontSize,
         fontCharacterWidthInPixels: state.fontPixelWidth,

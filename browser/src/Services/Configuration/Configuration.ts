@@ -1,9 +1,11 @@
 import * as fs from "fs"
 import * as cloneDeep from "lodash/cloneDeep"
 import * as isError from "lodash/isError"
+import * as mkdirp from "mkdirp"
 import * as path from "path"
 
-import { Event, IEvent } from "./../../Event"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
 import * as Log from "./../../Log"
 import * as Performance from "./../../Performance"
@@ -19,6 +21,8 @@ export class Configuration implements Oni.Configuration {
     private _oniApi: Oni.Plugin.Api = null
     private _config: IConfigurationValues = null
 
+    private _setValues: { [configValue: string]: any } = { }
+
     public get userJsConfig(): string {
         return path.join(this.getUserFolder(), "config.js")
     }
@@ -27,10 +31,15 @@ export class Configuration implements Oni.Configuration {
         return this._onConfigurationChangedEvent
     }
 
-    constructor() {
+    public start(): void {
         Performance.mark("Config.load.start")
 
         this.applyConfig()
+
+        if (!fs.existsSync(this.getUserFolder())) {
+            mkdirp.sync(this.getUserFolder())
+        }
+
         // use watch() on the directory rather than on config.js because it watches
         // file references and changing a file in Vim typically saves a tmp file
         // then moves it over to the original filename, causing watch() to lose its
@@ -38,22 +47,32 @@ export class Configuration implements Oni.Configuration {
         // and continue to fire when file references are swapped out.
         // Unfortunately, this also means the 'change' event fires twice.
         // I could use watchFile() but that polls every 5 seconds.  Not ideal.
-        if (fs.existsSync(this.getUserFolder())) {
-            fs.watch(this.getUserFolder(), (event, filename) => {
-                if ((event === "change" && filename === "config.js") ||
-                     (event === "rename" && filename === "config.js")) {
-                    // invalidate the Config currently stored in cache
-                    delete global["require"].cache[global["require"].resolve(this.userJsConfig)] // tslint:disable-line no-string-literal
-                    this.applyConfig()
-                }
-            })
-        }
+        fs.watch(this.getUserFolder(), (event, filename) => {
+            if ((event === "change" && filename === "config.js") ||
+                (event === "rename" && filename === "config.js")) {
+                // invalidate the Config currently stored in cache
+                delete global["require"].cache[global["require"].resolve(this.userJsConfig)] // tslint:disable-line no-string-literal
+                this.applyConfig()
+            }
+        })
 
         Performance.mark("Config.load.end")
     }
 
     public hasValue(configValue: keyof IConfigurationValues): boolean {
         return !!this.getValue(configValue)
+    }
+
+    public setValues(configValues: { [configValue: string]: any }): void {
+
+        this._setValues = configValues
+
+        this._config = {
+            ...this._config,
+            ...configValues,
+        }
+
+        this._onConfigurationChangedEvent.dispatch(configValues)
     }
 
     public getValue<K extends keyof IConfigurationValues>(configValue: K, defaultValue?: any) {
@@ -69,7 +88,8 @@ export class Configuration implements Oni.Configuration {
     }
 
     public getUserFolder(): string {
-        return path.join(Platform.getUserHome(), ".oni")
+        return Platform.isWindows() ? path.join(Platform.getUserHome(), "oni") :
+                                      path.join(Platform.getUserHome(), ".oni")
     }
 
     // Emitting event is not enough, at startup nobody's listening yet
@@ -85,15 +105,15 @@ export class Configuration implements Oni.Configuration {
         this._activateIfOniObjectIsAvailable()
     }
 
-    private applyConfig(): void {
+    private applyConfig(shouldReactivate: boolean = true): void {
         const previousConfig = this._config
 
         const userRuntimeConfigOrError = this.getUserRuntimeConfig()
         if (isError(userRuntimeConfigOrError)) {
             Log.error(userRuntimeConfigOrError)
-            this._config = { ...DefaultConfiguration }
+            this._config = { ...DefaultConfiguration, ...this._setValues }
         } else {
-            this._config = { ...DefaultConfiguration, ...userRuntimeConfigOrError}
+            this._config = { ...DefaultConfiguration, ...this._setValues, ...userRuntimeConfigOrError}
         }
 
         this._deactivate()

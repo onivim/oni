@@ -1,6 +1,6 @@
 // For more information on customizing Oni,
 // check out our wiki page:
-// https://github.com/extr0py/oni/wiki/Configuration
+// https://github.com/onivim/oni/wiki/Configuration
 
 const activate = (oni) => {
     console.log("config activated")
@@ -25,9 +25,16 @@ module.exports = {
     activate,
     deactivate,
    //add custom config here, such as
+
+   "ui.colorscheme": "onedark",
+
    //"oni.useDefaultConfig": true,
    //"oni.bookmarks": ["~/Documents",]
    //"oni.loadInitVim": false,
    //"editor.fontSize": "14px",
    //"editor.fontFamily": "Monaco"
+
+   // UI customizations
+    "ui.animations.enabled": true,
+    "ui.fontSmoothing": "auto",
 }

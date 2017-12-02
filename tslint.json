@@ -10,6 +10,7 @@
     "max-line-length": [
       false
     ],
+    "no-object-literal-type-assertion": false,
     "no-submodule-imports": false,
     "no-reference": false,
     "no-namespace": false,

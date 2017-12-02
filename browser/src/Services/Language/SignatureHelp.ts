@@ -6,13 +6,15 @@
 import { Observable } from "rxjs/Observable"
 import * as types from "vscode-languageserver-types"
 
+import * as Oni from "oni-api"
+
 import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 import * as UI from "./../../UI"
 
 import { editorManager } from "./../EditorManager"
 
-import { ILatestCursorAndBufferInfo } from "./LanguageEditorIntegration"
+import { ILatestCursorAndBufferInfo } from "./addInsertModeLanguageFunctionality"
 import { languageManager } from "./LanguageManager"
 import * as SignatureHelp from "./SignatureHelpView"
 

@@ -28,9 +28,6 @@
         "target": "es2015",
         "sourceMap": true
     },
-    "files": [
-        "./../definitions/Oni.d.ts"
-    ],
     "include": [
         "src/**/*.ts"
     ],

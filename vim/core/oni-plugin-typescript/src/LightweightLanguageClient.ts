@@ -11,6 +11,8 @@ export type ServerRequestHandler = (requestName: string, payload: any) => Promis
 export type ClientRequestHandler = (payload: any) => Promise<any>
 export type NotificationHandler = (notificationName: string, payload: any) => void
 
+import { Event } from "oni-types"
+
 export class LanguageConnection {
 
     constructor(private _client: LightweightLanguageClient) {
@@ -38,7 +40,7 @@ export class LanguageConnection {
 
 export class LightweightLanguageClient {
 
-    private _subscriptions: { [key: string]: Oni.Event<any> } = { }
+    private _subscriptions: { [key: string]: Event<any> } = { }
 
     // This is confusing because the requests are handled both ways...
     // This dictionary tracks handlers on the 'server' side
@@ -77,7 +79,7 @@ export class LightweightLanguageClient {
         }
     }
 
-    public subscribe(notificationName: string, evt: Oni.Event<any>) {
+    public subscribe(notificationName: string, evt: Event<any>) {
         this._subscriptions[notificationName] = evt
     }
 

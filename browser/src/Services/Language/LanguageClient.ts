@@ -1,6 +1,7 @@
 import * as rpc from "vscode-jsonrpc"
 
-import { Event } from "./../../Event"
+import { Event } from "oni-types"
+
 import * as Log from "./../../Log"
 
 import { ILanguageClientProcess } from "./LanguageClientProcess"

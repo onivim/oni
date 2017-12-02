@@ -4,8 +4,6 @@
  * Entry point for the BrowserWindow process
  */
 
-/// <reference path="./../../definitions/Oni.d.ts" />
-
 import { ipcRenderer, remote } from "electron"
 import * as minimist from "minimist"
 import * as Log from "./Log"
@@ -18,6 +16,7 @@ import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
 import { inputManager } from "./Services/InputManager"
 import { languageManager } from "./Services/Language"
+import * as Themes from "./Services/Themes"
 
 import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
@@ -51,6 +50,12 @@ const start = (args: string[]) => {
         document.body.style.fontSize = configuration.getValue("ui.fontSize")
         document.body.style.fontVariant = configuration.getValue("editor.fontLigatures") ? "normal" : "none"
 
+        const fontSmoothing = configuration.getValue("ui.fontSmoothing")
+
+        if (fontSmoothing) {
+            document.body.style["-webkit-font-smoothing"] = fontSmoothing
+        }
+
         const hideMenu: boolean = configuration.getValue("oni.hideMenu")
         browserWindow.setAutoHideMenuBar(hideMenu)
         browserWindow.setMenuBarVisibility(!hideMenu)
@@ -70,10 +75,17 @@ const start = (args: string[]) => {
         browserWindow.setFullScreen(configuration.getValue("editor.fullScreenOnStart"))
     }
 
+    configuration.start()
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
 
+    performance.mark("NeovimInstance.Plugins.Discover.Start")
+    pluginManager.discoverPlugins()
+    performance.mark("NeovimInstance.Plugins.Discover.End")
     UI.init(pluginManager, parsedArgs._)
+
+    const api = pluginManager.startApi()
+    configuration.activate(api)
 
     ipcRenderer.on("execute-command", (_evt: any, command: string) => {
         commandManager.executeCommand(command, null)
@@ -81,13 +93,8 @@ const start = (args: string[]) => {
 
     createLanguageClientsFromConfiguration(configuration.getValues())
 
-    performance.mark("NeovimInstance.Plugins.Start")
-    const api = pluginManager.startPlugins()
-    performance.mark("NeovimInstance.Plugins.End")
-
-    configuration.activate(api)
-
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+    Themes.activate(configuration)
 
     checkForUpdates()
 }

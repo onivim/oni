@@ -30,5 +30,20 @@ describe("InputManager", () => {
             assert.strictEqual(count, 0, "Handler should not have been called")
             assert.strictEqual(handled, false)
         })
+
+        it("dispose key handler is robust if unbindAll was called first", () => {
+            const im = new InputManager()
+
+            let count = 0
+            const dispose = im.bind("{", () => { count++; return true })
+
+            im.unbindAll()
+
+            dispose()
+
+            const handled = im.handleKey("{")
+            assert.strictEqual(count, 0, "Handler should not have been called.")
+            assert.strictEqual(handled, false)
+        })
     })
 })
