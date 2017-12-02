@@ -14,8 +14,23 @@ import { IMessageDialog, ITab, StatusBarAlignment } from "./State"
 import { Rectangle } from "./Types"
 
 import { IConfigurationValues } from "./../Services/Configuration"
+import { IThemeColors } from "./../Services/Themes"
 
 import * as types from "vscode-languageserver-types"
+
+export interface ISetWindowTitleAction {
+    type: "SET_WINDOW_TITLE",
+    payload: {
+        title: string,
+    }
+}
+
+export interface ISetColorsAction {
+    type: "SET_COLORS",
+    payload: {
+        colors: IThemeColors,
+    }
+}
 
 export interface ISetViewportAction {
     type: "SET_VIEWPORT",
@@ -197,14 +212,6 @@ export interface ISetModeAction {
     }
 }
 
-export interface ISetColorsAction {
-    type: "SET_COLORS",
-    payload: {
-        foregroundColor: string,
-        backgroundColor: string,
-    }
-}
-
 export interface IShowDefinitionAction {
     type: "SHOW_DEFINITION",
     payload: {
@@ -232,6 +239,7 @@ export type SimpleAction =
     IBufferEnterAction |
     IBufferSaveAction |
     IBufferUpdateAction |
+    ISetColorsAction |
     ISetCursorPositionAction |
     ISetImeActive |
     ISetFont |
@@ -243,7 +251,6 @@ export type SimpleAction =
     IShowDefinitionAction |
     ISetModeAction |
     ISetCursorScaleAction |
-    ISetColorsAction |
     IStatusBarHideAction |
     IStatusBarShowAction |
     ISetErrorsAction |
@@ -252,7 +259,8 @@ export type SimpleAction =
     ISetTabs |
     ISetViewportAction |
     ISetWindowCursor |
-    ISetWindowState
+    ISetWindowState |
+    ISetWindowTitleAction
 
 export type ActionWithGeneric<K extends keyof IConfigurationValues> =
     ISetConfigurationValue<K>

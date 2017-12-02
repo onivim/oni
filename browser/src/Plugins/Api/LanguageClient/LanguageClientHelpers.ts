@@ -76,15 +76,19 @@ export const eventContextToCodeActionParams = (filePath: string, range: types.Ra
     }
 }
 
-export const bufferToTextDocumentPositionParams = (buffer: Oni.Buffer) => ({
+export const createTextDocumentPositionParams = (filePath: string, line: number, column: number) => ({
     textDocument: {
-        uri: wrapPathInFileUri(buffer.filePath),
+        uri: wrapPathInFileUri(filePath),
     },
     position: {
-        line: buffer.cursor.line,
-        character: buffer.cursor.column,
+        line,
+        character: column,
     },
 })
+
+export const bufferToTextDocumentPositionParams = (buffer: Oni.Buffer) => {
+    return createTextDocumentPositionParams(buffer.filePath, buffer.cursor.line, buffer.cursor.column)
+}
 
 export const createDidChangeTextDocumentParams = (bufferFullPath: string, lines: string[], version: number) => {
     const text = lines.join(os.EOL)

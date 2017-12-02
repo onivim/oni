@@ -35,5 +35,3 @@ inoremap <expr> <C-b> pumvisible() ? "<Esc>bi" : "<C-o>b"
 inoremap <expr> <C-l> pumvisible() ? "<Esc>la" : "<C-o>a"
 
 tnoremap <Esc> <C-\><C-n>
-
-colorscheme onedark

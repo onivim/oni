@@ -6,7 +6,16 @@ import * as assert from "assert"
 import * as os from "os"
 import * as path from "path"
 
-import { getCompletionElement } from "./Common"
+const getCompletionElement = () => {
+
+    const elements = document.body.getElementsByClassName("autocompletion")
+
+    if (!elements || !elements.length) {
+        return null
+    } else {
+        return elements[0]
+    }
+}
 
 export const test = async (oni: any) => {
     const dir = os.tmpdir()

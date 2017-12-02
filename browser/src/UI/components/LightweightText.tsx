@@ -64,8 +64,8 @@ export class TextInputView extends React.PureComponent<IToolTipsViewProps, {}> {
 
 const mapStateToProps = (state: State.IState, originalProps?: Partial<IToolTipsViewProps>) => ({
     ...originalProps,
-    backgroundColor: state.backgroundColor,
-    foregroundColor: state.foregroundColor,
+    backgroundColor: state.colors["editor.background"],
+    foregroundColor: state.colors["editor.foreground"],
 })
 
 export const TextInput = connect(mapStateToProps)(TextInputView)

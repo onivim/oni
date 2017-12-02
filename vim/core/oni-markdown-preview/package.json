@@ -1,28 +1,36 @@
 {
-    "name": "oni-markdown-preview",
-    "version": "0.0.1",
-    "main": "lib/vim/core/oni-markdown-preview/src/index.js",
-    "engines": {
-        "oni": "^0.0.1"
-    },
-    "scripts": {
-        "build": "rimraf lib && tsc",
-        "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
-    },
-    "oni": {
-        "supportedFileTypes": [
-            "markdown"
-        ],
-        "commands": {
-            "markdown.preview": {
-                "name": "Markdown Preview",
-                "details": "Preview open markdown file"
-            }
-        }
-    },
-    "dependencies": {
-        "typescript": "2.5.3",
-        "rimraf": "2.6.2"
-    },
-    "devDependencies": {}
+  "name": "oni-markdown-preview",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "engines": {
+    "oni": "^0.0.1"
+  },
+  "scripts": {
+    "build": "rimraf lib && tsc",
+    "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
+  },
+  "oni": {
+    "supportedFileTypes": [
+      "markdown"
+    ],
+    "commands": {
+      "markdown.preview": {
+        "name": "Markdown Preview",
+        "details": "Preview open markdown file"
+      }
+    }
+  },
+  "peerDependencies": {
+    "typescript": "^2.5.3",
+    "rimraf": "^2.6.2",
+    "oni-types": "^0.0.4",
+    "oni-api": "^0.0.7"
+  },
+  "devDependencies": {
+    "typescript": "2.5.3",
+    "rimraf": "2.6.2",
+    "vscode-languageserver-types": "3.5.0",
+    "oni-types": "0.0.4",
+    "oni-api": "file:/home/tal/oni-api"
+  }
 }

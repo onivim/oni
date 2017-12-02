@@ -14,7 +14,7 @@ import * as UI from "./../../UI"
 
 import { editorManager } from "./../EditorManager"
 
-import { ILatestCursorAndBufferInfo } from "./LanguageEditorIntegration"
+import { ILatestCursorAndBufferInfo } from "./addInsertModeLanguageFunctionality"
 import { languageManager } from "./LanguageManager"
 import * as SignatureHelp from "./SignatureHelpView"
 

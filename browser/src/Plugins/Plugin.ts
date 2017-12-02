@@ -8,17 +8,12 @@ import { Oni } from "./Api/Oni"
 
 import * as PackageMetadataParser from "./PackageMetadataParser"
 
-export interface IPluginCommandInfo extends Capabilities.ICommandInfo {
-    command: string
-}
-
 export class Plugin {
     private _oniPluginMetadata: Capabilities.IPluginMetadata
-    private _commands: IPluginCommandInfo[]
     private _oni: Oni
 
-    public get commands(): IPluginCommandInfo[] {
-        return this._commands
+    public get metadata(): Capabilities.IPluginMetadata {
+        return this._oniPluginMetadata
     }
 
     constructor(
@@ -27,15 +22,7 @@ export class Plugin {
         const packageJsonPath = path.join(this._pluginRootDirectory, "package.json")
 
         if (fs.existsSync(packageJsonPath)) {
-            this._oniPluginMetadata = PackageMetadataParser.parseFromString(fs.readFileSync(packageJsonPath, "utf8"))
-
-            if (!this._oniPluginMetadata) {
-                Log.error(`[PLUGIN] Aborting plugin load, invalid package.json: ${packageJsonPath}`)
-            } else {
-                if (this._oniPluginMetadata.main) {
-                    this._commands = PackageMetadataParser.getAllCommandsFromMetadata(this._oniPluginMetadata)
-                }
-            }
+            this._oniPluginMetadata = PackageMetadataParser.readMetadata(packageJsonPath)
         }
     }
 

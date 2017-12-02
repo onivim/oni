@@ -23,6 +23,7 @@ import { Oni } from "./../Plugins/Api/Oni"
 export class Automation implements OniApi.Automation.Api {
 
     public sendKeys(keys: string): void {
+        Log.info("[AUTOMATION] Sending keys: " + keys)
 
         if (!inputManager.handleKey(keys)) {
             const anyEditor: any = editorManager.activeEditor as any
@@ -31,20 +32,26 @@ export class Automation implements OniApi.Automation.Api {
     }
 
     public async sleep(time: number = 1000): Promise<void> {
+        Log.info("[AUTOMATION] Sleeping for " + time + "ms")
         return new Promise<void>((r) => window.setTimeout(() => r(), time))
     }
 
     public async waitFor(condition: () => boolean, timeout: number = 5000): Promise<void> {
+        Log.info("[AUTOMATION] Starting wait - limit: " + timeout)
         let time = 0
         const interval = 1000
 
         while (time <= timeout) {
             if (condition()) {
+                Log.info("[AUTOMATION] Wait condition met at: " + time)
                 return
             }
             await this.sleep(interval)
             time += interval
+            Log.info("[AUTOMATION] Wait condition still not met: " + time + " / " + timeout)
         }
+
+        Log.info("[AUTOMATION]: waitFor timeout expired")
 
         throw new Error("waitFor: Timeout expired")
     }
@@ -56,10 +63,12 @@ export class Automation implements OniApi.Automation.Api {
         const testPath2 = testPath
 
         const loggingRedirector = new LoggingRedirector()
-        Log.enableDebugLogging()
+        Log.enableVerboseLogging()
         try {
+            Log.info("[AUTOMATION] Starting test: " + testPath)
             const testCase: any = Utility.nodeRequire(testPath2)
             await testCase.test(new Oni())
+            Log.info("[AUTOMATION] Completed test: " + testPath)
             this._reportResult(true)
         } catch (ex) {
             this._reportResult(false, ex)

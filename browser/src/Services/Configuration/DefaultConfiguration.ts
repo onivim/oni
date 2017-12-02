@@ -56,8 +56,6 @@ const BaseConfiguration: IConfigurationValues = {
 
     "oni.loadInitVim": false,
 
-    "oni.useExternalPopupMenu": true,
-
     "oni.hideMenu": false,
 
     "oni.exclude": ["node_modules", ".git"],
@@ -72,7 +70,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickInfo.enabled": true,
     "editor.quickInfo.delay": 500,
 
-    "editor.completions.enabled": true,
+    "editor.completions.mode": "oni",
     "editor.errors.slideOnFocus": true,
     "editor.formatting.formatOnSwitchToNormalMode": false,
 
@@ -85,6 +83,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickOpen.execCommand": null,
 
     "editor.scrollBar.visible": true,
+
+    "editor.scrollBar.cursorTick.visible": true,
 
     "editor.fullScreenOnStart": false,
     "editor.maximizeScreenOnStart": false,
@@ -124,6 +124,8 @@ const BaseConfiguration: IConfigurationValues = {
     "environment.additionalPaths": [],
 
     "language.go.languageServer.command": "go-langserver",
+    "language.go.textMateGrammar": path.join(__dirname, "extensions", "go", "syntaxes", "go.json"),
+
     "language.python.languageServer.command": "pyls",
     "language.cpp.languageServer.command": "clangd",
     "language.c.languageServer.command": "clangd",
@@ -176,8 +178,10 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.wrap": false,
 
     "ui.animations.enabled": true,
+    "ui.colorscheme": "onedark",
     "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
+    "ui.fontSmoothing": "auto",
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {

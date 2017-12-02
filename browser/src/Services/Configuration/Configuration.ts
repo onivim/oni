@@ -20,6 +20,7 @@ export class Configuration implements Oni.Configuration {
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
     private _oniApi: Oni.Plugin.Api = null
     private _config: IConfigurationValues = null
+    private _configEverHadValue: boolean = false
 
     private _setValues: { [configValue: string]: any } = { }
 
@@ -109,10 +110,20 @@ export class Configuration implements Oni.Configuration {
         const previousConfig = this._config
 
         const userRuntimeConfigOrError = this.getUserRuntimeConfig()
+
+        // If the configuration is null, but it had some value at some point,
+        // we assume this is due to reading while the file write is still in
+        // transition, and ignore it
+        if (userRuntimeConfigOrError === null && this._configEverHadValue) {
+            Log.info("Configuration was null; skipping")
+            return
+        }
+
         if (isError(userRuntimeConfigOrError)) {
             Log.error(userRuntimeConfigOrError)
             this._config = { ...DefaultConfiguration, ...this._setValues }
         } else {
+            this._configEverHadValue = true
             this._config = { ...DefaultConfiguration, ...this._setValues, ...userRuntimeConfigOrError}
         }
 

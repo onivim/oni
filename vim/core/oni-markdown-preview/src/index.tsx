@@ -1,3 +1,6 @@
+import { EventCallback, Event, IDisposable, IEvent } from "oni-types"
+
+import * as Oni from "oni-api"
 import * as marked from "marked"
 import * as React from "react"
 
@@ -15,7 +18,7 @@ export interface IMarkdownPreviewState {
 
 export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdownPreviewState> {
     private _fs = require('fs')
-    private _subscriptions: Array<Oni.IDisposable> = []
+    private _subscriptions: Array<IDisposable> = []
 
     constructor(props: IMarkdownPreviewProps) {
         super(props)
@@ -40,7 +43,7 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
         this._subscriptions = []
     }
 
-    private subscribe<T>(editorEvent: Oni.IEvent<T>, eventCallback: Oni.EventCallback<T>): void {
+    private subscribe<T>(editorEvent: IEvent<T>, eventCallback: EventCallback<T>): void {
         this._subscriptions.push(editorEvent.subscribe(eventCallback))
     }
 

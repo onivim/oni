@@ -72,7 +72,7 @@ const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
         y: props.lineType === "line" ? state.cursorPixelY : activeWindowDimensions.y,
         width: props.lineType === "line" ? activeWindowDimensions.width : state.cursorPixelWidth,
         height: props.lineType === "line" ? state.fontPixelHeight : activeWindowDimensions.height,
-        color: state.foregroundColor,
+        color: state.colors["editore.foreground"],
         visible,
         opacity,
     }

@@ -46,7 +46,8 @@ export const getFilteredCompletions = (state: ICompletionState): types.Completio
 
     // If there is only one element, and it matches our base,
     // don't bother showing it..
-    if (CompletionUtility.getInsertText(filteredCompletions[0]) === state.meetInfo.meetBase) {
+    if (CompletionUtility.getInsertText(filteredCompletions[0]) === state.meetInfo.meetBase
+        && filteredCompletions.length === 1) {
         return EmptyCompletions
     }
 

@@ -1,3 +1,3 @@
 export * from "./Completion"
-export * from "./CompletionMenu"
+export * from "./CompletionsRequestor"
 export * from "./CompletionUtility"

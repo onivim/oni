@@ -16,6 +16,7 @@ import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
 import { inputManager } from "./Services/InputManager"
 import { languageManager } from "./Services/Language"
+import * as Themes from "./Services/Themes"
 
 import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
@@ -48,6 +49,12 @@ const start = (args: string[]) => {
         document.body.style.fontFamily = configuration.getValue("ui.fontFamily")
         document.body.style.fontSize = configuration.getValue("ui.fontSize")
         document.body.style.fontVariant = configuration.getValue("editor.fontLigatures") ? "normal" : "none"
+
+        const fontSmoothing = configuration.getValue("ui.fontSmoothing")
+
+        if (fontSmoothing) {
+            document.body.style["-webkit-font-smoothing"] = fontSmoothing
+        }
 
         const hideMenu: boolean = configuration.getValue("oni.hideMenu")
         browserWindow.setAutoHideMenuBar(hideMenu)
@@ -87,6 +94,7 @@ const start = (args: string[]) => {
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+    Themes.activate(configuration)
 
     checkForUpdates()
 }

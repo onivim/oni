@@ -1,6 +1,8 @@
 import * as React from "react"
 
-import { keyEventToVimKey } from "./../Input/Keyboard"
+import * as Platform from "./../Platform"
+
+import { getKeyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { inputManager } from "./../Services/InputManager"
 import { MenuContainer } from "./../Services/Menu"
@@ -10,12 +12,16 @@ import { Background } from "./components/Background"
 import StatusBar from "./components/StatusBar"
 
 import { WindowSplits } from "./components/WindowSplits"
+import { WindowTitle } from "./components/WindowTitle"
 
 interface IRootComponentProps {
     windowManager: WindowManager.WindowManager
 }
 
+const titleBarVisible = Platform.isMac()
+
 export class RootComponent extends React.PureComponent<IRootComponentProps, {}> {
+
     public render() {
         return <div className="stack disable-mouse" onKeyDownCapture={(evt) => this._onRootKeyDown(evt)}>
             <div className="stack">
@@ -23,6 +29,9 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
             </div>
             <div className="stack">
                 <div className="container vertical full">
+                    <div className="container fixed">
+                        <WindowTitle visible={titleBarVisible} />
+                    </div>
                     <div className="container full">
                         <div className="stack">
                             <WindowSplits windowManager={this.props.windowManager} />
@@ -40,7 +49,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
     }
 
     private _onRootKeyDown(evt: React.KeyboardEvent<HTMLElement>): void {
-        const vimKey = keyEventToVimKey(evt.nativeEvent)
+        const vimKey = getKeyEventToVimKey()(evt.nativeEvent)
         if (inputManager.handleKey(vimKey)) {
             evt.stopPropagation()
             evt.preventDefault()

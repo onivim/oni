@@ -67,13 +67,14 @@ class Recorder {
         return !!this._recorder
     }
 
-    public async stopRecording(): Promise<void> {
+    public async stopRecording(fileName?: string): Promise<void> {
         this._recorder.stop()
 
         const arrayBuffer = await toArrayBuffer(new Blob(this._blobs, {type: "video/webm"}))
 
         const buffer = toBuffer(arrayBuffer)
-        const videoFilePath = getOutputPath("oni-video", "webm")
+        fileName = fileName || getFileName("oni-video", "webm")
+        const videoFilePath = getOutputPath(fileName)
 
         // TODO: Finish making this async
         if (fs.existsSync(videoFilePath)) {
@@ -87,12 +88,13 @@ class Recorder {
         alert("Recording saved to: " + videoFilePath)
     }
 
-    public takeScreenshot(scale: number = 1): void {
+    public takeScreenshot(fileName?: string, scale: number = 1): void {
         const webContents = require("electron").remote.getCurrentWebContents()
         webContents.capturePage((image) => {
             const pngBuffer = image.toPNG({ scaleFactor: scale})
 
-            const screenshotPath = getOutputPath("oni-screenshot", "png")
+            fileName = fileName || getFileName("oni-screenshot", "png")
+            const screenshotPath = getOutputPath(fileName)
             fs.writeFileSync(screenshotPath, pngBuffer)
             if (configuration.getValue("recorder.copyScreenshotToClipboard")) {
                 clipboard.writeImage(screenshotPath as any)
@@ -135,9 +137,12 @@ const getDimensions = () => {
     }
 }
 
-const getOutputPath = (fileBase: string, fileExtension: string) => {
+const getFileName = (fileBase: string, fileExtension: string) => {
+    return `${fileBase}-${new Date().getTime()}.${fileExtension}`
+}
+
+const getOutputPath = (fileName: string) => {
     const outputPath = configuration.getValue("recorder.outputPath")
-    const fileName = `${fileBase}-${new Date().getTime()}.${fileExtension}`
     return path.join(outputPath, fileName)
 }
 

@@ -47,6 +47,7 @@ export const remapResolver = (evt: KeyboardEvent, previousResolution: string | n
 }
 
 export const createMetaKeyResolver = (keyMap: IKeyMap) => {
+
     return (evt: KeyboardEvent, previousResolution: string | null): null | string => {
         const isCharacterFromShiftKey = isShiftCharacter(keyMap, evt)
         const isCharacterFromAltGraphKey = isAltGraphCharacter(keyMap, evt)
