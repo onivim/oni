@@ -1,0 +1,25 @@
+{
+  "extends": "tslint:latest",
+  "rules": {
+    "max-classes-per-file": [
+      false
+    ],
+    "max-line-length": [
+      false
+    ],
+    "no-namespace": false,
+    "no-reference": false,
+    "object-literal-sort-keys": false,
+    "semicolon": [
+      true,
+      "never"
+    ],
+    "variable-name": [
+      true,
+      "allow-leading-underscore",
+      "allow-pascal-case",
+      "ban-keywords",
+      "check-format"
+    ]
+  }
+}
