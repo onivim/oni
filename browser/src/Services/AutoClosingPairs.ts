@@ -11,8 +11,6 @@ import { EditorManager } from "./EditorManager"
 import { InputManager } from "./InputManager"
 import { LanguageManager } from "./Language"
 
-import { PromiseQueue } from "./Language/PromiseQueue"
-
 import * as Log from "./../Log"
 
 export interface IAutoClosingPair {
@@ -27,17 +25,12 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
 
     let subscriptions: Oni.DisposeFunction[] = []
 
-    // Use a queue to order requests - since there is latency between entering the '()'
-    // and resolving the cursor position, we can run into issues when a key is held down.
-    const queue = new PromiseQueue()
-
     const handleOpenCharacter = (pair: IAutoClosingPair, editor: Oni.Editor) => () => {
 
-        queue.enqueuePromise(async () => {
-            const neovim = editor.neovim
-
+        const neovim: any = editor.neovim
+        neovim.blockInput(async (inputFunc: any) => {
             // TODO: PERFORMANCE: Look at how to collapse this instead of needed multiple asynchronous calls.
-            await neovim.input(pair.open + pair.close)
+            await inputFunc(pair.open + pair.close)
 
             const pos = await neovim.callFunction("getpos", ["."])
             const [, oneBasedLine, oneBasedColumn] = pos
@@ -48,11 +41,11 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
     }
 
     const handleBackspaceCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
-        queue.enqueuePromise(async () => {
+        const neovim: any = editor.neovim
+        neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
             const lines = await activeBuffer.getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1)
             const line = lines[0]
-            const neovim = editor.neovim
 
             const { column } = activeBuffer.cursor
 
@@ -73,7 +66,7 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
 
                 await activeBuffer.setLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, [beforePair + afterPair])
             } else {
-                await neovim.input("<bs>")
+                await inputFunc("<bs>")
             }
         })
 
@@ -81,12 +74,12 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
     }
 
     const handleEnterCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
-        queue.enqueuePromise(async () => {
+        const neovim: any = editor.neovim
+        neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
 
             const lines = await activeBuffer.getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1)
             const line = lines[0]
-            const neovim = editor.neovim
 
             const { column } = activeBuffer.cursor
 
@@ -105,10 +98,10 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
                 const [, oneBasedLine ] = pos
                 await activeBuffer.setLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, [beforePair, whiteSpacePrefix, whiteSpacePrefix + afterPair])
                 await activeBuffer.setCursorPosition(oneBasedLine, whiteSpacePrefix.length)
-                await neovim.input("<tab>")
+                await inputFunc("<tab>")
 
             } else {
-                await neovim.input("<enter>")
+                await inputFunc("<enter>")
             }
         })
 
@@ -116,15 +109,15 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
     }
 
     const handleCloseCharacter = (pair: IAutoClosingPair, editor: Oni.Editor) => () => {
-
-        queue.enqueuePromise(async () => {
+        const neovim: any = editor.neovim
+        neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
             const lines = await activeBuffer.getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1)
             const line = lines[0]
             if (line[activeBuffer.cursor.column] === pair.close) {
                 await activeBuffer.setCursorPosition(activeBuffer.cursor.line, activeBuffer.cursor.column + 1)
             } else {
-                await editor.neovim.input(pair.close)
+                await inputFunc(pair.close)
             }
         })
 
