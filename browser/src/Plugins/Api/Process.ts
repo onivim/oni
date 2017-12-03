@@ -1,11 +1,8 @@
 import * as ChildProcess from "child_process"
-// import * as util from "util"
 import * as shellEnv from "shell-env"
 
 import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
-
-// const exec = util.promisify(ChildProcess.exec)
 
 const getPathSeparator = () => {
     return Platform.isWindows() ? ";" : ":"
@@ -20,7 +17,7 @@ const mergePathEnvironmentVariable = (currentPath: string, pathsToAdd: string[])
 
     const joinedPathsToAdd = pathsToAdd.join(separator)
 
-    return (currentPath + separator + joinedPathsToAdd + separator).replace(/[\n\r]/g, "")
+    return currentPath + separator + joinedPathsToAdd + separator
 }
 
 const mergeSpawnOptions = async (originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions): Promise<any> => {
@@ -34,17 +31,13 @@ const mergeSpawnOptions = async (originalSpawnOptions: ChildProcess.ExecOptions 
     let existingPath: string
 
     try {
-        // const pathCommand = Platform.isWindows() ? "echo %PATH%" : "echo $PATH"
         const { PATH: path } = await shellEnv()
-        console.log("Path ==============================", path)
         existingPath = path || process.env.Path || process.env.PATH
     } catch (e) {
-        console.log("error: ", e)
         existingPath = process.env.Path || process.env.PATH
     }
 
     requiredOptions.env.PATH = mergePathEnvironmentVariable(existingPath, configuration.getValue("environment.additionalPaths"))
-    console.log("requireOptions.env.PATH: ", requiredOptions.env.PATH);
     return {
         ...originalSpawnOptions,
         ...requiredOptions,
