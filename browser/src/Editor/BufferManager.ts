@@ -37,7 +37,7 @@ export class Buffer implements Oni.Buffer {
     private _lineCount: number
 
     private _bufferLines: string[] = null
-    private _lastBufferLineVersion: number = -1
+    // private _lastBufferLineVersion: number = -1
 
     private _promiseQueue = new PromiseQueue()
     private _previousHighlightState: BufferHighlightState = {}
@@ -85,12 +85,12 @@ export class Buffer implements Oni.Buffer {
             end = this._lineCount
         }
 
-        if (this._lastBufferLineVersion < this.version || !this._bufferLines || !cached) {
+//         if (this._lastBufferLineVersion < this.version || !this._bufferLines || !cached) {
             const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [parseInt(this._id, 10), start, end, false])
             return lines
-        }
+        // }
 
-        return this._bufferLines.slice(start, end)
+        // return this._bufferLines.slice(start, end)
     }
 
     public async applyTextEdits(textEdits: types.TextEdit | types.TextEdit[]): Promise<void> {
@@ -233,14 +233,14 @@ export class Buffer implements Oni.Buffer {
 
     public _notifyBufferUpdated(lines: string[], version: number): void {
         this._bufferLines = lines
-        this._lastBufferLineVersion = version
+        // this._lastBufferLineVersion = version
     }
 
     public _notifyBufferUpdatedAt(line: number, lineContents: string, version: number): void {
         if (this._bufferLines) {
             this._bufferLines[line] = lineContents
         }
-        this._lastBufferLineVersion = version
+        // this._lastBufferLineVersion = version
     }
 }
 
