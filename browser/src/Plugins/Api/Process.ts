@@ -5,13 +5,12 @@ import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
 
 const exec = util.promisify(ChildProcess.exec)
-type ExecReturn = string | { stdout: string, stderr: string }
 
 const getPathSeparator = () => {
     return Platform.isWindows() ? ";" : ":"
 }
 
-const mergePathEnvironmentVariable = (currentPath: ExecReturn, pathsToAdd: string[]): ExecReturn => {
+const mergePathEnvironmentVariable = (currentPath: string, pathsToAdd: string[]): string => {
     if (!pathsToAdd || !pathsToAdd.length) {
         return currentPath
     }
@@ -20,7 +19,7 @@ const mergePathEnvironmentVariable = (currentPath: ExecReturn, pathsToAdd: strin
 
     const joinedPathsToAdd = pathsToAdd.join(separator)
 
-    return currentPath + separator + joinedPathsToAdd + separator
+    return currentPath + separator + joinedPathsToAdd
 }
 
 const mergeSpawnOptions = async (originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions): Promise<any> => {
@@ -31,11 +30,12 @@ const mergeSpawnOptions = async (originalSpawnOptions: ChildProcess.ExecOptions 
         },
     }
 
-    let existingPath: ExecReturn
+    let existingPath: string
 
     try {
         const pathCommand = Platform.isWindows() ? "echo %PATH%" : "echo $PATH"
-        const path = await exec(pathCommand)
+        const rawPath = await exec(pathCommand)
+        const path = rawPath.toString().replace(/[\n\r]/g, "")
 
         existingPath = path || process.env.Path || process.env.PATH
     } catch (e) {
