@@ -17,7 +17,7 @@ const mergePathEnvironmentVariable = (currentPath: string, pathsToAdd: string[])
 
     const joinedPathsToAdd = pathsToAdd.join(separator)
 
-    return currentPath + separator + joinedPathsToAdd + separator
+    return currentPath + separator + joinedPathsToAdd
 }
 
 const mergeSpawnOptions = async (originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions): Promise<any> => {
@@ -31,8 +31,9 @@ const mergeSpawnOptions = async (originalSpawnOptions: ChildProcess.ExecOptions 
     let existingPath: string
 
     try {
-        const { PATH: path } = await shellEnv()
-        existingPath = path || process.env.Path || process.env.PATH
+        const shellEnvironment = await shellEnv()
+        process.env = { ...process.env, ...shellEnvironment }
+        existingPath = process.env.Path || process.env.PATH
     } catch (e) {
         existingPath = process.env.Path || process.env.PATH
     }
