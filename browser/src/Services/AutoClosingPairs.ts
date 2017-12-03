@@ -74,6 +74,7 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
     }
 
     const handleEnterCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
+        console.log("AUTOPAIRS: HANDLING ENTER")
         const neovim: any = editor.neovim
         neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
@@ -136,6 +137,8 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         }
 
         subscriptions = []
+
+        console.log("Installing auto pairs for buffer: " + newBuffer.filePath)
 
         const autoClosingPairs = getAutoClosingPairs(configuration, newBuffer.language)
 

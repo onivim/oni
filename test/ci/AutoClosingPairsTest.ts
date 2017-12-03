@@ -18,9 +18,12 @@ export const test = async (oni: any) => {
     await oni.automation.sleep(50)
 
     oni.automation.sendKeys("<CR>")
-
-    await oni.automation.sleep(100)
     oni.automation.sendKeys("i")
+
+    // TOOD: There is a slight delay when initializating auto-pairs for the buffer
+    // Need a deterministic test to wait for those to be bound
+    // Need a method on `InputManager` like: isBound(key: string)
+
     await oni.automation.sleep(50)
     oni.automation.sendKeys("const test = ")
     oni.automation.sendKeys("{")
