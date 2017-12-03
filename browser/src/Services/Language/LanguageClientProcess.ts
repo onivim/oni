@@ -122,6 +122,7 @@ export class LanguageClientProcess {
         }
 
         if (!this._process || !this._process.pid) {
+            console.log("this._process: ", this._process)
             throw new Error("Unable to start language server process")
         }
 
