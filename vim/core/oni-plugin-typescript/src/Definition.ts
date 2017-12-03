@@ -21,7 +21,7 @@ export const getDefinition = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) =
     const position: types.Position = payload.position
 
     const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-    const val: any = await host.getTypeDefinition(filePath, position.line + 1, position.character + 1)
+    const val: any = await host.getDefinition(filePath, position.line + 1, position.character + 1)
 
     const resultPos = val[0]
 
