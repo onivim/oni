@@ -227,6 +227,15 @@ export class NeovimEditor extends Editor implements IEditor {
             this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
         })
 
+        this._neovimInstance.onScroll.subscribe((args: EventContext) => {
+            const convertedArgs: Oni.EditorBufferScrolledEventArgs = {
+                bufferTotalLines: args.bufferTotalLines,
+                windowTopLine: args.windowTopLine,
+                windowBottomLine: args.windowBottomLine,
+            }
+            this.notifyBufferScrolled(convertedArgs)
+        })
+
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
 
         const textMateHighlightingEnabled = this._config.getValue("experimental.editor.textMateHighlighting.enabled")
@@ -375,13 +384,11 @@ export class NeovimEditor extends Editor implements IEditor {
 
             if (newTheme.baseVimTheme && newTheme.baseVimTheme !== this._currentColorScheme) {
                 this._neovimInstance.command(":color " + newTheme.baseVimTheme)
-                UI.Actions.setColors(this._themeManager.getColors())
             }
         })
 
         if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
             await this._neovimInstance.command(":color " + this._themeManager.activeTheme.baseVimTheme)
-            UI.Actions.setColors(this._themeManager.getColors())
         }
 
         this._hasLoaded = true
