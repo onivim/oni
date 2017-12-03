@@ -8,7 +8,7 @@ import * as assert from "assert"
 import * as os from "os"
 import * as path from "path"
 
-const delay = 50
+const delay = 0
 
 export const test = async (oni: any) => {
     const dir = os.tmpdir()
@@ -23,23 +23,14 @@ export const test = async (oni: any) => {
     oni.automation.sendKeys("i")
     await oni.automation.sleep(50)
     oni.automation.sendKeys("const test = ")
-    await oni.automation.sleep(delay)
     oni.automation.sendKeys("{")
-    await oni.automation.sleep(delay)
     oni.automation.sendKeys("<enter>")
-    await oni.automation.sleep(delay)
     oni.automation.sendKeys("window.setTimeout")
-    await oni.automation.sleep(delay)
     oni.automation.sendKeys("(")
-    await oni.automation.sleep(delay)
     oni.automation.sendKeys("(")
-    await oni.automation.sleep(delay)
     oni.automation.sendKeys(")")
-    await oni.automation.sleep(delay)
     oni.automation.sendKeys(" => ")
-    await oni.automation.sleep(delay)
     oni.automation.sendKeys("{")
-    await oni.automation.sleep(delay)
     oni.automation.sendKeys("<enter>")
     // oni.automation.sendKeys("window.setTimeout(() => {<CR>")
 
@@ -48,7 +39,7 @@ export const test = async (oni: any) => {
     const lines: string[]  = await oni.editors.activeEditor.activeBuffer.getLines(0, 4)
 
     const expectedResult = [
-        "const test = {"
+        "const test = {",
         "   window.setTimeout(() => {",
         "       ",
         "   })",

@@ -462,7 +462,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public blockInput(func: (opt?: any) => Promise<void>): void {
-        const forceInput = (inputString: string) => this._neovim.request("nvim_input", [inputString])
+        const forceInput = (inputString: string) => {
+            console.log("forced input: " + inputString)
+            return this._neovim.request("nvim_input", [inputString]); 
+        }
+
 
         this._inputQueue.enqueuePromise(async () => {
             console.log("start block")

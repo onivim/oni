@@ -78,7 +78,7 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
 
-            const lines = await activeBuffer.getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1)
+            const lines = await (<any>activeBuffer).getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, false)
             const line = lines[0]
 
             const { column } = activeBuffer.cursor
@@ -112,7 +112,7 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         const neovim: any = editor.neovim
         neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
-            const lines = await activeBuffer.getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1)
+            const lines = await (<any>activeBuffer).getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, false)
             const line = lines[0]
             if (line[activeBuffer.cursor.column] === pair.close) {
                 await activeBuffer.setCursorPosition(activeBuffer.cursor.line, activeBuffer.cursor.column + 1)
