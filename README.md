@@ -32,7 +32,9 @@ Support this project by [becoming a sponsor](https://opencollective.com/oni#spon
 
 Oni is a [neovim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/).
 
-![screenshot](https://s3-us-west-2.amazonaws.com/oni-media/screenshot-darwin.png)
+<p align="center">
+    <img src="https://s3-us-west-2.amazonaws.com/oni-media/screenshot-darwin.png"/>
+</p>
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
