@@ -47,6 +47,7 @@ export class Plugin {
             })
             Log.info(`[PLUGIN] Activation successful.`)
         } catch (ex) {
+            console.log('ex: ', ex);
             Log.error(`[PLUGIN] Failed to load plugin: ${this._oniPluginMetadata.name}`, ex)
         }
     }
