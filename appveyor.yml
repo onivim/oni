@@ -9,20 +9,25 @@ branches:
     - master
     - /^release.*/
 
+cache:
+    - "%LOCALAPPDATA%\\Yarn"
+
 platform:
     - x86
     - x64
 
 # Install scripts. (runs after repo cloning)
 install:
+  # Ensure the Git Submoduldes have been pulled down too
+  - git submodule update --init --recursive
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
   # Workaround https://github.com/npm/npm/issues/18380
-  - npm install npm@5.3 -g
+  - npm install -g yarn
   - node --version
   - npm --version
   # install modules
-  - npm install
+  - yarn install
 
 artifacts:
     - path: dist/*.exe
@@ -30,6 +35,9 @@ artifacts:
 
     - path: dist/*.zip
       name: ProductZip
+
+    - path: dist/media/screenshot-win32.png
+      name: DemoScreenshot
 
 deploy:
     provider: GitHub
@@ -57,6 +65,7 @@ test_script:
   - npm run pack:win
   # run integration tests
   - npm run test:integration
+  - npm run demo
 
 # Don't actually build.
 build: off

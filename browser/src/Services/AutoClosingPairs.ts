@@ -4,6 +4,8 @@
  * Service to enable auto-closing pair key bindings
  */
 
+import * as Oni from "oni-api"
+
 import { Configuration } from "./Configuration"
 import { EditorManager } from "./EditorManager"
 import { InputManager } from "./InputManager"
@@ -45,6 +47,73 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         return true
     }
 
+    const handleBackspaceCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
+        queue.enqueuePromise(async () => {
+            const activeBuffer = editor.activeBuffer
+            const lines = await activeBuffer.getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1)
+            const line = lines[0]
+            const neovim = editor.neovim
+
+            const { column } = activeBuffer.cursor
+
+            const matchingPair = pairs.find((p) => {
+                return column >= 1
+                    && line[column] === p.close
+                    && line[column - 1] === p.open
+            })
+
+            if (matchingPair) {
+                // Remove the pairs
+                const beforePair = line.substring(0, column - 1)
+                const afterPair = line.substring(column + 1, line.length)
+
+                const pos = await neovim.callFunction("getpos", ["."])
+                const [, oneBasedLine, oneBasedColumn] = pos
+                await editor.activeBuffer.setCursorPosition(oneBasedLine - 1, oneBasedColumn - 2)
+
+                await activeBuffer.setLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, [beforePair + afterPair])
+            } else {
+                await neovim.input("<bs>")
+            }
+        })
+
+        return true
+    }
+
+    const handleEnterCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
+        queue.enqueuePromise(async () => {
+            const activeBuffer = editor.activeBuffer
+
+            const lines = await activeBuffer.getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1)
+            const line = lines[0]
+            const neovim = editor.neovim
+
+            const { column } = activeBuffer.cursor
+
+            const matchingPair = pairs.find((p) => {
+                return column >= 1
+                    && line[column] === p.close
+                    && line[column - 1] === p.open
+            })
+
+            if (matchingPair) {
+                const beforePair = line.substring(0, column)
+                const afterPair = line.substring(column, line.length)
+
+                const pos = await neovim.callFunction("getpos", ["."])
+                const [, oneBasedLine ] = pos
+                await activeBuffer.setLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, [beforePair, "", afterPair])
+                await activeBuffer.setCursorPosition(oneBasedLine, 0)
+                await neovim.input("<tab>")
+
+            } else {
+                await neovim.input("<enter>")
+            }
+        })
+
+        return true
+    }
+
     const handleCloseCharacter = (pair: IAutoClosingPair, editor: Oni.Editor) => () => {
 
         queue.enqueuePromise(async () => {
@@ -80,6 +149,9 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
             subscriptions.push(inputManager.bind(pair.open, handleOpenCharacter(pair, editorManager.activeEditor), insertModeFilter))
             subscriptions.push(inputManager.bind(pair.close, handleCloseCharacter(pair, editorManager.activeEditor), insertModeFilter))
         })
+
+        subscriptions.push(inputManager.bind("<bs>", handleBackspaceCharacter(autoClosingPairs, editorManager.activeEditor), insertModeFilter))
+        subscriptions.push(inputManager.bind("<enter>", handleEnterCharacter(autoClosingPairs, editorManager.activeEditor), insertModeFilter))
 
     })
 }

@@ -4,7 +4,8 @@ import * as isError from "lodash/isError"
 import * as mkdirp from "mkdirp"
 import * as path from "path"
 
-import { Event, IEvent } from "./../../Event"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
 import * as Log from "./../../Log"
 import * as Performance from "./../../Performance"
@@ -19,6 +20,9 @@ export class Configuration implements Oni.Configuration {
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
     private _oniApi: Oni.Plugin.Api = null
     private _config: IConfigurationValues = null
+    private _configEverHadValue: boolean = false
+
+    private _setValues: { [configValue: string]: any } = { }
 
     public get userJsConfig(): string {
         return path.join(this.getUserFolder(), "config.js")
@@ -28,7 +32,7 @@ export class Configuration implements Oni.Configuration {
         return this._onConfigurationChangedEvent
     }
 
-    constructor() {
+    public start(): void {
         Performance.mark("Config.load.start")
 
         this.applyConfig()
@@ -58,6 +62,18 @@ export class Configuration implements Oni.Configuration {
 
     public hasValue(configValue: keyof IConfigurationValues): boolean {
         return !!this.getValue(configValue)
+    }
+
+    public setValues(configValues: { [configValue: string]: any }): void {
+
+        this._setValues = configValues
+
+        this._config = {
+            ...this._config,
+            ...configValues,
+        }
+
+        this._onConfigurationChangedEvent.dispatch(configValues)
     }
 
     public getValue<K extends keyof IConfigurationValues>(configValue: K, defaultValue?: any) {
@@ -90,15 +106,25 @@ export class Configuration implements Oni.Configuration {
         this._activateIfOniObjectIsAvailable()
     }
 
-    private applyConfig(): void {
+    private applyConfig(shouldReactivate: boolean = true): void {
         const previousConfig = this._config
 
         const userRuntimeConfigOrError = this.getUserRuntimeConfig()
+
+        // If the configuration is null, but it had some value at some point,
+        // we assume this is due to reading while the file write is still in
+        // transition, and ignore it
+        if (userRuntimeConfigOrError === null && this._configEverHadValue) {
+            Log.info("Configuration was null; skipping")
+            return
+        }
+
         if (isError(userRuntimeConfigOrError)) {
             Log.error(userRuntimeConfigOrError)
-            this._config = { ...DefaultConfiguration }
+            this._config = { ...DefaultConfiguration, ...this._setValues }
         } else {
-            this._config = { ...DefaultConfiguration, ...userRuntimeConfigOrError}
+            this._configEverHadValue = true
+            this._config = { ...DefaultConfiguration, ...this._setValues, ...userRuntimeConfigOrError}
         }
 
         this._deactivate()

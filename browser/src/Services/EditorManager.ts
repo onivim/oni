@@ -8,8 +8,9 @@
  * to the active editor, and managing transitions between editors.
  */
 
-import { Event, IEvent } from "./../Event"
-import { IDisposable } from "./../IDisposable"
+import * as Oni from "oni-api"
+import { Event, IDisposable, IEvent } from "oni-types"
+
 import * as Log from "./../Log"
 
 export class EditorManager implements Oni.EditorManager {
@@ -62,6 +63,7 @@ class AllEditors implements Oni.Editor {
     private _onBufferLeave = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChanged = new Event<Oni.EditorBufferChangedEventArgs>()
     private _onBufferSaved = new Event<Oni.EditorBufferEventArgs>()
+    private _onBufferScrolled = new Event<Oni.EditorBufferScrolledEventArgs>()
 
     /**
      * API Methods
@@ -122,6 +124,14 @@ class AllEditors implements Oni.Editor {
         return this._onBufferSaved
     }
 
+    public get onBufferScrolled(): IEvent<Oni.EditorBufferScrolledEventArgs> {
+        return this._onBufferScrolled
+    }
+
+    public dispose(): void {
+        // tslint:disable-line
+    }
+
     /**
      * Internal methods
      */
@@ -135,6 +145,7 @@ class AllEditors implements Oni.Editor {
         this._subscriptions.push(newEditor.onBufferLeave.subscribe((val) => this._onBufferLeave.dispatch(val)))
         this._subscriptions.push(newEditor.onBufferChanged.subscribe((val) => this._onBufferChanged.dispatch(val)))
         this._subscriptions.push(newEditor.onBufferSaved.subscribe((val) => this._onBufferSaved.dispatch(val)))
+        this._subscriptions.push(newEditor.onBufferScrolled.subscribe((val) => this._onBufferScrolled.dispatch(val)))
     }
 
     public getUnderlyingEditor(): Oni.Editor {

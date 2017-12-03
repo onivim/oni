@@ -3,7 +3,7 @@
 ### IDE powered by Neovim + React + Electron
 
 [![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)
-[![Join the chat at https://gitter.im/extr0py/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/oni/sponsors/badge.svg)](#sponsors) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
+[![Join the chat at https://gitter.im/onivim/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![Sponsors on Open Collective](https://opencollective.com/oni/sponsors/badge.svg)](https://opencollective.com/oni#sponsor) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 [![Total Downloads](https://img.shields.io/github/downloads/onivim/oni/total.svg)](https://github.com/onivim/oni/releases)
 
 <h2 align="center">Supporting Oni</h2>
@@ -15,7 +15,7 @@ Oni is an MIT-licensed open source project. Please consider supporting Oni by:
 
 <h3 align="center">Sponsors via OpenCollective</h3>
 
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/oni#sponsor)]
+Support this project by [becoming a sponsor](https://opencollective.com/oni#sponsor). Your logo will show up here with a link to your website.
 
 <a href="https://opencollective.com/oni/sponsor/0/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/0/avatar.svg"></a>
 <a href="https://opencollective.com/oni/sponsor/1/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/1/avatar.svg"></a>
@@ -59,17 +59,17 @@ Oni is cross-platform and supports Windows, OS X, and Linux.
 
 ### Windows
 
-- Download the [Oni installer](https://github.com/onivim/oni/releases/download/v0.2.16/Oni-0.2.16-ia32-win.exe) for Windows
+- Download the [Oni installer](https://github.com/onivim/oni/releases/download/v0.2.17/Oni-0.2.17-ia32-win.exe) for Windows
 - Once it is downloaded, run the installer. This will only take a minute.
-- By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine. 
+- By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine.
 
-You can also find install via a [zip archive](https://github.com/onivim/oni/releases/download/v0.2.16/Oni-0.2.16-ia32-win.zip)
+You can also find install via a [zip archive](https://github.com/onivim/oni/releases/download/v0.2.17/Oni-0.2.17-ia32-win.zip)
 
 > You may want to add Oni to your `%PATH%`, so that from the console, you can open Oni via `oni`
 
 ### Mac
 
-- Download [Oni](https://github.com/onivim/oni/releases/download/v0.2.16/Oni-0.2.16-osx.dmg) for Mac
+- Download [Oni](https://github.com/onivim/oni/releases/download/v0.2.17/Oni-0.2.17-osx.dmg) for Mac
 - Double-click on the archive to expand
 - Drag `Oni.app` to the `Applications` folder
 
@@ -79,26 +79,26 @@ You can also find install via a [zip archive](https://github.com/onivim/oni/rele
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.1` is required..
 
-- Download the [.deb package (64-bit)](https://github.com/onivim/oni/releases/download/v0.2.16/Oni-0.2.16-amd64-linux.deb)
+- Download the [.deb package (64-bit)](https://github.com/onivim/oni/releases/download/v0.2.17/Oni-0.2.17-amd64-linux.deb)
 - Install the package with `sudo dpkg -i <file>.deb`
 
-A [tar.gz](https://github.com/onivim/oni/releases/download/v0.2.16/Oni-0.2.16-linux.tar.gz) is also available.
+A [tar.gz](https://github.com/onivim/oni/releases/download/v0.2.17/Oni-0.2.17-linux.tar.gz) is also available.
 
 #### Red Hat based distributions (Fedora, CentOS)
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.1` is required..
 
-- Download the [.rpm package](https://github.com/onivim/oni/releases/download/v0.2.16/Oni-0.2.16-x86_64-linux.rpm)
+- Download the [.rpm package](https://github.com/onivim/oni/releases/download/v0.2.17/Oni-0.2.17-x86_64-linux.rpm)
 - Install the package with `sudo dnf install <file>.rpm`
 
-A [tar.gz](https://github.com/onivim/oni/releases/download/v0.2.16/Oni-0.2.16-linux.tar.gz) is also available.
+A [tar.gz](https://github.com/onivim/oni/releases/download/v0.2.17/Oni-0.2.17-linux.tar.gz) is also available.
 
 #### Arch based distributions
 
 - Available via the [AUR](https://aur.archlinux.org/packages/oni/)
 - Install the package with `yaourt -S oni`
 
-A [tar.gz](https://github.com/onivim/oni/releases/download/v0.2.16/Oni-0.2.16-linux.tar.gz) is also available.
+A [tar.gz](https://github.com/onivim/oni/releases/download/v0.2.17/Oni-0.2.17-linux.tar.gz) is also available.
 
 ## Goals
 
@@ -129,9 +129,9 @@ There many ways to contribute to Oni:
 
 - Support Oni financially by making a donation via [Bountysource](https://salt.bountysource.com/teams/oni)
 - [Submit bugs](https://github.com/onivim/oni/issues) or propose new features.
-- Review and and upate our [documentation](https://github.com/onivim/oni/wiki)
+- Review and upate our [documentation](https://github.com/onivim/oni/wiki)
 - Try out the latest [released build](https://github.com/onivim/oni/releases)
-- Contribute a bug fix or code change - start by checking our [Debugging Page](https://github.com/onivim/oni/wiki/Debugging)
+- Contribute a bug fix or code change - start by checking our [Development Page](https://github.com/onivim/oni/wiki/Development)
 
 ## Acknowledgements
 

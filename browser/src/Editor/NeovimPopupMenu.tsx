@@ -6,7 +6,7 @@
 
 import * as React from "react"
 
-import { IEvent } from "./../Event"
+import { IEvent } from "oni-types"
 import { INeovimCompletionInfo, INeovimCompletionItem } from "./../neovim"
 
 import * as UI from "./../UI"
@@ -46,7 +46,13 @@ export class NeovimPopupMenu {
         })
     }
 
+    public dispose(): void {
+        // TODO: Implement 'unsubscribe' logic here
+        // tslint:disable-line
+    }
+
     private _renderCompletionMenu(selectedIndex: number): void {
+
         let itemsToRender: IContextMenuItem[] = []
         let adjustedIndex = selectedIndex
 
@@ -57,7 +63,9 @@ export class NeovimPopupMenu {
             adjustedIndex = itemsToRender.length - 1
         }
 
-        const completionElement = <ContextMenuView visible={true} base={""} entries={itemsToRender} selectedIndex={adjustedIndex} backgroundColor={"black"} foregroundColor={"white"} />
+        const highlightColor = UI.store.getState()["contextMenu.highlight"]
+
+        const completionElement = <ContextMenuView visible={true} base={""} entries={itemsToRender} selectedIndex={adjustedIndex} backgroundColor={"black"} borderColor={"black"} highlightColor={highlightColor} foregroundColor={"white"} />
         UI.Actions.showToolTip("nvim-popup", completionElement, {
                 position: null,
                 openDirection: 2,

@@ -8,12 +8,13 @@
  * to the active editor, and managing transitions between editors.
  */
 
-import { Event, IEvent } from "./../Event"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
 
-import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, ISplitInfo, ISplitLeaf, SplitDirection } from "./WindowSplit"
+import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, ISplitInfo, SplitDirection } from "./WindowSplit"
 
-export class WindowManager {
-    private _activeSplit: ISplitLeaf<Oni.IWindowSplit>
+export class WindowManager implements Oni.IWindowManager {
+    // private _activeSplit: ISplitLeaf<Oni.IWindowSplit>
     private _splitRoot: ISplitInfo<Oni.IWindowSplit>
 
     private _onSplitChanged = new Event<ISplitInfo<Oni.IWindowSplit>>()
@@ -28,7 +29,7 @@ export class WindowManager {
 
     constructor() {
         this._splitRoot = createSplitRoot(SplitDirection.Horizontal)
-        this._activeSplit = null
+        // this._activeSplit = null
     }
 
     public split(direction: SplitDirection, newSplit: Oni.IWindowSplit) {

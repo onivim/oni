@@ -1,6 +1,9 @@
 import { EventEmitter } from "events"
 import * as fs from "fs"
 import * as path from "path"
+
+import * as Oni from "oni-api"
+
 import { configuration } from "./../Services/Configuration"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
@@ -8,6 +11,7 @@ import { Plugin } from "./Plugin"
 
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
+const extensionsRoot = path.join(__dirname, "extensions")
 
 export class PluginManager extends EventEmitter {
     private _config = configuration
@@ -15,10 +19,13 @@ export class PluginManager extends EventEmitter {
     private _plugins: Plugin[] = []
     private _anonymousPlugin: AnonymousPlugin
 
-    constructor() {
-        super()
+    public get plugins(): Plugin[] {
+        return this._plugins
+    }
 
+    public discoverPlugins(): void {
         this._rootPluginPaths.push(corePluginsRoot)
+        this._rootPluginPaths.push(extensionsRoot)
 
         if (this._config.getValue("oni.useDefaultConfig")) {
             this._rootPluginPaths.push(defaultPluginsRoot)
@@ -26,13 +33,18 @@ export class PluginManager extends EventEmitter {
         }
 
         this._rootPluginPaths.push(path.join(this._config.getUserFolder(), "plugins"))
-    }
 
-    public startPlugins(): Oni.Plugin.Api {
-        const allPlugins = this._getAllPluginPaths()
-        this._plugins = allPlugins.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
+        const allPluginPaths = this._getAllPluginPaths()
+        this._plugins = allPluginPaths.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
 
         this._anonymousPlugin = new AnonymousPlugin()
+    }
+
+    public startApi(): Oni.Plugin.Api {
+
+        this._plugins.forEach((plugin) => {
+            plugin.activate()
+        })
 
         return this._anonymousPlugin.oni
     }

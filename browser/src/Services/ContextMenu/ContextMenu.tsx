@@ -5,16 +5,19 @@
  */
 
 import * as React from "react"
-import { applyMiddleware, bindActionCreators, createStore } from "redux"
+import { bindActionCreators } from "redux"
 import thunk from "redux-thunk"
 
 import * as types from "vscode-languageserver-types"
 
-import { Event, IEvent } from "./../../Event"
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
 
 import * as ActionCreators from "./../Menu/MenuActionCreators"
 import { createReducer } from "./../Menu/MenuReducer"
 import * as State from "./../Menu/MenuState"
+
+import { createStore } from "./../../Redux"
 
 import * as UI from "./../../UI"
 import { ContextMenuContainer } from "./ContextMenuComponent"
@@ -34,7 +37,7 @@ const reducer = createReducer<types.CompletionItem, types.CompletionItem>((opts,
     })
 })
 
-export const contextMenuStore = createStore(reducer, State.createDefaultState(), applyMiddleware(thunk))
+export const contextMenuStore = createStore("CONTEXT-MENU", reducer, State.createDefaultState(), [thunk])
 export const contextMenuActions: typeof ActionCreators = bindActionCreators(ActionCreators as any, contextMenuStore.dispatch)
 
 // TODO: This is essentially a duplicate of `MenuManager.ts` - can this be consolidated?
@@ -110,7 +113,12 @@ export class ContextMenu {
     }
 
     public setFilter(filter: string): void {
-        contextMenuActions.filterMenu(filter)
+
+        const contextMenuState = contextMenuStore.getState()
+
+        if (contextMenuState.menu && contextMenuState.menu.filter !== filter) {
+            contextMenuActions.filterMenu(filter)
+        }
     }
 
     public setLoading(isLoading: boolean): void {
@@ -129,12 +137,28 @@ export class ContextMenu {
     }
 
     public show(items?: any[], filter?: string): void {
+
+        const state: any = UI.store.getState()
+
+        const backgroundColor = state.colors["contextMenu.background"]
+        const foregroundColor = state.colors["contextMenu.foreground"]
+        const borderColor = state.colors["contextMenu.border"] || backgroundColor
+        const highlightColor = state.colors["contextMenu.highlight"] || backgroundColor
+
+        const colors = {
+            backgroundColor,
+            foregroundColor,
+            borderColor,
+            highlightColor,
+        }
+
         contextMenuActions.showPopupMenu(this._id, {
+            ...colors,
             onSelectedItemChanged: (item: any) => this._onSelectedItemChanged.dispatch(item),
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
             onHide: () => this._onHidden(),
-            onFilterTextChanged: (newText) => this._onFilterTextChanged.dispatch(newText),
-        }, items, filter)
+            onFilterTextChanged: (newText: string) => this._onFilterTextChanged.dispatch(newText),
+        } as any, items, filter)
 
         UI.Actions.showToolTip(this._getContextMenuId(), <ContextMenuContainer />, {
             openDirection: 2,

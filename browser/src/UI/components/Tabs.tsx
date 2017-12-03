@@ -60,11 +60,7 @@ export class Tabs extends React.PureComponent<ITabsProps, {}> {
             flexWrap: "wrap",
         }
 
-        const scrollStyle: React.CSSProperties = {
-            overflowX: "auto",
-        }
-
-        const overflowStyle = this.props.shouldWrap ? wrapStyle : scrollStyle
+        const overflowStyle = this.props.shouldWrap ? wrapStyle : {}
 
         const tabBorderStyle: React.CSSProperties = {
             ...overflowStyle,
@@ -183,10 +179,12 @@ const getTabsFromVimTabs = createSelector(
 
 const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITabsProps => {
 
-    const shouldUseVimTabs = state.configuration["tabs.showVimTabs"]
+    const oniTabMode = state.configuration["tabs.mode"]
+    const shouldUseVimTabs = oniTabMode === "tabs"
+
     const tabs = shouldUseVimTabs ? getTabsFromVimTabs(state) : getTabsFromBuffers(state)
 
-    const visible = state.configuration["tabs.enabled"]
+    const visible = oniTabMode !== "native" && oniTabMode !== "hidden"
 
     const height = state.configuration["tabs.height"]
     const maxWidth = state.configuration["tabs.maxWidth"]
@@ -198,8 +196,8 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
     return {
         fontFamily: state.configuration["ui.fontFamily"],
         fontSize: state.configuration["ui.fontSize"],
-        backgroundColor: state.backgroundColor,
-        foregroundColor: state.foregroundColor,
+        backgroundColor: state.colors["tabs.background"],
+        foregroundColor: state.colors["tabs.foreground"],
         onSelect: selectFunc,
         onClose: closeFunc,
         height,

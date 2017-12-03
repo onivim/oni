@@ -2,72 +2,11 @@
  * Definition.ts
  */
 
-import { Observable } from "rxjs/Observable"
-
-import * as types from "vscode-languageserver-types"
-
 import { editorManager } from "./../EditorManager"
-import { languageManager } from "./LanguageManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import * as Log from "./../../Log"
-
 import * as UI from "./../../UI"
-
-export const initDefinitionUI = (shouldHide$: Observable<any>, shouldUpdate$: Observable<void>) => {
-    shouldHide$.subscribe(() => UI.Actions.hideDefinition())
-
-    shouldUpdate$
-        .flatMap(async () => await getDefinition())
-        .subscribe((definitionResult: any) => {
-            if (!definitionResult || !definitionResult.result) {
-                UI.Actions.hideDefinition()
-            } else {
-                const result: types.Location | types.Location[] = definitionResult.result
-
-                if (!result) {
-                    return
-                }
-
-                if (result instanceof Array) {
-                    if (!result.length) {
-                        return
-                    }
-
-                    UI.Actions.setDefinition(definitionResult.token, result[0])
-                } else {
-                    UI.Actions.setDefinition(definitionResult.token, result)
-                }
-            }
-        })
-}
-
-export const getDefinition = async () => {
-
-    const activeBuffer = editorManager.activeEditor.activeBuffer
-
-    if (activeBuffer && languageManager.isLanguageServerAvailable(activeBuffer.language)) {
-        const args = { ...Helpers.bufferToTextDocumentPositionParams(activeBuffer) }
-
-        const { line, column } = activeBuffer.cursor
-        const token = await activeBuffer.getTokenAt(line, column)
-        let result: types.Location = null
-
-        try {
-            result = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/definition", args)
-        } catch (ex) {
-            Log.warn(ex)
-        }
-
-        return {
-            token,
-            result,
-        }
-    } else {
-        return null
-    }
-}
 
 export enum OpenType {
     NewTab = 0,

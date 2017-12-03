@@ -14,7 +14,8 @@ import * as path from "path"
 import { ChildProcess } from "child_process"
 import * as rpc from "vscode-jsonrpc"
 
-import { Event, IEvent} from "./../../Event"
+import { Event, IEvent} from "oni-types"
+
 import * as Log from "./../../Log"
 
 import { normalizePath } from "./../../Utility"
@@ -112,10 +113,10 @@ export class LanguageClientProcess {
 
         if (this._serverOptions.command) {
             Log.info(`[LanguageClientProcess]: Starting process via '${this._serverOptions.command}'`)
-            this._process = Process.spawnProcess(this._serverOptions.command, args, options)
+            this._process = await Process.spawnProcess(this._serverOptions.command, args, options)
         } else if (this._serverOptions.module) {
             Log.info(`[LanguageClientProcess]: Starting process via node script '${this._serverOptions.module}'`)
-            this._process = Process.spawnNodeScript(this._serverOptions.module, args, options)
+            this._process = await Process.spawnNodeScript(this._serverOptions.module, args, options)
         } else {
             throw new Error("A command or module must be specified to start the server")
         }

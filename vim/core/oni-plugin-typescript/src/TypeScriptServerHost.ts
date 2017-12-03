@@ -19,6 +19,9 @@ export class TypeScriptServerHost extends events.EventEmitter {
     private _seqNumber = 0
     private _seqToPromises = {}
     private _rl: any
+    private _initPromise: Promise<void>
+
+    private _openedFiles: string[] = []
 
     public get pid(): number {
         return this._tssProcess.pid
@@ -26,7 +29,6 @@ export class TypeScriptServerHost extends events.EventEmitter {
 
     constructor(Oni: any) {
         super()
-
         // Other tries for creating process:
         // this._tssProcess = childProcess.spawn("node", [tssPath], { stdio: "pipe", detached: true, shell: false });
         // this._tssProcess = childProcess.fork(tssPath, [], { stdio: "pipe "})
@@ -39,7 +41,11 @@ export class TypeScriptServerHost extends events.EventEmitter {
         // This has some info on using eventPort: https://github.com/Microsoft/TypeScript/blob/master/src/server/server.ts
         // which might be more reliable
         // Can create the port using this here: https://github.com/Microsoft/TypeScript/blob/master/src/server/server.ts
-        this._tssProcess = Oni.process.spawnNodeScript(tssPath)
+        this._initPromise = this._startTypescriptServer(Oni)
+    }
+
+    public async _startTypescriptServer(Oni): Promise<void> {
+        this._tssProcess = await Oni.process.spawnNodeScript(tssPath)
         console.log("Process ID: " + this._tssProcess.pid) // tslint:disable-line no-console
 
         this._rl = readline.createInterface({
@@ -49,7 +55,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
 
         this._tssProcess.stderr.on("data", (data, err) => {
-            console.error("Error from tss: " + data) // tslint:disable-line no-console
+            console.warn("Error from tss: " + data) // tslint:disable-line no-console
         })
 
         this._tssProcess.on("error", (data) => {
@@ -71,9 +77,17 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public openFile(file: string): Promise<any> {
+    public async openFile(file: string, text?: string): Promise<any> {
+
+        if (this._openedFiles.indexOf(file) >= 0) {
+            return
+        }
+
+        this._openedFiles.push(file)
+
         return this._makeTssRequest("open", {
             file,
+            fileContent: text,
         })
     }
 
@@ -81,6 +95,13 @@ export class TypeScriptServerHost extends events.EventEmitter {
         return this._makeTssRequest("projectInfo", {
             file,
             needFileNameList: true,
+        })
+    }
+    public getDefinition(file: string, line: number, offset: number): Promise<void> {
+        return this._makeTssRequest<void>("definition", {
+            file,
+            line,
+            offset,
         })
     }
 
@@ -141,10 +162,15 @@ export class TypeScriptServerHost extends events.EventEmitter {
                                         endOffset})
     }
 
-    public updateFile(file: string, fileContent: string): Promise<void> {
-        return this._makeTssRequest<void>("open", {
+    public  updateFile(file: string, fileContent: string): Promise<void> {
+        const totalLines = fileContent.split(os.EOL)
+        return this._makeTssRequest<void>("change", {
             file,
-            fileContent,
+            line: 1,
+            offset: 1,
+            endLine: totalLines.length + 1,
+            endOffset: 1,
+            insertString: fileContent,
         })
     }
 
@@ -233,7 +259,8 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public _makeTssRequest<T>(commandName: string, args: any): Promise<T> {
+    public async _makeTssRequest<T>(commandName: string, args: any): Promise<T> {
+        await this._initPromise
         const seq = this._seqNumber++
         const payload = {
             seq,

@@ -15,6 +15,8 @@ export interface StatusBarProps {
     enabled: boolean
     fontSize: string
     fontFamily: string
+    backgroundColor: string
+    foregroundColor: string
 }
 
 export interface StatusBarItemProps {
@@ -43,17 +45,19 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
         const statusBarStyle = {
             "fontFamily": this.props.fontFamily,
             "fontSize": this.props.fontSize,
+            backgroundColor: this.props.backgroundColor,
+            color: this.props.foregroundColor,
         }
 
         return <div className="status-bar enable-mouse" style={statusBarStyle}>
             <div className="status-bar-inner">
                 <div className="status-bar-container left">
-                    {leftItems.map((item) => <StatusBarItem {...item} />)}
+                    {leftItems.map((item) => <StatusBarItem {...item} key={item.id}/>)}
                 </div>
                 <div className="status-bar-container center">
                 </div>
                 <div className="status-bar-container right">
-                    {rightItems.map((item) => <StatusBarItem {...item} />)}
+                    {rightItems.map((item) => <StatusBarItem {...item} key={item.id}/>)}
                     <div className="status-bar-item" onClick={() => this._openGithub()}>
                         <span><i className="fa fa-github" /></span>
                     </div>
@@ -64,7 +68,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
 
     private _openGithub(): void {
         // TODO: Open this in an internal window once that capability is available
-        electron.shell.openExternal("https://www.github.com/extr0py/oni")
+        electron.shell.openExternal("https://www.github.com/onivim/oni")
     }
 }
 
@@ -96,6 +100,8 @@ const mapStateToProps = (state: IState): StatusBarProps => {
     const statusBarItems = getStatusBarItems(state)
 
     return {
+        backgroundColor: state.colors["statusBar.background"],
+        foregroundColor: state.colors["statusBar.foreground"],
         fontFamily: state.configuration["ui.fontFamily"],
         fontSize: state.configuration["statusbar.fontSize"] || state.configuration["ui.fontSize"],
         items: statusBarItems,

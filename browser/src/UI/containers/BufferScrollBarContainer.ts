@@ -26,22 +26,30 @@ const NoScrollBar: IBufferScrollBarProps = {
     visible: false,
 }
 
+export const shouldIncludeCursorMarker = (state: State.IState) => {
+    return state.configuration["editor.scrollBar.cursorTick.visible"]
+}
+
 export const getMarkers = createSelector(
-    [getCurrentLine, Selectors.getErrorsForActiveFile],
-    (activeLine, fileErrors) => {
+    [getCurrentLine, Selectors.getErrorsForActiveFile, shouldIncludeCursorMarker],
+    (activeLine, fileErrors, includeCursor) => {
         const errorMarkers = fileErrors.map((e: types.Diagnostic) => ({
             line: e.range.start.line || 0,
             height: 1,
             color: getColorFromSeverity(e.severity),
         }))
 
-        const cursorMarker: IScrollBarMarker = {
-            line: activeLine - 1,
-            height: 1,
-            color: "rgb(200, 200, 200)",
-        }
+        if (!includeCursor) {
+            return errorMarkers
+        } else {
+            const cursorMarker: IScrollBarMarker = {
+                line: activeLine - 1,
+                height: 1,
+                color: "rgb(200, 200, 200)",
+            }
 
-        return [...errorMarkers, cursorMarker]
+            return [...errorMarkers, cursorMarker]
+        }
     })
 
 const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
