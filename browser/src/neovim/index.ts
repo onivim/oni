@@ -1,4 +1,4 @@
-export * from "./Actions"
+export * from "./actions"
 export * from "./EventContext"
 export * from "./MsgPack"
 export * from "./Screen"

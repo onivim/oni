@@ -4,8 +4,6 @@
 
 import * as assert from "assert"
 
-import * as types from "vscode-languageserver-types"
-
 import { TypingPredictionManager } from "./../..//src/Services/TypingPredictionManager"
 
 describe("TypingPredictionManager", () => {

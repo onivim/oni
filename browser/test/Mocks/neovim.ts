@@ -54,7 +54,7 @@ export class MockScreen implements Neovim.IScreen {
     public get width(): number {
         return null
     }
-    public dispatch(action: Neovim.Actions.IAction): void {
+    public dispatch(action: Neovim.IAction): void {
     
     }
 
