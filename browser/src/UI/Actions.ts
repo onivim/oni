@@ -17,6 +17,30 @@ import { IConfigurationValues } from "./../Services/Configuration"
 
 import * as types from "vscode-languageserver-types"
 
+export interface ISetCommandLinePosition {
+    type: "SET_COMMAND_LINE_POSITION",
+    payload: {
+        position: number,
+        level: number,
+    },
+}
+
+export interface IHideCommandLineAction {
+    type: "HIDE_COMMAND_LINE",
+}
+
+export interface IShowCommandLineAction {
+    type: "SHOW_COMMAND_LINE",
+    payload: {
+        content: number,
+        pos: number,
+        firstchar: string,
+        prompt: string,
+        indent: number,
+        level: number,
+    },
+}
+
 export interface ISetViewportAction {
     type: "SET_VIEWPORT",
     payload: {
@@ -252,7 +276,11 @@ export type SimpleAction =
     ISetTabs |
     ISetViewportAction |
     ISetWindowCursor |
-    ISetWindowState
+    ISetWindowState |
+    IShowCommandLineAction | 
+    IHideCommandLineAction |
+    ISetCommandLinePosition
+
 
 export type ActionWithGeneric<K extends keyof IConfigurationValues> =
     ISetConfigurationValue<K>

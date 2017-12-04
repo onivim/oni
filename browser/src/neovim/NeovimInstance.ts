@@ -59,6 +59,22 @@ export interface INeovimCompletionInfo {
     col: number
 }
 
+export type CommandLineContent = [any, string]
+
+export interface INeovimCommandLineShowEvent {
+    content: CommandLineContent[]
+    pos: number
+    firstc: string
+    prompt: string
+    indent: number
+    level: number
+}
+
+export interface INeovimCommandLineSetCursorPosition {
+    pos: number
+    level: number
+}
+
 // Limit for the number of lines to handle buffer updates
 // If the file is too large, it ends up being too much traffic
 // between Neovim <-> Oni <-> Language Servers - so
@@ -88,6 +104,10 @@ export interface INeovimInstance {
 
     onHidePopupMenu: IEvent<void>
     onShowPopupMenu: IEvent<INeovimCompletionInfo>
+
+    onCommandLineShow: IEvent<INeovimCommandLineShowEvent>
+    onCommandLineHide: IEvent<void>
+    onCommandLineSetCursorPosition: IEvent<INeovimCommandLineSetCursorPosition>
 
     autoCommands: INeovimAutoCommands
 
@@ -170,6 +190,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onSelectPopupMenu = new Event<number>()
     private _onLeave = new Event<void>()
 
+    private _onCommandLineShowEvent = new Event<INeovimCommandLineShowEvent>()
+    private _onCommandLineHideEvent = new Event<void>()
+    private _onCommandLineSetCursorPositionEvent = new Event<INeovimCommandLineSetCursorPosition>()
+
     private _pendingScrollTimeout: number | null = null
 
     public get quickFix(): IQuickFixList {
@@ -222,6 +246,18 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onShowPopupMenu(): IEvent<INeovimCompletionInfo> {
         return this._onShowPopupMenu
+    }
+
+    public get onCommandLineShow(): IEvent<INeovimCommandLineShowEvent> {
+        return this._onCommandLineShowEvent
+    }
+
+    public get onCommandLineHide(): IEvent<void> {
+        return this._onCommandLineHideEvent
+    }
+
+    public get onCommandLineSetCursorPosition(): IEvent<INeovimCommandLineSetCursorPosition> {
+        return this._onCommandLineSetCursorPositionEvent
     }
 
     public get onYank(): IEvent<INeovimYankInfo> {
@@ -491,6 +527,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             const evt = await this.getContext()
             this._onScroll.dispatch(evt)
             this._pendingScrollTimeout = null
+
         })
     }
 
@@ -599,6 +636,40 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         audio.play()
                     }
                     break
+                case "cmdline_show":
+                    {
+
+                        const [content, pos, firstc, prompt, indent, level] = a[0]
+                        const commandLineShowInfo: INeovimCommandLineShowEvent = {
+                            content,
+                            pos,
+                            firstc,
+                            prompt,
+                            indent,
+                            level,
+                        }
+                        this._onCommandLineShowEvent.dispatch(commandLineShowInfo)
+                    }
+                    break
+                case "cmdline_pos":
+                    {
+                        const [pos, level] = a[0]
+                        const commandLinePositionInfo: INeovimCommandLineSetCursorPosition = {
+                            pos,
+                            level,
+                        }
+                        this._onCommandLineSetCursorPositionEvent.dispatch(commandLinePositionInfo)
+                    }
+                    break
+                case "cmdline_hide":
+                    this._onCommandLineHideEvent.dispatch()
+                    break
+                case "wildmenu_show":
+                    break
+                case "wildmenu_select":
+                    break
+                case "wildmenu_hide":
+                    break
                 default:
                     Log.warn("Unhandled command: " + command)
             }
@@ -651,6 +722,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 rgb: true,
                 popupmenu_external: true,
                 ext_tabline: shouldExtTabs,
+                ext_cmdline: true,
             }
         } else if (major === 0 && minor === 2) {
             // 0.1 and below does not support external tabline
