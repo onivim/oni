@@ -19,7 +19,7 @@ export const EmptyArray: any[] = []
 
 export const getErrors = (state: State.IState) => state.errors
 
-const getAllErrorsForFile = (fileName: string, errors: State.Errors): types.Diagnostic[] => {
+export const getAllErrorsForFile = (fileName: string, errors: State.Errors): types.Diagnostic[] => {
     if (!fileName || !errors) {
         return EmptyArray
     }
@@ -99,8 +99,3 @@ export const getErrorsForPosition = createSelector(
         const { line, column } = win
         return errors.filter((diag) => Utility.isInRange(line, column, diag.range))
     })
-
-export const getForegroundBackgroundColor = (state: State.IState) => ({
-    foregroundColor: state.foregroundColor,
-    backgroundColor: state.backgroundColor,
-})

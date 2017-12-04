@@ -17,6 +17,7 @@ import { Services } from "./Services"
 import { Ui } from "./Ui"
 
 import { automation } from "./../../Services/Automation"
+import { Colors, getInstance as getColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
 import { configuration } from "./../../Services/Configuration"
 import { contextMenuManager } from "./../../Services/ContextMenu"
@@ -54,9 +55,14 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     private _diagnostics: OniApi.Plugin.Diagnostics.Api
     private _ui: Ui
     private _services: Services
+    private _colors: Colors
 
     public get automation(): OniApi.Automation.Api {
         return automation
+    }
+
+    public get colors(): Colors /* TODO: Promote to API */ {
+        return this._colors
     }
 
     public get commands(): OniApi.Commands {
@@ -133,6 +139,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     constructor() {
         super()
+        this._colors = getColors()
 
         this._diagnostics = new Diagnostics()
         this._dependencies = new Dependencies()
@@ -140,19 +147,19 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         this._services = new Services()
     }
 
-    public execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): ChildProcess.ChildProcess {
+    public async execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): Promise<ChildProcess.ChildProcess> {
         Log.warn("WARNING: `OniApi.execNodeScript` is deprecated. Please use `OniApi.process.execNodeScript` instead")
 
-        return Process.execNodeScript(scriptPath, args, options, callback)
+        return await Process.execNodeScript(scriptPath, args, options, callback)
     }
 
     /**
      * Wrapper around `child_process.exec` to run using electron as opposed to node
      */
-    public spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): ChildProcess.ChildProcess {
+    public async spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): Promise<ChildProcess.ChildProcess> {
 
         Log.warn("WARNING: `OniApi.spawnNodeScript` is deprecated. Please use `OniApi.process.spawnNodeScript` instead")
 
-        return Process.spawnNodeScript(scriptPath, args, options)
+        return await Process.spawnNodeScript(scriptPath, args, options)
     }
 }

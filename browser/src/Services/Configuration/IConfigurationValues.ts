@@ -8,6 +8,15 @@
 
 import * as Oni from "oni-api"
 
+import { IHighlight } from "./../SyntaxHighlighting"
+
+export interface ITokenColorsSetting {
+    scope: string
+    settings: IHighlight | string
+}
+
+export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiased" | "none"
+
 export interface IConfigurationValues {
 
     "activate": (oni: Oni.Plugin.Api) => void
@@ -31,8 +40,14 @@ export interface IConfigurationValues {
     "debug.fakeLag.neovimInput": number | null
 
     // Experimental feature flags
+    // - autoClosingPairs
     "experimental.autoClosingPairs.enabled": boolean
     "experimental.autoClosingPairs.default": any
+
+    // - textMateHighlighting
+    "experimental.editor.textMateHighlighting.enabled": boolean
+    // If a file has more lines than this value, syntax highlighting will be disabled
+    "experimental.editor.textMateHighlighting.maxLines": number
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
@@ -62,14 +77,6 @@ export interface IConfigurationValues {
     // Set this to a string to override the init.vim path.
     "oni.loadInitVim": string | boolean
 
-    // Sets the `popupmenu_external` option in Neovim
-    // This will override the default UI to show a consistent popupmenu,
-    // whether using Oni's completion mechanisms or VIMs
-    //
-    // Use caution when changing the `menuopt` parameters if using
-    // a custom init.vim, as that may cause problematic behavior
-    "oni.useExternalPopupMenu": boolean
-
     // If true, hide Menu bar by default
     // (can still be activated by pressing 'Alt')
     "oni.hideMenu": boolean
@@ -98,9 +105,21 @@ export interface IConfigurationValues {
     // Delay (in ms) for showing QuickInfo, when the cursor is on a term
     "editor.quickInfo.delay": number
 
-    "editor.completions.enabled": boolean
     "editor.errors.slideOnFocus": boolean
     "editor.formatting.formatOnSwitchToNormalMode": boolean // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun
+
+    // Sets the `popupmenu_external` option in Neovim
+    // Valid options are "oni", "native" or "hidden",
+    // where "oni" uses the Oni stylised Popups,
+    // "native" uses the default Vim ones,
+    // and "hidden" disables the automatic pop-ups, but keeps the stylised tabs when invoked.
+    //
+    // This will override the default UI to show a consistent popupmenu,
+    // whether using Oni's completion mechanisms or VIMs
+    //
+    // Use caution when changing the `menuopt` parameters if using
+    // a custom init.vim, as that may cause problematic behavior
+    "editor.completions.mode": string
 
     // If true (default), ligatures are enabled
     "editor.fontLigatures": boolean
@@ -112,6 +131,12 @@ export interface IConfigurationValues {
 
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
+
+    // If true (default), the cursor tick will be shown in the scrollbar.
+    "editor.scrollBar.cursorTick.visible": boolean
+
+    // Allow overriding token colors for specific textmate scopes
+    "editor.tokenColors": ITokenColorsSetting[]
 
     // Additional paths to include when launching sub-process from Oni
     // (and available in terminal integration, later)
@@ -167,8 +192,10 @@ export interface IConfigurationValues {
     "tabs.wrap": boolean
 
     "ui.animations.enabled": boolean
+    "ui.colorscheme": string
     "ui.fontFamily": string
     "ui.fontSize": string
+    "ui.fontSmoothing": FontSmoothingOptions
 
     // Handle other, non-predefined configuration keys
     [configurationKey: string]: any

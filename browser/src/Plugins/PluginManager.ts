@@ -11,6 +11,7 @@ import { Plugin } from "./Plugin"
 
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
+const extensionsRoot = path.join(__dirname, "extensions")
 
 export class PluginManager extends EventEmitter {
     private _config = configuration
@@ -22,10 +23,9 @@ export class PluginManager extends EventEmitter {
         return this._plugins
     }
 
-    constructor() {
-        super()
-
+    public discoverPlugins(): void {
         this._rootPluginPaths.push(corePluginsRoot)
+        this._rootPluginPaths.push(extensionsRoot)
 
         if (this._config.getValue("oni.useDefaultConfig")) {
             this._rootPluginPaths.push(defaultPluginsRoot)
@@ -33,13 +33,18 @@ export class PluginManager extends EventEmitter {
         }
 
         this._rootPluginPaths.push(path.join(this._config.getUserFolder(), "plugins"))
-    }
 
-    public startPlugins(): Oni.Plugin.Api {
         const allPluginPaths = this._getAllPluginPaths()
         this._plugins = allPluginPaths.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
 
         this._anonymousPlugin = new AnonymousPlugin()
+    }
+
+    public startApi(): Oni.Plugin.Api {
+
+        this._plugins.forEach((plugin) => {
+            plugin.activate()
+        })
 
         return this._anonymousPlugin.oni
     }

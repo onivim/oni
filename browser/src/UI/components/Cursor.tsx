@@ -29,7 +29,7 @@ export interface ICursorRendererProps {
 require("./Cursor.less") // tslint:disable-line no-var-requires
 
 export interface ICursorRendererState {
-    predictedCharacters: number
+    predictedCursorColumn: number
 }
 
 class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRendererState> {
@@ -38,14 +38,14 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
         super(props)
 
         this.state = {
-            predictedCharacters: 0,
+            predictedCursorColumn: -1,
         }
     }
 
     public componentDidMount(): void {
         this.props.typingPrediction.onPredictionsChanged.subscribe((predictions) => {
             this.setState({
-                predictedCharacters: predictions.length,
+                predictedCursorColumn: predictions.predictedCursorColumn,
             })
         })
     }
@@ -60,10 +60,14 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
         const width = isInsertCursor ? 0 : this.props.width
         const characterToShow = isInsertCursor ? "" : this.props.character
 
+        const position = this.props.mode === "insert" && this.state.predictedCursorColumn >= 0 ?
+                            this.state.predictedCursorColumn * this.props.fontPixelWidth :
+                            this.props.x
+
         const containerStyle: React.CSSProperties = {
             visibility: this.props.visible ? "visible" : "hidden",
             position: "absolute",
-            left: (this.props.x + this.state.predictedCharacters * this.props.fontPixelWidth).toString() + "px",
+            left: position.toString() + "px",
             top: this.props.y.toString() + "px",
             width: width.toString() + "px",
             height,
@@ -129,8 +133,8 @@ const mapStateToProps = (state: State.IState, props: ICursorProps): ICursorRende
         width: state.cursorPixelWidth,
         height: state.fontPixelHeight,
         mode: state.mode,
-        color: state.foregroundColor,
-        textColor: state.backgroundColor,
+        color: state.colors["editor.foreground"],
+        textColor: state.colors["editor.background"],
         character: state.cursorCharacter,
         fontPixelWidth: state.fontPixelWidth,
         fontFamily: State.readConf(state.configuration, "editor.fontFamily"),

@@ -12,7 +12,7 @@ import { connect } from "react-redux"
 
 import * as State from "./../State"
 
-import { IPredictedCharacter, TypingPredictionManager } from "./../../Services/TypingPredictionManager"
+import { ITypingPrediction, TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
 export interface ITypingPredictionProps {
     typingPrediction: TypingPredictionManager
@@ -32,13 +32,9 @@ export interface ITypingPredictionViewProps {
     highlightPredictions: boolean
 }
 
-export interface ITypingPredictionViewState {
-    predictions: IPredictedCharacter[]
-}
-
 const noop = (val?: any): void => { } // tslint:disable-line
 
-class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProps, ITypingPredictionViewState> {
+class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProps, {}> {
 
     private _containerElement: HTMLElement
     private _subscription: IDisposable
@@ -46,7 +42,7 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
     private _predictedElements: { [id: number]: HTMLElement } = {}
 
     public componentDidMount(): void {
-        this._subscription = this.props.typingPrediction.onPredictionsChanged.subscribe((updatedPredictions: IPredictedCharacter[]) => {
+        this._subscription = this.props.typingPrediction.onPredictionsChanged.subscribe((prediction: ITypingPrediction) => {
 
             if (!this._containerElement) {
                 return
@@ -54,13 +50,21 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
 
             this._containerElement.innerHTML = ""
 
+            const updatedPredictions = prediction.predictedCharacters
+            const startX = (prediction.predictedCursorColumn - prediction.predictedCharacters.length) * this.props.width
+
+            this._containerElement.style.top = this.props.y.toString() + "px"
+            this._containerElement.style.height = this.props.height.toString() + "px"
+            this._containerElement.style.left = startX.toString() + "px"
+            this._containerElement.style.width = (prediction.predictedCharacters.length * this.props.width).toString() + "px"
+
             // Add new predictions
             updatedPredictions.forEach((up, idx) => {
                 const elem = document.createElement("div")
                 elem.className = "predicted-text"
                 elem.style.position = "absolute"
-                elem.style.top = this.props.y.toString() + "px"
-                elem.style.left = (this.props.startX + idx * this.props.width).toString() + "px"
+                elem.style.top = "0px"
+                elem.style.left = (idx * this.props.width).toString() + "px"
                 elem.style.width = (this.props.width.toString()) + "px"
                 elem.style.height = (this.props.height.toString()) + "px"
                 elem.style.lineHeight = this.props.height.toString() + "px"
@@ -92,10 +96,13 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
 
     public render(): JSX.Element {
         const containerStyle: React.CSSProperties = {
+            contain: "strict",
             willChange: "transform",
-            color: this.props.color,
+            backgroundColor: this.props.color,
+            color: this.props.textColor,
             fontFamily: this.props.fontFamily,
             fontSize: this.props.fontSize,
+            position: "absolute",
         }
 
         return <div className="typing-predictions" key={"typing-predictions"} style={containerStyle} ref={(elem) => this._containerElement = elem}></div>
@@ -110,8 +117,8 @@ const mapStateToProps = (state: State.IState, props: ITypingPredictionProps): IT
         y: state.cursorPixelY,
         width: state.cursorPixelWidth,
         height: state.fontPixelHeight,
-        color: state.foregroundColor,
-        textColor: state.backgroundColor,
+        color: state.colors["editor.background"],
+        textColor: state.colors["editor.foreground"],
         fontFamily: State.readConf(state.configuration, "editor.fontFamily"),
         fontSize: State.readConf(state.configuration, "editor.fontSize"),
         visible: true,

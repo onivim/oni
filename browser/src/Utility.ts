@@ -122,6 +122,28 @@ export const sleep = async (timeInMilliseconds: number): Promise<void> => {
     })
 }
 
+export interface ICompletablePromise<T> {
+    promise: Promise<T>
+    resolve: (value?: T) => void
+    reject: (err?: Error) => void
+}
+
+export const createCompletablePromise = <T>(): ICompletablePromise<T> => {
+    let resolve = null
+    let reject = null
+
+    const promise = new Promise<T>((res, rej) => {
+        resolve = res
+        reject = rej
+    })
+
+    return {
+        promise,
+        resolve,
+        reject,
+    }
+}
+
 /**
  * Helper function to ignore incoming values while a promise is waiting to complete
  * This is lossy, in that any input that comes in will be dropped while the promise

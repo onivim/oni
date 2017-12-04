@@ -91,10 +91,9 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
         .concat(["--cmd", `let &rtp.=',${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
         .concat(args)
 
-    const nvimProc = spawnProcess(nvimProcessPath, argsToPass, {})
+    const nvimProc = await spawnProcess(nvimProcessPath, argsToPass, {})
 
     console.log(`Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console
 
-    return getSessionFromProcess(nvimProc, options.transport)
-
+    return await getSessionFromProcess(nvimProc, options.transport)
 }

@@ -36,6 +36,9 @@ artifacts:
     - path: dist/*.zip
       name: ProductZip
 
+    - path: dist/media/screenshot-win32.png
+      name: DemoScreenshot
+
 deploy:
     provider: GitHub
     repository: onivim/oni
@@ -62,6 +65,7 @@ test_script:
   - npm run pack:win
   # run integration tests
   - npm run test:integration
+  - npm run demo
 
 # Don't actually build.
 build: off
