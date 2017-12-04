@@ -6,6 +6,8 @@
 
 import { Event, IEvent } from "oni-types"
 
+// import { IScreen } from "./../neovim"
+
 export type TypingPredictionId = number
 
 export interface IPredictedCharacter {
