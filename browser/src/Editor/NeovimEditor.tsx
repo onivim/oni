@@ -479,9 +479,9 @@ export class NeovimEditor extends Editor implements IEditor {
                 language: evt.filetype,
             })
         } else if (eventName === "BufDelete") {
-
             this._neovimInstance.getBufferIds()
-                .then((ids) => UI.Actions.setCurrentBuffers(ids))
+                .then((ids) => ids.filter(id => id !== evt.bufferNumber))
+                .then(ids => UI.Actions.setCurrentBuffers(ids))
         }
     }
 
