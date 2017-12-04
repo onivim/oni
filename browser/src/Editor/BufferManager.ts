@@ -111,7 +111,7 @@ export class Buffer implements Oni.Buffer {
 
                 const calls = []
 
-                calls.push(["nvim_command", ["undojoin"]])
+                calls.push(["nvim_command", ["silent! undojoin"]])
 
                 if (lineStart === lineEnd) {
                     const [lineContents] = await this.getLines(lineStart, lineStart + 1, false /* force to get latest, because cached buffer may not be up-to-date */)
