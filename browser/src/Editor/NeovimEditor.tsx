@@ -191,7 +191,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
             UI.Actions.setCursorPosition(this._screen)
-            this._typingPredictionManager.setCursorPosition(this._screen.cursorRow, this._screen.cursorColumn)
+            this._typingPredictionManager.setCursorPosition(this._screen)
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {

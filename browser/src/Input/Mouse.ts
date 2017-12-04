@@ -9,7 +9,7 @@ export class Mouse extends EventEmitter {
     private _isDragging = false
 
     constructor(
-        private _editorElement: HTMLDivElement, 
+        private _editorElement: HTMLDivElement,
         private _screen: IScreen) {
         super()
 
