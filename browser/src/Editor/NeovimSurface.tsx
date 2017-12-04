@@ -6,9 +6,8 @@
 
 import * as React from "react"
 
-import { NeovimInstance } from "./../neovim"
+import { NeovimInstance, NeovimScreen } from "./../neovim"
 import { INeovimRenderer } from "./../Renderer"
-import { NeovimScreen } from "./../Screen"
 
 import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
 import { Cursor } from "./../UI/components/Cursor"

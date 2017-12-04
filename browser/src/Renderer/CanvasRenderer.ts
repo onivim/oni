@@ -1,6 +1,6 @@
 import { Grid } from "./../Grid"
 import * as Performance from "./../Performance"
-import { ICell, IScreen } from "./../Screen"
+import { ICell, IScreen } from "./../neovim"
 import { INeovimRenderer } from "./INeovimRenderer"
 import { getSpansToEdit, IPosition, ISpan } from "./Span"
 

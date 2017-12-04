@@ -1,5 +1,5 @@
 import * as Actions from "./actions"
-import { Grid } from "./Grid"
+import { Grid } from "./../Grid"
 
 export type Mode = "insert" | "normal" | "visual" | "cmdline_normal"
 

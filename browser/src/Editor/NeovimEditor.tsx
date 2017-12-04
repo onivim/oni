@@ -18,9 +18,8 @@ import * as Oni from "oni-api"
 
 import * as Log from "./../Log"
 
-import { EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
+import { EventContext, INeovimStartOptions, NeovimInstance, NeovimScreen, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
-import { NeovimScreen } from "./../Screen"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 
