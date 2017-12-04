@@ -10,6 +10,8 @@ import { Store, Unsubscribe } from "redux"
 import * as Oni from "oni-api"
 import * as OniTypes from "oni-types"
 
+import * as types from "vscode-languageserver-types"
+
 import { Configuration } from "./../Configuration"
 
 import { createStore, DefaultLanguageState, ILanguageState } from "./LanguageStore"
