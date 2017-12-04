@@ -29,10 +29,13 @@ class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps,
             // width: 300 + "px",
             // height: 300 + "px",
         /*}*/
+        const textStyle: React.CSSProperties = {
+            color: "white",
+        }
 
         return <div className="commandline-background">
                 <div className="commandLine">
-                    {this.props.firstchar + this.props.content[0][1]}
+                    <p style={textStyle}> {this.props.firstchar + this.props.content[0][1]}</p>
                 </div>
             </div>
     }
