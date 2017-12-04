@@ -16,7 +16,7 @@ const createSuccessfulDefinitionResult = (): Language.IDefinitionResult => {
         token: {
             tokenName: "test",
             range: types.Range.create(1, 1, 2, 2),
-        }
+        },
     }
 }
 
@@ -211,7 +211,7 @@ describe("LanguageEditorIntegration", () => {
         mockDefinitionRequestor.resolve({
             token: {
                 tokenName: "test",
-                range: null
+                range: null,
             },
             location: null,
         })
