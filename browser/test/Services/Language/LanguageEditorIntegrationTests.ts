@@ -4,9 +4,21 @@
 
 import * as assert from "assert"
 
+import * as types from "vscode-languageserver-types"
+
 import * as Language from "./../../../src/Services/Language"
 
 import * as Mocks from "./../../Mocks"
+
+const createSuccessfulDefinitionResult = (): Language.IDefinitionResult => {
+    return {
+        location: types.Location.create("testuri", types.Range.create(1, 1, 5, 5)),
+        token: {
+            tokenName: "test",
+            range: types.Range.create(1, 1, 2, 2),
+        }
+    }
+}
 
 describe("LanguageEditorIntegration", () => {
     const clock: any = global["clock"] // tslint:disable-line
@@ -54,7 +66,7 @@ describe("LanguageEditorIntegration", () => {
         assert.strictEqual(mockHoverRequestor.pendingCallCount, 1)
 
         // Resolve the calls
-        mockDefinitionRequestor.resolve({} as any)
+        mockDefinitionRequestor.resolve(createSuccessfulDefinitionResult())
         mockHoverRequestor.resolve({} as any)
 
         await waitForPromiseResolution()
