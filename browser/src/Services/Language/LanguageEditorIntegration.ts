@@ -116,7 +116,11 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
     private _onStateUpdate(newState: ILanguageState): void {
         if (newState.definitionResult.result && !this._lastState.definitionResult.result) {
-            this._onShowDefinition.dispatch(newState.definitionResult.result)
+
+            // Only show if there is actually a location specified...
+            if (newState.definitionResult.result.location) {
+                this._onShowDefinition.dispatch(newState.definitionResult.result)
+            }
         }
 
         if (!newState.definitionResult.result && this._lastState.definitionResult.result) {
