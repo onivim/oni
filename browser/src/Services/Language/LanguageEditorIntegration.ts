@@ -115,15 +115,13 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
     }
 
     private _onStateUpdate(newState: ILanguageState): void {
-        if (newState.definitionResult.result && !this._lastState.definitionResult.result) {
-
-            // Only show if there is actually a location specified...
-            if (newState.definitionResult.result.location) {
-                this._onShowDefinition.dispatch(newState.definitionResult.result)
-            }
+        const newLocationResult = getLocationFromState(newState)
+        const lastLocationResult = getLocationFromState(this._lastState)
+        if (newLocationResult && !lastLocationResult) {
+            this._onShowDefinition.dispatch(newState.definitionResult.result)
         }
 
-        if (!newState.definitionResult.result && this._lastState.definitionResult.result) {
+        if (!newLocationResult && lastLocationResult) {
             this._onHideDefinition.dispatch()
         }
 
@@ -136,5 +134,13 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
         }
 
         this._lastState = newState
+    }
+}
+
+const getLocationFromState = (state: ILanguageState): types.Location => {
+    if (state && state.definitionResult && state.definitionResult.result && state.definitionResult.result.location) {
+        return state.definitionResult.result.location
+    } else {
+        return null
     }
 }
