@@ -159,7 +159,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _cols: number
 
     private _quickFix: QuickFixList
-    private _attached: boolean
+    private _initComplete: boolean
 
     private _onDirectoryChanged = new Event<string>()
     private _onErrorEvent = new Event<Error | string>()
@@ -180,8 +180,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _pendingScrollTimeout: number | null = null
 
-    public get isAttached(): boolean {
-        return this._attached
+    public get isInitialized(): boolean {
+        return this._initComplete
     }
 
     public get quickFix(): IQuickFixList {
@@ -372,10 +372,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         await this.command("set title")
                         await this.callFunction("OniConnect", [])
 
-                        this._attached = true
+                        this._initComplete = true
                     },
                     (err: any) => {
                         this._onError(err)
+                        this._initComplete = true
                     })
             })
 

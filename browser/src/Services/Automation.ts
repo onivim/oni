@@ -73,7 +73,7 @@ export class Automation implements OniApi.Automation.Api {
             // TODO: Replace with a more explicit condition, once our startup
             // path is well-defined (#89, #355, #372)
             Log.info("[AUTOMATION] Waiting for neovim to attach...")
-            await this.waitFor(() => oni.editors.activeEditor.neovim && (oni.editors.activeEditor as any).neovim.isAttached, 30000)
+            await this.waitFor(() => oni.editors.activeEditor.neovim && (oni.editors.activeEditor as any).neovim.isInitialized, 30000)
             Log.info("[AUTOMATION] Neovim attached!")
             await testCase.test(oni)
             Log.info("[AUTOMATION] Completed test: " + testPath)
