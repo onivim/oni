@@ -159,6 +159,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _cols: number
 
     private _quickFix: QuickFixList
+    private _initComplete: boolean
 
     private _onDirectoryChanged = new Event<string>()
     private _onErrorEvent = new Event<Error | string>()
@@ -178,6 +179,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onColorsChanged = new Event<void>()
 
     private _pendingScrollTimeout: number | null = null
+
+    public get isInitialized(): boolean {
+        return this._initComplete
+    }
 
     public get quickFix(): IQuickFixList {
         return this._quickFix
@@ -366,9 +371,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         // set title after attaching listeners so we can get the initial title
                         await this.command("set title")
                         await this.callFunction("OniConnect", [])
+
+                        this._initComplete = true
                     },
                     (err: any) => {
                         this._onError(err)
+                        this._initComplete = true
                     })
             })
 
