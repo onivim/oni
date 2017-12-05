@@ -109,6 +109,10 @@ export class Buffer implements Oni.Buffer {
                 const lineEnd = range.end.line
                 const characterEnd = range.end.character
 
+                const calls = []
+
+                calls.push(["nvim_command", ["silent! undojoin"]])
+
                 if (lineStart === lineEnd) {
                     const [lineContents] = await this.getLines(lineStart, lineStart + 1, false /* force to get latest, because cached buffer may not be up-to-date */)
                     const beginning = lineContents.substring(0, range.start.character)
@@ -117,13 +121,15 @@ export class Buffer implements Oni.Buffer {
 
                     const lines = newLine.split(os.EOL)
 
-                    await this.setLines(lineStart, lineStart + 1, lines)
+                    calls.push(["nvim_buf_set_lines", [parseInt(this._id, 10), lineStart, lineStart + 1, false, lines ]])
                 } else if (characterEnd === 0 && characterStart === 0) {
                     const lines = te.newText.split(os.EOL)
-                    await this.setLines(lineStart, lineEnd, lines)
+                    calls.push(["nvim_buf_set_lines", [parseInt(this._id, 10), lineStart, lineEnd, false, lines ]])
                 } else {
                     Log.warn("Multi-line mid character edits not currently supported")
                 }
+
+                await this._neovimInstance.request("nvim_call_atomic", [calls])
             })
         })
 
