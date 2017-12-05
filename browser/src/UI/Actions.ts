@@ -17,7 +17,7 @@ import { IConfigurationValues } from "./../Services/Configuration"
 import { IThemeColors } from "./../Services/Themes"
 
 import * as types from "vscode-languageserver-types"
-import * as State from "./State"
+// import * as State from "./State"
 
 export interface ISetWindowTitleAction {
     type: "SET_WINDOW_TITLE",
@@ -88,7 +88,7 @@ export interface IBufferEnterAction {
             hidden: boolean,
             listed: boolean,
         },
-        existingBuffers: State.IBuffer[],
+        existingBuffers: any[],
     }
 }
 

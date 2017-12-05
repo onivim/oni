@@ -72,21 +72,25 @@ export const setCursorScale = (cursorScale: number) => ({
     },
 })
 
+const formatBuffers = (buffer: any) => {
+    return {
+        id: buffer.bufferNumber,
+        file: buffer.bufferFullPath ? normalizePath(buffer.bufferFullPath) : "",
+        language: buffer.filetype,
+        totalLines: buffer.bufferTotalLines,
+        hidden: buffer.hidden,
+        listed: buffer.listed,
+    }
+}
+
 export const bufferEnter = (
     { currentBuffer, existingBuffers }:
     { currentBuffer: any, existingBuffers: any[] },
 ) => ({
     type: "BUFFER_ENTER",
     payload: {
-        currentBuffer: {
-            id: currentBuffer.bufferNumber,
-            file: normalizePath(currentBuffer.bufferFullPath),
-            language: currentBuffer.filetype,
-            totalLines: currentBuffer.lines,
-            hidden: currentBuffer.hidden,
-            listed: currentBuffer.listed,
-        },
-        existingBuffers,
+        currentBuffer: formatBuffers(currentBuffer),
+        existingBuffers: existingBuffers.map(formatBuffers).filter(b => !(b.id === currentBuffer.bufferNumber)),
     },
 })
 

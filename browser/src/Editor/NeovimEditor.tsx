@@ -459,7 +459,6 @@ export class NeovimEditor extends Editor implements IEditor {
         const buf = this._bufferManager.updateBufferFromEvent(currentBuffer)
 
         if (eventName === "BufEnter") {
-            console.log("BUFENTER EVENT: ", evt);
             if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
                 this.notifyBufferLeave({
                     filePath: lastBuffer.filePath,

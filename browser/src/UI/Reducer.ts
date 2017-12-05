@@ -142,6 +142,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
 
     switch (a.type) {
         case "BUFFER_ENTER":
+            console.log('a.payload: ', a.payload);
             byId = {
                 ...s.byId,
                 [a.payload.currentBuffer.id]: {
@@ -154,9 +155,18 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 },
             }
 
-            if (allIds.indexOf(a.payload.currentBuffer.id) === -1) {
-                allIds = [...s.allIds, a.payload.currentBuffer.id]
-            }
+            byId = a.payload.existingBuffers.reduce(buffer => {
+                byId[buffer.id] = buffer
+                return byId
+            }, byId)
+
+            const existingBufIds = a.payload.existingBuffers.filter(b => !!(b.id)).map(b => b.id)
+
+            allIds = !allIds.includes(a.payload.currentBuffer.id)
+                ? [...s.allIds, a.payload.currentBuffer.id, ...existingBufIds]
+                : [...s.allIds, ...existingBufIds]
+
+            console.log('allIds: ', allIds);
 
             return {
                 activeBufferId: a.payload.currentBuffer.id,
