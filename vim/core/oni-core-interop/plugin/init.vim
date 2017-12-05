@@ -15,8 +15,9 @@ endfunction
 
 function OniNotifyWithBuffers(eventName)
     let l:allBufs = OniGetAllBuffers()
+    let context = OniGetContext()
     echo l:allBufs
-    call OniNotify(["event", a:eventName, l:allBufs])
+    call OniNotify(["event", a:eventName, context, l:allBufs])
 endfunction
 
 function OniNoop()
@@ -71,21 +72,20 @@ function OniGetEachContext(bufnum)
     let l:bufpath = bufname(a:bufnum)
     if strlen(l:bufpath)
       python import vim
-      let l:buf = "#".a:bufnum
       let l:context.bufferNumber = a:bufnum
-      let l:context.bufferFullPath = l:bufpath
-      " let l:context.bufferTotalLines = pyeval('len(vim.buffers['.(a:bufnum-1).'])')
-      " let l:context.line = line(".")
-      " let l:context.column = col(".")
-      " let l:context.mode = mode()
-      " let l:context.windowNumber = winnr(string(a:bufnum))
-      " let l:context.winline = v:null
-      " let l:context.wincol = v:null
-      " let l:context.windowTopLine = v:null
-      " let l:context.windowBottomLine = v:null
-      " let l:context.byte = v:null
-      " let l:context.windowWidth = winwidth(winnr(string(a:bufnum)))
-      " let l:context.windowHeight = winheight(winnr(string(a:bufnum)))
+      let l:context.bufferFullPath = expand("#".a:bufnum.":p")
+      let l:context.bufferTotalLines = pyeval('len(vim.buffers['.(a:bufnum-1).'])')
+      let l:context.line = ""
+      let l:context.column = ""
+      let l:context.mode = ""
+      let l:context.winline = ""
+      let l:context.wincol = ""
+      let l:context.windowTopLine = ""
+      let l:context.windowBottomLine = ""
+      let l:context.byte = ""
+      let l:context.windowNumber = winnr(a:bufnum)
+      let l:context.windowWidth = winwidth(l:context.windowNumber)
+      let l:context.windowHeight = winheight(l:context.windowNumber)
       let l:context.filetype = getbufvar(a:bufnum, "&filetype")
       let l:context.modified = getbufvar(a:bufnum, "&mod")
       let l:context.hidden = getbufvar(a:bufnum, "&hidden")
@@ -123,7 +123,7 @@ augroup OniEventListeners
     autocmd!
     autocmd! BufWritePre * :call OniNotifyEvent("BufWritePre")
     autocmd! BufWritePost * :call OniNotifyEvent("BufWritePost")
-    autocmd! BufEnter * :call OniNotifyEvent("BufEnter")
+    autocmd! BufEnter * :call OniNotifyWithBuffers("BufEnter")
     autocmd! BufRead * :call OniNotifyWithBuffers("BufRead")
     autocmd! BufWinEnter * :call OniNotifyEvent("BufWinEnter")
     autocmd! ColorScheme * :call OniNotifyEvent("ColorScheme")
