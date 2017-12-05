@@ -22,6 +22,7 @@ import * as State from "./State"
 import { editorManager } from "./../Services/EditorManager"
 import { focusManager } from "./../Services/FocusManager"
 import { listenForDiagnostics } from "./../Services/Language"
+import { SidebarSplit } from "./../Services/Sidebar"
 import { windowManager } from "./../Services/WindowManager"
 
 import { PluginManager } from "./../Plugins/PluginManager"
@@ -52,12 +53,6 @@ const updateViewport = () => {
     const height = document.body.offsetHeight
 
     Actions.setViewport(width, height)
-}
-
-export class SidebarSplit {
-    public render(): JSX.Element {
-        return <div className="sidebar enable-mouse">Hello</div>
-    }
 }
 
 function render(_state: State.IState, pluginManager: PluginManager, args: any): void {

@@ -177,6 +177,8 @@ export interface IConfigurationValues {
     // of saving to file
     "recorder.copyScreenshotToClipboard": boolean
 
+    "sidebar.width": string
+
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
 

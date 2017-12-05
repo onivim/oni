@@ -171,6 +171,8 @@ const BaseConfiguration: IConfigurationValues = {
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
 
+    "sidebar.width": "50px",
+
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
 
