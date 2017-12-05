@@ -5,12 +5,18 @@ if exists("g:loaded_oni_interop_plugin")
     finish
 endif
 
-:set hidden
+set hidden
 
 let g:loaded_oni_interop_plugin = 1
 
 function OniNotify(args)
     call rpcnotify(1, "oni_plugin_notify", a:args)
+endfunction
+
+function OniNotifyWithBuffers(eventName)
+    let l:allBufs = OniGetAllBuffers()
+    echo l:allBufs
+    call OniNotify(["event", a:eventName, l:allBufs])
 endfunction
 
 function OniNoop()
@@ -42,6 +48,58 @@ function OniNotifyEvent(eventName)
     call OniNotify(["event", a:eventName, context])
 endfunction
 
+function User_buffers() " help buffers are always unlisted, but quickfix buffers are not
+  return filter(range(1,bufnr('$')),'buflisted(v:val) && "quickfix" !=? getbufvar(v:val, "&buftype")')
+endfunction
+
+function OniGetAllBuffers()
+  let l:buffers = []
+  let l:bufnums = User_buffers()
+  if exists("l:bufnums")
+    for l:bufnum in l:bufnums
+      let l:buffer = OniGetEachContext(l:bufnum)
+      let l:buffers += [l:buffer]
+    endfor
+    echo l:buffers
+    return l:buffers
+  endif
+endfunction
+
+function OniGetEachContext(bufnum)
+  let l:context = {}
+  if has('python')
+    let l:bufpath = bufname(a:bufnum)
+    if strlen(l:bufpath)
+      python import vim
+      let l:buf = "#".a:bufnum
+      let l:context.bufferNumber = a:bufnum
+      let l:context.bufferFullPath = l:bufpath
+      " let l:context.bufferTotalLines = pyeval('len(vim.buffers['.(a:bufnum-1).'])')
+      " let l:context.line = line(".")
+      " let l:context.column = col(".")
+      " let l:context.mode = mode()
+      " let l:context.windowNumber = winnr(string(a:bufnum))
+      " let l:context.winline = v:null
+      " let l:context.wincol = v:null
+      " let l:context.windowTopLine = v:null
+      " let l:context.windowBottomLine = v:null
+      " let l:context.byte = v:null
+      " let l:context.windowWidth = winwidth(winnr(string(a:bufnum)))
+      " let l:context.windowHeight = winheight(winnr(string(a:bufnum)))
+      let l:context.filetype = getbufvar(a:bufnum, "&filetype")
+      let l:context.modified = getbufvar(a:bufnum, "&mod")
+      let l:context.hidden = getbufvar(a:bufnum, "&hidden")
+      let l:context.listed = getbufvar(a:bufnum, "&buflisted")
+    endif
+
+    if exists("b:last_change_tick")
+      let l:context.version = b:last_change_tick
+    endif
+
+    return l:context
+  endif
+endfunction
+
 function OniCommand(oniCommand)
     call OniNotify(["oni_command", a:oniCommand])
 endfunction
@@ -66,6 +124,7 @@ augroup OniEventListeners
     autocmd! BufWritePre * :call OniNotifyEvent("BufWritePre")
     autocmd! BufWritePost * :call OniNotifyEvent("BufWritePost")
     autocmd! BufEnter * :call OniNotifyEvent("BufEnter")
+    autocmd! BufRead * :call OniNotifyWithBuffers("BufRead")
     autocmd! BufWinEnter * :call OniNotifyEvent("BufWinEnter")
     autocmd! ColorScheme * :call OniNotifyEvent("ColorScheme")
     autocmd! WinEnter * :call OniNotifyEvent("WinEnter")

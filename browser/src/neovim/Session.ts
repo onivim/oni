@@ -47,6 +47,12 @@ export class Session extends EventEmitter {
 
         this._decoder.on("data", (data: any) => {
             const [type, ...remaining] = data
+            if (remaining[0] === "oni_plugin_notify") {
+                console.log('Vim RPC Response ================================: ', remaining[1]);
+                if (remaining[0] === "BufRead") {
+                    console.log("JACKPOT!!!!!", remaining)
+                }
+            }
 
             switch (type) {
                 case 0:

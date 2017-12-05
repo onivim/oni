@@ -449,7 +449,7 @@ export class NeovimEditor extends Editor implements IEditor {
         }
     }
 
-    private _onVimEvent(eventName: string, evt: EventContext): void {
+    private async _onVimEvent(eventName: string, evt: EventContext): Promise<void> {
         UI.Actions.setWindowCursor(evt.windowNumber, evt.line - 1, evt.column - 1)
 
         // Convert to 0-based positions
@@ -468,6 +468,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
             this._lastBufferId = evt.bufferNumber.toString()
             this.notifyBufferEnter(buf)
+            // const buffers = await this._neovimInstance.getBufferIds()
 
             UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.filetype, evt.bufferTotalLines, evt.hidden, evt.listed)
         } else if (eventName === "BufWritePost") {
@@ -479,9 +480,10 @@ export class NeovimEditor extends Editor implements IEditor {
                 language: evt.filetype,
             })
         } else if (eventName === "BufDelete") {
-            this._neovimInstance.getBufferIds()
-                .then((ids) => ids.filter(id => id !== evt.bufferNumber))
-                .then(ids => UI.Actions.setCurrentBuffers(ids))
+            // This call the neovim msgpack api does not return an accurate bufferlist
+            const bufIds = await this._neovimInstance.getBufferIds()
+            const remaining = bufIds.filter(id => id !== evt.bufferNumber)
+            UI.Actions.setCurrentBuffers(remaining)
         }
     }
 
