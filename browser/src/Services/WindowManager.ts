@@ -28,7 +28,7 @@ export interface IWindowDock {
 
     onSplitsChanged: IEvent<void>
 
-    addSplit(split: Oni.IWindowSplit): void 
+    addSplit(split: Oni.IWindowSplit): void
     removeSplit(split: Oni.IWindowSplit): void
 }
 

@@ -46,6 +46,10 @@ export class SidebarView extends React.PureComponent<ISidebarProps, {}> {
             width: this.props.width,
         }
 
+        if (!this.props.visible) {
+            return null
+        }
+
         return <div className="sidebar enable-mouse" style={style}>
                 <SidebarIcon iconName={"files-o"} active={true}/>
                 <SidebarIcon iconName={"search"} active={false}/>
@@ -60,8 +64,8 @@ export class SidebarView extends React.PureComponent<ISidebarProps, {}> {
 export const mapStateToProps = (state: State.IState): ISidebarProps => {
     return {
         visible: state.configuration["experimental.sidebar.enabled"],
-        backgroundColor: state.colors["background"],
-        foregroundColor: state.colors["foreground"],
+        backgroundColor: state.colors.background,
+        foregroundColor: state.colors.foreground,
         width: state.configuration["sidebar.width"],
     }
 }
@@ -73,4 +77,4 @@ export class SidebarSplit {
         return <Sidebar />
     }
 }
-
+
