@@ -153,11 +153,7 @@ export class Buffer implements Oni.Buffer {
     }
 
     public async setLines(start: number, end: number, lines: string[]): Promise<void> {
-        // Clear buffer lines, so that if we make subsequent edits, we are always getting the freshest line
-        // TODO: Speed this up by updating the `_bufferLines` cache instead
-        this._bufferLines = null
-
-        await this._neovimInstance.request<any>("nvim_buf_set_lines", [parseInt(this._id, 10), start, end, false, lines])
+        return this._neovimInstance.request<any>("nvim_buf_set_lines", [parseInt(this._id, 10), start, end, false, lines])
     }
 
     public async setCursorPosition(row: number, column: number): Promise<void> {
