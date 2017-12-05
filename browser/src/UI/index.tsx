@@ -54,6 +54,12 @@ const updateViewport = () => {
     Actions.setViewport(width, height)
 }
 
+export class SidebarSplit {
+    public render(): JSX.Element {
+        return <div className="sidebar enable-mouse">Hello</div>
+    }
+}
+
 function render(_state: State.IState, pluginManager: PluginManager, args: any): void {
     const hostElement = document.getElementById("host")
 
@@ -63,6 +69,8 @@ function render(_state: State.IState, pluginManager: PluginManager, args: any): 
     editorManager.setActiveEditor(editor)
 
     windowManager.split(0, editor)
+    const leftDock = windowManager.getDock(2)
+    leftDock.addSplit(new SidebarSplit())
 
     ReactDOM.render(
         <Provider store={store}>

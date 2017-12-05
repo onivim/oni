@@ -10,7 +10,7 @@ import * as Oni from "oni-api"
 
 import { WindowSplitHost } from "./WindowSplitHost"
 
-import { WindowManager } from "./../../Services/WindowManager"
+import { Direction, WindowManager } from "./../../Services/WindowManager"
 import { ISplitInfo } from "./../../Services/WindowSplit"
 
 export interface IWindowSplitsProps {
@@ -18,7 +18,24 @@ export interface IWindowSplitsProps {
 }
 
 export interface IWindowSplitsState {
+    activeSplit: Oni.IWindowSplit
     splitRoot: ISplitInfo<Oni.IWindowSplit>
+    leftDock: Oni.IWindowSplit[]
+}
+
+export interface IDockProps {
+    activeSplit: Oni.IWindowSplit
+    splits: Oni.IWindowSplit[]
+}
+
+export class Dock extends React.PureComponent<IDockProps, {}> {
+    public render(): JSX.Element {
+        const docks = this.props.splits.map((s) => <WindowSplitHost containerClassName="split" split={s} isFocused={this.props.activeSplit === s} />)
+
+        return <div className = "dock container fixed horizointal">
+            {docks}
+            </div>
+    }
 }
 
 export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindowSplitsState> {
@@ -27,7 +44,9 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
         super(props)
 
         this.state = {
+            activeSplit: props.windowManager.activeSplit,
             splitRoot: props.windowManager.splitRoot,
+            leftDock: props.windowManager.getDock(Direction.Left).splits,
         }
     }
 
@@ -35,6 +54,12 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
         this.props.windowManager.onSplitChanged.subscribe((newSplit) => {
             this.setState({
                 splitRoot: newSplit,
+            })
+        })
+
+        this.props.windowManager.getDock(Direction.Left).onSplitsChanged.subscribe(() => {
+            this.setState({
+                leftDock: this.props.windowManager.getDock(Direction.Left).splits,
             })
         })
     }
@@ -60,13 +85,16 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
                 if (!split) {
                     return <div className="container vertical full" key={i}>TODO: Implement an editor here...</div>
                 } else {
-                    return <WindowSplitHost key={i} split={split} />
+                    return <WindowSplitHost containerClassName={"editor"} key={i} split={split} isFocused={split === this.state.activeSplit}/>
                 }
             }
         })
 
         return <div style={containerStyle}>
-                    {editors}
+                    <div className="container horizontal full">
+                        <Dock splits={this.state.leftDock} activeSplit={this.state.activeSplit} />
+                        {editors}
+                    </div>
                 </div>
     }
 }

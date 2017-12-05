@@ -48,6 +48,8 @@ const BaseConfiguration: IConfigurationValues = {
     // TODO: Enable pipe transport for Windows
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
+    "experimental.sidebar.enabled": false,
+
     "oni.audio.bellUrl": null,
 
     "oni.useDefaultConfig": true,
