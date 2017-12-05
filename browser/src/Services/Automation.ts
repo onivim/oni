@@ -67,7 +67,13 @@ export class Automation implements OniApi.Automation.Api {
         try {
             Log.info("[AUTOMATION] Starting test: " + testPath)
             const testCase: any = Utility.nodeRequire(testPath2)
-            await testCase.test(new Oni())
+            const oni = new Oni()
+            // Add explicit wait for Neovim to be initialized
+            // The CI machines can often be slow, so we need a longer timout for it
+            Log.info("[AUTOMATION] Waiting for neovim to attach...")
+            await this.waitFor(() => oni.editors.activeEditor.neovim && (<any>oni.editors.activeEditor).neovim.isAttached, 30000)
+            Log.info("[AUTOMATION] Neovim attached!")
+            await testCase.test(oni)
             Log.info("[AUTOMATION] Completed test: " + testPath)
             this._reportResult(true)
         } catch (ex) {
