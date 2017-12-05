@@ -116,6 +116,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._neovimInstance.onShowPopupMenu,
             this._neovimInstance.onHidePopupMenu,
             this._neovimInstance.onSelectPopupMenu,
+            this.onBufferEnter,
         )
 
         this._renderer = new CanvasRenderer()
