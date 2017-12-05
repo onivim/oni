@@ -25,9 +25,6 @@ export class Automation implements OniApi.Automation.Api {
     public sendKeys(keys: string): void {
         Log.info("[AUTOMATION] Sending keys: " + keys)
 
-        const input: any = inputManager
-        console.dir(input._boundKeys)
-
         if (!inputManager.handleKey(keys)) {
             Log.info("[AUTOMATION] InputManager did not handle key: " + keys)
             const anyEditor: any = editorManager.activeEditor as any

@@ -11,6 +11,8 @@ import { EditorManager } from "./EditorManager"
 import { InputManager } from "./InputManager"
 import { LanguageManager } from "./Language"
 
+import { NeovimInstance } from "./../neovim"
+
 import * as Log from "./../Log"
 
 export interface IAutoClosingPair {
@@ -21,16 +23,12 @@ export interface IAutoClosingPair {
 
 export const activate = (configuration: Configuration, editorManager: EditorManager, inputManager: InputManager, languageManager: LanguageManager) => {
 
-    const insertModeFilter = () => {
-        console.log("Auto-closing pairs - mode reported as: " + editorManager.activeEditor.mode)
-        return editorManager.activeEditor.mode === "insert"
-    }
+    const insertModeFilter = () => editorManager.activeEditor.mode === "insert"
 
     let subscriptions: Oni.DisposeFunction[] = []
 
     const handleOpenCharacter = (pair: IAutoClosingPair, editor: Oni.Editor) => () => {
-
-        const neovim: any = editor.neovim
+        const neovim: NeovimInstance = editor.neovim as any
         neovim.blockInput(async (inputFunc: any) => {
             // TODO: PERFORMANCE: Look at how to collapse this instead of needed multiple asynchronous calls.
             await inputFunc(pair.open + pair.close)
@@ -44,7 +42,7 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
     }
 
     const handleBackspaceCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
-        const neovim: any = editor.neovim
+        const neovim: NeovimInstance = editor.neovim as any
         neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
             const lines = await activeBuffer.getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1)
@@ -77,12 +75,11 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
     }
 
     const handleEnterCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
-        console.log("AUTOPAIRS: HANDLING ENTER")
-        const neovim: any = editor.neovim
+        const neovim: NeovimInstance = editor.neovim as any
         neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
 
-            const lines = await (<any>activeBuffer).getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, false)
+            const lines = await (activeBuffer as any).getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, false)
             const line = lines[0]
 
             const { column } = activeBuffer.cursor
@@ -116,7 +113,7 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         const neovim: any = editor.neovim
         neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
-            const lines = await (<any>activeBuffer).getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, false)
+            const lines = await (activeBuffer as any).getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, false)
             const line = lines[0]
             if (line[activeBuffer.cursor.column] === pair.close) {
                 await activeBuffer.setCursorPosition(activeBuffer.cursor.line, activeBuffer.cursor.column + 1)
@@ -140,8 +137,6 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         }
 
         subscriptions = []
-
-        console.log("Installing auto pairs for buffer: " + newBuffer.filePath)
 
         const autoClosingPairs = getAutoClosingPairs(configuration, newBuffer.language)
 
