@@ -3,18 +3,12 @@
  */
 
 import * as assert from "assert"
-import * as os from "os"
-import * as path from "path"
 
-import { getCompletionElement } from "./Common"
+import { createNewFile, getCompletionElement } from "./Common"
 
 export const test = async (oni: any) => {
-    const dir = os.tmpdir()
-    const testFileName = `testFile-${new Date().getTime()}.css`
-    const tempFilePath = path.join(dir, testFileName)
-    oni.automation.sendKeys(":e " + tempFilePath)
-    oni.automation.sendKeys("<cr>")
-    await oni.automation.sleep(500)
+    await createNewFile("css", oni)
+
     oni.automation.sendKeys("i")
     await oni.automation.sleep(500)
     oni.automation.sendKeys(".test { pos")
