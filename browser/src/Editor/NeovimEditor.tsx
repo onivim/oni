@@ -450,16 +450,16 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private async _onVimEvent(eventName: string, evt: EventContext): Promise<void> {
-        UI.Actions.setWindowCursor(evt.windowNumber, evt.line - 1, evt.column - 1)
-
+        const currentBuffer = Array.isArray(evt) ? evt[0] : evt
+        UI.Actions.setWindowCursor(currentBuffer.windowNumber, currentBuffer.line - 1, currentBuffer.column - 1)
         // Convert to 0-based positions
-        this._syntaxHighlighter.notifyViewportChanged(evt.bufferNumber.toString(), evt.windowTopLine - 1, evt.windowBottomLine - 1)
+        this._syntaxHighlighter.notifyViewportChanged(currentBuffer.bufferNumber.toString(), currentBuffer.windowTopLine - 1, currentBuffer.windowBottomLine - 1)
 
         const lastBuffer = this.activeBuffer
-        const buf = this._bufferManager.updateBufferFromEvent(evt)
+        const buf = this._bufferManager.updateBufferFromEvent(currentBuffer)
 
         if (eventName === "BufEnter") {
-            console.log('BUFENTER EVENT: ', evt);
+            console.log("BUFENTER EVENT: ", evt);
             if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
                 this.notifyBufferLeave({
                     filePath: lastBuffer.filePath,
@@ -467,11 +467,11 @@ export class NeovimEditor extends Editor implements IEditor {
                 })
             }
 
-            this._lastBufferId = evt.bufferNumber.toString()
+            this._lastBufferId = currentBuffer.bufferNumber.toString()
             this.notifyBufferEnter(buf)
             // const buffers = await this._neovimInstance.getBufferIds()
 
-            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.filetype, evt.bufferTotalLines, evt.hidden, evt.listed)
+            UI.Actions.bufferEnter({ currentBuffer, existingBuffers: Array.isArray(evt) ? evt.slice(1) : [] })
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)

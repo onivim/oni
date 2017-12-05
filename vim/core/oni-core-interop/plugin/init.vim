@@ -15,9 +15,10 @@ endfunction
 
 function OniNotifyWithBuffers(eventName)
     let l:allBufs = OniGetAllBuffers()
-    let context = OniGetContext()
-    echo l:allBufs
-    call OniNotify(["event", a:eventName, context, l:allBufs])
+    let l:current = OniGetContext()
+    let l:context = [l:current]
+    let l:context += l:allBufs
+    call OniNotify(["event", a:eventName, l:context])
 endfunction
 
 function OniNoop()
@@ -58,10 +59,15 @@ function OniGetAllBuffers()
   let l:bufnums = User_buffers()
   if exists("l:bufnums")
     for l:bufnum in l:bufnums
-      let l:buffer = OniGetEachContext(l:bufnum)
-      let l:buffers += [l:buffer]
+      try
+        let l:buffer = OniGetEachContext(l:bufnum)
+        let l:buffers += [l:buffer]
+      catch /.*/
+      echohl WarningMsg
+      echo v:exception
+      echohl none
+    endtry
     endfor
-    echo l:buffers
     return l:buffers
   endif
 endfunction
@@ -74,19 +80,27 @@ function OniGetEachContext(bufnum)
       python import vim
       let l:context.bufferNumber = a:bufnum
       let l:context.bufferFullPath = expand("#".a:bufnum.":p")
-      let l:context.bufferTotalLines = pyeval('len(vim.buffers['.(a:bufnum-1).'])')
-      let l:context.line = ""
-      let l:context.column = ""
-      let l:context.mode = ""
-      let l:context.winline = ""
-      let l:context.wincol = ""
-      let l:context.windowTopLine = ""
-      let l:context.windowBottomLine = ""
-      let l:context.byte = ""
-      let l:context.windowNumber = winnr(a:bufnum)
-      let l:context.windowWidth = winwidth(l:context.windowNumber)
-      let l:context.windowHeight = winheight(l:context.windowNumber)
+      let l:context.bufferTotalLines = pyeval('len(vim.buffers['.(a:bufnum).'])')
+      " function CountLines()
+      "   python3 << EOF
+      "     lines = len(vim.buffers[0])
+      "     print lines
+      "     EOF
+      " endfunction
+      let l:context.bufferTotalLines = v:null
+      let l:context.line = v:null
+      let l:context.column = v:null
+      let l:context.mode = v:null
+      let l:context.winline = v:null
+      let l:context.wincol = v:null
+      let l:context.windowTopLine = v:null
+      let l:context.windowBottomLine = v:null
+      let l:context.byte = v:null
+      let l:context.windowNumber = v:null
+      let l:context.windowWidth = v:null
+      let l:context.windowHeight = v:null
       let l:context.filetype = getbufvar(a:bufnum, "&filetype")
+      let l:context.buftype = getbufvar(a:bufnum, "&buftype")
       let l:context.modified = getbufvar(a:bufnum, "&mod")
       let l:context.hidden = getbufvar(a:bufnum, "&hidden")
       let l:context.listed = getbufvar(a:bufnum, "&buflisted")

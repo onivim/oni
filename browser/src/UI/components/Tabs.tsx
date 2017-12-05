@@ -162,7 +162,7 @@ const getTabsFromBuffers = createSelector(
             isDirty: buf.modified,
             description: buf.file,
         }))
-        return tabs
+        return tabs.sort((a, b) => a.id - b.id)
     })
 
 const getTabsFromVimTabs = createSelector(

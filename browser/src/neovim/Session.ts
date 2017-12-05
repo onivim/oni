@@ -65,7 +65,6 @@ export class Session extends EventEmitter {
                 case 2 /* Notification */:
                     const [notificationMessage, payload] = remaining
                     log("Received notification - " + notificationMessage)
-
                     this.emit("notification", notificationMessage, payload)
                     break
                 default:

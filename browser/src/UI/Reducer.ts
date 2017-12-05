@@ -144,22 +144,22 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
         case "BUFFER_ENTER":
             byId = {
                 ...s.byId,
-                [a.payload.id]: {
-                    id: a.payload.id,
-                    file: a.payload.file,
-                    totalLines: a.payload.totalLines,
-                    hidden: a.payload.hidden,
-                    listed: a.payload.listed,
+                [a.payload.currentBuffer.id]: {
+                    id: a.payload.currentBuffer.id,
+                    file: a.payload.currentBuffer.file,
+                    totalLines: a.payload.currentBuffer.totalLines,
+                    hidden: a.payload.currentBuffer.hidden,
+                    listed: a.payload.currentBuffer.listed,
                     modified: false,
                 },
             }
 
-            if (allIds.indexOf(a.payload.id) === -1) {
-                allIds = [...s.allIds, a.payload.id]
+            if (allIds.indexOf(a.payload.currentBuffer.id) === -1) {
+                allIds = [...s.allIds, a.payload.currentBuffer.id]
             }
 
             return {
-                activeBufferId: a.payload.id,
+                activeBufferId: a.payload.currentBuffer.id,
                 byId,
                 allIds,
             }

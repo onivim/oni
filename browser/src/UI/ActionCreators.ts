@@ -72,15 +72,21 @@ export const setCursorScale = (cursorScale: number) => ({
     },
 })
 
-export const bufferEnter = (id: number, file: string, language: string, totalLines: number, hidden: boolean, listed: boolean) => ({
+export const bufferEnter = (
+    { currentBuffer, existingBuffers }:
+    { currentBuffer: any, existingBuffers: any[] },
+) => ({
     type: "BUFFER_ENTER",
     payload: {
-        id,
-        file: normalizePath(file),
-        language,
-        totalLines,
-        hidden,
-        listed,
+        currentBuffer: {
+            id: currentBuffer.bufferNumber,
+            file: normalizePath(currentBuffer.bufferFullPath),
+            language: currentBuffer.filetype,
+            totalLines: currentBuffer.lines,
+            hidden: currentBuffer.hidden,
+            listed: currentBuffer.listed,
+        },
+        existingBuffers,
     },
 })
 
