@@ -36,7 +36,6 @@ export class Buffer implements Oni.Buffer {
     private _modified: boolean
     private _lineCount: number
 
-    private _bufferLines: string[] = null
     private _promiseQueue = new PromiseQueue()
     private _previousHighlightState: BufferHighlightState = {}
 
