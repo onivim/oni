@@ -230,4 +230,17 @@ describe("Completion", () => {
 
         assert.strictEqual(lastItems, null, "Completions should be null, as the only request that was completed was outdated")
     })
+
+    it("#1076 - should not crash if buffer change comes before first cursor move", () => {
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
+
+        // Switch to insert mode
+        mockEditor.simulateModeChange("insert")
+
+        // Simulate typing, but with the buffer update coming prior to the cursor move.
+        mockEditor.setActiveBufferLine(0, "win")
+        mockEditor.simulateCursorMoved(0, 3)
+
+        assert.ok(true, "Did not crash")
+    })
 })
