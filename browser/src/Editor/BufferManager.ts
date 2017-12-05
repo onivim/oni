@@ -37,8 +37,6 @@ export class Buffer implements Oni.Buffer {
     private _lineCount: number
 
     private _bufferLines: string[] = null
-    // private _lastBufferLineVersion: number = -1
-
     private _promiseQueue = new PromiseQueue()
     private _previousHighlightState: BufferHighlightState = {}
 
@@ -75,7 +73,7 @@ export class Buffer implements Oni.Buffer {
         this.updateFromEvent(evt)
     }
 
-    public async getLines(start?: number, end?: number, cached: boolean = true): Promise<string[]> {
+    public async getLines(start?: number, end?: number): Promise<string[]> {
 
         if (typeof start !== "number") {
             start = 0
@@ -85,12 +83,8 @@ export class Buffer implements Oni.Buffer {
             end = this._lineCount
         }
 
-//         if (this._lastBufferLineVersion < this.version || !this._bufferLines || !cached) {
-            const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [parseInt(this._id, 10), start, end, false])
-            return lines
-        // }
-
-        // return this._bufferLines.slice(start, end)
+        const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [parseInt(this._id, 10), start, end, false])
+        return lines
     }
 
     public async applyTextEdits(textEdits: types.TextEdit | types.TextEdit[]): Promise<void> {
@@ -114,7 +108,7 @@ export class Buffer implements Oni.Buffer {
                 calls.push(["nvim_command", ["silent! undojoin"]])
 
                 if (lineStart === lineEnd) {
-                    const [lineContents] = await this.getLines(lineStart, lineStart + 1, false /* force to get latest, because cached buffer may not be up-to-date */)
+                    const [lineContents] = await this.getLines(lineStart, lineStart + 1)
                     const beginning = lineContents.substring(0, range.start.character)
                     const end = lineContents.substring(range.end.character, lineContents.length)
                     const newLine = beginning + te.newText + end
@@ -235,18 +229,6 @@ export class Buffer implements Oni.Buffer {
             line: evt.line - 1,
             column: evt.column - 1,
         }
-    }
-
-    public _notifyBufferUpdated(lines: string[], version: number): void {
-        this._bufferLines = lines
-        // this._lastBufferLineVersion = version
-    }
-
-    public _notifyBufferUpdatedAt(line: number, lineContents: string, version: number): void {
-        if (this._bufferLines) {
-            this._bufferLines[line] = lineContents
-        }
-        // this._lastBufferLineVersion = version
     }
 }
 
