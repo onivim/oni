@@ -37,13 +37,13 @@ export const test = async (oni: any) => {
     // for them to complete.
     await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.lineCount === 5)
 
-    const lines: string[]  = await oni.editors.activeEditor.activeBuffer.getLines(0, 4)
+    const lines: string[]  = await oni.editors.activeEditor.activeBuffer.getLines(0, 5)
 
     const expectedResult = [
         "const test = {",
-        "   window.setTimeout(() => {",
-        "       ",
-        "   })",
+        "    window.setTimeout(() => {",
+        "        ",
+        "    })",
         "}",
     ]
 
