@@ -11,13 +11,34 @@
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
+// TODO: Add 'direction' enum to `oni-types'
+export enum Direction {
+    Right = 0,
+    Bottom = 1,
+    Left = 2,
+    Top = 3,
+}
+
+// TODO: Add optional `enter` and `leave` methods to `oni-api`
+
 import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, ISplitInfo, SplitDirection } from "./WindowSplit"
+
+export interface IWindowDock {
+    splits: Oni.IWindowSplit[]
+
+    onSplitsChanged(): IEvent<void>
+
+    addSplit(split: Oni.IWindowSplit): void 
+    removeSplit(split: Oni.IWindowSplit): void
+}
 
 export class WindowManager implements Oni.IWindowManager {
     // private _activeSplit: ISplitLeaf<Oni.IWindowSplit>
     private _splitRoot: ISplitInfo<Oni.IWindowSplit>
 
     private _onSplitChanged = new Event<ISplitInfo<Oni.IWindowSplit>>()
+
+    private _leftDock: IWindowDock = null
 
     public get onSplitChanged(): IEvent<ISplitInfo<Oni.IWindowSplit>> {
         return this._onSplitChanged
@@ -55,6 +76,16 @@ export class WindowManager implements Oni.IWindowManager {
         // TODO
     }
 
+    public getDock(direction: Direction): IWindowDock {
+        if (direction === Direction.Left) {
+            return this._leftDock
+        } else {
+            // TODO
+            return null
+        }
+    }
+
+    // TODO: Deprecate
     public showDock(direction: SplitDirection, split: Oni.IWindowSplit) {
         // TODO
     }
