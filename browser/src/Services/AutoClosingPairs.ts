@@ -21,7 +21,10 @@ export interface IAutoClosingPair {
 
 export const activate = (configuration: Configuration, editorManager: EditorManager, inputManager: InputManager, languageManager: LanguageManager) => {
 
-    const insertModeFilter = () => editorManager.activeEditor.mode === "insert"
+    const insertModeFilter = () => {
+        console.log("Auto-closing pairs - mode reported as: " + editorManager.activeEditor.mode)
+        return editorManager.activeEditor.mode === "insert"
+    }
 
     let subscriptions: Oni.DisposeFunction[] = []
 

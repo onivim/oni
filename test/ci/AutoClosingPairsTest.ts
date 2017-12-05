@@ -18,7 +18,9 @@ export const test = async (oni: any) => {
     // Wait for the '{' binding to show up, so we get
     // a deterministic result.
     await oni.automation.waitFor(() => oni.input.hasBinding("{"))
+
     oni.automation.sendKeys("i")
+    await oni.automation.waitFor(() => oni.editors.activeEditor.mode === "insert")
 
     oni.automation.sendKeys("const test = ")
     oni.automation.sendKeys("{")
