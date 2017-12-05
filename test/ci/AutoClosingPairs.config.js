@@ -3,5 +3,5 @@
 // https://github.com/onivim/oni/wiki/Configuration
 
 module.exports = {
-    "experimental.autoClosingPairs.enabeld": true,
+    "experimental.autoClosingPairs.enabled": true,
 };
