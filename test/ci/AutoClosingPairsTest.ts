@@ -15,9 +15,13 @@ export const test = async (oni: any) => {
     const testFileName = `testFile-${new Date().getTime()}.js`
     const tempFilePath = path.join(dir, testFileName)
     oni.automation.sendKeys(":e " + tempFilePath)
-    await oni.automation.sleep(50)
-
     oni.automation.sendKeys("<CR>")
+
+    await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.filePath === tempFilePath)
+
+    // Wait for the '{' binding to show up, so we get
+    // a deterministic result.
+    await oni.automation.waitFor(() => oni.input.hasBinding("{"), 10000)
     oni.automation.sendKeys("i")
 
     // TOOD: There is a slight delay when initializating auto-pairs for the buffer
