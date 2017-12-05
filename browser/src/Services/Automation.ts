@@ -36,7 +36,7 @@ export class Automation implements OniApi.Automation.Api {
         return new Promise<void>((r) => window.setTimeout(() => r(), time))
     }
 
-    public async waitFor(condition: () => boolean, timeout: number = 5000): Promise<void> {
+    public async waitFor(condition: () => boolean, timeout: number = 10000): Promise<void> {
         Log.info("[AUTOMATION] Starting wait - limit: " + timeout)
         let time = 0
         const interval = 1000
