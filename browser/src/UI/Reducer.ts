@@ -155,16 +155,13 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 },
             }
 
-            byId = a.payload.existingBuffers.reduce(buffer => {
-                byId[buffer.id] = buffer
+            byId = a.payload.existingBuffers.reduce((buffersById, buffer) => {
+                buffersById[buffer.id] = buffer
                 return byId
             }, byId)
-
             const existingBufIds = a.payload.existingBuffers.filter(b => !!(b.id)).map(b => b.id)
 
-            allIds = !allIds.includes(a.payload.currentBuffer.id)
-                ? [...s.allIds, a.payload.currentBuffer.id, ...existingBufIds]
-                : [...s.allIds, ...existingBufIds]
+            allIds = [ ...new Set([...existingBufIds, a.payload.currentBuffer.id])]
 
             console.log('allIds: ', allIds);
 
