@@ -12,7 +12,7 @@ import { connect } from "react-redux"
 import { Icon, IconSize } from "./../../UI/Icon"
 import * as State from "./../../UI/State"
 
-require("./Sidebar.less")
+require("./Sidebar.less") // tslint:disable-line
 
 export interface ISidebarIconProps {
     active: boolean
@@ -77,4 +77,3 @@ export class SidebarSplit {
         return <Sidebar />
     }
 }
-
