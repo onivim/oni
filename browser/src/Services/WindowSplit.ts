@@ -56,8 +56,23 @@ export function applySplit<T>(originalSplit: ISplitInfo<T>, direction: SplitDire
     }
 }
 
+export const getFurthestSplitInDirection = <T>(root: SplitOrLeaf<T>, direction: Split): ISplitLeaf<T> => {
+
+    if (!root) {
+        return null
+    }
+
+    switch (root.type) {
+        case "Leaf":
+            return root
+        case "Split":
+            // TODO: Add direction logic here
+            return getFurthestSplitInDirection(root.splits[0], direction)
+    }
+}
+
 export function closeSplit<T>(originalSplit: ISplitInfo<T>, contents: T): ISplitInfo<T> {
-    // TODO: Implement this in the recursive case, for nesetd splits
+    // TODO: Implement this in the recursive case, for nested splits
 
     const filteredSplits = originalSplit.splits.filter((s) => {
         switch (s.type) {

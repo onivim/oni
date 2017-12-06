@@ -10,6 +10,8 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
+import { IEvent } from "oni-types"
+
 import { getKeyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
@@ -22,8 +24,9 @@ interface IKeyboardInputViewProps {
     top: number
     left: number
     height: number
+    onActivate?: IEvent<void>
     onKeyDown?: (key: string) => void
-    typingPrediction: TypingPredictionManager
+    typingPrediction?: TypingPredictionManager
     foregroundColor: string
     fontFamily: string
     fontSize: string
@@ -45,8 +48,9 @@ interface IKeyboardInputViewState {
 }
 
 export interface IKeyboardInputProps {
+    onActivate: IEvent<void>
     onKeyDown?: (key: string) => void
-    typingPrediction: TypingPredictionManager
+    typingPrediction?: TypingPredictionManager
 }
 
 /**
@@ -54,7 +58,7 @@ export interface IKeyboardInputProps {
  *
  * Helper for managing state and sanitizing input from dead keys, IME, etc
  */
-class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKeyboardInputViewState> {
+export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKeyboardInputViewState> {
     private _keyboardElement: HTMLInputElement
 
     constructor(props: IKeyboardInputViewProps) {
@@ -66,11 +70,14 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
         }
     }
 
-    public focus() {
-        this._keyboardElement.focus()
-    }
-
     public componentDidMount(): void {
+
+        if (this.props.onActivate) {
+            this.props.onActivate.subscribe(() => {
+                focusManager.setFocus(this._keyboardElement)
+            })
+        }
+
         if (this._keyboardElement) {
             focusManager.pushFocus(this._keyboardElement)
         }
@@ -161,14 +168,18 @@ class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKe
             evt.preventDefault()
             return
         } else {
-            this.props.typingPrediction.addPrediction(key)
+            if (this.props.typingPrediction) {
+                this.props.typingPrediction.addPrediction(key)
+            }
         }
     }
 
     private _onCompositionStart(evt: React.CompositionEvent<HTMLInputElement>) {
         UI.Actions.setImeActive(true)
 
-        this.props.typingPrediction.clearAllPredictions()
+        if (this.props.typingPrediction) {
+            this.props.typingPrediction.clearAllPredictions()
+        }
 
         this.setState({
             isComposing: true,

@@ -22,11 +22,12 @@ import * as State from "./State"
 import { editorManager } from "./../Services/EditorManager"
 import { focusManager } from "./../Services/FocusManager"
 import { listenForDiagnostics } from "./../Services/Language"
-import { windowManager } from "./../Services/WindowManager"
+import { DockPosition, windowManager } from "./../Services/WindowManager"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
+import { FileExplorerSplit } from "./../Services/FileExplorer/FileExplorerSplit"
 
 import { createStore } from "./../Redux"
 
@@ -62,6 +63,7 @@ function render(_state: State.IState, pluginManager: PluginManager, args: any): 
 
     editorManager.setActiveEditor(editor)
 
+    windowManager.showDock(DockPosition.Left, new FileExplorerSplit())
     windowManager.split(0, editor)
 
     ReactDOM.render(

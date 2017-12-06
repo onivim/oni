@@ -1,0 +1,58 @@
+@import (reference) "./../../UI/components/common.less";
+
+.sidebar {
+    background-color: rgb(20, 20, 20);
+    color: rgb(200, 200, 200);
+    width: 50px;
+
+    .sidebar-icon-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color:rgb(30, 30, 30);
+
+        .sidebar-icon {
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+    }
+}
+
+.file-explorer {
+    margin-right: 1px;
+    background-color: rgb(30, 30, 30);
+    color: rgb(150, 150, 150);
+
+    .split.focus & {
+        .box-shadow-right;
+    }
+
+    .title {
+        padding-top: 8px;
+        font-size: 1.2em;
+        // font-weight: bold;
+        text-align: center;
+    }
+
+    .root {
+        margin-left: 16px;
+    }
+
+    .folder, .file {
+        margin: 4px;
+        padding-left: 16px;
+        position: relative;
+
+        &.cursor {
+            background-color: rgb(50, 50, 50);
+        }
+
+        .icon {
+            margin: 4px;
+        }
+
+        .name {
+            margin: 4px;
+        }
+    }
+}
