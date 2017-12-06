@@ -9,6 +9,7 @@ import { MenuContainer } from "./../Services/Menu"
 import * as WindowManager from "./../Services/WindowManager"
 
 import { Background } from "./components/Background"
+import { Loading } from "./components/Loading"
 import StatusBar from "./components/StatusBar"
 import { WindowSplits } from "./components/WindowSplits"
 import { WindowTitle } from "./components/WindowTitle"
@@ -18,37 +19,6 @@ interface IRootComponentProps {
 }
 
 const titleBarVisible = Platform.isMac()
-
-import { connect } from "react-redux"
-import * as State from "./State"
-
-export interface ILoadingViewProps {
-    visible: boolean
-}
-
-export class LoadingView extends React.PureComponent<ILoadingViewProps, {}> {
-    public render(): JSX.Element {
-        const style: React.CSSProperties = {
-            position: "absolute",
-            top: "0px",
-            left: "0px",
-            right: "0px",
-            bottom: "0px",
-            backgroundColor: "black",
-            display: this.props.visible ? "block" : "none",
-        }
-
-        return <div style={style}>LOADING</div>
-    }
-}
-
-const mapStateToProps = (state: State.IState): ILoadingViewProps => {
-    return {
-        visible: !state.isLoaded,
-    }
-}
-
-export const Loading = connect(mapStateToProps)(LoadingView)
 
 export class RootComponent extends React.PureComponent<IRootComponentProps, {}> {
 
