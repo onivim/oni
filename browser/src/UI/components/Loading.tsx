@@ -35,7 +35,7 @@ export class LoadingView extends React.PureComponent<ILoadingViewProps, {}> {
 const mapStateToProps = (state: State.IState): ILoadingViewProps => {
     return {
         visible: !state.isLoaded,
-        backgroundColor: state.colors["background"],
+        backgroundColor: state.colors.background,
     }
 }
 
