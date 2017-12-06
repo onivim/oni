@@ -33,6 +33,7 @@ export interface IToolTip {
 }
 
 export interface IState {
+    // Editor
     cursorScale: number
     cursorPixelX: number
     cursorPixelY: number
@@ -49,14 +50,16 @@ export interface IState {
     configuration: IConfigurationValues
     imeActive: boolean
     viewport: IViewport
-    windowTitle: string
 
+    toolTips: { [id: string]: IToolTip }
     neovimError: boolean
 
+    // Shell
+    isLoading: boolean
     colors: IThemeColors
+    windowTitle: string
 
     statusBar: { [id: string]: IStatusBarItem }
-    toolTips: { [id: string]: IToolTip }
 
     /**
      * Tabs refer to the Vim-concept of tabs
@@ -193,6 +196,7 @@ export const createDefaultState = (): IState => ({
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
     neovimError: false,
+    isLoading: true,
 
     configuration: configuration.getValues(),
 

@@ -19,6 +19,21 @@ interface IRootComponentProps {
 
 const titleBarVisible = Platform.isMac()
 
+export class LoadingView extends React.PureComponent<{}, {}> { 
+    public render(): JSX.Element {
+        const style: React.CSSProperties = {
+            position: "absolute",
+            top: "0px",
+            left: "0px",
+            right: "0px",
+            bottom: "0px",
+            backgroundColor: "black",
+        }
+
+        return <div style={style}>LOADING</div>
+    }
+}
+
 export class RootComponent extends React.PureComponent<IRootComponentProps, {}> {
 
     public render() {
@@ -44,6 +59,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
                     </div>
                 </div>
             </div>
+            <LoadingView />
         </div>
     }
 
