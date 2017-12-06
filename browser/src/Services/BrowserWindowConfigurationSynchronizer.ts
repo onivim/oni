@@ -5,6 +5,9 @@
  */
 
 import { Configuration, IConfigurationValues } from "./Configuration"
+import * as Colors from "./Colors"
+
+import * as Color from "color"
 
 import { remote, ipcRenderer } from "electron"
 
@@ -13,6 +16,19 @@ export const activate = (configuration: Configuration) => {
 
     let loadInitVim: boolean = false
     let maximizeScreenOnStart: boolean = false
+
+    const colors = Colors.getInstance()
+
+    const onColorsChanged = () => {
+        // TODO: Read from 'persisted setting' instead
+        const backgroundColor = colors.getColor("background")
+        if (backgroundColor) {
+            const background: string = Color(backgroundColor).lighten(0.1).hex().toString();
+            (browserWindow as any).setBackgroundColor(background)
+        }
+    }
+
+    colors.onColorsChanged.subscribe(() => onColorsChanged())
 
     const onConfigChanged = (newConfigValues: Partial<IConfigurationValues>) => {
 

@@ -52,7 +52,7 @@ const start = async (args: string[]): Promise<void> => {
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
 
-    Themes.activate(configuration)
+    await Themes.activate(configuration)
 
     performance.mark("NeovimInstance.Plugins.Discover.Start")
     pluginManager.discoverPlugins()

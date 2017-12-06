@@ -31,9 +31,14 @@ import { IThemeColors } from "./../Services/Themes"
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
 
-export const setLoadingComplete = () => ({
-    type: "SET_LOADING_COMPLETE",
-})
+export const setLoadingComplete = () => {
+
+    document.body.classList.add("loaded")
+
+    return {
+        type: "SET_LOADING_COMPLETE",
+    }
+}
 
 export const setWindowTitle = (title: string) => {
 
