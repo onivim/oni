@@ -1,7 +1,11 @@
 /**
- * NeovimMenuInstance.ts
+ * SharedNeovimInstance.ts
  *
- * Specialized instance of Neovim, equipped for dealing with menu UX
+ * Specialized instance of Neovim, used as shared UX for non-traditional Vim components.
+ * - Enabling Neovim keybindings on menus
+ * - Enabling Neovim keybindings on trees
+ * - Enabling Neovim keybindings on grids
+ * - Enabling Neovim keybindings in text input elements
  */
 
 import { Event, IEvent } from "oni-types"
