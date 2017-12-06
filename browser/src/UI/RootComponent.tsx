@@ -19,14 +19,14 @@ interface IRootComponentProps {
 
 const titleBarVisible = Platform.isMac()
 
-import * as State from "./State"
 import { connect } from "react-redux"
+import * as State from "./State"
 
 export interface ILoadingViewProps {
     visible: boolean
 }
 
-export class LoadingView extends React.PureComponent<ILoadingViewProps, {}> { 
+export class LoadingView extends React.PureComponent<ILoadingViewProps, {}> {
     public render(): JSX.Element {
         const style: React.CSSProperties = {
             position: "absolute",
@@ -44,7 +44,7 @@ export class LoadingView extends React.PureComponent<ILoadingViewProps, {}> {
 
 const mapStateToProps = (state: State.IState): ILoadingViewProps => {
     return {
-        visible: !state.isLoaded
+        visible: !state.isLoaded,
     }
 }
 

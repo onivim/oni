@@ -66,7 +66,7 @@ export const render = (_state: State.IState): void => {
 }
 
 export const startEditors = async (args: any): Promise<void> => {
-    
+
     const editor = new NeovimEditor()
     await editor.init(args)
 
