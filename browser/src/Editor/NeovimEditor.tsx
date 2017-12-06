@@ -15,6 +15,7 @@ import { Observable } from "rxjs/Observable"
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import * as Oni from "oni-api"
+import { Event } from "oni-types"
 
 import * as Log from "./../Log"
 
@@ -63,6 +64,8 @@ export class NeovimEditor extends Editor implements IEditor {
     private _colors: Colors // TODO: Factor this out to the UI 'Shell'
 
     private _pendingAnimationFrame: boolean = false
+
+    private _onEnterEvent: Event<void> = new Event<void>()
 
     private _modeChanged$: Observable<Oni.Vim.Mode>
     private _cursorMoved$: Observable<Oni.Cursor>
@@ -361,6 +364,15 @@ export class NeovimEditor extends Editor implements IEditor {
         this._windowManager = null
     }
 
+    public enter(): void {
+        Log.info("[NeovimEditor::enter]")
+        this._onEnterEvent.dispatch()
+    }
+
+    public leave(): void {
+        Log.info("[NeovimEditor::leave]")
+    }
+
     public async openFile(file: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":e " + file)
         return this.activeBuffer
@@ -423,6 +435,7 @@ export class NeovimEditor extends Editor implements IEditor {
             typingPrediction={this._typingPredictionManager}
             neovimInstance={this._neovimInstance}
             screen={this._screen}
+            onActivate={this._onEnterEvent}
             onKeyDown={onKeyDown}
             onBufferClose={onBufferClose}
             onBufferSelect={onBufferSelect}
