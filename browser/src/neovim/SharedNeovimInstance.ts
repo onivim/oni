@@ -8,7 +8,7 @@
  * - Enabling Neovim keybindings in text input elements
  */
 
-import { Event, IDisposable, IEvent } from "oni-types"
+import { IDisposable, IEvent } from "oni-types"
 
 import { NeovimInstance } from "./NeovimInstance"
 import { INeovimStartOptions } from "./NeovimProcessSpawner"
@@ -16,14 +16,13 @@ import { INeovimStartOptions } from "./NeovimProcessSpawner"
 import { pluginManager } from "./../Plugins/PluginManager"
 import { commandManager } from "./../Services/CommandManager"
 
-export interface IBinding extends IDisposable {
+export interface IBinding {
     input(key: string): Promise<void>
+    release(): void
 }
 
 export interface IMenuBinding extends IDisposable {
     setItems(ids: string[]): Promise<void>
-
-
 
     onCursorMoved: IEvent<string>
     onSelectionChanged: IEvent<string[]>
@@ -45,7 +44,7 @@ export class SharedNeovimInstance implements SharedNeovimInstance {
     // }
 
     public bindToMenu(): IMenuBinding {
-        
+        return null
     }
 
     constructor() {
