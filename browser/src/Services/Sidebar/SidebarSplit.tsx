@@ -97,17 +97,27 @@ export const mapStateToProps = (state: State.IState, containerProps: ISidebarCon
 
 const Sidebar = connect(mapStateToProps)(SidebarView)
 
+import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
+
 export class SidebarSplit {
 
     private _onEnterEvent: Event<void> = new Event<void>()
 
+    private _activeBinding: IMenuBinding = null
+
     public enter(): void {
         this._onEnterEvent.dispatch()
-        // alert("hi")
+
+        this._activeBinding = getInstance().bindToMenu()
     }
 
     public leave(): void {
         // alert("bye")
+
+        if (this._activeBinding) {
+            this._activeBinding.release()
+            this._activeBinding = null
+        }
     }
 
     public render(): JSX.Element {
@@ -116,5 +126,9 @@ export class SidebarSplit {
 
     private _onKeyDown(key: string): void {
         console.log("key down!")
+
+        if (this._activeBinding) {
+            this._activeBinding.input(key)
+        }
     }
 }

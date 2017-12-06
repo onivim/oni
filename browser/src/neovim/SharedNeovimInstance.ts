@@ -8,7 +8,7 @@
  * - Enabling Neovim keybindings in text input elements
  */
 
-import { Event, IDisposable, IEvent } from "oni-types"
+import { Event,  IEvent } from "oni-types"
 
 import { NeovimInstance } from "./NeovimInstance"
 import { INeovimStartOptions } from "./NeovimProcessSpawner"
@@ -21,7 +21,7 @@ export interface IBinding {
     release(): void
 }
 
-export interface IMenuBinding extends IDisposable {
+export interface IMenuBinding extends IBinding {
     setItems(ids: string[]): Promise<void>
 
     onCursorMoved: IEvent<string>
@@ -58,19 +58,33 @@ export class MenuBinding extends Binding implements IMenuBinding {
 
     private _currentOptions: Array<string> = []
 
+    private _onCursorMovedEvent: Event<string> = new Event<string>()
+    private _onSelectionChangedEvent: Event<string[]> = new Event<string[]>()
+
+    public get onCursorMoved(): IEvent<string> {
+        return this._onCursorMovedEvent
+    }
+
+    public get onSelectionChanged(): IEvent<string[]> {
+        return this._onSelectionChangedEvent
+    }
+
     constructor(neovimInstance: NeovimInstance) {
         super(neovimInstance)
     }
 
-    public setItems(items: string[]): Promise<void> {
-        return this._currentOptions = items
+    public async setItems(items: string[]): Promise<void> {
+        this._currentOptions = items
+        console.dir(this._currentOptions)
+
+        // TODO: set items here
     }
 }
 
 // TODO: We should not be making multiple instances of this class for each menu UI
 // Need to come with a paradigm to reuse them across instances (attach/detach)
 
-export class SharedNeovimInstance implements SharedNeovimInstance {
+class SharedNeovimInstance implements SharedNeovimInstance {
 
     private _initPromise: Promise<void>
     private _neovimInstance: NeovimInstance
@@ -83,7 +97,7 @@ export class SharedNeovimInstance implements SharedNeovimInstance {
     // }
 
     public bindToMenu(): IMenuBinding {
-        return null
+        return new MenuBinding(this._neovimInstance)
     }
 
     constructor() {
@@ -136,4 +150,15 @@ export class SharedNeovimInstance implements SharedNeovimInstance {
 
 //         await this._neovimInstance.request("nvim_buf_set_lines", [currentBufId, 0, bufferLength - 1, false, elems])
 //     }
+}
+
+let _sharedInstance: SharedNeovimInstance = null
+export const getInstance = (): SharedNeovimInstance => {
+
+    if (!_sharedInstance) {
+        _sharedInstance = new SharedNeovimInstance()
+        _sharedInstance.start()
+    }
+
+    return _sharedInstance
 }
