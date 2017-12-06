@@ -4,7 +4,7 @@
  * Entry point for the BrowserWindow process
  */
 
-import { ipcRenderer, remote } from "electron"
+import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
 import * as Log from "./Log"
 import { pluginManager } from "./Plugins/PluginManager"
@@ -39,8 +39,6 @@ const start = async (args: string[]): Promise<void> => {
         Log.error(initialConfigParsingError)
     }
 
-    const browserWindow = remote.getCurrentWindow()
-
     const configChange = (newConfigValues: Partial<IConfigurationValues>) => {
         let prop: keyof IConfigurationValues
         for (prop in newConfigValues) {
@@ -54,6 +52,8 @@ const start = async (args: string[]): Promise<void> => {
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
 
+    Themes.activate(configuration)
+
     performance.mark("NeovimInstance.Plugins.Discover.Start")
     pluginManager.discoverPlugins()
     performance.mark("NeovimInstance.Plugins.Discover.End")
@@ -65,7 +65,6 @@ const start = async (args: string[]): Promise<void> => {
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
-    Themes.activate(configuration)
 
     UI.Actions.setLoadingComplete()
 

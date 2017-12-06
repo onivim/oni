@@ -4,8 +4,7 @@
  * Takes configuration settings, and applies them to the BrowserWindow
  */
 
-import { Configuration } from "./Configuration"
-import { IConfigurationValues } from "./IConfigurationValues"
+import { Configuration, IConfigurationValues } from "./Configuration"
 
 import { remote, ipcRenderer } from "electron"
 
