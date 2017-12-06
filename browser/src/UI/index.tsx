@@ -66,13 +66,12 @@ export const render = (_state: State.IState): void => {
 }
 
 export const startEditors = async (args: any): Promise<void> => {
-
     const editor = new NeovimEditor()
-    await editor.init(args)
 
     editorManager.setActiveEditor(editor)
-
     windowManager.split(0, editor)
+
+    editor.init(args)
 }
 
 // Don't execute code that depends on DOM in unit-tests
