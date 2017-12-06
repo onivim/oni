@@ -71,7 +71,7 @@ export const startEditors = async (args: any): Promise<void> => {
     editorManager.setActiveEditor(editor)
     windowManager.split(0, editor)
 
-    editor.init(args)
+    await editor.init(args)
 }
 
 // Don't execute code that depends on DOM in unit-tests

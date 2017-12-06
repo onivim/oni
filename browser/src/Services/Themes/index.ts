@@ -9,7 +9,7 @@ export const activate = async (configuration: Configuration): Promise<void> => {
         const colorscheme = configurationValues["ui.colorscheme"]
         if (colorscheme) {
             const themeManager = getThemeManagerInstance()
-            themeManager.setTheme(colorscheme)
+            await themeManager.setTheme(colorscheme)
         }
     }
 
@@ -17,5 +17,5 @@ export const activate = async (configuration: Configuration): Promise<void> => {
         updateColorScheme(newValues)
     })
 
-    updateColorScheme(configuration.getValues())
+    await updateColorScheme(configuration.getValues())
 }

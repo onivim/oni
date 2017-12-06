@@ -52,11 +52,14 @@ const start = async (args: string[]): Promise<void> => {
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
 
-    await Themes.activate(configuration)
-
     performance.mark("NeovimInstance.Plugins.Discover.Start")
     pluginManager.discoverPlugins()
     performance.mark("NeovimInstance.Plugins.Discover.End")
+
+    await Themes.activate(configuration)
+
+    UI.Actions.setColors(Themes.getThemeManagerInstance().getColors())
+
     await UI.startEditors(parsedArgs._)
 
     const api = pluginManager.startApi()

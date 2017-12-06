@@ -2,7 +2,7 @@
     "name": "onedark",
     "baseVimTheme": "onedark",
     "colors": {
-        "background": "#1F1F1F",
+        "background": "#1E2127",
         "foreground": "#ABB2BF",
 
         "title.background": "#1F1F1F",
