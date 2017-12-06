@@ -8,7 +8,7 @@
 import * as React from "react"
 import { connect, Provider } from "react-redux"
 
-import { Store, Reducer } from "redux"
+import { Reducer, Store } from "redux"
 import { createStore as createReduxStore } from "./../../Redux"
 
 import { Event, IEvent } from "oni-types"
@@ -18,7 +18,6 @@ import { Icon, IconSize } from "./../../UI/Icon"
 import { KeyboardInputView } from "./../../Editor/KeyboardInput"
 
 require("./Sidebar.less") // tslint:disable-line
-
 
 export interface ISidebarEntry {
     id: string
@@ -42,7 +41,7 @@ const DefaultSidebarState: ISidebarState = {
         { id: "sidebar.explorer", icon: "files-o", enabled: true },
         { id: "sidebar.search", icon: "search", enabled: true },
         { id: "sidebar.tutor", icon: "graduation-cap", enabled: true },
-        { id: "sidebar.vcs", icon: "code-fork", enabled: true, },
+        { id: "sidebar.vcs", icon: "code-fork", enabled: true },
         { id: "sidebar.debugger", icon: "bug", enabled: true },
         { id: "sidebar.packages", icon: "th", enabled: true },
     ],
@@ -52,15 +51,15 @@ const DefaultSidebarState: ISidebarState = {
 
 export type SidebarActions = {
     type: "SET_ACTIVE_ID",
-    activeEntryId: string
+    activeEntryId: string,
 } | {
     type: "SET_FOCUSED_ID",
-    focusedEntryId: string
+    focusedEntryId: string,
 }
 
 export const sidebarReducer: Reducer<ISidebarState> = (
     state: ISidebarState = DefaultSidebarState,
-    action: SidebarActions
+    action: SidebarActions,
 ) => {
     switch (action.type) {
         case "SET_ACTIVE_ID":
@@ -94,9 +93,9 @@ export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
         const className = "sidebar-icon-container" + (this.props.active ? " active" : " inactive")
 
         const focusedContainerStyle = {
-            border: "1px solid white"
+            border: "1px solid white",
         }
-        
+
         const containerStyle = this.props.focused ? focusedContainerStyle : null
 
         return <div className={className} tabIndex={0} style={containerStyle}>

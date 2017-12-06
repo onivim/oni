@@ -40,7 +40,7 @@ export class Binding implements IBinding {
     }
 
     constructor(
-        private _neovimInstance: NeovimInstance
+        private _neovimInstance: NeovimInstance,
     ) { }
 
     public input(key: string): Promise<void> {
@@ -53,10 +53,9 @@ export class Binding implements IBinding {
     }
 }
 
-
 export class MenuBinding extends Binding implements IMenuBinding {
 
-    private _currentOptions: Array<string> = []
+    private _currentOptions: string[] = []
 
     private _onCursorMovedEvent: Event<string> = new Event<string>()
     private _onSelectionChangedEvent: Event<string[]> = new Event<string[]>()

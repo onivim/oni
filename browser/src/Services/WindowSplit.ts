@@ -37,7 +37,7 @@ export const getFurthestSplitInDirection = <T>(root: SplitOrLeaf<T>, direction: 
         return null
     }
 
-    switch(root.type) {
+    switch (root.type) {
         case "Leaf":
             return root
         case "Split":
