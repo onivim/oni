@@ -57,7 +57,7 @@ export class WindowDock implements IWindowDock {
 }
 
 export class WindowManager implements Oni.IWindowManager {
-    private _activeSplit: Oni.IWindowSplit
+    private _activeSplit: any
     private _splitRoot: ISplitInfo<Oni.IWindowSplit>
 
     private _onActiveSplitChangedEvent = new Event<Oni.IWindowSplit>()
@@ -91,11 +91,18 @@ export class WindowManager implements Oni.IWindowManager {
         const newLeaf = createSplitLeaf(newSplit)
         this._splitRoot = applySplit(this._splitRoot, direction, newLeaf)
 
+        this._focusNewSplit(newSplit)
+
         this._onSplitChanged.dispatch(this._splitRoot)
     }
 
     public moveLeft(): void {
-        // TODO
+        const leftDock = this.getDock(Direction.Left)
+
+        if (leftDock && leftDock.splits) {
+            const splitCount = leftDock.splits.length
+            this._focusNewSplit(leftDock.splits[splitCount - 1])
+        }
     }
 
     public moveRight(): void {
@@ -127,6 +134,20 @@ export class WindowManager implements Oni.IWindowManager {
     public close(split: Oni.IWindowSplit) {
         this._splitRoot = closeSplit(this._splitRoot, split)
         this._onSplitChanged.dispatch(this._splitRoot)
+    }
+
+    private _focusNewSplit(newSplit: any): void {
+        if (this._activeSplit && this._activeSplit.leave) {
+            this._activeSplit.leave()
+        }
+
+        this._activeSplit = newSplit
+
+        if (newSplit && newSplit.enter) {
+            newSplit.enter()
+        }
+
+        this._onActiveSplitChangedEvent.dispatch(this._activeSplit)
     }
 }
 

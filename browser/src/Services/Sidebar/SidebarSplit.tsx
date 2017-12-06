@@ -73,6 +73,15 @@ export const mapStateToProps = (state: State.IState): ISidebarProps => {
 const Sidebar = connect(mapStateToProps)(SidebarView)
 
 export class SidebarSplit {
+
+    public enter(): void {
+        // alert("hi")
+    }
+
+    public leave(): void {
+        // alert("bye")
+    }
+
     public render(): JSX.Element {
         return <Sidebar />
     }
