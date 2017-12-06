@@ -482,6 +482,7 @@ export class NeovimEditor extends Editor implements IEditor {
         } else if (eventName === "BufDelete") {
 
             this._neovimInstance.getBufferIds()
+                .then((ids) => ids.filter(id => evt.bufferNumber !== id))
                 .then((ids) => UI.Actions.setCurrentBuffers(ids))
         }
     }
