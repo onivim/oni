@@ -19,7 +19,14 @@ interface IRootComponentProps {
 
 const titleBarVisible = Platform.isMac()
 
-export class LoadingView extends React.PureComponent<{}, {}> { 
+import * as State from "./State"
+import { connect } from "react-redux"
+
+export interface ILoadingViewProps {
+    visible: boolean
+}
+
+export class LoadingView extends React.PureComponent<ILoadingViewProps, {}> { 
     public render(): JSX.Element {
         const style: React.CSSProperties = {
             position: "absolute",
@@ -28,11 +35,20 @@ export class LoadingView extends React.PureComponent<{}, {}> {
             right: "0px",
             bottom: "0px",
             backgroundColor: "black",
+            display: this.props.visible ? "block" : "none",
         }
 
         return <div style={style}>LOADING</div>
     }
 }
+
+const mapStateToProps = (state: State.IState): ILoadingViewProps => {
+    return {
+        visible: !state.isLoaded
+    }
+}
+
+export const Loading = connect(mapStateToProps)(LoadingView)
 
 export class RootComponent extends React.PureComponent<IRootComponentProps, {}> {
 
@@ -59,7 +75,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
                     </div>
                 </div>
             </div>
-            <LoadingView />
+            <Loading/>
         </div>
     }
 

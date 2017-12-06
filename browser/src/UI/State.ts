@@ -8,7 +8,7 @@ import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import { configuration , IConfigurationValues } from "./../Services/Configuration"
+import { IConfigurationValues } from "./../Services/Configuration"
 
 import { DefaultThemeColors, IThemeColors } from "./../Services/Themes"
 
@@ -55,7 +55,7 @@ export interface IState {
     neovimError: boolean
 
     // Shell
-    isLoading: boolean
+    isLoaded: boolean
     colors: IThemeColors
     windowTitle: string
 
@@ -170,7 +170,12 @@ export interface IStatusBarItem {
 }
 
 export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurationValues, k: K): IConfigurationValues[K] {
-    return conf[k]
+
+    if (!conf) {
+        return null
+    } else {
+        return conf[k]
+    }
 }
 
 export const createDefaultState = (): IState => ({
@@ -196,9 +201,9 @@ export const createDefaultState = (): IState => ({
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
     neovimError: false,
-    isLoading: true,
+    isLoaded: false,
 
-    configuration: configuration.getValues(),
+    configuration: {} as IConfigurationValues,
 
     buffers: {
         activeBufferId: null,

@@ -11,6 +11,7 @@ import { pluginManager } from "./Plugins/PluginManager"
 
 import * as AutoClosingPairs from "./Services/AutoClosingPairs"
 import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
+import * as BrowserWindowConfigurationSynchronizer from "./Services/BrowserWindowConfigurationSynchronizer"
 import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
@@ -22,16 +23,16 @@ import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
 import * as UI from "./UI/index"
 
-const start = (args: string[]) => {
+require("./overlay.less") // tslint:disable-line
+
+const start = async (args: string[]): Promise<void> => {
+
+    UI.activate()
 
     const parsedArgs = minimist(args)
 
-    let loadInitVim: boolean = false
-    let maximizeScreenOnStart: boolean = false
-
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
-    require("./overlay.less")
 
     const initialConfigParsingError = configuration.getParsingError()
     if (initialConfigParsingError) {
@@ -45,56 +46,28 @@ const start = (args: string[]) => {
         for (prop in newConfigValues) {
             UI.Actions.setConfigValue(prop, newConfigValues[prop])
         }
-
-        document.body.style.fontFamily = configuration.getValue("ui.fontFamily")
-        document.body.style.fontSize = configuration.getValue("ui.fontSize")
-        document.body.style.fontVariant = configuration.getValue("editor.fontLigatures") ? "normal" : "none"
-
-        const fontSmoothing = configuration.getValue("ui.fontSmoothing")
-
-        if (fontSmoothing) {
-            document.body.style["-webkit-font-smoothing"] = fontSmoothing
-        }
-
-        const hideMenu: boolean = configuration.getValue("oni.hideMenu")
-        browserWindow.setAutoHideMenuBar(hideMenu)
-        browserWindow.setMenuBarVisibility(!hideMenu)
-
-        const loadInit: boolean = configuration.getValue("oni.loadInitVim")
-        if (loadInit !== loadInitVim) {
-            ipcRenderer.send("rebuild-menu", loadInit)
-            // don't rebuild menu unless oni.loadInitVim actually changed
-            loadInitVim = loadInit
-        }
-
-        const maximizeScreen: boolean = configuration.getValue("editor.maximizeScreenOnStart")
-        if (maximizeScreen !== maximizeScreenOnStart) {
-            browserWindow.maximize()
-        }
-
-        browserWindow.setFullScreen(configuration.getValue("editor.fullScreenOnStart"))
     }
 
     configuration.start()
+    BrowserWindowConfigurationSynchronizer.activate(configuration)
+
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
 
     performance.mark("NeovimInstance.Plugins.Discover.Start")
     pluginManager.discoverPlugins()
     performance.mark("NeovimInstance.Plugins.Discover.End")
-    UI.init(pluginManager, parsedArgs._)
+    await UI.startEditors(parsedArgs._)
 
     const api = pluginManager.startApi()
     configuration.activate(api)
-
-    ipcRenderer.on("execute-command", (_evt: any, command: string) => {
-        commandManager.executeCommand(command, null)
-    })
 
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Themes.activate(configuration)
+
+    UI.Actions.setLoadingComplete()
 
     checkForUpdates()
 }
@@ -104,7 +77,11 @@ ipcRenderer.on("init", (_evt: any, message: any) => {
     start(message.args)
 })
 
-const checkForUpdates = async () => {
+ipcRenderer.on("execute-command", (_evt: any, command: string) => {
+    commandManager.executeCommand(command, null)
+})
+
+const checkForUpdates = async (): Promise<void> => {
     const feedUrl = await constructFeedUrl("https://api.onivim.io/v1/update")
 
     autoUpdater.onUpdateAvailable.subscribe(() => Log.info("Update available."))
