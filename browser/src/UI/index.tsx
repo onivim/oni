@@ -22,6 +22,7 @@ import * as State from "./State"
 import { editorManager } from "./../Services/EditorManager"
 import { focusManager } from "./../Services/FocusManager"
 import { listenForDiagnostics } from "./../Services/Language"
+import { SidebarSplit } from "./../Services/Sidebar"
 import { windowManager } from "./../Services/WindowManager"
 
 import { PluginManager } from "./../Plugins/PluginManager"
@@ -63,6 +64,8 @@ function render(_state: State.IState, pluginManager: PluginManager, args: any): 
     editorManager.setActiveEditor(editor)
 
     windowManager.split(0, editor)
+    const leftDock = windowManager.getDock(2)
+    leftDock.addSplit(new SidebarSplit())
 
     ReactDOM.render(
         <Provider store={store}>
