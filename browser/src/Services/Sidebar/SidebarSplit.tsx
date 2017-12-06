@@ -6,27 +6,100 @@
  */
 
 import * as React from "react"
-import { connect } from "react-redux"
+import { connect, Provider } from "react-redux"
+
+import { Store, Reducer } from "redux"
+import { createStore as createReduxStore } from "./../../Redux"
 
 import { Event, IEvent } from "oni-types"
 
 import { Icon, IconSize } from "./../../UI/Icon"
-import * as State from "./../../UI/State"
 
 import { KeyboardInputView } from "./../../Editor/KeyboardInput"
 
 require("./Sidebar.less") // tslint:disable-line
 
+
+export interface ISidebarEntry {
+    id: string
+    icon: string
+    enabled: boolean
+}
+
+export interface ISidebarState {
+    icons: ISidebarEntry[]
+
+    // Active means that the tab is currently selected
+    activeEntryId: string
+
+    // Focused means that there is keyboard focus,
+    // like 'hover' but for keyboard accessibility
+    focusedEntryId: string
+}
+
+const DefaultSidebarState: ISidebarState = {
+    icons: [
+        { id: "sidebar.explorer", icon: "files-o", enabled: true },
+        { id: "sidebar.search", icon: "search", enabled: true },
+        { id: "sidebar.tutor", icon: "graduation-cap", enabled: true },
+        { id: "sidebar.vcs", icon: "code-fork", enabled: true, },
+        { id: "sidebar.debugger", icon: "bug", enabled: true },
+        { id: "sidebar.packages", icon: "th", enabled: true },
+    ],
+    activeEntryId: "sidebar.explorer",
+    focusedEntryId: "sidebar.explorer",
+}
+
+export type SidebarActions = {
+    type: "SET_ACTIVE_ID",
+    activeEntryId: string
+} | {
+    type: "SET_FOCUSED_ID",
+    focusedEntryId: string
+}
+
+export const sidebarReducer: Reducer<ISidebarState> = (
+    state: ISidebarState = DefaultSidebarState,
+    action: SidebarActions
+) => {
+    switch (action.type) {
+        case "SET_ACTIVE_ID":
+            return {
+                ...state,
+                activeEntryId: action.activeEntryId,
+            }
+        case "SET_FOCUSED_ID":
+            return {
+                ...state,
+                focusedEntryId: action.focusedEntryId,
+            }
+        default:
+            return state
+    }
+}
+
+const createStore = (): Store<ISidebarState> => {
+    return createReduxStore("Sidebar", sidebarReducer, DefaultSidebarState)
+}
+
 export interface ISidebarIconProps {
     active: boolean
     iconName: string
+    focused: boolean
 }
 
 export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
     public render(): JSX.Element {
 
-        const className = "sidebar-icon-container " + (this.props.active ? "active" : "inactive")
-        return <div className={className} tabIndex={0}>
+        const className = "sidebar-icon-container" + (this.props.active ? " active" : " inactive")
+
+        const focusedContainerStyle = {
+            border: "1px solid white"
+        }
+        
+        const containerStyle = this.props.focused ? focusedContainerStyle : null
+
+        return <div className={className} tabIndex={0} style={containerStyle}>
                     <div className="sidebar-icon">
                         <Icon name={this.props.iconName} size={IconSize.Large} />
                     </div>
@@ -39,6 +112,9 @@ export interface ISidebarViewProps extends ISidebarContainerProps {
     foregroundColor: string
     width: string
     visible: boolean
+    entries: ISidebarEntry[]
+    activeEntryId: string
+    focusedEntryId: string
 }
 
 export interface ISidebarContainerProps {
@@ -58,13 +134,11 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
             return null
         }
 
+        const icons = this.props.entries.map((e) => <SidebarIcon iconName={e.icon} active={e.id === this.props.activeEntryId} focused={e.id === this.props.focusedEntryId} />)
+
         return <div className="sidebar enable-mouse" style={style}>
                 <div className="icons">
-                <SidebarIcon iconName={"files-o"} active={true}/>
-                <SidebarIcon iconName={"search"} active={false}/>
-                <SidebarIcon iconName={"graduation-cap"} active={false}/>
-                <SidebarIcon iconName={"code-fork"} active={false}/>
-                <SidebarIcon iconName={"bug"} active={false}/>
+                    {icons}
                 </div>
                 <div className="input">
                     <KeyboardInputView
@@ -85,13 +159,16 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
     }
 }
 
-export const mapStateToProps = (state: State.IState, containerProps: ISidebarContainerProps): ISidebarViewProps => {
+export const mapStateToProps = (state: ISidebarState, containerProps: ISidebarContainerProps): ISidebarViewProps => {
     return {
         ...containerProps,
-        visible: state.configuration["experimental.sidebar.enabled"],
-        backgroundColor: state.colors.background,
-        foregroundColor: state.colors.foreground,
-        width: state.configuration["sidebar.width"],
+        entries: state.icons,
+        activeEntryId: state.activeEntryId,
+        focusedEntryId: state.focusedEntryId,
+        visible: true,
+        backgroundColor: "black",
+        foregroundColor: "white",
+        width: "50px",
     }
 }
 
@@ -104,24 +181,40 @@ export class SidebarSplit {
     private _onEnterEvent: Event<void> = new Event<void>()
 
     private _activeBinding: IMenuBinding = null
+    private _store: Store<ISidebarState>
+
+    constructor() {
+        this._store = createStore()
+    }
 
     public enter(): void {
         this._onEnterEvent.dispatch()
+
+        const state = this._store.getState()
+        this._store.dispatch({
+            type: "SET_FOCUSED_ID",
+            focusedEntryId: state.activeEntryId,
+        })
 
         this._activeBinding = getInstance().bindToMenu()
     }
 
     public leave(): void {
-        // alert("bye")
-
         if (this._activeBinding) {
             this._activeBinding.release()
             this._activeBinding = null
         }
+
+        this._store.dispatch({
+            type: "SET_FOCUSED_ID",
+            focusedEntryId: null,
+        })
     }
 
     public render(): JSX.Element {
-        return <Sidebar onKeyDown={(key) => this._onKeyDown(key)} onEnter={this._onEnterEvent}/>
+        return <Provider store={this._store}>
+                <Sidebar onKeyDown={(key) => this._onKeyDown(key)} onEnter={this._onEnterEvent}/>
+            </Provider>
     }
 
     private _onKeyDown(key: string): void {
