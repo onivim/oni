@@ -18,6 +18,8 @@ import { inputManager } from "./Services/InputManager"
 import { languageManager } from "./Services/Language"
 import * as Themes from "./Services/Themes"
 
+import { getInstance } from "./neovim/SharedNeovimInstance"
+
 import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
 import * as UI from "./UI/index"
@@ -90,6 +92,9 @@ const start = (args: string[]) => {
     ipcRenderer.on("execute-command", (_evt: any, command: string) => {
         commandManager.executeCommand(command, null)
     })
+
+    // TODO: Refactor
+    getInstance()
 
     createLanguageClientsFromConfiguration(configuration.getValues())
 

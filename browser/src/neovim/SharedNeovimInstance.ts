@@ -22,10 +22,9 @@ export interface IBinding {
 }
 
 export interface IMenuBinding extends IBinding {
-    setItems(ids: string[]): Promise<void>
+    setItems(ids: string[], focusedId?: string): Promise<void>
 
     onCursorMoved: IEvent<string>
-    onSelectionChanged: IEvent<string[]>
 }
 
 export class Binding implements IBinding {
@@ -58,25 +57,50 @@ export class MenuBinding extends Binding implements IMenuBinding {
     private _currentOptions: string[] = []
 
     private _onCursorMovedEvent: Event<string> = new Event<string>()
-    private _onSelectionChangedEvent: Event<string[]> = new Event<string[]>()
 
     public get onCursorMoved(): IEvent<string> {
         return this._onCursorMovedEvent
     }
 
-    public get onSelectionChanged(): IEvent<string[]> {
-        return this._onSelectionChangedEvent
-    }
-
     constructor(neovimInstance: NeovimInstance) {
         super(neovimInstance)
+
+        this.neovimInstance.on("event", (eventName: string, evt: any) => {
+            const line = evt.line - 1
+
+            if (eventName === "CursorMoved") {
+                if (line < this._currentOptions.length) {
+                    this._onCursorMovedEvent.dispatch(this._currentOptions[line])
+                }
+            }
+        })
     }
 
-    public async setItems(items: string[]): Promise<void> {
+    public async setItems(items: string[], activeId?: string): Promise<void> {
         this._currentOptions = items
         console.dir(this._currentOptions)
+//         this._currentOptions = options
 
-        // TODO: set items here
+//         await this._initPromise
+
+        const currentWinId = await this.neovimInstance.request("nvim_get_current_win", [])
+        const currentBufId = await this.neovimInstance.eval("bufnr('%')")
+        const bufferLength = await this.neovimInstance.eval<number>("line('$')")
+
+        const elems = []
+
+        for (let i = 0; i < this._currentOptions.length; i++) {
+            elems.push(i.toString())
+        }
+
+        let idx = 1
+        if (activeId) {
+            idx = this._currentOptions.indexOf(activeId) + 1
+        }
+
+        await this.neovimInstance.request("nvim_buf_set_lines", [currentBufId, 0, bufferLength, false, elems])
+
+        await this.neovimInstance.request("nvim_win_set_cursor",[currentWinId, [idx, 1]] )
     }
 }
 
@@ -125,7 +149,9 @@ class SharedNeovimInstance implements SharedNeovimInstance {
 
         this._initPromise = this._neovimInstance.start(startOptions)
 
+        console.log("Starting SharedNeovimInstance...")
         await this._initPromise
+        console.log("SharedNeovimInstance started!")
     }
 
     // public async input(input: string): Promise<void> {

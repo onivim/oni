@@ -87,6 +87,10 @@ export interface ISidebarIconProps {
     focused: boolean
 }
 
+const UnfocusedContainerStyle = {
+    border: "1px solid transparent",
+}
+
 export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
     public render(): JSX.Element {
 
@@ -96,7 +100,7 @@ export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
             border: "1px solid white",
         }
 
-        const containerStyle = this.props.focused ? focusedContainerStyle : null
+        const containerStyle = this.props.focused ? focusedContainerStyle : UnfocusedContainerStyle
 
         return <div className={className} tabIndex={0} style={containerStyle}>
                     <div className="sidebar-icon">
@@ -196,6 +200,14 @@ export class SidebarSplit {
         })
 
         this._activeBinding = getInstance().bindToMenu()
+        this._activeBinding.setItems(state.icons.map((i) => i.id), state.activeEntryId)
+
+        this._activeBinding.onCursorMoved.subscribe((id: string) => {
+            this._store.dispatch({
+                type: "SET_FOCUSED_ID",
+                focusedEntryId: id,
+            })
+        })
     }
 
     public leave(): void {
