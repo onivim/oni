@@ -146,7 +146,7 @@ export class Completion implements IDisposable {
 
         const newLine = firstChange.text
 
-        if (range.start.line === this._lastCursorPosition.line) {
+        if (this._lastCursorPosition && range.start.line === this._lastCursorPosition.line) {
             this._store.dispatch({
                 type: "CURSOR_MOVED",
                 line: this._lastCursorPosition.line,
