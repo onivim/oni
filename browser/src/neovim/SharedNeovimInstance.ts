@@ -8,7 +8,7 @@
  * - Enabling Neovim keybindings in text input elements
  */
 
-import { IDisposable, IEvent } from "oni-types"
+import { Event, IDisposable, IEvent } from "oni-types"
 
 import { NeovimInstance } from "./NeovimInstance"
 import { INeovimStartOptions } from "./NeovimProcessSpawner"
@@ -26,6 +26,45 @@ export interface IMenuBinding extends IDisposable {
 
     onCursorMoved: IEvent<string>
     onSelectionChanged: IEvent<string[]>
+}
+
+export class Binding implements IBinding {
+    private _onReleasedEvent: Event<void> = new Event<void>()
+
+    public get onReleased(): IEvent<void> {
+        return this._onReleasedEvent
+    }
+
+    protected get neovimInstance(): NeovimInstance {
+        return this._neovimInstance
+    }
+
+    constructor(
+        private _neovimInstance: NeovimInstance
+    ) { }
+
+    public input(key: string): Promise<void> {
+        return this._neovimInstance.input(key)
+    }
+
+    public release(): void {
+        this._neovimInstance = null
+        this._onReleasedEvent.dispatch()
+    }
+}
+
+
+export class MenuBinding extends Binding implements IMenuBinding {
+
+    private _currentOptions: Array<string> = []
+
+    constructor(neovimInstance: NeovimInstance) {
+        super(neovimInstance)
+    }
+
+    public setItems(items: string[]): Promise<void> {
+        return this._currentOptions = items
+    }
 }
 
 // TODO: We should not be making multiple instances of this class for each menu UI
