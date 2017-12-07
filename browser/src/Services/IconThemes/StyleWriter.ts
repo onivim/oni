@@ -14,7 +14,7 @@ export class StyleWriter {
     }
 
     constructor(
-        private _primaryClassName: string
+        private _primaryClassName: string,
     ) {}
 
     public writeFontFace(fontFamily: string, sourceUrl: string, format: string): void {
@@ -46,7 +46,7 @@ export class StyleWriter {
             const primaryClassBlock = [
                 selector + " {",
                     "color: " + fontColor + ";",
-                "}"
+                "}",
             ]
             this._append(primaryClassBlock)
         }
@@ -54,12 +54,10 @@ export class StyleWriter {
         const pseudoElementBlock = [
             selector + ":before {",
             `   content: '${fontCharacter}';`,
-            "}"
+            "}",
         ]
         this._append(pseudoElementBlock)
     }
-
-
 
     private _append(str: string[]): void {
         this._style += str.join(os.EOL) + os.EOL

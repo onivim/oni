@@ -30,7 +30,7 @@ export class PluginIconThemeLoader {
             const iconThemes = current.metadata.contributes.iconThemes
             return [
                 ...previous,
-                ...iconThemes
+                ...iconThemes,
             ]
         }, [] as IIconThemeContribution[])
 

@@ -24,4 +24,3 @@ export const activate = async (configuration: Configuration, pluginManager: Plug
     const iconTheme = configuration.getValue("ui.iconTheme")
     await _icons.applyIconTheme(iconTheme)
 }
-

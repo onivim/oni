@@ -11,8 +11,8 @@ import { Event, IEvent } from "oni-types"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
-import { StyleWriter } from "./StyleWriter"
 import { PluginIconThemeLoader } from "./IconThemeLoader"
+import { StyleWriter } from "./StyleWriter"
 
 export interface IIconFontSource {
     path: string
@@ -39,16 +39,16 @@ export interface IIconInfo extends IIconDefinition {
     size: string
 }
 
-export type IconDefinitions = { [key: string]: IIconDefinition }
+export interface IconDefinitions { [key: string]: IIconDefinition }
 
 // File extension -> icon definition key
-export type FileDefinitions = { [extension: string]: string }
+export interface FileDefinitions { [extension: string]: string }
 
 // File name -> icon definition key
-export type FileNames  = { [fileName: string]: string }
+export interface FileNames  { [fileName: string]: string }
 
 // Language id -> icon definition key
-export type Language = { [language: string]: string }
+export interface Language { [language: string]: string }
 
 export interface IIconTheme {
     fonts: IIconFontSource
@@ -72,6 +72,10 @@ export class Icons {
     public get onIconThemeChanged(): IEvent<void> {
         return this._onIconThemeChangedEvent
     }
+
+    constructor(
+        private _pluginManager: PluginManager,
+    ) { }
 
     public getIconClassForFile(fileName: string, language?: string): string {
 
@@ -97,7 +101,6 @@ export class Icons {
             if (extension && extension.length > 1) {
                 const extensionWithoutPeriod = extension.substring(1, extension.length)
 
-                
                 const matchingExtension = this._activeIconTheme.fileExtensions[extensionWithoutPeriod]
                 if (matchingExtension) {
                     return classBase + matchingExtension
@@ -121,21 +124,17 @@ export class Icons {
         return null
     }
 
-    constructor(
-        private _pluginManager: PluginManager
-    ) { }
-
     public async applyIconTheme(themeName: string): Promise<void> {
 
         const iconThemeLoader = new PluginIconThemeLoader(this._pluginManager)
 
         this._activeIconTheme = await iconThemeLoader.loadIconTheme(themeName)
 
-        var newStyle = document.createElement("style")
+        const newStyle = document.createElement("style")
         const styleWriter = new StyleWriter("oni-icon")
 
         // TODO: Path
-        styleWriter.writeFontFace("seti","C:/oni/extensions/theme-icons-seti/icons/seti.woff", "woff")
+        styleWriter.writeFontFace("seti", "C:/oni/extensions/theme-icons-seti/icons/seti.woff", "woff")
 
         const iconDefinitions = this._activeIconTheme.iconDefinitions
         if (iconDefinitions) {
