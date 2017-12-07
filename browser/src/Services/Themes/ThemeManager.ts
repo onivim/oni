@@ -78,11 +78,11 @@ export const getBorderColor = (bgColor: string, fgColor: string): string => {
     const foregroundColor = Color(fgColor)
 
     const borderColor = backgroundColor.luminosity() > 0.5 ? foregroundColor.lighten(0.6) : foregroundColor.darken(0.6)
-    return borderColor.rgb().toString()
+    return borderColor.hex().toString()
 }
 
 export const getBackgroundColor = (editorBackground: string): string => {
-    return Color(editorBackground).darken(0.25).toString()
+    return Color(editorBackground).darken(0.25).hex().toString()
 }
 
 export const getColorsFromBackgroundAndForeground = (background: string, foreground: string) => {
