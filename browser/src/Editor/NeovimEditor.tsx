@@ -61,6 +61,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _completionMenu: CompletionMenu
     private _popupMenu: NeovimPopupMenu
     private _colors: Colors // TODO: Factor this out to the UI 'Shell'
+    private _errorInitializing: boolean = false
 
     private _pendingAnimationFrame: boolean = false
 
@@ -116,6 +117,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._neovimInstance.onShowPopupMenu,
             this._neovimInstance.onHidePopupMenu,
             this._neovimInstance.onSelectPopupMenu,
+            this.onBufferEnter,
         )
 
         this._renderer = new CanvasRenderer()
@@ -176,6 +178,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onError.subscribe((err) => {
+            this._errorInitializing = true
             UI.Actions.setNeovimError(true)
         })
 
@@ -377,6 +380,11 @@ export class NeovimEditor extends Editor implements IEditor {
         }
 
         await this._neovimInstance.start(startOptions)
+
+        if (this._errorInitializing) {
+            return
+        }
+
         VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
 
         this._themeManager.onThemeChanged.subscribe(() => {

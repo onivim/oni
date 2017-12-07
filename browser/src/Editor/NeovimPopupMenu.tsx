@@ -6,7 +6,9 @@
 
 import * as React from "react"
 
+import * as Oni from "oni-api"
 import { IEvent } from "oni-types"
+
 import { INeovimCompletionInfo, INeovimCompletionItem } from "./../neovim"
 
 import * as UI from "./../UI"
@@ -28,6 +30,7 @@ export class NeovimPopupMenu {
         private _popupMenuShowEvent: IEvent<INeovimCompletionInfo>,
         private _popupMenuHideEvent: IEvent<void>,
         private _popupMenuSelectEvent: IEvent<number>,
+        private _onBufferEnterEvent: IEvent<Oni.EditorBufferEventArgs>,
     ) {
 
         this._popupMenuShowEvent.subscribe((completionInfo) => {
@@ -37,11 +40,14 @@ export class NeovimPopupMenu {
         })
 
         this._popupMenuSelectEvent.subscribe((idx) => {
-
             this._renderCompletionMenu(idx)
         })
 
         this._popupMenuHideEvent.subscribe(() => {
+            UI.Actions.hideToolTip("nvim-popup")
+        })
+
+        this._onBufferEnterEvent.subscribe(() => {
             UI.Actions.hideToolTip("nvim-popup")
         })
     }

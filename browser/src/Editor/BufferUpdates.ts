@@ -29,7 +29,6 @@ export const listenForBufferUpdates = (neovimInstance: NeovimInstance, bufferMan
             const args = bufferUpdateEvent.context
 
             const buf = bufferManager.updateBufferFromEvent(args)
-            buf._notifyBufferUpdated(bufferUpdateEvent.bufferLines, args.version)
 
             return {
                 buffer: buf,
@@ -51,8 +50,6 @@ export const listenForBufferUpdates = (neovimInstance: NeovimInstance, bufferMan
                 Log.warn("[Neovim Editor] Skipping incremental update because version is out of date")
                 return null
             }
-
-            buf._notifyBufferUpdatedAt(lineNumber - 1, changedLine, args.version)
 
             return {
                 buffer: buf,

@@ -49,6 +49,8 @@ export interface IConfigurationValues {
     // If a file has more lines than this value, syntax highlighting will be disabled
     "experimental.editor.textMateHighlighting.maxLines": number
 
+    "experimental.sidebar.enabled": boolean
+
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
@@ -174,6 +176,8 @@ export interface IConfigurationValues {
     // will save screenshots to clipboard instead
     // of saving to file
     "recorder.copyScreenshotToClipboard": boolean
+
+    "sidebar.width": string
 
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
