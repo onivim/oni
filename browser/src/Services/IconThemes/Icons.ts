@@ -7,7 +7,7 @@
 
 import { Event, IEvent } from "oni-types"
 
-import { pluginManager } from "./../Plugins/PluginManager"
+import { PluginManager } from "./../../Plugins/PluginManager"
 
 // import { IConfigurationValues } from "./Configuration"
 // import { getThemeManagerInstance, ThemeManager } from "./Themes"
@@ -57,7 +57,7 @@ export interface IIconTheme {
 }
 
 import * as fs from "fs"
-import { IIconThemeContribution } from "./../Plugins/Api/Capabilities"
+import { IIconThemeContribution } from "./../../Plugins/Api/Capabilities"
 
 export class Icons {
 
@@ -83,9 +83,13 @@ export class Icons {
         }
     }
 
+    constructor(
+        private _pluginManager: PluginManager
+    ) { }
+
     public async applyIconTheme(themeName: string): Promise<void> {
 
-        const plugins = pluginManager.plugins
+        const plugins = this._pluginManager.plugins
 
         const pluginsWithThemes = plugins.filter((p) => {
             return p.metadata && p.metadata.contributes && p.metadata.contributes.iconThemes
@@ -118,27 +122,88 @@ export class Icons {
 
         // From stackoverflow: 
         // https://stackoverflow.com/questions/11355147/font-face-changing-via-javascript
+        this._activeIconTheme = JSON.parse(contents) as IIconTheme
 
         var newStyle = document.createElement("style")
-        newStyle.appendChild(document.createTextNode("\
-            @font-face {\
-                font-family: seti;\
-                src: url('C:/oni/extensions/theme-icons-seti/icons/seti.woff') format('woff');\
-            }\
-            "));
+
+        const styleWriter = new StyleWriter("oni-icon")
+
+        styleWriter.writeFontFace("seti","C:/oni/extensions/theme-icons-seti/icons/seti.woff", "woff")
+
+        const iconDefinitions = this._activeIconTheme.iconDefinitions
+        if (iconDefinitions) {
+            Object.keys(iconDefinitions).forEach((definitionName: string) => {
+                const definitionContents = iconDefinitions[definitionName]
+                styleWriter.writeIcon(definitionName, definitionContents.fontColor, definitionContents.fontCharacter)
+            })
+        }
+
+        newStyle.appendChild(document.createTextNode(styleWriter.style))
 
         document.head.appendChild(newStyle)
 
-        this._activeIconTheme = JSON.parse(contents)
         this._onIconThemeChangedEvent.dispatch()
     }
 }
 
-export const icons = new Icons()
+import * as os from "os"
 
-export const activate = () => {
-    icons.applyIconTheme("theme-icons-seti")
+export class StyleWriter {
+    private _style: string = ""
+
+    public get style(): string {
+        return this._style
+    }
+
+    constructor(
+        private _primaryClassName: string
+    ) {}
+
+    public writeFontFace(fontFamily: string, sourceUrl: string, format: string): void {
+        // Inspired by:
+        // https://stackoverflow.com/questions/11355147/font-face-changing-via-javascript
+        const fontFaceBlock = [
+            "@font-face {",
+            `   font-family: ${fontFamily};`,
+            `   src: url('${sourceUrl}') format('${format}');`,
+            "}",
+        ]
+
+        this._append(fontFaceBlock)
+
+        const primaryClassBlock = [
+            ".fa." + this._primaryClassName + " {",
+                "font-family: " + fontFamily + ";",
+            "}",
+        ]
+
+        this._append(primaryClassBlock)
+    }
+
+    public writeIcon(iconName: string, fontColor: string, fontCharacter: string): void {
+        const iconClass = this._primaryClassName + "-" + iconName
+        const selector = ".fa." + this._primaryClassName + "." + iconClass
+
+        if (fontColor) {
+            const primaryClassBlock = [
+                selector + " {",
+                    "color: " + fontColor + ";",
+                "}"
+            ]
+            this._append(primaryClassBlock)
+        }
+
+        const pseudoElementBlock = [
+            selector + ":before {",
+            `   content: '${fontCharacter}';`,
+            "}"
+        ]
+        this._append(pseudoElementBlock)
+    }
+
+
+
+    private _append(str: string[]): void {
+        this._style += str.join(os.EOL) + os.EOL
+    }
 }
-
-// TODO: Icon theme loader
-// TODO: Hook up to start

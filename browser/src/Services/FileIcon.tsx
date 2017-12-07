@@ -7,7 +7,7 @@
 
 import * as React from "react"
 
-import { IIconInfo } from "./Icons"
+import { IIconInfo } from "./IconThemes"
 
 export interface IFileIconProps {
     icon: IIconInfo
