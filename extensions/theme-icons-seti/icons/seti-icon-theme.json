@@ -1015,8 +1015,10 @@
 		"jinja": "_jinja",
 		"jinja2": "_jinja",
 		"jl": "_julia",
+		"js": "_javascript",
 		"liquid": "_liquid",
 		"ls": "_livescript",
+		"md": "_markdown",
 		"mustache": "_mustache",
 		"stache": "_mustache",
 		"njk": "_nunjucks",
@@ -1111,7 +1113,9 @@
 		"htaccess": "_config",
 		"key": "_lock",
 		"cert": "_lock",
-		"ds_store": "_ignored"
+		"ds_store": "_ignored",
+		"ts": "_typescript",
+		"tsx": "_react"
 	},
 	"fileNames": {
 		"mix": "_hex",

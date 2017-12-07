@@ -7,14 +7,20 @@
 
 import * as React from "react"
 
-import { IIconInfo } from "./IconThemes"
+import { getInstance } from "./IconThemes"
 
 export interface IFileIconProps {
-    icon: IIconInfo
+    fileName: string
+    language?: string
 }
 
 export class FileIcon extends React.PureComponent<IFileIconProps, {}> {
     public render(): JSX.Element {
-        return <div>{this.props.icon.fontCharacter}</div>
+
+        const icons = getInstance()
+
+        const className = icons.getIconClassForFile(this.props.fileName, this.props.language)
+
+        return <i className={className} aria-hidden={true} />
     }
 }

@@ -12,8 +12,6 @@ import * as classNames from "classnames"
 import * as BufferSelectors from "./../selectors/BufferSelectors"
 import * as State from "./../State"
 
-import * as IconThemes from "./../../Services/IconThemes"
-
 import { Icon } from "./../../UI/Icon"
 
 import { FileIcon } from "./../../Services/FileIcon"
@@ -126,11 +124,9 @@ export const Tab = (props: ITabPropsWithClick) => {
         height: props.height,
     }
 
-    const icons = IconThemes.getInstance()
-
     return <div className={cssClasses} title={props.description} style={style}>
         <div className="corner" onClick={props.onClickName}>
-            <FileIcon icon={icons.getIconForFile("test.ts")}/>
+            <FileIcon fileName={props.name}/>
         </div>
         <div className="name" onClick={props.onClickName}>
             <span className="name-inner">

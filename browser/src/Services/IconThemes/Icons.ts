@@ -5,6 +5,8 @@
  * - Loads icons based on the `ui.iconTheme` configuration setting
  */
 
+import * as path from "path"
+
 import { Event, IEvent } from "oni-types"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
@@ -51,7 +53,8 @@ export type Language = { [language: string]: string }
 export interface IIconTheme {
     fonts: IIconFontSource
     iconDefinitions: IconDefinitions
-    file: FileDefinitions
+    file: string
+    fileExtensions: FileDefinitions
     fileNames: FileNames
     languageIds: Language
 }
@@ -72,15 +75,52 @@ export class Icons {
         return this._onIconThemeChangedEvent
     }
 
-    public getIconForFile(fileName: string): IIconInfo {
-        return {
-            fontFamily: "Segoe UI",
-            weight: "bold",
-            style: "italic",
-            size: "150%",
-            fontCharacter: "A",
-            fontColor: "white",
+    public getIconClassForFile(fileName: string, language?: string): string {
+
+        if (!this._activeIconTheme) {
+            return null
         }
+
+        const normalizedFileName = fileName.toLowerCase()
+        const classBase = "fa oni-icon oni-icon-"
+
+        // First, see if there is a matching file name
+        if (this._activeIconTheme.fileNames) {
+            const fileNameIcon = this._activeIconTheme.fileNames[normalizedFileName]
+
+            if (fileNameIcon) {
+                return classBase + fileNameIcon
+            }
+        }
+
+        // Next, see if there is a matching extension
+        if (this._activeIconTheme.fileExtensions) {
+            const extension = path.extname(fileName)
+            if (extension && extension.length > 1) {
+                const extensionWithoutPeriod = extension.substring(1, extension.length)
+
+                
+                const matchingExtension = this._activeIconTheme.fileExtensions[extensionWithoutPeriod]
+                if (matchingExtension) {
+                    return classBase + matchingExtension
+                }
+            }
+        }
+
+        // Finally, see if there is a matching language
+        if (language && this._activeIconTheme.languageIds) {
+            const matchingLanguage = this._activeIconTheme.languageIds[language]
+
+            if (matchingLanguage) {
+                return classBase + matchingLanguage
+            }
+        }
+
+        if (this._activeIconTheme.file) {
+            return classBase + this._activeIconTheme.file
+        }
+
+        return null
     }
 
     constructor(
