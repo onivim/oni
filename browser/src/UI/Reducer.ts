@@ -162,7 +162,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
 
             const existingBufIds = a.payload.existingBuffers.filter(b => !!(b.id)).map(b => b.id)
 
-            allIds = [ ...new Set([...existingBufIds, a.payload.currentBuffer.id])].sort((b, c) => b - c)
+            allIds = [ ...new Set([...existingBufIds, a.payload.currentBuffer.id])]
 
             return {
                 activeBufferId: a.payload.currentBuffer.id,
@@ -208,7 +208,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 byId,
             }
         case "SET_CURRENT_BUFFERS":
-            allIds = s.allIds.filter((id) => a.payload.bufferIds.indexOf(id) >= 0).sort((b, c) => b - c)
+            allIds = s.allIds.filter((id) => a.payload.bufferIds.indexOf(id) >= 0)
 
             let activeBufferId = s.activeBufferId
 
