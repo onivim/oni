@@ -10,14 +10,13 @@
 import * as Oni from "oni-api"
 
 import * as Coordinates from "./Coordinates"
-import { IMessageDialog, ITab, StatusBarAlignment } from "./State"
+import { IBuffer, IMessageDialog, ITab, StatusBarAlignment } from "./State"
 import { Rectangle } from "./Types"
 
 import { IConfigurationValues } from "./../Services/Configuration"
 import { IThemeColors } from "./../Services/Themes"
 
 import * as types from "vscode-languageserver-types"
-import * as State from "./State"
 
 export interface ISetLoadingCompleteAction {
     type: "SET_LOADING_COMPLETE",
@@ -92,7 +91,7 @@ export interface IBufferEnterAction {
             hidden: boolean,
             listed: boolean,
         },
-        existingBuffers: State.IBuffer[],
+        existingBuffers: IBuffer[],
     }
 }
 
