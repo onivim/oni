@@ -115,7 +115,6 @@ export interface IBufferState {
     allIds: number[]
 }
 
-
 export interface IBuffer {
     id: number
     file: string

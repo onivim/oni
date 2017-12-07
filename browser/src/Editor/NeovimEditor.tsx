@@ -522,8 +522,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
             this._lastBufferId = currentBuffer.bufferNumber.toString()
             this.notifyBufferEnter(buf)
-            const nvimBuffers = await this._neovimInstance.getBufferIds()
-            console.log("nvimBuffers: ", nvimBuffers)
             const existingBuffers = Array.isArray(evt) ? evt.slice(1) : []
             UI.Actions.bufferEnter({
                 currentBuffer,
@@ -539,6 +537,7 @@ export class NeovimEditor extends Editor implements IEditor {
             })
         } else if (eventName === "BufDelete") {
             // This call to the neovim msgpack api does not return an accurate bufferlist
+            console.log("evt buffer delete event: ", evt)
             this._neovimInstance
                 .getBufferIds()
                 .then(ids => ids.filter(id => id !== evt.bufferNumber))

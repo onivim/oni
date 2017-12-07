@@ -92,7 +92,6 @@ export interface IBufferEnterAction {
     }
 }
 
-
 export interface IShowToolTipAction {
     type: "SHOW_TOOL_TIP",
     payload: {
