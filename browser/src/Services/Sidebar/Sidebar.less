@@ -1,6 +1,15 @@
 @import (reference) "./../../UI/components/common.less";
 
 .sidebar {
+
+    transform: translateX(-3px);
+    transition: transform 0.25s ease;
+
+    .loaded & {
+        transform: translateX(0px);
+    }
+
+
     display: flex;
     flex-direction: column;
 

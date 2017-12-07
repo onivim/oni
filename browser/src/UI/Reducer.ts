@@ -21,6 +21,11 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     }
 
     switch (a.type) {
+        case "SET_LOADING_COMPLETE":
+            return {
+                ...s,
+                isLoaded: true,
+            }
         case "SET_WINDOW_TITLE":
             return {
                 ...s,
@@ -142,7 +147,6 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
 
     switch (a.type) {
         case "BUFFER_ENTER":
-            console.log('a.payload: ', a.payload);
             byId = {
                 ...s.byId,
                 [a.payload.currentBuffer.id]: {
@@ -160,7 +164,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 return byId
             }, byId)
 
-            const existingBufIds = a.payload.existingBuffers.filter(b => !!(b.id)).map(b => b.id)
+            const existingBufIds = a.payload.existingBuffers.map(b => b.id)
 
             allIds = [ ...new Set([...existingBufIds, a.payload.currentBuffer.id])]
 

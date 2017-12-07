@@ -19,6 +19,10 @@ import { IThemeColors } from "./../Services/Themes"
 import * as types from "vscode-languageserver-types"
 import * as State from "./State"
 
+export interface ISetLoadingCompleteAction {
+    type: "SET_LOADING_COMPLETE",
+}
+
 export interface ISetWindowTitleAction {
     type: "SET_WINDOW_TITLE",
     payload: {
@@ -261,6 +265,7 @@ export type SimpleAction =
     ISetCurrentBuffersAction |
     ISetNeovimErrorAction |
     ISetTabs |
+    ISetLoadingCompleteAction |
     ISetViewportAction |
     ISetWindowCursor |
     ISetWindowState |

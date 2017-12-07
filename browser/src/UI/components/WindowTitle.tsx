@@ -32,8 +32,8 @@ export class WindowTitleView extends React.PureComponent<IWindowTitleViewProps, 
             backgroundColor: this.props.backgroundColor,
             color: this.props.foregroundColor,
             textAlign: "center",
-            "-webkit-app-region": "drag",
-            "-webkit-user-select": "none",
+            WebkitAppRegion: "drag",
+            WebkitUserSelect: "none",
         }
 
         return <div style={style}>{this.props.title}</div>

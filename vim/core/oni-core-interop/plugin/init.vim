@@ -14,11 +14,12 @@ function OniNotify(args)
 endfunction
 
 function OniNotifyWithBuffers(eventName)
+    "NOTE: Get all buffers can return a 0 instead of a buffer
+    " due to viml's implicit returns if a conditional fails
     let l:allBufs = OniGetAllBuffers()
     let l:current = OniGetContext()
     let l:context = [l:current]
     let l:context += l:allBufs
-    " echo l:context
     call OniNotify(["event", a:eventName, l:context])
 endfunction
 
@@ -62,14 +63,12 @@ function OniGetAllBuffers()
     for l:bufnum in l:bufnums
       try
         let l:buffer = OniGetEachContext(l:bufnum)
-        if exists("l:buffer")
-          let l:buffers += [l:buffer]
-        endif
+        let l:buffers += [l:buffer]
       catch /.*/
-      echohl WarningMsg
       "Probably dont want this outside of a debugging scenario
-      echo v:exception
-      echohl none
+      " echohl WarningMsg
+      " echo v:exception
+      " echohl none
     endtry
     endfor
     return l:buffers
@@ -86,6 +85,9 @@ function OniGetEachContext(bufnum)
       return
     endif
     if strlen(l:bufpath)
+      "TODO: python can be used to retrieve the lines a buffer and len return 
+      " the number of files this is much quicker than using viml getbufline fn
+      " https://stackoverflow.com/questions/14544618/is-there-a-way-to-get-the-number-of-lines-of-a-buffer-in-vim-script
       " python import vim
       " let l:context.bufferTotalLines = pyeval('len(vim.buffers['.(a:bufnum -1).'])')
       let l:context.bufferNumber = a:bufnum

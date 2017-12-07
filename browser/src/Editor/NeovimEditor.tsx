@@ -74,6 +74,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _completionMenu: CompletionMenu
     private _popupMenu: NeovimPopupMenu
     private _colors: Colors // TODO: Factor this out to the UI 'Shell'
+    private _errorInitializing: boolean = false
 
     private _pendingAnimationFrame: boolean = false
 
@@ -190,7 +191,8 @@ export class NeovimEditor extends Editor implements IEditor {
             this._onColorsChanged()
         })
 
-        this._neovimInstance.onError.subscribe(err => {
+        this._neovimInstance.onError.subscribe((err) => {
+            this._errorInitializing = true
             UI.Actions.setNeovimError(true)
         })
 
@@ -413,10 +415,12 @@ export class NeovimEditor extends Editor implements IEditor {
         }
 
         await this._neovimInstance.start(startOptions)
-        VimConfigurationSynchronizer.synchronizeConfiguration(
-            this._neovimInstance,
-            this._config.getValues(),
-        )
+
+        if (this._errorInitializing) {
+            return
+        }
+
+        VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
 
         this._themeManager.onThemeChanged.subscribe(() => {
             const newTheme = this._themeManager.activeTheme
@@ -523,11 +527,11 @@ export class NeovimEditor extends Editor implements IEditor {
             this._lastBufferId = currentBuffer.bufferNumber.toString()
             this.notifyBufferEnter(buf)
 
+            // Filter out the current buffer from exisiting buffers and any falsy viml values
             const existingBuffers = Array.isArray(evt)
-                ? evt.slice(1).filter(b => !(b.bufferNumber === currentBuffer.bufferNumber))
+                ? evt.slice(1).filter(b => !(b.bufferNumber === currentBuffer.bufferNumber) && !!b)
                 : []
 
-            // console.log("BUFENTER EVENT ======", evt)
             UI.Actions.bufferEnter({
                 currentBuffer,
                 existingBuffers,
@@ -540,13 +544,6 @@ export class NeovimEditor extends Editor implements IEditor {
                 filePath: evt.bufferFullPath,
                 language: evt.filetype,
             })
-        } else if (eventName === "BufWipeout") {
-            // This call to the neovim msgpack api does not return an accurate bufferlist
-            console.log("evt buffer delete event: ", evt)
-            this._neovimInstance
-                .getBufferIds()
-                .then(ids => ids.filter(id => id !== evt.bufferNumber))
-                .then(ids => UI.Actions.setCurrentBuffers(ids))
         }
     }
 
