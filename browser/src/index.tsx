@@ -19,7 +19,7 @@ import { inputManager } from "./Services/InputManager"
 import { languageManager } from "./Services/Language"
 import * as Themes from "./Services/Themes"
 
-import { getInstance } from "./neovim/SharedNeovimInstance"
+import * as SharedNeovimInstance from "./neovim/SharedNeovimInstance"
 
 import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
@@ -62,13 +62,11 @@ const start = async (args: string[]): Promise<void> => {
 
     UI.Actions.setColors(Themes.getThemeManagerInstance().getColors())
 
+    await SharedNeovimInstance.activate()
     await UI.startEditors(parsedArgs._)
 
     const api = pluginManager.startApi()
     configuration.activate(api)
-
-    // TODO: Refactor
-    getInstance()
 
     createLanguageClientsFromConfiguration(configuration.getValues())
 
