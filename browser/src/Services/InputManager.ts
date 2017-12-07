@@ -61,6 +61,13 @@ export class InputManager implements Oni.InputManager {
     }
 
     /**
+     * Potential API methods
+     */
+    public hasBinding(keyChord: string): boolean {
+        return !!this._boundKeys[keyChord]
+    }
+
+    /**
      * Internal Methods
      */
 

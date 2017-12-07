@@ -1,0 +1,30 @@
+@import (reference) "./../../UI/components/common.less";
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+
+    .sidebar-icon-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0.2;
+        outline: none;
+
+        &.active {
+            cursor: pointer;
+            opacity: 0.75;
+        }
+
+        &.active:hover {
+            .box-shadow;
+            transform: translateY(2px);
+            opacity: 0.9;
+        }
+
+        .sidebar-icon {
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+    }
+}

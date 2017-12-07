@@ -21,6 +21,8 @@ import { INeovimStartOptions, startNeovim } from "./NeovimProcessSpawner"
 import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { Session } from "./Session"
 
+import { PromiseQueue } from "./../Services/Language/PromiseQueue"
+
 export interface INeovimYankInfo {
     operator: string
     regcontents: string[]
@@ -143,6 +145,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _neovim: Session
     private _initPromise: Promise<void>
     private _isLeaving: boolean
+
+    private _inputQueue: PromiseQueue = new PromiseQueue()
 
     private _config = configuration
     private _autoCommands: NeovimAutoCommands
@@ -458,7 +462,19 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public input(inputString: string): Promise<void> {
-        return this._neovim.request("nvim_input", [inputString])
+        return this._inputQueue.enqueuePromise(async () => {
+            await this._neovim.request("nvim_input", [inputString])
+        })
+    }
+
+    public blockInput(func: (opt?: any) => Promise<void>): void {
+        const forceInput = (inputString: string) => {
+            return this._neovim.request("nvim_input", [inputString])
+        }
+
+        this._inputQueue.enqueuePromise(async () => {
+            await func(forceInput)
+        })
     }
 
     public resize(widthInPixels: number, heightInPixels: number): void {

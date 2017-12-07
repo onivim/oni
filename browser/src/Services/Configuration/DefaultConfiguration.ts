@@ -48,6 +48,8 @@ const BaseConfiguration: IConfigurationValues = {
     // TODO: Enable pipe transport for Windows
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
+    "experimental.sidebar.enabled": false,
+
     "oni.audio.bellUrl": null,
 
     "oni.useDefaultConfig": true,
@@ -168,6 +170,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
+
+    "sidebar.width": "50px",
 
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
