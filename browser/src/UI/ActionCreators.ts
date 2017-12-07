@@ -99,7 +99,7 @@ export const bufferEnter = (
     type: "BUFFER_ENTER",
     payload: {
         currentBuffer: formatBuffers(currentBuffer),
-        existingBuffers: existingBuffers.map(formatBuffers).filter(b => !(b.id === currentBuffer.bufferNumber)),
+        existingBuffers: existingBuffers.map(formatBuffers),
     },
 })
 

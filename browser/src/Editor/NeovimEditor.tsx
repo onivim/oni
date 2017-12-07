@@ -522,7 +522,12 @@ export class NeovimEditor extends Editor implements IEditor {
 
             this._lastBufferId = currentBuffer.bufferNumber.toString()
             this.notifyBufferEnter(buf)
-            const existingBuffers = Array.isArray(evt) ? evt.slice(1) : []
+
+            const existingBuffers = Array.isArray(evt)
+                ? evt.slice(1).filter(b => !(b.bufferNumber === currentBuffer.bufferNumber))
+                : []
+
+            // console.log("BUFENTER EVENT ======", evt)
             UI.Actions.bufferEnter({
                 currentBuffer,
                 existingBuffers,
@@ -535,7 +540,7 @@ export class NeovimEditor extends Editor implements IEditor {
                 filePath: evt.bufferFullPath,
                 language: evt.filetype,
             })
-        } else if (eventName === "BufDelete") {
+        } else if (eventName === "BufWipeout") {
             // This call to the neovim msgpack api does not return an accurate bufferlist
             console.log("evt buffer delete event: ", evt)
             this._neovimInstance

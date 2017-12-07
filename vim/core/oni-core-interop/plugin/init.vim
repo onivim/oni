@@ -148,6 +148,7 @@ augroup OniEventListeners
     autocmd! ColorScheme * :call OniNotifyEvent("ColorScheme")
     autocmd! WinEnter * :call OniNotifyEvent("WinEnter")
     autocmd! BufDelete * :call OniNotifyWithBuffers("BufDelete")
+    autocmd! BufWipeout * :call OniNotifyWithBuffers("BufWipeout")
     autocmd! CursorMoved * :call OniNotifyEvent("CursorMoved")
     autocmd! CursorMovedI * :call OniNotifyEvent("CursorMovedI")
     autocmd! InsertLeave * :call OniNotifyEvent("InsertLeave")
