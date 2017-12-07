@@ -19,9 +19,17 @@ const remapToAbsolutePaths = (packageRoot: string, contributes: Capabilities.ICo
         }
     }
 
+    const remapIconPath = (iconThemes: Capabilities.IIconThemeContribution): Capabilities.IIconThemeContribution => {
+        return {
+            ...iconThemes,
+            path: path.join(packageRoot, iconThemes.path),
+        }
+    }
+
     return {
         ...contributes,
         themes: contributes.themes.map((t) => remapThemePath(t)),
+        iconThemes: contributes.iconThemes.map((it) => remapIconPath(it)),
     }
 }
 

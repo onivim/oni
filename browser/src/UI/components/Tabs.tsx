@@ -14,6 +14,9 @@ import * as State from "./../State"
 
 import { Icon } from "./../Icon"
 
+import { icons } from "./../../Services/Icons"
+import { FileIcon } from "./../../Services/FileIcon"
+
 require("./Tabs.less") // tslint:disable-line no-var-requires
 
 export interface ITabProps {
@@ -123,7 +126,9 @@ export const Tab = (props: ITabPropsWithClick) => {
     }
 
     return <div className={cssClasses} title={props.description} style={style}>
-        <div className="corner" onClick={props.onClickName}></div>
+        <div className="corner" onClick={props.onClickName}>
+            <FileIcon icon={icons.getIconForFile("test.ts")}/>
+        </div>
         <div className="name" onClick={props.onClickName}>
             <span className="name-inner">
                 {props.name}

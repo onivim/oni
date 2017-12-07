@@ -14,6 +14,7 @@ import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
 import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
+import { activate as activateIcons } from "./Services/Icons"
 import { inputManager } from "./Services/InputManager"
 import { languageManager } from "./Services/Language"
 import * as Themes from "./Services/Themes"
@@ -83,6 +84,8 @@ const start = (args: string[]) => {
     pluginManager.discoverPlugins()
     performance.mark("NeovimInstance.Plugins.Discover.End")
     UI.init(pluginManager, parsedArgs._)
+
+    activateIcons()
 
     const api = pluginManager.startApi()
     configuration.activate(api)
