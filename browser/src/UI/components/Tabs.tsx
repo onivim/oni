@@ -24,6 +24,7 @@ export interface ITabProps {
     description: string
     isSelected: boolean
     isDirty: boolean
+    iconFileName?: string
 }
 
 export interface ITabContainerProps {
@@ -126,7 +127,7 @@ export const Tab = (props: ITabPropsWithClick) => {
 
     return <div className={cssClasses} title={props.description} style={style}>
         <div className="corner" onClick={props.onClickName}>
-            <FileIcon fileName={props.name}/>
+            <FileIcon fileName={props.iconFileName} isLarge={true} additionalClassNames={"file-icon-appear-animation"}/>
         </div>
         <div className="name" onClick={props.onClickName}>
             <span className="name-inner">
@@ -162,6 +163,7 @@ const getTabsFromBuffers = createSelector(
         const tabs = allBuffers.map((buf): ITabProps => ({
             id: buf.id,
             name: getTabName(buf.file),
+            iconFileName: getTabName(buf.file),
             isSelected: activeBufferId !== null && buf.id === activeBufferId,
             isDirty: buf.modified,
             description: buf.file,
@@ -175,6 +177,7 @@ const getTabsFromVimTabs = createSelector(
         return tabState.tabs.map((t) => ({
             id: t.id,
             name: getTabName(t.name),
+            iconFileName: null,
             isSelected: t.id === tabState.selectedTabId,
             isDirty: false,
             description: t.name,
