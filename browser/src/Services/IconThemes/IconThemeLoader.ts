@@ -9,17 +9,23 @@ import { IIconThemeContribution } from "./../../Plugins/Api/Capabilities"
 
 import { IIconTheme } from "./Icons"
 
+import * as Log from "./../../Log"
 import { PluginManager } from "./../../Plugins/PluginManager"
 
+export interface IIconThemeLoadResult {
+    theme: IIconTheme
+    filePath: string
+}
+
 export interface IIconThemeLoader {
-    loadIconTheme(themeName: string): Promise<IIconTheme>
+    loadIconTheme(themeName: string): Promise<IIconThemeLoadResult>
 }
 
 export class PluginIconThemeLoader {
     constructor(private _pluginManager: PluginManager) {
     }
 
-    public async loadIconTheme(themeName: string): Promise<IIconTheme> {
+    public async loadIconTheme(themeName: string): Promise<IIconThemeLoadResult> {
         const plugins = this._pluginManager.plugins
 
         const pluginsWithThemes = plugins.filter((p) => {
@@ -51,6 +57,16 @@ export class PluginIconThemeLoader {
             })
         })
 
-        return JSON.parse(contents) as IIconTheme
+        let theme = null
+        try {
+            theme = JSON.parse(contents) as IIconTheme
+        } catch (ex) {
+            Log.error("Error loading icon theme: " + ex)
+        }
+
+        return {
+            theme,
+            filePath: matchingIconTheme.path,
+        }
     }
 }

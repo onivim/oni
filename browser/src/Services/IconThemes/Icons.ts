@@ -45,13 +45,13 @@ export interface IconDefinitions { [key: string]: IIconDefinition }
 export interface FileDefinitions { [extension: string]: string }
 
 // File name -> icon definition key
-export interface FileNames  { [fileName: string]: string }
+export interface FileNames { [fileName: string]: string }
 
 // Language id -> icon definition key
 export interface Language { [language: string]: string }
 
 export interface IIconTheme {
-    fonts: IIconFontSource
+    fonts: IIconFont[]
     iconDefinitions: IconDefinitions
     file: string
     fileExtensions: FileDefinitions
@@ -128,13 +128,30 @@ export class Icons {
 
         const iconThemeLoader = new PluginIconThemeLoader(this._pluginManager)
 
-        this._activeIconTheme = await iconThemeLoader.loadIconTheme(themeName)
+        const loadResults = await iconThemeLoader.loadIconTheme(themeName)
+
+        if (!loadResults || !loadResults.theme) {
+            return
+        }
+
+        this._activeIconTheme = loadResults.theme
 
         const newStyle = document.createElement("style")
         const styleWriter = new StyleWriter("oni-icon")
 
-        // TODO: Path
-        styleWriter.writeFontFace("seti", "C:/oni/extensions/theme-icons-seti/icons/seti.woff", "woff")
+        const fonts = this._activeIconTheme.fonts || []
+
+        fonts.forEach((font) => {
+            if (!font.src || !font.src.length) {
+                return
+            }
+
+            const fontSrc = font.src[0]
+            const fontPath = path.join(path.dirname(loadResults.filePath), fontSrc.path)
+            const fontFormat = fontSrc.format
+
+            styleWriter.writeFontFace(font.id, fontPath, fontFormat)
+        })
 
         const iconDefinitions = this._activeIconTheme.iconDefinitions
         if (iconDefinitions) {
