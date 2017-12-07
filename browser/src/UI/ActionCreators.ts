@@ -72,7 +72,16 @@ export const setCursorScale = (cursorScale: number) => ({
     },
 })
 
-const formatBuffers = (buffer: any) => {
+export interface IRawBuffer {
+    bufferNumber: number
+    bufferFullPath: string
+    bufferTotalLines: number
+    filetype: string
+    hidden: number
+    listed: number
+}
+
+const formatBuffers = (buffer: IRawBuffer) => {
     return {
         id: buffer.bufferNumber,
         file: buffer.bufferFullPath ? normalizePath(buffer.bufferFullPath) : "",
@@ -85,7 +94,7 @@ const formatBuffers = (buffer: any) => {
 
 export const bufferEnter = (
     { currentBuffer, existingBuffers }:
-    { currentBuffer: any, existingBuffers: any[] },
+    { currentBuffer: IRawBuffer, existingBuffers: IRawBuffer[] },
 ) => ({
     type: "BUFFER_ENTER",
     payload: {

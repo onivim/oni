@@ -18,6 +18,7 @@ function OniNotifyWithBuffers(eventName)
     let l:current = OniGetContext()
     let l:context = [l:current]
     let l:context += l:allBufs
+    echo l:context
     call OniNotify(["event", a:eventName, l:context])
 endfunction
 
@@ -61,9 +62,12 @@ function OniGetAllBuffers()
     for l:bufnum in l:bufnums
       try
         let l:buffer = OniGetEachContext(l:bufnum)
-        let l:buffers += [l:buffer]
+        if exists("l:buffer")
+          let l:buffers += [l:buffer]
+        endif
       catch /.*/
       echohl WarningMsg
+      "Probably dont want this outside of a debugging scenario
       echo v:exception
       echohl none
     endtry
@@ -72,21 +76,20 @@ function OniGetAllBuffers()
   endif
 endfunction
 
+
 function OniGetEachContext(bufnum)
   let l:context = {}
   if has('python')
     let l:bufpath = bufname(a:bufnum)
+
+    if -1 < index(['nofile','acwrite'], getbufvar(a:bufnum, '&buftype')) " scratch buffer
+      return
+    endif
     if strlen(l:bufpath)
-      python import vim
+      " python import vim
+      " let l:context.bufferTotalLines = pyeval('len(vim.buffers['.(a:bufnum -1).'])')
       let l:context.bufferNumber = a:bufnum
       let l:context.bufferFullPath = expand("#".a:bufnum.":p")
-      let l:context.bufferTotalLines = pyeval('len(vim.buffers['.(a:bufnum).'])')
-      " function CountLines()
-      "   python3 << EOF
-      "     lines = len(vim.buffers[0])
-      "     print lines
-      "     EOF
-      " endfunction
       let l:context.bufferTotalLines = v:null
       let l:context.line = v:null
       let l:context.column = v:null
@@ -104,14 +107,16 @@ function OniGetEachContext(bufnum)
       let l:context.modified = getbufvar(a:bufnum, "&mod")
       let l:context.hidden = getbufvar(a:bufnum, "&hidden")
       let l:context.listed = getbufvar(a:bufnum, "&buflisted")
-    endif
 
-    if exists("b:last_change_tick")
-      let l:context.version = b:last_change_tick
-    endif
+      if exists("b:last_change_tick")
+        let l:context.version = b:last_change_tick
+      endif
 
-    return l:context
+      return l:context
+    else
+      return
   endif
+endif
 endfunction
 
 function OniCommand(oniCommand)
