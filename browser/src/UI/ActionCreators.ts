@@ -101,14 +101,10 @@ const formatBuffers = (buffer: IRawBuffer) => {
     }
 }
 
-export const bufferEnter = (
-    { currentBuffer, existingBuffers }:
-    { currentBuffer: IRawBuffer, existingBuffers: IRawBuffer[] },
-) => ({
+export const bufferEnter = (buffers: IRawBuffer[]) => ({
     type: "BUFFER_ENTER",
     payload: {
-        currentBuffer: formatBuffers(currentBuffer),
-        existingBuffers: existingBuffers.map(formatBuffers),
+        buffers: buffers.map(formatBuffers),
     },
 })
 

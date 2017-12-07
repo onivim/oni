@@ -83,15 +83,7 @@ export interface ISetFont {
 export interface IBufferEnterAction {
     type: "BUFFER_ENTER",
     payload: {
-        currentBuffer: {
-            id: number,
-            file: string,
-            language: string,
-            totalLines: number,
-            hidden: boolean,
-            listed: boolean,
-        },
-        existingBuffers: IBuffer[],
+        buffers: IBuffer[],
     }
 }
 

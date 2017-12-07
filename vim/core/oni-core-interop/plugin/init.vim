@@ -81,12 +81,6 @@ function OniGetEachContext(bufnum)
     let l:bufpath = bufname(a:bufnum)
 
     if strlen(l:bufpath)
-      "TODO: python can be used to retrieve the lines a buffer and len return 
-      " the number of files this is much quicker than using viml getbufline fn
-      " https://stackoverflow.com/questions/14544618/is-there-a-way-to-get-the-number-of-lines-of-a-buffer-in-vim-script
-      " if has('python')
-      " python import vim
-      " let l:context.bufferTotalLines = pyeval('len(vim.buffers['.(a:bufnum -1).'])')
       let l:context.bufferNumber = a:bufnum
       let l:context.bufferFullPath = expand("#".a:bufnum.":p")
       let l:context.bufferTotalLines = v:null

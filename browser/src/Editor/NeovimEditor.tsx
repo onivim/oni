@@ -528,14 +528,12 @@ export class NeovimEditor extends Editor implements IEditor {
             this.notifyBufferEnter(buf)
 
             // Filter out the current buffer from exisiting buffers and any falsy viml values
-            const existingBuffers = Array.isArray(evt)
-                ? evt.slice(1).filter(b => !(b.bufferNumber === currentBuffer.bufferNumber) && !!b)
+            const buffers = Array.isArray(evt)
+                ? evt.filter(b => !!b)
                 : []
 
-            UI.Actions.bufferEnter({
-                currentBuffer,
-                existingBuffers,
-            })
+            UI.Actions.bufferEnter(buffers)
+
         } else if (eventName === "BufWritePost") {
             // After we save we aren't modified... but we can pass it in just to be safe
             UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
@@ -544,6 +542,11 @@ export class NeovimEditor extends Editor implements IEditor {
                 filePath: evt.bufferFullPath,
                 language: evt.filetype,
             })
+        } else if (eventName === "BufWipeout") {
+            this._neovimInstance
+                .getBufferIds()
+                .then(ids => ids.filter(id => id !== evt.bufferNumber))
+                .then(ids => UI.Actions.setCurrentBuffers(ids))
         }
     }
 
