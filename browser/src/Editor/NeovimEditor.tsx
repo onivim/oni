@@ -527,7 +527,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._lastBufferId = currentBuffer.bufferNumber.toString()
             this.notifyBufferEnter(buf)
 
-            // Filter out the current buffer from exisiting buffers and any falsy viml values
+            // Filter out falsy viml values
             const buffers = Array.isArray(evt)
                 ? evt.filter(b => !!b)
                 : []
@@ -545,7 +545,6 @@ export class NeovimEditor extends Editor implements IEditor {
         } else if (eventName === "BufWipeout") {
             this._neovimInstance
                 .getBufferIds()
-                .then(ids => ids.filter(id => id !== evt.bufferNumber))
                 .then(ids => UI.Actions.setCurrentBuffers(ids))
         }
     }

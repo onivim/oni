@@ -83,18 +83,6 @@ function OniGetEachContext(bufnum)
     if strlen(l:bufpath)
       let l:context.bufferNumber = a:bufnum
       let l:context.bufferFullPath = expand("#".a:bufnum.":p")
-      let l:context.bufferTotalLines = v:null
-      let l:context.line = v:null
-      let l:context.column = v:null
-      let l:context.mode = v:null
-      let l:context.winline = v:null
-      let l:context.wincol = v:null
-      let l:context.windowTopLine = v:null
-      let l:context.windowBottomLine = v:null
-      let l:context.byte = v:null
-      let l:context.windowNumber = v:null
-      let l:context.windowWidth = v:null
-      let l:context.windowHeight = v:null
       let l:context.filetype = getbufvar(a:bufnum, "&filetype")
       let l:context.buftype = getbufvar(a:bufnum, "&buftype")
       let l:context.modified = getbufvar(a:bufnum, "&mod")
