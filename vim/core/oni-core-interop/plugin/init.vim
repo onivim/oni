@@ -18,7 +18,7 @@ function OniNotifyWithBuffers(eventName)
     let l:current = OniGetContext()
     let l:context = [l:current]
     let l:context += l:allBufs
-    echo l:context
+    " echo l:context
     call OniNotify(["event", a:eventName, l:context])
 endfunction
 
