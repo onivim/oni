@@ -21,6 +21,11 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     }
 
     switch (a.type) {
+        case "SET_LOADING_COMPLETE":
+            return {
+                ...s,
+                isLoaded: true,
+            }
         case "SET_WINDOW_TITLE":
             return {
                 ...s,

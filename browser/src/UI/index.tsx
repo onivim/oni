@@ -25,8 +25,6 @@ import { listenForDiagnostics } from "./../Services/Language"
 import { SidebarSplit } from "./../Services/Sidebar"
 import { windowManager } from "./../Services/WindowManager"
 
-import { PluginManager } from "./../Plugins/PluginManager"
-
 import { NeovimEditor } from "./../Editor/NeovimEditor"
 
 import { createStore } from "./../Redux"
@@ -44,8 +42,8 @@ export const Selectors = {
     getActiveDefinition: () => getActiveDefinition(store.getState() as any),
 }
 
-export function init(pluginManager: PluginManager, args: any): void {
-    render(defaultState, pluginManager, args)
+export const activate = (): void => {
+    render(defaultState)
 }
 
 const updateViewport = () => {
@@ -55,15 +53,9 @@ const updateViewport = () => {
     Actions.setViewport(width, height)
 }
 
-function render(_state: State.IState, pluginManager: PluginManager, args: any): void {
+export const render = (_state: State.IState): void => {
     const hostElement = document.getElementById("host")
 
-    const editor = new NeovimEditor()
-    editor.init(args)
-
-    editorManager.setActiveEditor(editor)
-
-    windowManager.split(0, editor)
     const leftDock = windowManager.getDock(2)
     leftDock.addSplit(new SidebarSplit())
 
@@ -71,6 +63,15 @@ function render(_state: State.IState, pluginManager: PluginManager, args: any): 
         <Provider store={store}>
             <RootComponent windowManager={windowManager}/>
         </Provider>, hostElement)
+}
+
+export const startEditors = async (args: any): Promise<void> => {
+    const editor = new NeovimEditor()
+
+    editorManager.setActiveEditor(editor)
+    windowManager.split(0, editor)
+
+    await editor.init(args)
 }
 
 // Don't execute code that depends on DOM in unit-tests
