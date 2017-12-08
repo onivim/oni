@@ -97,6 +97,13 @@ export class TypeScriptServerHost extends events.EventEmitter {
             needFileNameList: true,
         })
     }
+    public getDefinition(file: string, line: number, offset: number): Promise<void> {
+        return this._makeTssRequest<void>("definition", {
+            file,
+            line,
+            offset,
+        })
+    }
 
     public getTypeDefinition(file: string, line: number, offset: number): Promise<void> {
         return this._makeTssRequest<void>("typeDefinition", {

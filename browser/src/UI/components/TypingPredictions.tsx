@@ -53,13 +53,18 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
             const updatedPredictions = prediction.predictedCharacters
             const startX = (prediction.predictedCursorColumn - prediction.predictedCharacters.length) * this.props.width
 
+            this._containerElement.style.top = this.props.y.toString() + "px"
+            this._containerElement.style.height = this.props.height.toString() + "px"
+            this._containerElement.style.left = startX.toString() + "px"
+            this._containerElement.style.width = (prediction.predictedCharacters.length * this.props.width).toString() + "px"
+
             // Add new predictions
             updatedPredictions.forEach((up, idx) => {
                 const elem = document.createElement("div")
                 elem.className = "predicted-text"
                 elem.style.position = "absolute"
-                elem.style.top = this.props.y.toString() + "px"
-                elem.style.left = (startX + idx * this.props.width).toString() + "px"
+                elem.style.top = "0px"
+                elem.style.left = (idx * this.props.width).toString() + "px"
                 elem.style.width = (this.props.width.toString()) + "px"
                 elem.style.height = (this.props.height.toString()) + "px"
                 elem.style.lineHeight = this.props.height.toString() + "px"
@@ -91,11 +96,13 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
 
     public render(): JSX.Element {
         const containerStyle: React.CSSProperties = {
+            contain: "strict",
             willChange: "transform",
             backgroundColor: this.props.color,
             color: this.props.textColor,
             fontFamily: this.props.fontFamily,
             fontSize: this.props.fontSize,
+            position: "absolute",
         }
 
         return <div className="typing-predictions" key={"typing-predictions"} style={containerStyle} ref={(elem) => this._containerElement = elem}></div>
