@@ -4,8 +4,8 @@
  */
 
 import * as React from "react"
-// import { Provider } from "react-redux"
-// import { Store } from "redux"
+import { Provider } from "react-redux"
+import { Store } from "redux"
 
 // import { Event } from "oni-types"
 
@@ -13,15 +13,65 @@ import * as React from "react"
 
 // import { Colors } from "./../Colors"
 
-// import { createStore, ISidebarState } from "./SidebarStore"
+import { createStore, IExplorerState } from "./ExplorerStore"
 // import { Sidebar } from "./SidebarView"
+
+import { FileIcon } from "./../FileIcon"
+
+import { Explorer } from "./ExplorerView"
+
+export interface IRecentFileViewProps {
+    fileName: string
+    isModified?: boolean
+}
+
+export class RecentFileView extends React.PureComponent<IRecentFileViewProps, {}> {
+    public render(): JSX.Element {
+        const containerStyle: React.CSSProperties = {
+            padding: "4px",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+        }
+
+        const fileIconStyle: React.CSSProperties = {
+            flex: "0 0 auto",
+            width: "20px",
+        }
+
+        const textStyle: React.CSSProperties = {
+            flex: "1 1 auto"
+        }
+
+        const modifiedIconStyle: React.CSSProperties = {
+            flex: "0 0 auto",
+            width: "20px",
+        }
+
+        return <div style={containerStyle}>
+                <div style={fileIconStyle}><FileIcon fileName={this.props.fileName} /></div>
+                <div style={textStyle}>{this.props.fileName}</div>
+                <div style={modifiedIconStyle}></div>
+            </div>
+    }
+}
 
 export class ExplorerSplit {
 
     // private _onEnterEvent: Event<void> = new Event<void>()
 
     // private _activeBinding: IMenuBinding = null
-    // private _store: Store<ISidebarState>
+    private _store: Store<IExplorerState>
+
+    constructor () {
+        this._store = createStore()
+
+        this._store.dispatch({
+            type: "SET_ROOT_DIRECTORY",
+            rootPath: "derp"
+        })
+    }
 
     // constructor(
     //     private _colors: Colors,
@@ -71,52 +121,9 @@ export class ExplorerSplit {
 
     public render(): JSX.Element {
 
-        const containerStyle = {
-            width: "200px",
-            color: "rgb(171, 179, 191)",
-            backgroundColor: "rgb(40, 44, 52)",
-            height: "100%"
-        }
-
-        const tabStyle = {
-            height: "2.5em",
-            lineHeight: "2.5em",
-            textAlign: "center",
-            fontSize: "13px",
-            fontFamily: "Segoe UI",
-        }
-
-        const headerStyle = {
-            // boxShadow: "inset 0px 1px 8px 1px rgba(0, 0, 0, 0.1), inset 0px -1px 8px 1px rgba(0, 0, 0, 0.1)",
-            backgroundColor: "#1e2127",
-            // padding: "8px",
-        }
-
-        const iconStyle = {
-            margin: "4px",
-        }
-
-        return <div style={containerStyle} className="enable-mouse">
-                <div style={tabStyle}>Explorer</div>
-
-                <div>
-                    <div style={headerStyle}>
-                        <i style={iconStyle} className="fa fa-caret-down" />
-                        <span>Open Buffers</span>
-                    </div>
-                    <div>
-                        <div>File1.ts</div>
-                        <div>File2.ts</div>
-                    </div>
-                    <div style={headerStyle}>
-                        <i style={iconStyle} className="fa fa-caret-right" />
-                        <span>C:/oni</span>
-                    </div>
-                </div>
-            </div>
-        // return <Provider store={this._store}>
-        //         <Sidebar onKeyDown={(key: string) => this._onKeyDown(key)} onEnter={this._onEnterEvent}/>
-        //     </Provider>
+        return <Provider store={this._store}>
+                <Explorer />
+            </Provider>
     }
 
     // private _updateColors(): void {
