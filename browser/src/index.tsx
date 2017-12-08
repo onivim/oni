@@ -16,6 +16,7 @@ import * as BrowserWindowConfigurationSynchronizer from "./Services/BrowserWindo
 import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
+import * as IconThemes from "./Services/IconThemes"
 import { inputManager } from "./Services/InputManager"
 import { languageManager } from "./Services/Language"
 import * as Themes from "./Services/Themes"
@@ -58,7 +59,9 @@ const start = async (args: string[]): Promise<void> => {
     pluginManager.discoverPlugins()
     performance.mark("NeovimInstance.Plugins.Discover.End")
 
+    // TODO: Can these be parallelized?
     await Themes.activate(configuration)
+    await IconThemes.activate(configuration, pluginManager)
 
     Colors.activate(configuration, Themes.getThemeManagerInstance())
     UI.Actions.setColors(Themes.getThemeManagerInstance().getColors())
