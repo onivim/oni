@@ -183,6 +183,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "ui.animations.enabled": true,
     "ui.colorscheme": "onedark",
+    "ui.iconTheme": "theme-icons-seti",
     "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
     "ui.fontSmoothing": "auto",
