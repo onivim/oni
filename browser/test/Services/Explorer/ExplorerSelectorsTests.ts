@@ -18,7 +18,7 @@ describe("ExplorerSelectors", () => {
 
             const file: ExplorerState.IFileState = createTestFile("testPath")
 
-            const result = ExplorerSelectors.flattenFolderTree(file, [])
+            const result = ExplorerSelectors.flattenFolderTree(file, [], {})
 
             const expectedResult = [{
                 id: "explorer:testPath",
@@ -34,12 +34,9 @@ describe("ExplorerSelectors", () => {
             const folder: ExplorerState.IFolderState = {
                 type: "folder",
                 fullPath: "folderPath",
-                expanded: false,
-                children: [],
-                isLoading: false,
             }
 
-            const result = ExplorerSelectors.flattenFolderTree(folder, [])
+            const result = ExplorerSelectors.flattenFolderTree(folder, [], {})
 
             const expectedResult = [{
                 type: "folder",
@@ -56,14 +53,13 @@ describe("ExplorerSelectors", () => {
             const folder: ExplorerState.IFolderState = {
                 type: "folder",
                 fullPath: "folderPath",
-                expanded: true,
-                children: [
-                    createTestFile("file1"),
-                ],
-                isLoading: false,
             }
 
-            const result = ExplorerSelectors.flattenFolderTree(folder, [])
+            const expandedFolders = {
+                "folderPath": [ createTestFile("file1")]
+            }
+
+            const result = ExplorerSelectors.flattenFolderTree(folder, [], expandedFolders)
 
             const expectedResult = [{
                 type: "folder",

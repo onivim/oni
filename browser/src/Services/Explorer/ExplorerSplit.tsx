@@ -69,7 +69,7 @@ export class ExplorerSplit {
 
         this._store.dispatch({
             type: "SET_ROOT_DIRECTORY",
-            rootPath: "derp"
+            rootPath: "C:/oni"
         })
     }
 

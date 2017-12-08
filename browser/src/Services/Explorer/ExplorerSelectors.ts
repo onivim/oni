@@ -6,7 +6,7 @@
 
 import * as flatten from "lodash/flatten"
 
-import { IExplorerState, FolderOrFile } from "./ExplorerStore"
+import { ExpandedFolders, IExplorerState, FolderOrFile } from "./ExplorerStore"
 
 export type ExplorerNode = {
     id: string,
@@ -52,13 +52,13 @@ export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
         name: state.rootFolder.fullPath,
     })
 
-    const expandedTree = flattenFolderTree(state.rootFolder, [])
+    const expandedTree = flattenFolderTree(state.rootFolder, [], state.expandedFolders)
 
     ret = [...ret, ...expandedTree]
     return ret
 }
 
-export const flattenFolderTree = (folderTree: FolderOrFile, currentList: ExplorerNode[]): ExplorerNode[] => {
+export const flattenFolderTree = (folderTree: FolderOrFile, currentList: ExplorerNode[], expandedFolders: ExpandedFolders): ExplorerNode[] => {
     switch(folderTree.type) {
         case "file":
             const file: ExplorerNode = {
@@ -69,20 +69,17 @@ export const flattenFolderTree = (folderTree: FolderOrFile, currentList: Explore
             }
             return [...currentList, file]
         case "folder":
+            const expanded = !!expandedFolders[folderTree.fullPath]
+
             const folder: ExplorerNode = {
                 type: "folder",
                 id: "explorer:" + folderTree.fullPath,
                 folderPath: folderTree.fullPath,
-                expanded: folderTree.expanded,
+                expanded,
             }
 
-
-            let children: ExplorerNode[] = []
-
-            if (folderTree.expanded) {
-                // TODO: Flatmap
-                children = flatten(folderTree.children.map((c) => flattenFolderTree(c, [])))
-            }
+            const folderChildren = expandedFolders[folderTree.fullPath] || []
+            const children = flatten(folderChildren.map((c) => flattenFolderTree(c, [], expandedFolders)))
 
             return [...currentList, folder, ...children]
         default:
