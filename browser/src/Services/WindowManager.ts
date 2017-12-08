@@ -46,7 +46,7 @@ export class WindowDock implements IWindowDock {
     }
 
     public addSplit(split: Oni.IWindowSplit): void {
-        this._splits.push(split)
+        this._splits = [...this._splits, split]
         this._onSplitsChangedEvent.dispatch()
     }
 
