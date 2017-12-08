@@ -171,8 +171,9 @@ const getHighlightColor = (state: State.IState) => {
 const getTabsFromBuffers = createSelector(
     [BufferSelectors.getBufferMetadata, BufferSelectors.getActiveBufferId, getHighlightColor],
     (allBuffers: any, activeBufferId: any, color: string) => {
+        const bufferCount = allBuffers.length
         const tabs = allBuffers.map((buf: any): ITabProps => {
-            const isActive = activeBufferId !== null && buf.id === activeBufferId
+            const isActive = (activeBufferId !== null && buf.id === activeBufferId) || bufferCount === 1
             return {
                 id: buf.id,
                 name: getTabName(buf.file),
