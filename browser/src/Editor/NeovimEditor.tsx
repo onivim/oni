@@ -527,10 +527,11 @@ export class NeovimEditor extends Editor implements IEditor {
             this._lastBufferId = currentBuffer.bufferNumber.toString()
             this.notifyBufferEnter(buf)
 
-            // Filter out falsy viml values
-            const buffers = Array.isArray(evt)
+            // Filter out falsy viml values, if event is a buffer object return it in an array
+            // otherwise return an array of buffer objects
+            const buffers = Array.isArray(evt) && !!(evt)
                 ? evt.filter(b => !!b)
-                : []
+                : [evt]
 
             UI.Actions.bufferEnter(buffers)
 
