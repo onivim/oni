@@ -2,6 +2,7 @@ import { EventCallback, Event, IDisposable, IEvent } from "oni-types"
 
 import * as Oni from "oni-api"
 import * as marked from "marked"
+import * as dompurify from "dompurify"
 import * as React from "react"
 
 /**
@@ -81,7 +82,7 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
             overflowY: "auto",
         }
 
-        var markdownLines = this.state.source.split("\n")
+        var markdownLines = dompurify.sanitize(this.state.source).split("\n")
 
         const generateAnchor = (line: number) => {
             return "<a id=\"" + generateScrollingAnchorId(line) + "\"></a>"

@@ -20,6 +20,10 @@
       }
     }
   },
+  "dependencies": {
+    "marked": "^0.3.6",
+    "dompurify": "1.0.2"
+  },
   "peerDependencies": {
     "typescript": "^2.5.3",
     "rimraf": "^2.6.2",
