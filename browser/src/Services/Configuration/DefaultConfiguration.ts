@@ -178,6 +178,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "tabs.mode": "buffers",
     "tabs.height": "2.5em",
+    "tabs.highlight": true,
     "tabs.maxWidth": "30em",
     "tabs.wrap": false,
 
