@@ -7,17 +7,15 @@
 
 import * as React from "react"
 import { Provider } from "react-redux"
-
 import { Store } from "redux"
-import { createStore } from "./SidebarStore"
 
 import { Event } from "oni-types"
 
-import { Colors } from "./../Colors"
-
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
-import { ISidebarState } from "./SidebarStore"
+import { Colors } from "./../Colors"
+
+import { createStore, ISidebarState } from "./SidebarStore"
 import { Sidebar } from "./SidebarView"
 
 export class SidebarSplit {
@@ -37,16 +35,6 @@ export class SidebarSplit {
         })
 
         this._updateColors()
-    }
-
-    private _updateColors(): void {
-        this._store.dispatch({
-            type: "SET_COLORS",
-            backgroundColor: this._colors.getColor("sidebar.background"),
-            foregroundColor: this._colors.getColor("sidebar.foreground"),
-            borderColor : this._colors.getColor("sidebar.selection.border"),
-            activeColor : this._colors.getColor("sidebar.active.background"),
-        })
     }
 
     public enter(): void {
@@ -85,6 +73,16 @@ export class SidebarSplit {
         return <Provider store={this._store}>
                 <Sidebar onKeyDown={(key: string) => this._onKeyDown(key)} onEnter={this._onEnterEvent}/>
             </Provider>
+    }
+
+    private _updateColors(): void {
+        this._store.dispatch({
+            type: "SET_COLORS",
+            backgroundColor: this._colors.getColor("sidebar.background"),
+            foregroundColor: this._colors.getColor("sidebar.foreground"),
+            borderColor : this._colors.getColor("sidebar.selection.border"),
+            activeColor : this._colors.getColor("sidebar.active.background"),
+        })
     }
 
     private _onKeyDown(key: string): void {

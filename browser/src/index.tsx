@@ -68,6 +68,7 @@ const start = async (args: string[]): Promise<void> => {
 
     BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
 
+    // TODO: Can these be parallelized?
     await SharedNeovimInstance.activate()
     await UI.startEditors(parsedArgs._, Colors.getInstance())
 

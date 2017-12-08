@@ -16,15 +16,17 @@ import { INeovimStartOptions } from "./NeovimProcessSpawner"
 import { pluginManager } from "./../Plugins/PluginManager"
 import { commandManager } from "./../Services/CommandManager"
 
+import * as Log from "./../Log"
+
 export interface IBinding {
     input(key: string): Promise<void>
     release(): void
 }
 
 export interface IMenuBinding extends IBinding {
-    setItems(ids: string[], focusedId?: string): Promise<void>
-
     onCursorMoved: IEvent<string>
+
+    setItems(ids: string[], focusedId?: string): Promise<void>
 }
 
 export class Binding implements IBinding {
@@ -105,16 +107,16 @@ class SharedNeovimInstance implements SharedNeovimInstance {
     private _initPromise: Promise<void>
     private _neovimInstance: NeovimInstance
 
-    public bindToMenu(): IMenuBinding {
-        return new MenuBinding(this._neovimInstance)
-    }
-
     constructor() {
         this._neovimInstance = new NeovimInstance(5, 5)
 
         this._neovimInstance.onOniCommand.subscribe((command: string) => {
             commandManager.executeCommand(command)
         })
+    }
+
+    public bindToMenu(): IMenuBinding {
+        return new MenuBinding(this._neovimInstance)
     }
 
     public async start(): Promise<void> {
@@ -125,9 +127,9 @@ class SharedNeovimInstance implements SharedNeovimInstance {
 
         this._initPromise = this._neovimInstance.start(startOptions)
 
-        console.log("Starting SharedNeovimInstance...")
+        Log.info("[SharedNeovimInstance::start] Starting...")
         await this._initPromise
-        console.log("SharedNeovimInstance started!")
+        Log.info("[SharedNeovimInstance::start] Started successfully!")
     }
 }
 
