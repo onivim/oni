@@ -102,9 +102,11 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
     }
 }
 
+// Linear mapping of state -> tree
+
 const mapStateToProps = (state: IExplorerState): IExplorerViewProps => {
     return {
-        recentFiles: state.recentFiles,
+        recentFiles: state.openedFiles,
         workspaceRoot: state.rootFolder.fullPath,
     }
 }

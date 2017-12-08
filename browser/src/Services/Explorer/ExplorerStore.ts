@@ -41,14 +41,14 @@ export type FolderOrFile = IFolderState | IFileState
 
 export interface IExplorerState {
     // Recent
-    recentFiles: IRecentFile[]
+    openedFiles: IRecentFile[]
 
     // Open workspace
     rootFolder: IFolderState
 }
 
 export const DefaultExplorerState: IExplorerState = {
-    recentFiles: [
+    openedFiles: [
         { filePath: "File1.ts", modified: false },
         { filePath: "File2.ts", modified: false },
     ],
