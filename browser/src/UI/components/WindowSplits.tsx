@@ -32,7 +32,7 @@ export class Dock extends React.PureComponent<IDockProps, {}> {
     public render(): JSX.Element {
         const docks = this.props.splits.map((s) => <WindowSplitHost containerClassName="split" split={s} isFocused={this.props.activeSplit === s} />)
 
-        return <div className = "dock container fixed horizointal">
+        return <div className = "dock container fixed horizontal">
             {docks}
             </div>
     }
@@ -46,7 +46,7 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
         this.state = {
             activeSplit: props.windowManager.activeSplit,
             splitRoot: props.windowManager.splitRoot,
-            leftDock: props.windowManager.getDock(Direction.Left).splits,
+            leftDock: [...props.windowManager.getDock(Direction.Left).splits],
         }
     }
 
@@ -59,7 +59,13 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
 
         this.props.windowManager.getDock(Direction.Left).onSplitsChanged.subscribe(() => {
             this.setState({
-                leftDock: this.props.windowManager.getDock(Direction.Left).splits,
+                leftDock: [...this.props.windowManager.getDock(Direction.Left).splits],
+            })
+        })
+
+        this.props.windowManager.onActiveSplitChanged.subscribe((newSplit) => {
+            this.setState({
+                activeSplit: newSplit,
             })
         })
     }
