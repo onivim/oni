@@ -27,6 +27,11 @@
         "contextMenu.border": "#505050",
         "contextMenu.highlight": "#3F4652",
 
+        "sidebar.background": "#1E2127",
+        "sidebar.foreground": "#ABB2BF",
+        "sidebar.active.background": "#282C34",
+        "sidebar.selection.border": "#ABB2BF",
+
         "statusBar.background": "#282828",
         "statusBar.foreground": "#c8c8c8",
 

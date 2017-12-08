@@ -13,6 +13,8 @@ import { createStore } from "./SidebarStore"
 
 import { Event } from "oni-types"
 
+import { Colors } from "./../Colors"
+
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
 import { ISidebarState } from "./SidebarStore"
@@ -25,8 +27,18 @@ export class SidebarSplit {
     private _activeBinding: IMenuBinding = null
     private _store: Store<ISidebarState>
 
-    constructor() {
+    constructor(
+        private _colors: Colors,
+    ) {
         this._store = createStore()
+
+        this._store.dispatch({
+            type: "SET_COLORS",
+            backgroundColor: this._colors.getColor("sidebar.background"),
+            foregroundColor: this._colors.getColor("sidebar.foreground"),
+            borderColor : this._colors.getColor("sidebar.selection.border"),
+            activeColor : this._colors.getColor("sidebar.active.background"),
+        })
     }
 
     public enter(): void {
@@ -63,13 +75,11 @@ export class SidebarSplit {
 
     public render(): JSX.Element {
         return <Provider store={this._store}>
-                <Sidebar onKeyDown={(key) => this._onKeyDown(key)} onEnter={this._onEnterEvent}/>
+                <Sidebar onKeyDown={(key: string) => this._onKeyDown(key)} onEnter={this._onEnterEvent}/>
             </Provider>
     }
 
     private _onKeyDown(key: string): void {
-        console.log("key down!")
-
         if (this._activeBinding) {
             this._activeBinding.input(key)
         }

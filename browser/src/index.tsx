@@ -11,6 +11,7 @@ import { pluginManager } from "./Plugins/PluginManager"
 
 import * as AutoClosingPairs from "./Services/AutoClosingPairs"
 import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
+import * as Colors from "./Services/Colors"
 import * as BrowserWindowConfigurationSynchronizer from "./Services/BrowserWindowConfigurationSynchronizer"
 import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
@@ -49,7 +50,6 @@ const start = async (args: string[]): Promise<void> => {
     }
 
     configuration.start()
-    BrowserWindowConfigurationSynchronizer.activate(configuration)
 
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
@@ -60,10 +60,13 @@ const start = async (args: string[]): Promise<void> => {
 
     await Themes.activate(configuration)
 
+    Colors.activate(configuration, Themes.getThemeManagerInstance())
     UI.Actions.setColors(Themes.getThemeManagerInstance().getColors())
 
+    BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
+
     await SharedNeovimInstance.activate()
-    await UI.startEditors(parsedArgs._)
+    await UI.startEditors(parsedArgs._, Colors.getInstance())
 
     const api = pluginManager.startApi()
     configuration.activate(api)

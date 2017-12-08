@@ -19,11 +19,8 @@ require("./Sidebar.less") // tslint:disable-line
 export interface ISidebarIconProps {
     active: boolean
     iconName: string
-    focused: boolean
-}
-
-const UnfocusedContainerStyle = {
-    border: "1px solid transparent",
+    borderColor: string
+    backgroundColor: string
 }
 
 export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
@@ -31,11 +28,10 @@ export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
 
         const className = "sidebar-icon-container" + (this.props.active ? " active" : " inactive")
 
-        const focusedContainerStyle = {
-            border: "1px solid white",
+        const containerStyle = {
+            border: "1px solid " + this.props.borderColor,
+            backgroundColor: this.props.backgroundColor,
         }
-
-        const containerStyle = this.props.focused ? focusedContainerStyle : UnfocusedContainerStyle
 
         return <div className={className} tabIndex={0} style={containerStyle}>
                     <div className="sidebar-icon">
@@ -48,6 +44,8 @@ export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
 export interface ISidebarViewProps extends ISidebarContainerProps {
     backgroundColor: string
     foregroundColor: string
+    activeColor: string
+    borderColor: string
     width: string
     visible: boolean
     entries: ISidebarEntry[]
@@ -72,7 +70,11 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
             return null
         }
 
-        const icons = this.props.entries.map((e) => <SidebarIcon iconName={e.icon} active={e.id === this.props.activeEntryId} focused={e.id === this.props.focusedEntryId} />)
+        const icons = this.props.entries.map((e) => {
+            const isActive = e.id === this.props.activeEntryId
+            const isFocused = e.id === this.props.focusedEntryId
+            return <SidebarIcon iconName={e.icon} active={isActive} borderColor={isFocused ? this.props.borderColor : "transparent"} backgroundColor={isActive ? this.props.activeColor : "transparent"} />
+        })
 
         return <div className="sidebar enable-mouse" style={style}>
                 <div className="icons">
@@ -104,8 +106,10 @@ export const mapStateToProps = (state: ISidebarState, containerProps: ISidebarCo
         activeEntryId: state.activeEntryId,
         focusedEntryId: state.focusedEntryId,
         visible: true,
-        backgroundColor: "black",
-        foregroundColor: "white",
+        backgroundColor: state.backgroundColor,
+        foregroundColor: state.foregroundColor,
+        activeColor: state.activeColor,
+        borderColor: state.borderColor,
         width: "50px",
     }
 }

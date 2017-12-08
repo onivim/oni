@@ -46,7 +46,7 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
         this.state = {
             activeSplit: props.windowManager.activeSplit,
             splitRoot: props.windowManager.splitRoot,
-            leftDock: props.windowManager.getDock(Direction.Left).splits,
+            leftDock: [...props.windowManager.getDock(Direction.Left).splits],
         }
     }
 
@@ -59,7 +59,7 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
 
         this.props.windowManager.getDock(Direction.Left).onSplitsChanged.subscribe(() => {
             this.setState({
-                leftDock: this.props.windowManager.getDock(Direction.Left).splits,
+                leftDock: [...this.props.windowManager.getDock(Direction.Left).splits],
             })
         })
 

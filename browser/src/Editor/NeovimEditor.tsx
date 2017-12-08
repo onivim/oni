@@ -61,7 +61,6 @@ export class NeovimEditor extends Editor implements IEditor {
     private _screen: NeovimScreen
     private _completionMenu: CompletionMenu
     private _popupMenu: NeovimPopupMenu
-    private _colors: Colors // TODO: Factor this out to the UI 'Shell'
     private _errorInitializing: boolean = false
 
     private _pendingAnimationFrame: boolean = false
@@ -101,6 +100,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     constructor(
+        private _colors: Colors,
         private _config = configuration,
         private _themeManager = getThemeManagerInstance(),
     ) {
@@ -111,8 +111,6 @@ export class NeovimEditor extends Editor implements IEditor {
         this._neovimInstance = new NeovimInstance(100, 100)
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._screen = new NeovimScreen()
-
-        this._colors = new Colors(this._themeManager, this._config)
 
         this._hoverRenderer = new HoverRenderer(this, this._config)
 
@@ -346,11 +344,6 @@ export class NeovimEditor extends Editor implements IEditor {
         if (this._languageIntegration) {
             this._languageIntegration.dispose()
             this._languageIntegration = null
-        }
-
-        if (this._colors) {
-            this._colors.dispose()
-            this._colors = null
         }
 
         if (this._completion) {

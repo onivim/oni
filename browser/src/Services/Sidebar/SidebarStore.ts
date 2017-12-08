@@ -22,6 +22,11 @@ export interface ISidebarState {
     // Focused means that there is keyboard focus,
     // like 'hover' but for keyboard accessibility
     focusedEntryId: string
+
+    backgroundColor: string
+    foregroundColor: string
+    borderColor: string
+    activeColor: string
 }
 
 const DefaultSidebarState: ISidebarState = {
@@ -35,6 +40,11 @@ const DefaultSidebarState: ISidebarState = {
     ],
     activeEntryId: "sidebar.explorer",
     focusedEntryId: null,
+
+    backgroundColor: null,
+    foregroundColor: null,
+    borderColor: null,
+    activeColor: null,
 }
 
 export type SidebarActions = {
@@ -43,6 +53,12 @@ export type SidebarActions = {
 } | {
     type: "SET_FOCUSED_ID",
     focusedEntryId: string,
+} | {
+    type: "SET_COLORS",
+    backgroundColor: string,
+    foregroundColor: string,
+    borderColor: string,
+    activeColor: string,
 }
 
 export const sidebarReducer: Reducer<ISidebarState> = (
@@ -54,6 +70,14 @@ export const sidebarReducer: Reducer<ISidebarState> = (
             return {
                 ...state,
                 activeEntryId: action.activeEntryId,
+            }
+        case "SET_COLORS":
+            return {
+                ...state,
+                backgroundColor: action.backgroundColor,
+                foregroundColor: action.foregroundColor,
+                borderColor: action.borderColor,
+                activeColor: action.activeColor,
             }
         case "SET_FOCUSED_ID":
             return {
