@@ -196,6 +196,7 @@ export interface IConfigurationValues {
     "tabs.wrap": boolean
 
     "ui.animations.enabled": boolean
+    "ui.iconTheme": string
     "ui.colorscheme": string
     "ui.fontFamily": string
     "ui.fontSize": string

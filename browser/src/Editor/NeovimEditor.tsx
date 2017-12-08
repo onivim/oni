@@ -15,15 +15,11 @@ import { Observable } from "rxjs/Observable"
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import * as Oni from "oni-api"
+import { Event } from "oni-types"
 
 import * as Log from "./../Log"
 
-import {
-    EventContext,
-    INeovimStartOptions,
-    NeovimInstance,
-    NeovimWindowManager,
-} from "./../neovim"
+import { EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
@@ -35,16 +31,8 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { Completion } from "./../Services/Completion"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import {
-    addInsertModeLanguageFunctionality,
-    LanguageEditorIntegration,
-    languageManager,
-} from "./../Services/Language"
-import {
-    ISyntaxHighlighter,
-    NullSyntaxHighlighter,
-    SyntaxHighlighter,
-} from "./../Services/SyntaxHighlighting"
+import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, languageManager } from "./../Services/Language"
+import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
 import { getThemeManagerInstance } from "./../Services/Themes"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { workspace } from "./../Services/Workspace"
@@ -73,10 +61,11 @@ export class NeovimEditor extends Editor implements IEditor {
     private _screen: NeovimScreen
     private _completionMenu: CompletionMenu
     private _popupMenu: NeovimPopupMenu
-    private _colors: Colors // TODO: Factor this out to the UI 'Shell'
     private _errorInitializing: boolean = false
 
     private _pendingAnimationFrame: boolean = false
+
+    private _onEnterEvent: Event<void> = new Event<void>()
 
     private _modeChanged$: Observable<Oni.Vim.Mode>
     private _cursorMoved$: Observable<Oni.Cursor>
@@ -111,6 +100,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     constructor(
+        private _colors: Colors,
         private _config = configuration,
         private _themeManager = getThemeManagerInstance(),
     ) {
@@ -121,8 +111,6 @@ export class NeovimEditor extends Editor implements IEditor {
         this._neovimInstance = new NeovimInstance(100, 100)
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._screen = new NeovimScreen()
-
-        this._colors = new Colors(this._themeManager, this._config)
 
         this._hoverRenderer = new HoverRenderer(this, this._config)
 
@@ -380,11 +368,6 @@ export class NeovimEditor extends Editor implements IEditor {
             this._languageIntegration = null
         }
 
-        if (this._colors) {
-            this._colors.dispose()
-            this._colors = null
-        }
-
         if (this._completion) {
             this._completion.dispose()
             this._completion = null
@@ -396,6 +379,15 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._windowManager.dispose()
         this._windowManager = null
+    }
+
+    public enter(): void {
+        Log.info("[NeovimEditor::enter]")
+        this._onEnterEvent.dispatch()
+    }
+
+    public leave(): void {
+        Log.info("[NeovimEditor::leave]")
     }
 
     public async openFile(file: string): Promise<Oni.Buffer> {
@@ -462,19 +454,16 @@ export class NeovimEditor extends Editor implements IEditor {
             this._onKeyDown(key)
         }
 
-        return (
-            <NeovimSurface
-                renderer={this._renderer}
-                typingPrediction={this._typingPredictionManager}
-                neovimInstance={this._neovimInstance}
-                screen={this._screen}
-                onKeyDown={onKeyDown}
-                onBufferClose={onBufferClose}
-                onBufferSelect={onBufferSelect}
-                onTabClose={onTabClose}
-                onTabSelect={onTabSelect}
-            />
-        )
+        return <NeovimSurface renderer={this._renderer}
+            typingPrediction={this._typingPredictionManager}
+            neovimInstance={this._neovimInstance}
+            screen={this._screen}
+            onActivate={this._onEnterEvent}
+            onKeyDown={onKeyDown}
+            onBufferClose={onBufferClose}
+            onBufferSelect={onBufferSelect}
+            onTabClose={onTabClose}
+            onTabSelect={onTabSelect} />
     }
 
     private _onModeChanged(newMode: string): void {

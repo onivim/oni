@@ -9,7 +9,6 @@
         transform: translateX(0px);
     }
 
-
     display: flex;
     flex-direction: column;
 
@@ -17,17 +16,17 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        opacity: 0.2;
+        opacity: 0.5;
         outline: none;
 
         &.active {
+            .box-shadow;
             cursor: pointer;
             opacity: 0.75;
         }
 
         &.active:hover {
-            .box-shadow;
-            transform: translateY(2px);
+            transform: translateY(1px);
             opacity: 0.9;
         }
 
