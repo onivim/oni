@@ -14,6 +14,8 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 import { PluginIconThemeLoader } from "./IconThemeLoader"
 import { StyleWriter } from "./StyleWriter"
 
+import * as Utility from "./../../Utility"
+
 export interface IIconFontSource {
     path: string
     format: string
@@ -147,7 +149,7 @@ export class Icons {
             }
 
             const fontSrc = font.src[0]
-            const fontPath = path.join(path.dirname(loadResults.filePath), fontSrc.path)
+            const fontPath = Utility.normalizePath(path.join(path.dirname(loadResults.filePath), fontSrc.path))
             const fontFormat = fontSrc.format
 
             styleWriter.writeFontFace(font.id, fontPath, fontFormat)
