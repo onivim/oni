@@ -11,6 +11,7 @@ import { pluginManager } from "./Plugins/PluginManager"
 
 import * as AutoClosingPairs from "./Services/AutoClosingPairs"
 import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
+import * as Colors from "./Services/Colors"
 import * as BrowserWindowConfigurationSynchronizer from "./Services/BrowserWindowConfigurationSynchronizer"
 import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
@@ -19,6 +20,8 @@ import * as IconThemes from "./Services/IconThemes"
 import { inputManager } from "./Services/InputManager"
 import { languageManager } from "./Services/Language"
 import * as Themes from "./Services/Themes"
+
+import * as SharedNeovimInstance from "./neovim/SharedNeovimInstance"
 
 import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
@@ -48,7 +51,6 @@ const start = async (args: string[]): Promise<void> => {
     }
 
     configuration.start()
-    BrowserWindowConfigurationSynchronizer.activate(configuration)
 
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
@@ -61,9 +63,14 @@ const start = async (args: string[]): Promise<void> => {
     await Themes.activate(configuration)
     await IconThemes.activate(configuration, pluginManager)
 
+    Colors.activate(configuration, Themes.getThemeManagerInstance())
     UI.Actions.setColors(Themes.getThemeManagerInstance().getColors())
 
-    await UI.startEditors(parsedArgs._)
+    BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
+
+    // TODO: Can these be parallelized?
+    await SharedNeovimInstance.activate()
+    await UI.startEditors(parsedArgs._, Colors.getInstance())
 
     const api = pluginManager.startApi()
     configuration.activate(api)

@@ -19,6 +19,7 @@ import { reducer } from "./Reducer"
 import { getActiveDefinition } from "./selectors/DefinitionSelectors"
 import * as State from "./State"
 
+import { Colors } from "./../Services/Colors"
 import { editorManager } from "./../Services/EditorManager"
 import { focusManager } from "./../Services/FocusManager"
 import { listenForDiagnostics } from "./../Services/Language"
@@ -56,18 +57,17 @@ const updateViewport = () => {
 export const render = (_state: State.IState): void => {
     const hostElement = document.getElementById("host")
 
-    const leftDock = windowManager.getDock(2)
-    leftDock.addSplit(new SidebarSplit())
-
     ReactDOM.render(
         <Provider store={store}>
             <RootComponent windowManager={windowManager}/>
         </Provider>, hostElement)
 }
 
-export const startEditors = async (args: any): Promise<void> => {
-    const editor = new NeovimEditor()
+export const startEditors = async (args: any, colors: Colors): Promise<void> => {
+    const leftDock = windowManager.getDock(2)
+    leftDock.addSplit(new SidebarSplit(colors))
 
+    const editor = new NeovimEditor(colors)
     editorManager.setActiveEditor(editor)
     windowManager.split(0, editor)
 

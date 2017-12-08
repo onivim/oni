@@ -47,11 +47,13 @@ export interface IThemeColors {
     "menu.border": string
     "menu.highlight": string
 
-    "statusBar.background": string
-    "statusBar.foreground": string
-
     "sidebar.background": string
     "sidebar.foreground": string
+    "sidebar.active.background": string
+    "sidebar.selection.border": string
+
+    "statusBar.background": string
+    "statusBar.foreground": string
 
     "title.background": string
     "title.foreground": string
@@ -98,6 +100,11 @@ export const getColorsFromBackgroundAndForeground = (background: string, foregro
         "toolTip.background": background,
         "toolTip.foreground": foreground,
         "toolTip.border": borderColor,
+
+        "sidebar.background": shellBackground,
+        "sidebar.foreground": foreground,
+        "sidebar.active.background": background,
+        "sidebar.selection.border": borderColor,
 
         "tabs.background": background,
         "tabs.foreground": foreground,
@@ -173,8 +180,10 @@ export const DefaultThemeColors: IThemeColors = {
     "statusBar.background": StatusBarBackground,
     "statusBar.foreground": StatusBarForeground,
 
-    "sidebar.background": StatusBarBackground,
-    "sidebar.foreground": StatusBarForeground,
+    "sidebar.background": ColorBlack,
+    "sidebar.foreground": ColorWhite,
+    "sidebar.active.background": ColorBlack,
+    "sidebar.selection.border": ColorWhite,
 
     "tabs.background": ColorBlack,
     "tabs.foreground": ColorWhite,

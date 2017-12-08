@@ -4,20 +4,17 @@
  * Takes configuration settings, and applies them to the BrowserWindow
  */
 
-import * as Colors from "./Colors"
-import { Configuration, IConfigurationValues } from "./Configuration"
-
 import * as Color from "color"
-
 import { ipcRenderer, remote } from "electron"
 
-export const activate = (configuration: Configuration) => {
+import { Colors } from "./Colors"
+import { Configuration, IConfigurationValues } from "./Configuration"
+
+export const activate = (configuration: Configuration, colors: Colors) => {
     const browserWindow = remote.getCurrentWindow()
 
     let loadInitVim: boolean = false
     const maximizeScreenOnStart: boolean = false
-
-    const colors = Colors.getInstance()
 
     const onColorsChanged = () => {
         // TODO: Read from 'persisted setting' instead
