@@ -32,6 +32,14 @@ export class SidebarSplit {
     ) {
         this._store = createStore()
 
+        this._colors.onColorsChanged.subscribe(() => {
+            this._updateColors()
+        })
+
+        this._updateColors()
+    }
+
+    private _updateColors(): void {
         this._store.dispatch({
             type: "SET_COLORS",
             backgroundColor: this._colors.getColor("sidebar.background"),

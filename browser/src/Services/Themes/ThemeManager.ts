@@ -101,6 +101,11 @@ export const getColorsFromBackgroundAndForeground = (background: string, foregro
         "toolTip.foreground": foreground,
         "toolTip.border": borderColor,
 
+        "sidebar.background": shellBackground,
+        "sidebar.foreground": foreground,
+        "sidebar.active.background": background,
+        "sidebar.selection.border": borderColor,
+
         "tabs.background": background,
         "tabs.foreground": foreground,
 

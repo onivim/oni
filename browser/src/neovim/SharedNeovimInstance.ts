@@ -96,7 +96,7 @@ export class MenuBinding extends Binding implements IMenuBinding {
 
         await this.neovimInstance.request("nvim_buf_set_lines", [currentBufId, 0, bufferLength, false, elems])
 
-        await this.neovimInstance.request("nvim_win_set_cursor",[currentWinId, [idx, 1]] )
+        await this.neovimInstance.request("nvim_win_set_cursor", [currentWinId, [idx, 1]])
     }
 }
 
