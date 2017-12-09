@@ -7,9 +7,9 @@ import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
 
-// import { Event } from "oni-types"
+import { Event } from "oni-types"
 
-// import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
+import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
 // import { Colors } from "./../Colors"
 
@@ -59,10 +59,13 @@ export class RecentFileView extends React.PureComponent<IRecentFileViewProps, {}
 
 export class ExplorerSplit {
 
-    // private _onEnterEvent: Event<void> = new Event<void>()
+    private _onEnterEvent: Event<void> = new Event<void>()
 
     // private _activeBinding: IMenuBinding = null
+    private _activeBinding: IMenuBinding = null
     private _store: Store<IExplorerState>
+
+    
 
     constructor () {
         this._store = createStore()
@@ -87,7 +90,9 @@ export class ExplorerSplit {
 
     public enter(): void {
         console.log("File explorer - hello")
-        // this._onEnterEvent.dispatch()
+        this._onEnterEvent.dispatch()
+
+        this._activeBinding = getInstance().bindToMenu()
 
         // const state = this._store.getState()
         // this._store.dispatch({
@@ -108,6 +113,12 @@ export class ExplorerSplit {
 
     public leave(): void {
         console.log("File explorer - goodbye")
+
+        if (this._activeBinding) {
+            this._activeBinding.release()
+            this._activeBinding = null
+        }
+
         // if (this._activeBinding) {
         //     this._activeBinding.release()
         //     this._activeBinding = null
@@ -122,8 +133,14 @@ export class ExplorerSplit {
     public render(): JSX.Element {
 
         return <Provider store={this._store}>
-                <Explorer />
+                <Explorer onEnter={this._onEnterEvent} onKeyDown={(key: string) => this._onKeyDown(key)}/>
             </Provider>
+    }
+
+    private _onKeyDown(key: string): void {
+        if (this._activeBinding) {
+            this._activeBinding.input(key)
+        }
     }
 
     // private _updateColors(): void {

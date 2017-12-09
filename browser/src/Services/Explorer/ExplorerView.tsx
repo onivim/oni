@@ -5,6 +5,11 @@
 
 import * as React from "react"
 import { connect } from "react-redux"
+
+import { IEvent } from "oni-types"
+
+import { KeyboardInputView } from "./../../Editor/KeyboardInput"
+
 import { FileIcon } from "./../FileIcon"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
@@ -74,7 +79,12 @@ export class ContainerView extends React.PureComponent<IContainerViewProps, {}> 
     }
 }
 
-export interface IExplorerViewProps {
+export interface IExplorerContainerProps {
+    onEnter: IEvent<void>
+    onKeyDown: (key: string) => void
+}
+
+export interface IExplorerViewProps extends IExplorerContainerProps {
     nodes: ExplorerSelectors.ExplorerNode[]
     // recentFiles: IRecentFile[]
     // workspaceRoot: string
@@ -100,8 +110,6 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
             fontFamily: "Segoe UI",
         }
 
-        // const recentFiles = this.props.recentFiles.map((rf) => <RecentFileView fileName={rf.filePath} />)
-
         const nodes = this.props.nodes.map((node) => <NodeView node={node} />)
 
         return <div style={containerStyle} className="explorer enable-mouse">
@@ -109,14 +117,27 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                 <div className="items">
                     {nodes}
                 </div>
+                <div className="input">
+                    <KeyboardInputView
+                        top={0}
+                        left={0}
+                        height={12}
+                        onActivate={this.props.onEnter}
+                        onKeyDown={this.props.onKeyDown}
+                        foregroundColor={"white"}
+                        fontFamily={"Segoe UI"}
+                        fontSize={"12px"}
+                        fontCharacterWidthInPixels={12}
+
+                        />
+                </div>
             </div>
     }
 }
 
-// Linear mapping of state -> tree
-
-const mapStateToProps = (state: IExplorerState): IExplorerViewProps => {
+const mapStateToProps = (state: IExplorerState, containerProps: IExplorerContainerProps): IExplorerViewProps => {
     return {
+        ...containerProps,
         nodes: ExplorerSelectors.mapStateToNodeList(state)
     }
 }
