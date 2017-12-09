@@ -22,7 +22,7 @@ import * as Coordinates from "./Coordinates"
 import * as UI from "./index"
 import * as State from "./State"
 
-import { Buffers, EventContext } from "./../neovim"
+import { EventContext, InactiveBufferContext } from "./../neovim"
 import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
 
@@ -82,18 +82,18 @@ export const setCursorScale = (cursorScale: number) => ({
     },
 })
 
-const formatBuffers = (buffer: EventContext) => {
+const formatBuffers = (buffer: any) => {
     return {
         id: buffer.bufferNumber,
         file: buffer.bufferFullPath ? normalizePath(buffer.bufferFullPath) : "",
+        totalLines: buffer.bufferTotalLines ? buffer.bufferTotalLines : null,
         language: buffer.filetype,
-        totalLines: buffer.bufferTotalLines,
         hidden: buffer.hidden,
         listed: buffer.listed,
     }
 }
 
-export const bufferEnter = (buffers: Buffers) => ({
+export const bufferEnter = (buffers: (Array<InactiveBufferContext | EventContext>)) => ({
     type: "BUFFER_ENTER",
     payload: {
         buffers: buffers.map(formatBuffers),

@@ -19,7 +19,7 @@ import { Event } from "oni-types"
 
 import * as Log from "./../Log"
 
-import { Buffers, EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
+import { BufferEventContext, EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
 
@@ -513,11 +513,11 @@ export class NeovimEditor extends Editor implements IEditor {
         )
     }
 
-    private async _onBufEnter(evt: Buffers): Promise<void> {
-        const currentBuffer = Array.isArray(evt) ? evt[0] : evt
-        this._updateWindow(currentBuffer as EventContext)
+    private async _onBufEnter(evt: BufferEventContext): Promise<void> {
+        console.log('evt =================================: ', evt);
+        this._updateWindow(evt.current)
         const lastBuffer = this.activeBuffer
-        const buf = this._bufferManager.updateBufferFromEvent(currentBuffer as EventContext)
+        const buf = this._bufferManager.updateBufferFromEvent(evt.current)
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
             this.notifyBufferLeave({
                 filePath: lastBuffer.filePath,
@@ -525,12 +525,12 @@ export class NeovimEditor extends Editor implements IEditor {
             })
         }
 
-        this._lastBufferId = currentBuffer.bufferNumber.toString()
+        this._lastBufferId = evt.current.bufferNumber.toString()
         this.notifyBufferEnter(buf)
 
         // Filter out falsy viml values, if event is a buffer object return it in an array
         // otherwise return an array of buffer objects
-        const buffers = Array.isArray(evt) ? evt.filter(b => !!b) : [evt]
+        const buffers = [evt.current, ...evt.existingBuffers].filter(b => !!b)
 
         UI.Actions.bufferEnter(buffers)
     }
@@ -546,9 +546,8 @@ export class NeovimEditor extends Editor implements IEditor {
         })
     }
 
-    private async _onBufWipeout(evt: Buffers): Promise<void> {
-        const currentBuffer = Array.isArray(evt) ? evt[0] : evt
-        this._updateWindow(currentBuffer as EventContext)
+    private async _onBufWipeout(evt: BufferEventContext): Promise<void> {
+        this._updateWindow(evt.current)
         this._neovimInstance
             .getBufferIds()
             .then(ids => UI.Actions.setCurrentBuffers(ids))

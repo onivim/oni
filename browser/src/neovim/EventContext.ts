@@ -29,7 +29,7 @@ export interface EventContext {
     windowHeight: number
 }
 
-export interface BufferEventContext {
+export interface InactiveBufferContext {
     bufferNumber: number
     bufferFullPath: string
     filetype: string
@@ -38,7 +38,9 @@ export interface BufferEventContext {
     hidden: boolean
     listed: boolean
     version: number
-
 }
 
-export type Buffers = Array<BufferEventContext|EventContext>
+export interface BufferEventContext {
+    current: EventContext
+    existingBuffers: InactiveBufferContext[]
+}

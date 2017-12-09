@@ -14,7 +14,7 @@ import * as isEqual from "lodash/isEqual"
 
 import * as types from "vscode-languageserver-types"
 
-import { Buffers, EventContext } from "./EventContext"
+import { EventContext } from "./EventContext"
 import { NeovimInstance } from "./index"
 
 import * as Log from "./../Log"
@@ -23,7 +23,7 @@ import * as Utility from "./../Utility"
 
 export class NeovimWindowManager {
 
-    private _scrollObservable: Subject<EventContext | Buffers>
+    private _scrollObservable: Subject<EventContext>
 
     constructor(
         private _neovimInstance: NeovimInstance,
@@ -31,9 +31,9 @@ export class NeovimWindowManager {
 
         this._scrollObservable = new Subject<EventContext>()
 
-        const updateScroll = (evt: EventContext | Buffers) => this._scrollObservable.next(evt)
+        const updateScroll = (evt: EventContext) => this._scrollObservable.next(evt)
         // First element of the BufEnter event is the current buffer
-        this._neovimInstance.autoCommands.onBufEnter.subscribe(updateScroll)
+        this._neovimInstance.autoCommands.onBufEnter.subscribe((bufs) => updateScroll(bufs.current))
         this._neovimInstance.autoCommands.onBufWinEnter.subscribe(updateScroll)
         this._neovimInstance.onBufferUpdate.subscribe((buf) => updateScroll(buf.context))
         this._neovimInstance.autoCommands.onWinEnter.subscribe(updateScroll)

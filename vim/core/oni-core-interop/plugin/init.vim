@@ -18,8 +18,9 @@ function OniNotifyWithBuffers(eventName)
     " due to viml's implicit returns if a conditional fails
     let l:allBufs = OniGetAllBuffers()
     let l:current = OniGetContext()
-    let l:context = [l:current]
-    let l:context += l:allBufs
+    let l:context = {}
+    let l:context.current = l:current
+    let l:context.existingBuffers = l:allBufs
     call OniNotify(["event", a:eventName, l:context])
 endfunction
 
@@ -180,7 +181,7 @@ function OniConnect()
     " Force BufEnter and buffer update events to be dispatched on connection
     " Otherwise, there can be race conditions where the buffer is loaded
     " prior to the UI attaching. See #122
-    call OniNotifyEvent("BufEnter")
+    call OniNotifyWithBuffers("BufEnter")
     call OniNotifyBufferUpdate()
 endfunction
 
