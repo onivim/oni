@@ -81,7 +81,7 @@ To enable key repeat when pressing & holding a key in Oni, write the following i
 defaults write com.extropy.oni ApplePressAndHoldEnabled -bool false
 ```
 
-> You may want to add /Applications/Oni.app/Contents/MacOS/ to your $PATH, so that from the console, you can open Oni via `Oni`
+> You can invoke `oni` from your terminal after adding it to your PATH, though CMD-Shift-P > Add to Path
 
 ### Linux
 
