@@ -54,7 +54,10 @@ export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
 
     const expandedTree = flattenFolderTree(state.rootFolder, [], state.expandedFolders)
 
-    ret = [...ret, ...expandedTree]
+    // The root node is included in the output, so we'll remove it
+    const [, ...remainingTree] = expandedTree
+
+    ret = [...ret, ...remainingTree]
     return ret
 }
 

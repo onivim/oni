@@ -10,32 +10,17 @@ import { FileIcon } from "./../FileIcon"
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { IExplorerState } from "./ExplorerStore"
 
+require("./Explorer.less") // tslint:disable-line
+
 export interface IFileViewProps {
     fileName: string
 }
 
 export class FileView extends React.PureComponent<IFileViewProps, {}> {
     public render(): JSX.Element {
-        const containerStyle: React.CSSProperties = {
-            padding: "4px",
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-        }
-
-        const fileIconStyle: React.CSSProperties = {
-            flex: "0 0 auto",
-            width: "20px",
-        }
-
-        const textStyle: React.CSSProperties = {
-            flex: "1 1 auto"
-        }
-
-        return <div style={containerStyle}>
-                <div style={fileIconStyle}><FileIcon fileName={this.props.fileName} isLarge={true}/></div>
-                <div style={textStyle}>{this.props.fileName}</div>
+        return <div className="item">
+                <div className="icon"><FileIcon fileName={this.props.fileName} isLarge={true}/></div>
+                <div className="name">{this.props.fileName}</div>
             </div>
     }
 }
@@ -52,7 +37,9 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
             case "file":
                 return <FileView fileName={node.filePath} />
             case "container":
-                return <ContainerView expanded={node.expanded} name={node.name} />
+                return <ContainerView expanded={node.expanded} name={node.name} isContainer={true}/>
+            case "folder":
+                return <ContainerView expanded={node.expanded} name={node.folderPath} isContainer={false}/>
             default:
                 return <div>{JSON.stringify(node)}</div>
         }
@@ -60,6 +47,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 }
 
 export interface IContainerViewProps {
+    isContainer: boolean
     expanded: boolean
     name: string
 }
@@ -73,12 +61,15 @@ export class ContainerView extends React.PureComponent<IContainerViewProps, {}> 
             // padding: "8px",
         }
 
-        const iconStyle = {
-            margin: "4px",
-        }
-        return <div style={headerStyle}>
-            <i style={iconStyle} className="fa fa-caret-right" />
-            <span>{this.props.name}</span>
+        const style = this.props.isContainer ? headerStyle : null
+
+        return <div className="item" style={style}>
+            <div className="icon">
+                <i className="fa fa-caret-right" />
+            </div>
+            <div className="name">
+                {this.props.name}
+            </div>
         </div>
     }
 }
@@ -113,9 +104,9 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 
         const nodes = this.props.nodes.map((node) => <NodeView node={node} />)
 
-        return <div style={containerStyle} className="enable-mouse">
-                <div style={tabStyle}>Explorer</div>
-                <div>
+        return <div style={containerStyle} className="explorer enable-mouse">
+                <div className="header" style={tabStyle}>Explorer</div>
+                <div className="items">
                     {nodes}
                 </div>
             </div>
