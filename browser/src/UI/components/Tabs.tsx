@@ -15,6 +15,7 @@ import * as State from "./../State"
 import { Icon } from "./../../UI/Icon"
 
 import { FileIcon } from "./../../Services/FileIcon"
+import { addDefaultUnitIfNeeded } from "./../../Font"
 
 require("./Tabs.less") // tslint:disable-line no-var-requires
 
@@ -219,7 +220,7 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
 
     return {
         fontFamily: state.configuration["ui.fontFamily"],
-        fontSize: state.configuration["ui.fontSize"],
+        fontSize: addDefaultUnitIfNeeded(state.configuration["ui.fontSize"]),
         backgroundColor: state.colors["tabs.background"],
         foregroundColor: state.colors["tabs.foreground"],
         onSelect: selectFunc,

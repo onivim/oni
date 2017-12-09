@@ -14,6 +14,8 @@ import * as State from "./../State"
 
 import { ITypingPrediction, TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
+import { addDefaultUnitIfNeeded } from "./../../Font"
+
 export interface ITypingPredictionProps {
     typingPrediction: TypingPredictionManager
 }
@@ -120,7 +122,7 @@ const mapStateToProps = (state: State.IState, props: ITypingPredictionProps): IT
         color: state.colors["editor.background"],
         textColor: state.colors["editor.foreground"],
         fontFamily: State.readConf(state.configuration, "editor.fontFamily"),
-        fontSize: State.readConf(state.configuration, "editor.fontSize"),
+        fontSize: addDefaultUnitIfNeeded(State.readConf(state.configuration, "editor.fontSize")),
         visible: true,
     }
 }

@@ -10,7 +10,7 @@ import * as Log from "./../Log"
 import { EventContext } from "./EventContext"
 
 import * as Actions from "./../actions"
-import { measureFont } from "./../Font"
+import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
 import * as Platform from "./../Platform"
 import { IPixelPosition, IPosition } from "./../Screen"
 import { configuration } from "./../Services/Configuration"
@@ -152,7 +152,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _autoCommands: NeovimAutoCommands
 
     private _fontFamily: string = this._config.getValue("editor.fontFamily")
-    private _fontSize: string = this._config.getValue("editor.fontSize")
+    private _fontSize: string = addDefaultUnitIfNeeded(this._config.getValue("editor.fontSize"))
     private _fontWidthInPixels: number
     private _fontHeightInPixels: number
 
