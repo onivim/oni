@@ -104,6 +104,12 @@ export class ExplorerSplit {
         this._activeBinding.setItems(items)
 
         this._activeBinding.onCursorMoved.subscribe((id: string) => {
+
+            this._store.dispatch({
+                type: "SET_SELECTED_ID",
+                selectedId: id,
+            })
+
             console.log("SELECTED: " + id)
         })
 

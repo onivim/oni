@@ -19,11 +19,16 @@ require("./Explorer.less") // tslint:disable-line
 
 export interface IFileViewProps {
     fileName: string
+    isSelected: boolean
 }
 
 export class FileView extends React.PureComponent<IFileViewProps, {}> {
     public render(): JSX.Element {
-        return <div className="item">
+        const style = {
+            borderLeft: this.props.isSelected ? "4px solid rgb(97, 175, 239)" : "4px solid transparent",
+            backgroundColor: this.props.isSelected ? "rgba(97, 175, 239, 0.1)" : "transparent",
+        }
+        return <div className="item" style={style}>
                 <div className="icon"><FileIcon fileName={this.props.fileName} isLarge={true}/></div>
                 <div className="name">{this.props.fileName}</div>
             </div>
@@ -32,6 +37,7 @@ export class FileView extends React.PureComponent<IFileViewProps, {}> {
 
 export interface INodeViewProps {
     node: ExplorerSelectors.ExplorerNode
+    isSelected: boolean
 }
 
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
@@ -40,11 +46,11 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 
         switch (node.type) {
             case "file":
-                return <FileView fileName={node.filePath} />
+                return <FileView fileName={node.filePath} isSelected={this.props.isSelected}/>
             case "container":
-                return <ContainerView expanded={node.expanded} name={node.name} isContainer={true}/>
+                return <ContainerView expanded={node.expanded} name={node.name} isContainer={true} isSelected={this.props.isSelected}/>
             case "folder":
-                return <ContainerView expanded={node.expanded} name={node.folderPath} isContainer={false}/>
+                return <ContainerView expanded={node.expanded} name={node.folderPath} isContainer={false} isSelected={this.props.isSelected}/>
             default:
                 return <div>{JSON.stringify(node)}</div>
         }
@@ -55,20 +61,17 @@ export interface IContainerViewProps {
     isContainer: boolean
     expanded: boolean
     name: string
+    isSelected: boolean
 }
 
 export class ContainerView extends React.PureComponent<IContainerViewProps, {}> {
     public render(): JSX.Element {
-        
         const headerStyle = {
-            // boxShadow: "inset 0px 1px 8px 1px rgba(0, 0, 0, 0.1), inset 0px -1px 8px 1px rgba(0, 0, 0, 0.1)",
-            backgroundColor: "#1e2127",
-            // padding: "8px",
+            backgroundColor: this.props.isContainer ? "#1e2127" : "transparent",
+            borderLeft: this.props.isSelected ? "4px solid rgb(97, 175, 239)" : "4px solid transparent",
         }
 
-        const style = this.props.isContainer ? headerStyle : null
-
-        return <div className="item" style={style}>
+        return <div className="item" style={headerStyle}>
             <div className="icon">
                 <i className="fa fa-caret-right" />
             </div>
@@ -86,6 +89,7 @@ export interface IExplorerContainerProps {
 
 export interface IExplorerViewProps extends IExplorerContainerProps {
     nodes: ExplorerSelectors.ExplorerNode[]
+    selectedId: string
     // recentFiles: IRecentFile[]
     // workspaceRoot: string
 }
@@ -110,7 +114,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
             fontFamily: "Segoe UI",
         }
 
-        const nodes = this.props.nodes.map((node) => <NodeView node={node} />)
+        const nodes = this.props.nodes.map((node) => <NodeView node={node} isSelected={node.id === this.props.selectedId}/>)
 
         return <div style={containerStyle} className="explorer enable-mouse">
                 <div className="header" style={tabStyle}>Explorer</div>
@@ -138,7 +142,8 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 const mapStateToProps = (state: IExplorerState, containerProps: IExplorerContainerProps): IExplorerViewProps => {
     return {
         ...containerProps,
-        nodes: ExplorerSelectors.mapStateToNodeList(state)
+        nodes: ExplorerSelectors.mapStateToNodeList(state),
+        selectedId: state.selectedId,
     }
 }
 

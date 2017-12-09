@@ -43,6 +43,8 @@ export interface IExplorerState {
     rootFolder: IFolderState
 
     expandedFolders: ExpandedFolders
+
+    selectedId: string
 }
 
 export const DefaultExplorerState: IExplorerState = {
@@ -52,6 +54,7 @@ export const DefaultExplorerState: IExplorerState = {
     ],
     rootFolder: null,
     expandedFolders: {},
+    selectedId: "explorer",
 }
 
 export type ExplorerAction = {
@@ -64,6 +67,9 @@ export type ExplorerAction = {
     type: "EXPAND_DIRECTORY_RESULT",
     directoryPath: string,
     children: FolderOrFile[]
+} | {
+    type: "SET_SELECTED_ID",
+    selectedId: string
 }
  
 export const rootFolderReducer: Reducer<IFolderState> = (
@@ -100,6 +106,18 @@ export const expandedFolderReducer: Reducer<ExpandedFolders> = (
     }
 }
 
+export const selectedIdReducer: Reducer<string> = (
+    state: string = null,
+    action: ExplorerAction,
+) => {
+    switch (action.type) {
+        case "SET_SELECTED_ID":
+            return action.selectedId
+        default:
+            return state
+    }
+}
+
 export const reducer: Reducer<IExplorerState> = (
     state: IExplorerState = DefaultExplorerState,
     action: ExplorerAction,
@@ -108,6 +126,7 @@ export const reducer: Reducer<IExplorerState> = (
         ...state,
         rootFolder: rootFolderReducer(state.rootFolder, action),
         expandedFolders: expandedFolderReducer(state.expandedFolders, action),
+        selectedId: selectedIdReducer(state.selectedId, action),
     }
 }
 
