@@ -7,6 +7,7 @@ import * as React from "react"
 import { connect } from "react-redux"
 
 import { IState, StatusBarAlignment } from "./../State"
+
 import { addDefaultUnitIfNeeded } from "./../../Font"
 
 require("./StatusBar.less") // tslint:disable-line no-var-requires

@@ -12,10 +12,11 @@ import * as classNames from "classnames"
 import * as BufferSelectors from "./../selectors/BufferSelectors"
 import * as State from "./../State"
 
+import { addDefaultUnitIfNeeded } from "./../../Font"
+
 import { Icon } from "./../../UI/Icon"
 
 import { FileIcon } from "./../../Services/FileIcon"
-import { addDefaultUnitIfNeeded } from "./../../Font"
 
 require("./Tabs.less") // tslint:disable-line no-var-requires
 
