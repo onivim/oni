@@ -2,7 +2,6 @@ const fs = require("fs");
 const path = require("path");
 
 const activate = (Oni) => {
-
     const gitBranchIndicator = Oni.statusBar.createItem(0, -3);
 
     const pathIsDir = (p) => {
@@ -18,6 +17,7 @@ const activate = (Oni) => {
     };
 
     const updateBranchIndicator = (evt) => {
+        console.log('Update indicator ====================================: ', evt);
         pathIsDir(evt.bufferFullPath)
         .then((isDir) => {
             dir = null;
@@ -40,7 +40,15 @@ const activate = (Oni) => {
         });
     };
 
-    Oni.on("buffer-enter", updateBranchIndicator);
+    // Oni.on("buffer-enter", updateBranchIndicator);
+    console.log(' updateBranchIndicator: ', updateBranchIndicator);
+    console.log('Oni in [PLUGIN]!!!!!!!: ', Oni);
+    console.log(' gitBranchIndicator: ', gitBranchIndicator);
+
+    Oni.editors.allEditors.onBufferEnter.subscribe((evt) => {
+        console.log('event: ', event);
+        return updateBranchIndicator(evt);
+    });
 };
 
 module.exports = {

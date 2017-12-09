@@ -222,7 +222,8 @@ export const hideMessageDialog = (): Actions.IHideMessageDialog => ({
 })
 
 export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-
+    console.log('id: ', id);
+    console.log('contents: ', contents);
     const currentStatusBarItem = getState().statusBar[id]
 
     if (currentStatusBarItem) {
