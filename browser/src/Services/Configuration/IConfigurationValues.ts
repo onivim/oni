@@ -187,6 +187,10 @@ export interface IConfigurationValues {
     // Height of individual tabs in the tab strip
     "tabs.height": string
 
+    // Whether or not to render a highlight on the top of the tab
+    // (mode highlight)
+    "tabs.highlight": boolean
+
     // Maximum width of a tab
     "tabs.maxWidth": string
 

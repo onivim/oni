@@ -28,3 +28,17 @@ export interface EventContext {
     windowWidth: number
     windowHeight: number
 }
+
+export interface BufferEventContext {
+    bufferNumber: number
+    bufferFullPath: string
+    filetype: string
+    buftype: string
+    modified: boolean
+    hidden: boolean
+    listed: boolean
+    version: number
+
+}
+
+export type Buffers = Array<BufferEventContext|EventContext>

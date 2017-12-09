@@ -22,6 +22,7 @@ import * as Coordinates from "./Coordinates"
 import * as UI from "./index"
 import * as State from "./State"
 
+import { Buffers, EventContext } from "./../neovim"
 import { IScreen } from "./../Screen"
 import { normalizePath } from "./../Utility"
 
@@ -81,16 +82,7 @@ export const setCursorScale = (cursorScale: number) => ({
     },
 })
 
-export interface IRawBuffer {
-    bufferNumber: number
-    bufferFullPath: string
-    bufferTotalLines: number
-    filetype: string
-    hidden: number
-    listed: number
-}
-
-const formatBuffers = (buffer: IRawBuffer) => {
+const formatBuffers = (buffer: EventContext) => {
     return {
         id: buffer.bufferNumber,
         file: buffer.bufferFullPath ? normalizePath(buffer.bufferFullPath) : "",
@@ -101,7 +93,7 @@ const formatBuffers = (buffer: IRawBuffer) => {
     }
 }
 
-export const bufferEnter = (buffers: IRawBuffer[]) => ({
+export const bufferEnter = (buffers: Buffers) => ({
     type: "BUFFER_ENTER",
     payload: {
         buffers: buffers.map(formatBuffers),

@@ -7,12 +7,13 @@
 
 import { Event, IEvent } from "oni-types"
 
-import { EventContext } from "./EventContext"
+import { Buffers, EventContext } from "./EventContext"
 import { NeovimInstance } from "./NeovimInstance"
 
 export interface INeovimAutoCommands {
     // Autocommands
-    onBufEnter: IEvent<EventContext>
+    onBufEnter: IEvent<Buffers>
+    onBufWipeout: IEvent<Buffers>
     onBufWinEnter: IEvent<EventContext>
     onWinEnter: IEvent<EventContext>
     onCursorMoved: IEvent<EventContext>
@@ -24,20 +25,25 @@ export interface INeovimAutoCommands {
 
 export class NeovimAutoCommands {
     // Autocommand events
-    private _nameToEvent: { [key: string]: Event<EventContext> }
-    private _onBufEnterEvent = new Event<EventContext>()
+    private _nameToEvent: { [key: string]: Event<EventContext | Buffers> }
+    private _onBufEnterEvent = new Event<Buffers>()
+    private _onBufWipeoutEvent = new Event<Buffers>()
     private _onBufWinEnterEvent = new Event<EventContext>()
     private _onWinEnterEvent = new Event<EventContext>()
     private _onCursorMovedEvent = new Event<EventContext>()
     private _onCursorMovedIEvent = new Event<EventContext>()
     private _onVimResizedEvent = new Event<EventContext>()
 
-    public get onBufEnter(): IEvent<EventContext> {
+    public get onBufEnter(): IEvent<Buffers> {
         return this._onBufEnterEvent
     }
 
     public get onBufWinEnter(): IEvent<EventContext> {
         return this._onBufWinEnterEvent
+    }
+
+    public get onBufWipeout(): IEvent<Buffers> {
+        return this._onBufWipeoutEvent
     }
 
     public get onWinEnter(): IEvent<EventContext> {
@@ -60,6 +66,7 @@ export class NeovimAutoCommands {
         this._nameToEvent = {
             "BufEnter": this._onBufEnterEvent,
             "BufWinEnter": this._onBufWinEnterEvent,
+            "BufWipeout": this._onBufWipeoutEvent,
             "CursorMoved": this._onCursorMovedEvent,
             "CursorMovedI": this._onCursorMovedIEvent,
             "WinEnter": this._onWinEnterEvent,
