@@ -465,15 +465,15 @@ export class NeovimEditor extends Editor implements IEditor {
         }
 
         return <NeovimSurface renderer={this._renderer}
-            typingPrediction={this._typingPredictionManager}
-            neovimInstance={this._neovimInstance}
-            screen={this._screen}
-            onActivate={this._onEnterEvent}
-            onKeyDown={onKeyDown}
-            onBufferClose={onBufferClose}
-            onBufferSelect={onBufferSelect}
-            onTabClose={onTabClose}
-            onTabSelect={onTabSelect} />
+                    typingPrediction={this._typingPredictionManager}
+                    neovimInstance={this._neovimInstance}
+                    screen={this._screen}
+                    onActivate={this._onEnterEvent}
+                    onKeyDown={onKeyDown}
+                    onBufferClose={onBufferClose}
+                    onBufferSelect={onBufferSelect}
+                    onTabClose={onTabClose}
+                    onTabSelect={onTabSelect} />
     }
 
     private _onModeChanged(newMode: string): void {
