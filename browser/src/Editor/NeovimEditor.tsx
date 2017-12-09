@@ -172,7 +172,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => {
-            switch(eventName){
+            switch (eventName) {
                 case "BufEnter":
                     this._onBufEnter(evt)
                     break
@@ -530,7 +530,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         // Filter out falsy viml values, if event is a buffer object return it in an array
         // otherwise return an array of buffer objects
-        const buffers = evt.filter(b => !!b)
+        const buffers = Array.isArray(evt) ? evt.filter(b => !!b) : [evt]
 
         UI.Actions.bufferEnter(buffers)
     }
