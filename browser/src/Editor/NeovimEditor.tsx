@@ -445,7 +445,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     public render(): JSX.Element {
         const onBufferClose = (bufferId: number) => {
-            this._neovimInstance.command(`bw ${bufferId}`)
+            this._neovimInstance.command(`bw! ${bufferId}`)
         }
 
         const onBufferSelect = (bufferId: number) => {
@@ -514,7 +514,6 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
-        console.log('evt =================================: ', evt);
         this._updateWindow(evt.current)
         const lastBuffer = this.activeBuffer
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
@@ -528,9 +527,11 @@ export class NeovimEditor extends Editor implements IEditor {
         this._lastBufferId = evt.current.bufferNumber.toString()
         this.notifyBufferEnter(buf)
 
-        // Filter out falsy viml values, if event is a buffer object return it in an array
-        // otherwise return an array of buffer objects
-        const buffers = [evt.current, ...evt.existingBuffers].filter(b => !!b)
+        // Existing buffers contains a duplicate current buffer object which should be filterd out
+        // and current buffer sent instead.
+        const existingBuffersWithoutCurrent = evt.existingBuffers.filter(b => b.bufferNumber !== evt.current.bufferNumber)
+        // Filter out falsy viml values
+        const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
 
         UI.Actions.bufferEnter(buffers)
     }

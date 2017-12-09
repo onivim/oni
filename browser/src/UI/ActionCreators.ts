@@ -82,7 +82,7 @@ export const setCursorScale = (cursorScale: number) => ({
     },
 })
 
-const formatBuffers = (buffer: any) => {
+const formatBuffers = (buffer: InactiveBufferContext & EventContext) => {
     return {
         id: buffer.bufferNumber,
         file: buffer.bufferFullPath ? normalizePath(buffer.bufferFullPath) : "",
