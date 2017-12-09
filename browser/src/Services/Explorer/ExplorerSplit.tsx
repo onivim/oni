@@ -19,6 +19,7 @@ import { createStore, IExplorerState } from "./ExplorerStore"
 import { FileIcon } from "./../FileIcon"
 
 import { Explorer } from "./ExplorerView"
+import * as ExplorerSelectors from "./ExplorerSelectors"
 
 export interface IRecentFileViewProps {
     fileName: string
@@ -93,6 +94,18 @@ export class ExplorerSplit {
         this._onEnterEvent.dispatch()
 
         this._activeBinding = getInstance().bindToMenu()
+
+        const state = this._store.getState()
+
+        const flattenedState = ExplorerSelectors.mapStateToNodeList(state)
+
+        const items = flattenedState.map((fs) => fs.id)
+
+        this._activeBinding.setItems(items)
+
+        this._activeBinding.onCursorMoved.subscribe((id: string) => {
+            console.log("SELECTED: " + id)
+        })
 
         // const state = this._store.getState()
         // this._store.dispatch({
