@@ -1,54 +1,54 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
+const { promisify } = require('util');
+const fsStat = promisify(fs.stat);
 
 const activate = (Oni) => {
-    const gitBranchIndicator = Oni.statusBar.createItem(0, -3);
+    const React = Oni.dependencies.React;
+    try {
+        const gitBranchIndicator = Oni.statusBar.createItem(1, -3, 'oni-plugin-git');
 
-    const pathIsDir = (p) => {
-        return new Promise((resolve, reject) => {
-            fs.stat(p, (error, stats) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(stats.isDirectory());
-                }
-            });
-        })
-    };
-
-    const updateBranchIndicator = (evt) => {
-        console.log('Update indicator ====================================: ', evt);
-        pathIsDir(evt.bufferFullPath)
-        .then((isDir) => {
-            dir = null;
-            if (isDir) {
-                dir = evt.bufferFullPath;
-            } else {
-                dir = path.dirname(evt.bufferFullPath);
+        const pathIsDir = async (p) => {
+            try {
+                const stats = await fsStat(p);
+                return stats.isDirectory();
+            } catch(error) {
+                return error;
             }
-            return Oni.services.git.getBranch(dir);
-        })
-        .then((branchName) => {
-            const React = Oni.dependencies.React;
-            const branchIcon = Oni.ui.createIcon({ name: "code-fork", size: Oni.ui.iconSize.Large });
-            const gitBranch  = React.createElement("div", null, branchIcon, " " + branchName);
-            gitBranchIndicator.setContents(gitBranch);
-            gitBranchIndicator.show();
-        })
-        .catch((error) => {
-            gitBranchIndicator.hide();
-        });
-    };
+        };
 
-    // Oni.on("buffer-enter", updateBranchIndicator);
-    console.log(' updateBranchIndicator: ', updateBranchIndicator);
-    console.log('Oni in [PLUGIN]!!!!!!!: ', Oni);
-    console.log(' gitBranchIndicator: ', gitBranchIndicator);
+        const updateBranchIndicator = async (evt) => {
+            const filePath = evt.bufferFullPath || evt.filePath;
+            let dir;
+            try {
+                const isDir = await pathIsDir(filePath);
+                const  dir = isDir ? filePath : path.dirname(filePath);
+                let branchName;
+                try {
+                    branchName = await Oni.services.git.getBranch(dir);
+                } catch(e) {
+                    console.warn('[Oni.plugin.git]: No branch name found', e);
+                    branchName = 'Not a Git Repo';
+                }
 
-    Oni.editors.allEditors.onBufferEnter.subscribe((evt) => {
-        console.log('event: ', event);
-        return updateBranchIndicator(evt);
-    });
+                const branchIcon = Oni.ui.createIcon({ name: 'code-fork', size: Oni.ui.iconSize.Large });
+                const gitBranch  = React.createElement('div', null, branchIcon, ' ' + branchName);
+                gitBranchIndicator.setContents(gitBranch);
+                gitBranchIndicator.show();
+            } catch(e) {
+                console.log('[Oni.plugin.git]: ', e);
+                gitBranchIndicator.hide();
+            }
+        };
+
+        updateBranchIndicator(Oni.editors.activeEditor.activeBuffer);
+
+        Oni.editors.activeEditor.onBufferEnter.subscribe(async (evt) => await updateBranchIndicator(evt));
+        Oni.editors.activeEditor.onBufferChanged.subscribe(async (buf) => await updateBranchIndicator(buf));
+
+    } catch(e) {
+        console.warn('[Oni.plugin.git] ERROR', e);
+    }
 };
 
 module.exports = {
