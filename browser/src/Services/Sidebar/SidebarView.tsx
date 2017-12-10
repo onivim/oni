@@ -73,7 +73,13 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
         const icons = this.props.entries.map((e) => {
             const isActive = e.id === this.props.activeEntryId
             const isFocused = e.id === this.props.focusedEntryId
-            return <SidebarIcon iconName={e.icon} active={isActive} borderColor={isFocused ? this.props.borderColor : "transparent"} backgroundColor={isActive ? this.props.activeColor : "transparent"} />
+            return <SidebarIcon
+                        key={e.id}
+                        iconName={e.icon}
+                        active={isActive}
+                        borderColor={isFocused ? this.props.borderColor : "transparent"}
+                        backgroundColor={isActive ? this.props.activeColor : "transparent"}
+                    />
         })
 
         return <div className="sidebar enable-mouse" style={style}>
@@ -83,15 +89,14 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
                 <div className="input">
                     <KeyboardInputView
                         top={0}
-        left={0}
-        height={12}
-        onActivate={this.props.onEnter}
-        onKeyDown={this.props.onKeyDown}
-        foregroundColor={"white"}
-        fontFamily={"Segoe UI"}
-        fontSize={"12px"}
-        fontCharacterWidthInPixels={12}
-
+                        left={0}
+                        height={12}
+                        onActivate={this.props.onEnter}
+                        onKeyDown={this.props.onKeyDown}
+                        foregroundColor={"white"}
+                        fontFamily={"Segoe UI"}
+                        fontSize={"12px"}
+                        fontCharacterWidthInPixels={12}
                         />
                 </div>
             </div>

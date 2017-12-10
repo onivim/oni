@@ -6,11 +6,6 @@ const fsStat = promisify(fs.stat);
 const activate = Oni => {
   const React = Oni.dependencies.React;
   try {
-    const gitBranchIndicator = Oni.statusBar.createItem(
-      1,
-      -3,
-      'oni-plugin-git'
-    );
 
     const pathIsDir = async p => {
       try {
@@ -30,11 +25,18 @@ const activate = Oni => {
         let branchName;
         try {
           branchName = await Oni.services.git.getBranch(dir);
+          console.log('branchName: ', branchName);
         } catch (e) {
-          console.warn('[Oni.plugin.git]: No branch name found', e);
+          return console.warn('[Oni.plugin.git]: No branch name found', e);
           // branchName = 'Not a Git Repo';
-          branchName = '';
+          // branchName = '';
         }
+        const gitBranchIndicator = Oni.statusBar.createItem(
+          1,
+          -3,
+          'oni-plugin-git'
+        );
+
         const props = {
           style: {
             overflow: 'hidden',
