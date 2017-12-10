@@ -5,6 +5,7 @@ const fsStat = promisify(fs.stat);
 
 const activate = Oni => {
   const React = Oni.dependencies.React;
+  let isLoaded = false;
   try {
 
     const pathIsDir = async p => {
@@ -18,6 +19,13 @@ const activate = Oni => {
 
     const updateBranchIndicator = async evt => {
       const filePath = evt.bufferFullPath || evt.filePath;
+      const gitBranchIndicator = Oni.statusBar.createItem(
+        1,
+        -3,
+        'oni-plugin-git'
+      );
+
+      isLoaded = true;
       let dir;
       try {
         const isDir = await pathIsDir(filePath);
@@ -27,15 +35,10 @@ const activate = Oni => {
           branchName = await Oni.services.git.getBranch(dir);
           console.log('branchName: ', branchName);
         } catch (e) {
+          gitBranchIndicator.hide();
           return console.warn('[Oni.plugin.git]: No branch name found', e);
           // branchName = 'Not a Git Repo';
-          // branchName = '';
         }
-        const gitBranchIndicator = Oni.statusBar.createItem(
-          1,
-          -3,
-          'oni-plugin-git'
-        );
 
         const props = {
           style: {
@@ -64,7 +67,9 @@ const activate = Oni => {
       }
     };
 
-    updateBranchIndicator(Oni.editors.activeEditor.activeBuffer);
+    if(!isLoaded) {
+      updateBranchIndicator(Oni.editors.activeEditor.activeBuffer);
+    }
 
     Oni.editors.activeEditor.onBufferEnter.subscribe(
       async evt => await updateBranchIndicator(evt)
