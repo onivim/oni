@@ -75,6 +75,14 @@ You can also find install via a [zip archive](https://github.com/onivim/oni/rele
 - Double-click on the archive to expand
 - Drag `Oni.app` to the `Applications` folder
 
+To enable key repeat when pressing & holding a key in Oni, write the following in your terminal:
+
+```sh
+defaults write com.extropy.oni ApplePressAndHoldEnabled -bool false
+```
+
+> You can invoke `oni` from your terminal after adding it to your PATH, though CMD-Shift-P > Add to Path
+
 ### Linux
 
 #### Debian and Ubuntu based distributions
