@@ -26,26 +26,27 @@ const activate = (Oni) => {
                 let branchName;
                 try {
                     branchName = await Oni.services.git.getBranch(dir);
+                    const props = {
+                        style: {
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                        }
+                    };
+
+                    const branchIcon = Oni.ui.createIcon({ name: 'code-fork', size: Oni.ui.iconSize.Large });
+                    const gitBranch  = React.createElement('div', props, branchIcon, ' ' + branchName);
+                    gitBranchIndicator.setContents(gitBranch);
+                    gitBranchIndicator.show();
+
                 } catch(e) {
                     console.warn('[Oni.plugin.git]: No branch name found', e);
-                    branchName = 'Not a Git Repo';
+                    // branchName = 'Not a Git Repo';
                 }
 
-                const props = {
-                    style: {
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                    }
-                };
-
-                const branchIcon = Oni.ui.createIcon({ name: 'code-fork', size: Oni.ui.iconSize.Large });
-                const gitBranch  = React.createElement('div', props, branchIcon, ' ' + branchName);
-                gitBranchIndicator.setContents(gitBranch);
-                gitBranchIndicator.show();
             } catch(e) {
                 console.log('[Oni.plugin.git]: ', e);
-                gitBranchIndicator.hide();
+                return gitBranchIndicator.hide();
             }
         };
 
