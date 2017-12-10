@@ -31,8 +31,16 @@ const activate = (Oni) => {
                     branchName = 'Not a Git Repo';
                 }
 
+                const props = {
+                    style: {
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                    }
+                };
+
                 const branchIcon = Oni.ui.createIcon({ name: 'code-fork', size: Oni.ui.iconSize.Large });
-                const gitBranch  = React.createElement('div', null, branchIcon, ' ' + branchName);
+                const gitBranch  = React.createElement('div', props, branchIcon, ' ' + branchName);
                 gitBranchIndicator.setContents(gitBranch);
                 gitBranchIndicator.show();
             } catch(e) {
