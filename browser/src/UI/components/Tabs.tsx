@@ -161,7 +161,7 @@ import { createSelector } from "reselect"
 
 const getTabState = (state: State.IState) => state.tabState
 const getHighlightColor = (state: State.IState) => {
-    if (!state.configuration["tabs.highlight"]) {
+    if (!state.configuration["tabs.highlight"] || !state.hasFocus) {
         return "transparent"
     }
 
