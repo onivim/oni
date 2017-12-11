@@ -35,6 +35,7 @@ const activate = Oni => {
           branchName = await Oni.services.git.getBranch(dir);
         } catch (e) {
           gitBranchIndicator.hide();
+          return;
           // return console.warn('[Oni.plugin.git]: No branch name found', e);
           // branchName = 'Not a Git Repo';
         }
