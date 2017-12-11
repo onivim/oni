@@ -141,7 +141,13 @@ export class LanguageManager {
     }
 
     public getTokenRegex(language: string): RegExp {
-        return /[$_a-zA-Z0-9]/i
+        const languageSpecificTokenRegex = configuration.getValue(`language.${language}.tokenRegex`)
+
+        if (languageSpecificTokenRegex) {
+            return RegExp(languageSpecificTokenRegex, "i")
+        } else {
+            return /[$_a-zA-Z0-9]/i
+        }
     }
 
     public getSignatureHelpTriggerCharacters(language: string): string[] {

@@ -49,6 +49,8 @@ export interface IConfigurationValues {
     // If a file has more lines than this value, syntax highlighting will be disabled
     "experimental.editor.textMateHighlighting.maxLines": number
 
+    "experimental.sidebar.enabled": boolean
+
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
@@ -175,6 +177,8 @@ export interface IConfigurationValues {
     // of saving to file
     "recorder.copyScreenshotToClipboard": boolean
 
+    "sidebar.width": string
+
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
 
@@ -182,6 +186,10 @@ export interface IConfigurationValues {
 
     // Height of individual tabs in the tab strip
     "tabs.height": string
+
+    // Whether or not to render a highlight on the top of the tab
+    // (mode highlight)
+    "tabs.highlight": boolean
 
     // Maximum width of a tab
     "tabs.maxWidth": string
@@ -192,6 +200,7 @@ export interface IConfigurationValues {
     "tabs.wrap": boolean
 
     "ui.animations.enabled": boolean
+    "ui.iconTheme": string
     "ui.colorscheme": string
     "ui.fontFamily": string
     "ui.fontSize": string

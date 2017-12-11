@@ -8,6 +8,8 @@ import { connect } from "react-redux"
 
 import { IState, StatusBarAlignment } from "./../State"
 
+import { addDefaultUnitIfNeeded } from "./../../Font"
+
 require("./StatusBar.less") // tslint:disable-line no-var-requires
 
 export interface StatusBarProps {
@@ -103,7 +105,8 @@ const mapStateToProps = (state: IState): StatusBarProps => {
         backgroundColor: state.colors["statusBar.background"],
         foregroundColor: state.colors["statusBar.foreground"],
         fontFamily: state.configuration["ui.fontFamily"],
-        fontSize: state.configuration["statusbar.fontSize"] || state.configuration["ui.fontSize"],
+        fontSize: state.configuration["statusbar.fontSize"] ||
+                  addDefaultUnitIfNeeded(state.configuration["ui.fontSize"]),
         items: statusBarItems,
         enabled: state.configuration["statusbar.enabled"],
     }

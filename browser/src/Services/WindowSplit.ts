@@ -32,6 +32,19 @@ export interface ISplitLeaf<T> {
     contents: T
 }
 
+export const getFurthestSplitInDirection = <T>(root: SplitOrLeaf<T>, direction: Split): ISplitLeaf<T> => {
+    if (!root) {
+        return null
+    }
+
+    switch (root.type) {
+        case "Leaf":
+            return root
+        case "Split":
+            return getFurthestSplitInDirection(root.splits[0], direction)
+    }
+}
+
 export function createSplitRoot<T>(direction: SplitDirection, parent?: ISplitInfo<T>): ISplitInfo<T> {
     return {
         type: "Split",

@@ -8,18 +8,18 @@
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
-import { configuration, Configuration, IConfigurationValues } from "./Configuration"
-import { getThemeManagerInstance, ThemeManager } from "./Themes"
+import { Configuration, IConfigurationValues } from "./Configuration"
+import { ThemeManager } from "./Themes"
 
 export interface ColorsDictionary { [colorName: string]: string}
 
 let _colors: Colors = null
+
+export const activate = (configuration: Configuration, themeManager: ThemeManager) => {
+    _colors = new Colors(configuration, themeManager)
+}
+
 export const getInstance = (): Colors => {
-
-    if (_colors === null) {
-        _colors = new Colors()
-    }
-
     return _colors
 }
 
@@ -34,8 +34,8 @@ export class Colors implements IDisposable {
     }
 
     constructor(
-        private _themeManager: ThemeManager = getThemeManagerInstance(),
-        private _configuration: Configuration = configuration,
+        private _configuration: Configuration,
+        private _themeManager: ThemeManager,
     ) {
 
         const sub1 = this._themeManager.onThemeChanged.subscribe(() => {

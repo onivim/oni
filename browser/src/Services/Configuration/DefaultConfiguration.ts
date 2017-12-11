@@ -48,6 +48,8 @@ const BaseConfiguration: IConfigurationValues = {
     // TODO: Enable pipe transport for Windows
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
+    "experimental.sidebar.enabled": false,
+
     "oni.audio.bellUrl": null,
 
     "oni.useDefaultConfig": true,
@@ -133,14 +135,17 @@ const BaseConfiguration: IConfigurationValues = {
     "language.css.languageServer.command": cssLanguageServerPath,
     "language.css.languageServer.arguments": ["--stdio"],
     "language.css.textMateGrammar": path.join(__dirname, "extensions", "css", "syntaxes", "css.tmLanguage.json"),
+    "language.css.tokenRegex": "[$_a-zA-Z0-9-]",
 
     "language.less.languageServer.command": cssLanguageServerPath,
     "language.less.languageServer.arguments": ["--stdio"],
     "language.less.textMateGrammar": path.join(__dirname, "extensions", "less", "syntaxes", "less.tmLanguage.json"),
+    "language.less.tokenRegex": "[$_a-zA-Z0-9-]",
 
     "language.scss.languageServer.command": cssLanguageServerPath,
     "language.scss.languageServer.arguments": ["--stdio"],
     "language.scss.textMateGrammar": path.join(__dirname, "extensions", "scss", "syntaxes", "scss.json"),
+    "language.scss.tokenRegex": "[$_a-zA-Z0-9-]",
 
     "language.reason.languageServer.command": ocamlLanguageServerPath,
     "language.reason.languageServer.arguments": ["--stdio"],
@@ -169,16 +174,20 @@ const BaseConfiguration: IConfigurationValues = {
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
 
+    "sidebar.width": "50px",
+
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
 
     "tabs.mode": "buffers",
     "tabs.height": "2.5em",
+    "tabs.highlight": true,
     "tabs.maxWidth": "30em",
     "tabs.wrap": false,
 
     "ui.animations.enabled": true,
     "ui.colorscheme": "onedark",
+    "ui.iconTheme": "theme-icons-seti",
     "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
     "ui.fontSmoothing": "auto",

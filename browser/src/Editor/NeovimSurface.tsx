@@ -6,6 +6,8 @@
 
 import * as React from "react"
 
+import { IEvent } from "oni-types"
+
 import { NeovimInstance, NeovimScreen } from "./../neovim"
 import { INeovimRenderer } from "./../Renderer"
 
@@ -31,6 +33,8 @@ export interface INeovimSurfaceProps {
     renderer: INeovimRenderer
     screen: NeovimScreen
     typingPrediction: TypingPredictionManager
+
+    onActivate: IEvent<void>
 
     onKeyDown?: (key: string) => void
     onBufferClose?: (bufferId: number) => void
@@ -67,6 +71,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     </ActiveWindowContainer>
                 </div>
                 <NeovimInput
+                    onActivate={this.props.onActivate}
                     typingPrediction={this.props.typingPrediction}
                     neovimInstance={this.props.neovimInstance}
                     screen={this.props.screen}

@@ -3,13 +3,13 @@ export * from "./ThemeManager"
 import { Configuration, IConfigurationValues } from "./../Configuration"
 import { getThemeManagerInstance } from "./ThemeManager"
 
-export const activate = (configuration: Configuration) => {
+export const activate = async (configuration: Configuration): Promise<void> => {
 
-    const updateColorScheme = (configurationValues: Partial<IConfigurationValues>) => {
+    const updateColorScheme = async (configurationValues: Partial<IConfigurationValues>): Promise<void> => {
         const colorscheme = configurationValues["ui.colorscheme"]
         if (colorscheme) {
             const themeManager = getThemeManagerInstance()
-            themeManager.setTheme(colorscheme)
+            await themeManager.setTheme(colorscheme)
         }
     }
 
@@ -17,5 +17,5 @@ export const activate = (configuration: Configuration) => {
         updateColorScheme(newValues)
     })
 
-    updateColorScheme(configuration.getValues())
+    await updateColorScheme(configuration.getValues())
 }

@@ -1,5 +1,14 @@
 .cursor {
-    opacity: 1;
+    opacity: 0;
+    transition: opacity 0.35s ease 0.25s;
+
+    .loaded & {
+        opacity: 1;
+    }
+
+    .not-focused & {
+        opacity: 0.4;
+    }
 
     /* Cover up 'holes' due to subpixel rendering on canvas */
     padding-left: 1px;

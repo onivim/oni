@@ -7,6 +7,8 @@ import { Motion, spring } from "react-motion"
 
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
+import { addDefaultUnitIfNeeded } from "./../../Font"
+
 export interface ICursorRendererProps {
     animated: boolean
     x: number
@@ -138,7 +140,7 @@ const mapStateToProps = (state: State.IState, props: ICursorProps): ICursorRende
         character: state.cursorCharacter,
         fontPixelWidth: state.fontPixelWidth,
         fontFamily: State.readConf(state.configuration, "editor.fontFamily"),
-        fontSize: State.readConf(state.configuration, "editor.fontSize"),
+        fontSize: addDefaultUnitIfNeeded(State.readConf(state.configuration, "editor.fontSize")),
         visible: !state.imeActive,
     }
 }

@@ -4,9 +4,21 @@
 
 import * as assert from "assert"
 
+import * as types from "vscode-languageserver-types"
+
 import * as Language from "./../../../src/Services/Language"
 
 import * as Mocks from "./../../Mocks"
+
+const createSuccessfulDefinitionResult = (): Language.IDefinitionResult => {
+    return {
+        location: types.Location.create("testuri", types.Range.create(1, 1, 5, 5)),
+        token: {
+            tokenName: "test",
+            range: types.Range.create(1, 1, 2, 2),
+        },
+    }
+}
 
 describe("LanguageEditorIntegration", () => {
     const clock: any = global["clock"] // tslint:disable-line
@@ -54,7 +66,7 @@ describe("LanguageEditorIntegration", () => {
         assert.strictEqual(mockHoverRequestor.pendingCallCount, 1)
 
         // Resolve the calls
-        mockDefinitionRequestor.resolve({} as any)
+        mockDefinitionRequestor.resolve(createSuccessfulDefinitionResult())
         mockHoverRequestor.resolve({} as any)
 
         await waitForPromiseResolution()
@@ -175,5 +187,39 @@ describe("LanguageEditorIntegration", () => {
 
         assert.strictEqual(showHoverCount, 1, "Hover show count should be unchanged")
         assert.strictEqual(hideHoverCount, 1, "There should now be a call to hide the hover")
+    })
+
+    it("#1063 - doesn't show hover if there are no results", async () => {
+        let showDefinitionCount = 0
+
+        languageEditorIntegration.onShowDefinition.subscribe(() => showDefinitionCount++)
+
+        mockEditor.simulateModeChange("normal")
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer())
+        mockEditor.simulateCursorMoved(1, 1)
+
+        clock.tick(501) // Account for the quickInfo.delay
+
+        assert.strictEqual(mockDefinitionRequestor.pendingCallCount, 1)
+
+        // Resolve the calls, simulating a null result
+        // to reproduce the issue in #1063.
+        //
+        // In the case where we don't get a result,
+        // we could still have a value for `token`,
+        // but not `location`.
+        mockDefinitionRequestor.resolve({
+            token: {
+                tokenName: "test",
+                range: null,
+            },
+            location: null,
+        })
+
+        await waitForPromiseResolution()
+
+        clock.runAll()
+
+        assert.strictEqual(showDefinitionCount, 0, "Definition should not be shown")
     })
 })
