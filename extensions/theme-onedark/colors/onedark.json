@@ -30,7 +30,7 @@
         "sidebar.background": "#1E2127",
         "sidebar.foreground": "#ABB2BF",
         "sidebar.active.background": "#282C34",
-        "sidebar.selection.border": "#ABB2BF",
+        "sidebar.selection.border": "#61afef",
 
         "statusBar.background": "#282828",
         "statusBar.foreground": "#c8c8c8",
