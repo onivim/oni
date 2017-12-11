@@ -68,8 +68,6 @@ export const render = (_state: State.IState): void => {
 }
 
 export const startEditors = async (args: any, colors: Colors, configuration: Configuration): Promise<void> => {
-    const leftDock = windowManager.getDock(2)
-
     if (configuration.getValue("experimental.sidebar.enabled")) {
         const leftDock = windowManager.getDock(2)
         leftDock.addSplit(new SidebarSplit(colors))
