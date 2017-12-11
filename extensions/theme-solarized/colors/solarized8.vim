@@ -2153,4 +2153,6 @@ finish
 " pandocMetadataKey                      blue               none
 " pandocMetadata                         blue               none           bold
 " pandocMetadataTitle                 -> pandocMetadata
+" TermCursor        -> Cursor
+" TermCursorNC         base03            base01
 
