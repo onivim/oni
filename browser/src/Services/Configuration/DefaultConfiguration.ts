@@ -32,13 +32,6 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.languageServer": null,
     "debug.fakeLag.neovimInput": null,
 
-    "experimental.autoClosingPairs.enabled": false,
-    "experimental.autoClosingPairs.default": [
-        { "open": "{", "close": "}" },
-        { "open": "[", "close": "]" },
-        { "open": "(", "close": ")" },
-    ],
-
     "experimental.editor.textMateHighlighting.enabled": false,
     "experimental.editor.textMateHighlighting.maxLines": 2000,
 
@@ -49,6 +42,13 @@ const BaseConfiguration: IConfigurationValues = {
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
     "experimental.sidebar.enabled": false,
+
+    "autoClosingPairs.enabled": true,
+    "autoClosingPairs.default": [
+        { "open": "{", "close": "}" },
+        { "open": "[", "close": "]" },
+        { "open": "(", "close": ")" },
+    ],
 
     "oni.audio.bellUrl": null,
 

@@ -49,7 +49,3 @@ export const test = async (oni: any) => {
 
     assert.deepEqual(lines, expectedResult, "Verify lines are as expected")
 }
-
-export const settings = {
-    configPath: "AutoClosingPairs.config.js",
-}
