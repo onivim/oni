@@ -45,6 +45,20 @@ export interface IExplorerState {
     expandedFolders: ExpandedFolders
 
     selectedId: string
+
+    hasFocus: boolean
+
+    styling: IExplorerStyling
+}
+
+export interface IExplorerStyling {
+    fontFamily: string
+    fontSize: string
+}
+
+export const DefaultExplorerStyle: IExplorerStyling = {
+    fontFamily: null,
+    fontSize: null,
 }
 
 export const DefaultExplorerState: IExplorerState = {
@@ -55,6 +69,8 @@ export const DefaultExplorerState: IExplorerState = {
     rootFolder: null,
     expandedFolders: {},
     selectedId: "explorer",
+    styling: DefaultExplorerStyle,
+    hasFocus: false
 }
 
 export type ExplorerAction = {
@@ -70,6 +86,14 @@ export type ExplorerAction = {
 } | {
     type: "SET_SELECTED_ID",
     selectedId: string,
+} | {
+    type: "SET_FONT",
+    fontFamily: string,
+    fontSize: string,
+} | {
+    type: "ENTER",
+} | {
+    type: "LEAVE",
 }
 
 export const rootFolderReducer: Reducer<IFolderState> = (
@@ -118,15 +142,46 @@ export const selectedIdReducer: Reducer<string> = (
     }
 }
 
+export const stylingReducer: Reducer<IExplorerStyling> = (
+    state: IExplorerStyling = null,
+    action: ExplorerAction,
+) => {
+    switch (action.type) {
+        case "SET_FONT":
+            return {
+                fontFamily: action.fontFamily,
+                fontSize: action.fontSize,
+            }
+        default:
+            return state
+    }
+}
+
+export const hasFocusReducer: Reducer<boolean> = (
+    state: boolean = false,
+    action: ExplorerAction
+) => {
+    switch (action.type) {
+        case "ENTER":
+            return true
+        case "LEAVE":
+            return false
+        default:
+            return state
+    }
+}
+
 export const reducer: Reducer<IExplorerState> = (
     state: IExplorerState = DefaultExplorerState,
     action: ExplorerAction,
 ) => {
     return {
         ...state,
+        hasFocus: hasFocusReducer(state.hasFocus, action),
         rootFolder: rootFolderReducer(state.rootFolder, action),
         expandedFolders: expandedFolderReducer(state.expandedFolders, action),
         selectedId: selectedIdReducer(state.selectedId, action),
+        styling: stylingReducer(state.styling, action)
     }
 }
 

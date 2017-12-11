@@ -15,6 +15,7 @@ import { Event } from "oni-types"
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
+import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
 
 // import { Colors } from "./../Colors"
@@ -34,11 +35,18 @@ export class ExplorerSplit {
     private _store: Store<IExplorerState>
 
     constructor(
+        private _configuration: Configuration,
         private _workspace: Oni.Workspace,
         private _commandManager: CommandManager,
         private _editorManager: EditorManager,
     ) {
         this._store = createStore()
+
+        this._store.dispatch({
+            type: "SET_FONT",
+            fontFamily: this._configuration.getValue<string>("ui.fontFamily"),
+            fontSize: this._configuration.getValue<string>("ui.fontSize"),
+        })
 
         this._workspace.onDirectoryChanged.subscribe((newDirectory) => {
             this._store.dispatch({
@@ -50,6 +58,7 @@ export class ExplorerSplit {
 
     public enter(): void {
 
+        this._store.dispatch({type: "ENTER"})
         this._commandManager.registerCommand(new CallbackCommand("explorer.open", null, null, () => this._onOpenItem()))
 
         this._onEnterEvent.dispatch()
@@ -100,6 +109,8 @@ export class ExplorerSplit {
             this._activeBinding.release()
             this._activeBinding = null
         }
+
+        this._store.dispatch({type: "LEAVE"})
 
         this._commandManager.unregisterCommand("explorer.open")
     }

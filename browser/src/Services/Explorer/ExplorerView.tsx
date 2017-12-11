@@ -90,6 +90,7 @@ export interface IExplorerContainerProps {
 export interface IExplorerViewProps extends IExplorerContainerProps {
     nodes: ExplorerSelectors.ExplorerNode[]
     selectedId: string
+    hasFocus: boolean
     // recentFiles: IRecentFile[]
     // workspaceRoot: string
 }
@@ -109,8 +110,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
             height: "2.5em",
             lineHeight: "2.5em",
             textAlign: "center",
-            fontSize: "13px",
-            fontFamily: "Segoe UI",
+            borderTop: this.props.hasFocus ? "2px solid rgb(97, 175, 239)" : "2px solid transparent",
         }
 
         const nodes = this.props.nodes.map((node) => <NodeView node={node} isSelected={node.id === this.props.selectedId}/>)
@@ -141,6 +141,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 const mapStateToProps = (state: IExplorerState, containerProps: IExplorerContainerProps): IExplorerViewProps => {
     return {
         ...containerProps,
+        hasFocus: state.hasFocus,
         nodes: ExplorerSelectors.mapStateToNodeList(state),
         selectedId: state.selectedId,
     }
