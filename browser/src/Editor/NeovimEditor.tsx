@@ -19,6 +19,7 @@ import { Event } from "oni-types"
 
 import * as Log from "./../Log"
 
+import { addDefaultUnitIfNeeded } from "./../Font"
 import { BufferEventContext, EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 import { NeovimScreen } from "./../Screen"
@@ -556,7 +557,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
         const fontFamily = this._config.getValue("editor.fontFamily")
-        const fontSize = this._config.getValue("editor.fontSize")
+        const fontSize = addDefaultUnitIfNeeded(this._config.getValue("editor.fontSize"))
         const linePadding = this._config.getValue("editor.linePadding")
 
         UI.Actions.setFont(fontFamily, fontSize)

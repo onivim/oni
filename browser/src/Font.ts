@@ -34,3 +34,14 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
         height,
     }
 }
+
+export function addDefaultUnitIfNeeded(fontSize: string) {
+
+    const defaultUnit = "px"
+
+    if (isNaN(Number(fontSize))) {
+        return fontSize
+    } else {
+        return fontSize + defaultUnit
+    }
+}
