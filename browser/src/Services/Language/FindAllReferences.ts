@@ -44,14 +44,14 @@ export const findAllReferences = async () => {
 }
 
 export const showReferencesInQuickFix = async (token: string, locations: types.Location[], neovimInstance: INeovimInstance) => {
-    const convertToQuickFixItem = (location: types.Location) => ({
+    const convertToOneIndexedForQuickFix = (location: types.Location) => ({
         filename: Helpers.unwrapFileUriPath(location.uri),
-        lnum: location.range.start.line,
-        col: location.range.start.character,
+        lnum: location.range.start.line + 1,
+        col: location.range.start.character + 1,
         text: token,
     })
 
-    const quickFixItems = locations.map((item) => convertToQuickFixItem(item))
+    const quickFixItems = locations.map((item) => convertToOneIndexedForQuickFix(item))
 
     neovimInstance.quickFix.setqflist(quickFixItems, ` Find All References: ${token}`)
     neovimInstance.command("copen")
