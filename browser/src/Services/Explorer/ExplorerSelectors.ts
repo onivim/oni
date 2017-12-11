@@ -26,7 +26,6 @@ export type ExplorerNode = {
 }
 
 export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
-    
     let ret: ExplorerNode[] = []
 
     ret.push({
@@ -44,6 +43,10 @@ export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
     }))
 
     ret = [...ret, ...openedFiles]
+
+    if (!state.rootFolder) {
+        return ret
+    }
 
     ret.push({
         id: "explorer",

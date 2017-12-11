@@ -26,6 +26,7 @@ import { listenForDiagnostics } from "./../Services/Language"
 import { ExplorerSplit } from "./../Services/Explorer/ExplorerSplit"
 import { SidebarSplit } from "./../Services/Sidebar"
 import { windowManager } from "./../Services/WindowManager"
+import { workspace } from "./../Services/Workspace"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
 
@@ -67,7 +68,7 @@ export const render = (_state: State.IState): void => {
 export const startEditors = async (args: any, colors: Colors): Promise<void> => {
     const leftDock = windowManager.getDock(2)
     leftDock.addSplit(new SidebarSplit(colors))
-    leftDock.addSplit(new ExplorerSplit())
+    leftDock.addSplit(new ExplorerSplit(workspace))
 
     const editor = new NeovimEditor(colors)
     editorManager.setActiveEditor(editor)

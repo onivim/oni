@@ -7,6 +7,7 @@ import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
 
+import * as Oni from "oni-api"
 import { Event } from "oni-types"
 
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
@@ -68,26 +69,18 @@ export class ExplorerSplit {
 
     
 
-    constructor () {
+    constructor (
+        private _workspace: Oni.Workspace
+    ) {
         this._store = createStore()
 
-        this._store.dispatch({
-            type: "SET_ROOT_DIRECTORY",
-            rootPath: "C:/oni"
+        this._workspace.onDirectoryChanged.subscribe((newDirectory) => {
+            this._store.dispatch({
+                type: "SET_ROOT_DIRECTORY",
+                rootPath: newDirectory,
+            })
         })
     }
-
-    // constructor(
-    //     private _colors: Colors,
-    // ) {
-    //     this._store = createStore()
-
-    //     this._colors.onColorsChanged.subscribe(() => {
-    //         this._updateColors()
-    //     })
-
-    //     this._updateColors()
-    // }
 
     public enter(): void {
         console.log("File explorer - hello")
