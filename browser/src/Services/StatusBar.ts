@@ -80,7 +80,6 @@ class StatusBar implements Oni.StatusBar {
 
     public createItem(alignment: StatusBarAlignment, priority: number = 0, globalId?: string): Oni.StatusBarItem {
         this._id++
-
         const statusBarId = globalId || `${this._id.toString()}`
 
         return new StatusBarItem(statusBarId, alignment, priority)
