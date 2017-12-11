@@ -94,49 +94,18 @@ export class ExplorerSplit {
         this._activeBinding.setItems(items)
 
         this._activeBinding.onCursorMoved.subscribe((id: string) => {
-
             this._store.dispatch({
                 type: "SET_SELECTED_ID",
                 selectedId: id,
             })
-
-            console.log("SELECTED: " + id)
         })
-
-        // const state = this._store.getState()
-        // this._store.dispatch({
-        //     type: "SET_FOCUSED_ID",
-        //     focusedEntryId: state.activeEntryId,
-        // })
-
-        // this._activeBinding = getInstance().bindToMenu()
-        // this._activeBinding.setItems(state.icons.map((i) => i.id), state.activeEntryId)
-
-        // this._activeBinding.onCursorMoved.subscribe((id: string) => {
-        //     this._store.dispatch({
-        //         type: "SET_FOCUSED_ID",
-        //         focusedEntryId: id,
-        //     })
-        // })
     }
 
     public leave(): void {
-        console.log("File explorer - goodbye")
-
         if (this._activeBinding) {
             this._activeBinding.release()
             this._activeBinding = null
         }
-
-        // if (this._activeBinding) {
-        //     this._activeBinding.release()
-        //     this._activeBinding = null
-        // }
-
-        // this._store.dispatch({
-        //     type: "SET_FOCUSED_ID",
-        //     focusedEntryId: null,
-        // })
     }
 
     public render(): JSX.Element {
@@ -151,20 +120,4 @@ export class ExplorerSplit {
             this._activeBinding.input(key)
         }
     }
-
-    // private _updateColors(): void {
-    //     this._store.dispatch({
-    //         type: "SET_COLORS",
-    //         backgroundColor: this._colors.getColor("sidebar.background"),
-    //         foregroundColor: this._colors.getColor("sidebar.foreground"),
-    //         borderColor : this._colors.getColor("sidebar.selection.border"),
-    //         activeColor : this._colors.getColor("sidebar.active.background"),
-    //     })
-    // }
-
-    // private _onKeyDown(key: string): void {
-    //     if (this._activeBinding) {
-    //         this._activeBinding.input(key)
-    //     }
-    // }
 }

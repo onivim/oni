@@ -49,16 +49,16 @@ export class Binding implements IBinding {
         return this._neovimInstance.input(key)
     }
 
-    protected trackDisposable(disposable: IDisposable): void {
-        this._subscriptions.push(disposable)
-    }
-
     public release(): void {
         this._neovimInstance = null
 
         this._subscriptions.forEach((sub) => sub.dispose())
 
         this._onReleasedEvent.dispatch()
+    }
+
+    protected trackDisposable(disposable: IDisposable): void {
+        this._subscriptions.push(disposable)
     }
 }
 

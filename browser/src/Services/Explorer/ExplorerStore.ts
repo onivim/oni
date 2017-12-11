@@ -93,7 +93,7 @@ export const expandedFolderReducer: Reducer<ExpandedFolders> = (
     state: ExpandedFolders = {},
     action: ExplorerAction,
 ) => {
-    switch (action.type){
+    switch (action.type) {
         case "SET_ROOT_DIRECTORY":
             return {}
         case "EXPAND_DIRECTORY_RESULT":
