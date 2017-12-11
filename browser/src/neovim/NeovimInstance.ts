@@ -9,7 +9,6 @@ import { Event, IEvent } from "oni-types"
 import * as Log from "./../Log"
 import { EventContext } from "./EventContext"
 
-import * as Actions from "./../actions"
 import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
 import * as Platform from "./../Platform"
 import { configuration } from "./../Services/Configuration"
