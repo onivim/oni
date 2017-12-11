@@ -55,10 +55,13 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
 
         // const pinnedItems = initialItems.filter(f => f.pinned)
         // const unpinnedItems = initialItems.filter(f => !f.pinned)
-        const items = initialItems.map((menuItem, index) => <MenuItem {...menuItem as any} // FIXME: undefined
-            filterText={this.props.filterText}
-            isSelected={index === this.props.selectedIndex}
-            onClick={() => this.props.onSelect(index)}
+        const items = initialItems.map((menuItem, index) =>
+            // FIXME: undefined
+            <MenuItem {...menuItem as any}
+                key={index}
+                filterText={this.props.filterText}
+                isSelected={index === this.props.selectedIndex}
+                onClick={() => this.props.onSelect(index)}
             />)
 
         const menuStyle = {

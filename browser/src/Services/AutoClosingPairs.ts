@@ -127,7 +127,7 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
 
     editorManager.activeEditor.onBufferEnter.subscribe((newBuffer) => {
 
-        if (!configuration.getValue("experimental.autoClosingPairs.enabled")) {
+        if (!configuration.getValue("autoClosingPairs.enabled")) {
             Log.verbose("[Auto Closing Pairs] Not enabled.")
             return
         }
@@ -169,6 +169,6 @@ const getAutoClosingPairs = (configuration: Configuration, language: string): IA
     if (languagePairs) {
         return languagePairs
     } else {
-        return configuration.getValue("experimental.autoClosingPairs.default") || []
+        return configuration.getValue("autoClosingPairs.default") || []
     }
 }
