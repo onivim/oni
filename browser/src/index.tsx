@@ -70,7 +70,7 @@ const start = async (args: string[]): Promise<void> => {
 
     // TODO: Can these be parallelized?
     await SharedNeovimInstance.activate()
-    await UI.startEditors(parsedArgs._, Colors.getInstance())
+    await UI.startEditors(parsedArgs._, Colors.getInstance(), configuration)
 
     const api = pluginManager.startApi()
     configuration.activate(api)
