@@ -19,12 +19,12 @@ import { reducer } from "./Reducer"
 import { getActiveDefinition } from "./selectors/DefinitionSelectors"
 import * as State from "./State"
 
+import { Colors } from "./../Services/Colors"
 import { editorManager } from "./../Services/EditorManager"
 import { focusManager } from "./../Services/FocusManager"
 import { listenForDiagnostics } from "./../Services/Language"
+import { SidebarSplit } from "./../Services/Sidebar"
 import { windowManager } from "./../Services/WindowManager"
-
-import { PluginManager } from "./../Plugins/PluginManager"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
 
@@ -43,8 +43,8 @@ export const Selectors = {
     getActiveDefinition: () => getActiveDefinition(store.getState() as any),
 }
 
-export function init(pluginManager: PluginManager, args: any): void {
-    render(defaultState, pluginManager, args)
+export const activate = (): void => {
+    render(defaultState)
 }
 
 const updateViewport = () => {
@@ -54,20 +54,24 @@ const updateViewport = () => {
     Actions.setViewport(width, height)
 }
 
-function render(_state: State.IState, pluginManager: PluginManager, args: any): void {
+export const render = (_state: State.IState): void => {
     const hostElement = document.getElementById("host")
-
-    const editor = new NeovimEditor()
-    editor.init(args)
-
-    editorManager.setActiveEditor(editor)
-
-    windowManager.split(0, editor)
 
     ReactDOM.render(
         <Provider store={store}>
             <RootComponent windowManager={windowManager}/>
         </Provider>, hostElement)
+}
+
+export const startEditors = async (args: any, colors: Colors): Promise<void> => {
+    const leftDock = windowManager.getDock(2)
+    leftDock.addSplit(new SidebarSplit(colors))
+
+    const editor = new NeovimEditor(colors)
+    editorManager.setActiveEditor(editor)
+    windowManager.split(0, editor)
+
+    await editor.init(args)
 }
 
 // Don't execute code that depends on DOM in unit-tests

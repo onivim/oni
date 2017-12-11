@@ -3,6 +3,15 @@
 .status-bar {
     .box-shadow-up;
 
+    transform: translateY(4px);
+    transition: transform 0.25s ease;
+
+    user-select: none;
+
+    .loaded & {
+        transform: translateY(0px);
+    }
+
     height: 2em;
     position: relative;
     width: 100%;

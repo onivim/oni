@@ -41,7 +41,7 @@ export const test = async (oni: any) => {
 
     oni.automation.sendKeys(":e " + filePath + "<CR>")
 
-    await oni.automation.sleep(500)
+    await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.filePath === filePath)
 
     oni.automation.sendKeys("/switchMap<CR>")
 

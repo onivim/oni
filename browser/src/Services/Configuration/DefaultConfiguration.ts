@@ -48,6 +48,8 @@ const BaseConfiguration: IConfigurationValues = {
     // TODO: Enable pipe transport for Windows
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
+    "experimental.sidebar.enabled": false,
+
     "oni.audio.bellUrl": null,
 
     "oni.useDefaultConfig": true,
@@ -169,16 +171,20 @@ const BaseConfiguration: IConfigurationValues = {
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
 
+    "sidebar.width": "50px",
+
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
 
     "tabs.mode": "buffers",
     "tabs.height": "2.5em",
+    "tabs.highlight": true,
     "tabs.maxWidth": "30em",
     "tabs.wrap": false,
 
     "ui.animations.enabled": true,
     "ui.colorscheme": "onedark",
+    "ui.iconTheme": "theme-icons-seti",
     "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
     "ui.fontSmoothing": "auto",

@@ -21,6 +21,8 @@ import { INeovimStartOptions, startNeovim } from "./NeovimProcessSpawner"
 import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { Session } from "./Session"
 
+import { PromiseQueue } from "./../Services/Language/PromiseQueue"
+
 export interface INeovimYankInfo {
     operator: string
     regcontents: string[]
@@ -144,6 +146,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _initPromise: Promise<void>
     private _isLeaving: boolean
 
+    private _inputQueue: PromiseQueue = new PromiseQueue()
+
     private _config = configuration
     private _autoCommands: NeovimAutoCommands
 
@@ -159,6 +163,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _cols: number
 
     private _quickFix: QuickFixList
+    private _initComplete: boolean
 
     private _onDirectoryChanged = new Event<string>()
     private _onErrorEvent = new Event<Error | string>()
@@ -178,6 +183,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onColorsChanged = new Event<void>()
 
     private _pendingScrollTimeout: number | null = null
+
+    public get isInitialized(): boolean {
+        return this._initComplete
+    }
 
     public get quickFix(): IQuickFixList {
         return this._quickFix
@@ -366,9 +375,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         // set title after attaching listeners so we can get the initial title
                         await this.command("set title")
                         await this.callFunction("OniConnect", [])
+
+                        this._initComplete = true
                     },
                     (err: any) => {
                         this._onError(err)
+                        this._initComplete = true
                     })
             })
 
@@ -450,7 +462,19 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public input(inputString: string): Promise<void> {
-        return this._neovim.request("nvim_input", [inputString])
+        return this._inputQueue.enqueuePromise(async () => {
+            await this._neovim.request("nvim_input", [inputString])
+        })
+    }
+
+    public blockInput(func: (opt?: any) => Promise<void>): void {
+        const forceInput = (inputString: string) => {
+            return this._neovim.request("nvim_input", [inputString])
+        }
+
+        this._inputQueue.enqueuePromise(async () => {
+            await func(forceInput)
+        })
     }
 
     public resize(widthInPixels: number, heightInPixels: number): void {
