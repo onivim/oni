@@ -20,6 +20,7 @@ import { getActiveDefinition } from "./selectors/DefinitionSelectors"
 import * as State from "./State"
 
 import { Colors } from "./../Services/Colors"
+import { commandManager } from "./../Services/CommandManager"
 import { editorManager } from "./../Services/EditorManager"
 import { ExplorerSplit } from "./../Services/Explorer/ExplorerSplit"
 import { focusManager } from "./../Services/FocusManager"
@@ -68,7 +69,7 @@ export const render = (_state: State.IState): void => {
 export const startEditors = async (args: any, colors: Colors): Promise<void> => {
     const leftDock = windowManager.getDock(2)
     leftDock.addSplit(new SidebarSplit(colors))
-    leftDock.addSplit(new ExplorerSplit(workspace))
+    leftDock.addSplit(new ExplorerSplit(workspace, commandManager))
 
     const editor = new NeovimEditor(colors)
     editorManager.setActiveEditor(editor)

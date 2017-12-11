@@ -12,52 +12,15 @@ import { Event } from "oni-types"
 
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
+import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
+
 // import { Colors } from "./../Colors"
 
 import { createStore, IExplorerState } from "./ExplorerStore"
 // import { Sidebar } from "./SidebarView"
 
-import { FileIcon } from "./../FileIcon"
-
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
-
-export interface IRecentFileViewProps {
-    fileName: string
-    isModified?: boolean
-}
-
-export class RecentFileView extends React.PureComponent<IRecentFileViewProps, {}> {
-    public render(): JSX.Element {
-        const containerStyle: React.CSSProperties = {
-            padding: "4px",
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-        }
-
-        const fileIconStyle: React.CSSProperties = {
-            flex: "0 0 auto",
-            width: "20px",
-        }
-
-        const textStyle: React.CSSProperties = {
-            flex: "1 1 auto",
-        }
-
-        const modifiedIconStyle: React.CSSProperties = {
-            flex: "0 0 auto",
-            width: "20px",
-        }
-
-        return <div style={containerStyle}>
-                <div style={fileIconStyle}><FileIcon fileName={this.props.fileName} /></div>
-                <div style={textStyle}>{this.props.fileName}</div>
-                <div style={modifiedIconStyle}></div>
-            </div>
-    }
-}
 
 export class ExplorerSplit {
 
@@ -69,6 +32,7 @@ export class ExplorerSplit {
 
     constructor(
         private _workspace: Oni.Workspace,
+        private _commandManager: CommandManager,
     ) {
         this._store = createStore()
 
@@ -81,6 +45,9 @@ export class ExplorerSplit {
     }
 
     public enter(): void {
+
+        this._commandManager.registerCommand(new CallbackCommand("explorer.open", null, null, () => alert("open")))
+
         this._onEnterEvent.dispatch()
 
         this._activeBinding = getInstance().bindToMenu()
@@ -106,6 +73,8 @@ export class ExplorerSplit {
             this._activeBinding.release()
             this._activeBinding = null
         }
+
+        this._commandManager.unregisterCommand("explorer.open")
     }
 
     public render(): JSX.Element {
