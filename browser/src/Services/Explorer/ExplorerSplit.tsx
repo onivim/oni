@@ -3,6 +3,8 @@
  *
  */
 
+import * as path from "path"
+
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
@@ -13,6 +15,7 @@ import { Event } from "oni-types"
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
+import { EditorManager } from "./../../Services/EditorManager"
 
 // import { Colors } from "./../Colors"
 
@@ -33,6 +36,7 @@ export class ExplorerSplit {
     constructor(
         private _workspace: Oni.Workspace,
         private _commandManager: CommandManager,
+        private _editorManager: EditorManager,
     ) {
         this._store = createStore()
 
@@ -46,7 +50,7 @@ export class ExplorerSplit {
 
     public enter(): void {
 
-        this._commandManager.registerCommand(new CallbackCommand("explorer.open", null, null, () => alert("open")))
+        this._commandManager.registerCommand(new CallbackCommand("explorer.open", null, null, () => this._onOpenItem()))
 
         this._onEnterEvent.dispatch()
 
@@ -66,6 +70,29 @@ export class ExplorerSplit {
                 selectedId: id,
             })
         })
+    }
+
+    private _onOpenItem(): void {
+        const state = this._store.getState()
+        const flattenedState = ExplorerSelectors.mapStateToNodeList(state)
+
+        const selectedId = state.selectedId
+
+        const selectedItem = flattenedState.find((item) => item.id === selectedId)
+
+        if (!selectedItem) {
+            return
+        }
+
+        switch (selectedItem.type) {
+            case "file":
+
+                const fullPath = path.join(state.rootFolder.fullPath, selectedItem.filePath)
+                this._editorManager.activeEditor.openFile(fullPath)
+                return
+            default:
+                alert("Not implemented yet.") // tslint:disable-line
+        }
     }
 
     public leave(): void {

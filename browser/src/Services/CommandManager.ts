@@ -57,7 +57,7 @@ export class CommandManager implements ITaskProvider {
     }
 
     public unregisterCommand(commandName: string): void {
-        this._commandDictionary[commandName] = null
+        delete this._commandDictionary[commandName]
     }
 
     public executeCommand(name: string, args?: any): boolean | void {
