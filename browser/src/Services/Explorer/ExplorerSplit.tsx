@@ -19,8 +19,8 @@ import { createStore, IExplorerState } from "./ExplorerStore"
 
 import { FileIcon } from "./../FileIcon"
 
-import { Explorer } from "./ExplorerView"
 import * as ExplorerSelectors from "./ExplorerSelectors"
+import { Explorer } from "./ExplorerView"
 
 export interface IRecentFileViewProps {
     fileName: string
@@ -43,7 +43,7 @@ export class RecentFileView extends React.PureComponent<IRecentFileViewProps, {}
         }
 
         const textStyle: React.CSSProperties = {
-            flex: "1 1 auto"
+            flex: "1 1 auto",
         }
 
         const modifiedIconStyle: React.CSSProperties = {
@@ -67,10 +67,8 @@ export class ExplorerSplit {
     private _activeBinding: IMenuBinding = null
     private _store: Store<IExplorerState>
 
-    
-
-    constructor (
-        private _workspace: Oni.Workspace
+    constructor(
+        private _workspace: Oni.Workspace,
     ) {
         this._store = createStore()
 
@@ -83,7 +81,6 @@ export class ExplorerSplit {
     }
 
     public enter(): void {
-        console.log("File explorer - hello")
         this._onEnterEvent.dispatch()
 
         this._activeBinding = getInstance().bindToMenu()

@@ -45,7 +45,6 @@ describe("ExplorerSelectors", () => {
                 expanded: false,
             }]
 
-
             assert.deepEqual(result, expectedResult)
         })
 
@@ -56,7 +55,7 @@ describe("ExplorerSelectors", () => {
             }
 
             const expandedFolders = {
-                "folderPath": [ createTestFile("file1")]
+                "folderPath": [ createTestFile("file1")],
             }
 
             const result = ExplorerSelectors.flattenFolderTree(folder, [], expandedFolders)

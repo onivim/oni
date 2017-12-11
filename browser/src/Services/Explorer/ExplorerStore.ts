@@ -33,7 +33,7 @@ export interface IRecentFile {
 
 export type FolderOrFile = IFolderState | IFileState
 
-export type ExpandedFolders = { [fullPath: string]: FolderOrFile[]}
+export interface ExpandedFolders { [fullPath: string]: FolderOrFile[]}
 
 export interface IExplorerState {
     // Recent
@@ -59,32 +59,32 @@ export const DefaultExplorerState: IExplorerState = {
 
 export type ExplorerAction = {
     type: "SET_ROOT_DIRECTORY",
-    rootPath: string
+    rootPath: string,
 } | {
     type: "EXPAND_DIRECTORY",
-    directoryPath: string
+    directoryPath: string,
 } | {
     type: "EXPAND_DIRECTORY_RESULT",
     directoryPath: string,
-    children: FolderOrFile[]
+    children: FolderOrFile[],
 } | {
     type: "SET_SELECTED_ID",
-    selectedId: string
+    selectedId: string,
 }
- 
+
 export const rootFolderReducer: Reducer<IFolderState> = (
     state: IFolderState  = DefaultFolderState,
     action: ExplorerAction,
 ) => {
     switch (action.type) {
-        case "SET_ROOT_DIRECTORY": 
+        case "SET_ROOT_DIRECTORY":
             return {
                 ...state,
                 type: "folder",
                 fullPath: action.rootPath,
             }
 
-        default: 
+        default:
             return state
     }
 }
@@ -132,7 +132,7 @@ export const reducer: Reducer<IExplorerState> = (
 
 const NullAction: ExplorerAction = { type: null } as ExplorerAction
 
-const setRootDirectoryEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) => 
+const setRootDirectoryEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
     action$.ofType("SET_ROOT_DIRECTORY")
         .map((action) => {
 
@@ -142,7 +142,7 @@ const setRootDirectoryEpic: Epic<ExplorerAction, IExplorerState> = (action$, sto
 
             return {
                 type: "EXPAND_DIRECTORY",
-                directoryPath: action.rootPath
+                directoryPath: action.rootPath,
             } as ExplorerAction
         })
 
@@ -195,10 +195,9 @@ const expandDirectoryEpic: Epic<ExplorerAction, IExplorerState> = (action$, stor
             } as ExplorerAction
         })
 
-
 export const createStore = (): Store<IExplorerState> => {
-    return createReduxStore("Explorer", 
-        reducer, 
+    return createReduxStore("Explorer",
+        reducer,
         DefaultExplorerState,
         [createEpicMiddleware(combineEpics(
             setRootDirectoryEpic,

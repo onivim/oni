@@ -142,7 +142,7 @@ export class WindowManager implements Oni.IWindowManager {
         const leftDock = this.getDock(Direction.Left)
 
         if (leftDock.contains(this._activeSplit)) {
-            let newSplit = leftDock.move(this._activeSplit, Direction.Right)
+            const newSplit = leftDock.move(this._activeSplit, Direction.Right)
 
             // Navigation occurred within left dock
             if (newSplit) {

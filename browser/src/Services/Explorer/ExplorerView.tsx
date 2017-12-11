@@ -94,7 +94,6 @@ export interface IExplorerViewProps extends IExplorerContainerProps {
     // workspaceRoot: string
 }
 
-
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 
     public render(): JSX.Element {
@@ -103,7 +102,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
             width: "200px",
             color: "rgb(171, 179, 191)",
             backgroundColor: "rgb(40, 44, 52)",
-            height: "100%"
+            height: "100%",
         }
 
         const tabStyle = {
