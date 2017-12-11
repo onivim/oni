@@ -81,29 +81,6 @@ export class ExplorerSplit {
         })
     }
 
-    private _onOpenItem(): void {
-        const state = this._store.getState()
-        const flattenedState = ExplorerSelectors.mapStateToNodeList(state)
-
-        const selectedId = state.selectedId
-
-        const selectedItem = flattenedState.find((item) => item.id === selectedId)
-
-        if (!selectedItem) {
-            return
-        }
-
-        switch (selectedItem.type) {
-            case "file":
-
-                const fullPath = path.join(state.rootFolder.fullPath, selectedItem.filePath)
-                this._editorManager.activeEditor.openFile(fullPath)
-                return
-            default:
-                alert("Not implemented yet.") // tslint:disable-line
-        }
-    }
-
     public leave(): void {
         if (this._activeBinding) {
             this._activeBinding.release()
@@ -120,6 +97,28 @@ export class ExplorerSplit {
         return <Provider store={this._store}>
                 <Explorer onEnter={this._onEnterEvent} onKeyDown={(key: string) => this._onKeyDown(key)}/>
             </Provider>
+    }
+
+    private _onOpenItem(): void {
+        const state = this._store.getState()
+        const flattenedState = ExplorerSelectors.mapStateToNodeList(state)
+
+        const selectedId = state.selectedId
+
+        const selectedItem = flattenedState.find((item) => item.id === selectedId)
+
+        if (!selectedItem) {
+            return
+        }
+
+        switch (selectedItem.type) {
+            case "file":
+                const fullPath = path.join(state.rootFolder.fullPath, selectedItem.filePath)
+                this._editorManager.activeEditor.openFile(fullPath)
+                return
+            default:
+                alert("Not implemented yet.") // tslint:disable-line
+        }
     }
 
     private _onKeyDown(key: string): void {

@@ -70,7 +70,7 @@ export const DefaultExplorerState: IExplorerState = {
     expandedFolders: {},
     selectedId: "explorer",
     styling: DefaultExplorerStyle,
-    hasFocus: false
+    hasFocus: false,
 }
 
 export type ExplorerAction = {
@@ -159,7 +159,7 @@ export const stylingReducer: Reducer<IExplorerStyling> = (
 
 export const hasFocusReducer: Reducer<boolean> = (
     state: boolean = false,
-    action: ExplorerAction
+    action: ExplorerAction,
 ) => {
     switch (action.type) {
         case "ENTER":
@@ -181,7 +181,7 @@ export const reducer: Reducer<IExplorerState> = (
         rootFolder: rootFolderReducer(state.rootFolder, action),
         expandedFolders: expandedFolderReducer(state.expandedFolders, action),
         selectedId: selectedIdReducer(state.selectedId, action),
-        styling: stylingReducer(state.styling, action)
+        styling: stylingReducer(state.styling, action),
     }
 }
 
