@@ -87,9 +87,8 @@ export class StatusBarItem extends React.PureComponent<StatusBarItemProps, {}> {
         const { priority, count } = this.props
         if (priority < 1 || priority > 3) {
             return 0
-        } else {
-            return count <= 2 ? priority - 1 : priority
         }
+        return count <= 2 ? priority - 1 : priority
     }
 }
 
