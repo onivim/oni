@@ -14,7 +14,6 @@ export class MockScreen implements Neovim.IScreen {
     public cursorColumn: number = 0
     public cursorRow: number = 0
 
-
     public get currentBackgroundColor(): string {
         return null
     }
@@ -47,8 +46,9 @@ export class MockScreen implements Neovim.IScreen {
     public get width(): number {
         return null
     }
+
     public dispatch(action: Neovim.IAction): void {
-    
+        // tslint:disable-line
     }
 
     public getCell(x: number, y: number): Neovim.ICell {

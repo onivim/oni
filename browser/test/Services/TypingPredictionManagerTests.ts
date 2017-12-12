@@ -4,8 +4,8 @@
 
 import * as assert from "assert"
 
-import { MockScreen } from "./../Mocks/neovim"
 import { ITypingPrediction, TypingPredictionManager } from "./../../src/Services/TypingPredictionManager"
+import { MockScreen } from "./../Mocks/neovim"
 
 describe("TypingPredictionManager", () => {
 
@@ -20,7 +20,6 @@ describe("TypingPredictionManager", () => {
         typingPredictionManager = new TypingPredictionManager()
         typingPredictionManager.enable()
     })
-
 
     it("Fires prediction changed event when character added", () => {
         mockScreen.cursorRow = 1
