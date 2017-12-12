@@ -8,8 +8,6 @@ import { Event, IEvent } from "oni-types"
 
 import { IScreen } from "./../neovim"
 
-export type TypingPredictionId = number
-
 export interface IPredictedCharacter {
     character: string
     id: number
@@ -34,6 +32,8 @@ export class TypingPredictionManager {
     private _line: number = null
     private _column: number = null
 
+    private _latestScreenState: IScreen = null
+
     public get onPredictionsChanged(): IEvent<ITypingPrediction> {
         return this._predictionsChanged
     }
@@ -47,6 +47,8 @@ export class TypingPredictionManager {
     }
 
     public setCursorPosition(screen: IScreen): void {
+        this._latestScreenState = screen
+
         const line = screen.cursorRow
         const column = screen.cursorColumn
 
@@ -83,13 +85,19 @@ export class TypingPredictionManager {
         }
     }
 
-    public addPrediction(character: string): TypingPredictionId | null {
+    public addPrediction(character: string): void {
 
-        if (!this._enabled) {
+        if (!this._enabled || !this._latestScreenState) {
             return null
         }
 
         const id = this._column + this._predictions.length + 1
+
+        const newCharacterCell = this._latestScreenState.getCell(id, this._line)
+
+        if (newCharacterCell && newCharacterCell.character) {
+            return
+        }
 
         this._predictions = [
             ...this._predictions,
@@ -97,8 +105,6 @@ export class TypingPredictionManager {
         ]
 
         this._notifyPredictionsChanged()
-
-        return id
     }
 
     public clearAllPredictions(): void {

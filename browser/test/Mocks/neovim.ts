@@ -14,6 +14,8 @@ export class MockScreen implements Neovim.IScreen {
     public cursorColumn: number = 0
     public cursorRow: number = 0
 
+    private _cells: { [row: number]: { [col: number]: Neovim.ICell }} = { }
+
     public get currentBackgroundColor(): string {
         return null
     }
@@ -52,7 +54,25 @@ export class MockScreen implements Neovim.IScreen {
     }
 
     public getCell(x: number, y: number): Neovim.ICell {
-         return null
+        const row = this._cells[y]
+
+        if (!row) {
+            return null
+        }
+
+        const cell = row[x]
+        return cell || null
+    }
+
+    public setCell(x: number, y: number, cell: Neovim.ICell): void {
+        const row = this._cells[y] || { }
+
+        const updatedRow = {
+            ...row,
+            [x]: cell,
+        }
+
+        this._cells[y] = updatedRow
     }
 
     public getScrollRegion(): Neovim.IScrollRegion {
