@@ -72,4 +72,44 @@
             }
         }
     }
+
+    .status-overflow {
+        @media(max-width: 850px){
+            overflow: hidden;
+            max-width: 100px;
+            text-overflow: ellipsis;
+            height: 100%;
+
+                    * > {
+                        overflow: hidden;
+                        max-width: 100%;
+                        text-overflow: ellipsis;
+                    }
+                }
+            }
+
+            .status-disappear(@width) {
+                @media(max-width: @width){
+                    display: none !important;
+                }
+            }
+
+            .item-priority-0 {
+                @media(max-width: 550px){
+                    .status-overflow;
+                }
+            }
+
+            .item-priority-1 {
+                .status-overflow;
+                .status-disappear(750px)
+            }
+
+            .item-priority-2 {
+                .status-disappear(950px)
+            }
+
+            .item-priority-3 {
+                .status-disappear(1080px)
+            }
 }

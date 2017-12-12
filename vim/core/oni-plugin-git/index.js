@@ -21,7 +21,7 @@ const activate = Oni => {
       const filePath = evt.bufferFullPath || evt.filePath;
       const gitBranchIndicator = Oni.statusBar.createItem(
         1,
-        -3,
+        1,
         'oni-plugin-git'
       );
 
@@ -42,8 +42,6 @@ const activate = Oni => {
 
         const props = {
           style: {
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
           },
         };
@@ -52,6 +50,7 @@ const activate = Oni => {
           name: 'code-fork',
           size: Oni.ui.iconSize.Large,
         });
+
         const gitBranch = React.createElement(
           'div',
           props,

@@ -25,6 +25,7 @@ export interface StatusBarItemProps {
     contents: JSX.Element
     id: string
     priority: number
+    count?: number
 }
 
 export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
@@ -37,11 +38,11 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
         const statusBarItems = this.props.items || []
         const leftItems = statusBarItems
             .filter((item) => item.alignment === StatusBarAlignment.Left)
-            .sort((a, b) => a.priority - b.priority)
+            .sort((a, b) => b.priority - a.priority)
 
         const rightItems = statusBarItems
             .filter((item) => item.alignment === StatusBarAlignment.Right)
-            .sort((a, b) => b.priority - a.priority)
+            .sort((a, b) => a.priority - b.priority)
 
         const statusBarStyle = {
             "fontFamily": this.props.fontFamily,
@@ -53,12 +54,12 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
         return <div className="status-bar enable-mouse" style={statusBarStyle}>
             <div className="status-bar-inner">
                 <div className="status-bar-container left">
-                    {leftItems.map((item) => <StatusBarItem {...item} key={item.id}/>)}
+            {leftItems.map((item) =>  <StatusBarItem count={leftItems.length} {...item} key={item.id} />)}
                 </div>
                 <div className="status-bar-container center">
                 </div>
                 <div className="status-bar-container right">
-                    {rightItems.map((item) => <StatusBarItem {...item} key={item.id}/>)}
+                    {rightItems.map((item) =>  <StatusBarItem {...item} count={rightItems.length} key={item.id} />)}
                     <div className="status-bar-item" onClick={() => this._openGithub()}>
                         <span><i className="fa fa-github" /></span>
                     </div>
@@ -75,7 +76,20 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
 
 export class StatusBarItem extends React.PureComponent<StatusBarItemProps, {}> {
     public render() {
-        return <div className="status-bar-item">{this.props.contents}</div>
+        return (
+                <div className={`item-priority-${this.adjustPriority()} status-bar-item`}>
+                    {this.props.contents}
+                </div>
+        )
+    }
+
+    private adjustPriority() {
+        const { priority, count } = this.props
+        if (priority < 1 || priority > 3) {
+            return 0
+        } else {
+            return count <= 2 ? priority - 1 : priority
+        }
     }
 }
 

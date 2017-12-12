@@ -5,8 +5,8 @@ const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
 const activate = (Oni) => {
     const React = Oni.dependencies.React
 
-    const workingDirectoryItem = Oni.statusBar.createItem(0, -1, "oni.status.workingDirectory")
-    const lineNumberItem = Oni.statusBar.createItem(1, -1, "oni.status.lineNumber")
+    const workingDirectoryItem = Oni.statusBar.createItem(0, 1, "oni.status.workingDirectory")
+    const lineNumberItem = Oni.statusBar.createItem(1, 2, "oni.status.lineNumber")
     const modeItem = Oni.statusBar.createItem(1, -2, "oni.status.mode")
 
     const setMode = (mode) => {
