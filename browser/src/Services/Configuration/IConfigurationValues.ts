@@ -39,12 +39,7 @@ export interface IConfigurationValues {
     "debug.fakeLag.languageServer": number | null
     "debug.fakeLag.neovimInput": number | null
 
-    // Experimental feature flags
-    // - autoClosingPairs
-    "experimental.autoClosingPairs.enabled": boolean
-    "experimental.autoClosingPairs.default": any
-
-    // - textMateHighlighting
+        // - textMateHighlighting
     "experimental.editor.textMateHighlighting.enabled": boolean
     // If a file has more lines than this value, syntax highlighting will be disabled
     "experimental.editor.textMateHighlighting.maxLines": number
@@ -55,6 +50,9 @@ export interface IConfigurationValues {
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
     "experimental.editor.typingPrediction": boolean
+
+    "autoClosingPairs.enabled": boolean
+    "autoClosingPairs.default": any
 
     // Production settings
 
