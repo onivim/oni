@@ -449,7 +449,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._typingPredictionManager.clearAllPredictions()
 
-        if (newMode === "insert" && configuration.getValue("experimental.editor.typingPrediction")) {
+        if (newMode === "insert" && configuration.getValue("editor.typingPrediction")) {
             this._typingPredictionManager.enable()
         } else {
             this._typingPredictionManager.disable()
