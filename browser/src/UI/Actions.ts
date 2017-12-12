@@ -25,6 +25,14 @@ export interface ISetHasFocusAction {
     }
 }
 
+export interface IEnterFullScreenAction {
+    type: "ENTER_FULL_SCREEN",
+}
+
+export interface ILeaveFullScreenAction {
+    type: "LEAVE_FULL_SCREEN",
+}
+
 export interface ISetLoadingCompleteAction {
     type: "SET_LOADING_COMPLETE",
 }
@@ -250,6 +258,8 @@ export type SimpleAction =
     IBufferEnterAction |
     IBufferSaveAction |
     IBufferUpdateAction |
+    IEnterFullScreenAction |
+    ILeaveFullScreenAction |
     ISetColorsAction |
     ISetCursorPositionAction |
     ISetImeActive |
