@@ -99,19 +99,19 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.tokenColors": [{
         scope: "variable.object",
-        settings: "Special",
+        settings: "Identifier",
     }, {
         scope: "variable.other.constant",
         settings: "Constant",
     }, {
         scope: "variable.language",
-        settings: "Special",
+        settings: "Identifier",
     }, {
         scope: "variable.parameter",
-        settings: "Special",
+        settings: "Identifier",
     }, {
         scope: "variable.other",
-        settings: "Special",
+        settings: "Identifier",
     }, {
         scope: "support.function",
         settings: "Function",
