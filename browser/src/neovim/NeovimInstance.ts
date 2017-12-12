@@ -640,7 +640,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     private async _onFullBufferUpdate(context: EventContext, startRange: number, endRange: number): Promise<void> {
-        if (endRange > this._config.getValue("editor.maxLinesForLanguageServices"))
+        if (endRange > this._config.getValue("editor.maxLinesForLanguageServices")) {
             return
         }
 

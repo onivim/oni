@@ -44,7 +44,7 @@ export class LanguageManager {
     private _currentTrackedFile: string = null
 
     constructor() {
-        editorManager.allEditors.onBufferEnter.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
+        editorManager.allEditors.onBufferEnter.subscribe(async (bufferInfo: Oni.EditorBufferEventArgs) => {
             const { language, filePath } = bufferInfo
 
             if (language) {
@@ -57,13 +57,14 @@ export class LanguageManager {
                 }
             }
 
-            return this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", async () => {
-                const currentBuffer = editorManager.activeEditor.activeBuffer
+            const currentBuffer = editorManager.activeEditor.activeBuffer
 
-                if (currentBuffer.totalLineCount > configuration.getValue("editor.maxLinesForLanguageServices")) {
-                    logInfo("Not sending 'didOpen' because file line count exceeds limit.")
-                    return
-                }
+            if (currentBuffer.lineCount > configuration.getValue("editor.maxLinesForLanguageServices")) {
+                Log.info("[LanguageManager] Not sending 'didOpen' because file line count exceeds limit.")
+                return
+            }
+
+            this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", async () => {
 
                 this._currentTrackedFile = filePath
                 const lines = await editorManager.activeEditor.activeBuffer.getLines()
@@ -81,7 +82,7 @@ export class LanguageManager {
                 return
             }
 
-            return this.sendLanguageServerNotification(language, filePath, "textDocument/didClose", Helpers.pathToTextDocumentIdentifierParms(filePath))
+            this.sendLanguageServerNotification(language, filePath, "textDocument/didClose", Helpers.pathToTextDocumentIdentifierParms(filePath))
         })
 
         editorManager.allEditors.onBufferChanged.subscribe(async (change: Oni.EditorBufferChangedEventArgs) => {
@@ -115,16 +116,17 @@ export class LanguageManager {
                 }
             }
 
-            return this.sendLanguageServerNotification(language, filePath, "textDocument/didChange", sendBufferThunk)
+            this.sendLanguageServerNotification(language, filePath, "textDocument/didChange", sendBufferThunk)
         })
 
         editorManager.allEditors.onBufferSaved.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
+            const { language, filePath } = bufferInfo
+
             if (this._currentTrackedFile !== filePath) {
                 return
             }
 
-            const { language, filePath } = bufferInfo
-            return this.sendLanguageServerNotification(language, filePath, "textDocument/didSave", Helpers.pathToTextDocumentIdentifierParms(filePath))
+            this.sendLanguageServerNotification(language, filePath, "textDocument/didSave", Helpers.pathToTextDocumentIdentifierParms(filePath))
         })
 
         this.subscribeToLanguageServerNotification("window/showMessage", (args) => {
