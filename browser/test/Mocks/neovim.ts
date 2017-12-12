@@ -8,10 +8,12 @@
 import * as Neovim from "./../../src/neovim"
 
 export class MockScreen implements Neovim.IScreen {
-    
-    public get backgroundColor(): string {
-        return null
-    }
+
+    public backgroundColor: string
+    public foregroundColor: string
+    public cursorColumn: number = 0
+    public cursorRow: number = 0
+
 
     public get currentBackgroundColor(): string {
         return null
@@ -21,12 +23,6 @@ export class MockScreen implements Neovim.IScreen {
         return null
     }
 
-    public get cursorColumn(): number { 
-        return null
-    }
-    public get cursorRow(): number {
-        return null
-    }
     public get fontFamily(): null | string {
         return null
     }
@@ -37,9 +33,6 @@ export class MockScreen implements Neovim.IScreen {
         return null
     }
     public get fontWidthInPixels(): number {
-        return null
-    }
-    public get foregroundColor(): string {
         return null
     }
     public get height(): number {
