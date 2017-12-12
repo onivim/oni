@@ -82,6 +82,10 @@ export class Buffer implements Oni.Buffer {
             end = this._lineCount
         }
 
+        if (end - start > 2500) {
+            Log.warn("getLines called with over 2500 lines, this may cause instability.")
+        }
+
         const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [parseInt(this._id, 10), start, end, false])
         return lines
     }
