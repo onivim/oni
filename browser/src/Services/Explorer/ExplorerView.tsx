@@ -46,11 +46,11 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 
         switch (node.type) {
             case "file":
-                return <FileView fileName={node.filePath} isSelected={this.props.isSelected}/>
+                return <FileView fileName={node.name} isSelected={this.props.isSelected}/>
             case "container":
                 return <ContainerView expanded={node.expanded} name={node.name} isContainer={true} isSelected={this.props.isSelected}/>
             case "folder":
-                return <ContainerView expanded={node.expanded} name={node.folderPath} isContainer={false} isSelected={this.props.isSelected}/>
+                return <ContainerView expanded={node.expanded} name={node.name} isContainer={false} isSelected={this.props.isSelected}/>
             default:
                 return <div>{JSON.stringify(node)}</div>
         }
