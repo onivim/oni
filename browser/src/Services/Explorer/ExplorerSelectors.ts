@@ -20,13 +20,13 @@ export type ExplorerNode = {
     type: "folder",
     folderPath: string,
     expanded: boolean,
-    name: string
+    name: string,
 }  | {
     id: string,
     type: "file",
     filePath: string,
     modified: boolean,
-    name: string
+    name: string,
 }
 
 export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
@@ -42,7 +42,7 @@ export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
     const openedFiles: ExplorerNode[] = Object.keys(state.openedFiles).map((filePath) => ({
         type: "file",
         id: "opened:" + filePath,
-        filePath: filePath,
+        filePath,
         name: path.basename(filePath),
         modified: false, // TODO
     } as ExplorerNode))

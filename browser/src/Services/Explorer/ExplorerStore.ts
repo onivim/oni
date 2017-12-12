@@ -206,7 +206,7 @@ export const reducer: Reducer<IExplorerState> = (
         expandedFolders: expandedFolderReducer(state.expandedFolders, action),
         selectedId: selectedIdReducer(state.selectedId, action),
         styling: stylingReducer(state.styling, action),
-        openedFiles: openedFilesReducer(state.openedFiles, action)
+        openedFiles: openedFilesReducer(state.openedFiles, action),
     }
 }
 

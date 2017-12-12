@@ -56,7 +56,7 @@ export class ExplorerSplit {
         this._editorManager.allEditors.onBufferEnter.subscribe((args) => {
             this._store.dispatch({
                 type: "BUFFER_OPENED",
-                filePath: args.filePath
+                filePath: args.filePath,
             })
         })
     }
