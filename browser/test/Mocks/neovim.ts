@@ -69,7 +69,7 @@ export class MockScreen implements Neovim.IScreen {
 
         const updatedRow = {
             ...row,
-            [x]: cell
+            [x]: cell,
         }
 
         this._cells[y] = updatedRow
