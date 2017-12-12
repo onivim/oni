@@ -9,8 +9,7 @@ import * as React from "react"
 import { IEvent } from "oni-types"
 
 import { Mouse } from "./../Input/Mouse"
-import { NeovimInstance } from "./../neovim"
-import { NeovimScreen } from "./../Screen"
+import { NeovimInstance, NeovimScreen } from "./../neovim"
 
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 

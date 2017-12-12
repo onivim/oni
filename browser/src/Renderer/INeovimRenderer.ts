@@ -1,4 +1,4 @@
-import { IScreen } from "./../Screen"
+import { IScreen } from "./../neovim"
 
 export interface IPosition {
     x: number

@@ -60,6 +60,14 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
             this._containerElement.style.left = startX.toString() + "px"
             this._containerElement.style.width = (prediction.predictedCharacters.length * this.props.width).toString() + "px"
 
+            if (this.props.highlightPredictions) {
+                this._containerElement.style.color = "white"
+                this._containerElement.style.backgroundColor = "rgba(255, 0, 0, 0.5)"
+            } else {
+                this._containerElement.style.color = prediction.foregroundColor
+                this._containerElement.style.backgroundColor = prediction.backgroundColor
+            }
+
             // Add new predictions
             updatedPredictions.forEach((up, idx) => {
                 const elem = document.createElement("div")

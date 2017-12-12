@@ -20,9 +20,8 @@ import { Event } from "oni-types"
 import * as Log from "./../Log"
 
 import { addDefaultUnitIfNeeded } from "./../Font"
-import { EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
+import { EventContext, INeovimStartOptions, NeovimInstance, NeovimScreen, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
-import { NeovimScreen } from "./../Screen"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 
@@ -197,7 +196,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
             UI.Actions.setCursorPosition(this._screen)
-            this._typingPredictionManager.setCursorPosition(this._screen.cursorRow, this._screen.cursorColumn)
+            this._typingPredictionManager.setCursorPosition(this._screen)
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {

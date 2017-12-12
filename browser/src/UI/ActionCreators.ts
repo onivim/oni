@@ -22,7 +22,7 @@ import * as Coordinates from "./Coordinates"
 import * as UI from "./index"
 import * as State from "./State"
 
-import { IScreen } from "./../Screen"
+import { IScreen } from "./../neovim"
 import { normalizePath } from "./../Utility"
 
 import { IConfigurationValues } from "./../Services/Configuration"
