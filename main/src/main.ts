@@ -129,6 +129,10 @@ function updateMenu(mainWindow, loadInit) {
     const menu = buildMenu(mainWindow, loadInit)
     if (process.platform === "darwin") {
         // all osx windows share the same menu
+        const dockMenu = Menu.buildFromTemplate([
+            { label: "New Window", click() { console.log("New Window") } }
+        ])
+        mainWindow.dock.setMenu(dockMenu)
         Menu.setApplicationMenu(menu)
     } else {
         // on windows and linux, set menu per window
