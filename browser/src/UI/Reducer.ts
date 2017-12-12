@@ -21,12 +21,12 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     }
 
     switch (a.type) {
-        case "ENTER_FULL_SCREEN": 
+        case "ENTER_FULL_SCREEN":
             return {
                 ...s,
                 isFullScreen: true,
             }
-        case "LEAVE_FULL_SCREEN": 
+        case "LEAVE_FULL_SCREEN":
             return {
                 ...s,
                 isFullScreen: false,
