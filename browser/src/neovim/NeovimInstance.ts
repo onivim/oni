@@ -9,16 +9,16 @@ import { Event, IEvent } from "oni-types"
 import * as Log from "./../Log"
 import { EventContext } from "./EventContext"
 
-import * as Actions from "./../actions"
 import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
 import * as Platform from "./../Platform"
-import { IPixelPosition, IPosition } from "./../Screen"
 import { configuration } from "./../Services/Configuration"
 
+import * as Actions from "./actions"
 import { NeovimBufferReference } from "./MsgPack"
 import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
 import { INeovimStartOptions, startNeovim } from "./NeovimProcessSpawner"
 import { IQuickFixList, QuickFixList } from "./QuickFix"
+import { IPixelPosition, IPosition } from "./Screen"
 import { Session } from "./Session"
 
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"

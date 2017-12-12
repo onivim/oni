@@ -20,9 +20,8 @@ import { Event } from "oni-types"
 import * as Log from "./../Log"
 
 import { addDefaultUnitIfNeeded } from "./../Font"
-import { BufferEventContext, EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
+import { BufferEventContext, EventContext, INeovimStartOptions, NeovimInstance, NeovimScreen, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
-import { NeovimScreen } from "./../Screen"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 
@@ -209,7 +208,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
             UI.Actions.setCursorPosition(this._screen)
-            this._typingPredictionManager.setCursorPosition(this._screen.cursorRow, this._screen.cursorColumn)
+            this._typingPredictionManager.setCursorPosition(this._screen)
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
@@ -375,10 +374,12 @@ export class NeovimEditor extends Editor implements IEditor {
     public enter(): void {
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
+        UI.Actions.setHasFocus(true)
     }
 
     public leave(): void {
         Log.info("[NeovimEditor::leave]")
+        UI.Actions.setHasFocus(false)
     }
 
     public async openFile(file: string): Promise<Oni.Buffer> {

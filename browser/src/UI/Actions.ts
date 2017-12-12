@@ -18,6 +18,13 @@ import { IThemeColors } from "./../Services/Themes"
 
 import * as types from "vscode-languageserver-types"
 
+export interface ISetHasFocusAction {
+    type: "SET_HAS_FOCUS",
+    payload: {
+        hasFocus: boolean,
+    }
+}
+
 export interface ISetLoadingCompleteAction {
     type: "SET_LOADING_COMPLETE",
 }
@@ -254,6 +261,7 @@ export type SimpleAction =
     IStatusBarShowAction |
     ISetErrorsAction |
     ISetCurrentBuffersAction |
+    ISetHasFocusAction |
     ISetNeovimErrorAction |
     ISetTabs |
     ISetLoadingCompleteAction |

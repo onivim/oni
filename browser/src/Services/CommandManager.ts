@@ -56,9 +56,17 @@ export class CommandManager implements ITaskProvider {
         this._commandDictionary[command.command] = command
     }
 
+    public unregisterCommand(commandName: string): void {
+        delete this._commandDictionary[commandName]
+    }
+
     public executeCommand(name: string, args?: any): boolean | void {
 
         const command = this._commandDictionary[name]
+
+        if (!command) {
+            return false
+        }
 
         let enabled = true
         if (typeof command.enabled === "function") {

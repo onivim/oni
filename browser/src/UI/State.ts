@@ -43,6 +43,7 @@ export interface IState {
     fontPixelHeight: number
     fontFamily: string
     fontSize: string
+    hasFocus: boolean
     mode: string
     definition: null | IDefinition
     cursorLineOpacity: number
@@ -188,6 +189,7 @@ export const createDefaultState = (): IState => ({
     fontPixelHeight: 10,
     fontFamily: "",
     fontSize: "",
+    hasFocus: false,
     imeActive: false,
     mode: "normal",
     definition: null,
