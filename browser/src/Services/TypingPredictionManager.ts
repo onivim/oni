@@ -93,6 +93,12 @@ export class TypingPredictionManager {
 
         const id = this._column + this._predictions.length + 1
 
+        const newCharacterCell = this._latestScreenState.getCell(id, this._line)
+
+        if (newCharacterCell && newCharacterCell.character) {
+            return
+        }
+
         this._predictions = [
             ...this._predictions,
             { id, character },
