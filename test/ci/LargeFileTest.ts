@@ -21,7 +21,6 @@ export const test = async (oni: any) => {
     await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.cursor.line === 0, 30000)
 }
 
-
 import * as fs from "fs"
 import * as os from "os"
 
@@ -39,4 +38,3 @@ const createLargeTestFile = (): string => {
     fs.writeFileSync(filePath, lines)
     return filePath
 }
-

@@ -60,6 +60,7 @@ export class LanguageManager {
             const currentBuffer = editorManager.activeEditor.activeBuffer
 
             if (currentBuffer.lineCount > configuration.getValue("editor.maxLinesForLanguageServices")) {
+                this._statusBar.setStatus(LanguageClientState.NotAvailable)
                 Log.info("[LanguageManager] Not sending 'didOpen' because file line count exceeds limit.")
                 return
             }

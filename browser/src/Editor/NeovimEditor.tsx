@@ -447,7 +447,6 @@ export class NeovimEditor extends Editor implements IEditor {
         }
     }
 
-
     private _onModeChanged(newMode: string): void {
 
         this._typingPredictionManager.clearAllPredictions()
