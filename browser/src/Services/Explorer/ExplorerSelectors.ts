@@ -4,6 +4,8 @@
  * Selectors for the explorer state
  */
 
+import * as path from "path"
+
 import * as flatten from "lodash/flatten"
 
 import { ExpandedFolders, FolderOrFile, IExplorerState } from "./ExplorerStore"
@@ -18,11 +20,13 @@ export type ExplorerNode = {
     type: "folder",
     folderPath: string,
     expanded: boolean,
+    name: string,
 }  | {
     id: string,
     type: "file",
     filePath: string,
     modified: boolean,
+    name: string,
 }
 
 export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
@@ -35,11 +39,12 @@ export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
         name: "Opened Files",
     })
 
-    const openedFiles: ExplorerNode[] = state.openedFiles.map((of) => ({
+    const openedFiles: ExplorerNode[] = Object.keys(state.openedFiles).map((filePath) => ({
         type: "file",
-        id: "opened:" + of.filePath,
-        filePath: of.filePath,
-        modified: of.modified,
+        id: "opened:" + filePath,
+        filePath,
+        name: path.basename(filePath),
+        modified: false, // TODO
     } as ExplorerNode))
 
     ret = [...ret, ...openedFiles]
@@ -69,6 +74,7 @@ export const flattenFolderTree = (folderTree: FolderOrFile, currentList: Explore
         case "file":
             const file: ExplorerNode = {
                 type: "file",
+                name: path.basename(folderTree.fullPath),
                 id: "explorer:" + folderTree.fullPath,
                 filePath: folderTree.fullPath,
                 modified: false,
@@ -81,6 +87,7 @@ export const flattenFolderTree = (folderTree: FolderOrFile, currentList: Explore
                 type: "folder",
                 id: "explorer:" + folderTree.fullPath,
                 folderPath: folderTree.fullPath,
+                name: path.basename(folderTree.fullPath),
                 expanded,
             }
 

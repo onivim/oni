@@ -46,11 +46,11 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 
         switch (node.type) {
             case "file":
-                return <FileView fileName={node.filePath} isSelected={this.props.isSelected}/>
+                return <FileView fileName={node.name} isSelected={this.props.isSelected}/>
             case "container":
                 return <ContainerView expanded={node.expanded} name={node.name} isContainer={true} isSelected={this.props.isSelected}/>
             case "folder":
-                return <ContainerView expanded={node.expanded} name={node.folderPath} isContainer={false} isSelected={this.props.isSelected}/>
+                return <ContainerView expanded={node.expanded} name={node.name} isContainer={false} isSelected={this.props.isSelected}/>
             default:
                 return <div>{JSON.stringify(node)}</div>
         }
@@ -67,7 +67,7 @@ export interface IContainerViewProps {
 export class ContainerView extends React.PureComponent<IContainerViewProps, {}> {
     public render(): JSX.Element {
         const headerStyle = {
-            backgroundColor: this.props.isContainer ? "#1e2127" : "transparent",
+            backgroundColor: this.props.isContainer ? "#1e2127" : this.props.isSelected ? "rgba(97, 175, 239, 0.1)" : "transparent",
             borderLeft: this.props.isSelected ? "4px solid rgb(97, 175, 239)" : "4px solid transparent",
         }
 
