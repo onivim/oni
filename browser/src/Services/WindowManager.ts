@@ -23,7 +23,13 @@ export enum Direction {
 
 import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, getFurthestSplitInDirection, ISplitInfo, SplitDirection } from "./WindowSplit"
 
-export interface IWindowDock {
+export interface INavigatable {
+    contains(split: Oni.IWindowSplit): boolean
+
+    move(startSplit: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit
+}
+
+export interface IWindowDock extends INavigatable {
     splits: Oni.IWindowSplit[]
 
     onSplitsChanged: IEvent<void>
@@ -45,8 +51,35 @@ export class WindowDock implements IWindowDock {
         return this._onSplitsChangedEvent
     }
 
+    public contains(split: Oni.IWindowSplit): boolean {
+        return this._splits.indexOf(split) >= 0
+    }
+
+    public move(startSplit: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit {
+        const currentIndex = this._splits.indexOf(startSplit)
+
+        if (currentIndex === -1) {
+            if (direction === Direction.Left) {
+                return this._splits[this._splits.length - 1]
+            } else if (direction === Direction.Right) {
+                return this._splits[0]
+            } else {
+                return null
+            }
+        }
+
+        // TODO: Generalize this - this is baked for a 'left dock' case right now
+        const newIndex = direction === Direction.Left ? currentIndex - 1 : currentIndex + 1
+
+        if (newIndex >= 0 && newIndex < this._splits.length) {
+            return this._splits[newIndex]
+        } else {
+            return null
+        }
+    }
+
     public addSplit(split: Oni.IWindowSplit): void {
-        this._splits.push(split)
+        this._splits = [...this._splits, split]
         this._onSplitsChangedEvent.dispatch()
     }
 
@@ -100,19 +133,26 @@ export class WindowManager implements Oni.IWindowManager {
         const leftDock = this.getDock(Direction.Left)
 
         if (leftDock && leftDock.splits) {
-            const splitCount = leftDock.splits.length
-            this._focusNewSplit(leftDock.splits[splitCount - 1])
+            const newSplit = leftDock.move(this._activeSplit, Direction.Left)
+            this._focusNewSplit(newSplit)
         }
     }
 
     public moveRight(): void {
         const leftDock = this.getDock(Direction.Left)
 
-        if (leftDock.splits.indexOf(this._activeSplit) >= 0) {
-            const newSplit = getFurthestSplitInDirection(this._splitRoot, 0 /* TODO - Reuse direction? */)
+        if (leftDock.contains(this._activeSplit)) {
+            const newSplit = leftDock.move(this._activeSplit, Direction.Right)
 
+            // Navigation occurred within left dock
             if (newSplit) {
-                this._focusNewSplit(newSplit.contents)
+                this._focusNewSplit(newSplit)
+            } else {
+                const innerSplit = getFurthestSplitInDirection(this._splitRoot, 0 /* TODO - Reuse direction? */)
+
+                if (innerSplit) {
+                    this._focusNewSplit(innerSplit.contents)
+                }
             }
         }
     }

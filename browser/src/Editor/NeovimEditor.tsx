@@ -363,10 +363,12 @@ export class NeovimEditor extends Editor implements IEditor {
     public enter(): void {
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
+        UI.Actions.setHasFocus(true)
     }
 
     public leave(): void {
         Log.info("[NeovimEditor::leave]")
+        UI.Actions.setHasFocus(false)
     }
 
     public async openFile(file: string): Promise<Oni.Buffer> {

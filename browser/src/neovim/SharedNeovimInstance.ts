@@ -8,7 +8,7 @@
  * - Enabling Neovim keybindings in text input elements
  */
 
-import { Event,  IEvent } from "oni-types"
+import { Event,  IDisposable, IEvent } from "oni-types"
 
 import { NeovimInstance } from "./NeovimInstance"
 import { INeovimStartOptions } from "./NeovimProcessSpawner"
@@ -31,6 +31,7 @@ export interface IMenuBinding extends IBinding {
 
 export class Binding implements IBinding {
     private _onReleasedEvent: Event<void> = new Event<void>()
+    private _subscriptions: IDisposable[] = []
 
     public get onReleased(): IEvent<void> {
         return this._onReleasedEvent
@@ -50,7 +51,14 @@ export class Binding implements IBinding {
 
     public release(): void {
         this._neovimInstance = null
+
+        this._subscriptions.forEach((sub) => sub.dispose())
+
         this._onReleasedEvent.dispatch()
+    }
+
+    protected trackDisposable(disposable: IDisposable): void {
+        this._subscriptions.push(disposable)
     }
 }
 
@@ -67,15 +75,14 @@ export class MenuBinding extends Binding implements IMenuBinding {
     constructor(neovimInstance: NeovimInstance) {
         super(neovimInstance)
 
-        this.neovimInstance.on("event", (eventName: string, evt: any) => {
+        const subscription = this.neovimInstance.autoCommands.onCursorMoved.subscribe((evt) => {
             const line = evt.line - 1
-
-            if (eventName === "CursorMoved") {
-                if (line < this._currentOptions.length) {
-                    this._onCursorMovedEvent.dispatch(this._currentOptions[line])
-                }
+            if (line < this._currentOptions.length) {
+                this._onCursorMovedEvent.dispatch(this._currentOptions[line])
             }
         })
+
+        this.trackDisposable(subscription)
     }
 
     public async setItems(items: string[], activeId?: string): Promise<void> {

@@ -96,9 +96,12 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
             }
         })
 
+        const spacer = this.state.leftDock.length > 0 ? <div className="split-spacer vertical" /> : null
+
         return <div style={containerStyle}>
                     <div className="container horizontal full">
                         <Dock splits={this.state.leftDock} activeSplit={this.state.activeSplit} />
+                        {spacer}
                         {editors}
                     </div>
                 </div>
