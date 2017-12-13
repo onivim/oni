@@ -2055,6 +2055,13 @@ electron-rebuild@1.6.0:
     spawn-rx "^2.0.10"
     yargs "^7.0.2"
 
+electron-settings@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/electron-settings/-/electron-settings-3.1.4.tgz#1b670837fd00626395714210291fb4af8ff52880"
+  dependencies:
+    clone "^2.1.1"
+    jsonfile "^4.0.0"
+
 electron-to-chromium@^1.2.7:
   version "1.3.27"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.27.tgz#78ecb8a399066187bb374eede35d9c70565a803d"
