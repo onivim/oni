@@ -10,7 +10,7 @@ import * as Log from "./Log"
 import * as Performance from "./Performance"
 
 import { IConfigurationValues } from "./Services/Configuration/IConfigurationValues"
-import { editorManager } from "./Services/EditorManager"
+// import { editorManager } from "./Services/EditorManager"
 import { inputManager } from "./Services/InputManager"
 
 const start = async (args: string[]): Promise<void> => {
@@ -28,6 +28,7 @@ const start = async (args: string[]): Promise<void> => {
     const browserWindowConfigurationSynchronizerPromise = import("./Services/BrowserWindowConfigurationSynchronizer")
     const colorsPromise = import("./Services/Colors")
     const configurationPromise = import("./Services/Configuration")
+    const editorManagerPromise = import("./Services/EditorManager")
     const languageManagerPromise = import("./Services/Language")
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
@@ -98,6 +99,8 @@ const start = async (args: string[]): Promise<void> => {
     configuration.activate(api)
 
     createLanguageClientsFromConfiguration(configuration.getValues())
+
+    const { editorManager } = await editorManagerPromise
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
