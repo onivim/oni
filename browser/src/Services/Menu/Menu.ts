@@ -16,8 +16,8 @@ import { createReducer } from "./MenuReducer"
 import * as State from "./MenuState"
 
 export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
-    labelHighlights: number[][],
-    detailHighlights: number[][]
+    labelHighlights: number[]
+    detailHighlights: number[]
 }
 
 export type MenuState = State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlights>

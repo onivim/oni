@@ -116,10 +116,24 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
             pinned: f.item.pinned,
             label: f.item.label,
             detail: f.item.detail,
-            labelHighlights,
-            detailHighlights,
+            labelHighlights: convertArrayOfPairsToIndices(labelHighlights),
+            detailHighlights: convertArrayOfPairsToIndices(detailHighlights),
         }
     })
 
     return highlightOptions
+}
+
+const convertArrayOfPairsToIndices = (pairs: number[][]): number[] => {
+    const ret: number[] = []
+
+    pairs.forEach((p) => {
+        const [startIndex, endIndex] = p
+
+        for(let i = startIndex; i <= endIndex; i++) {
+            ret.push(i)
+        }
+    })
+
+    return ret
 }
