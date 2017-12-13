@@ -9,10 +9,6 @@ import * as minimist from "minimist"
 import * as Log from "./Log"
 import * as Performance from "./Performance"
 
-// import * as AutoClosingPairs from "./Services/AutoClosingPairs"
-import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
-import * as Colors from "./Services/Colors"
-import * as BrowserWindowConfigurationSynchronizer from "./Services/BrowserWindowConfigurationSynchronizer"
 import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
@@ -31,9 +27,13 @@ const start = async (args: string[]): Promise<void> => {
     const parsedArgs = minimist(args)
 
     const cssPromise = import("./CSS")
-    const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
-    const languageManagerPromise = import("./Services/Language")
     const pluginManagerPromise = import("./Plugins/PluginManager")
+    const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
+    const browserWindowConfigurationSynchronizerPromise = import("./Services/BrowserWindowConfigurationSynchronizer")
+    const colorsPromise = import("./Services/Colors")
+    const languageManagerPromise = import("./Services/Language")
+    const themesPromise = import("./Services/Themes")
+    const iconThemesPromise = import("./Services/IconThemes")
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
@@ -66,17 +66,19 @@ const start = async (args: string[]): Promise<void> => {
     Performance.endMeasure("Oni.Start.Plugins.Discover")
 
     Performance.startMeasure("Oni.Start.Themes")
-    const Themes = await import("./Services/Themes")
-    const IconThemes = await import("./Services/IconThemes")
+    const Themes = await themesPromise
+    const IconThemes = await iconThemesPromise
     await Promise.all([
         Themes.activate(configuration),
         IconThemes.activate(configuration, pluginManager)
     ])
 
+    const Colors = await colorsPromise
     Colors.activate(configuration, Themes.getThemeManagerInstance())
     UI.Actions.setColors(Themes.getThemeManagerInstance().getColors())
     Performance.endMeasure("Oni.Start.Themes")
 
+    const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
     BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
 
     Performance.startMeasure("Oni.Start.Editors")
@@ -120,6 +122,9 @@ ipcRenderer.on("execute-command", (_evt: any, command: string) => {
 })
 
 const checkForUpdates = async (): Promise<void> => {
+    const AutoUpdate = await import("./Services/AutoUpdate")
+    const { autoUpdater, constructFeedUrl } = AutoUpdate
+
     const feedUrl = await constructFeedUrl("https://api.onivim.io/v1/update")
 
     autoUpdater.onUpdateAvailable.subscribe(() => Log.info("Update available."))
