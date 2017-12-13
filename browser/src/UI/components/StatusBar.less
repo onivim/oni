@@ -74,7 +74,7 @@
         }
     }
 
-    .status-overflow(@hideWidth: 950px) {
+    .status-overflow(@hideWidth: 950px, @max: 15vw) {
         .status-hide(@max){
             overflow: hidden;
             max-width: @max;
@@ -82,7 +82,7 @@
         }
 
         @media(max-width: @hideWidth){
-            .status-hide(15vw);
+            .status-hide(@max);
             height: 100%;
 
                     * > {
@@ -97,13 +97,12 @@
                 }
             }
 
-
             .item-priority-0 {
                 .status-overflow(400px);
             }
 
             .item-priority-1 {
-                .status-overflow(650px);
+                .status-overflow(650px, 35vw);
             }
 
             .item-priority-2 {
