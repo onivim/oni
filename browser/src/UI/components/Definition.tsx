@@ -9,8 +9,6 @@ import * as types from "vscode-languageserver-types"
 
 import { BufferToScreen, ScreenToPixel } from "./../Coordinates"
 
-require("./Definition.less") // tslint:disable-line no-var-requires
-
 export interface IDefinitionProps {
     range: types.Range
     fontWidthInPixels: number

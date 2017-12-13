@@ -28,8 +28,6 @@ export interface ICursorRendererProps {
     typingPrediction: TypingPredictionManager
 }
 
-require("./Cursor.less") // tslint:disable-line no-var-requires
-
 export interface ICursorRendererState {
     predictedCursorColumn: number
 }

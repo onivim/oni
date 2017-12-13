@@ -17,25 +17,24 @@ import * as BrowserWindowConfigurationSynchronizer from "./Services/BrowserWindo
 import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
-import * as IconThemes from "./Services/IconThemes"
 import { inputManager } from "./Services/InputManager"
 import { languageManager } from "./Services/Language"
-import * as Themes from "./Services/Themes"
 
 import * as SharedNeovimInstance from "./neovim/SharedNeovimInstance"
 
 import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
-import * as UI from "./UI/index"
-
-require("./overlay.less") // tslint:disable-line
+// import * as UI from "./UI/index"
 
 const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
 
+    const UI = await import("./UI")
     UI.activate()
 
     const parsedArgs = minimist(args)
+
+    const cssPromise = await import("./CSS")
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
@@ -64,8 +63,9 @@ const start = async (args: string[]): Promise<void> => {
     pluginManager.discoverPlugins()
     Performance.endMeasure("Oni.Start.Plugins.Discover")
 
-    // TODO: Can these be parallelized?
     Performance.startMeasure("Oni.Start.Themes")
+    const Themes = await import("./Services/Themes")
+    const IconThemes = await import("./Services/IconThemes")
     await Promise.all([
         Themes.activate(configuration),
         IconThemes.activate(configuration, pluginManager)
@@ -77,7 +77,6 @@ const start = async (args: string[]): Promise<void> => {
 
     BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
 
-    // TODO: Can these be parallelized?
     Performance.startMeasure("Oni.Start.Editors")
     await Promise.all([
         SharedNeovimInstance.activate(),
@@ -86,7 +85,6 @@ const start = async (args: string[]): Promise<void> => {
     Performance.endMeasure("Oni.Start.Editors")
 
     Performance.startMeasure("Oni.Start.Activate")
-
     const api = pluginManager.startApi()
     configuration.activate(api)
 
@@ -94,6 +92,9 @@ const start = async (args: string[]): Promise<void> => {
 
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Performance.endMeasure("Oni.Start.Activate")
+
+    const CSS = await cssPromise
+    CSS.activate()
 
     UI.Actions.setLoadingComplete()
 

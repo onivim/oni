@@ -8,8 +8,6 @@ import { Icon, IconSize } from "./../Icon"
 
 import * as State from "./../State"
 
-require("./InstallHelp.less") // tslint:disable-line no-var-requires
-
 export interface InstallHelpViewProps {
     visible: boolean
 }

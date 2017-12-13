@@ -7,11 +7,6 @@ import * as React from "react"
 
 import { Visible } from "./Visible"
 
-/**
- * Popup menu
- */
-require("./Message.less") // tslint:disable-line no-var-requires
-
 // export interface IMenuProps {
 //     visible: boolean
 //     items: string[]
