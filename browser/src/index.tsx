@@ -9,11 +9,9 @@ import * as minimist from "minimist"
 import * as Log from "./Log"
 import * as Performance from "./Performance"
 
-import { configuration, IConfigurationValues } from "./Services/Configuration"
+import { IConfigurationValues } from "./Services/Configuration/IConfigurationValues"
 import { editorManager } from "./Services/EditorManager"
 import { inputManager } from "./Services/InputManager"
-
-import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
 const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
@@ -29,6 +27,7 @@ const start = async (args: string[]): Promise<void> => {
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
     const browserWindowConfigurationSynchronizerPromise = import("./Services/BrowserWindowConfigurationSynchronizer")
     const colorsPromise = import("./Services/Colors")
+    const configurationPromise = import("./Services/Configuration")
     const languageManagerPromise = import("./Services/Language")
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
@@ -37,6 +36,8 @@ const start = async (args: string[]): Promise<void> => {
     window["UI"] = UI // tslint:disable-line no-string-literal
 
     Performance.startMeasure("Oni.Start.Config")
+
+    const { configuration } = await configurationPromise
 
     const initialConfigParsingError = configuration.getParsingError()
     if (initialConfigParsingError) {
@@ -90,6 +91,7 @@ const start = async (args: string[]): Promise<void> => {
     const LanguageManager = await languageManagerPromise
     LanguageManager.activate()
     const languageManager = LanguageManager.getInstance()
+    const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()
