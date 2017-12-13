@@ -8,7 +8,6 @@ import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
 import * as Log from "./Log"
 import * as Performance from "./Performance"
-import { pluginManager } from "./Plugins/PluginManager"
 
 import * as AutoClosingPairs from "./Services/AutoClosingPairs"
 import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
@@ -18,13 +17,10 @@ import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
 import { inputManager } from "./Services/InputManager"
-// import * as LanguageManager from "./Services/Language"
 
 import * as SharedNeovimInstance from "./neovim/SharedNeovimInstance"
 
 import { createLanguageClientsFromConfiguration } from "./Services/Language"
-
-// import * as UI from "./UI/index"
 
 const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
@@ -36,6 +32,7 @@ const start = async (args: string[]): Promise<void> => {
 
     const cssPromise = import("./CSS")
     const languageManagerPromise = import("./Services/Language")
+    const pluginManagerPromise = import("./Plugins/PluginManager")
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
@@ -59,6 +56,9 @@ const start = async (args: string[]): Promise<void> => {
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
     Performance.endMeasure("Oni.Start.Config")
+
+    const PluginManager = await pluginManagerPromise
+    const pluginManager = PluginManager.pluginManager
 
     Performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
