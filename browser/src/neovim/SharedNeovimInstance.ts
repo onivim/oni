@@ -128,7 +128,6 @@ class SharedNeovimInstance implements SharedNeovimInstance {
 
     public async start(): Promise<void> {
         const startOptions: INeovimStartOptions = {
-            args: [],
             runtimePaths: pluginManager.getAllRuntimePaths(),
         }
 

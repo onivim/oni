@@ -33,11 +33,12 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.neovimInput": null,
 
     "experimental.editor.textMateHighlighting.enabled": false,
-    "experimental.editor.textMateHighlighting.maxLines": 2000,
 
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
+
+    "editor.maxLinesForLanguageServices": 2500,
 
     "experimental.sidebar.enabled": false,
 

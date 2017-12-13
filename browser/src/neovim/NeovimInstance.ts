@@ -61,13 +61,6 @@ export interface INeovimCompletionInfo {
     col: number
 }
 
-// Limit for the number of lines to handle buffer updates
-// If the file is too large, it ends up being too much traffic
-// between Neovim <-> Oni <-> Language Servers - so
-// set a hard limit. In the future, if need be, this could be
-// moved to a configuration setting.
-export const MAX_LINES_FOR_BUFFER_UPDATE = 5000
-
 export type NeovimEventHandler = (...args: any[]) => void
 
 export interface INeovimInstance {
@@ -374,7 +367,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                         // set title after attaching listeners so we can get the initial title
                         await this.command("set title")
-                        await this.callFunction("OniConnect", [])
 
                         this._initComplete = true
                     },
@@ -648,7 +640,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     private async _onFullBufferUpdate(context: EventContext, startRange: number, endRange: number): Promise<void> {
-        if (endRange > MAX_LINES_FOR_BUFFER_UPDATE) {
+        if (endRange > this._config.getValue("editor.maxLinesForLanguageServices")) {
             return
         }
 
