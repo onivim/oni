@@ -74,9 +74,6 @@ const activate = Oni => {
     Oni.editors.activeEditor.onBufferEnter.subscribe(
       async evt => await updateBranchIndicator(evt)
     );
-    Oni.editors.activeEditor.onBufferChanged.subscribe(
-      async buf => await updateBranchIndicator(buf)
-    );
   } catch (e) {
     console.warn('[Oni.plugin.git] ERROR', e);
   }

@@ -16,14 +16,15 @@ describe("ExplorerSelectors", () => {
 
         it("flattens a single file", () => {
 
-            const file: ExplorerState.IFileState = createTestFile("testPath")
+            const file: ExplorerState.IFileState = createTestFile("/test/files/testFile.txt")
 
             const result = ExplorerSelectors.flattenFolderTree(file, [], {})
 
             const expectedResult = [{
-                id: "explorer:testPath",
+                id: "explorer:/test/files/testFile.txt",
                 type: "file",
-                filePath: "testPath",
+                filePath: "/test/files/testFile.txt",
+                name: "testFile.txt",
                 modified: false,
             }]
 
@@ -33,15 +34,16 @@ describe("ExplorerSelectors", () => {
         it("flattens a single folder", () => {
             const folder: ExplorerState.IFolderState = {
                 type: "folder",
-                fullPath: "folderPath",
+                fullPath: "/test/folder/folderPath",
             }
 
             const result = ExplorerSelectors.flattenFolderTree(folder, [], {})
 
             const expectedResult = [{
                 type: "folder",
-                id: "explorer:folderPath",
-                folderPath: "folderPath",
+                id: "explorer:/test/folder/folderPath",
+                folderPath: "/test/folder/folderPath",
+                name: "folderPath",
                 expanded: false,
             }]
 
@@ -51,24 +53,26 @@ describe("ExplorerSelectors", () => {
         it("flattens a folder with subfiles", () => {
             const folder: ExplorerState.IFolderState = {
                 type: "folder",
-                fullPath: "folderPath",
+                fullPath: "/test/folder1/folderPath",
             }
 
             const expandedFolders = {
-                "folderPath": [ createTestFile("file1")],
+                "/test/folder1/folderPath": [ createTestFile("/test/files/file1")],
             }
 
             const result = ExplorerSelectors.flattenFolderTree(folder, [], expandedFolders)
 
             const expectedResult = [{
                 type: "folder",
-                id: "explorer:folderPath",
-                folderPath: "folderPath",
+                id: "explorer:/test/folder1/folderPath",
+                folderPath: "/test/folder1/folderPath",
+                name: "folderPath",
                 expanded: true,
             }, {
                 type: "file",
-                id: "explorer:file1",
-                filePath: "file1",
+                id: "explorer:/test/files/file1",
+                filePath: "/test/files/file1",
+                name: "file1",
                 modified: false,
             }]
 

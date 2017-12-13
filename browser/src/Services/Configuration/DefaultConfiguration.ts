@@ -35,8 +35,6 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.editor.textMateHighlighting.enabled": false,
     "experimental.editor.textMateHighlighting.maxLines": 2000,
 
-    "experimental.editor.typingPrediction": false,
-
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
@@ -84,6 +82,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.quickOpen.execCommand": null,
 
+    "editor.typingPrediction": true,
+
     "editor.scrollBar.visible": true,
 
     "editor.scrollBar.cursorTick.visible": true,
@@ -99,19 +99,19 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.tokenColors": [{
         scope: "variable.object",
-        settings: "Special",
+        settings: "Identifier",
     }, {
         scope: "variable.other.constant",
         settings: "Constant",
     }, {
         scope: "variable.language",
-        settings: "Special",
+        settings: "Identifier",
     }, {
         scope: "variable.parameter",
-        settings: "Special",
+        settings: "Identifier",
     }, {
         scope: "variable.other",
-        settings: "Special",
+        settings: "Identifier",
     }, {
         scope: "support.function",
         settings: "Function",

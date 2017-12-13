@@ -49,7 +49,6 @@ export interface IConfigurationValues {
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
-    "experimental.editor.typingPrediction": boolean
 
     "autoClosingPairs.enabled": boolean
     "autoClosingPairs.default": any
@@ -150,6 +149,10 @@ export interface IConfigurationValues {
     // IE, Windows:
     // "editor.quickOpen.execCommand": "dir /s /b"
     "editor.quickOpen.execCommand": string | null
+
+    // Typing prediction is Oni's implementation of
+    // 'zero-latency' mode typing, and increases responsiveness.
+    "editor.typingPrediction": boolean
 
     "editor.fullScreenOnStart": boolean
     "editor.maximizeScreenOnStart": boolean
