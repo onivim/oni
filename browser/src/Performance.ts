@@ -20,9 +20,9 @@ export function mark(markerName: string): void {
 }
 
 export const startMeasure = (measurementName: string): void => {
-    console.time(measurementName)
+    console.time(measurementName) // tslint:disable-line
 }
 
 export const endMeasure = (measurementName: string): void => {
-    console.timeEnd(measurementName)
+    console.timeEnd(measurementName) // tslint:disable-line
 }
