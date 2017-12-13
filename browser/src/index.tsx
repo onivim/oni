@@ -10,8 +10,6 @@ import * as Log from "./Log"
 import * as Performance from "./Performance"
 
 import { IConfigurationValues } from "./Services/Configuration/IConfigurationValues"
-// import { editorManager } from "./Services/EditorManager"
-import { inputManager } from "./Services/InputManager"
 
 const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
@@ -21,17 +19,18 @@ const start = async (args: string[]): Promise<void> => {
 
     const parsedArgs = minimist(args)
 
-    const cssPromise = import("./CSS")
-    const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
+    const configurationPromise = import("./Services/Configuration")
     const pluginManagerPromise = import("./Plugins/PluginManager")
+    const themesPromise = import("./Services/Themes")
+    const iconThemesPromise = import("./Services/IconThemes")
+    const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
     const browserWindowConfigurationSynchronizerPromise = import("./Services/BrowserWindowConfigurationSynchronizer")
     const colorsPromise = import("./Services/Colors")
-    const configurationPromise = import("./Services/Configuration")
     const editorManagerPromise = import("./Services/EditorManager")
+    const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
-    const themesPromise = import("./Services/Themes")
-    const iconThemesPromise = import("./Services/IconThemes")
+    const cssPromise = import("./CSS")
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
@@ -58,8 +57,7 @@ const start = async (args: string[]): Promise<void> => {
     configuration.onConfigurationChanged.subscribe(configChange)
     Performance.endMeasure("Oni.Start.Config")
 
-    const PluginManager = await pluginManagerPromise
-    const pluginManager = PluginManager.pluginManager
+    const { pluginManager } = await pluginManagerPromise
 
     Performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
@@ -101,6 +99,7 @@ const start = async (args: string[]): Promise<void> => {
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     const { editorManager } = await editorManagerPromise
+    const { inputManager } = await inputManagerPromise
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
