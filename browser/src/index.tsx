@@ -9,7 +9,7 @@ import * as minimist from "minimist"
 import * as Log from "./Log"
 import * as Performance from "./Performance"
 
-import * as AutoClosingPairs from "./Services/AutoClosingPairs"
+// import * as AutoClosingPairs from "./Services/AutoClosingPairs"
 import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
 import * as Colors from "./Services/Colors"
 import * as BrowserWindowConfigurationSynchronizer from "./Services/BrowserWindowConfigurationSynchronizer"
@@ -31,6 +31,7 @@ const start = async (args: string[]): Promise<void> => {
     const parsedArgs = minimist(args)
 
     const cssPromise = import("./CSS")
+    const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
     const languageManagerPromise = import("./Services/Language")
     const pluginManagerPromise = import("./Plugins/PluginManager")
 
@@ -95,6 +96,7 @@ const start = async (args: string[]): Promise<void> => {
 
     createLanguageClientsFromConfiguration(configuration.getValues())
 
+    const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Performance.endMeasure("Oni.Start.Activate")
 
