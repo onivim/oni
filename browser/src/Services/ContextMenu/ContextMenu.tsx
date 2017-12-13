@@ -22,20 +22,7 @@ import { createStore } from "./../../Redux"
 import * as UI from "./../../UI"
 import { ContextMenuContainer } from "./ContextMenuComponent"
 
-// TODO: Remove filtering from the context menu responsibility
-const reducer = createReducer<types.CompletionItem, types.CompletionItem>((opts, searchText) => {
-
-    if (!searchText) {
-        return opts
-    }
-
-    const filterRegEx = new RegExp("^" + searchText.split("").join(".*") + ".*")
-
-    return opts.filter((f) => {
-        const textToFilterOn = f.filterText || f.label
-        return textToFilterOn.match(filterRegEx)
-    })
-})
+const reducer = createReducer<types.CompletionItem, types.CompletionItem>()
 
 export const contextMenuStore = createStore("CONTEXT-MENU", reducer, State.createDefaultState(), [thunk])
 export const contextMenuActions: typeof ActionCreators = bindActionCreators(ActionCreators as any, contextMenuStore.dispatch)

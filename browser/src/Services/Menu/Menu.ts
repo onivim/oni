@@ -11,7 +11,6 @@ import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 import * as ActionCreators from "./MenuActionCreators"
-import { filterMenuOptions } from "./MenuFilter"
 import { createReducer } from "./MenuReducer"
 import * as State from "./MenuState"
 
@@ -22,7 +21,7 @@ export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
 
 export type MenuState = State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlights>
 
-const reducer = createReducer<Oni.Menu.MenuOption, IMenuOptionWithHighlights>(filterMenuOptions)
+const reducer = createReducer<Oni.Menu.MenuOption, IMenuOptionWithHighlights>()
 
 export const menuStore = createStore<MenuState>(reducer, State.createDefaultState<Oni.Menu.MenuOption, IMenuOptionWithHighlights>(), applyMiddleware(thunk))
 
