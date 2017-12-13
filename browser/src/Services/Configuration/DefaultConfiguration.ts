@@ -21,7 +21,7 @@ const BaseConfiguration: IConfigurationValues = {
     activate: noop,
     deactivate: noop,
 
-    "autoUpdate.enabled": true,
+    "autoUpdate.enabled": false,
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
@@ -32,23 +32,22 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.languageServer": null,
     "debug.fakeLag.neovimInput": null,
 
-    "experimental.autoClosingPairs.enabled": false,
-    "experimental.autoClosingPairs.default": [
-        { "open": "{", "close": "}" },
-        { "open": "[", "close": "]" },
-        { "open": "(", "close": ")" },
-    ],
-
     "experimental.editor.textMateHighlighting.enabled": false,
-    "experimental.editor.textMateHighlighting.maxLines": 2000,
-
-    "experimental.editor.typingPrediction": false,
 
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
+    "editor.maxLinesForLanguageServices": 2500,
+
     "experimental.sidebar.enabled": false,
+
+    "autoClosingPairs.enabled": true,
+    "autoClosingPairs.default": [
+        { "open": "{", "close": "}" },
+        { "open": "[", "close": "]" },
+        { "open": "(", "close": ")" },
+    ],
 
     "oni.audio.bellUrl": null,
 
@@ -83,6 +82,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
+
+    "editor.typingPrediction": true,
 
     "editor.scrollBar.visible": true,
 
@@ -135,14 +136,17 @@ const BaseConfiguration: IConfigurationValues = {
     "language.css.languageServer.command": cssLanguageServerPath,
     "language.css.languageServer.arguments": ["--stdio"],
     "language.css.textMateGrammar": path.join(__dirname, "extensions", "css", "syntaxes", "css.tmLanguage.json"),
+    "language.css.tokenRegex": "[$_a-zA-Z0-9-]",
 
     "language.less.languageServer.command": cssLanguageServerPath,
     "language.less.languageServer.arguments": ["--stdio"],
     "language.less.textMateGrammar": path.join(__dirname, "extensions", "less", "syntaxes", "less.tmLanguage.json"),
+    "language.less.tokenRegex": "[$_a-zA-Z0-9-]",
 
     "language.scss.languageServer.command": cssLanguageServerPath,
     "language.scss.languageServer.arguments": ["--stdio"],
     "language.scss.textMateGrammar": path.join(__dirname, "extensions", "scss", "syntaxes", "scss.json"),
+    "language.scss.tokenRegex": "[$_a-zA-Z0-9-]",
 
     "language.reason.languageServer.command": ocamlLanguageServerPath,
     "language.reason.languageServer.arguments": ["--stdio"],

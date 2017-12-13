@@ -22,7 +22,7 @@ import * as Coordinates from "./Coordinates"
 import * as UI from "./index"
 import * as State from "./State"
 
-import { IScreen } from "./../Screen"
+import { IScreen } from "./../neovim"
 import { normalizePath } from "./../Utility"
 
 import { IConfigurationValues } from "./../Services/Configuration"
@@ -30,6 +30,15 @@ import { IThemeColors } from "./../Services/Themes"
 
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
+
+export const setHasFocus = (hasFocus: boolean) => {
+    return {
+        type: "SET_HAS_FOCUS",
+        payload: {
+            hasFocus,
+        },
+    }
+}
 
 export const setLoadingComplete = () => {
 

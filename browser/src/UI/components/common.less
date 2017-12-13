@@ -34,6 +34,26 @@
     bottom: 0px;
 }
 
+.split {
+    position: relative;
+    height: 100%;
+}
+
+.split-spacer {
+    box-shadow: inset rgba(0, 0, 0, 0.1) 0px 0px 3px 1px;
+    flex: 0 0 auto;
+
+    &.vertical {
+        height: 100%;
+        width: 8px;
+    }
+}
+
+// .split.focus, .editor.focus {
+//     z-index: 1;
+//     box-shadow: 1px 0px 8px 1px rgba(0, 0, 0, 0.1), -1px 0px 8px 1px rgba(0, 0, 0, 0.1);
+// }
+
 ::-webkit-scrollbar-track
 {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
@@ -42,7 +62,7 @@
 
 ::-webkit-scrollbar
 {
-    width: 12px;
+    width: 3px;
     background-color: rgb(0, 0, 0);
 }
 

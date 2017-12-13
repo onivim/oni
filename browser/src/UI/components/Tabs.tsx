@@ -12,6 +12,8 @@ import * as classNames from "classnames"
 import * as BufferSelectors from "./../selectors/BufferSelectors"
 import * as State from "./../State"
 
+import { addDefaultUnitIfNeeded } from "./../../Font"
+
 import { Icon } from "./../../UI/Icon"
 
 import { FileIcon } from "./../../Services/FileIcon"
@@ -159,7 +161,7 @@ import { createSelector } from "reselect"
 
 const getTabState = (state: State.IState) => state.tabState
 const getHighlightColor = (state: State.IState) => {
-    if (!state.configuration["tabs.highlight"]) {
+    if (!state.configuration["tabs.highlight"] || !state.hasFocus) {
         return "transparent"
     }
 
@@ -219,7 +221,7 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
 
     return {
         fontFamily: state.configuration["ui.fontFamily"],
-        fontSize: state.configuration["ui.fontSize"],
+        fontSize: addDefaultUnitIfNeeded(state.configuration["ui.fontSize"]),
         backgroundColor: state.colors["tabs.background"],
         foregroundColor: state.colors["tabs.foreground"],
         onSelect: selectFunc,

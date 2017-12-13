@@ -10,6 +10,8 @@ import { ipcRenderer, remote } from "electron"
 import { Colors } from "./Colors"
 import { Configuration, IConfigurationValues } from "./Configuration"
 
+import { addDefaultUnitIfNeeded } from "./../Font"
+
 export const activate = (configuration: Configuration, colors: Colors) => {
     const browserWindow = remote.getCurrentWindow()
 
@@ -30,7 +32,7 @@ export const activate = (configuration: Configuration, colors: Colors) => {
     const onConfigChanged = (newConfigValues: Partial<IConfigurationValues>) => {
 
         document.body.style.fontFamily = configuration.getValue("ui.fontFamily")
-        document.body.style.fontSize = configuration.getValue("ui.fontSize")
+        document.body.style.fontSize = addDefaultUnitIfNeeded(configuration.getValue("ui.fontSize"))
         document.body.style.fontVariant = configuration.getValue("editor.fontLigatures") ? "normal" : "none"
 
         const fontSmoothing = configuration.getValue("ui.fontSmoothing")

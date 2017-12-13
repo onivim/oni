@@ -8,6 +8,8 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
+import { remote } from "electron"
+
 import { Provider } from "react-redux"
 import { bindActionCreators } from "redux"
 import thunk from "redux-thunk"
@@ -20,11 +22,15 @@ import { getActiveDefinition } from "./selectors/DefinitionSelectors"
 import * as State from "./State"
 
 import { Colors } from "./../Services/Colors"
+import { commandManager } from "./../Services/CommandManager"
+import { Configuration } from "./../Services/Configuration"
 import { editorManager } from "./../Services/EditorManager"
+import { ExplorerSplit } from "./../Services/Explorer/ExplorerSplit"
 import { focusManager } from "./../Services/FocusManager"
 import { listenForDiagnostics } from "./../Services/Language"
 import { SidebarSplit } from "./../Services/Sidebar"
 import { windowManager } from "./../Services/WindowManager"
+import { workspace } from "./../Services/Workspace"
 
 import { NeovimEditor } from "./../Editor/NeovimEditor"
 
@@ -42,6 +48,15 @@ export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators 
 export const Selectors = {
     getActiveDefinition: () => getActiveDefinition(store.getState() as any),
 }
+
+const browserWindow = remote.getCurrentWindow()
+browserWindow.on("enter-full-screen", () => {
+    store.dispatch({type: "ENTER_FULL_SCREEN"})
+})
+
+browserWindow.on("leave-full-screen", () => {
+    store.dispatch({type: "LEAVE_FULL_SCREEN"})
+})
 
 export const activate = (): void => {
     render(defaultState)
@@ -63,9 +78,12 @@ export const render = (_state: State.IState): void => {
         </Provider>, hostElement)
 }
 
-export const startEditors = async (args: any, colors: Colors): Promise<void> => {
-    const leftDock = windowManager.getDock(2)
-    leftDock.addSplit(new SidebarSplit(colors))
+export const startEditors = async (args: any, colors: Colors, configuration: Configuration): Promise<void> => {
+    if (configuration.getValue("experimental.sidebar.enabled")) {
+        const leftDock = windowManager.getDock(2)
+        leftDock.addSplit(new SidebarSplit(colors))
+        leftDock.addSplit(new ExplorerSplit(configuration, workspace, commandManager, editorManager))
+    }
 
     const editor = new NeovimEditor(colors)
     editorManager.setActiveEditor(editor)
