@@ -5,7 +5,7 @@ import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 import * as Log from "./Log"
 import { buildDockMenu, buildMenu } from "./menu"
 import { makeSingleInstance } from "./ProcessLifecycle"
-import { settings } from "electron-settings"
+import * as PersistentSettings from "electron-settings"
 
 global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 
@@ -65,14 +65,14 @@ export function createWindow(commandLineArguments, workingDirectory) {
         blinkFeatures: "ResizeObserver,Accelerated2dCanvas,Canvas2dFixedRenderingMode",
     }
 
-    // const backgroundColor = settings.get("_internal.lastBackgroundColor") || "#1E2127"
+    const backgroundColor = (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
 
     const rootPath = path.join(__dirname, "..", "..", "..")
     const iconPath = path.join(rootPath, "images", "oni.ico")
     const indexPath = path.join(rootPath, "index.html?react_perf")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
-    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: iconPath, webPreferences, backgroundColor: "#FF0000", titleBarStyle: "hidden" })
+    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: iconPath, webPreferences, backgroundColor, titleBarStyle: "hidden" })
 
     updateMenu(mainWindow, false)
 
