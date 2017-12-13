@@ -16,6 +16,12 @@ const productionConfig = Object.assign({}, baseConfig, {
             sourceMap: false
         })
     ],
+    output: {
+        path: path.join(__dirname, "..", "lib", "browser"),
+        publicPath: "lib/browser/",
+        filename: "bundle.js",
+        chunkFilename: "[name].bundle.js"
+    },
 })
 
 module.exports = productionConfig

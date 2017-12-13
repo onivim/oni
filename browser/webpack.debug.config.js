@@ -50,7 +50,7 @@ module.exports = {
     ],
     output: {
         path: path.join(__dirname, "..", "lib", "browser"),
-        publicPath: "lib/browser/",
+        publicPath: "http://localhost:8191/",
         filename: "bundle.js",
         chunkFilename: "[name].bundle.js"
     },
