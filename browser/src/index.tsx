@@ -9,7 +9,6 @@ import * as minimist from "minimist"
 import * as Log from "./Log"
 import * as Performance from "./Performance"
 
-import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
 import { inputManager } from "./Services/InputManager"
@@ -117,7 +116,8 @@ ipcRenderer.on("init", (_evt: any, message: any) => {
     start(message.args)
 })
 
-ipcRenderer.on("execute-command", (_evt: any, command: string) => {
+ipcRenderer.on("execute-command", async (_evt: any, command: string) => {
+    const { commandManager } = await import("./Services/CommandManager")
     commandManager.executeCommand(command, null)
 })
 
