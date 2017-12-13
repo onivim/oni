@@ -9,7 +9,7 @@ import * as types from "vscode-languageserver-types"
 import * as UI from "./../../UI"
 import * as Selectors from "./../../UI/Selectors"
 
-import { ILanguageServerNotificationResponse, languageManager } from "./LanguageManager"
+import * as LanguageManager from "./LanguageManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -36,7 +36,8 @@ export class DiagnosticsDataSource {
 }
 
 export const listenForDiagnostics = () => {
-    languageManager.subscribeToLanguageServerNotification("textDocument/publishDiagnostics", (args: ILanguageServerNotificationResponse) => {
+    const languageManager = LanguageManager.getInstance()
+    languageManager.subscribeToLanguageServerNotification("textDocument/publishDiagnostics", (args: LanguageManager.ILanguageServerNotificationResponse) => {
         const test = args.payload as IPublishDiagnosticsParams
 
         UI.Actions.setErrors(Helpers.unwrapFileUriPath(test.uri), "language-" + args.language, test.diagnostics)

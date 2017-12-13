@@ -18,7 +18,7 @@ import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
 import { inputManager } from "./Services/InputManager"
-import { languageManager } from "./Services/Language"
+// import * as LanguageManager from "./Services/Language"
 
 import * as SharedNeovimInstance from "./neovim/SharedNeovimInstance"
 
@@ -34,7 +34,8 @@ const start = async (args: string[]): Promise<void> => {
 
     const parsedArgs = minimist(args)
 
-    const cssPromise = await import("./CSS")
+    const cssPromise = import("./CSS")
+    const languageManagerPromise = import("./Services/Language")
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
@@ -83,6 +84,10 @@ const start = async (args: string[]): Promise<void> => {
         UI.startEditors(parsedArgs._, Colors.getInstance(), configuration)
     ])
     Performance.endMeasure("Oni.Start.Editors")
+
+    const LanguageManager = await languageManagerPromise
+    LanguageManager.activate()
+    const languageManager = LanguageManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()

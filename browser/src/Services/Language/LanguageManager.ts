@@ -338,4 +338,12 @@ const logDebug = (args: any) => {
     }
 }
 
-export const languageManager = new LanguageManager()
+let _languageManager: LanguageManager = null
+
+export const activate = (): void => {
+    _languageManager = new LanguageManager()
+}
+
+export const getInstance = (): LanguageManager => {
+    return _languageManager
+}

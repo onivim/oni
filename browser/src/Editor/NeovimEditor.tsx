@@ -31,7 +31,7 @@ import { registerBuiltInCommands } from "./../Services/Commands"
 import { Completion } from "./../Services/Completion"
 import { configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, languageManager } from "./../Services/Language"
+import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, getInstance as getLanguageManagerInstance } from "./../Services/Language"
 import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
 import { getThemeManagerInstance } from "./../Services/Themes"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
@@ -245,6 +245,7 @@ export class NeovimEditor extends Editor implements IEditor {
         const textMateHighlightingEnabled = this._config.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
+        const languageManager = getLanguageManagerInstance()
         this._completion = new Completion(this, languageManager, configuration)
         this._completionMenu = new CompletionMenu()
 

@@ -9,7 +9,7 @@
             "dom",
             "es2017"
         ],
-        "module": "commonjs",
+        "module": "esnext",
         "moduleResolution": "node",
         "newLine": "LF",
         "noEmitOnError": true,
@@ -29,7 +29,8 @@
         "sourceMap": true
     },
     "include": [
-        "src/**/*.ts"
+        "src/**/*.ts",
+        "test/**/*.ts"
     ],
     "exclude": [
         "node_modules"
