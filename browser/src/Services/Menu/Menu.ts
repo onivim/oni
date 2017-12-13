@@ -11,6 +11,7 @@ import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 import * as ActionCreators from "./MenuActionCreators"
+import * as MenuFilter from "./MenuFilter"
 import { createReducer } from "./MenuReducer"
 import * as State from "./MenuState"
 
@@ -64,6 +65,7 @@ export class Menu {
     private _onItemSelected = new Event<any>()
     private _onFilterTextChanged = new Event<string>()
     private _onHide = new Event<void>()
+    private _filterFunction = MenuFilter.filterMenuOptions
 
     public get onHide(): IEvent<void> {
         return this._onHide
@@ -97,9 +99,14 @@ export class Menu {
         menuActions.setMenuItems(this._id, items)
     }
 
+    public setFilterFunction(filterFunc: (items: Oni.Menu.MenuOption[], searchString: string) => IMenuOptionWithHighlights[]) {
+        this._filterFunction = filterFunc
+    }
+
     public show(): void {
 
         menuActions.showPopupMenu(this._id, {
+            filterFunction: this._filterFunction,
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
             onHide: () => this._onHide.dispatch(),
             onFilterTextChanged: (newText) => this._onFilterTextChanged.dispatch(newText),
