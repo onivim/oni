@@ -20,7 +20,7 @@ import { editorManager } from "./Services/EditorManager"
 import * as IconThemes from "./Services/IconThemes"
 import { inputManager } from "./Services/InputManager"
 import { languageManager } from "./Services/Language"
-import * as Themes from "./Services/Themes"
+// import * as Themes from "./Services/Themes"
 
 import * as SharedNeovimInstance from "./neovim/SharedNeovimInstance"
 
@@ -56,18 +56,21 @@ const start = async (args: string[]): Promise<void> => {
 
     configuration.start()
 
+    await import(/*webpackChunkName: "SuperTest" */ "./SuperTest")
+
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
     Performance.endMeasure("Oni.Start.Config")
 
     Performance.startMeasure("Oni.Start.Plugins.Discover")
-    const PluginManager = await import("./Plugins/PluginManager")
+    const PluginManager = await import(/* webpackChunkName: "PluginManager" */ "./Plugins/PluginManager")
     const pluginManager = PluginManager.pluginManager
     pluginManager.discoverPlugins()
     Performance.endMeasure("Oni.Start.Plugins.Discover")
 
     // TODO: Can these be parallelized?
     Performance.startMeasure("Oni.Start.Themes")
+    const Themes = await import(/*webpackChunkName: "Themes" */ "./Services/Themes")
     await Promise.all([
         Themes.activate(configuration),
         IconThemes.activate(configuration, pluginManager)
