@@ -8,6 +8,8 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 
+import { remote } from "electron"
+
 import { Provider } from "react-redux"
 import { bindActionCreators } from "redux"
 import thunk from "redux-thunk"
@@ -46,6 +48,15 @@ export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators 
 export const Selectors = {
     getActiveDefinition: () => getActiveDefinition(store.getState() as any),
 }
+
+const browserWindow = remote.getCurrentWindow()
+browserWindow.on("enter-full-screen", () => {
+    store.dispatch({type: "ENTER_FULL_SCREEN"})
+})
+
+browserWindow.on("leave-full-screen", () => {
+    store.dispatch({type: "LEAVE_FULL_SCREEN"})
+})
 
 export const activate = (): void => {
     render(defaultState)
