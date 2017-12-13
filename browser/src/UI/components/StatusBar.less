@@ -49,6 +49,7 @@
             }
 
             .status-bar-item {
+                white-space: nowrap;
                 padding-left: 8px;
                 padding-right: 8px;
                 flex: 0 1 auto;
@@ -73,17 +74,19 @@
         }
     }
 
-    .status-overflow {
-        @media(max-width: 850px){
+    .status-overflow(@hideWidth: 950px) {
+        .status-hide(@max){
             overflow: hidden;
-            max-width: 100px;
+            max-width: @max;
             text-overflow: ellipsis;
+        }
+
+        @media(max-width: @hideWidth){
+            .status-hide(15vw);
             height: 100%;
 
                     * > {
-                        overflow: hidden;
-                        max-width: 100%;
-                        text-overflow: ellipsis;
+                        .status-hide(100%)
                     }
                 }
             }
@@ -94,22 +97,25 @@
                 }
             }
 
+
             .item-priority-0 {
-                @media(max-width: 550px){
-                    .status-overflow;
-                }
+                .status-overflow(400px);
             }
 
             .item-priority-1 {
+                .status-overflow(650px);
+            }
+
+            .item-priority-2 {
                 .status-overflow;
                 .status-disappear(750px)
             }
 
-            .item-priority-2 {
+            .item-priority-3 {
                 .status-disappear(950px)
             }
 
-            .item-priority-3 {
+            .item-priority-4 {
                 .status-disappear(1080px)
             }
 }

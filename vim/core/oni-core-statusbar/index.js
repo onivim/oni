@@ -6,8 +6,8 @@ const activate = (Oni) => {
     const React = Oni.dependencies.React
 
     const workingDirectoryItem = Oni.statusBar.createItem(0, 1, "oni.status.workingDirectory")
-    const lineNumberItem = Oni.statusBar.createItem(1, 2, "oni.status.lineNumber")
-    const modeItem = Oni.statusBar.createItem(1, -2, "oni.status.mode")
+    const lineNumberItem = Oni.statusBar.createItem(1, 0, "oni.status.lineNumber")
+    const modeItem = Oni.statusBar.createItem(1, 0, "oni.status.mode")
 
     const setMode = (mode) => {
         const getBackgroundColorForMode = (m) => {
