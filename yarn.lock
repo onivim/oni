@@ -46,6 +46,12 @@
   dependencies:
     "@types/color-convert" "*"
 
+"@types/electron-settings@^3.1.1":
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@types/electron-settings/-/electron-settings-3.1.1.tgz#e3f8246ee1a8fc66b08203792d09589df355c776"
+  dependencies:
+    "@types/node" "*"
+
 "@types/jsdom@11.0.0":
   version "11.0.0"
   resolved "https://registry.yarnpkg.com/@types/jsdom/-/jsdom-11.0.0.tgz#7ce7deaa1843601ed043f51a0de84fb940574184"
