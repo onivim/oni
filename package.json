@@ -116,6 +116,7 @@
   "dependencies": {
     "@types/redux-batched-subscribe": "^0.1.2",
     "css-language-server": "0.0.2",
+    "electron-settings": "^3.1.4",
     "find-up": "2.1.0",
     "keyboard-layout": "2.0.13",
     "minimist": "1.2.0",
@@ -164,7 +165,6 @@
     "electron-devtools-installer": "2.2.0",
     "electron-mocha": "5.0.0",
     "electron-rebuild": "1.6.0",
-    "electron-settings": "^3.1.4",
     "extract-zip": "1.6.0",
     "fs-extra": "4.0.2",
     "fuse.js": "2.6.2",
