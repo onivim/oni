@@ -2,10 +2,11 @@ import * as path from "path"
 
 import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
+import * as PersistentSettings from "electron-settings"
+
 import * as Log from "./Log"
 import { buildDockMenu, buildMenu } from "./menu"
 import { makeSingleInstance } from "./ProcessLifecycle"
-import * as PersistentSettings from "electron-settings"
 
 global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 

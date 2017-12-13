@@ -6,8 +6,8 @@
 
 import { Event, IEvent } from "oni-types"
 
-import { PluginThemeLoader } from "./ThemeLoader"
 import * as PersistentSettings from "electron-settings"
+import { PluginThemeLoader } from "./ThemeLoader"
 
 export interface IThemeColors {
     "background": string

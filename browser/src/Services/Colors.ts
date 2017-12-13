@@ -90,9 +90,8 @@ export class Colors implements IDisposable {
             this._colors[themeColor] = colorFromConfiguration ? colorFromConfiguration : currentThemeColors[themeColor]
         })
 
-        const lastBackgroundColor = this._colors["background"] || this._colors["editor.background"] || "#1E2127"
+        const lastBackgroundColor = this._colors.background || this._colors["editor.background"] || "#1E2127"
         PersistentSettings.set("_internal.lastBackgroundColor", lastBackgroundColor)
-
 
         this._onColorsChangedEvent.dispatch()
     }
