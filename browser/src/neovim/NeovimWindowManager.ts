@@ -148,6 +148,7 @@ export class NeovimWindowManager {
                     dimensions,
                     getBufferToScreenFromRanges(offset, expandedWidthRanges))
 
+            this._neovimInstance.dispatchScrollEvent()
         } else {
             Log.warn("Measure request failed")
         }

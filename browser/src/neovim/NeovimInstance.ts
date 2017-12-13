@@ -500,7 +500,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return { rows, cols }
     }
 
-    private _dispatchScrollEvent(): void {
+    public dispatchScrollEvent(): void {
         if (this._pendingScrollTimeout) {
             return
         }
@@ -531,7 +531,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     break
                 case "scroll":
                     this.emit("action", Actions.scroll(a[0][0]))
-                    this._dispatchScrollEvent()
                     break
                 case "highlight_set":
                     const highlightInfo = a[a.length - 1][0]
