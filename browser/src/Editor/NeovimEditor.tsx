@@ -173,9 +173,11 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => {
+            const current = evt.current || evt
+            const buf = this._bufferManager.updateBufferFromEvent(current)
             switch (eventName) {
                 case "BufEnter":
-                    this._onBufEnter(evt)
+                    this._onBufEnter(evt, buf)
                     break
                 case "BufWipeout":
                     this._onBufWipeout(evt)
@@ -492,10 +494,9 @@ export class NeovimEditor extends Editor implements IEditor {
         )
     }
 
-    private async _onBufEnter(evt: BufferEventContext): Promise<void> {
+    private async _onBufEnter(evt: BufferEventContext, buf: Oni.Buffer): Promise<void> {
         this._updateWindow(evt.current)
         const lastBuffer = this.activeBuffer
-        const buf = this._bufferManager.updateBufferFromEvent(evt.current)
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
             this.notifyBufferLeave({
                 filePath: lastBuffer.filePath,
@@ -505,10 +506,9 @@ export class NeovimEditor extends Editor implements IEditor {
         this._lastBufferId = evt.current.bufferNumber.toString()
         this.notifyBufferEnter(buf)
 
-        // Existing buffers contains a duplicate current buffer object which should be filterd out
-        // and current buffer sent instead.
+        // Existing buffers contains a duplicate current buffer object which should be filtered out
+        // and current buffer sent instead. Filter out falsy viml values
         const existingBuffersWithoutCurrent = evt.existingBuffers.filter(b => b.bufferNumber !== evt.current.bufferNumber)
-        // Filter out falsy viml values
         const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
 
         UI.Actions.bufferEnter(buffers)
