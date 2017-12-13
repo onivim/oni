@@ -106,7 +106,8 @@
     "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch",
     "uninstall-global": "npm rm -g oni-vim",
     "install-global": "npm install -g oni-vim",
-    "postinstall": "electron-rebuild && opencollective postinstall"
+    "postinstall": "electron-rebuild && opencollective postinstall",
+    "profile:webpack": "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer stats.json"
   },
   "repository": {
     "type": "git",
@@ -201,6 +202,7 @@
     "wcwidth": "1.0.1",
     "webdriverio": "4.8.0",
     "webpack": "3.5.3",
+    "webpack-bundle-analyzer": "^2.9.1",
     "webpack-dev-server": "2.7.1"
   },
   "collective": {
