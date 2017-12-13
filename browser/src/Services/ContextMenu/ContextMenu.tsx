@@ -22,7 +22,9 @@ import { createStore } from "./../../Redux"
 import * as UI from "./../../UI"
 import { ContextMenuContainer } from "./ContextMenuComponent"
 
+// TODO: Remove filtering from the context menu responsibility
 const reducer = createReducer<types.CompletionItem, types.CompletionItem>()
+const noopFilter = (opts: types.CompletionItem[], searchText: string): types.CompletionItem[] => opts
 
 export const contextMenuStore = createStore("CONTEXT-MENU", reducer, State.createDefaultState(), [thunk])
 export const contextMenuActions: typeof ActionCreators = bindActionCreators(ActionCreators as any, contextMenuStore.dispatch)
@@ -141,6 +143,7 @@ export class ContextMenu {
 
         contextMenuActions.showPopupMenu(this._id, {
             ...colors,
+            filterFunction: noopFilter,
             onSelectedItemChanged: (item: any) => this._onSelectedItemChanged.dispatch(item),
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
             onHide: () => this._onHidden(),
