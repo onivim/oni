@@ -18,3 +18,11 @@ export function mark(markerName: string): void {
 
     console.log(`[PERFORMANCE] ${markerName}: ${performance.now()}`) // tslint:disable-line no-console
 }
+
+export const startMeasure = (measurementName: string): void => {
+    console.time(measurementName)
+}
+
+export const endMeasure = (measurementName: string): void => {
+    console.timeEnd(measurementName)
+}
