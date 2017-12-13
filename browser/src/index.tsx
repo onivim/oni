@@ -13,8 +13,6 @@ import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
 import { inputManager } from "./Services/InputManager"
 
-import * as SharedNeovimInstance from "./neovim/SharedNeovimInstance"
-
 import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
 const start = async (args: string[]): Promise<void> => {
@@ -26,6 +24,7 @@ const start = async (args: string[]): Promise<void> => {
     const parsedArgs = minimist(args)
 
     const cssPromise = import("./CSS")
+    const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
     const pluginManagerPromise = import("./Plugins/PluginManager")
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
     const browserWindowConfigurationSynchronizerPromise = import("./Services/BrowserWindowConfigurationSynchronizer")
@@ -81,6 +80,7 @@ const start = async (args: string[]): Promise<void> => {
     BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
 
     Performance.startMeasure("Oni.Start.Editors")
+    const SharedNeovimInstance = await sharedNeovimInstancePromise
     await Promise.all([
         SharedNeovimInstance.activate(),
         UI.startEditors(parsedArgs._, Colors.getInstance(), configuration)
