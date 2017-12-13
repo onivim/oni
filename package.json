@@ -200,7 +200,7 @@
     "tslint": "5.7.0",
     "wcwidth": "1.0.1",
     "webdriverio": "4.8.0",
-    "webpack": "3.5.3",
+    "webpack": "3.10.0",
     "webpack-dev-server": "2.7.1"
   },
   "collective": {
