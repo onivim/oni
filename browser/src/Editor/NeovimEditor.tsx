@@ -319,17 +319,8 @@ export class NeovimEditor extends Editor implements IEditor {
             }
         })
 
-        const openFiles = async (files: string[], action: string) => {
-
-            await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
-
-            for (let i = 1; i < files.length; i++) {
-                this._neovimInstance.command("exec \"" + action + " " + normalizePath(files[i]) + "\"")
-            }
-        }
-
         ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
-            openFiles(files, message)
+            this._openFiles(files, message)
         })
 
         // enable opening a file via drag-drop
@@ -395,7 +386,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
     public async init(filesToOpen: string[]): Promise<void> {
         const startOptions: INeovimStartOptions = {
-            args: filesToOpen,
             runtimePaths: pluginManager.getAllRuntimePaths(),
             transport: configuration.getValue("experimental.neovim.transport"),
         }
@@ -418,6 +408,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
         if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
             await this._neovimInstance.command(":color " + this._themeManager.activeTheme.baseVimTheme)
+        }
+
+        if (filesToOpen && filesToOpen.length > 0) {
+            await this._openFiles(filesToOpen, ":tabnew")
         }
 
         this._hasLoaded = true
@@ -457,6 +451,14 @@ export class NeovimEditor extends Editor implements IEditor {
             onBufferSelect={onBufferSelect}
             onTabClose={onTabClose}
             onTabSelect={onTabSelect} />
+    }
+
+    private async _openFiles(files: string[], action: string): Promise<void> {
+        await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
+
+        for (let i = 1; i < files.length; i++) {
+            await this._neovimInstance.command("exec \"" + action + " " + normalizePath(files[i]) + "\"")
+        }
     }
 
     private _onModeChanged(newMode: string): void {
