@@ -8,7 +8,7 @@ import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
 import * as Log from "./Log"
 import * as Performance from "./Performance"
-import { pluginManager } from "./Plugins/PluginManager"
+// import { pluginManager } from "./Plugins/PluginManager"
 
 import * as AutoClosingPairs from "./Services/AutoClosingPairs"
 import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
@@ -61,6 +61,8 @@ const start = async (args: string[]): Promise<void> => {
     Performance.endMeasure("Oni.Start.Config")
 
     Performance.startMeasure("Oni.Start.Plugins.Discover")
+    const PluginManager = await import("./Plugins/PluginManager")
+    const pluginManager = PluginManager.pluginManager
     pluginManager.discoverPlugins()
     Performance.endMeasure("Oni.Start.Plugins.Discover")
 

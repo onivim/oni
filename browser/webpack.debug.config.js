@@ -52,6 +52,7 @@ module.exports = {
         path: path.join(__dirname, "..", "lib", "browser"),
         publicPath: "/",
         filename: "bundle.js"
+        chunkFilename: "[name].bundle.js",
     },
     node: {
         process: false,
