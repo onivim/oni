@@ -13,6 +13,8 @@ import { configuration } from "./../../Services/Configuration"
 
 import { IMenuOptionWithHighlights } from "./Menu"
 
+import { createLetterCountDictionary, LetterCountDictionary } from "./../../UI/components/HighlightText"
+
 const shouldFilterbeCaseSensitive = (searchString: string): boolean => {
 
     // TODO: Technically, this makes the reducer 'impure',
@@ -39,7 +41,63 @@ const shouldFilterbeCaseSensitive = (searchString: string): boolean => {
     }
 }
 
-export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string): IMenuOptionWithHighlights[] {
+export const regexFilter = (options: Oni.Menu.MenuOption[], searchString: string): IMenuOptionWithHighlights[] => {
+    if (!searchString) {
+        const opt = options.map((o) => {
+            return {
+                ...o,
+                detailHighlights: [],
+                labelHighlights: [],
+            }
+        })
+
+        return sortBy(opt, (o) => o.pinned ? 0 : 1)
+    }
+
+    const filterRegExp = new RegExp(".*" + searchString.split("").join(".*") + ".*")
+
+    const filteredOptions = options.filter((f) => {
+        const textToFilterOn = f.detail + f.label
+        return textToFilterOn.match(filterRegExp)
+    })
+
+    const ret = filteredOptions.map((fo) => {
+        const letterCountDictionary = createLetterCountDictionary(searchString)
+
+        const detailHighlights = getHighlightsFromString(fo.detail, letterCountDictionary)
+        const labelHighlights = getHighlightsFromString(fo.label, letterCountDictionary)
+
+        return {
+            ...fo,
+            detailHighlights,
+            labelHighlights,
+        }
+    })
+
+    return ret
+}
+
+export const getHighlightsFromString = (text: string, letterCountDictionary: LetterCountDictionary): number[] => {
+
+    if (!text) {
+        return []
+    }
+
+    const ret: number[] = []
+
+    for (let i = 0; i < text.length; i++) {
+        const letter = text[i]
+        const idx = i
+        if (letterCountDictionary[letter] && letterCountDictionary[letter] > 0) {
+            ret.push(idx)
+            letterCountDictionary[letter]--
+        }
+    }
+
+    return ret
+}
+
+export const fuseFilter = (options: Oni.Menu.MenuOption[], searchString: string): IMenuOptionWithHighlights[] => {
 
     if (!searchString) {
         const opt = options.map((o) => {

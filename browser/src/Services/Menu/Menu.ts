@@ -65,7 +65,7 @@ export class Menu {
     private _onItemSelected = new Event<any>()
     private _onFilterTextChanged = new Event<string>()
     private _onHide = new Event<void>()
-    private _filterFunction = MenuFilter.filterMenuOptions
+    private _filterFunction = MenuFilter.regexFilter
 
     public get onHide(): IEvent<void> {
         return this._onHide

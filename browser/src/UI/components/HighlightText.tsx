@@ -63,7 +63,9 @@ function shouldHighlightIndex(index: number, highlights: number[]): boolean {
     return highlights.indexOf(index) >= 0
 }
 
-export function createLetterCountDictionary(text: string): any {
+export type LetterCountDictionary = { [letter: string]: number }
+
+export function createLetterCountDictionary(text: string): LetterCountDictionary {
     const array: string[] = text.split("")
     return array.reduce((previousValue: any, currentValue: string) => {
         const cur = previousValue[currentValue] || 0

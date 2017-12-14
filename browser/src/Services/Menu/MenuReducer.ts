@@ -28,7 +28,7 @@ export function createReducer<T, FilteredT extends T>() {
             case "SHOW_MENU":
                 const options3 = a.payload.items || []
                 const filterText = a.payload.filter || ""
-                const filterFunc = (a.payload.options && a.payload.options.filterFunction) ? a.payload.options.filterFunction : MenuFilter.filterMenuOptions
+                const filterFunc = (a.payload.options && a.payload.options.filterFunction) ? a.payload.options.filterFunction : MenuFilter.fuseFilter
                 const filteredOptions3 = filterFunc(options3, filterText)
                 return {
                     ...a.payload.options,
