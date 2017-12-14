@@ -174,19 +174,12 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => {
             const current = evt.current || evt
-            const buf = this._bufferManager.updateBufferFromEvent(current)
-            switch (eventName) {
-                case "BufEnter":
-                    this._onBufEnter(evt, buf)
-                    break
-                case "BufWipeout":
-                    this._onBufWipeout(evt)
-                    break
-                case "BufWritePost":
-                    this._onBufWritePost(evt)
-                    break
-            }
+            this._bufferManager.updateBufferFromEvent(current)
         })
+
+        this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: BufferEventContext) => this._onBufEnter(evt))
+        this._neovimInstance.autoCommands.onBufWipeout.subscribe((evt: BufferEventContext) => this._onBufWipeout(evt))
+        this._neovimInstance.autoCommands.onBufWritePost.subscribe((evt: EventContext) => this._onBufWritePost(evt))
 
         this._neovimInstance.onColorsChanged.subscribe(() => {
             this._onColorsChanged()
