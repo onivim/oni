@@ -11,8 +11,12 @@
   "contributes": {
     "themes": [
       {
-        "name": "solarized8",
-        "path": "colors/solarized8.json"
+        "name": "solarized8_dark",
+        "path": "colors/solarized8_dark.json"
+      },
+      {
+        "name": "solarized8_light",
+        "path": "colors/solarized8_light.json"
       }
     ]
   },

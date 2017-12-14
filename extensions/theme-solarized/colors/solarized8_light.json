@@ -1,6 +1,6 @@
 {
-  "name": "solarized8",
-  "baseVimTheme": "solarized8",
+  "name": "solarized8_light",
+  "baseVimTheme": "solarized8_light",
   "colors": {
     "background": "#073642",
     "foreground": "#839496",
@@ -8,10 +8,10 @@
     "title.background": "#002b36",
     "title.foreground": "#839496",
 
-    "editor.background": "#073642",
+    "editor.background": "#002b36",
     "editor.foreground": "#586e75",
 
-    "tabs.background": "#073642",
+    "tabs.background": "#002b36",
     "tabs.foreground": "#839496",
 
     "toolTip.background": "#002b36",
@@ -27,8 +27,8 @@
     "contextMenu.border": "#505050",
     "contextMenu.highlight": "#3F4652",
 
-    "statusBar.background": "#073642",
-    "statusBar.foreground": "#839496",
+    "statusBar.background": "#839496",
+    "statusBar.foreground": "#073642",
 
     "highlight.mode.insert.background": "#2aa198",
     "highlight.mode.insert.foreground": "#fdf6e3",
