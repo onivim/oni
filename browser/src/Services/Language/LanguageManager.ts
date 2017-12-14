@@ -47,37 +47,7 @@ export class LanguageManager {
         private _configuration: Configuration = configuration,
         private _editorManager: EditorManager = editorManager,
     ) {
-        this._editorManager.allEditors.onBufferEnter.subscribe(async (bufferInfo: Oni.EditorBufferEventArgs) => {
-            const { language, filePath } = bufferInfo
-
-            if (language) {
-                this._statusBar.show(language)
-
-                if (this._hasLanguageClient(language)) {
-                    this._statusBar.setStatus(LanguageClientState.Initializing)
-                } else {
-                    this._statusBar.setStatus(LanguageClientState.NotAvailable)
-                }
-            }
-
-            const currentBuffer = this._editorManager.activeEditor.activeBuffer
-
-            if (currentBuffer.lineCount > this._configuration.getValue("editor.maxLinesForLanguageServices")) {
-                this._statusBar.setStatus(LanguageClientState.NotAvailable)
-                Log.info("[LanguageManager] Not sending 'didOpen' because file line count exceeds limit.")
-                return
-            }
-
-            this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", async () => {
-
-                this._currentTrackedFile = filePath
-                const lines = await this._editorManager.activeEditor.activeBuffer.getLines()
-                const text = lines.join(os.EOL)
-                const version = this._editorManager.activeEditor.activeBuffer.version
-                this._statusBar.setStatus(LanguageClientState.Active)
-                return Helpers.pathToTextDocumentItemParams(filePath, language, text, version)
-            })
-        })
+        this._editorManager.allEditors.onBufferEnter.subscribe(async () => this._onBufferEnter())
 
         this._editorManager.allEditors.onBufferLeave.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
             const { language, filePath } = bufferInfo
@@ -289,6 +259,48 @@ export class LanguageManager {
         })
 
         this._languageServerInfo[language] = languageClient
+
+        // If there is already a buffer open matching this language, 
+        // we should send a buffer open event
+        if (this._editorManager.activeEditor.activeBuffer
+            && this._editorManager.activeEditor.activeBuffer.language === language) {
+            this._onBufferEnter()
+        }
+    }
+
+    private _onBufferEnter(): void {
+        if (!this._editorManager.activeEditor.activeBuffer) {
+            Log.warn("[LanguageManager] No active buffer on buffer enter")
+            return
+        }
+
+        const buffer = this._editorManager.activeEditor.activeBuffer
+        const { language, filePath } = buffer
+
+        if (language) {
+            this._statusBar.show(language)
+
+            if (this._hasLanguageClient(language)) {
+                this._statusBar.setStatus(LanguageClientState.Initializing)
+            } else {
+                this._statusBar.setStatus(LanguageClientState.NotAvailable)
+            }
+        }
+
+        if (buffer.lineCount > this._configuration.getValue("editor.maxLinesForLanguageServices")) {
+            this._statusBar.setStatus(LanguageClientState.NotAvailable)
+            Log.info("[LanguageManager] Not sending 'didOpen' because file line count exceeds limit.")
+            return
+        }
+
+        this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", async () => {
+            this._currentTrackedFile = filePath
+            const lines = await this._editorManager.activeEditor.activeBuffer.getLines()
+            const text = lines.join(os.EOL)
+            const version = this._editorManager.activeEditor.activeBuffer.version
+            this._statusBar.setStatus(LanguageClientState.Active)
+            return Helpers.pathToTextDocumentItemParams(filePath, language, text, version)
+        })
     }
 
     private _getLanguageClient(language: string): ILanguageClient {

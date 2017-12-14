@@ -39,7 +39,7 @@ export class MockLanguageClient implements Language.ILanguageClient {
 
 describe("LanguageManager", () => {
     // const clock: any = global["clock"] // tslint:disable-line
-    // const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
+    const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
 
     // Mocks
     let mockConfiguration: Mocks.MockConfiguration
@@ -71,11 +71,21 @@ describe("LanguageManager", () => {
 
         const mockLanguageClient = new MockLanguageClient()
 
-        const sendRequestSpy = sinon.spy(mockLanguageClient.sendRequest)
+        const sendRequestSpy = sinon.spy(mockLanguageClient, "sendNotification")
 
         // Validate that after registering the client, we had a call to 'textDocument/didOpen'
         // with the contents of the buffer.
         languageManager.registerLanguageClient("javascript", mockLanguageClient)
+
+        // Wait for any pending promises to drain
+        await waitForPromiseResolution()
+
+        // Verify "sendNotification" was called
         assert.strictEqual(sendRequestSpy.callCount, 1)
+
+        const [filePath, notificationName] = sendRequestSpy.getCall(0).args
+
+        assert.strictEqual(filePath, "test.js")
+        assert.strictEqual(notificationName, "textDocument/didOpen")
     })
 })
