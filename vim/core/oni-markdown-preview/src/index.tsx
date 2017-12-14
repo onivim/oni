@@ -13,8 +13,14 @@ export interface IMarkdownPreviewProps {
     oni: Oni.Plugin.Api
 }
 
+export interface IColors {
+    background: string
+    foreground: string
+}
+
 export interface IMarkdownPreviewState {
     source: string
+    colors: IColors
 }
 
 const generateScrollingAnchorId = (line: number) => {
@@ -27,7 +33,11 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
     constructor(props: IMarkdownPreviewProps) {
         super(props)
 
-        this.state = { source: "" }
+        const colors: IColors = {
+            background: this.props.oni.colors.getColor("editor.background"),
+            foreground: this.props.oni.colors.getColor("editor.foreground"),
+        }
+        this.state = { source: "", colors: colors }
     }
 
     componentDidMount() {
@@ -80,6 +90,8 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
         const containerStyle: React.CSSProperties = {
             padding: "1em 1em 1em 1em",
             overflowY: "auto",
+            background: this.state.colors.background,
+            color: this.state.colors.foreground,
         }
 
         var markdownLines = dompurify.sanitize(this.state.source).split("\n")
