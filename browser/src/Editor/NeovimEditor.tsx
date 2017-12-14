@@ -56,7 +56,6 @@ import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSyn
 
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
-    private _buf: Oni.Buffer
     private _neovimInstance: NeovimInstance
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
@@ -176,7 +175,9 @@ export class NeovimEditor extends Editor implements IEditor {
         this._neovimInstance.on("event", (eventName: string, evt: any) => {
             const current = evt.current || evt
             this._updateWindow(current)
-            this._buf = this._bufferManager.updateBufferFromEvent(current)
+            if (eventName !== "bufEnter") {
+                this._bufferManager.updateBufferFromEvent(current)
+            }
         })
 
         this._neovimInstance.autoCommands
@@ -496,15 +497,16 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
+        const buf = this._bufferManager.updateBufferFromEvent(evt.current)
         const lastBuffer = this.activeBuffer
-        if (lastBuffer && lastBuffer.filePath !== this._buf.filePath) {
+        if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
             this.notifyBufferLeave({
                 filePath: lastBuffer.filePath,
                 language: lastBuffer.language,
             })
         }
         this._lastBufferId = evt.current.bufferNumber.toString()
-        this.notifyBufferEnter(this._buf)
+        this.notifyBufferEnter(buf)
 
         // Existing buffers contains a duplicate current buffer object which should be filtered out
         // and current buffer sent instead. Finally Filter out falsy viml values.
