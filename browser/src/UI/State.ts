@@ -80,6 +80,16 @@ export interface IState {
     activeWindowDimensions: Rectangle
 
     activeMessageDialog: IMessageDialog
+    commandLine: ICommandLine | null
+}
+
+export interface ICommandLine {
+    content: Array<[any, string]>,
+    firstchar: string,
+    position: number,
+    prompt: string,
+    indent: number,
+    level: number,
 }
 
 export interface IDefinition {
@@ -235,4 +245,5 @@ export const createDefaultState = (): IState => ({
     toolTips: {},
     activeMessageDialog: null,
     windowTitle: "",
+    commandLine: null,
 })
