@@ -173,12 +173,18 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => {
-            // Deprecate
+            if (eventName !== "BufEnter") {
+                const current = evt.current || evt
+                this._bufferManager.updateBufferFromEvent(current)
+            }
         })
 
-        this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: BufferEventContext) => this._onBufEnter(evt))
-        this._neovimInstance.autoCommands.onBufWipeout.subscribe((evt: BufferEventContext) => this._onBufWipeout(evt))
-        this._neovimInstance.autoCommands.onBufWritePost.subscribe((evt: EventContext) => this._onBufWritePost(evt))
+        this._neovimInstance.autoCommands
+            .onBufEnter.subscribe((evt: BufferEventContext) => this._onBufEnter(evt))
+        this._neovimInstance.autoCommands
+            .onBufWipeout.subscribe((evt: BufferEventContext) => this._onBufWipeout(evt))
+        this._neovimInstance.autoCommands
+            .onBufWritePost.subscribe((evt: EventContext) => this._onBufWritePost(evt))
 
         this._neovimInstance.onColorsChanged.subscribe(() => {
             this._onColorsChanged()
@@ -473,8 +479,7 @@ export class NeovimEditor extends Editor implements IEditor {
         }
     }
 
-    private _updateBufferEvent(currentBuffer: EventContext): Oni.Buffer {
-        const buf = this._bufferManager.updateBufferFromEvent(currentBuffer)
+    private _updateWindow(currentBuffer: EventContext) {
         UI.Actions.setWindowCursor(
             currentBuffer.windowNumber,
             currentBuffer.line - 1,
@@ -487,11 +492,11 @@ export class NeovimEditor extends Editor implements IEditor {
             currentBuffer.windowTopLine - 1,
             currentBuffer.windowBottomLine - 1,
         )
-        return buf
     }
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
-        const buf = this._updateBufferEvent(evt.current)
+        this._updateWindow(evt.current)
+        const buf = this._bufferManager.updateBufferFromEvent(evt.current)
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
             this.notifyBufferLeave({
@@ -503,8 +508,9 @@ export class NeovimEditor extends Editor implements IEditor {
         this.notifyBufferEnter(buf)
 
         // Existing buffers contains a duplicate current buffer object which should be filtered out
-        // and current buffer sent instead. Filter out falsy viml values
-        const existingBuffersWithoutCurrent = evt.existingBuffers.filter(b => b.bufferNumber !== evt.current.bufferNumber)
+        // and current buffer sent instead. Finally Filter out falsy viml values.
+        const existingBuffersWithoutCurrent =
+            evt.existingBuffers.filter(b => b.bufferNumber !== evt.current.bufferNumber)
         const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
 
         UI.Actions.bufferEnter(buffers)
@@ -512,7 +518,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _onBufWritePost(evt: EventContext): Promise<void> {
         // After we save we aren't modified... but we can pass it in just to be safe
-        this._updateBufferEvent(evt)
+        this._updateWindow(evt)
         UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
 
         this.notifyBufferSaved({
@@ -522,7 +528,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private async _onBufWipeout(evt: BufferEventContext): Promise<void> {
-        this._updateBufferEvent(evt.current)
+        this._updateWindow(evt.current)
         this._neovimInstance
         .getBufferIds()
         .then(ids => UI.Actions.setCurrentBuffers(ids))
