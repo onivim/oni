@@ -175,7 +175,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._neovimInstance.on("event", (eventName: string, evt: any) => {
             const current = evt.current || evt
             this._updateWindow(current)
-            if (eventName !== "bufEnter") {
+            if (eventName !== "BufEnter") {
                 this._bufferManager.updateBufferFromEvent(current)
             }
         })
