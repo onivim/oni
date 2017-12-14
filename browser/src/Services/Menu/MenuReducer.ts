@@ -8,7 +8,6 @@ import * as Actions from "./MenuActions"
 import * as MenuFilter from "./MenuFilter"
 import * as State from "./MenuState"
 
-
 export function createReducer<T, FilteredT extends T>() {
 
     const reducer = (s: State.IMenus<T, FilteredT>, a: Actions.MenuAction): State.IMenus<T, FilteredT> => {
@@ -26,21 +25,23 @@ export function createReducer<T, FilteredT extends T>() {
         switch (a.type) {
 
             case "SHOW_MENU":
-                const options3 = a.payload.items || []
-                const filterText = a.payload.filter || ""
-                const filterFunc = (a.payload.options && a.payload.options.filterFunction) ? a.payload.options.filterFunction : MenuFilter.fuseFilter
-                const filteredOptions3 = filterFunc(options3, filterText)
-                return {
-                    ...a.payload.options,
-                    id: a.payload.id,
-                    filter: filterText,
-                    filterFunction: filterFunc,
-                    filteredOptions: filteredOptions3,
-                    options: options3,
-                    selectedIndex: 0,
-                    isLoading: false,
+                {
+                    const options3 = a.payload.items || []
+                    const filterText = a.payload.filter || ""
+                    const filterFunc = (a.payload.options && a.payload.options.filterFunction) ? a.payload.options.filterFunction : MenuFilter.fuseFilter
+                    const filteredOptions3 = filterFunc(options3, filterText)
+                    return {
+                        ...a.payload.options,
+                        id: a.payload.id,
+                        filter: filterText,
+                        filterFunction: filterFunc,
+                        filteredOptions: filteredOptions3,
+                        options: options3,
+                        selectedIndex: 0,
+                        isLoading: false,
+                    }
                 }
-            case "SET_DETAILED_MENU_ITEM": 
+            case "SET_DETAILED_MENU_ITEM":
                 {
                     if (!s || !s.options) {
                         return s

@@ -130,7 +130,7 @@ const convertArrayOfPairsToIndices = (pairs: number[][]): number[] => {
     pairs.forEach((p) => {
         const [startIndex, endIndex] = p
 
-        for(let i = startIndex; i <= endIndex; i++) {
+        for (let i = startIndex; i <= endIndex; i++) {
             ret.push(i)
         }
     })

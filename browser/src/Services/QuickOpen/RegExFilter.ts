@@ -77,4 +77,3 @@ export const getHighlightsFromString = (text: string, letterCountDictionary: Let
 
     return ret
 }
-

@@ -15,12 +15,12 @@ import { INeovimInstance } from "./../../neovim"
 import { commandManager } from "./../CommandManager"
 import { configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
-import { Menu, menuManager, fuseFilter } from "./../Menu"
+import { fuseFilter, Menu, menuManager } from "./../Menu"
 
 import { FinderProcess } from "./FinderProcess"
 import { QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
-import * as RipGrep from "./RipGrep"
 import { regexFilter } from "./RegExFilter"
+import * as RipGrep from "./RipGrep"
 
 export class QuickOpen {
     private _finderProcess: FinderProcess
