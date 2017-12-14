@@ -21,6 +21,26 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
     }
 
     switch (a.type) {
+        case "ENTER_FULL_SCREEN":
+            return {
+                ...s,
+                isFullScreen: true,
+            }
+        case "LEAVE_FULL_SCREEN":
+            return {
+                ...s,
+                isFullScreen: false,
+            }
+        case "SET_HAS_FOCUS":
+            return {
+                ...s,
+                hasFocus: a.payload.hasFocus,
+            }
+        case "SET_LOADING_COMPLETE":
+            return {
+                ...s,
+                isLoaded: true,
+            }
         case "SET_WINDOW_TITLE":
             return {
                 ...s,

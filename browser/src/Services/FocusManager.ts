@@ -19,6 +19,11 @@ class FocusManager {
         this.enforceFocus()
     }
 
+    public setFocus(element: HTMLElement): void {
+        this._focusElementStack = [element]
+        element.focus()
+    }
+
     public enforceFocus(): void {
 
         if (this._focusElementStack.length === 0) {

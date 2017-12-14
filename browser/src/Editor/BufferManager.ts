@@ -36,9 +36,6 @@ export class Buffer implements Oni.Buffer {
     private _modified: boolean
     private _lineCount: number
 
-    private _bufferLines: string[] = null
-    private _lastBufferLineVersion: number = -1
-
     private _promiseQueue = new PromiseQueue()
     private _previousHighlightState: BufferHighlightState = {}
 
@@ -75,7 +72,7 @@ export class Buffer implements Oni.Buffer {
         this.updateFromEvent(evt)
     }
 
-    public async getLines(start?: number, end?: number, cached: boolean = true): Promise<string[]> {
+    public async getLines(start?: number, end?: number): Promise<string[]> {
 
         if (typeof start !== "number") {
             start = 0
@@ -85,12 +82,12 @@ export class Buffer implements Oni.Buffer {
             end = this._lineCount
         }
 
-        if (this._lastBufferLineVersion < this.version || !this._bufferLines || !cached) {
-            const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [parseInt(this._id, 10), start, end, false])
-            return lines
+        if (end - start > 2500) {
+            Log.warn("getLines called with over 2500 lines, this may cause instability.")
         }
 
-        return this._bufferLines.slice(start, end)
+        const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [parseInt(this._id, 10), start, end, false])
+        return lines
     }
 
     public async applyTextEdits(textEdits: types.TextEdit | types.TextEdit[]): Promise<void> {
@@ -109,21 +106,27 @@ export class Buffer implements Oni.Buffer {
                 const lineEnd = range.end.line
                 const characterEnd = range.end.character
 
+                const calls = []
+
+                calls.push(["nvim_command", ["silent! undojoin"]])
+
                 if (lineStart === lineEnd) {
-                    const [lineContents] = await this.getLines(lineStart, lineStart + 1, false /* force to get latest, because cached buffer may not be up-to-date */)
+                    const [lineContents] = await this.getLines(lineStart, lineStart + 1)
                     const beginning = lineContents.substring(0, range.start.character)
                     const end = lineContents.substring(range.end.character, lineContents.length)
                     const newLine = beginning + te.newText + end
 
                     const lines = newLine.split(os.EOL)
 
-                    await this.setLines(lineStart, lineStart + 1, lines)
+                    calls.push(["nvim_buf_set_lines", [parseInt(this._id, 10), lineStart, lineStart + 1, false, lines ]])
                 } else if (characterEnd === 0 && characterStart === 0) {
                     const lines = te.newText.split(os.EOL)
-                    await this.setLines(lineStart, lineEnd, lines)
+                    calls.push(["nvim_buf_set_lines", [parseInt(this._id, 10), lineStart, lineEnd, false, lines ]])
                 } else {
                     Log.warn("Multi-line mid character edits not currently supported")
                 }
+
+                await this._neovimInstance.request("nvim_call_atomic", [calls])
             })
         })
 
@@ -154,11 +157,7 @@ export class Buffer implements Oni.Buffer {
     }
 
     public async setLines(start: number, end: number, lines: string[]): Promise<void> {
-        // Clear buffer lines, so that if we make subsequent edits, we are always getting the freshest line
-        // TODO: Speed this up by updating the `_bufferLines` cache instead
-        this._bufferLines = null
-
-        await this._neovimInstance.request<any>("nvim_buf_set_lines", [parseInt(this._id, 10), start, end, false, lines])
+        return this._neovimInstance.request<any>("nvim_buf_set_lines", [parseInt(this._id, 10), start, end, false, lines])
     }
 
     public async setCursorPosition(row: number, column: number): Promise<void> {
@@ -229,18 +228,6 @@ export class Buffer implements Oni.Buffer {
             line: evt.line - 1,
             column: evt.column - 1,
         }
-    }
-
-    public _notifyBufferUpdated(lines: string[], version: number): void {
-        this._bufferLines = lines
-        this._lastBufferLineVersion = version
-    }
-
-    public _notifyBufferUpdatedAt(line: number, lineContents: string, version: number): void {
-        if (this._bufferLines) {
-            this._bufferLines[line] = lineContents
-        }
-        this._lastBufferLineVersion = version
     }
 }
 

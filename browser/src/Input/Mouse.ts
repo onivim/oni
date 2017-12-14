@@ -1,19 +1,17 @@
 import { EventEmitter } from "events"
-import { IScreen } from "./../Screen"
+
+import { IScreen } from "./../neovim"
 
 // TODO
 // Handle modifier keys
 export class Mouse extends EventEmitter {
 
-    private _editorElement: HTMLDivElement
-    private _screen: IScreen
     private _isDragging = false
 
-    constructor(editorElement: HTMLDivElement, screen: IScreen) {
+    constructor(
+        private _editorElement: HTMLDivElement,
+        private _screen: IScreen) {
         super()
-
-        this._editorElement = editorElement
-        this._screen = screen
 
         this._editorElement.addEventListener("mousedown", (evt: MouseEvent) => {
             const { line, column } = this._convertEventToPosition(evt)

@@ -4,99 +4,102 @@
  * Entry point for the BrowserWindow process
  */
 
-import { ipcRenderer, remote } from "electron"
+import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
 import * as Log from "./Log"
+import * as Performance from "./Performance"
 import { pluginManager } from "./Plugins/PluginManager"
 
 import * as AutoClosingPairs from "./Services/AutoClosingPairs"
 import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
+import * as Colors from "./Services/Colors"
+import * as BrowserWindowConfigurationSynchronizer from "./Services/BrowserWindowConfigurationSynchronizer"
 import { commandManager } from "./Services/CommandManager"
 import { configuration, IConfigurationValues } from "./Services/Configuration"
 import { editorManager } from "./Services/EditorManager"
+import * as IconThemes from "./Services/IconThemes"
 import { inputManager } from "./Services/InputManager"
 import { languageManager } from "./Services/Language"
 import * as Themes from "./Services/Themes"
+
+import * as SharedNeovimInstance from "./neovim/SharedNeovimInstance"
 
 import { createLanguageClientsFromConfiguration } from "./Services/Language"
 
 import * as UI from "./UI/index"
 
-const start = (args: string[]) => {
+require("./overlay.less") // tslint:disable-line
+
+const start = async (args: string[]): Promise<void> => {
+    Performance.startMeasure("Oni.Start")
+
+    UI.activate()
 
     const parsedArgs = minimist(args)
 
-    let loadInitVim: boolean = false
-    let maximizeScreenOnStart: boolean = false
-
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
-    require("./overlay.less")
+
+    Performance.startMeasure("Oni.Start.Config")
 
     const initialConfigParsingError = configuration.getParsingError()
     if (initialConfigParsingError) {
         Log.error(initialConfigParsingError)
     }
 
-    const browserWindow = remote.getCurrentWindow()
-
     const configChange = (newConfigValues: Partial<IConfigurationValues>) => {
         let prop: keyof IConfigurationValues
         for (prop in newConfigValues) {
             UI.Actions.setConfigValue(prop, newConfigValues[prop])
         }
-
-        document.body.style.fontFamily = configuration.getValue("ui.fontFamily")
-        document.body.style.fontSize = configuration.getValue("ui.fontSize")
-        document.body.style.fontVariant = configuration.getValue("editor.fontLigatures") ? "normal" : "none"
-
-        const fontSmoothing = configuration.getValue("ui.fontSmoothing")
-
-        if (fontSmoothing) {
-            document.body.style["-webkit-font-smoothing"] = fontSmoothing
-        }
-
-        const hideMenu: boolean = configuration.getValue("oni.hideMenu")
-        browserWindow.setAutoHideMenuBar(hideMenu)
-        browserWindow.setMenuBarVisibility(!hideMenu)
-
-        const loadInit: boolean = configuration.getValue("oni.loadInitVim")
-        if (loadInit !== loadInitVim) {
-            ipcRenderer.send("rebuild-menu", loadInit)
-            // don't rebuild menu unless oni.loadInitVim actually changed
-            loadInitVim = loadInit
-        }
-
-        const maximizeScreen: boolean = configuration.getValue("editor.maximizeScreenOnStart")
-        if (maximizeScreen !== maximizeScreenOnStart) {
-            browserWindow.maximize()
-        }
-
-        browserWindow.setFullScreen(configuration.getValue("editor.fullScreenOnStart"))
     }
 
     configuration.start()
+
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
+    Performance.endMeasure("Oni.Start.Config")
 
-    performance.mark("NeovimInstance.Plugins.Discover.Start")
+    Performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
-    performance.mark("NeovimInstance.Plugins.Discover.End")
-    UI.init(pluginManager, parsedArgs._)
+    Performance.endMeasure("Oni.Start.Plugins.Discover")
+
+    // TODO: Can these be parallelized?
+    Performance.startMeasure("Oni.Start.Themes")
+    await Promise.all([
+        Themes.activate(configuration),
+        IconThemes.activate(configuration, pluginManager)
+    ])
+
+    Colors.activate(configuration, Themes.getThemeManagerInstance())
+    UI.Actions.setColors(Themes.getThemeManagerInstance().getColors())
+    Performance.endMeasure("Oni.Start.Themes")
+
+    BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
+
+    // TODO: Can these be parallelized?
+    Performance.startMeasure("Oni.Start.Editors")
+    await Promise.all([
+        SharedNeovimInstance.activate(),
+        UI.startEditors(parsedArgs._, Colors.getInstance(), configuration)
+    ])
+    Performance.endMeasure("Oni.Start.Editors")
+
+    Performance.startMeasure("Oni.Start.Activate")
 
     const api = pluginManager.startApi()
     configuration.activate(api)
 
-    ipcRenderer.on("execute-command", (_evt: any, command: string) => {
-        commandManager.executeCommand(command, null)
-    })
-
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
-    Themes.activate(configuration)
+    Performance.endMeasure("Oni.Start.Activate")
+
+    UI.Actions.setLoadingComplete()
 
     checkForUpdates()
+
+    Performance.endMeasure("Oni.Start")
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {
@@ -104,7 +107,11 @@ ipcRenderer.on("init", (_evt: any, message: any) => {
     start(message.args)
 })
 
-const checkForUpdates = async () => {
+ipcRenderer.on("execute-command", (_evt: any, command: string) => {
+    commandManager.executeCommand(command, null)
+})
+
+const checkForUpdates = async (): Promise<void> => {
     const feedUrl = await constructFeedUrl("https://api.onivim.io/v1/update")
 
     autoUpdater.onUpdateAvailable.subscribe(() => Log.info("Update available."))

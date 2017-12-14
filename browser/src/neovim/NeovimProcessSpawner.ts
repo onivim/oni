@@ -20,13 +20,11 @@ const remapPathToUnpackedAsar = (originalPath: string) => {
 export type MsgPackTransport = "stdio" | "pipe"
 
 export interface INeovimStartOptions {
-    args: string[]
     runtimePaths?: string[]
     transport?: MsgPackTransport
 }
 
 const DefaultStartOptions: INeovimStartOptions = {
-    args: [],
     runtimePaths: [],
     transport: "stdio",
 }
@@ -53,7 +51,6 @@ const getSessionFromProcess = async (neovimProcess: ChildProcess, transport: Msg
 export const startNeovim = async (options: INeovimStartOptions = DefaultStartOptions): Promise<Session> => {
 
     const runtimePaths = options.runtimePaths || []
-    const args = options.args || []
 
     const noopInitVimPath = remapPathToUnpackedAsar(path.join(__dirname, "vim", "noop.vim"))
 
@@ -89,7 +86,6 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
 
     const argsToPass = initVimArg
         .concat(["--cmd", `let &rtp.=',${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
-        .concat(args)
 
     const nvimProc = await spawnProcess(nvimProcessPath, argsToPass, {})
 

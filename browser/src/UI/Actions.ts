@@ -18,6 +18,25 @@ import { IThemeColors } from "./../Services/Themes"
 
 import * as types from "vscode-languageserver-types"
 
+export interface ISetHasFocusAction {
+    type: "SET_HAS_FOCUS",
+    payload: {
+        hasFocus: boolean,
+    }
+}
+
+export interface IEnterFullScreenAction {
+    type: "ENTER_FULL_SCREEN",
+}
+
+export interface ILeaveFullScreenAction {
+    type: "LEAVE_FULL_SCREEN",
+}
+
+export interface ISetLoadingCompleteAction {
+    type: "SET_LOADING_COMPLETE",
+}
+
 export interface ISetWindowTitleAction {
     type: "SET_WINDOW_TITLE",
     payload: {
@@ -239,6 +258,8 @@ export type SimpleAction =
     IBufferEnterAction |
     IBufferSaveAction |
     IBufferUpdateAction |
+    IEnterFullScreenAction |
+    ILeaveFullScreenAction |
     ISetColorsAction |
     ISetCursorPositionAction |
     ISetImeActive |
@@ -255,8 +276,10 @@ export type SimpleAction =
     IStatusBarShowAction |
     ISetErrorsAction |
     ISetCurrentBuffersAction |
+    ISetHasFocusAction |
     ISetNeovimErrorAction |
     ISetTabs |
+    ISetLoadingCompleteAction |
     ISetViewportAction |
     ISetWindowCursor |
     ISetWindowState |

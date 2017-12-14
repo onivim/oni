@@ -1,6 +1,19 @@
 import * as os from "os"
 
 import { app, dialog, Menu, shell } from "electron"
+import { createWindow } from "./main"
+
+export const buildDockMenu = (mainWindow, loadInit) => {
+    const menu = []
+    menu.push({
+        label: "New Window",
+        click() {
+            createWindow([], process.cwd())
+        },
+    })
+
+    return Menu.buildFromTemplate(menu)
+}
 
 export const buildMenu = (mainWindow, loadInit) => {
     const menu = []
@@ -93,6 +106,15 @@ export const buildMenu = (mainWindow, loadInit) => {
                 label: "Split Open…",
                 click(item, focusedWindow) {
                     dialog.showOpenDialog(mainWindow, { properties: ["openFile"] }, (files) => executeVimCommandForFiles(":sp", files))
+                },
+            },
+            {
+                type: "separator",
+            },
+            {
+                label: "New Window",
+                click() {
+                    createWindow([], process.cwd())
                 },
             },
             {

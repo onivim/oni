@@ -9,6 +9,7 @@ import { MenuContainer } from "./../Services/Menu"
 import * as WindowManager from "./../Services/WindowManager"
 
 import { Background } from "./components/Background"
+import { Loading } from "./components/Loading"
 import StatusBar from "./components/StatusBar"
 
 import { WindowSplits } from "./components/WindowSplits"
@@ -45,6 +46,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
                     </div>
                 </div>
             </div>
+            <Loading/>
         </div>
     }
 
