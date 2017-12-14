@@ -56,7 +56,7 @@ import * as VimConfigurationSynchronizer from "./../Services/VimConfigurationSyn
 
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
-    private _buf: Oni.Buffer;
+    private _buf: Oni.Buffer
     private _neovimInstance: NeovimInstance
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
