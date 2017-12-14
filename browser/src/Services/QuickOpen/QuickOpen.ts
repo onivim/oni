@@ -15,11 +15,12 @@ import { INeovimInstance } from "./../../neovim"
 import { commandManager } from "./../CommandManager"
 import { configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
-import { Menu, menuManager } from "./../Menu"
+import { Menu, menuManager, fuseFilter } from "./../Menu"
 
 import { FinderProcess } from "./FinderProcess"
 import { QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
 import * as RipGrep from "./RipGrep"
+import { regexFilter } from "./RegExFilter"
 
 export class QuickOpen {
     private _finderProcess: FinderProcess
@@ -77,7 +78,13 @@ export class QuickOpen {
         this._loadedItems = []
 
         const overriddenCommand = configuration.getValue("editor.quickOpen.execCommand")
-        // const exclude = config.getValue("oni.exclude")
+
+        const filterStrategy = configuration.getValue("editor.quickOpen.filterStrategy")
+
+        const useRegExFilter = filterStrategy === "regex"
+
+        const filterFunction = useRegExFilter ? regexFilter : fuseFilter
+        this._menu.setFilterFunction(filterFunction)
 
         //  If in exec directory or home, show bookmarks to change cwd to
         if (this._isInstallDirectoryOrHome()) {
