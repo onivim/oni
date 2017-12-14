@@ -260,7 +260,7 @@ export class LanguageManager {
 
         this._languageServerInfo[language] = languageClient
 
-        // If there is already a buffer open matching this language, 
+        // If there is already a buffer open matching this language,
         // we should send a buffer open event
         if (this._editorManager.activeEditor.activeBuffer
             && this._editorManager.activeEditor.activeBuffer.language === language) {
