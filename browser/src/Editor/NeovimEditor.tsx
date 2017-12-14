@@ -174,15 +174,17 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => {
-                const current = evt.current || evt
-                this._buf = this._bufferManager.updateBufferFromEvent(current)
-                this._updateWindow(current)
+            const current = evt.current || evt
+            this._updateWindow(current)
+            this._buf = this._bufferManager.updateBufferFromEvent(current)
         })
 
         this._neovimInstance.autoCommands
             .onBufEnter.subscribe((evt: BufferEventContext) => this._onBufEnter(evt))
+
         this._neovimInstance.autoCommands
             .onBufWipeout.subscribe((evt: BufferEventContext) => this._onBufWipeout(evt))
+
         this._neovimInstance.autoCommands
             .onBufWritePost.subscribe((evt: EventContext) => this._onBufWritePost(evt))
 
@@ -485,7 +487,6 @@ export class NeovimEditor extends Editor implements IEditor {
             currentBuffer.line - 1,
             currentBuffer.column - 1,
         )
-
         // Convert to 0-based positions
         this._syntaxHighlighter.notifyViewportChanged(
             currentBuffer.bufferNumber.toString(),

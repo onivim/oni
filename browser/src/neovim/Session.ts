@@ -47,6 +47,7 @@ export class Session extends EventEmitter {
 
         this._decoder.on("data", (data: any) => {
             const [type, ...remaining] = data
+
             switch (type) {
                 case 0:
                     Log.warn("Unhandled request")
@@ -61,6 +62,7 @@ export class Session extends EventEmitter {
                 case 2 /* Notification */:
                     const [notificationMessage, payload] = remaining
                     log("Received notification - " + notificationMessage)
+
                     this.emit("notification", notificationMessage, payload)
                     break
                 default:
