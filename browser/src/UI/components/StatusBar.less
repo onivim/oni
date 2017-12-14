@@ -74,14 +74,14 @@
         }
     }
 
-    .status-overflow(@hideWidth: 950px, @max: 15vw) {
+    .status-overflow(@hideWidth: 75vw, @max: 15vw) {
         .status-hide(@max){
             overflow: hidden;
             max-width: @max;
             text-overflow: ellipsis;
         }
 
-        @media(max-width: @hideWidth){
+        @media(min-width: @hideWidth){
             .status-hide(@max);
             height: 100%;
 
@@ -98,23 +98,23 @@
             }
 
             .item-priority-0 {
-                .status-overflow(400px);
+                .status-overflow(30vw);
             }
 
             .item-priority-1 {
-                .status-overflow(650px, 35vw);
+                .status-overflow(80vw, 35vw);
             }
 
             .item-priority-2 {
                 .status-overflow;
-                .status-disappear(750px)
+                .status-disappear(70vw)
             }
 
             .item-priority-3 {
-                .status-disappear(950px)
+                .status-disappear(80vw)
             }
 
             .item-priority-4 {
-                .status-disappear(1080px)
+                .status-disappear(90vw)
             }
 }
