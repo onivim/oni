@@ -173,7 +173,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => {
-            //Deprecate
+            // Deprecate
         })
 
         this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: BufferEventContext) => this._onBufEnter(evt))
