@@ -7,6 +7,7 @@
 import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
 import * as Log from "./Log"
+import * as Performance from "./Performance"
 import { pluginManager } from "./Plugins/PluginManager"
 
 import * as AutoClosingPairs from "./Services/AutoClosingPairs"
@@ -30,6 +31,7 @@ import * as UI from "./UI/index"
 require("./overlay.less") // tslint:disable-line
 
 const start = async (args: string[]): Promise<void> => {
+    Performance.startMeasure("Oni.Start")
 
     UI.activate()
 
@@ -37,6 +39,8 @@ const start = async (args: string[]): Promise<void> => {
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
+
+    Performance.startMeasure("Oni.Start.Config")
 
     const initialConfigParsingError = configuration.getParsingError()
     if (initialConfigParsingError) {
@@ -54,23 +58,34 @@ const start = async (args: string[]): Promise<void> => {
 
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
+    Performance.endMeasure("Oni.Start.Config")
 
-    performance.mark("NeovimInstance.Plugins.Discover.Start")
+    Performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
-    performance.mark("NeovimInstance.Plugins.Discover.End")
+    Performance.endMeasure("Oni.Start.Plugins.Discover")
 
     // TODO: Can these be parallelized?
-    await Themes.activate(configuration)
-    await IconThemes.activate(configuration, pluginManager)
+    Performance.startMeasure("Oni.Start.Themes")
+    await Promise.all([
+        Themes.activate(configuration),
+        IconThemes.activate(configuration, pluginManager)
+    ])
 
     Colors.activate(configuration, Themes.getThemeManagerInstance())
     UI.Actions.setColors(Themes.getThemeManagerInstance().getColors())
+    Performance.endMeasure("Oni.Start.Themes")
 
     BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
 
     // TODO: Can these be parallelized?
-    await SharedNeovimInstance.activate()
-    await UI.startEditors(parsedArgs._, Colors.getInstance(), configuration)
+    Performance.startMeasure("Oni.Start.Editors")
+    await Promise.all([
+        SharedNeovimInstance.activate(),
+        UI.startEditors(parsedArgs._, Colors.getInstance(), configuration)
+    ])
+    Performance.endMeasure("Oni.Start.Editors")
+
+    Performance.startMeasure("Oni.Start.Activate")
 
     const api = pluginManager.startApi()
     configuration.activate(api)
@@ -78,10 +93,13 @@ const start = async (args: string[]): Promise<void> => {
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+    Performance.endMeasure("Oni.Start.Activate")
 
     UI.Actions.setLoadingComplete()
 
     checkForUpdates()
+
+    Performance.endMeasure("Oni.Start")
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {

@@ -41,8 +41,6 @@ export interface IConfigurationValues {
 
         // - textMateHighlighting
     "experimental.editor.textMateHighlighting.enabled": boolean
-    // If a file has more lines than this value, syntax highlighting will be disabled
-    "experimental.editor.textMateHighlighting.maxLines": number
 
     "experimental.sidebar.enabled": boolean
 
@@ -127,6 +125,10 @@ export interface IConfigurationValues {
 
     // Additional padding between lines
     "editor.linePadding": number
+
+    // Maximum supported file size (by lines)
+    // to include language services/completion/syntax highlight/etc
+    "editor.maxLinesForLanguageServices": 2500,
 
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
