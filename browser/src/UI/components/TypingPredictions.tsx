@@ -14,6 +14,8 @@ import * as State from "./../State"
 
 import { ITypingPrediction, TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
+import { addDefaultUnitIfNeeded } from "./../../Font"
+
 export interface ITypingPredictionProps {
     typingPrediction: TypingPredictionManager
 }
@@ -57,6 +59,14 @@ class TypingPredictionView extends React.PureComponent<ITypingPredictionViewProp
             this._containerElement.style.height = this.props.height.toString() + "px"
             this._containerElement.style.left = startX.toString() + "px"
             this._containerElement.style.width = (prediction.predictedCharacters.length * this.props.width).toString() + "px"
+
+            if (this.props.highlightPredictions) {
+                this._containerElement.style.color = "white"
+                this._containerElement.style.backgroundColor = "rgba(255, 0, 0, 0.5)"
+            } else {
+                this._containerElement.style.color = prediction.foregroundColor
+                this._containerElement.style.backgroundColor = prediction.backgroundColor
+            }
 
             // Add new predictions
             updatedPredictions.forEach((up, idx) => {
@@ -120,7 +130,7 @@ const mapStateToProps = (state: State.IState, props: ITypingPredictionProps): IT
         color: state.colors["editor.background"],
         textColor: state.colors["editor.foreground"],
         fontFamily: State.readConf(state.configuration, "editor.fontFamily"),
-        fontSize: State.readConf(state.configuration, "editor.fontSize"),
+        fontSize: addDefaultUnitIfNeeded(State.readConf(state.configuration, "editor.fontSize")),
         visible: true,
     }
 }

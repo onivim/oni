@@ -5,6 +5,8 @@
  * to exercise boundaries of class implementations
  */
 
+import * as Oni from "oni-api"
+
 import * as types from "vscode-languageserver-types"
 
 import { Editor } from "./../../src/Editor/Editor"
@@ -29,6 +31,10 @@ export class MockConfiguration {
 export class MockEditor extends Editor {
 
     private _activeBuffer: MockBuffer = null
+
+    public get activeBuffer(): Oni.Buffer {
+        return this._activeBuffer as any
+    }
 
     public simulateModeChange(newMode: string): void {
         this.setMode(newMode as any)
@@ -67,6 +73,10 @@ export class MockBuffer {
 
     public get filePath(): string {
         return this._filePath
+    }
+
+    public get lineCount(): number {
+        return this._lines.length
     }
 
     public constructor(

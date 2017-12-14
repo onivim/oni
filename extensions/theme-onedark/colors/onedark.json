@@ -2,7 +2,7 @@
     "name": "onedark",
     "baseVimTheme": "onedark",
     "colors": {
-        "background": "#1F1F1F",
+        "background": "#1E2127",
         "foreground": "#ABB2BF",
 
         "title.background": "#1F1F1F",
@@ -26,6 +26,11 @@
         "contextMenu.foreground": "#ABB2BF",
         "contextMenu.border": "#505050",
         "contextMenu.highlight": "#3F4652",
+
+        "sidebar.background": "#1E2127",
+        "sidebar.foreground": "#ABB2BF",
+        "sidebar.active.background": "#282C34",
+        "sidebar.selection.border": "#61afef",
 
         "statusBar.background": "#282828",
         "statusBar.foreground": "#c8c8c8",

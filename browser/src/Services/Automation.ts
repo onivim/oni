@@ -26,6 +26,7 @@ export class Automation implements OniApi.Automation.Api {
         Log.info("[AUTOMATION] Sending keys: " + keys)
 
         if (!inputManager.handleKey(keys)) {
+            Log.info("[AUTOMATION] InputManager did not handle key: " + keys)
             const anyEditor: any = editorManager.activeEditor as any
             anyEditor._onKeyDown(keys)
         }
@@ -36,7 +37,7 @@ export class Automation implements OniApi.Automation.Api {
         return new Promise<void>((r) => window.setTimeout(() => r(), time))
     }
 
-    public async waitFor(condition: () => boolean, timeout: number = 5000): Promise<void> {
+    public async waitFor(condition: () => boolean, timeout: number = 10000): Promise<void> {
         Log.info("[AUTOMATION] Starting wait - limit: " + timeout)
         let time = 0
         const interval = 1000
@@ -67,7 +68,15 @@ export class Automation implements OniApi.Automation.Api {
         try {
             Log.info("[AUTOMATION] Starting test: " + testPath)
             const testCase: any = Utility.nodeRequire(testPath2)
-            await testCase.test(new Oni())
+            const oni = new Oni()
+            // Add explicit wait for Neovim to be initialized
+            // The CI machines can often be slow, so we need a longer timout for it
+            // TODO: Replace with a more explicit condition, once our startup
+            // path is well-defined (#89, #355, #372)
+            Log.info("[AUTOMATION] Waiting for neovim to attach...")
+            await this.waitFor(() => oni.editors.activeEditor.neovim && (oni.editors.activeEditor as any).neovim.isInitialized, 30000)
+            Log.info("[AUTOMATION] Neovim attached!")
+            await testCase.test(oni)
             Log.info("[AUTOMATION] Completed test: " + testPath)
             this._reportResult(true)
         } catch (ex) {

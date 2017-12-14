@@ -9,17 +9,19 @@ import { Event, IEvent } from "oni-types"
 import * as Log from "./../Log"
 import { EventContext } from "./EventContext"
 
-import * as Actions from "./../actions"
-import { measureFont } from "./../Font"
+import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
 import * as Platform from "./../Platform"
-import { IPixelPosition, IPosition } from "./../Screen"
 import { configuration } from "./../Services/Configuration"
 
+import * as Actions from "./actions"
 import { NeovimBufferReference } from "./MsgPack"
 import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
 import { INeovimStartOptions, startNeovim } from "./NeovimProcessSpawner"
 import { IQuickFixList, QuickFixList } from "./QuickFix"
+import { IPixelPosition, IPosition } from "./Screen"
 import { Session } from "./Session"
+
+import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
 export interface INeovimYankInfo {
     operator: string
@@ -58,13 +60,6 @@ export interface INeovimCompletionInfo {
     row: number
     col: number
 }
-
-// Limit for the number of lines to handle buffer updates
-// If the file is too large, it ends up being too much traffic
-// between Neovim <-> Oni <-> Language Servers - so
-// set a hard limit. In the future, if need be, this could be
-// moved to a configuration setting.
-export const MAX_LINES_FOR_BUFFER_UPDATE = 5000
 
 export type NeovimEventHandler = (...args: any[]) => void
 
@@ -144,11 +139,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _initPromise: Promise<void>
     private _isLeaving: boolean
 
+    private _inputQueue: PromiseQueue = new PromiseQueue()
+
     private _config = configuration
     private _autoCommands: NeovimAutoCommands
 
     private _fontFamily: string = this._config.getValue("editor.fontFamily")
-    private _fontSize: string = this._config.getValue("editor.fontSize")
+    private _fontSize: string = addDefaultUnitIfNeeded(this._config.getValue("editor.fontSize"))
     private _fontWidthInPixels: number
     private _fontHeightInPixels: number
 
@@ -159,6 +156,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _cols: number
 
     private _quickFix: QuickFixList
+    private _initComplete: boolean
 
     private _onDirectoryChanged = new Event<string>()
     private _onErrorEvent = new Event<Error | string>()
@@ -178,6 +176,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onColorsChanged = new Event<void>()
 
     private _pendingScrollTimeout: number | null = null
+
+    public get isInitialized(): boolean {
+        return this._initComplete
+    }
 
     public get quickFix(): IQuickFixList {
         return this._quickFix
@@ -365,10 +367,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                         // set title after attaching listeners so we can get the initial title
                         await this.command("set title")
-                        await this.callFunction("OniConnect", [])
+
+                        this._initComplete = true
                     },
                     (err: any) => {
                         this._onError(err)
+                        this._initComplete = true
                     })
             })
 
@@ -450,7 +454,19 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public input(inputString: string): Promise<void> {
-        return this._neovim.request("nvim_input", [inputString])
+        return this._inputQueue.enqueuePromise(async () => {
+            await this._neovim.request("nvim_input", [inputString])
+        })
+    }
+
+    public blockInput(func: (opt?: any) => Promise<void>): void {
+        const forceInput = (inputString: string) => {
+            return this._neovim.request("nvim_input", [inputString])
+        }
+
+        this._inputQueue.enqueuePromise(async () => {
+            await func(forceInput)
+        })
     }
 
     public resize(widthInPixels: number, heightInPixels: number): void {
@@ -624,7 +640,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     private async _onFullBufferUpdate(context: EventContext, startRange: number, endRange: number): Promise<void> {
-        if (endRange > MAX_LINES_FOR_BUFFER_UPDATE) {
+        if (endRange > this._config.getValue("editor.maxLinesForLanguageServices")) {
             return
         }
 

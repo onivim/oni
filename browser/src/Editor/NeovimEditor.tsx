@@ -15,12 +15,13 @@ import { Observable } from "rxjs/Observable"
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import * as Oni from "oni-api"
+import { Event } from "oni-types"
 
 import * as Log from "./../Log"
 
-import { EventContext, INeovimStartOptions, NeovimInstance, NeovimWindowManager } from "./../neovim"
+import { addDefaultUnitIfNeeded } from "./../Font"
+import { EventContext, INeovimStartOptions, NeovimInstance, NeovimScreen, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
-import { NeovimScreen } from "./../Screen"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 
@@ -60,9 +61,11 @@ export class NeovimEditor extends Editor implements IEditor {
     private _screen: NeovimScreen
     private _completionMenu: CompletionMenu
     private _popupMenu: NeovimPopupMenu
-    private _colors: Colors // TODO: Factor this out to the UI 'Shell'
+    private _errorInitializing: boolean = false
 
     private _pendingAnimationFrame: boolean = false
+
+    private _onEnterEvent: Event<void> = new Event<void>()
 
     private _modeChanged$: Observable<Oni.Vim.Mode>
     private _cursorMoved$: Observable<Oni.Cursor>
@@ -97,6 +100,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     constructor(
+        private _colors: Colors,
         private _config = configuration,
         private _themeManager = getThemeManagerInstance(),
     ) {
@@ -108,14 +112,13 @@ export class NeovimEditor extends Editor implements IEditor {
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._screen = new NeovimScreen()
 
-        this._colors = new Colors(this._themeManager, this._config)
-
         this._hoverRenderer = new HoverRenderer(this, this._config)
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
             this._neovimInstance.onHidePopupMenu,
             this._neovimInstance.onSelectPopupMenu,
+            this.onBufferEnter,
         )
 
         this._renderer = new CanvasRenderer()
@@ -176,6 +179,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onError.subscribe((err) => {
+            this._errorInitializing = true
             UI.Actions.setNeovimError(true)
         })
 
@@ -192,7 +196,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
             UI.Actions.setCursorPosition(this._screen)
-            this._typingPredictionManager.setCursorPosition(this._screen.cursorRow, this._screen.cursorColumn)
+            this._typingPredictionManager.setCursorPosition(this._screen)
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
@@ -301,17 +305,8 @@ export class NeovimEditor extends Editor implements IEditor {
             }
         })
 
-        const openFiles = async (files: string[], action: string) => {
-
-            await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
-
-            for (let i = 1; i < files.length; i++) {
-                this._neovimInstance.command("exec \"" + action + " " + normalizePath(files[i]) + "\"")
-            }
-        }
-
         ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
-            openFiles(files, message)
+            this._openFiles(files, message)
         })
 
         // enable opening a file via drag-drop
@@ -342,11 +337,6 @@ export class NeovimEditor extends Editor implements IEditor {
             this._languageIntegration = null
         }
 
-        if (this._colors) {
-            this._colors.dispose()
-            this._colors = null
-        }
-
         if (this._completion) {
             this._completion.dispose()
             this._completion = null
@@ -360,6 +350,17 @@ export class NeovimEditor extends Editor implements IEditor {
         this._windowManager = null
     }
 
+    public enter(): void {
+        Log.info("[NeovimEditor::enter]")
+        this._onEnterEvent.dispatch()
+        UI.Actions.setHasFocus(true)
+    }
+
+    public leave(): void {
+        Log.info("[NeovimEditor::leave]")
+        UI.Actions.setHasFocus(false)
+    }
+
     public async openFile(file: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":e " + file)
         return this.activeBuffer
@@ -371,12 +372,16 @@ export class NeovimEditor extends Editor implements IEditor {
 
     public async init(filesToOpen: string[]): Promise<void> {
         const startOptions: INeovimStartOptions = {
-            args: filesToOpen,
             runtimePaths: pluginManager.getAllRuntimePaths(),
             transport: configuration.getValue("experimental.neovim.transport"),
         }
 
         await this._neovimInstance.start(startOptions)
+
+        if (this._errorInitializing) {
+            return
+        }
+
         VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
 
         this._themeManager.onThemeChanged.subscribe(() => {
@@ -389,6 +394,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
         if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
             await this._neovimInstance.command(":color " + this._themeManager.activeTheme.baseVimTheme)
+        }
+
+        if (filesToOpen && filesToOpen.length > 0) {
+            await this._openFiles(filesToOpen, ":tabnew")
         }
 
         this._hasLoaded = true
@@ -422,6 +431,7 @@ export class NeovimEditor extends Editor implements IEditor {
             typingPrediction={this._typingPredictionManager}
             neovimInstance={this._neovimInstance}
             screen={this._screen}
+            onActivate={this._onEnterEvent}
             onKeyDown={onKeyDown}
             onBufferClose={onBufferClose}
             onBufferSelect={onBufferSelect}
@@ -429,11 +439,19 @@ export class NeovimEditor extends Editor implements IEditor {
             onTabSelect={onTabSelect} />
     }
 
+    private async _openFiles(files: string[], action: string): Promise<void> {
+        await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
+
+        for (let i = 1; i < files.length; i++) {
+            await this._neovimInstance.command("exec \"" + action + " " + normalizePath(files[i]) + "\"")
+        }
+    }
+
     private _onModeChanged(newMode: string): void {
 
         this._typingPredictionManager.clearAllPredictions()
 
-        if (newMode === "insert" && configuration.getValue("experimental.editor.typingPrediction")) {
+        if (newMode === "insert" && configuration.getValue("editor.typingPrediction")) {
             this._typingPredictionManager.enable()
         } else {
             this._typingPredictionManager.disable()
@@ -487,7 +505,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
         const fontFamily = this._config.getValue("editor.fontFamily")
-        const fontSize = this._config.getValue("editor.fontSize")
+        const fontSize = addDefaultUnitIfNeeded(this._config.getValue("editor.fontSize"))
         const linePadding = this._config.getValue("editor.linePadding")
 
         UI.Actions.setFont(fontFamily, fontSize)

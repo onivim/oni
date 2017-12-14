@@ -11,8 +11,10 @@ const LongTimeout = 5000
 
 const CiTests = [
     "BasicEditingTest",
-//    "AutoCompletionTest-CSS",
+    "AutoClosingPairsTest",
+    "AutoCompletionTest-CSS",
     "AutoCompletionTest-TypeScript",
+    "LargeFileTest",
     "QuickOpenTest",
     "StatusBar-Mode",
     "NoInstalledNeovim",

@@ -8,7 +8,7 @@ import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import { configuration , IConfigurationValues } from "./../Services/Configuration"
+import { IConfigurationValues } from "./../Services/Configuration"
 
 import { DefaultThemeColors, IThemeColors } from "./../Services/Themes"
 
@@ -33,6 +33,7 @@ export interface IToolTip {
 }
 
 export interface IState {
+    // Editor
     cursorScale: number
     cursorPixelX: number
     cursorPixelY: number
@@ -42,6 +43,8 @@ export interface IState {
     fontPixelHeight: number
     fontFamily: string
     fontSize: string
+    hasFocus: boolean
+    isFullScreen: boolean
     mode: string
     definition: null | IDefinition
     cursorLineOpacity: number
@@ -49,14 +52,16 @@ export interface IState {
     configuration: IConfigurationValues
     imeActive: boolean
     viewport: IViewport
-    windowTitle: string
 
+    toolTips: { [id: string]: IToolTip }
     neovimError: boolean
 
+    // Shell
+    isLoaded: boolean
     colors: IThemeColors
+    windowTitle: string
 
     statusBar: { [id: string]: IStatusBarItem }
-    toolTips: { [id: string]: IToolTip }
 
     /**
      * Tabs refer to the Vim-concept of tabs
@@ -167,7 +172,12 @@ export interface IStatusBarItem {
 }
 
 export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurationValues, k: K): IConfigurationValues[K] {
-    return conf[k]
+
+    if (!conf) {
+        return null
+    } else {
+        return conf[k]
+    }
 }
 
 export const createDefaultState = (): IState => ({
@@ -180,6 +190,7 @@ export const createDefaultState = (): IState => ({
     fontPixelHeight: 10,
     fontFamily: "",
     fontSize: "",
+    hasFocus: false,
     imeActive: false,
     mode: "normal",
     definition: null,
@@ -193,8 +204,10 @@ export const createDefaultState = (): IState => ({
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
     neovimError: false,
+    isLoaded: false,
+    isFullScreen: false,
 
-    configuration: configuration.getValues(),
+    configuration: {} as IConfigurationValues,
 
     buffers: {
         activeBufferId: null,

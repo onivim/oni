@@ -6,9 +6,8 @@
 
 import * as React from "react"
 
-import { NeovimInstance } from "./../neovim"
+import { IScreen, NeovimInstance } from "./../neovim"
 import { INeovimRenderer } from "./../Renderer"
-import { IScreen } from "./../Screen"
 
 export interface INeovimRendererProps {
     neovimInstance: NeovimInstance
