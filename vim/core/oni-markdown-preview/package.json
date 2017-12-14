@@ -35,6 +35,6 @@
     "rimraf": "2.6.2",
     "vscode-languageserver-types": "3.5.0",
     "oni-types": "0.0.4",
-    "oni-api": "file:~/oni-api"
+    "oni-api": "file:../../../node_modules/oni-api"
   }
 }
