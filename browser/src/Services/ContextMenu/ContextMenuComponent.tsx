@@ -53,7 +53,7 @@ export class ContextMenuView extends React.PureComponent<IContextMenuProps, {}> 
         const entries = firstTenEntries.map((s, i) => {
             const isSelected = i === this.props.selectedIndex
 
-            return <ContextMenuItem {...s} isSelected={isSelected} base={this.props.base} highlightColor={this.props.highlightColor}/>
+            return <ContextMenuItem key={`${i}-${s.detail}`} {...s} isSelected={isSelected} base={this.props.base} highlightColor={this.props.highlightColor}/>
         })
 
         const selectedItemDocumentation = getDocumentationFromItems(firstTenEntries, this.props.selectedIndex)
