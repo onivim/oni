@@ -173,8 +173,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.on("event", (eventName: string, evt: any) => {
-            const current = evt.current || evt
-            this._bufferManager.updateBufferFromEvent(current)
+            //Deprecate
         })
 
         this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: BufferEventContext) => this._onBufEnter(evt))
@@ -474,7 +473,8 @@ export class NeovimEditor extends Editor implements IEditor {
         }
     }
 
-    private _updateWindow(currentBuffer: EventContext) {
+    private _updateBufferEvent(currentBuffer: EventContext): Oni.Buffer {
+        const buf = this._bufferManager.updateBufferFromEvent(currentBuffer)
         UI.Actions.setWindowCursor(
             currentBuffer.windowNumber,
             currentBuffer.line - 1,
@@ -487,10 +487,11 @@ export class NeovimEditor extends Editor implements IEditor {
             currentBuffer.windowTopLine - 1,
             currentBuffer.windowBottomLine - 1,
         )
+        return buf
     }
 
-    private async _onBufEnter(evt: BufferEventContext, buf: Oni.Buffer): Promise<void> {
-        this._updateWindow(evt.current)
+    private async _onBufEnter(evt: BufferEventContext): Promise<void> {
+        const buf = this._updateBufferEvent(evt.current)
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
             this.notifyBufferLeave({
@@ -511,7 +512,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _onBufWritePost(evt: EventContext): Promise<void> {
         // After we save we aren't modified... but we can pass it in just to be safe
-        this._updateWindow(evt)
+        this._updateBufferEvent(evt)
         UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
 
         this.notifyBufferSaved({
@@ -521,7 +522,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private async _onBufWipeout(evt: BufferEventContext): Promise<void> {
-        this._updateWindow(evt.current)
+        this._updateBufferEvent(evt.current)
         this._neovimInstance
         .getBufferIds()
         .then(ids => UI.Actions.setCurrentBuffers(ids))
