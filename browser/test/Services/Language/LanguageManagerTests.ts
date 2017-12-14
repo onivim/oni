@@ -62,7 +62,7 @@ describe("LanguageManager", () => {
         languageManager = new Language.LanguageManager(mockConfiguration as any, editorManager)
     })
 
-    it.only("sends didOpen request if language server is registered after enter event", async () => {
+    it("sends didOpen request if language server is registered after enter event", async () => {
         // Simulate entering a buffer _before_ the language server is registered
         // This can happen if a plugin registers a language server, because we spin
         // up the editors before initializing plugins.
