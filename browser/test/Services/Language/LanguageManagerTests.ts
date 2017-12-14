@@ -4,6 +4,8 @@
 
 import * as assert from "assert"
 
+import * as sinon from "sinon"
+
 import { Event } from "oni-types"
 
 // import * as types from "vscode-languageserver-types"
@@ -61,8 +63,19 @@ describe("LanguageManager", () => {
     })
 
     it.only("sends didOpen request if language server is registered after enter event", async () => {
+        // Simulate entering a buffer _before_ the language server is registered
+        // This can happen if a plugin registers a language server, because we spin
+        // up the editors before initializing plugins.
+        const mockBuffer = new Mocks.MockBuffer("javascript", "test.js", ["a", "b", "c"])
+        mockEditor.simulateBufferEnter(mockBuffer)
+
         const mockLanguageClient = new MockLanguageClient()
+
+        const sendRequestSpy = sinon.spy(mockLanguageClient.sendRequest)
+
+        // Validate that after registering the client, we had a call to 'textDocument/didOpen'
+        // with the contents of the buffer.
         languageManager.registerLanguageClient("javascript", mockLanguageClient)
-        assert.ok(false, "fails")
+        assert.strictEqual(sendRequestSpy.callCount, 1)
     })
 })
