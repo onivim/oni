@@ -25,6 +25,8 @@ import { QuickOpen } from "./../Services/QuickOpen"
 import { tasks } from "./../Services/Tasks"
 import { windowManager } from "./../Services/WindowManager"
 
+import { openAchievementsPane } from "./../Services/Achievements"
+
 // import * as UI from "./../UI/index"
 
 import { CallbackCommand, CommandManager } from "./CommandManager"
@@ -42,6 +44,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
         new CallbackCommand("oni.about", null, null, () => showAboutMessage()),
 
         new CallbackCommand("oni.quit", null, null, () => remote.app.quit()),
+
+        new CallbackCommand("tutor.achievements", "Tutor: Open Achievements", "View your current achievements and goals", () => openAchievementsPane(windowManager)),
 
         // Debug
         new CallbackCommand("oni.debug.openDevTools", "Open DevTools", "Debug Oni and any running plugins using the Chrome developer tools", () => remote.getCurrentWindow().webContents.openDevTools()),

@@ -91,7 +91,8 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
                 if (!split) {
                     return <div className="container vertical full" key={i}>TODO: Implement an editor here...</div>
                 } else {
-                    return <WindowSplitHost containerClassName={"editor"} key={i} split={split} isFocused={split === this.state.activeSplit}/>
+                    const className = i === 0 ? "editor" : "split"
+                    return <WindowSplitHost containerClassName={className} key={i} split={split} isFixedSize={i > 0} isFocused={split === this.state.activeSplit}/>
                 }
             }
         })
