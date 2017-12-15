@@ -1,11 +1,5 @@
-/**
- * Mocks/neovim.ts
- *
- * Implementations of test mocks and doubles,
- * for Neovim facing classes / interfaces.
- */
 
-import * as Neovim from "./../../src/neovim"
+import * as Neovim from "../../src/neovim"
 
 export class MockScreen implements Neovim.IScreen {
 
@@ -79,3 +73,6 @@ export class MockScreen implements Neovim.IScreen {
         return null
     }
 }
+
+export default MockScreen
+

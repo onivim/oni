@@ -1,22 +1,20 @@
-import * as assert from "assert"
 
-import * as AutoClosingPairs from "./../../src/Services/AutoClosingPairs"
+import test from "ava"
 
-describe("AutoClosingPairs", () => {
-    describe("getWhitespacePrefix", () => {
-        it("returns empty if the string doesn't have whitespace", () => {
-            const result = AutoClosingPairs.getWhiteSpacePrefix("test")
-            assert.strictEqual(result, "")
-        })
+import * as AutoClosingPairs from "../src/Services/AutoClosingPairs"
 
-        it("returns tab", () => {
-            const result = AutoClosingPairs.getWhiteSpacePrefix("\ttest")
-            assert.strictEqual(result, "\t")
-        })
-
-        it("returns spaces", () => {
-            const result = AutoClosingPairs.getWhiteSpacePrefix("  test")
-            assert.strictEqual(result, "  ")
-        })
-    })
+test("AutoClosingPairs.getWhitespacePrefix() returns empty if the string doesn't have whitespace", t => {
+    const result = AutoClosingPairs.getWhiteSpacePrefix("test")
+    t.is(result, "")
 })
+
+test("AutoClosingPairs.getWhitespacePrefix() returns tab", t => {
+    const result = AutoClosingPairs.getWhiteSpacePrefix("\ttest")
+    t.is(result, "\t")
+})
+
+test("AutoClosingPairs.getWhiteSpacePrefix() returns spaces", t => {
+    const result = AutoClosingPairs.getWhiteSpacePrefix("  test")
+    t.is(result, "  ")
+})
+

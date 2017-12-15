@@ -1,75 +1,48 @@
-import * as assert from "assert"
+import test from "ava"
 
-import { createMetaKeyResolver, ignoreMetaKeyResolver, KeyResolver, remapResolver } from "./../../../src/Input/Keyboard/Resolvers"
+import { createMetaKeyResolver, ignoreMetaKeyResolver, remapResolver } from "../src/Input/Keyboard/Resolvers"
 
-describe("Resolvers", () => {
-    describe("ignoreMetaResolver", () => {
-        it("ignores key in blacklist", () => {
-            const result = ignoreMetaKeyResolver(keyShift, "Shift")
-            assert.equal(result, null)
-        })
+test("ignoreMetaResolver ignores key in blacklist", t => {
+    const result = ignoreMetaKeyResolver(keyShift, "Shift")
+    t.is(result, null)
+})
 
-        it("passes through key not in blacklist", () => {
-            const result = ignoreMetaKeyResolver(keyS, "s")
-            assert.equal(result, "s")
-        })
-    })
+test("ignoreMetaResolver passes through key not in blacklist", t => {
+    const result = ignoreMetaKeyResolver(keyS, "s")
+    t.is(result, "s")
+})
 
-    describe("remapResolver", () => {
-        it("remaps key in list", () => {
-            const result = remapResolver(keyBackSpace, "Backspace")
-            assert.equal(result, "bs")
-        })
-    })
+test("remapResolver remaps key in list", t => {
+    const result = remapResolver(keyBackSpace, "Backspace")
+    t.is(result, "bs")
+})
 
-    describe("metaResolver", () => {
-        let metaResolver: KeyResolver
+test("metaResolver in english mode handles english <c-s-p>", t => {
+    const metaResolver = createMetaKeyResolver(englishLayout)
+    const key = control(shift(keyP))
+    const result = metaResolver(key, keyP.key)
+    t.is(result, "<s-c-p>")
+})
 
-        describe("english", () => {
-            beforeEach(() => {
-                metaResolver = createMetaKeyResolver(englishLayout)
-            })
+test("metaResolver in english-intl mode handles §", t => {
+    const metaResolver = createMetaKeyResolver(englishInternationalLayout)
+    const key = control(alt(shift(createKeyEvent("§", "KeyS"))))
+    const result = metaResolver(key, key.key)
+    t.is(result, "§")
+})
 
-            it("Handles <c-s-p>", () => {
-                const key = control(shift(keyP))
-                const result = metaResolver(key, keyP.key)
+test("metaResolver in german mode handles ö", t => {
+    const metaResolver = createMetaKeyResolver(germanLayout)
+    const key = keyUmlautedO
+    const result = metaResolver(key, key.key)
+    t.is(result, "ö")
+})
 
-                assert.equal(result, "<s-c-p>")
-            })
-        })
-
-        describe("english-intl", () => {
-            beforeEach(() => {
-                metaResolver = createMetaKeyResolver(englishInternationalLayout)
-            })
-
-            it("handles §", () => {
-                const key = control(alt(shift(createKeyEvent("§", "KeyS"))))
-                const result = metaResolver(key, key.key)
-                assert.equal(result, "§")
-            })
-        })
-
-        describe("german", () => {
-            beforeEach(() => {
-                metaResolver = createMetaKeyResolver(germanLayout)
-            })
-
-            it("Handles ö", () => {
-                const key = keyUmlautedO
-                const result = metaResolver(key, key.key)
-
-                assert.equal(result, "ö")
-            })
-
-            it("Handles Ö", () => {
-                const key = shift(keyUmlautedO)
-                const result = metaResolver(key, key.key)
-
-                assert.equal(result, "Ö")
-            })
-        })
-    })
+test("metaResolver in german mode handles Ö", t => {
+    const metaResolver = createMetaKeyResolver(germanLayout)
+    const key = shift(keyUmlautedO)
+    const result = metaResolver(key, key.key)
+    t.is(result, "Ö")
 })
 
 const englishLayout = {

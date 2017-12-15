@@ -1,36 +1,11 @@
-/**
- * CompletionTests.ts
- */
 
-import * as assert from "assert"
+import test from "ava"
+
 import * as types from "vscode-languageserver-types"
 
-import * as Completion from "./../../../src/Services/Completion"
+import * as Completion from "../src/Services/Completion"
 
-import * as Mocks from "./../../Mocks"
-
-export class MockCompletionRequestor implements Completion.ICompletionsRequestor {
-
-    private _completionsRequestor: Mocks.MockRequestor<types.CompletionItem[]> = new Mocks.MockRequestor<types.CompletionItem[]>()
-    private _completionDetailsRequestor: Mocks.MockRequestor<types.CompletionItem> = new Mocks.MockRequestor<types.CompletionItem>()
-
-    public get completionsRequestor(): Mocks.MockRequestor<types.CompletionItem[]> {
-        return this._completionsRequestor
-    }
-
-    public get completionDetailsRequestor(): Mocks.MockRequestor<types.CompletionItem> {
-        return this._completionDetailsRequestor
-    }
-
-    public getCompletions(fileLanguage: string, filePath: string, line: number, column: number): Promise<types.CompletionItem[]> {
-        return this._completionsRequestor.get(fileLanguage, filePath, line, column)
-    }
-
-    public getCompletionDetails(fileLanguage: string, filePath: string, completionItem: types.CompletionItem): Promise<types.CompletionItem> {
-        return this._completionDetailsRequestor.get(fileLanguage, filePath, completionItem)
-    }
-
-}
+import * as Mocks from "./Mocks"
 
 const createMockCompletionItem = (label: string): types.CompletionItem => {
     const ci: types.CompletionItem = {
@@ -40,207 +15,205 @@ const createMockCompletionItem = (label: string): types.CompletionItem => {
     return ci
 }
 
-describe("Completion", () => {
-    const clock: any = global["clock"] // tslint:disable-line
-    const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
+const clock: any = global["clock"] // tslint:disable-line
+const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
 
-    // Mocks
-    let mockConfiguration: Mocks.MockConfiguration
-    let mockEditor: Mocks.MockEditor
-    let mockLanguageManager: Mocks.MockLanguageManager
-    let mockCompletionRequestor: MockCompletionRequestor
+// Mocks
+let mockConfiguration: Mocks.MockConfiguration
+let mockEditor: Mocks.MockEditor
+let mockLanguageManager: Mocks.MockLanguageManager
+let mockCompletionRequestor: MockCompletionRequestor
 
-    // Class under test
-    let completion: Completion.Completion
+// Class under test
+let completion: Completion.Completion
 
-    beforeEach(() => {
-        mockConfiguration = new Mocks.MockConfiguration({
-            "editor.completions.mode": "oni",
-        })
-
-        mockEditor = new Mocks.MockEditor()
-        mockLanguageManager = new Mocks.MockLanguageManager()
-        mockCompletionRequestor = new MockCompletionRequestor()
-        completion = new Completion.Completion(mockEditor, mockLanguageManager as any, mockConfiguration as any, mockCompletionRequestor)
+test.beforeEach(() => {
+    mockConfiguration = new Mocks.MockConfiguration({
+        "editor.completions.mode": "oni",
     })
 
-    afterEach(() => {
-        completion.dispose()
-    })
+    mockEditor = new Mocks.MockEditor()
+    mockLanguageManager = new Mocks.MockLanguageManager()
+    mockCompletionRequestor = new MockCompletionRequestor()
+    completion = new Completion.Completion(mockEditor, mockLanguageManager as any, mockConfiguration as any, mockCompletionRequestor)
+})
 
-    it("shows completions, filtered by base", async () => {
-        mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
+test.afterEach(() => {
+    completion.dispose()
+})
 
-        // Switch to insert mode
-        mockEditor.simulateModeChange("insert")
+test("shows completions, filtered by base", async (t) => {
+    mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
 
-        // Simulate typing
-        mockEditor.simulateCursorMoved(0, 1)
-        mockEditor.setActiveBufferLine(0, "w")
+    // Switch to insert mode
+    mockEditor.simulateModeChange("insert")
 
-        clock.runAll()
+    // Simulate typing
+    mockEditor.simulateCursorMoved(0, 1)
+    mockEditor.setActiveBufferLine(0, "w")
 
-        let lastItems: Completion.ICompletionShowEventArgs = null
-        completion.onShowCompletionItems.subscribe((items) => lastItems = items)
+    clock.runAll()
 
-        // Validate we have a request for completions
-        assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
+    let lastItems: Completion.ICompletionShowEventArgs = null
+    completion.onShowCompletionItems.subscribe((items) => lastItems = items)
 
-        const completionResults = [
-            createMockCompletionItem("win"),
-            createMockCompletionItem("window"),
-        ]
+    // Validate we have a request for completions
+    assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
 
-        mockCompletionRequestor.completionsRequestor.resolve(completionResults)
+    const completionResults = [
+        createMockCompletionItem("win"),
+        createMockCompletionItem("window"),
+    ]
 
-        await waitForPromiseResolution()
-        clock.runAll()
+    mockCompletionRequestor.completionsRequestor.resolve(completionResults)
 
-        assert.deepEqual(lastItems.filteredCompletions, completionResults, "There should now be completion results available")
-        assert.deepEqual(lastItems.base, "w", "The base should be set correctly")
-    })
+    await waitForPromiseResolution()
+    clock.runAll()
 
-    it("doesn't fetch completions if 'editor.completions.mode' === 'hidden'", () => {
+    t.is(lastItems.filteredCompletions, completionResults, "There should now be completion results available")
+    t.is(lastItems.base, "w", "The base should be set correctly")
+})
 
-        mockConfiguration.setValue("editor.completions.mode", "hidden")
+test("doesn't fetch completions if 'editor.completions.mode' === 'hidden'", t => {
 
-        mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
+    mockConfiguration.setValue("editor.completions.mode", "hidden")
 
-        // Switch to insert mode
-        mockEditor.simulateModeChange("insert")
+    mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
 
-        // Simulate typing
-        mockEditor.simulateCursorMoved(0, 3)
-        mockEditor.setActiveBufferLine(0, "win")
+    // Switch to insert mode
+    mockEditor.simulateModeChange("insert")
 
-        clock.runAll()
+    // Simulate typing
+    mockEditor.simulateCursorMoved(0, 3)
+    mockEditor.setActiveBufferLine(0, "win")
 
-        // Validate we do not have requests for completion, because completions are turned off.
-        assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 0, "There should be no completion requests, because 'editor.completions.mode' is set to 'hidden'")
-    })
+    clock.runAll()
 
-    it("if there is a completion matching the base, it should be the first shown", async () => {
+    // Validate we do not have requests for completion, because completions are turned off.
+   t.is(mockCompletionRequestor.completionsRequestor.pendingCallCount, 0, "There should be no completion requests, because 'editor.completions.mode' is set to 'hidden'")
+})
 
-        mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
+it("if there is a completion matching the base, it should be the first shown", async () => {
 
-        // Switch to insert mode
-        mockEditor.simulateModeChange("insert")
+    mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
 
-        // Simulate typing
-        mockEditor.simulateCursorMoved(0, 3)
-        mockEditor.setActiveBufferLine(0, "win")
+    // Switch to insert mode
+    mockEditor.simulateModeChange("insert")
 
-        clock.runAll()
+    // Simulate typing
+    mockEditor.simulateCursorMoved(0, 3)
+    mockEditor.setActiveBufferLine(0, "win")
 
-        let lastItems: Completion.ICompletionShowEventArgs = null
-        completion.onShowCompletionItems.subscribe((items) => lastItems = items)
+    clock.runAll()
 
-        // Validate we have a request for completions
-        assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
+    let lastItems: Completion.ICompletionShowEventArgs = null
+    completion.onShowCompletionItems.subscribe((items) => lastItems = items)
 
-        const completionResults = [
-            createMockCompletionItem("window"),
-            createMockCompletionItem("win"),
-        ]
+    // Validate we have a request for completions
+    assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
 
-        mockCompletionRequestor.completionsRequestor.resolve(completionResults)
+    const completionResults = [
+        createMockCompletionItem("window"),
+        createMockCompletionItem("win"),
+    ]
 
-        await waitForPromiseResolution()
-        clock.runAll()
+    mockCompletionRequestor.completionsRequestor.resolve(completionResults)
 
-        assert.strictEqual(lastItems.filteredCompletions.length, 2, "Completions were resolved successfully")
-        assert.deepEqual(lastItems.filteredCompletions[0], completionResults[1], "The second completion should be the first one shown, as it matches the base")
-    })
+    await waitForPromiseResolution()
+    clock.runAll()
 
-    it("if mode changed while a request was in progress, there should be no completions shown", async () => {
-        mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
+    assert.strictEqual(lastItems.filteredCompletions.length, 2, "Completions were resolved successfully")
+    assert.deepEqual(lastItems.filteredCompletions[0], completionResults[1], "The second completion should be the first one shown, as it matches the base")
+})
 
-        // Switch to insert mode
-        mockEditor.simulateModeChange("insert")
+it("if mode changed while a request was in progress, there should be no completions shown", async () => {
+    mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
 
-        // Simulate typing
-        mockEditor.simulateCursorMoved(0, 3)
-        mockEditor.setActiveBufferLine(0, "win")
+    // Switch to insert mode
+    mockEditor.simulateModeChange("insert")
 
-        clock.runAll()
+    // Simulate typing
+    mockEditor.simulateCursorMoved(0, 3)
+    mockEditor.setActiveBufferLine(0, "win")
 
-        let lastItems: Completion.ICompletionShowEventArgs = null
-        completion.onShowCompletionItems.subscribe((items) => lastItems = items)
+    clock.runAll()
 
-        // Validate we have a request for completions
-        assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
+    let lastItems: Completion.ICompletionShowEventArgs = null
+    completion.onShowCompletionItems.subscribe((items) => lastItems = items)
 
-        // While the result is pending, we'll leave insert mode -
-        // we shouldn't get any completions, now!
+    // Validate we have a request for completions
+    assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
 
-        mockEditor.simulateModeChange("normal")
+    // While the result is pending, we'll leave insert mode -
+    // we shouldn't get any completions, now!
 
-        clock.runAll()
+    mockEditor.simulateModeChange("normal")
 
-        // Resolve the slow request...
-        const completionResults = [
-            createMockCompletionItem("window"),
-            createMockCompletionItem("win"),
-        ]
+    clock.runAll()
 
-        mockCompletionRequestor.completionsRequestor.resolve(completionResults)
+    // Resolve the slow request...
+    const completionResults = [
+        createMockCompletionItem("window"),
+        createMockCompletionItem("win"),
+    ]
 
-        await waitForPromiseResolution()
-        clock.runAll()
+    mockCompletionRequestor.completionsRequestor.resolve(completionResults)
 
-        assert.strictEqual(lastItems, null, "Completions should be null, as we shouldn't have received them after the mode change")
-    })
+    await waitForPromiseResolution()
+    clock.runAll()
 
-    it("if meet changed while the request was in progress, there should be no completions shown", async () => {
-        mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
+    assert.strictEqual(lastItems, null, "Completions should be null, as we shouldn't have received them after the mode change")
+})
 
-        // Switch to insert mode
-        mockEditor.simulateModeChange("insert")
+it("if meet changed while the request was in progress, there should be no completions shown", async () => {
+    mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
 
-        // Simulate typing
-        mockEditor.simulateCursorMoved(0, 3)
-        mockEditor.setActiveBufferLine(0, "win")
+    // Switch to insert mode
+    mockEditor.simulateModeChange("insert")
 
-        clock.runAll()
+    // Simulate typing
+    mockEditor.simulateCursorMoved(0, 3)
+    mockEditor.setActiveBufferLine(0, "win")
 
-        let lastItems: Completion.ICompletionShowEventArgs = null
-        completion.onShowCompletionItems.subscribe((items) => lastItems = items)
+    clock.runAll()
 
-        // Validate we have a request for completions
-        assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
+    let lastItems: Completion.ICompletionShowEventArgs = null
+    completion.onShowCompletionItems.subscribe((items) => lastItems = items)
 
-        // While the result is pending, we'll keep typing...
-        // That first result should be ignored
+    // Validate we have a request for completions
+    assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 1, "There should be a request for completions queued")
 
-        mockEditor.simulateCursorMoved(0, 5)
-        mockEditor.setActiveBufferLine(0, "win.s")
+    // While the result is pending, we'll keep typing...
+    // That first result should be ignored
 
-        clock.runAll()
+    mockEditor.simulateCursorMoved(0, 5)
+    mockEditor.setActiveBufferLine(0, "win.s")
 
-        // Resolve the slow request...
-        const oldCompletionResults = [
-            createMockCompletionItem("window"),
-            createMockCompletionItem("win"),
-        ]
+    clock.runAll()
 
-        mockCompletionRequestor.completionsRequestor.resolve(oldCompletionResults)
+    // Resolve the slow request...
+    const oldCompletionResults = [
+        createMockCompletionItem("window"),
+        createMockCompletionItem("win"),
+    ]
 
-        await waitForPromiseResolution()
-        clock.runAll()
+    mockCompletionRequestor.completionsRequestor.resolve(oldCompletionResults)
 
-        assert.strictEqual(lastItems, null, "Completions should be null, as the only request that was completed was outdated")
-    })
+    await waitForPromiseResolution()
+    clock.runAll()
 
-    it("#1076 - should not crash if buffer change comes before first cursor move", () => {
-        mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
+    assert.strictEqual(lastItems, null, "Completions should be null, as the only request that was completed was outdated")
+})
 
-        // Switch to insert mode
-        mockEditor.simulateModeChange("insert")
+it("#1076 - should not crash if buffer change comes before first cursor move", () => {
+    mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
 
-        // Simulate typing, but with the buffer update coming prior to the cursor move.
-        mockEditor.setActiveBufferLine(0, "win")
-        mockEditor.simulateCursorMoved(0, 3)
+    // Switch to insert mode
+    mockEditor.simulateModeChange("insert")
 
-        assert.ok(true, "Did not crash")
-    })
+    // Simulate typing, but with the buffer update coming prior to the cursor move.
+    mockEditor.setActiveBufferLine(0, "win")
+    mockEditor.simulateCursorMoved(0, 3)
+
+    assert.ok(true, "Did not crash")
 })
