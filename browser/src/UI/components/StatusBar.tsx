@@ -8,6 +8,7 @@ import { connect } from "react-redux"
 import { IState, StatusBarAlignment } from "./../State"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
+import StatusResize from "./StatusBarResizer"
 
 require("./StatusBar.less") // tslint:disable-line no-var-requires
 
@@ -52,17 +53,17 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
 
         return <div className="status-bar enable-mouse" style={statusBarStyle}>
             <div className="status-bar-inner">
-                <div className="status-bar-container left">
+                <StatusResize className="status-bar-container left">
                     {leftItems.map((item) => <StatusBarItem {...item} key={item.id}/>)}
-                </div>
+                </StatusResize>
                 <div className="status-bar-container center">
                 </div>
-                <div className="status-bar-container right">
+                <StatusResize className="status-bar-container right">
                     {rightItems.map((item) => <StatusBarItem {...item} key={item.id}/>)}
                     <div className="status-bar-item" onClick={() => this._openGithub()}>
                         <span><i className="fa fa-github" /></span>
                     </div>
-                </div>
+                </StatusResize>
             </div>
         </div>
     }
