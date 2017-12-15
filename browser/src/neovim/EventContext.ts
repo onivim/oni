@@ -28,3 +28,19 @@ export interface EventContext {
     windowWidth: number
     windowHeight: number
 }
+
+export interface InactiveBufferContext {
+    bufferNumber: number
+    bufferFullPath: string
+    filetype: string
+    buftype: string
+    modified: boolean
+    hidden: boolean
+    listed: boolean
+    version: number
+}
+
+export interface BufferEventContext {
+    current: EventContext
+    existingBuffers: InactiveBufferContext[]
+}

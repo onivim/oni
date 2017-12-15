@@ -162,24 +162,21 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
 
     switch (a.type) {
         case "BUFFER_ENTER":
-            byId = {
-                ...s.byId,
-                [a.payload.id]: {
-                    id: a.payload.id,
-                    file: a.payload.file,
-                    totalLines: a.payload.totalLines,
-                    hidden: a.payload.hidden,
-                    listed: a.payload.listed,
-                    modified: false,
-                },
-            }
 
-            if (allIds.indexOf(a.payload.id) === -1) {
-                allIds = [...s.allIds, a.payload.id]
-            }
+            byId = a.payload.buffers.reduce((buffersById, buffer) => {
+                buffersById[buffer.id] = {
+                    ...buffer,
+                    modified: false,
+                }
+                return byId
+            }, byId)
+
+            const bufIds = a.payload.buffers.map(b => b.id)
+
+            allIds = [ ...new Set(bufIds)]
 
             return {
-                activeBufferId: a.payload.id,
+                activeBufferId: a.payload.buffers[0].id,
                 byId,
                 allIds,
             }

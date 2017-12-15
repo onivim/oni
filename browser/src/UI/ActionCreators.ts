@@ -22,7 +22,7 @@ import * as Coordinates from "./Coordinates"
 import * as UI from "./index"
 import * as State from "./State"
 
-import { IScreen } from "./../neovim"
+import { EventContext, InactiveBufferContext, IScreen } from "./../neovim"
 import { normalizePath } from "./../Utility"
 
 import { IConfigurationValues } from "./../Services/Configuration"
@@ -90,15 +90,21 @@ export const setCursorScale = (cursorScale: number) => ({
     },
 })
 
-export const bufferEnter = (id: number, file: string, language: string, totalLines: number, hidden: boolean, listed: boolean) => ({
+const formatBuffers = (buffer: InactiveBufferContext & EventContext) => {
+    return {
+        id: buffer.bufferNumber,
+        file: buffer.bufferFullPath ? normalizePath(buffer.bufferFullPath) : "",
+        totalLines: buffer.bufferTotalLines ? buffer.bufferTotalLines : null,
+        language: buffer.filetype,
+        hidden: buffer.hidden,
+        listed: buffer.listed,
+    }
+}
+
+export const bufferEnter = (buffers: (Array<InactiveBufferContext | EventContext>)) => ({
     type: "BUFFER_ENTER",
     payload: {
-        id,
-        file: normalizePath(file),
-        language,
-        totalLines,
-        hidden,
-        listed,
+        buffers: buffers.map(formatBuffers),
     },
 })
 
