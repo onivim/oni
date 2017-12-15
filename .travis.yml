@@ -1,12 +1,14 @@
 sudo: required
 dist: trusty
 language: node_js
-
+branches:
+  only:
+  - master
+  - /^release.*/
 cache:
     yarn: true
     directories:
         - node_modules
-
 matrix:
   include:
   - os: linux
