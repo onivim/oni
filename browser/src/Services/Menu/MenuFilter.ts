@@ -13,7 +13,7 @@ import { configuration } from "./../../Services/Configuration"
 
 import { IMenuOptionWithHighlights } from "./Menu"
 
-const shouldFilterbeCaseSensitive = (searchString: string): boolean => {
+export const shouldFilterbeCaseSensitive = (searchString: string): boolean => {
 
     // TODO: Technically, this makes the reducer 'impure',
     // which is not ideal - need to refactor eventually.
@@ -39,7 +39,7 @@ const shouldFilterbeCaseSensitive = (searchString: string): boolean => {
     }
 }
 
-export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: string): IMenuOptionWithHighlights[] {
+export const fuseFilter = (options: Oni.Menu.MenuOption[], searchString: string): IMenuOptionWithHighlights[] => {
 
     if (!searchString) {
         const opt = options.map((o) => {
@@ -116,10 +116,24 @@ export function filterMenuOptions(options: Oni.Menu.MenuOption[], searchString: 
             pinned: f.item.pinned,
             label: f.item.label,
             detail: f.item.detail,
-            labelHighlights,
-            detailHighlights,
+            labelHighlights: convertArrayOfPairsToIndices(labelHighlights),
+            detailHighlights: convertArrayOfPairsToIndices(detailHighlights),
         }
     })
 
     return highlightOptions
+}
+
+const convertArrayOfPairsToIndices = (pairs: number[][]): number[] => {
+    const ret: number[] = []
+
+    pairs.forEach((p) => {
+        const [startIndex, endIndex] = p
+
+        for (let i = startIndex; i <= endIndex; i++) {
+            ret.push(i)
+        }
+    })
+
+    return ret
 }
