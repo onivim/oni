@@ -149,9 +149,9 @@ export interface IMenuItemProps {
     isSelected: boolean
     filterText: string
     label: string
-    labelHighlights: number[][]
+    labelHighlights: number[]
     detail: string
-    detailHighlights: number[][]
+    detailHighlights: number[]
     pinned: boolean
     onClick: () => void
 }
