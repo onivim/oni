@@ -3,6 +3,9 @@ import { connect } from "react-redux"
 import * as Selectors from "./../Selectors"
 import * as State from "./../State"
 
+import styled from "styled-components"
+import { withProps } from "./common"
+
 export interface ICursorLineRendererProps {
     x: number
     y: number
@@ -17,28 +20,21 @@ export interface ICursorLineProps {
     lineType: string
 }
 
-class CursorLineRenderer extends React.PureComponent<ICursorLineRendererProps, {}> {
+const StyledCursorLine = withProps<ICursorLineRendererProps>(styled.div)`
+      position: "absolute",
+      left: ${props => props.x}px; /* Window Start */
+      top: ${props => props.y}px; /* Same as cursor */
+      width: ${props => props.width}px; /* Window width */
+      height: ${props => props.height ? props.height : "0"}px; /* Same as cursor */
+      background-color: ${props => props.color};
+      opacity: ${props => props.opacity};
+      `
 
-    public render(): null |  JSX.Element {
-        if (!this.props.visible) {
-            return null
-        }
-
-        const width = this.props.width
-
-        const cursorStyle: React.CSSProperties = {
-            position: "absolute",
-            left: this.props.x.toString() + "px", // Window Start
-            top: this.props.y.toString() + "px", // Same as cursor
-            width: width.toString() + "px", // Window width
-
-            height: this.props.height ? this.props.height.toString() + "px" : "0px", // Same as cursor
-            backgroundColor: this.props.color,
-            opacity: this.props.opacity,
-        }
-
-        return <div style={cursorStyle} className="cursorLine"></div>
+const CursorLineRenderer  = (props: ICursorLineRendererProps) => {
+    if (!props.visible) {
+        return null
     }
+    return <StyledCursorLine {...props} />
 }
 
 const emptyProps: ICursorLineRendererProps = {

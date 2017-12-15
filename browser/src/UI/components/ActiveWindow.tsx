@@ -5,8 +5,9 @@
  * active window in Neovim.
  */
 
-import * as React from "react"
 import { connect } from "react-redux"
+import styled from "styled-components"
+import { withProps } from "./common"
 
 import * as Selectors from "./../Selectors"
 import * as State from "./../State"
@@ -18,24 +19,13 @@ export interface IActiveWindowProps {
     pixelHeight: number
 }
 
-export class ActiveWindow extends React.PureComponent<IActiveWindowProps, {}> {
-    public render(): JSX.Element {
-
-        const px = (str: number): string => `${str}px`
-
-        const style: React.CSSProperties = {
-            position: "absolute",
-            left: px(this.props.pixelX),
-            top: px(this.props.pixelY),
-            width: px(this.props.pixelWidth),
-            height: px(this.props.pixelHeight),
-        }
-
-        return <div style={style}>
-            {this.props.children}
-        </div>
-    }
-}
+const ActiveWindow = withProps<IActiveWindowProps>(styled.div)`
+    position: "absolute",
+    left: ${props => props.pixelX},
+    top: ${props => props.pixelY},
+    width: ${props => props.pixelWidth},
+    height: ${props => props.pixelHeight},
+    `
 
 const mapStateToProps = (state: State.IState): IActiveWindowProps => {
     const dimensions = Selectors.getActiveWindowPixelDimensions(state)
