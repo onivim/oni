@@ -10,10 +10,10 @@ import { remote } from "electron"
 // See: https://github.com/nathanbuchar/electron-settings/wiki/FAQs
 const PersistentSettings = remote.require("electron-settings")
 
-export const get<T>(key: string): T => {
+export const get = <T>(key: string): T => {
     return PersistentSettings.get(key) as T
 }
 
-export const set<T>(key: string, val: T): void => {
+export const set = <T>(key: string, val: T): void => {
     return PersistentSettings.set(key, val)
 }
