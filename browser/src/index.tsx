@@ -85,10 +85,11 @@ const start = async (args: string[]): Promise<void> => {
         SharedNeovimInstance.activate(),
         UI.startEditors(parsedArgs._, Colors.getInstance(), configuration)
     ])
+    const { editorManager } = await editorManagerPromise
     Performance.endMeasure("Oni.Start.Editors")
 
     const LanguageManager = await languageManagerPromise
-    LanguageManager.activate()
+    LanguageManager.activate(configuration, editorManager)
     const languageManager = LanguageManager.getInstance()
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
@@ -98,7 +99,6 @@ const start = async (args: string[]): Promise<void> => {
 
     createLanguageClientsFromConfiguration(configuration.getValues())
 
-    const { editorManager } = await editorManagerPromise
     const { inputManager } = await inputManagerPromise
 
     const AutoClosingPairs = await autoClosingPairsPromise

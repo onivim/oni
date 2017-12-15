@@ -13,10 +13,14 @@ const productionConfig = Object.assign({}, baseConfig, {
         new webpack.DefinePlugin({
             "process.env.NODE_ENV":'"production"'
         }),
+        new webpack.optimize.CommonsChunkPlugin({
+            name: "common",
+            async: true,
+        }),
         new BabiliPlugin(),
         new OptimizeJsPlugin({
             sourceMap: false
-        })
+        }),
     ],
     output: {
         path: path.join(__dirname, "..", "lib", "browser"),
