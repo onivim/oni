@@ -39,7 +39,7 @@ class StatusBarResizer extends React.Component<Props, State> {
     public render() {
         const { width } = this.state
         const { children, className } = this.props
-        console.log("width: ", width)
+        console.log(`${className} width: `, width)
         return (
             <div ref={elem => (this.elem = elem)} className={className}>
                 {width !== undefined &&

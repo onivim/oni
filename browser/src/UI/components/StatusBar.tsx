@@ -8,7 +8,7 @@ import { connect } from "react-redux"
 import { IState, StatusBarAlignment } from "./../State"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
-import StatusResize from "./StatusBarResizer"
+import StatusResize from "./StatusResize"
 
 require("./StatusBar.less") // tslint:disable-line no-var-requires
 
@@ -29,7 +29,6 @@ export interface StatusBarItemProps {
 }
 
 export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
-
     public render() {
         if (!this.props.enabled) {
             return null
@@ -37,35 +36,38 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
 
         const statusBarItems = this.props.items || []
         const leftItems = statusBarItems
-            .filter((item) => item.alignment === StatusBarAlignment.Left)
+            .filter(item => item.alignment === StatusBarAlignment.Left)
             .sort((a, b) => a.priority - b.priority)
 
         const rightItems = statusBarItems
-            .filter((item) => item.alignment === StatusBarAlignment.Right)
+            .filter(item => item.alignment === StatusBarAlignment.Right)
             .sort((a, b) => b.priority - a.priority)
 
         const statusBarStyle = {
-            "fontFamily": this.props.fontFamily,
-            "fontSize": this.props.fontSize,
+            fontFamily: this.props.fontFamily,
+            fontSize: this.props.fontSize,
             backgroundColor: this.props.backgroundColor,
             color: this.props.foregroundColor,
         }
 
-        return <div className="status-bar enable-mouse" style={statusBarStyle}>
-            <div className="status-bar-inner">
-                <StatusResize className="status-bar-container left">
-                    {leftItems.map((item) => <StatusBarItem {...item} key={item.id}/>)}
-                </StatusResize>
-                <div className="status-bar-container center">
+        return (
+            <div className="status-bar enable-mouse" style={statusBarStyle}>
+                <div className="status-bar-inner">
+                    <StatusResize className="status-bar-container left">
+                        {leftItems.map(item => <StatusBarItem {...item} key={item.id} />)}
+                    </StatusResize>
+                    <div className="status-bar-container center" />
+                    <StatusResize className="status-bar-container right">
+                        {rightItems.map(item => <StatusBarItem {...item} key={item.id} />)}
+                        <div className="status-bar-item" onClick={() => this._openGithub()}>
+                            <span>
+                                <i className="fa fa-github" />
+                            </span>
+                        </div>
+                    </StatusResize>
                 </div>
-                <StatusResize className="status-bar-container right">
-                    {rightItems.map((item) => <StatusBarItem {...item} key={item.id}/>)}
-                    <div className="status-bar-item" onClick={() => this._openGithub()}>
-                        <span><i className="fa fa-github" /></span>
-                    </div>
-                </StatusResize>
             </div>
-        </div>
+        )
     }
 
     private _openGithub(): void {
@@ -75,8 +77,16 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
 }
 
 export class StatusBarItem extends React.PureComponent<StatusBarItemProps, {}> {
+    private childNode: any
+    public getWidth = () => {
+        return this.childNode.offsetWidth()
+    }
     public render() {
-        return <div className="status-bar-item">{this.props.contents}</div>
+        return (
+            <div ref={r => (this.childNode = r)} className="status-bar-item">
+                {this.props.contents}
+            </div>
+        )
     }
 }
 
@@ -84,29 +94,27 @@ import { createSelector } from "reselect"
 
 const getStatusBar = (state: IState) => state.statusBar
 
-const getStatusBarItems = createSelector(
-    [getStatusBar],
-    (statusBar) => {
-        const statusKeys = keys(statusBar)
+const getStatusBarItems = createSelector([getStatusBar], statusBar => {
+    const statusKeys = keys(statusBar)
 
-        const statusBarItems = statusKeys.map((k) => ({
-            id: k,
-            ...statusBar[k],
-        }))
+    const statusBarItems = statusKeys.map(k => ({
+        id: k,
+        ...statusBar[k],
+    }))
 
-        return statusBarItems
-    })
+    return statusBarItems
+})
 
 const mapStateToProps = (state: IState): StatusBarProps => {
-
     const statusBarItems = getStatusBarItems(state)
 
     return {
         backgroundColor: state.colors["statusBar.background"],
         foregroundColor: state.colors["statusBar.foreground"],
         fontFamily: state.configuration["ui.fontFamily"],
-        fontSize: state.configuration["statusbar.fontSize"] ||
-                  addDefaultUnitIfNeeded(state.configuration["ui.fontSize"]),
+        fontSize:
+            state.configuration["statusbar.fontSize"] ||
+            addDefaultUnitIfNeeded(state.configuration["ui.fontSize"]),
         items: statusBarItems,
         enabled: state.configuration["statusbar.enabled"],
     }
