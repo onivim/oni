@@ -161,6 +161,10 @@ export class MarkdownPreviewEditor implements Oni.IWindowSplit {
 var preview: MarkdownPreviewEditor = null
 
 export const activate = (oni: any) => {
+    if (!oni.configuration.getValue("experimental.markdownPreview.enabled", false)) {
+        return
+    }
+
     if (!preview) {
         preview = new MarkdownPreviewEditor(oni)
     }
