@@ -9,16 +9,16 @@ import * as React from "react"
  * Props are like the constructor arguments
  * for the React component (immutable)
  */
-export interface IMarkdownPreviewProps {
+interface IMarkdownPreviewProps {
     oni: Oni.Plugin.Api
 }
 
-export interface IColors {
+interface IColors {
     background: string
     foreground: string
 }
 
-export interface IMarkdownPreviewState {
+interface IMarkdownPreviewState {
     source: string
     colors: IColors
 }
@@ -27,7 +27,7 @@ const generateScrollingAnchorId = (line: number) => {
     return "scrolling-anchor-id-" + line
 }
 
-export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdownPreviewState> {
+class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdownPreviewState> {
     private _subscriptions: Array<IDisposable> = []
 
     constructor(props: IMarkdownPreviewProps) {
@@ -115,7 +115,7 @@ export class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, 
     }
 }
 
-export class MarkdownPreviewEditor implements Oni.IWindowSplit {
+class MarkdownPreviewEditor implements Oni.IWindowSplit {
 
     private _open: boolean = false
 
