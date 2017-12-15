@@ -6,11 +6,11 @@
  * - Also will handle 'fallback logic' for colors
  */
 
-import * as PersistentSettings from "electron-settings"
-
 import { Event, IDisposable, IEvent } from "oni-types"
 
 import { Configuration, IConfigurationValues } from "./Configuration"
+import * as PersistentSettings from "./Configuration/PersistentSettings"
+
 import { ThemeManager } from "./Themes"
 
 export interface ColorsDictionary { [colorName: string]: string}

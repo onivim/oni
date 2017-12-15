@@ -6,7 +6,7 @@
 
 import { Event, IEvent } from "oni-types"
 
-import * as PersistentSettings from "electron-settings"
+import * as PersistentSettings from "./../Configuration/PersistentSettings"
 import { PluginThemeLoader } from "./ThemeLoader"
 
 export interface IThemeColors {
