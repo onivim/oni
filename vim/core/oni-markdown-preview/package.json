@@ -28,7 +28,7 @@
     "typescript": "^2.5.3",
     "rimraf": "^2.6.2",
     "oni-types": "^0.0.4",
-    "oni-api": "^0.0.8"
+    "oni-api": "^0.0.9"
   },
   "devDependencies": {
     "typescript": "2.5.3",

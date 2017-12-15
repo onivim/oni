@@ -6,8 +6,8 @@
  * - Also will handle 'fallback logic' for colors
  */
 
-import { Event, IDisposable, IEvent } from "oni-types"
 import * as OniApi from "oni-api"
+import { Event, IDisposable, IEvent } from "oni-types"
 
 import { Configuration, IConfigurationValues } from "./Configuration"
 import { ThemeManager } from "./Themes"

@@ -107,7 +107,9 @@
     "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch && cd ../oni-markdown-preview && tsc --watch",
     "uninstall-global": "npm rm -g oni-vim",
     "install-global": "npm install -g oni-vim",
-    "postinstall": "electron-rebuild && opencollective postinstall"
+    "install:plugins": "npm run install:plugins:oni-markdown-preview",
+    "install:plugins:oni-markdown-preview": "cd vim/core/oni-markdown-preview && npm install --prod",
+    "postinstall": "electron-rebuild && opencollective postinstall && npm run install:plugins"
   },
   "repository": {
     "type": "git",
