@@ -8,6 +8,7 @@ import { inputManager } from "./../Services/InputManager"
 import { MenuContainer } from "./../Services/Menu"
 import * as WindowManager from "./../Services/WindowManager"
 
+import { Achievements } from "./components/Achievements"
 import { Background } from "./components/Background"
 import { Loading } from "./components/Loading"
 import StatusBar from "./components/StatusBar"
@@ -38,6 +39,7 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
                         </div>
                         <div className="stack layer">
                             <MenuContainer />
+                            <Achievements />
                         </div>
                     </div>
                     <div className="container fixed layer">

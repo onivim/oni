@@ -13,7 +13,6 @@ export const openAchievementsPane = (windowManager: Oni.IWindowManager): void =>
 }
 
 export class AchievementsSplit {
-    
     public render(): JSX.Element {
 
         const style: React.CSSProperties = {
@@ -47,9 +46,11 @@ export class ContainerView extends React.PureComponent<IContainerViewProps, {}> 
             alignItems: "center",
         }
 
+        const iconStyle = this.props.expanded ? { transform: "rotateZ(45deg)" }: null
+
         return <div className="item" style={headerStyle}>
             <div className="icon" style={{margin: "6px"}}>
-                <i className="fa fa-caret-right" />
+                <i style={iconStyle} className="fa fa-caret-right" />
             </div>
             <div className="name">
                 {this.props.name}
@@ -76,16 +77,17 @@ export class AchievementsPaneView extends React.PureComponent<{}, {}> {
         }
 
         return <div style={containerStyle}>
-                <div style={headerStyle}>Goals</div>
+                <div style={headerStyle}><i className="fa fa-trophy" style={{paddingLeft: "8px", paddingRight: "8px"}}/>Goals</div>
                 <ContainerView name={"Basic Motions"} expanded={true} isContainer={true} isSelected={false}/>
                 <AchievementView {...h_goal} />
                 <AchievementView {...j_goal} />
                 <AchievementView {...k_goal} />
                 <AchievementView {...l_goal} />
-                <ContainerView name={"Word Motions"} expanded={true} isContainer={true} isSelected={false}/>
-                <ContainerView name={"Operators"} expanded={true} isContainer={true} isSelected={false}/>
-                <ContainerView name={"Insertion"} expanded={true} isContainer={true} isSelected={false}/>
-                <ContainerView name={"Deletion"} expanded={true} isContainer={true} isSelected={false}/>
+                <ContainerView name={"Word Motions"} expanded={false} isContainer={true} isSelected={false}/>
+                <ContainerView name={"Operators"} expanded={false} isContainer={true} isSelected={false}/>
+                <ContainerView name={"Insertion"} expanded={false} isContainer={true} isSelected={false}/>
+                <ContainerView name={"Deletion"} expanded={false} isContainer={true} isSelected={false}/>
+                <ContainerView name={"Split Navigation"} expanded={true} isContainer={true} isSelected={false}/>
                 <ContainerView name={"Oni"} expanded={true} isContainer={true} isSelected={false}/>
                 <AchievementView {...renameGoal} />
             </div>
@@ -174,7 +176,7 @@ export class AchievementView extends React.PureComponent<IGoal, {}> {
 
         const keys = this.props.keys.map((k) => {
             const keyStyle = {
-                border: "2px solid rgb(97, 175, 239)",
+                border: "1px solid rgb(97, 175, 239)",
                 width: "25px",
                 height: "25px",
                 lineHeight: "25px",

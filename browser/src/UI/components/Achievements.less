@@ -1,0 +1,71 @@
+@import (reference) "./common.less";
+
+
+.achievements {
+
+    display: flex;
+    justify-content: center;
+
+    .achievement {
+
+        .box-shadow;
+
+        position: absolute;
+        bottom: 32px;
+
+        // width: 80%;
+        // max-width: 500px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        background-color: rgb(40, 44, 52);
+        border-radius: 32px;
+        padding: 16px;
+
+        color: white;
+
+        &.animate-enter {
+            animation: enter;
+            animation-duration: 0.25s;
+            animation-timing-function: ease-in;
+        }
+
+        &.animate-exit {
+            animation: exit;
+            animation-duration: 0.25s;
+            animation-timing-function: ease-in;
+            animation-fill-mode: forwards;
+        }
+
+        img {
+            width: 32px;
+            height: 32px;
+            padding: 8px;
+        }
+
+    }
+}
+
+@keyframes enter {
+    from { 
+        opacity: 0;
+        transform: translateY(32px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+
+@keyframes exit {
+    from { 
+        opacity: 1;
+        transform: translateY(0px);
+    }
+    to { 
+        opacity: 0;
+        transform: translateY(-32px);
+    }
+}
