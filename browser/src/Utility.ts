@@ -40,6 +40,23 @@ export const replaceAll = (str: string, wordsToReplace: { [key: string]: string 
     return str.replace(re, (matched) => wordsToReplace[matched.toLowerCase()])
 }
 
+/**
+ * Find the first parent directory that contains the given file.
+ */
+export function upsearchSync(dir: string, filename: string) {
+  let parent = dir
+  while (true) {
+    if (fs.existsSync(path.join(parent, filename))) {
+      return parent
+    }
+    const nextParent = path.dirname(parent)
+    if (parent === nextParent) {
+      return null
+    }
+    parent = nextParent
+  }
+}
+
 export const diff = (newObject: any, oldObject: any) => {
     // Return changed properties between newObject and oldObject
     const updatedProperties = reduce(newObject, (result, value, key) => {
