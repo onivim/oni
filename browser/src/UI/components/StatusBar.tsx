@@ -1,4 +1,5 @@
 import * as electron from "electron"
+import styled from "styled-components"
 
 import * as keys from "lodash/keys"
 import * as React from "react"
@@ -41,6 +42,22 @@ interface IChildDimensions {
     priority: number
     hide: boolean
 }
+
+const StatusBarComponent = styled.div`
+    white-space: nowrap;
+    padding-left: 8px;
+    padding-right: 8px;
+    flex: 0 1 auto;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    &:hover {
+        background-color: rgba(100, 100, 100, 0.2);
+    }
+`
 
 export class StatusBar extends React.PureComponent<StatusBarProps> {
     public render() {
@@ -90,7 +107,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps> {
     }
 }
 
-export class StatusBarItem extends React.Component<StatusBarItemProps, {}> {
+export class StatusBarItem extends React.PureComponent<StatusBarItemProps, {}> {
     public componentDidMount() {
         this.props.passWidth({
             width: this.props.width,
@@ -118,9 +135,9 @@ export class StatusBarItem extends React.Component<StatusBarItemProps, {}> {
         // tslint:disable-next-line
         console.log(`${this.props.id} this.props.hide: `, this.props.hide);
         return this.props.hide ? null : (
-            <div ref={this.props.measureRef} className={`status-bar-item`}>
+            <StatusBarComponent innerRef={this.props.measureRef} className={`status-bar-item`}>
                 {this.props.contents}
-            </div>
+            </StatusBarComponent>
         )
     }
 }
