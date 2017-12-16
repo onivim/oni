@@ -3,7 +3,7 @@ import * as path from "path"
 import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
 import * as Log from "./Log"
-import { buildMenu } from "./menu"
+import { buildDockMenu, buildMenu } from "./menu"
 import { makeSingleInstance } from "./ProcessLifecycle"
 
 global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
@@ -57,7 +57,7 @@ if (!isDevelopment && !isDebug) {
     })
 }
 
-function createWindow(commandLineArguments, workingDirectory) {
+export function createWindow(commandLineArguments, workingDirectory) {
     Log.info(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
 
     const webPreferences = {
@@ -130,6 +130,8 @@ function updateMenu(mainWindow, loadInit) {
     if (process.platform === "darwin") {
         // all osx windows share the same menu
         Menu.setApplicationMenu(menu)
+        const dockMenu = buildDockMenu(mainWindow, loadInit)
+        app.dock.setMenu(dockMenu)
     } else {
         // on windows and linux, set menu per window
         mainWindow.setMenu(menu)

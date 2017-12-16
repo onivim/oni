@@ -46,7 +46,7 @@ export interface IWindowTitleProps {
 
 export const mapStateToProps = (state: State.IState, props: IWindowTitleProps): IWindowTitleViewProps => {
     return {
-        ...props,
+        visible: props.visible && !state.isFullScreen,
         title: state.windowTitle,
         backgroundColor: state.colors["title.background"],
         foregroundColor: state.colors["title.foreground"],

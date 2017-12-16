@@ -41,15 +41,12 @@ export interface IConfigurationValues {
 
         // - textMateHighlighting
     "experimental.editor.textMateHighlighting.enabled": boolean
-    // If a file has more lines than this value, syntax highlighting will be disabled
-    "experimental.editor.textMateHighlighting.maxLines": number
 
     "experimental.sidebar.enabled": boolean
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
-    "experimental.editor.typingPrediction": boolean
 
     "autoClosingPairs.enabled": boolean
     "autoClosingPairs.default": any
@@ -129,6 +126,10 @@ export interface IConfigurationValues {
     // Additional padding between lines
     "editor.linePadding": number
 
+    // Maximum supported file size (by lines)
+    // to include language services/completion/syntax highlight/etc
+    "editor.maxLinesForLanguageServices": 2500,
+
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
 
@@ -150,6 +151,16 @@ export interface IConfigurationValues {
     // IE, Windows:
     // "editor.quickOpen.execCommand": "dir /s /b"
     "editor.quickOpen.execCommand": string | null
+
+    // The filter strategy to use for processing results
+    // Options:
+    // - 'fuse' - use the fusejs strategy
+    // - 'regex' - use a regex based strategy
+    "editor.quickOpen.filterStrategy": string
+
+    // Typing prediction is Oni's implementation of
+    // 'zero-latency' mode typing, and increases responsiveness.
+    "editor.typingPrediction": boolean
 
     "editor.fullScreenOnStart": boolean
     "editor.maximizeScreenOnStart": boolean

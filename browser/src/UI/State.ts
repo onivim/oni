@@ -44,6 +44,7 @@ export interface IState {
     fontFamily: string
     fontSize: string
     hasFocus: boolean
+    isFullScreen: boolean
     mode: string
     definition: null | IDefinition
     cursorLineOpacity: number
@@ -204,6 +205,7 @@ export const createDefaultState = (): IState => ({
     cursorColumnOpacity: 0,
     neovimError: false,
     isLoaded: false,
+    isFullScreen: false,
 
     configuration: {} as IConfigurationValues,
 

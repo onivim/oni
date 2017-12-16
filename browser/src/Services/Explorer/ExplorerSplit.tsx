@@ -3,8 +3,6 @@
  *
  */
 
-import * as path from "path"
-
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
@@ -52,6 +50,13 @@ export class ExplorerSplit {
             this._store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
                 rootPath: newDirectory,
+            })
+        })
+
+        this._editorManager.allEditors.onBufferEnter.subscribe((args) => {
+            this._store.dispatch({
+                type: "BUFFER_OPENED",
+                filePath: args.filePath,
             })
         })
     }
@@ -113,8 +118,7 @@ export class ExplorerSplit {
 
         switch (selectedItem.type) {
             case "file":
-                const fullPath = path.join(state.rootFolder.fullPath, selectedItem.filePath)
-                this._editorManager.activeEditor.openFile(fullPath)
+                this._editorManager.activeEditor.openFile(selectedItem.filePath)
                 return
             default:
                 alert("Not implemented yet.") // tslint:disable-line

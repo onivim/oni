@@ -116,14 +116,6 @@ endif
 return context
 endfunction
 
-function OniConnect()
-    " Force BufEnter and buffer update events to be dispatched on connection
-    " Otherwise, there can be race conditions where the buffer is loaded
-    " prior to the UI attaching. See #122
-    call OniNotifyEvent("BufEnter")
-    call OniNotifyBufferUpdate()
-endfunction
-
 function OniNotifyYank(yankEvent)
     call OniNotify(["oni_yank", a:yankEvent])
 endfunction

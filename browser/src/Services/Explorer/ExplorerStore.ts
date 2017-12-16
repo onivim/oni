@@ -35,9 +35,11 @@ export type FolderOrFile = IFolderState | IFileState
 
 export interface ExpandedFolders { [fullPath: string]: FolderOrFile[]}
 
+export interface OpenedFiles { [fullPath: string]: any }
+
 export interface IExplorerState {
     // Recent
-    openedFiles: IRecentFile[]
+    openedFiles: OpenedFiles
 
     // Open workspace
     rootFolder: IFolderState
@@ -62,10 +64,7 @@ export const DefaultExplorerStyle: IExplorerStyling = {
 }
 
 export const DefaultExplorerState: IExplorerState = {
-    openedFiles: [
-        { filePath: "File1.ts", modified: false },
-        { filePath: "File2.ts", modified: false },
-    ],
+    openedFiles: {},
     rootFolder: null,
     expandedFolders: {},
     selectedId: "explorer",
@@ -94,6 +93,12 @@ export type ExplorerAction = {
     type: "ENTER",
 } | {
     type: "LEAVE",
+} | {
+    type: "BUFFER_OPENED",
+    filePath: string,
+} | {
+    type: "BUFFER_CLOSED",
+    filePath: string,
 }
 
 export const rootFolderReducer: Reducer<IFolderState> = (
@@ -108,6 +113,25 @@ export const rootFolderReducer: Reducer<IFolderState> = (
                 fullPath: action.rootPath,
             }
 
+        default:
+            return state
+    }
+}
+
+export const openedFilesReducer: Reducer<OpenedFiles> = (
+    state: OpenedFiles = {},
+    action: ExplorerAction,
+) => {
+    switch (action.type) {
+        case "BUFFER_OPENED":
+            return {
+                ...state,
+                [action.filePath]: {},
+            }
+        case "BUFFER_CLOSED":
+            const newState = { ...state }
+            delete newState[action.filePath]
+            return newState
         default:
             return state
     }
@@ -182,6 +206,7 @@ export const reducer: Reducer<IExplorerState> = (
         expandedFolders: expandedFolderReducer(state.expandedFolders, action),
         selectedId: selectedIdReducer(state.selectedId, action),
         styling: stylingReducer(state.styling, action),
+        openedFiles: openedFilesReducer(state.openedFiles, action),
     }
 }
 
