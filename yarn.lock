@@ -1972,9 +1972,9 @@ electron-chromedriver@~1.6.0:
     electron-download "^3.1.0"
     extract-zip "^1.6.0"
 
-electron-devtools-installer@2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/electron-devtools-installer/-/electron-devtools-installer-2.2.0.tgz#9813e6811afcd69ddca3cae5416db72ea7ecfb6a"
+electron-devtools-installer@2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/electron-devtools-installer/-/electron-devtools-installer-2.2.1.tgz#0beb73ccbf65cbc4d09e706cebda638f839b8c55"
   dependencies:
     "7zip" "0.0.6"
     cross-unzip "0.0.2"
