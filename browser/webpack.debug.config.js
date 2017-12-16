@@ -10,7 +10,10 @@ module.exports = {
         "vscode-textmate": "require('vscode-textmate')",
         "vscode-languageserver-types": "require('vscode-languageserver-types')",
         "keyboard-layout": "require('keyboard-layout')",
-        "gifshot": "require('gifshot')"
+        "gifshot": "require('gifshot')",
+        "msgpack-lite": "require('msgpack-lite')",
+        "react": "require('react')",
+        "react-dom": "require('react-dom')",
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".less"]
