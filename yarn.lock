@@ -46,6 +46,10 @@
   dependencies:
     "@types/color-convert" "*"
 
+"@types/electron-store@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@types/electron-store/-/electron-store-1.2.0.tgz#c6c7134a3827d07560ce7296dead51e47e8c1c17"
+
 "@types/jsdom@11.0.0":
   version "11.0.0"
   resolved "https://registry.yarnpkg.com/@types/jsdom/-/jsdom-11.0.0.tgz#7ce7deaa1843601ed043f51a0de84fb940574184"
@@ -1405,6 +1409,16 @@ concurrently@3.1.0:
     spawn-default-shell "^1.1.0"
     tree-kill "^1.1.0"
 
+conf@^1.3.0:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/conf/-/conf-1.3.1.tgz#829a82b081bb355129992333be1598f797a56f58"
+  dependencies:
+    dot-prop "^4.1.0"
+    env-paths "^1.0.0"
+    make-dir "^1.0.0"
+    pkg-up "^2.0.0"
+    write-file-atomic "^2.3.0"
+
 configstore@^3.0.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/configstore/-/configstore-3.1.1.tgz#094ee662ab83fad9917678de114faaea8fcdca90"
@@ -2054,6 +2068,12 @@ electron-rebuild@1.6.0:
     rimraf "^2.6.1"
     spawn-rx "^2.0.10"
     yargs "^7.0.2"
+
+electron-store@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/electron-store/-/electron-store-1.3.0.tgz#ee488a28a61fb982fd35b658fb9cb6331eb201f8"
+  dependencies:
+    conf "^1.3.0"
 
 electron-to-chromium@^1.2.7:
   version "1.3.27"
@@ -4472,6 +4492,12 @@ pinkie@^2.0.0:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/pinkie/-/pinkie-2.0.4.tgz#72556b80cfa0d48a974e80e77248e80ed4f7f870"
 
+pkg-up@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/pkg-up/-/pkg-up-2.0.0.tgz#c819ac728059a461cab1c3889a2be3c49a004d7f"
+  dependencies:
+    find-up "^2.1.0"
+
 plist@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/plist/-/plist-2.1.0.tgz#57ccdb7a0821df21831217a3cad54e3e146a1025"
@@ -6623,7 +6649,7 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
-write-file-atomic@^2.0.0:
+write-file-atomic@^2.0.0, write-file-atomic@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/write-file-atomic/-/write-file-atomic-2.3.0.tgz#1ff61575c2e2a4e8e510d6fa4e243cce183999ab"
   dependencies:
