@@ -71,9 +71,13 @@ export class ContainerView extends React.PureComponent<IContainerViewProps, {}> 
             borderLeft: this.props.isSelected ? "4px solid rgb(97, 175, 239)" : "4px solid transparent",
         }
 
+        const caretStyle = {
+            transform: this.props.expanded ? "rotateZ(45deg)" : "rotateZ(0deg)",
+        }
+
         return <div className="item" style={headerStyle}>
             <div className="icon">
-                <i className="fa fa-caret-right" />
+                <i style={caretStyle} className="fa fa-caret-right" />
             </div>
             <div className="name">
                 {this.props.name}
