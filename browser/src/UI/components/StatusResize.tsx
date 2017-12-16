@@ -3,31 +3,46 @@ import * as React from "react"
 interface Props {
     children: React.ReactNode
     className: string
+    passWidth?: (data: IChildDimensions) => void
 }
 
 interface State {
     width?: number
 }
 
+interface IChildDimensions {
+    direction: string
+    width: number
+    id: string
+    priority: number
+    hide: boolean
+}
+
+interface State {
+    containerWidth: number
+    childNodes: {
+        [id: string]: any;
+    }
+}
+
 class StatusBarResizer extends React.Component<Props, State> {
     private observer: any
-    private elem: any
-
+    private elem: Element
     constructor(props: Props) {
         super(props)
-
         this.state = {
-            width: null,
+            containerWidth: null,
+            childNodes: {},
         }
     }
 
     public componentDidMount() {
         this.setState({
-            width: this.elem.getBoundingClientRect().width,
+            containerWidth: this.elem.getBoundingClientRect().width,
         })
         // tslint:disable-next-line
         this.observer = new window["ResizeObserver"](([entry]: any) => {
-            this.setState({ width: entry.contentRect.width })
+            this.setState({ containerWidth: entry.contentRect.width }, this.resize)
         })
         this.observer.observe(this.elem)
     }
@@ -37,17 +52,69 @@ class StatusBarResizer extends React.Component<Props, State> {
     }
 
     public render() {
-        const { width } = this.state
+        const { containerWidth } = this.state
         const { children, className } = this.props
-        console.log(`${className} width: `, width)
+        console.log(`${className} containerWidth: `, containerWidth)
         return (
             <div ref={elem => (this.elem = elem)} className={className}>
-                {width !== undefined &&
+                {containerWidth !== undefined &&
                     React.Children.map(children, (child: any) => {
-                        return React.cloneElement(child, { ...child.props, width })
+                        const current = this.state.childNodes[child.props.id]
+                        if (child.props.alignment === 1) {
+                            console.log("current: ", child)
+                        }
+                        return React.cloneElement(child, {
+                            ...child.props,
+                            passWidth: this.passWidth,
+                            hide: !!current && current.hide,
+                        })
                     })}
             </div>
         )
+    }
+
+    private passWidth = (childDimensions: IChildDimensions) => {
+        const { width, id, priority, hide } = childDimensions
+        this.setState(
+            s => ({
+                ...s,
+                childNodes: {
+                    ...s.childNodes,
+                    [id]: { id, width, priority, hide },
+                },
+            }),
+            this.resize,
+        )
+    }
+
+    private resize = () => {
+        const childArray = Object.values(this.state.childNodes)
+        const widths = childArray.map(child => child.width).filter(v => !!v)
+        if (widths.length) {
+            const sum = widths.reduce((p, n) => p + n)
+            const lowestPriority = childArray.reduce(
+                (prev, next) => (prev.priority > next.priority ? prev : next),
+            )
+            if (sum) {
+                const tooBig = sum > this.state.containerWidth
+                console.log(`${this.props.className} tooBig: `, tooBig)
+                this.setState(
+                    s => ({
+                        ...s,
+                        childNodes: {
+                            ...s.childNodes,
+                            [lowestPriority.id]: {
+                                ...s.childNodes[lowestPriority.id],
+                                hide: tooBig,
+                            },
+                        },
+                    }),
+                    () => console.log(`${this.props.className} state`, this.state),
+                )
+            }
+            // console.log(`${this.props.className} sum: `, sum)
+        }
+        // console.log(`${this.props.className} widths: `, widths)
     }
 }
 

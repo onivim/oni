@@ -9,6 +9,7 @@ import { IState, StatusBarAlignment } from "./../State"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
 import StatusResize from "./StatusResize"
+import WithContentRect from "./WithContentRect"
 
 require("./StatusBar.less") // tslint:disable-line no-var-requires
 
@@ -26,9 +27,21 @@ export interface StatusBarItemProps {
     contents: JSX.Element
     id: string
     priority: number
+    measureRef?: any
+    passWidth?: (data: IChildDimensions) => void
+    width?: number
+    hide?: boolean
 }
 
-export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
+interface IChildDimensions {
+    direction: string
+    width: number
+    id: string
+    priority: number
+    hide: boolean
+}
+
+export class StatusBar extends React.PureComponent<StatusBarProps> {
     public render() {
         if (!this.props.enabled) {
             return null
@@ -54,17 +67,17 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
             <div className="status-bar enable-mouse" style={statusBarStyle}>
                 <div className="status-bar-inner">
                     <StatusResize className="status-bar-container left">
-                        {leftItems.map(item => <StatusBarItem {...item} key={item.id} />)}
+                        {leftItems.map(item => <ItemWithWidth {...item} key={item.id} />)}
                     </StatusResize>
                     <div className="status-bar-container center" />
                     <StatusResize className="status-bar-container right">
-                        {rightItems.map(item => <StatusBarItem {...item} key={item.id} />)}
-                        <div className="status-bar-item" onClick={() => this._openGithub()}>
-                            <span>
-                                <i className="fa fa-github" />
-                            </span>
-                        </div>
+                        {rightItems.map(item => <ItemWithWidth {...item} key={item.id} />)}
                     </StatusResize>
+                    <div className="status-bar-item" onClick={() => this._openGithub()}>
+                        <span>
+                            <i className="fa fa-github" />
+                        </span>
+                    </div>
                 </div>
             </div>
         )
@@ -76,19 +89,40 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
     }
 }
 
-export class StatusBarItem extends React.PureComponent<StatusBarItemProps, {}> {
-    private childNode: any
-    public getWidth = () => {
-        return this.childNode.offsetWidth()
+export class StatusBarItem extends React.Component<StatusBarItemProps, {}> {
+    public componentDidMount() {
+        this.props.passWidth({
+            width: this.props.width,
+            direction: this.props.alignment === 0 ? "left" : "right",
+            id: this.props.id,
+            priority: this.props.priority,
+            hide: this.props.hide,
+        })
     }
+    public componentWillReceiveProps(nextProps: StatusBarItemProps) {
+        if (nextProps.width !== this.props.width) {
+            this.props.passWidth({
+                width: nextProps.width,
+                direction: nextProps.alignment === 0 ? "left" : "right",
+                id: nextProps.id,
+                priority: nextProps.priority,
+                hide: nextProps.hide,
+            })
+        }
+    }
+
     public render() {
-        return (
-            <div ref={r => (this.childNode = r)} className="status-bar-item">
+        // console.log(`${this.props.id} this.props: `, this.props)
+        console.log(`${this.props.id} this.props.hide: `, this.props.hide)
+        return this.props.hide ? null : (
+            <div ref={this.props.measureRef} className="status-bar-item">
                 {this.props.contents}
             </div>
         )
     }
 }
+
+const ItemWithWidth = WithContentRect(StatusBarItem)
 
 import { createSelector } from "reselect"
 
