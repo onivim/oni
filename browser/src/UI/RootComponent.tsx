@@ -11,6 +11,7 @@ import * as WindowManager from "./../Services/WindowManager"
 import { Background } from "./components/Background"
 import { Loading } from "./components/Loading"
 import StatusBar from "./components/StatusBar"
+
 import { WindowSplits } from "./components/WindowSplits"
 import { WindowTitle } from "./components/WindowTitle"
 

@@ -1,0 +1,24 @@
+{
+  "name": "oni-markdown-preview",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "engines": {
+    "oni": "^0.0.1"
+  },
+  "scripts": {
+    "build": "rimraf lib && tsc",
+    "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
+  },
+  "oni": {
+    "supportedFileTypes": [
+      "markdown"
+    ],
+    "commands": {
+      "markdown.preview": {
+        "name": "Markdown Preview",
+        "details": "Preview open markdown file"
+      }
+    }
+  },
+  "dependencies": {}
+}

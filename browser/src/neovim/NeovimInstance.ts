@@ -483,6 +483,18 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return versionInfo[1].version as any
     }
 
+    public dispatchScrollEvent(): void {
+        if (this._pendingScrollTimeout) {
+            return
+        }
+
+        this._pendingScrollTimeout = window.setTimeout(async () => {
+            const evt = await this.getContext()
+            this._onScroll.dispatch(evt)
+            this._pendingScrollTimeout = null
+        })
+    }
+
     private _resizeInternal(rows: number, columns: number): void {
 
         if (this._config.hasValue("debug.fixedSize")) {
@@ -516,18 +528,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return { rows, cols }
     }
 
-    private _dispatchScrollEvent(): void {
-        if (this._pendingScrollTimeout) {
-            return
-        }
-
-        this._pendingScrollTimeout = window.setTimeout(async () => {
-            const evt = await this.getContext()
-            this._onScroll.dispatch(evt)
-            this._pendingScrollTimeout = null
-        })
-    }
-
     private _handleNotification(_method: any, args: any): void {
         args.forEach((a: any[]) => {
             const command = a[0]
@@ -547,7 +547,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     break
                 case "scroll":
                     this.emit("action", Actions.scroll(a[0][0]))
-                    this._dispatchScrollEvent()
                     break
                 case "highlight_set":
                     const highlightInfo = a[a.length - 1][0]

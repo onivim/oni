@@ -13,7 +13,7 @@ yarn.lock
 $LOCALAPPDATA
 
 # Output
-/lib
+lib
 lib_test
 dist
 
