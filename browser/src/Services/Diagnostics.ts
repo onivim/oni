@@ -9,7 +9,7 @@ import * as types from "vscode-languageserver-types"
 import * as UI from "./../UI"
 import * as Selectors from "./../UI/Selectors"
 
-import { LanguageManager, ILanguageServerNotificationResponse } from "./Language"
+import { ILanguageServerNotificationResponse, LanguageManager } from "./Language"
 
 import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
