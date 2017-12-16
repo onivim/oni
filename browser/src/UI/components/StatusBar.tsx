@@ -113,6 +113,7 @@ export class StatusBarItem extends React.Component<StatusBarItemProps, {}> {
 
     public render() {
         // console.log(`${this.props.id} this.props: `, this.props)
+        // tslint:disable-next-line
         console.log(`${this.props.id} this.props.hide: `, this.props.hide)
         return this.props.hide ? null : (
             <div ref={this.props.measureRef} className="status-bar-item">

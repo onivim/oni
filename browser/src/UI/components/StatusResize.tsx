@@ -54,7 +54,7 @@ class StatusBarResizer extends React.Component<Props, State> {
     public render() {
         const { containerWidth } = this.state
         const { children, className } = this.props
-        console.log(`${className} containerWidth: `, containerWidth)
+        console.log(`${className} containerWidth: `, containerWidth); // tslint:disable-line
         return (
             <div ref={elem => (this.elem = elem)} className={className}>
                 {containerWidth !== undefined &&
@@ -94,7 +94,7 @@ class StatusBarResizer extends React.Component<Props, State> {
             )
             if (sum) {
                 const tooBig = sum > this.state.containerWidth
-                console.log(`${this.props.className} tooBig: `, tooBig)
+                // console.log(`${this.props.className} tooBig: `, tooBig); // tslint:disable-line
                 this.setState(
                     s => ({
                         ...s,
@@ -107,8 +107,8 @@ class StatusBarResizer extends React.Component<Props, State> {
                         },
                     }),
                     () => {
-                        console.log(`${this.props.className} state`, this.state)
-                        console.log(`${this.props.className} priority`, lowestPriority)
+                        // console.log(`${this.props.className} state`, this.state)// tslint:disable-line
+                        // console.log(`${this.props.className} priority`, lowestPriority)// tslint:disable-line
                     },
                 )
             }
