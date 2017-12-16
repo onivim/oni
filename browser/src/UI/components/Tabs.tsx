@@ -186,7 +186,7 @@ const getTabsFromBuffers = createSelector(
                 description: buf.file,
             }
         })
-        return tabs
+        return tabs.sort(({ id: prevId }: ITabProps, { id: nextId }: ITabProps) => prevId - nextId)
     })
 
 const getTabsFromVimTabs = createSelector(

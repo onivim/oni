@@ -10,7 +10,7 @@
 import * as Oni from "oni-api"
 
 import * as Coordinates from "./Coordinates"
-import { IMessageDialog, ITab, StatusBarAlignment } from "./State"
+import { IBuffer, IMessageDialog, ITab, StatusBarAlignment } from "./State"
 import { Rectangle } from "./Types"
 
 import { IConfigurationValues } from "./../Services/Configuration"
@@ -98,12 +98,7 @@ export interface ISetFont {
 export interface IBufferEnterAction {
     type: "BUFFER_ENTER",
     payload: {
-        id: number,
-        file: string,
-        fileType: string,
-        totalLines: number,
-        hidden: boolean,
-        listed: boolean,
+        buffers: IBuffer[],
     }
 }
 

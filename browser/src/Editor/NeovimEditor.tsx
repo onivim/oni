@@ -20,7 +20,7 @@ import { Event } from "oni-types"
 import * as Log from "./../Log"
 
 import { addDefaultUnitIfNeeded } from "./../Font"
-import { EventContext, INeovimStartOptions, NeovimInstance, NeovimScreen, NeovimWindowManager } from "./../neovim"
+import { BufferEventContext, EventContext, INeovimStartOptions, NeovimInstance, NeovimScreen, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 
 import { pluginManager } from "./../Plugins/PluginManager"
@@ -172,7 +172,20 @@ export class NeovimEditor extends Editor implements IEditor {
             commandManager.executeCommand(command)
         })
 
-        this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
+        this._neovimInstance.on("event", (eventName: string, evt: any) => {
+            const current = evt.current || evt
+            this._updateWindow(current)
+            this._bufferManager.updateBufferFromEvent(current)
+        })
+
+        this._neovimInstance.autoCommands
+            .onBufEnter.subscribe((evt: BufferEventContext) => this._onBufEnter(evt))
+
+        this._neovimInstance.autoCommands
+            .onBufWipeout.subscribe((evt: BufferEventContext) => this._onBufWipeout(evt))
+
+        this._neovimInstance.autoCommands
+            .onBufWritePost.subscribe((evt: EventContext) => this._onBufWritePost(evt))
 
         this._neovimInstance.onColorsChanged.subscribe(() => {
             this._onColorsChanged()
@@ -408,7 +421,7 @@ export class NeovimEditor extends Editor implements IEditor {
     public render(): JSX.Element {
 
         const onBufferClose = (bufferId: number) => {
-            this._neovimInstance.command(`bw ${bufferId}`)
+            this._neovimInstance.command(`bw! ${bufferId}`)
         }
 
         const onBufferSelect = (bufferId: number) => {
@@ -467,40 +480,55 @@ export class NeovimEditor extends Editor implements IEditor {
         }
     }
 
-    private _onVimEvent(eventName: string, evt: EventContext): void {
-        UI.Actions.setWindowCursor(evt.windowNumber, evt.line - 1, evt.column - 1)
-
+    private _updateWindow(currentBuffer: EventContext) {
+        UI.Actions.setWindowCursor(
+            currentBuffer.windowNumber,
+            currentBuffer.line - 1,
+            currentBuffer.column - 1,
+        )
         // Convert to 0-based positions
-        this._syntaxHighlighter.notifyViewportChanged(evt.bufferNumber.toString(), evt.windowTopLine - 1, evt.windowBottomLine - 1)
+        this._syntaxHighlighter.notifyViewportChanged(
+            currentBuffer.bufferNumber.toString(),
+            currentBuffer.windowTopLine - 1,
+            currentBuffer.windowBottomLine - 1,
+        )
+    }
 
+    private async _onBufEnter(evt: BufferEventContext): Promise<void> {
+        const buf = this._bufferManager.updateBufferFromEvent(evt.current)
         const lastBuffer = this.activeBuffer
-        const buf = this._bufferManager.updateBufferFromEvent(evt)
-
-        if (eventName === "BufEnter") {
-            if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
-                this.notifyBufferLeave({
-                    filePath: lastBuffer.filePath,
-                    language: lastBuffer.language,
-                })
-            }
-
-            this._lastBufferId = evt.bufferNumber.toString()
-            this.notifyBufferEnter(buf)
-
-            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.filetype, evt.bufferTotalLines, evt.hidden, evt.listed)
-        } else if (eventName === "BufWritePost") {
-            // After we save we aren't modified... but we can pass it in just to be safe
-            UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
-
-            this.notifyBufferSaved({
-                filePath: evt.bufferFullPath,
-                language: evt.filetype,
+        if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
+            this.notifyBufferLeave({
+                filePath: lastBuffer.filePath,
+                language: lastBuffer.language,
             })
-        } else if (eventName === "BufDelete") {
-
-            this._neovimInstance.getBufferIds()
-                .then((ids) => UI.Actions.setCurrentBuffers(ids))
         }
+        this._lastBufferId = evt.current.bufferNumber.toString()
+        this.notifyBufferEnter(buf)
+
+        // Existing buffers contains a duplicate current buffer object which should be filtered out
+        // and current buffer sent instead. Finally Filter out falsy viml values.
+        const existingBuffersWithoutCurrent =
+            evt.existingBuffers.filter(b => b.bufferNumber !== evt.current.bufferNumber)
+        const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
+
+        UI.Actions.bufferEnter(buffers)
+    }
+
+    private async _onBufWritePost(evt: EventContext): Promise<void> {
+        // After we save we aren't modified... but we can pass it in just to be safe
+        UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
+
+        this.notifyBufferSaved({
+            filePath: evt.bufferFullPath,
+            language: evt.filetype,
+        })
+    }
+
+    private async _onBufWipeout(evt: BufferEventContext): Promise<void> {
+        this._neovimInstance
+        .getBufferIds()
+        .then(ids => UI.Actions.setCurrentBuffers(ids))
     }
 
     private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
