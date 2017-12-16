@@ -29,11 +29,10 @@ import { Colors } from "./../Services/Colors"
 import { CallbackCommand, commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Completion } from "./../Services/Completion"
-import { configuration, IConfigurationValues } from "./../Services/Configuration"
+import {C Configuration } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, getInstance as getLanguageManagerInstance } from "./../Services/Language"
+import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, LanguageManager } from "./../Services/Language"
 import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
-import { getThemeManagerInstance } from "./../Services/Themes"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { workspace } from "./../Services/Workspace"
 
@@ -101,8 +100,9 @@ export class NeovimEditor extends Editor implements IEditor {
 
     constructor(
         private _colors: Colors,
-        private _config = configuration,
-        private _themeManager = getThemeManagerInstance(),
+        private _config: Configuration,
+        private _languageManager: LanguageManager,
+        private _themeManager: ThemeManager,
     ) {
         super()
 

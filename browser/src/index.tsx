@@ -23,10 +23,14 @@ const start = async (args: string[]): Promise<void> => {
     const pluginManagerPromise = import("./Plugins/PluginManager")
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
+
+    const startEditorsPromise = import("./startEditors")
+
     const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
     const browserWindowConfigurationSynchronizerPromise = import("./Services/BrowserWindowConfigurationSynchronizer")
     const colorsPromise = import("./Services/Colors")
+    const diagnosticsPromise = import("./Services/Diagnostics")
     const editorManagerPromise = import("./Services/EditorManager")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
@@ -79,19 +83,24 @@ const start = async (args: string[]): Promise<void> => {
     const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
     BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
 
+    const LanguageManager = await languageManagerPromise
+    LanguageManager.activate(configuration, editorManager)
+    const languageManager = LanguageManager.getInstance()
+
     Performance.startMeasure("Oni.Start.Editors")
     const SharedNeovimInstance = await sharedNeovimInstancePromise
+    const { startEditors } = await startEditorsPromise
     await Promise.all([
         SharedNeovimInstance.activate(),
-        UI.startEditors(parsedArgs._, Colors.getInstance(), configuration)
+        startEditors(parsedArgs._, Colors.getInstance(), configuration, languageManager, Themes.getThemeManagerInstance())
     ])
     const { editorManager } = await editorManagerPromise
     Performance.endMeasure("Oni.Start.Editors")
 
-    const LanguageManager = await languageManagerPromise
-    LanguageManager.activate(configuration, editorManager)
-    const languageManager = LanguageManager.getInstance()
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
+
+    const Diagnostics = await diagnosticsPromise
+    Diagnostics.activate(languageManager)
 
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()

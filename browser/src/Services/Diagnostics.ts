@@ -6,14 +6,14 @@
 
 import * as types from "vscode-languageserver-types"
 
-import * as UI from "./../../UI"
-import * as Selectors from "./../../UI/Selectors"
+import * as UI from "./../UI"
+import * as Selectors from "./../UI/Selectors"
 
-import * as LanguageManager from "./LanguageManager"
+import { LanguageManager, ILanguageServerNotificationResponse } from "./Language"
 
-import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
+import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import * as Utility from "./../../Utility"
+import * as Utility from "./../Utility"
 
 interface IPublishDiagnosticsParams {
     uri: string
@@ -35,9 +35,8 @@ export class DiagnosticsDataSource {
     }
 }
 
-export const listenForDiagnostics = () => {
-    const languageManager = LanguageManager.getInstance()
-    languageManager.subscribeToLanguageServerNotification("textDocument/publishDiagnostics", (args: LanguageManager.ILanguageServerNotificationResponse) => {
+export const activate = (languageManager: LanguageManager) => {
+    languageManager.subscribeToLanguageServerNotification("textDocument/publishDiagnostics", (args: ILanguageServerNotificationResponse) => {
         const test = args.payload as IPublishDiagnosticsParams
 
         UI.Actions.setErrors(Helpers.unwrapFileUriPath(test.uri), "language-" + args.language, test.diagnostics)
