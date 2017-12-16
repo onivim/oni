@@ -4,6 +4,7 @@ import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
 import * as Log from "./Log"
 import { buildDockMenu, buildMenu } from "./menu"
+import addDevExtensions from "./installDevTools"
 import { makeSingleInstance } from "./ProcessLifecycle"
 
 global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
@@ -52,8 +53,7 @@ if (!isDevelopment && !isDebug) {
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
     app.on("ready", async () => {
-        const devExtensions = require("./installDevTools")
-        await devExtensions()
+        await addDevExtensions()
         loadFileFromArguments(process.platform, process.argv, process.cwd())
     })
 }
