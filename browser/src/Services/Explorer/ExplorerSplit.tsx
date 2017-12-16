@@ -120,6 +120,12 @@ export class ExplorerSplit {
             case "file":
                 this._editorManager.activeEditor.openFile(selectedItem.filePath)
                 return
+            case "folder":
+                this._store.dispatch({
+                    type: "EXPAND_DIRECTORY",
+                    directoryPath: selectedItem.folderPath,
+                })
+                return
             default:
                 alert("Not implemented yet.") // tslint:disable-line
         }
