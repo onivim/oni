@@ -83,6 +83,8 @@ const start = async (args: string[]): Promise<void> => {
     const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
     BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
 
+    const { editorManager } = await editorManagerPromise
+
     const LanguageManager = await languageManagerPromise
     LanguageManager.activate(configuration, editorManager)
     const languageManager = LanguageManager.getInstance()
@@ -94,7 +96,6 @@ const start = async (args: string[]): Promise<void> => {
         SharedNeovimInstance.activate(),
         startEditors(parsedArgs._, Colors.getInstance(), configuration, languageManager, Themes.getThemeManagerInstance())
     ])
-    const { editorManager } = await editorManagerPromise
     Performance.endMeasure("Oni.Start.Editors")
 
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration

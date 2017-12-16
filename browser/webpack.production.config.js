@@ -14,8 +14,8 @@ const productionConfig = Object.assign({}, baseConfig, {
             "process.env.NODE_ENV":'"production"'
         }),
         new webpack.optimize.CommonsChunkPlugin({
-            name: "common",
             async: true,
+            minChunks: 2,
         }),
         new BabiliPlugin(),
         new OptimizeJsPlugin({
