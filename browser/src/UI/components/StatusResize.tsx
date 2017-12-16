@@ -60,9 +60,6 @@ class StatusBarResizer extends React.Component<Props, State> {
                 {containerWidth !== undefined &&
                     React.Children.map(children, (child: any) => {
                         const current = this.state.childNodes[child.props.id]
-                        if (child.props.alignment === 1) {
-                            console.log("current: ", child)
-                        }
                         return React.cloneElement(child, {
                             ...child.props,
                             passWidth: this.passWidth,
@@ -93,7 +90,7 @@ class StatusBarResizer extends React.Component<Props, State> {
         if (widths.length) {
             const sum = widths.reduce((p, n) => p + n)
             const lowestPriority = childArray.reduce(
-                (prev, next) => (prev.priority > next.priority ? prev : next),
+                (prev, next) => (prev.priority > next.priority && !prev.hide ? prev : next),
             )
             if (sum) {
                 const tooBig = sum > this.state.containerWidth
@@ -109,7 +106,10 @@ class StatusBarResizer extends React.Component<Props, State> {
                             },
                         },
                     }),
-                    () => console.log(`${this.props.className} state`, this.state),
+                    () => {
+                        console.log(`${this.props.className} state`, this.state)
+                        console.log(`${this.props.className} priority`, lowestPriority)
+                    },
                 )
             }
             // console.log(`${this.props.className} sum: `, sum)
