@@ -20,7 +20,7 @@ interface IChildDimensions {
 
 interface State {
     containerWidth: number
-    childNodes: {
+    children: {
         [id: string]: any;
     }
 }
@@ -32,7 +32,7 @@ class StatusBarResizer extends React.Component<Props, State> {
         super(props)
         this.state = {
             containerWidth: null,
-            childNodes: {},
+            children: {},
         }
     }
 
@@ -54,12 +54,12 @@ class StatusBarResizer extends React.Component<Props, State> {
     public render() {
         const { containerWidth } = this.state
         const { children, className } = this.props
-        console.log(`${className} containerWidth: `, containerWidth); // tslint:disable-line
+        this.log("Container Width", containerWidth)
         return (
             <div ref={elem => (this.elem = elem)} className={className}>
                 {containerWidth !== undefined &&
                     React.Children.map(children, (child: any) => {
-                        const current = this.state.childNodes[child.props.id]
+                        const current = this.state.children[child.props.id]
                         return React.cloneElement(child, {
                             ...child.props,
                             passWidth: this.passWidth,
@@ -73,10 +73,10 @@ class StatusBarResizer extends React.Component<Props, State> {
     private passWidth = (childDimensions: IChildDimensions) => {
         const { width, id, priority, hide } = childDimensions
         this.setState(
-            s => ({
-                ...s,
-                childNodes: {
-                    ...s.childNodes,
+            state => ({
+                ...state,
+                children: {
+                    ...state.children,
                     [id]: { id, width, priority, hide },
                 },
             }),
@@ -85,7 +85,7 @@ class StatusBarResizer extends React.Component<Props, State> {
     }
 
     private resize = () => {
-        const childArray = Object.values(this.state.childNodes)
+        const childArray = Object.values(this.state.children)
         const widths = childArray.map(child => child.width).filter(v => !!v)
         if (widths.length) {
             const sum = widths.reduce((p, n) => p + n)
@@ -94,27 +94,30 @@ class StatusBarResizer extends React.Component<Props, State> {
             )
             if (sum) {
                 const tooBig = sum > this.state.containerWidth
-                // console.log(`${this.props.className} tooBig: `, tooBig); // tslint:disable-line
+                this.log("too big", tooBig)
                 this.setState(
-                    s => ({
-                        ...s,
-                        childNodes: {
-                            ...s.childNodes,
+                    state => ({
+                        ...state,
+                        children: {
+                            ...state.children,
                             [lowestPriority.id]: {
-                                ...s.childNodes[lowestPriority.id],
+                                ...state.children[lowestPriority.id],
                                 hide: tooBig,
                             },
                         },
                     }),
                     () => {
-                        // console.log(`${this.props.className} state`, this.state)// tslint:disable-line
-                        // console.log(`${this.props.className} priority`, lowestPriority)// tslint:disable-line
+                        this.log("state", this.state)
+                        this.log("priority", lowestPriority)
                     },
                 )
             }
-            // console.log(`${this.props.className} sum: `, sum)
+            this.log("sum", sum)
         }
-        // console.log(`${this.props.className} widths: `, widths)
+    }
+
+    private log(name: string, arg: any) {
+        console.log(`${this.props.className} ${name}`, arg); // tslint:disable-line
     }
 }
 
