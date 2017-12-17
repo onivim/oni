@@ -12,8 +12,9 @@ interface Props {
 
 export default function withContentRect(WrappedComponent: any) {
     return class extends React.Component<Props, State> {
+        public static displayName = `WithContentRect(${WrappedComponent.displayName || WrappedComponent.name})`
         private observer: any
-        private _node: JSX.Element
+        private _node: Element
         constructor(props: Props) {
             super(props)
 
@@ -45,7 +46,7 @@ export default function withContentRect(WrappedComponent: any) {
             }
         }
 
-        private _handleRef = (node: any) => {
+        private _handleRef = (node: Element) => {
             if (this.observer) {
                 if (node) {
                     this.observer.observe(node)

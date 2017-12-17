@@ -1,14 +1,7 @@
 import * as React from "react"
+import styled from "styled-components"
 
-interface Props {
-    children: React.ReactNode
-    className: string
-    passWidth?: (data: IChildDimensions) => void
-}
-
-interface State {
-    width?: number
-}
+import { withProps } from "./common"
 
 interface IChildDimensions {
     direction: string
@@ -18,12 +11,29 @@ interface IChildDimensions {
     hide: boolean
 }
 
+interface Props {
+    children?: React.ReactNode
+    className?: string
+    passWidth?: (data: IChildDimensions) => void
+    direction: string
+}
+
 interface State {
     containerWidth: number
     children: {
         [id: string]: any;
     }
 }
+
+const StatusBarContainer = withProps<{ direction: string; count: boolean }>(styled.div)`
+    ${({ count }) => count && `display: none;`};
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    max-width: 50%;
+    justify-content: ${props => props.direction};
+`
 
 class StatusBarResizer extends React.Component<Props, State> {
     private observer: any
@@ -53,10 +63,18 @@ class StatusBarResizer extends React.Component<Props, State> {
 
     public render() {
         const { containerWidth } = this.state
-        const { children, className } = this.props
-        this.log("Container Width", containerWidth)
+        const { children, direction } = this.props
+        this.log(
+            `Container Width ${direction === "flex-start" ? "left" : "right"}`,
+            containerWidth,
+        )
+        const count = React.Children.count(children)
         return (
-            <div ref={elem => (this.elem = elem)} className={className}>
+            <StatusBarContainer
+                direction={direction}
+                count={count < 1}
+                innerRef={(elem: Element) => (this.elem = elem)}
+            >
                 {containerWidth !== undefined &&
                     React.Children.map(children, (child: any) => {
                         const current = this.state.children[child.props.id]
@@ -66,7 +84,7 @@ class StatusBarResizer extends React.Component<Props, State> {
                             hide: !!current && current.hide,
                         })
                     })}
-            </div>
+            </StatusBarContainer>
         )
     }
 
@@ -85,39 +103,61 @@ class StatusBarResizer extends React.Component<Props, State> {
     }
 
     private resize = () => {
-        const childArray = Object.values(this.state.children)
+        const { children, containerWidth } = this.state
+        const childArray = Object.values(children)
         const widths = childArray.map(child => child.width).filter(v => !!v)
-        if (widths.length) {
+
+        if (widths.length && childArray.length) {
             const sum = widths.reduce((p, n) => p + n)
-            const lowestPriority = childArray.reduce(
-                (prev, next) => (prev.priority > next.priority && !prev.hide ? prev : next),
-            )
+            const shown = childArray.filter(child => !child.hide)
+
+            this.log("remaining children", shown)
+
+            const lowestPriority = shown.reduce((prev, next) => {
+                return prev.priority < next.priority ? prev : next
+            }, {})
+
             if (sum) {
-                const tooBig = sum > this.state.containerWidth
-                this.log("too big", tooBig)
-                this.setState(
-                    state => ({
+                const tooBig = sum > containerWidth
+
+                if (tooBig && lowestPriority) {
+                    this.log("lowest priority", lowestPriority)
+                    this.setState(state => ({
                         ...state,
                         children: {
                             ...state.children,
                             [lowestPriority.id]: {
                                 ...state.children[lowestPriority.id],
-                                hide: tooBig,
+                                hide: true,
                             },
                         },
-                    }),
-                    () => {
-                        this.log("state", this.state)
-                        this.log("priority", lowestPriority)
-                    },
-                )
+                    }))
+                } else {
+                    this.reset()
+                }
+                this.log("sum", sum)
             }
-            this.log("sum", sum)
         }
     }
 
+    private reset() {
+        const { children } = this.state
+        const reset = Object.values(children).reduce((acc, child) => {
+            acc[child.id] = {
+                ...child,
+                hide: false,
+            }
+            return acc
+        }, {})
+
+        this.setState(state => ({
+            ...state,
+            children: reset,
+        }))
+    }
+
     private log(name: string, arg: any) {
-        console.log(`${this.props.className} ${name}`, arg); // tslint:disable-line
+        console.log(`${name}`, arg); // tslint:disable-line
     }
 }
 

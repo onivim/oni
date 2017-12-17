@@ -9,6 +9,7 @@ import { connect } from "react-redux"
 import { IState, StatusBarAlignment } from "./../State"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
+import { withProps } from "./common"
 import StatusResize from "./StatusResize"
 import WithContentRect from "./WithContentRect"
 
@@ -43,7 +44,7 @@ interface IChildDimensions {
     hide: boolean
 }
 
-const StatusBarComponent = styled.div`
+const StatusBarComponent = withProps<{ maxWidth?: string }>(styled.div)`
     white-space: nowrap;
     padding-left: 8px;
     padding-right: 8px;
@@ -84,11 +85,11 @@ export class StatusBar extends React.PureComponent<StatusBarProps> {
         return (
             <div className="status-bar enable-mouse" style={statusBarStyle}>
                 <div className="status-bar-inner">
-                    <StatusResize className="status-bar-container left">
+                    <StatusResize direction="flex-start">
                         {leftItems.map(item => <ItemWithWidth {...item} key={item.id} />)}
                     </StatusResize>
-                    <div className="status-bar-container center" />
-                    <StatusResize className="status-bar-container right">
+                    {/* <StatusResize direction="center" /> */}
+                    <StatusResize direction="flex-end">
                         {rightItems.map(item => <ItemWithWidth {...item} key={item.id} />)}
                     </StatusResize>
                     <div className="status-bar-item" onClick={() => this._openGithub()}>
@@ -130,12 +131,10 @@ export class StatusBarItem extends React.PureComponent<StatusBarItemProps, {}> {
     }
 
     public render() {
-        // console.log(`${this.props.id} this.props: `, this.props)
-        // className={`status-bar-item item-priority-${this.props.priority}`}
         // tslint:disable-next-line
         console.log(`${this.props.id} this.props.hide: `, this.props.hide);
         return this.props.hide ? null : (
-            <StatusBarComponent innerRef={this.props.measureRef} className={`status-bar-item`}>
+            <StatusBarComponent innerRef={this.props.measureRef}>
                 {this.props.contents}
             </StatusBarComponent>
         )
