@@ -2,9 +2,9 @@ import * as path from "path"
 
 import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
+import addDevExtensions from "./installDevTools"
 import * as Log from "./Log"
 import { buildDockMenu, buildMenu } from "./menu"
-import addDevExtensions from "./installDevTools"
 import { makeSingleInstance } from "./ProcessLifecycle"
 
 global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
