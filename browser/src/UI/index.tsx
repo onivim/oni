@@ -7,6 +7,7 @@
 
 import * as React from "react"
 import * as ReactDOM from "react-dom"
+import { connect } from "react-redux"
 
 import { remote } from "electron"
 
@@ -69,12 +70,16 @@ const updateViewport = () => {
     Actions.setViewport(width, height)
 }
 
-export const render = (_state: State.IState): void => {
+const RootContainer = connect((state: State.IState) => ({
+    theme: state.colors,
+}))(RootComponent)
+
+export const render = (state: State.IState): void => {
     const hostElement = document.getElementById("host")
 
     ReactDOM.render(
         <Provider store={store}>
-            <RootComponent windowManager={windowManager}/>
+            <RootContainer windowManager={windowManager}/>
         </Provider>, hostElement)
 }
 

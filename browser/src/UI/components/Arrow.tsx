@@ -4,9 +4,8 @@
  * Simple 'up' or 'down' arrow component
  */
 
-require("./Arrow.less") // tslint:disable-line no-var-requires
-
-import * as React from "react"
+import styled from "styled-components"
+import { withProps } from "./common"
 
 export enum ArrowDirection {
     Up = 0,
@@ -21,59 +20,73 @@ export interface IArrowProps {
     direction: ArrowDirection
 }
 
-export const Arrow = (props: IArrowProps): JSX.Element => {
+const transparentBorder = (props: IArrowProps) => `${props.size * 0.8}px solid transparent`
+const solidBorder = (props: IArrowProps) => `${props.size}px solid ${props.color}`
 
-    const transparentBorder = `${props.size * 0.8}px solid transparent`
-    const solidBorder = `${props.size}px solid ${props.color}`
-
-    const upArrowStyle = {
+function arrowCSS(props: IArrowProps): string {
+  switch (props.direction) {
+  case ArrowDirection.Up:
+      return `
         width: "0px",
         height: "0px",
-        borderLeft: transparentBorder,
-        borderRight: transparentBorder,
-        borderBottom: solidBorder,
-    }
-
-    const downArrowStyle = {
+        borderLeft: ${transparentBorder},
+        borderRight: ${transparentBorder},
+        borderTop: ${solidBorder},
+        animation-name: appear-up;
+        `
+  case ArrowDirection.Down:
+      return `
         width: "0px",
         height: "0px",
-        borderLeft: transparentBorder,
-        borderRight: transparentBorder,
-        borderTop: solidBorder,
-    }
-
-    const leftArrowStyle = {
+        borderLeft: ${transparentBorder},
+        borderRight: ${transparentBorder},
+        borderTop: ${solidBorder},
+        animation-name: appear-down;
+        `
+  case ArrowDirection.Left:
+      return `
         width: "0px",
         height: "0px",
-        borderTop: transparentBorder,
-        borderRight: solidBorder,
-        borderBottom: transparentBorder,
-    }
-
-    const rightArrowStyle = {
+        borderTop: ${transparentBorder},
+        borderRight: ${solidBorder},
+        borderBottom: ${transparentBorder},
+        animation-name: appear-left;
+        `
+  case ArrowDirection.Right:
+      return `
         width: "0px",
         height: "0px",
-        borderTop: transparentBorder,
-        borderLeft: solidBorder,
-        borderBottom: transparentBorder,
-    }
-
-    let style: any = upArrowStyle
-    let className = "arrow"
-
-    if (props.direction === ArrowDirection.Down) {
-        style = downArrowStyle
-        className = "arrow down"
-    } else if (props.direction === ArrowDirection.Up) {
-        style = upArrowStyle
-        className = "arrow up"
-    } else if (props.direction === ArrowDirection.Left) {
-        style = leftArrowStyle
-        className = "arrow left"
-    } else if (props.direction === ArrowDirection.Right) {
-        style = rightArrowStyle
-        className = "arrow right"
-    }
-
-    return <div className={className} style={style}></div>
+        border-top: ${transparentBorder},
+        border-left: ${solidBorder},
+        border-bottom: ${transparentBorder},
+        animtation-name: appear-right
+        `
+  default:
+      return ``
+  }
 }
+
+export const Arrow = withProps<IArrowProps>(styled.div)`
+    animation-duration: 0.3s;
+    animation-delay: 0.2s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+    ${ arrowCSS }
+    @keyframes appear-down {
+        from {transform: translateY(-4px); opacity: 0;}
+        to {transform: translateY(0px);opacity: 1;}
+    }
+    @keyframes appear-up {
+        from {transform: translateY(4px); opacity: 0;}
+        to {transform: translateY(0px);opacity: 1;}
+    }
+    @keyframes appear-left {
+        from {transform: translateX(4px); opacity: 0;}
+        to {transform: translateX(0px);opacity: 1;}
+    }
+    @keyframes appear-right {
+        from {transform: translateX(-4px); opacity: 0;}
+        to {transform: translateX(0px);opacity: 1;}
+    }
+    `
+

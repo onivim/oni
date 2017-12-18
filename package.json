@@ -127,6 +127,7 @@
     "oni-types": "0.0.4",
     "redux-batched-subscribe": "^0.1.6",
     "shell-env": "^0.3.0",
+    "styled-components": "^2.3.0",
     "typescript": "2.6.1",
     "vscode-jsonrpc": "3.5.0",
     "vscode-languageserver": "3.5.0",
