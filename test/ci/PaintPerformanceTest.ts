@@ -63,3 +63,8 @@ export const test = async (oni: any) => {
         // TODO: #1129 - Validate width as well!
     })
 }
+
+// Bring in custom config to turn off animations, in order to reduce noise.
+export const settings = {
+    configPath: "PaintPerformanceTest.config.js",
+}
