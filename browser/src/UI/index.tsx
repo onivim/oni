@@ -7,11 +7,10 @@
 
 import * as React from "react"
 import * as ReactDOM from "react-dom"
-import { connect } from "react-redux"
+import { connect, Provider } from "react-redux"
 
 import { remote } from "electron"
 
-import { Provider } from "react-redux"
 import { bindActionCreators } from "redux"
 import thunk from "redux-thunk"
 

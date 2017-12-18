@@ -147,4 +147,3 @@ export const ErrorSquiggle = withProps<IErrorSquiggleProps>(styled.div)`
     width: ${props => props.width}px;
     border-bottom: 1px curled ${props => props.color};
     `
-

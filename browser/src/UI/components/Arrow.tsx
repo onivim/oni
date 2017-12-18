@@ -89,4 +89,3 @@ export const Arrow = withProps<IArrowProps>(styled.div)`
         to {transform: translateX(0px);opacity: 1;}
     }
     `
-
