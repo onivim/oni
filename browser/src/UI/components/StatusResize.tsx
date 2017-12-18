@@ -64,7 +64,6 @@ class StatusBarResizer extends React.Component<Props, State> {
     public render() {
         const { containerWidth } = this.state
         const { children, direction } = this.props
-        // this.log(`Container Width`, containerWidth)
         const count = React.Children.count(children)
         return (
             <StatusBarContainer
@@ -106,7 +105,7 @@ class StatusBarResizer extends React.Component<Props, State> {
 
         // Loop through components sorted by priority check if component can be added without
         // Overshooting container width if so show the component otherwise hide it
-        const { acceptedItems } = sorted.reduce(
+        const { statusItems } = sorted.reduce(
             (components, item) => {
                 let hide
                 if (components.widths + item.width < containerWidth) {
@@ -115,23 +114,18 @@ class StatusBarResizer extends React.Component<Props, State> {
                 } else {
                     hide = true
                 }
-                components.acceptedItems[item.id] = {
+                components.statusItems[item.id] = {
                     ...this.state.children[item.id],
                     hide,
                 }
                 return components
             },
-            { widths: 0, acceptedItems: {} },
+            { widths: 0, statusItems: {} },
         )
-
         this.setState(state => ({
             ...state,
-            children:  acceptedItems,
+            children:  statusItems,
         }))
-    }
-
-    private log(name: string, arg: any) {
-        console.log(`${this.props.direction === "flex-start" ? "left" : "right"} ${name}`, arg); // tslint:disable-line
     }
 }
 
