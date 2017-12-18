@@ -122,7 +122,7 @@ const Inner = withProps<InnerProps, HTMLDivElement>(styled.div) `
         ? `
         left: ${props.isFullWidth ? "8px" : Math.abs(props.adjustedX) + "px"};
         right: ${props.isFullWidth ? "8px" : ""};
-        max-width: "95%";
+        max-width: 95%;
         `
         : ``}
     `
