@@ -1,8 +1,6 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-// import { CSSTransition, TransitionGroup } from "react-transition-group"
-
 import { createSelector } from "reselect"
 
 import * as State from "./../State"
@@ -22,7 +20,7 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
 
     public render(): JSX.Element {
         const toolTipElements = this.props.toolTips.map((toolTip) => {
-            return <ToolTipView {...toolTip} borderColor={this.props.borderColor} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor} key={toolTip.id}/>
+            <ToolTipView {...toolTip} borderColor={this.props.borderColor} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor}/>
         })
 
         const style: React.CSSProperties = {
@@ -79,7 +77,7 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
             padding,
         }
 
-        return <CursorPositioner position={position} openDirection={openDirection} key={this.props.id}>
+        return <CursorPositioner position={position} openDirection={openDirection}>
                 <div className="tool-tip-container enable-mouse" style={toolTipStyle} ref={(elem) => this._setContainer(elem)}>
                     {this.props.element}
                 </div>
