@@ -15,7 +15,7 @@ import { withProps } from "./common"
 
 import { IState } from "./../State"
 
-// import { Arrow, ArrowDirection } from "./Arrow"
+import { Arrow, ArrowDirection } from "./Arrow"
 
 export enum OpenDirection {
     Up = 1,
@@ -117,12 +117,6 @@ const Inner = withProps<InnerProps, HTMLDivElement>(styled.div)`
         : ``}
     `
 
-// const CustomArrow = withProps<ICursorPositionViewProps, HTMLDivElement>(Arrow)`
-//     ${vfix(!this.state.shouldOpenDownward)}
-//     left: ${this.props.x + this.props.fontPixelWidth / 2}px;
-//     visibility: ${this.props.hideArrow ? "hidden" : "visible"};
-//     `
-
 
 /**
  * Helper component to position an element relative to the current cursor position
@@ -191,6 +185,12 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         //         : ``}
         //     `
 
+
+const CustomArrow = styled(Arrow)`
+    ${vfix(!this.state.shouldOpenDownward)}
+    left: ${this.props.x + this.props.fontPixelWidth / 2}px;
+    visibility: ${this.props.hideArrow ? "hidden" : "visible"};
+    `
             // <CustomArrow
             //     direction={this.state.shouldOpenDownward
             //       ? ArrowDirection.Up
@@ -214,6 +214,14 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             >
                 {this.props.children}
             </Inner>
+            <CustomArrow
+
+                direction={this.state.shouldOpenDownward
+                ? ArrowDirection.Up
+                : ArrowDirection.Down}
+                size={5}
+                color={this.props.beakColor}
+        />
         </Outer>
     }
 

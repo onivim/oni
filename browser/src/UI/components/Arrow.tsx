@@ -27,39 +27,35 @@ function arrowCSS(props: IArrowProps): string {
   switch (props.direction) {
   case ArrowDirection.Up:
       return `
-        width: "0px",
-        height: "0px",
-        borderLeft: ${transparentBorder},
-        borderRight: ${transparentBorder},
-        borderTop: ${solidBorder},
-        animation-name: appear-up;
+        width: 0px;
+        height: 0px;
+        border-left: ${transparentBorder(props)};
+        border-right: ${transparentBorder(props)};
+        border-bottom: ${solidBorder(props)};
         `
   case ArrowDirection.Down:
       return `
-        width: "0px",
-        height: "0px",
-        borderLeft: ${transparentBorder},
-        borderRight: ${transparentBorder},
-        borderTop: ${solidBorder},
-        animation-name: appear-down;
+        width: 0px;
+        height: 0px;
+        border-left: ${transparentBorder(props)};
+        border-right: ${transparentBorder(props)};
+        border-top: ${solidBorder(props)};
         `
   case ArrowDirection.Left:
       return `
-        width: "0px",
-        height: "0px",
-        borderTop: ${transparentBorder},
-        borderRight: ${solidBorder},
-        borderBottom: ${transparentBorder},
-        animation-name: appear-left;
+        width: 0px;
+        height: 0px;
+        border-top: ${transparentBorder(props)};
+        border-right: ${solidBorder(props)};
+        border-bottom: ${transparentBorder(props)};
         `
   case ArrowDirection.Right:
       return `
-        width: "0px",
-        height: "0px",
-        border-top: ${transparentBorder},
-        border-left: ${solidBorder},
-        border-bottom: ${transparentBorder},
-        animtation-name: appear-right
+        width: 0px;
+        height: 0px;
+        border-top: ${transparentBorder(props)};
+        border-left: ${solidBorder(props)};
+        border-bottom: ${transparentBorder(props)};
         `
   default:
       return ``
@@ -67,25 +63,5 @@ function arrowCSS(props: IArrowProps): string {
 }
 
 export const Arrow = withProps<IArrowProps>(styled.div)`
-    animation-duration: 0.3s;
-    animation-delay: 0.2s;
-    opacity: 0;
-    animation-fill-mode: forwards;
-    ${ arrowCSS }
-    @keyframes appear-down {
-        from {transform: translateY(-4px); opacity: 0;}
-        to {transform: translateY(0px);opacity: 1;}
-    }
-    @keyframes appear-up {
-        from {transform: translateY(4px); opacity: 0;}
-        to {transform: translateY(0px);opacity: 1;}
-    }
-    @keyframes appear-left {
-        from {transform: translateX(4px); opacity: 0;}
-        to {transform: translateX(0px);opacity: 1;}
-    }
-    @keyframes appear-right {
-        from {transform: translateX(-4px); opacity: 0;}
-        to {transform: translateX(0px);opacity: 1;}
-    }
+    ${ props => arrowCSS(props) }
     `
