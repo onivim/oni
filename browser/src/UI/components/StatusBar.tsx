@@ -15,13 +15,17 @@ import WithWidth from "./WithWidth"
 
 require("./StatusBar.less") // tslint:disable-line no-var-requires
 
-export interface StatusBarProps {
-    items: StatusBarItemProps[]
-    enabled: boolean
+interface StatusBarStyleProps {
     fontSize: string
     fontFamily: string
     backgroundColor: string
     foregroundColor: string
+    className?: string
+}
+
+export interface StatusBarProps extends StatusBarStyleProps {
+    items: StatusBarItemProps[]
+    enabled: boolean
 }
 
 export interface StatusBarItemProps {
@@ -60,6 +64,21 @@ const StatusBarComponent = withProps<{ maxWidth?: string }>(styled.div)`
     }
 `
 
+const StatusBarContainer = withProps<StatusBarStyleProps>(styled.div)`
+    font-family: ${({ fontFamily }) => fontFamily};
+    font-size: ${({ fontSize }) => fontSize };
+    background-color: ${({ backgroundColor }) => backgroundColor };
+    color: ${({ foregroundColor }) => foregroundColor};
+    box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
+    pointer-events: auto;
+    transform: translateY(4px);
+    transition: transform 0.25s ease;
+    height: 2em;
+    width: 100%;
+    position: relative;
+    user-select: none;
+`
+
 export class StatusBar extends React.PureComponent<StatusBarProps> {
     public render() {
         if (!this.props.enabled) {
@@ -69,26 +88,26 @@ export class StatusBar extends React.PureComponent<StatusBarProps> {
         const statusBarItems = this.props.items || []
         const leftItems = statusBarItems
             .filter(item => item.alignment === StatusBarAlignment.Left)
-            .sort((a, b) => b.priority - a.priority)
+            .sort((a, b) => a.priority - b.priority)
 
         const rightItems = statusBarItems
             .filter(item => item.alignment === StatusBarAlignment.Right)
-            .sort((a, b) => a.priority - b.priority)
+            .sort((a, b) => b.priority - a.priority)
 
-        const statusBarStyle = {
+        const statusBarProps = {
             fontFamily: this.props.fontFamily,
             fontSize: this.props.fontSize,
             backgroundColor: this.props.backgroundColor,
-            color: this.props.foregroundColor,
+            foregroundColor: this.props.foregroundColor,
         }
 
         return (
-            <div className="status-bar enable-mouse" style={statusBarStyle}>
+            <StatusBarContainer {...statusBarProps} className="status-bar">
                 <div className="status-bar-inner">
                     <StatusResize direction="flex-start">
                         {leftItems.map(item => <ItemWithWidth {...item} key={item.id} />)}
                     </StatusResize>
-                    {/* <StatusResize direction="center" /> */}
+                    <StatusResize direction="center" />
                     <StatusResize direction="flex-end">
                         {rightItems.map(item => <ItemWithWidth {...item} key={item.id} />)}
                     </StatusResize>
@@ -98,7 +117,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps> {
                         </span>
                     </div>
                 </div>
-            </div>
+            </StatusBarContainer>
         )
     }
 
