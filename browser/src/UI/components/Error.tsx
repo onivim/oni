@@ -6,15 +6,12 @@
 
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
-import styled from "styled-components"
 
 import { getColorFromSeverity } from "./../../Services/Errors"
 
 import { Icon } from "./../Icon"
 
 import { BufferToScreen, ScreenToPixel } from "./../Coordinates"
-
-import { bufferScrollBarSize } from "./common"
 
 require("./Error.less") // tslint:disable-line no-var-requires
 
@@ -101,24 +98,17 @@ export interface IErrorMarkerProps {
     color: string
 }
 
-const StyledErrorMarker = styled.div`
-    position: absolute;
-    right: ${bufferScrollBarSize};
-    opacity: 0.5;
-    `
-
 export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, {}> {
 
     public render(): JSX.Element {
 
         const iconPositionStyles = {
-            opacity: this.props.isActive ? 0.8 : 0.5,
             top: this.props.y.toString() + "px",
         }
 
-        const errorIcon = <StyledErrorMarker style={iconPositionStyles}>
+        const errorIcon = <div style={iconPositionStyles} className="error-marker">
             <ErrorIcon color={this.props.color} />
-        </StyledErrorMarker>
+        </div>
 
         return <div>
             {errorIcon}
@@ -130,22 +120,10 @@ export interface IErrorIconProps {
     color: string
 }
 
-const StyledOuterIcon = styled.div`
-    position: absolute;
-    right: 0px;
-    background-color: rgb(80, 80, 80);
-`
-
-const StyledInnerIcon = styled.div`
-    padding: 6px;
-`
-
 export const ErrorIcon = (props: IErrorIconProps) => {
-    return <StyledOuterIcon style={{ color: props.color }}>
-        <StyledInnerIcon>
-            <Icon name="exclamation-circle" />
-        </StyledInnerIcon>
-    </StyledOuterIcon>
+    return <div className="icon-container" style={{ color: props.color }}>
+        <Icon name="exclamation-circle" />
+    </div>
 }
 
 export interface IErrorSquiggleProps {
@@ -155,10 +133,6 @@ export interface IErrorSquiggleProps {
     width: number,
     color: string,
 }
-
-const StyledErrorSquiggle = styled.div`
-    position: absolute
-`
 
 export class ErrorSquiggle extends React.PureComponent<IErrorSquiggleProps, {}> {
     public render(): JSX.Element {
@@ -173,6 +147,6 @@ export class ErrorSquiggle extends React.PureComponent<IErrorSquiggleProps, {}> 
             borderBottom: `1px dashed ${color}`,
         }
 
-        return <StyledErrorSquiggle style={style}></StyledErrorSquiggle>
+        return <div className="error-squiggle" style={style}></div>
     }
 }
