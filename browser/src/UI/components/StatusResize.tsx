@@ -107,7 +107,7 @@ class StatusBarResizer extends React.Component<Props, State> {
                 ...state.children,
                 [id]: { id, width, priority, hide },
             },
-        }))
+        }), this.resize)
     }
 
     private resize = () => {

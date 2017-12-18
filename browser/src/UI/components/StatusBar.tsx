@@ -61,8 +61,7 @@ const StatusBarComponent = withProps<{ maxWidth?: string }>(styled.div)`
 
     &:hover {
         background-color: rgba(100, 100, 100, 0.2);
-    }
-`
+    }`
 
 const StatusBarContainer = withProps<StatusBarStyleProps>(styled.div)`
     font-family: ${({ fontFamily }) => fontFamily};
@@ -111,11 +110,11 @@ export class StatusBar extends React.PureComponent<StatusBarProps> {
                     <StatusResize direction="flex-end">
                         {rightItems.map(item => <ItemWithWidth {...item} key={item.id} />)}
                     </StatusResize>
-                    <div className="status-bar-item" onClick={() => this._openGithub()}>
+                    <StatusBarComponent onClick={this._openGithub}>
                         <span>
                             <i className="fa fa-github" />
                         </span>
-                    </div>
+                    </StatusBarComponent>
                 </div>
             </StatusBarContainer>
         )
