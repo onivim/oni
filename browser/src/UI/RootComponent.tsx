@@ -65,4 +65,3 @@ export class RootComponent extends React.PureComponent<IRootComponentProps, {}> 
         }
     }
 }
-
