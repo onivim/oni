@@ -161,7 +161,7 @@
     "css-loader": "0.28.4",
     "electron": "1.8.1",
     "electron-builder": "19.46.4",
-    "electron-devtools-installer": "2.2.0",
+    "electron-devtools-installer": "2.2.1",
     "electron-mocha": "5.0.0",
     "electron-rebuild": "1.6.0",
     "extract-zip": "1.6.0",
