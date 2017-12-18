@@ -65,4 +65,3 @@ export const Definition = (props: IDefinitionProps) => {
 
     return <Underline />
 }
-
