@@ -64,7 +64,7 @@ class StatusBarResizer extends React.Component<Props, State> {
     public render() {
         const { containerWidth } = this.state
         const { children, direction } = this.props
-        this.log(`Container Width`, containerWidth)
+        // this.log(`Container Width`, containerWidth)
         const count = React.Children.count(children)
         return (
             <StatusBarContainer
@@ -95,64 +95,29 @@ class StatusBarResizer extends React.Component<Props, State> {
                     [id]: { id, width, priority, hide },
                 },
             }),
-            // this.resize,
+            this.resize,
         )
     }
 
     private resize = () => {
         const { children, containerWidth } = this.state
         const childArray = Object.values(children)
-        const widths = childArray.map(child => !child.hide && child.width).filter(v => !!v)
-        const shown = childArray.filter(v => !v.hide)
-        if (widths.length) {
-            const sum = widths.reduce((p, n) => p + n, 0)
-            const lowestPriority = this.findLowestPriority(shown)
-            const tooBig = sum > containerWidth
+        const sorted = childArray.sort((prev, next) => prev.priority - next.priority)
 
-            if (tooBig && lowestPriority) {
-                this.log("lowest priority", lowestPriority)
-                this.setState(state => ({
-                    ...state,
-                    children: {
-                        ...state.children,
-                        [lowestPriority.id]: {
-                            ...state.children[lowestPriority.id],
-                            hide: true,
-                        },
-                    },
-                }))
-            }
-        } else {
-            this.reset()
-        }
-    }
-
-    private findLowestPriority(shown: IChildDimensions[]) {
-        if (!shown.length) {
-            return null
-        }
-        return shown.length === 1
-            ? shown[0]
-            : shown.reduce((prev, next) => (prev.priority < next.priority ? prev : next))
-    }
-
-    private reset = () => {
-        const { children, containerWidth } = this.state
-        const items = Object.values(children)
-        const hidden = items.some(c => c.hide)
-        if (!hidden) {
-            return
-        }
-        // Loop through components check if component can be added without
-        // Overshooting container width if so show the component
-        const { acceptedItems } = items.reduce(
+        // Loop through components sorted by priority check if component can be added without
+        // Overshooting container width if so show the component otherwise hide it
+        const { acceptedItems } = sorted.reduce(
             (components, item) => {
-                if ((components.widths + item.width) < containerWidth) {
+                let hide
+                if (components.widths + item.width < containerWidth) {
                     components.widths += item.width
-                    components.acceptedItems[item.id] = {
-                        ...this.state.children[item.id],
-                        hide: false,
-                    }
+                    hide = false
+                } else {
+                    hide = true
+                }
+                components.acceptedItems[item.id] = {
+                    ...this.state.children[item.id],
+                    hide,
                 }
                 return components
             },
@@ -161,7 +126,7 @@ class StatusBarResizer extends React.Component<Props, State> {
 
         this.setState(state => ({
             ...state,
-            children: { ...state.children, ...acceptedItems },
+            children:  acceptedItems,
         }))
     }
 
