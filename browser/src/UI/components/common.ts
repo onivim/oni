@@ -21,5 +21,9 @@ export function withProps<T, U extends HTMLElement = HTMLElement>(
     return styledFunction
 }
 
+export const StyleAbsolutePosition = styled.div`
+    position: absolute;
+    `
+
 export { css, injectGlobal, keyframes, styled, ThemeProvider }
 export default styled
