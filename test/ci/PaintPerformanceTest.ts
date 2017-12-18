@@ -1,5 +1,5 @@
 /**
- * Test scripts for QuickOpen
+ * Test script to valid performance/responsiveness of the typing scenario
  */
 
 import * as assert from "assert"
