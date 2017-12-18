@@ -18,6 +18,7 @@ export interface ICursorRendererProps {
     scale: number
     width: number
     height: number
+    isLoaded: boolean
     mode: string
     color: string
     textColor: string
@@ -30,7 +31,7 @@ export interface ICursorRendererProps {
     typingPrediction: TypingPredictionManager
 }
 
-const CursorContainer = styled.div`
+const StyledCursor = styled.div`
     transition: opacity 0.35s ease 0.25s;
     padding-left: 1px;
     padding-right: 1px;
@@ -121,10 +122,10 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
     }
 
     private _renderCursor(containerStyle: React.CSSProperties, cursorBlockStyle: React.CSSProperties, cursorCharacterStyle: React.CSSProperties, characterToShow: string): JSX.Element {
-            return <CursorContainer style={containerStyle}>
+            return <StyledCursor style={containerStyle}>
                 <div style={cursorBlockStyle} />
                 <div style={cursorCharacterStyle}>{characterToShow}</div>
-            </CursorContainer>
+            </StyledCursor>
     }
 }
 
@@ -143,6 +144,7 @@ const mapStateToProps = (state: State.IState, props: ICursorProps): ICursorRende
         height: state.fontPixelHeight,
         mode: state.mode,
         color: state.colors["editor.foreground"],
+        isLoaded: state.isLoaded,
         textColor: state.colors["editor.background"],
         character: state.cursorCharacter,
         fontPixelWidth: state.fontPixelWidth,
