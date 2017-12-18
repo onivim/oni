@@ -64,10 +64,7 @@ class StatusBarResizer extends React.Component<Props, State> {
     public render() {
         const { containerWidth } = this.state
         const { children, direction } = this.props
-        this.log(
-            `Container Width ${direction === "flex-start" ? "left" : "right"}`,
-            containerWidth,
-        )
+        this.log(`Container Width`, containerWidth)
         const count = React.Children.count(children)
         return (
             <StatusBarContainer
@@ -98,66 +95,78 @@ class StatusBarResizer extends React.Component<Props, State> {
                     [id]: { id, width, priority, hide },
                 },
             }),
-            this.resize,
+            // this.resize,
         )
     }
 
     private resize = () => {
         const { children, containerWidth } = this.state
         const childArray = Object.values(children)
-        const widths = childArray.map(child => child.width).filter(v => !!v)
+        const widths = childArray.map(child => !child.hide && child.width).filter(v => !!v)
+        const shown = childArray.filter(v => !v.hide)
+        if (widths.length) {
+            const sum = widths.reduce((p, n) => p + n, 0)
+            const lowestPriority = this.findLowestPriority(shown)
+            const tooBig = sum > containerWidth
 
-        if (widths.length && childArray.length) {
-            const sum = widths.reduce((p, n) => p + n)
-            const shown = childArray.filter(child => !child.hide)
-
-            this.log("remaining children", shown)
-
-            const lowestPriority = shown.reduce((prev, next) => {
-                return prev.priority < next.priority ? prev : next
-            }, {})
-
-            if (sum) {
-                const tooBig = sum > containerWidth
-
-                if (tooBig && lowestPriority) {
-                    this.log("lowest priority", lowestPriority)
-                    this.setState(state => ({
-                        ...state,
-                        children: {
-                            ...state.children,
-                            [lowestPriority.id]: {
-                                ...state.children[lowestPriority.id],
-                                hide: true,
-                            },
+            if (tooBig && lowestPriority) {
+                this.log("lowest priority", lowestPriority)
+                this.setState(state => ({
+                    ...state,
+                    children: {
+                        ...state.children,
+                        [lowestPriority.id]: {
+                            ...state.children[lowestPriority.id],
+                            hide: true,
                         },
-                    }))
-                } else {
-                    this.reset()
-                }
-                this.log("sum", sum)
+                    },
+                }))
             }
+        } else {
+            this.reset()
         }
     }
 
-    private reset() {
-        const { children } = this.state
-        const reset = Object.values(children).reduce((acc, child) => {
-            acc[child.id] = {
-                ...child,
-                hide: false,
-            }
-            return acc
-        }, {})
+    private findLowestPriority(shown: IChildDimensions[]) {
+        if (!shown.length) {
+            return null
+        }
+        return shown.length === 1
+            ? shown[0]
+            : shown.reduce((prev, next) => (prev.priority < next.priority ? prev : next))
+    }
+
+    private reset = () => {
+        const { children, containerWidth } = this.state
+        const items = Object.values(children)
+        const hidden = items.some(c => c.hide)
+        if (!hidden) {
+            return
+        }
+        // Loop through components check if component can be added without
+        // Overshooting container width if so show the component
+        const { acceptedItems } = items.reduce(
+            (components, item) => {
+                if ((components.widths + item.width) < containerWidth) {
+                    components.widths += item.width
+                    components.acceptedItems[item.id] = {
+                        ...this.state.children[item.id],
+                        hide: false,
+                    }
+                }
+                return components
+            },
+            { widths: 0, acceptedItems: {} },
+        )
 
         this.setState(state => ({
             ...state,
-            children: reset,
+            children: { ...state.children, ...acceptedItems },
         }))
     }
 
     private log(name: string, arg: any) {
-        console.log(`${name}`, arg); // tslint:disable-line
+        console.log(`${this.props.direction === "flex-start" ? "left" : "right"} ${name}`, arg); // tslint:disable-line
     }
 }
 

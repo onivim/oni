@@ -131,8 +131,6 @@ export class StatusBarItem extends React.PureComponent<StatusBarItemProps, {}> {
     }
 
     public render() {
-        // tslint:disable-next-line
-        console.log(`${this.props.id} this.props.hide: `, this.props.hide);
         return this.props.hide ? null : (
             <StatusBarComponent innerRef={this.props.measureRef}>
                 {this.props.contents}
@@ -140,7 +138,6 @@ export class StatusBarItem extends React.PureComponent<StatusBarItemProps, {}> {
         )
     }
 }
-
 const ItemWithWidth = WithContentRect(StatusBarItem)
 
 import { createSelector } from "reselect"
