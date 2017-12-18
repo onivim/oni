@@ -127,7 +127,6 @@ const Inner = withProps<InnerProps, HTMLDivElement>(styled.div) `
         : ``}
     `
 
-
 /**
  * Helper component to position an element relative to the current cursor position
  */
@@ -199,7 +198,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             >
                 {this.props.children}
             </Inner>
-            <ArrowContainer 
+            <ArrowContainer
                 x={this.props.x + this.props.fontPixelWidth / 2}
                 shouldOpenDownward={this.state.shouldOpenDownward}
                 visible={this.state.isMeasured}
