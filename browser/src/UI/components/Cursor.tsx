@@ -19,6 +19,7 @@ export interface ICursorRendererProps {
     scale: number
     width: number
     height: number
+    isLoaded: boolean
     mode: string
     color: string
     textColor: string
@@ -68,12 +69,12 @@ const CursorContainer = withProps<ICursorRendererProps>(styled.div)`
     top: ${props => props.y}px;
     width: ${props => isInsertCursor(props) ? "0" : props.width}px;
     height: ${props => props.height || "0"}px;
-    line-height: ${props => props.height},
-    color: ${props => props.textColor},
-    font-family: ${props => props.fontFamily},
-    font-size: ${props => props.fontSize},
+    line-height: ${props => props.height}px;
+    color: ${props => props.textColor};
+    font-family: ${props => props.fontFamily};
+    font-size: ${props => props.fontSize};
 
-    opacity: 0;
+    opacity: ${props => props.isLoaded ? 1 : 0};
     transition: opacity 0.35s ease 0.25s;
 
     /* Cover up 'holes' due to subpixel rendering on canvas */
@@ -145,6 +146,7 @@ const mapStateToProps = (state: State.IState, props: ICursorProps): ICursorRende
         height: state.fontPixelHeight,
         mode: state.mode,
         color: state.colors["editor.foreground"],
+        isLoaded: state.isLoaded,
         textColor: state.colors["editor.background"],
         character: state.cursorCharacter,
         fontPixelWidth: state.fontPixelWidth,
