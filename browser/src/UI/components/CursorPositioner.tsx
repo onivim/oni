@@ -10,6 +10,9 @@ import { connect } from "react-redux"
 
 import * as Oni from "oni-api"
 
+import styled from "styled-components"
+import { withProps } from "./common"
+
 import { IState } from "./../State"
 
 import { Arrow, ArrowDirection } from "./Arrow"
@@ -17,6 +20,21 @@ import { Arrow, ArrowDirection } from "./Arrow"
 export enum OpenDirection {
     Up = 1,
     Down = 2,
+}
+
+/**
+ * Helper function that fixes an item horizontally to its first positioned parent.
+ */
+function vfix(top: boolean = true) {
+  return top
+    ? `
+      position: absolute;
+      top: 0;
+      `
+    : `
+      position: absolute;
+      bottom: 0;
+      `
 }
 
 export interface ICursorPositionerProps {
@@ -121,56 +139,54 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         const adjustedX = this.state.adjustedX
         const adjustedY = this.state.shouldOpenDownward ? this.props.y + this.props.lineHeight * 2.5 : this.props.y
 
-        const containerStyle: React.CSSProperties = {
-            position: "absolute",
-            top: adjustedY.toString() + "px",
-            left: "0px",
-            width: this.props.containerWidth.toString() + "px",
-            visibility: this.state.isMeasured ? "visible" : "hidden", // Wait until we've measured the bounds to show..
+        interface OuterProps extends React.Props<HTMLDivElement> {
+            children: React.ReactNode
+            y: number
+            width: number
+            visible: boolean
         }
 
-        const openFromBottomStyle: React.CSSProperties = {
-            position: "absolute",
-            bottom: "0px",
-        }
+        const Outer = withProps<OuterProps, HTMLDivElement>(styled.div)`
+            position: absolute;
+            top: ${props => props.y}px;
+            left: 0px;
+            width: ${props => props.width}px;
+            visibility: ${props => props.visible ? "visible" : "hidden"}; /* For waiting until we've measured the bounds to show. */
+            `
 
-        const openFromTopStyle: React.CSSProperties = {
-            position: "absolute",
-            top: "0px",
-        }
+        const CustomArrow = styled(Arrow)`
+            ${vfix(!this.state.shouldOpenDownward)}
+            left: ${this.props.x + this.props.fontPixelWidth / 2}px;
+            visibility: ${this.props.hideArrow ? "hidden" : "visible"};
+            `
 
-        const childStyle = this.state.shouldOpenDownward ? openFromTopStyle : openFromBottomStyle
-        const arrowStyle = this.state.shouldOpenDownward ? openFromBottomStyle : openFromTopStyle
+        const Inner = styled.div`
+            ${vfix(this.state.shouldOpenDownward)}
+            ${this.state.isMeasured
+              ? `
+                left: ${this.state.isFullWidth ? "8px" : Math.abs(adjustedX) + "px"};
+                right: ${this.state.isFullWidth ? "8px" : ""};
+                max-width: "95%";
+                `
+                : ``}
+            `
 
-        const arrowStyleWithAdjustments = {
-            ...arrowStyle,
-            left: (this.props.x + this.props.fontPixelWidth / 2).toString() + "px",
-            visibility: this.props.hideArrow ? "hidden" : "visible",
-        }
-
-        const childStyleWithAdjustments: React.CSSProperties = this.state.isMeasured ? {
-            ...childStyle,
-            left: this.state.isFullWidth ? "8px" : Math.abs(adjustedX).toString() + "px",
-            right: this.state.isFullWidth ? "8px" : null,
-            maxWidth: "95%",
-        } : childStyle
-
-        return <div style={containerStyle} key={this.props.key}>
-            <div style={childStyleWithAdjustments}>
-                <div ref={(elem) => this._element = elem}>
-                    {this.props.children}
-                </div>
-            </div>
-            <div style={arrowStyleWithAdjustments}>
-                <Arrow
-                    direction={this.state.shouldOpenDownward
-                        ? ArrowDirection.Up
-                        : ArrowDirection.Down}
-                    size={5}
-                    color={this.props.beakColor}
-                />
-            </div>
-        </div>
+        return <Outer
+                key={this.props.key}
+                y={adjustedY}
+                width={this.props.containerWidth}
+                visible={this.state.isMeasured}>
+            <Inner innerRef={(elem: HTMLElement) => this._element = elem}>
+                {this.props.children}
+            </Inner>
+            <CustomArrow
+                direction={this.state.shouldOpenDownward
+                  ? ArrowDirection.Up
+                  : ArrowDirection.Down}
+                size={5}
+                color={this.props.beakColor}
+            />
+        </Outer>
     }
 
     private _measureElement(element: HTMLElement): void {
@@ -198,9 +214,9 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             let adjustedX = this.props.x
 
             if (!isFullWidth && rightBounds > this.props.containerWidth) {
-                    const offset = rightBounds - this.props.containerWidth + 8
-                    adjustedX = this.props.x - offset
-                }
+                const offset = rightBounds - this.props.containerWidth + 8
+                adjustedX = this.props.x - offset
+            }
 
             this.setState({
                     isFullWidth,

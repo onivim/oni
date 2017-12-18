@@ -4,6 +4,7 @@ import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
 import * as PersistentSettings from "electron-settings"
 
+import addDevExtensions from "./installDevTools"
 import * as Log from "./Log"
 import { buildDockMenu, buildMenu } from "./menu"
 import { makeSingleInstance } from "./ProcessLifecycle"
@@ -53,8 +54,8 @@ if (!isDevelopment && !isDebug) {
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
-    app.on("ready", () => {
-        require("./installDevTools")
+    app.on("ready", async () => {
+        await addDevExtensions()
         loadFileFromArguments(process.platform, process.argv, process.cwd())
     })
 }
