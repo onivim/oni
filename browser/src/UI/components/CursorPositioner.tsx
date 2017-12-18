@@ -15,7 +15,7 @@ import { withProps } from "./common"
 
 import { IState } from "./../State"
 
-import { Arrow, ArrowDirection } from "./Arrow"
+// import { Arrow, ArrowDirection } from "./Arrow"
 
 export enum OpenDirection {
     Up = 1,
@@ -83,6 +83,47 @@ const InitialState = {
     lastMeasuredWidth: 0,
 }
 
+interface OuterProps extends React.Props<HTMLDivElement> {
+    children: React.ReactNode
+    y: number
+    width: number
+    visible: boolean
+}
+
+const Outer = withProps<OuterProps, HTMLDivElement>(styled.div)`
+    position: absolute;
+    top: ${props => props.y}px;
+    left: 0px;
+    width: ${props => props.width}px;
+    visibility: ${props => props.visible ? "visible" : "hidden"}; /* For waiting until we've measured the bounds to show. */
+    `
+
+
+interface InnerProps extends React.Props<HTMLDivElement> {
+    shouldOpenDownward: boolean
+    isMeasured: boolean
+    isFullWidth: boolean
+    adjustedX: number
+}
+
+const Inner = withProps<InnerProps, HTMLDivElement>(styled.div)`
+    ${props => vfix(props.shouldOpenDownward)}
+    ${props => props.isMeasured
+      ? `
+        left: ${props.isFullWidth ? "8px" : Math.abs(props.adjustedX) + "px"};
+        right: ${props.isFullWidth ? "8px" : ""};
+        max-width: "95%";
+        `
+        : ``}
+    `
+
+// const CustomArrow = withProps<ICursorPositionViewProps, HTMLDivElement>(Arrow)`
+//     ${vfix(!this.state.shouldOpenDownward)}
+//     left: ${this.props.x + this.props.fontPixelWidth / 2}px;
+//     visibility: ${this.props.hideArrow ? "hidden" : "visible"};
+//     `
+
+
 /**
  * Helper component to position an element relative to the current cursor position
  */
@@ -139,53 +180,40 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         const adjustedX = this.state.adjustedX
         const adjustedY = this.state.shouldOpenDownward ? this.props.y + this.props.lineHeight * 2.5 : this.props.y
 
-        interface OuterProps extends React.Props<HTMLDivElement> {
-            children: React.ReactNode
-            y: number
-            width: number
-            visible: boolean
-        }
+        // const Inner = styled.div`
+        //     ${vfix(this.state.shouldOpenDownward)}
+        //     ${this.state.isMeasured
+        //       ? `
+        //         left: ${this.state.isFullWidth ? "8px" : Math.abs(adjustedX) + "px"};
+        //         right: ${this.state.isFullWidth ? "8px" : ""};
+        //         max-width: "95%";
+        //         `
+        //         : ``}
+        //     `
 
-        const Outer = withProps<OuterProps, HTMLDivElement>(styled.div)`
-            position: absolute;
-            top: ${props => props.y}px;
-            left: 0px;
-            width: ${props => props.width}px;
-            visibility: ${props => props.visible ? "visible" : "hidden"}; /* For waiting until we've measured the bounds to show. */
-            `
-
-        const CustomArrow = styled(Arrow)`
-            ${vfix(!this.state.shouldOpenDownward)}
-            left: ${this.props.x + this.props.fontPixelWidth / 2}px;
-            visibility: ${this.props.hideArrow ? "hidden" : "visible"};
-            `
-
-        const Inner = styled.div`
-            ${vfix(this.state.shouldOpenDownward)}
-            ${this.state.isMeasured
-              ? `
-                left: ${this.state.isFullWidth ? "8px" : Math.abs(adjustedX) + "px"};
-                right: ${this.state.isFullWidth ? "8px" : ""};
-                max-width: "95%";
-                `
-                : ``}
-            `
-
+            // <CustomArrow
+            //     direction={this.state.shouldOpenDownward
+            //       ? ArrowDirection.Up
+            //       : ArrowDirection.Down}
+            //     size={5}
+            //     color={this.props.beakColor}
+            //     key={this.props.key}
+            // />
         return <Outer
                 key={this.props.key}
                 y={adjustedY}
                 width={this.props.containerWidth}
                 visible={this.state.isMeasured}>
-            <Inner innerRef={(elem: HTMLElement) => this._element = elem}>
+            <Inner 
+                innerRef={(elem: HTMLElement) => this._element = elem} 
+                key={this.props.key}
+                adjustedX={adjustedX}
+                isMeasured={this.state.isMeasured}
+                isFullWidth={this.state.isFullWidth}
+                shouldOpenDownward={this.state.shouldOpenDownward}
+            >
                 {this.props.children}
             </Inner>
-            <CustomArrow
-                direction={this.state.shouldOpenDownward
-                  ? ArrowDirection.Up
-                  : ArrowDirection.Down}
-                size={5}
-                color={this.props.beakColor}
-            />
         </Outer>
     }
 
