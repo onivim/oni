@@ -11,17 +11,26 @@ interface IChildDimensions {
     hide: boolean
 }
 
+type PassWidth = (data: IChildDimensions) => void
+
 interface Props {
     children?: React.ReactNode
     className?: string
-    passWidth?: (data: IChildDimensions) => void
+    passWidth?: PassWidth
     direction: string
 }
 
 interface State {
     containerWidth: number
     children: {
-        [id: string]: any;
+        [id: string]: {
+            id: string
+            width: number
+            alignment: number
+            hide?: boolean
+            priority: number
+            passWidth: PassWidth,
+        };
     }
 }
 
@@ -78,6 +87,7 @@ class StatusBarResizer extends React.Component<Props, State> {
                             ...child.props,
                             passWidth: this.passWidth,
                             hide: !!current && current.hide,
+                            containerWidth,
                         })
                     })}
             </StatusBarContainer>
@@ -94,7 +104,6 @@ class StatusBarResizer extends React.Component<Props, State> {
                     [id]: { id, width, priority, hide },
                 },
             }),
-            this.resize,
         )
     }
 
@@ -122,10 +131,7 @@ class StatusBarResizer extends React.Component<Props, State> {
             },
             { widths: 0, statusItems: {} },
         )
-        this.setState(state => ({
-            ...state,
-            children:  statusItems,
-        }))
+        this.setState({ children: statusItems })
     }
 }
 

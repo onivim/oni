@@ -11,7 +11,7 @@ import { IState, StatusBarAlignment } from "./../State"
 import { addDefaultUnitIfNeeded } from "./../../Font"
 import { withProps } from "./common"
 import StatusResize from "./StatusResize"
-import WithContentRect from "./WithContentRect"
+import WithWidth from "./WithWidth"
 
 require("./StatusBar.less") // tslint:disable-line no-var-requires
 
@@ -138,7 +138,7 @@ export class StatusBarItem extends React.PureComponent<StatusBarItemProps, {}> {
         )
     }
 }
-const ItemWithWidth = WithContentRect(StatusBarItem)
+const ItemWithWidth = WithWidth(StatusBarItem)
 
 import { createSelector } from "reselect"
 

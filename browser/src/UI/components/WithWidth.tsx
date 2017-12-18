@@ -10,7 +10,7 @@ interface Props {
     passWidth?: any
 }
 
-export default function withContentRect(WrappedComponent: any) {
+export default function withWidth(WrappedComponent: any) {
     return class extends React.Component<Props, State> {
         public static displayName = `WithContentRect(${WrappedComponent.displayName || WrappedComponent.name})`
         private observer: any

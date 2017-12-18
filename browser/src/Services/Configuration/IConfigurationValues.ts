@@ -191,6 +191,14 @@ export interface IConfigurationValues {
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
 
+    "statusbar.priority": {
+        "filetype": number,
+        "workingDirectory": number,
+        "git": number,
+        "linenumber": number,
+        "mode": number,
+    }
+
     "tabs.mode": string
 
     // Height of individual tabs in the tab strip

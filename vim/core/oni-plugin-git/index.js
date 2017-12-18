@@ -19,7 +19,8 @@ const activate = Oni => {
 
     const updateBranchIndicator = async evt => {
       const filePath = evt.bufferFullPath || evt.filePath;
-      const gitBranchIndicator = Oni.statusBar.createItem(1, 2, 'oni-plugin-git');
+      const { git: priority } = Oni.configuration.getValue("statusbar.priority")
+      const gitBranchIndicator = Oni.statusBar.createItem(1, priority, 'oni-plugin-git');
 
       isLoaded = true;
       let dir;
