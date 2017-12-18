@@ -1,14 +1,21 @@
 import { ChildProcess } from "child_process"
 import * as net from "net"
 import * as path from "path"
+import * as fs from "fs"
 
 import * as Platform from "./../Platform"
 import { spawnProcess } from "./../Plugins/Api/Process"
 import { configuration } from "./../Services/Configuration"
+import { upsearchSync } from "../Utility"
 
 import { Session } from "./Session"
 
 import * as Log from "./../Log"
+
+// Get the root of this project.
+// In Electron, this will be __dirname, but in the test runner this is not the
+// case
+const PROJECT_ROOT = upsearchSync(__dirname, "package.json")
 
 // Most of the paths coming in the packaged binary reference the `app.asar`,
 // but the binaries (Neovim) as well as the .vim files are unpacked,
@@ -53,9 +60,9 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
     const runtimePaths = options.runtimePaths || []
 
     const noopInitVimPath = remapPathToUnpackedAsar(path.join(__dirname, "vim", "noop.vim"))
-
-    const nvimWindowsProcessPath = path.join(__dirname, "node_modules", "oni-neovim-binaries", "bin", "Neovim", "bin", "nvim.exe")
-    const nvimMacProcessPath = path.join(__dirname, "node_modules", "oni-neovim-binaries", "bin", "nvim-osx64", "bin", "nvim")
+    console.log(PROJECT_ROOT)
+    const nvimWindowsProcessPath = path.join(PROJECT_ROOT, "node_modules", "oni-neovim-binaries", "bin", "Neovim", "bin", "nvim.exe")
+    const nvimMacProcessPath = path.join(PROJECT_ROOT, "node_modules", "oni-neovim-binaries", "bin", "nvim-osx64", "bin", "nvim")
 
     // Assume nvim is available in path for Linux
     const nvimLinuxPath = "nvim"
