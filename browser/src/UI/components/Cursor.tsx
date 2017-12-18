@@ -5,6 +5,9 @@ import * as State from "./../State"
 
 import { Motion, spring } from "react-motion"
 
+import styled from "styled-components"
+import { withProps } from "./common"
+
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
@@ -28,20 +31,69 @@ export interface ICursorRendererProps {
     typingPrediction: TypingPredictionManager
 }
 
-require("./Cursor.less") // tslint:disable-line no-var-requires
+function isInsertCursor(props: ICursorRendererProps) {
+  return props.mode === "insert" || props.mode === "cmdline_normal"
+}
+
+const innerPositionStyle = `
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    top: 0px;
+    `
+
+const CursorBlock = withProps<{
+  color: string,
+  scale: number,
+}>(styled.div)`
+    ${innerPositionStyle}
+    background-color: ${props => props.color};
+    transform: scale(${props => props.scale});
+    `
+
+const CursorCharacter = withProps<{
+  textColor: string,
+}>(styled.div)`
+    ${innerPositionStyle}
+    text-align: center;
+    color: ${props => props.textColor};
+    `
+
+const CursorContainer = withProps<ICursorRendererProps>(styled.div)`
+
+    visibility: ${props => props.visible ? "visible" : "hidden"};
+    position: absolute;
+    left: ${props => props.x}px;
+    top: ${props => props.y}px;
+    width: ${props => isInsertCursor(props) ? "0" : props.width}px;
+    height: ${props => props.height || "0"}px;
+    line-height: ${props => props.height},
+    color: ${props => props.textColor},
+    font-family: ${props => props.fontFamily},
+    font-size: ${props => props.fontSize},
+
+    opacity: 0;
+    transition: opacity 0.35s ease 0.25s;
+
+    /* Cover up 'holes' due to subpixel rendering on canvas */
+    padding-left: 1px;
+    padding-right: 1px;
+    margin-left: -1px;
+    `
 
 export interface ICursorRendererState {
     predictedCursorColumn: number
 }
 
+export interface ICursorAnimationProps {
+  scale: number
+}
+
 class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRendererState> {
 
-    constructor(props: ICursorRendererProps) {
-        super(props)
-
-        this.state = {
-            predictedCursorColumn: -1,
-        }
+    public state = {
+        predictedCursorColumn: -1,
     }
 
     public componentDidMount(): void {
@@ -54,71 +106,28 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
 
     public render(): JSX.Element {
 
-        const fontFamily = this.props.fontFamily
-        const fontSize = this.props.fontSize
+        const characterToShow = isInsertCursor(this.props) ? "" : this.props.character
 
-        const isInsertCursor = this.props.mode === "insert" || this.props.mode === "cmdline_normal"
-        const height = this.props.height ? this.props.height.toString() + "px" : "0px"
-        const width = isInsertCursor ? 0 : this.props.width
-        const characterToShow = isInsertCursor ? "" : this.props.character
+        const x = this.props.mode === "insert" && this.state.predictedCursorColumn >= 0
+                  ? this.state.predictedCursorColumn * this.props.fontPixelWidth
+                  : this.props.x
 
-        const position = this.props.mode === "insert" && this.state.predictedCursorColumn >= 0 ?
-                            this.state.predictedCursorColumn * this.props.fontPixelWidth :
-                            this.props.x
-
-        const containerStyle: React.CSSProperties = {
-            visibility: this.props.visible ? "visible" : "hidden",
-            position: "absolute",
-            left: position.toString() + "px",
-            top: this.props.y.toString() + "px",
-            width: width.toString() + "px",
-            height,
-            lineHeight: height,
-            color: this.props.textColor,
-            fontFamily,
-            fontSize,
-        }
-
-        const innerPositionStyle: React.CSSProperties = {
-            position: "absolute",
-            left: "0px",
-            right: "0px",
-            bottom: "0px",
-            top: "0px",
-        }
-
-        const cursorBlockStyle: React.CSSProperties = {
-            ...innerPositionStyle,
-            backgroundColor: this.props.color,
-        }
-
-        const cursorCharacterStyle: React.CSSProperties = {
-            ...innerPositionStyle,
-            textAlign: "center",
-            color: this.props.textColor,
-        }
+        const StyledCursor = ({ scale }: ICursorAnimationProps) => (
+             <CursorContainer {...this.props} x={x}>
+                <CursorBlock scale={scale} {...this.props} />
+                <CursorCharacter textColor={this.props.textColor}>{characterToShow}</CursorCharacter>
+            </CursorContainer>
+        )
 
         if (!this.props.animated) {
-            return this._renderCursor(containerStyle, cursorBlockStyle, cursorCharacterStyle, characterToShow)
+            return <StyledCursor scale={1} />
         } else {
             return <Motion defaultStyle={{scale: 0}} style={{scale: spring(this.props.scale, { stiffness: 120, damping: 8})}}>
-            {(val) => {
-                const cursorStyle = {
-                    ...cursorBlockStyle,
-                    transform: "scale(" + val.scale + ")",
-                }
-                return this._renderCursor(containerStyle, cursorStyle, cursorCharacterStyle, characterToShow)
-            }}
+              {value => <StyledCursor scale={value.scale} />}
             </Motion>
         }
     }
 
-    private _renderCursor(containerStyle: React.CSSProperties, cursorBlockStyle: React.CSSProperties, cursorCharacterStyle: React.CSSProperties, characterToShow: string): JSX.Element {
-            return <div style={containerStyle} className="cursor">
-                <div style={cursorBlockStyle} />
-                <div style={cursorCharacterStyle}>{characterToShow}</div>
-            </div>
-    }
 }
 
 export interface ICursorProps {
