@@ -68,10 +68,10 @@ const CursorContainer = withProps<ICursorRendererProps>(styled.div)`
     top: ${props => props.y}px;
     width: ${props => isInsertCursor(props) ? "0" : props.width}px;
     height: ${props => props.height || "0"}px;
-    line-height: ${props => props.height},
-    color: ${props => props.textColor},
-    font-family: ${props => props.fontFamily},
-    font-size: ${props => props.fontSize},
+    line-height: ${props => props.height};
+    color: ${props => props.textColor};
+    font-family: ${props => props.fontFamily};
+    font-size: ${props => props.fontSize};
 
     opacity: 0;
     transition: opacity 0.35s ease 0.25s;
