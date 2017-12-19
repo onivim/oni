@@ -22,6 +22,9 @@ export const test = async (oni: any) => {
         oni.automation.sendKeys(".")
     }
 
+    const gpuFeatureStatus = remote.app.getGPUFeatureStatus()
+    console.log("[PaintPerformance] gpuFeatureStatus: " + JSON.stringify(gpuFeatureStatus))
+
     // There are two metrics we want to measure now:
     // - Number of style elements
     // - Size of paint rectangles
