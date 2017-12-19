@@ -44,11 +44,12 @@ if (!isDevelopment && !isDebug) {
 
     // If running from spectron, ignore the arguments
     if (processArgs.filter((f) => f.indexOf("--test-type=webdriver"))) {
+        Log.warn("Clearing arguments because running from automation!")
         processArgs = []
     }
 
     const currentOptions = {
-        args: processArgs
+        args: processArgs,
         workingDirectory: process.env["ONI_CWD"] || process.cwd(), // tslint:disable-line no-string-literal
     }
 
