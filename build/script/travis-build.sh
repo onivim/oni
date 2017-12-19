@@ -18,8 +18,7 @@ npm run lint
 npm run pack
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-   exit 0
+   npm run test:integration
+   npm run demo
 fi
 
-npm run test:integration
-npm run demo
