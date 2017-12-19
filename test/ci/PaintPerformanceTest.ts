@@ -4,7 +4,7 @@
 
 import * as assert from "assert"
 
-import { remote, Rectangle } from "electron"
+import { Rectangle, remote } from "electron"
 
 import { createNewFile, getCompletionElement } from "./Common"
 
@@ -35,7 +35,7 @@ export const test = async (oni: any) => {
     const paintRectangles: Rectangle[] = []
 
     currentWebContents.beginFrameSubscription(true, (buffer, dirtyRect) => {
-        console.log("[PaintPerformance] dirtyRect: " + JSON.stringify(dirtyRect))
+        console.log("[PaintPerformance] dirtyRect: " + JSON.stringify(dirtyRect)) // tslint:disable-line
         paintRectangles.push(dirtyRect)
     })
 
@@ -55,8 +55,7 @@ export const test = async (oni: any) => {
 
     assert.ok(paintRectangles.length >= 5, "There should be at least 5 paint rectangles")
 
-
-    const maxHeight = 50 // Status bar height is 50
+    const maxHeight = 20 // Default font size is 12px, but we'll give it some padding...
     paintRectangles.forEach((pr) => {
         assert.ok(pr.height < maxHeight, "Validate rectangle height is less than the max height")
 
