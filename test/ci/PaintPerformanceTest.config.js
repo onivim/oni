@@ -3,7 +3,7 @@
 // https://github.com/onivim/oni/wiki/Configuration
 
 module.exports = {
-    "ui.animations.enabled": false,
     "statusbar.enabled": false,
-    "tabs.mode": "hidden"
+    "tabs.mode": "hidden",
+    "ui.animations.enabled": false,
 };
