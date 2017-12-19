@@ -15,6 +15,7 @@ const CiTests = [
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-TypeScript",
     "LargeFileTest",
+    "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
     "NoInstalledNeovim",
