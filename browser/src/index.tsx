@@ -8,6 +8,7 @@ import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
 import * as Log from "./Log"
 import * as Performance from "./Performance"
+import * as Utility from "./Utility"
 
 import { IConfigurationValues } from "./Services/Configuration/IConfigurationValues"
 
@@ -92,10 +93,16 @@ const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start.Editors")
     const SharedNeovimInstance = await sharedNeovimInstancePromise
     const { startEditors } = await startEditorsPromise
-    await Promise.all([
+
+    const CSS = await cssPromise
+    CSS.activate()
+
+   await Promise.race([Utility.delay(5000),
+     Promise.all([
         SharedNeovimInstance.activate(),
         startEditors(parsedArgs._, Colors.getInstance(), configuration, languageManager, Themes.getThemeManagerInstance())
     ])
+   ])
     Performance.endMeasure("Oni.Start.Editors")
 
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
@@ -114,9 +121,6 @@ const start = async (args: string[]): Promise<void> => {
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Performance.endMeasure("Oni.Start.Activate")
-
-    const CSS = await cssPromise
-    CSS.activate()
 
     UI.Actions.setLoadingComplete()
 
