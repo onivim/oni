@@ -2,6 +2,8 @@ import * as path from "path"
 
 import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
+import * as PersistentSettings from "electron-settings"
+
 import addDevExtensions from "./installDevTools"
 import * as Log from "./Log"
 import { buildDockMenu, buildMenu } from "./menu"
@@ -65,12 +67,14 @@ export function createWindow(commandLineArguments, workingDirectory) {
         blinkFeatures: "ResizeObserver,Accelerated2dCanvas,Canvas2dFixedRenderingMode",
     }
 
+    const backgroundColor = (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
+
     const rootPath = path.join(__dirname, "..", "..", "..")
     const iconPath = path.join(rootPath, "images", "oni.ico")
     const indexPath = path.join(rootPath, "index.html?react_perf")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
-    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: iconPath, webPreferences, titleBarStyle: "hidden" })
+    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: iconPath, webPreferences, backgroundColor, titleBarStyle: "hidden" })
 
     updateMenu(mainWindow, false)
 

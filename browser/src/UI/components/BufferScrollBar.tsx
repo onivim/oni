@@ -1,7 +1,8 @@
 import * as React from "react"
 
 import styled from "styled-components"
-import { bufferScrollBarSize, withProps } from "./common"
+
+import { bufferScrollBarSize } from "./common"
 
 export interface IBufferScrollBarProps {
     bufferSize: number
@@ -18,25 +19,7 @@ export interface IScrollBarMarker {
     color: string
 }
 
-const BufferScrollBarWindow = withProps<IBufferScrollBarProps>(styled.div)`
-    position: absolute;
-    width: ${bufferScrollBarSize};
-    height: ${props => ((props.windowBottomLine - props.windowTopLine + 1) / props.bufferSize) * props.height}px;
-    height: ${props => ((props.windowTopLine - 1) / props.bufferSize) * props.height}px;
-    background-color: rgba(200, 200, 200, 0.2);
-    border-top:1px solid rgba(255, 255, 255, 0.1);
-    border-bottom:1px solid rgba(255, 255, 255, 0.1);
-    `
-
-const Marker = withProps<{ height: number, bufferSize: number, line: number }>(styled.div)`
-    position: absolute;
-    top: ${props => (props.line / props.bufferSize) * props.height}px;
-    height: 2px;
-    background-color: ${props => props.color};
-    width: 100%;
-    `
-
-const StyledBufferScrollBar = styled.div`
+const ScrollBarContainer = styled.div`
     position: absolute;
     top: 0px;
     bottom: 0px;
@@ -44,29 +27,57 @@ const StyledBufferScrollBar = styled.div`
     background-color: rgba(0, 0, 0, 0.2);
     width: ${bufferScrollBarSize};
     border-bottom: 1px solid black;
-    `
+`
 
-export const BufferScrollBar = (props: IBufferScrollBarProps) => {
+const ScrollBarWindow = styled.div`
+    position: absolute;
+    width: ${bufferScrollBarSize};
+    background-color: rgba(200, 200, 200, 0.2);
+    border-top:1px solid rgba(255, 255, 255, 0.1);
+    border-bottom:1px solid rgba(255, 255, 255, 0.1);
+`
 
-    if (!props.visible) {
-        return null
+export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, {}> {
+
+    constructor(props: any) {
+        super(props)
     }
 
-    const markers = props.markers || []
+    public render(): JSX.Element {
 
-    const markerElements = markers.map((m) => (
-      <Marker
-        key={m.line.toString() + m.color}
-        height={props.height}
-        bufferSize={props.bufferSize}
-        color={m.color}
-        line={m.line} />
-    ))
+        if (!this.props.visible) {
+            return null
+        }
 
-    return (
-      <StyledBufferScrollBar>
-            <BufferScrollBarWindow {...props} />
-            {markerElements}
-        </StyledBufferScrollBar>
-    )
+        const windowHeight = ((this.props.windowBottomLine - this.props.windowTopLine + 1) / this.props.bufferSize) * this.props.height
+        const windowTop = ((this.props.windowTopLine - 1) / this.props.bufferSize) * this.props.height
+
+        const windowStyle: React.CSSProperties  = {
+            top: windowTop + "px",
+            height: windowHeight + "px",
+        }
+
+        const markers = this.props.markers || []
+
+        const markerElements = markers.map((m) => {
+            const line = m.line
+            const pos = (line / this.props.bufferSize) * this.props.height
+            const size = "2px"
+
+            const markerStyle: React.CSSProperties = {
+                position: "absolute",
+                top: pos + "px",
+                height: size,
+                backgroundColor: m.color,
+                width: "100%",
+            }
+
+            return <div style={markerStyle} key={m.line.toString() + m.color}/>
+        })
+
+        return <ScrollBarContainer>
+                <ScrollBarWindow style={windowStyle}></ScrollBarWindow>
+                {markerElements}
+            </ScrollBarContainer>
+    }
 }
