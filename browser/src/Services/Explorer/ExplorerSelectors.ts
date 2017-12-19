@@ -45,7 +45,9 @@ export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
         name: "Opened Files",
     })
 
-    const openedFiles: ExplorerNode[] = Object.keys(state.openedFiles).map((filePath) => ({
+    const openedFiles: ExplorerNode[] = Object.keys(state.openedFiles)
+        .filter(filePath => !!filePath)
+        .map(filePath => ({
         type: "file",
         id: "opened:" + filePath,
         filePath,
