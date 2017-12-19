@@ -3,6 +3,8 @@
  */
 
 export const test = async (oni: any) => {
+    await oni.automation.waitForEditors()
+
     oni.automation.sendKeys(":new<CR>")
     await oni.automation.sleep()
 
