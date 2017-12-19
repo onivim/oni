@@ -21,4 +21,3 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
    npm run test:integration
    npm run demo
 fi
-
