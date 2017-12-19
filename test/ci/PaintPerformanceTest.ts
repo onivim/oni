@@ -25,6 +25,9 @@ export const test = async (oni: any) => {
     const gpuFeatureStatus = remote.app.getGPUFeatureStatus()
     console.log("[PaintPerformance] gpuFeatureStatus: " + JSON.stringify(gpuFeatureStatus)) // tslint:disable-line
 
+    // Unfortunately, if gpu compositing is not enabled, we can't test in as fine grained way
+    const gpuCompositingEnabled = gpuFeatureStatus.gpu_compositing === "enabled"
+
     // There are two metrics we want to measure now:
     // - Number of style elements
     // - Size of paint rectangles
@@ -58,9 +61,13 @@ export const test = async (oni: any) => {
 
     assert.ok(paintRectangles.length >= 5, "There should be at least 5 paint rectangles")
 
-    const maxHeight = 20 // Default font size is 12px, but we'll give it some padding...
+    // If gpu compositing is enabled, the browser can take advantage of the cursor and related components
+    // being in its own layer, and minimize repaints. Otherwise, it seems that the browser renders in 256 pixel chunks.
+    // We'll still test for it, as it can still catch cases where we'd have larger repaint errors.
+    const maxHeight = gpuCompositingEnabled ? 20 : 256
+
     paintRectangles.forEach((pr) => {
-        assert.ok(pr.height < maxHeight, "Validate rectangle height is less than the max height")
+        assert.ok(pr.height <= maxHeight, "Validate rectangle height is less than the max height")
 
         // TODO: #1129 - Validate width as well!
     })
