@@ -11,6 +11,20 @@ import styled, { keyframes } from "styled-components"
 
 import { BufferToScreen, ScreenToPixel } from "./../Coordinates"
 
+const DefinitionAppearKeyFrames = keyframes`
+    from {opacity: 0; transform: translateY(2px);}
+    to {opacity: 0.4; transform: translateY(0px);}
+`
+
+const StyledDefinition = styled.div`
+    animation-name: ${DefinitionAppearKeyFrames};
+    animation-duration: 0.25s;
+    animation-delay: 0.25s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+    opacity: 0;
+`
+
 export interface IDefinitionProps {
     range: types.Range
     fontWidthInPixels: number
@@ -22,46 +36,36 @@ export interface IDefinitionProps {
     screenToPixel: ScreenToPixel
 }
 
-const appear = keyframes`
-    from { opacity: 0; transform: translateY(2px); }
-    to { opacity: 0.4; transform: translateY(0px); }
-    `
+export class Definition extends React.PureComponent<IDefinitionProps, {}> {
+    public render(): JSX.Element {
+        if (!this.props.range || !this.props.bufferToScreen) {
+            return null
+        }
 
-export const Definition = (props: IDefinitionProps) => {
-    if (!props.range || !props.bufferToScreen) {
-        return null
+        const startScreenPosition = this.props.bufferToScreen(this.props.range.start)
+        const endScreenPosition = this.props.bufferToScreen(this.props.range.end)
+
+        if (!startScreenPosition || !endScreenPosition) {
+            return null
+        }
+
+        // TODO: If a range spans multiple lines, break up into multiple screen ranges
+        if (startScreenPosition.screenY !== endScreenPosition.screenY) {
+            return null
+        }
+
+        const startPixelPosition = this.props.screenToPixel(startScreenPosition)
+        const endPixelPosition = this.props.screenToPixel(endScreenPosition)
+
+        const style: React.CSSProperties = {
+            position: "absolute",
+            top: startPixelPosition.pixelY + "px",
+            left: startPixelPosition.pixelX + "px",
+            height: this.props.fontHeightInPixels + "px",
+            width: (endPixelPosition.pixelX - startPixelPosition.pixelX + this.props.fontWidthInPixels) + "px",
+            borderBottom: "1px solid " + this.props.color,
+        }
+
+        return <StyledDefinition style={style} />
     }
-
-    const startScreenPosition = props.bufferToScreen(props.range.start)
-    const endScreenPosition = props.bufferToScreen(props.range.end)
-
-    if (!startScreenPosition || !endScreenPosition) {
-        return null
-    }
-
-    // TODO: If a range spans multiple lines, break up into multiple screen ranges
-    if (startScreenPosition.screenY !== endScreenPosition.screenY) {
-        return null
-    }
-
-    const startPixelPosition = props.screenToPixel(startScreenPosition)
-    const endPixelPosition = props.screenToPixel(endScreenPosition)
-
-    const Underline = styled.div`
-        position: absolute;
-        top: ${startPixelPosition.pixelY}px;
-        left: ${startPixelPosition.pixelX}px;
-        height: ${props.fontHeightInPixels}px;
-        width: ${endPixelPosition.pixelX - startPixelPosition.pixelX + props.fontWidthInPixels}px;
-        border-bottom: 1px solid ${props.color};
-
-        animation-name: ${appear};
-        animation-duration: 0.25s;
-        animation-delay: 0.25s;
-        animation-fill-mode: forwards;
-        animation-timing-function: ease-in;
-        opacity: 0;
-        `
-
-    return <Underline />
 }
