@@ -88,24 +88,6 @@ export class ExplorerSplit {
         })
     }
 
-    private _updateBindingFromState(): void {
-
-        if (!this._activeBinding) {
-            return
-        }
-
-        const state = this._store.getState()
-
-        if (this._lastState === state) {
-            return
-        }
-
-        this._lastState = state
-        const flattenedState = ExplorerSelectors.mapStateToNodeList(state)
-        const items = flattenedState.map((fs) => fs.id)
-        this._activeBinding.setItems(items, state.selectedId)
-    }
-
     public leave(): void {
         if (this._activeBinding) {
             this._activeBinding.release()
@@ -122,6 +104,24 @@ export class ExplorerSplit {
         return <Provider store={this._store}>
                 <Explorer onEnter={this._onEnterEvent} onKeyDown={(key: string) => this._onKeyDown(key)}/>
             </Provider>
+    }
+
+    private _updateBindingFromState(): void {
+
+        if (!this._activeBinding) {
+            return
+        }
+
+        const state = this._store.getState()
+
+        if (this._lastState === state) {
+            return
+        }
+
+        this._lastState = state
+        const flattenedState = ExplorerSelectors.mapStateToNodeList(state)
+        const items = flattenedState.map((fs) => fs.id)
+        this._activeBinding.setItems(items, state.selectedId)
     }
 
     private _onOpenItem(): void {
@@ -141,8 +141,9 @@ export class ExplorerSplit {
                 this._editorManager.activeEditor.openFile(selectedItem.filePath)
                 return
             case "folder":
+                const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(state, selectedItem.folderPath)
                 this._store.dispatch({
-                    type: "EXPAND_DIRECTORY",
+                    type: isDirectoryExpanded ? "COLLAPSE_DIRECTORY" : "EXPAND_DIRECTORY",
                     directoryPath: selectedItem.folderPath,
                 })
                 return

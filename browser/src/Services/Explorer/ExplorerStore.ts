@@ -7,6 +7,7 @@
 import * as fs from "fs"
 import * as path from "path"
 
+import * as omit from "lodash/omit"
 import { Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
@@ -80,6 +81,9 @@ export type ExplorerAction = {
     type: "EXPAND_DIRECTORY",
     directoryPath: string,
 } | {
+    type: "COLLAPSE_DIRECTORY",
+    directoryPath: string,
+} | {
     type: "EXPAND_DIRECTORY_RESULT",
     directoryPath: string,
     children: FolderOrFile[],
@@ -145,6 +149,8 @@ export const expandedFolderReducer: Reducer<ExpandedFolders> = (
     switch (action.type) {
         case "SET_ROOT_DIRECTORY":
             return {}
+        case "COLLAPSE_DIRECTORY":
+            return omit(state, [action.directoryPath])
         case "EXPAND_DIRECTORY_RESULT":
             return {
                 ...state,
