@@ -120,7 +120,7 @@ class StatusBarResizer extends React.Component<Props, State> {
         const { statusItems } = sorted.reduce(
             (components, item) => {
                 let hide
-                // add 20 to the trunctation with so components are not too snug
+                // add 20 to the trunctation width so components are not too snug
                 if (components.widths + item.width + 20 < containerWidth) {
                     components.widths += item.width
                     hide = false

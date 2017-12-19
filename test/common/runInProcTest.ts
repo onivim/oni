@@ -32,12 +32,11 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
 }
 
 const mochaAsync = (fn) =>
-    async (done) => {
+    async () => {
         try {
             await fn()
-            done()
         } catch (err) {
-            done(err)
+            console.log("ERROR: ", err)
         }
     }
 
@@ -49,7 +48,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
 
         let oni: Oni
 
-        beforeEach(async function(){
+        beforeEach(mochaAsync(async () => {
             console.log("[BEFORE EACH]: " + testName)
 
             Config.backupConfig()
@@ -63,9 +62,9 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
 
             oni = new Oni()
             return await oni.start(["test.txt"])
-        })
+        }))
 
-        afterEach(async function(done) {
+        afterEach(mochaAsync(async () => {
             console.log("[AFTER EACH]: " + testName)
             await oni.close()
 
@@ -75,8 +74,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
             }
 
             await Config.restoreConfig()
-            done()
-        })
+        }))
 
         it("ci test: " + testName, mochaAsync(async () => {
             console.log("[TEST]: " + testName)
