@@ -56,7 +56,7 @@ export const test = async (oni: any) => {
     assert.ok(paintRectangles.length >= 5, "There should be at least 5 paint rectangles")
 
 
-    const maxHeight = 15 // Default font height is 12; we'll add a little extra padding
+    const maxHeight = 50 // Status bar height is 50
     paintRectangles.forEach((pr) => {
         assert.ok(pr.height < maxHeight, "Validate rectangle height is less than the max height")
 

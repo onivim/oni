@@ -4,4 +4,6 @@
 
 module.exports = {
     "ui.animations.enabled": false,
+    "tabs.mode": "hidden",
+    "statusbar.enabled": false,
 };
