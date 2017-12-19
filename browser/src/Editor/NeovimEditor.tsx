@@ -306,6 +306,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
         browserWindow.on("focus", () => {
             this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
+
+            if (_configuration.getValue("vim.setting.autoread")) {
+                this._neovimInstance.command(":checktime")
+            }
         })
 
         this._onConfigChanged(this._configuration.getValues())
