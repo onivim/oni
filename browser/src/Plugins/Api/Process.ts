@@ -1,5 +1,4 @@
 import * as ChildProcess from "child_process"
-import * as shellEnv from "shell-env"
 
 import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
@@ -24,6 +23,7 @@ const mergeSpawnOptions = async (originalSpawnOptions: ChildProcess.ExecOptions 
     let existingPath: string
 
     try {
+        const shellEnv = await import("shell-env")
         const shellEnvironment = await shellEnv()
         process.env = { ...process.env, ...shellEnvironment }
         existingPath = process.env.Path || process.env.PATH

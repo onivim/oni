@@ -11,7 +11,7 @@ import * as UI from "./../../UI"
 import { editorManager } from "./../EditorManager"
 import { workspace } from "./../Workspace"
 
-import { languageManager } from "./LanguageManager"
+import * as LanguageManager from "./LanguageManager"
 
 const _renameToolTipName = "rename-tool-tip"
 let _isRenameActive = false
@@ -88,6 +88,7 @@ export const doRename = async (newName: string): Promise<void> => {
         newName,
     }
 
+    const languageManager = LanguageManager.getInstance()
     let result = null
     try {
         result = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/rename", args)

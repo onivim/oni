@@ -7,10 +7,10 @@
 
 import * as React from "react"
 import * as ReactDOM from "react-dom"
+import { connect, Provider } from "react-redux"
 
 import { remote } from "electron"
 
-import { Provider } from "react-redux"
 import { bindActionCreators } from "redux"
 import thunk from "redux-thunk"
 
@@ -21,18 +21,8 @@ import { reducer } from "./Reducer"
 import { getActiveDefinition } from "./selectors/DefinitionSelectors"
 import * as State from "./State"
 
-import { Colors } from "./../Services/Colors"
-import { commandManager } from "./../Services/CommandManager"
-import { Configuration } from "./../Services/Configuration"
-import { editorManager } from "./../Services/EditorManager"
-import { ExplorerSplit } from "./../Services/Explorer/ExplorerSplit"
 import { focusManager } from "./../Services/FocusManager"
-import { listenForDiagnostics } from "./../Services/Language"
-import { SidebarSplit } from "./../Services/Sidebar"
 import { windowManager } from "./../Services/WindowManager"
-import { workspace } from "./../Services/Workspace"
-
-import { NeovimEditor } from "./../Editor/NeovimEditor"
 
 import { createStore } from "./../Redux"
 
@@ -69,39 +59,23 @@ const updateViewport = () => {
     Actions.setViewport(width, height)
 }
 
-export const render = (_state: State.IState): void => {
+const RootContainer = connect((state: State.IState) => ({
+    theme: state.colors,
+}))(RootComponent)
+
+export const render = (state: State.IState): void => {
     const hostElement = document.getElementById("host")
 
     ReactDOM.render(
         <Provider store={store}>
-            <RootComponent windowManager={windowManager}/>
+            <RootContainer windowManager={windowManager}/>
         </Provider>, hostElement)
-}
-
-export const startEditors = async (args: any, colors: Colors, configuration: Configuration): Promise<void> => {
-    if (configuration.getValue("experimental.sidebar.enabled")) {
-        const leftDock = windowManager.getDock(2)
-        leftDock.addSplit(new SidebarSplit(colors))
-        leftDock.addSplit(new ExplorerSplit(configuration, workspace, commandManager, editorManager))
-    }
-
-    const editor = new NeovimEditor(colors)
-    editorManager.setActiveEditor(editor)
-    windowManager.split(0, editor)
-
-    await editor.init(args)
 }
 
 // Don't execute code that depends on DOM in unit-tests
 if (global["window"]) { // tslint:disable-line
     updateViewport()
 
-    // TODO: Why is this breaking?
-    window.setTimeout(() => {
-        listenForDiagnostics()
-    })
-
     window.addEventListener("resize", updateViewport)
-
     document.body.addEventListener("click", () => focusManager.enforceFocus())
 }

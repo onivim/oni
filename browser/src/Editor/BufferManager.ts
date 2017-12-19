@@ -16,7 +16,7 @@ import "rxjs/add/operator/concatMap"
 import * as Oni from "oni-api"
 
 import { EventContext, NeovimInstance } from "./../neovim"
-import { languageManager, sortTextEdits } from "./../Services/Language"
+import * as LanguageManager from "./../Services/Language"
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
 import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
@@ -94,7 +94,7 @@ export class Buffer implements Oni.Buffer {
 
         const textEditsAsArray = textEdits instanceof Array ? textEdits : [textEdits]
 
-        const sortedEdits = sortTextEdits(textEditsAsArray)
+        const sortedEdits = LanguageManager.sortTextEdits(textEditsAsArray)
 
         const deferredEdits = sortedEdits.map((te) => {
             return Observable.defer(async () => {
@@ -186,7 +186,7 @@ export class Buffer implements Oni.Buffer {
     public async getTokenAt(line: number, column: number): Promise<Oni.IToken> {
         const result = await this.getLines(line, line + 1)
 
-        const tokenRegEx = languageManager.getTokenRegex(this.language)
+        const tokenRegEx = LanguageManager.getInstance().getTokenRegex(this.language)
 
         const getLastMatchingCharacter = (lineContents: string, character: number, dir: number, regex: RegExp) => {
             while (character > 0 && character < lineContents.length) {
