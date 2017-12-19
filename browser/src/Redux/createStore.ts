@@ -19,7 +19,7 @@ export const createStore = <TState>(name: string, reducer: Reducer<TState>, defa
 
     const composeEnhancers = typeof window === "object" &&
         window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"] ? // tslint:disable-line no-string-literal
-        window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"]({}) : compose // tslint:disable-line no-string-literal
+        window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"]({ name }) : compose // tslint:disable-line no-string-literal
 
     const loggingMiddleware: Middleware = createLoggingMiddleware(name)
 
