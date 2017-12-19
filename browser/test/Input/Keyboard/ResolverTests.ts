@@ -31,10 +31,10 @@ describe("Resolvers", () => {
                     "Space": {
                         unmodified: " ",
                         withShift: " ",
-                    }
+                    },
                 }
 
-                const metaResolver = createMetaKeyResolver(layout)
+                metaResolver = createMetaKeyResolver(layout)
 
                 const key = shift(createKeyEvent(" ", "Space"))
                 const result = metaResolver(key, key.key)
