@@ -37,8 +37,6 @@ export interface IContextMenuProps {
     highlightColor: string
 }
 
-require("./ContextMenu.less") // tslint:disable-line no-var-requires
-
 export class ContextMenuView extends React.PureComponent<IContextMenuProps, {}> {
 
     public render(): null | JSX.Element {

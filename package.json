@@ -81,7 +81,7 @@
     "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && npm run build",
     "build:test": "cd test && tsc -p tsconfig.json",
     "copy-icons": "node build/CopyIcons.js",
-    "debug:test:unit:browser": "cd browser && tsc -p tsconfig.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+    "debug:test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
     "demo": "npm run build:test && mocha -t 30000 lib_test/test/Demo.js",
     "dist:win": "build --arch ia32 --publish never",
     "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
@@ -89,7 +89,7 @@
     "test:integration": "npm run build:test && mocha -t 30000 lib_test/test/CiTests.js",
     "test:stability": "npm run build:test && mocha -t 600000 --recursive lib_test/test/stability",
     "test:unit": "npm run test:unit:browser",
-    "test:unit:browser": "cd browser && tsc -p tsconfig.json && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+    "test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
     "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
     "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json",
     "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
@@ -106,7 +106,8 @@
     "watch:plugins": "cd vim/core/oni-plugin-typescript && tsc --watch",
     "uninstall-global": "npm rm -g oni-vim",
     "install-global": "npm install -g oni-vim",
-    "postinstall": "electron-rebuild && opencollective postinstall"
+    "postinstall": "electron-rebuild && opencollective postinstall",
+    "profile:webpack": "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
   },
   "repository": {
     "type": "git",
@@ -126,6 +127,8 @@
     "oni-neovim-binaries": "0.1.0",
     "oni-ripgrep": "0.0.3",
     "oni-types": "0.0.4",
+    "react": "16.0.0",
+    "react-dom": "16.0.0",
     "redux-batched-subscribe": "^0.1.6",
     "shell-env": "^0.3.0",
     "styled-components": "^2.3.0",
@@ -183,8 +186,6 @@
     "oni-release-downloader": "0.0.8",
     "opencollective": "1.0.3",
     "optimize-js-plugin": "0.0.4",
-    "react": "16.0.0",
-    "react-dom": "16.0.0",
     "react-hot-loader": "1.3.1",
     "react-motion": "0.5.2",
     "react-redux": "5.0.6",
@@ -204,6 +205,7 @@
     "wcwidth": "1.0.1",
     "webdriverio": "4.8.0",
     "webpack": "3.5.3",
+    "webpack-bundle-analyzer": "^2.9.1",
     "webpack-dev-server": "2.7.1"
   },
   "collective": {
