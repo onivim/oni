@@ -77,7 +77,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
 
             console.log("Test path: " + testCase.testPath) // tslint:disable-line
 
-            oni.client.execute("Oni.automation.runTest('" + testCase.testPath + "')")
+            await oni.client.execute("Oni.automation.runTest('" + testCase.testPath + "')")
 
             console.log("Waiting for result...") // tslint:disable-line
             await oni.client.waitForExist(".automated-test-result", 30000)

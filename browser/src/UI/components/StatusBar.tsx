@@ -13,14 +13,13 @@ import { withProps } from "./common"
 import StatusResize from "./StatusResize"
 import WithWidth from "./WithWidth"
 
-require("./StatusBar.less") // tslint:disable-line no-var-requires
-
 interface StatusBarStyleProps {
     fontSize: string
     fontFamily: string
     backgroundColor: string
     foregroundColor: string
     className?: string
+    loaded?: boolean
 }
 
 export interface StatusBarProps extends StatusBarStyleProps {
@@ -70,7 +69,7 @@ const StatusBarContainer = withProps<StatusBarStyleProps>(styled.div)`
     color: ${({ foregroundColor }) => foregroundColor};
     box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
     pointer-events: auto;
-    transform: translateY(4px);
+    transform: ${({ loaded }) => loaded ? `translateY(0px)` : `translateY(4px)`};
     transition: transform 0.25s ease;
     height: 2em;
     width: 100%;
@@ -78,7 +77,30 @@ const StatusBarContainer = withProps<StatusBarStyleProps>(styled.div)`
     user-select: none;
 `
 
-export class StatusBar extends React.PureComponent<StatusBarProps> {
+/* `status-bar-inner` is used for performance reasons,
+to move the status bar to its own layer. This keeps changes
+from the status-bar layer from cause a repaint in the entire editor */
+const StatusBarInner = styled.div`
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`
+
+export class StatusBar extends React.PureComponent<StatusBarProps, { isLoaded: boolean }> {
+    public state = {
+        isLoaded: false,
+    }
+
+    public componentDidMount() {
+        this.setState({ isLoaded: true })
+    }
+
     public render() {
         if (!this.props.enabled) {
             return null
@@ -101,8 +123,8 @@ export class StatusBar extends React.PureComponent<StatusBarProps> {
         }
 
         return (
-            <StatusBarContainer {...statusBarProps} className="status-bar">
-                <div className="status-bar-inner">
+            <StatusBarContainer {...statusBarProps} loaded={this.state.isLoaded}>
+                <StatusBarInner>
                     <StatusResize direction="flex-start">
                         {leftItems.map(item => <ItemWithWidth {...item} key={item.id} />)}
                     </StatusResize>
@@ -115,7 +137,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps> {
                             <i className="fa fa-github" />
                         </span>
                     </StatusBarComponent>
-                </div>
+                </StatusBarInner>
             </StatusBarContainer>
         )
     }

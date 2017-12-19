@@ -4,10 +4,10 @@ const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
 
 const activate = (Oni) => {
     const React = Oni.dependencies.React
-    const { workingDirectory = 0, linenumber = 0, mode = 0 } = Oni.configuration.getValue("statusbar.priority")
-    const workingDirectoryItem = Oni.statusBar.createItem(0, workingDirectory, "oni.status.workingDirectory")
-    const lineNumberItem = Oni.statusBar.createItem(1, linenumber, "oni.status.lineNumber")
-    const modeItem = Oni.statusBar.createItem(1, mode, "oni.status.mode")
+    const priorities = Oni.configuration.getValue("statusbar.priority")
+    const workingDirectoryItem = Oni.statusBar.createItem(0, priorities["oni.status.workingDirectory"], "oni.status.workingDirectory")
+    const lineNumberItem = Oni.statusBar.createItem(1, priorities["oni.status.lineNumber"] , "oni.status.lineNumber")
+    const modeItem = Oni.statusBar.createItem(1, priorities["oni.status.mode"], "oni.status.mode")
 
     const setMode = (mode) => {
         const getBackgroundColorForMode = (m) => {

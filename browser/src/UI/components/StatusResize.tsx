@@ -86,7 +86,7 @@ class StatusBarResizer extends React.Component<Props, State> {
                 innerRef={(elem: Element) => (this.elem = elem)}
             >
                 {containerWidth !== undefined &&
-                    React.Children.map(children, (child: any) => {
+                React.Children.map(children, (child: React.ReactElement<any>) => {
                         const current = this.state.children[child.props.id]
                         return React.cloneElement(child, {
                             ...child.props,

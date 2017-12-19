@@ -192,11 +192,11 @@ export interface IConfigurationValues {
     "statusbar.fontSize": string
 
     "statusbar.priority": {
-        "filetype": number,
-        "workingDirectory": number,
-        "git": number,
-        "linenumber": number,
-        "mode": number,
+        "oni.status.filetype": number,
+        "oni.status.workingDirectory": number,
+        "oni.status.git": number,
+        "oni.status.linenumber": number,
+        "oni.status.mode": number,
     }
 
     "tabs.mode": string

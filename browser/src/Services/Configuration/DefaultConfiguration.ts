@@ -181,11 +181,11 @@ const BaseConfiguration: IConfigurationValues = {
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
     "statusbar.priority": {
-        "filetype": 1,
-        "workingDirectory": 0,
-        "git": 2,
-        "linenumber": 1,
-        "mode": 0,
+        "oni.status.filetype": 1,
+        "oni.status.workingDirectory": 0,
+        "oni.status.git": 2,
+        "oni.status.linenumber": 1,
+        "oni.status.mode": 0,
     },
 
     "tabs.mode": "buffers",
