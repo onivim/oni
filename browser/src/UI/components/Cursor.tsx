@@ -1,6 +1,8 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
+import styled from "styled-components"
+
 import * as State from "./../State"
 
 import { Motion, spring } from "react-motion"
@@ -16,6 +18,7 @@ export interface ICursorRendererProps {
     scale: number
     width: number
     height: number
+    isLoaded: boolean
     mode: string
     color: string
     textColor: string
@@ -27,6 +30,13 @@ export interface ICursorRendererProps {
 
     typingPrediction: TypingPredictionManager
 }
+
+const StyledCursor = styled.div`
+    transition: opacity 0.35s ease 0.25s;
+    padding-left: 1px;
+    padding-right: 1px;
+    margin-left: -1px;
+`
 
 export interface ICursorRendererState {
     predictedCursorColumn: number
@@ -112,10 +122,10 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
     }
 
     private _renderCursor(containerStyle: React.CSSProperties, cursorBlockStyle: React.CSSProperties, cursorCharacterStyle: React.CSSProperties, characterToShow: string): JSX.Element {
-            return <div style={containerStyle} className="cursor">
+            return <StyledCursor style={containerStyle}>
                 <div style={cursorBlockStyle} />
                 <div style={cursorCharacterStyle}>{characterToShow}</div>
-            </div>
+            </StyledCursor>
     }
 }
 
@@ -134,6 +144,7 @@ const mapStateToProps = (state: State.IState, props: ICursorProps): ICursorRende
         height: state.fontPixelHeight,
         mode: state.mode,
         color: state.colors["editor.foreground"],
+        isLoaded: state.isLoaded,
         textColor: state.colors["editor.background"],
         character: state.cursorCharacter,
         fontPixelWidth: state.fontPixelWidth,
