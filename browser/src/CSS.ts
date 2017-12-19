@@ -13,11 +13,8 @@ export const activate = () => {
     require("./Services/Menu/Menu.less")
     require("./Services/Sidebar/Sidebar.less")
 
-    require("./UI/components/Cursor.less")
-    require("./UI/components/Definition.less")
     require("./UI/components/Error.less")
     require("./UI/components/InstallHelp.less")
-    require("./UI/components/Message.less")
     require("./UI/components/QuickInfo.less")
     require("./UI/components/StatusBar.less")
     require("./UI/components/Tabs.less")
