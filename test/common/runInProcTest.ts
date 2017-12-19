@@ -37,7 +37,7 @@ const logWithTimeStamp = (message: string) => {
     const delta = currentTime - startTime
     const deltaInSeconds = delta / 1000
 
-    console.log(`[${deltaInSeconds}] ${message})`)
+    console.log(`[${deltaInSeconds}] ${message}`)
 }
 
 export const runInProcTest = (rootPath: string, testName: string, timeout: number = 5000) => {
