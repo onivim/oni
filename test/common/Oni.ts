@@ -33,7 +33,7 @@ export class Oni {
         log("Using executable path: " + executablePath)
         this._app = new Application({
             path: executablePath,
-            args,
+            args: null,
         })
 
         log("Oni starting...")
