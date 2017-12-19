@@ -62,7 +62,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
 
             oni = new Oni()
             logWithTimeStamp("- Calling oni.start")
-            await oni.start(["test.txt"])
+            await oni.start()
             logWithTimeStamp("- oni.start complete")
         })
 
