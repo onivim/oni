@@ -29,11 +29,11 @@ import { Colors } from "./../Services/Colors"
 import { CallbackCommand, commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Completion } from "./../Services/Completion"
-import { configuration, IConfigurationValues } from "./../Services/Configuration"
+import { Configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, languageManager } from "./../Services/Language"
+import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, LanguageManager } from "./../Services/Language"
 import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
-import { getThemeManagerInstance } from "./../Services/Themes"
+import { ThemeManager } from "./../Services/Themes"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { workspace } from "./../Services/Workspace"
 
@@ -101,8 +101,9 @@ export class NeovimEditor extends Editor implements IEditor {
 
     constructor(
         private _colors: Colors,
-        private _config = configuration,
-        private _themeManager = getThemeManagerInstance(),
+        private _configuration: Configuration,
+        private _languageManager: LanguageManager,
+        private _themeManager: ThemeManager,
     ) {
         super()
 
@@ -112,7 +113,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._screen = new NeovimScreen()
 
-        this._hoverRenderer = new HoverRenderer(this, this._config)
+        this._hoverRenderer = new HoverRenderer(this, this._configuration)
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
@@ -151,7 +152,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._windowManager = new NeovimWindowManager(this._neovimInstance)
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
-            if (configuration.getValue("editor.clipboard.enabled")) {
+            if (this._configuration.getValue("editor.clipboard.enabled")) {
                 clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
             }
         })
@@ -163,7 +164,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.onLeave.subscribe(() => {
             // TODO: Only leave if all editors are closed...
-            if (!configuration.getValue("debug.persistOnNeovimExit")) {
+            if (!this._configuration.getValue("debug.persistOnNeovimExit")) {
                 remote.getCurrentWindow().close()
             }
         })
@@ -255,10 +256,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
 
-        const textMateHighlightingEnabled = this._config.getValue("experimental.editor.textMateHighlighting.enabled")
+        const textMateHighlightingEnabled = this._configuration.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
-        this._completion = new Completion(this, languageManager, configuration)
+        this._completion = new Completion(this, this._languageManager, this._configuration)
         this._completionMenu = new CompletionMenu()
 
         this._completion.onShowCompletionItems.subscribe((completions) => {
@@ -277,7 +278,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._completion.commitItem(item)
         })
 
-        this._languageIntegration = new LanguageEditorIntegration(this, this._config, languageManager)
+        this._languageIntegration = new LanguageEditorIntegration(this, this._configuration, this._languageManager)
 
         this._languageIntegration.onShowHover.subscribe((hover) => {
             this._hoverRenderer.showQuickInfo(hover.hover, hover.errors)
@@ -307,8 +308,8 @@ export class NeovimEditor extends Editor implements IEditor {
             this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
         })
 
-        this._onConfigChanged(this._config.getValues())
-        this._config.onConfigurationChanged.subscribe((newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues))
+        this._onConfigChanged(this._configuration.getValues())
+        this._configuration.onConfigurationChanged.subscribe((newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues))
 
         ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
             if (message.startsWith(":")) {
@@ -386,7 +387,7 @@ export class NeovimEditor extends Editor implements IEditor {
     public async init(filesToOpen: string[]): Promise<void> {
         const startOptions: INeovimStartOptions = {
             runtimePaths: pluginManager.getAllRuntimePaths(),
-            transport: configuration.getValue("experimental.neovim.transport"),
+            transport: this._configuration.getValue("experimental.neovim.transport"),
         }
 
         await this._neovimInstance.start(startOptions)
@@ -395,7 +396,7 @@ export class NeovimEditor extends Editor implements IEditor {
             return
         }
 
-        VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+        VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._configuration.getValues())
 
         this._themeManager.onThemeChanged.subscribe(() => {
             const newTheme = this._themeManager.activeTheme
@@ -464,7 +465,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._typingPredictionManager.clearAllPredictions()
 
-        if (newMode === "insert" && configuration.getValue("editor.typingPrediction")) {
+        if (newMode === "insert" && this._configuration.getValue("editor.typingPrediction")) {
             this._typingPredictionManager.enable()
         } else {
             this._typingPredictionManager.disable()
@@ -532,9 +533,9 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
-        const fontFamily = this._config.getValue("editor.fontFamily")
-        const fontSize = addDefaultUnitIfNeeded(this._config.getValue("editor.fontSize"))
-        const linePadding = this._config.getValue("editor.linePadding")
+        const fontFamily = this._configuration.getValue("editor.fontFamily")
+        const fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
+        const linePadding = this._configuration.getValue("editor.linePadding")
 
         UI.Actions.setFont(fontFamily, fontSize)
         this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
@@ -586,8 +587,8 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private async _onKeyDown(key: string): Promise<void> {
-        if (configuration.getValue("debug.fakeLag.neovimInput")) {
-            await sleep(configuration.getValue("debug.fakeLag.neovimInput"))
+        if (this._configuration.getValue("debug.fakeLag.neovimInput")) {
+            await sleep(this._configuration.getValue("debug.fakeLag.neovimInput"))
         }
 
         await this._neovimInstance.input(key)

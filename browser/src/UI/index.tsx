@@ -21,18 +21,8 @@ import { reducer } from "./Reducer"
 import { getActiveDefinition } from "./selectors/DefinitionSelectors"
 import * as State from "./State"
 
-import { Colors } from "./../Services/Colors"
-import { commandManager } from "./../Services/CommandManager"
-import { Configuration } from "./../Services/Configuration"
-import { editorManager } from "./../Services/EditorManager"
-import { ExplorerSplit } from "./../Services/Explorer/ExplorerSplit"
 import { focusManager } from "./../Services/FocusManager"
-import { listenForDiagnostics } from "./../Services/Language"
-import { SidebarSplit } from "./../Services/Sidebar"
 import { windowManager } from "./../Services/WindowManager"
-import { workspace } from "./../Services/Workspace"
-
-import { NeovimEditor } from "./../Editor/NeovimEditor"
 
 import { createStore } from "./../Redux"
 
@@ -82,30 +72,10 @@ export const render = (state: State.IState): void => {
         </Provider>, hostElement)
 }
 
-export const startEditors = async (args: any, colors: Colors, configuration: Configuration): Promise<void> => {
-    if (configuration.getValue("experimental.sidebar.enabled")) {
-        const leftDock = windowManager.getDock(2)
-        leftDock.addSplit(new SidebarSplit(colors))
-        leftDock.addSplit(new ExplorerSplit(configuration, workspace, commandManager, editorManager))
-    }
-
-    const editor = new NeovimEditor(colors)
-    editorManager.setActiveEditor(editor)
-    windowManager.split(0, editor)
-
-    await editor.init(args)
-}
-
 // Don't execute code that depends on DOM in unit-tests
 if (global["window"]) { // tslint:disable-line
     updateViewport()
 
-    // TODO: Why is this breaking?
-    window.setTimeout(() => {
-        listenForDiagnostics()
-    })
-
     window.addEventListener("resize", updateViewport)
-
     document.body.addEventListener("click", () => focusManager.enforceFocus())
 }

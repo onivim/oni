@@ -23,7 +23,7 @@ import { configuration } from "./../../Services/Configuration"
 import { contextMenuManager } from "./../../Services/ContextMenu"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
-import { languageManager } from "./../../Services/Language"
+import * as LanguageManager from "./../../Services/Language"
 import { menuManager } from "./../../Services/Menu"
 import { recorder } from "./../../Services/Recorder"
 import { statusBar } from "./../../Services/StatusBar"
@@ -102,7 +102,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     public get language(): any {
-        return languageManager
+        return LanguageManager.getInstance()
     }
 
     public get menu(): any /* TODO */ {

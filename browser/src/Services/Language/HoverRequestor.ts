@@ -11,7 +11,7 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import { LanguageManager } from "./LanguageManager"
 
-import { DiagnosticsDataSource, IDiagnosticsDataSource } from "./Diagnostics"
+import { DiagnosticsDataSource, IDiagnosticsDataSource } from "./../Diagnostics"
 
 export interface IHoverResult {
     hover: types.Hover
