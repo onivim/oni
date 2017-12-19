@@ -76,7 +76,7 @@ export class Automation implements OniApi.Automation.Api {
             // path is well-defined (#89, #355, #372)
 
             Log.info("[AUTOMATION] Waiting for startup...")
-            await this.waitFor(() => (<any>UI.store.getState()).isLoaded, 30000)
+            await this.waitFor(() => (UI.store.getState() as any).isLoaded, 30000)
             Log.info("[AUTOMATION] Startup complete!")
 
             Log.info("[AUTOMATION] Waiting for neovim to attach...")
