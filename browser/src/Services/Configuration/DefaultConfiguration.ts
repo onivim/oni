@@ -180,12 +180,27 @@ const BaseConfiguration: IConfigurationValues = {
 
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
-    "statusbar.priority": {
-        "oni.status.filetype": 1,
-        "oni.status.workingDirectory": 0,
-        "oni.status.git": 2,
-        "oni.status.linenumber": 1,
-        "oni.status.mode": 0,
+    "statusbar.items": {
+        "filetype": {
+            id: "oni-status-filetype",
+            priority: 1,
+        },
+        "workingDirectory": {
+            id: "oni-status-workingDirectory",
+            priority: 0,
+        },
+        "git": {
+            id: "oni-status-git",
+            priority: 2,
+        },
+        "linenumber": {
+            id: "oni-status-linenumber",
+            priority: 1,
+        },
+        "mode": {
+            id: "oni-status-mode",
+            priority: 0,
+        },
     },
 
     "tabs.mode": "buffers",

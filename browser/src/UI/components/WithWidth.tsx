@@ -12,7 +12,7 @@ interface Props {
 
 export default function withWidth(WrappedComponent: any) {
     return class extends React.Component<Props, State> {
-        public static displayName = `WithContentRect(${WrappedComponent.displayName || WrappedComponent.name})`
+        public static displayName = `WithWidth(${WrappedComponent.displayName || WrappedComponent.name})`
         private observer: any
         private _node: Element
         constructor(props: Props) {

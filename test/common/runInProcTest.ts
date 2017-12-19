@@ -6,6 +6,7 @@ import * as Config from "./Config"
 import { Oni } from "./Oni"
 
 // tslint:disable:no-console
+// tslint:disable: only-arrow-functions
 
 export interface ITestCase {
     name: string
@@ -30,6 +31,16 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
     return normalizedMeta
 }
 
+const mochaAsync = (fn) =>
+    async (done) => {
+        try {
+            await fn()
+            done()
+        } catch (err) {
+            done(err)
+        }
+    }
+
 export const runInProcTest = (rootPath: string, testName: string, timeout: number = 5000) => {
     describe(testName, () => {
 
@@ -38,7 +49,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
 
         let oni: Oni
 
-        beforeEach(async () => {
+        beforeEach(async function(){
             console.log("[BEFORE EACH]: " + testName)
 
             Config.backupConfig()
@@ -51,10 +62,10 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
             }
 
             oni = new Oni()
-            return oni.start(["test.txt"])
+            return await oni.start(["test.txt"])
         })
 
-        afterEach(async () => {
+        afterEach(async function(done) {
             console.log("[AFTER EACH]: " + testName)
             await oni.close()
 
@@ -63,10 +74,11 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
                 fs.unlinkSync(configPath)
             }
 
-            Config.restoreConfig()
+            await Config.restoreConfig()
+            done()
         })
 
-        it("ci test: " + testName, async () => {
+        it("ci test: " + testName, mochaAsync(async () => {
             console.log("[TEST]: " + testName)
             console.log("Waiting for editor element...")
             await oni.client.waitForExist(".editor", timeout)
@@ -100,6 +112,6 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
 
             const result = JSON.parse(resultText)
             assert.ok(result.passed)
-        })
+        }))
     })
 }

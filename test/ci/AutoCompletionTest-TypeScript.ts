@@ -9,9 +9,9 @@ import { createNewFile, getCompletionElement } from "./Common"
 export const test = async (oni: any) => {
     await createNewFile("ts", oni)
 
-    oni.automation.sendKeys("i")
+    await oni.automation.sendKeys("i")
     await oni.automation.sleep(500)
-    oni.automation.sendKeys("window.a")
+    await oni.automation.sendKeys("window.a")
 
     // Wait for completion popup to show
     await oni.automation.waitFor(() => getCompletionElement() !== null)
