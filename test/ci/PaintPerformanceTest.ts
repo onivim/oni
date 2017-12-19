@@ -23,7 +23,7 @@ export const test = async (oni: any) => {
     }
 
     const gpuFeatureStatus = remote.app.getGPUFeatureStatus()
-    console.log("[PaintPerformance] gpuFeatureStatus: " + JSON.stringify(gpuFeatureStatus))
+    console.log("[PaintPerformance] gpuFeatureStatus: " + JSON.stringify(gpuFeatureStatus)) // tslint:disable-line
 
     // There are two metrics we want to measure now:
     // - Number of style elements
