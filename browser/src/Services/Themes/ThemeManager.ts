@@ -59,12 +59,12 @@ export interface IThemeColors {
     "title.background": string
     "title.foreground": string
 
-    "fileExplorer.background": string
-    "fileExplorer.foreground": string
-    "fileExplorer.selection.background": string
-    "fileExplorer.selection.foreground": string
-    "fileExplorer.cursor.background": string
-    "fileExplorer.cursor.foreground": string
+    "explorer.background": string
+    "explorer.foreground": string
+    "explorer.container.background": string
+    "explorer.cursor.background": string
+    "explorer.cursor.foreground": string
+    "explorer.highlight": string
 
     // LATER:
     //  - Notifications?

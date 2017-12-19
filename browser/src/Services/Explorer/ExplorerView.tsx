@@ -24,6 +24,7 @@ require("./Explorer.less") // tslint:disable-line
 export interface IFileViewProps {
     fileName: string
     isSelected: boolean
+    theme: IThemeColors
 }
 
 export class FileView extends React.PureComponent<IFileViewProps, {}> {
@@ -42,6 +43,7 @@ export class FileView extends React.PureComponent<IFileViewProps, {}> {
 export interface INodeViewProps {
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
+    theme: IThemeColors
 }
 
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
@@ -50,11 +52,11 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 
         switch (node.type) {
             case "file":
-                return <FileView fileName={node.name} isSelected={this.props.isSelected}/>
+                return <FileView fileName={node.name} isSelected={this.props.isSelected} theme={this.props.theme}/>
             case "container":
-                return <ContainerView expanded={node.expanded} name={node.name} isContainer={true} isSelected={this.props.isSelected}/>
+                return <ContainerView expanded={node.expanded} name={node.name} isContainer={true} isSelected={this.props.isSelected} theme={this.props.theme}/>
             case "folder":
-                return <ContainerView expanded={node.expanded} name={node.name} isContainer={false} isSelected={this.props.isSelected}/>
+                return <ContainerView expanded={node.expanded} name={node.name} isContainer={false} isSelected={this.props.isSelected} theme={this.props.theme}/>
             default:
                 return <div>{JSON.stringify(node)}</div>
         }
@@ -66,6 +68,7 @@ export interface IContainerViewProps {
     expanded: boolean
     name: string
     isSelected: boolean
+    theme: IThemeColors
 }
 
 export class ContainerView extends React.PureComponent<IContainerViewProps, {}> {
@@ -107,12 +110,12 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 
         const containerStyle = {
             width: "200px",
-            color: theme["editor.foreground"],
-            backgroundColor: theme["editor.background"],
+            color: theme["explorer.foreground"] || theme["editor.foreground"],
+            backgroundColor: theme["explorere.backgorund"] || theme["editor.background"],
             height: "100%",
         }
 
-        const topColor = theme["highlight.mode.normal.background"]
+        const topColor = theme["explorer.highlight"] || theme["highlight.mode.normal.background"]
 
         const tabStyle = {
             height: "2.5em",
@@ -121,7 +124,10 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
             borderTop: this.props.hasFocus ? `2px solid ${topColor}` : "2px solid transparent",
         }
 
-        const nodes = this.props.nodes.map((node) => <NodeView node={node} isSelected={node.id === this.props.selectedId}/>)
+        const nodes = this.props.nodes.map((node) => <NodeView 
+            node={node} 
+            isSelected={node.id === this.props.selectedId}
+            theme={theme}/>)
 
         return <div style={containerStyle} className="explorer enable-mouse">
                 <div className="header" style={tabStyle}>Explorer</div>
