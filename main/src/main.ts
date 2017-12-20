@@ -106,7 +106,9 @@ export function createWindow(commandLineArguments, workingDirectory) {
     const backgroundColor = (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
 
     try {
-        windowState = PersistentSettings.get("_internal.windowState") as IWindowState
+        const internalWindowState = PersistentSettings.get("_internal.windowState") as IWindowState
+        console.log("Internal Window State", internalWindowState) // tslint:disable-line
+        windowState = internalWindowState
     } catch (e) {
         Log.info(`error getting window state: ${e.message}`)
     }
@@ -116,15 +118,16 @@ export function createWindow(commandLineArguments, workingDirectory) {
     const indexPath = path.join(rootPath, "index.html?react_perf")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
+    Log.info(`[WINDOW BOUNDS] ${JSON.stringify(windowState, null, 2)}`)
     let mainWindow = new BrowserWindow({
         icon: iconPath,
         webPreferences,
         backgroundColor,
         titleBarStyle: "hidden",
-        x: windowState && windowState.bounds && windowState.bounds.x || null,
-        y: windowState && windowState.bounds && windowState.bounds.y || null,
-        height: windowState && windowState.bounds && windowState.bounds.height || 800,
-        width: windowState && windowState.bounds && windowState.bounds.width || 600,
+        x: windowState && windowState.bounds && windowState.bounds.x,
+        y: windowState && windowState.bounds && windowState.bounds.y,
+        height: windowState && windowState.bounds && windowState.bounds.height,
+        width: windowState && windowState.bounds && windowState.bounds.width,
     })
 
     updateMenu(mainWindow, false)
