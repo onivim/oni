@@ -51,31 +51,19 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
         beforeEach(async () => {
             logWithTimeStamp("BEFORE EACH: " + testName)
 
-            Config.backupConfig()
-
-            if (testCase.configPath) {
-                console.log("Writing config from: " + testCase.configPath)
-                const configContents = fs.readFileSync(testCase.configPath)
-                console.log("Writing config to: " + configPath)
-                fs.writeFileSync(configPath, configContents)
+            const startOptions = {
+                configurationPath: testCase.configPath
             }
 
             oni = new Oni()
             logWithTimeStamp("- Calling oni.start")
-            await oni.start()
+            await oni.start(startOptions)
             logWithTimeStamp("- oni.start complete")
         })
 
         afterEach(async () => {
             console.log("[AFTER EACH]: " + testName)
             await oni.close()
-
-            if (fs.existsSync(configPath)) {
-                console.log("--Removing existing config..")
-                fs.unlinkSync(configPath)
-            }
-
-            Config.restoreConfig()
         })
 
         it("ci test: " + testName, async () => {
