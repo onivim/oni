@@ -24,7 +24,19 @@ interface IWindowState {
     }
 }
 
+let windowState: IWindowState = {
+    bounds: {
+        x: null,
+        y: null,
+        height: 800,
+        width: 600,
+    },
+}
+
 function storeWindowState(ws, main) {
+    if (ws || main) {
+        return
+    }
     ws.isMaximized = main.isMaximized()
 
     if (!ws.isMaximized) {
@@ -92,14 +104,6 @@ export function createWindow(commandLineArguments, workingDirectory) {
     }
 
     const backgroundColor = (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
-    let windowState: IWindowState = {
-        bounds: {
-            x: null,
-            y: null,
-            height: 800,
-            width: 600,
-        },
-    }
 
     try {
         windowState = PersistentSettings.get("_internal.windowState") as IWindowState
@@ -117,10 +121,10 @@ export function createWindow(commandLineArguments, workingDirectory) {
         webPreferences,
         backgroundColor,
         titleBarStyle: "hidden",
-        x: windowState.bounds && windowState.bounds.x,
-        y: windowState.bounds && windowState.bounds.y,
-        height: windowState.bounds && windowState.bounds.height,
-        width: windowState.bounds && windowState.bounds.width,
+        x: windowState && windowState.bounds && windowState.bounds.x || null,
+        y: windowState && windowState.bounds && windowState.bounds.y || null,
+        height: windowState && windowState.bounds && windowState.bounds.height || 800,
+        width: windowState && windowState.bounds && windowState.bounds.width || 600,
     })
 
     updateMenu(mainWindow, false)
