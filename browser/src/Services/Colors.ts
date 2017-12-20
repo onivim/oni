@@ -6,6 +6,7 @@
  * - Also will handle 'fallback logic' for colors
  */
 
+import * as OniApi from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 
 import { Configuration, IConfigurationValues } from "./Configuration"
@@ -25,7 +26,7 @@ export const getInstance = (): Colors => {
     return _colors
 }
 
-export class Colors implements IDisposable {
+export class Colors implements OniApi.IColors, IDisposable {
 
     private _subscriptions: IDisposable[] = []
     private _colors: ColorsDictionary = {}

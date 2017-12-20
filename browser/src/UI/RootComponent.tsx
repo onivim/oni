@@ -12,6 +12,7 @@ import { Background } from "./components/Background"
 import { ThemeProvider } from "./components/common"
 import { Loading } from "./components/Loading"
 import StatusBar from "./components/StatusBar"
+
 import { WindowSplits } from "./components/WindowSplits"
 import { WindowTitle } from "./components/WindowTitle"
 
