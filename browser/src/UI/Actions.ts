@@ -9,9 +9,7 @@
 
 import * as Oni from "oni-api"
 
-import * as Coordinates from "./Coordinates"
 import { StatusBarAlignment } from "./State"
-import { Rectangle } from "./Types"
 
 import { IConfigurationValues } from "./../Services/Configuration"
 import { IThemeColors } from "./../Services/Themes"
@@ -66,21 +64,6 @@ export interface ISetCursorScaleAction {
     }
 }
 
-export interface ISetCurrentBuffersAction {
-    type: "SET_CURRENT_BUFFERS",
-    payload: {
-        bufferIds: number[],
-    }
-}
-
-export interface ISetFont {
-    type: "SET_FONT",
-    payload: {
-        fontFamily: string,
-        fontSize: string,
-    }
-}
-
 export interface IShowToolTipAction {
     type: "SHOW_TOOL_TIP",
     payload: {
@@ -106,42 +89,12 @@ export interface ISetWindowCursor {
     },
 }
 
-export interface ISetWindowState {
-    type: "SET_WINDOW_STATE",
-    payload: {
-        windowId: number,
-        file: string,
-        column: number,
-        line: number,
-
-        dimensions: Rectangle
-
-        bufferToScreen: Coordinates.BufferToScreen
-        screenToPixel: Coordinates.ScreenToPixel
-
-        topBufferLine: number
-        bottomBufferLine: number,
-    }
-}
-
 export interface ISetErrorsAction {
     type: "SET_ERRORS",
     payload: {
         file: string,
         key: string,
         errors: types.Diagnostic[],
-    }
-}
-
-export interface ISetCursorPositionAction {
-    type: "SET_CURSOR_POSITION",
-    payload: {
-        pixelX: number,
-        pixelY: number,
-        fontPixelWidth: number,
-        fontPixelHeight: number,
-        cursorCharacter: string,
-        cursorPixelWidth: number,
     }
 }
 
@@ -189,8 +142,6 @@ export type SimpleAction =
     IEnterFullScreenAction |
     ILeaveFullScreenAction |
     ISetColorsAction |
-    ISetCursorPositionAction |
-    ISetFont |
     IHideToolTipAction |
     IShowToolTipAction |
     IHideDefinitionAction |
@@ -199,12 +150,10 @@ export type SimpleAction =
     IStatusBarHideAction |
     IStatusBarShowAction |
     ISetErrorsAction |
-    ISetCurrentBuffersAction |
     ISetHasFocusAction |
     ISetLoadingCompleteAction |
     ISetViewportAction |
     ISetWindowCursor |
-    ISetWindowState |
     ISetWindowTitleAction
 
 export type ActionWithGeneric<K extends keyof IConfigurationValues> =

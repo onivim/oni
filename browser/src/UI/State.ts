@@ -30,10 +30,6 @@ export interface IToolTip {
 
 export interface IState {
     // Editor
-    fontPixelWidth: number
-    fontPixelHeight: number
-    fontFamily: string
-    fontSize: string
     hasFocus: boolean
     isFullScreen: boolean
     definition: null | IDefinition
@@ -79,10 +75,6 @@ export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurat
 }
 
 export const createDefaultState = (): IState => ({
-    fontPixelWidth: 10,
-    fontPixelHeight: 10,
-    fontFamily: "",
-    fontSize: "",
     hasFocus: false,
     definition: null,
     colors: DefaultThemeColors,

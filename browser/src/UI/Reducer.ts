@@ -57,18 +57,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             ...s,
             cursorScale: a.payload.cursorScale,
         }
-        case "SET_CURSOR_POSITION":
-            return {...s,
-                    cursorPixelX: a.payload.pixelX,
-                    cursorPixelY: a.payload.pixelY,
-                    fontPixelWidth: a.payload.fontPixelWidth,
-                    fontPixelHeight: a.payload.fontPixelHeight,
-                    cursorCharacter: a.payload.cursorCharacter,
-                    cursorPixelWidth: a.payload.cursorPixelWidth }
-        case "SET_FONT":
-            return { ...s,
-                     fontFamily: a.payload.fontFamily,
-                     fontSize: a.payload.fontSize }
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value
