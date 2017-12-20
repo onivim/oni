@@ -92,7 +92,14 @@ export function createWindow(commandLineArguments, workingDirectory) {
     }
 
     const backgroundColor = (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
-    let windowState: IWindowState = {}
+    let windowState: IWindowState = {
+        bounds: {
+            x: null,
+            y: null,
+            height: 800,
+            width: 600,
+        },
+    }
 
     try {
         windowState = PersistentSettings.get("_internal.windowState") as IWindowState
@@ -110,10 +117,10 @@ export function createWindow(commandLineArguments, workingDirectory) {
         webPreferences,
         backgroundColor,
         titleBarStyle: "hidden",
-        x: windowState.bounds && windowState.bounds.x || null,
-        y: windowState.bounds && windowState.bounds.y || null,
-        height: windowState.bounds && windowState.bounds.height || 800,
-        width: windowState.bounds && windowState.bounds.width || 600,
+        x: windowState.bounds.x,
+        y: windowState.bounds.y,
+        height: windowState.bounds.height,
+        width: windowState.bounds.width,
     })
 
     updateMenu(mainWindow, false)
