@@ -8,7 +8,6 @@ import * as Oni from "oni-api"
 
 import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-import * as UI from "./../../UI"
 
 import { LanguageManager } from "./../../Services/Language"
 import { RenameView } from "./../../Services/Language/RenameView"
@@ -21,7 +20,7 @@ export class Rename {
 
     private _isRenameActive: boolean
     private _isRenameCommitted: boolean
-    
+
     constructor(
         private _editor: Oni.Editor,
         private _languageManager: LanguageManager,
@@ -46,7 +45,7 @@ export class Rename {
 
         this._isRenameActive = true
 
-        UI.Actions.showToolTip(_renameToolTipName, <RenameView onComplete={(newValue) => this._onRenameClosed(newValue)} tokenName={activeToken.tokenName} />, {
+        this._toolTipsProvider.showToolTip(_renameToolTipName, <RenameView onComplete={(newValue) => this._onRenameClosed(newValue)} tokenName={activeToken.tokenName} />, {
             position: null,
             openDirection: 2,
             onDismiss: () => this.cancelRename(),
@@ -79,7 +78,7 @@ export class Rename {
     public closeToolTip(): void {
         Log.verbose("[RENAME] closeToolTip")
         this._isRenameActive = false
-        UI.Actions.hideToolTip(_renameToolTipName)
+        this._toolTipsProvider.hideToolTip(_renameToolTipName)
     }
 
     public async doRename(newName: string): Promise<void> {
