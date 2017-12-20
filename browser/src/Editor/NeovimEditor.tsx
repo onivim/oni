@@ -12,6 +12,11 @@ import "rxjs/add/operator/map"
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
 
+import { Provider } from "react-redux"
+import { bindActionCreators, Store } from "redux"
+import { createStore, IState } from "./NeovimEditorStore"
+import * as ActionCreators from "./NeovimEditorActions"
+
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import * as Oni from "oni-api"
@@ -37,8 +42,6 @@ import { ThemeManager } from "./../Services/Themes"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { workspace } from "./../Services/Workspace"
 
-import * as UI from "./../UI/index"
-
 import { Editor, IEditor } from "./Editor"
 
 import { BufferManager } from "./BufferManager"
@@ -62,6 +65,9 @@ export class NeovimEditor extends Editor implements IEditor {
     private _completionMenu: CompletionMenu
     private _popupMenu: NeovimPopupMenu
     private _errorInitializing: boolean = false
+
+    private _store: Store<IState>
+    private _actions: typeof ActionCreators
 
     private _pendingAnimationFrame: boolean = false
 
@@ -109,6 +115,9 @@ export class NeovimEditor extends Editor implements IEditor {
 
         const services: any[] = []
 
+        this._store = createStore()
+        this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
+
         this._neovimInstance = new NeovimInstance(100, 100)
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._screen = new NeovimScreen()
@@ -143,7 +152,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._colors.onColorsChanged.subscribe(() => {
             const updatedColors: any = this._colors.getColors()
-            UI.Actions.setColors(updatedColors)
+            this._actions.setColors(updatedColors)
         })
 
         // Overlays
@@ -158,8 +167,9 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onTitleChanged.subscribe((newTitle) => {
-            const title = newTitle.replace(" - NVIM", " - ONI")
-            UI.Actions.setWindowTitle(title)
+            // MUSTFIX
+            // const title = newTitle.replace(" - NVIM", " - ONI")
+            // UI.Actions.setWindowTitle(title)
         })
 
         this._neovimInstance.onLeave.subscribe(() => {
@@ -194,7 +204,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.onError.subscribe((err) => {
             this._errorInitializing = true
-            UI.Actions.setNeovimError(true)
+            this._actions.setNeovimError(true)
         })
 
         this._neovimInstance.onDirectoryChanged.subscribe((newDirectory) => {
@@ -209,12 +219,12 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
-            UI.Actions.setCursorPosition(this._screen)
+            this._actions.setCursorPosition(this._screen)
             this._typingPredictionManager.setCursorPosition(this._screen)
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
-            UI.Actions.setTabs(currentTabId, tabs)
+            this._actions.setTabs(currentTabId, tabs)
         })
 
         this._cursorMoved$ = this._neovimInstance.autoCommands.onCursorMoved.asObservable()
@@ -240,7 +250,7 @@ export class NeovimEditor extends Editor implements IEditor {
         const bufferUpdates$ = listenForBufferUpdates(this._neovimInstance, this._bufferManager)
         bufferUpdates$.subscribe((bufferUpdate) => {
             this.notifyBufferChanged(bufferUpdate)
-            UI.Actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
+            this._actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
 
             this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
         })
@@ -289,11 +299,11 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._languageIntegration.onShowDefinition.subscribe((definition) => {
-            UI.Actions.setDefinition(definition.token, definition.location)
+            this._actions.setDefinition(definition.token, definition.location)
         })
 
         this._languageIntegration.onHideDefinition.subscribe((definition) => {
-            UI.Actions.hideDefinition()
+            this._actions.hideDefinition()
         })
 
         this._render()
@@ -374,12 +384,12 @@ export class NeovimEditor extends Editor implements IEditor {
     public enter(): void {
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
-        UI.Actions.setHasFocus(true)
+        this._actions.setHasFocus(true)
     }
 
     public leave(): void {
         Log.info("[NeovimEditor::leave]")
-        UI.Actions.setHasFocus(false)
+        this._actions.setHasFocus(false)
     }
 
     public async openFile(file: string): Promise<Oni.Buffer> {
@@ -448,16 +458,18 @@ export class NeovimEditor extends Editor implements IEditor {
             this._onKeyDown(key)
         }
 
-        return <NeovimSurface renderer={this._renderer}
-            typingPrediction={this._typingPredictionManager}
-            neovimInstance={this._neovimInstance}
-            screen={this._screen}
-            onActivate={this._onEnterEvent}
-            onKeyDown={onKeyDown}
-            onBufferClose={onBufferClose}
-            onBufferSelect={onBufferSelect}
-            onTabClose={onTabClose}
-            onTabSelect={onTabSelect} />
+        return <Provider store={this._store}>
+                <NeovimSurface renderer={this._renderer}
+                typingPrediction={this._typingPredictionManager}
+                neovimInstance={this._neovimInstance}
+                screen={this._screen}
+                onActivate={this._onEnterEvent}
+                onKeyDown={onKeyDown}
+                onBufferClose={onBufferClose}
+                onBufferSelect={onBufferSelect}
+                onTabClose={onTabClose}
+                onTabSelect={onTabSelect} />
+            </Provider>
     }
 
     private async _openFiles(files: string[], action: string): Promise<void> {
@@ -478,7 +490,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._typingPredictionManager.disable()
         }
 
-        UI.Actions.setMode(newMode)
+        this._actions.setMode(newMode)
         this.setMode(newMode as Oni.Vim.Mode)
 
         if (newMode === "insert") {
@@ -489,7 +501,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private _updateWindow(currentBuffer: EventContext) {
-        UI.Actions.setWindowCursor(
+        this._actions.setWindowCursor(
             currentBuffer.windowNumber,
             currentBuffer.line - 1,
             currentBuffer.column - 1,
@@ -520,12 +532,12 @@ export class NeovimEditor extends Editor implements IEditor {
             evt.existingBuffers.filter(b => b.bufferNumber !== evt.current.bufferNumber)
         const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
 
-        UI.Actions.bufferEnter(buffers)
+        this._actions.bufferEnter(buffers)
     }
 
     private async _onBufWritePost(evt: EventContext): Promise<void> {
         // After we save we aren't modified... but we can pass it in just to be safe
-        UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
+        this._actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
 
         this.notifyBufferSaved({
             filePath: evt.bufferFullPath,
@@ -536,7 +548,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private async _onBufWipeout(evt: BufferEventContext): Promise<void> {
         this._neovimInstance
         .getBufferIds()
-        .then(ids => UI.Actions.setCurrentBuffers(ids))
+        .then(ids => this._actions.setCurrentBuffers(ids))
     }
 
     private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
@@ -544,7 +556,7 @@ export class NeovimEditor extends Editor implements IEditor {
         const fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
         const linePadding = this._configuration.getValue("editor.linePadding")
 
-        UI.Actions.setFont(fontFamily, fontSize)
+        this._actions.setFont(fontFamily, fontSize)
         this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
 
         if (this._hasLoaded) {
