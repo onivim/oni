@@ -77,13 +77,6 @@ export const setCursorScale = (cursorScale: number) => ({
     },
 })
 
-export const setCurrentBuffers = (bufferIds: number[]) => ({
-    type: "SET_CURRENT_BUFFERS",
-    payload: {
-        bufferIds,
-    },
-})
-
 export const setImeActive = (imeActive: boolean) => ({
     type: "SET_IME_ACTIVE",
     payload: {
@@ -96,14 +89,6 @@ export const setFont = (fontFamily: string, fontSize: string) => ({
     payload: {
         fontFamily,
         fontSize,
-    },
-})
-
-export const setTabs = (selectedTabId: number, tabs: State.ITab[]): Actions.ISetTabs => ({
-    type: "SET_TABS",
-    payload: {
-        selectedTabId,
-        tabs,
     },
 })
 
