@@ -9,20 +9,14 @@
 
 import * as types from "vscode-languageserver-types"
 
-import * as isEqual from "lodash/isEqual"
-import "rxjs/add/operator/distinctUntilChanged"
-import { Subject } from "rxjs/Subject"
-
 import * as Oni from "oni-api"
 
 import { Rectangle } from "./Types"
 
 import * as Actions from "./Actions"
 import * as Coordinates from "./Coordinates"
-import * as UI from "./index"
 import * as State from "./State"
 
-import { EventContext, InactiveBufferContext, IScreen } from "./../neovim"
 import { normalizePath } from "./../Utility"
 
 import { IConfigurationValues } from "./../Services/Configuration"
@@ -227,27 +221,6 @@ export const hideStatusBarItem = (id: string) => ({
     },
 })
 
-const $setCursorPosition = new Subject<any>()
-$setCursorPosition
-    .distinctUntilChanged(isEqual)
-    .subscribe((action) => {
-        UI.store.dispatch({
-            type: "SET_CURSOR_POSITION",
-            payload: action,
-        })
-    })
-
-export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunction) => {
-    const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
-
-    $setCursorPosition.next(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels).payload)
-}
-
-export const setMode = (mode: string) => ({
-    type: "SET_MODE",
-    payload: { mode },
-})
-
 export const setDefinition = (token: Oni.IToken, definitionLocation: types.Location): Actions.IShowDefinitionAction => ({
     type: "SHOW_DEFINITION",
     payload: {
@@ -283,15 +256,3 @@ export function setConfigValue<K extends keyof IConfigurationValues>(k: K, v: IC
         },
     }
 }
-
-const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
-    type: "SET_CURSOR_POSITION",
-    payload: {
-        pixelX: cursorPixelX,
-        pixelY: cursorPixelY,
-        fontPixelWidth,
-        fontPixelHeight,
-        cursorCharacter,
-        cursorPixelWidth,
-    },
-})
