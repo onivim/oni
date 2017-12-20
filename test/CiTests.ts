@@ -18,7 +18,7 @@ const CiTests = [
     "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
-    "NoInstalledNeovim",
+    // "NoInstalledNeovim",
 ]
 
 // tslint:disable:no-console

@@ -8,39 +8,40 @@ import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
 import * as Log from "./Log"
 import * as Performance from "./Performance"
-import { pluginManager } from "./Plugins/PluginManager"
 
-import * as AutoClosingPairs from "./Services/AutoClosingPairs"
-import { autoUpdater, constructFeedUrl } from "./Services/AutoUpdate"
-import * as Colors from "./Services/Colors"
-import * as BrowserWindowConfigurationSynchronizer from "./Services/BrowserWindowConfigurationSynchronizer"
-import { commandManager } from "./Services/CommandManager"
-import { configuration, IConfigurationValues } from "./Services/Configuration"
-import { editorManager } from "./Services/EditorManager"
-import * as IconThemes from "./Services/IconThemes"
-import { inputManager } from "./Services/InputManager"
-import { languageManager } from "./Services/Language"
-import * as Themes from "./Services/Themes"
-
-import * as SharedNeovimInstance from "./neovim/SharedNeovimInstance"
-
-import { createLanguageClientsFromConfiguration } from "./Services/Language"
-
-import * as UI from "./UI/index"
-
-require("./overlay.less") // tslint:disable-line
+import { IConfigurationValues } from "./Services/Configuration/IConfigurationValues"
 
 const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
 
+    const UI = await import("./UI")
     UI.activate()
 
     const parsedArgs = minimist(args)
+
+    const configurationPromise = import("./Services/Configuration")
+    const pluginManagerPromise = import("./Plugins/PluginManager")
+    const themesPromise = import("./Services/Themes")
+    const iconThemesPromise = import("./Services/IconThemes")
+
+    const startEditorsPromise = import("./startEditors")
+
+    const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
+    const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
+    const browserWindowConfigurationSynchronizerPromise = import("./Services/BrowserWindowConfigurationSynchronizer")
+    const colorsPromise = import("./Services/Colors")
+    const diagnosticsPromise = import("./Services/Diagnostics")
+    const editorManagerPromise = import("./Services/EditorManager")
+    const inputManagerPromise = import("./Services/InputManager")
+    const languageManagerPromise = import("./Services/Language")
+    const cssPromise = import("./CSS")
 
     // Helper for debugging:
     window["UI"] = UI // tslint:disable-line no-string-literal
 
     Performance.startMeasure("Oni.Start.Config")
+
+    const { configuration } = await configurationPromise
 
     const initialConfigParsingError = configuration.getParsingError()
     if (initialConfigParsingError) {
@@ -60,40 +61,62 @@ const start = async (args: string[]): Promise<void> => {
     configuration.onConfigurationChanged.subscribe(configChange)
     Performance.endMeasure("Oni.Start.Config")
 
+    const { pluginManager } = await pluginManagerPromise
+
     Performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
     Performance.endMeasure("Oni.Start.Plugins.Discover")
 
-    // TODO: Can these be parallelized?
     Performance.startMeasure("Oni.Start.Themes")
+    const Themes = await themesPromise
+    const IconThemes = await iconThemesPromise
     await Promise.all([
         Themes.activate(configuration),
         IconThemes.activate(configuration, pluginManager)
     ])
 
+    const Colors = await colorsPromise
     Colors.activate(configuration, Themes.getThemeManagerInstance())
     UI.Actions.setColors(Themes.getThemeManagerInstance().getColors())
     Performance.endMeasure("Oni.Start.Themes")
 
+    const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
     BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
 
-    // TODO: Can these be parallelized?
+    const { editorManager } = await editorManagerPromise
+
+    const LanguageManager = await languageManagerPromise
+    LanguageManager.activate(configuration, editorManager)
+    const languageManager = LanguageManager.getInstance()
+
     Performance.startMeasure("Oni.Start.Editors")
+    const SharedNeovimInstance = await sharedNeovimInstancePromise
+    const { startEditors } = await startEditorsPromise
     await Promise.all([
         SharedNeovimInstance.activate(),
-        UI.startEditors(parsedArgs._, Colors.getInstance(), configuration)
+        startEditors(parsedArgs._, Colors.getInstance(), configuration, languageManager, Themes.getThemeManagerInstance())
     ])
     Performance.endMeasure("Oni.Start.Editors")
 
-    Performance.startMeasure("Oni.Start.Activate")
+    const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
+    const Diagnostics = await diagnosticsPromise
+    Diagnostics.activate(languageManager)
+
+    Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()
     configuration.activate(api)
 
     createLanguageClientsFromConfiguration(configuration.getValues())
 
+    const { inputManager } = await inputManagerPromise
+
+    const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Performance.endMeasure("Oni.Start.Activate")
+
+    const CSS = await cssPromise
+    CSS.activate()
 
     UI.Actions.setLoadingComplete()
 
@@ -107,11 +130,15 @@ ipcRenderer.on("init", (_evt: any, message: any) => {
     start(message.args)
 })
 
-ipcRenderer.on("execute-command", (_evt: any, command: string) => {
+ipcRenderer.on("execute-command", async (_evt: any, command: string) => {
+    const { commandManager } = await import("./Services/CommandManager")
     commandManager.executeCommand(command, null)
 })
 
 const checkForUpdates = async (): Promise<void> => {
+    const AutoUpdate = await import("./Services/AutoUpdate")
+    const { autoUpdater, constructFeedUrl } = AutoUpdate
+
     const feedUrl = await constructFeedUrl("https://api.onivim.io/v1/update")
 
     autoUpdater.onUpdateAvailable.subscribe(() => Log.info("Update available."))

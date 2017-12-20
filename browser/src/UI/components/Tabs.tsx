@@ -18,8 +18,6 @@ import { Icon } from "./../../UI/Icon"
 
 import { FileIcon } from "./../../Services/FileIcon"
 
-require("./Tabs.less") // tslint:disable-line no-var-requires
-
 export interface ITabProps {
     id: number
     name: string

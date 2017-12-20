@@ -3,24 +3,17 @@
  *
  */
 
-// import * as os from "os"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
-
-// import { configuration } from "./../Configuration"
-
-// import * as UI from "./../../UI"
 
 import { editorManager } from "./../EditorManager"
 import { menuManager } from "./../Menu"
 
 import { gotoPositionInUri } from "./Definition"
-import { languageManager } from "./LanguageManager"
+import * as LanguageManager from "./LanguageManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-
-// import * as Log from "./../../Log"
 
 export const openWorkspaceSymbolsMenu = async () => {
 
@@ -48,6 +41,8 @@ export const openWorkspaceSymbolsMenu = async () => {
     let keyToLocation: any = {}
 
     const getKey = (si: types.SymbolInformation) => si.name + getDetailFromSymbol(si)
+
+    const languageManager = LanguageManager.getInstance()
 
     filterTextChanged$
         .debounceTime(25)
@@ -131,6 +126,7 @@ export const openDocumentSymbolsMenu = async () => {
 
     const buffer = editorManager.activeEditor.activeBuffer
 
+    const languageManager = LanguageManager.getInstance()
     const result: types.SymbolInformation[] = await languageManager.sendLanguageServerRequest(buffer.language, buffer.filePath, "textDocument/documentSymbol", {
         textDocument: {
             uri: Helpers.wrapPathInFileUri(buffer.filePath),

@@ -12,6 +12,7 @@ import { editorManager } from "./EditorManager"
 import { inputManager } from "./InputManager"
 
 import * as Log from "./../Log"
+import * as UI from "./../UI"
 
 export interface ITestResult {
     passed: boolean
@@ -73,6 +74,11 @@ export class Automation implements OniApi.Automation.Api {
             // The CI machines can often be slow, so we need a longer timout for it
             // TODO: Replace with a more explicit condition, once our startup
             // path is well-defined (#89, #355, #372)
+
+            Log.info("[AUTOMATION] Waiting for startup...")
+            await this.waitFor(() => (UI.store.getState() as any).isLoaded, 30000)
+            Log.info("[AUTOMATION] Startup complete!")
+
             Log.info("[AUTOMATION] Waiting for neovim to attach...")
             await this.waitFor(() => oni.editors.activeEditor.neovim && (oni.editors.activeEditor as any).neovim.isInitialized, 30000)
             Log.info("[AUTOMATION] Neovim attached!")

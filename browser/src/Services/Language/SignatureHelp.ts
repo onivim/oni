@@ -15,7 +15,7 @@ import * as UI from "./../../UI"
 import { editorManager } from "./../EditorManager"
 
 import { ILatestCursorAndBufferInfo } from "./addInsertModeLanguageFunctionality"
-import { languageManager } from "./LanguageManager"
+import * as LanguageManager from "./LanguageManager"
 import * as SignatureHelp from "./SignatureHelpView"
 
 export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>) => {
@@ -49,6 +49,7 @@ export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBu
 }
 
 export const showSignatureHelp = async (language: string, filePath: string, line: number, column: number): Promise<types.SignatureHelp> => {
+    const languageManager = LanguageManager.getInstance()
     if (languageManager.isLanguageServerAvailable(language)) {
 
         const buffer = editorManager.activeEditor.activeBuffer

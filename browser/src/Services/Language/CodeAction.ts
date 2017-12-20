@@ -11,7 +11,7 @@ import * as types from "vscode-languageserver-types"
 // import * as UI from "./../../UI"
 
 import { contextMenuManager } from "./../ContextMenu"
-import { languageManager } from "./LanguageManager"
+import * as LanguageManager from "./LanguageManager"
 
 import * as Log from "./../../Log"
 import { editorManager } from "./../EditorManager"
@@ -25,6 +25,7 @@ let lastFileInfo: any = {}
 codeActionsContextMenu.onItemSelected.subscribe(async (selectedItem) => {
 
     const commandName = selectedItem.data
+    const languageManager = LanguageManager.getInstance()
     await languageManager.sendLanguageServerRequest(lastFileInfo.language, lastFileInfo.filePath, "workspace/executeCommand", { command: commandName })
 })
 
@@ -57,6 +58,7 @@ const getCodeActions = async (): Promise<types.Command[]> => {
         return null
     }
 
+    const languageManager = LanguageManager.getInstance()
     if (languageManager.isLanguageServerAvailable(language)) {
         let result: types.Command[] = null
         try {

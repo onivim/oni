@@ -40,8 +40,16 @@ let windows = []
 // Otherwise, all other open instances will also pick up the webpack bundle
 if (!isDevelopment && !isDebug) {
 
+    let processArgs = process.argv || []
+
+    // If running from spectron, ignore the arguments
+    if (processArgs.filter((f) => f.indexOf("--test-type=webdriver"))) {
+        Log.warn("Clearing arguments because running from automation!")
+        processArgs = []
+    }
+
     const currentOptions = {
-        args: process.argv,
+        args: processArgs,
         workingDirectory: process.env["ONI_CWD"] || process.cwd(), // tslint:disable-line no-string-literal
     }
 

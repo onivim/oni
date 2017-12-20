@@ -14,13 +14,9 @@ import { Event, IDisposable } from "oni-types"
 
 import * as Log from "./../../Log"
 
-import { configuration, Configuration } from "./../Configuration"
-import { editorManager, EditorManager } from "./../EditorManager"
-
 import { ILanguageClient } from "./LanguageClient"
-import { IServerCapabilities } from "./ServerCapabilities"
-
 import * as LanguageClientTypes from "./LanguageClientTypes"
+import { IServerCapabilities } from "./ServerCapabilities"
 
 import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
 
@@ -44,8 +40,8 @@ export class LanguageManager {
     private _currentTrackedFile: string = null
 
     constructor(
-        private _configuration: Configuration = configuration,
-        private _editorManager: EditorManager = editorManager,
+        private _configuration: Oni.Configuration,
+        private _editorManager: Oni.EditorManager,
     ) {
         this._editorManager.allEditors.onBufferEnter.subscribe(async () => this._onBufferEnter())
 
@@ -139,7 +135,7 @@ export class LanguageManager {
     }
 
     public getTokenRegex(language: string): RegExp {
-        const languageSpecificTokenRegex = this._configuration.getValue(`language.${language}.tokenRegex`)
+        const languageSpecificTokenRegex = this._configuration.getValue(`language.${language}.tokenRegex`) as RegExp
 
         if (languageSpecificTokenRegex) {
             return RegExp(languageSpecificTokenRegex, "i")
@@ -153,7 +149,7 @@ export class LanguageManager {
     }
 
     public getCompletionTriggerCharacters(language: string): string[] {
-        const languageSpecificTriggerChars = this._configuration.getValue(`language.${language}.completionTriggerCharacters`)
+        const languageSpecificTriggerChars = this._configuration.getValue(`language.${language}.completionTriggerCharacters`) as string[]
 
         if (languageSpecificTriggerChars) {
             return languageSpecificTriggerChars
@@ -332,7 +328,7 @@ export class LanguageManager {
     }
 
     private async _simulateFakeLag(): Promise<void> {
-        const delay = this._configuration.getValue("debug.fakeLag.languageServer")
+        const delay = this._configuration.getValue("debug.fakeLag.languageServer") as number
         if (!delay) {
             return
         } else {
@@ -353,4 +349,12 @@ const logDebug = (args: any) => {
     }
 }
 
-export const languageManager = new LanguageManager()
+let _languageManager: LanguageManager = null
+
+export const activate = (configuration: Oni.Configuration, editorManager: Oni.EditorManager): void => {
+    _languageManager = new LanguageManager(configuration, editorManager)
+}
+
+export const getInstance = (): LanguageManager => {
+    return _languageManager
+}
