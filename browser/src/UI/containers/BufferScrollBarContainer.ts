@@ -3,7 +3,7 @@ import * as types from "vscode-languageserver-types"
 import { connect } from "react-redux"
 import * as Selectors from "./../Selectors"
 import { getActiveBuffer } from "./../selectors/BufferSelectors"
-import * as State from "./../State"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { BufferScrollBar, IBufferScrollBarProps, IScrollBarMarker } from "./../components/BufferScrollBar"
 

@@ -1,7 +1,7 @@
 import { connect } from "react-redux"
 
 import * as Selectors from "./../Selectors"
-import * as State from "./../State"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { Errors, IErrorsProps } from "./../components/Error"
 

@@ -68,8 +68,6 @@ export interface IState {
      */
     tabState: ITabState
 
-    buffers: IBufferState
-
     windowState: IWindowState
 
     errors: Errors
@@ -193,12 +191,6 @@ export const createDefaultState = (): IState => ({
     isFullScreen: false,
 
     configuration: {} as IConfigurationValues,
-
-    buffers: {
-        activeBufferId: null,
-        byId: {},
-        allIds: [],
-    },
 
     tabState: {
         selectedTabId: null,

@@ -10,7 +10,7 @@ import { connect } from "react-redux"
 import * as classNames from "classnames"
 
 import * as BufferSelectors from "./../selectors/BufferSelectors"
-import * as State from "./../State"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
 

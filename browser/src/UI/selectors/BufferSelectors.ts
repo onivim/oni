@@ -5,7 +5,7 @@
 import { createSelector } from "reselect"
 
 import * as Selectors from "./../Selectors"
-import * as State from "./../State"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 const getBufferState = (state: State.IState) => state.buffers
 

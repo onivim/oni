@@ -5,7 +5,7 @@ import * as types from "vscode-languageserver-types"
 import * as Selectors from "./../Selectors"
 import { getActiveDefinition } from "./../selectors/DefinitionSelectors"
 
-import * as State from "./../State"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { Definition, IDefinitionProps } from "./../components/Definition"
 

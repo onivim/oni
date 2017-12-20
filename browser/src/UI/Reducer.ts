@@ -10,8 +10,6 @@ import * as Actions from "./Actions"
 
 import { IConfigurationValues } from "./../Services/Configuration"
 
-import * as pick from "lodash/pick"
-
 import * as types from "vscode-languageserver-types"
 
 export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>) {
@@ -87,7 +85,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     configuration: newConfig}
         default:
             return {...s,
-                    buffers: buffersReducer(s.buffers, a),
                     definition: definitionReducer(s.definition, a),
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
@@ -130,99 +127,6 @@ export const tabStateReducer = (s: State.ITabState, a: Actions.SimpleAction): St
             return {
                 ...s,
                 ...a.payload,
-            }
-        default:
-            return s
-    }
-}
-
-export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): State.IBufferState => {
-
-    let byId = s.byId
-    let allIds = s.allIds
-
-    const emptyBuffer = (id: number): State.IBuffer => ({
-        id,
-        file: null,
-        modified: false,
-        hidden: true,
-        listed: false,
-        totalLines: 0,
-    })
-
-    switch (a.type) {
-        case "BUFFER_ENTER":
-
-            byId = a.payload.buffers.reduce((buffersById, buffer) => {
-                buffersById[buffer.id] = {
-                    ...buffer,
-                    modified: false,
-                }
-                return byId
-            }, byId)
-
-            const bufIds = a.payload.buffers.map(b => b.id)
-
-            allIds = [ ...new Set(bufIds)]
-
-            return {
-                activeBufferId: a.payload.buffers[0].id,
-                byId,
-                allIds,
-            }
-        case "BUFFER_SAVE":
-            const currentItem = s.byId[a.payload.id] || emptyBuffer(a.payload.id)
-            byId = {
-                ...s.byId,
-                [a.payload.id]: {
-                    ...currentItem,
-                    id: a.payload.id,
-                    modified: a.payload.modified,
-                    lastSaveVersion: a.payload.version,
-                },
-            }
-
-            return {
-                ...s,
-                byId,
-            }
-        case "BUFFER_UPDATE":
-            const currentItem3 = s.byId[a.payload.id] || emptyBuffer(a.payload.id)
-
-            // If the last save version hasn't been set, this means it is the first update,
-            // and should clamp to the incoming version
-            const lastSaveVersion = currentItem3.lastSaveVersion || a.payload.version
-
-            byId = {
-                ...s.byId,
-                [a.payload.id]: {
-                    ...currentItem3,
-                    id: a.payload.id,
-                    modified: a.payload.modified,
-                    totalLines: a.payload.totalLines,
-                    lastSaveVersion,
-                },
-            }
-
-            return {
-                ...s,
-                byId,
-            }
-        case "SET_CURRENT_BUFFERS":
-            allIds = s.allIds.filter((id) => a.payload.bufferIds.indexOf(id) >= 0)
-
-            let activeBufferId = s.activeBufferId
-
-            if (a.payload.bufferIds.indexOf(activeBufferId) === -1) {
-                activeBufferId = null
-            }
-
-            const newById: any = pick(s.byId, a.payload.bufferIds)
-
-            return {
-                activeBufferId,
-                byId: newById,
-                allIds,
             }
         default:
             return s

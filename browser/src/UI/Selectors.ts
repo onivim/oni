@@ -13,7 +13,7 @@ import * as types from "vscode-languageserver-types"
 
 import * as Utility from "./../Utility"
 
-import * as State from "./State"
+import * as State from "./../Editor/NeovimEditor/NeovimEditorStore"
 
 export const EmptyArray: any[] = []
 
