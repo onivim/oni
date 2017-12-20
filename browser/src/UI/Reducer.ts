@@ -89,7 +89,7 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     errors: errorsReducer(s.errors, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     toolTips: toolTipsReducer(s.toolTips, a),
-                    windowState: windowStateReducer(s.windowState, a)}
+                    }
     }
 }
 
@@ -178,50 +178,6 @@ export const statusBarReducer = (s: { [key: string]: State.IStatusBarItem }, a: 
             return {
                 ...s,
                 [a.payload.id]: null,
-            }
-        default:
-            return s
-    }
-}
-
-export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleAction): State.IWindowState => {
-
-    let currentWindow
-    switch (a.type) {
-        case "SET_WINDOW_CURSOR":
-            currentWindow = s.windows[a.payload.windowId] || null
-
-            return {
-                activeWindow: a.payload.windowId,
-                windows: {
-                    ...s.windows,
-                    [a.payload.windowId]: {
-                        ...currentWindow,
-                        column: a.payload.column,
-                        line: a.payload.line,
-                    },
-                },
-            }
-        case "SET_WINDOW_STATE":
-            currentWindow = s.windows[a.payload.windowId] || null
-
-            return {
-                activeWindow: a.payload.windowId,
-                windows: {
-                    ...s.windows,
-                    [a.payload.windowId]: {
-                        ...currentWindow,
-                        file: a.payload.file,
-                        column: a.payload.column,
-                        line: a.payload.line,
-                        bufferToScreen: a.payload.bufferToScreen,
-                        screenToPixel: a.payload.screenToPixel,
-                        dimensions: a.payload.dimensions,
-
-                        topBufferLine: a.payload.topBufferLine,
-                        bottomBufferLine: a.payload.bottomBufferLine,
-                    },
-                },
             }
         default:
             return s

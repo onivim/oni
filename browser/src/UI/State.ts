@@ -47,7 +47,6 @@ export interface IState {
     viewport: IViewport
 
     toolTips: { [id: string]: IToolTip }
-    neovimError: boolean
 
     // Shell
     isLoaded: boolean
@@ -55,8 +54,6 @@ export interface IState {
     windowTitle: string
 
     statusBar: { [id: string]: IStatusBarItem }
-
-    windowState: IWindowState
 
     errors: Errors
 
@@ -167,16 +164,10 @@ export const createDefaultState = (): IState => ({
         height: 0,
     },
     colors: DefaultThemeColors,
-    neovimError: false,
     isLoaded: false,
     isFullScreen: false,
 
     configuration: {} as IConfigurationValues,
-
-    windowState: {
-        activeWindow: null,
-        windows: {},
-    },
 
     viewport: {
         width: 0,
