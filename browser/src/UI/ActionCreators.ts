@@ -11,10 +11,7 @@ import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import { Rectangle } from "./Types"
-
 import * as Actions from "./Actions"
-import * as Coordinates from "./Coordinates"
 import * as State from "./State"
 
 import { normalizePath } from "./../Utility"
@@ -100,38 +97,6 @@ export const setWindowCursor = (windowId: number, line: number, column: number) 
         column,
     },
 })
-
-export const setWindowState = (windowId: number,
-                               file: string,
-                               column: number,
-                               line: number,
-                               bottomBufferLine: number,
-                               topBufferLine: number,
-                               dimensions: Rectangle,
-                               bufferToScreen: Coordinates.BufferToScreen) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-
-    const { fontPixelWidth, fontPixelHeight } = getState()
-
-    const screenToPixel = (screenSpace: Coordinates.ScreenSpacePoint) => ({
-            pixelX: screenSpace.screenX * fontPixelWidth,
-            pixelY: screenSpace.screenY * fontPixelHeight,
-    })
-
-    dispatch({
-        type: "SET_WINDOW_STATE",
-        payload: {
-            windowId,
-            file: normalizePath(file),
-            column,
-            dimensions,
-            line,
-            bufferToScreen,
-            screenToPixel,
-            bottomBufferLine,
-            topBufferLine,
-        },
-    })
-}
 
 export const showToolTip = (id: string, element: JSX.Element, options?: Oni.ToolTip.ToolTipOptions) => ({
     type: "SHOW_TOOL_TIP",
