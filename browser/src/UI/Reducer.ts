@@ -85,16 +85,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             const newConfig = {...s.configuration, ...obj}
             return {...s,
                     configuration: newConfig}
-        case "SHOW_MESSAGE_DIALOG":
-            return {
-                ...s,
-                activeMessageDialog: a.payload,
-            }
-        case "HIDE_MESSAGE_DIALOG":
-            return {
-                ...s,
-                activeMessageDialog: null,
-            }
         default:
             return {...s,
                     buffers: buffersReducer(s.buffers, a),

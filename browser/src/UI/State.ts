@@ -78,26 +78,11 @@ export interface IState {
     // TODO: This is relevant only to a specific 'editor',
     // so this should be factored to a per-editor store
     activeWindowDimensions: Rectangle
-
-    activeMessageDialog: IMessageDialog
 }
 
 export interface IDefinition {
     token: Oni.IToken
     definitionLocation: types.Location
-}
-
-export enum MessageType {
-    Info = 0,
-    Warning,
-    Error,
-}
-
-export interface IMessageDialog {
-    messageType: MessageType
-    text: string
-    buttons: IMessageDialogButton[]
-    details?: string
 }
 
 export interface Color {
@@ -233,6 +218,5 @@ export const createDefaultState = (): IState => ({
     errors: {},
     statusBar: {},
     toolTips: {},
-    activeMessageDialog: null,
     windowTitle: "",
 })

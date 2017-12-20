@@ -10,7 +10,7 @@
 import * as Oni from "oni-api"
 
 import * as Coordinates from "./Coordinates"
-import { IBuffer, IMessageDialog, ITab, StatusBarAlignment } from "./State"
+import { IBuffer, ITab, StatusBarAlignment } from "./State"
 import { Rectangle } from "./Types"
 
 import { IConfigurationValues } from "./../Services/Configuration"
@@ -193,15 +193,6 @@ export interface ISetCursorPositionAction {
     }
 }
 
-export interface IShowMessageDialog {
-    type: "SHOW_MESSAGE_DIALOG",
-    payload: IMessageDialog,
-}
-
-export interface IHideMessageDialog {
-    type: "HIDE_MESSAGE_DIALOG"
-}
-
 export interface IStatusBarShowAction {
     type: "STATUSBAR_SHOW",
     payload: {
@@ -261,8 +252,6 @@ export type SimpleAction =
     ISetFont |
     IHideToolTipAction |
     IShowToolTipAction |
-    IShowMessageDialog |
-    IHideMessageDialog |
     IHideDefinitionAction |
     IShowDefinitionAction |
     ISetModeAction |
