@@ -74,6 +74,6 @@ export const test = async (oni: any) => {
 }
 
 // Bring in custom config to turn off animations, in order to reduce noise.
-export const settings = {
-    configPath: "PaintPerformanceTest.config.js",
-}
+// export const settings = {
+//     configPath: "PaintPerformanceTest.config.js",
+// }
