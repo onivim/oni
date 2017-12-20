@@ -34,7 +34,8 @@ let windowState: IWindowState = {
 }
 
 function storeWindowState(ws, main) {
-    if (ws || main) {
+    if (!ws || !main) {
+        console.log("NO ARGS", ws, main)
         return
     }
     ws.isMaximized = main.isMaximized()
