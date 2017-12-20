@@ -117,10 +117,10 @@ export function createWindow(commandLineArguments, workingDirectory) {
         webPreferences,
         backgroundColor,
         titleBarStyle: "hidden",
-        x: windowState.bounds.x,
-        y: windowState.bounds.y,
-        height: windowState.bounds.height,
-        width: windowState.bounds.width,
+        x: windowState.bounds && windowState.bounds.x,
+        y: windowState.bounds && windowState.bounds.y,
+        height: windowState.bounds && windowState.bounds.height,
+        width: windowState.bounds && windowState.bounds.width,
     })
 
     updateMenu(mainWindow, false)
