@@ -123,20 +123,6 @@ export const setErrors = (file: string, key: string, errors: types.Diagnostic[])
     },
 })
 
-export const showMessageDialog = (messageType: State.MessageType, text: string, buttons: State.IMessageDialogButton[], details?: string): Actions.IShowMessageDialog => ({
-    type: "SHOW_MESSAGE_DIALOG",
-    payload: {
-        messageType,
-        text,
-        buttons,
-        details,
-    },
-})
-
-export const hideMessageDialog = (): Actions.IHideMessageDialog => ({
-    type: "HIDE_MESSAGE_DIALOG",
-})
-
 export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
 
     const currentStatusBarItem = getState().statusBar[id]
