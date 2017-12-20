@@ -10,7 +10,7 @@
 import * as Oni from "oni-api"
 
 import * as Coordinates from "./Coordinates"
-import { IBuffer, ITab, StatusBarAlignment } from "./State"
+import { StatusBarAlignment } from "./State"
 import { Rectangle } from "./Types"
 
 import { IConfigurationValues } from "./../Services/Configuration"
@@ -95,13 +95,6 @@ export interface ISetFont {
     }
 }
 
-export interface IBufferEnterAction {
-    type: "BUFFER_ENTER",
-    payload: {
-        buffers: IBuffer[],
-    }
-}
-
 export interface IShowToolTipAction {
     type: "SHOW_TOOL_TIP",
     payload: {
@@ -115,33 +108,6 @@ export interface IHideToolTipAction {
     type: "HIDE_TOOL_TIP",
     payload: {
         id: string,
-    }
-}
-
-export interface IBufferUpdateAction {
-    type: "BUFFER_UPDATE",
-    payload: {
-        id: number,
-        modified: boolean,
-        version: number,
-        totalLines: number,
-    }
-}
-
-export interface IBufferSaveAction {
-    type: "BUFFER_SAVE",
-    payload: {
-        id: number,
-        modified: boolean,
-        version: number,
-    }
-}
-
-export interface ISetTabs {
-    type: "SET_TABS",
-    payload: {
-        selectedTabId: number
-        tabs: ITab[],
     }
 }
 
@@ -241,9 +207,6 @@ export type Action<K extends keyof IConfigurationValues> =
     SimpleAction | ActionWithGeneric<K>
 
 export type SimpleAction =
-    IBufferEnterAction |
-    IBufferSaveAction |
-    IBufferUpdateAction |
     IEnterFullScreenAction |
     ILeaveFullScreenAction |
     ISetColorsAction |
@@ -262,7 +225,6 @@ export type SimpleAction =
     ISetCurrentBuffersAction |
     ISetHasFocusAction |
     ISetNeovimErrorAction |
-    ISetTabs |
     ISetLoadingCompleteAction |
     ISetViewportAction |
     ISetWindowCursor |

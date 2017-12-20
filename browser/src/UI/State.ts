@@ -12,7 +12,6 @@ import { IConfigurationValues } from "./../Services/Configuration"
 
 import { DefaultThemeColors, IThemeColors } from "./../Services/Themes"
 
-export interface Buffers { [filePath: string]: IBuffer }
 export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
 
 /**
@@ -58,47 +57,6 @@ export interface IState {
 export interface IDefinition {
     token: Oni.IToken
     definitionLocation: types.Location
-}
-
-export interface Color {
-    r: number
-    g: number
-    b: number
-    a: number
-}
-
-export interface IMessageDialogButton {
-    text: string
-    backgroundColor?: Color
-    foregroundColor?: Color
-    callback?: () => void
-}
-
-export interface IBufferState {
-    activeBufferId: number
-    byId: { [id: number]: IBuffer }
-    allIds: number[]
-}
-
-export interface IBuffer {
-    id: number
-    file: string
-    modified: boolean
-    lastSaveVersion?: number
-    version?: number
-    totalLines: number
-    hidden: boolean
-    listed: boolean
-}
-
-export interface ITab {
-    id: number
-    name: string
-}
-
-export interface ITabState {
-    selectedTabId: number | null,
-    tabs: ITab[]
 }
 
 export enum StatusBarAlignment {
