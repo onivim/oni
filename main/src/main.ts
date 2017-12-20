@@ -2,6 +2,9 @@ import * as path from "path"
 
 import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
 
+import * as PersistentSettings from "electron-settings"
+
+import addDevExtensions from "./installDevTools"
 import * as Log from "./Log"
 import { buildDockMenu, buildMenu } from "./menu"
 import { makeSingleInstance } from "./ProcessLifecycle"
@@ -37,8 +40,16 @@ let windows = []
 // Otherwise, all other open instances will also pick up the webpack bundle
 if (!isDevelopment && !isDebug) {
 
+    let processArgs = process.argv || []
+
+    // If running from spectron, ignore the arguments
+    if (processArgs.filter((f) => f.indexOf("--test-type=webdriver"))) {
+        Log.warn("Clearing arguments because running from automation!")
+        processArgs = []
+    }
+
     const currentOptions = {
-        args: process.argv,
+        args: processArgs,
         workingDirectory: process.env["ONI_CWD"] || process.cwd(), // tslint:disable-line no-string-literal
     }
 
@@ -51,8 +62,8 @@ if (!isDevelopment && !isDebug) {
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
-    app.on("ready", () => {
-        require("./installDevTools")
+    app.on("ready", async () => {
+        await addDevExtensions()
         loadFileFromArguments(process.platform, process.argv, process.cwd())
     })
 }
@@ -64,12 +75,14 @@ export function createWindow(commandLineArguments, workingDirectory) {
         blinkFeatures: "ResizeObserver,Accelerated2dCanvas,Canvas2dFixedRenderingMode",
     }
 
+    const backgroundColor = (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
+
     const rootPath = path.join(__dirname, "..", "..", "..")
     const iconPath = path.join(rootPath, "images", "oni.ico")
     const indexPath = path.join(rootPath, "index.html?react_perf")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
-    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: iconPath, webPreferences, titleBarStyle: "hidden" })
+    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: iconPath, webPreferences, backgroundColor, titleBarStyle: "hidden" })
 
     updateMenu(mainWindow, false)
 

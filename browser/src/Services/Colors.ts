@@ -10,6 +10,8 @@ import * as OniApi from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 
 import { Configuration, IConfigurationValues } from "./Configuration"
+import * as PersistentSettings from "./Configuration/PersistentSettings"
+
 import { ThemeManager } from "./Themes"
 
 export interface ColorsDictionary { [colorName: string]: string}
@@ -88,6 +90,9 @@ export class Colors implements OniApi.IColors, IDisposable {
 
             this._colors[themeColor] = colorFromConfiguration ? colorFromConfiguration : currentThemeColors[themeColor]
         })
+
+        const lastBackgroundColor = this._colors.background || this._colors["editor.background"] || "#1E2127"
+        PersistentSettings.set("_internal.lastBackgroundColor", lastBackgroundColor)
 
         this._onColorsChangedEvent.dispatch()
     }

@@ -9,13 +9,13 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import { editorManager } from "./../EditorManager"
 
-import { languageManager } from "./LanguageManager"
+import * as LanguageManager from "./LanguageManager"
 
 export const format = async () => {
 
     const activeBuffer = editorManager.activeEditor.activeBuffer
 
-    const capabilities = await languageManager.getCapabilitiesForLanguage(activeBuffer.language)
+    const capabilities = await LanguageManager.getInstance().getCapabilitiesForLanguage(activeBuffer.language)
 
     if (capabilities.documentFormattingProvider) {
         await formatDocument()
@@ -37,7 +37,7 @@ export const formatDocument = async () => {
 
     let result: types.TextEdit[] = null
     try {
-        result = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/formatting", args)
+        result = await LanguageManager.getInstance().sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/formatting", args)
     } catch (ex) {
         Log.warn(ex)
     }
@@ -60,7 +60,7 @@ export const rangeFormatDocument = async () => {
 
     let result: types.TextEdit[] = null
     try {
-        result = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/rangeFormatting", args)
+        result = await LanguageManager.getInstance().sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/rangeFormatting", args)
     } catch (ex) {
         Log.warn(ex)
     }

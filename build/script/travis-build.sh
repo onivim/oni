@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 echo Travis build - detected OS is: $TRAVIS_OS_NAME
+set -e
 
 node --version
 npm --version
@@ -17,6 +18,6 @@ npm run lint
 npm run pack
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    npm run test:integration
-    npm run demo
+   npm run test:integration
+   npm run demo
 fi

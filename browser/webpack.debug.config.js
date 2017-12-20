@@ -7,10 +7,14 @@ module.exports = {
     ],
     target: "electron-renderer",
     externals: {
+        "vscode-jsonrpc": "require('vscode-jsonrpc')",
         "vscode-textmate": "require('vscode-textmate')",
         "vscode-languageserver-types": "require('vscode-languageserver-types')",
         "keyboard-layout": "require('keyboard-layout')",
-        "gifshot": "require('gifshot')"
+        "gifshot": "require('gifshot')",
+        "msgpack-lite": "require('msgpack-lite')",
+        "react": "require('react')",
+        "react-dom": "require('react-dom')",
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".less"]
@@ -50,8 +54,9 @@ module.exports = {
     ],
     output: {
         path: path.join(__dirname, "..", "lib", "browser"),
-        publicPath: "/",
-        filename: "bundle.js"
+        publicPath: "http://localhost:8191/",
+        filename: "bundle.js",
+        chunkFilename: "[name].bundle.js"
     },
     node: {
         process: false,

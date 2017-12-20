@@ -14,8 +14,6 @@ import { Icon, IconSize } from "./../../UI/Icon"
 
 import { ISidebarEntry, ISidebarState } from "./SidebarStore"
 
-require("./Sidebar.less") // tslint:disable-line
-
 export interface ISidebarIconProps {
     active: boolean
     iconName: string

@@ -143,3 +143,6 @@ $RECYCLE.BIN/
 .merlin
 
 yarn.lock
+
+# Webpack stats file
+stats.json

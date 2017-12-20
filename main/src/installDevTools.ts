@@ -5,13 +5,18 @@
  */
 
 import * as Log from "./Log"
-
-try {
-    const electronDevtoolsInstaller = require("electron-devtools-installer") // tslint:disable-line no-var-requires
-
-    electronDevtoolsInstaller.default(electronDevtoolsInstaller.REDUX_DEVTOOLS)
-        .then((name) => Log.info(`Added extension: ${name}`))
-        .catch((err) => Log.info(`An error occurred: ${err}`))
-} catch (ex) {
-    Log.warn("Unable to install developer tools. `electron-devtools-installer` may not be available in this environment")
+export default async () => {
+    try {
+        const { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS, default: installExtension } = require("electron-devtools-installer")
+        try {
+            const reduxExt = await installExtension(REDUX_DEVTOOLS)
+            Log.info(`Added extension: ${reduxExt}`)
+            const reactExt = await installExtension(REACT_DEVELOPER_TOOLS)
+            Log.info(`Added extension: ${reactExt}`)
+        } catch (e) {
+            Log.info(`An error occurred: ${e}`)
+        }
+    } catch (ex) {
+        Log.warn("Unable to install developer tools. `electron-devtools-installer` may not be available in this environment")
+    }
 }

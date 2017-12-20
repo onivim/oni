@@ -152,6 +152,12 @@ export interface IConfigurationValues {
     // "editor.quickOpen.execCommand": "dir /s /b"
     "editor.quickOpen.execCommand": string | null
 
+    // The filter strategy to use for processing results
+    // Options:
+    // - 'fuse' - use the fusejs strategy
+    // - 'regex' - use a regex based strategy
+    "editor.quickOpen.filterStrategy": string
+
     // Typing prediction is Oni's implementation of
     // 'zero-latency' mode typing, and increases responsiveness.
     "editor.typingPrediction": boolean

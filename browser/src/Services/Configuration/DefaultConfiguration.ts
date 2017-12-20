@@ -82,6 +82,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
+    "editor.quickOpen.filterStrategy": "fuse",
 
     "editor.typingPrediction": true,
 
