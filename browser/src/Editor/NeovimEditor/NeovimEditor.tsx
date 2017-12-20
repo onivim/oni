@@ -156,15 +156,22 @@ export class NeovimEditor extends Editor implements IEditor {
 
         services.push(errorService)
 
-        this._colors.onColorsChanged.subscribe(() => {
+        const onColorsChanged = () => {
             const updatedColors: any = this._colors.getColors()
             this._actions.setColors(updatedColors)
-        })
+        }
+
+        this._colors.onColorsChanged.subscribe(() => onColorsChanged())
+        onColorsChanged()
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
         this._windowManager = new NeovimWindowManager(this._neovimInstance)
+
+        this._windowManager.onWindowStateChanged.subscribe((newWindowState) => {
+            this._actions.setWindowState(newWindowState.windowNumber, newWindowState.bufferFullPath, newWindowState.column, newWindowState.line, newWindowState.bottomBufferLine, newWindowState.topBufferLine, newWindowState.dimensions, newWindowState.bufferToScreen)
+        })
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
             if (this._configuration.getValue("editor.clipboard.enabled")) {
@@ -565,6 +572,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._actions.setFont(fontFamily, fontSize)
         this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
+
+        for (let prop in newValues) {
+            this._actions.setConfigValue(prop, newValues[prop])
+        }
 
         if (this._hasLoaded) {
             VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, newValues)
