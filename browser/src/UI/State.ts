@@ -63,11 +63,6 @@ export interface IState {
 
     statusBar: { [id: string]: IStatusBarItem }
 
-    /**
-     * Tabs refer to the Vim-concept of tabs
-     */
-    tabState: ITabState
-
     windowState: IWindowState
 
     errors: Errors
@@ -191,11 +186,6 @@ export const createDefaultState = (): IState => ({
     isFullScreen: false,
 
     configuration: {} as IConfigurationValues,
-
-    tabState: {
-        selectedTabId: null,
-        tabs: [],
-    },
 
     windowState: {
         activeWindow: null,

@@ -86,7 +86,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         default:
             return {...s,
                     definition: definitionReducer(s.definition, a),
-                    tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     toolTips: toolTipsReducer(s.toolTips, a),
@@ -116,18 +115,6 @@ export const viewportReducer = (s: State.IViewport, a: Actions.ISetViewportActio
                 width: a.payload.width,
                 height: a.payload.height,
         }
-        default:
-            return s
-    }
-}
-
-export const tabStateReducer = (s: State.ITabState, a: Actions.SimpleAction): State.ITabState => {
-    switch (a.type) {
-        case "SET_TABS":
-            return {
-                ...s,
-                ...a.payload,
-            }
         default:
             return s
     }
