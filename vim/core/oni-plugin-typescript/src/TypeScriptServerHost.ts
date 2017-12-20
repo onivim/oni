@@ -181,7 +181,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
             offset: 1,
             endOffset: 0,
             endLine: line + 1,
-            insertString: newLineContents,
+            insertString: newLineContents + os.EOL,
         })
     }
 
