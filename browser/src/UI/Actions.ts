@@ -59,13 +59,6 @@ export interface ISetViewportAction {
     }
 }
 
-export interface ISetNeovimErrorAction {
-    type: "SET_NEOVIM_ERROR",
-    payload: {
-        neovimError: boolean,
-    }
-}
-
 export interface ISetCursorScaleAction {
     type: "SET_CURSOR_SCALE",
     payload: {
@@ -176,13 +169,6 @@ export interface IStatusBarHideAction {
     }
 }
 
-export interface ISetModeAction {
-    type: "SET_MODE",
-    payload: {
-        mode: string,
-    }
-}
-
 export interface IShowDefinitionAction {
     type: "SHOW_DEFINITION",
     payload: {
@@ -217,14 +203,12 @@ export type SimpleAction =
     IShowToolTipAction |
     IHideDefinitionAction |
     IShowDefinitionAction |
-    ISetModeAction |
     ISetCursorScaleAction |
     IStatusBarHideAction |
     IStatusBarShowAction |
     ISetErrorsAction |
     ISetCurrentBuffersAction |
     ISetHasFocusAction |
-    ISetNeovimErrorAction |
     ISetLoadingCompleteAction |
     ISetViewportAction |
     ISetWindowCursor |

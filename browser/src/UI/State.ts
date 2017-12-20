@@ -36,7 +36,6 @@ export interface IState {
     fontSize: string
     hasFocus: boolean
     isFullScreen: boolean
-    mode: string
     definition: null | IDefinition
     configuration: IConfigurationValues
     imeActive: boolean
@@ -87,7 +86,6 @@ export const createDefaultState = (): IState => ({
     fontSize: "",
     hasFocus: false,
     imeActive: false,
-    mode: "normal",
     definition: null,
     colors: DefaultThemeColors,
     isLoaded: false,
