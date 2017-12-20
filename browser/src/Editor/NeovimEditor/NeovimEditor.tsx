@@ -14,8 +14,6 @@ import { Observable } from "rxjs/Observable"
 
 import { Provider } from "react-redux"
 import { bindActionCreators, Store } from "redux"
-import { createStore, IState } from "./NeovimEditorStore"
-import * as ActionCreators from "./NeovimEditorActions"
 
 import { clipboard, ipcRenderer, remote } from "electron"
 
@@ -57,6 +55,10 @@ import { normalizePath, sleep } from "./../../Utility"
 
 import * as VimConfigurationSynchronizer from "./../../Services/VimConfigurationSynchronizer"
 
+import { createStore, IState } from "./NeovimEditorStore"
+import * as ActionCreators from "./NeovimEditorActions"
+import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
+
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
@@ -91,6 +93,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _languageIntegration: LanguageEditorIntegration
     private _completion: Completion
     private _hoverRenderer: HoverRenderer
+    private _toolTipsProvider: IToolTipsProvider
 
     public /* override */ get activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
@@ -117,12 +120,13 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._store = createStore()
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
+        this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
 
         this._neovimInstance = new NeovimInstance(100, 100)
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._screen = new NeovimScreen()
 
-        this._hoverRenderer = new HoverRenderer(this, this._configuration)
+        this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
@@ -291,7 +295,8 @@ export class NeovimEditor extends Editor implements IEditor {
         this._languageIntegration = new LanguageEditorIntegration(this, this._configuration, this._languageManager)
 
         this._languageIntegration.onShowHover.subscribe((hover) => {
-            this._hoverRenderer.showQuickInfo(hover.hover, hover.errors)
+            const { cursorPixelX, cursorPixelY } = this._store.getState()
+            this._hoverRenderer.showQuickInfo(cursorPixelX, cursorPixelY, hover.hover, hover.errors)
         })
 
         this._languageIntegration.onHideHover.subscribe(() => {
