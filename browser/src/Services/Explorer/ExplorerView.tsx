@@ -8,6 +8,8 @@ import { connect } from "react-redux"
 
 import { IEvent } from "oni-types"
 
+import { withTheme } from "styled-components"
+
 import { KeyboardInputView } from "./../../Editor/KeyboardInput"
 
 import { FileIcon } from "./../FileIcon"
@@ -15,11 +17,14 @@ import { FileIcon } from "./../FileIcon"
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { IExplorerState } from "./ExplorerStore"
 
+import { DefaultThemeColors, IThemeColors } from "./../../Services/Themes"
+
 require("./Explorer.less") // tslint:disable-line
 
 export interface IFileViewProps {
     fileName: string
     isSelected: boolean
+    theme: IThemeColors
 }
 
 export class FileView extends React.PureComponent<IFileViewProps, {}> {
@@ -38,6 +43,7 @@ export class FileView extends React.PureComponent<IFileViewProps, {}> {
 export interface INodeViewProps {
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
+    theme: IThemeColors
 }
 
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
@@ -46,11 +52,11 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 
         switch (node.type) {
             case "file":
-                return <FileView fileName={node.name} isSelected={this.props.isSelected}/>
+                return <FileView fileName={node.name} isSelected={this.props.isSelected} theme={this.props.theme}/>
             case "container":
-                return <ContainerView expanded={node.expanded} name={node.name} isContainer={true} isSelected={this.props.isSelected}/>
+                return <ContainerView expanded={node.expanded} name={node.name} isContainer={true} isSelected={this.props.isSelected} theme={this.props.theme}/>
             case "folder":
-                return <ContainerView expanded={node.expanded} name={node.name} isContainer={false} isSelected={this.props.isSelected}/>
+                return <ContainerView expanded={node.expanded} name={node.name} isContainer={false} isSelected={this.props.isSelected} theme={this.props.theme}/>
             default:
                 return <div>{JSON.stringify(node)}</div>
         }
@@ -62,6 +68,7 @@ export interface IContainerViewProps {
     expanded: boolean
     name: string
     isSelected: boolean
+    theme: IThemeColors
 }
 
 export class ContainerView extends React.PureComponent<IContainerViewProps, {}> {
@@ -93,27 +100,34 @@ export interface IExplorerViewProps extends IExplorerContainerProps {
     hasFocus: boolean
     // recentFiles: IRecentFile[]
     // workspaceRoot: string
+    theme?: IThemeColors
 }
 
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 
     public render(): JSX.Element {
+        const theme = this.props.theme || DefaultThemeColors
 
         const containerStyle = {
             width: "200px",
-            color: "rgb(171, 179, 191)",
-            backgroundColor: "rgb(40, 44, 52)",
+            color: theme["explorer.foreground"] || theme["editor.foreground"],
+            backgroundColor: theme["explorere.backgorund"] || theme["editor.background"],
             height: "100%",
         }
+
+        const topColor = theme["explorer.highlight"] || theme["highlight.mode.normal.background"]
 
         const tabStyle = {
             height: "2.5em",
             lineHeight: "2.5em",
             textAlign: "center",
-            borderTop: this.props.hasFocus ? "2px solid rgb(97, 175, 239)" : "2px solid transparent",
+            borderTop: this.props.hasFocus ? `2px solid ${topColor}` : "2px solid transparent",
         }
 
-        const nodes = this.props.nodes.map((node) => <NodeView node={node} isSelected={node.id === this.props.selectedId}/>)
+        const nodes = this.props.nodes.map((node) => <NodeView 
+            node={node} 
+            isSelected={node.id === this.props.selectedId}
+            theme={theme}/>)
 
         return <div style={containerStyle} className="explorer enable-mouse">
                 <div className="header" style={tabStyle}>Explorer</div>
@@ -147,4 +161,4 @@ const mapStateToProps = (state: IExplorerState, containerProps: IExplorerContain
     }
 }
 
-export const Explorer = connect(mapStateToProps)(ExplorerView)
+export const Explorer = withTheme(connect(mapStateToProps)(ExplorerView))
