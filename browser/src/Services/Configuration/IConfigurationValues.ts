@@ -191,27 +191,12 @@ export interface IConfigurationValues {
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
 
-    "statusbar.items": {
-        "filetype": {
-            id: string,
-            priority: number,
-        },
-        "workingDirectory": {
-            id: string,
-            priority: number,
-        },
-        "git": {
-            id: string,
-            priority: number,
-        },
-        "linenumber": {
-            id: string,
-            priority: number,
-        },
-        "mode": {
-            id: string,
-            priority: number,
-        },
+    "statusbar.priority": {
+        "oni.status.filetype": number,
+        "oni.status.workingDirectory": number,
+        "oni.status.git": number,
+        "oni.status.linenumber": number,
+        "oni.status.mode": number,
     }
 
     "tabs.mode": string

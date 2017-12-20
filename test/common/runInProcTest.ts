@@ -31,15 +31,6 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
     return normalizedMeta
 }
 
-const mochaAsync = (fn) =>
-    async () => {
-        try {
-            await fn()
-        } catch (err) {
-            console.log("ERROR: ", err)
-        }
-    }
-
 export const runInProcTest = (rootPath: string, testName: string, timeout: number = 5000) => {
     describe(testName, () => {
 
@@ -48,68 +39,80 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
 
         let oni: Oni
 
-        beforeEach(mochaAsync(async () => {
-            console.log("[BEFORE EACH]: " + testName)
+        beforeEach(async () => {
+            try {
+                console.log("[BEFORE EACH]: " + testName)
 
-            Config.backupConfig()
+                Config.backupConfig()
 
-            if (testCase.configPath) {
-                console.log("Writing config from: " + testCase.configPath)
-                const configContents = fs.readFileSync(testCase.configPath)
-                console.log("Writing config to: " + configPath)
-                fs.writeFileSync(configPath, configContents)
+                if (testCase.configPath) {
+                    console.log("Writing config from: " + testCase.configPath)
+                    const configContents = fs.readFileSync(testCase.configPath)
+                    console.log("Writing config to: " + configPath)
+                    fs.writeFileSync(configPath, configContents)
+                }
+
+                oni = new Oni()
+                return await oni.start(["test.txt"])
+            } catch (e) {
+                return e
             }
+        })
 
-            oni = new Oni()
-            return await oni.start(["test.txt"])
-        }))
+        afterEach(async () => {
+            try {
+                console.log("[AFTER EACH]: " + testName)
+                await oni.close()
 
-        afterEach(mochaAsync(async () => {
-            console.log("[AFTER EACH]: " + testName)
-            await oni.close()
+                if (fs.existsSync(configPath)) {
+                    console.log("--Removing existing config..")
+                    fs.unlinkSync(configPath)
+                }
 
-            if (fs.existsSync(configPath)) {
-                console.log("--Removing existing config..")
-                fs.unlinkSync(configPath)
+                await Config.restoreConfig()
+            } catch (e) {
+                return e
             }
+        })
 
-            await Config.restoreConfig()
-        }))
+        it("ci test: " + testName, async () => {
+            try {
+                console.log("[TEST]: " + testName)
+                console.log("Waiting for editor element...")
+                await oni.client.waitForExist(".editor", timeout)
 
-        it("ci test: " + testName, mochaAsync(async () => {
-            console.log("[TEST]: " + testName)
-            console.log("Waiting for editor element...")
-            await oni.client.waitForExist(".editor", timeout)
+                console.log("Found editor element. Getting editor element text: ")
+                const text = await oni.client.getText(".editor")
+                console.log("Editor element text: " + text)
 
-            console.log("Found editor element. Getting editor element text: ")
-            const text = await oni.client.getText(".editor")
-            console.log("Editor element text: " + text)
+                console.log("Test path: " + testCase.testPath) // tslint:disable-line
 
-            console.log("Test path: " + testCase.testPath) // tslint:disable-line
+                await oni.client.execute("Oni.automation.runTest('" + testCase.testPath + "')")
 
-            await oni.client.execute("Oni.automation.runTest('" + testCase.testPath + "')")
+                console.log("Waiting for result...") // tslint:disable-line
+                await oni.client.waitForExist(".automated-test-result", 30000)
+                const resultText = await oni.client.getText(".automated-test-result")
 
-            console.log("Waiting for result...") // tslint:disable-line
-            await oni.client.waitForExist(".automated-test-result", 30000)
-            const resultText = await oni.client.getText(".automated-test-result")
+                console.log("---RESULT")
+                console.log(resultText) // tslint:disable-line
+                console.log("---")
+                console.log("")
 
-            console.log("---RESULT")
-            console.log(resultText) // tslint:disable-line
-            console.log("---")
-            console.log("")
+                console.log("Retrieving logs...")
 
-            console.log("Retrieving logs...")
+                await oni.client.waitForExist(".automated-test-logs")
+                const clientLogs = await oni.client.getText(".automated-test-logs")
+                console.log("---LOGS (During run): ")
 
-            await oni.client.waitForExist(".automated-test-logs")
-            const clientLogs = await oni.client.getText(".automated-test-logs")
-            console.log("---LOGS (During run): ")
+                const logs = JSON.parse(clientLogs).forEach((log) => console.log(log))
 
-            const logs = JSON.parse(clientLogs).forEach((log) => console.log(log))
+                console.log("---")
 
-            console.log("---")
-
-            const result = JSON.parse(resultText)
-            assert.ok(result.passed)
-        }))
+                const result = JSON.parse(resultText)
+                assert.ok(result.passed)
+            } catch (e) {
+                return e
+            }
+        })
     })
 }

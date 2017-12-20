@@ -6,6 +6,7 @@
 
 import { Subject } from "rxjs/Subject"
 import { Subscription } from "rxjs/Subscription"
+import { configuration } from "./Configuration"
 
 import "rxjs/add/operator/auditTime"
 import "rxjs/add/operator/debounceTime"
@@ -82,12 +83,11 @@ class StatusBar implements Oni.StatusBar {
     public createItem(alignment: StatusBarAlignment, priority: number = 0, globalId?: string): Oni.StatusBarItem {
         this._id++
         const statusBarId = globalId || `${this._id.toString()}`
-        // console.log('Configuration): ', Configuration);
-        // const priorities = Configuration.getValue("statusbar.priority")
-        // const thisPriority = Object.keys(priorities).find(p => p === globalId)
-        // const configPriority = priorities[thisPriority]
+        const statusItems = configuration.getValue("statusbar.priority")
+        const currentItem = statusItems[globalId]
+        const itemPriority = currentItem || 0
 
-        return new StatusBarItem(statusBarId, alignment, priority)
+        return new StatusBarItem(statusBarId, alignment, itemPriority)
     }
 }
 

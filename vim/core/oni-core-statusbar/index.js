@@ -4,10 +4,16 @@ const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
 
 const activate = (Oni) => {
     const React = Oni.dependencies.React
-    const { workingDirectory, filetype, linenumber, mode } = Oni.configuration.getValue("statusbar.items")
-    const workingDirectoryItem = Oni.statusBar.createItem(0, workingDirectory.priority, workingDirectory.id)
-    const lineNumberItem = Oni.statusBar.createItem(1, linenumber.priority , linenumber.id)
-    const modeItem = Oni.statusBar.createItem(1, mode.priority, mode.id)
+    const items = Oni.configuration.getValue("statusbar.priority")
+    const ids = Object.keys(items)
+
+    const mode = ids.find(id => id.includes('mode'));
+    const linenumber = ids.find(id => id.includes('linenumber'));
+    const workingDir = ids.find(id => id.includes('workingDir'));
+
+    const workingDirectoryItem = Oni.statusBar.createItem(0, items[dir], dir)
+    const lineNumberItem = Oni.statusBar.createItem(1, items[linenumber] , linenumber)
+    const modeItem = Oni.statusBar.createItem(1, items[mode], mode)
 
     const setMode = (mode) => {
         const getBackgroundColorForMode = (m) => {
