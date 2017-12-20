@@ -490,6 +490,8 @@ export class NeovimEditor extends Editor implements IEditor {
                 onKeyDown={onKeyDown}
                 onBufferClose={onBufferClose}
                 onBufferSelect={onBufferSelect}
+                onImeStart={() => this._onImeStart()}
+                onImeEnd={() => this._onImeEnd()}
                 onTabClose={onTabClose}
                 onTabSelect={onTabSelect} />
             </Provider>
@@ -556,6 +558,14 @@ export class NeovimEditor extends Editor implements IEditor {
         const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
 
         this._actions.bufferEnter(buffers)
+    }
+
+    private _onImeStart(): void {
+        this._actions.setImeActive(true)
+    }
+
+    private _onImeEnd(): void {
+        this._actions.setImeActive(false)
     }
 
     private async _onBufWritePost(evt: EventContext): Promise<void> {

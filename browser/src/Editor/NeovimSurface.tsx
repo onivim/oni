@@ -39,6 +39,8 @@ export interface INeovimSurfaceProps {
     onKeyDown?: (key: string) => void
     onBufferClose?: (bufferId: number) => void
     onBufferSelect?: (bufferId: number) => void
+    onImeStart: () => void
+    onImeEnd: () => void
     onTabClose?: (tabId: number) => void
     onTabSelect?: (tabId: number) => void
 }
@@ -75,6 +77,8 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     typingPrediction={this.props.typingPrediction}
                     neovimInstance={this.props.neovimInstance}
                     screen={this.props.screen}
+                    onImeStart={this.props.onImeStart}
+                    onImeEnd={this.props.onImeEnd}
                     onKeyDown={this.props.onKeyDown}/>
                 <div className="stack layer">
                     <ToolTips />

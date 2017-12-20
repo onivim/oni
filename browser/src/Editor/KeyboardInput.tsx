@@ -20,13 +20,10 @@ import { IState } from "./../Editor/NeovimEditor/NeovimEditorStore"
 import { measureFont } from "./../Font"
 import * as UI from "./../UI"
 
-interface IKeyboardInputViewProps {
+interface IKeyboardInputViewProps extends IKeyboardInputProps {
     top: number
     left: number
     height: number
-    onActivate?: IEvent<void>
-    onKeyDown?: (key: string) => void
-    typingPrediction?: TypingPredictionManager
     foregroundColor: string
     fontFamily: string
     fontSize: string
@@ -50,6 +47,8 @@ interface IKeyboardInputViewState {
 export interface IKeyboardInputProps {
     onActivate: IEvent<void>
     onKeyDown?: (key: string) => void
+    onImeStart?: () => void
+    onImeEnd?: () => void
     typingPrediction?: TypingPredictionManager
 }
 
@@ -179,7 +178,9 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
     }
 
     private _onCompositionStart(evt: React.CompositionEvent<HTMLInputElement>) {
-        UI.Actions.setImeActive(true)
+        if (this.props.onImeStart) {
+            this.props.onImeStart()
+        }
 
         if (this.props.typingPrediction) {
             this.props.typingPrediction.clearAllPredictions()
@@ -206,7 +207,10 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
     }
 
     private _onCompositionEnd(evt: React.CompositionEvent<HTMLInputElement>) {
-        UI.Actions.setImeActive(false)
+        if (this.props.onImeEnd) {
+            this.props.onImeEnd()
+        }
+
         if (this._keyboardElement) {
             this._commit(this._keyboardElement.value)
         }
