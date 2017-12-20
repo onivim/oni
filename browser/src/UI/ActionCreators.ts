@@ -62,13 +62,6 @@ export const setColors = (colors: IThemeColors) => ({
     },
 })
 
-export const setNeovimError = (neovimError: boolean) => ({
-    type: "SET_NEOVIM_ERROR",
-    payload: {
-        neovimError,
-    },
-})
-
 export const setViewport = (width: number, height: number) => ({
     type: "SET_VIEWPORT",
     payload: {
