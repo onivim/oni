@@ -28,12 +28,11 @@ export class Oni {
         return this._app.client
     }
 
-    public async start(args: string[] = []): Promise<void> {
+    public async start(): Promise<void> {
         const executablePath = getExecutablePath()
         log("Using executable path: " + executablePath)
         this._app = new Application({
             path: executablePath,
-            args,
         })
 
         log("Oni starting...")
