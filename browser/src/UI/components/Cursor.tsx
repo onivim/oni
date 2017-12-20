@@ -81,7 +81,6 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
             color: this.props.textColor,
             fontFamily,
             fontSize,
-            contain: "strict",
             transform: "translateZ(0px)",
         }
 
