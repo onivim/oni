@@ -15,7 +15,7 @@ import { IEvent } from "oni-types"
 import { getKeyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
-import { IState } from "./../UI/State"
+import { IState } from "./../Editor/NeovimEditor/NeovimEditorStore"
 
 import { measureFont } from "./../Font"
 import * as UI from "./../UI"

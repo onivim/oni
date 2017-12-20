@@ -34,11 +34,6 @@ export interface IToolTip {
 
 export interface IState {
     // Editor
-    cursorScale: number
-    cursorPixelX: number
-    cursorPixelY: number
-    cursorPixelWidth: number
-    cursorCharacter: string
     fontPixelWidth: number
     fontPixelHeight: number
     fontFamily: string
@@ -47,8 +42,6 @@ export interface IState {
     isFullScreen: boolean
     mode: string
     definition: null | IDefinition
-    cursorLineOpacity: number
-    cursorColumnOpacity: number
     configuration: IConfigurationValues
     imeActive: boolean
     viewport: IViewport
@@ -159,11 +152,6 @@ export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurat
 }
 
 export const createDefaultState = (): IState => ({
-    cursorScale: 1,
-    cursorPixelX: 10,
-    cursorPixelY: 10,
-    cursorPixelWidth: 10,
-    cursorCharacter: "",
     fontPixelWidth: 10,
     fontPixelHeight: 10,
     fontFamily: "",
@@ -179,8 +167,6 @@ export const createDefaultState = (): IState => ({
         height: 0,
     },
     colors: DefaultThemeColors,
-    cursorLineOpacity: 0,
-    cursorColumnOpacity: 0,
     neovimError: false,
     isLoaded: false,
     isFullScreen: false,
