@@ -17,7 +17,7 @@ import { INeovimInstance } from "./../neovim"
 import { configuration } from "./../Services/Configuration"
 import { contextMenuManager } from "./../Services/ContextMenu"
 import { editorManager } from "./../Services/EditorManager"
-import { /*commitCompletion,*/ cancelRename, commitRename, expandCodeActions, findAllReferences, format, gotoDefinitionUnderCursor, isRenameActive, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu, startRename } from "./../Services/Language"
+import { /*commitCompletion,*/ expandCodeActions, findAllReferences, format, gotoDefinitionUnderCursor, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { showAboutMessage } from "./../Services/Metadata"
 import { multiProcess } from "./../Services/MultiProcess"
@@ -64,9 +64,10 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
 
         new CallbackCommand("language.codeAction.expand", null, null, () => expandCodeActions()),
 
-        new CallbackCommand("language.rename", null, null, () => startRename()),
-        new CallbackCommand("language.rename.commit", null, null, () => commitRename(), isRenameActive),
-        new CallbackCommand("language.rename.cancel", null, null, () => cancelRename(), isRenameActive),
+        // MUSTFIX: Switch to contextual editor commands
+        // new CallbackCommand("language.rename", null, null, () => startRename()),
+        // new CallbackCommand("language.rename.commit", null, null, () => commitRename(), isRenameActive),
+        // new CallbackCommand("language.rename.cancel", null, null, () => cancelRename(), isRenameActive),
 
         new CallbackCommand("language.format", null, null, () => format()),
 
