@@ -18,7 +18,7 @@ describe("ExplorerSelectors", () => {
 
             const file: ExplorerState.IFileState = createTestFile("/test/files/testFile.txt")
 
-            const result = ExplorerSelectors.flattenFolderTree(file, [], {})
+            const result = ExplorerSelectors.flattenFolderTree(file, [], {}, 1)
 
             const expectedResult = [{
                 id: "explorer:/test/files/testFile.txt",
@@ -26,6 +26,7 @@ describe("ExplorerSelectors", () => {
                 filePath: "/test/files/testFile.txt",
                 name: "testFile.txt",
                 modified: false,
+                indentationLevel: 1,
             }]
 
             assert.deepEqual(result, expectedResult)
@@ -37,7 +38,7 @@ describe("ExplorerSelectors", () => {
                 fullPath: "/test/folder/folderPath",
             }
 
-            const result = ExplorerSelectors.flattenFolderTree(folder, [], {})
+            const result = ExplorerSelectors.flattenFolderTree(folder, [], {}, 1)
 
             const expectedResult = [{
                 type: "folder",
@@ -45,6 +46,7 @@ describe("ExplorerSelectors", () => {
                 folderPath: "/test/folder/folderPath",
                 name: "folderPath",
                 expanded: false,
+                indentationLevel: 1,
             }]
 
             assert.deepEqual(result, expectedResult)
@@ -60,7 +62,7 @@ describe("ExplorerSelectors", () => {
                 "/test/folder1/folderPath": [ createTestFile("/test/files/file1")],
             }
 
-            const result = ExplorerSelectors.flattenFolderTree(folder, [], expandedFolders)
+            const result = ExplorerSelectors.flattenFolderTree(folder, [], expandedFolders, 1)
 
             const expectedResult = [{
                 type: "folder",
@@ -68,12 +70,14 @@ describe("ExplorerSelectors", () => {
                 folderPath: "/test/folder1/folderPath",
                 name: "folderPath",
                 expanded: true,
+                indentationLevel: 1,
             }, {
                 type: "file",
                 id: "explorer:/test/files/file1",
                 filePath: "/test/files/file1",
                 name: "file1",
                 modified: false,
+                indentationLevel: 2,
             }]
 
             assert.deepEqual(result, expectedResult)

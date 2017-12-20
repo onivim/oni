@@ -14,6 +14,43 @@ global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 const isDevelopment = process.env.NODE_ENV === "development"
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
 
+interface IWindowState {
+    bounds?: {
+        x: number,
+        y: number,
+        height: number,
+        width: number,
+    }
+    isMaximized?: boolean,
+}
+
+let windowState: IWindowState = {
+    bounds: {
+        x: null,
+        y: null,
+        height: 800,
+        width: 600,
+    },
+    isMaximized: false,
+}
+
+function storeWindowState(main) {
+    if (!main) {
+        return
+    }
+    windowState.isMaximized = main.isMaximized()
+
+    if (!windowState.isMaximized) {
+        // only update bounds if window isn't maximized
+        windowState.bounds = main.getBounds()
+    }
+    try {
+        PersistentSettings.set("_internal.windowState", windowState as any)
+    } catch (e) {
+        Log.info(`error setting window state: ${e.message}`)
+    }
+}
+
 ipcMain.on("cross-browser-ipc", (event, arg) => {
     const destinationId = arg.meta.destinationId
     const destinationWebContents = webContents.fromId(destinationId)
@@ -40,8 +77,16 @@ let windows = []
 // Otherwise, all other open instances will also pick up the webpack bundle
 if (!isDevelopment && !isDebug) {
 
+    let processArgs = process.argv || []
+
+    // If running from spectron, ignore the arguments
+    if (processArgs.filter((f) => f.indexOf("--test-type=webdriver"))) {
+        Log.warn("Clearing arguments because running from automation!")
+        processArgs = []
+    }
+
     const currentOptions = {
-        args: process.argv,
+        args: processArgs,
         workingDirectory: process.env["ONI_CWD"] || process.cwd(), // tslint:disable-line no-string-literal
     }
 
@@ -69,12 +114,35 @@ export function createWindow(commandLineArguments, workingDirectory) {
 
     const backgroundColor = (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
 
+    try {
+        const internalWindowState = PersistentSettings.get("_internal.windowState") as IWindowState
+        if (internalWindowState &&
+            (internalWindowState.bounds || internalWindowState.isMaximized)) {
+            windowState = internalWindowState
+        }
+    } catch (e) {
+        Log.info(`error getting window state: ${e.message}`)
+    }
+
     const rootPath = path.join(__dirname, "..", "..", "..")
     const iconPath = path.join(rootPath, "images", "oni.ico")
     const indexPath = path.join(rootPath, "index.html?react_perf")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
-    let mainWindow = new BrowserWindow({ width: 800, height: 600, icon: iconPath, webPreferences, backgroundColor, titleBarStyle: "hidden" })
+    let mainWindow = new BrowserWindow({
+        icon: iconPath,
+        webPreferences,
+        backgroundColor,
+        titleBarStyle: "hidden",
+        x:  windowState.bounds.x,
+        y: windowState.bounds.y,
+        height: windowState.bounds.height,
+        width: windowState.bounds.width,
+    })
+
+    if (windowState.isMaximized) {
+        mainWindow.maximize()
+    }
 
     updateMenu(mainWindow, false)
 
@@ -100,6 +168,16 @@ export function createWindow(commandLineArguments, workingDirectory) {
     if (process.env.NODE_ENV === "development" || commandLineArguments.indexOf("--debug") >= 0) {
         mainWindow.webContents.openDevTools()
     }
+
+    mainWindow.on("move", () => {
+        storeWindowState(mainWindow)
+    })
+    mainWindow.on("resize", () => {
+        storeWindowState(mainWindow)
+    })
+    mainWindow.on("close", () => {
+        storeWindowState(mainWindow)
+    })
 
     // Emitted when the window is closed.
     mainWindow.on("closed", () => {
