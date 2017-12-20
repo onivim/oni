@@ -33,9 +33,9 @@ let windowState: IWindowState = {
     },
 }
 
-function storeWindowState(ws, main) {
-    if (!ws || !main) {
-        console.log("NO ARGS", ws, main)
+function storeWindowState(main) {
+    const ws: any = windowState as any
+    if (!main) {
         return
     }
     ws.isMaximized = main.isMaximized()
@@ -108,8 +108,9 @@ export function createWindow(commandLineArguments, workingDirectory) {
 
     try {
         const internalWindowState = PersistentSettings.get("_internal.windowState") as IWindowState
-        console.log("Internal Window State", internalWindowState) // tslint:disable-line
-        windowState = internalWindowState
+        if (internalWindowState && internalWindowState.bounds) {
+            windowState = internalWindowState
+        }
     } catch (e) {
         Log.info(`error getting window state: ${e.message}`)
     }
@@ -119,16 +120,15 @@ export function createWindow(commandLineArguments, workingDirectory) {
     const indexPath = path.join(rootPath, "index.html?react_perf")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
-    Log.info(`[WINDOW BOUNDS] ${JSON.stringify(windowState, null, 2)}`)
     let mainWindow = new BrowserWindow({
         icon: iconPath,
         webPreferences,
         backgroundColor,
         titleBarStyle: "hidden",
-        x: windowState && windowState.bounds && windowState.bounds.x,
-        y: windowState && windowState.bounds && windowState.bounds.y,
-        height: windowState && windowState.bounds && windowState.bounds.height,
-        width: windowState && windowState.bounds && windowState.bounds.width,
+        x:  windowState.bounds.x,
+        y: windowState.bounds.y,
+        height: windowState.bounds.height,
+        width: windowState.bounds.width,
     })
 
     updateMenu(mainWindow, false)
@@ -157,13 +157,13 @@ export function createWindow(commandLineArguments, workingDirectory) {
     }
 
     mainWindow.on("move", () => {
-        storeWindowState(windowState, mainWindow)
+        storeWindowState(mainWindow)
     })
     mainWindow.on("resize", () => {
-        storeWindowState(windowState, mainWindow)
+        storeWindowState(mainWindow)
     })
     mainWindow.on("close", () => {
-        storeWindowState(windowState, mainWindow)
+        storeWindowState(mainWindow)
     })
 
     // Emitted when the window is closed.
