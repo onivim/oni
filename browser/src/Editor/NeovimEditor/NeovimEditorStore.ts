@@ -10,14 +10,14 @@ import * as Oni from "oni-api"
 import { Store } from "redux"
 import thunk from "redux-thunk"
 
-import { IConfigurationValues } from "./../Services/Configuration"
+import { IConfigurationValues } from "./../../Services/Configuration"
 
-import { DefaultThemeColors, IThemeColors } from "./../Services/Themes"
+import { DefaultThemeColors, IThemeColors } from "./../../Services/Themes"
 
-import * as Coordinates from "./../UI/Coordinates"
-import { Rectangle } from "./../UI/Types"
+import * as Coordinates from "./../../UI/Coordinates"
+import { Rectangle } from "./../../UI/Types"
 
-import { createStore as createReduxStore } from "./../Redux"
+import { createStore as createReduxStore } from "./../../Redux"
 
 export interface Buffers { [filePath: string]: IBuffer }
 export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }

@@ -11,16 +11,16 @@ import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import { Rectangle } from "./../UI/Types"
+import { Rectangle } from "./../../UI/Types"
 
-import * as Coordinates from "./../UI/Coordinates"
+import * as Coordinates from "./../../UI/Coordinates"
 import * as State from "./NeovimEditorStore"
 
-import { EventContext, InactiveBufferContext, IScreen } from "./../neovim"
-import { normalizePath } from "./../Utility"
+import { EventContext, InactiveBufferContext, IScreen } from "./../../neovim"
+import { normalizePath } from "./../../Utility"
 
-import { IConfigurationValues } from "./../Services/Configuration"
-import { IThemeColors } from "./../Services/Themes"
+import { IConfigurationValues } from "./../../Services/Configuration"
+import { IThemeColors } from "./../../Services/Themes"
 
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState

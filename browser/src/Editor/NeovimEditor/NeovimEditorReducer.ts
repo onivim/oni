@@ -8,7 +8,7 @@ import * as State from "./NeovimEditorStore"
 
 import * as Actions from "./NeovimEditorActions"
 
-import { IConfigurationValues } from "./../Services/Configuration"
+import { IConfigurationValues } from "./../../Services/Configuration"
 
 import * as pick from "lodash/pick"
 
