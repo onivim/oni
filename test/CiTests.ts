@@ -22,8 +22,6 @@ const CiTests = [
 
 // tslint:disable:no-console
 
-import * as Config from "./common/Config"
-
 import * as Platform from "./../browser/src/Platform"
 
 export interface ITestCase {

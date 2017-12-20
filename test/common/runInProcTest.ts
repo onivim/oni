@@ -2,7 +2,6 @@ import * as assert from "assert"
 import * as fs from "fs"
 import * as path from "path"
 
-import * as Config from "./Config"
 import { Oni } from "./Oni"
 
 // tslint:disable:no-console
@@ -44,7 +43,6 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
     describe(testName, () => {
 
         const testCase = loadTest(rootPath, testName)
-        const configPath = Config.configPath
 
         let oni: Oni
 
