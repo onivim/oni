@@ -29,7 +29,7 @@ import { CanvasRenderer, INeovimRenderer } from "./../../Renderer"
 import { pluginManager } from "./../../Plugins/PluginManager"
 
 import { Colors } from "./../../Services/Colors"
-import { CallbackCommand, commandManager } from "./../../Services/CommandManager"
+import { commandManager } from "./../../Services/CommandManager"
 import { registerBuiltInCommands } from "./../../Services/Commands"
 import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
@@ -57,6 +57,8 @@ import * as VimConfigurationSynchronizer from "./../../Services/VimConfiguration
 
 import { createStore, IState } from "./NeovimEditorStore"
 import * as ActionCreators from "./NeovimEditorActions"
+import { NeovimEditorCommands } from "./NeovimEditorCommands"
+import { Rename } from "./Rename"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
 
 export class NeovimEditor extends Editor implements IEditor {
@@ -93,7 +95,9 @@ export class NeovimEditor extends Editor implements IEditor {
     private _languageIntegration: LanguageEditorIntegration
     private _completion: Completion
     private _hoverRenderer: HoverRenderer
+    private _rename: Rename = null
     private _toolTipsProvider: IToolTipsProvider
+    private _commands: NeovimEditorCommands
 
     public /* override */ get activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
@@ -139,17 +143,14 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._renderer = new CanvasRenderer()
 
+        this._rename = new Rename(this, this._languageManager, this._toolTipsProvider)
+
         // Services
         const errorService = new Errors(this._neovimInstance)
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
 
-        commandManager.registerCommand(new CallbackCommand(
-            "editor.quickInfo.show",
-            null,
-            null,
-            () => this._languageIntegration.showHover(),
-        ))
+        this._commands = new NeovimEditorCommands(commandManager, this._languageIntegration, this._rename)
 
         const updateViewport = () => {
             const width = document.body.offsetWidth
@@ -408,11 +409,13 @@ export class NeovimEditor extends Editor implements IEditor {
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
         this._actions.setHasFocus(true)
+        this._commands.activate()
     }
 
     public leave(): void {
         Log.info("[NeovimEditor::leave]")
         this._actions.setHasFocus(false)
+        this._commands.deactivate()
     }
 
     public async openFile(file: string): Promise<Oni.Buffer> {
