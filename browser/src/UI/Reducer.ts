@@ -49,9 +49,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 ...s,
                 colors: a.payload.colors,
                     }
-        case "SET_VIEWPORT":
-            return { ...s,
-                     viewport: viewportReducer(s.viewport, a) }
         case "SET_CURSOR_SCALE":
             return {
             ...s,
@@ -65,38 +62,10 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     configuration: newConfig}
         default:
             return {...s,
-                    definition: definitionReducer(s.definition, a),
                     errors: errorsReducer(s.errors, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     toolTips: toolTipsReducer(s.toolTips, a),
                     }
-    }
-}
-
-export const definitionReducer = (s: State.IDefinition, a: Actions.SimpleAction) => {
-    switch (a.type) {
-        case "SHOW_DEFINITION":
-            const { definitionLocation, token } = a.payload
-            return {
-                    definitionLocation,
-                    token,
-                }
-        case "HIDE_DEFINITION":
-            return null
-        default:
-            return s
-    }
-}
-
-export const viewportReducer = (s: State.IViewport, a: Actions.ISetViewportAction) => {
-    switch (a.type) {
-        case "SET_VIEWPORT":
-            return {
-                width: a.payload.width,
-                height: a.payload.height,
-        }
-        default:
-            return s
     }
 }
 

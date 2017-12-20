@@ -115,18 +115,6 @@ export interface IStatusBarHideAction {
     }
 }
 
-export interface IShowDefinitionAction {
-    type: "SHOW_DEFINITION",
-    payload: {
-        token: Oni.IToken,
-        definitionLocation: types.Location,
-    }
-}
-
-export interface IHideDefinitionAction {
-    type: "HIDE_DEFINITION",
-}
-
 export interface ISetConfigurationValue<K extends keyof IConfigurationValues> {
     type: "SET_CONFIGURATION_VALUE"
     payload: {
@@ -144,8 +132,6 @@ export type SimpleAction =
     ISetColorsAction |
     IHideToolTipAction |
     IShowToolTipAction |
-    IHideDefinitionAction |
-    IShowDefinitionAction |
     ISetCursorScaleAction |
     IStatusBarHideAction |
     IStatusBarShowAction |

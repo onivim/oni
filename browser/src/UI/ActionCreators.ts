@@ -150,18 +150,6 @@ export const hideStatusBarItem = (id: string) => ({
     },
 })
 
-export const setDefinition = (token: Oni.IToken, definitionLocation: types.Location): Actions.IShowDefinitionAction => ({
-    type: "SHOW_DEFINITION",
-    payload: {
-        token,
-        definitionLocation,
-    },
-})
-
-export const hideDefinition = () => ({
-    type: "HIDE_DEFINITION",
-})
-
 export const setCursorLineOpacity = (opacity: number) => ({
     type: "SET_CURSOR_LINE_OPACITY",
     payload: {

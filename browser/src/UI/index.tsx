@@ -52,13 +52,6 @@ export const activate = (): void => {
     render(defaultState)
 }
 
-const updateViewport = () => {
-    const width = document.body.offsetWidth
-    const height = document.body.offsetHeight
-
-    Actions.setViewport(width, height)
-}
-
 const RootContainer = connect((state: State.IState) => ({
     theme: state.colors,
 }))(RootComponent)
@@ -74,8 +67,5 @@ export const render = (state: State.IState): void => {
 
 // Don't execute code that depends on DOM in unit-tests
 if (global["window"]) { // tslint:disable-line
-    updateViewport()
-
-    window.addEventListener("resize", updateViewport)
     document.body.addEventListener("click", () => focusManager.enforceFocus())
 }

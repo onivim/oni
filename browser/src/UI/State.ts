@@ -32,9 +32,7 @@ export interface IState {
     // Editor
     hasFocus: boolean
     isFullScreen: boolean
-    definition: null | IDefinition
     configuration: IConfigurationValues
-    viewport: IViewport
 
     toolTips: { [id: string]: IToolTip }
 
@@ -46,11 +44,6 @@ export interface IState {
     statusBar: { [id: string]: IStatusBarItem }
 
     errors: Errors
-}
-
-export interface IDefinition {
-    token: Oni.IToken
-    definitionLocation: types.Location
 }
 
 export enum StatusBarAlignment {
@@ -76,17 +69,11 @@ export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurat
 
 export const createDefaultState = (): IState => ({
     hasFocus: false,
-    definition: null,
     colors: DefaultThemeColors,
     isLoaded: false,
     isFullScreen: false,
 
     configuration: {} as IConfigurationValues,
-
-    viewport: {
-        width: 0,
-        height: 0,
-    },
 
     errors: {},
     statusBar: {},
