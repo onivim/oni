@@ -98,12 +98,6 @@ export function createWindow(commandLineArguments, workingDirectory) {
         windowState = PersistentSettings.get("_internal.windowState") as IWindowState
     } catch (e) {
         Log.info(`error getting window state: ${e.message}`)
-        windowState.bounds = {
-            x: null,
-            y: null,
-            width: 800,
-            height: 600,
-        }
     }
 
     const rootPath = path.join(__dirname, "..", "..", "..")
@@ -116,10 +110,10 @@ export function createWindow(commandLineArguments, workingDirectory) {
         webPreferences,
         backgroundColor,
         titleBarStyle: "hidden",
-        x: windowState.bounds.x,
-        y: windowState.bounds.y,
-        height: windowState.bounds.height,
-        width: windowState.bounds.width,
+        x: windowState.bounds && windowState.bounds.x || null,
+        y: windowState.bounds && windowState.bounds.y || null,
+        height: windowState.bounds && windowState.bounds.height || 800,
+        width: windowState.bounds && windowState.bounds.width || 600,
     })
 
     updateMenu(mainWindow, false)
