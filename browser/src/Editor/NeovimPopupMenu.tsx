@@ -13,6 +13,7 @@ import { INeovimCompletionInfo, INeovimCompletionItem } from "./../neovim"
 
 import * as UI from "./../UI"
 
+import { Colors } from "./../Services/Colors"
 import { ContextMenuView, IContextMenuItem } from "./../Services/ContextMenu"
 
 const mapNeovimCompletionItemToContextMenuItem = (item: INeovimCompletionItem, idx: number, totalLength: number): IContextMenuItem  => ({
@@ -31,6 +32,7 @@ export class NeovimPopupMenu {
         private _popupMenuHideEvent: IEvent<void>,
         private _popupMenuSelectEvent: IEvent<number>,
         private _onBufferEnterEvent: IEvent<Oni.EditorBufferEventArgs>,
+        private _colors: Colors
     ) {
 
         this._popupMenuShowEvent.subscribe((completionInfo) => {
@@ -69,7 +71,7 @@ export class NeovimPopupMenu {
             adjustedIndex = itemsToRender.length - 1
         }
 
-        const highlightColor = UI.store.getState()["contextMenu.highlight"]
+        const highlightColor = this._colors.getColor("contextMenu.highlight")
 
         const completionElement = (
             <ContextMenuView
