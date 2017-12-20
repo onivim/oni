@@ -12,9 +12,6 @@ import { IConfigurationValues } from "./../Services/Configuration"
 
 import { DefaultThemeColors, IThemeColors } from "./../Services/Themes"
 
-import * as Coordinates from "./Coordinates"
-import { Rectangle } from "./Types"
-
 export interface Buffers { [filePath: string]: IBuffer }
 export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
 
@@ -56,11 +53,6 @@ export interface IState {
     statusBar: { [id: string]: IStatusBarItem }
 
     errors: Errors
-
-    // Dimensions of active window, in pixels
-    // TODO: This is relevant only to a specific 'editor',
-    // so this should be factored to a per-editor store
-    activeWindowDimensions: Rectangle
 }
 
 export interface IDefinition {
@@ -109,24 +101,6 @@ export interface ITabState {
     tabs: ITab[]
 }
 
-export interface IWindowState {
-    activeWindow: number,
-    windows: { [windowId: number]: IWindow },
-}
-
-export interface IWindow {
-    file: string
-    column: number
-    line: number
-
-    bufferToScreen: Coordinates.BufferToScreen
-    screenToPixel: Coordinates.ScreenToPixel
-
-    dimensions: Rectangle
-    topBufferLine: number
-    bottomBufferLine: number
-}
-
 export enum StatusBarAlignment {
     Left,
     Right,
@@ -157,12 +131,6 @@ export const createDefaultState = (): IState => ({
     imeActive: false,
     mode: "normal",
     definition: null,
-    activeWindowDimensions: {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-    },
     colors: DefaultThemeColors,
     isLoaded: false,
     isFullScreen: false,
