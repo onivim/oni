@@ -95,7 +95,7 @@
     "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
     "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
     "lint": "npm run lint:browser && npm run lint:main && npm run lint:test",
-    "lint:browser": "tslint --project browser/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint vim/core/oni-markdown-preview/src/**/*.ts",
+    "lint:browser": "tslint --project browser/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint --project vim/core/oni-markdown-preview/tsconfig.json --config tslint.json",
     "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
     "lint:test": "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint vim/core/oni-markdown-preview/src/**/*.ts",
     "pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --publish never",
