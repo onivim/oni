@@ -64,7 +64,6 @@ export class Automation implements OniApi.Automation.Api {
         // TODO: Replace with a more explicit condition, once our startup
         // path is well-defined (#89, #355, #372)
 
-
         // Add explicit wait for Neovim to be initialized
         // The CI machines can often be slow, so we need a longer timout for it
         // TODO: Replace with a more explicit condition, once our startup
