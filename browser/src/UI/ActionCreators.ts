@@ -90,42 +90,6 @@ export const setCursorScale = (cursorScale: number) => ({
     },
 })
 
-const formatBuffers = (buffer: InactiveBufferContext & EventContext) => {
-    return {
-        id: buffer.bufferNumber,
-        file: buffer.bufferFullPath ? normalizePath(buffer.bufferFullPath) : "",
-        totalLines: buffer.bufferTotalLines ? buffer.bufferTotalLines : null,
-        language: buffer.filetype,
-        hidden: buffer.hidden,
-        listed: buffer.listed,
-    }
-}
-
-export const bufferEnter = (buffers: (Array<InactiveBufferContext | EventContext>)) => ({
-    type: "BUFFER_ENTER",
-    payload: {
-        buffers: buffers.map(formatBuffers),
-    },
-})
-
-export const bufferUpdate = (id: number, modified: boolean, totalLines: number) => ({
-    type: "BUFFER_UPDATE",
-    payload: {
-        id,
-        modified,
-        totalLines,
-    },
-})
-
-export const bufferSave = (id: number, modified: boolean, version: number) => ({
-    type: "BUFFER_SAVE",
-    payload: {
-        id,
-        modified,
-        version,
-    },
-})
-
 export const setCurrentBuffers = (bufferIds: number[]) => ({
     type: "SET_CURRENT_BUFFERS",
     payload: {
