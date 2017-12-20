@@ -10,7 +10,6 @@ import { Oni, runInProcTest } from "./common"
 const LongTimeout = 5000
 
 const CiTests = [
-    "BasicEditingTest",
     "AutoClosingPairsTest",
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-TypeScript",
