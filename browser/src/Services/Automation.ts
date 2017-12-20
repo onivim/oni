@@ -10,6 +10,7 @@ import * as OniApi from "oni-api"
 
 import * as Utility from "./../Utility"
 
+import { configuration } from "./Configuration"
 import { editorManager } from "./EditorManager"
 import { inputManager } from "./InputManager"
 
@@ -70,6 +71,7 @@ export class Automation implements OniApi.Automation.Api {
         Log.enableVerboseLogging()
         try {
             Log.info("[AUTOMATION] Starting test: " + testPath)
+            Log.info("[AUTOMATION] Configuration path: " + configuration.userJsConfig)
             const testCase: any = Utility.nodeRequire(testPath2)
             const oni = new Oni()
 
