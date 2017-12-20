@@ -26,7 +26,7 @@ export class Configuration implements Oni.Configuration {
 
     public get userJsConfig(): string {
 
-        const configFileFromEnv = process.env["ONI_CONFIG_FILE"] as string
+        const configFileFromEnv = process.env["ONI_CONFIG_FILE"] as string // tslint:disable-line
 
         if (configFileFromEnv) {
             return configFileFromEnv

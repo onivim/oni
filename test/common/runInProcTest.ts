@@ -52,7 +52,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
             logWithTimeStamp("BEFORE EACH: " + testName)
 
             const startOptions = {
-                configurationPath: testCase.configPath
+                configurationPath: testCase.configPath,
             }
 
             oni = new Oni()
