@@ -73,13 +73,6 @@ export interface ISetCurrentBuffersAction {
     }
 }
 
-export interface ISetImeActive {
-    type: "SET_IME_ACTIVE",
-    payload: {
-        imeActive: boolean,
-    }
-}
-
 export interface ISetFont {
     type: "SET_FONT",
     payload: {
@@ -197,7 +190,6 @@ export type SimpleAction =
     ILeaveFullScreenAction |
     ISetColorsAction |
     ISetCursorPositionAction |
-    ISetImeActive |
     ISetFont |
     IHideToolTipAction |
     IShowToolTipAction |

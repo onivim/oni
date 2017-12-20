@@ -38,7 +38,6 @@ export interface IState {
     isFullScreen: boolean
     definition: null | IDefinition
     configuration: IConfigurationValues
-    imeActive: boolean
     viewport: IViewport
 
     toolTips: { [id: string]: IToolTip }
@@ -85,7 +84,6 @@ export const createDefaultState = (): IState => ({
     fontFamily: "",
     fontSize: "",
     hasFocus: false,
-    imeActive: false,
     definition: null,
     colors: DefaultThemeColors,
     isLoaded: false,
