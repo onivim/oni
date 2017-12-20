@@ -27,7 +27,7 @@ import * as LanguageManager from "./../../Services/Language"
 import { menuManager } from "./../../Services/Menu"
 import { recorder } from "./../../Services/Recorder"
 import { statusBar } from "./../../Services/StatusBar"
-import { windowManager, WindowManager } from "./../../Services/WindowManager"
+import { windowManager } from "./../../Services/WindowManager"
 import { workspace } from "./../../Services/Workspace"
 
 import * as Log from "./../../Log"
@@ -125,7 +125,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return this._services
     }
 
-    public get windows(): WindowManager {
+    public get windows(): OniApi.IWindowManager {
         return windowManager
     }
 
