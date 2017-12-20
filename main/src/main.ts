@@ -20,8 +20,8 @@ interface IWindowState {
         y: number,
         height: number,
         width: number,
-        isMaximized?: boolean,
     }
+    isMaximized?: boolean,
 }
 
 let windowState: IWindowState = {
@@ -31,20 +31,20 @@ let windowState: IWindowState = {
         height: 800,
         width: 600,
     },
+    isMaximized: false,
 }
 
 function storeWindowState(main) {
-    const ws: any = windowState as any
     if (!main) {
         return
     }
-    ws.isMaximized = main.isMaximized()
+    windowState.isMaximized = main.isMaximized()
 
-    if (!ws.isMaximized) {
+    if (!windowState.isMaximized) {
         // only update bounds if window isn't maximized
-        ws.bounds = main.getBounds()
+        windowState.bounds = main.getBounds()
         try {
-            PersistentSettings.set("_internal.windowState", ws)
+            PersistentSettings.set("_internal.windowState", windowState as any)
         } catch (e) {
             Log.info(`error setting window state: ${e.message}`)
         }
@@ -138,6 +138,10 @@ export function createWindow(commandLineArguments, workingDirectory) {
         height: windowState.bounds.height,
         width: windowState.bounds.width,
     })
+
+    if (windowState.isMaximized) {
+        mainWindow.maximize()
+    }
 
     updateMenu(mainWindow, false)
 
