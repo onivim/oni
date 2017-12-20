@@ -43,11 +43,11 @@ function storeWindowState(main) {
     if (!windowState.isMaximized) {
         // only update bounds if window isn't maximized
         windowState.bounds = main.getBounds()
-        try {
-            PersistentSettings.set("_internal.windowState", windowState as any)
-        } catch (e) {
-            Log.info(`error setting window state: ${e.message}`)
-        }
+    }
+    try {
+        PersistentSettings.set("_internal.windowState", windowState as any)
+    } catch (e) {
+        Log.info(`error setting window state: ${e.message}`)
     }
 }
 
@@ -116,7 +116,8 @@ export function createWindow(commandLineArguments, workingDirectory) {
 
     try {
         const internalWindowState = PersistentSettings.get("_internal.windowState") as IWindowState
-        if (internalWindowState && internalWindowState.bounds) {
+        if (internalWindowState &&
+            (internalWindowState.bounds || internalWindowState.isMaximized)) {
             windowState = internalWindowState
         }
     } catch (e) {
