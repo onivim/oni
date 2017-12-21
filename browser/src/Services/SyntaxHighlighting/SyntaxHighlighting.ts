@@ -12,7 +12,6 @@ import * as throttle from "lodash/throttle"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
-import { IDisposable } from "oni-types"
 
 import { Store, Unsubscribe } from "redux"
 
@@ -23,18 +22,10 @@ import { NeovimEditor } from "./../../Editor/NeovimEditor"
 import { createSyntaxHighlightStore, ISyntaxHighlightState, ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
 
 import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
+import { ISyntaxHighlighter } from "./ISyntaxHighlighter"
 
 import * as Log from "./../../Log"
 import * as Utility from "./../../Utility"
-
-export interface ISyntaxHighlighter extends IDisposable {
-    notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void>
-    notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void
-    notifyStartInsertMode(buffer: Oni.Buffer): void
-    notifyEndInsertMode(buffer: Oni.Buffer): void
-
-    getHighlightTokenAt(bufferId: string, position: types.Position): ISyntaxHighlightTokenInfo
-}
 
 export class SyntaxHighlighter implements ISyntaxHighlighter {
 
