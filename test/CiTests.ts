@@ -16,12 +16,10 @@ const CiTests = [
     "LargeFileTest",
     "QuickOpenTest",
     "StatusBar-Mode",
-    // "NoInstalledNeovim",
+    "NoInstalledNeovim",
 ]
 
 // tslint:disable:no-console
-
-import * as Config from "./common/Config"
 
 import * as Platform from "./../browser/src/Platform"
 
