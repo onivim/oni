@@ -1,8 +1,8 @@
-import { EventCallback, Event, IDisposable, IEvent } from "oni-types"
+import { Event, EventCallback, IDisposable, IEvent } from "oni-types"
 
-import * as Oni from "oni-api"
-import * as marked from "marked"
 import * as dompurify from "dompurify"
+import * as marked from "marked"
+import * as Oni from "oni-api"
 import * as React from "react"
 
 /**
@@ -28,7 +28,7 @@ const generateScrollingAnchorId = (line: number) => {
 }
 
 class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdownPreviewState> {
-    private _subscriptions: Array<IDisposable> = []
+    private _subscriptions: IDisposable[] = []
 
     constructor(props: IMarkdownPreviewProps) {
         super(props)
@@ -37,23 +37,50 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
             background: this.props.oni.colors.getColor("editor.background"),
             foreground: this.props.oni.colors.getColor("editor.foreground"),
         }
-        this.state = { source: "", colors: colors }
+        this.state = { source: "", colors }
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         const activeEditor: Oni.Editor = this.props.oni.editors.activeEditor
         this.subscribe(activeEditor.onBufferChanged, (args) => this.onBufferChanged(args))
-        //TODO: Subscribe "onFocusChanged"
+        // TODO: Subscribe "onFocusChanged"
         this.subscribe(activeEditor.onBufferScrolled, (args) => this.onBufferScrolled(args))
 
         this.previewBuffer(activeEditor.activeBuffer)
     }
 
-    componentWillUnmount() {
-        for (let subscription of this._subscriptions) {
+    public componentWillUnmount() {
+        for (const subscription of this._subscriptions) {
             subscription.dispose()
         }
         this._subscriptions = []
+    }
+
+    public render(): JSX.Element {
+        const containerStyle: React.CSSProperties = {
+            padding: "1em 1em 1em 1em",
+            overflowY: "auto",
+            background: this.state.colors.background,
+            color: this.state.colors.foreground,
+        }
+
+        const markdownLines = dompurify.sanitize(this.state.source).split("\n")
+
+        const generateAnchor = (line: number) => {
+            return "<a id=\"" + generateScrollingAnchorId(line) + "\"></a>"
+        }
+
+        const originalLinesCount = markdownLines.length - 1
+        for (var i = originalLinesCount; i > 0; i--) { // tslint:disable-line
+            if (markdownLines[i].trim() !== "") {
+                markdownLines.splice(i, 0, generateAnchor(i))
+            }
+        }
+        markdownLines.splice(0, 0, generateAnchor(i))
+        markdownLines.push(generateAnchor(originalLinesCount - 1))
+
+        const html = marked(markdownLines.join("\n"))
+        return <div className="stack enable-mouse" style={containerStyle} dangerouslySetInnerHTML={{__html: html}}></div>
     }
 
     private subscribe<T>(editorEvent: IEvent<T>, eventCallback: EventCallback<T>): void {
@@ -61,14 +88,14 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 
     private onBufferChanged(bufferInfo: Oni.EditorBufferChangedEventArgs): void {
-        if (bufferInfo.buffer.language == "markdown") {
+        if (bufferInfo.buffer.language === "markdown") {
             this.previewBuffer(bufferInfo.buffer)
         }
     }
 
     private onBufferScrolled(args: Oni.EditorBufferScrolledEventArgs): void {
-        var anchor = null
-        for (var line = args.windowTopLine - 1; !anchor && line < args.bufferTotalLines; line++) {
+        let anchor = null
+        for (let line = args.windowTopLine - 1; !anchor && line < args.bufferTotalLines; line++) {
             anchor = document.getElementById(generateScrollingAnchorId(line))
         }
 
@@ -85,34 +112,6 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     private previewString(str: string): void {
         this.setState({source: str})
     }
-
-    public render(): JSX.Element {
-        const containerStyle: React.CSSProperties = {
-            padding: "1em 1em 1em 1em",
-            overflowY: "auto",
-            background: this.state.colors.background,
-            color: this.state.colors.foreground,
-        }
-
-        var markdownLines = dompurify.sanitize(this.state.source).split("\n")
-
-        const generateAnchor = (line: number) => {
-            return "<a id=\"" + generateScrollingAnchorId(line) + "\"></a>"
-        }
-
-        const originalLinesCount = markdownLines.length - 1
-        for (var i = originalLinesCount; i > 0; i--) {
-            if (markdownLines[i].trim() != "") {
-                markdownLines.splice(i, 0, generateAnchor(i))
-            }
-        }
-        markdownLines.splice(0, 0, generateAnchor(i))
-        markdownLines.push(generateAnchor(originalLinesCount - 1))
-
-        const html = marked(markdownLines.join("\n"))
-        console.info(html)
-        return <div className="stack enable-mouse" style={containerStyle} dangerouslySetInnerHTML={{__html: html}}></div>
-    }
 }
 
 class MarkdownPreviewEditor implements Oni.IWindowSplit {
@@ -120,15 +119,9 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
     private _open: boolean = false
 
     constructor(
-        private _oni: Oni.Plugin.Api
+        private _oni: Oni.Plugin.Api,
     ) {
         this._oni.editors.activeEditor.onBufferEnter.subscribe((args) => this.onBufferEnter(args))
-    }
-
-    private onBufferEnter(bufferInfo: Oni.EditorBufferEventArgs): void {
-        if (bufferInfo.language == "markdown") {
-            this.open()
-        }
     }
 
     public toggle(): void {
@@ -156,9 +149,15 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
     public render(): JSX.Element {
         return <MarkdownPreview oni={this._oni} />
     }
+
+    private onBufferEnter(bufferInfo: Oni.EditorBufferEventArgs): void {
+        if (bufferInfo.language === "markdown") {
+            this.open()
+        }
+    }
 }
 
-var preview: MarkdownPreviewEditor = null
+let preview: MarkdownPreviewEditor = null
 
 export const activate = (oni: any) => {
     if (!oni.configuration.getValue("experimental.markdownPreview.enabled", false)) {
@@ -173,30 +172,29 @@ export const activate = (oni: any) => {
         "markdown.openPreview",
         "Open Markdown Preview",
         "Open the Markdown preview pane if it is not already opened",
-        () => { preview.open() }
+        () => { preview.open() },
     ))
 
     oni.commands.registerCommand(new Command(
         "markdown.closePreview",
         "Close Markdown Preview",
         "Close the Markdown preview pane if it is not already closed",
-        () => { preview.close() }
+        () => { preview.close() },
     ))
 
     oni.commands.registerCommand(new Command(
         "markdown.togglePreview",
         "Toggle Markdown Preview",
         "Open the Markdown preview pane if it is closed, otherwise open it",
-        () => { preview.toggle() }
+        () => { preview.toggle() },
     ))
-};
+}
 
 class Command implements Oni.ICommand {
     constructor(
         public command: string,
         public name: string,
         public detail: string,
-        public execute: Oni.ICommandCallback
+        public execute: Oni.ICommandCallback,
     ) {}
 }
-
