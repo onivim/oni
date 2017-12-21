@@ -105,4 +105,3 @@ export class NeovimBufferUpdateManager {
         return true
     }
 }
-
