@@ -85,20 +85,6 @@ export interface IDefinition {
     definitionLocation: types.Location
 }
 
-export interface Color {
-    r: number
-    g: number
-    b: number
-    a: number
-}
-
-export interface IMessageDialogButton {
-    text: string
-    backgroundColor?: Color
-    foregroundColor?: Color
-    callback?: () => void
-}
-
 export interface IBufferState {
     activeBufferId: number
     byId: { [id: number]: IBuffer }
@@ -142,18 +128,6 @@ export interface IWindow {
     dimensions: Rectangle
     topBufferLine: number
     bottomBufferLine: number
-}
-
-export enum StatusBarAlignment {
-    Left,
-    Right,
-}
-
-export interface IStatusBarItem {
-    alignment: StatusBarAlignment
-    contents: JSX.Element
-    priority: number
-    visible: boolean
 }
 
 export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurationValues, k: K): IConfigurationValues[K] {

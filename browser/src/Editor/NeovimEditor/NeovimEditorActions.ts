@@ -33,14 +33,6 @@ export interface ISetHasFocusAction {
     }
 }
 
-export interface IEnterFullScreenAction {
-    type: "ENTER_FULL_SCREEN",
-}
-
-export interface ILeaveFullScreenAction {
-    type: "LEAVE_FULL_SCREEN",
-}
-
 export interface ISetLoadingCompleteAction {
     type: "SET_LOADING_COMPLETE",
 }
@@ -233,8 +225,6 @@ export type SimpleAction =
     IBufferEnterAction |
     IBufferSaveAction |
     IBufferUpdateAction |
-    IEnterFullScreenAction |
-    ILeaveFullScreenAction |
     ISetColorsAction |
     ISetCursorPositionAction |
     ISetImeActive |
@@ -448,27 +438,9 @@ export const setErrors = (errors: Errors) => ({
     },
 })
 
-// import * as isEqual from "lodash/isEqual"
-// import "rxjs/add/operator/distinctUntilChanged"
-// import { Subject } from "rxjs/Subject"
-
-
-// MUSTFIX: Bring this back!
-
-// const $setCursorPosition = new Subject<any>()
-// $setCursorPosition
-//     .distinctUntilChanged(isEqual)
-//     .subscribe((action) => {
-//         UI.store.dispatch({
-//             type: "SET_CURSOR_POSITION",
-//             payload: action,
-//         })
-//     })
-
 export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunction) => {
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
-    // MUSTFIX: BRING BACK
     dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
 }
 

@@ -45,23 +45,6 @@ export interface ISetColorsAction {
     }
 }
 
-export interface ISetViewportAction {
-    type: "SET_VIEWPORT",
-    payload: {
-        width: number,
-        height: number,
-    }
-}
-
-export interface ISetWindowCursor {
-    type: "SET_WINDOW_CURSOR",
-    payload: {
-        windowId: number,
-        line: number,
-        column: number,
-    },
-}
-
 export interface IStatusBarShowAction {
     type: "STATUSBAR_SHOW",
     payload: {
@@ -98,8 +81,6 @@ export type SimpleAction =
     IStatusBarShowAction |
     ISetHasFocusAction |
     ISetLoadingCompleteAction |
-    ISetViewportAction |
-    ISetWindowCursor |
     ISetWindowTitleAction
 
 export type ActionWithGeneric<K extends keyof IConfigurationValues> =
