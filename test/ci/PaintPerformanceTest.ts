@@ -3,6 +3,7 @@
  */
 
 import * as assert from "assert"
+import * as os from "os"
 
 import { Rectangle, remote } from "electron"
 
@@ -60,6 +61,14 @@ export const test = async (oni: any) => {
 
     assert.strictEqual(startHeadCount, endHeadCount, "There should be no items added to the head over the course of typing.")
     assert.strictEqual(startBodyCount, endBodyCount, "There should be no items added to the body over the course of typing.")
+
+    // TODO: Unfortunately, the `beginFrameSubscription` events don't seem to come through
+    // on the OSX TravisCI machine. It would be great to unblock this, but for now,
+    // we'll only exercise the paint rectangle validation on Windows:
+    if (os.platform() !== "win32") {
+        console.warn("Aborting remaining validations because it isn't a Windows machine.")
+        return
+    }
 
     assert.ok(paintRectangles.length >= 5, "There should be at least 5 paint rectangles")
 
