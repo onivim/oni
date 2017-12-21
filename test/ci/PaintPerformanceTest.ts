@@ -9,6 +9,8 @@ import { Rectangle, remote } from "electron"
 import { createNewFile, getCompletionElement } from "./Common"
 
 export const test = async (oni: any) => {
+    await oni.automation.waitForEditors()
+
     // Create a file that doesn't have a language associated with it, to minimize noise
     await createNewFile("test_file", oni)
 
