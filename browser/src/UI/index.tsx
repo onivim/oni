@@ -34,11 +34,6 @@ export const store = createStore("SHELL", reducer, defaultState, [thunk])
 
 export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators as any, store.dispatch)
 
-// TODO: Is there a helper utility like `bindActionCreators`, but for selectors?
-export const Selectors = {
-    getActiveDefinition: () => getActiveDefinition(store.getState() as any),
-}
-
 const browserWindow = remote.getCurrentWindow()
 browserWindow.on("enter-full-screen", () => {
     store.dispatch({type: "ENTER_FULL_SCREEN"})
