@@ -10,7 +10,7 @@ import * as Oni from "oni-api"
 import { editorManager } from "./../EditorManager"
 import { menuManager } from "./../Menu"
 
-import { gotoPositionInUri } from "./Definition"
+// import { gotoPositionInUri } from "./Definition"
 import * as LanguageManager from "./LanguageManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
@@ -33,7 +33,8 @@ export const openWorkspaceSymbolsMenu = async () => {
         const loc = keyToLocation[key]
 
         if (loc) {
-            gotoPositionInUri(loc.uri, loc.range.start.line, loc.range.start.character)
+            // MUSTFIX
+            // gotoPositionInUri(loc.uri, loc.range.start.line, loc.range.start.character)
         }
 
     })
@@ -145,7 +146,8 @@ export const openDocumentSymbolsMenu = async () => {
     menu.onItemSelected.subscribe((selectedItem) => {
         const location: types.Location = labelToLocation[selectedItem.label]
         if (location) {
-            gotoPositionInUri(location.uri, location.range.start.line, location.range.start.character)
+            // MUSTFIX:
+            // gotoPositionInUri(location.uri, location.range.start.line, location.range.start.character)
         }
     })
 

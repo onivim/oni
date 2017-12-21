@@ -59,6 +59,7 @@ import * as VimConfigurationSynchronizer from "./../../Services/VimConfiguration
 import { createStore, IState } from "./NeovimEditorStore"
 import * as ActionCreators from "./NeovimEditorActions"
 import { NeovimEditorCommands } from "./NeovimEditorCommands"
+import { Definition } from "./Definition"
 import { Rename } from "./Rename"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
 
@@ -98,6 +99,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _completion: Completion
     private _hoverRenderer: HoverRenderer
     private _rename: Rename = null
+    private _definition: Definition = null
     private _toolTipsProvider: IToolTipsProvider
     private _commands: NeovimEditorCommands
 
@@ -137,6 +139,8 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
 
+        this._definition = new Definition(this, this._store)
+
         this._diagnostics.onErrorsChanged.subscribe(() => {
             const errors = this._diagnostics.getErrors()
             this._actions.setErrors(errors)
@@ -160,7 +164,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
 
-        this._commands = new NeovimEditorCommands(commandManager, this._contextMenuManager, this._languageIntegration, this._rename)
+        this._commands = new NeovimEditorCommands(commandManager, this._contextMenuManager, this._definition, this._languageIntegration, this._rename)
 
         const updateViewport = () => {
             const width = document.body.offsetWidth

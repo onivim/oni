@@ -18,7 +18,6 @@ import { RootComponent } from "./RootComponent"
 
 import * as ActionCreators from "./ActionCreators"
 import { reducer } from "./Reducer"
-import { getActiveDefinition } from "./selectors/DefinitionSelectors"
 import * as State from "./State"
 
 import { focusManager } from "./../Services/FocusManager"

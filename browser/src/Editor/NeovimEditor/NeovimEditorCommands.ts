@@ -11,6 +11,7 @@ import { CallbackCommand, CommandManager } from "./../../Services/CommandManager
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 import { LanguageEditorIntegration } from "./../../Services/Language"
 
+import { Definition } from "./Definition"
 import { Rename } from "./Rename"
 
 export class NeovimEditorCommands {
@@ -20,6 +21,7 @@ export class NeovimEditorCommands {
     constructor(
         private _commandManager: CommandManager,
         private _contextMenuManager: ContextMenuManager,
+        private _definition: Definition,
         private _languageEditorIntegration: LanguageEditorIntegration,
         private _rename: Rename,
     ) { }
@@ -63,6 +65,12 @@ export class NeovimEditorCommands {
             new CallbackCommand("contextMenu.next", null, null, nextContextMenuItem, isContextMenuOpen),
             new CallbackCommand("contextMenu.previous", null, null, previousContextMenuItem, isContextMenuOpen),
             new CallbackCommand("contextMenu.close", null, null, closeContextMenu, isContextMenuOpen),
+            
+            // TODO: Deprecate
+            new CallbackCommand("oni.editor.gotoDefinition", null, null, () => this._definition.gotoDefinitionUnderCursor()),
+            new CallbackCommand("language.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => this._definition.gotoDefinitionUnderCursor()),
+            new CallbackCommand("language.gotoDefinition.openVertical", null, null, () => this._definition.gotoDefinitionUnderCursor(1)),
+            new CallbackCommand("language.gotoDefinition.openHorizontal", null, null, () => this._definition.gotoDefinitionUnderCursor(2)),
 
             new CallbackCommand("editor.rename", "Rename", "Rename an item", () => this._rename.startRename()),
             new CallbackCommand("editor.rename.commit", null, null, () => this._rename.commitRename(), isRenameActive),

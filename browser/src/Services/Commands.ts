@@ -16,7 +16,7 @@ import { INeovimInstance } from "./../neovim"
 
 import { configuration } from "./../Services/Configuration"
 import { editorManager } from "./../Services/EditorManager"
-import { /*commitCompletion,*/ findAllReferences, format, gotoDefinitionUnderCursor, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu } from "./../Services/Language"
+import { findAllReferences, format, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { showAboutMessage } from "./../Services/Metadata"
 import { multiProcess } from "./../Services/MultiProcess"
@@ -51,12 +51,6 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
         new CallbackCommand("oni.editor.minimize", "Minimize Window", "Minimize the current window", () => remote.getCurrentWindow().minimize()),
 
         // Language service
-        // TODO: Deprecate
-        new CallbackCommand("oni.editor.gotoDefinition", null, null, () => gotoDefinitionUnderCursor()),
-        new CallbackCommand("language.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => gotoDefinitionUnderCursor()),
-        new CallbackCommand("language.gotoDefinition.openVertical", null, null, () => gotoDefinitionUnderCursor(1)),
-        new CallbackCommand("language.gotoDefinition.openHorizontal", null, null, () => gotoDefinitionUnderCursor(2)),
-
         // TODO: Deprecate
         new CallbackCommand("oni.editor.findAllReferences", null, null, () => findAllReferences()),
         new CallbackCommand("language.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences()),
