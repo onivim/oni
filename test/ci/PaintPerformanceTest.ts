@@ -66,7 +66,7 @@ export const test = async (oni: any) => {
     // on the OSX TravisCI machine. It would be great to unblock this, but for now,
     // we'll only exercise the paint rectangle validation on Windows:
     if (os.platform() !== "win32") {
-        console.warn("Aborting remaining validations because it isn't a Windows machine.")
+        console.warn("Aborting remaining validations because it isn't a Windows machine.") // tslint:disable-line
         return
     }
 
