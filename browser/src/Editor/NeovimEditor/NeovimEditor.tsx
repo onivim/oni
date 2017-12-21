@@ -36,6 +36,7 @@ import { Configuration, IConfigurationValues } from "./../../Services/Configurat
 import { Errors } from "./../../Services/Errors"
 import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, LanguageManager } from "./../../Services/Language"
 import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../../Services/SyntaxHighlighting"
+import { tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 import { workspace } from "./../../Services/Workspace"
