@@ -1,7 +1,8 @@
 import * as React from "react"
 import { connect } from "react-redux"
 import styled, { keyframes } from "styled-components"
-// import * as Selectors from "./../Selectors"
+
+import * as UI from "./../../UI"
 import * as State from "./../State"
 
 const CommandLineBackground = styled.div`
@@ -46,10 +47,6 @@ const CommandLineInput = styled.input`
     color: white;
 `
 
-// const CommandLineText = styled.p`
-//     color: white;
-// `
-
 export interface ICommandLineRendererProps {
     visible: boolean,
     content: Array<[any, string]> | null
@@ -58,22 +55,23 @@ export interface ICommandLineRendererProps {
     // level: number
 }
 
-class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps, {}> {
-    private _inputElement: HTMLInputElement = null
+class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps> {
+    private _inputElement: HTMLInputElement
 
     public handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-        console.log('e-------------------------: ', e);
-        if (this.props.visible) {
-            console.log('TEXT: ', e.currentTarget.value);
-        }
+        console.log('Changing')
+        UI.Actions.setCommandLinePosition(1, 1)
     }
 
     public render(): null |  JSX.Element {
+        if (this.props.visible && this._inputElement) {
+           this._inputElement.focus()
+        }
+
         return this.props.visible ? (
             <CommandLineBackground>
                 <CommandLineBox>
                     <CommandLineInput
-                        onFocus={() => console.log("FOCUSEDDDDDD")}
                         onChange={this.handleChange}
                         innerRef={e => (this._inputElement = e)}
                         value={this.props.firstchar + this.props.content[0][1]}
