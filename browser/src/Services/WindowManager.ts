@@ -106,6 +106,12 @@ export class WindowManager implements Oni.IWindowManager {
         return this._onSplitChanged
     }
 
+    private _onFocusChanged = new Event<ISplitInfo<Oni.IWindowSplit>>()
+
+    public get onFocusChanged(): IEvent<ISplitInfo<Oni.IWindowSplit>> {
+        return this._onFocusChanged
+    }
+
     public get splitRoot(): ISplitInfo<Oni.IWindowSplit> {
         return this._splitRoot
     }
