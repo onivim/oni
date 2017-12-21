@@ -17,7 +17,7 @@ const CiTests = [
     "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
-    // "NoInstalledNeovim",
+    "NoInstalledNeovim",
 ]
 
 const WindowsOnlyTests = [
