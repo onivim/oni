@@ -22,7 +22,7 @@ import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { IPixelPosition, IPosition } from "./Screen"
 import { Session } from "./Session"
 
-import { INeovimBufferUpdate, NeovimBufferUpdateManager } from "./BufferUpdateManager"
+import { INeovimBufferUpdate, NeovimBufferUpdateManager } from "./NeovimBufferUpdateManager"
 
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
