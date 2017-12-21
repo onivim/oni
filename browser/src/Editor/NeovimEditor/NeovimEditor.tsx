@@ -292,7 +292,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this.notifyBufferScrolled(convertedArgs)
         })
 
-        addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
+        addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$, this._toolTipsProvider)
 
         const textMateHighlightingEnabled = this._configuration.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
