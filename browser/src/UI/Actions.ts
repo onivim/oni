@@ -7,8 +7,6 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
-import * as Oni from "oni-api"
-
 import { StatusBarAlignment } from "./State"
 
 import { IConfigurationValues } from "./../Services/Configuration"
@@ -54,22 +52,6 @@ export interface ISetViewportAction {
     payload: {
         width: number,
         height: number,
-    }
-}
-
-export interface IShowToolTipAction {
-    type: "SHOW_TOOL_TIP",
-    payload: {
-        id: string,
-        element: JSX.Element,
-        options?: Oni.ToolTip.ToolTipOptions,
-    }
-}
-
-export interface IHideToolTipAction {
-    type: "HIDE_TOOL_TIP",
-    payload: {
-        id: string,
     }
 }
 
@@ -123,8 +105,6 @@ export type SimpleAction =
     IEnterFullScreenAction |
     ILeaveFullScreenAction |
     ISetColorsAction |
-    IHideToolTipAction |
-    IShowToolTipAction |
     IStatusBarHideAction |
     IStatusBarShowAction |
     ISetErrorsAction |

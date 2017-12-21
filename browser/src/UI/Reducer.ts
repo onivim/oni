@@ -59,7 +59,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             return {...s,
                     errors: errorsReducer(s.errors, a),
                     statusBar: statusBarReducer(s.statusBar, a),
-                    toolTips: toolTipsReducer(s.toolTips, a),
                     }
     }
 }
@@ -76,29 +75,6 @@ export const errorsReducer = (s: { [file: string]: { [key: string]: types.Diagno
                     ...currentFile,
                     [a.payload.key]: [...a.payload.errors],
                 },
-            }
-        default:
-            return s
-    }
-}
-
-export const toolTipsReducer = (s: { [key: string]: State.IToolTip }, a: Actions.SimpleAction) => {
-    switch (a.type) {
-        case "SHOW_TOOL_TIP":
-            const existingItem = s[a.payload.id] || {}
-            const newItem = {
-                ...existingItem,
-                ...a.payload,
-            }
-
-            return {
-                ...s,
-                [a.payload.id]: newItem,
-            }
-        case "HIDE_TOOL_TIP":
-            return {
-                ...s,
-                [a.payload.id]: null,
             }
         default:
             return s

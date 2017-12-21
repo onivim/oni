@@ -9,8 +9,6 @@
 
 import * as types from "vscode-languageserver-types"
 
-import * as Oni from "oni-api"
-
 import * as Actions from "./Actions"
 import * as State from "./State"
 
@@ -88,22 +86,6 @@ export const setWindowCursor = (windowId: number, line: number, column: number) 
         windowId,
         line,
         column,
-    },
-})
-
-export const showToolTip = (id: string, element: JSX.Element, options?: Oni.ToolTip.ToolTipOptions) => ({
-    type: "SHOW_TOOL_TIP",
-    payload: {
-        id,
-        element,
-        options,
-    },
-})
-
-export const hideToolTip = (id: string) => ({
-    type: "HIDE_TOOL_TIP",
-    payload: {
-        id,
     },
 })
 

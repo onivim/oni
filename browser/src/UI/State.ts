@@ -34,8 +34,6 @@ export interface IState {
     isFullScreen: boolean
     configuration: IConfigurationValues
 
-    toolTips: { [id: string]: IToolTip }
-
     // Shell
     isLoaded: boolean
     colors: IThemeColors
@@ -77,6 +75,5 @@ export const createDefaultState = (): IState => ({
 
     errors: {},
     statusBar: {},
-    toolTips: {},
     windowTitle: "",
 })
