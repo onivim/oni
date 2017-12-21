@@ -9,6 +9,8 @@ import * as React from "react"
 
 import * as Oni from "oni-api"
 
+import styled from "styled-components"
+
 import { Icon } from "./../../UI/Icon"
 import { configuration } from "./../Configuration"
 
@@ -79,23 +81,23 @@ const getClassNameFromstatus = (status: LanguageClientState) => {
     }
 }
 
-const StatusBarRenderer = (props: StatusBarRendererProps) => {
-    const containerStyle: React.CSSProperties = {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100%",
-        backgroundColor: "rgb(35, 35, 35)",
-        color: "rgb(200, 200, 200)",
-        paddingRight: "8px",
-        paddingLeft: "8px",
-    }
+const IconContainer = styled.span`
+        padding-right: 6px;
+        min-width: 14px;
+        text-align: center;
+    `
+const StatusRendererContainer = styled.div`
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        background-color: rgb(35, 35, 35);
+        color: rgb(200, 200, 200);
+        padding-right: 8px;
+        padding-left: 8px;
+`
 
-    const iconStyle: React.CSSProperties = {
-        paddingRight: "6px",
-        minWidth: "14px",
-        textAlign: "center",
-    }
+const StatusBarRenderer = (props: StatusBarRendererProps) => {
 
     const openDevTools = () => {
         electron.remote.getCurrentWindow().webContents.openDevTools()
@@ -105,10 +107,19 @@ const StatusBarRenderer = (props: StatusBarRendererProps) => {
 
     const iconName = getIconFromStatus(props.state)
 
-    const icon = iconName ? <span style={iconStyle}><Icon name={iconName} className={getClassNameFromstatus(props.state)} /></span> : null
+    const icon = iconName ? (
+        <IconContainer>
+            <Icon
+                name={iconName}
+                className={getClassNameFromstatus(props.state)}
+            />
+        </IconContainer>
+    ) : null
 
-    return <div style={containerStyle} onClick={onClick}>
-        {icon}
-        <span>{props.language}</span>
-    </div>
+    return (
+        <StatusRendererContainer onClick={onClick}>
+            {icon}
+            <span>{props.language}</span>
+        </StatusRendererContainer>
+    )
 }
