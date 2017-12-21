@@ -12,8 +12,6 @@ import { StatusBarAlignment } from "./State"
 import { IConfigurationValues } from "./../Services/Configuration"
 import { IThemeColors } from "./../Services/Themes"
 
-import * as types from "vscode-languageserver-types"
-
 export interface ISetHasFocusAction {
     type: "SET_HAS_FOCUS",
     payload: {
@@ -64,15 +62,6 @@ export interface ISetWindowCursor {
     },
 }
 
-export interface ISetErrorsAction {
-    type: "SET_ERRORS",
-    payload: {
-        file: string,
-        key: string,
-        errors: types.Diagnostic[],
-    }
-}
-
 export interface IStatusBarShowAction {
     type: "STATUSBAR_SHOW",
     payload: {
@@ -107,7 +96,6 @@ export type SimpleAction =
     ISetColorsAction |
     IStatusBarHideAction |
     IStatusBarShowAction |
-    ISetErrorsAction |
     ISetHasFocusAction |
     ISetLoadingCompleteAction |
     ISetViewportAction |

@@ -108,7 +108,7 @@ const start = async (args: string[]): Promise<void> => {
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
     const Diagnostics = await diagnosticsPromise
-    Diagnostics.activate(languageManager)
+    Diagnostics.getInstance().start(languageManager)
 
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()

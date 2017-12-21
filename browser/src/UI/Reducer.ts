@@ -4,13 +4,10 @@
  * Top-level reducer for UI state transforms
  */
 
+import * as Actions from "./Actions"
 import * as State from "./State"
 
-import * as Actions from "./Actions"
-
 import { IConfigurationValues } from "./../Services/Configuration"
-
-import * as types from "vscode-languageserver-types"
 
 export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>) {
 
@@ -57,27 +54,8 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     configuration: newConfig}
         default:
             return {...s,
-                    errors: errorsReducer(s.errors, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     }
-    }
-}
-
-export const errorsReducer = (s: { [file: string]: { [key: string]: types.Diagnostic[] } }, a: Actions.SimpleAction) => {
-    switch (a.type) {
-        case "SET_ERRORS":
-
-            const currentFile = s[a.payload.file] || null
-
-            return {
-                ...s,
-                [a.payload.file]: {
-                    ...currentFile,
-                    [a.payload.key]: [...a.payload.errors],
-                },
-            }
-        default:
-            return s
     }
 }
 

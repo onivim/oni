@@ -10,8 +10,6 @@ import { EventEmitter } from "events"
 
 import * as OniApi from "oni-api"
 
-import { Diagnostics } from "./Diagnostics"
-
 import * as Process from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
@@ -20,6 +18,7 @@ import { automation } from "./../../Services/Automation"
 import { Colors, getInstance as getColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
 import { configuration } from "./../../Services/Configuration"
+import { getInstance as getDiagnosticsInstance } from "./../../Services/Diagnostics"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
@@ -50,7 +49,6 @@ const helpers = {
  */
 export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     private _dependencies: Dependencies
-    private _diagnostics: OniApi.Plugin.Diagnostics.Api
     private _ui: Ui
     private _services: Services
     private _colors: Colors
@@ -84,7 +82,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     public get diagnostics(): OniApi.Plugin.Diagnostics.Api {
-        return this._diagnostics
+        return getDiagnosticsInstance()
     }
 
     public get dependencies(): Dependencies {
@@ -139,7 +137,6 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         super()
         this._colors = getColors()
 
-        this._diagnostics = new Diagnostics()
         this._dependencies = new Dependencies()
         this._ui = new Ui(react)
         this._services = new Services()

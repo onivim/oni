@@ -7,12 +7,8 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
-import * as types from "vscode-languageserver-types"
-
 import * as Actions from "./Actions"
 import * as State from "./State"
-
-import { normalizePath } from "./../Utility"
 
 import { IConfigurationValues } from "./../Services/Configuration"
 import { IThemeColors } from "./../Services/Themes"
@@ -62,15 +58,6 @@ export const setViewport = (width: number, height: number) => ({
     payload: {
         width,
         height,
-    },
-})
-
-export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({
-    type: "SET_ERRORS",
-    payload: {
-        file: normalizePath(file),
-        key,
-        errors,
     },
 })
 
