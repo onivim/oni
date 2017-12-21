@@ -44,7 +44,7 @@ const StatusbarSection = withProps<Section>(styled.div)`
     display: ${({ count }) => count ? `none` : `flex`};
     flex-direction: row;
     height: 100%;
-    max-width: 50%;
+    max-width: 48%;
     justify-content: ${props => props.direction};
 `
 
