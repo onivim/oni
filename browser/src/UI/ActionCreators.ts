@@ -67,13 +67,6 @@ export const setViewport = (width: number, height: number) => ({
     },
 })
 
-export const setCursorScale = (cursorScale: number) => ({
-    type: "SET_CURSOR_SCALE",
-    payload: {
-        cursorScale,
-    },
-})
-
 export const setImeActive = (imeActive: boolean) => ({
     type: "SET_IME_ACTIVE",
     payload: {
@@ -147,20 +140,6 @@ export const hideStatusBarItem = (id: string) => ({
     type: "STATUSBAR_HIDE",
     payload: {
         id,
-    },
-})
-
-export const setCursorLineOpacity = (opacity: number) => ({
-    type: "SET_CURSOR_LINE_OPACITY",
-    payload: {
-        opacity,
-    },
-})
-
-export const setCursorColumnOpacity = (opacity: number) => ({
-    type: "SET_CURSOR_COLUMN_OPACITY",
-    payload: {
-        opacity,
     },
 })
 

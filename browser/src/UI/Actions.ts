@@ -57,13 +57,6 @@ export interface ISetViewportAction {
     }
 }
 
-export interface ISetCursorScaleAction {
-    type: "SET_CURSOR_SCALE",
-    payload: {
-        cursorScale: number,
-    }
-}
-
 export interface IShowToolTipAction {
     type: "SHOW_TOOL_TIP",
     payload: {
@@ -132,7 +125,6 @@ export type SimpleAction =
     ISetColorsAction |
     IHideToolTipAction |
     IShowToolTipAction |
-    ISetCursorScaleAction |
     IStatusBarHideAction |
     IStatusBarShowAction |
     ISetErrorsAction |

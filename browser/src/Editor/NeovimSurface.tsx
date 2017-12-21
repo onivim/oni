@@ -41,6 +41,8 @@ export interface INeovimSurfaceProps {
     onBufferSelect?: (bufferId: number) => void
     onImeStart: () => void
     onImeEnd: () => void
+    onBounceStart: () => void
+    onBounceEnd: () =>void
     onTabClose?: (tabId: number) => void
     onTabSelect?: (tabId: number) => void
 }
@@ -77,6 +79,8 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     typingPrediction={this.props.typingPrediction}
                     neovimInstance={this.props.neovimInstance}
                     screen={this.props.screen}
+                    onBounceStart={this.props.onBounceStart}
+                    onBounceEnd={this.props.onBounceEnd}
                     onImeStart={this.props.onImeStart}
                     onImeEnd={this.props.onImeEnd}
                     onKeyDown={this.props.onKeyDown}/>

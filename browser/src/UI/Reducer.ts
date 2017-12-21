@@ -49,11 +49,6 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 ...s,
                 colors: a.payload.colors,
                     }
-        case "SET_CURSOR_SCALE":
-            return {
-            ...s,
-            cursorScale: a.payload.cursorScale,
-        }
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value

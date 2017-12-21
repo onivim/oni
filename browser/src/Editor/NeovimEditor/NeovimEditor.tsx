@@ -498,11 +498,21 @@ export class NeovimEditor extends Editor implements IEditor {
                 onKeyDown={onKeyDown}
                 onBufferClose={onBufferClose}
                 onBufferSelect={onBufferSelect}
+                onBounceStart={() => this._onBounceStart()}
+                onBounceEnd={() => this._onBounceEnd()}
                 onImeStart={() => this._onImeStart()}
                 onImeEnd={() => this._onImeEnd()}
                 onTabClose={onTabClose}
                 onTabSelect={onTabSelect} />
             </Provider>
+    }
+
+    private _onBounceStart(): void {
+        this._actions.setCursorScale(1.1)
+    }
+
+    private _onBounceEnd(): void {
+        this._actions.setCursorScale(1.0)
     }
 
     private async _openFiles(files: string[], action: string): Promise<void> {

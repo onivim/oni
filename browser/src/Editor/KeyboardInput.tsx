@@ -18,7 +18,6 @@ import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { IState } from "./../Editor/NeovimEditor/NeovimEditorStore"
 
 import { measureFont } from "./../Font"
-import * as UI from "./../UI"
 
 interface IKeyboardInputViewProps extends IKeyboardInputProps {
     top: number
@@ -50,6 +49,11 @@ export interface IKeyboardInputProps {
     onImeStart?: () => void
     onImeEnd?: () => void
     typingPrediction?: TypingPredictionManager
+
+    // Optional methods for integrating animation,
+    // ie: 'cursor bounce':
+    onBounceStart?: () => void
+    onBounceEnd?: () => void
 }
 
 /**
@@ -139,7 +143,9 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
     }
 
     private _onKeyUp(evt: React.KeyboardEvent<HTMLInputElement>) {
-        UI.Actions.setCursorScale(1)
+        if (this.props.onBounceEnd) {
+            this.props.onBounceEnd()
+        }
     }
 
     private _onKeyDown(evt: React.KeyboardEvent<HTMLInputElement>) {
@@ -153,7 +159,9 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             return
         }
 
-        UI.Actions.setCursorScale(1.1)
+        if (this.props.onBounceStart) {
+            this.props.onBounceStart()
+        }
 
         const key = getKeyEventToVimKey()(evt.nativeEvent)
 
