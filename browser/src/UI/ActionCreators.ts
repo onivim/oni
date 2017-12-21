@@ -65,30 +65,6 @@ export const setViewport = (width: number, height: number) => ({
     },
 })
 
-export const setImeActive = (imeActive: boolean) => ({
-    type: "SET_IME_ACTIVE",
-    payload: {
-        imeActive,
-    },
-})
-
-export const setFont = (fontFamily: string, fontSize: string) => ({
-    type: "SET_FONT",
-    payload: {
-        fontFamily,
-        fontSize,
-    },
-})
-
-export const setWindowCursor = (windowId: number, line: number, column: number) => ({
-    type: "SET_WINDOW_CURSOR",
-    payload: {
-        windowId,
-        line,
-        column,
-    },
-})
-
 export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({
     type: "SET_ERRORS",
     payload: {
