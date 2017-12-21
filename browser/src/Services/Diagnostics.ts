@@ -8,7 +8,6 @@ import * as types from "vscode-languageserver-types"
 
 import { Event, IEvent } from "oni-types"
 
-import * as UI from "./../UI"
 import * as Selectors from "./../UI/Selectors"
 
 import { ILanguageServerNotificationResponse, LanguageManager } from "./Language"
@@ -45,6 +44,7 @@ export class DiagnosticsDataSource {
     }
 
     public setErrors(filePath: string, key: string, errors: types.Diagnostic[]): void {
+        filePath = Utility.normalizePath(filePath)
         const currentFile = this._errors[filePath] || null
 
         this._errors = {
@@ -63,8 +63,7 @@ export class DiagnosticsDataSource {
     }
 
     public getErrorsForPosition(filePath: string, line: number, column: number): types.Diagnostic[] {
-        const state: any = UI.store.getState()
-        const errors = Selectors.getAllErrorsForFile(Utility.normalizePath(filePath), state.errors)
+        const errors = Selectors.getAllErrorsForFile(Utility.normalizePath(filePath), this._errors)
 
         return errors.filter((diagnostic) => {
             return Utility.isInRange(line, column, diagnostic.range)

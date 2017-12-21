@@ -9,10 +9,9 @@ import * as State from "./NeovimEditorStore"
 import * as Actions from "./NeovimEditorActions"
 
 import { IConfigurationValues } from "./../../Services/Configuration"
+import { Errors } from "./../../Services/Diagnostics"
 
 import * as pick from "lodash/pick"
-
-import * as types from "vscode-languageserver-types"
 
 export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>): State.IState {
 
@@ -208,19 +207,13 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
     }
 }
 
-export const errorsReducer = (s: { [file: string]: { [key: string]: types.Diagnostic[] } }, a: Actions.SimpleAction) => {
+export const errorsReducer = (s: Errors, a: Actions.SimpleAction) => {
     switch (a.type) {
         case "SET_ERRORS":
-
-            const currentFile = s[a.payload.file] || null
-
             return {
-                ...s,
-                [a.payload.file]: {
-                    ...currentFile,
-                    [a.payload.key]: [...a.payload.errors],
-                },
+                ...a.payload.errors,
             }
+
         default:
             return s
     }

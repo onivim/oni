@@ -97,18 +97,20 @@ const start = async (args: string[]): Promise<void> => {
     const CSS = await cssPromise
     CSS.activate()
 
+    const Diagnostics = await diagnosticsPromise
+    const diagnostics = Diagnostics.getInstance()
+
    await Promise.race([Utility.delay(5000),
      Promise.all([
         SharedNeovimInstance.activate(),
-        startEditors(parsedArgs._, Colors.getInstance(), configuration, languageManager, Themes.getThemeManagerInstance())
+        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, Themes.getThemeManagerInstance())
     ])
    ])
     Performance.endMeasure("Oni.Start.Editors")
 
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
-    const Diagnostics = await diagnosticsPromise
-    Diagnostics.getInstance().start(languageManager)
+    diagnostics.start(languageManager)
 
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()

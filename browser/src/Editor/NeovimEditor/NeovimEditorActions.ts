@@ -20,6 +20,7 @@ import { EventContext, InactiveBufferContext, IScreen } from "./../../neovim"
 import { normalizePath } from "./../../Utility"
 
 import { IConfigurationValues } from "./../../Services/Configuration"
+import { Errors } from "./../../Services/Diagnostics"
 import { IThemeColors } from "./../../Services/Themes"
 
 export type DispatchFunction = (action: any) => void
@@ -182,9 +183,7 @@ export interface ISetWindowState {
 export interface ISetErrorsAction {
     type: "SET_ERRORS",
     payload: {
-        file: string,
-        key: string,
-        errors: types.Diagnostic[],
+        errors: Errors,
     }
 }
 
@@ -442,11 +441,9 @@ export const hideToolTip = (id: string) => ({
     },
 })
 
-export const setErrors = (file: string, key: string, errors: types.Diagnostic[]) => ({
+export const setErrors = (errors: Errors) => ({
     type: "SET_ERRORS",
     payload: {
-        file: normalizePath(file),
-        key,
         errors,
     },
 })

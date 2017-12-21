@@ -33,6 +33,7 @@ import { commandManager } from "./../../Services/CommandManager"
 import { registerBuiltInCommands } from "./../../Services/Commands"
 import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
+import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
 import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, LanguageManager } from "./../../Services/Language"
 import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../../Services/SyntaxHighlighting"
@@ -116,6 +117,7 @@ export class NeovimEditor extends Editor implements IEditor {
     constructor(
         private _colors: Colors,
         private _configuration: Configuration,
+        private _diagnostics: IDiagnosticsDataSource,
         private _languageManager: LanguageManager,
         private _themeManager: ThemeManager,
     ) {
@@ -134,6 +136,11 @@ export class NeovimEditor extends Editor implements IEditor {
         this._screen = new NeovimScreen()
 
         this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
+
+        this._diagnostics.onErrorsChanged.subscribe(() => {
+            const errors = this._diagnostics.getErrors()
+            this._actions.setErrors(errors)
+        })
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
