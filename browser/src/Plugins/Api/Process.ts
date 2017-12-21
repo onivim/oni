@@ -1,6 +1,6 @@
 import * as ChildProcess from "child_process"
-import * as shellEnv from "shell-env"
 
+import * as Log from "./../../Log"
 import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
 
@@ -24,6 +24,7 @@ const mergeSpawnOptions = async (originalSpawnOptions: ChildProcess.ExecOptions 
     let existingPath: string
 
     try {
+        const shellEnv = await import("shell-env")
         const shellEnvironment = await shellEnv()
         process.env = { ...process.env, ...shellEnvironment }
         existingPath = process.env.Path || process.env.PATH
@@ -78,5 +79,10 @@ export const spawnNodeScript = async (scriptPath: string, args: string[] = [], o
 export const spawnProcess = async (startCommand: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): Promise<ChildProcess.ChildProcess> => {
     const spawnOptions = await mergeSpawnOptions(options)
 
-    return ChildProcess.spawn(startCommand, args, spawnOptions)
+    const proc = ChildProcess.spawn(startCommand, args, spawnOptions)
+    proc.on("error", (err: Error) => {
+        Log.error(err)
+    })
+
+    return proc
     }

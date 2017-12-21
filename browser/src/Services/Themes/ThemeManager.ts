@@ -6,6 +6,7 @@
 
 import { Event, IEvent } from "oni-types"
 
+import * as PersistentSettings from "./../Configuration/PersistentSettings"
 import { PluginThemeLoader } from "./ThemeLoader"
 
 export interface IThemeColors {
@@ -125,7 +126,7 @@ export const getColorsFromBackgroundAndForeground = (background: string, foregro
     }
 }
 
-const ColorBlack = "black"
+const ColorBlack = (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
 const ColorWhite = "white"
 
 const InsertMode = "#00c864"

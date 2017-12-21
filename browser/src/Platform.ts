@@ -3,7 +3,6 @@
 import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
-import * as sudo from "sudo-prompt"
 
 export const isWindows = () => os.platform() === "win32"
 export const isMac = () => os.platform() === "darwin"
@@ -33,6 +32,7 @@ export const addToPath = async () => {
 }
 
 const _runSudoCommand = async (command: string, options: any) => {
+  const sudo = await import("sudo-prompt")
   return new Promise(resolve => {
     sudo.exec(command, options, (error: Error, stdout: string, stderr: string) => {
       resolve({error, stdout, stderr})

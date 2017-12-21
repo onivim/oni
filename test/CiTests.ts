@@ -10,7 +10,6 @@ import { Oni, runInProcTest } from "./common"
 const LongTimeout = 5000
 
 const CiTests = [
-    "BasicEditingTest",
     "AutoClosingPairsTest",
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-TypeScript",
@@ -21,8 +20,6 @@ const CiTests = [
 ]
 
 // tslint:disable:no-console
-
-import * as Config from "./common/Config"
 
 import * as Platform from "./../browser/src/Platform"
 

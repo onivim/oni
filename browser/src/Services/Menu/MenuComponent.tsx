@@ -15,11 +15,6 @@ import { IMenuOptionWithHighlights, menuStore } from "./Menu"
 import * as ActionCreators from "./MenuActionCreators"
 import * as State from "./MenuState"
 
-/**
- * Popup menu
- */
-require("./Menu.less") // tslint:disable-line no-var-requires
-
 export interface IMenuProps {
     visible: boolean
     selectedIndex: number
@@ -154,9 +149,9 @@ export interface IMenuItemProps {
     isSelected: boolean
     filterText: string
     label: string
-    labelHighlights: number[][]
+    labelHighlights: number[]
     detail: string
-    detailHighlights: number[][]
+    detailHighlights: number[]
     pinned: boolean
     onClick: () => void
 }

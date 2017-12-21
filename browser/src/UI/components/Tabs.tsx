@@ -18,8 +18,6 @@ import { Icon } from "./../../UI/Icon"
 
 import { FileIcon } from "./../../Services/FileIcon"
 
-require("./Tabs.less") // tslint:disable-line no-var-requires
-
 export interface ITabProps {
     id: number
     name: string
@@ -186,7 +184,7 @@ const getTabsFromBuffers = createSelector(
                 description: buf.file,
             }
         })
-        return tabs
+        return tabs.sort(({ id: prevId }: ITabProps, { id: nextId }: ITabProps) => prevId - nextId)
     })
 
 const getTabsFromVimTabs = createSelector(

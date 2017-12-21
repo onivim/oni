@@ -9,8 +9,6 @@ import { IState, StatusBarAlignment } from "./../State"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
 
-require("./StatusBar.less") // tslint:disable-line no-var-requires
-
 export interface StatusBarProps {
     items: StatusBarItemProps[]
     enabled: boolean

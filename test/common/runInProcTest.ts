@@ -2,7 +2,6 @@ import * as assert from "assert"
 import * as fs from "fs"
 import * as path from "path"
 
-import * as Config from "./Config"
 import { Oni } from "./Oni"
 
 // tslint:disable:no-console
@@ -30,60 +29,59 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
     return normalizedMeta
 }
 
+const startTime = new Date().getTime()
+
+const logWithTimeStamp = (message: string) => {
+    const currentTime = new Date().getTime()
+    const delta = currentTime - startTime
+    const deltaInSeconds = delta / 1000
+
+    console.log(`[${deltaInSeconds}] ${message}`)
+}
+
 export const runInProcTest = (rootPath: string, testName: string, timeout: number = 5000) => {
     describe(testName, () => {
 
         const testCase = loadTest(rootPath, testName)
-        const configPath = Config.configPath
 
         let oni: Oni
 
         beforeEach(async () => {
-            console.log("[BEFORE EACH]: " + testName)
+            logWithTimeStamp("BEFORE EACH: " + testName)
 
-            Config.backupConfig()
-
-            if (testCase.configPath) {
-                console.log("Writing config from: " + testCase.configPath)
-                const configContents = fs.readFileSync(testCase.configPath)
-                console.log("Writing config to: " + configPath)
-                fs.writeFileSync(configPath, configContents)
+            const startOptions = {
+                configurationPath: testCase.configPath,
             }
 
             oni = new Oni()
-            return oni.start(["test.txt"])
+            logWithTimeStamp("- Calling oni.start")
+            await oni.start(startOptions)
+            logWithTimeStamp("- oni.start complete")
         })
 
         afterEach(async () => {
             console.log("[AFTER EACH]: " + testName)
             await oni.close()
-
-            if (fs.existsSync(configPath)) {
-                console.log("--Removing existing config..")
-                fs.unlinkSync(configPath)
-            }
-
-            Config.restoreConfig()
         })
 
         it("ci test: " + testName, async () => {
-            console.log("[TEST]: " + testName)
+            logWithTimeStamp("TEST: " + testName)
             console.log("Waiting for editor element...")
             await oni.client.waitForExist(".editor", timeout)
 
-            console.log("Found editor element. Getting editor element text: ")
+            logWithTimeStamp("Found editor element. Getting editor element text: ")
             const text = await oni.client.getText(".editor")
-            console.log("Editor element text: " + text)
+            logWithTimeStamp("Editor element text: " + text)
 
-            console.log("Test path: " + testCase.testPath) // tslint:disable-line
+            logWithTimeStamp("Test path: " + testCase.testPath) // tslint:disable-line
 
             oni.client.execute("Oni.automation.runTest('" + testCase.testPath + "')")
 
-            console.log("Waiting for result...") // tslint:disable-line
+            logWithTimeStamp("Waiting for result...") // tslint:disable-line
             await oni.client.waitForExist(".automated-test-result", 30000)
             const resultText = await oni.client.getText(".automated-test-result")
 
-            console.log("---RESULT")
+            logWithTimeStamp("---RESULT")
             console.log(resultText) // tslint:disable-line
             console.log("---")
             console.log("")

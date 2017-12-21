@@ -8,10 +8,12 @@ import * as OniApi from "oni-api"
 
 import * as Utility from "./../Utility"
 
+import { configuration } from "./Configuration"
 import { editorManager } from "./EditorManager"
 import { inputManager } from "./InputManager"
 
 import * as Log from "./../Log"
+import * as UI from "./../UI"
 
 export interface ITestResult {
     passed: boolean
@@ -57,6 +59,25 @@ export class Automation implements OniApi.Automation.Api {
         throw new Error("waitFor: Timeout expired")
     }
 
+    public async waitForEditors(): Promise<void> {
+        // Add explicit wait for Neovim to be initialized
+        // The CI machines can often be slow, so we need a longer timout for it
+        // TODO: Replace with a more explicit condition, once our startup
+        // path is well-defined (#89, #355, #372)
+
+        // Add explicit wait for Neovim to be initialized
+        // The CI machines can often be slow, so we need a longer timout for it
+        // TODO: Replace with a more explicit condition, once our startup
+        // path is well-defined (#89, #355, #372)
+        Log.info("[AUTOMATION] Waiting for startup...")
+        await this.waitFor(() => (UI.store.getState() as any).isLoaded, 30000)
+        Log.info("[AUTOMATION] Startup complete!")
+
+        Log.info("[AUTOMATION] Waiting for neovim to attach...")
+        await this.waitFor(() => editorManager.activeEditor.neovim && (editorManager.activeEditor as any).neovim.isInitialized, 30000)
+        Log.info("[AUTOMATION] Neovim attached!")
+    }
+
     public async runTest(testPath: string): Promise<void> {
         const containerElement = this._getOrCreateTestContainer("automated-test-container")
         containerElement.innerHTML = ""
@@ -67,15 +88,10 @@ export class Automation implements OniApi.Automation.Api {
         Log.enableVerboseLogging()
         try {
             Log.info("[AUTOMATION] Starting test: " + testPath)
+            Log.info("[AUTOMATION] Configuration path: " + configuration.userJsConfig)
             const testCase: any = Utility.nodeRequire(testPath2)
             const oni = new Oni()
-            // Add explicit wait for Neovim to be initialized
-            // The CI machines can often be slow, so we need a longer timout for it
-            // TODO: Replace with a more explicit condition, once our startup
-            // path is well-defined (#89, #355, #372)
-            Log.info("[AUTOMATION] Waiting for neovim to attach...")
-            await this.waitFor(() => oni.editors.activeEditor.neovim && (oni.editors.activeEditor as any).neovim.isInitialized, 30000)
-            Log.info("[AUTOMATION] Neovim attached!")
+
             await testCase.test(oni)
             Log.info("[AUTOMATION] Completed test: " + testPath)
             this._reportResult(true)

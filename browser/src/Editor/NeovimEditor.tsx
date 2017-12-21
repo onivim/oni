@@ -20,7 +20,7 @@ import { Event } from "oni-types"
 import * as Log from "./../Log"
 
 import { addDefaultUnitIfNeeded } from "./../Font"
-import { EventContext, INeovimStartOptions, NeovimInstance, NeovimScreen, NeovimWindowManager } from "./../neovim"
+import { BufferEventContext, EventContext, INeovimStartOptions, NeovimInstance, NeovimScreen, NeovimWindowManager } from "./../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../Renderer"
 
 import { pluginManager } from "./../Plugins/PluginManager"
@@ -29,11 +29,11 @@ import { Colors } from "./../Services/Colors"
 import { CallbackCommand, commandManager } from "./../Services/CommandManager"
 import { registerBuiltInCommands } from "./../Services/Commands"
 import { Completion } from "./../Services/Completion"
-import { configuration, IConfigurationValues } from "./../Services/Configuration"
+import { Configuration, IConfigurationValues } from "./../Services/Configuration"
 import { Errors } from "./../Services/Errors"
-import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, languageManager } from "./../Services/Language"
+import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, LanguageManager } from "./../Services/Language"
 import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../Services/SyntaxHighlighting"
-import { getThemeManagerInstance } from "./../Services/Themes"
+import { ThemeManager } from "./../Services/Themes"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 import { workspace } from "./../Services/Workspace"
 
@@ -42,7 +42,6 @@ import * as UI from "./../UI/index"
 import { Editor, IEditor } from "./Editor"
 
 import { BufferManager } from "./BufferManager"
-import { listenForBufferUpdates } from "./BufferUpdates"
 import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
@@ -101,8 +100,9 @@ export class NeovimEditor extends Editor implements IEditor {
 
     constructor(
         private _colors: Colors,
-        private _config = configuration,
-        private _themeManager = getThemeManagerInstance(),
+        private _configuration: Configuration,
+        private _languageManager: LanguageManager,
+        private _themeManager: ThemeManager,
     ) {
         super()
 
@@ -112,7 +112,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._screen = new NeovimScreen()
 
-        this._hoverRenderer = new HoverRenderer(this, this._config)
+        this._hoverRenderer = new HoverRenderer(this, this._configuration)
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
@@ -163,7 +163,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
-            if (configuration.getValue("editor.clipboard.enabled")) {
+            if (this._configuration.getValue("editor.clipboard.enabled")) {
                 clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
             }
         })
@@ -175,7 +175,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.onLeave.subscribe(() => {
             // TODO: Only leave if all editors are closed...
-            if (!configuration.getValue("debug.persistOnNeovimExit")) {
+            if (!this._configuration.getValue("debug.persistOnNeovimExit")) {
                 remote.getCurrentWindow().close()
             }
         })
@@ -184,7 +184,20 @@ export class NeovimEditor extends Editor implements IEditor {
             commandManager.executeCommand(command)
         })
 
-        this._neovimInstance.on("event", (eventName: string, evt: any) => this._onVimEvent(eventName, evt))
+        this._neovimInstance.on("event", (eventName: string, evt: any) => {
+            const current = evt.current || evt
+            this._updateWindow(current)
+            this._bufferManager.updateBufferFromEvent(current)
+        })
+
+        this._neovimInstance.autoCommands
+            .onBufEnter.subscribe((evt: BufferEventContext) => this._onBufEnter(evt))
+
+        this._neovimInstance.autoCommands
+            .onBufWipeout.subscribe((evt: BufferEventContext) => this._onBufWipeout(evt))
+
+        this._neovimInstance.autoCommands
+            .onBufWritePost.subscribe((evt: EventContext) => this._onBufWritePost(evt))
 
         this._neovimInstance.onColorsChanged.subscribe(() => {
             this._onColorsChanged()
@@ -235,8 +248,16 @@ export class NeovimEditor extends Editor implements IEditor {
         this._modeChanged$ = this._neovimInstance.onModeChanged.asObservable()
         this._neovimInstance.onModeChanged.subscribe((newMode) => this._onModeChanged(newMode))
 
-        const bufferUpdates$ = listenForBufferUpdates(this._neovimInstance, this._bufferManager)
-        bufferUpdates$.subscribe((bufferUpdate) => {
+        this._neovimInstance.onBufferUpdate.subscribe((update) => {
+
+            const buffer = this._bufferManager.updateBufferFromEvent(update.eventContext)
+
+            const bufferUpdate = {
+                context: update.eventContext,
+                buffer,
+                contentChanges: update.contentChanges,
+            }
+
             this.notifyBufferChanged(bufferUpdate)
             UI.Actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
 
@@ -254,10 +275,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$)
 
-        const textMateHighlightingEnabled = this._config.getValue("experimental.editor.textMateHighlighting.enabled")
+        const textMateHighlightingEnabled = this._configuration.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
-        this._completion = new Completion(this, languageManager, configuration)
+        this._completion = new Completion(this, this._languageManager, this._configuration)
         this._completionMenu = new CompletionMenu()
 
         this._completion.onShowCompletionItems.subscribe((completions) => {
@@ -276,7 +297,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._completion.commitItem(item)
         })
 
-        this._languageIntegration = new LanguageEditorIntegration(this, this._config, languageManager)
+        this._languageIntegration = new LanguageEditorIntegration(this, this._configuration, this._languageManager)
 
         this._languageIntegration.onShowHover.subscribe((hover) => {
             this._hoverRenderer.showQuickInfo(hover.hover, hover.errors)
@@ -304,10 +325,17 @@ export class NeovimEditor extends Editor implements IEditor {
 
         browserWindow.on("focus", () => {
             this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
+
+            // If the user has autoread enabled, we should run ":checktime" on
+            // focus, as this is needed to get the file to auto-update.
+            // https://github.com/neovim/neovim/issues/1936
+            if (_configuration.getValue("vim.setting.autoread")) {
+                this._neovimInstance.command(":checktime")
+            }
         })
 
-        this._onConfigChanged(this._config.getValues())
-        this._config.onConfigurationChanged.subscribe((newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues))
+        this._onConfigChanged(this._configuration.getValues())
+        this._configuration.onConfigurationChanged.subscribe((newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues))
 
         ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
             if (message.startsWith(":")) {
@@ -385,7 +413,7 @@ export class NeovimEditor extends Editor implements IEditor {
     public async init(filesToOpen: string[]): Promise<void> {
         const startOptions: INeovimStartOptions = {
             runtimePaths: pluginManager.getAllRuntimePaths(),
-            transport: configuration.getValue("experimental.neovim.transport"),
+            transport: this._configuration.getValue("experimental.neovim.transport"),
         }
 
         await this._neovimInstance.start(startOptions)
@@ -394,7 +422,7 @@ export class NeovimEditor extends Editor implements IEditor {
             return
         }
 
-        VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._config.getValues())
+        VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, this._configuration.getValues())
 
         this._themeManager.onThemeChanged.subscribe(() => {
             const newTheme = this._themeManager.activeTheme
@@ -420,7 +448,7 @@ export class NeovimEditor extends Editor implements IEditor {
     public render(): JSX.Element {
 
         const onBufferClose = (bufferId: number) => {
-            this._neovimInstance.command(`bw ${bufferId}`)
+            this._neovimInstance.command(`bw! ${bufferId}`)
         }
 
         const onBufferSelect = (bufferId: number) => {
@@ -463,7 +491,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._typingPredictionManager.clearAllPredictions()
 
-        if (newMode === "insert" && configuration.getValue("editor.typingPrediction")) {
+        if (newMode === "insert" && this._configuration.getValue("editor.typingPrediction")) {
             this._typingPredictionManager.enable()
         } else {
             this._typingPredictionManager.disable()
@@ -479,46 +507,61 @@ export class NeovimEditor extends Editor implements IEditor {
         }
     }
 
-    private _onVimEvent(eventName: string, evt: EventContext): void {
-        UI.Actions.setWindowCursor(evt.windowNumber, evt.line - 1, evt.column - 1)
-
+    private _updateWindow(currentBuffer: EventContext) {
+        UI.Actions.setWindowCursor(
+            currentBuffer.windowNumber,
+            currentBuffer.line - 1,
+            currentBuffer.column - 1,
+        )
         // Convert to 0-based positions
-        this._syntaxHighlighter.notifyViewportChanged(evt.bufferNumber.toString(), evt.windowTopLine - 1, evt.windowBottomLine - 1)
+        this._syntaxHighlighter.notifyViewportChanged(
+            currentBuffer.bufferNumber.toString(),
+            currentBuffer.windowTopLine - 1,
+            currentBuffer.windowBottomLine - 1,
+        )
+    }
 
+    private async _onBufEnter(evt: BufferEventContext): Promise<void> {
+        const buf = this._bufferManager.updateBufferFromEvent(evt.current)
         const lastBuffer = this.activeBuffer
-        const buf = this._bufferManager.updateBufferFromEvent(evt)
-
-        if (eventName === "BufEnter") {
-            if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
-                this.notifyBufferLeave({
-                    filePath: lastBuffer.filePath,
-                    language: lastBuffer.language,
-                })
-            }
-
-            this._lastBufferId = evt.bufferNumber.toString()
-            this.notifyBufferEnter(buf)
-
-            UI.Actions.bufferEnter(evt.bufferNumber, evt.bufferFullPath, evt.filetype, evt.bufferTotalLines, evt.hidden, evt.listed)
-        } else if (eventName === "BufWritePost") {
-            // After we save we aren't modified... but we can pass it in just to be safe
-            UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
-
-            this.notifyBufferSaved({
-                filePath: evt.bufferFullPath,
-                language: evt.filetype,
+        if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
+            this.notifyBufferLeave({
+                filePath: lastBuffer.filePath,
+                language: lastBuffer.language,
             })
-        } else if (eventName === "BufDelete") {
-
-            this._neovimInstance.getBufferIds()
-                .then((ids) => UI.Actions.setCurrentBuffers(ids))
         }
+        this._lastBufferId = evt.current.bufferNumber.toString()
+        this.notifyBufferEnter(buf)
+
+        // Existing buffers contains a duplicate current buffer object which should be filtered out
+        // and current buffer sent instead. Finally Filter out falsy viml values.
+        const existingBuffersWithoutCurrent =
+            evt.existingBuffers.filter(b => b.bufferNumber !== evt.current.bufferNumber)
+        const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
+
+        UI.Actions.bufferEnter(buffers)
+    }
+
+    private async _onBufWritePost(evt: EventContext): Promise<void> {
+        // After we save we aren't modified... but we can pass it in just to be safe
+        UI.Actions.bufferSave(evt.bufferNumber, evt.modified, evt.version)
+
+        this.notifyBufferSaved({
+            filePath: evt.bufferFullPath,
+            language: evt.filetype,
+        })
+    }
+
+    private async _onBufWipeout(evt: BufferEventContext): Promise<void> {
+        this._neovimInstance
+        .getBufferIds()
+        .then(ids => UI.Actions.setCurrentBuffers(ids))
     }
 
     private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
-        const fontFamily = this._config.getValue("editor.fontFamily")
-        const fontSize = addDefaultUnitIfNeeded(this._config.getValue("editor.fontSize"))
-        const linePadding = this._config.getValue("editor.linePadding")
+        const fontFamily = this._configuration.getValue("editor.fontFamily")
+        const fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
+        const linePadding = this._configuration.getValue("editor.linePadding")
 
         UI.Actions.setFont(fontFamily, fontSize)
         this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
@@ -570,8 +613,8 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private async _onKeyDown(key: string): Promise<void> {
-        if (configuration.getValue("debug.fakeLag.neovimInput")) {
-            await sleep(configuration.getValue("debug.fakeLag.neovimInput"))
+        if (this._configuration.getValue("debug.fakeLag.neovimInput")) {
+            await sleep(this._configuration.getValue("debug.fakeLag.neovimInput"))
         }
 
         await this._neovimInstance.input(key)

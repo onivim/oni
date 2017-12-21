@@ -32,10 +32,10 @@ export class NeovimWindowManager {
         this._scrollObservable = new Subject<EventContext>()
 
         const updateScroll = (evt: EventContext) => this._scrollObservable.next(evt)
-
-        this._neovimInstance.autoCommands.onBufEnter.subscribe(updateScroll)
+        // First element of the BufEnter event is the current buffer
+        this._neovimInstance.autoCommands.onBufEnter.subscribe((bufs) => updateScroll(bufs.current))
         this._neovimInstance.autoCommands.onBufWinEnter.subscribe(updateScroll)
-        this._neovimInstance.onBufferUpdate.subscribe((buf) => updateScroll(buf.context))
+        this._neovimInstance.onBufferUpdate.subscribe((buf) => updateScroll(buf.eventContext))
         this._neovimInstance.autoCommands.onWinEnter.subscribe(updateScroll)
         this._neovimInstance.autoCommands.onCursorMoved.subscribe(updateScroll)
         this._neovimInstance.autoCommands.onVimResized.subscribe(updateScroll)
@@ -148,6 +148,7 @@ export class NeovimWindowManager {
                     dimensions,
                     getBufferToScreenFromRanges(offset, expandedWidthRanges))
 
+            this._neovimInstance.dispatchScrollEvent()
         } else {
             Log.warn("Measure request failed")
         }

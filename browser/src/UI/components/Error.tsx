@@ -13,8 +13,6 @@ import { Icon } from "./../Icon"
 
 import { BufferToScreen, ScreenToPixel } from "./../Coordinates"
 
-require("./Error.less") // tslint:disable-line no-var-requires
-
 export interface IErrorsProps {
     errors: types.Diagnostic[]
     fontWidthInPixels: number
