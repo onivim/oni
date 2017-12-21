@@ -40,7 +40,7 @@ export class Oni {
 
         this._app = new Application({
             path: executablePath,
-            env: options.configurationPath ? { "ONI_CONFIGURATION_FILE": options.configurationPath } : {},
+            env: options.configurationPath ? { "ONI_CONFIG_FILE": options.configurationPath } : {},
         })
 
         log("Oni starting...")

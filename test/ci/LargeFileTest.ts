@@ -7,8 +7,9 @@
 import { getTemporaryFilePath, navigateToFile } from "./Common"
 
 export const test = async (oni: any) => {
-
     const filePath = createLargeTestFile()
+    await oni.automation.waitForEditors()
+
     navigateToFile(filePath, oni)
 
     await oni.automation.sendKeys("G")
