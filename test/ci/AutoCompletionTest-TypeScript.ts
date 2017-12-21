@@ -7,22 +7,20 @@ import * as assert from "assert"
 import { createNewFile, getCompletionElement } from "./Common"
 
 export const test = async (oni: any) => {
-    try {
-        await createNewFile("ts", oni)
+    await oni.automation.waitForEditors()
 
-        await oni.automation.sendKeys("i")
-        await oni.automation.sleep(500)
-        await oni.automation.sendKeys("window.a")
+    await createNewFile("ts", oni)
 
-        // Wait for completion popup to show
-        await oni.automation.waitFor(() => getCompletionElement() !== null)
+    await oni.automation.sendKeys("i")
+    await oni.automation.sleep(500)
+    await oni.automation.sendKeys("window.a")
 
-        // Check for 'alert' as an available completion
-        const completionElement = getCompletionElement()
-        const textContent = completionElement.textContent
+    // Wait for completion popup to show
+    await oni.automation.waitFor(() => getCompletionElement() !== null)
 
-        assert.ok(textContent.indexOf("alert") >= 0, "Verify 'alert' was presented as a completion")
-    } catch (e) {
-        return e
-    }
+    // Check for 'alert' as an available completion
+    const completionElement = getCompletionElement()
+    const textContent = completionElement.textContent
+
+    assert.ok(textContent.indexOf("alert") >= 0, "Verify 'alert' was presented as a completion")
 }
