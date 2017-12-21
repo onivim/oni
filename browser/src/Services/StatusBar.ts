@@ -80,7 +80,7 @@ class StatusBar implements Oni.StatusBar {
         return new StatusBarItem(globalId)
     }
 
-    public createItem(alignment: StatusBarAlignment, priority: number = 0, globalId?: string): Oni.StatusBarItem {
+    public createItem(alignment: StatusBarAlignment, globalId?: string): Oni.StatusBarItem {
         this._id++
         const statusBarId = globalId || `${this._id.toString()}`
         const statusItems = configuration.getValue("statusbar.priority")

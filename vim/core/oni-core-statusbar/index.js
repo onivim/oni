@@ -9,11 +9,11 @@ const activate = (Oni) => {
 
     const mode = ids.find(id => id.includes('mode'));
     const linenumber = ids.find(id => id.includes('linenumber'));
-    const workingDir = ids.find(id => id.includes('workingDir'));
+    const dir = ids.find(id => id.includes('workingDir'));
 
-    const workingDirectoryItem = Oni.statusBar.createItem(0, items[dir], dir)
-    const lineNumberItem = Oni.statusBar.createItem(1, items[linenumber] , linenumber)
-    const modeItem = Oni.statusBar.createItem(1, items[mode], mode)
+    const workingDirectoryItem = Oni.statusBar.createItem(0, dir)
+    const lineNumberItem = Oni.statusBar.createItem(1, linenumber)
+    const modeItem = Oni.statusBar.createItem(1, mode)
 
     const setMode = (mode) => {
         const getBackgroundColorForMode = (m) => {

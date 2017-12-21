@@ -10,6 +10,7 @@ import * as React from "react"
 import * as Oni from "oni-api"
 
 import { Icon } from "./../../UI/Icon"
+import { configuration } from "./../Configuration"
 
 import { statusBar } from "./../StatusBar"
 
@@ -19,7 +20,9 @@ export class LanguageClientStatusBar {
     private _fileType: string
 
     constructor() {
-        this._item = statusBar.createItem(0, 1, "oni.status.fileType2")
+        const priorities = configuration.getValue("statusbar.priority")
+        const id = Object.keys(priorities).find(p => p.includes("filetype"))
+        this._item = statusBar.createItem(0, id)
     }
 
     public show(fileType: string): void {
