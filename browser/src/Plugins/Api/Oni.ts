@@ -20,7 +20,6 @@ import { automation } from "./../../Services/Automation"
 import { Colors, getInstance as getColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
 import { configuration } from "./../../Services/Configuration"
-import { contextMenuManager } from "./../../Services/ContextMenu"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
@@ -50,7 +49,6 @@ const helpers = {
  * API instance for interacting with OniApi (and vim)
  */
 export class Oni extends EventEmitter implements OniApi.Plugin.Api {
-
     private _dependencies: Dependencies
     private _diagnostics: OniApi.Plugin.Diagnostics.Api
     private _ui: Ui
@@ -69,6 +67,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return commandManager
     }
 
+    public get contextMenu(): any {
+        return null
+    }
+
     public get log(): OniApi.Log {
         return Log
     }
@@ -79,10 +81,6 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     public get configuration(): OniApi.Configuration {
         return configuration
-    }
-
-    public get contextMenu(): any {
-        return contextMenuManager
     }
 
     public get diagnostics(): OniApi.Plugin.Diagnostics.Api {

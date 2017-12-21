@@ -49,6 +49,8 @@ import { HoverRenderer } from "./../HoverRenderer"
 import { NeovimPopupMenu } from "./../NeovimPopupMenu"
 import { NeovimSurface } from "./../NeovimSurface"
 
+import { ContextMenuManager } from "./../../Services/ContextMenu"
+
 import { tasks } from "./../../Services/Tasks"
 
 import { normalizePath, sleep } from "./../../Utility"
@@ -67,6 +69,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
     private _completionMenu: CompletionMenu
+    private _contextMenuManager: ContextMenuManager
     private _popupMenu: NeovimPopupMenu
     private _errorInitializing: boolean = false
 
@@ -126,6 +129,8 @@ export class NeovimEditor extends Editor implements IEditor {
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
         this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
 
+        this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
+
         this._neovimInstance = new NeovimInstance(100, 100)
         this._bufferManager = new BufferManager(this._neovimInstance)
         this._screen = new NeovimScreen()
@@ -150,7 +155,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
 
-        this._commands = new NeovimEditorCommands(commandManager, this._languageIntegration, this._rename)
+        this._commands = new NeovimEditorCommands(commandManager, this._contextMenuManager, this._languageIntegration, this._rename)
 
         const updateViewport = () => {
             const width = document.body.offsetWidth
@@ -293,7 +298,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
 
         this._completion = new Completion(this, this._languageManager, this._configuration)
-        this._completionMenu = new CompletionMenu()
+        this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
 
         this._completion.onShowCompletionItems.subscribe((completions) => {
             this._completionMenu.show(completions.filteredCompletions, completions.base)
