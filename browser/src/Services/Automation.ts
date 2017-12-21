@@ -117,7 +117,8 @@ export class Automation implements OniApi.Automation.Api {
         const win = remote.getCurrentWindow()
         const size = win.getContentSize()
         Log.info(`[AUTOMATION]: Window size reported as ${size}`)
-        Log.info(`[AUTOMATION]: Window focus state: ${win.isFocused}`)
+        Log.info(`[AUTOMATION]: Window focus state: ${win.isFocused()}`)
+        Log.info(`[AUTOMATION]: Is off-screen rendering: ${win.webContents.isOffscreen()}`)
     }
 
     private _getOrCreateTestContainer(className: string): HTMLDivElement {

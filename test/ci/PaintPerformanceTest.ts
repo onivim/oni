@@ -67,13 +67,13 @@ export const test = async (oni: any) => {
     const maxHeight = gpuCompositingEnabled ? 20 : 256
 
     paintRectangles.forEach((pr) => {
-        assert.ok(pr.height <= maxHeight, "Validate rectangle height is less than the max height")
-
         // TODO: #1129 - Validate width as well!
+
+        assert.ok(pr.height <= maxHeight, "Validate rectangle height is less than the max height")
     })
 }
 
 // Bring in custom config to turn off animations, in order to reduce noise.
-// export const settings = {
-//     configPath: "PaintPerformanceTest.config.js",
-// }
+export const settings = {
+    configPath: "PaintPerformanceTest.config.js",
+}
