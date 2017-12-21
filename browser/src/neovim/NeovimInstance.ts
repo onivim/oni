@@ -22,6 +22,8 @@ import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { IPixelPosition, IPosition } from "./Screen"
 import { Session } from "./Session"
 
+import { INeovimBufferUpdate, NeovimBufferUpdateManager } from "./NeovimBufferUpdateManager"
+
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
 export interface INeovimYankInfo {
@@ -71,9 +73,7 @@ export interface INeovimInstance {
     // Events
     onYank: IEvent<INeovimYankInfo>
 
-    onBufferUpdate: IEvent<IFullBufferUpdateEvent>
-
-    onBufferUpdateIncremental: IEvent<IIncrementalBufferUpdateEvent>
+    onBufferUpdate: IEvent<INeovimBufferUpdate>
 
     onRedrawComplete: IEvent<void>
 
@@ -164,8 +164,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onYank = new Event<INeovimYankInfo>()
     private _onOniCommand = new Event<string>()
     private _onRedrawComplete = new Event<void>()
-    private _onFullBufferUpdateEvent = new Event<IFullBufferUpdateEvent>()
-    private _onIncrementalBufferUpdateEvent = new Event<IIncrementalBufferUpdateEvent>()
     private _onScroll = new Event<EventContext>()
     private _onTitleChanged = new Event<string>()
     private _onModeChanged = new Event<Oni.Vim.Mode>()
@@ -175,6 +173,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onLeave = new Event<void>()
 
     private _onColorsChanged = new Event<void>()
+
+    private _bufferUpdateManager: NeovimBufferUpdateManager
 
     private _pendingScrollTimeout: number | null = null
 
@@ -186,12 +186,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._quickFix
     }
 
-    public get onBufferUpdate(): IEvent<IFullBufferUpdateEvent> {
-        return this._onFullBufferUpdateEvent
-    }
-
-    public get onBufferUpdateIncremental(): IEvent<IIncrementalBufferUpdateEvent> {
-        return this._onIncrementalBufferUpdateEvent
+    public get onBufferUpdate(): IEvent<INeovimBufferUpdate> {
+        return this._bufferUpdateManager.onBufferUpdate
     }
 
     public get onColorsChanged(): IEvent<void> {
@@ -257,6 +253,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._quickFix = new QuickFixList(this)
         this._autoCommands = new NeovimAutoCommands(this)
+
+        this._bufferUpdateManager = new NeovimBufferUpdateManager(configuration, this)
     }
 
     public async chdir(directoryPath: string): Promise<void> {
@@ -300,10 +298,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                         if (pluginMethod === "buffer_update") {
                             const eventContext: EventContext = args[0][0]
-                            const startRange: number = args[0][1]
-                            const endRange: number = args[0][2]
 
-                            this._onFullBufferUpdate(eventContext, startRange, endRange)
+                            this._bufferUpdateManager.notifyFullBufferUpdate(eventContext)
                         } else if (pluginMethod === "oni_yank") {
                             this._onYank.dispatch(args[0][0])
                         } else if (pluginMethod === "oni_command") {
@@ -330,11 +326,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             const lineContents = args[0][1]
                             const lineNumber = args[0][2]
 
-                            this._onIncrementalBufferUpdateEvent.dispatch({
-                                context: eventContext,
-                                lineNumber,
-                                lineContents,
-                            })
+                            this._bufferUpdateManager.notifyIncrementalBufferUpdate(eventContext, lineNumber, lineContents)
                         } else {
                             Log.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
                         }
@@ -641,19 +633,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 default:
                     Log.warn("Unhandled command: " + command)
             }
-        })
-    }
-
-    private async _onFullBufferUpdate(context: EventContext, startRange: number, endRange: number): Promise<void> {
-        if (endRange > this._config.getValue("editor.maxLinesForLanguageServices")) {
-            return
-        }
-
-        const bufferLines = await this.request<string[]>("nvim_buf_get_lines", [context.bufferNumber, startRange - 1, endRange, false])
-
-        this._onFullBufferUpdateEvent.dispatch({
-            context,
-            bufferLines,
         })
     }
 
