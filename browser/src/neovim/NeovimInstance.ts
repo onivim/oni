@@ -253,6 +253,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._quickFix = new QuickFixList(this)
         this._autoCommands = new NeovimAutoCommands(this)
+
+        this._bufferUpdateManager = new NeovimBufferUpdateManager(configuration, this)
     }
 
     public async chdir(directoryPath: string): Promise<void> {
@@ -296,10 +298,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                         if (pluginMethod === "buffer_update") {
                             const eventContext: EventContext = args[0][0]
-                            const startRange: number = args[0][1]
-                            const endRange: number = args[0][2]
 
-                            this._bufferUpdateManager.notifyFullBufferUpdate(eventContext, startRange, endRange)
+                            this._bufferUpdateManager.notifyFullBufferUpdate(eventContext)
                         } else if (pluginMethod === "oni_yank") {
                             this._onYank.dispatch(args[0][0])
                         } else if (pluginMethod === "oni_command") {
