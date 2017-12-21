@@ -201,13 +201,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _onColorsChanged = new Event<void>()
 
-<<<<<<< HEAD
     private _onCommandLineShowEvent = new Event<INeovimCommandLineShowEvent>()
     private _onCommandLineHideEvent = new Event<void>()
     private _onCommandLineSetCursorPositionEvent = new Event<INeovimCommandLineSetCursorPosition>()
-=======
     private _bufferUpdateManager: NeovimBufferUpdateManager
->>>>>>> 77c65b4c9f802e6af7a6571dd15a0b99ac1f44c5
 
     private _pendingScrollTimeout: number | null = null
 
@@ -569,19 +566,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         const rows = Math.floor(this._lastHeightInPixels / this._fontHeightInPixels)
         const cols = Math.floor(this._lastWidthInPixels / this._fontWidthInPixels)
         return { rows, cols }
-    }
-
-    private _dispatchScrollEvent(): void {
-        if (this._pendingScrollTimeout) {
-            return
-        }
-
-        this._pendingScrollTimeout = window.setTimeout(async () => {
-            const evt = await this.getContext()
-            this._onScroll.dispatch(evt)
-            this._pendingScrollTimeout = null
-
-        })
     }
 
     private _handleNotification(_method: any, args: any): void {
