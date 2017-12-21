@@ -47,15 +47,17 @@ export class Errors extends React.PureComponent<IErrorsProps, {}> {
             const isActive = this.props.cursorLine - 1 === e.range.start.line
             const pixelY = pixelPosition.pixelY - (padding / 2)
 
-            return <ErrorMarker isActive={isActive}
-                    y={pixelY}
-                    text={e.message}
-                    color={getColorFromSeverity(e.severity)} />
+            return <ErrorMarker
+                        isActive={isActive}
+                        y={pixelY}
+                        text={e.message}
+                        color={getColorFromSeverity(e.severity)}
+                    />
         })
 
         const squiggles = errors
             .filter((e) => e && e.range && e.range.start && e.range.end)
-            .map((e) => {
+            .map((e, idx) => {
             const lineNumber = e.range.start.line
             const column = e.range.start.character
             const endColumn = e.range.end.character
@@ -78,11 +80,13 @@ export class Errors extends React.PureComponent<IErrorsProps, {}> {
             const normalizedPixelWidth = pixelWidth === 0 ? this.props.fontWidthInPixels : pixelWidth
 
             return <ErrorSquiggle
-                y={pixelStart.pixelY}
-                height={this.props.fontHeightInPixels}
-                x={pixelStart.pixelX}
-                width={normalizedPixelWidth}
-                color={getColorFromSeverity(e.severity)} />
+                        key={`${pixelStart.pixelX}-${pixelStart.pixelY}-${idx}`}
+                        y={pixelStart.pixelY}
+                        height={this.props.fontHeightInPixels}
+                        x={pixelStart.pixelX}
+                        width={normalizedPixelWidth}
+                        color={getColorFromSeverity(e.severity)}
+                    />
         })
 
         return <div>{markers}{squiggles}</div>
