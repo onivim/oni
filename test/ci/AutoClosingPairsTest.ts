@@ -13,6 +13,8 @@ import { createNewFile } from "./Common"
 const delay = 0
 
 export const test = async (oni: any) => {
+    await oni.automation.waitForEditors()
+
     await createNewFile("js", oni)
 
     // Wait for the '{' binding to show up, so we get

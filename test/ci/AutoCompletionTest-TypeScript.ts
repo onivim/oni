@@ -8,7 +8,10 @@ import { createNewFile, getCompletionElement } from "./Common"
 
 export const test = async (oni: any) => {
     try {
-        await createNewFile("ts", oni)
+
+    await oni.automation.waitForEditors()
+
+    await createNewFile("ts", oni)
 
         await oni.automation.sendKeys("i")
         await oni.automation.sleep(500)
