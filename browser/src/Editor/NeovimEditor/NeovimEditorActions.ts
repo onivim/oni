@@ -83,6 +83,24 @@ export interface IShowCommandLineAction {
     },
 }
 
+export interface IWildMenuSelectedAction {
+    type: "WILDMENU_SELECTED",
+    payload: {
+        selected: number,
+    }
+}
+
+export interface IShowWildMenuAction {
+    type: "SHOW_WILDMENU",
+    payload: {
+        options: string[],
+    }
+}
+
+export interface IHideWildMenuAction {
+    type: "HIDE_WILDMENU",
+}
+
 export interface ISetNeovimErrorAction {
     type: "SET_NEOVIM_ERROR",
     payload: {
@@ -271,7 +289,10 @@ export type SimpleAction =
     ISetWindowTitleAction |
     IShowCommandLineAction |
     IHideCommandLineAction |
-    ISetCommandLinePosition
+    ISetCommandLinePosition |
+    IHideWildMenuAction |
+    IShowWildMenuAction |
+    IWildMenuSelectedAction
 
 export type ActionWithGeneric<K extends keyof IConfigurationValues> =
     ISetConfigurationValue<K>
@@ -342,6 +363,20 @@ export const showCommandLine = (
         indent,
         level,
     },
+})
+
+export const showWildMenu = (payload: { options: string[] }) => ({
+    type: "SHOW_WILDMENU",
+    payload,
+})
+
+export const wildMenuSelect = (payload: { selected: number }) => ({
+    type: "WILDMENU_SELECTED",
+    payload,
+})
+
+export const hideWildMenu = () => ({
+    type: "HIDE_WILDMENU",
 })
 
 export const setNeovimError = (neovimError: boolean) => ({

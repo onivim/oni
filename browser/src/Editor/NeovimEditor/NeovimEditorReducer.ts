@@ -63,7 +63,33 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             obj[a.payload.key] = a.payload.value
             const newConfig = {...s.configuration, ...obj}
             return {...s,
-                    configuration: newConfig}
+                    configuration: newConfig,
+            }
+        case "SHOW_WILDMENU":
+            return {
+                ...s,
+                wildmenu: {
+                    ...s.wildmenu,
+                    visible: true,
+                    options: a.payload.options,
+                },
+            }
+        case "WILDMENU_SELECTED":
+            return {
+                ...s,
+                wildmenu: {
+                    ...s.wildmenu,
+                    selected: a.payload.selected,
+                },
+            }
+        case "HIDE_WILDMENU":
+            return {
+                ...s,
+                wildmenu: {
+                    ...s.wildmenu,
+                    visible: false,
+                },
+            }
         case "SHOW_COMMAND_LINE":
             return {
                 ...s,

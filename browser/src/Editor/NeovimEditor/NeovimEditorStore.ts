@@ -80,6 +80,13 @@ export interface IState {
     activeWindowDimensions: Rectangle
 
     commandLine: ICommandLine | null
+    wildmenu: IWildMenu
+}
+
+export interface IWildMenu {
+    selected: number
+    visible: boolean
+    options: string[]
 }
 
 export interface ICommandLine {
@@ -201,6 +208,11 @@ export const createDefaultState = (): IState => ({
     errors: {},
     toolTips: {},
     commandLine: null,
+    wildmenu: {
+        selected: null,
+        visible: false,
+        options: [],
+    },
 })
 
 let neovimEditorId = 0
