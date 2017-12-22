@@ -778,13 +778,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                                          shouldExtPopups: boolean) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
             const useExtCmdLine =  this._config.getValue("experimental.commandline.mode")
-            // const useExtWildMenu =  this._config.getValue("experimental.wildmenu.mode")
+            const useExtWildMenu =  this._config.getValue("experimental.wildmenu.mode")
             return {
                 rgb: true,
                 popupmenu_external: shouldExtPopups,
                 ext_tabline: shouldExtTabs,
                 ext_cmdline: useExtCmdLine,
-                ext_wildmenu: true,
+                ext_wildmenu: useExtWildMenu,
             }
         } else if (major === 0 && minor === 2) {
             // 0.1 and below does not support external tabline

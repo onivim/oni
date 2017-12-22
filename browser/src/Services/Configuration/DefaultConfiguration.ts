@@ -34,6 +34,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "experimental.editor.textMateHighlighting.enabled": false,
     "experimental.commandline.mode": false,
+    "experimental.wildmenu.mode": false,
 
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows
