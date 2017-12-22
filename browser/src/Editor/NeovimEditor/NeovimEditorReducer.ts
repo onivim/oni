@@ -4,47 +4,26 @@
  * Top-level reducer for UI state transforms
  */
 
-import * as State from "./State"
+import * as State from "./NeovimEditorStore"
 
-import * as Actions from "./Actions"
+import * as Actions from "./NeovimEditorActions"
 
-import { IConfigurationValues } from "./../Services/Configuration"
+import { IConfigurationValues } from "./../../Services/Configuration"
+import { Errors } from "./../../Services/Diagnostics"
 
 import * as pick from "lodash/pick"
 
-import * as types from "vscode-languageserver-types"
-
-export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>) {
+export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>): State.IState {
 
     if (!s) {
         return s
     }
 
     switch (a.type) {
-        case "ENTER_FULL_SCREEN":
-            return {
-                ...s,
-                isFullScreen: true,
-            }
-        case "LEAVE_FULL_SCREEN":
-            return {
-                ...s,
-                isFullScreen: false,
-            }
         case "SET_HAS_FOCUS":
             return {
                 ...s,
                 hasFocus: a.payload.hasFocus,
-            }
-        case "SET_LOADING_COMPLETE":
-            return {
-                ...s,
-                isLoaded: true,
-            }
-        case "SET_WINDOW_TITLE":
-            return {
-                ...s,
-                windowTitle: a.payload.title,
             }
         case "SET_COLORS":
             return {
@@ -85,18 +64,12 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             const newConfig = {...s.configuration, ...obj}
             return {...s,
                     configuration: newConfig}
-
-        case "SHOW_MESSAGE_DIALOG":
-            return {
-                ...s,
-                activeMessageDialog: a.payload,
-            }
         case "SHOW_COMMAND_LINE":
             return {
                 ...s,
                 commandLine: {
                     content: a.payload.content,
-                    pos: a.payload.pos,
+                    position: a.payload.position,
                     firstchar: a.payload.firstchar,
                     prompt: a.payload.prompt,
                     indent: a.payload.indent,
@@ -113,18 +86,12 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 ...s,
                 commandLine :  {...s.commandLine, position: a.payload.position},
             }
-        case "HIDE_MESSAGE_DIALOG":
-            return {
-                ...s,
-                activeMessageDialog: null,
-            }
         default:
             return {...s,
                     buffers: buffersReducer(s.buffers, a),
                     definition: definitionReducer(s.definition, a),
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
-                    statusBar: statusBarReducer(s.statusBar, a),
                     toolTips: toolTipsReducer(s.toolTips, a),
                     windowState: windowStateReducer(s.windowState, a)}
     }
@@ -262,25 +229,19 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
     }
 }
 
-export const errorsReducer = (s: { [file: string]: { [key: string]: types.Diagnostic[] } }, a: Actions.SimpleAction) => {
+export const errorsReducer = (s: Errors, a: Actions.SimpleAction) => {
     switch (a.type) {
         case "SET_ERRORS":
-
-            const currentFile = s[a.payload.file] || null
-
             return {
-                ...s,
-                [a.payload.file]: {
-                    ...currentFile,
-                    [a.payload.key]: [...a.payload.errors],
-                },
+                ...a.payload.errors,
             }
+
         default:
             return s
     }
 }
 
-export const toolTipsReducer = (s: { [key: string]: State.IToolTip }, a: Actions.SimpleAction) => {
+export const toolTipsReducer = (s: State.ToolTips, a: Actions.SimpleAction): State.ToolTips => {
     switch (a.type) {
         case "SHOW_TOOL_TIP":
             const existingItem = s[a.payload.id] || {}
@@ -294,29 +255,6 @@ export const toolTipsReducer = (s: { [key: string]: State.IToolTip }, a: Actions
                 [a.payload.id]: newItem,
             }
         case "HIDE_TOOL_TIP":
-            return {
-                ...s,
-                [a.payload.id]: null,
-            }
-        default:
-            return s
-    }
-}
-
-export const statusBarReducer = (s: { [key: string]: State.IStatusBarItem }, a: Actions.SimpleAction) => {
-    switch (a.type) {
-        case "STATUSBAR_SHOW":
-            const existingItem = s[a.payload.id] || {}
-            const newItem = {
-                ...existingItem,
-                ...a.payload,
-            }
-
-            return {
-                ...s,
-                [a.payload.id]: newItem,
-            }
-        case "STATUSBAR_HIDE":
             return {
                 ...s,
                 [a.payload.id]: null,

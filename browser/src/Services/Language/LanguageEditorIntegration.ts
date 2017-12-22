@@ -14,9 +14,8 @@ import * as types from "vscode-languageserver-types"
 
 import { Configuration } from "./../Configuration"
 
-import { createStore, DefaultLanguageState, ILanguageState } from "./LanguageStore"
-
 import { LanguageManager } from "./LanguageManager"
+import { createStore, DefaultLanguageState, ILanguageState } from "./LanguageStore"
 
 import { IDefinitionRequestor, IDefinitionResult, LanguageServiceDefinitionRequestor } from "./DefinitionRequestor"
 import { IHoverRequestor, IHoverResult, LanguageServiceHoverRequestor } from "./HoverRequestor"

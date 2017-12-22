@@ -6,14 +6,16 @@ import * as React from "react"
 
 import { connect } from "react-redux"
 
-import { IState, StatusBarAlignment } from "./../State"
-
 import { addDefaultUnitIfNeeded } from "./../../Font"
 import { withProps } from "./common"
 import StatusResize from "./StatusResize"
 import WithWidth from "./WithWidth"
 
+import { IState, StatusBarAlignment } from "./../Shell/ShellState"
+
 interface StatusBarStyleProps {
+    items: StatusBarItemProps[]
+    enabled: boolean
     fontSize: string
     fontFamily: string
     className?: string

@@ -12,18 +12,41 @@ import "rxjs/add/operator/distinctUntilChanged"
 
 import * as isEqual from "lodash/isEqual"
 
+import { Event, IEvent } from "oni-types"
 import * as types from "vscode-languageserver-types"
 
 import { EventContext } from "./EventContext"
 import { NeovimInstance } from "./index"
 
 import * as Log from "./../Log"
-import * as UI from "./../UI"
 import * as Utility from "./../Utility"
+
+import * as Coordinates from "./../UI/Coordinates"
+import * as UITypes from "./../UI/Types"
+
+export interface NeovimWindowState {
+    windowNumber: number
+    bufferFullPath: string
+
+    line: number
+    column: number
+
+    topBufferLine: number
+    bottomBufferLine: number
+
+    bufferToScreen: Coordinates.BufferToScreen
+    dimensions: UITypes.Rectangle
+}
 
 export class NeovimWindowManager {
 
     private _scrollObservable: Subject<EventContext>
+
+    private _onWindowStateChangedEvent = new Event<NeovimWindowState>()
+
+    public get onWindowStateChanged(): IEvent<NeovimWindowState> {
+        return this._onWindowStateChangedEvent
+    }
 
     constructor(
         private _neovimInstance: NeovimInstance,
@@ -138,15 +161,16 @@ export class NeovimWindowManager {
                 height,
             }
 
-            UI.Actions.setWindowState(
-                    context.windowNumber,
-                    context.bufferFullPath,
-                    context.column - 1,
-                    context.line - 1,
-                    context.windowBottomLine - 1,
-                    context.windowTopLine,
-                    dimensions,
-                    getBufferToScreenFromRanges(offset, expandedWidthRanges))
+            this._onWindowStateChangedEvent.dispatch({
+                windowNumber: context.windowNumber,
+                bufferFullPath: context.bufferFullPath,
+                column: context.column - 1,
+                line: context.line - 1,
+                bottomBufferLine: context.windowBottomLine - 1,
+                topBufferLine: context.windowTopLine,
+                dimensions,
+                bufferToScreen: getBufferToScreenFromRanges(offset, expandedWidthRanges),
+            })
 
             this._neovimInstance.dispatchScrollEvent()
         } else {

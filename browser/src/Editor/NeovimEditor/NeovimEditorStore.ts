@@ -7,16 +7,23 @@
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
+import { Store } from "redux"
+import thunk from "redux-thunk"
 
-import { IConfigurationValues } from "./../Services/Configuration"
+import { IConfigurationValues } from "./../../Services/Configuration"
 
-import { DefaultThemeColors, IThemeColors } from "./../Services/Themes"
+import { DefaultThemeColors, IThemeColors } from "./../../Services/Themes"
 
-import * as Coordinates from "./Coordinates"
-import { Rectangle } from "./Types"
+import * as Coordinates from "./../../UI/Coordinates"
+import { Rectangle } from "./../../UI/Types"
+
+import { createStore as createReduxStore } from "./../../Redux"
 
 export interface Buffers { [filePath: string]: IBuffer }
 export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
+export interface ToolTips { [id: string]: IToolTip }
+
+import { reducer } from "./NeovimEditorReducer"
 
 /**
  * Viewport encompasses the actual 'app' height
@@ -28,7 +35,7 @@ export interface IViewport {
 
 export interface IToolTip {
     id: string,
-    options: Oni.ToolTip.ToolTipOptions,
+    options?: Oni.ToolTip.ToolTipOptions,
     element: JSX.Element
 }
 
@@ -44,7 +51,6 @@ export interface IState {
     fontFamily: string
     fontSize: string
     hasFocus: boolean
-    isFullScreen: boolean
     mode: string
     definition: null | IDefinition
     cursorLineOpacity: number
@@ -52,16 +58,10 @@ export interface IState {
     configuration: IConfigurationValues
     imeActive: boolean
     viewport: IViewport
-
-    toolTips: { [id: string]: IToolTip }
-    neovimError: boolean
-
-    // Shell
-    isLoaded: boolean
     colors: IThemeColors
-    windowTitle: string
 
-    statusBar: { [id: string]: IStatusBarItem }
+    toolTips: ToolTips
+    neovimError: boolean
 
     /**
      * Tabs refer to the Vim-concept of tabs
@@ -79,7 +79,6 @@ export interface IState {
     // so this should be factored to a per-editor store
     activeWindowDimensions: Rectangle
 
-    activeMessageDialog: IMessageDialog
     commandLine: ICommandLine | null
 }
 
@@ -95,33 +94,6 @@ export interface ICommandLine {
 export interface IDefinition {
     token: Oni.IToken
     definitionLocation: types.Location
-}
-
-export enum MessageType {
-    Info = 0,
-    Warning,
-    Error,
-}
-
-export interface IMessageDialog {
-    messageType: MessageType
-    text: string
-    buttons: IMessageDialogButton[]
-    details?: string
-}
-
-export interface Color {
-    r: number
-    g: number
-    b: number
-    a: number
-}
-
-export interface IMessageDialogButton {
-    text: string
-    backgroundColor?: Color
-    foregroundColor?: Color
-    callback?: () => void
 }
 
 export interface IBufferState {
@@ -169,18 +141,6 @@ export interface IWindow {
     bottomBufferLine: number
 }
 
-export enum StatusBarAlignment {
-    Left,
-    Right,
-}
-
-export interface IStatusBarItem {
-    alignment: StatusBarAlignment
-    contents: JSX.Element
-    priority: number
-    visible: boolean
-}
-
 export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurationValues, k: K): IConfigurationValues[K] {
 
     if (!conf) {
@@ -214,8 +174,6 @@ export const createDefaultState = (): IState => ({
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
     neovimError: false,
-    isLoaded: false,
-    isFullScreen: false,
 
     configuration: {} as IConfigurationValues,
 
@@ -241,9 +199,14 @@ export const createDefaultState = (): IState => ({
     },
 
     errors: {},
-    statusBar: {},
     toolTips: {},
-    activeMessageDialog: null,
-    windowTitle: "",
     commandLine: null,
 })
+
+let neovimEditorId = 0
+
+export const createStore = (): Store<IState> => {
+
+    const editorId = neovimEditorId++
+    return createReduxStore("NeovimEditor" + editorId.toString(), reducer, createDefaultState(), [thunk])
+}

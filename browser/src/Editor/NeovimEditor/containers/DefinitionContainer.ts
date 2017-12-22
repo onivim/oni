@@ -2,17 +2,17 @@ import { connect } from "react-redux"
 
 import * as types from "vscode-languageserver-types"
 
-import * as Selectors from "./../Selectors"
-import { getActiveDefinition } from "./../selectors/DefinitionSelectors"
+import { Definition, IDefinitionProps } from "./../../../UI/components/Definition"
 
-import * as State from "./../State"
-
-import { Definition, IDefinitionProps } from "./../components/Definition"
+import * as Selectors from "./../NeovimEditorSelectors"
+import * as State from "./../NeovimEditorStore"
 
 const emptyRange = types.Range.create(
     types.Position.create(-1, -1),
     types.Position.create(-1, -1),
 )
+
+const getActiveDefinition = (state: State.IState) => state.definition
 
 const mapStateToProps = (state: State.IState): IDefinitionProps => {
 
