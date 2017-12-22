@@ -5,20 +5,24 @@ import * as State from "./../State"
 
 import { Errors, IErrorsProps } from "./../components/Error"
 
-const mapStateToProps = (state: State.IState): IErrorsProps => {
+import { noop } from "./../../Utility"
 
-    const window = Selectors.getActiveWindow(state)
-    const errors = Selectors.getErrorsForActiveFile(state)
+export interface IErrorContainerProps {
+    window: State.IWindow
+}
 
-    const noop = (): any => null
+const mapStateToProps = (state: State.IState, containerProps: IErrorContainerProps): IErrorsProps => {
+
+    const win = containerProps.window
+    const errors = Selectors.getAllErrorsForFile(win.file, state.errors)
 
     return {
         errors,
-        cursorLine: window ? window.line : 0,
+        cursorLine: win ? win.line : 0,
         fontWidthInPixels: state.fontPixelWidth,
         fontHeightInPixels: state.fontPixelHeight,
-        bufferToScreen: window ? window.bufferToScreen : noop,
-        screenToPixel: window ? window.screenToPixel : noop,
+        bufferToScreen: win ? win.bufferToScreen : noop,
+        screenToPixel: win ? win.screenToPixel : noop,
     }
 }
 

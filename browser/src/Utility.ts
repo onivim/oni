@@ -30,6 +30,8 @@ export function nodeRequire(moduleName: string): any {
 
 export const normalizePath = (fileName: string) => fileName.split("\\").join("/")
 
+export const noop = (): any => null
+
 // String methods
 
 // ReplaceAll adapted from SO:
