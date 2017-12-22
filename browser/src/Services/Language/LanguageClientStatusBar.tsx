@@ -91,7 +91,7 @@ const StatusRendererContainer = styled.div`
         align-items: center;
         justify-content: center;
         height: 100%;
-        background-color: rgb(35, 35, 35);
+        background-color: ${p => p.theme["editor.background"]};
         color: rgb(200, 200, 200);
         padding-right: 8px;
         padding-left: 8px;
