@@ -74,10 +74,7 @@ export interface IState {
 
     errors: Errors
 
-    // Dimensions of active window, in pixels
-    // TODO: This is relevant only to a specific 'editor',
-    // so this should be factored to a per-editor store
-    activeWindowDimensions: Rectangle
+    activeVimTabPage: IVimTabPage
 
     commandLine: ICommandLine | null
     wildmenu: IWildMenu
@@ -130,6 +127,11 @@ export interface ITabState {
     tabs: ITab[]
 }
 
+export interface IVimTabPage {
+    id: number
+    windowIds: number[]
+}
+
 export interface IWindowState {
     activeWindow: number,
     windows: { [windowId: number]: IWindow },
@@ -171,16 +173,12 @@ export const createDefaultState = (): IState => ({
     imeActive: false,
     mode: "normal",
     definition: null,
-    activeWindowDimensions: {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-    },
     colors: DefaultThemeColors,
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
     neovimError: false,
+
+    activeVimTabPage: null,
 
     configuration: {} as IConfigurationValues,
 

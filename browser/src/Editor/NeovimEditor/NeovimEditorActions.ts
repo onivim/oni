@@ -37,13 +37,6 @@ export interface ISetLoadingCompleteAction {
     type: "SET_LOADING_COMPLETE",
 }
 
-export interface ISetWindowTitleAction {
-    type: "SET_WINDOW_TITLE",
-    payload: {
-        title: string,
-    }
-}
-
 export interface ISetColorsAction {
     type: "SET_COLORS",
     payload: {
@@ -187,6 +180,14 @@ export interface ISetTabs {
     }
 }
 
+export interface ISetActiveVimTabPage {
+    type: "SET_ACTIVE_VIM_TAB_PAGE",
+    payload: {
+        id: number,
+        windowIds: number[],
+    }
+}
+
 export interface ISetWindowCursor {
     type: "SET_WINDOW_CURSOR",
     payload: {
@@ -211,6 +212,14 @@ export interface ISetWindowState {
 
         topBufferLine: number
         bottomBufferLine: number,
+    }
+}
+
+export interface ISetInactiveWindowState {
+    type: "SET_INACTIVE_WINDOW_STATE",
+    payload: {
+        windowId: number,
+        dimensions: Rectangle,
     }
 }
 
@@ -282,11 +291,12 @@ export type SimpleAction =
     ISetHasFocusAction |
     ISetNeovimErrorAction |
     ISetTabs |
+    ISetActiveVimTabPage |
     ISetLoadingCompleteAction |
     ISetViewportAction |
     ISetWindowCursor |
     ISetWindowState |
-    ISetWindowTitleAction |
+    ISetInactiveWindowState |
     IShowCommandLineAction |
     IHideCommandLineAction |
     ISetCommandLinePosition |
@@ -312,18 +322,6 @@ export const setLoadingComplete = () => {
 
     return {
         type: "SET_LOADING_COMPLETE",
-    }
-}
-
-export const setWindowTitle = (title: string) => {
-
-    document.title = title
-
-    return {
-        type: "SET_WINDOW_TITLE",
-        payload: {
-            title,
-        },
     }
 }
 
@@ -508,6 +506,14 @@ export const setWindowState = (windowId: number,
     })
 }
 
+export const setInactiveWindowState = (windowId: number, dimensions: Rectangle): ISetInactiveWindowState => ({
+    type: "SET_INACTIVE_WINDOW_STATE",
+    payload: {
+        windowId,
+        dimensions,
+    },
+})
+
 export const showToolTip = (id: string, element: JSX.Element, options?: Oni.ToolTip.ToolTipOptions) => ({
     type: "SHOW_TOOL_TIP",
     payload: {
@@ -565,6 +571,14 @@ export const setCursorColumnOpacity = (opacity: number) => ({
     type: "SET_CURSOR_COLUMN_OPACITY",
     payload: {
         opacity,
+    },
+})
+
+export const setActiveVimTabPage = (tabId: number, windowIds: number[]): ISetActiveVimTabPage => ({
+    type: "SET_ACTIVE_VIM_TAB_PAGE",
+    payload: {
+        id: tabId,
+        windowIds,
     },
 })
 

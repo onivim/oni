@@ -220,8 +220,25 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.hideCommandLine()
         })
 
-        this._windowManager.onWindowStateChanged.subscribe((newWindowState) => {
-            this._actions.setWindowState(newWindowState.windowNumber, newWindowState.bufferFullPath, newWindowState.column, newWindowState.line, newWindowState.bottomBufferLine, newWindowState.topBufferLine, newWindowState.dimensions, newWindowState.bufferToScreen)
+        this._windowManager.onWindowStateChanged.subscribe((tabPageState) => {
+
+            const inactiveIds = tabPageState.inactiveWindows.map((w) => w.windowNumber)
+
+            this._actions.setActiveVimTabPage(tabPageState.tabId, [tabPageState.activeWindow.windowNumber, ...inactiveIds])
+
+            const { activeWindow } = tabPageState
+            this._actions.setWindowState(activeWindow.windowNumber,
+                activeWindow.bufferFullPath,
+                activeWindow.column,
+                activeWindow.line,
+                activeWindow.bottomBufferLine,
+                activeWindow.topBufferLine,
+                activeWindow.dimensions,
+                activeWindow.bufferToScreen)
+
+            tabPageState.inactiveWindows.map((w) => {
+                this._actions.setInactiveWindowState(w.windowNumber, w.dimensions)
+            })
         })
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
