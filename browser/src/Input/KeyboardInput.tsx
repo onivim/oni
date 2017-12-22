@@ -12,10 +12,10 @@ import { connect } from "react-redux"
 
 import { IEvent } from "oni-types"
 
+import { IState } from "./../Editor/NeovimEditor/NeovimEditorStore"
 import { getKeyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
-import { IState } from "./../Editor/NeovimEditor/NeovimEditorStore"
 
 import { measureFont } from "./../Font"
 

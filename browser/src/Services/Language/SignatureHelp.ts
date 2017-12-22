@@ -11,8 +11,8 @@ import * as Oni from "oni-api"
 import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import { editorManager } from "./../EditorManager"
 import { IToolTipsProvider } from "./../../Editor/NeovimEditor/ToolTipsProvider"
+import { editorManager } from "./../EditorManager"
 
 import { ILatestCursorAndBufferInfo } from "./addInsertModeLanguageFunctionality"
 import * as LanguageManager from "./LanguageManager"

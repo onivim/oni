@@ -20,9 +20,9 @@ export class Symbols {
     constructor(
         private _editor: Oni.Editor,
         private _definition: Definition,
-        private _languageManager: LanguageManager
+        private _languageManager: LanguageManager,
     ) {
-        
+
     }
 
     public async openWorkspaceSymbolsMenu() {

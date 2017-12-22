@@ -33,6 +33,7 @@ export class Rename {
 
     public async startRename(): Promise<void> {
         if (this._isRenameActive) {
+            return
         }
 
         const activeBuffer = this._editor.activeBuffer
@@ -53,7 +54,7 @@ export class Rename {
     }
 
     public commitRename(): void {
-        
+
         Log.verbose("[RENAME] Committing rename")
         this._isRenameCommitted = true
         this._isRenameActive = false

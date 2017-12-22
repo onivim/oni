@@ -25,7 +25,7 @@ export class CompletionMenu {
     }
 
     constructor(
-        private _contextMenu: ContextMenu
+        private _contextMenu: ContextMenu,
     ) {
         this._contextMenu.onSelectedItemChanged.subscribe((item) => this._onItemFocusedEvent.dispatch(item))
         this._contextMenu.onItemSelected.subscribe((item) => this._onItemSelectedEvent.dispatch(item))

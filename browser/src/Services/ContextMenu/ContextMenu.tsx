@@ -108,8 +108,8 @@ export class ContextMenu {
         private _store: Store<State.IMenus<types.CompletionItem, types.CompletionItem>>,
         private _actions: typeof ActionCreators,
         private _toolTips: IToolTipsProvider,
-        private _colors: Colors
-    ){ }
+        private _colors: Colors,
+    ) { }
 
     public isOpen(): boolean {
         const contextMenuState = this._store.getState()

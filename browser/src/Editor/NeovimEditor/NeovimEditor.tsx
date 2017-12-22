@@ -56,10 +56,10 @@ import { normalizePath, sleep } from "./../../Utility"
 
 import * as VimConfigurationSynchronizer from "./../../Services/VimConfigurationSynchronizer"
 
-import { createStore, IState } from "./NeovimEditorStore"
+import { Definition } from "./Definition"
 import * as ActionCreators from "./NeovimEditorActions"
 import { NeovimEditorCommands } from "./NeovimEditorCommands"
-import { Definition } from "./Definition"
+import { createStore, IState } from "./NeovimEditorStore"
 import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
@@ -630,9 +630,10 @@ export class NeovimEditor extends Editor implements IEditor {
         this._actions.setFont(fontFamily, fontSize)
         this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
 
-        for (let prop in newValues) {
-            this._actions.setConfigValue(prop, newValues[prop])
-        }
+        Object.keys(newValues).forEach((key) => {
+            const value = newValues[key]
+            this._actions.setConfigValue(key, value)
+        })
 
         if (this._hasLoaded) {
             VimConfigurationSynchronizer.synchronizeConfiguration(this._neovimInstance, newValues)

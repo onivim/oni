@@ -6,8 +6,8 @@ import * as take from "lodash/take"
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
-import { Store } from "redux"
 import { connect, Provider } from "react-redux"
+import { Store } from "redux"
 
 import * as Oni from "oni-api"
 

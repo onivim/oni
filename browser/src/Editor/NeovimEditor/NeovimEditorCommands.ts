@@ -2,7 +2,7 @@
  * NeovimEditorCommands
  *
  * Contextual commands for NeovimEditor
- * 
+ *
  */
 
 import * as Oni from "oni-api"
@@ -67,7 +67,7 @@ export class NeovimEditorCommands {
             new CallbackCommand("contextMenu.next", null, null, nextContextMenuItem, isContextMenuOpen),
             new CallbackCommand("contextMenu.previous", null, null, previousContextMenuItem, isContextMenuOpen),
             new CallbackCommand("contextMenu.close", null, null, closeContextMenu, isContextMenuOpen),
-            
+
             // TODO: Deprecate
             new CallbackCommand("oni.editor.gotoDefinition", null, null, () => this._definition.gotoDefinitionUnderCursor()),
             new CallbackCommand("language.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => this._definition.gotoDefinitionUnderCursor()),
@@ -94,4 +94,3 @@ export class NeovimEditorCommands {
         this._lastCommands = []
     }
 }
-

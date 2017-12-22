@@ -26,7 +26,7 @@ export class HoverRenderer {
         private _colors: Colors,
         private _editor: Oni.Editor,
         private _configuration: Configuration,
-        private _toolTipsProvider: IToolTipsProvider
+        private _toolTipsProvider: IToolTipsProvider,
     ) {
     }
 

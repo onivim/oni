@@ -1,6 +1,5 @@
 import * as types from "vscode-languageserver-types"
 
-
 import { connect } from "react-redux"
 import { createSelector } from "reselect"
 

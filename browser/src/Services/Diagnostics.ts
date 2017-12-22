@@ -68,7 +68,7 @@ export class DiagnosticsDataSource {
             [filePath]: {
                 ...currentFile,
                 [key]: [...errors],
-            }
+            },
         }
 
         this._onErrorsChangedEvent.dispatch()

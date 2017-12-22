@@ -18,7 +18,6 @@ import { TabsContainer } from "./../../UI/components/Tabs"
 import { ToolTips } from "./../../UI/components/ToolTip"
 import { TypingPrediction } from "./../../UI/components/TypingPredictions"
 
-
 import { BufferScrollBarContainer } from "./containers/BufferScrollBarContainer"
 import { DefinitionContainer } from "./containers/DefinitionContainer"
 import { ErrorsContainer } from "./containers/ErrorsContainer"
@@ -43,7 +42,7 @@ export interface INeovimSurfaceProps {
     onImeStart: () => void
     onImeEnd: () => void
     onBounceStart: () => void
-    onBounceEnd: () =>void
+    onBounceEnd: () => void
     onTabClose?: (tabId: number) => void
     onTabSelect?: (tabId: number) => void
 }

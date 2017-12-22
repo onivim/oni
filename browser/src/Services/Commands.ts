@@ -114,7 +114,6 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
     commands.forEach((c) => commandManager.registerCommand(c))
 }
 
-
 const shouldShowMenu = () => {
     return !menuManager.isMenuOpen()
 }
