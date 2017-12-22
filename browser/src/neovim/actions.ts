@@ -113,6 +113,18 @@ export function setHighlight(bold: boolean, italic: boolean, reverse: boolean, u
     return action
 }
 
+export const CommandLineShow = (content: [any, string], pos: number, firstc: string, prompt: string, indent: number, level: number) => ({
+    type: "COMMAND_LINE_SHOW",
+    payload: {
+        content,
+        pos,
+        firstc,
+        prompt,
+        indent,
+        level,
+    },
+})
+
 function colorToString(color: number, defaultColor: string): string {
     if (color === -1) {
         return defaultColor

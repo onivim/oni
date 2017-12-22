@@ -7,6 +7,8 @@ import * as assert from "assert"
 import { createNewFile, getCompletionElement } from "./Common"
 
 export const test = async (oni: any) => {
+    await oni.automation.waitForEditors()
+
     await createNewFile("ts", oni)
 
     oni.automation.sendKeys("i")

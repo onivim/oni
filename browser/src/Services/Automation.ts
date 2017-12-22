@@ -4,6 +4,8 @@
  * Helper methods for running automated tests
  */
 
+import { remote } from "electron"
+
 import * as OniApi from "oni-api"
 
 import * as Utility from "./../Utility"
@@ -59,6 +61,25 @@ export class Automation implements OniApi.Automation.Api {
         throw new Error("waitFor: Timeout expired")
     }
 
+    public async waitForEditors(): Promise<void> {
+        // Add explicit wait for Neovim to be initialized
+        // The CI machines can often be slow, so we need a longer timout for it
+        // TODO: Replace with a more explicit condition, once our startup
+        // path is well-defined (#89, #355, #372)
+
+        // Add explicit wait for Neovim to be initialized
+        // The CI machines can often be slow, so we need a longer timout for it
+        // TODO: Replace with a more explicit condition, once our startup
+        // path is well-defined (#89, #355, #372)
+        Log.info("[AUTOMATION] Waiting for startup...")
+        await this.waitFor(() => (UI.store.getState() as any).isLoaded, 30000)
+        Log.info("[AUTOMATION] Startup complete!")
+
+        Log.info("[AUTOMATION] Waiting for neovim to attach...")
+        await this.waitFor(() => editorManager.activeEditor.neovim && (editorManager.activeEditor as any).neovim.isInitialized, 30000)
+        Log.info("[AUTOMATION] Neovim attached!")
+    }
+
     public async runTest(testPath: string): Promise<void> {
         const containerElement = this._getOrCreateTestContainer("automated-test-container")
         containerElement.innerHTML = ""
@@ -72,24 +93,16 @@ export class Automation implements OniApi.Automation.Api {
             Log.info("[AUTOMATION] Configuration path: " + configuration.userJsConfig)
             const testCase: any = Utility.nodeRequire(testPath2)
             const oni = new Oni()
-            // Add explicit wait for Neovim to be initialized
-            // The CI machines can often be slow, so we need a longer timout for it
-            // TODO: Replace with a more explicit condition, once our startup
-            // path is well-defined (#89, #355, #372)
 
-            Log.info("[AUTOMATION] Waiting for startup...")
-            await this.waitFor(() => (UI.store.getState() as any).isLoaded, 30000)
-            Log.info("[AUTOMATION] Startup complete!")
+            this._initializeBrowseWindow()
 
-            Log.info("[AUTOMATION] Waiting for neovim to attach...")
-            await this.waitFor(() => oni.editors.activeEditor.neovim && (oni.editors.activeEditor as any).neovim.isInitialized, 30000)
-            Log.info("[AUTOMATION] Neovim attached!")
             await testCase.test(oni)
             Log.info("[AUTOMATION] Completed test: " + testPath)
             this._reportResult(true)
         } catch (ex) {
             this._reportResult(false, ex)
         } finally {
+            this._reportWindowSize()
             const logs = loggingRedirector.getAllLogs()
 
             const logsElement = this._createElement("automated-test-logs", this._getOrCreateTestContainer("automated-test-container"))
@@ -98,6 +111,22 @@ export class Automation implements OniApi.Automation.Api {
 
             loggingRedirector.dispose()
         }
+    }
+
+    private _initializeBrowseWindow(): void {
+        const win = remote.getCurrentWindow()
+        win.maximize()
+        win.focus()
+
+        this._reportWindowSize()
+    }
+
+    private _reportWindowSize(): void {
+        const win = remote.getCurrentWindow()
+        const size = win.getContentSize()
+        Log.info(`[AUTOMATION]: Window size reported as ${size}`)
+        Log.info(`[AUTOMATION]: Window focus state: ${win.isFocused()}`)
+        Log.info(`[AUTOMATION]: Is off-screen rendering: ${win.webContents.isOffscreen()}`)
     }
 
     private _getOrCreateTestContainer(className: string): HTMLDivElement {

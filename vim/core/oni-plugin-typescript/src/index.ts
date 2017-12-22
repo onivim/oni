@@ -113,6 +113,11 @@ export const activate = (oni: Oni.Plugin.Api) => {
             oni.log.warn("Unhandled change request!")
         }
 
+        const saveFile = oni.configuration.getValue<string>("debug.typescript.saveFile")
+        if (saveFile) {
+            host.saveTo(filePath, saveFile)
+        }
+
         // Update errors for modified file
         host.getErrors(filePath)
     }

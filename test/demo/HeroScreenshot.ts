@@ -22,6 +22,7 @@ const getCompletionElement = () => {
 }
 
 export const test = async (oni: any) => {
+    await oni.automation.waitForEditors()
 
     let lastAlertText = null
     window.alert = (myText) => lastAlertText = myText
