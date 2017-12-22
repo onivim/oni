@@ -85,6 +85,7 @@ export interface IState {
 }
 
 export interface IWildMenu {
+    selected: number
     visible: boolean
     options: string[]
 }
@@ -253,6 +254,7 @@ export const createDefaultState = (): IState => ({
     windowTitle: "",
     commandLine: null,
     wildmenu: {
+        selected: null,
         visible: false,
         options: [],
     },

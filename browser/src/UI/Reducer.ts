@@ -95,8 +95,17 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             return {
                 ...s,
                 wildmenu: {
+                    ...s.wildmenu,
                     visible: true,
                     options: a.payload.options,
+                },
+            }
+        case "WILDMENU_SELECTED":
+            return {
+                ...s,
+                wildmenu: {
+                    ...s.wildmenu,
+                    selected: a.payload.selected,
                 },
             }
         case "HIDE_WILDMENU":

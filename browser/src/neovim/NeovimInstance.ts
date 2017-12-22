@@ -729,8 +729,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     this._onWildMenuShowEvent.dispatch({ options })
                     break
                 case "wildmenu_select":
-                    console.log("SELECT EVENT", a[0])
-                    this._onWildMenuSelectEvent.dispatch({ selected:  a[0] })
+                    const [[ selection ]] = a
+                    this._onWildMenuSelectEvent.dispatch({ selected: selection })
                     break
                 case "wildmenu_hide":
                     this._onWildMenuHideEvent.dispatch()

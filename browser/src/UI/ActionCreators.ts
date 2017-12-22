@@ -104,6 +104,11 @@ export const showWildMenu = (payload: { options: string[] }) => ({
     payload,
 })
 
+export const wildMenuSelect = (payload: { selected: number }) => ({
+    type: "WILDMENU_SELECTED",
+    payload,
+})
+
 export const hideWildMenu = () => ({
     type: "HIDE_WILDMENU",
 })

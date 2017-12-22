@@ -62,6 +62,13 @@ export interface IHideWildMenuAction {
     type: "HIDE_WILDMENU",
 }
 
+export interface IWildMenuSelectedAction {
+    type: "WILDMENU_SELECTED",
+    payload: {
+        selected: number,
+    },
+}
+
 export interface ISetCommandLinePosition {
     type: "SET_COMMAND_LINE_POSITION",
     payload: {
@@ -317,6 +324,7 @@ export type SimpleAction =
     IShowCommandLineAction |
     IHideCommandLineAction |
     IShowWildMenuAction |
+    IWildMenuSelectedAction |
     IHideWildMenuAction |
     ISetCommandLinePosition
 
