@@ -16,7 +16,7 @@ import { INeovimInstance } from "./../neovim"
 
 import { configuration } from "./../Services/Configuration"
 import { editorManager } from "./../Services/EditorManager"
-import { findAllReferences, format, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu } from "./../Services/Language"
+import { findAllReferences, format } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { showAboutMessage } from "./../Services/Metadata"
 import { multiProcess } from "./../Services/MultiProcess"
@@ -63,9 +63,6 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
         // new CallbackCommand("language.rename.cancel", null, null, () => cancelRename(), isRenameActive),
 
         new CallbackCommand("language.format", null, null, () => format()),
-
-        new CallbackCommand("language.symbols.document", null, null, () => openDocumentSymbolsMenu()),
-        new CallbackCommand("language.symbols.workspace", null, null, () => openWorkspaceSymbolsMenu()),
 
         // Menu commands
         new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for Oni", () => openDefaultConfig(neovimInstance)),

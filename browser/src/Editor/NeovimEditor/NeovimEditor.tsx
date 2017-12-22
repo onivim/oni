@@ -61,6 +61,7 @@ import * as ActionCreators from "./NeovimEditorActions"
 import { NeovimEditorCommands } from "./NeovimEditorCommands"
 import { Definition } from "./Definition"
 import { Rename } from "./Rename"
+import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
 
 export class NeovimEditor extends Editor implements IEditor {
@@ -99,6 +100,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _completion: Completion
     private _hoverRenderer: HoverRenderer
     private _rename: Rename = null
+    private _symbols: Symbols = null
     private _definition: Definition = null
     private _toolTipsProvider: IToolTipsProvider
     private _commands: NeovimEditorCommands
@@ -140,6 +142,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
 
         this._definition = new Definition(this, this._store)
+        this._symbols = new Symbols(this, this._definition, this._languageManager)
 
         this._diagnostics.onErrorsChanged.subscribe(() => {
             const errors = this._diagnostics.getErrors()
@@ -164,7 +167,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
 
-        this._commands = new NeovimEditorCommands(commandManager, this._contextMenuManager, this._definition, this._languageIntegration, this._rename)
+        this._commands = new NeovimEditorCommands(commandManager, this._contextMenuManager, this._definition, this._languageIntegration, this._rename, this._symbols)
 
         const updateViewport = () => {
             const width = document.body.offsetWidth

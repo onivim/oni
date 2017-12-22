@@ -35,10 +35,10 @@ export class Definition {
         const line = range.start.line
         const column = range.start.character
 
-        await this._gotoPositionInUri(uri, line, column, openType)
+        await this.gotoPositionInUri(uri, line, column, openType)
     }
 
-    private async _gotoPositionInUri(uri: string, line: number, column: number, openType: OpenType = OpenType.NewTab): Promise<void> {
+    public async gotoPositionInUri(uri: string, line: number, column: number, openType: OpenType = OpenType.NewTab): Promise<void> {
         const filePath = Helpers.unwrapFileUriPath(uri)
 
         const activeEditor = this._editor

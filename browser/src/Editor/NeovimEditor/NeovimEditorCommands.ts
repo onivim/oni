@@ -13,6 +13,7 @@ import { LanguageEditorIntegration } from "./../../Services/Language"
 
 import { Definition } from "./Definition"
 import { Rename } from "./Rename"
+import { Symbols } from "./Symbols"
 
 export class NeovimEditorCommands {
 
@@ -24,6 +25,7 @@ export class NeovimEditorCommands {
         private _definition: Definition,
         private _languageEditorIntegration: LanguageEditorIntegration,
         private _rename: Rename,
+        private _symbols: Symbols,
     ) { }
 
     public activate(): void {
@@ -77,6 +79,10 @@ export class NeovimEditorCommands {
             new CallbackCommand("editor.rename.cancel", null, null, () => this._rename.cancelRename(), isRenameActive),
 
             new CallbackCommand("editor.quickInfo.show", null, null, () => this._languageEditorIntegration.showHover()),
+
+            new CallbackCommand("language.symbols.document", null, null, () => this._symbols.openDocumentSymbolsMenu()),
+            new CallbackCommand("language.symbols.workspace", null, null, () => this._symbols.openWorkspaceSymbolsMenu()),
+
         ]
 
         this._lastCommands = commands
