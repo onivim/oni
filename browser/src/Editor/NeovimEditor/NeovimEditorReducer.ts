@@ -298,8 +298,8 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                     line: -1,
                     topBufferLine: -1,
                     bottomBufferLine: -1,
-                    dimensions: a.payload.dimensions
-                }
+                    dimensions: a.payload.dimensions,
+                },
             }
         case "SET_WINDOW_STATE":
             currentWindow = s.windows[a.payload.windowId] || null

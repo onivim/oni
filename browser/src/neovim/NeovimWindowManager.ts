@@ -237,7 +237,6 @@ export class NeovimWindowManager {
             const width = values[1]
             const height = values[2]
 
-
             const dimensions = {
                 x: col,
                 y: row,

@@ -218,12 +218,12 @@ export class NeovimEditor extends Editor implements IEditor {
 
             const { activeWindow } = tabPageState
             this._actions.setWindowState(activeWindow.windowNumber,
-                activeWindow.bufferFullPath, 
-                activeWindow.column, 
-                activeWindow.line, 
-                activeWindow.bottomBufferLine, 
-                activeWindow.topBufferLine, 
-                activeWindow.dimensions, 
+                activeWindow.bufferFullPath,
+                activeWindow.column,
+                activeWindow.line,
+                activeWindow.bottomBufferLine,
+                activeWindow.topBufferLine,
+                activeWindow.dimensions,
                 activeWindow.bufferToScreen)
 
             tabPageState.inactiveWindows.map((w) => {

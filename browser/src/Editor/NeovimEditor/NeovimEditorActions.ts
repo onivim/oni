@@ -166,7 +166,7 @@ export interface ISetActiveVimTabPage {
     type: "SET_ACTIVE_VIM_TAB_PAGE",
     payload: {
         id: number,
-        windowIds: number[]
+        windowIds: number[],
     }
 }
 
@@ -201,7 +201,7 @@ export interface ISetInactiveWindowState {
     type: "SET_INACTIVE_WINDOW_STATE",
     payload: {
         windowId: number,
-        dimensions: Rectangle
+        dimensions: Rectangle,
     }
 }
 
@@ -476,7 +476,7 @@ export const setInactiveWindowState = (windowId: number, dimensions: Rectangle):
     payload: {
         windowId,
         dimensions,
-    }
+    },
 })
 
 export const showToolTip = (id: string, element: JSX.Element, options?: Oni.ToolTip.ToolTipOptions) => ({
@@ -544,7 +544,7 @@ export const setActiveVimTabPage = (tabId: number, windowIds: number[]): ISetAct
     payload: {
         id: tabId,
         windowIds,
-    }
+    },
 })
 
 export function setConfigValue<K extends keyof IConfigurationValues>(k: K, v: IConfigurationValues[K]): ISetConfigurationValue<K> {
