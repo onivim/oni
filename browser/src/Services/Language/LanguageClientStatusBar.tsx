@@ -22,14 +22,7 @@ export class LanguageClientStatusBar {
     private _fileType: string
 
     constructor() {
-        let id
-        try {
-            const priorities = configuration.getValue("statusbar.priority")
-            id = Object.keys(priorities).find(p => p.includes("filetype"))
-        } catch (e) {
-            id = "oni.status.filetype"
-        }
-        this._item = statusBar.createItem(0, id)
+        this._item = statusBar.createItem(0, "oni.status.filetype")
     }
 
     public show(fileType: string): void {
