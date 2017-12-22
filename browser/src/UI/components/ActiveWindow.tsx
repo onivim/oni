@@ -26,6 +26,7 @@ export interface INeovimWindowsProps {
 }
 
 import { BufferScrollBarContainer } from "./../containers/BufferScrollBarContainer"
+import { DefinitionContainer } from "./../containers/DefinitionContainer"
 import { ErrorsContainer } from "./../containers/ErrorsContainer"
 
 export class NeovimWindowsView extends React.PureComponent<INeovimWindowsProps, {}> {
@@ -40,6 +41,7 @@ export class NeovimWindowsView extends React.PureComponent<INeovimWindowsProps, 
             return <ActiveWindow {...pixelDimensions}>
                     <BufferScrollBarContainer window={win} />
                     <ErrorsContainer window={win} />
+                    <DefinitionContainer window={win} />
                     {fullDiv}
                 </ActiveWindow>
         })
@@ -49,7 +51,6 @@ export class NeovimWindowsView extends React.PureComponent<INeovimWindowsProps, 
 }
 
 const getWindowPixelDimensions = (win: IWindow) => {
-
     const start = win.screenToPixel({
         screenX: win.dimensions.x,
         screenY: win.dimensions.y

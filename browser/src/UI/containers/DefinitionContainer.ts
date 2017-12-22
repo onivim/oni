@@ -3,26 +3,29 @@ import { connect } from "react-redux"
 import * as types from "vscode-languageserver-types"
 
 import * as Selectors from "./../Selectors"
-import { getActiveDefinition } from "./../selectors/DefinitionSelectors"
-
 import * as State from "./../State"
 
 import { Definition, IDefinitionProps } from "./../components/Definition"
+
+import { noop } from "./../../Utility"
 
 const emptyRange = types.Range.create(
     types.Position.create(-1, -1),
     types.Position.create(-1, -1),
 )
 
-const mapStateToProps = (state: State.IState): IDefinitionProps => {
+export interface IDefinitionContainerProps {
+    window: State.IWindow
+}
 
-    const window = Selectors.getActiveWindow(state)
+const mapStateToProps = (state: State.IState, definitionProps: IDefinitionContainerProps): IDefinitionProps => {
+    const window = definitionProps.window
+    const activeDefinition = state.definition
 
-    const noop = (): any => null
-
-    const activeDefinition = getActiveDefinition(state)
-
-    const range = activeDefinition ? activeDefinition.token.range : emptyRange
+    let range = emptyRange
+    if (activeDefinition && Selectors.getActiveWindow(state) === window) {
+        range = activeDefinition.token.range
+    }
 
     return {
         color: state.colors["editor.foreground"],
