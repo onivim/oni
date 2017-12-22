@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 
 import { createSelector } from "reselect"
 
-import * as State from "./../State"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { CursorPositioner } from "./CursorPositioner"
 

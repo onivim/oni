@@ -9,11 +9,11 @@ import * as React from "react"
 import * as Oni from "oni-api"
 import { IEvent } from "oni-types"
 
-import { INeovimCompletionInfo, INeovimCompletionItem } from "./../neovim"
+import { INeovimCompletionInfo, INeovimCompletionItem } from "./../../neovim"
+import { Colors } from "./../../Services/Colors"
+import { ContextMenuView, IContextMenuItem } from "./../../Services/ContextMenu"
 
-import * as UI from "./../UI"
-
-import { ContextMenuView, IContextMenuItem } from "./../Services/ContextMenu"
+import { IToolTipsProvider } from "./ToolTipsProvider"
 
 const mapNeovimCompletionItemToContextMenuItem = (item: INeovimCompletionItem, idx: number, totalLength: number): IContextMenuItem  => ({
     label: item.word,
@@ -31,6 +31,8 @@ export class NeovimPopupMenu {
         private _popupMenuHideEvent: IEvent<void>,
         private _popupMenuSelectEvent: IEvent<number>,
         private _onBufferEnterEvent: IEvent<Oni.EditorBufferEventArgs>,
+        private _colors: Colors,
+        private _toolTipsProvider: IToolTipsProvider,
     ) {
 
         this._popupMenuShowEvent.subscribe((completionInfo) => {
@@ -44,11 +46,11 @@ export class NeovimPopupMenu {
         })
 
         this._popupMenuHideEvent.subscribe(() => {
-            UI.Actions.hideToolTip("nvim-popup")
+            this._toolTipsProvider.hideToolTip("nvim-popup")
         })
 
         this._onBufferEnterEvent.subscribe(() => {
-            UI.Actions.hideToolTip("nvim-popup")
+            this._toolTipsProvider.hideToolTip("nvim-popup")
         })
     }
 
@@ -69,7 +71,7 @@ export class NeovimPopupMenu {
             adjustedIndex = itemsToRender.length - 1
         }
 
-        const highlightColor = UI.store.getState()["contextMenu.highlight"]
+        const highlightColor = this._colors.getColor("contextMenu.highlight")
 
         const completionElement = (
             <ContextMenuView
@@ -83,7 +85,7 @@ export class NeovimPopupMenu {
                 foregroundColor={"white"} />
         )
 
-        UI.Actions.showToolTip("nvim-popup", completionElement, {
+        this._toolTipsProvider.showToolTip("nvim-popup", completionElement, {
                 position: null,
                 openDirection: 2,
                 padding: "0px",

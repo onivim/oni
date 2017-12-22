@@ -10,15 +10,15 @@ import * as Oni from "oni-api"
 
 import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
-import * as UI from "./../../UI"
 
+import { IToolTipsProvider } from "./../../Editor/NeovimEditor/ToolTipsProvider"
 import { editorManager } from "./../EditorManager"
 
 import { ILatestCursorAndBufferInfo } from "./addInsertModeLanguageFunctionality"
 import * as LanguageManager from "./LanguageManager"
 import * as SignatureHelp from "./SignatureHelpView"
 
-export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>) => {
+export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>, toolTips: IToolTipsProvider) => {
 
     const signatureHelpToolTipName = "signature-help-tool-tip"
 
@@ -29,13 +29,13 @@ export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBu
         })
         .subscribe((result) => {
             if (result) {
-                UI.Actions.showToolTip(signatureHelpToolTipName, SignatureHelp.render(result), {
+                toolTips.showToolTip(signatureHelpToolTipName, SignatureHelp.render(result), {
                     position: null,
                     openDirection: 1,
                     padding: "0px",
                 })
             } else {
-                UI.Actions.hideToolTip(signatureHelpToolTipName)
+                toolTips.hideToolTip(signatureHelpToolTipName)
             }
         })
 
@@ -43,7 +43,7 @@ export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBu
     modeChanged$
         .subscribe((newMode) => {
             if (newMode !== "insert") {
-                UI.Actions.hideToolTip(signatureHelpToolTipName)
+                toolTips.hideToolTip(signatureHelpToolTipName)
             }
         })
 }

@@ -3,8 +3,7 @@ import { connect } from "react-redux"
 import styled from "styled-components"
 import { fadeInAndDown } from "./animations"
 
-// import * as UI from "./../../UI"
-import * as State from "./../State"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 const CommandLineBackground = styled.div`
     position: absolute;

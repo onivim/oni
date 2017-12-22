@@ -2,7 +2,7 @@
 import * as React from "react"
 
 import { connect } from "react-redux"
-import * as State from "./../State"
+import * as State from "./../Shell/ShellState"
 
 import styled from "styled-components"
 import { withProps } from "./common"

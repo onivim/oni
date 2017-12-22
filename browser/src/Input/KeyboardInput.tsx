@@ -12,21 +12,17 @@ import { connect } from "react-redux"
 
 import { IEvent } from "oni-types"
 
+import { IState } from "./../Editor/NeovimEditor/NeovimEditorStore"
 import { getKeyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
-import { IState } from "./../UI/State"
 
 import { measureFont } from "./../Font"
-import * as UI from "./../UI"
 
-interface IKeyboardInputViewProps {
+interface IKeyboardInputViewProps extends IKeyboardInputProps {
     top: number
     left: number
     height: number
-    onActivate?: IEvent<void>
-    onKeyDown?: (key: string) => void
-    typingPrediction?: TypingPredictionManager
     foregroundColor: string
     fontFamily: string
     fontSize: string
@@ -50,7 +46,14 @@ interface IKeyboardInputViewState {
 export interface IKeyboardInputProps {
     onActivate: IEvent<void>
     onKeyDown?: (key: string) => void
+    onImeStart?: () => void
+    onImeEnd?: () => void
     typingPrediction?: TypingPredictionManager
+
+    // Optional methods for integrating animation,
+    // ie: 'cursor bounce':
+    onBounceStart?: () => void
+    onBounceEnd?: () => void
 }
 
 /**
@@ -141,7 +144,9 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
     }
 
     private _onKeyUp(evt: React.KeyboardEvent<HTMLInputElement>) {
-        UI.Actions.setCursorScale(1)
+        if (this.props.onBounceEnd) {
+            this.props.onBounceEnd()
+        }
     }
 
     private _onKeyDown(evt: React.KeyboardEvent<HTMLInputElement>) {
@@ -155,7 +160,9 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             return
         }
 
-        UI.Actions.setCursorScale(1.1)
+        if (this.props.onBounceStart) {
+            this.props.onBounceStart()
+        }
 
         const key = getKeyEventToVimKey()(evt.nativeEvent)
 
@@ -180,7 +187,9 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
     }
 
     private _onCompositionStart(evt: React.CompositionEvent<HTMLInputElement>) {
-        UI.Actions.setImeActive(true)
+        if (this.props.onImeStart) {
+            this.props.onImeStart()
+        }
 
         if (this.props.typingPrediction) {
             this.props.typingPrediction.clearAllPredictions()
@@ -207,7 +216,10 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
     }
 
     private _onCompositionEnd(evt: React.CompositionEvent<HTMLInputElement>) {
-        UI.Actions.setImeActive(false)
+        if (this.props.onImeEnd) {
+            this.props.onImeEnd()
+        }
+
         if (this._keyboardElement) {
             this._commit(this._keyboardElement.value)
         }

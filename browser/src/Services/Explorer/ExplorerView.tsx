@@ -8,7 +8,7 @@ import { connect } from "react-redux"
 
 import { IEvent } from "oni-types"
 
-import { KeyboardInputView } from "./../../Editor/KeyboardInput"
+import { KeyboardInputView } from "./../../Input/KeyboardInput"
 
 import { FileIcon } from "./../FileIcon"
 

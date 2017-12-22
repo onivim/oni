@@ -10,7 +10,7 @@ import * as types from "vscode-languageserver-types"
 
 // import * as UI from "./../../UI"
 
-import { contextMenuManager } from "./../ContextMenu"
+// import { contextMenuManager } from "./../ContextMenu"
 import * as LanguageManager from "./LanguageManager"
 
 import * as Log from "./../../Log"
@@ -18,36 +18,36 @@ import { editorManager } from "./../EditorManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-const codeActionsContextMenu = contextMenuManager.create()
+// const codeActionsContextMenu = contextMenuManager.create()
 
-let lastFileInfo: any = {}
+// let lastFileInfo: any = {}
 
-codeActionsContextMenu.onItemSelected.subscribe(async (selectedItem) => {
+// codeActionsContextMenu.onItemSelected.subscribe(async (selectedItem) => {
 
-    const commandName = selectedItem.data
-    const languageManager = LanguageManager.getInstance()
-    await languageManager.sendLanguageServerRequest(lastFileInfo.language, lastFileInfo.filePath, "workspace/executeCommand", { command: commandName })
-})
+//     const commandName = selectedItem.data
+//     const languageManager = LanguageManager.getInstance()
+//     await languageManager.sendLanguageServerRequest(lastFileInfo.language, lastFileInfo.filePath, "workspace/executeCommand", { command: commandName })
+// })
 
-export const expandCodeActions = async () => {
+// export const expandCodeActions = async () => {
 
-    const commands = await getCodeActions()
-    if (!commands || !commands.length) {
-        return
-    }
+//     const commands = await getCodeActions()
+//     if (!commands || !commands.length) {
+//         return
+//     }
 
-    const mapCommandsToItem = (command: types.Command, idx: number) => ({
-        label: command.title,
-        icon: "lightbulb-o",
-        data: command.command,
-    })
+//     const mapCommandsToItem = (command: types.Command, idx: number) => ({
+//         label: command.title,
+//         icon: "lightbulb-o",
+//         data: command.command,
+//     })
 
-    const contextMenuItems = commands.map(mapCommandsToItem)
+//     const contextMenuItems = commands.map(mapCommandsToItem)
 
-    codeActionsContextMenu.show(contextMenuItems)
-}
+//     codeActionsContextMenu.show(contextMenuItems)
+// }
 
-const getCodeActions = async (): Promise<types.Command[]> => {
+export const getCodeActions = async (): Promise<types.Command[]> => {
 
     const buffer = editorManager.activeEditor.activeBuffer
 
@@ -70,10 +70,10 @@ const getCodeActions = async (): Promise<types.Command[]> => {
             return null
         }
 
-        lastFileInfo = {
-            language,
-            filePath,
-        }
+        // lastFileInfo = {
+        //     language,
+        //     filePath,
+        // }
 
         return result
     } else {

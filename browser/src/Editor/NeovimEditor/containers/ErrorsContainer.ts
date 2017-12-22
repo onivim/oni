@@ -1,9 +1,9 @@
 import { connect } from "react-redux"
 
-import * as Selectors from "./../Selectors"
-import * as State from "./../State"
+import { Errors, IErrorsProps } from "./../../../UI/components/Error"
 
-import { Errors, IErrorsProps } from "./../components/Error"
+import * as Selectors from "./../NeovimEditorSelectors"
+import * as State from "./../NeovimEditorStore"
 
 const mapStateToProps = (state: State.IState): IErrorsProps => {
 
