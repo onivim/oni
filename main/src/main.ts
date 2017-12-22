@@ -80,7 +80,7 @@ if (!isDevelopment && !isDebug) {
     let processArgs = process.argv || []
 
     // If running from spectron, ignore the arguments
-    if (processArgs.filter((f) => f.indexOf("--test-type=webdriver"))) {
+    if (processArgs.find((f) => f.indexOf("--test-type=webdriver") >= 0)) {
         Log.warn("Clearing arguments because running from automation!")
         processArgs = []
     }
