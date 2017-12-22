@@ -36,13 +36,14 @@ export class LanguageManager {
     private _languageServerInfo: { [language: string]: ILanguageClient } = {}
     private _notificationSubscriptions: { [notificationMessage: string]: Event<any> } = {}
     private _requestHandlers: { [request: string]: LanguageClientTypes.RequestHandler } = {}
-    private _statusBar = new LanguageClientStatusBar()
+    private _statusBar: LanguageClientStatusBar
     private _currentTrackedFile: string = null
 
     constructor(
         private _configuration: Oni.Configuration,
         private _editorManager: Oni.EditorManager,
     ) {
+        this._statusBar = new LanguageClientStatusBar(this._configuration)
         this._editorManager.allEditors.onBufferEnter.subscribe(async () => this._onBufferEnter())
 
         this._editorManager.allEditors.onBufferLeave.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {

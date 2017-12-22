@@ -12,7 +12,6 @@ import * as Oni from "oni-api"
 import styled from "styled-components"
 
 import { Icon } from "./../../UI/Icon"
-import { configuration } from "./../Configuration"
 
 import { statusBar } from "./../StatusBar"
 
@@ -21,8 +20,8 @@ export class LanguageClientStatusBar {
     private _item: Oni.StatusBarItem
     private _fileType: string
 
-    constructor() {
-        const priorities = configuration.getValue("statusbar.priority", {"oni.statusbar.filetype": 1})
+    constructor(config: Oni.Configuration) {
+        const priorities = config.getValue("statusbar.priority", {"oni.statusbar.filetype": 1})
         const id = Object.keys(priorities).find(p => p.includes("filetype"))
         this._item = statusBar.createItem(0, id)
     }
