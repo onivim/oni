@@ -83,8 +83,6 @@ export interface IShowCommandLineAction {
     },
 }
 
-
-
 export interface ISetNeovimErrorAction {
     type: "SET_NEOVIM_ERROR",
     payload: {
