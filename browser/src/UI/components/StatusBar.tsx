@@ -5,9 +5,9 @@ import * as React from "react"
 
 import { connect } from "react-redux"
 
-import { IState, StatusBarAlignment } from "./../State"
-
 import { addDefaultUnitIfNeeded } from "./../../Font"
+
+import { IState, StatusBarAlignment } from "./../Shell/ShellState"
 
 export interface StatusBarProps {
     items: StatusBarItemProps[]

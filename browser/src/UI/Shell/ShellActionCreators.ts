@@ -7,11 +7,11 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
-import * as Actions from "./Actions"
-import * as State from "./State"
+import { IConfigurationValues } from "./../../Services/Configuration"
+import { IThemeColors } from "./../../Services/Themes"
 
-import { IConfigurationValues } from "./../Services/Configuration"
-import { IThemeColors } from "./../Services/Themes"
+import * as Actions from "./ShellActions"
+import * as State from "./ShellState"
 
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState

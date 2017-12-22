@@ -7,10 +7,10 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
-import { StatusBarAlignment } from "./State"
+import { IConfigurationValues } from "./../../Services/Configuration"
+import { IThemeColors } from "./../../Services/Themes"
 
-import { IConfigurationValues } from "./../Services/Configuration"
-import { IThemeColors } from "./../Services/Themes"
+import { StatusBarAlignment } from "./ShellState"
 
 export interface ISetHasFocusAction {
     type: "SET_HAS_FOCUS",

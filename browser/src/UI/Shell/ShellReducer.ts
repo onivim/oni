@@ -4,10 +4,10 @@
  * Top-level reducer for UI state transforms
  */
 
-import * as Actions from "./Actions"
-import * as State from "./State"
+import { IConfigurationValues } from "./../../Services/Configuration"
 
-import { IConfigurationValues } from "./../Services/Configuration"
+import * as Actions from "./ShellActions"
+import * as State from "./ShellState"
 
 export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>) {
 

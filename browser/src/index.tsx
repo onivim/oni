@@ -15,8 +15,8 @@ import { IConfigurationValues } from "./Services/Configuration/IConfigurationVal
 const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
 
-    const UI = await import("./UI")
-    UI.activate()
+    const Shell = await import("./UI/Shell")
+    Shell.activate()
 
     const parsedArgs = minimist(args)
 
@@ -38,7 +38,7 @@ const start = async (args: string[]): Promise<void> => {
     const cssPromise = import("./CSS")
 
     // Helper for debugging:
-    window["UI"] = UI // tslint:disable-line no-string-literal
+    window["Shell"] = Shell // tslint:disable-line no-string-literal
 
     Performance.startMeasure("Oni.Start.Config")
 
@@ -52,7 +52,7 @@ const start = async (args: string[]): Promise<void> => {
     const configChange = (newConfigValues: Partial<IConfigurationValues>) => {
         let prop: keyof IConfigurationValues
         for (prop in newConfigValues) {
-            UI.Actions.setConfigValue(prop, newConfigValues[prop])
+            Shell.Actions.setConfigValue(prop, newConfigValues[prop])
         }
     }
 
@@ -78,7 +78,7 @@ const start = async (args: string[]): Promise<void> => {
 
     const Colors = await colorsPromise
     Colors.activate(configuration, Themes.getThemeManagerInstance())
-    UI.Actions.setColors(Themes.getThemeManagerInstance().getColors())
+    Shell.Actions.setColors(Themes.getThemeManagerInstance().getColors())
     Performance.endMeasure("Oni.Start.Themes")
 
     const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
@@ -124,7 +124,7 @@ const start = async (args: string[]): Promise<void> => {
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Performance.endMeasure("Oni.Start.Activate")
 
-    UI.Actions.setLoadingComplete()
+    Shell.Actions.setLoadingComplete()
 
     checkForUpdates()
 
