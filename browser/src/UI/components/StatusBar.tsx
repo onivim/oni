@@ -14,8 +14,6 @@ import WithWidth from "./WithWidth"
 import { IState, StatusBarAlignment } from "./../Shell/ShellState"
 
 interface StatusBarStyleProps {
-    items: StatusBarItemProps[]
-    enabled: boolean
     fontSize: string
     fontFamily: string
     className?: string
