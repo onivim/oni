@@ -535,20 +535,22 @@ export class NeovimEditor extends Editor implements IEditor {
 
         return (
                 <Provider store={this._store}>
-                    <NeovimSurface renderer={this._renderer}
-                    typingPrediction={this._typingPredictionManager}
-                    neovimInstance={this._neovimInstance}
-                    screen={this._screen}
-                    onActivate={this._onEnterEvent}
-                    onKeyDown={onKeyDown}
-                    onBufferClose={onBufferClose}
-                    onBufferSelect={onBufferSelect}
-                    onBounceStart={() => this._onBounceStart()}
-                    onBounceEnd={() => this._onBounceEnd()}
-                    onImeStart={() => this._onImeStart()}
-                    onImeEnd={() => this._onImeEnd()}
-                    onTabClose={onTabClose}
-                    onTabSelect={onTabSelect} />
+                    <NeovimSurface
+                        renderer={this._renderer}
+                        typingPrediction={this._typingPredictionManager}
+                        neovimInstance={this._neovimInstance}
+                        screen={this._screen}
+                        onActivate={this._onEnterEvent}
+                        onKeyDown={onKeyDown}
+                        onBufferClose={onBufferClose}
+                        onBufferSelect={onBufferSelect}
+                        onBounceStart={() => this._onBounceStart()}
+                        onBounceEnd={() => this._onBounceEnd()}
+                        onImeStart={() => this._onImeStart()}
+                        onImeEnd={() => this._onImeEnd()}
+                        onTabClose={onTabClose}
+                        onTabSelect={onTabSelect}
+                    />
                 </Provider>
         )
     }
