@@ -87,7 +87,7 @@ export class NeovimWindowManager {
             .switchMap((args: [any, EventContext]) => {
 
                 const [, evt] = args
-                return Observable.defer(() => this._remeasure(evt, false))
+                return Observable.defer(() => this._remeasure(evt))
             })
             .subscribe((windowState: NeovimWindowState) => {
                 this._onWindowStateChangedEvent.dispatch(windowState)
@@ -104,9 +104,9 @@ export class NeovimWindowManager {
         this._scrollObservable.next(newContext)
     }
 
-    private async _remeasure(context: EventContext, force: boolean = false): Promise<NeovimWindowState> {
+    private async _remeasure(context: EventContext): Promise<NeovimWindowState> {
         const currentWin: any = await this._neovimInstance.request("nvim_get_current_win", [])
-        const windowState = await this._remeasureWindow(currentWin.id, context, force)
+        const windowState = await this._remeasureWindow(currentWin.id, context)
         return windowState
     }
 
@@ -123,7 +123,7 @@ export class NeovimWindowManager {
     // - How each buffer line maps to the screen space
     //
     // We can derive these from information coming from the event handlers, along with screen width
-    private async _remeasureWindow(currentWinId: number, context: EventContext, force: boolean = false): Promise<NeovimWindowState> {
+    private async _remeasureWindow(currentWinId: number, context: EventContext): Promise<NeovimWindowState> {
 
         const atomicCalls = [
             ["nvim_win_get_position", [currentWinId]],
