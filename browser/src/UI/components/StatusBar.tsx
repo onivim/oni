@@ -16,8 +16,6 @@ import WithWidth from "./WithWidth"
 interface StatusBarStyleProps {
     fontSize: string
     fontFamily: string
-    backgroundColor: string
-    foregroundColor: string
     className?: string
     loaded?: boolean
 }
@@ -65,8 +63,8 @@ const StatusBarComponent = withProps<{ maxWidth?: string }>(styled.div)`
 const StatusBarContainer = withProps<StatusBarStyleProps>(styled.div)`
     font-family: ${({ fontFamily }) => fontFamily};
     font-size: ${({ fontSize }) => fontSize };
-    background-color: ${({ backgroundColor }) => backgroundColor };
-    color: ${({ foregroundColor }) => foregroundColor};
+    background-color: ${({ theme }) => theme.background };
+    color: ${({ theme }) => theme.foreground};
     box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
     pointer-events: auto;
     transform: ${({ loaded }) => loaded ? `translateY(0px)` : `translateY(4px)`};
@@ -118,8 +116,6 @@ export class StatusBar extends React.PureComponent<StatusBarProps, { isLoaded: b
         const statusBarProps = {
             fontFamily: this.props.fontFamily,
             fontSize: this.props.fontSize,
-            backgroundColor: this.props.backgroundColor,
-            foregroundColor: this.props.foregroundColor,
         }
 
         return (
@@ -199,8 +195,6 @@ const mapStateToProps = (state: IState): StatusBarProps => {
     const statusBarItems = getStatusBarItems(state)
 
     return {
-        backgroundColor: state.colors["statusBar.background"],
-        foregroundColor: state.colors["statusBar.foreground"],
         fontFamily: state.configuration["ui.fontFamily"],
         fontSize:
             state.configuration["statusbar.fontSize"] ||
