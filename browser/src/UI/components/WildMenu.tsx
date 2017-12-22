@@ -2,12 +2,12 @@ import * as React from "react"
 import { connect } from "react-redux"
 import styled, { css } from "styled-components"
 
+import * as State from "./../State"
 import { fadeInAndDown } from "./animations"
 import { withProps } from "./common"
 
 const WildMenuList = styled.ul`
     width: 50%;
-    margin: 0 auto;
     position: absolute;
     left: 25%;
     top: 10%;
@@ -19,6 +19,9 @@ const WildMenuList = styled.ul`
     padding: 1em;
     flex-direction: column;
     animation: ${fadeInAndDown} 0.05s ease-in-out;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    box-sizing: border-box;
 `
 const normBg = "highlight.mode.normal.background"
 const normFg = "highlight.mode.normal.foreground"
@@ -30,13 +33,16 @@ const colors = css`
 const WildMenuItem = withProps<{ selected: boolean }>(styled.li)`
     display: flex;
     flex: 1;
+    margin: 0.2em;
+    padding: 0.2em 0.5em;
+    min-height: 1.2em;
     width: 100%;
     text-align: left;
-    padding-left: 0.5em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     ${p => p.selected && colors};
 `
-
-import * as State from "./../State"
 
 interface Props {
     visible: boolean
@@ -45,20 +51,41 @@ interface Props {
 }
 
 class WildMenu extends React.Component<Props> {
+    private selectedElement: HTMLUListElement
+    private containerElement: HTMLUListElement
+
+    public componentWillReceiveProps(next: Props) {
+        if (next.selected !== this.props.selected) {
+            this.scrollList()
+        }
+    }
+
     public render() {
-        const { visible, options } = this.props
+        const { visible, selected, options } = this.props
+
         return (
             visible && (
-                <WildMenuList>
+                <WildMenuList innerRef={e => (this.containerElement = e)}>
                     {options &&
                         options.map((option, i) => (
-                            <WildMenuItem selected={i === this.props.selected} key={option + i}>
+                            <WildMenuItem
+                                innerRef={e => (i === selected ? (this.selectedElement = e) : null)}
+                                selected={i === selected}
+                                key={option + i}
+                            >
                                 {option}
                             </WildMenuItem>
                         ))}
                 </WildMenuList>
             )
         )
+    }
+
+    private scrollList = () => {
+        if (this.containerElement && this.selectedElement) {
+            const top = this.selectedElement.offsetTop
+            this.containerElement.scrollTop = top
+        }
     }
 }
 
