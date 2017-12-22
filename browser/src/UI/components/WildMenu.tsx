@@ -4,24 +4,32 @@ import styled, { css } from "styled-components"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 import { fadeInAndDown } from "./animations"
-import { withProps } from "./common"
+import { boxShadow, withProps } from "./common"
 
-const WildMenuList = styled.ul`
+const WildMenuContainer = styled.div`
     width: 50%;
     position: absolute;
     left: 25%;
     top: 10%;
-    max-height: 60%;
+    overflow: hidden;
+    box-sizing: border-box;
+    max-height: 500px;
+    display: flex;
+    align-items: center;
+`
+
+const WildMenuList = styled.ul`
+    height: 90%;
+    width: 100%;
     background-color: ${p => p.theme.background};
+    ${boxShadow} animation: ${fadeInAndDown} 0.05s ease-in-out;
     color: ${p => p.theme.foreground};
-    box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     display: flex;
     padding: 1em;
     flex-direction: column;
-    animation: ${fadeInAndDown} 0.05s ease-in-out;
+    box-sizing: border-box;
     overflow-y: scroll;
     overflow-x: hidden;
-    box-sizing: border-box;
 `
 const normBg = "highlight.mode.normal.background"
 const normFg = "highlight.mode.normal.foreground"
@@ -31,10 +39,11 @@ const colors = css`
     color: ${p => p.theme[normFg]};
 `
 const WildMenuItem = withProps<{ selected: boolean }>(styled.li)`
-    display: flex;
-    flex: 1;
+    font-size: 1.1em;
+    display: inline;
     margin: 0.2em;
-    padding: 0.2em 0.5em;
+    padding: 0.2em 0 0.5em 0.2em;
+    ${p => p.selected && boxShadow};
     width: 100%;
     min-height: 1em;
     text-align: left;
@@ -50,42 +59,61 @@ interface Props {
     selected: number
 }
 
-class WildMenu extends React.Component<Props> {
+interface State {
+    currentPage: number
+    itemsPerPage: number
+}
+
+class WildMenu extends React.Component<Props, State> {
+    public state = {
+        currentPage: 1,
+        itemsPerPage: 10,
+    }
     private selectedElement: HTMLUListElement
     private containerElement: HTMLUListElement
 
     public componentWillReceiveProps(next: Props) {
         if (next.selected !== this.props.selected) {
-            this.scrollList()
+            let currentPage = Math.floor(next.selected / this.state.itemsPerPage) + 1
+            currentPage = currentPage || 1
+            this.setState({ currentPage })
         }
     }
 
     public render() {
-        const { visible, selected, options } = this.props
+        const { visible } = this.props
+        const { currentItems, current } = this.calculateCurrentItems()
 
         return (
             visible && (
-                <WildMenuList innerRef={e => (this.containerElement = e)}>
-                    {options &&
-                        options.map((option, i) => (
-                            <WildMenuItem
-                                innerRef={e => (i === selected ? (this.selectedElement = e) : null)}
-                                selected={i === selected}
-                                key={option + i}
-                            >
-                                {option}
-                            </WildMenuItem>
-                        ))}
-                </WildMenuList>
+                <WildMenuContainer>
+                    <WildMenuList innerRef={e => (this.containerElement = e)}>
+                        {currentItems &&
+                            currentItems.map((option, i) => (
+                                <WildMenuItem
+                                    innerRef={e =>
+                                        i === current - 1 ? (this.selectedElement = e) : null
+                                    }
+                                    selected={i === current}
+                                    key={option + i}
+                                >
+                                    {option}
+                                </WildMenuItem>
+                            ))}
+                    </WildMenuList>
+                </WildMenuContainer>
             )
         )
     }
 
-    private scrollList = () => {
-        if (this.containerElement && this.selectedElement) {
-            const top = this.selectedElement.offsetTop
-            this.containerElement.scrollTop = top
-        }
+    private calculateCurrentItems() {
+        const { options, selected } = this.props
+        const { currentPage, itemsPerPage } = this.state
+        const indexOfLastItem = currentPage * itemsPerPage
+        const indexOfFirstItem = indexOfLastItem - itemsPerPage
+        const currentItems = options.slice(indexOfFirstItem, indexOfLastItem)
+        const current = selected - itemsPerPage * (currentPage - 1)
+        return { current, currentItems }
     }
 }
 
