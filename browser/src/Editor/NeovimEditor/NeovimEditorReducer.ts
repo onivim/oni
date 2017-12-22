@@ -41,6 +41,11 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             ...s,
             cursorScale: a.payload.cursorScale,
         }
+        case "SET_ACTIVE_VIM_TAB_PAGE":
+            return {
+                ...s,
+                activeVimTabPage: a.payload,
+            }
         case "SET_CURSOR_POSITION":
             return {...s,
                     cursorPixelX: a.payload.pixelX,
@@ -281,6 +286,20 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                         line: a.payload.line,
                     },
                 },
+            }
+        case "SET_INACTIVE_WINDOW_STATE":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                ...s,
+                [a.payload.windowId]: {
+                    ...currentWindow,
+                    column: -1,
+                    line: -1,
+                    topBufferLine: -1,
+                    bottomBufferLine: -1,
+                    dimensions: a.payload.dimensions
+                }
             }
         case "SET_WINDOW_STATE":
             currentWindow = s.windows[a.payload.windowId] || null

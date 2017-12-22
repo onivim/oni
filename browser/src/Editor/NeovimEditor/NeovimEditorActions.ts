@@ -37,13 +37,6 @@ export interface ISetLoadingCompleteAction {
     type: "SET_LOADING_COMPLETE",
 }
 
-export interface ISetWindowTitleAction {
-    type: "SET_WINDOW_TITLE",
-    payload: {
-        title: string,
-    }
-}
-
 export interface ISetColorsAction {
     type: "SET_COLORS",
     payload: {
@@ -204,6 +197,14 @@ export interface ISetWindowState {
     }
 }
 
+export interface ISetInactiveWindowState {
+    type: "SET_INACTIVE_WINDOW_STATE",
+    payload: {
+        windowId: number,
+        dimensions: Rectangle
+    }
+}
+
 export interface ISetErrorsAction {
     type: "SET_ERRORS",
     payload: {
@@ -277,7 +278,7 @@ export type SimpleAction =
     ISetViewportAction |
     ISetWindowCursor |
     ISetWindowState |
-    ISetWindowTitleAction |
+    ISetInactiveWindowState |
     IShowCommandLineAction |
     IHideCommandLineAction |
     ISetCommandLinePosition
@@ -300,18 +301,6 @@ export const setLoadingComplete = () => {
 
     return {
         type: "SET_LOADING_COMPLETE",
-    }
-}
-
-export const setWindowTitle = (title: string) => {
-
-    document.title = title
-
-    return {
-        type: "SET_WINDOW_TITLE",
-        payload: {
-            title,
-        },
     }
 }
 
@@ -481,6 +470,14 @@ export const setWindowState = (windowId: number,
         },
     })
 }
+
+export const setInactiveWindowState = (windowId: number, dimensions: Rectangle): ISetInactiveWindowState => ({
+    type: "SET_INACTIVE_WINDOW_STATE",
+    payload: {
+        windowId,
+        dimensions,
+    }
+})
 
 export const showToolTip = (id: string, element: JSX.Element, options?: Oni.ToolTip.ToolTipOptions) => ({
     type: "SHOW_TOOL_TIP",

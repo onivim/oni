@@ -26,10 +26,11 @@ import * as UITypes from "./../UI/Types"
 
 export interface NeovimTabPageState {
     tabId: number
-    windows: NeovimWindowState[]
+    activeWindow: NeovimActiveWindowState
+    inactiveWindows: NeovimInactiveWindowState[]
 }
 
-export interface NeovimWindowState {
+export interface NeovimActiveWindowState {
     windowNumber: number
     bufferFullPath: string
 
@@ -43,13 +44,18 @@ export interface NeovimWindowState {
     dimensions: UITypes.Rectangle
 }
 
+export interface NeovimInactiveWindowState {
+    windowNumber: number
+    dimensions: UITypes.Rectangle
+}
+
 export class NeovimWindowManager {
 
     private _scrollObservable: Subject<EventContext>
 
-    private _onWindowStateChangedEvent = new Event<NeovimWindowState>()
+    private _onWindowStateChangedEvent = new Event<NeovimTabPageState>()
 
-    public get onWindowStateChanged(): IEvent<NeovimWindowState> {
+    public get onWindowStateChanged(): IEvent<NeovimTabPageState> {
         return this._onWindowStateChangedEvent
     }
 
@@ -89,8 +95,8 @@ export class NeovimWindowManager {
                 const [, evt] = args
                 return Observable.defer(() => this._remeasure(evt))
             })
-            .subscribe((windowState: NeovimWindowState) => {
-                this._onWindowStateChangedEvent.dispatch(windowState)
+            .subscribe((tabState: NeovimTabPageState) => {
+                this._onWindowStateChangedEvent.dispatch(tabState)
                 this._neovimInstance.dispatchScrollEvent()
             })
     }
@@ -104,10 +110,25 @@ export class NeovimWindowManager {
         this._scrollObservable.next(newContext)
     }
 
-    private async _remeasure(context: EventContext): Promise<NeovimWindowState> {
-        const currentWin: any = await this._neovimInstance.request("nvim_get_current_win", [])
-        const windowState = await this._remeasureWindow(currentWin.id, context)
-        return windowState
+    private async _remeasure(context: EventContext): Promise<NeovimTabPageState> {
+        const tabNumber = context.tabNumber
+        const allWindows = await this._neovimInstance.request<any[]>("nvim_tabpage_list_wins", [tabNumber])
+
+        const activeWindow = await this._remeasureActiveWindow(context.windowNumber, context)
+
+        const inactiveWindowIds = allWindows.filter((w) => w.id !== context.windowNumber)
+
+        const windowPromise =  await inactiveWindowIds.map(async (window: any) => {
+                return await this._remeasureInactiveWindow(window.id)
+        })
+
+        const inactiveWindows = await Promise.all(windowPromise)
+
+        return {
+            tabId: tabNumber,
+            activeWindow,
+            inactiveWindows,
+        }
     }
 
     // The goal of this function is to acquire functions for the current window:
@@ -123,7 +144,7 @@ export class NeovimWindowManager {
     // - How each buffer line maps to the screen space
     //
     // We can derive these from information coming from the event handlers, along with screen width
-    private async _remeasureWindow(currentWinId: number, context: EventContext): Promise<NeovimWindowState> {
+    private async _remeasureActiveWindow(currentWinId: number, context: EventContext): Promise<NeovimActiveWindowState> {
 
         const atomicCalls = [
             ["nvim_win_get_position", [currentWinId]],
@@ -176,7 +197,7 @@ export class NeovimWindowManager {
             }
 
             const newWindowState = {
-                windowNumber: context.windowNumber,
+                windowNumber: currentWinId,
                 bufferFullPath: context.bufferFullPath,
                 column: context.column - 1,
                 line: context.line - 1,
@@ -184,6 +205,49 @@ export class NeovimWindowManager {
                 topBufferLine: context.windowTopLine,
                 dimensions,
                 bufferToScreen: getBufferToScreenFromRanges(offset, expandedWidthRanges),
+            }
+
+            return newWindowState
+        } else {
+            Log.warn("Measure request failed")
+            return null
+        }
+    }
+
+    /**
+     * Windows that are inactive give us less state, unfortunately - so the buffer/pixel mapping
+     * is unavailable. We should still measure the width/height/position for overlay scenarios, though
+     */
+    private async _remeasureInactiveWindow(currentWinId: number): Promise<NeovimInactiveWindowState> {
+
+        const atomicCalls = [
+            ["nvim_win_get_position", [currentWinId]],
+            ["nvim_win_get_width", [currentWinId]],
+            ["nvim_win_get_height", [currentWinId]],
+        ]
+
+        const response = await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
+
+        const values = response[0]
+
+        if (values.length === 3) {
+            // Grab the results of the `nvim_atomic_call`, as they are returned in an array
+            const position = values[0]
+            const [row, col] = position
+            const width = values[1]
+            const height = values[2]
+
+
+            const dimensions = {
+                x: col,
+                y: row,
+                width,
+                height,
+            }
+
+            const newWindowState = {
+                windowNumber: currentWinId,
+                dimensions,
             }
 
             return newWindowState
