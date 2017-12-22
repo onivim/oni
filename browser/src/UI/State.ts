@@ -81,6 +81,12 @@ export interface IState {
 
     activeMessageDialog: IMessageDialog
     commandLine: ICommandLine | null
+    wildmenu: IWildMenu
+}
+
+export interface IWildMenu {
+    visible: boolean
+    options: string[]
 }
 
 export interface ICommandLine {
@@ -246,4 +252,8 @@ export const createDefaultState = (): IState => ({
     activeMessageDialog: null,
     windowTitle: "",
     commandLine: null,
+    wildmenu: {
+        visible: false,
+        options: [],
+    },
 })

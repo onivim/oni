@@ -91,6 +91,22 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 ...s,
                 activeMessageDialog: a.payload,
             }
+        case "SHOW_WILDMENU":
+            return {
+                ...s,
+                wildmenu: {
+                    visible: true,
+                    options: a.payload.options,
+                },
+            }
+        case "HIDE_WILDMENU":
+            return {
+                ...s,
+                wildmenu: {
+                    ...s.wildmenu,
+                    visible: false,
+                },
+            }
         case "SHOW_COMMAND_LINE":
             return {
                 ...s,

@@ -99,6 +99,15 @@ export const showCommandLine = (
     },
 })
 
+export const showWildMenu = (payload: { options: string[] }) => ({
+    type: "SHOW_WILDMENU",
+    payload,
+})
+
+export const hideWildMenu = () => ({
+    type: "HIDE_WILDMENU",
+})
+
 export const setNeovimError = (neovimError: boolean) => ({
     type: "SET_NEOVIM_ERROR",
     payload: {

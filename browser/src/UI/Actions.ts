@@ -51,6 +51,17 @@ export interface ISetColorsAction {
     }
 }
 
+export interface IShowWildMenuAction {
+    type: "SHOW_WILDMENU",
+    payload: {
+        options: string[],
+    },
+}
+
+export interface IHideWildMenuAction {
+    type: "HIDE_WILDMENU",
+}
+
 export interface ISetCommandLinePosition {
     type: "SET_COMMAND_LINE_POSITION",
     payload: {
@@ -305,6 +316,8 @@ export type SimpleAction =
     ISetWindowTitleAction |
     IShowCommandLineAction |
     IHideCommandLineAction |
+    IShowWildMenuAction |
+    IHideWildMenuAction |
     ISetCommandLinePosition
 
 export type ActionWithGeneric<K extends keyof IConfigurationValues> =
