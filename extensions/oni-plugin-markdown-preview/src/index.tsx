@@ -17,6 +17,9 @@ interface IColors {
     background: string
     foreground: string
     link: string
+    codeBackground: string
+    codeForeground: string
+    codeBorder: string
 }
 
 interface IMarkdownPreviewState {
@@ -38,6 +41,9 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
             background: this.props.oni.colors.getColor("editor.background"),
             foreground: this.props.oni.colors.getColor("editor.foreground"),
             link: this.props.oni.colors.getColor("highlight.mode.normal.background"),
+            codeBackground: this.props.oni.colors.getColor("background"),
+            codeForeground: this.props.oni.colors.getColor("foreground"),
+            codeBorder: this.props.oni.colors.getColor("toolTip.border"),
         }
         this.state = { source: "", colors }
     }
@@ -59,36 +65,73 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 
     public render(): JSX.Element {
+        const html = this.generateMarkdown() + this.generateContainerStyle()
+        const classes = "stack enable-mouse oniPluginMarkdownPreviewContainerStyle"
+        console.warn(html)
+        return <div className={classes} dangerouslySetInnerHTML={{__html: html}}></div>
+    }
+
+    private generateContainerStyle(): string {
         const colors = this.state.colors
-        const containerStyle = `
+
+        const codeBlockStyle = `
+            background: ${colors.codeBackground};
+            color: ${colors.codeForeground};
+            border-color: ${colors.codeBackground};
+            font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif
+            padding: 0.4em 0.4em 0.4em 0.4em;
+            margin: 0.4em 0.4em 0.4em 0.4em;
+        `
+
+        return `
+            <style>
             .oniPluginMarkdownPreviewContainerStyle {
                 padding: 1em 1em 1em 1em;
                 overflow-y: auto;
                 background: ${colors.background};
                 color: ${colors.foreground};
             }
+
             .oniPluginMarkdownPreviewContainerStyle a:link {
                 color: ${colors.link};
             }
+
+            .oniPluginMarkdownPreviewContainerStyle pre {
+                display: flex;
+                ${codeBlockStyle}
+            }
+
+            .oniPluginMarkdownPreviewContainerStyle code {
+                ${codeBlockStyle}
+            }
+            </style>
         `;
+    }
 
-        const markdownLines = dompurify.sanitize(this.state.source).split("\n")
+    private generateMarkdown(): string {
+        const markdownLines: [string] = dompurify.sanitize(this.state.source).split("\n")
 
-        const generateAnchor = (line: number) => {
+        const generateAnchor = (line: number): string => {
             return `<a id="${generateScrollingAnchorId(line)}"></a>`
         }
 
-        const originalLinesCount = markdownLines.length - 1
+        var isBlock: boolean = false
+        const originalLinesCount: number = markdownLines.length - 1
         for (var i = originalLinesCount; i > 0; i--) { // tslint:disable-line
-            if (markdownLines[i].trim() !== "") {
+            if (markdownLines[i].includes("```")) {
+                isBlock = !isBlock
+            } else if (isBlock) {
+                // Skip blocks
+            } else if (markdownLines[i].trim() === "") {
+                // Skip empty lines
+            } else {
                 markdownLines.splice(i, 0, generateAnchor(i))
             }
         }
         markdownLines.splice(0, 0, generateAnchor(i))
         markdownLines.push(generateAnchor(originalLinesCount - 1))
 
-        const html = marked(markdownLines.join("\n")) + `\n<style>${containerStyle}</style>`
-        return <div className="stack enable-mouse oniPluginMarkdownPreviewContainerStyle" dangerouslySetInnerHTML={{__html: html}}></div>
+        return marked(markdownLines.join("\n"))
     }
 
     private subscribe<T>(editorEvent: IEvent<T>, eventCallback: EventCallback<T>): void {
