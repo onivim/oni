@@ -21,7 +21,8 @@ export class LanguageClientStatusBar {
     private _fileType: string
 
     constructor(config: Oni.Configuration) {
-        const priorities = config.getValue("statusbar.priority", {"oni.statusbar.filetype": 1})
+        console.log("config in language client: ", config) // tslint:disable-line
+        const priorities = config.getValue("statusbar.priority") || "oni.statusbar.filetype"
         const id = Object.keys(priorities).find(p => p.includes("filetype"))
         this._item = statusBar.createItem(0, id)
     }

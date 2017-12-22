@@ -19,7 +19,11 @@ export class MockConfiguration {
     }
 
     public getValue(key: string): any {
-        return this._configurationValues[key]
+        if (this._configurationValues[key]) {
+            return this._configurationValues[key]
+        } else {
+            return null
+        }
     }
 
     public setValue(key: string, value: any): void {
