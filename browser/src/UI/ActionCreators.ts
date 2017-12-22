@@ -80,7 +80,14 @@ export const hideCommandLine = () => ({
     type: "HIDE_COMMAND_LINE",
 })
 
-export const showCommandLine = (content: Array<[any, string]>, pos: number, firstchar: string, prompt: string, indent: number, level: number) => ({
+export const showCommandLine = (
+    content: Array<[any, string]>,
+    pos: number,
+    firstchar: string,
+    prompt: string,
+    indent: number,
+    level: number,
+) => ({
     type: "SHOW_COMMAND_LINE",
     payload: {
         content,

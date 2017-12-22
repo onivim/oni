@@ -63,12 +63,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                 <div className="stack layer">
                     <TypingPrediction typingPrediction={this.props.typingPrediction}/>
                     <Cursor typingPrediction={this.props.typingPrediction}/>
-                    <CommandLine
-                        visible={false}
-                        content={null}
-                        position={0}
-                        firstchar={""}
-                    />
+                    <CommandLine />
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
                     <ActiveWindowContainer>

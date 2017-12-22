@@ -59,7 +59,7 @@ class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps>
     private _inputElement: HTMLInputElement
 
     public handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-        console.log('Changing')
+        console.log("Changing")
         UI.Actions.setCommandLinePosition(1, 1)
     }
 
@@ -68,7 +68,7 @@ class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps>
            this._inputElement.focus()
         }
 
-        return this.props.visible ? (
+        return this.props.visible && (
             <CommandLineBackground>
                 <CommandLineBox>
                     <CommandLineInput
@@ -78,32 +78,26 @@ class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps>
                     />
                 </CommandLineBox>
             </CommandLineBackground>
-        ) : null
-    }
-}
-const emptyProps: ICommandLineRendererProps = {
-    content: null,
-    visible: false,
-    firstchar: "",
-    position: 0,
-}
-
-const mapStateToProps = (state: State.IState, props: ICommandLineRendererProps) => {
-    const visible = state.commandLine != null
-    if (!visible) {
-        return emptyProps
-    }
-
-    const content = state.commandLine.content
-    const firstchar = state.commandLine.firstchar
-    const position = state.commandLine !== null ? state.commandLine.position : 0
-
-    return {
-        position,
-        visible,
-        content,
-        firstchar,
+        )
     }
 }
 
-export const CommandLine = connect(mapStateToProps)(CommandLineRenderer)
+const mapStateToProps = ({ commandLine }: State.IState, props: ICommandLineRendererProps) => {
+    const commandLineProps: ICommandLineRendererProps = {
+        content: null,
+        visible: false,
+        firstchar: "",
+        position: 0,
+    }
+
+    if (commandLine) {
+        commandLineProps.visible = commandLine !== null
+        commandLineProps.content = commandLine.content
+        commandLineProps.firstchar = commandLine.firstchar
+        commandLineProps.position = commandLine !== null ? commandLine.position : 0
+    }
+
+    return commandLineProps
+}
+
+export const CommandLine = connect<ICommandLineRendererProps>(mapStateToProps)(CommandLineRenderer)
