@@ -149,6 +149,20 @@ export class NeovimEditor extends Editor implements IEditor {
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
         this._windowManager = new NeovimWindowManager(this._neovimInstance)
+        this._neovimInstance.onCommandLineShow.subscribe((showCommandLineInfo) => {
+            UI.Actions.showCommandLine(
+                showCommandLineInfo.content,
+                showCommandLineInfo.pos,
+                showCommandLineInfo.firstc,
+                showCommandLineInfo.prompt,
+                showCommandLineInfo.indent,
+                showCommandLineInfo.level,
+            )
+        })
+
+        this._neovimInstance.onCommandLineHide.subscribe(() => {
+            UI.Actions.hideCommandLine()
+        })
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
             if (this._configuration.getValue("editor.clipboard.enabled")) {

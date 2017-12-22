@@ -32,10 +32,6 @@ export interface ICursorRendererProps {
 }
 
 const StyledCursor = styled.div`
-    transition: opacity 0.35s ease 0.25s;
-    padding-left: 1px;
-    padding-right: 1px;
-    margin-left: -1px;
 `
 
 export interface ICursorRendererState {
@@ -77,14 +73,15 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
         const containerStyle: React.CSSProperties = {
             visibility: this.props.visible ? "visible" : "hidden",
             position: "absolute",
-            left: position.toString() + "px",
+            left: (position - 1).toString() + "px",
             top: this.props.y.toString() + "px",
-            width: width.toString() + "px",
+            width: (width + 2).toString() + "px",
             height,
             lineHeight: height,
             color: this.props.textColor,
             fontFamily,
             fontSize,
+            transform: "translateZ(0px)",
         }
 
         const innerPositionStyle: React.CSSProperties = {

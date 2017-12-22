@@ -14,9 +14,16 @@ const CiTests = [
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-TypeScript",
     "LargeFileTest",
+    "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
     "NoInstalledNeovim",
+]
+
+const WindowsOnlyTests = [
+    // For some reason, the `beginFrameSubscription` call doesn't seem to work on OSX,
+    // so we can't properly validate that case on that platform...
+    "PaintPerformanceTest",
 ]
 
 // tslint:disable:no-console
@@ -30,6 +37,8 @@ export interface ITestCase {
 }
 
 describe("ci tests", function() { // tslint:disable-line only-arrow-functions
+
+    const tests = Platform.isWindows() ? [...CiTests, ...WindowsOnlyTests] : CiTests
 
     CiTests.forEach((test) => {
         runInProcTest(path.join(__dirname, "ci"), test)

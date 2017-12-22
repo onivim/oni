@@ -98,6 +98,7 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             pointerEvents: "none",
             opacity,
             overflow: "hidden",
+            transform: "translateZ(0px)", // See #1129 - needed to keep it from re-rendering
         }
 
         const inputStyle: React.CSSProperties = {

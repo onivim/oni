@@ -64,6 +64,29 @@ export interface INeovimCompletionInfo {
     col: number
 }
 
+export type CommandLineContent = [any, string]
+
+export interface INeovimCommandLineShowEvent {
+    content: CommandLineContent[]
+    pos: number
+    firstc: string
+    prompt: string
+    indent: number
+    level: number
+}
+
+export interface INeovimCommandLineSetCursorPosition {
+    pos: number
+    level: number
+}
+
+// Limit for the number of lines to handle buffer updates
+// If the file is too large, it ends up being too much traffic
+// between Neovim <-> Oni <-> Language Servers - so
+// set a hard limit. In the future, if need be, this could be
+// moved to a configuration setting.
+export const MAX_LINES_FOR_BUFFER_UPDATE = 5000
+
 export type NeovimEventHandler = (...args: any[]) => void
 
 export interface INeovimInstance {
@@ -88,6 +111,10 @@ export interface INeovimInstance {
     onShowPopupMenu: IEvent<INeovimCompletionInfo>
 
     onColorsChanged: IEvent<void>
+
+    onCommandLineShow: IEvent<INeovimCommandLineShowEvent>
+    onCommandLineHide: IEvent<void>
+    onCommandLineSetCursorPosition: IEvent<INeovimCommandLineSetCursorPosition>
 
     autoCommands: INeovimAutoCommands
 
@@ -174,6 +201,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _onColorsChanged = new Event<void>()
 
+    private _onCommandLineShowEvent = new Event<INeovimCommandLineShowEvent>()
+    private _onCommandLineHideEvent = new Event<void>()
+    private _onCommandLineSetCursorPositionEvent = new Event<INeovimCommandLineSetCursorPosition>()
     private _bufferUpdateManager: NeovimBufferUpdateManager
 
     private _pendingScrollTimeout: number | null = null
@@ -236,6 +266,18 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onShowPopupMenu(): IEvent<INeovimCompletionInfo> {
         return this._onShowPopupMenu
+    }
+
+    public get onCommandLineShow(): IEvent<INeovimCommandLineShowEvent> {
+        return this._onCommandLineShowEvent
+    }
+
+    public get onCommandLineHide(): IEvent<void> {
+        return this._onCommandLineHideEvent
+    }
+
+    public get onCommandLineSetCursorPosition(): IEvent<INeovimCommandLineSetCursorPosition> {
+        return this._onCommandLineSetCursorPositionEvent
     }
 
     public get onYank(): IEvent<INeovimYankInfo> {
@@ -630,6 +672,40 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         audio.play()
                     }
                     break
+                case "cmdline_show":
+                    {
+
+                        const [content, pos, firstc, prompt, indent, level] = a[0]
+                        const commandLineShowInfo: INeovimCommandLineShowEvent = {
+                            content,
+                            pos,
+                            firstc,
+                            prompt,
+                            indent,
+                            level,
+                        }
+                        this._onCommandLineShowEvent.dispatch(commandLineShowInfo)
+                    }
+                    break
+                case "cmdline_pos":
+                    {
+                        const [pos, level] = a[0]
+                        const commandLinePositionInfo: INeovimCommandLineSetCursorPosition = {
+                            pos,
+                            level,
+                        }
+                        this._onCommandLineSetCursorPositionEvent.dispatch(commandLinePositionInfo)
+                    }
+                    break
+                case "cmdline_hide":
+                    this._onCommandLineHideEvent.dispatch()
+                    break
+                case "wildmenu_show":
+                    break
+                case "wildmenu_select":
+                    break
+                case "wildmenu_hide":
+                    break
                 default:
                     Log.warn("Unhandled command: " + command)
             }
@@ -672,10 +748,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                                          shouldExtTabs: boolean,
                                          shouldExtPopups: boolean) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
+            const useExtCmdLine =  this._config.getValue("experimental.commandline.mode")
             return {
                 rgb: true,
                 popupmenu_external: shouldExtPopups,
                 ext_tabline: shouldExtTabs,
+                ext_cmdline: useExtCmdLine,
             }
         } else if (major === 0 && minor === 2) {
             // 0.1 and below does not support external tabline
