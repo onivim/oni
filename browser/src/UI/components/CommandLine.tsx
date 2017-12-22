@@ -1,6 +1,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
-import styled, { keyframes } from "styled-components"
+import styled from "styled-components"
+import { fadeInAndDown } from "./animations"
 
 // import * as UI from "./../../UI"
 import * as State from "./../State"
@@ -15,15 +16,6 @@ const CommandLineBackground = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-`
-
-const fadeInAndDown = keyframes`
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
 `
 
 const CommandLineBox = styled.div`

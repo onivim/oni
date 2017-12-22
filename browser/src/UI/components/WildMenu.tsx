@@ -2,6 +2,7 @@ import * as React from "react"
 import { connect } from "react-redux"
 import styled, { css } from "styled-components"
 
+import { fadeInAndDown } from "./animations"
 import { withProps } from "./common"
 
 const WildMenuList = styled.ul`
@@ -9,7 +10,7 @@ const WildMenuList = styled.ul`
     margin: 0 auto;
     position: absolute;
     left: 25%;
-    bottom: 20%;
+    top: 10%;
     max-height: 30%;
     background-color: ${p => p.theme.background};
     color: ${p => p.theme.foreground};
@@ -17,6 +18,7 @@ const WildMenuList = styled.ul`
     display: flex;
     padding: 1em;
     flex-direction: column;
+    animation: ${fadeInAndDown} 0.05s ease-in-out;
 `
 const normBg = "highlight.mode.normal.background"
 const normFg = "highlight.mode.normal.foreground"
