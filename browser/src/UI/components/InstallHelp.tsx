@@ -6,7 +6,7 @@ import { remote } from "electron"
 
 import { Icon, IconSize } from "./../Icon"
 
-import * as State from "./../State"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 export interface InstallHelpViewProps {
     visible: boolean

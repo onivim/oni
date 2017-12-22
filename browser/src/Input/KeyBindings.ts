@@ -48,9 +48,9 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         }
     }
 
-    input.bind("<f2>", "language.rename", () => isNormalMode()),
-    input.bind("<esc>", "language.rename.cancel")
-    input.bind("<enter>", "language.rename.commit")
+    input.bind("<f2>", "editor.rename", () => isNormalMode()),
+    input.bind("<esc>", "editor.rename.cancel")
+    input.bind("<enter>", "editor.rename.commit")
 
     input.bind("<enter>", "explorer.open")
 

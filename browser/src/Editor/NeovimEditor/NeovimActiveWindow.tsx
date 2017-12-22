@@ -8,8 +8,8 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import * as Selectors from "./../Selectors"
-import * as State from "./../State"
+import * as Selectors from "./NeovimEditorSelectors"
+import * as State from "./NeovimEditorStore"
 
 export interface IActiveWindowProps {
     pixelX: number
@@ -18,7 +18,7 @@ export interface IActiveWindowProps {
     pixelHeight: number
 }
 
-export class ActiveWindow extends React.PureComponent<IActiveWindowProps, {}> {
+export class NeovimActiveWindow extends React.PureComponent<IActiveWindowProps, {}> {
     public render(): JSX.Element {
 
         const px = (str: number): string => `${str}px`
@@ -47,4 +47,4 @@ const mapStateToProps = (state: State.IState): IActiveWindowProps => {
     }
 }
 
-export const ActiveWindowContainer = connect(mapStateToProps)(ActiveWindow)
+export const NeovimActiveWindowContainer = connect(mapStateToProps)(NeovimActiveWindow)

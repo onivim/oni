@@ -2,8 +2,7 @@ import * as React from "react"
 import { connect } from "react-redux"
 import styled, { keyframes } from "styled-components"
 
-// import * as UI from "./../../UI"
-import * as State from "./../State"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 const CommandLineBackground = styled.div`
     position: absolute;

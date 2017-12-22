@@ -6,33 +6,16 @@
  * http://redux.js.org/docs/recipes/ComputingDerivedData.html
  */
 
-import * as flatten from "lodash/flatten"
-import { createSelector } from "reselect"
-
 import * as types from "vscode-languageserver-types"
 
-import * as Utility from "./../Utility"
+import { createSelector } from "reselect"
 
-import * as State from "./State"
+import { getAllErrorsForFile } from "./../../Services/Diagnostics"
+import * as Utility from "./../../Utility"
+
+import * as State from "./NeovimEditorStore"
 
 export const EmptyArray: any[] = []
-
-export const getErrors = (state: State.IState) => state.errors
-
-export const getAllErrorsForFile = (fileName: string, errors: State.Errors): types.Diagnostic[] => {
-    if (!fileName || !errors) {
-        return EmptyArray
-    }
-
-    const allErrorsByKey = errors[fileName]
-
-    if (!allErrorsByKey) {
-        return EmptyArray
-    }
-
-    const arrayOfErrorsArray = Object.values(allErrorsByKey)
-    return flatten(arrayOfErrorsArray)
-}
 
 const getWindows = (state: State.IState) => state.windowState
 
@@ -82,6 +65,8 @@ export const getActiveWindowPixelDimensions = createSelector(
         return pixelDimensions
     })
 
+export const getErrors = (state: State.IState) => state.errors
+
 export const getErrorsForActiveFile = createSelector(
     [getActiveWindow, getErrors],
     (win, errors) => {
@@ -99,3 +84,35 @@ export const getErrorsForPosition = createSelector(
         const { line, column } = win
         return errors.filter((diag) => Utility.isInRange(line, column, diag.range))
     })
+
+const getBufferState = (state: State.IState) => state.buffers
+
+export const getAllBuffers = createSelector(
+    [getBufferState],
+    (buffers) => buffers.allIds.map((id) => buffers.byId[id]).filter((buf) => buf.listed))
+
+export const getBufferMetadata = createSelector(
+    [getAllBuffers],
+    (buffers) => buffers.map((b) => ({
+        id: b.id,
+        file: b.file,
+        modified: b.modified,
+    })))
+
+export const getActiveBuffer = createSelector(
+    [getActiveWindow, getAllBuffers],
+    (win, buffers) => {
+
+        if (!win || !win.file) {
+            return null
+        }
+
+        const buf = buffers.find((b) => b.file === win.file)
+
+        return buf || null
+    },
+)
+
+export const getActiveBufferId = createSelector(
+    [getActiveBuffer],
+    (buf) => buf === null ? null : buf.id)

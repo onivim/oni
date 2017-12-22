@@ -10,7 +10,7 @@ import { IDisposable } from "oni-types"
 import * as React from "react"
 import { connect } from "react-redux"
 
-import * as State from "./../State"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { ITypingPrediction, TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 

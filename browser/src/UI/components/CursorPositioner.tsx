@@ -10,7 +10,7 @@ import { connect } from "react-redux"
 
 import * as Oni from "oni-api"
 
-import { IState } from "./../State"
+import { IState } from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { Arrow, ArrowDirection } from "./Arrow"
 

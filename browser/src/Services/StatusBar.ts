@@ -12,7 +12,7 @@ import "rxjs/add/operator/debounceTime"
 
 import * as Oni from "oni-api"
 
-import * as UI from "./../UI"
+import * as Shell from "./../UI/Shell"
 
 export enum StatusBarAlignment {
     Left,
@@ -49,12 +49,12 @@ export class StatusBarItem implements Oni.StatusBarItem {
 
     public show(): void {
         this._visible = true
-        UI.Actions.showStatusBarItem(this._id, this._contents, this._alignment, this._priority)
+        Shell.Actions.showStatusBarItem(this._id, this._contents, this._alignment, this._priority)
     }
 
     public hide(): void {
         this._visible = false
-        UI.Actions.hideStatusBarItem(this._id)
+        Shell.Actions.hideStatusBarItem(this._id)
     }
 
     public setContents(element: any): void {

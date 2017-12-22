@@ -1,15 +1,13 @@
 import * as types from "vscode-languageserver-types"
 
 import { connect } from "react-redux"
-import * as Selectors from "./../Selectors"
-import { getActiveBuffer } from "./../selectors/BufferSelectors"
-import * as State from "./../State"
-
-import { BufferScrollBar, IBufferScrollBarProps, IScrollBarMarker } from "./../components/BufferScrollBar"
-
-import { getColorFromSeverity } from "./../../Services/Errors"
-
 import { createSelector } from "reselect"
+
+import { getColorFromSeverity } from "./../../../Services/Errors"
+import { BufferScrollBar, IBufferScrollBarProps, IScrollBarMarker } from "./../../../UI/components/BufferScrollBar"
+
+import * as Selectors from "./../NeovimEditorSelectors"
+import * as State from "./../NeovimEditorStore"
 
 export const getCurrentLine = createSelector(
     [Selectors.getActiveWindow],
@@ -64,7 +62,7 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
     const dimensions = Selectors.getActiveWindowPixelDimensions(state)
 
     const file = activeWindow.file
-    const buffer = getActiveBuffer(state)
+    const buffer = Selectors.getActiveBuffer(state)
 
     if (file === null || !buffer) {
         return NoScrollBar

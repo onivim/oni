@@ -7,51 +7,51 @@ import * as os from "os"
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
-import { ErrorInfo } from "./../UI/components/ErrorInfo"
-import { QuickInfoDocumentation, QuickInfoTitle } from "./../UI/components/QuickInfo"
+import { ErrorInfo } from "./../../UI/components/ErrorInfo"
+import { QuickInfoDocumentation, QuickInfoTitle } from "./../../UI/components/QuickInfo"
 
-import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
+import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import * as UI from "./../UI"
-import * as Selectors from "./../UI/Selectors"
+import { Colors } from "./../../Services/Colors"
+import { Configuration } from "./../../Services/Configuration"
 
-import { Configuration } from "./../Services/Configuration"
+import * as Selectors from "./NeovimEditorSelectors"
+import { IToolTipsProvider } from "./ToolTipsProvider"
 
 const HoverToolTipId = "hover-tool-tip"
 
 export class HoverRenderer {
 
     constructor(
+        private _colors: Colors,
         private _editor: Oni.Editor,
         private _configuration: Configuration,
+        private _toolTipsProvider: IToolTipsProvider,
     ) {
     }
 
-    public showQuickInfo(hover: types.Hover, errors: types.Diagnostic[]): void {
+    public showQuickInfo(x: number, y: number, hover: types.Hover, errors: types.Diagnostic[]): void {
         const elem = this._renderQuickInfoElement(hover, errors)
 
         if (!elem) {
             return
         }
 
-        const state: any = UI.store.getState()
-
-        UI.Actions.showToolTip(HoverToolTipId, elem, {
-            position: { pixelX: state.cursorPixelX, pixelY: state.cursorPixelY },
+        this._toolTipsProvider.showToolTip(HoverToolTipId, elem, {
+            position: { pixelX: x, pixelY: y },
             openDirection: 1,
             padding: "0px",
         })
     }
 
     public hideQuickInfo(): void {
-        UI.Actions.hideToolTip(HoverToolTipId)
+        this._toolTipsProvider.hideToolTip(HoverToolTipId)
     }
 
     private _renderQuickInfoElement(hover: types.Hover, errors: types.Diagnostic[]): JSX.Element {
         const quickInfoElements = getQuickInfoElementsFromHover(hover)
 
-        const state: any = UI.store.getState()
-        const borderColor = state.colors["toolTip.border"]
+        const borderColor = this._colors.getColor("toolTip.border")
 
         let customErrorStyle = {}
         if (quickInfoElements.length > 0) {

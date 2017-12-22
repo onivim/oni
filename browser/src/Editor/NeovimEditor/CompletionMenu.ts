@@ -10,10 +10,9 @@ import * as types from "vscode-languageserver-types"
 
 import { Event, IEvent } from "oni-types"
 
-import { ContextMenu, contextMenuManager } from "./../Services/ContextMenu"
+import { ContextMenu } from "./../../Services/ContextMenu"
 
 export class CompletionMenu {
-    private _contextMenu: ContextMenu = null
     private _onItemFocusedEvent: Event<types.CompletionItem> = new Event<types.CompletionItem>()
     private _onItemSelectedEvent: Event<types.CompletionItem> = new Event<types.CompletionItem>()
 
@@ -25,9 +24,9 @@ export class CompletionMenu {
         return this._onItemSelectedEvent
     }
 
-    constructor() {
-        this._contextMenu = contextMenuManager.create()
-
+    constructor(
+        private _contextMenu: ContextMenu,
+    ) {
         this._contextMenu.onSelectedItemChanged.subscribe((item) => this._onItemFocusedEvent.dispatch(item))
         this._contextMenu.onItemSelected.subscribe((item) => this._onItemSelectedEvent.dispatch(item))
     }

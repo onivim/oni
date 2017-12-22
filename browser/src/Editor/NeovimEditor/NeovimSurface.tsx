@@ -8,24 +8,24 @@ import * as React from "react"
 
 import { IEvent } from "oni-types"
 
-import { NeovimInstance, NeovimScreen } from "./../neovim"
-import { INeovimRenderer } from "./../Renderer"
+import { NeovimInstance, NeovimScreen } from "./../../neovim"
+import { INeovimRenderer } from "./../../Renderer"
 
-import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
-import { CommandLine } from "./../UI/components/CommandLine"
-import { Cursor } from "./../UI/components/Cursor"
-import { CursorLine } from "./../UI/components/CursorLine"
-import { InstallHelp } from "./../UI/components/InstallHelp"
-import { TabsContainer } from "./../UI/components/Tabs"
-import { ToolTips } from "./../UI/components/ToolTip"
-import { TypingPrediction } from "./../UI/components/TypingPredictions"
+import { CommandLine } from "./../../UI/components/CommandLine"
+import { Cursor } from "./../../UI/components/Cursor"
+import { CursorLine } from "./../../UI/components/CursorLine"
+import { InstallHelp } from "./../../UI/components/InstallHelp"
+import { TabsContainer } from "./../../UI/components/Tabs"
+import { ToolTips } from "./../../UI/components/ToolTip"
+import { TypingPrediction } from "./../../UI/components/TypingPredictions"
 
-import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarContainer"
-import { DefinitionContainer } from "./../UI/containers/DefinitionContainer"
-import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
+import { BufferScrollBarContainer } from "./containers/BufferScrollBarContainer"
+import { DefinitionContainer } from "./containers/DefinitionContainer"
+import { ErrorsContainer } from "./containers/ErrorsContainer"
 
-import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
+import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
+import { NeovimActiveWindowContainer } from "./NeovimActiveWindow"
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
 
@@ -40,6 +40,10 @@ export interface INeovimSurfaceProps {
     onKeyDown?: (key: string) => void
     onBufferClose?: (bufferId: number) => void
     onBufferSelect?: (bufferId: number) => void
+    onImeStart: () => void
+    onImeEnd: () => void
+    onBounceStart: () => void
+    onBounceEnd: () => void
     onTabClose?: (tabId: number) => void
     onTabSelect?: (tabId: number) => void
 }
@@ -66,17 +70,21 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     <CommandLine />
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
-                    <ActiveWindowContainer>
+                    <NeovimActiveWindowContainer>
                         <DefinitionContainer />
                         <ErrorsContainer />
                         <BufferScrollBarContainer />
-                    </ActiveWindowContainer>
+                    </NeovimActiveWindowContainer>
                 </div>
                 <NeovimInput
                     onActivate={this.props.onActivate}
                     typingPrediction={this.props.typingPrediction}
                     neovimInstance={this.props.neovimInstance}
                     screen={this.props.screen}
+                    onBounceStart={this.props.onBounceStart}
+                    onBounceEnd={this.props.onBounceEnd}
+                    onImeStart={this.props.onImeStart}
+                    onImeEnd={this.props.onImeEnd}
                     onKeyDown={this.props.onKeyDown}/>
                 <div className="stack layer">
                     <ToolTips />

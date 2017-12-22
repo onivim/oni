@@ -1,31 +1,34 @@
+/**
+ * ShellView is the root UI / React component
+ */
+
 import * as React from "react"
 
-import * as Platform from "./../Platform"
+import * as Platform from "./../../Platform"
 
-import { getKeyEventToVimKey } from "./../Input/Keyboard"
-import { focusManager } from "./../Services/FocusManager"
-import { inputManager } from "./../Services/InputManager"
-import { MenuContainer } from "./../Services/Menu"
-import * as WindowManager from "./../Services/WindowManager"
+import { getKeyEventToVimKey } from "./../../Input/Keyboard"
+import { focusManager } from "./../../Services/FocusManager"
+import { inputManager } from "./../../Services/InputManager"
+import { MenuContainer } from "./../../Services/Menu"
+import { IThemeColors } from "./../../Services/Themes/ThemeManager"
+import * as WindowManager from "./../../Services/WindowManager"
 
-import { Background } from "./components/Background"
-import { ThemeProvider } from "./components/common"
-import { Loading } from "./components/Loading"
-import StatusBar from "./components/StatusBar"
+import { Background } from "./../components/Background"
+import { ThemeProvider } from "./../components/common"
+import { Loading } from "./../components/Loading"
+import StatusBar from "./../components/StatusBar"
 
-import { WindowSplits } from "./components/WindowSplits"
-import { WindowTitle } from "./components/WindowTitle"
+import { WindowSplits } from "./../components/WindowSplits"
+import { WindowTitle } from "./../components/WindowTitle"
 
-import { IThemeColors } from "../Services/Themes/ThemeManager"
-
-interface IRootComponentProps {
+interface IShellViewComponentProps {
     theme: IThemeColors
     windowManager: WindowManager.WindowManager
 }
 
 const titleBarVisible = Platform.isMac()
 
-export class RootComponent extends React.PureComponent<IRootComponentProps, {}> {
+export class ShellView extends React.PureComponent<IShellViewComponentProps, {}> {
 
     public render() {
         return <ThemeProvider theme={this.props.theme}>
