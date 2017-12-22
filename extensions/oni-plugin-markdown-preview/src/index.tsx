@@ -16,6 +16,7 @@ interface IMarkdownPreviewProps {
 interface IColors {
     background: string
     foreground: string
+    link: string
 }
 
 interface IMarkdownPreviewState {
@@ -36,6 +37,7 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
         const colors: IColors = {
             background: this.props.oni.colors.getColor("editor.background"),
             foreground: this.props.oni.colors.getColor("editor.foreground"),
+            link: this.props.oni.colors.getColor("highlight.mode.normal.background"),
         }
         this.state = { source: "", colors }
     }
@@ -57,17 +59,23 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 
     public render(): JSX.Element {
-        const containerStyle: React.CSSProperties = {
-            padding: "1em 1em 1em 1em",
-            overflowY: "auto",
-            background: this.state.colors.background,
-            color: this.state.colors.foreground,
-        }
+        const colors = this.state.colors
+        const containerStyle = `
+            .oniPluginMarkdownPreviewContainerStyle {
+                padding: 1em 1em 1em 1em;
+                overflow-y: auto;
+                background: ${colors.background};
+                color: ${colors.foreground};
+            }
+            .oniPluginMarkdownPreviewContainerStyle a:link {
+                color: ${colors.link};
+            }
+        `;
 
         const markdownLines = dompurify.sanitize(this.state.source).split("\n")
 
         const generateAnchor = (line: number) => {
-            return "<a id=\"" + generateScrollingAnchorId(line) + "\"></a>"
+            return `<a id="${generateScrollingAnchorId(line)}"></a>`
         }
 
         const originalLinesCount = markdownLines.length - 1
@@ -79,8 +87,8 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
         markdownLines.splice(0, 0, generateAnchor(i))
         markdownLines.push(generateAnchor(originalLinesCount - 1))
 
-        const html = marked(markdownLines.join("\n"))
-        return <div className="stack enable-mouse" style={containerStyle} dangerouslySetInnerHTML={{__html: html}}></div>
+        const html = marked(markdownLines.join("\n")) + `\n<style>${containerStyle}</style>`
+        return <div className="stack enable-mouse oniPluginMarkdownPreviewContainerStyle" dangerouslySetInnerHTML={{__html: html}}></div>
     }
 
     private subscribe<T>(editorEvent: IEvent<T>, eventCallback: EventCallback<T>): void {
