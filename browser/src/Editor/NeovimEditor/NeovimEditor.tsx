@@ -494,6 +494,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public async init(filesToOpen: string[]): Promise<void> {
+        Log.info("[NeovimEditor::init] Called with filesToOpen: " + filesToOpen)
         const startOptions: INeovimStartOptions = {
             runtimePaths: pluginManager.getAllRuntimePaths(),
             transport: this._configuration.getValue("experimental.neovim.transport"),
