@@ -42,7 +42,6 @@ import * as UI from "./../UI/index"
 import { Editor, IEditor } from "./Editor"
 
 import { BufferManager } from "./BufferManager"
-import { listenForBufferUpdates } from "./BufferUpdates"
 import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
@@ -150,6 +149,20 @@ export class NeovimEditor extends Editor implements IEditor {
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
         this._windowManager = new NeovimWindowManager(this._neovimInstance)
+        this._neovimInstance.onCommandLineShow.subscribe((showCommandLineInfo) => {
+            UI.Actions.showCommandLine(
+                showCommandLineInfo.content,
+                showCommandLineInfo.pos,
+                showCommandLineInfo.firstc,
+                showCommandLineInfo.prompt,
+                showCommandLineInfo.indent,
+                showCommandLineInfo.level,
+            )
+        })
+
+        this._neovimInstance.onCommandLineHide.subscribe(() => {
+            UI.Actions.hideCommandLine()
+        })
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
             if (this._configuration.getValue("editor.clipboard.enabled")) {
@@ -237,8 +250,16 @@ export class NeovimEditor extends Editor implements IEditor {
         this._modeChanged$ = this._neovimInstance.onModeChanged.asObservable()
         this._neovimInstance.onModeChanged.subscribe((newMode) => this._onModeChanged(newMode))
 
-        const bufferUpdates$ = listenForBufferUpdates(this._neovimInstance, this._bufferManager)
-        bufferUpdates$.subscribe((bufferUpdate) => {
+        this._neovimInstance.onBufferUpdate.subscribe((update) => {
+
+            const buffer = this._bufferManager.updateBufferFromEvent(update.eventContext)
+
+            const bufferUpdate = {
+                context: update.eventContext,
+                buffer,
+                contentChanges: update.contentChanges,
+            }
+
             this.notifyBufferChanged(bufferUpdate)
             UI.Actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
 

@@ -60,7 +60,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
         })
 
         afterEach(async () => {
-            console.log("[AFTER EACH]: " + testName)
+            logWithTimeStamp("[AFTER EACH]: " + testName)
             await oni.close()
         })
 
