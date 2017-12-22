@@ -12,7 +12,6 @@ import * as Oni from "oni-api"
 import styled from "styled-components"
 
 import { Icon } from "./../../UI/Icon"
-import { configuration } from "./../Configuration"
 
 import { statusBar } from "./../StatusBar"
 
