@@ -53,6 +53,13 @@ describe("LanguageManager", () => {
         mockConfiguration = new Mocks.MockConfiguration({
             "editor.quickInfo.delay": 500,
             "editor.quickInfo.enabled": true,
+            "status.priority": {
+                "oni.status.workingDirectory": 0,
+                "oni.status.linenumber": 1,
+                "oni.status.mode": 0,
+                "oni.status.filetype": 1,
+                "oni.status.git": 2,
+            },
         })
 
         editorManager = new EditorManager()
