@@ -22,8 +22,13 @@ export class LanguageClientStatusBar {
     private _fileType: string
 
     constructor() {
-        const priorities = configuration.getValue("statusbar.priority")
-        const id = Object.keys(priorities).find(p => p.includes("filetype"))
+        let id
+        try {
+            const priorities = configuration.getValue("statusbar.priority")
+            id = Object.keys(priorities).find(p => p.includes("filetype"))
+        } catch (e) {
+            id = "oni.status.unknown"
+        }
         this._item = statusBar.createItem(0, id)
     }
 
