@@ -31,8 +31,8 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 colors: a.payload.colors,
                     }
         case "SET_NEOVIM_ERROR":
-            return { ...s,
-                     neovimError: a.payload.neovimError }
+             return { ...s,
+                      neovimError: a.payload.neovimError }
         case "SET_VIEWPORT":
             return { ...s,
                      viewport: viewportReducer(s.viewport, a) }
@@ -64,6 +64,28 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             const newConfig = {...s.configuration, ...obj}
             return {...s,
                     configuration: newConfig}
+        case "SHOW_COMMAND_LINE":
+            return {
+                ...s,
+                commandLine: {
+                    content: a.payload.content,
+                    pos: a.payload.pos,
+                    firstchar: a.payload.firstchar,
+                    prompt: a.payload.prompt,
+                    indent: a.payload.indent,
+                    level: a.payload.level,
+                },
+            }
+        case "HIDE_COMMAND_LINE":
+            return {
+                ...s,
+                commandLine: null,
+            }
+        case "SET_COMMAND_LINE_POSITION":
+            return {
+                ...s,
+                commandLine :  {...s.commandLine, position: a.payload.position},
+            }
         default:
             return {...s,
                     buffers: buffersReducer(s.buffers, a),

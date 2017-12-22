@@ -11,6 +11,7 @@ import { IEvent } from "oni-types"
 import { NeovimInstance, NeovimScreen } from "./../../neovim"
 import { INeovimRenderer } from "./../../Renderer"
 
+import { CommandLine } from "./../../UI/components/CommandLine"
 import { Cursor } from "./../../UI/components/Cursor"
 import { CursorLine } from "./../../UI/components/CursorLine"
 import { InstallHelp } from "./../../UI/components/InstallHelp"
@@ -66,6 +67,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                 <div className="stack layer">
                     <TypingPrediction typingPrediction={this.props.typingPrediction}/>
                     <Cursor typingPrediction={this.props.typingPrediction}/>
+                    <CommandLine />
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
                     <NeovimActiveWindowContainer>
