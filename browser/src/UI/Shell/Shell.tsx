@@ -14,22 +14,20 @@ import { remote } from "electron"
 import { bindActionCreators } from "redux"
 import thunk from "redux-thunk"
 
-import { RootComponent } from "./RootComponent"
+import { ShellView } from "./ShellView"
 
-import * as ActionCreators from "./ActionCreators"
-import { reducer } from "./Reducer"
-import * as State from "./State"
+import * as ActionCreators from "./ShellActionCreators"
+import { reducer } from "./ShellReducer"
+import * as State from "./ShellState"
 
-import { focusManager } from "./../Services/FocusManager"
-import { windowManager } from "./../Services/WindowManager"
+import { focusManager } from "./../../Services/FocusManager"
+import { windowManager } from "./../../Services/WindowManager"
 
-import { createStore } from "./../Redux"
+import { createStore } from "./../../Redux"
 
 const defaultState = State.createDefaultState()
 
-require("./components/common.less") // tslint:disable-line no-var-requires
-
-export const store = createStore("SHELL", reducer, defaultState, [thunk])
+export const store = createStore("Shell", reducer, defaultState, [thunk])
 
 export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators as any, store.dispatch)
 
@@ -46,16 +44,16 @@ export const activate = (): void => {
     render(defaultState)
 }
 
-const RootContainer = connect((state: State.IState) => ({
+const ShellContainer = connect((state: State.IState) => ({
     theme: state.colors,
-}))(RootComponent)
+}))(ShellView)
 
 export const render = (state: State.IState): void => {
     const hostElement = document.getElementById("host")
 
     ReactDOM.render(
         <Provider store={store}>
-            <RootContainer windowManager={windowManager}/>
+            <ShellContainer windowManager={windowManager}/>
         </Provider>, hostElement)
 }
 

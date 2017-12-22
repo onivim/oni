@@ -1,3 +1,7 @@
+/**
+ * ShellView is the root UI / React component
+ */
+
 import * as React from "react"
 
 import * as Platform from "./../Platform"
@@ -18,14 +22,14 @@ import { WindowTitle } from "./components/WindowTitle"
 
 import { IThemeColors } from "../Services/Themes/ThemeManager"
 
-interface IRootComponentProps {
+interface IShellViewComponentProps {
     theme: IThemeColors
     windowManager: WindowManager.WindowManager
 }
 
 const titleBarVisible = Platform.isMac()
 
-export class RootComponent extends React.PureComponent<IRootComponentProps, {}> {
+export class ShellView extends React.PureComponent<IShellViewComponentProps, {}> {
 
     public render() {
         return <ThemeProvider theme={this.props.theme}>
