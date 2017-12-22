@@ -113,7 +113,6 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 
     private previewBuffer(buffer: Oni.Buffer): void {
-        this.previewString("# Loading preview...")
         buffer.getLines().then((lines: string[]) => {this.previewString(lines.join("\n"))})
     }
 
