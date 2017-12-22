@@ -66,7 +66,7 @@ export class Symbols {
             })
             .subscribe((newItems: types.SymbolInformation[]) => {
                 menu.setLoading(false)
-                menu.setItems(newItems.map(this._symbolInfoToMenuItem))
+                menu.setItems(newItems.map((item) => this._symbolInfoToMenuItem(item)))
 
                 keyToLocation = newItems.reduce((prev, curr) => {
                     return {
@@ -92,7 +92,7 @@ export class Symbols {
             },
         })
 
-        const options: Oni.Menu.MenuOption[] = result.map(this._symbolInfoToMenuItem)
+        const options: Oni.Menu.MenuOption[] = result.map((item) => this._symbolInfoToMenuItem(item))
 
         const labelToLocation = result.reduce((prev, curr) => {
             return {
