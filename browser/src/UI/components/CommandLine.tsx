@@ -2,7 +2,7 @@ import * as React from "react"
 import { connect } from "react-redux"
 import styled, { keyframes } from "styled-components"
 
-import * as UI from "./../../UI"
+// import * as UI from "./../../UI"
 import * as State from "./../State"
 
 const CommandLineBackground = styled.div`
@@ -59,8 +59,7 @@ class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps>
     private _inputElement: HTMLInputElement
 
     public handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-        console.log("Changing")
-        UI.Actions.setCommandLinePosition(1, 1)
+        // UI.Actions.setCommandLinePosition(1, 1)
     }
 
     public render(): null |  JSX.Element {
