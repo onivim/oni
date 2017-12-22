@@ -29,11 +29,16 @@ export const getActiveBuffer = createSelector(
             return null
         }
 
-        const buf = buffers.find((b) => b.file === win.file)
+        const buf = getBufferFromFile(buffers, win.file)
 
         return buf || null
     },
 )
+
+export const getBufferFromFile = (buffers: State.IBuffer[], filePath: string): State.IBuffer => {
+    const buf = buffers.find((b) => b.file === filePath)
+    return buf
+}
 
 export const getActiveBufferId = createSelector(
     [getActiveBuffer],
