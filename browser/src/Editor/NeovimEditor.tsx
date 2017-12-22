@@ -448,16 +448,19 @@ export class NeovimEditor extends Editor implements IEditor {
             this._onKeyDown(key)
         }
 
-        return <NeovimSurface renderer={this._renderer}
-            typingPrediction={this._typingPredictionManager}
-            neovimInstance={this._neovimInstance}
-            screen={this._screen}
-            onActivate={this._onEnterEvent}
-            onKeyDown={onKeyDown}
-            onBufferClose={onBufferClose}
-            onBufferSelect={onBufferSelect}
-            onTabClose={onTabClose}
-            onTabSelect={onTabSelect} />
+        return (
+            <NeovimSurface renderer={this._renderer}
+                typingPrediction={this._typingPredictionManager}
+                neovimInstance={this._neovimInstance}
+                screen={this._screen}
+                onActivate={this._onEnterEvent}
+                onKeyDown={onKeyDown}
+                onBufferClose={onBufferClose}
+                onBufferSelect={onBufferSelect}
+                onTabClose={onTabClose}
+                onTabSelect={onTabSelect}
+            />
+        )
     }
 
     private async _openFiles(files: string[], action: string): Promise<void> {

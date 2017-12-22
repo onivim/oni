@@ -410,8 +410,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             return this.open(loadInitVim)
         } else {
             // Use path from: https://github.com/neovim/neovim/wiki/FAQ
-            const rootFolder = Platform.isWindows() ? path.join(process.env["LOCALAPPDATA"], "nvim") : // tslint:disable-line no-string-literal
-                                                      path.join(Platform.getUserHome(), ".config", "nvim")
+            const rootFolder = Platform.isWindows()
+                ? path.join(process.env["LOCALAPPDATA"], "nvim") // tslint:disable-line no-string-literal
+                : path.join(Platform.getUserHome(), ".config", "nvim")
 
             mkdirp.sync(rootFolder)
             const initVimPath = path.join(rootFolder, "init.vim")
