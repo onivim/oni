@@ -11,7 +11,7 @@ const WildMenuList = styled.ul`
     position: absolute;
     left: 25%;
     top: 10%;
-    max-height: 30%;
+    max-height: 60%;
     background-color: ${p => p.theme.background};
     color: ${p => p.theme.foreground};
     box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -35,8 +35,8 @@ const WildMenuItem = withProps<{ selected: boolean }>(styled.li)`
     flex: 1;
     margin: 0.2em;
     padding: 0.2em 0.5em;
-    min-height: 1.2em;
     width: 100%;
+    min-height: 1em;
     text-align: left;
     overflow: hidden;
     white-space: nowrap;
