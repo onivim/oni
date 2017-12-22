@@ -10,7 +10,7 @@ import * as types from "vscode-languageserver-types"
 
 import { Event, IEvent } from "oni-types"
 
-import { ContextMenu } from "./../Services/ContextMenu"
+import { ContextMenu } from "./../../Services/ContextMenu"
 
 export class CompletionMenu {
     private _onItemFocusedEvent: Event<types.CompletionItem> = new Event<types.CompletionItem>()

@@ -8,23 +8,24 @@ import * as React from "react"
 
 import { IEvent } from "oni-types"
 
-import { NeovimInstance, NeovimScreen } from "./../neovim"
-import { INeovimRenderer } from "./../Renderer"
+import { NeovimInstance, NeovimScreen } from "./../../neovim"
+import { INeovimRenderer } from "./../../Renderer"
 
-import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
-import { Cursor } from "./../UI/components/Cursor"
-import { CursorLine } from "./../UI/components/CursorLine"
-import { InstallHelp } from "./../UI/components/InstallHelp"
-import { TabsContainer } from "./../UI/components/Tabs"
-import { ToolTips } from "./../UI/components/ToolTip"
-import { TypingPrediction } from "./../UI/components/TypingPredictions"
+import { Cursor } from "./../../UI/components/Cursor"
+import { CursorLine } from "./../../UI/components/CursorLine"
+import { InstallHelp } from "./../../UI/components/InstallHelp"
+import { TabsContainer } from "./../../UI/components/Tabs"
+import { ToolTips } from "./../../UI/components/ToolTip"
+import { TypingPrediction } from "./../../UI/components/TypingPredictions"
 
-import { BufferScrollBarContainer } from "./../UI/containers/BufferScrollBarContainer"
-import { DefinitionContainer } from "./../UI/containers/DefinitionContainer"
-import { ErrorsContainer } from "./../UI/containers/ErrorsContainer"
 
-import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
+import { BufferScrollBarContainer } from "./containers/BufferScrollBarContainer"
+import { DefinitionContainer } from "./containers/DefinitionContainer"
+import { ErrorsContainer } from "./containers/ErrorsContainer"
 
+import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
+
+import { NeovimActiveWindowContainer } from "./NeovimActiveWindow"
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
 
@@ -68,11 +69,11 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     <Cursor typingPrediction={this.props.typingPrediction}/>
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
-                    <ActiveWindowContainer>
+                    <NeovimActiveWindowContainer>
                         <DefinitionContainer />
                         <ErrorsContainer />
                         <BufferScrollBarContainer />
-                    </ActiveWindowContainer>
+                    </NeovimActiveWindowContainer>
                 </div>
                 <NeovimInput
                     onActivate={this.props.onActivate}

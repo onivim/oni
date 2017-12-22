@@ -1,6 +1,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
-import * as Selectors from "./../Selectors"
+
+import * as Selectors from "./../../Editor/NeovimEditor/NeovimEditorSelectors"
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 export interface ICursorLineRendererProps {

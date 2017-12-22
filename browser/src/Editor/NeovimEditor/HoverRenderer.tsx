@@ -7,18 +7,16 @@ import * as os from "os"
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
-import { ErrorInfo } from "./../UI/components/ErrorInfo"
-import { QuickInfoDocumentation, QuickInfoTitle } from "./../UI/components/QuickInfo"
+import { ErrorInfo } from "./../../UI/components/ErrorInfo"
+import { QuickInfoDocumentation, QuickInfoTitle } from "./../../UI/components/QuickInfo"
 
-import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
+import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import * as Selectors from "./../UI/Selectors"
+import { Colors } from "./../../Services/Colors"
+import { Configuration } from "./../../Services/Configuration"
 
-import { Configuration } from "./../Services/Configuration"
-
-import { Colors } from "./../Services/Colors"
-
-import { IToolTipsProvider } from "./NeovimEditor/ToolTipsProvider"
+import * as Selectors from "./NeovimEditorSelectors"
+import { IToolTipsProvider } from "./ToolTipsProvider"
 
 const HoverToolTipId = "hover-tool-tip"
 

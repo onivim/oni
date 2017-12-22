@@ -9,11 +9,11 @@ import * as React from "react"
 import * as Oni from "oni-api"
 import { IEvent } from "oni-types"
 
-import { INeovimCompletionInfo, INeovimCompletionItem } from "./../neovim"
-import { Colors } from "./../Services/Colors"
-import { ContextMenuView, IContextMenuItem } from "./../Services/ContextMenu"
+import { INeovimCompletionInfo, INeovimCompletionItem } from "./../../neovim"
+import { Colors } from "./../../Services/Colors"
+import { ContextMenuView, IContextMenuItem } from "./../../Services/ContextMenu"
 
-import { IToolTipsProvider } from "./NeovimEditor/ToolTipsProvider"
+import { IToolTipsProvider } from "./ToolTipsProvider"
 
 const mapNeovimCompletionItemToContextMenuItem = (item: INeovimCompletionItem, idx: number, totalLength: number): IContextMenuItem  => ({
     label: item.word,

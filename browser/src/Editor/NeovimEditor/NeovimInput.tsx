@@ -8,12 +8,12 @@ import * as React from "react"
 
 import { IEvent } from "oni-types"
 
-import { Mouse } from "./../Input/Mouse"
-import { NeovimInstance, NeovimScreen } from "./../neovim"
+import { Mouse } from "./../../Input/Mouse"
+import { NeovimInstance, NeovimScreen } from "./../../neovim"
 
-import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
+import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
-import { KeyboardInput } from "./KeyboardInput"
+import { KeyboardInput } from "./../../Input/KeyboardInput"
 
 export interface INeovimInputProps {
     neovimInstance: NeovimInstance

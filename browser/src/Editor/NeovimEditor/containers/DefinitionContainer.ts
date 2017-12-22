@@ -2,11 +2,10 @@ import { connect } from "react-redux"
 
 import * as types from "vscode-languageserver-types"
 
-import * as Selectors from "./../Selectors"
+import { Definition, IDefinitionProps } from "./../../../UI/components/Definition"
 
-import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
-
-import { Definition, IDefinitionProps } from "./../components/Definition"
+import * as Selectors from "./../NeovimEditorSelectors"
+import * as State from "./../NeovimEditorStore"
 
 const emptyRange = types.Range.create(
     types.Position.create(-1, -1),

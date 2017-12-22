@@ -4,11 +4,10 @@
  * Integrates the `textDocument/publishDiagnostics` protocol with Oni's UI
  */
 
+import * as flatten from "lodash/flatten"
 import * as types from "vscode-languageserver-types"
 
 import { Event, IEvent } from "oni-types"
-
-import * as Selectors from "./../UI/Selectors"
 
 import { ILanguageServerNotificationResponse, LanguageManager } from "./Language"
 
@@ -32,6 +31,23 @@ export interface IDiagnosticsDataSource {
     getErrorsForPosition(filePath: string, line: number, column: number): types.Diagnostic[]
 
     start(languageManager: LanguageManager): void
+}
+
+// export const getErrors = (state: State.IState) => state.errors
+
+export const getAllErrorsForFile = (fileName: string, errors: Errors): types.Diagnostic[] => {
+    if (!fileName || !errors) {
+        return Utility.EmptyArray
+    }
+
+    const allErrorsByKey = errors[fileName]
+
+    if (!allErrorsByKey) {
+        return Utility.EmptyArray
+    }
+
+    const arrayOfErrorsArray = Object.values(allErrorsByKey)
+    return flatten(arrayOfErrorsArray)
 }
 
 export class DiagnosticsDataSource {
@@ -63,7 +79,7 @@ export class DiagnosticsDataSource {
     }
 
     public getErrorsForPosition(filePath: string, line: number, column: number): types.Diagnostic[] {
-        const errors = Selectors.getAllErrorsForFile(Utility.normalizePath(filePath), this._errors)
+        const errors = getAllErrorsForFile(Utility.normalizePath(filePath), this._errors)
 
         return errors.filter((diagnostic) => {
             return Utility.isInRange(line, column, diagnostic.range)
