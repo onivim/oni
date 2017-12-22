@@ -67,7 +67,6 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     public render(): JSX.Element {
         const html = this.generateMarkdown() + this.generateContainerStyle()
         const classes = "stack enable-mouse oniPluginMarkdownPreviewContainerStyle"
-        console.warn(html)
         return <div className={classes} dangerouslySetInnerHTML={{__html: html}}></div>
     }
 
@@ -105,7 +104,7 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
                 ${codeBlockStyle}
             }
             </style>
-        `;
+        `
     }
 
     private generateMarkdown(): string {
@@ -115,7 +114,7 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
             return `<a id="${generateScrollingAnchorId(line)}"></a>`
         }
 
-        var isBlock: boolean = false
+        let isBlock: boolean = false
         const originalLinesCount: number = markdownLines.length - 1
         for (var i = originalLinesCount; i > 0; i--) { // tslint:disable-line
             if (markdownLines[i].includes("```")) {
