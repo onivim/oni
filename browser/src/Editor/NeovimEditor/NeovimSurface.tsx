@@ -11,17 +11,6 @@ import { IEvent } from "oni-types"
 import { NeovimInstance, NeovimScreen } from "./../../neovim"
 import { INeovimRenderer } from "./../../Renderer"
 
-<<<<<<< HEAD:browser/src/Editor/NeovimSurface.tsx
-import { ActiveWindowContainer } from "./../UI/components/ActiveWindow"
-import { CommandLine } from "./../UI/components/CommandLine"
-import { Cursor } from "./../UI/components/Cursor"
-import { CursorLine } from "./../UI/components/CursorLine"
-import { InstallHelp } from "./../UI/components/InstallHelp"
-import { TabsContainer } from "./../UI/components/Tabs"
-import { ToolTips } from "./../UI/components/ToolTip"
-import { TypingPrediction } from "./../UI/components/TypingPredictions"
-import WildMenu from "./../UI/components/WildMenu"
-=======
 import { CommandLine } from "./../../UI/components/CommandLine"
 import { Cursor } from "./../../UI/components/Cursor"
 import { CursorLine } from "./../../UI/components/CursorLine"
@@ -29,7 +18,7 @@ import { InstallHelp } from "./../../UI/components/InstallHelp"
 import { TabsContainer } from "./../../UI/components/Tabs"
 import { ToolTips } from "./../../UI/components/ToolTip"
 import { TypingPrediction } from "./../../UI/components/TypingPredictions"
->>>>>>> 9d0ec95a231607736bcae3259ca45fe45af2c280:browser/src/Editor/NeovimEditor/NeovimSurface.tsx
+import WildMenu from "./../../UI/components/WildMenu"
 
 import { BufferScrollBarContainer } from "./containers/BufferScrollBarContainer"
 import { DefinitionContainer } from "./containers/DefinitionContainer"
