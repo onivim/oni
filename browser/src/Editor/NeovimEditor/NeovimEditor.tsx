@@ -207,14 +207,14 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onWildMenuShow.subscribe(wildMenuInfo => {
-            UI.Actions.showWildMenu(wildMenuInfo)
+            this._actions.showWildMenu(wildMenuInfo)
         })
 
         this._neovimInstance.onWildMenuSelect.subscribe(wildMenuInfo => {
-            UI.Actions.wildMenuSelect(wildMenuInfo)
+            this._actions.wildMenuSelect(wildMenuInfo)
         })
 
-        this._neovimInstance.onWildMenuHide.subscribe(UI.Actions.hideWildMenu)
+        this._neovimInstance.onWildMenuHide.subscribe(this._actions.hideWildMenu)
 
         this._neovimInstance.onCommandLineHide.subscribe(() => {
             this._actions.hideCommandLine()
@@ -533,33 +533,24 @@ export class NeovimEditor extends Editor implements IEditor {
             this._onKeyDown(key)
         }
 
-<<<<<<< HEAD:browser/src/Editor/NeovimEditor.tsx
         return (
-            <NeovimSurface renderer={this._renderer}
-=======
-        return <Provider store={this._store}>
-                <NeovimSurface renderer={this._renderer}
->>>>>>> 9d0ec95a231607736bcae3259ca45fe45af2c280:browser/src/Editor/NeovimEditor/NeovimEditor.tsx
-                typingPrediction={this._typingPredictionManager}
-                neovimInstance={this._neovimInstance}
-                screen={this._screen}
-                onActivate={this._onEnterEvent}
-                onKeyDown={onKeyDown}
-                onBufferClose={onBufferClose}
-                onBufferSelect={onBufferSelect}
-<<<<<<< HEAD:browser/src/Editor/NeovimEditor.tsx
-                onTabClose={onTabClose}
-                onTabSelect={onTabSelect}
-            />
+                <Provider store={this._store}>
+                    <NeovimSurface renderer={this._renderer}
+                    typingPrediction={this._typingPredictionManager}
+                    neovimInstance={this._neovimInstance}
+                    screen={this._screen}
+                    onActivate={this._onEnterEvent}
+                    onKeyDown={onKeyDown}
+                    onBufferClose={onBufferClose}
+                    onBufferSelect={onBufferSelect}
+                    onBounceStart={() => this._onBounceStart()}
+                    onBounceEnd={() => this._onBounceEnd()}
+                    onImeStart={() => this._onImeStart()}
+                    onImeEnd={() => this._onImeEnd()}
+                    onTabClose={onTabClose}
+                    onTabSelect={onTabSelect} />
+                </Provider>
         )
-=======
-                onBounceStart={() => this._onBounceStart()}
-                onBounceEnd={() => this._onBounceEnd()}
-                onImeStart={() => this._onImeStart()}
-                onImeEnd={() => this._onImeEnd()}
-                onTabClose={onTabClose}
-                onTabSelect={onTabSelect} />
-            </Provider>
     }
 
     private _onBounceStart(): void {
@@ -568,7 +559,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private _onBounceEnd(): void {
         this._actions.setCursorScale(1.0)
->>>>>>> 9d0ec95a231607736bcae3259ca45fe45af2c280:browser/src/Editor/NeovimEditor/NeovimEditor.tsx
     }
 
     private async _openFiles(files: string[], action: string): Promise<void> {
