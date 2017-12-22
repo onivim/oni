@@ -12,8 +12,8 @@ import "rxjs/add/operator/distinctUntilChanged"
 
 import * as isEqual from "lodash/isEqual"
 
-import * as types from "vscode-languageserver-types"
 import { Event, IEvent } from "oni-types"
+import * as types from "vscode-languageserver-types"
 
 import { EventContext } from "./EventContext"
 import { NeovimInstance } from "./index"
