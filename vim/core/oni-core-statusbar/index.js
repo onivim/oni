@@ -4,7 +4,7 @@ const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
 
 const activate = (Oni) => {
     const React = Oni.dependencies.React
-    const items = Oni.configuration.getValue("statusbar.priority")
+    const items = Oni.configuration.getValue("statusbar.priority", {})
     const ids = Object.keys(items)
 
     const mode = ids.find(id => id.includes('mode'));
