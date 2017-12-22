@@ -169,6 +169,14 @@ export interface ISetTabs {
     }
 }
 
+export interface ISetActiveVimTabPage {
+    type: "SET_ACTIVE_VIM_TAB_PAGE",
+    payload: {
+        id: number,
+        windowIds: number[]
+    }
+}
+
 export interface ISetWindowCursor {
     type: "SET_WINDOW_CURSOR",
     payload: {
@@ -264,6 +272,7 @@ export type SimpleAction =
     ISetHasFocusAction |
     ISetNeovimErrorAction |
     ISetTabs |
+    ISetActiveVimTabPage |
     ISetLoadingCompleteAction |
     ISetViewportAction |
     ISetWindowCursor |
@@ -531,6 +540,14 @@ export const setCursorColumnOpacity = (opacity: number) => ({
     payload: {
         opacity,
     },
+})
+
+export const setActiveVimTabPage = (tabId: number, windowIds: number[]): ISetActiveVimTabPage => ({
+    type: "SET_ACTIVE_VIM_TAB_PAGE",
+    payload: {
+        id: tabId,
+        windowIds,
+    }
 })
 
 export function setConfigValue<K extends keyof IConfigurationValues>(k: K, v: IConfigurationValues[K]): ISetConfigurationValue<K> {

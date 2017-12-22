@@ -24,6 +24,11 @@ import * as Utility from "./../Utility"
 import * as Coordinates from "./../UI/Coordinates"
 import * as UITypes from "./../UI/Types"
 
+export interface NeovimTabPageState {
+    tabId: number
+    windows: NeovimWindowState[]
+}
+
 export interface NeovimWindowState {
     windowNumber: number
     bufferFullPath: string
@@ -79,10 +84,14 @@ export class NeovimWindowManager {
 
         shouldMeasure$
             .withLatestFrom(this._scrollObservable)
-            .subscribe((args: [any, EventContext]) => {
+            .switchMap((args: [any, EventContext]) => {
 
                 const [, evt] = args
-                this._remeasureWindow(evt, false)
+                return Observable.defer(() => this._remeasure(evt, false))
+            })
+            .subscribe((windowState: NeovimWindowState) => {
+                this._onWindowStateChangedEvent.dispatch(windowState)
+                this._neovimInstance.dispatchScrollEvent()
             })
     }
 
@@ -93,6 +102,12 @@ export class NeovimWindowManager {
     public async remeasure(): Promise<void> {
         const newContext = await this._neovimInstance.getContext()
         this._scrollObservable.next(newContext)
+    }
+
+    private async _remeasure(context: EventContext, force: boolean = false): Promise<NeovimWindowState> {
+        const currentWin: any = await this._neovimInstance.request("nvim_get_current_win", [])
+        const windowState = await this._remeasureWindow(currentWin.id, context, force)
+        return windowState
     }
 
     // The goal of this function is to acquire functions for the current window:
@@ -108,13 +123,12 @@ export class NeovimWindowManager {
     // - How each buffer line maps to the screen space
     //
     // We can derive these from information coming from the event handlers, along with screen width
-    private async _remeasureWindow(context: EventContext, force: boolean = false): Promise<void> {
-        const currentWin: any = await this._neovimInstance.request("nvim_get_current_win", [])
+    private async _remeasureWindow(currentWinId: number, context: EventContext, force: boolean = false): Promise<NeovimWindowState> {
 
         const atomicCalls = [
-            ["nvim_win_get_position", [currentWin.id]],
-            ["nvim_win_get_width", [currentWin.id]],
-            ["nvim_win_get_height", [currentWin.id]],
+            ["nvim_win_get_position", [currentWinId]],
+            ["nvim_win_get_width", [currentWinId]],
+            ["nvim_win_get_height", [currentWinId]],
             ["nvim_buf_get_lines", [context.bufferNumber, context.windowTopLine - 1, context.windowBottomLine, false]],
         ]
 
@@ -161,7 +175,7 @@ export class NeovimWindowManager {
                 height,
             }
 
-            this._onWindowStateChangedEvent.dispatch({
+            const newWindowState = {
                 windowNumber: context.windowNumber,
                 bufferFullPath: context.bufferFullPath,
                 column: context.column - 1,
@@ -170,11 +184,12 @@ export class NeovimWindowManager {
                 topBufferLine: context.windowTopLine,
                 dimensions,
                 bufferToScreen: getBufferToScreenFromRanges(offset, expandedWidthRanges),
-            })
+            }
 
-            this._neovimInstance.dispatchScrollEvent()
+            return newWindowState
         } else {
             Log.warn("Measure request failed")
+            return null
         }
     }
 }
