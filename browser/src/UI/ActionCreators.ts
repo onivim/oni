@@ -68,6 +68,37 @@ export const setColors = (colors: IThemeColors) => ({
     },
 })
 
+export const setCommandLinePosition = (position: number, level: number) => ({
+    type: "SET_COMMAND_LINE_POSITION",
+    payload: {
+        position,
+        level,
+    },
+})
+
+export const hideCommandLine = () => ({
+    type: "HIDE_COMMAND_LINE",
+})
+
+export const showCommandLine = (
+    content: Array<[any, string]>,
+    pos: number,
+    firstchar: string,
+    prompt: string,
+    indent: number,
+    level: number,
+) => ({
+    type: "SHOW_COMMAND_LINE",
+    payload: {
+        content,
+        pos,
+        firstchar,
+        prompt,
+        indent,
+        level,
+    },
+})
+
 export const setNeovimError = (neovimError: boolean) => ({
     type: "SET_NEOVIM_ERROR",
     payload: {
