@@ -74,8 +74,8 @@ export interface IHideCommandLineAction {
 export interface IShowCommandLineAction {
     type: "SHOW_COMMAND_LINE",
     payload: {
-        content: number,
-        pos: number,
+        content: Array<[any, string]>,
+        position: number,
         firstchar: string,
         prompt: string,
         indent: number,

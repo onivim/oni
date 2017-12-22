@@ -196,7 +196,7 @@ export class NeovimEditor extends Editor implements IEditor {
         // explicit window management: #362
         this._windowManager = new NeovimWindowManager(this._neovimInstance)
         this._neovimInstance.onCommandLineShow.subscribe((showCommandLineInfo) => {
-            UI.Actions.showCommandLine(
+            this._actions.showCommandLine(
                 showCommandLineInfo.content,
                 showCommandLineInfo.pos,
                 showCommandLineInfo.firstc,
@@ -207,7 +207,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onCommandLineHide.subscribe(() => {
-            UI.Actions.hideCommandLine()
+            this._actions.hideCommandLine()
         })
 
         this._windowManager.onWindowStateChanged.subscribe((newWindowState) => {

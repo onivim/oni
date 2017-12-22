@@ -69,7 +69,7 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 ...s,
                 commandLine: {
                     content: a.payload.content,
-                    pos: a.payload.pos,
+                    position: a.payload.position,
                     firstchar: a.payload.firstchar,
                     prompt: a.payload.prompt,
                     indent: a.payload.indent,
