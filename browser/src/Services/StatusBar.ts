@@ -74,6 +74,8 @@ export class StatusBarItem implements Oni.StatusBarItem {
 class StatusBar implements Oni.StatusBar {
     private _id: number = 0
 
+    constructor(private _config: Oni.Configuration){}
+
     public getItem(globalId: string): Oni.StatusBarItem {
         return new StatusBarItem(globalId)
     }
@@ -81,7 +83,7 @@ class StatusBar implements Oni.StatusBar {
     public createItem(alignment: StatusBarAlignment, globalId?: string): Oni.StatusBarItem {
         this._id++
         const statusBarId = globalId || `${this._id.toString()}`
-        const statusItems = configuration.getValue("statusbar.priority")
+        const statusItems = this._config.getValue("statusbar.priority")
         const currentItem = statusItems[globalId]
         const itemPriority = currentItem || 0
 
