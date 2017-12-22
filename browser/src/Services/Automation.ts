@@ -4,6 +4,8 @@
  * Helper methods for running automated tests
  */
 
+import { remote } from "electron"
+
 import * as OniApi from "oni-api"
 
 import * as Utility from "./../Utility"
@@ -92,12 +94,15 @@ export class Automation implements OniApi.Automation.Api {
             const testCase: any = Utility.nodeRequire(testPath2)
             const oni = new Oni()
 
+            this._initializeBrowseWindow()
+
             await testCase.test(oni)
             Log.info("[AUTOMATION] Completed test: " + testPath)
             this._reportResult(true)
         } catch (ex) {
             this._reportResult(false, ex)
         } finally {
+            this._reportWindowSize()
             const logs = loggingRedirector.getAllLogs()
 
             const logsElement = this._createElement("automated-test-logs", this._getOrCreateTestContainer("automated-test-container"))
@@ -106,6 +111,22 @@ export class Automation implements OniApi.Automation.Api {
 
             loggingRedirector.dispose()
         }
+    }
+
+    private _initializeBrowseWindow(): void {
+        const win = remote.getCurrentWindow()
+        win.maximize()
+        win.focus()
+
+        this._reportWindowSize()
+    }
+
+    private _reportWindowSize(): void {
+        const win = remote.getCurrentWindow()
+        const size = win.getContentSize()
+        Log.info(`[AUTOMATION]: Window size reported as ${size}`)
+        Log.info(`[AUTOMATION]: Window focus state: ${win.isFocused()}`)
+        Log.info(`[AUTOMATION]: Is off-screen rendering: ${win.webContents.isOffscreen()}`)
     }
 
     private _getOrCreateTestContainer(className: string): HTMLDivElement {
