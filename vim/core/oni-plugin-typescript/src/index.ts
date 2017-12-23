@@ -32,7 +32,10 @@ export const activate = (oni: Oni.Plugin.Api) => {
 
     const _lightweightLanguageClient = new LightweightLanguageClient()
     oni.language.registerLanguageClient("typescript", _lightweightLanguageClient)
-    oni.language.registerLanguageClient("javascript", _lightweightLanguageClient)
+    const usingFlow = oni.configuration.getValue("language.javascript.useFlow")
+    if (!usingFlow) {
+        oni.language.registerLanguageClient("javascript", _lightweightLanguageClient)
+    }
 
     const connection = new LanguageConnection(_lightweightLanguageClient)
 
