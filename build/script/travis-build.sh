@@ -20,6 +20,7 @@ npm run pack
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
    python -m ensurepip
    pip --version
+   pip install --upgrade pip
    pip install python-language-server
    npm run test:integration
    npm run demo
