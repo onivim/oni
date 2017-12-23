@@ -11,10 +11,8 @@ import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 const WildMenuList = styled.ul`
     position: relative;
     width: 75%;
-    margin-top: 16px;
     max-height: 30em;
     max-width: 900px;
-    ${boxShadow};
     animation: ${fadeInAndDown} 0.05s ease-in-out;
     display: flex;
     padding: 1em;
@@ -23,6 +21,7 @@ const WildMenuList = styled.ul`
     overflow: hidden;
     background-color: ${p => p.theme["menu.background"]};
     color: ${p => p.theme["menu.foreground"]};
+    ${boxShadow};
 `
 const colors = css`
     background-color: rgba(0, 0, 0, 0.2);

@@ -52,50 +52,56 @@ export interface INeovimSurfaceProps {
 
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> {
     public render(): JSX.Element {
-        return <div className="container vertical full">
-            <div className="container fixed">
-                <TabsContainer
-                    onBufferSelect={this.props.onBufferSelect}
-                    onBufferClose={this.props.onBufferClose}
-                    onTabClose={this.props.onTabClose}
-                    onTabSelect={this.props.onTabSelect}/>
-            </div>
-            <div className="container full">
-                <div className="stack">
-                    <NeovimRenderer renderer={this.props.renderer}
+        return (
+            <div className="container vertical full">
+                <div className="container fixed">
+                    <TabsContainer
+                        onBufferSelect={this.props.onBufferSelect}
+                        onBufferClose={this.props.onBufferClose}
+                        onTabClose={this.props.onTabClose}
+                        onTabSelect={this.props.onTabSelect}
+                    />
+                </div>
+                <div className="container full">
+                    <div className="stack">
+                        <NeovimRenderer
+                            renderer={this.props.renderer}
+                            neovimInstance={this.props.neovimInstance}
+                            screen={this.props.screen}
+                        />
+                    </div>
+                    <div className="stack layer">
+                        <ExternalMenus>
+                            <CommandLine />
+                            <WildMenu />
+                        </ExternalMenus>
+                        <TypingPrediction typingPrediction={this.props.typingPrediction} />
+                        <Cursor typingPrediction={this.props.typingPrediction} />
+                        <CursorLine lineType={"line"} />
+                        <CursorLine lineType={"column"} />
+                        <NeovimActiveWindowContainer>
+                            <DefinitionContainer />
+                            <ErrorsContainer />
+                            <BufferScrollBarContainer />
+                        </NeovimActiveWindowContainer>
+                    </div>
+                    <NeovimInput
+                        onActivate={this.props.onActivate}
+                        typingPrediction={this.props.typingPrediction}
                         neovimInstance={this.props.neovimInstance}
-                        screen={this.props.screen} />
+                        screen={this.props.screen}
+                        onBounceStart={this.props.onBounceStart}
+                        onBounceEnd={this.props.onBounceEnd}
+                        onImeStart={this.props.onImeStart}
+                        onImeEnd={this.props.onImeEnd}
+                        onKeyDown={this.props.onKeyDown}
+                    />
+                    <div className="stack layer">
+                        <ToolTips />
+                    </div>
+                    <InstallHelp />
                 </div>
-                <div className="stack layer">
-                    <TypingPrediction typingPrediction={this.props.typingPrediction}/>
-                    <Cursor typingPrediction={this.props.typingPrediction}/>
-                    <ExternalMenus>
-                        <CommandLine />
-                        <WildMenu />
-                    </ExternalMenus>
-                    <CursorLine lineType={"line"} />
-                    <CursorLine lineType={"column"} />
-                    <NeovimActiveWindowContainer>
-                        <DefinitionContainer />
-                        <ErrorsContainer />
-                        <BufferScrollBarContainer />
-                    </NeovimActiveWindowContainer>
-                </div>
-                <NeovimInput
-                    onActivate={this.props.onActivate}
-                    typingPrediction={this.props.typingPrediction}
-                    neovimInstance={this.props.neovimInstance}
-                    screen={this.props.screen}
-                    onBounceStart={this.props.onBounceStart}
-                    onBounceEnd={this.props.onBounceEnd}
-                    onImeStart={this.props.onImeStart}
-                    onImeEnd={this.props.onImeEnd}
-                    onKeyDown={this.props.onKeyDown}/>
-                <div className="stack layer">
-                    <ToolTips />
-                </div>
-                <InstallHelp />
             </div>
-        </div>
+        )
     }
 }
