@@ -13,6 +13,7 @@ import * as path from "path"
 
 import { ChildProcess } from "child_process"
 import * as rpc from "vscode-jsonrpc"
+import * as types from "vscode-languageserver-types"
 
 import { Event, IEvent} from "oni-types"
 
@@ -144,38 +145,62 @@ export class LanguageClientProcess {
 
         this._connection.listen()
 
-        const oniLanguageClientParams: any = {
+        const NoDynamicRegistration = {
+            dynamicRegistration: false
+        }
+
+        const SupportedMarkup = ["plaintext"]
+
+        const oniLanguageClientParams: types. = {
             clientName: "oni",
             rootPath,
             rootUri: Helpers.wrapPathInFileUri(rootPath),
             capabilities: {
                 workspace: {
                     applyEdit: true,
-                    configuration: true,
                     workspaceEdit: {
                         documentChanges: false,
                     },
-                    didChangeConfiguration: true,
-                    didChangeWatchedFiles: false,
-                    symbol: true,
-                    executeCommand: true,
+                    didChangeConfiguration: NoDynamicRegistration,
+                    didChangeWatchedFiles: NoDynamicRegistration,
+                    symbol: NoDynamicRegistration,
+                    executeCommand: NoDynamicRegistration,
                 },
                 textDocument: {
-                    synchronization: true,
-                    completion: true,
-                    hover: true,
-                    signatureHelp: true,
-                    references: true,
-                    documentHighlight: false,
-                    documentSymbol: true,
-                    formatting: true,
-                    rangeFormatting: true,
-                    onTypeFormatting: false,
-                    definition: true,
-                    codeAction: true,
-                    codeLens: true,
-                    documentLink: false,
-                    rename: true,
+                    synchronization: {
+                        dynamicRegistration: false,
+                        willSave: false,
+                        willSaveWaitUntil: false,
+                        didSave: true,
+                    },
+                    completion: {
+                        dynamicRegistration: false,
+                        completionItem: {
+                            snippetSupport: false,
+                            commitCharactersSupport: true,
+                            documentationFormat: SupportedMarkup,
+                        }
+                        completionItemKind: { },
+                        contextSupport: false,
+                    },
+                    hover: {
+                        dynamicRegistration: false,
+                        contentFormat: SupportedMarkup,
+                    },
+                    signatureHelp: {
+                        dynamicRegistration: false,
+                        signatureInformation: {
+                            documentationFormat: SupportedMarkup,
+                        }
+                    },
+                    references: NoDynamicRegistration,
+                    documentSymbol: NoDynamicRegistration,
+                    formatting: NoDynamicRegistration,
+                    rangeFormatting: NoDynamicRegistration,,
+                    definition: NoDynamicRegistration,
+                    codeAction: NoDynamicRegistration,
+                    codeLens: NoDynamicRegistration,
+                    rename: NoDynamicRegistration,
                 },
             },
         }
