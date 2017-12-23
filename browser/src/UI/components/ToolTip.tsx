@@ -19,8 +19,8 @@ export interface IToolTipsViewProps {
 export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
 
     public render(): JSX.Element {
-        const toolTipElements = this.props.toolTips.map((toolTip, i) => {
-            return <ToolTipView {...toolTip} key={`${i}-${toolTip.id}`} borderColor={this.props.borderColor} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor}/>
+        const toolTipElements = this.props.toolTips.map((toolTip) => {
+            return <ToolTipView {...toolTip} key={toolTip.id} borderColor={this.props.borderColor} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor}/>
         })
 
         const style: React.CSSProperties = {
