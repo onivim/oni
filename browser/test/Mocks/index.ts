@@ -28,6 +28,16 @@ export class MockConfiguration {
     }
 }
 
+export class MockStatusBar implements Oni.StatusBar {
+    public getItem(globalId: string): Oni.StatusBarItem {
+        return null
+    }
+
+    public createItem(alignment: number, priority: number, globalId: string): Oni.StatusBarItem {
+        return null
+    }
+}
+
 export class MockEditor extends Editor {
 
     private _activeBuffer: MockBuffer = null
