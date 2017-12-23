@@ -28,13 +28,32 @@ export class MockConfiguration {
     }
 }
 
+export class MockStatusBarItem implements Oni.StatusBarItem {
+
+    public show(): void {
+        // tslint:disable-line
+    }
+
+    public hide(): void {
+        // tslint:disable-line
+    }
+
+    public setContents(element: JSX.Element): void {
+        // tslint:disable-line
+    }
+
+    public dispose(): void {
+        // tslint:disable-line
+    }
+}
+
 export class MockStatusBar implements Oni.StatusBar {
     public getItem(globalId: string): Oni.StatusBarItem {
-        return null
+        return new MockStatusBarItem()
     }
 
     public createItem(alignment: number, priority: number, globalId: string): Oni.StatusBarItem {
-        return null
+        return new MockStatusBarItem()
     }
 }
 

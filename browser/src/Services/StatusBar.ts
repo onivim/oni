@@ -21,12 +21,6 @@ export enum StatusBarAlignment {
     Right,
 }
 
-export interface IStatusBarItem {
-    show(): void
-    hide(): void
-    setContents(element: any): void
-}
-
 export class StatusBarItem implements Oni.StatusBarItem {
     private _contents: JSX.Element
     private _visible: boolean = false
@@ -77,7 +71,7 @@ class StatusBar implements Oni.StatusBar {
     private _id: number = 0
 
     constructor(
-        private _configuration: Configuration
+        private _configuration: Configuration,
     ) { }
 
     public getItem(globalId: string): Oni.StatusBarItem {
