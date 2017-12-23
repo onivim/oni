@@ -1,7 +1,8 @@
 import * as React from "react"
+import * as ReactDOM from "react-dom"
 import { connect } from "react-redux"
 import styled, { css } from "styled-components"
-import { Icon  } from "./../../UI/Icon"
+import { Icon } from "./../../UI/Icon"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 import { fadeInAndDown } from "./animations"
@@ -25,7 +26,7 @@ const WildMenuList = styled.ul`
     position: relative;
     width: 75%;
     margin-top: 16px;
-    max-height: 500px;
+    max-height: 30em;
     max-width: 900px;
     ${boxShadow};
     animation: ${fadeInAndDown} 0.05s ease-in-out;
@@ -58,7 +59,7 @@ const WildMenuItem = withProps<{ selected: boolean }>(styled.li)`
 `
 
 const WildMenuText = styled.span`
-  margin-left: 1rem;
+    margin-left: 1rem;
 `
 
 interface Props {
@@ -73,12 +74,19 @@ interface State {
 }
 
 class WildMenu extends React.Component<Props, State> {
-    public state = {
-        currentPage: 1,
-        itemsPerPage: 10,
-    }
     private selectedElement: HTMLUListElement
     private containerElement: HTMLUListElement
+    private stackLayer: HTMLDivElement
+
+    public constructor(props: Props) {
+        super(props)
+        this.stackLayer = document.querySelector(".stack .layer")
+
+        this.state = {
+            currentPage: 1,
+            itemsPerPage: 10,
+        }
+    }
 
     public componentWillReceiveProps(next: Props) {
         if (next.selected !== this.props.selected) {
@@ -93,7 +101,8 @@ class WildMenu extends React.Component<Props, State> {
         const { currentItems, current } = this.calculateCurrentItems()
 
         return (
-            visible && (
+            visible &&
+            ReactDOM.createPortal(
                 <WildMenuContainer>
                     <WildMenuList innerRef={e => (this.containerElement = e)}>
                         {currentItems &&
@@ -105,12 +114,15 @@ class WildMenu extends React.Component<Props, State> {
                                     selected={i === current}
                                     key={option + i}
                                 >
-                                    <span><Icon name="file-text" /></span>
+                                    <span>
+                                        <Icon name="file-text" />
+                                    </span>
                                     <WildMenuText>{option}</WildMenuText>
                                 </WildMenuItem>
                             ))}
                     </WildMenuList>
-                </WildMenuContainer>
+                </WildMenuContainer>,
+                this.stackLayer,
             )
         )
     }
