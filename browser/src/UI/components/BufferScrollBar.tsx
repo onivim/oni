@@ -59,7 +59,7 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
 
         const markers = this.props.markers || []
 
-        const markerElements = markers.map((m, i) => {
+        const markerElements = markers.map((m) => {
             const line = m.line
             const pos = (line / this.props.bufferSize) * this.props.height
             const size = "2px"
