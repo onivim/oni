@@ -1,5 +1,4 @@
 import * as React from "react"
-import { connect } from "react-redux"
 import styled from "styled-components"
 import { fadeInAndDown } from "./animations"
 
@@ -43,14 +42,14 @@ export interface ICommandLineRendererProps {
     content: Array<[any, string]> | null
     position: number,
     firstchar: string
-    // level: number
+    level?: number
 }
 
 interface State {
     focused: boolean,
 }
 
-class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps, State> {
+class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> {
     public state = {
         focused: false,
     }
@@ -85,22 +84,4 @@ class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps,
     }
 }
 
-const mapStateToProps = ({ commandLine }: State.IState, props: ICommandLineRendererProps) => {
-    const commandLineProps: ICommandLineRendererProps = {
-        content: null,
-        visible: false,
-        firstchar: "",
-        position: 0,
-    }
-
-    if (commandLine) {
-        commandLineProps.visible = commandLine !== null
-        commandLineProps.content = commandLine.content
-        commandLineProps.firstchar = commandLine.firstchar
-        commandLineProps.position = commandLine !== null ? commandLine.position : 0
-    }
-
-    return commandLineProps
-}
-
-export const CommandLine = connect<ICommandLineRendererProps>(mapStateToProps)(CommandLineRenderer)
+export default CommandLine

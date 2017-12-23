@@ -1,26 +1,9 @@
 import * as React from "react"
-import * as ReactDOM from "react-dom"
-import { connect } from "react-redux"
 import styled, { css } from "styled-components"
 import { Icon } from "./../../UI/Icon"
 
-import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 import { fadeInAndDown } from "./animations"
 import { boxShadow, withProps } from "./common"
-
-const WildMenuContainer = styled.div`
-    position: absolute;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 8px;
-    top: 0px;
-    left: 0px;
-    bottom: 0px;
-    right: 0px;
-    background-color: rgba(0, 0, 0, 0.25);
-`
 
 const WildMenuList = styled.ul`
     position: relative;
@@ -74,19 +57,12 @@ interface State {
 }
 
 class WildMenu extends React.Component<Props, State> {
+    public state = {
+        currentPage: 1,
+        itemsPerPage: 10,
+    }
     private selectedElement: HTMLUListElement
     private containerElement: HTMLUListElement
-    private stackLayer: HTMLDivElement
-
-    public constructor(props: Props) {
-        super(props)
-        this.stackLayer = document.querySelector(".stack .layer")
-
-        this.state = {
-            currentPage: 1,
-            itemsPerPage: 10,
-        }
-    }
 
     public componentWillReceiveProps(next: Props) {
         if (next.selected !== this.props.selected) {
@@ -101,28 +77,24 @@ class WildMenu extends React.Component<Props, State> {
         const { currentItems, current } = this.calculateCurrentItems()
 
         return (
-            visible &&
-            ReactDOM.createPortal(
-                <WildMenuContainer>
-                    <WildMenuList innerRef={e => (this.containerElement = e)}>
-                        {currentItems &&
-                            currentItems.map((option, i) => (
-                                <WildMenuItem
-                                    innerRef={e =>
-                                        i === current - 1 ? (this.selectedElement = e) : null
-                                    }
-                                    selected={i === current}
-                                    key={option + i}
-                                >
-                                    <span>
-                                        <Icon name="file-text" />
-                                    </span>
-                                    <WildMenuText>{option}</WildMenuText>
-                                </WildMenuItem>
-                            ))}
-                    </WildMenuList>
-                </WildMenuContainer>,
-                this.stackLayer,
+            visible && (
+                <WildMenuList innerRef={e => (this.containerElement = e)}>
+                    {currentItems &&
+                        currentItems.map((option, i) => (
+                            <WildMenuItem
+                                innerRef={e =>
+                                    i === current - 1 ? (this.selectedElement = e) : null
+                                }
+                                selected={i === current}
+                                key={option + i}
+                            >
+                                <span>
+                                    <Icon name="file-text" />
+                                </span>
+                                <WildMenuText>{option}</WildMenuText>
+                            </WildMenuItem>
+                        ))}
+                </WildMenuList>
             )
         )
     }
@@ -138,8 +110,4 @@ class WildMenu extends React.Component<Props, State> {
     }
 }
 
-const mapStateToProps = ({ wildmenu: { options, visible, selected } }: State.IState) => {
-    return { options, visible, selected }
-}
-
-export default connect(mapStateToProps)(WildMenu)
+export default WildMenu

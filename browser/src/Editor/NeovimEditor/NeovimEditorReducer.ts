@@ -99,6 +99,7 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             return {
                 ...s,
                 commandLine: {
+                    visible: true,
                     content: a.payload.content,
                     position: a.payload.position,
                     firstchar: a.payload.firstchar,
@@ -110,7 +111,15 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         case "HIDE_COMMAND_LINE":
             return {
                 ...s,
-                commandLine: null,
+                commandLine: {
+                    visible: false,
+                    content: null,
+                    firstchar: "",
+                    position: null,
+                    prompt: "",
+                    indent: null,
+                    level: null,
+                },
             }
         case "SET_COMMAND_LINE_POSITION":
             return {
