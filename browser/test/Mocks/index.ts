@@ -27,13 +27,37 @@ export class MockConfiguration {
     }
 }
 
-export class MockStatusBar implements Oni.StatusBar {
-    public getItem(globalId: string): Oni.StatusBarItem {
-        return null
+export class MockStatusBarItem implements Oni.StatusBarItem {
+
+    public show(): void {
+        // tslint:disable-line
     }
 
+    public hide(): void {
+        // tslint:disable-line
+    }
+
+    public setContents(element: JSX.Element): void {
+        // tslint:disable-line
+    }
+
+    public dispose(): void {
+        // tslint:disable-line
+    }
+}
+
+export class MockStatusBar implements Oni.StatusBar {
+    public getItem(globalId: string): Oni.StatusBarItem {
+        return new MockStatusBarItem()
+    }
+
+<<<<<<< HEAD
     public createItem(alignment: number, globalId: string): Oni.StatusBarItem {
         return null
+=======
+    public createItem(alignment: number, priority: number, globalId: string): Oni.StatusBarItem {
+        return new MockStatusBarItem()
+>>>>>>> upstream/bryphe/refactoring/explicit-statusbar-dependencies
     }
 }
 
