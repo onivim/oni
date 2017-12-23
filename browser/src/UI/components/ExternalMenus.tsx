@@ -26,6 +26,7 @@ interface Props {
 class ExternalMenus extends React.Component<Props> {
     constructor(props: Props, private stackLayer: HTMLDivElement) {
         super(props)
+
         this.stackLayer = document.querySelector(".stack .layer")
     }
 
