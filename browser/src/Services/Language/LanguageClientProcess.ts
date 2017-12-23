@@ -145,7 +145,7 @@ export class LanguageClientProcess {
         this._connection.listen()
 
         const NoDynamicRegistration = {
-            dynamicRegistration: false
+            dynamicRegistration: false,
         }
 
         const SupportedMarkup = ["plaintext"]
@@ -190,7 +190,7 @@ export class LanguageClientProcess {
                         dynamicRegistration: false,
                         signatureInformation: {
                             documentationFormat: SupportedMarkup,
-                        }
+                        },
                     },
                     references: NoDynamicRegistration,
                     documentSymbol: NoDynamicRegistration,
