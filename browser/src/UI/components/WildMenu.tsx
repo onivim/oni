@@ -45,7 +45,7 @@ const colors = css`
 const WildMenuItem = withProps<{ selected: boolean }>(styled.li)`
     font-size: 1.1rem;
     margin: 0.2em;
-    padding: 0.5em;
+    padding: 0.4em;
     ${p => p.selected && boxShadow};
     min-height: 1rem;
     text-align: left;
