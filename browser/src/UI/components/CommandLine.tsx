@@ -1,6 +1,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
-import styled, { keyframes } from "styled-components"
+import styled from "styled-components"
+import { fadeInAndDown } from "./animations"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
@@ -14,15 +15,6 @@ const CommandLineBackground = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-`
-
-const fadeInAndDown = keyframes`
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
 `
 
 const CommandLineBox = styled.div`
@@ -54,15 +46,28 @@ export interface ICommandLineRendererProps {
     // level: number
 }
 
-class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps> {
+interface State {
+    focused: boolean,
+}
+
+class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps, State> {
+    public state = {
+        focused: false,
+    }
     private _inputElement: HTMLInputElement
 
     public handleChange(e: React.ChangeEvent<HTMLInputElement>) {
         // UI.Actions.setCommandLinePosition(1, 1)
     }
 
+    public componentWillReceiveProps(nextProps: ICommandLineRendererProps) {
+        if (!this.state.focused && nextProps.visible) {
+            this.setState({ focused: true })
+        }
+    }
+
     public render(): null |  JSX.Element {
-        if (this.props.visible && this._inputElement) {
+        if (!this.state.focused && this.props.visible && this._inputElement) {
            this._inputElement.focus()
         }
 

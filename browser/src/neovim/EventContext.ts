@@ -20,6 +20,7 @@ export interface EventContext {
     column: number
     byte: number
     filetype: string
+    tabNumber: number
     windowNumber: number
     wincol: number
     winline: number

@@ -41,6 +41,11 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             ...s,
             cursorScale: a.payload.cursorScale,
         }
+        case "SET_ACTIVE_VIM_TAB_PAGE":
+            return {
+                ...s,
+                activeVimTabPage: a.payload,
+            }
         case "SET_CURSOR_POSITION":
             return {...s,
                     cursorPixelX: a.payload.pixelX,
@@ -63,7 +68,33 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             obj[a.payload.key] = a.payload.value
             const newConfig = {...s.configuration, ...obj}
             return {...s,
-                    configuration: newConfig}
+                    configuration: newConfig,
+            }
+        case "SHOW_WILDMENU":
+            return {
+                ...s,
+                wildmenu: {
+                    ...s.wildmenu,
+                    visible: true,
+                    options: a.payload.options,
+                },
+            }
+        case "WILDMENU_SELECTED":
+            return {
+                ...s,
+                wildmenu: {
+                    ...s.wildmenu,
+                    selected: a.payload.selected,
+                },
+            }
+        case "HIDE_WILDMENU":
+            return {
+                ...s,
+                wildmenu: {
+                    ...s.wildmenu,
+                    visible: false,
+                },
+            }
         case "SHOW_COMMAND_LINE":
             return {
                 ...s,
@@ -280,6 +311,20 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                         column: a.payload.column,
                         line: a.payload.line,
                     },
+                },
+            }
+        case "SET_INACTIVE_WINDOW_STATE":
+            currentWindow = s.windows[a.payload.windowId] || null
+
+            return {
+                ...s,
+                [a.payload.windowId]: {
+                    ...currentWindow,
+                    column: -1,
+                    line: -1,
+                    topBufferLine: -1,
+                    bottomBufferLine: -1,
+                    dimensions: a.payload.dimensions,
                 },
             }
         case "SET_WINDOW_STATE":

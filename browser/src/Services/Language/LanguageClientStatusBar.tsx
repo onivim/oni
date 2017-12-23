@@ -23,7 +23,8 @@ export class LanguageClientStatusBar {
     constructor(config: Oni.Configuration) {
         const priorities = config.getValue("statusbar.priority")
         const id = Object.keys(priorities).find(p => p.includes("filetype"))
-        this._item = statusBar.createItem(0, id)
+        const statusbar = new statusBar(config)
+        this._item = statusbar.createItem(0, id)
     }
 
     public show(fileType: string): void {

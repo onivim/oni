@@ -110,7 +110,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     public get statusBar(): OniApi.StatusBar {
-        return statusBar
+        return new statusBar(configuration)
     }
 
     public get ui(): Ui {

@@ -6,7 +6,6 @@
 
 import { Subject } from "rxjs/Subject"
 import { Subscription } from "rxjs/Subscription"
-import { configuration } from "./Configuration"
 
 import "rxjs/add/operator/auditTime"
 import "rxjs/add/operator/debounceTime"
@@ -74,7 +73,7 @@ export class StatusBarItem implements Oni.StatusBarItem {
 class StatusBar implements Oni.StatusBar {
     private _id: number = 0
 
-    constructor(private _config: Oni.Configuration){}
+    constructor(private _config: Oni.Configuration) {}
 
     public getItem(globalId: string): Oni.StatusBarItem {
         return new StatusBarItem(globalId)
@@ -91,4 +90,4 @@ class StatusBar implements Oni.StatusBar {
     }
 }
 
-export const statusBar = new StatusBar()
+export const statusBar = StatusBar
