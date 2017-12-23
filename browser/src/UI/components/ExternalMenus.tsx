@@ -1,4 +1,5 @@
 import * as React from "react"
+import * as ReactDOM from "react-dom"
 import { connect } from "react-redux"
 import styled from "styled-components"
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
@@ -26,25 +27,29 @@ interface Props {
 }
 
 class ExternalMenus extends React.Component<Props> {
+    constructor(props: Props, private stackLayer: HTMLDivElement) {
+        super(props)
+        this.stackLayer = document.querySelector(".stack .layer")
+    }
+
     public render() {
         const { wildmenu, commandLine } = this.props
         const visible = commandLine.visible || wildmenu.visible
         return (
-            visible && (
+            visible && ReactDOM.createPortal(
                 <MenuContainer>
                     <CommandLine {...commandLine} />
                     <WildMenu {...wildmenu} />
-                </MenuContainer>
+                </MenuContainer>,
+                this.stackLayer,
             )
         )
     }
 }
 
-const mapStateToProps = ({ wildmenu, commandLine }: State.IState) => {
-    return {
-        commandLine,
-        wildmenu,
-    }
-}
+const mapStateToProps = ({ wildmenu, commandLine }: State.IState) => ({
+    commandLine,
+    wildmenu,
+})
 
 export default connect(mapStateToProps)(ExternalMenus)

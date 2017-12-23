@@ -4,18 +4,6 @@ import { fadeInAndDown } from "./animations"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
-const CommandLineBackground = styled.div`
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    bottom: 0px;
-    right: 0px;
-    background-color: rgba(0, 0, 0, 0.25);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-`
-
 const CommandLineBox = styled.div`
     position: relative;
     margin-top: 16px;
@@ -38,15 +26,15 @@ const CommandLineInput = styled.input`
 `
 
 export interface ICommandLineRendererProps {
-    visible: boolean,
+    visible: boolean
     content: Array<[any, string]> | null
-    position: number,
+    position: number
     firstchar: string
     level?: number
 }
 
 interface State {
-    focused: boolean,
+    focused: boolean
 }
 
 class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> {
@@ -65,13 +53,13 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
         }
     }
 
-    public render(): null |  JSX.Element {
+    public render(): null | JSX.Element {
         if (!this.state.focused && this.props.visible && this._inputElement) {
-           this._inputElement.focus()
+            this._inputElement.focus()
         }
 
-        return this.props.visible && (
-            <CommandLineBackground>
+        return (
+            this.props.visible && (
                 <CommandLineBox>
                     <CommandLineInput
                         onChange={this.handleChange}
@@ -79,7 +67,7 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
                         value={this.props.firstchar + this.props.content[0][1]}
                     />
                 </CommandLineBox>
-            </CommandLineBackground>
+            )
         )
     }
 }
