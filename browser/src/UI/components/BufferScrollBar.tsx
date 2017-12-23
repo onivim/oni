@@ -59,7 +59,7 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
 
         const markers = this.props.markers || []
 
-        const markerElements = markers.map((m) => {
+        const markerElements = markers.map((m, i) => {
             const line = m.line
             const pos = (line / this.props.bufferSize) * this.props.height
             const size = "2px"
@@ -72,12 +72,12 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
                 width: "100%",
             }
 
-            return <div style={markerStyle} key={m.line.toString() + m.color}/>
+            return <div style={markerStyle} key={`${m.line}-${m.color}-${i}-${top}`}/>
         })
 
         return <ScrollBarContainer>
-                <ScrollBarWindow style={windowStyle}></ScrollBarWindow>
-                {markerElements}
-            </ScrollBarContainer>
+                    <ScrollBarWindow style={windowStyle}></ScrollBarWindow>
+                    {markerElements}
+                </ScrollBarContainer>
     }
 }

@@ -24,7 +24,7 @@ export class QuickInfoDocumentation extends TextComponent {
         }
 
         const lines = this.props.text.split(os.EOL)
-        const divs = lines.map((l) => <div>{l}</div>)
+        const divs = lines.map((l, i) => <div key={`${l}-${i}`}>{l}</div>)
 
         return <div className="documentation">{divs}</div>
     }

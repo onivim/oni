@@ -124,7 +124,6 @@
     "dompurify": "1.0.2",
     "electron-settings": "^3.1.4",
     "find-up": "2.1.0",
-    "flow-language-server": "^0.2.3",
     "keyboard-layout": "2.0.13",
     "marked": "^0.3.6",
     "minimist": "1.2.0",
