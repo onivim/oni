@@ -151,7 +151,7 @@ export class LanguageClientProcess {
 
         const SupportedMarkup = ["plaintext"]
 
-        const oniLanguageClientParams: types. = {
+        const oniLanguageClientParams = {
             clientName: "oni",
             rootPath,
             rootUri: Helpers.wrapPathInFileUri(rootPath),
