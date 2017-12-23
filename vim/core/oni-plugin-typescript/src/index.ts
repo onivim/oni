@@ -31,12 +31,18 @@ export const activate = (oni: Oni.Plugin.Api) => {
     const host = new TypeScriptServerHost(oni)
 
     const _lightweightLanguageClient = new LightweightLanguageClient()
-    const lspCommand = oni.configuration.getValue("language.javascript.languageServer.command")
-    const lspArgs = oni.configuration.getValue("language.javascript.languageServer.arguments")
-    const existingLSP = !!(lspCommand || lspArgs)
-    if (!existingLSP) {
-        oni.language.registerLanguageClient("typescript", _lightweightLanguageClient)
+    const jsLspCommand = oni.configuration.getValue("language.javascript.languageServer.command")
+    const jsLspArgs = oni.configuration.getValue("language.javascript.languageServer.arguments")
+    const tsLspCommand = oni.configuration.getValue("language.typescript.languageServer.command")
+    const tsLspArgs = oni.configuration.getValue("language.typescript.languageServer.arguments")
+    const existingJsLSP = !!(jsLspCommand || jsLspArgs)
+    const existingTsLSP = !!(tsLspCommand || tsLspArgs)
+
+    if (!existingJsLSP) {
         oni.language.registerLanguageClient("javascript", _lightweightLanguageClient)
+    }
+    if (!existingTsLSP) {
+        oni.language.registerLanguageClient("typescript", _lightweightLanguageClient)
     }
 
     const connection = new LanguageConnection(_lightweightLanguageClient)
