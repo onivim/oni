@@ -13,7 +13,6 @@ import * as path from "path"
 
 import { ChildProcess } from "child_process"
 import * as rpc from "vscode-jsonrpc"
-import * as types from "vscode-languageserver-types"
 
 import { Event, IEvent} from "oni-types"
 
@@ -179,7 +178,7 @@ export class LanguageClientProcess {
                             snippetSupport: false,
                             commitCharactersSupport: true,
                             documentationFormat: SupportedMarkup,
-                        }
+                        },
                         completionItemKind: { },
                         contextSupport: false,
                     },
@@ -196,7 +195,7 @@ export class LanguageClientProcess {
                     references: NoDynamicRegistration,
                     documentSymbol: NoDynamicRegistration,
                     formatting: NoDynamicRegistration,
-                    rangeFormatting: NoDynamicRegistration,,
+                    rangeFormatting: NoDynamicRegistration,
                     definition: NoDynamicRegistration,
                     codeAction: NoDynamicRegistration,
                     codeLens: NoDynamicRegistration,
