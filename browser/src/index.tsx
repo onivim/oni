@@ -25,6 +25,7 @@ const start = async (args: string[]): Promise<void> => {
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
 
+    const statusBarPromise = import("./Services/StatusBar")
     const startEditorsPromise = import("./startEditors")
 
     const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
@@ -86,8 +87,12 @@ const start = async (args: string[]): Promise<void> => {
 
     const { editorManager } = await editorManagerPromise
 
+    const StatusBar = await statusBarPromise
+    StatusBar.activate(configuration)
+    const statusBar = StatusBar.getInstance()
+
     const LanguageManager = await languageManagerPromise
-    LanguageManager.activate(configuration, editorManager)
+    LanguageManager.activate(configuration, editorManager, statusBar)
     const languageManager = LanguageManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Editors")

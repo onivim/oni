@@ -13,18 +13,13 @@ import styled from "styled-components"
 
 import { Icon } from "./../../UI/Icon"
 
-import { statusBar } from "./../StatusBar"
-
 export class LanguageClientStatusBar {
 
     private _item: Oni.StatusBarItem
     private _fileType: string
 
-    constructor(config: Oni.Configuration) {
-        const priorities = config.getValue("statusbar.priority")
-        const id = Object.keys(priorities).find(p => p.includes("filetype"))
-        const statusbar = new statusBar(config)
-        this._item = statusbar.createItem(0, id)
+    constructor(private _statusBar: Oni.StatusBar) {
+        this._item = this._statusBar.createItem(0, "oni.status.fileType")
     }
 
     public show(fileType: string): void {

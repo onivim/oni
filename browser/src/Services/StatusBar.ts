@@ -11,6 +11,8 @@ import "rxjs/add/operator/auditTime"
 import "rxjs/add/operator/debounceTime"
 
 import * as Oni from "oni-api"
+import { Configuration } from "./Configuration"
+
 import * as Shell from "./../UI/Shell"
 
 export enum StatusBarAlignment {
@@ -73,7 +75,7 @@ export class StatusBarItem implements Oni.StatusBarItem {
 class StatusBar implements Oni.StatusBar {
     private _id: number = 0
 
-    constructor(private _config: Oni.Configuration) {}
+    constructor(private _configuration: Configuration) {}
 
     public getItem(globalId: string): Oni.StatusBarItem {
         return new StatusBarItem(globalId)
@@ -82,7 +84,7 @@ class StatusBar implements Oni.StatusBar {
     public createItem(alignment: StatusBarAlignment, globalId?: string): Oni.StatusBarItem {
         this._id++
         const statusBarId = globalId || `${this._id.toString()}`
-        const statusItems = this._config.getValue("statusbar.priority")
+        const statusItems = this._configuration.getValue("statusbar.priority")
         const currentItem = statusItems[globalId]
         const itemPriority = currentItem || 0
 
@@ -90,4 +92,11 @@ class StatusBar implements Oni.StatusBar {
     }
 }
 
-export const statusBar = StatusBar
+let _statusBar: StatusBar = null
+export const activate = (configuration: Configuration): void => {
+    _statusBar = new StatusBar(configuration)
+}
+
+export const getInstance = (): StatusBar => {
+    return _statusBar
+}
