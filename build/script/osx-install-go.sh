@@ -6,5 +6,6 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
     echo $GOPATH
 
-    go --version
+    go version
+    go get -u github.com/sourcegraph/go-langserver
 fi
