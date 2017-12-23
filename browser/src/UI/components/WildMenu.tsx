@@ -1,56 +1,64 @@
 import * as React from "react"
 import { connect } from "react-redux"
 import styled, { css } from "styled-components"
+import { Icon  } from "./../../UI/Icon"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 import { fadeInAndDown } from "./animations"
 import { boxShadow, withProps } from "./common"
 
 const WildMenuContainer = styled.div`
-    width: 50%;
     position: absolute;
-    left: 25%;
-    top: 10%;
-    overflow: hidden;
     box-sizing: border-box;
-    max-height: 500px;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    padding: 8px;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    background-color: rgba(0, 0, 0, 0.25);
 `
 
 const WildMenuList = styled.ul`
-    height: 90%;
-    width: 100%;
-    background-color: ${p => p.theme.background};
-    ${boxShadow} animation: ${fadeInAndDown} 0.05s ease-in-out;
-    color: ${p => p.theme.foreground};
+    position: relative;
+    width: 75%;
+    margin-top: 16px;
+    max-height: 500px;
+    max-width: 900px;
+    ${boxShadow};
+    animation: ${fadeInAndDown} 0.05s ease-in-out;
     display: flex;
     padding: 1em;
     flex-direction: column;
     box-sizing: border-box;
-    overflow-y: scroll;
-    overflow-x: hidden;
+    overflow: hidden;
+    background-color: ${p => p.theme["menu.background"]};
+    color: ${p => p.theme["menu.foreground"]};
 `
-const normBg = "highlight.mode.normal.background"
-const normFg = "highlight.mode.normal.foreground"
-
 const colors = css`
-    background-color: ${p => p.theme[normBg]};
-    color: ${p => p.theme[normFg]};
+    background-color: rgba(0, 0, 0, 0.2);
+    color: ${p => p.theme["menu.foreground"]};
 `
 const WildMenuItem = withProps<{ selected: boolean }>(styled.li)`
-    font-size: 1.1em;
-    display: inline;
+    font-size: 1.1rem;
     margin: 0.2em;
-    padding: 0.2em 0 0.5em 0.2em;
+    padding: 0.5em;
     ${p => p.selected && boxShadow};
-    width: 100%;
-    min-height: 1em;
+    min-height: 1rem;
     text-align: left;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     ${p => p.selected && colors};
+`
+
+const WildMenuText = styled.span`
+  margin-left: 1rem;
 `
 
 interface Props {
@@ -97,7 +105,8 @@ class WildMenu extends React.Component<Props, State> {
                                     selected={i === current}
                                     key={option + i}
                                 >
-                                    {option}
+                                    <span><Icon name="file-text" /></span>
+                                    <WildMenuText>{option}</WildMenuText>
                                 </WildMenuItem>
                             ))}
                     </WildMenuList>
