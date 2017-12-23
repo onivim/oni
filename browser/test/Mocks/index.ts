@@ -51,13 +51,8 @@ export class MockStatusBar implements Oni.StatusBar {
         return new MockStatusBarItem()
     }
 
-<<<<<<< HEAD
     public createItem(alignment: number, globalId: string): Oni.StatusBarItem {
-        return null
-=======
-    public createItem(alignment: number, priority: number, globalId: string): Oni.StatusBarItem {
         return new MockStatusBarItem()
->>>>>>> upstream/bryphe/refactoring/explicit-statusbar-dependencies
     }
 }
 
