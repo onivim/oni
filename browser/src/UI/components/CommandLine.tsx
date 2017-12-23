@@ -31,7 +31,7 @@ const CommandLineInput = styled.input`
 
 export interface ICommandLineRendererProps {
     visible: boolean
-    content: Array<[any, string]> | null
+    content: string
     position: number
     firstchar: string
     level?: number
@@ -39,16 +39,21 @@ export interface ICommandLineRendererProps {
 
 interface State {
     focused: boolean
+    waiting: boolean
 }
 
 class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> {
     public state = {
         focused: false,
+        waiting: true,
     }
+    private timer: any
     private _inputElement: HTMLInputElement
 
-    public handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-        // UI.Actions.setCommandLinePosition(1, 1)
+    public componentDidMount() {
+        this.timer = setTimeout(() => {
+            this.setState({ waiting: false })
+        }, 200)
     }
 
     public componentWillReceiveProps(nextProps: ICommandLineRendererProps) {
@@ -57,28 +62,38 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
         }
     }
 
+    public componentWillUnmount() {
+        clearTimeout(this.timer)
+    }
+
     public render(): null | JSX.Element {
-        if (!this.state.focused && this.props.visible && this._inputElement) {
+        const { visible } = this.props
+        const { focused, waiting } = this.state
+        if (!focused && visible && this._inputElement) {
             this._inputElement.focus()
         }
 
         return (
-            this.props.visible && (
+            !waiting &&
+            visible && (
                 <CommandLineBox>
                     <CommandLineInput
                         onChange={this.handleChange}
                         innerRef={e => (this._inputElement = e)}
-                        value={this.props.firstchar + this.props.content[0][1]}
+                        value={this.props.firstchar + this.props.content}
                     />
                 </CommandLineBox>
             )
         )
     }
+    private handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+        // UI.Actions.setCommandLinePosition(1, 1)
+    }
 }
 
 const mapStateToProps = ({
-    commandLine: { visible, position, content, firstchar, level } }: State.IState,
-) => ({
+    commandLine: { visible, position, content, firstchar, level },
+}: State.IState) => ({
     visible,
     content,
     firstchar,

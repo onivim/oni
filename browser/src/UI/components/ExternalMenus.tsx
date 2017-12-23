@@ -2,9 +2,11 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { connect } from "react-redux"
 import styled from "styled-components"
-import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
-const MenuContainer = styled.div`
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
+import { withProps } from "./common"
+
+const MenuContainer = withProps<{ loaded: boolean }>(styled.div)`
     position: absolute;
     box-sizing: border-box;
     display: flex;
@@ -15,7 +17,8 @@ const MenuContainer = styled.div`
     left: 0px;
     bottom: 0px;
     right: 0px;
-    background-color: rgba(0, 0, 0, 0.25);
+    ${p => p.loaded && `background-color: rgba(0, 0, 0, 0.25)`};
+    transition: background-color 0.2s ease-in;
 `
 
 interface Props {
@@ -24,7 +27,8 @@ interface Props {
 }
 
 class ExternalMenus extends React.Component<Props> {
-    constructor(props: Props, private stackLayer: HTMLDivElement) {
+
+    public constructor(props: Props, private stackLayer: HTMLDivElement) {
         super(props)
 
         this.stackLayer = document.querySelector(".stack .layer")
@@ -35,7 +39,7 @@ class ExternalMenus extends React.Component<Props> {
         const visible = commandLine.visible || wildmenu.visible
         return (
             visible && ReactDOM.createPortal(
-                <MenuContainer>
+                <MenuContainer loaded={commandLine.visible && wildmenu.visible}>
                     {this.props.children}
                 </MenuContainer>,
                 this.stackLayer,

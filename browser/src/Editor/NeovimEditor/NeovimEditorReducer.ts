@@ -29,7 +29,7 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             return {
                 ...s,
                 colors: a.payload.colors,
-                    }
+            }
         case "SET_NEOVIM_ERROR":
              return { ...s,
                       neovimError: a.payload.neovimError }
@@ -55,20 +55,25 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     cursorCharacter: a.payload.cursorCharacter,
                     cursorPixelWidth: a.payload.cursorPixelWidth }
         case "SET_IME_ACTIVE":
-            return { ...s,
-                     imeActive: a.payload.imeActive }
+            return {
+                ...s,
+                imeActive: a.payload.imeActive,
+            }
         case "SET_FONT":
-            return { ...s,
-                     fontFamily: a.payload.fontFamily,
-                     fontSize: a.payload.fontSize }
+            return {
+                ...s,
+                fontFamily: a.payload.fontFamily,
+                fontSize: a.payload.fontSize,
+            }
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value
             const newConfig = {...s.configuration, ...obj}
-            return {...s,
-                    configuration: newConfig,
+            return {
+                ...s,
+                configuration: newConfig,
             }
         case "SHOW_WILDMENU":
             return {
@@ -96,11 +101,13 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 },
             }
         case "SHOW_COMMAND_LINE":
+            // Array<[any, string]>
+            const [[, content]] = a.payload.content
             return {
                 ...s,
                 commandLine: {
+                    content,
                     visible: true,
-                    content: a.payload.content,
                     position: a.payload.position,
                     firstchar: a.payload.firstchar,
                     prompt: a.payload.prompt,
@@ -127,13 +134,15 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 commandLine :  {...s.commandLine, position: a.payload.position},
             }
         default:
-            return {...s,
-                    buffers: buffersReducer(s.buffers, a),
-                    definition: definitionReducer(s.definition, a),
-                    tabState: tabStateReducer(s.tabState, a),
-                    errors: errorsReducer(s.errors, a),
-                    toolTips: toolTipsReducer(s.toolTips, a),
-                    windowState: windowStateReducer(s.windowState, a)}
+            return {
+                ...s,
+                buffers: buffersReducer(s.buffers, a),
+                definition: definitionReducer(s.definition, a),
+                tabState: tabStateReducer(s.tabState, a),
+                errors: errorsReducer(s.errors, a),
+                toolTips: toolTipsReducer(s.toolTips, a),
+                windowState: windowStateReducer(s.windowState, a),
+            }
     }
 }
 

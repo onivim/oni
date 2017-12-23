@@ -88,7 +88,7 @@ export interface IWildMenu {
 
 export interface ICommandLine {
     visible: boolean,
-    content: Array<[any, string]>,
+    content: string,
     firstchar: string,
     position: number,
     prompt: string,
