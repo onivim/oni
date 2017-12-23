@@ -18,6 +18,8 @@ npm run lint
 npm run pack
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+   pip --version
+   pip install python-language-server
    npm run test:integration
    npm run demo
 fi
