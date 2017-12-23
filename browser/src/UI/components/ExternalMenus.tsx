@@ -4,9 +4,6 @@ import { connect } from "react-redux"
 import styled from "styled-components"
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
-import CommandLine from "./CommandLine"
-import WildMenu from "./WildMenu"
-
 const MenuContainer = styled.div`
     position: absolute;
     box-sizing: border-box;
@@ -38,8 +35,7 @@ class ExternalMenus extends React.Component<Props> {
         return (
             visible && ReactDOM.createPortal(
                 <MenuContainer>
-                    <CommandLine {...commandLine} />
-                    <WildMenu {...wildmenu} />
+                    {this.props.children}
                 </MenuContainer>,
                 this.stackLayer,
             )

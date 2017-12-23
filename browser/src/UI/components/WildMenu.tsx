@@ -1,9 +1,12 @@
 import * as React from "react"
+import { connect } from "react-redux"
 import styled, { css } from "styled-components"
 import { Icon } from "./../../UI/Icon"
 
 import { fadeInAndDown } from "./animations"
 import { boxShadow, withProps } from "./common"
+
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 const WildMenuList = styled.ul`
     position: relative;
@@ -110,4 +113,8 @@ class WildMenu extends React.Component<Props, State> {
     }
 }
 
-export default WildMenu
+const mapStateToProps = ({ wildmenu: { options, visible, selected } }: State.IState) => {
+    return { options, visible, selected }
+}
+
+export default connect(mapStateToProps)(WildMenu)

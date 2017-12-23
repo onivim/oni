@@ -1,6 +1,9 @@
 import * as React from "react"
+import { connect } from "react-redux"
 import styled from "styled-components"
+
 import { fadeInAndDown } from "./animations"
+import { boxShadow } from "./common"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
@@ -10,9 +13,10 @@ const CommandLineBox = styled.div`
     padding: 8px;
     width: 75%;
     max-width: 900px;
-    background-color: ${p => p.theme.background};
-    box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: ${p => p.theme["menu.background"]};
+    ${boxShadow};
     animation: ${fadeInAndDown} 0.08s ease-in;
+    box-sizing: border-box;
 `
 const CommandLineInput = styled.input`
     border: 0px;
@@ -72,4 +76,14 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
     }
 }
 
-export default CommandLine
+const mapStateToProps = ({
+    commandLine: { visible, position, content, firstchar, level } }: State.IState,
+) => ({
+    visible,
+    content,
+    firstchar,
+    position,
+    level,
+})
+
+export default connect<ICommandLineRendererProps>(mapStateToProps)(CommandLine)
