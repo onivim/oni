@@ -47,19 +47,28 @@ export interface ICommandLineRendererProps {
 }
 
 interface State {
+    focused: boolean
     waiting: boolean
 }
 
 class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> {
     public state = {
+        focused: false,
         waiting: true,
     }
     private timer: any
+    private _inputElement: HTMLInputElement
 
     public componentDidMount() {
         this.timer = setTimeout(() => {
             this.setState({ waiting: false })
         }, 200)
+    }
+
+    public componentWillReceiveProps(nextProps: ICommandLineRendererProps) {
+        if (!this.state.focused && nextProps.visible) {
+            this.setState({ focused: true })
+        }
     }
 
     public componentWillUnmount() {
@@ -68,7 +77,10 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
 
     public render(): null | JSX.Element {
         const { visible, content, position } = this.props
-        const { waiting } = this.state
+        const { focused, waiting } = this.state
+        if (!focused && visible && this._inputElement) {
+            this._inputElement.focus()
+        }
 
         const stringArray = content.split("")
         const beginning = stringArray.slice(0, position)
@@ -78,7 +90,7 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
             !waiting &&
             visible && (
                 <CommandLineBox>
-                    <CommandLineOutput>
+                    <CommandLineOutput innerRef={e => (this._inputElement = e)}>
                         {this.props.firstchar}
                         {beginning}
                         <Cursor />
