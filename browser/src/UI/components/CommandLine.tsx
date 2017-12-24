@@ -18,7 +18,8 @@ const CommandLineBox = styled.div`
     animation: ${fadeInAndDown} 0.08s ease-in;
     box-sizing: border-box;
 `
-const CommandLineInput = styled.input`
+const CommandLineOutput = styled.div`
+    position: relative;
     border: 0px;
     background-color: rgba(0, 0, 0, 0.2);
     font-size: 1.1em;
@@ -27,6 +28,14 @@ const CommandLineInput = styled.input`
     padding: 8px;
     outline: none;
     color: white;
+`
+
+const Cursor = styled.span`
+  background-color: white;
+  width: 2px;
+  position: absolute;
+  top: 8px;
+  height: 60%;
 `
 
 export interface ICommandLineRendererProps {
@@ -38,13 +47,11 @@ export interface ICommandLineRendererProps {
 }
 
 interface State {
-    focused: boolean
     waiting: boolean
 }
 
 class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> {
     public state = {
-        focused: false,
         waiting: true,
     }
     private timer: any
@@ -56,38 +63,31 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
         }, 200)
     }
 
-    public componentWillReceiveProps(nextProps: ICommandLineRendererProps) {
-        if (!this.state.focused && nextProps.visible) {
-            this.setState({ focused: true })
-        }
-    }
-
     public componentWillUnmount() {
         clearTimeout(this.timer)
     }
 
     public render(): null | JSX.Element {
-        const { visible } = this.props
-        const { focused, waiting } = this.state
-        if (!focused && visible && this._inputElement) {
-            this._inputElement.focus()
-        }
+        const { visible, content, position } = this.props
+        const {  waiting } = this.state
+
+        const stringArray = content.split("")
+        const beginning = stringArray.slice(0, position)
+        const end = stringArray.slice(position)
 
         return (
             !waiting &&
             visible && (
                 <CommandLineBox>
-                    <CommandLineInput
-                        onChange={this.handleChange}
-                        innerRef={e => (this._inputElement = e)}
-                        value={this.props.firstchar + this.props.content}
-                    />
+                    <CommandLineOutput innerRef={e => (this._inputElement = e)}>
+                        {this.props.firstchar}
+                        {beginning}
+                        <Cursor />
+                        {end}
+                    </CommandLineOutput>
                 </CommandLineBox>
             )
         )
-    }
-    private handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-        // UI.Actions.setCommandLinePosition(1, 1)
     }
 }
 
