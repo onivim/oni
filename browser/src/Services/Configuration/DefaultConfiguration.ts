@@ -166,7 +166,6 @@ const BaseConfiguration: IConfigurationValues = {
         ".ts": path.join(__dirname, "extensions", "typescript", "syntaxes", "TypeScript.tmLanguage.json"),
         ".tsx": path.join(__dirname, "extensions", "typescript", "syntaxes", "TypeScriptReact.tmLanguage.json"),
     },
-
     "language.javascript.completionTriggerCharacters": [".", "/", "\\"],
     "language.javascript.textMateGrammar": {
         ".js": path.join(__dirname, "extensions", "javascript", "syntaxes", "JavaScript.tmLanguage.json"),
