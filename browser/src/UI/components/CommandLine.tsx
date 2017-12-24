@@ -55,7 +55,6 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
         waiting: true,
     }
     private timer: any
-    private _inputElement: HTMLInputElement
 
     public componentDidMount() {
         this.timer = setTimeout(() => {
@@ -79,7 +78,7 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
             !waiting &&
             visible && (
                 <CommandLineBox>
-                    <CommandLineOutput innerRef={e => (this._inputElement = e)}>
+                    <CommandLineOutput>
                         {this.props.firstchar}
                         {beginning}
                         <Cursor />
