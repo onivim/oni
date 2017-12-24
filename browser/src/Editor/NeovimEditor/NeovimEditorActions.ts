@@ -332,7 +332,13 @@ export const setColors = (colors: IThemeColors) => ({
     },
 })
 
-export const setCommandLinePosition = (position: number, level: number) => ({
+export const setCommandLinePosition = ({
+    pos: position,
+    level,
+    }: {
+        pos: number,
+        level: number,
+    }) => ({
     type: "SET_COMMAND_LINE_POSITION",
     payload: {
         position,
@@ -355,7 +361,7 @@ export const showCommandLine = (
     type: "SHOW_COMMAND_LINE",
     payload: {
         content,
-        pos,
+        position: pos,
         firstchar,
         prompt,
         indent,

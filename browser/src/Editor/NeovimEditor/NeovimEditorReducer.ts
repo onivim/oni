@@ -131,7 +131,11 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         case "SET_COMMAND_LINE_POSITION":
             return {
                 ...s,
-                commandLine :  {...s.commandLine, position: a.payload.position},
+                commandLine :  {
+                    ...s.commandLine,
+                    position: a.payload.position,
+                    level: a.payload.level,
+                },
             }
         default:
             return {
