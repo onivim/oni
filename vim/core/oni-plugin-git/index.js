@@ -18,7 +18,10 @@ const activate = Oni => {
     };
 
     const updateBranchIndicator = async evt => {
-      const filePath = evt.bufferFullPath || evt.filePath;
+      if (!evt) {
+        return;
+      }
+      const filePath = evt.filePath || evt.bufferFullPath;
       const items = Oni.configuration.getValue('statusbar.priority');
       const gitId = Object.keys(items).find(id => id.includes('git'));
       const gitBranchIndicator = Oni.statusBar.createItem(1, gitId);
