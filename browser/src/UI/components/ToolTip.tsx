@@ -20,7 +20,7 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
 
     public render(): JSX.Element {
         const toolTipElements = this.props.toolTips.map((toolTip) => {
-            return <ToolTipView {...toolTip} borderColor={this.props.borderColor} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor}/>
+            return <ToolTipView {...toolTip} key={toolTip.id} borderColor={this.props.borderColor} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor}/>
         })
 
         const style: React.CSSProperties = {
@@ -28,7 +28,7 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
             fontSize: this.props.fontSize,
         }
 
-        return <div className="tool-tips" key={"tool-tip-container"} style={style}>
+        return <div className="tool-tips" style={style}>
             {toolTipElements}
         </div>
     }
@@ -81,7 +81,7 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
                 <div className="tool-tip-container enable-mouse" style={toolTipStyle} ref={(elem) => this._setContainer(elem)}>
                     {this.props.element}
                 </div>
-        </CursorPositioner>
+            </CursorPositioner>
     }
 
     private _setContainer(element: HTMLElement): void {
