@@ -69,7 +69,7 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
 
     public render(): null | JSX.Element {
         const { visible, content, position } = this.props
-        const {  waiting } = this.state
+        const { waiting } = this.state
 
         const stringArray = content.split("")
         const beginning = stringArray.slice(0, position)
