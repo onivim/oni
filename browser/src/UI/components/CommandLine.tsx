@@ -19,6 +19,8 @@ const CommandLineBox = styled.div`
     box-sizing: border-box;
 `
 const CommandLineOutput = styled.div`
+    /* The next line is CRUCIAL to render white-space correctly */
+    white-space: pre-wrap;
     position: relative;
     border: 0px;
     background-color: rgba(0, 0, 0, 0.2);
@@ -31,11 +33,11 @@ const CommandLineOutput = styled.div`
 `
 
 const Cursor = styled.span`
-  background-color: white;
-  width: 2px;
-  position: absolute;
-  top: 8px;
-  height: 60%;
+    background-color: white;
+    width: 2px;
+    position: absolute;
+    top: 8px;
+    height: 60%;
 `
 
 export interface ICommandLineRendererProps {
@@ -82,9 +84,9 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
             this._inputElement.focus()
         }
 
-        const stringArray = content.split("")
-        const beginning = stringArray.slice(0, position)
-        const end = stringArray.slice(position)
+        const segments = content.split("")
+        const beginning = segments.slice(0, position)
+        const end = segments.slice(position)
 
         return (
             !waiting &&
