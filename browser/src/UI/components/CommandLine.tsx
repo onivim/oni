@@ -30,6 +30,8 @@ const CommandLineOutput = styled.div`
     padding: 8px;
     outline: none;
     color: white;
+    user-select: none;
+    pointer-events: all;
 
     &:hover {
         overflow-x: auto;
