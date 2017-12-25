@@ -12,7 +12,6 @@ const CommandLineBox = styled.div`
     margin-top: 16px;
     padding: 8px;
     width: 75%;
-    max-width: 900px;
     background-color: ${p => p.theme["menu.background"]};
     ${boxShadow};
     animation: ${fadeInAndDown} 0.08s ease-in;
@@ -20,9 +19,10 @@ const CommandLineBox = styled.div`
 `
 const CommandLineOutput = styled.div`
     /* The next line is CRUCIAL to render white-space correctly */
-    white-space: pre-wrap;
+    white-space: pre;
     position: relative;
     border: 0px;
+    overflow-x: hidden;
     background-color: rgba(0, 0, 0, 0.2);
     font-size: 1.1em;
     box-sizing: border-box;
@@ -30,6 +30,14 @@ const CommandLineOutput = styled.div`
     padding: 8px;
     outline: none;
     color: white;
+
+    &:hover {
+        overflow-x: auto;
+    }
+
+    &::-webkit-scrollbar {
+        height: 3px;
+    }
 `
 
 const Cursor = styled.span`
