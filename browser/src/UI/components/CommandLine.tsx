@@ -16,38 +16,29 @@ const CommandLineBox = styled.div`
     ${boxShadow};
     animation: ${fadeInAndDown} 0.08s ease-in;
     box-sizing: border-box;
+    overflow-wrap: break-word;
 `
 const CommandLineOutput = styled.div`
     /* The next line is CRUCIAL to render white-space correctly */
-    white-space: pre;
+    white-space: pre-wrap;
     position: relative;
     border: 0px;
-    overflow-x: hidden;
     background-color: rgba(0, 0, 0, 0.2);
     font-size: 1.1em;
     box-sizing: border-box;
     width: 100%;
+    height: auto;
     padding: 8px;
     outline: none;
     color: white;
-    user-select: none;
-    pointer-events: all;
-
-    &:hover {
-        overflow-x: auto;
-    }
-
-    &::-webkit-scrollbar {
-        height: 3px;
-    }
 `
 
 const Cursor = styled.span`
     background-color: white;
     width: 2px;
     position: absolute;
-    top: 8px;
-    height: 60%;
+    bottom: 4px;
+    height: 1.3em;
 `
 
 export interface ICommandLineRendererProps {
