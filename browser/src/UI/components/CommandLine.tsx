@@ -19,8 +19,7 @@ const CommandLineBox = styled.div`
     overflow-wrap: break-word;
 `
 const CommandLineOutput = styled.div`
-    /* The next line is CRUCIAL to render white-space correctly */
-    white-space: pre-wrap;
+    white-space: pre-wrap; /* CRUCIAL to render white-space correctly */
     position: relative;
     border: 0px;
     background-color: rgba(0, 0, 0, 0.2);
