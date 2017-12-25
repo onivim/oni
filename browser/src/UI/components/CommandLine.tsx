@@ -45,7 +45,8 @@ export interface ICommandLineRendererProps {
     content: string
     position: number
     firstchar: string
-    level?: number
+    level: number
+    prompt: string
 }
 
 interface State {
@@ -94,6 +95,7 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
                 <CommandLineBox>
                     <CommandLineOutput innerRef={e => (this._inputElement = e)}>
                         {this.props.firstchar}
+                        {this.props.prompt}
                         {beginning}
                         <Cursor />
                         {end}
@@ -105,13 +107,14 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
 }
 
 const mapStateToProps = ({
-    commandLine: { visible, position, content, firstchar, level },
+    commandLine: { visible, position, content, firstchar, level, prompt },
 }: State.IState) => ({
     visible,
     content,
     firstchar,
     position,
     level,
+    prompt,
 })
 
 export default connect<ICommandLineRendererProps>(mapStateToProps)(CommandLine)
