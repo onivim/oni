@@ -21,13 +21,11 @@ export class LanguageClientStatusBar {
     constructor(
         private _statusBar: Oni.StatusBar,
     ) {
-        console.log('this._statusBar: ', this._statusBar)//tslint:disable-line
         this._item = this._statusBar.createItem(0, "oni.status.fileType")
     }
 
     public show(fileType: string): void {
         this._fileType = fileType
-        console.log("status item", this._item) //tslint:disable-line
         if (this._item) {
             this._item.setContents(
                 <StatusBarRenderer
