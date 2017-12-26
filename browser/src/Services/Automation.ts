@@ -133,14 +133,10 @@ export class Automation implements OniApi.Automation.Api {
         const containerElement = document.body.getElementsByClassName(className)
 
         if (containerElement && containerElement.length > 0) {
-            console.log("className: ", className) // tslint:disable-line
-            console.log("containerElement: ", containerElement)// tslint:disable-line
             return containerElement[0] as HTMLDivElement
         }
 
         const container = this._createElement(className, document.body)
-        console.log("className: ", className)// tslint:disable-line
-        console.log("container: ", container)// tslint:disable-line
         return container
     }
 

@@ -21,20 +21,20 @@ export const test = async (oni: any) => {
     // a deterministic result.
     await oni.automation.waitFor(() => oni.input.hasBinding("{"))
 
-    await oni.automation.sendKeys("i")
-    await oni.automation.waitFor(() => oni.editors.activeEditor.mode === "insert", 1000)
+    oni.automation.sendKeys("i")
+    await oni.automation.waitFor(() => oni.editors.activeEditor.mode === "insert")
 
-    await oni.automation.sendKeys("const test = ")
-    await oni.automation.sendKeys("{")
-    await oni.automation.sendKeys("<enter>")
-    await oni.automation.sendKeys("window.setTimeout")
-    await oni.automation.sendKeys("(")
-    await oni.automation.sendKeys("(")
-    await oni.automation.sendKeys(")")
-    await oni.automation.sendKeys(" => ")
-    await oni.automation.sendKeys("{")
-    await oni.automation.sendKeys("<enter>")
-    console.log('Entered input') // tslint:disable-line
+    oni.automation.sendKeys("const test = ")
+    oni.automation.sendKeys("{")
+    oni.automation.sendKeys("<enter>")
+    oni.automation.sendKeys("window.setTimeout")
+    oni.automation.sendKeys("(")
+    oni.automation.sendKeys("(")
+    oni.automation.sendKeys(")")
+    oni.automation.sendKeys(" => ")
+    oni.automation.sendKeys("{")
+    oni.automation.sendKeys("<enter>")
+
     // Because the input is asynchronous, we need to use `waitFor` to wait
     // for them to complete.
     await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.lineCount === 5)
