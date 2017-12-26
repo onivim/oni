@@ -12,6 +12,7 @@ const CommandLineBox = styled.div`
     margin-top: 16px;
     padding: 8px;
     width: 75%;
+    max-width: 900px;
     background-color: ${p => p.theme["menu.background"]};
     ${boxShadow};
     animation: ${fadeInAndDown} 0.08s ease-in;
