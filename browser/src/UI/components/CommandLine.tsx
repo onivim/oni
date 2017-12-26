@@ -11,13 +11,13 @@ const CommandLineBox = styled.div`
     position: relative;
     margin-top: 16px;
     padding: 8px;
-    width: 75%;
-    max-width: 900px;
     background-color: ${p => p.theme["menu.background"]};
     ${boxShadow};
     animation: ${fadeInAndDown} 0.08s ease-in;
     box-sizing: border-box;
     overflow-wrap: break-word;
+    width: 75%;
+    max-width: 900px;
 `
 const CommandLineOutput = styled.div`
     white-space: pre-wrap; /* CRUCIAL to render white-space correctly */
