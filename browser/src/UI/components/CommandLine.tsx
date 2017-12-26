@@ -36,7 +36,7 @@ const Cursor = styled.span`
     background-color: white;
     width: 2px;
     position: absolute;
-    bottom: 4px;
+    bottom: 6px;
     height: 1.3em;
 `
 
