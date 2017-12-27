@@ -29,6 +29,7 @@ import { TypingPredictionManager } from "./../../Services/TypingPredictionManage
 import { NeovimActiveWindowContainer } from "./NeovimActiveWindow"
 import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
+import { NeovimLayers } from "./NeovimLayersView"
 
 export interface INeovimSurfaceProps {
     neovimInstance: NeovimInstance
@@ -65,6 +66,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                         neovimInstance={this.props.neovimInstance}
                         screen={this.props.screen} />
                 </div>
+                <NeovimLayers />
                 <div className="stack layer">
                     <TypingPrediction typingPrediction={this.props.typingPrediction}/>
                     <Cursor typingPrediction={this.props.typingPrediction}/>

@@ -64,6 +64,26 @@ import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
 
+export type BufferFilterPredicate = (filter: Oni.Buffer) => boolean
+export type BufferFilter = string | BufferFilterPredicate
+
+export interface ILayer {
+    enter(): void
+    leave(): void
+
+    render(): JSX.Element
+}
+
+export class NeovimEditorLayers {
+    public add(bufferFilter: BufferFilter, layer: ILayer): void {
+        console.log("no-op")
+    }
+
+    public getLayersForBuffer(buffer: Oni.Buffer): ILayer[] {
+        return []
+    }
+}
+
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
