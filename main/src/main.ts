@@ -8,7 +8,6 @@ import addDevExtensions from "./installDevTools"
 import * as Log from "./Log"
 import { buildDockMenu, buildMenu } from "./menu"
 import { makeSingleInstance } from "./ProcessLifecycle"
-import { workspace } from "./../../browser/src/Services/Workspace"
 
 global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 
