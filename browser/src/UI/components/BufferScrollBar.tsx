@@ -76,8 +76,8 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
         })
 
         return <ScrollBarContainer>
-                <ScrollBarWindow style={windowStyle}></ScrollBarWindow>
-                {markerElements}
-            </ScrollBarContainer>
+                    <ScrollBarWindow style={windowStyle}></ScrollBarWindow>
+                    {markerElements}
+                </ScrollBarContainer>
     }
 }
