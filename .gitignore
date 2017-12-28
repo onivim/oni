@@ -146,3 +146,6 @@ yarn.lock
 
 # Webpack stats file
 stats.json
+
+# Code Coverage
+ccov
