@@ -94,6 +94,7 @@
     "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
     "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
     "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
+    "instrument": "nyc instrument -all --source-map false lib_test ccov",
     "lint": "npm run lint:browser && npm run lint:main && npm run lint:test",
     "lint:browser": "tslint --project browser/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
     "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
