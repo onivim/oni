@@ -5,13 +5,13 @@
  *  - The current / active directory (and 'Open Folder')
  */
 
+import { remote } from "electron"
 import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
 import "rxjs/add/operator/concatMap"
 import "rxjs/add/operator/toPromise"
 import { Observable } from "rxjs/Observable"
 import * as types from "vscode-languageserver-types"
-import { remote } from "electron"
 
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
