@@ -11,6 +11,7 @@ import "rxjs/add/operator/concatMap"
 import "rxjs/add/operator/toPromise"
 import { Observable } from "rxjs/Observable"
 import * as types from "vscode-languageserver-types"
+import { remote } from "electron"
 
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
@@ -23,6 +24,19 @@ import { convertTextDocumentEditsToFileMap } from "./Language/Edits"
 
 export class Workspace implements Oni.Workspace {
     private _onDirectoryChangedEvent = new Event<string>()
+    private _onFocusGainedEvent = new Event<void>()
+    private _onFocusLostEvent = new Event<void>()
+    private _mainWindow = remote.getCurrentWindow()
+
+    constructor() {
+        this._mainWindow.on("focus", () => {
+            this._onFocusGainedEvent.dispatch()
+        })
+
+        this._mainWindow.on("blur", (e: any) => {
+            this._onFocusLostEvent.dispatch()
+        })
+    }
 
     public get onDirectoryChanged(): IEvent<string> {
         return this._onDirectoryChangedEvent
@@ -65,6 +79,14 @@ export class Workspace implements Oni.Workspace {
         Log.verbose("[Workspace] Completed applying edits")
 
         // Hide modal
+    }
+
+    public get onFocusGained(): IEvent<any> {
+        return this._onFocusGainedEvent
+    }
+
+    public get onFocusLost(): IEvent<any> {
+        return this._onFocusLostEvent
     }
 }
 

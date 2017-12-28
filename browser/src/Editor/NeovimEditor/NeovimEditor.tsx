@@ -35,8 +35,19 @@ import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
-import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, LanguageManager } from "./../../Services/Language"
-import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../../Services/SyntaxHighlighting"
+
+import {
+    addInsertModeLanguageFunctionality,
+    LanguageEditorIntegration,
+    LanguageManager,
+} from "./../../Services/Language"
+
+import {
+    ISyntaxHighlighter,
+    NullSyntaxHighlighter,
+    SyntaxHighlighter,
+} from "./../../Services/SyntaxHighlighting"
+
 import { tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
@@ -167,7 +178,14 @@ export class NeovimEditor extends Editor implements IEditor {
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
 
-        this._commands = new NeovimEditorCommands(commandManager, this._contextMenuManager, this._definition, this._languageIntegration, this._rename, this._symbols)
+        this._commands = new NeovimEditorCommands(
+            commandManager,
+            this._contextMenuManager,
+            this._definition,
+            this._languageIntegration,
+            this._rename,
+            this._symbols,
+        )
 
         const updateViewport = () => {
             const width = document.body.offsetWidth
@@ -224,7 +242,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
             const inactiveIds = tabPageState.inactiveWindows.map((w) => w.windowNumber)
 
-            this._actions.setActiveVimTabPage(tabPageState.tabId, [tabPageState.activeWindow.windowNumber, ...inactiveIds])
+            this._actions.setActiveVimTabPage(
+                tabPageState.tabId,
+                [tabPageState.activeWindow.windowNumber, ...inactiveIds],
+            )
 
             const { activeWindow } = tabPageState
             this._actions.setWindowState(activeWindow.windowNumber,
@@ -339,7 +360,11 @@ export class NeovimEditor extends Editor implements IEditor {
             }
 
             this.notifyBufferChanged(bufferUpdate)
-            this._actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
+            this._actions.bufferUpdate(
+                parseInt(bufferUpdate.buffer.id, 10),
+                bufferUpdate.buffer.modified,
+                bufferUpdate.buffer.lineCount,
+            )
 
             this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
         })

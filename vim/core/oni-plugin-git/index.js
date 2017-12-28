@@ -74,6 +74,11 @@ const activate = Oni => {
     Oni.editors.activeEditor.onBufferEnter.subscribe(
       async evt => await updateBranchIndicator(evt)
     );
+    const buf = Oni.editors.activeEditor.activeBuffer
+    Oni.editors.workspace.onFocusGained.subscribe(async () => {
+      console.log('Regained Focus');
+      return await updateBranchIndicator(buf);
+    });
   } catch (e) {
     console.warn('[Oni.plugin.git] ERROR', e);
   }
