@@ -15,6 +15,7 @@ import * as State from "./NeovimEditorStore"
 
 export interface NeovimLayersViewProps {
     windows: State.IWindow[]
+    layers: State.Layers
 }
 
 export class NeovimLayersView extends React.PureComponent<NeovimLayersViewProps, {}> {
@@ -25,9 +26,15 @@ export class NeovimLayersView extends React.PureComponent<NeovimLayersViewProps,
         })
 
         const containers = this.props.windows.map((windowState) => {
+
+            const layers = this.props.layers[windowState.bufferId] || []
+            const layerElements = layers.map((l) => {
+                return l.render(windowState)
+            })
+
             const dimensions = getWindowPixelDimensions(windowState)
             return <NeovimActiveWindow {...dimensions}>
-                    <div style={{width: "100%", height: "100%", backgroundColor: "rgba(255, 0, 0, 0.2)" }} />
+                    {layerElements}
                 </NeovimActiveWindow>
         })
 
@@ -70,6 +77,7 @@ export const mapStateToProps = (state: State.IState): NeovimLayersViewProps => {
 
     if (!state.activeVimTabPage) {
         return {
+            layers: {},
             windows: [],
         }
     }
@@ -79,6 +87,7 @@ export const mapStateToProps = (state: State.IState): NeovimLayersViewProps => {
     })
 
     return {
+        layers: state.layers,
         windows,
     }
 }
