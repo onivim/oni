@@ -90,7 +90,15 @@ export function setScrollRegion(top: number, bottom: number, left: number, right
     }
 }
 
-export function setHighlight(bold: boolean, italic: boolean, reverse: boolean, underline: boolean, undercurl: boolean, foregroundColor?: number, backgroundColor?: number): ISetHighlightAction {
+export function setHighlight(
+    bold: boolean,
+    italic: boolean,
+    reverse: boolean,
+    underline: boolean,
+    undercurl: boolean,
+    foregroundColor?: number,
+    backgroundColor?: number,
+): ISetHighlightAction {
     const action: ISetHighlightAction = {
         type: SET_HIGHLIGHT,
         bold,
