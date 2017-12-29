@@ -17,7 +17,7 @@ export type BufferFilter = string | BufferFilterPredicate
 export type LayerFactory = (buffer: Oni.Buffer) => ILayer
 
 export interface ILayerChangedEventArgs {
-    buffer: Buffer
+    buffer: Oni.Buffer
     layers: ILayer[]
 }
 
@@ -27,7 +27,7 @@ export class NeovimEditorLayers {
 
     private _layerFactories: LayerFactory[] = []
 
-    public get onLayerChangedEvent(): IEvent<ILayerChangedEventArgs {
+    public get onLayerChangedEvent(): IEvent<ILayerChangedEventArgs> {
         return this._onLayerChangedEvent
     }
 

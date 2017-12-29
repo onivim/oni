@@ -336,6 +336,7 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                     ...s.windows,
                     [a.payload.windowId]: {
                         ...currentWindow,
+                        bufferId: a.payload.bufferId,
                         file: a.payload.file,
                         column: a.payload.column,
                         line: a.payload.line,

@@ -59,7 +59,7 @@ import * as VimConfigurationSynchronizer from "./../../Services/VimConfiguration
 import { Definition } from "./Definition"
 import * as ActionCreators from "./NeovimEditorActions"
 import { NeovimEditorCommands } from "./NeovimEditorCommands"
-import { createStore, ILayer, IState } from "./NeovimEditorStore"
+import { createStore, IState } from "./NeovimEditorStore"
 import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
@@ -227,6 +227,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
             const { activeWindow } = tabPageState
             this._actions.setWindowState(activeWindow.windowNumber,
+                activeWindow.bufferId,
                 activeWindow.bufferFullPath,
                 activeWindow.column,
                 activeWindow.line,

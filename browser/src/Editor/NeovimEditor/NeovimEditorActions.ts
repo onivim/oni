@@ -201,6 +201,7 @@ export interface ISetWindowState {
     type: "SET_WINDOW_STATE",
     payload: {
         windowId: number,
+        bufferId: number,
         file: string,
         column: number,
         line: number,
@@ -475,6 +476,7 @@ export const setWindowCursor = (windowId: number, line: number, column: number) 
 })
 
 export const setWindowState = (windowId: number,
+                               bufferId: number,
                                file: string,
                                column: number,
                                line: number,
@@ -494,6 +496,7 @@ export const setWindowState = (windowId: number,
         type: "SET_WINDOW_STATE",
         payload: {
             windowId,
+            bufferId,
             file: normalizePath(file),
             column,
             dimensions,

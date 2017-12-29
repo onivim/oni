@@ -148,6 +148,7 @@ export interface IWindowState {
 
 export interface IWindow {
     file: string
+    bufferId: number
     column: number
     line: number
 
