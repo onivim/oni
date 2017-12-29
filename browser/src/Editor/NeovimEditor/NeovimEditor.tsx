@@ -64,7 +64,10 @@ import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
 
+import { NeovimEditorLayers } from "./NeovimEditorLayers"
+
 export class NeovimEditor extends Editor implements IEditor {
+    private _editorLayers: NeovimEditorLayers = new NeovimEditorLayers()
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
     private _renderer: INeovimRenderer
@@ -147,6 +150,10 @@ export class NeovimEditor extends Editor implements IEditor {
         this._diagnostics.onErrorsChanged.subscribe(() => {
             const errors = this._diagnostics.getErrors()
             this._actions.setErrors(errors)
+        })
+
+        this._editorLayers.onLayerChangedEvent.subscribe((evt) => {
+            this._actions.setBufferLayers(parseInt(evt.buffer.id), evt.layers)
         })
 
         this._popupMenu = new NeovimPopupMenu(
@@ -634,6 +641,8 @@ export class NeovimEditor extends Editor implements IEditor {
         }
         this._lastBufferId = evt.current.bufferNumber.toString()
         this.notifyBufferEnter(buf)
+
+        this._editorLayers.notifyBufferEntered(buf)
 
         // Existing buffers contains a duplicate current buffer object which should be filtered out
         // and current buffer sent instead. Finally Filter out falsy viml values.

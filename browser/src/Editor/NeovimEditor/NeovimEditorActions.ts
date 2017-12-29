@@ -37,6 +37,14 @@ export interface ISetLoadingCompleteAction {
     type: "SET_LOADING_COMPLETE",
 }
 
+export interface ISetBufferLayersAction {
+    type: "SET_BUFFER_LAYERS",
+    payload: {
+        bufferId: number,
+        layers: State.ILayer[],
+    }
+}
+
 export interface ISetColorsAction {
     type: "SET_COLORS",
     payload: {
@@ -277,6 +285,7 @@ export type SimpleAction =
     IBufferEnterAction |
     IBufferSaveAction |
     IBufferUpdateAction |
+    ISetBufferLayersAction |
     ISetColorsAction |
     ISetCursorPositionAction |
     ISetImeActive |
@@ -441,6 +450,14 @@ export const setCurrentBuffers = (bufferIds: number[]) => ({
     payload: {
         bufferIds,
     },
+})
+
+export const setBufferLayers = (bufferId: number, layers: State.ILayer[]) => ({
+    type: "SET_BUFFER_LAYERS",
+    payload: {
+        bufferId,
+        layers,
+    }
 })
 
 export const setImeActive = (imeActive: boolean) => ({

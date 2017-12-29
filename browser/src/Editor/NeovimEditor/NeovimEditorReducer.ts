@@ -121,10 +121,24 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             return {...s,
                     buffers: buffersReducer(s.buffers, a),
                     definition: definitionReducer(s.definition, a),
+                    layers: layersReducer(s.layers, a),
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
                     toolTips: toolTipsReducer(s.toolTips, a),
                     windowState: windowStateReducer(s.windowState, a)}
+    }
+}
+
+export const layersReducer = (s: State.Layers, a: Actions.SimpleAction) => {
+    switch(a.type) {
+        case "SET_BUFFER_LAYERS":
+            return {
+                ...s,
+                [a.payload.bufferId]: a.payload.layers,
+            }
+
+        default:
+            return s
     }
 }
 
