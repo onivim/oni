@@ -66,6 +66,20 @@ import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvi
 
 import { NeovimEditorLayers } from "./NeovimEditorLayers"
 
+export class RedLayer {
+    public get id(): string {
+        return "oni-layer-red"
+    }
+
+    public get friendlyName(): string {
+        return "Red Background"
+    }
+
+    public render(): JSX.Element {
+        return <div style={{width: "100%", height: "100%", backgroundColor: "rgba(0, 255, 0, 0.1)"}} />
+    }
+} 
+
 export class NeovimEditor extends Editor implements IEditor {
     private _editorLayers: NeovimEditorLayers = new NeovimEditorLayers()
     private _bufferManager: BufferManager
@@ -155,6 +169,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._editorLayers.onLayerChangedEvent.subscribe((evt) => {
             this._actions.setBufferLayers(parseInt(evt.buffer.id), evt.layers)
         })
+        this._editorLayers.add(() => new RedLayer())
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
