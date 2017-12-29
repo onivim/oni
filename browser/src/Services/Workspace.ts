@@ -24,17 +24,19 @@ import { convertTextDocumentEditsToFileMap } from "./Language/Edits"
 
 export class Workspace implements Oni.Workspace {
     private _onDirectoryChangedEvent = new Event<string>()
-    private _onFocusGainedEvent = new Event<void>()
-    private _onFocusLostEvent = new Event<void>()
+    private _onFocusGainedEvent = new Event<Oni.Buffer>()
+    private _onFocusLostEvent = new Event<Oni.Buffer>()
     private _mainWindow = remote.getCurrentWindow()
+    private _lastActiveBuffer: Oni.Buffer
 
     constructor() {
         this._mainWindow.on("focus", () => {
-            this._onFocusGainedEvent.dispatch()
+            this._onFocusGainedEvent.dispatch(this._lastActiveBuffer)
         })
 
-        this._mainWindow.on("blur", (e: any) => {
-            this._onFocusLostEvent.dispatch()
+        this._mainWindow.on("blur", () => {
+            this._lastActiveBuffer = editorManager.activeEditor.activeBuffer
+            this._onFocusLostEvent.dispatch(this._lastActiveBuffer)
         })
     }
 

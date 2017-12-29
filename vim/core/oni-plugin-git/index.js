@@ -67,18 +67,17 @@ const activate = Oni => {
       }
     };
 
-    if(!isLoaded) {
+    if (!isLoaded) {
       updateBranchIndicator(Oni.editors.activeEditor.activeBuffer);
     }
 
     Oni.editors.activeEditor.onBufferEnter.subscribe(
       async evt => await updateBranchIndicator(evt)
     );
-    const buf = Oni.editors.activeEditor.activeBuffer
-    Oni.editors.workspace.onFocusGained.subscribe(async () => {
-      console.log('Regained Focus');
-      return await updateBranchIndicator(buf);
-    });
+    Oni.workspace.onFocusGained.subscribe(
+      async buffer => await updateBranchIndicator(buffer)
+    );
+
   } catch (e) {
     console.warn('[Oni.plugin.git] ERROR', e);
   }
