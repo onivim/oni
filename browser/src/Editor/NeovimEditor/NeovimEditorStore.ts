@@ -22,6 +22,7 @@ import { createStore as createReduxStore } from "./../../Redux"
 export interface Buffers { [filePath: string]: IBuffer }
 export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
 export interface ToolTips { [id: string]: IToolTip }
+export interface Layers { [id: number]: ILayer[] }
 
 import { reducer } from "./NeovimEditorReducer"
 
@@ -37,6 +38,12 @@ export interface IToolTip {
     id: string,
     options?: Oni.ToolTip.ToolTipOptions,
     element: JSX.Element
+}
+
+export interface ILayer {
+    id: string
+    friendlyName: string
+    render(window: IWindow): JSX.Element
 }
 
 export interface IState {
@@ -69,6 +76,8 @@ export interface IState {
     tabState: ITabState
 
     buffers: IBufferState
+
+    layers: Layers
 
     windowState: IWindowState
 
@@ -202,6 +211,8 @@ export const createDefaultState = (): IState => ({
         width: 0,
         height: 0,
     },
+
+    layers: {},
 
     errors: {},
     toolTips: {},

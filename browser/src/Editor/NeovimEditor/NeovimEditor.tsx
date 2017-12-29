@@ -59,30 +59,10 @@ import * as VimConfigurationSynchronizer from "./../../Services/VimConfiguration
 import { Definition } from "./Definition"
 import * as ActionCreators from "./NeovimEditorActions"
 import { NeovimEditorCommands } from "./NeovimEditorCommands"
-import { createStore, IState } from "./NeovimEditorStore"
+import { createStore, ILayer, IState } from "./NeovimEditorStore"
 import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
-
-export type BufferFilterPredicate = (filter: Oni.Buffer) => boolean
-export type BufferFilter = string | BufferFilterPredicate
-
-export interface ILayer {
-    enter(): void
-    leave(): void
-
-    render(): JSX.Element
-}
-
-export class NeovimEditorLayers {
-    public add(bufferFilter: BufferFilter, layer: ILayer): void {
-        console.log("no-op")
-    }
-
-    public getLayersForBuffer(buffer: Oni.Buffer): ILayer[] {
-        return []
-    }
-}
 
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
@@ -241,7 +221,6 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._windowManager.onWindowStateChanged.subscribe((tabPageState) => {
-
             const inactiveIds = tabPageState.inactiveWindows.map((w) => w.windowNumber)
 
             this._actions.setActiveVimTabPage(tabPageState.tabId, [tabPageState.activeWindow.windowNumber, ...inactiveIds])
