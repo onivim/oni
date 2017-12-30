@@ -83,11 +83,11 @@ export class Workspace implements Oni.Workspace {
         // Hide modal
     }
 
-    public get onFocusGained(): IEvent<any> {
+    public get onFocusGained(): IEvent<Oni.Buffer> {
         return this._onFocusGainedEvent
     }
 
-    public get onFocusLost(): IEvent<any> {
+    public get onFocusLost(): IEvent<Oni.Buffer> {
         return this._onFocusLostEvent
     }
 }
