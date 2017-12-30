@@ -153,9 +153,14 @@ export function createWindow(commandLineArguments, workingDirectory) {
         })
 
         const normalizePath = (fileName) => fileName.split("\\").join("/")
-        console.log("Absolute path: ", path.isAbsolute(commandLineArguments)) //tslint:disable-line
-        const command = `:e ${normalizePath(commandLineArguments)}`
-        mainWindow.webContents.send("execute-command", command)
+        const filePath = path.resolve(__dirname, normalizePath(commandLineArguments[0]))
+        try {
+            if (path.isAbsolute(filePath)) {
+                mainWindow.webContents.send("execute-command", `:e ${filePath}`)
+            }
+        } catch (e) {
+            console.warn(`Error opening with file:, args: ${filePath}`, e) //tslint:disable-line
+        }
     })
 
     ipcMain.on("rebuild-menu", (_evt, loadInit) => {
