@@ -74,42 +74,42 @@
       {
         "ext": "js",
         "name": "javascript",
-        "role": "Editor",
+        "role": "Editor"
       },
       {
         "ext": "jsx",
         "name": "JSX",
-        "role": "Editor",
+        "role": "Editor"
       },
       {
         "ext": "py",
         "name": "Python",
-        "role": "Editor",
+        "role": "Editor"
       },
       {
         "ext": "go",
         "name": "Go Lang",
-        "role": "Editor",
-      }
+        "role": "Editor"
+      },
       {
         "ext": "re",
         "name": "Reason",
-        "role": "Editor",
+        "role": "Editor"
       },
       {
         "ext": "vim",
         "name": "VimL",
-        "role": "Editor",
+        "role": "Editor"
       },
       {
         "ext": "ts",
         "name": "Typescript",
-        "role": "Editor",
+        "role": "Editor"
       },
       {
         "ext": "tsx",
         "name": "Typescript",
-        "role": "Editor",
+        "role": "Editor"
       }
     ]
   },
