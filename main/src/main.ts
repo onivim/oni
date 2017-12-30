@@ -151,6 +151,11 @@ export function createWindow(commandLineArguments, workingDirectory) {
             args: commandLineArguments,
             workingDirectory,
         })
+
+        const normalizePath = (fileName) => fileName.split("\\").join("/")
+        console.log("Absolute path: ", path.isAbsolute(commandLineArguments)) //tslint:disable-line
+        const command = `:e ${normalizePath(commandLineArguments)}`
+        mainWindow.webContents.send("execute-command", command)
     })
 
     ipcMain.on("rebuild-menu", (_evt, loadInit) => {
