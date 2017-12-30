@@ -289,13 +289,11 @@ export class CanvasRenderer implements INeovimRenderer {
         if (!state.isWhitespace) {
             const lastFontStyle = this._canvasContext.font
             this._canvasContext.fillStyle = foregroundColor
-            if (bold || italic) {
-                if (bold) {
-                    this._canvasContext.font = `bold ${this._canvasContext.font}`
-                }
-                if (italic) {
-                    this._canvasContext.font = `italic ${this._canvasContext.font}`
-                }
+            if (bold) {
+                this._canvasContext.font = `bold ${this._canvasContext.font}`
+            }
+            if (italic) {
+                this._canvasContext.font = `italic ${this._canvasContext.font}`
             }
             this._canvasContext.fillText(text, boundsStartX, y * fontHeightInPixels + linePaddingInPixels / 2)
             this._canvasContext.font = lastFontStyle
