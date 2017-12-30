@@ -1,6 +1,6 @@
 ![alt text](./assets/oni-header.png)
 
-### IDE powered by Neovim + React + Electron
+### Modern Modal Editing
 
 [![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)
 [![Join the chat at https://gitter.im/onivim/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![Sponsors on Open Collective](https://opencollective.com/oni/sponsors/badge.svg)](https://opencollective.com/oni#sponsor) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
@@ -30,7 +30,9 @@ Support this project by [becoming a sponsor](https://opencollective.com/oni#spon
 
 ## Introduction
 
-Oni is a [neovim](https://github.com/neovim/neovim) front-end UI with rich IDE-like UI integration points, drawing inspiration from [VSCode](https://github.com/Microsoft/vscode), [Atom](https://atom.io/), and [LightTable](http://lighttable.com/).
+Oni is a new kind of editor, focused on maximizing productivity - combining _modal editing_ with the features you expect in modern editors. Oni is built with [neovim](https://github.com/neovim/neovim), and inspired by VSCode, Atom, LightTable and Emacs.
+
+The vision of Oni is to bridge the raw editing power of Vim, the feature set of Atom/VSCode, and extensibility inspsired by Emacs - wrapped in a beautiful package. In addition, we want to explore new ways to go from _thought to code_ as easily as possible.
 
 <p align="center">
     <img src="https://s3-us-west-2.amazonaws.com/oni-media/screenshot-darwin.png"/>
