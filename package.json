@@ -69,7 +69,49 @@
       "files": [
         "bin/x86/**/*"
       ]
-    }
+    },
+    fileAssociations: [
+      {
+        "ext": "js",
+        "name": "javascript",
+        "role": "Editor",
+      },
+      {
+        "ext": "jsx",
+        "name": "JSX",
+        "role": "Editor",
+      },
+      {
+        "ext": "py",
+        "name": "Python",
+        "role": "Editor",
+      },
+      {
+        "ext": "go",
+        "name": "Go Lang",
+        "role": "Editor",
+      }
+      {
+        "ext": "re",
+        "name": "Reason",
+        "role": "Editor",
+      },
+      {
+        "ext": "vim",
+        "name": "VimL",
+        "role": "Editor",
+      },
+      {
+        "ext": "ts",
+        "name": "Typescript",
+        "role": "Editor",
+      },
+      {
+        "ext": "tsx",
+        "name": "Typescript",
+        "role": "Editor",
+      }
+    ]
   },
   "scripts": {
     "build": "npm run build:browser && npm run build:main && npm run build:plugins",
