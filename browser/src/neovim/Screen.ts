@@ -140,11 +140,11 @@ export class NeovimScreen implements IScreen {
     }
 
     public get currentForegroundColor(): string {
-        return this._currentHighlight.foregroundColor ? this._currentHighlight.foregroundColor : this._foregroundColor
+        return this._currentHighlight.foregroundColor || this._foregroundColor
     }
 
     public get currentBackgroundColor(): string {
-        return this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor
+        return this._currentHighlight.backgroundColor || this._backgroundColor
     }
 
     public getCell(x: number, y: number): ICell {
@@ -164,8 +164,8 @@ export class NeovimScreen implements IScreen {
                 this._cursorColumn = action.col
                 break
             case Actions.PutAction: {
-                let foregroundColor = this._currentHighlight.foregroundColor ? this._currentHighlight.foregroundColor : this._foregroundColor
-                let backgroundColor = this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor
+                let foregroundColor = this._currentHighlight.foregroundColor || this._foregroundColor
+                let backgroundColor = this._currentHighlight.backgroundColor || this._backgroundColor
 
                 if (this._currentHighlight.reverse) {
                     const temp = foregroundColor
