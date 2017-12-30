@@ -18,7 +18,14 @@ import { ThemeManager } from "./Services/Themes"
 import { windowManager } from "./Services/WindowManager"
 import { workspace } from "./Services/Workspace"
 
-export const startEditors = async (args: any, colors: Colors, configuration: Configuration, diagnostics: IDiagnosticsDataSource, languageManager: LanguageManager, themeManager: ThemeManager): Promise<void> => {
+export const startEditors = async (
+    args: any,
+    colors: Colors,
+    configuration: Configuration,
+    diagnostics: IDiagnosticsDataSource,
+    languageManager: LanguageManager,
+    themeManager: ThemeManager,
+): Promise<void> => {
 
     if (configuration.getValue("experimental.sidebar.enabled")) {
         const leftDock = windowManager.getDock(2)

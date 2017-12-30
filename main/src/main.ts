@@ -71,7 +71,7 @@ ipcMain.on("focus-previous-instance", () => {
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let windows = []
+let windows: BrowserWindow[] = []
 
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
@@ -107,7 +107,6 @@ if (!isDevelopment && !isDebug) {
 
 export function createWindow(commandLineArguments, workingDirectory) {
     Log.info(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
-
     const webPreferences = {
         blinkFeatures: "ResizeObserver,Accelerated2dCanvas,Canvas2dFixedRenderingMode",
     }
@@ -145,22 +144,11 @@ export function createWindow(commandLineArguments, workingDirectory) {
     }
 
     updateMenu(mainWindow, false)
-
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
             args: commandLineArguments,
             workingDirectory,
         })
-
-        const normalizePath = (fileName) => fileName.split("\\").join("/")
-        const filePath = path.resolve(__dirname, normalizePath(commandLineArguments[0]))
-        try {
-            if (path.isAbsolute(filePath)) {
-                mainWindow.webContents.send("execute-command", `:e ${filePath}`)
-            }
-        } catch (e) {
-            console.warn(`Error opening with file:, args: ${filePath}`, e) //tslint:disable-line
-        }
     })
 
     ipcMain.on("rebuild-menu", (_evt, loadInit) => {
@@ -201,6 +189,15 @@ export function createWindow(commandLineArguments, workingDirectory) {
     windows.push(mainWindow)
 }
 
+app.on("open-file", (event, filePath) => {
+    event.preventDefault()
+    console.log('filePath to open: ', filePath) // tslint:disable-line
+    const mainWindow = windows[-1]
+    if (mainWindow) {
+        mainWindow.webContents.send("open-file", path)
+    }
+})
+
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
     // On OS X it is common for applications and their menu bar
@@ -214,7 +211,11 @@ app.on("activate", () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (windows.length === 0) {
-        createWindow([], process.cwd())
+        let args = []
+        if (process.argv[1]) {
+            args = [...args, process.argv[1]]
+        }
+        createWindow(args, process.cwd())
     }
 })
 

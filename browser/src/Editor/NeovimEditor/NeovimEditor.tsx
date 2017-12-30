@@ -430,6 +430,11 @@ export class NeovimEditor extends Editor implements IEditor {
             this._openFiles(files, message)
         })
 
+        ipcRenderer.on("open-file", (path: string) => {
+            console.log('path in neovim editor: ', path)
+            this._neovimInstance.command(`:e ${path}`)
+        })
+
         // enable opening a file via drag-drop
         document.ondragover = (ev) => {
             ev.preventDefault()
@@ -500,6 +505,7 @@ export class NeovimEditor extends Editor implements IEditor {
             transport: this._configuration.getValue("experimental.neovim.transport"),
         }
 
+        console.log('Final Files to Open: ', filesToOpen) //tslint:disable-line
         await this._neovimInstance.start(startOptions)
 
         if (this._errorInitializing) {
