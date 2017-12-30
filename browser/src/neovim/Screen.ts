@@ -47,6 +47,9 @@ export interface ICell {
 
     foregroundColor?: string
     backgroundColor?: string
+    italic?: boolean
+    bold?: boolean
+    underline?: boolean
 }
 
 export interface IPixelPosition {
@@ -170,6 +173,8 @@ export class NeovimScreen implements IScreen {
                     backgroundColor = temp
                 }
 
+                const { underline, bold, italic } = this._currentHighlight
+
                 const characters = action.characters
                 const row = this._cursorRow
                 const col = this._cursorColumn
@@ -184,6 +189,9 @@ export class NeovimScreen implements IScreen {
                         backgroundColor,
                         character,
                         characterWidth,
+                        italic,
+                        bold,
+                        underline,
                     })
 
                     for (let c = 1; c < characterWidth; c++) {
@@ -192,6 +200,9 @@ export class NeovimScreen implements IScreen {
                             backgroundColor,
                             character: "",
                             characterWidth: 0,
+                            italic,
+                            bold,
+                            underline,
                         })
                     }
 
@@ -202,8 +213,8 @@ export class NeovimScreen implements IScreen {
                 break
             }
             case Actions.CLEAR_TO_END_OF_LINE: {
-                const foregroundColor = this._currentHighlight.foregroundColor ? this._currentHighlight.foregroundColor : this._foregroundColor
-                const backgroundColor = this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor
+                const foregroundColor = this._currentHighlight.foregroundColor || this._foregroundColor
+                const backgroundColor = this._currentHighlight.backgroundColor || this._backgroundColor
 
                 const row = this._cursorRow
                 for (let i = this._cursorColumn; i < this.width; i++) {
@@ -212,6 +223,9 @@ export class NeovimScreen implements IScreen {
                         backgroundColor,
                         character: "",
                         characterWidth: 1,
+                        bold: this._currentHighlight.bold,
+                        italic: this._currentHighlight.italic,
+                        underline: this._currentHighlight.underline,
                     })
                 }
                 break
@@ -246,6 +260,10 @@ export class NeovimScreen implements IScreen {
                 this._currentHighlight.foregroundColor = action.foregroundColor
                 this._currentHighlight.backgroundColor = action.backgroundColor
                 this._currentHighlight.reverse = !!action.reverse
+                this._currentHighlight.bold = action.bold
+                this._currentHighlight.italic = action.italic
+                this._currentHighlight.undercurl = action.undercurl
+                this._currentHighlight.underline = action.underline
                 break
             case Actions.SET_SCROLL_REGION:
                 this._scrollRegion = {

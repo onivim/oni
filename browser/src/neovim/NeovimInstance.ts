@@ -614,7 +614,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     break
                 case "highlight_set":
                     const highlightInfo = a[a.length - 1][0]
-                    console.log('highlightInfo: ', highlightInfo)
+
                     this.emit("action", Actions.setHighlight(
                         !!highlightInfo.bold,
                         !!highlightInfo.italic,
