@@ -60,31 +60,11 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     }
 
     public notifyStartInsertMode(buffer: Oni.Buffer): void {
-        this._store.dispatch({
-            type: "START_INSERT_MODE",
-            bufferId: buffer.id,
-        })
+        console.log("TODO")
     }
 
     public async notifyEndInsertMode(buffer: any): Promise<void> {
-
-        const lines = await buffer.getLines(0, buffer.lineCount, false)
-
-        // const currentState = this._store.getState()
-
-        // Send a full refresh of the lines
-        this._store.dispatch({
-            type: "END_INSERT_MODE",
-            bufferId: buffer.id,
-        })
-
-        this._store.dispatch({
-            type: "SYNTAX_UPDATE_BUFFER",
-            extension: path.extname(buffer.filePath),
-            language: buffer.language,
-            bufferId: buffer.id,
-            lines,
-        })
+        console.log("TODO")
     }
 
     public async notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void> {
@@ -97,14 +77,6 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
                 language: evt.buffer.language,
                 bufferId: evt.buffer.id,
                 lines,
-            })
-        } else {
-            // Incremental update
-            this._store.dispatch({
-                type: "SYNTAX_UPDATE_BUFFER_LINE",
-                bufferId: evt.buffer.id,
-                lineNumber: firstChange.range.start.line,
-                line: firstChange.text,
             })
         }
     }

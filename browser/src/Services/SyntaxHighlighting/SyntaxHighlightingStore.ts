@@ -63,11 +63,6 @@ export type ISyntaxHighlightAction = {
     bufferId: string,
     lines: string[],
 } | {
-        type: "SYNTAX_UPDATE_BUFFER_LINE",
-        bufferId: string,
-        lineNumber: number,
-        line: string,
-    } | {
         type: "SYNTAX_UPDATE_TOKENS_FOR_LINE",
         bufferId: string,
         lineNumber: number,
@@ -78,12 +73,6 @@ export type ISyntaxHighlightAction = {
         bufferId: string,
         topVisibleLine: number,
         bottomVisibleLine: number,
-    } | {
-        type: "START_INSERT_MODE",
-        bufferId: string,
-    } | {
-        type: "END_INSERT_MODE",
-        bufferId: string,
     }
 
 import { applyMiddleware, createStore, Store } from "redux"
@@ -95,7 +84,6 @@ const updateTokenMiddleware = (store: any) => (next: any) => (action: any) => {
     const result: ISyntaxHighlightAction = next(action)
 
     if (action.type === "SYNTAX_UPDATE_BUFFER"
-        || action.type === "SYNTAX_UPDATE_BUFFER_LINE"
         || action.type === "SYNTAX_UPDATE_BUFFER_VIEWPORT") {
 
             const state = store.getState()

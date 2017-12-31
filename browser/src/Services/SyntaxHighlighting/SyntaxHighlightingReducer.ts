@@ -16,21 +16,6 @@ export const reducer: Reducer<ISyntaxHighlightState> = (
 
     let newState = state
 
-    switch (action.type) {
-        case "START_INSERT_MODE":
-            newState = {
-                ...state,
-                isInsertMode: true,
-            }
-            break
-        case "END_INSERT_MODE":
-            newState = {
-                ...state,
-                isInsertMode: false, // If we're getting a full buffer update, assume we're not in insert mode
-            }
-            break
-    }
-
     return {
         ...newState,
         bufferToHighlights: bufferToHighlightsReducer(state.bufferToHighlights, action),
@@ -61,23 +46,12 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
 ) => {
 
     switch (action.type) {
-        case "START_INSERT_MODE":
-            return {
-                ...state,
-                activeInsertModeLine: -1,
-            }
         case "SYNTAX_UPDATE_BUFFER":
             return {
                 ...state,
                 bufferId: action.bufferId,
                 language: action.language,
                 extension: action.extension,
-                lines: linesReducer(state.lines, action),
-            }
-        case "SYNTAX_UPDATE_BUFFER_LINE":
-            return {
-                ...state,
-                activeInsertModeLine: action.lineNumber,
                 lines: linesReducer(state.lines, action),
             }
         case "SYNTAX_UPDATE_BUFFER_VIEWPORT":
@@ -126,24 +100,6 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
                         ...nextLine,
                         dirty: true,
                     }
-                }
-
-                return newState
-            }
-        case "SYNTAX_UPDATE_BUFFER_LINE":
-            {
-                const newState = {
-                    ...state,
-                }
-
-                // Set 'dirty' flag for updated line to true
-                const oldLine = newState[action.lineNumber]
-                newState[action.lineNumber] = {
-                    tokens: [],
-                    ruleStack: null,
-                    ...oldLine,
-                    line: action.line,
-                    dirty: true,
                 }
 
                 return newState
