@@ -7,6 +7,7 @@ export interface IFontMeasurement {
 
 export function measureFont(fontFamily: string, fontSize: string, characterToTest = "H") {
     const div = document.createElement("div")
+
     div.style.position = "absolute"
     div.style.left = "10px"
     div.style.top = "10px"
@@ -27,8 +28,7 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
     const height = rect.height
 
     document.body.removeChild(div)
-    console.log("isItalicAvailable: ",  isItalicAvailable) // tslint:disable-line
-    console.log("isBoldAvailable: ",  isBoldAvailable) // tslint:disable-line
+
     return {
         width,
         height,
@@ -38,20 +38,14 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
 }
 
 export function addDefaultUnitIfNeeded(fontSize: string) {
-
-    const defaultUnit = "px"
-
-    if (isNaN(Number(fontSize))) {
-        return fontSize
-    } else {
-        return fontSize + defaultUnit
-    }
+    const roundFont = `${Math.round(parseFloat(fontSize))}px`
+    return roundFont
 }
 
 export function isStyleAvailable(fontName: string, style: string, fontSize = "12px") {
+    const text = "abcdefghijklmnopqrstuvwxyz0123456789"
     let canvas = document.createElement("canvas")
     const context = canvas.getContext("2d")
-    const text = "abcdefghijklmnopqrstuvwxyz0123456789"
     context.font = `${fontSize} ${fontName}`
     const baselineSize = context.measureText(text).width
     context.font = `${style} ${fontSize} ${fontName}`
