@@ -14,6 +14,8 @@ export interface IHighlight {
 
     foregroundColor?: string
     backgroundColor?: string
+    isItalicAvailable?: boolean
+    isBoldAvailable?: boolean
 }
 
 export interface IScreen {
@@ -246,6 +248,8 @@ export class NeovimScreen implements IScreen {
                 this._fontWidthInPixels = action.fontWidthInPixels
                 this._fontHeightInPixels = action.fontHeightInPixels
                 this._linePaddingInPixels = action.linePaddingInPixels
+                this._currentHighlight.isItalicAvailable = action.isItalicAvailable
+                this._currentHighlight.isBoldAvailable = action.isBoldAvailable
                 break
             case Actions.CHANGE_MODE:
                 this._mode = action.mode
@@ -257,11 +261,12 @@ export class NeovimScreen implements IScreen {
                 this._foregroundColor = action.color
                 break
             case Actions.SET_HIGHLIGHT:
+                const { isBoldAvailable, isItalicAvailable } = this._currentHighlight
                 this._currentHighlight.foregroundColor = action.foregroundColor
                 this._currentHighlight.backgroundColor = action.backgroundColor
                 this._currentHighlight.reverse = !!action.reverse
-                this._currentHighlight.bold = action.bold
-                this._currentHighlight.italic = action.italic
+                this._currentHighlight.bold = isBoldAvailable ? action.bold : false
+                this._currentHighlight.italic = isItalicAvailable ? action.italic : false
                 this._currentHighlight.undercurl = action.undercurl
                 this._currentHighlight.underline = action.underline
                 break
