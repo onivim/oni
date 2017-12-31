@@ -24,8 +24,6 @@ import * as Utility from "./../../Utility"
 export interface ISyntaxHighlighter extends IDisposable {
     notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void>
     notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void
-    notifyStartInsertMode(buffer: Oni.Buffer): void
-    notifyEndInsertMode(buffer: Oni.Buffer): void
 
     getHighlightTokenAt(bufferId: string, position: types.Position): ISyntaxHighlightTokenInfo
 }
@@ -57,14 +55,6 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             topVisibleLine: topLineInView,
             bottomVisibleLine: bottomLineInView,
         })
-    }
-
-    public notifyStartInsertMode(buffer: Oni.Buffer): void {
-        console.log("TODO")
-    }
-
-    public async notifyEndInsertMode(buffer: any): Promise<void> {
-        console.log("TODO")
     }
 
     public async notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void> {
@@ -117,13 +107,6 @@ export class NullSyntaxHighlighter implements ISyntaxHighlighter {
     }
 
     public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
-        // tslint: disable-line
-    }
-    public notifyStartInsertMode(buffer: Oni.Buffer): void {
-        // tslint: disable-line
-    }
-
-    public notifyEndInsertMode(buffer: Oni.Buffer): void {
         // tslint: disable-line
     }
 
