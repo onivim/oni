@@ -51,14 +51,6 @@ function storeWindowState(main) {
     }
 }
 
-ipcMain.on("cross-browser-ipc", (event, arg) => {
-    const destinationId = arg.meta.destinationId
-    const destinationWebContents = webContents.fromId(destinationId)
-
-    Log.info(`sending message to destinationId: ${destinationId}`)
-    destinationWebContents.send("cross-browser-ipc", arg)
-})
-
 ipcMain.on("focus-next-instance", () => {
     Log.info("focus-next-instance")
     focusNextInstance(1)
