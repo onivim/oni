@@ -23,6 +23,7 @@ export class NeovimBufferUpdateManager {
 
     private _onBufferUpdateEvent = new Event<INeovimBufferUpdate>()
     private _lastEventContext: EventContext
+    private _lastMode: string
 
     public get onBufferUpdate(): IEvent<INeovimBufferUpdate> {
         return this._onBufferUpdateEvent
@@ -36,6 +37,23 @@ export class NeovimBufferUpdateManager {
     }
 
     public async notifyFullBufferUpdate(eventContext: EventContext): Promise<void> {
+
+        if (!this._shouldSubscribeToUpdates(eventContext)) {
+            return
+        }
+
+        this._doFullUpdate(eventContext)
+    }
+
+    public async notifyModeChanged(newMode: string): Promise<void> {
+        const shouldUpdate = newMode === "insert" && this._lastMode !== "insert"
+        this._lastMode = newMode
+
+        if (!shouldUpdate) {
+            return
+        }
+
+        const eventContext = await this._neovimInstance.getContext()
 
         if (!this._shouldSubscribeToUpdates(eventContext)) {
             return

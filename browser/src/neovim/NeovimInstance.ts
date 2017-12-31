@@ -320,6 +320,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._autoCommands = new NeovimAutoCommands(this)
 
         this._bufferUpdateManager = new NeovimBufferUpdateManager(configuration, this)
+
+        this._onModeChanged.subscribe((newMode) => {
+            this._bufferUpdateManager.notifyModeChanged(newMode)
+        })
     }
 
     public async chdir(directoryPath: string): Promise<void> {
