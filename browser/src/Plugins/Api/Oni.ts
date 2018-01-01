@@ -24,7 +24,7 @@ import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
 import { menuManager } from "./../../Services/Menu"
 import { recorder } from "./../../Services/Recorder"
-import { statusBar } from "./../../Services/StatusBar"
+import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
 import { windowManager } from "./../../Services/WindowManager"
 import { workspace } from "./../../Services/Workspace"
 
@@ -110,7 +110,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     public get statusBar(): OniApi.StatusBar {
-        return statusBar
+        return getStatusBarInstance()
     }
 
     public get ui(): Ui {
