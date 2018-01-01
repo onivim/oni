@@ -11,9 +11,9 @@ export const test = async (oni: any) => {
 
     await createNewFile("ts", oni)
 
-    await oni.automation.sendKeys("i")
+    oni.automation.sendKeys("i")
     await oni.automation.sleep(500)
-    await oni.automation.sendKeys("window.a")
+    oni.automation.sendKeys("window.a")
 
     // Wait for completion popup to show
     await oni.automation.waitFor(() => getCompletionElement() !== null)
