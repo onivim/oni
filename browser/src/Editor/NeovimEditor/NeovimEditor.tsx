@@ -91,6 +91,30 @@ export class RedLayer {
     }
 } 
 
+// import * as WebView from "react-electron-web-view"
+
+const WebView = require("react-electron-web-view")
+
+export class BrowserLayer {
+    public get id(): string {
+        return "oni.browser"
+    }
+
+    public get friendlyName(): string {
+        return "Oni Browser"
+    }
+
+    public render(): JSX.Element {
+        
+        return <div style={{display: "flex", flexDirection: "column", width: "100%", height: "100%", backgroundColor: "rgba(40, 44, 52, 0.9)"}}>
+                <div>
+                    Hello world
+                </div>
+                <WebView id="foo" src="https://www.github.com" />
+            </div>
+    }
+}
+
 export class NeovimEditor extends Editor implements IEditor {
     private _editorLayers: NeovimEditorLayers = new NeovimEditorLayers()
     private _bufferManager: BufferManager
@@ -180,7 +204,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._editorLayers.onLayerChangedEvent.subscribe((evt) => {
             this._actions.setBufferLayers(parseInt(evt.buffer.id), evt.layers)
         })
-        this._editorLayers.add(() => new RedLayer())
+        this._editorLayers.add("test", () => new BrowserLayer())
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
@@ -491,6 +515,17 @@ export class NeovimEditor extends Editor implements IEditor {
             for (let i = 1; i < files.length; i++) {
                 this._neovimInstance.command("exec \":tabe " + normalizePath(files.item(i).path) + "\"")
             }
+        }
+    }
+
+    public async newFile(filePath: string, options?: any): Promise<void> {
+        options = options || {}
+        const language = options.language || null
+
+        await this._neovimInstance.command(":new " + filePath)
+
+        if (language) {
+            await this._neovimInstance.command(":set filetype=" + language)
         }
     }
 
