@@ -120,7 +120,6 @@
   "license": "MIT",
   "dependencies": {
     "@types/redux-batched-subscribe": "^0.1.2",
-    "css-language-server": "0.0.2",
     "dompurify": "1.0.2",
     "electron-settings": "^3.1.4",
     "find-up": "2.1.0",
@@ -139,6 +138,7 @@
     "shell-env": "^0.3.0",
     "styled-components": "^2.3.0",
     "typescript": "2.6.1",
+    "vscode-css-languageserver-bin": "^1.2.1",
     "vscode-jsonrpc": "3.5.0",
     "vscode-languageserver": "3.5.0",
     "vscode-languageserver-types": "3.5.0",
