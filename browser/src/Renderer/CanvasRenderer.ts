@@ -263,12 +263,12 @@ export class CanvasRenderer implements INeovimRenderer {
         //
         // This normalization addresses it by making sure the rectangle bounds are aligned
         // to the nearest integer pixel.
-        const normalizedBoundsStartX = Math.floor(boundsStartX)
-        const delta = boundsStartX - normalizedBoundsStartX
-        const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
+        // const normalizedBoundsStartX = Math.floor(boundsStartX)
+        // const delta = boundsStartX - normalizedBoundsStartX
+        // const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
 
-        // const normalizedBoundsStartX = startX
-        // const normalizedBoundsWidth = boundsWidth
+        const normalizedBoundsStartX = boundsStartX
+        const normalizedBoundsWidth = boundsWidth
 
         this._canvasContext.fillStyle = backgroundColor || screenInfo.backgroundColor
 
