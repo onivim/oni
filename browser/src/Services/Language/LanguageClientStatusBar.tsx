@@ -27,11 +27,7 @@ export class LanguageClientStatusBar {
     public show(fileType: string): void {
         this._fileType = fileType
         if (this._item) {
-            this._item.setContents(
-                <StatusBarRenderer
-                    state={LanguageClientState.NotAvailable}
-                    language={this._fileType}
-                />)
+            this._item.setContents(<StatusBarRenderer state={LanguageClientState.NotAvailable} language={this._fileType}/>)
             this._item.show()
         }
     }

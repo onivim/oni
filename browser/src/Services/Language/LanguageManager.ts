@@ -46,6 +46,7 @@ export class LanguageManager {
     ) {
 
         this._languageClientStatusBar = new LanguageClientStatusBar(this._statusBar)
+
         this._editorManager.allEditors.onBufferEnter.subscribe(async () => this._onBufferEnter())
 
         this._editorManager.allEditors.onBufferLeave.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
