@@ -139,6 +139,7 @@
     "shell-env": "^0.3.0",
     "styled-components": "^2.3.0",
     "typescript": "2.6.1",
+    "vscode-json-languageserver-bin": "^1.0.1",
     "vscode-jsonrpc": "3.5.0",
     "vscode-languageserver": "3.5.0",
     "vscode-languageserver-types": "3.5.0",
