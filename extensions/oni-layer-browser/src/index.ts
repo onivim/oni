@@ -7,6 +7,7 @@ import { shell } from "electron"
 export const activate = (oni: any) => {
 
     const openUrl = (url: string) => {
+        // TODO: Use embedded browser if configuration option is set
         shell.openExternal(url)
     }
 
