@@ -16,6 +16,7 @@ import { ocamlAndReasonConfiguration, ocamlLanguageServerPath } from "./ReasonCo
 const noop = () => { } // tslint:disable-line no-empty
 
 const cssLanguageServerPath = path.join(__dirname, "node_modules", "css-language-server", "lib", "cli.js")
+const jsonLanguageServerPath = path.join(__dirname, "node_modules", "vscode-json-languageserver-bin", "jsonServerMain.js")
 
 const BaseConfiguration: IConfigurationValues = {
     activate: noop,
@@ -131,6 +132,9 @@ const BaseConfiguration: IConfigurationValues = {
 
     "language.go.languageServer.command": "go-langserver",
     "language.go.textMateGrammar": path.join(__dirname, "extensions", "go", "syntaxes", "go.json"),
+
+    "language.json.languageServer.command": jsonLanguageServerPath,
+    "language.json.languageServer.arguments": ["--stdio"],
 
     "language.python.languageServer.command": "pyls",
     "language.cpp.languageServer.command": "clangd",
