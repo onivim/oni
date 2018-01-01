@@ -45,7 +45,11 @@ interface IChildDimensions {
     hide: boolean
 }
 
-const StatusBarComponent = withProps<{ maxWidth?: string }>(styled.div)`
+interface IStatusComponent {
+    maxWidth?: string
+}
+
+const StatusBarComponent = withProps<IStatusComponent>(styled.div)`
     white-space: nowrap;
     padding-left: 8px;
     padding-right: 8px;
@@ -88,6 +92,7 @@ const StatusBarInner = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
 `
 
 export class StatusBar extends React.PureComponent<StatusBarProps, { isLoaded: boolean }> {
@@ -127,12 +132,12 @@ export class StatusBar extends React.PureComponent<StatusBarProps, { isLoaded: b
                     <StatusResize direction="center" />
                     <StatusResize direction="flex-end">
                         {rightItems.map(item => <ItemWithWidth {...item} key={item.id} />)}
+                        <StatusBarComponent onClick={this._openGithub}>
+                            <span>
+                                <i className="fa fa-github" />
+                            </span>
+                        </StatusBarComponent>
                     </StatusResize>
-                    <StatusBarComponent onClick={this._openGithub}>
-                        <span>
-                            <i className="fa fa-github" />
-                        </span>
-                    </StatusBarComponent>
                 </StatusBarInner>
             </StatusBarContainer>
         )
