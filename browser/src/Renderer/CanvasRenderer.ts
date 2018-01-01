@@ -267,6 +267,9 @@ export class CanvasRenderer implements INeovimRenderer {
         const delta = boundsStartX - normalizedBoundsStartX
         const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
 
+        // const normalizedBoundsStartX = startX
+        // const normalizedBoundsWidth = boundsWidth
+
         this._canvasContext.fillStyle = backgroundColor || screenInfo.backgroundColor
 
         if (this._isOpaque || (backgroundColor && backgroundColor !== screenInfo.backgroundColor)) {

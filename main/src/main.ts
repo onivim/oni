@@ -109,7 +109,7 @@ export function createWindow(commandLineArguments, workingDirectory) {
     Log.info(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
 
     const webPreferences = {
-        blinkFeatures: "ResizeObserver,Accelerated2dCanvas,Canvas2dFixedRenderingMode",
+        blinkFeatures: "ResizeObserver",
     }
 
     const backgroundColor = (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
