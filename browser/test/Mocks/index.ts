@@ -52,7 +52,7 @@ export class MockStatusBar implements Oni.StatusBar {
         return new MockStatusBarItem()
     }
 
-    public createItem(alignment: number, priority: number, globalId: string): Oni.StatusBarItem {
+    public createItem(alignment: number, globalId: string): Oni.StatusBarItem {
         return new MockStatusBarItem()
     }
 }
