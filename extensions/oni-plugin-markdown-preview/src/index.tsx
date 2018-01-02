@@ -244,6 +244,6 @@ class Command implements Oni.Commands.ICommand {
         public command: string,
         public name: string,
         public detail: string,
-        public execute: Oni.Commands.ICommandCallback,
+        public execute: Oni.Commands.CommandCallback,
     ) {}
 }
