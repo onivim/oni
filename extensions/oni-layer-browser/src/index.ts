@@ -1,4 +1,8 @@
-
+/**
+ * oni-layer-browser/index.ts
+ *
+ * Entry point for browser integration plugin
+ */
 
 // import * as Oni from "oni-api"
 
