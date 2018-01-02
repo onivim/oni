@@ -7,8 +7,6 @@
 import * as os from "os"
 import * as path from "path"
 
-import * as throttle from "lodash/throttle"
-
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
@@ -40,10 +38,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
         this._store = createSyntaxHighlightStore()
 
         this._reconciler = new SyntaxHighlightReconciler(this._configuration, this._editor)
-        this._unsubscribe = this._store.subscribe(throttle(() => {
+        this._unsubscribe = this._store.subscribe(() => {
             const state = this._store.getState()
             this._reconciler.update(state)
-        }, 100 /* TODO: Configuration? */))
+        })
     }
 
     public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
