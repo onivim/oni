@@ -15,7 +15,7 @@ import { ocamlAndReasonConfiguration, ocamlLanguageServerPath } from "./ReasonCo
 
 const noop = () => { } // tslint:disable-line no-empty
 
-const cssLanguageServerPath = path.join(__dirname, "node_modules", "css-language-server", "lib", "cli.js")
+const cssLanguageServerPath = path.join(__dirname, "node_modules", "vscode-css-languageserver-bin", "cssServerMain.js")
 
 const BaseConfiguration: IConfigurationValues = {
     activate: noop,
