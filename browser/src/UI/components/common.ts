@@ -1,4 +1,3 @@
-
 import * as styledComponents from "styled-components"
 import { ThemedStyledComponentsModule } from "styled-components" // tslint:disable-line no-duplicate-imports
 import { IThemeColors } from "../../Services/Themes/ThemeManager"
@@ -6,12 +5,14 @@ import { IThemeColors } from "../../Services/Themes/ThemeManager"
 export const bufferScrollBarSize = "7px"
 
 const {
-  default: styled,
-  css,
-  injectGlobal,
-  keyframes,
-  ThemeProvider,
-} = styledComponents as ThemedStyledComponentsModule<any> as ThemedStyledComponentsModule<IThemeColors>
+    default: styled,
+    css,
+    injectGlobal,
+    keyframes,
+    ThemeProvider,
+} = (styledComponents as ThemedStyledComponentsModule<any>) as ThemedStyledComponentsModule<
+    IThemeColors
+>
 
 export type StyledFunction<T> = styledComponents.ThemedStyledFunction<T, IThemeColors>
 

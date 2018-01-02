@@ -14,10 +14,9 @@ import * as Language from "./../../src/Services/Language"
 import { createCompletablePromise, ICompletablePromise } from "./../../src/Utility"
 
 export class MockConfiguration {
-
-    constructor(
-        private _configurationValues: any = {},
-    ) {}
+    constructor(private _configurationValues: any = {}) {
+        this._configurationValues = _configurationValues
+    }
 
     public getValue(key: string): any {
         return this._configurationValues[key]

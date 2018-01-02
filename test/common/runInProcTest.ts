@@ -5,7 +5,6 @@ import * as path from "path"
 import { Oni } from "./Oni"
 
 // tslint:disable:no-console
-
 export interface ITestCase {
     name: string
     testPath: string
@@ -74,7 +73,6 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
             logWithTimeStamp("Editor element text: " + text)
 
             logWithTimeStamp("Test path: " + testCase.testPath) // tslint:disable-line
-
             oni.client.execute("Oni.automation.runTest('" + testCase.testPath + "')")
 
             logWithTimeStamp("Waiting for result...") // tslint:disable-line
