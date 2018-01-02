@@ -29,7 +29,7 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
             fontSize: this.props.fontSize,
         }
 
-        return <div className="tool-tips" key={"tool-tip-container"} style={style}>
+        return <div className="tool-tips" style={style}>
             {toolTipElements}
         </div>
     }
@@ -82,7 +82,7 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
                 <div className="tool-tip-container enable-mouse" style={toolTipStyle} ref={(elem) => this._setContainer(elem)}>
                     {this.props.element}
                 </div>
-        </CursorPositioner>
+            </CursorPositioner>
     }
 
     private _setContainer(element: HTMLElement): void {

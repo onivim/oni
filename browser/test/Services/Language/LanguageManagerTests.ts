@@ -59,7 +59,9 @@ describe("LanguageManager", () => {
         mockEditor = new Mocks.MockEditor()
         editorManager.setActiveEditor(mockEditor)
 
-        languageManager = new Language.LanguageManager(mockConfiguration as any, editorManager)
+        const mockStatusBar = new Mocks.MockStatusBar()
+
+        languageManager = new Language.LanguageManager(mockConfiguration as any, editorManager, mockStatusBar)
     })
 
     it("sends didOpen request if language server is registered after enter event", async () => {
