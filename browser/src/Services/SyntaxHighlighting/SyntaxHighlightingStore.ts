@@ -4,15 +4,14 @@
  * Handles enhanced syntax highlighting
  */
 
-
 import { Store } from "redux"
 import * as types from "vscode-languageserver-types"
 import { StackElement } from "vscode-textmate"
 
-import { configuration } from "./../Configuration"
 import * as Log from "./../../Log"
 import * as PeriodicJobs from "./../../PeriodicJobs"
 import { createStore } from "./../../Redux"
+import { configuration } from "./../Configuration"
 
 import { GrammarLoader } from "./GrammarLoader"
 import { SyntaxHighlightingPeriodicJob } from "./SyntaxHighlightingPeriodicJob"
@@ -145,8 +144,8 @@ export const createSyntaxHighlightStore = (): Store<ISyntaxHighlightState> => {
     const syntaxHighlightStore: Store<ISyntaxHighlightState> = createStore(
         "SyntaxHighlighting",
         reducer,
-        DefaultSyntaxHighlightState, 
-        [updateTokenMiddleware]
+        DefaultSyntaxHighlightState,
+        [updateTokenMiddleware],
     )
 
     return syntaxHighlightStore

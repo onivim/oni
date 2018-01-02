@@ -158,7 +158,7 @@ export class MockBuffer {
 export class MockBufferHighlightsUpdater implements IBufferHighlightsUpdater {
 
     private _linesToHighlights: { [line: number]: HighlightInfo[] } = {}
-    
+
     public setHighlightsForLine(line: number, highlights: HighlightInfo[]): void {
         this._linesToHighlights[line] = highlights
     }

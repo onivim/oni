@@ -19,8 +19,8 @@ import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
 import { createSyntaxHighlightStore, ISyntaxHighlightState, ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
 
-import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
 import { ISyntaxHighlighter } from "./ISyntaxHighlighter"
+import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
 
 import * as Log from "./../../Log"
 import * as Utility from "./../../Utility"

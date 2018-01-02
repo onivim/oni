@@ -4,7 +4,7 @@ import * as types from "vscode-languageserver-types"
 
 import * as Mocks from "./../../Mocks"
 
-import { HighlightInfo, SyntaxHighlightReconciler, ISyntaxHighlightState, ISyntaxHighlightLineInfo } from "./../../../src/Services/SyntaxHighlighting"
+import { HighlightInfo, ISyntaxHighlightLineInfo, ISyntaxHighlightState, SyntaxHighlightReconciler } from "./../../../src/Services/SyntaxHighlighting"
 
 describe("SyntaxHighlightReconciler", () => {
 
@@ -42,7 +42,7 @@ describe("SyntaxHighlightReconciler", () => {
 
         const testState: ISyntaxHighlightState = {
             isInsertMode: false,
-            bufferToHighlights:{
+            bufferToHighlights: {
                 [mockBuffer.id]: {
                     bufferId: mockBuffer.id,
                     language: mockBuffer.language,
@@ -51,8 +51,8 @@ describe("SyntaxHighlightReconciler", () => {
                     bottomVisibleLine: 100,
                     activeInsertModeLine: -1,
                     lines,
-                }
-            }
+                },
+            },
         }
 
         return testState
@@ -62,7 +62,7 @@ describe("SyntaxHighlightReconciler", () => {
 
         const tokenInfo = {
             scopes: ["scope.test"],
-            range: types.Range.create(0, 0, 0, 5)
+            range: types.Range.create(0, 0, 0, 5),
         }
 
         const testState = createHighlightState(0, null, [tokenInfo])
@@ -73,7 +73,7 @@ describe("SyntaxHighlightReconciler", () => {
 
         const expectedHighlights: HighlightInfo[] = [{
                 highlightGroup: "Identifier",
-                range: types.Range.create(0, 0, 0, 5)
+                range: types.Range.create(0, 0, 0, 5),
             }]
 
         assert.deepEqual(highlights, expectedHighlights, "Validate highlightsAfterClearing are correct")
@@ -83,13 +83,12 @@ describe("SyntaxHighlightReconciler", () => {
 
         const tokenInfo = {
             scopes: ["scope.test"],
-            range: types.Range.create(0, 0, 0, 5)
+            range: types.Range.create(0, 0, 0, 5),
         }
 
         const testState = createHighlightState(0, null, [tokenInfo])
 
         syntaxHighlightReconciler.update(testState)
-
 
         // Now, clear the tokens out, and update again
         const newState = createHighlightState(0, "// new state", [])
