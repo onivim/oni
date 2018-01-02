@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 
 import styled from "styled-components"
 
-import * as State from "./../State"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { Motion, spring } from "react-motion"
 
@@ -18,7 +18,6 @@ export interface ICursorRendererProps {
     scale: number
     width: number
     height: number
-    isLoaded: boolean
     mode: string
     color: string
     textColor: string
@@ -141,7 +140,6 @@ const mapStateToProps = (state: State.IState, props: ICursorProps): ICursorRende
         height: state.fontPixelHeight,
         mode: state.mode,
         color: state.colors["editor.foreground"],
-        isLoaded: state.isLoaded,
         textColor: state.colors["editor.background"],
         character: state.cursorCharacter,
         fontPixelWidth: state.fontPixelWidth,

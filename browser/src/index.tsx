@@ -15,8 +15,8 @@ import { IConfigurationValues } from "./Services/Configuration/IConfigurationVal
 const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
 
-    const UI = await import("./UI")
-    UI.activate()
+    const Shell = await import("./UI/Shell")
+    Shell.activate()
 
     const parsedArgs = minimist(args)
 
@@ -25,6 +25,7 @@ const start = async (args: string[]): Promise<void> => {
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
 
+    const statusBarPromise = import("./Services/StatusBar")
     const startEditorsPromise = import("./startEditors")
 
     const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
@@ -38,7 +39,7 @@ const start = async (args: string[]): Promise<void> => {
     const cssPromise = import("./CSS")
 
     // Helper for debugging:
-    window["UI"] = UI // tslint:disable-line no-string-literal
+    window["Shell"] = Shell // tslint:disable-line no-string-literal
 
     Performance.startMeasure("Oni.Start.Config")
 
@@ -52,7 +53,7 @@ const start = async (args: string[]): Promise<void> => {
     const configChange = (newConfigValues: Partial<IConfigurationValues>) => {
         let prop: keyof IConfigurationValues
         for (prop in newConfigValues) {
-            UI.Actions.setConfigValue(prop, newConfigValues[prop])
+            Shell.Actions.setConfigValue(prop, newConfigValues[prop])
         }
     }
 
@@ -78,7 +79,7 @@ const start = async (args: string[]): Promise<void> => {
 
     const Colors = await colorsPromise
     Colors.activate(configuration, Themes.getThemeManagerInstance())
-    UI.Actions.setColors(Themes.getThemeManagerInstance().getColors())
+    Shell.Actions.setColors(Themes.getThemeManagerInstance().getColors())
     Performance.endMeasure("Oni.Start.Themes")
 
     const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
@@ -86,8 +87,12 @@ const start = async (args: string[]): Promise<void> => {
 
     const { editorManager } = await editorManagerPromise
 
+    const StatusBar = await statusBarPromise
+    StatusBar.activate(configuration)
+    const statusBar = StatusBar.getInstance()
+
     const LanguageManager = await languageManagerPromise
-    LanguageManager.activate(configuration, editorManager)
+    LanguageManager.activate(configuration, editorManager, statusBar)
     const languageManager = LanguageManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Editors")
@@ -97,18 +102,20 @@ const start = async (args: string[]): Promise<void> => {
     const CSS = await cssPromise
     CSS.activate()
 
+    const Diagnostics = await diagnosticsPromise
+    const diagnostics = Diagnostics.getInstance()
+
    await Promise.race([Utility.delay(5000),
      Promise.all([
         SharedNeovimInstance.activate(),
-        startEditors(parsedArgs._, Colors.getInstance(), configuration, languageManager, Themes.getThemeManagerInstance())
+        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, Themes.getThemeManagerInstance())
     ])
    ])
     Performance.endMeasure("Oni.Start.Editors")
 
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
-    const Diagnostics = await diagnosticsPromise
-    Diagnostics.activate(languageManager)
+    diagnostics.start(languageManager)
 
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()
@@ -122,7 +129,7 @@ const start = async (args: string[]): Promise<void> => {
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Performance.endMeasure("Oni.Start.Activate")
 
-    UI.Actions.setLoadingComplete()
+    Shell.Actions.setLoadingComplete()
 
     checkForUpdates()
 

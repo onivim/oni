@@ -11,18 +11,13 @@ import "rxjs/add/operator/auditTime"
 import "rxjs/add/operator/debounceTime"
 
 import * as Oni from "oni-api"
+import { Configuration } from "./Configuration"
 
-import * as UI from "./../UI"
+import * as Shell from "./../UI/Shell"
 
 export enum StatusBarAlignment {
     Left,
     Right,
-}
-
-export interface IStatusBarItem {
-    show(): void
-    hide(): void
-    setContents(element: any): void
 }
 
 export class StatusBarItem implements Oni.StatusBarItem {
@@ -49,12 +44,12 @@ export class StatusBarItem implements Oni.StatusBarItem {
 
     public show(): void {
         this._visible = true
-        UI.Actions.showStatusBarItem(this._id, this._contents, this._alignment, this._priority)
+        Shell.Actions.showStatusBarItem(this._id, this._contents, this._alignment, this._priority)
     }
 
     public hide(): void {
         this._visible = false
-        UI.Actions.hideStatusBarItem(this._id)
+        Shell.Actions.hideStatusBarItem(this._id)
     }
 
     public setContents(element: any): void {
@@ -74,16 +69,28 @@ export class StatusBarItem implements Oni.StatusBarItem {
 class StatusBar implements Oni.StatusBar {
     private _id: number = 0
 
+    constructor(private _configuration: Configuration) {}
+
     public getItem(globalId: string): Oni.StatusBarItem {
         return new StatusBarItem(globalId)
     }
 
-    public createItem(alignment: StatusBarAlignment, priority: number = 0, globalId?: string): Oni.StatusBarItem {
+    public createItem(alignment: StatusBarAlignment, globalId?: string): Oni.StatusBarItem {
         this._id++
-        const statusBarId = globalId || `${this._id.toString()}`
+        const statusBarId = globalId || `${this._id}`
+        const statusItems = this._configuration.getValue("statusbar.priority")
+        const currentItem = statusItems[globalId]
+        const itemPriority = currentItem || 0
 
-        return new StatusBarItem(statusBarId, alignment, priority)
+        return new StatusBarItem(statusBarId, alignment, itemPriority)
     }
 }
 
-export const statusBar = new StatusBar()
+let _statusBar: StatusBar = null
+export const activate = (configuration: Configuration): void => {
+    _statusBar = new StatusBar(configuration)
+}
+
+export const getInstance = (): StatusBar => {
+    return _statusBar
+}

@@ -53,13 +53,22 @@ describe("LanguageManager", () => {
         mockConfiguration = new Mocks.MockConfiguration({
             "editor.quickInfo.delay": 500,
             "editor.quickInfo.enabled": true,
+            "status.priority": {
+                "oni.status.workingDirectory": 0,
+                "oni.status.linenumber": 1,
+                "oni.status.mode": 0,
+                "oni.status.filetype": 1,
+                "oni.status.git": 2,
+            },
         })
 
         editorManager = new EditorManager()
         mockEditor = new Mocks.MockEditor()
         editorManager.setActiveEditor(mockEditor)
 
-        languageManager = new Language.LanguageManager(mockConfiguration as any, editorManager)
+        const mockStatusBar = new Mocks.MockStatusBar()
+
+        languageManager = new Language.LanguageManager(mockConfiguration as any, editorManager, mockStatusBar)
     })
 
     it("sends didOpen request if language server is registered after enter event", async () => {

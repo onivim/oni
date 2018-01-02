@@ -75,6 +75,14 @@ export interface INeovimCommandLineShowEvent {
     level: number
 }
 
+export interface IWildMenuShowEvent {
+    options: string[]
+}
+
+export interface IWildMenuSelectEvent {
+    selected: any
+}
+
 export interface INeovimCommandLineSetCursorPosition {
     pos: number
     level: number
@@ -204,6 +212,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onCommandLineShowEvent = new Event<INeovimCommandLineShowEvent>()
     private _onCommandLineHideEvent = new Event<void>()
     private _onCommandLineSetCursorPositionEvent = new Event<INeovimCommandLineSetCursorPosition>()
+    private _onWildMenuHideEvent = new Event<void>()
+    private _onWildMenuSelectEvent = new Event<IWildMenuSelectEvent>()
+    private _onWildMenuShowEvent = new Event<IWildMenuShowEvent>()
     private _bufferUpdateManager: NeovimBufferUpdateManager
 
     private _pendingScrollTimeout: number | null = null
@@ -278,6 +289,18 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onCommandLineSetCursorPosition(): IEvent<INeovimCommandLineSetCursorPosition> {
         return this._onCommandLineSetCursorPositionEvent
+    }
+
+    public get onWildMenuShow(): IEvent<IWildMenuShowEvent> {
+        return this._onWildMenuShowEvent
+    }
+
+    public get onWildMenuSelect(): IEvent<IWildMenuSelectEvent> {
+        return this._onWildMenuSelectEvent
+    }
+
+    public get onWildMenuHide(): IEvent<void> {
+        return this._onWildMenuHideEvent
     }
 
     public get onYank(): IEvent<INeovimYankInfo> {
@@ -423,12 +446,21 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._fontFamily = fontFamily
         this._fontSize = fontSize
 
-        const { width, height } = measureFont(this._fontFamily, this._fontSize)
+        const { width, height, isBoldAvailable, isItalicAvailable } = measureFont(this._fontFamily, this._fontSize)
 
         this._fontWidthInPixels = width
         this._fontHeightInPixels = height + linePadding
 
-        this.emit("action", Actions.setFont(fontFamily, fontSize, width, height + linePadding, linePadding))
+        this.emit("action", Actions.setFont({
+                fontFamily,
+                fontSize,
+                fontWidthInPixels: width,
+                fontHeightInPixels: height + linePadding,
+                linePaddingInPixels: linePadding,
+                isItalicAvailable,
+                isBoldAvailable,
+            }),
+        )
 
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
     }
@@ -444,8 +476,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             return this.open(loadInitVim)
         } else {
             // Use path from: https://github.com/neovim/neovim/wiki/FAQ
-            const rootFolder = Platform.isWindows() ? path.join(process.env["LOCALAPPDATA"], "nvim") : // tslint:disable-line no-string-literal
-                                                      path.join(Platform.getUserHome(), ".config", "nvim")
+            const rootFolder = Platform.isWindows()
+                ? path.join(process.env["LOCALAPPDATA"], "nvim") // tslint:disable-line no-string-literal
+                : path.join(Platform.getUserHome(), ".config", "nvim")
 
             mkdirp.sync(rootFolder)
             const initVimPath = path.join(rootFolder, "init.vim")
@@ -590,6 +623,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     break
                 case "highlight_set":
                     const highlightInfo = a[a.length - 1][0]
+
                     this.emit("action", Actions.setHighlight(
                         !!highlightInfo.bold,
                         !!highlightInfo.italic,
@@ -701,10 +735,15 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     this._onCommandLineHideEvent.dispatch()
                     break
                 case "wildmenu_show":
+                    const [[options]] = a
+                    this._onWildMenuShowEvent.dispatch({ options })
                     break
                 case "wildmenu_select":
+                    const [[ selection ]] = a
+                    this._onWildMenuSelectEvent.dispatch({ selected: selection })
                     break
                 case "wildmenu_hide":
+                    this._onWildMenuHideEvent.dispatch()
                     break
                 default:
                     Log.warn("Unhandled command: " + command)
@@ -749,11 +788,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                                          shouldExtPopups: boolean) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
             const useExtCmdLine =  this._config.getValue("experimental.commandline.mode")
+            const useExtWildMenu =  this._config.getValue("experimental.wildmenu.mode")
             return {
                 rgb: true,
                 popupmenu_external: shouldExtPopups,
                 ext_tabline: shouldExtTabs,
                 ext_cmdline: useExtCmdLine,
+                ext_wildmenu: useExtWildMenu,
             }
         } else if (major === 0 && minor === 2) {
             // 0.1 and below does not support external tabline
