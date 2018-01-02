@@ -63,8 +63,7 @@ class StatusBarResizer extends React.Component<Props, State> {
         this.setState({
             containerWidth: this.elem.getBoundingClientRect().width,
         })
-        // tslint:disable-next-line
-        this.observer = new window["ResizeObserver"](([entry]: any) => {
+        this.observer = new window["ResizeObserver"](([entry]: any) => { //tslint:disable-line
             this.setState({ containerWidth: entry.contentRect.width }, this.resize)
         })
         this.observer.observe(this.elem)
