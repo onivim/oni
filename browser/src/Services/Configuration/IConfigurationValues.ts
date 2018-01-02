@@ -191,6 +191,14 @@ export interface IConfigurationValues {
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
 
+    "statusbar.priority": {
+        "oni.status.filetype": number,
+        "oni.status.workingDirectory": number,
+        "oni.status.git": number,
+        "oni.status.linenumber": number,
+        "oni.status.mode": number,
+    }
+
     "tabs.mode": string
 
     // Height of individual tabs in the tab strip
