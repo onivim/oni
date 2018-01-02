@@ -1,6 +1,6 @@
 import * as path from "path"
 
-import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
+import { app, BrowserWindow, ipcMain, Menu } from "electron"
 
 import * as PersistentSettings from "electron-settings"
 
