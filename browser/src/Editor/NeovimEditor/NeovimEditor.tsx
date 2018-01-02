@@ -95,6 +95,16 @@ export class RedLayer {
 
 const WebView = require("react-electron-web-view")
 
+import styled from "styled-components"
+
+const BrowserContainer = styled.div`
+    display: flex;
+    flexDirection: column;
+    width: 100%;
+    height: 100%;
+    backgroundColor: rgba(40, 44, 52, 0.9);
+`
+
 export class BrowserLayer {
     public get id(): string {
         return "oni.browser"
