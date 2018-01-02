@@ -141,9 +141,9 @@ ipcRenderer.on("init", (_evt: any, message: any) => {
     start(message.args)
 })
 
-ipcRenderer.on("execute-command", async (_evt: any, command: string) => {
+ipcRenderer.on("execute-command", async (_evt: any, command: string, arg?: any) => {
     const { commandManager } = await import("./Services/CommandManager")
-    commandManager.executeCommand(command, null)
+    commandManager.executeCommand(command, arg)
 })
 
 const checkForUpdates = async (): Promise<void> => {
