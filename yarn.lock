@@ -4244,9 +4244,9 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@0.0.20:
-  version "0.0.20"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.20.tgz#8b092b12cda6cda95af10098213ceb5067b3732e"
+oni-api@0.0.23:
+  version "0.0.23"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.23.tgz#442b8eb147bc2c3dc78b44cc158d6e3030d9014e"
 
 oni-neovim-binaries@0.1.0:
   version "0.1.0"
