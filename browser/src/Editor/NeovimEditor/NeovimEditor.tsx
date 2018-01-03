@@ -514,6 +514,13 @@ export class NeovimEditor extends Editor implements IEditor {
         return this.activeBuffer
     }
 
+    public async newFile(filePath: string): Promise<Oni.Buffer> {
+        await this._neovimInstance.command(":new " + filePath)
+        const context = await this._neovimInstance.getContext()
+        const buffer = this._bufferManager.updateBufferFromEvent(context)
+        return buffer
+    }
+
     public executeCommand(command: string): void {
         commandManager.executeCommand(command, null)
     }
