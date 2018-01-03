@@ -90,6 +90,10 @@ export class Buffer implements Oni.Buffer {
         return lines
     }
 
+    public async setLanguage(language: string): Promise<void> {
+        await this._neovimInstance.request<any>("nvim_buf_set_option", [parseInt(this._id, 10), "filetype", language])
+    }
+
     public async applyTextEdits(textEdits: types.TextEdit | types.TextEdit[]): Promise<void> {
 
         const textEditsAsArray = textEdits instanceof Array ? textEdits : [textEdits]

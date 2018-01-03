@@ -35,8 +35,19 @@ import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
-import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, LanguageManager } from "./../../Services/Language"
-import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../../Services/SyntaxHighlighting"
+
+import {
+    addInsertModeLanguageFunctionality,
+    LanguageEditorIntegration,
+    LanguageManager,
+} from "./../../Services/Language"
+
+import {
+    ISyntaxHighlighter,
+    NullSyntaxHighlighter,
+    SyntaxHighlighter,
+} from "./../../Services/SyntaxHighlighting"
+
 import { tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
@@ -167,7 +178,14 @@ export class NeovimEditor extends Editor implements IEditor {
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
 
-        this._commands = new NeovimEditorCommands(commandManager, this._contextMenuManager, this._definition, this._languageIntegration, this._rename, this._symbols)
+        this._commands = new NeovimEditorCommands(
+            commandManager,
+            this._contextMenuManager,
+            this._definition,
+            this._languageIntegration,
+            this._rename,
+            this._symbols,
+        )
 
         const updateViewport = () => {
             const width = document.body.offsetWidth
@@ -228,7 +246,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
             const inactiveIds = tabPageState.inactiveWindows.map((w) => w.windowNumber)
 
-            this._actions.setActiveVimTabPage(tabPageState.tabId, [tabPageState.activeWindow.windowNumber, ...inactiveIds])
+            this._actions.setActiveVimTabPage(
+                tabPageState.tabId,
+                [tabPageState.activeWindow.windowNumber, ...inactiveIds],
+            )
 
             const { activeWindow } = tabPageState
             this._actions.setWindowState(activeWindow.windowNumber,
@@ -343,7 +364,11 @@ export class NeovimEditor extends Editor implements IEditor {
             }
 
             this.notifyBufferChanged(bufferUpdate)
-            this._actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
+            this._actions.bufferUpdate(
+                parseInt(bufferUpdate.buffer.id, 10),
+                bufferUpdate.buffer.modified,
+                bufferUpdate.buffer.lineCount,
+            )
 
             this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
         })
@@ -360,7 +385,7 @@ export class NeovimEditor extends Editor implements IEditor {
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$, this._toolTipsProvider)
 
         const textMateHighlightingEnabled = this._configuration.getValue("experimental.editor.textMateHighlighting.enabled")
-        this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
+        this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter(this._configuration, this) : new NullSyntaxHighlighter()
 
         this._completion = new Completion(this, this._languageManager, this._configuration)
         this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
@@ -491,6 +516,13 @@ export class NeovimEditor extends Editor implements IEditor {
     public async openFile(file: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":e " + file)
         return this.activeBuffer
+    }
+
+    public async newFile(filePath: string): Promise<Oni.Buffer> {
+        await this._neovimInstance.command(":new " + filePath)
+        const context = await this._neovimInstance.getContext()
+        const buffer = this._bufferManager.updateBufferFromEvent(context)
+        return buffer
     }
 
     public executeCommand(command: string): void {

@@ -1,6 +1,6 @@
 import * as path from "path"
 
-import { app, BrowserWindow, ipcMain, Menu, webContents } from "electron"
+import { app, BrowserWindow, ipcMain, Menu } from "electron"
 
 import * as PersistentSettings from "electron-settings"
 
@@ -50,14 +50,6 @@ function storeWindowState(main) {
         Log.info(`error setting window state: ${e.message}`)
     }
 }
-
-ipcMain.on("cross-browser-ipc", (event, arg) => {
-    const destinationId = arg.meta.destinationId
-    const destinationWebContents = webContents.fromId(destinationId)
-
-    Log.info(`sending message to destinationId: ${destinationId}`)
-    destinationWebContents.send("cross-browser-ipc", arg)
-})
 
 ipcMain.on("focus-next-instance", () => {
     Log.info("focus-next-instance")
