@@ -60,6 +60,7 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
         focused: false,
         waiting: true,
     }
+
     private timer: any
     private _inputElement: HTMLInputElement
 
