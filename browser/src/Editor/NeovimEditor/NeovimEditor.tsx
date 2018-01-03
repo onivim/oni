@@ -75,6 +75,22 @@ import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
 
+export class GreenLayer {
+    public get id(): string {
+        return "oni.layer.green"
+    }
+
+    public get friendlyName(): string {
+        return "Green Overlay"
+    }
+
+    public render(): JSX.Element {
+        return <div style={{width: "100%", height: "100%", backgroundColor: "rgba(0, 255, 0, 0.1)"}} />
+    }
+}
+
+window["GreenLayer"] = GreenLayer
+
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
