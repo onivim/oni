@@ -1,12 +1,13 @@
 import * as assert from "assert"
 
 import { InputManager } from "./../../src/Services/InputManager"
+import { CommandManager } from "./../../src/Services/CommandManager"
 
 describe("InputManager", () => {
     describe("bind", () => {
         it("adds a key handler", () => {
 
-            const im = new InputManager()
+            const im = new InputManager(new CommandManager())
 
             let count = 0
             im.bind("<c-a>", () => { count++; return true })
@@ -19,7 +20,7 @@ describe("InputManager", () => {
         })
 
         it("removes key handler when calling dispose", () => {
-            const im = new InputManager()
+            const im = new InputManager(new CommandManager())
 
             let count = 0
             const dispose = im.bind("<c-a>", () => { count++; return true })
@@ -32,7 +33,7 @@ describe("InputManager", () => {
         })
 
         it("dispose key handler is robust if unbindAll was called first", () => {
-            const im = new InputManager()
+            const im = new InputManager(new CommandManager())
 
             let count = 0
             const dispose = im.bind("{", () => { count++; return true })

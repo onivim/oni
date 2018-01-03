@@ -3,7 +3,7 @@ import * as net from "net"
 import * as path from "path"
 
 import * as Platform from "./../Platform"
-import { spawnProcess } from "./../Plugins/Api/Process"
+import { processManager } from "./../Plugins/Api/Process"
 import { configuration } from "./../Services/Configuration"
 
 import { Session } from "./Session"
@@ -87,7 +87,7 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
     const argsToPass = initVimArg
         .concat(["--cmd", `let &rtp.=',${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
 
-    const nvimProc = await spawnProcess(nvimProcessPath, argsToPass, {})
+    const nvimProc = await processManager.spawnProcess(nvimProcessPath, argsToPass, {})
 
     console.log(`Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console
 

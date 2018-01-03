@@ -1,7 +1,7 @@
 
 import * as Oni from "oni-api"
 
-import { commandManager } from "./CommandManager"
+import { CommandManager, commandManager } from "./CommandManager"
 
 export type ActionFunction = () => boolean
 
@@ -21,6 +21,11 @@ export interface KeyBindingMap {
 export class InputManager implements Oni.InputManager {
 
     private _boundKeys: KeyBindingMap = {}
+
+    constructor(
+        private _commandManager: CommandManager,
+    ) {
+    }
 
     /**
      * API Methods
@@ -91,7 +96,7 @@ export class InputManager implements Oni.InputManager {
 
             const action = binding.action
             if (typeof action === "string") {
-                const result = commandManager.executeCommand(action, null)
+                const result = this._commandManager.executeCommand(action, null)
 
                 if (result !== false) {
                     return true
@@ -109,4 +114,4 @@ export class InputManager implements Oni.InputManager {
     }
 }
 
-export const inputManager = new InputManager()
+export const inputManager = new InputManager(commandManager)

@@ -18,11 +18,16 @@ import { Event, IEvent } from "oni-types"
 import * as Log from "./../Log"
 import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import { editorManager } from "./EditorManager"
+import { EditorManager, editorManager } from "./EditorManager"
 import { convertTextDocumentEditsToFileMap } from "./Language/Edits"
 
 export class Workspace implements Oni.Workspace {
     private _onDirectoryChangedEvent = new Event<string>()
+
+    constructor(
+        private _editorManager: EditorManager,
+    ) {
+    }
 
     public get onDirectoryChanged(): IEvent<string> {
         return this._onDirectoryChangedEvent
@@ -43,7 +48,7 @@ export class Workspace implements Oni.Workspace {
         const files = Object.keys(editsToUse)
 
         // TODO: Show modal to grab input
-        // await editorManager.activeEditor.openFiles(files)
+        // await this._editorManager.activeEditor.openFiles(files)
 
         const deferredEdits = await files.map((fileUri: string) => {
             return Observable.defer(async () => {
@@ -51,7 +56,7 @@ export class Workspace implements Oni.Workspace {
                 const fileName = Helpers.unwrapFileUriPath(fileUri)
                 // TODO: Sort changes?
                 Log.verbose("[Workspace] Opening file: " + fileName)
-                const buf = await editorManager.activeEditor.openFile(fileName)
+                const buf = await this._editorManager.activeEditor.openFile(fileName)
                 Log.verbose("[Workspace] Got buffer for file: " + buf.filePath + " and id: " + buf.id)
                 await buf.applyTextEdits(changes)
                 Log.verbose("[Workspace] Applied " + changes.length + " edits to buffer")
@@ -68,4 +73,4 @@ export class Workspace implements Oni.Workspace {
     }
 }
 
-export const workspace = new Workspace()
+export const workspace = new Workspace(editorManager)

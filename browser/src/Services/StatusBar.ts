@@ -71,7 +71,7 @@ export class StatusBarItem implements Oni.StatusBarItem {
     }
 }
 
-class StatusBar implements Oni.StatusBar {
+export class StatusBar implements Oni.StatusBar {
     private _id: number = 0
 
     public getItem(globalId: string): Oni.StatusBarItem {

@@ -7,7 +7,7 @@ import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 import * as Log from "./../Log"
-import * as Performance from "./../Performance"
+import { Performance } from "./../Performance"
 import { EventContext } from "./EventContext"
 
 import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
@@ -219,6 +219,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _pendingScrollTimeout: number | null = null
 
+    private _performance = new Performance()
+
     public get isInitialized(): boolean {
         return this._initComplete
     }
@@ -336,7 +338,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public start(startOptions?: INeovimStartOptions): Promise<void> {
-        Performance.startMeasure("NeovimInstance.Start")
+        this._performance.startMeasure("NeovimInstance.Start")
         this._initPromise = startNeovim(startOptions)
             .then((nv) => {
                 Log.info("NeovimInstance: Neovim started")
@@ -416,11 +418,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                 // Workaround for bug in neovim/node-client
                 // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
-                Performance.startMeasure("NeovimInstance.Start.Attach")
+                this._performance.startMeasure("NeovimInstance.Start.Attach")
                 return this._attachUI(size.cols, size.rows)
                     .then(async () => {
                         Log.info("Attach success")
-                        Performance.endMeasure("NeovimInstance.Start.Attach")
+                        this._performance.endMeasure("NeovimInstance.Start.Attach")
 
                         // TODO: #702 - Batch these calls via `nvim_call_atomic`
                         // Override completeopt so Oni works correctly with external popupmenu
@@ -429,7 +431,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         // set title after attaching listeners so we can get the initial title
                         await this.command("set title")
 
-                        Performance.endMeasure("NeovimInstance.Start")
+                        this._performance.endMeasure("NeovimInstance.Start")
 
                         this._initComplete = true
                     },

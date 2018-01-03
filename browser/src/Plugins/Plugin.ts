@@ -5,6 +5,7 @@ import * as Log from "./../Log"
 
 import * as Capabilities from "./Api/Capabilities"
 import { Oni } from "./Api/Oni"
+import { OniMock } from "./../../test/Mocks/oni"
 
 import * as PackageMetadataParser from "./PackageMetadataParser"
 
@@ -27,7 +28,6 @@ export class Plugin {
     }
 
     public activate(): void {
-
         if (!this._oniPluginMetadata || !this._oniPluginMetadata.main) {
             return
         }
@@ -36,8 +36,7 @@ export class Plugin {
         const vm = require("vm")
         Log.info(`[PLUGIN] Activating: ${this._oniPluginMetadata.name}`)
 
-        let moduleEntryPoint = path.normalize(path.join(this._pluginRootDirectory, this._oniPluginMetadata.main))
-        moduleEntryPoint = moduleEntryPoint.split("\\").join("/")
+        const moduleEntryPoint = this.normalizedEntryPoint(this._oniPluginMetadata.main)
 
         try {
             vm.runInNewContext(`debugger; const pluginEntryPoint = require('${moduleEntryPoint}').activate; if (!pluginEntryPoint) { console.warn('No activate method found for: ${moduleEntryPoint}'); } else { pluginEntryPoint(Oni); } `, {
@@ -50,5 +49,32 @@ export class Plugin {
             Log.error(`[PLUGIN] Failed to load plugin: ${this._oniPluginMetadata.name}`, ex)
             Log.error(ex)
         }
+    }
+
+    public hasTest(): boolean {
+        return (this._oniPluginMetadata && !!this._oniPluginMetadata.test)
+    }
+
+    public test(): void {
+        if (!this.hasTest()) {
+            return
+        }
+
+        const entryPoint = this.normalizedEntryPoint(this._oniPluginMetadata.test)
+        const pluginEntryPoint = require(entryPoint).test
+        if (!pluginEntryPoint) {
+            throw new Error('No test method found for: ${entryPoint}')
+        }
+
+        pluginEntryPoint(new OniMock())
+    }
+
+    public get name(): string {
+        return this._oniPluginMetadata.name
+    }
+
+    private normalizedEntryPoint(relative_path: string): string {
+        const entryPoint = path.normalize(path.join(this._pluginRootDirectory, relative_path))
+        return entryPoint.split("\\").join("/")
     }
 }

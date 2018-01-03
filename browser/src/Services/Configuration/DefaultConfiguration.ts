@@ -218,7 +218,7 @@ const LinuxConfigOverrides: Partial<IConfigurationValues> = {
 
 const PlatformConfigOverride = Platform.isWindows() ? WindowsConfigOverrides : Platform.isLinux() ? LinuxConfigOverrides : MacConfigOverrides
 
-export const DefaultConfiguration = {
+export const DefaultConfiguration: IConfigurationValues = {
     ...BaseConfiguration,
     ...PlatformConfigOverride,
 }

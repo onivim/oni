@@ -8,7 +8,7 @@ import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
 import * as Log from "./../../Log"
-import * as Performance from "./../../Performance"
+import { IPerformance, Performance } from "./../../Performance"
 import * as Platform from "./../../Platform"
 import { diff } from "./../../Utility"
 
@@ -23,6 +23,11 @@ export class Configuration implements Oni.Configuration {
     private _configEverHadValue: boolean = false
 
     private _setValues: { [configValue: string]: any } = { }
+
+    constructor(
+        private _performance: IPerformance,
+    ) {
+    }
 
     public get userJsConfig(): string {
 
@@ -40,7 +45,7 @@ export class Configuration implements Oni.Configuration {
     }
 
     public start(): void {
-        Performance.mark("Config.load.start")
+        this._performance.mark("Config.load.start")
 
         this.applyConfig()
 
@@ -64,7 +69,7 @@ export class Configuration implements Oni.Configuration {
             }
         })
 
-        Performance.mark("Config.load.end")
+        this._performance.mark("Config.load.end")
     }
 
     public hasValue(configValue: keyof IConfigurationValues): boolean {
@@ -198,4 +203,4 @@ export class Configuration implements Oni.Configuration {
     }
 }
 
-export const configuration = new Configuration()
+export const configuration = new Configuration(new Performance())

@@ -36,6 +36,7 @@ export interface IThemeContribution {
 export interface IPluginMetadata {
     name: string
     main: string
+    test: string
     engines: any
     contributes: IContributions
 }

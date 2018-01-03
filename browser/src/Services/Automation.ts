@@ -10,9 +10,9 @@ import * as OniApi from "oni-api"
 
 import * as Utility from "./../Utility"
 
-import { configuration } from "./Configuration"
-import { editorManager } from "./EditorManager"
-import { inputManager } from "./InputManager"
+import { Configuration, configuration } from "./Configuration"
+import { EditorManager, editorManager } from "./EditorManager"
+import { InputManager, inputManager } from "./InputManager"
 
 import * as Log from "./../Log"
 import * as Shell from "./../UI/Shell"
@@ -26,12 +26,19 @@ import { Oni } from "./../Plugins/Api/Oni"
 
 export class Automation implements OniApi.Automation.Api {
 
+    constructor(
+        private _configuration: Configuration,
+        private _editorManager: EditorManager,
+        private _inputManager: InputManager,
+    ) {
+    }
+
     public sendKeys(keys: string): void {
         Log.info("[AUTOMATION] Sending keys: " + keys)
 
-        if (!inputManager.handleKey(keys)) {
+        if (!this._inputManager.handleKey(keys)) {
             Log.info("[AUTOMATION] InputManager did not handle key: " + keys)
-            const anyEditor: any = editorManager.activeEditor as any
+            const anyEditor: any = this._editorManager.activeEditor as any
             anyEditor._onKeyDown(keys)
         }
     }
@@ -76,7 +83,7 @@ export class Automation implements OniApi.Automation.Api {
         Log.info("[AUTOMATION] Startup complete!")
 
         Log.info("[AUTOMATION] Waiting for neovim to attach...")
-        await this.waitFor(() => editorManager.activeEditor.neovim && (editorManager.activeEditor as any).neovim.isInitialized, 30000)
+        await this.waitFor(() => this._editorManager.activeEditor.neovim && (this._editorManager.activeEditor as any).neovim.isInitialized, 30000)
         Log.info("[AUTOMATION] Neovim attached!")
     }
 
@@ -90,7 +97,7 @@ export class Automation implements OniApi.Automation.Api {
         Log.enableVerboseLogging()
         try {
             Log.info("[AUTOMATION] Starting test: " + testPath)
-            Log.info("[AUTOMATION] Configuration path: " + configuration.userJsConfig)
+            Log.info("[AUTOMATION] Configuration path: " + this._configuration.userJsConfig)
             const testCase: any = Utility.nodeRequire(testPath2)
             const oni = new Oni()
 
@@ -157,7 +164,7 @@ export class Automation implements OniApi.Automation.Api {
     }
 }
 
-export const automation = new Automation()
+export const automation = new Automation(configuration, editorManager, inputManager)
 
 class LoggingRedirector {
 

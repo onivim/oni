@@ -10,7 +10,7 @@ import { EventEmitter } from "events"
 
 import * as OniApi from "oni-api"
 
-import * as Process from "./Process"
+import { Process, processManager } from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
@@ -52,6 +52,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     private _ui: Ui
     private _services: Services
     private _colors: Colors
+    private _process: Process
 
     public get automation(): OniApi.Automation.Api {
         return automation
@@ -106,7 +107,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     public get process(): OniApi.Process {
-        return Process
+        return processManager
     }
 
     public get statusBar(): OniApi.StatusBar {
@@ -133,19 +134,21 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return helpers
     }
 
-    constructor() {
+    constructor(
+    ) {
         super()
         this._colors = getColors()
 
         this._dependencies = new Dependencies()
         this._ui = new Ui(react)
         this._services = new Services()
+        this._process = processManager
     }
 
     public async execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): Promise<ChildProcess.ChildProcess> {
         Log.warn("WARNING: `OniApi.execNodeScript` is deprecated. Please use `OniApi.process.execNodeScript` instead")
 
-        return await Process.execNodeScript(scriptPath, args, options, callback)
+        return await this._process.execNodeScript(scriptPath, args, options, callback)
     }
 
     /**
@@ -155,6 +158,6 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
         Log.warn("WARNING: `OniApi.spawnNodeScript` is deprecated. Please use `OniApi.process.spawnNodeScript` instead")
 
-        return await Process.spawnNodeScript(scriptPath, args, options)
+        return await this._process.spawnNodeScript(scriptPath, args, options)
     }
 }

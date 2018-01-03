@@ -4,30 +4,36 @@ import * as path from "path"
 
 import * as Oni from "oni-api"
 
-import { configuration } from "./../Services/Configuration"
+import { Configuration, configuration } from "./../Services/Configuration"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
 import { Plugin } from "./Plugin"
 
-const corePluginsRoot = path.join(__dirname, "vim", "core")
-const defaultPluginsRoot = path.join(__dirname, "vim", "default")
-const extensionsRoot = path.join(__dirname, "extensions")
-
 export class PluginManager extends EventEmitter {
-    private _config = configuration
     private _rootPluginPaths: string[] = []
     private _plugins: Plugin[] = []
     private _anonymousPlugin: AnonymousPlugin
+
+    constructor(
+        private _config: Configuration,
+        private _basePath: string,
+    ) {
+        super()
+    }
 
     public get plugins(): Plugin[] {
         return this._plugins
     }
 
     public discoverPlugins(): void {
+        const corePluginsRoot = path.join(this._basePath, "vim", "core")
         this._rootPluginPaths.push(corePluginsRoot)
+
+        const extensionsRoot = path.join(this._basePath, "extensions")
         this._rootPluginPaths.push(extensionsRoot)
 
         if (this._config.getValue("oni.useDefaultConfig")) {
+            const defaultPluginsRoot = path.join(this._basePath, "vim", "default")
             this._rootPluginPaths.push(defaultPluginsRoot)
             this._rootPluginPaths.push(path.join(defaultPluginsRoot, "bundle"))
         }
@@ -70,7 +76,7 @@ export class PluginManager extends EventEmitter {
     }
 }
 
-export const pluginManager = new PluginManager()
+export const pluginManager = new PluginManager(configuration, __dirname)
 
 function getDirectories(rootPath: string): string[] {
     if (!fs.existsSync(rootPath)) {

@@ -1,6 +1,6 @@
 import { Grid } from "./../Grid"
 import { ICell, IScreen } from "./../neovim"
-import * as Performance from "./../Performance"
+import { Performance } from "./../Performance"
 import { INeovimRenderer } from "./INeovimRenderer"
 import { getSpansToEdit, IPosition, ISpan } from "./Span"
 
@@ -54,6 +54,8 @@ export class CanvasRenderer implements INeovimRenderer {
     private _lastRenderGrid: Grid<ICell> = new Grid<ICell>()
     private _grid: Grid<ISpan> = new Grid<ISpan>()
     private _devicePixelRatio: number
+
+    private _performance = new Performance()
 
     public start(element: HTMLDivElement): void {
         this._editorElement = element
@@ -109,7 +111,7 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     public _draw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
-        Performance.mark("CanvasRenderer.update.start")
+        this._performance.mark("CanvasRenderer.update.start")
 
         this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
         this._canvasContext.textBaseline = "top"
@@ -168,7 +170,7 @@ export class CanvasRenderer implements INeovimRenderer {
             })
         }
 
-        Performance.mark("CanvasRenderer.update.end")
+        this._performance.mark("CanvasRenderer.update.end")
     }
 
     private _renderSpan(span: ISpan, y: number, screenInfo: IScreen): void {

@@ -7,13 +7,14 @@
 import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
 import * as Log from "./Log"
-import * as Performance from "./Performance"
+import { Performance } from "./Performance"
 import * as Utility from "./Utility"
 
 import { IConfigurationValues } from "./Services/Configuration/IConfigurationValues"
 
 const start = async (args: string[]): Promise<void> => {
-    Performance.startMeasure("Oni.Start")
+    const performance = new Performance()
+    performance.startMeasure("Oni.Start")
 
     const Shell = await import("./UI/Shell")
     Shell.activate()
@@ -40,7 +41,7 @@ const start = async (args: string[]): Promise<void> => {
     // Helper for debugging:
     window["Shell"] = Shell // tslint:disable-line no-string-literal
 
-    Performance.startMeasure("Oni.Start.Config")
+    performance.startMeasure("Oni.Start.Config")
 
     const { configuration } = await configurationPromise
 
@@ -60,15 +61,15 @@ const start = async (args: string[]): Promise<void> => {
 
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
-    Performance.endMeasure("Oni.Start.Config")
+    performance.endMeasure("Oni.Start.Config")
 
     const { pluginManager } = await pluginManagerPromise
 
-    Performance.startMeasure("Oni.Start.Plugins.Discover")
+    performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
-    Performance.endMeasure("Oni.Start.Plugins.Discover")
+    performance.endMeasure("Oni.Start.Plugins.Discover")
 
-    Performance.startMeasure("Oni.Start.Themes")
+    performance.startMeasure("Oni.Start.Themes")
     const Themes = await themesPromise
     const IconThemes = await iconThemesPromise
     await Promise.all([
@@ -79,7 +80,7 @@ const start = async (args: string[]): Promise<void> => {
     const Colors = await colorsPromise
     Colors.activate(configuration, Themes.getThemeManagerInstance())
     Shell.Actions.setColors(Themes.getThemeManagerInstance().getColors())
-    Performance.endMeasure("Oni.Start.Themes")
+    performance.endMeasure("Oni.Start.Themes")
 
     const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
     BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
@@ -90,7 +91,7 @@ const start = async (args: string[]): Promise<void> => {
     LanguageManager.activate(configuration, editorManager)
     const languageManager = LanguageManager.getInstance()
 
-    Performance.startMeasure("Oni.Start.Editors")
+    performance.startMeasure("Oni.Start.Editors")
     const SharedNeovimInstance = await sharedNeovimInstancePromise
     const { startEditors } = await startEditorsPromise
 
@@ -106,13 +107,13 @@ const start = async (args: string[]): Promise<void> => {
         startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, Themes.getThemeManagerInstance())
     ])
    ])
-    Performance.endMeasure("Oni.Start.Editors")
+    performance.endMeasure("Oni.Start.Editors")
 
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
     diagnostics.start(languageManager)
 
-    Performance.startMeasure("Oni.Start.Activate")
+    performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()
     configuration.activate(api)
 
@@ -122,13 +123,13 @@ const start = async (args: string[]): Promise<void> => {
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
-    Performance.endMeasure("Oni.Start.Activate")
+    performance.endMeasure("Oni.Start.Activate")
 
     Shell.Actions.setLoadingComplete()
 
     checkForUpdates()
 
-    Performance.endMeasure("Oni.Start")
+    performance.endMeasure("Oni.Start")
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {

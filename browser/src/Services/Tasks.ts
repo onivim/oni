@@ -16,7 +16,7 @@ import * as flatten from "lodash/flatten"
 
 import * as Oni from "oni-api"
 
-import { Menu, menuManager } from "./../Services/Menu"
+import { Menu, MenuManager, menuManager } from "./../Services/Menu"
 
 export interface ITask {
     name: string
@@ -38,6 +38,12 @@ export class Tasks extends EventEmitter {
 
     private _providers: ITaskProvider[] = []
 
+    constructor(
+        private _menuManager: MenuManager,
+    ) {
+        super()
+    }
+
     // TODO: This should be refactored, as it is simply
     // a timing dependency on when the object is created versus when
     // it is shown.
@@ -57,7 +63,7 @@ export class Tasks extends EventEmitter {
                             }
                         })
 
-            this._menu = menuManager.create()
+            this._menu = this._menuManager.create()
             this._menu.onItemSelected.subscribe((selection: any) => this._onItemSelected(selection))
             this._menu.show()
             this._menu.setItems(options)
@@ -89,4 +95,4 @@ export class Tasks extends EventEmitter {
     }
 }
 
-export const tasks = new Tasks()
+export const tasks = new Tasks(menuManager)
