@@ -24,7 +24,6 @@ import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
 import { BufferHighlightState, BufferHighlightsUpdater, IBufferHighlightsUpdater } from "./BufferHighlights"
 
 import * as Actions from "./NeovimEditor/NeovimEditorActions"
-import * as State from "./NeovimEditor/NeovimEditorStore"
 
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
@@ -76,7 +75,7 @@ export class Buffer implements Oni.Buffer {
         this.updateFromEvent(evt)
     }
 
-    public addLayer(layer: State.ILayer): void {
+    public addLayer(layer: Oni.EditorLayer): void {
         this._actions.addBufferLayer(parseInt(this._id, 10), layer)
     }
 

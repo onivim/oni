@@ -1,5 +1,7 @@
 import * as assert from "assert"
 
+import * as Oni from "oni-api"
+
 import * as Actions from "./../../../src/Editor/NeovimEditor/NeovimEditorActions"
 import { layersReducer, windowStateReducer } from "./../../../src/Editor/NeovimEditor/NeovimEditorReducer"
 import * as State from "./../../../src/Editor/NeovimEditor/NeovimEditorStore"
@@ -8,7 +10,7 @@ describe("NeovimEditorReducer", () => {
 
     describe("layersReducer", () => {
         it("Adds layer via 'ADD_BUFFER_LAYER'", () => {
-            const simpleLayer: State.ILayer = {
+            const simpleLayer: Oni.EditorLayer = {
                 id: "test",
                 friendlyName: "Test",
                 render(): JSX.Element {

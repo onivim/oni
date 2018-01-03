@@ -11,9 +11,6 @@ import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import { Rectangle } from "./../../UI/Types"
-
-import * as Coordinates from "./../../UI/Coordinates"
 import * as State from "./NeovimEditorStore"
 
 import { EventContext, InactiveBufferContext, IScreen } from "./../../neovim"
@@ -48,7 +45,7 @@ export interface IAddBufferLayerAction {
     type: "ADD_BUFFER_LAYER",
     payload: {
         bufferId: number,
-        layer: State.ILayer,
+        layer: Oni.EditorLayer,
     }
 }
 
@@ -214,10 +211,10 @@ export interface ISetWindowState {
         column: number,
         line: number,
 
-        dimensions: Rectangle
+        dimensions: Oni.Shapes.Rectangle
 
-        bufferToScreen: Coordinates.BufferToScreen
-        screenToPixel: Coordinates.ScreenToPixel
+        bufferToScreen: Oni.Coordinates.BufferToScreen
+        screenToPixel: Oni.Coordinates.ScreenToPixel
 
         topBufferLine: number
         bottomBufferLine: number,
@@ -228,7 +225,7 @@ export interface ISetInactiveWindowState {
     type: "SET_INACTIVE_WINDOW_STATE",
     payload: {
         windowId: number,
-        dimensions: Rectangle,
+        dimensions: Oni.Shapes.Rectangle,
     }
 }
 
@@ -420,7 +417,7 @@ const formatBuffers = (buffer: InactiveBufferContext & EventContext) => {
     }
 }
 
-export const addBufferLayer = (bufferId: number, layer: State.ILayer): IAddBufferLayerAction => ({
+export const addBufferLayer = (bufferId: number, layer: Oni.EditorLayer): IAddBufferLayerAction => ({
     type: "ADD_BUFFER_LAYER",
     payload: {
         bufferId,
@@ -499,12 +496,12 @@ export const setWindowState = (windowId: number,
                                line: number,
                                bottomBufferLine: number,
                                topBufferLine: number,
-                               dimensions: Rectangle,
-                               bufferToScreen: Coordinates.BufferToScreen) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
+                               dimensions: Oni.Shapes.Rectangle,
+                               bufferToScreen: Oni.Coordinates.BufferToScreen) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
 
     const { fontPixelWidth, fontPixelHeight } = getState()
 
-    const screenToPixel = (screenSpace: Coordinates.ScreenSpacePoint) => ({
+    const screenToPixel = (screenSpace: Oni.Coordinates.ScreenSpacePoint) => ({
             pixelX: screenSpace.screenX * fontPixelWidth,
             pixelY: screenSpace.screenY * fontPixelHeight,
     })
@@ -526,7 +523,7 @@ export const setWindowState = (windowId: number,
     })
 }
 
-export const setInactiveWindowState = (windowId: number, dimensions: Rectangle): ISetInactiveWindowState => ({
+export const setInactiveWindowState = (windowId: number, dimensions: Oni.Shapes.Rectangle): ISetInactiveWindowState => ({
     type: "SET_INACTIVE_WINDOW_STATE",
     payload: {
         windowId,

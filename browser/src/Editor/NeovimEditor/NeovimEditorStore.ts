@@ -14,49 +14,14 @@ import { IConfigurationValues } from "./../../Services/Configuration"
 
 import { DefaultThemeColors, IThemeColors } from "./../../Services/Themes"
 
-import * as Coordinates from "./../../UI/Coordinates"
-import { Rectangle } from "./../../UI/Types"
-
 import { createStore as createReduxStore } from "./../../Redux"
 
-export interface Layers { [id: number]: ILayer[] }
+export interface Layers { [id: number]: Oni.EditorLayer[] }
 export interface Buffers { [filePath: string]: IBuffer }
 export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
 export interface ToolTips { [id: string]: IToolTip }
 
 import { reducer } from "./NeovimEditorReducer"
-
-export interface IBufferLayerContext {
-    isActive: boolean
-    windowId: number
-
-    bufferToScreen: Coordinates.BufferToScreen
-    screenToPixel: Coordinates.ScreenToPixel
-    dimensions: Rectangle
-}
-
-/**
- * ILayer is a UI overlay presented over a buffer. This allows for all manners
- * of custom rendering - whether it is simple overlays over tokens, or completely
- * overriding the rendering layer of the buffer.
- */
-export interface ILayer {
-
-    /**
-     * Unique id for the buffer layer. This must be globally unique and is used to reference the layer.
-     */
-    id: string
-
-    /**
-     * friendlyName is used when showing the layer in the UI
-     */
-    friendlyName: string
-
-    /**
-     * render a custom UI element
-     */
-    render(context: IBufferLayerContext): JSX.Element
-}
 
 /**
  * Viewport encompasses the actual 'app' height
@@ -179,10 +144,10 @@ export interface IWindow {
     column: number
     line: number
 
-    bufferToScreen: Coordinates.BufferToScreen
-    screenToPixel: Coordinates.ScreenToPixel
+    bufferToScreen: Oni.Coordinates.BufferToScreen
+    screenToPixel: Oni.Coordinates.ScreenToPixel
 
-    dimensions: Rectangle
+    dimensions: Oni.Shapes.Rectangle
     topBufferLine: number
     bottomBufferLine: number
 }

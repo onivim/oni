@@ -7,6 +7,8 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
+import * as Oni from "oni-api"
+
 import { NeovimActiveWindow } from "./NeovimActiveWindow"
 
 import * as State from "./NeovimEditorStore"
@@ -23,7 +25,7 @@ export class NeovimLayersView extends React.PureComponent<NeovimLayersViewProps,
     public render(): JSX.Element {
 
         const containers = this.props.windows.map((windowState) => {
-            const layers = this.props.layers[windowState.bufferId] || (EmptyArray as State.ILayer[])
+            const layers = this.props.layers[windowState.bufferId] || (EmptyArray as Oni.EditorLayer[])
 
             const layerContext = {
                 isActive: windowState.windowId === this.props.activeWindowId,
