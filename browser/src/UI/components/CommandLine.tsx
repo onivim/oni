@@ -66,7 +66,7 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
     public componentDidMount() {
         this.timer = setTimeout(() => {
             this.setState({ waiting: false })
-        }, 200)
+        }, 80)
     }
 
     public componentWillReceiveProps(nextProps: ICommandLineRendererProps) {
