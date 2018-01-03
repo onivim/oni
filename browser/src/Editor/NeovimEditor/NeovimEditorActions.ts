@@ -422,7 +422,7 @@ export const addBufferLayer = (bufferId: number, layer: Oni.EditorLayer): IAddBu
     payload: {
         bufferId,
         layer,
-    }
+    },
 })
 
 export const bufferEnter = (buffers: (Array<InactiveBufferContext | EventContext>)) => ({
@@ -490,7 +490,7 @@ export const setWindowCursor = (windowId: number, line: number, column: number) 
 })
 
 export const setWindowState = (windowId: number,
-                                bufferId: number,
+                               bufferId: number,
                                file: string,
                                column: number,
                                line: number,

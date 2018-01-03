@@ -130,12 +130,12 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
 }
 
 export const layersReducer = (s: State.Layers, a: Actions.SimpleAction) => {
-    switch(a.type) {
+    switch (a.type) {
         case "ADD_BUFFER_LAYER":
             const currentLayers = s[a.payload.bufferId] || []
             return {
                 ...s,
-                [a.payload.bufferId]: [...currentLayers, a.payload.layer]
+                [a.payload.bufferId]: [...currentLayers, a.payload.layer],
             }
         default:
             return s

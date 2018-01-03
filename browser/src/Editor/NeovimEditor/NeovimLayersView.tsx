@@ -33,7 +33,7 @@ export class NeovimLayersView extends React.PureComponent<NeovimLayersViewProps,
 
                 bufferToScreen: windowState.bufferToScreen,
                 screenToPixel: windowState.screenToPixel,
-                dimensions: windowState.dimensions
+                dimensions: windowState.dimensions,
             }
 
             const layerElements = layers.map((l) => {

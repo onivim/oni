@@ -15,7 +15,7 @@ describe("NeovimEditorReducer", () => {
                 friendlyName: "Test",
                 render(): JSX.Element {
                     return null
-                }
+                },
             }
 
             const addLayerAction = Actions.addBufferLayer(1, simpleLayer)
