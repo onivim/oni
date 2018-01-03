@@ -84,8 +84,14 @@ export class GreenLayer {
         return "Green Overlay"
     }
 
-    public render(): JSX.Element {
+    public render(context: any): JSX.Element {
+
+        if (context.isActive) {
+            
+        return <div style={{width: "100%", height: "100%", backgroundColor: "rgba(255, 0, 0, 0.1)"}} />
+        } else {
         return <div style={{width: "100%", height: "100%", backgroundColor: "rgba(0, 255, 0, 0.1)"}} />
+        }
     }
 }
 

@@ -336,6 +336,7 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                     ...s.windows,
                     [a.payload.windowId]: {
                         ...currentWindow,
+                        windowId: a.payload.windowId,
                         column: -1,
                         line: -1,
                         topBufferLine: -1,
@@ -355,6 +356,7 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                         ...currentWindow,
                         file: a.payload.file,
                         bufferId: a.payload.bufferId,
+                        windowId: a.payload.windowId,
                         column: a.payload.column,
                         line: a.payload.line,
                         bufferToScreen: a.payload.bufferToScreen,
