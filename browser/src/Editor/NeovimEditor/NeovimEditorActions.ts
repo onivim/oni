@@ -44,6 +44,14 @@ export interface ISetColorsAction {
     }
 }
 
+export interface IAddBufferLayerAction {
+    type: "ADD_BUFFER_LAYER",
+    payload: {
+        bufferId: number,
+        layer: State.ILayer,
+    }
+}
+
 export interface ISetViewportAction {
     type: "SET_VIEWPORT",
     payload: {
@@ -201,6 +209,7 @@ export interface ISetWindowState {
     type: "SET_WINDOW_STATE",
     payload: {
         windowId: number,
+        bufferId: number,
         file: string,
         column: number,
         line: number,
@@ -273,6 +282,7 @@ export type Action<K extends keyof IConfigurationValues> =
     SimpleAction | ActionWithGeneric<K>
 
 export type SimpleAction =
+    IAddBufferLayerAction |
     IBufferEnterAction |
     IBufferSaveAction |
     IBufferUpdateAction |
@@ -410,6 +420,14 @@ const formatBuffers = (buffer: InactiveBufferContext & EventContext) => {
     }
 }
 
+export const addBufferLayer = (bufferId: string, layer: State.ILayer): IAddBufferLayerAction => ({
+    type: "ADD_BUFFER_LAYER",
+    payload: {
+        bufferId,
+        layer,
+    }
+})
+
 export const bufferEnter = (buffers: (Array<InactiveBufferContext | EventContext>)) => ({
     type: "BUFFER_ENTER",
     payload: {
@@ -475,6 +493,7 @@ export const setWindowCursor = (windowId: number, line: number, column: number) 
 })
 
 export const setWindowState = (windowId: number,
+                                bufferId: number,
                                file: string,
                                column: number,
                                line: number,
@@ -494,6 +513,7 @@ export const setWindowState = (windowId: number,
         type: "SET_WINDOW_STATE",
         payload: {
             windowId,
+            bufferId,
             file: normalizePath(file),
             column,
             dimensions,

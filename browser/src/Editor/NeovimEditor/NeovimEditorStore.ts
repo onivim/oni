@@ -19,11 +19,44 @@ import { Rectangle } from "./../../UI/Types"
 
 import { createStore as createReduxStore } from "./../../Redux"
 
+export interface Layers { [id: number]: ILayer[] }
 export interface Buffers { [filePath: string]: IBuffer }
 export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
 export interface ToolTips { [id: string]: IToolTip }
 
 import { reducer } from "./NeovimEditorReducer"
+
+export interface IBufferLayerContext {
+    isActive: boolean
+    windowId: number
+
+    bufferToScreen: Coordinates.BufferToScreen
+    screenToPixel: Coordinates.ScreenToPixel
+    dimensions: Rectangle
+}
+
+/**
+ * ILayer is a UI overlay presented over a buffer. This allows for all manners
+ * of custom rendering - whether it is simple overlays over tokens, or completely
+ * overriding the rendering layer of the buffer.
+ */
+export interface ILayer {
+
+    /**
+     * Unique id for the buffer layer. This must be globally unique and is used to reference the layer.
+     */
+    id: string
+
+    /**
+     * friendlyName is used when showing the layer in the UI
+     */
+    friendlyName: string
+
+    /**
+     * render a custom UI element
+     */
+    render(context: IBufferLayerContext): JSX.Element
+}
 
 /**
  * Viewport encompasses the actual 'app' height
@@ -69,6 +102,8 @@ export interface IState {
     tabState: ITabState
 
     buffers: IBufferState
+
+    layers: Layers
 
     windowState: IWindowState
 
@@ -139,6 +174,7 @@ export interface IWindowState {
 
 export interface IWindow {
     file: string
+    bufferId: number,
     column: number
     line: number
 
@@ -187,6 +223,8 @@ export const createDefaultState = (): IState => ({
         byId: {},
         allIds: [],
     },
+
+    layers: {},
 
     tabState: {
         selectedTabId: null,
