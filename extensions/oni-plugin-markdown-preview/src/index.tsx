@@ -1,4 +1,4 @@
-import { Event, EventCallback, IDisposable, IEvent } from "oni-types"
+import { EventCallback, IDisposable, IEvent } from "oni-types"
 
 import * as dompurify from "dompurify"
 import * as marked from "marked"
