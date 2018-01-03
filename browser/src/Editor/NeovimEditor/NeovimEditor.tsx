@@ -147,7 +147,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
         this._neovimInstance = new NeovimInstance(100, 100)
-        this._bufferManager = new BufferManager(this._neovimInstance)
+        this._bufferManager = new BufferManager(this._neovimInstance, this._actions)
         this._screen = new NeovimScreen()
 
         this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
