@@ -32,6 +32,7 @@ export interface NeovimTabPageState {
 
 export interface NeovimActiveWindowState {
     windowNumber: number
+    bufferId: number
     bufferFullPath: string
 
     line: number
@@ -198,6 +199,7 @@ export class NeovimWindowManager {
 
             const newWindowState = {
                 windowNumber: currentWinId,
+                bufferId: context.bufferNumber,
                 bufferFullPath: context.bufferFullPath,
                 column: context.column - 1,
                 line: context.line - 1,

@@ -420,7 +420,7 @@ const formatBuffers = (buffer: InactiveBufferContext & EventContext) => {
     }
 }
 
-export const addBufferLayer = (bufferId: string, layer: State.ILayer): IAddBufferLayerAction => ({
+export const addBufferLayer = (bufferId: number, layer: State.ILayer): IAddBufferLayerAction => ({
     type: "ADD_BUFFER_LAYER",
     payload: {
         bufferId,
