@@ -2,6 +2,7 @@
   "name": "oni-plugin-markdown-preview",
   "version": "0.0.1",
   "main": "lib/index.js",
+  "test": "lib/test.js",
   "engines": {
     "oni": "^0.0.1"
   },
