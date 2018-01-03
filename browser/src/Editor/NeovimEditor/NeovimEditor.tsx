@@ -437,7 +437,7 @@ export class NeovimEditor extends Editor implements IEditor {
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$, this._toolTipsProvider)
 
         const textMateHighlightingEnabled = this._configuration.getValue("experimental.editor.textMateHighlighting.enabled")
-        this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
+        this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter(this._configuration, this) : new NullSyntaxHighlighter()
 
         this._completion = new Completion(this, this._languageManager, this._configuration)
         this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
@@ -579,6 +579,13 @@ export class NeovimEditor extends Editor implements IEditor {
     public async openFile(file: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":e " + file)
         return this.activeBuffer
+    }
+
+    public async newFile(filePath: string): Promise<Oni.Buffer> {
+        await this._neovimInstance.command(":new " + filePath)
+        const context = await this._neovimInstance.getContext()
+        const buffer = this._bufferManager.updateBufferFromEvent(context)
+        return buffer
     }
 
     public executeCommand(command: string): void {

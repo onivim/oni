@@ -31,6 +31,7 @@ export class NeovimAutoCommands {
     private _onBufWritePostEvent = new Event<EventContext>()
     private _onBufWipeoutEvent = new Event<BufferEventContext>()
     private _onBufWinEnterEvent = new Event<EventContext>()
+    private _onFileTypeChangedEvent = new Event<EventContext>()
     private _onWinEnterEvent = new Event<EventContext>()
     private _onCursorMovedEvent = new Event<EventContext>()
     private _onCursorMovedIEvent = new Event<EventContext>()
@@ -50,6 +51,10 @@ export class NeovimAutoCommands {
 
     public get onBufWipeout(): IEvent<BufferEventContext> {
         return this._onBufWipeoutEvent
+    }
+
+    public get onFileTypeChanged(): IEvent<EventContext> {
+        return this._onFileTypeChangedEvent
     }
 
     public get onWinEnter(): IEvent<EventContext> {
@@ -76,6 +81,7 @@ export class NeovimAutoCommands {
             "BufWipeout": this._onBufWipeoutEvent,
             "CursorMoved": this._onCursorMovedEvent,
             "CursorMovedI": this._onCursorMovedIEvent,
+            "FileType": this._onFileTypeChangedEvent,
             "WinEnter": this._onWinEnterEvent,
             "VimResized": this._onVimResizedEvent,
         }

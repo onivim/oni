@@ -35,7 +35,7 @@ export class NeovimEditorCommands {
          * Higher-order function for commands dealing with completion
          * - checks that the completion menu is open
          */
-        const contextMenuCommand = (innerCommand: Oni.ICommandCallback) => {
+        const contextMenuCommand = (innerCommand: Oni.Commands.CommandCallback) => {
             return () => {
                 if (this._contextMenuManager.isMenuOpen()) {
                     return innerCommand()
