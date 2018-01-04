@@ -15,7 +15,7 @@ import { ocamlAndReasonConfiguration, ocamlLanguageServerPath } from "./ReasonCo
 
 const noop = () => { } // tslint:disable-line no-empty
 
-const cssLanguageServerPath = path.join(__dirname, "node_modules", "css-language-server", "lib", "cli.js")
+const cssLanguageServerPath = path.join(__dirname, "node_modules", "vscode-css-languageserver-bin", "cssServerMain.js")
 const htmlLanguageServerPath = path.join(__dirname, "node_modules", "vscode-html-languageserver-bin", "htmlServerMain.js")
 
 const BaseConfiguration: IConfigurationValues = {
@@ -185,6 +185,13 @@ const BaseConfiguration: IConfigurationValues = {
 
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
+    "statusbar.priority": {
+        "oni.status.workingDirectory": 0,
+        "oni.status.linenumber": 1,
+        "oni.status.mode": 0,
+        "oni.status.filetype": 1,
+        "oni.status.git": 2,
+    },
 
     "tabs.mode": "buffers",
     "tabs.height": "2.5em",

@@ -4,17 +4,14 @@
  * Handles enhanced syntax highlighting
  */
 
-import * as throttle from "lodash/throttle"
+import { Configuration } from "./../Configuration"
 
-import { configuration, Configuration } from "./../Configuration"
+import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
-import { editorManager } from "./../EditorManager"
 import { HighlightGroupId, HighlightInfo } from "./Definitions"
 import { ISyntaxHighlightLineInfo, ISyntaxHighlightState, ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
 
 import * as Selectors from "./SyntaxHighlightSelectors"
-
-import { Store, Unsubscribe } from "redux"
 
 import * as Log from "./../../Log"
 
@@ -25,91 +22,78 @@ import * as Log from "./../../Log"
 // window and viewport
 export class SyntaxHighlightReconciler {
 
-    private _unsubscribe: Unsubscribe
-
     private _previousState: { [line: number]: ISyntaxHighlightLineInfo} = {}
 
     constructor(
-        private _store: Store<ISyntaxHighlightState>,
-        private _configuration: Configuration = configuration,
-    ) {
+        private _configuration: Configuration,
+        private _editor: NeovimEditor,
+    ) { }
 
-        this._unsubscribe = this._store.subscribe(throttle(() => {
+    public update(state: ISyntaxHighlightState) {
+        const activeBuffer: any = this._editor.activeBuffer
 
-            const state = this._store.getState()
+        if (!activeBuffer) {
+            return
+        }
 
-            const activeBuffer: any = editorManager.activeEditor.activeBuffer
+        const bufferId = activeBuffer.id
 
-            if (!activeBuffer) {
-                return
-            }
+        const currentHighlightState = state.bufferToHighlights[bufferId]
 
-            const bufferId = activeBuffer.id
+        if (currentHighlightState && currentHighlightState.lines) {
+            const lineNumbers = Object.keys(currentHighlightState.lines)
 
-            const currentHighlightState = state.bufferToHighlights[bufferId]
+            const relevantRange = Selectors.getRelevantRange(state, bufferId)
 
-            if (currentHighlightState && currentHighlightState.lines) {
-                const lineNumbers = Object.keys(currentHighlightState.lines)
+            const filteredLines = lineNumbers.filter((line) => {
+                const lineNumber = parseInt(line, 10)
 
-                const relevantRange = Selectors.getRelevantRange(state, bufferId)
-
-                const filteredLines = lineNumbers.filter((line) => {
-                    const lineNumber = parseInt(line, 10)
-
-                    // Ignore lines that are not in current view
-                    if (lineNumber < relevantRange.top
-                        || lineNumber > relevantRange.bottom) {
-                        return false
-                    }
-
-                    const latestLine = currentHighlightState.lines[line]
-
-                    // If dirty (haven't processed tokens yet) - skip
-                    if (latestLine.dirty) {
-                        return false
-                    }
-
-                    // Or lines that haven't been updated
-                    return this._previousState[line] !== currentHighlightState.lines[line]
-                })
-
-                const tokens = filteredLines.map((li) => {
-                    const line = currentHighlightState.lines[li]
-
-                    const highlights = this._mapTokensToHighlights(line.tokens)
-                    return {
-                        line: parseInt(li, 10),
-                        highlights,
-                    }
-                })
-
-                filteredLines.forEach((li) => {
-                    this._previousState[li] = currentHighlightState.lines[li]
-                })
-
-                if (tokens.length > 0) {
-                    Log.verbose("[SyntaxHighlightReconciler] Applying changes to " + tokens.length + " lines.")
-                    activeBuffer.updateHighlights((highlightUpdater: any) => {
-                        tokens.forEach((token) => {
-                            const line = token.line
-                            const highlights = token.highlights
-
-                            if (Log.isDebugLoggingEnabled()) {
-                                Log.debug("[SyntaxHighlightingReconciler] Updating tokens for line: " + token.line + " | " + JSON.stringify(highlights))
-                            }
-
-                            highlightUpdater.setHighlightsForLine(line, highlights)
-                        })
-                    })
+                // Ignore lines that are not in current view
+                if (lineNumber < relevantRange.top
+                    || lineNumber > relevantRange.bottom) {
+                    return false
                 }
-            }
-        }, 100))
-    }
 
-    public dispose(): void {
-        if (this._unsubscribe) {
-            this._unsubscribe()
-            this._unsubscribe = null
+                const latestLine = currentHighlightState.lines[line]
+
+                // If dirty (haven't processed tokens yet) - skip
+                if (latestLine.dirty) {
+                    return false
+                }
+
+                // Or lines that haven't been updated
+                return this._previousState[line] !== currentHighlightState.lines[line]
+            })
+
+            const tokens = filteredLines.map((li) => {
+                const line = currentHighlightState.lines[li]
+
+                const highlights = this._mapTokensToHighlights(line.tokens)
+                return {
+                    line: parseInt(li, 10),
+                    highlights,
+                }
+            })
+
+            filteredLines.forEach((li) => {
+                this._previousState[li] = currentHighlightState.lines[li]
+            })
+
+            if (tokens.length > 0) {
+                Log.verbose("[SyntaxHighlightReconciler] Applying changes to " + tokens.length + " lines.")
+                activeBuffer.updateHighlights((highlightUpdater: any) => {
+                    tokens.forEach((token) => {
+                        const line = token.line
+                        const highlights = token.highlights
+
+                        if (Log.isDebugLoggingEnabled()) {
+                            Log.debug("[SyntaxHighlightingReconciler] Updating tokens for line: " + token.line + " | " + JSON.stringify(highlights))
+                        }
+
+                        highlightUpdater.setHighlightsForLine(line, highlights)
+                    })
+                })
+            }
         }
     }
 

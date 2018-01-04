@@ -35,6 +35,7 @@ import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
+import * as Shell from "./../../UI/Shell"
 
 import {
     addInsertModeLanguageFunctionality,
@@ -147,7 +148,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
         this._neovimInstance = new NeovimInstance(100, 100)
-        this._bufferManager = new BufferManager(this._neovimInstance)
+        this._bufferManager = new BufferManager(this._neovimInstance, this._actions)
         this._screen = new NeovimScreen()
 
         this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
@@ -238,6 +239,10 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.hideCommandLine()
         })
 
+        this._neovimInstance.onCommandLineSetCursorPosition.subscribe(commandLinePos => {
+            this._actions.setCommandLinePosition(commandLinePos)
+        })
+
         this._windowManager.onWindowStateChanged.subscribe((tabPageState) => {
 
             const inactiveIds = tabPageState.inactiveWindows.map((w) => w.windowNumber)
@@ -249,6 +254,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
             const { activeWindow } = tabPageState
             this._actions.setWindowState(activeWindow.windowNumber,
+                activeWindow.bufferId,
                 activeWindow.bufferFullPath,
                 activeWindow.column,
                 activeWindow.line,
@@ -269,9 +275,8 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onTitleChanged.subscribe((newTitle) => {
-            // MUSTFIX
-            // const title = newTitle.replace(" - NVIM", " - ONI")
-            // UI.Actions.setWindowTitle(title)
+            const title = newTitle.replace(" - NVIM", " - ONI")
+            Shell.Actions.setWindowTitle(title)
         })
 
         this._neovimInstance.onLeave.subscribe(() => {
@@ -381,7 +386,7 @@ export class NeovimEditor extends Editor implements IEditor {
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$, this._toolTipsProvider)
 
         const textMateHighlightingEnabled = this._configuration.getValue("experimental.editor.textMateHighlighting.enabled")
-        this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
+        this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter(this._configuration, this) : new NullSyntaxHighlighter()
 
         this._completion = new Completion(this, this._languageManager, this._configuration)
         this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
@@ -512,6 +517,13 @@ export class NeovimEditor extends Editor implements IEditor {
     public async openFile(file: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":e " + file)
         return this.activeBuffer
+    }
+
+    public async newFile(filePath: string): Promise<Oni.Buffer> {
+        await this._neovimInstance.command(":new " + filePath)
+        const context = await this._neovimInstance.getContext()
+        const buffer = this._bufferManager.updateBufferFromEvent(context)
+        return buffer
     }
 
     public executeCommand(command: string): void {

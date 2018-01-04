@@ -10,6 +10,7 @@ import { Oni, runInProcTest } from "./common"
 const LongTimeout = 5000
 
 const CiTests = [
+    "Api.Buffer.AddLayer",
     "AutoClosingPairsTest",
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-TypeScript",
@@ -26,6 +27,10 @@ const WindowsOnlyTests = [
     "PaintPerformanceTest",
 ]
 
+const OSXOnlyTests = [
+    "OSX.WindowTitleTest",
+]
+
 // tslint:disable:no-console
 
 import * as Platform from "./../browser/src/Platform"
@@ -38,7 +43,7 @@ export interface ITestCase {
 
 describe("ci tests", function() { // tslint:disable-line only-arrow-functions
 
-    const tests = Platform.isWindows() ? [...CiTests, ...WindowsOnlyTests] : CiTests
+    const tests = Platform.isWindows() ? [...CiTests, ...WindowsOnlyTests] : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
 
     CiTests.forEach((test) => {
         runInProcTest(path.join(__dirname, "ci"), test)

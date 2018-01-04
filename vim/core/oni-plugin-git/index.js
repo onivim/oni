@@ -18,12 +18,13 @@ const activate = Oni => {
     };
 
     const updateBranchIndicator = async evt => {
-      const filePath = evt.bufferFullPath || evt.filePath;
-      const gitBranchIndicator = Oni.statusBar.createItem(
-        1,
-        -3,
-        'oni-plugin-git'
-      );
+      if (!evt) {
+        return;
+      }
+      const filePath = evt.filePath || evt.bufferFullPath;
+      const items = Oni.configuration.getValue('statusbar.priority');
+      const gitId = Object.keys(items).find(id => id.includes('git'));
+      const gitBranchIndicator = Oni.statusBar.createItem(1, gitId);
 
       isLoaded = true;
       let dir;
@@ -42,22 +43,45 @@ const activate = Oni => {
 
         const props = {
           style: {
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
           },
+        };
+
+        const branchContainerProps = {
+          style: {
+            minWidth: '10px',
+            textAlign: 'center',
+            padding: '2px 4px 0 0',
+          }
         };
 
         const branchIcon = Oni.ui.createIcon({
           name: 'code-fork',
-          size: Oni.ui.iconSize.Large,
+          size: Oni.ui.iconSize.Default,
         });
+
+        const branchContainer = React.createElement(
+          'span',
+          branchContainerProps,
+          branchIcon,
+        );
+
+        const branchNameContainer = React.createElement(
+          'div',
+          { width: '100%'},
+          ' ' + branchName,
+        );
+
         const gitBranch = React.createElement(
           'div',
           props,
-          branchIcon,
-          ' ' + branchName
+          branchContainer,
+          branchNameContainer,
         );
+
 
         gitBranchIndicator.setContents(gitBranch);
         gitBranchIndicator.show();

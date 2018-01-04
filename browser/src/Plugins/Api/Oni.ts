@@ -61,7 +61,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return this._colors
     }
 
-    public get commands(): OniApi.Commands {
+    public get commands(): OniApi.Commands.Api {
         return commandManager
     }
 

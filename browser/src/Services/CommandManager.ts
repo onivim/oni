@@ -12,7 +12,7 @@ import * as Log from "./../Log"
 import { INeovimInstance } from "./../neovim"
 import { ITask, ITaskProvider } from "./Tasks"
 
-export class CallbackCommand implements Oni.ICommand {
+export class CallbackCommand implements Oni.Commands.ICommand {
     public messageSuccess?: string
     public messageFail?: string
 
@@ -20,12 +20,12 @@ export class CallbackCommand implements Oni.ICommand {
         public command: string,
         public name: string,
         public detail: string,
-        public execute: Oni.ICommandCallback,
-        public enabled?: Oni.ICommandEnabledCallback) {
+        public execute: Oni.Commands.CommandCallback,
+        public enabled?: Oni.Commands.CommandEnabledCallback) {
     }
 }
 
-export class VimCommand implements Oni.ICommand {
+export class VimCommand implements Oni.Commands.ICommand {
     constructor(
         public command: string,
         public name: string, public detail: string,
@@ -41,13 +41,13 @@ export class VimCommand implements Oni.ICommand {
 
 export class CommandManager implements ITaskProvider {
 
-    private _commandDictionary: { [key: string]: Oni.ICommand } = {}
+    private _commandDictionary: { [key: string]: Oni.Commands.ICommand } = {}
 
     public clearCommands(): void {
         this._commandDictionary = {}
     }
 
-    public registerCommand(command: Oni.ICommand): void {
+    public registerCommand(command: Oni.Commands.ICommand): void {
         if (this._commandDictionary[command.command]) {
             Log.error(`Tried to register multiple commands for: ${command.name}`)
             return
@@ -88,7 +88,7 @@ export class CommandManager implements ITaskProvider {
     public getTasks(): Promise<ITask[]> {
         const commands =
             values(this._commandDictionary)
-                .filter((c: Oni.ICommand) => !c.enabled || (c.enabled()))
+                .filter((c: Oni.Commands.ICommand) => !c.enabled || (c.enabled()))
 
         const tasks = commands.map((c) => ({
             name: c.name,

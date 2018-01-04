@@ -16,10 +16,7 @@ import { CallbackCommand, CommandManager } from "./../../Services/CommandManager
 import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
 
-// import { Colors } from "./../Colors"
-
 import { createStore, IExplorerState } from "./ExplorerStore"
-// import { Sidebar } from "./SidebarView"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
