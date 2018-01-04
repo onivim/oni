@@ -7,62 +7,23 @@
 
 import * as React from "react"
 import { Provider } from "react-redux"
-import { Store } from "redux"
-
-import * as Oni from "oni-api"
-import { Event, IEvent } from "oni-types"
 
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
-import { createStore, ISidebarState } from "./SidebarStore"
+import { Event } from "oni-types"
+
+import { SidebarManager } from "./SidebarStore"
 import { Sidebar } from "./SidebarView"
-
-export type SidebarIcon = string
-
-export interface ISidebarEntry {
-    icon: SidebarIcon
-    pane: SidebarPane
-}
-
-export interface SidebarPane extends Oni.IWindowSplit {
-    id: string
-}
-
-export class SidebarManager {
-
-    private _onSidebarChanged = new Event<void>()
-    private _sidebarEntries: ISidebarEntry[] = []
-
-    public get onSidebarChanged(): IEvent<void> {
-        return this._onSidebarChanged
-    }
-
-    public sidebarEntries(): ISidebarEntry[] {
-        return this._sidebarEntries
-    }
-
-    public add(icon: SidebarIcon, pane: SidebarPane): void {
-        this._sidebarEntries = [...this._sidebarEntries, {
-            icon,
-            pane,
-        }]
-
-        this._onSidebarChanged.dispatch()
-    }
-}
 
 export class SidebarSplit {
 
     private _onEnterEvent: Event<void> = new Event<void>()
 
     private _activeBinding: IMenuBinding = null
-    private _store: Store<ISidebarState>
 
     constructor(
-        // private _sidebarManager: SidebarManager,
+        private _sidebarManager: SidebarManager = new SidebarManager()
     ) {
-        this._store = createStore()
-
         // this._sidebarManager.onSidebarChanged.subscribe(() => {
         //     console.log("changed")
         // })
@@ -71,20 +32,14 @@ export class SidebarSplit {
     public enter(): void {
         this._onEnterEvent.dispatch()
 
-        const state = this._store.getState()
-        this._store.dispatch({
-            type: "SET_FOCUSED_ID",
-            focusedEntryId: state.activeEntryId,
-        })
+        this._sidebarManager.setFocusedEntry(this._sidebarManager.activeEntryId)
 
         this._activeBinding = getInstance().bindToMenu()
-        this._activeBinding.setItems(state.icons.map((i) => i.id), state.activeEntryId)
+        const items = this._sidebarManager.entries.map((i) => i.id)
+        this._activeBinding.setItems(items, this._sidebarManager.activeEntryId)
 
         this._activeBinding.onCursorMoved.subscribe((id: string) => {
-            this._store.dispatch({
-                type: "SET_FOCUSED_ID",
-                focusedEntryId: id,
-            })
+            this._sidebarManager.setFocusedEntry(id)
         })
     }
 
@@ -94,14 +49,11 @@ export class SidebarSplit {
             this._activeBinding = null
         }
 
-        this._store.dispatch({
-            type: "SET_FOCUSED_ID",
-            focusedEntryId: null,
-        })
+        this._sidebarManager.setFocusedEntry(null)
     }
 
     public render(): JSX.Element {
-        return <Provider store={this._store}>
+        return <Provider store={this._sidebarManager.store}>
                 <Sidebar onKeyDown={(key: string) => this._onKeyDown(key)} onEnter={this._onEnterEvent}/>
             </Provider>
     }
