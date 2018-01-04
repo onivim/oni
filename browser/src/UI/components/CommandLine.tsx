@@ -106,8 +106,12 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
         switch (character) {
             case "/":
                 return [
-                    <CommandLineIcon iconName="search" />,
-                    <CommandLineIcon arrow iconName="arrow-right" />,
+                    <CommandLineIcon iconName="search" key={`${character}-search`} />,
+                    <CommandLineIcon
+                        arrow
+                        iconName="arrow-right"
+                        key={`${character}-arrow-right`}
+                    />,
                 ]
             case ":":
                 return (
@@ -117,8 +121,8 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
                 )
             case "?":
                 return [
-                    <CommandLineIcon iconName="search" />,
-                    <CommandLineIcon arrow iconName="arrow-left" />,
+                    <CommandLineIcon iconName="search" key={`${character}-search`} />,
+                    <CommandLineIcon key={`${character}-arrow-left`} arrow iconName="arrow-left" />,
                 ]
             default:
                 return character
