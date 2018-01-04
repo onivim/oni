@@ -35,6 +35,7 @@ import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
+import * as Shell from "./../../UI/Shell"
 
 import {
     addInsertModeLanguageFunctionality,
@@ -270,9 +271,8 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onTitleChanged.subscribe((newTitle) => {
-            // MUSTFIX
-            // const title = newTitle.replace(" - NVIM", " - ONI")
-            // UI.Actions.setWindowTitle(title)
+            const title = newTitle.replace(" - NVIM", " - ONI")
+            Shell.Actions.setWindowTitle(title)
         })
 
         this._neovimInstance.onLeave.subscribe(() => {

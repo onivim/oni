@@ -36,7 +36,7 @@ export class WindowTitleView extends React.PureComponent<IWindowTitleViewProps, 
             WebkitUserSelect: "none",
         }
 
-        return <div style={style}>{this.props.title}</div>
+        return <div id={"oni-titlebar"} style={style}>{this.props.title}</div>
     }
 }
 
