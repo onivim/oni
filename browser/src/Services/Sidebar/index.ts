@@ -20,6 +20,18 @@ export const activate = (configuration: Configuration) => {
         leftDock.addSplit(new SidebarSplit(_sidebarManager))
         leftDock.addSplit(new SidebarContentSplit(_sidebarManager))
     }
+
+    _sidebarManager.add("files-o", {
+        id: "test",
+        title: " TEST ",
+        render: () => null,
+    })
+
+    _sidebarManager.add("files-o", {
+        id: "test2",
+        title: " TEST2 ",
+        render: () => null,
+    })
 }
 
 export const getInstance = (): SidebarManager => _sidebarManager

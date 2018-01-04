@@ -23,6 +23,7 @@ export interface ISidebarState {
 export type SidebarIcon = string
 
 export interface ISidebarEntry {
+    // TODO: Remove this, duplicated between here and `SidebarPane`
     id: string
     icon: SidebarIcon
     pane: SidebarPane
@@ -30,6 +31,7 @@ export interface ISidebarEntry {
 
 export interface SidebarPane extends Oni.IWindowSplit {
     id: string
+    title: string
 }
 
 export class SidebarManager {
@@ -75,7 +77,7 @@ export class SidebarManager {
 
 const DefaultSidebarState: ISidebarState = {
     entries: [],
-    activeEntryId: "sidebar.explorer",
+    activeEntryId: null,
     focusedEntryId: null,
 }
 
@@ -111,9 +113,13 @@ export const sidebarReducer: Reducer<ISidebarState> = (
                 return {
                     ...state,
                     activeEntryId: action.entry.pane.id,
+                    entries: entriesReducer(state.entries, action),
                 }
             } else {
-                return state
+                return {
+                    ...state,
+                    entries: entriesReducer(state.entries, action),
+                }
             }
         default:
             return state
