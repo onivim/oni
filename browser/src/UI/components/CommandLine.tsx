@@ -52,6 +52,7 @@ const ArrowContainer = styled.span`
 `
 
 export interface ICommandLineRendererProps {
+    showIcons: boolean
     visible: boolean
     content: string
     position: number
@@ -99,6 +100,9 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
     }
 
     public renderIconOrChar(character: string) {
+        if (!this.props.showIcons) {
+            return character
+        }
         switch (character) {
             case "/":
                 return [
@@ -153,15 +157,17 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
     }
 }
 
-const mapStateToProps = ({
-    commandLine: { visible, position, content, firstchar, level, prompt },
-}: State.IState) => ({
-    visible,
-    content,
-    firstchar,
-    position,
-    level,
-    prompt,
-})
+const mapStateToProps = ({ commandLine, configuration }: State.IState) => {
+    const { visible, position, content, firstchar, level, prompt } = commandLine
+    return {
+        showIcons: configuration["experimental.commandline.icons"],
+        visible,
+        content,
+        firstchar,
+        position,
+        level,
+        prompt,
+    }
+}
 
 export default connect<ICommandLineRendererProps>(mapStateToProps)(CommandLine)
