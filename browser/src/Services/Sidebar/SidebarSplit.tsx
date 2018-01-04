@@ -23,11 +23,7 @@ export class SidebarSplit {
 
     constructor(
         private _sidebarManager: SidebarManager = new SidebarManager()
-    ) {
-        // this._sidebarManager.onSidebarChanged.subscribe(() => {
-        //     console.log("changed")
-        // })
-    }
+    ) { }
 
     public enter(): void {
         this._onEnterEvent.dispatch()

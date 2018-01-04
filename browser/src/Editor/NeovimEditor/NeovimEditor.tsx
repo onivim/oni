@@ -239,6 +239,10 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.hideCommandLine()
         })
 
+        this._neovimInstance.onCommandLineSetCursorPosition.subscribe(commandLinePos => {
+            this._actions.setCommandLinePosition(commandLinePos)
+        })
+
         this._windowManager.onWindowStateChanged.subscribe((tabPageState) => {
 
             const inactiveIds = tabPageState.inactiveWindows.map((w) => w.windowNumber)

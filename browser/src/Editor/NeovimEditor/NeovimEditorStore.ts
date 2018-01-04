@@ -87,7 +87,8 @@ export interface IWildMenu {
 }
 
 export interface ICommandLine {
-    content: Array<[any, string]>,
+    visible: boolean,
+    content: string,
     firstchar: string,
     position: number,
     prompt: string,
@@ -209,7 +210,15 @@ export const createDefaultState = (): IState => ({
 
     errors: {},
     toolTips: {},
-    commandLine: null,
+    commandLine: {
+        content: null,
+        prompt: null,
+        indent: null,
+        level: null,
+        visible: false,
+        firstchar: "",
+        position: 0,
+    },
     wildmenu: {
         selected: null,
         visible: false,

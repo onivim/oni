@@ -11,9 +11,10 @@ import { IEvent } from "oni-types"
 import { NeovimInstance, NeovimScreen } from "./../../neovim"
 import { INeovimRenderer } from "./../../Renderer"
 
-import { CommandLine } from "./../../UI/components/CommandLine"
+import CommandLine from "./../../UI/components/CommandLine"
 import { Cursor } from "./../../UI/components/Cursor"
 import { CursorLine } from "./../../UI/components/CursorLine"
+import ExternalMenus from "./../../UI/components/ExternalMenus"
 import { InstallHelp } from "./../../UI/components/InstallHelp"
 import { TabsContainer } from "./../../UI/components/Tabs"
 import { ToolTips } from "./../../UI/components/ToolTip"
@@ -61,6 +62,10 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     onTabSelect={this.props.onTabSelect}/>
             </div>
             <div className="container full">
+                <ExternalMenus>
+                    <CommandLine />
+                    <WildMenu />
+                </ExternalMenus>
                 <div className="stack">
                     <NeovimRenderer renderer={this.props.renderer}
                         neovimInstance={this.props.neovimInstance}
@@ -69,8 +74,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                 <div className="stack layer">
                     <TypingPrediction typingPrediction={this.props.typingPrediction}/>
                     <Cursor typingPrediction={this.props.typingPrediction}/>
-                    <CommandLine />
-                    <WildMenu />
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
                     <NeovimActiveWindowContainer>
