@@ -9,7 +9,7 @@ import * as types from "vscode-languageserver-types"
 
 import styled, { keyframes } from "styled-components"
 
-import { BufferToScreen, ScreenToPixel } from "./../Coordinates"
+import * as Oni from "oni-api"
 
 const DefinitionAppearKeyFrames = keyframes`
     from {opacity: 0; transform: translateY(2px);}
@@ -32,8 +32,8 @@ export interface IDefinitionProps {
 
     color: string
 
-    bufferToScreen: BufferToScreen
-    screenToPixel: ScreenToPixel
+    bufferToScreen: Oni.Coordinates.BufferToScreen
+    screenToPixel: Oni.Coordinates.ScreenToPixel
 }
 
 export class Definition extends React.PureComponent<IDefinitionProps, {}> {
