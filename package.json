@@ -70,9 +70,6 @@
         "bin/x86/**/*"
       ]
     },
-    "protocols":{
-      "role": "Editor"
-    },
     "fileAssociations": [
       {
         "ext": "js",

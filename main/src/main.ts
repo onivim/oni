@@ -86,12 +86,14 @@ if (!isDevelopment && !isDebug) {
     makeSingleInstance(currentOptions, (options) => {
         Log.info("Creating single instance")
         Log.info(`Process is, ${JSON.stringify(process, null, 2)}`)
-        protocol.registerFileProtocol("atom", (request, callback) => {
-            const url = request.url.substr(7)
-            const filePath = path.normalize(`${__dirname}/${url}`)
-            Log.info(`file path is: ${filePath}`)
-            callback(filePath)
-        })
+        if (process.platform === "darwin") {
+            protocol.registerFileProtocol("atom", (request, callback) => {
+                const url = request.url.substr(7)
+                const filePath = path.normalize(`${__dirname}/${url}`)
+                Log.info(`file path is: ${filePath}`)
+                callback(filePath)
+            })
+        }
         loadFileFromArguments(process.platform, options.args, options.workingDirectory)
     })
 } else {
@@ -190,7 +192,7 @@ export function createWindow(commandLineArguments, workingDirectory) {
 
 app.on("open-file", (event, filePath) => {
     event.preventDefault()
-    console.log('filePath to open: ', filePath) // tslint:disable-line
+    Log.info(`filePath to open: , ${filePath}`) // tslint:disable-line
     const mainWindow = windows[-1]
     if (mainWindow) {
         mainWindow.webContents.send("open-file", path)
