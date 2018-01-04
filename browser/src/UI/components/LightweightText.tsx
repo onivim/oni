@@ -62,12 +62,6 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
             ref={(elem) => this._element = elem} /></div>
     }
 
-    private _onChange(changeEvent: React.ChangeEvent<HTMLInputElement>): void {
-        if (this.props.onChange) {
-            this.props.onChange(changeEvent)
-        }
-    }
-
     public componentWillUnmount(): void {
         if (this._element) {
 
@@ -77,6 +71,12 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
 
             focusManager.popFocus(this._element)
             this._element = null
+        }
+    }
+
+    private _onChange(changeEvent: React.ChangeEvent<HTMLInputElement>): void {
+        if (this.props.onChange) {
+            this.props.onChange(changeEvent)
         }
     }
 
