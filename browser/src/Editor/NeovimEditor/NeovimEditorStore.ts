@@ -14,11 +14,9 @@ import { IConfigurationValues } from "./../../Services/Configuration"
 
 import { DefaultThemeColors, IThemeColors } from "./../../Services/Themes"
 
-import * as Coordinates from "./../../UI/Coordinates"
-import { Rectangle } from "./../../UI/Types"
-
 import { createStore as createReduxStore } from "./../../Redux"
 
+export interface Layers { [id: number]: Oni.EditorLayer[] }
 export interface Buffers { [filePath: string]: IBuffer }
 export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
 export interface ToolTips { [id: string]: IToolTip }
@@ -69,6 +67,8 @@ export interface IState {
     tabState: ITabState
 
     buffers: IBufferState
+
+    layers: Layers
 
     windowState: IWindowState
 
@@ -139,13 +139,15 @@ export interface IWindowState {
 
 export interface IWindow {
     file: string
+    bufferId: number
+    windowId: number
     column: number
     line: number
 
-    bufferToScreen: Coordinates.BufferToScreen
-    screenToPixel: Coordinates.ScreenToPixel
+    bufferToScreen: Oni.Coordinates.BufferToScreen
+    screenToPixel: Oni.Coordinates.ScreenToPixel
 
-    dimensions: Rectangle
+    dimensions: Oni.Shapes.Rectangle
     topBufferLine: number
     bottomBufferLine: number
 }
@@ -187,6 +189,8 @@ export const createDefaultState = (): IState => ({
         byId: {},
         allIds: [],
     },
+
+    layers: {},
 
     tabState: {
         selectedTabId: null,
