@@ -16,6 +16,7 @@ export const getCurrentLine = createSelector(
     })
 
 const NoScrollBar: IBufferScrollBarProps = {
+    windowId: null,
     bufferSize: -1,
     height: -1,
     windowTopLine: -1,
@@ -73,6 +74,7 @@ const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
     const markers = getMarkers(state)
 
     return {
+        windowId: activeWindow.windowId,
         windowTopLine: activeWindow.topBufferLine,
         windowBottomLine: activeWindow.bottomBufferLine,
         bufferSize,
