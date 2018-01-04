@@ -68,6 +68,18 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         }
     }
 
+    public componentWillUnmount(): void {
+        if (this._element) {
+
+            if (this.props.onComplete) {
+                this.props.onComplete(this._element.value)
+            }
+
+            focusManager.popFocus(this._element)
+            this._element = null
+        }
+    }
+
     private _onKeyDown(keyboardEvent: React.KeyboardEvent<HTMLInputElement>): void {
 
         if (this._element && keyboardEvent.ctrlKey) {
@@ -92,7 +104,7 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
                         const previousValue = this._element.value
                         let idx = previousValue.length - 1
 
-                        while(idx > 0) {
+                        while (idx > 0) {
                             if (!previousValue[idx].match(WordRegex)) {
                                 break
                             }
@@ -107,18 +119,6 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
                     return
 
             }
-        }
-    }
-
-    public componentWillUnmount(): void {
-        if (this._element) {
-
-            if (this.props.onComplete) {
-                this.props.onComplete(this._element.value)
-            }
-
-            focusManager.popFocus(this._element)
-            this._element = null
         }
     }
 }
