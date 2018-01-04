@@ -1,13 +1,13 @@
-// import { commandManager } from "./../../Services/CommandManager"
+import { commandManager } from "./../../Services/CommandManager"
 import { Configuration } from "./../../Services/Configuration"
-// import { editorManager } from "./../../Services/EditorManager"
+import { editorManager } from "./../../Services/EditorManager"
 import { windowManager } from "./../../Services/WindowManager"
-// import { workspace } from "./../../Services/Workspace"
+import { workspace } from "./../../Services/Workspace"
 
-import { SidebarManager } from "./SidebarStore"
-import { SidebarSplit } from "./SidebarSplit"
 import { SidebarContentSplit } from "./SidebarContentSplit"
-// import { ExplorerSplit } from "./../Explorer/ExplorerSplit"
+import { SidebarSplit } from "./SidebarSplit"
+import { SidebarManager } from "./SidebarStore"
+import { ExplorerSplit } from "./../Explorer/ExplorerSplit"
 
 let _sidebarManager: SidebarManager = null
 
@@ -21,16 +21,18 @@ export const activate = (configuration: Configuration) => {
         leftDock.addSplit(new SidebarContentSplit(_sidebarManager))
     }
 
-    _sidebarManager.add("files-o", {
-        id: "test",
-        title: " TEST ",
-        render: () => null,
+    _sidebarManager.add("files-o", new ExplorerSplit(configuration, workspace, commandManager, editorManager))
+
+    _sidebarManager.add("search", {
+        id: "search",
+        title: "Search",
+        render: () => null
     })
 
-    _sidebarManager.add("files-o", {
-        id: "test2",
-        title: " TEST2 ",
-        render: () => null,
+    _sidebarManager.add("th", {
+        id: "plugins",
+        title: "Plugins",
+        render: () => null
     })
 }
 

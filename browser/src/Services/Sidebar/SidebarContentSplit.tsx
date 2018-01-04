@@ -5,67 +5,57 @@
 import * as React from "react"
 import { connect, Provider } from "react-redux"
 
-import { Event, IEvent } from "oni-types"
-
 import styled from "styled-components"
 import {enableMouse, withProps} from "./../../UI/components/common"
 
-import { SidebarManager, ISidebarEntry, ISidebarState } from "./SidebarStore"
+import { ISidebarEntry, ISidebarState, SidebarManager, SidebarPane } from "./SidebarStore"
 
-import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
+export const getActiveEntry = (state: ISidebarState): ISidebarEntry => {
+    const filteredEntries = state.entries.filter((entry) => entry.id === state.activeEntryId)
+
+    const activeEntry = filteredEntries.length > 0 ? filteredEntries[0] : null
+
+    return activeEntry
+}
 
 /**
  * Split that is the container for the active sidebar item
  */
 export class SidebarContentSplit {
 
-    private _onEnterEvent: Event<void> = new Event<void>()
+    public get activePane(): SidebarPane {
+        const entry = getActiveEntry(this._sidebarManager.store.getState())
 
-    private _activeBinding: IMenuBinding = null
+        return entry && entry.pane ? entry.pane : null
+    }
 
     constructor(
-        private _sidebarManager: SidebarManager = new SidebarManager()
-    ) {
-        // this._sidebarManager.onSidebarChanged.subscribe(() => {
-        //     console.log("changed")
-        // })
-    }
+        private _sidebarManager: SidebarManager = new SidebarManager(),
+    ) { }
 
     public enter(): void {
-        this._onEnterEvent.dispatch()
-
-        this._activeBinding = getInstance().bindToMenu()
-
-    }
-
-    public leave(): void {
-
-        if (this._activeBinding) {
-            this._activeBinding.release()
-            this._activeBinding = null
+        const pane: any = this.activePane
+        if (pane && pane.enter) {
+            pane.enter()
         }
 
     }
 
-    public render(): JSX.Element {
-        return <Provider store={this._sidebarManager.store}>
-                <SidebarContent onEnter={null} onKeyDown={() => {}}/>
-            </Provider>
+    public leave(): void {
+        const pane: any = this.activePane
+        if (pane && pane.leave) {
+            pane.leave()
+        }
     }
 
-    // private _onKeyDown(key: string): void {
-    //     // if (this._activeBinding) {
-    //     //     this._activeBinding.input(key)
-    //     // }
-    // }
+    public render(): JSX.Element {
+        return <Provider store={this._sidebarManager.store}>
+                <SidebarContent />
+            </Provider>
+    }
 }
 
-export interface ISidebarContentContainerProps {
-    onEnter: IEvent<void>
-    onKeyDown: (key: string) => void
-}
-
-export interface ISidebarContentViewProps extends ISidebarContentContainerProps {
+export interface ISidebarContentViewProps {
     activeEntry: ISidebarEntry
 }
 
@@ -106,6 +96,11 @@ export class SidebarHeaderView extends React.PureComponent<ISidebarHeaderProps, 
     }
 }
 
+export const SidebarInnerPaneWrapper = withProps<{}>(styled.div)`
+    flex: 1 1 auto;
+    overflow-y: auto;
+`
+
 export class SidebarContentView extends React.PureComponent<ISidebarContentViewProps, {}> {
     public render(): JSX.Element {
 
@@ -116,20 +111,20 @@ export class SidebarContentView extends React.PureComponent<ISidebarContentViewP
         const activeEntry = this.props.activeEntry
         const header = activeEntry && activeEntry.pane ? activeEntry.pane.title : null
 
-        return <SidebarContentWrapper>
+        return <SidebarContentWrapper key={activeEntry.id}>
                     <SidebarHeaderView hasFocus={true} headerName={header} />
+                    <SidebarInnerPaneWrapper>
+                        {activeEntry.pane.render()}
+                    </SidebarInnerPaneWrapper>
             </SidebarContentWrapper>
     }
 }
 
-export const mapStateToProps = (state: ISidebarState, containerProps: ISidebarContentContainerProps): ISidebarContentViewProps => {
-    const filteredEntries = state.entries.filter((entry) => entry.id === state.activeEntryId)
+export const mapStateToProps = (state: ISidebarState): ISidebarContentViewProps => {
 
-    const activeEntry = filteredEntries.length > 0 ? filteredEntries[0] : null
-
+    const activeEntry = getActiveEntry(state)
     return {
-        ...containerProps,
-        activeEntry: activeEntry,
+        activeEntry,
     }
 }
 

@@ -74,7 +74,6 @@ export class SidebarManager {
     }
 }
 
-
 const DefaultSidebarState: ISidebarState = {
     entries: [],
     activeEntryId: null,
@@ -108,7 +107,7 @@ export const sidebarReducer: Reducer<ISidebarState> = (
                 focusedEntryId: action.focusedEntryId,
             }
 
-        case "ADD_ENTRY": 
+        case "ADD_ENTRY":
             if (!state.activeEntryId) {
                 return {
                     ...state,

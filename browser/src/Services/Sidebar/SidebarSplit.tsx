@@ -22,7 +22,7 @@ export class SidebarSplit {
     private _activeBinding: IMenuBinding = null
 
     constructor(
-        private _sidebarManager: SidebarManager = new SidebarManager()
+        private _sidebarManager: SidebarManager = new SidebarManager(),
     ) { }
 
     public enter(): void {
