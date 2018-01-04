@@ -71,7 +71,8 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
         return <div className="menu-background enable-mouse">
             <div className="menu" style={menuStyle}>
                 <TextInputView
-                    backgroundColor={this.props.backgroundColor}
+                    overrideDefaultStyle={true}
+                    backgroundColor={null}
                     foregroundColor={this.props.foregroundColor}
                     onChange={(evt) => this._onChange(evt)} />
                 <div className="items">

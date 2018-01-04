@@ -5,7 +5,7 @@ import * as State from "./../Shell/ShellState"
 
 import { focusManager } from "./../../Services/FocusManager"
 
-export interface IToolTipsViewProps {
+export interface ITextInputViewProps {
     onComplete?: (result: string) => void
     onChange?: (evt: React.ChangeEvent<HTMLInputElement>) => void
 
@@ -14,12 +14,19 @@ export interface IToolTipsViewProps {
     backgroundColor: string
     foregroundColor: string
 
+    overrideDefaultStyle?: boolean
+
 }
 
 // TODO: Is there a better value for this?
 const WordRegex = /[$_a-zA-Z0-9]/i
+const EmptyStyle: React.CSSProperties = {}
 
-export class TextInputView extends React.PureComponent<IToolTipsViewProps, {}> {
+/**
+ * TextInputView is a lightweight input control, that implements some
+ * common functionality (like focus management, key handling)
+ */
+export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> {
 
     private _element: HTMLInputElement
 
@@ -31,7 +38,7 @@ export class TextInputView extends React.PureComponent<IToolTipsViewProps, {}> {
 
     public render(): JSX.Element {
 
-        const containerStyle: React.CSSProperties = {
+        const containerStyle: React.CSSProperties = this.props.overrideDefaultStyle ? EmptyStyle : {
             padding: "4px",
             border: "1px solid " + this.props.foregroundColor,
         }
@@ -116,7 +123,7 @@ export class TextInputView extends React.PureComponent<IToolTipsViewProps, {}> {
     }
 }
 
-const mapStateToProps = (state: State.IState, originalProps?: Partial<IToolTipsViewProps>) => ({
+const mapStateToProps = (state: State.IState, originalProps?: Partial<ITextInputViewProps>) => ({
     ...originalProps,
     backgroundColor: state.colors["editor.background"],
     foregroundColor: state.colors["editor.foreground"],
