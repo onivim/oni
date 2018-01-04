@@ -35,6 +35,7 @@ import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
+import * as Shell from "./../../UI/Shell"
 
 import {
     addInsertModeLanguageFunctionality,
@@ -147,7 +148,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
         this._neovimInstance = new NeovimInstance(100, 100)
-        this._bufferManager = new BufferManager(this._neovimInstance)
+        this._bufferManager = new BufferManager(this._neovimInstance, this._actions)
         this._screen = new NeovimScreen()
 
         this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
@@ -249,6 +250,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
             const { activeWindow } = tabPageState
             this._actions.setWindowState(activeWindow.windowNumber,
+                activeWindow.bufferId,
                 activeWindow.bufferFullPath,
                 activeWindow.column,
                 activeWindow.line,
@@ -269,9 +271,8 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onTitleChanged.subscribe((newTitle) => {
-            // MUSTFIX
-            // const title = newTitle.replace(" - NVIM", " - ONI")
-            // UI.Actions.setWindowTitle(title)
+            const title = newTitle.replace(" - NVIM", " - ONI")
+            Shell.Actions.setWindowTitle(title)
         })
 
         this._neovimInstance.onLeave.subscribe(() => {

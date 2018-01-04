@@ -121,10 +121,24 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             return {...s,
                     buffers: buffersReducer(s.buffers, a),
                     definition: definitionReducer(s.definition, a),
+                    layers: layersReducer(s.layers, a),
                     tabState: tabStateReducer(s.tabState, a),
                     errors: errorsReducer(s.errors, a),
                     toolTips: toolTipsReducer(s.toolTips, a),
                     windowState: windowStateReducer(s.windowState, a)}
+    }
+}
+
+export const layersReducer = (s: State.Layers, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "ADD_BUFFER_LAYER":
+            const currentLayers = s[a.payload.bufferId] || []
+            return {
+                ...s,
+                [a.payload.bufferId]: [...currentLayers, a.payload.layer],
+            }
+        default:
+            return s
     }
 }
 
@@ -318,13 +332,17 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
 
             return {
                 ...s,
-                [a.payload.windowId]: {
-                    ...currentWindow,
-                    column: -1,
-                    line: -1,
-                    topBufferLine: -1,
-                    bottomBufferLine: -1,
-                    dimensions: a.payload.dimensions,
+                windows: {
+                    ...s.windows,
+                    [a.payload.windowId]: {
+                        ...currentWindow,
+                        windowId: a.payload.windowId,
+                        column: -1,
+                        line: -1,
+                        topBufferLine: -1,
+                        bottomBufferLine: -1,
+                        dimensions: a.payload.dimensions,
+                    },
                 },
             }
         case "SET_WINDOW_STATE":
@@ -337,6 +355,8 @@ export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleActio
                     [a.payload.windowId]: {
                         ...currentWindow,
                         file: a.payload.file,
+                        bufferId: a.payload.bufferId,
+                        windowId: a.payload.windowId,
                         column: a.payload.column,
                         line: a.payload.line,
                         bufferToScreen: a.payload.bufferToScreen,
