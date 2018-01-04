@@ -9,7 +9,7 @@ import * as Oni from "oni-api"
 
 import styled from "styled-components"
 
-import { shell } from "electron"
+// import { shell } from "electron"
 
 const Column = styled.div`
 `

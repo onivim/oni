@@ -15,6 +15,7 @@ module.exports = {
         "msgpack-lite": "require('msgpack-lite')",
         "react": "require('react')",
         "react-dom": "require('react-dom')",
+        "styled-components": "require('styled-components')",
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".less"]
