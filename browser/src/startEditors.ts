@@ -22,7 +22,7 @@ export const startEditors = async (args: any, colors: Colors, configuration: Con
 
     if (configuration.getValue("experimental.sidebar.enabled")) {
         const leftDock = windowManager.getDock(2)
-        leftDock.addSplit(new SidebarSplit(colors))
+        leftDock.addSplit(new SidebarSplit())
         leftDock.addSplit(new ExplorerSplit(configuration, workspace, commandManager, editorManager))
     }
 
