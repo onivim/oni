@@ -4,17 +4,18 @@
  * Handles enhanced syntax highlighting
  */
 
+import { Store } from "redux"
 import * as types from "vscode-languageserver-types"
-
 import { StackElement } from "vscode-textmate"
 
 import * as Log from "./../../Log"
 import * as PeriodicJobs from "./../../PeriodicJobs"
-
+import { createStore } from "./../../Redux"
 import { configuration } from "./../Configuration"
 
 import { GrammarLoader } from "./GrammarLoader"
 import { SyntaxHighlightingPeriodicJob } from "./SyntaxHighlightingPeriodicJob"
+import { reducer } from "./SyntaxHighlightingReducer"
 import * as Selectors from "./SyntaxHighlightSelectors"
 
 const syntaxHighlightingJobs = new PeriodicJobs.PeriodicJobManager()
@@ -56,6 +57,11 @@ export interface ISyntaxHighlightState {
     }
 }
 
+export const DefaultSyntaxHighlightState: ISyntaxHighlightState = {
+    isInsertMode: false,
+    bufferToHighlights: {},
+}
+
 export type ISyntaxHighlightAction = {
     type: "SYNTAX_UPDATE_BUFFER",
     language: string,
@@ -85,9 +91,6 @@ export type ISyntaxHighlightAction = {
         type: "END_INSERT_MODE",
         bufferId: string,
     }
-
-import { applyMiddleware, createStore, Store } from "redux"
-import { reducer } from "./SyntaxHighlightingReducer"
 
 const grammarLoader = new GrammarLoader()
 
@@ -137,14 +140,12 @@ const updateTokenMiddleware = (store: any) => (next: any) => (action: any) => {
     return result
 }
 
-const logger = (store: any) => (next: any) => (action: any) => {
-    // console.log("dispatching action: " + action.type +  "|" + JSON.stringify(action))
-    return next(action)
-}
-
 export const createSyntaxHighlightStore = (): Store<ISyntaxHighlightState> => {
-    const syntaxHighlightStore: Store<ISyntaxHighlightState> = createStore(reducer,
-        applyMiddleware(updateTokenMiddleware, logger) as any,
+    const syntaxHighlightStore: Store<ISyntaxHighlightState> = createStore(
+        "SyntaxHighlighting",
+        reducer,
+        DefaultSyntaxHighlightState,
+        [updateTokenMiddleware],
     )
 
     return syntaxHighlightStore

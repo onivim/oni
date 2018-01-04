@@ -23,6 +23,8 @@ import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
 
 import { BufferHighlightState, BufferHighlightsUpdater, IBufferHighlightsUpdater } from "./BufferHighlights"
 
+import * as Actions from "./NeovimEditor/NeovimEditorActions"
+
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
 
@@ -68,8 +70,13 @@ export class Buffer implements Oni.Buffer {
     }
 
     constructor(private _neovimInstance: NeovimInstance,
+                private _actions: typeof Actions,
                 evt: EventContext) {
         this.updateFromEvent(evt)
+    }
+
+    public addLayer(layer: Oni.EditorLayer): void {
+        this._actions.addBufferLayer(parseInt(this._id, 10), layer)
     }
 
     public async getLines(start?: number, end?: number): Promise<string[]> {
@@ -88,6 +95,10 @@ export class Buffer implements Oni.Buffer {
 
         const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [parseInt(this._id, 10), start, end, false])
         return lines
+    }
+
+    public async setLanguage(language: string): Promise<void> {
+        await this._neovimInstance.request<any>("nvim_buf_set_option", [parseInt(this._id, 10), "filetype", language])
     }
 
     public async applyTextEdits(textEdits: types.TextEdit | types.TextEdit[]): Promise<void> {
@@ -236,7 +247,9 @@ export class BufferManager {
     private _idToBuffer: { [id: string]: Buffer } = { }
     private _filePathToId: { [filePath: string]: string } = { }
 
-    constructor(private _neovimInstance: NeovimInstance) { }
+    constructor(
+        private _neovimInstance: NeovimInstance,
+        private _actions: typeof Actions) { }
 
     public updateBufferFromEvent(evt: EventContext): Buffer {
         const id = evt.bufferNumber.toString()
@@ -249,7 +262,7 @@ export class BufferManager {
         if (currentBuffer) {
             currentBuffer.updateFromEvent(evt)
         } else {
-            const buf = new Buffer(this._neovimInstance, evt)
+            const buf = new Buffer(this._neovimInstance, this._actions, evt)
             this._idToBuffer[id] = buf
         }
 

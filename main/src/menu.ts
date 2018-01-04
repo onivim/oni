@@ -1,6 +1,6 @@
 import * as os from "os"
 
-import { app, dialog, Menu, shell } from "electron"
+import { app, dialog, Menu } from "electron"
 import { createWindow } from "./main"
 
 export const buildDockMenu = (mainWindow, loadInit) => {
@@ -28,6 +28,8 @@ export const buildMenu = (mainWindow, loadInit) => {
     const executeVimCommandForMultipleFiles = (command, files) => mainWindow.webContents.send("open-files", command, files)
 
     const executeOniCommand = (command) => mainWindow.webContents.send("execute-command", command)
+
+    const openUrl = (url) => mainWindow.webContents.send("execute-command", "browser.openUrl", url)
 
     const executeVimCommandForFiles = (command, files) => {
         if (!files || !files.length) {
@@ -631,27 +633,27 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Learn more",
                 click(item, focusedWindow) {
-                    shell.openExternal("https://github.com/onivim/oni#introduction")
+                    openUrl("https://github.com/onivim/oni#introduction")
                 },
             },
             {
                 label: "Issues",
                 click(item, focusedWindow) {
-                    shell.openExternal("https://github.com/onivim/oni/issues")
+                    openUrl("https://github.com/onivim/oni/issues")
                 },
             },
             {
                 label: "Github",
                 sublabel: "https://github.com/onivim/oni",
                 click(item, focusedWindow) {
-                    shell.openExternal("https://github.com/onivim/oni")
+                    openUrl("https://github.com/onivim/oni")
                 },
             },
             {
                 label: "Website",
                 sublabel: "https://www.onivim.io",
                 click(item, focusedWindow) {
-                    shell.openExternal("https://www.onivim.io")
+                    openUrl("https://www.onivim.io")
                 },
             },
             {

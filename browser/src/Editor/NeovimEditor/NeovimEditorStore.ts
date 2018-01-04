@@ -14,11 +14,9 @@ import { IConfigurationValues } from "./../../Services/Configuration"
 
 import { DefaultThemeColors, IThemeColors } from "./../../Services/Themes"
 
-import * as Coordinates from "./../../UI/Coordinates"
-import { Rectangle } from "./../../UI/Types"
-
 import { createStore as createReduxStore } from "./../../Redux"
 
+export interface Layers { [id: number]: Oni.EditorLayer[] }
 export interface Buffers { [filePath: string]: IBuffer }
 export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
 export interface ToolTips { [id: string]: IToolTip }
@@ -70,6 +68,8 @@ export interface IState {
 
     buffers: IBufferState
 
+    layers: Layers
+
     windowState: IWindowState
 
     errors: Errors
@@ -87,7 +87,8 @@ export interface IWildMenu {
 }
 
 export interface ICommandLine {
-    content: Array<[any, string]>,
+    visible: boolean,
+    content: string,
     firstchar: string,
     position: number,
     prompt: string,
@@ -139,13 +140,15 @@ export interface IWindowState {
 
 export interface IWindow {
     file: string
+    bufferId: number
+    windowId: number
     column: number
     line: number
 
-    bufferToScreen: Coordinates.BufferToScreen
-    screenToPixel: Coordinates.ScreenToPixel
+    bufferToScreen: Oni.Coordinates.BufferToScreen
+    screenToPixel: Oni.Coordinates.ScreenToPixel
 
-    dimensions: Rectangle
+    dimensions: Oni.Shapes.Rectangle
     topBufferLine: number
     bottomBufferLine: number
 }
@@ -188,6 +191,8 @@ export const createDefaultState = (): IState => ({
         allIds: [],
     },
 
+    layers: {},
+
     tabState: {
         selectedTabId: null,
         tabs: [],
@@ -205,7 +210,15 @@ export const createDefaultState = (): IState => ({
 
     errors: {},
     toolTips: {},
-    commandLine: null,
+    commandLine: {
+        content: null,
+        prompt: null,
+        indent: null,
+        level: null,
+        visible: false,
+        firstchar: "",
+        position: 0,
+    },
     wildmenu: {
         selected: null,
         visible: false,

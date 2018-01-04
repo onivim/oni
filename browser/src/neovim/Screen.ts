@@ -14,6 +14,8 @@ export interface IHighlight {
 
     foregroundColor?: string
     backgroundColor?: string
+    isItalicAvailable?: boolean
+    isBoldAvailable?: boolean
 }
 
 export interface IScreen {
@@ -47,6 +49,9 @@ export interface ICell {
 
     foregroundColor?: string
     backgroundColor?: string
+    italic?: boolean
+    bold?: boolean
+    underline?: boolean
 }
 
 export interface IPixelPosition {
@@ -137,11 +142,11 @@ export class NeovimScreen implements IScreen {
     }
 
     public get currentForegroundColor(): string {
-        return this._currentHighlight.foregroundColor ? this._currentHighlight.foregroundColor : this._foregroundColor
+        return this._currentHighlight.foregroundColor || this._foregroundColor
     }
 
     public get currentBackgroundColor(): string {
-        return this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor
+        return this._currentHighlight.backgroundColor || this._backgroundColor
     }
 
     public getCell(x: number, y: number): ICell {
@@ -161,14 +166,16 @@ export class NeovimScreen implements IScreen {
                 this._cursorColumn = action.col
                 break
             case Actions.PutAction: {
-                let foregroundColor = this._currentHighlight.foregroundColor ? this._currentHighlight.foregroundColor : this._foregroundColor
-                let backgroundColor = this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor
+                let foregroundColor = this._currentHighlight.foregroundColor || this._foregroundColor
+                let backgroundColor = this._currentHighlight.backgroundColor || this._backgroundColor
 
                 if (this._currentHighlight.reverse) {
                     const temp = foregroundColor
                     foregroundColor = backgroundColor
                     backgroundColor = temp
                 }
+
+                const { underline, bold, italic } = this._currentHighlight
 
                 const characters = action.characters
                 const row = this._cursorRow
@@ -184,6 +191,9 @@ export class NeovimScreen implements IScreen {
                         backgroundColor,
                         character,
                         characterWidth,
+                        italic,
+                        bold,
+                        underline,
                     })
 
                     for (let c = 1; c < characterWidth; c++) {
@@ -192,6 +202,9 @@ export class NeovimScreen implements IScreen {
                             backgroundColor,
                             character: "",
                             characterWidth: 0,
+                            italic,
+                            bold,
+                            underline,
                         })
                     }
 
@@ -202,8 +215,8 @@ export class NeovimScreen implements IScreen {
                 break
             }
             case Actions.CLEAR_TO_END_OF_LINE: {
-                const foregroundColor = this._currentHighlight.foregroundColor ? this._currentHighlight.foregroundColor : this._foregroundColor
-                const backgroundColor = this._currentHighlight.backgroundColor ? this._currentHighlight.backgroundColor : this._backgroundColor
+                const foregroundColor = this._currentHighlight.foregroundColor || this._foregroundColor
+                const backgroundColor = this._currentHighlight.backgroundColor || this._backgroundColor
 
                 const row = this._cursorRow
                 for (let i = this._cursorColumn; i < this.width; i++) {
@@ -212,6 +225,9 @@ export class NeovimScreen implements IScreen {
                         backgroundColor,
                         character: "",
                         characterWidth: 1,
+                        bold: this._currentHighlight.bold,
+                        italic: this._currentHighlight.italic,
+                        underline: this._currentHighlight.underline,
                     })
                 }
                 break
@@ -232,6 +248,8 @@ export class NeovimScreen implements IScreen {
                 this._fontWidthInPixels = action.fontWidthInPixels
                 this._fontHeightInPixels = action.fontHeightInPixels
                 this._linePaddingInPixels = action.linePaddingInPixels
+                this._currentHighlight.isItalicAvailable = action.isItalicAvailable
+                this._currentHighlight.isBoldAvailable = action.isBoldAvailable
                 break
             case Actions.CHANGE_MODE:
                 this._mode = action.mode
@@ -243,9 +261,14 @@ export class NeovimScreen implements IScreen {
                 this._foregroundColor = action.color
                 break
             case Actions.SET_HIGHLIGHT:
+                const { isBoldAvailable, isItalicAvailable } = this._currentHighlight
                 this._currentHighlight.foregroundColor = action.foregroundColor
                 this._currentHighlight.backgroundColor = action.backgroundColor
                 this._currentHighlight.reverse = !!action.reverse
+                this._currentHighlight.bold = isBoldAvailable ? action.bold : false
+                this._currentHighlight.italic = isItalicAvailable ? action.italic : false
+                this._currentHighlight.undercurl = action.undercurl
+                this._currentHighlight.underline = action.underline
                 break
             case Actions.SET_SCROLL_REGION:
                 this._scrollRegion = {

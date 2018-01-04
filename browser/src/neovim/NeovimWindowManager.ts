@@ -12,6 +12,7 @@ import "rxjs/add/operator/distinctUntilChanged"
 
 import * as isEqual from "lodash/isEqual"
 
+import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 import * as types from "vscode-languageserver-types"
 
@@ -21,9 +22,6 @@ import { NeovimInstance } from "./index"
 import * as Log from "./../Log"
 import * as Utility from "./../Utility"
 
-import * as Coordinates from "./../UI/Coordinates"
-import * as UITypes from "./../UI/Types"
-
 export interface NeovimTabPageState {
     tabId: number
     activeWindow: NeovimActiveWindowState
@@ -32,6 +30,7 @@ export interface NeovimTabPageState {
 
 export interface NeovimActiveWindowState {
     windowNumber: number
+    bufferId: number
     bufferFullPath: string
 
     line: number
@@ -40,13 +39,13 @@ export interface NeovimActiveWindowState {
     topBufferLine: number
     bottomBufferLine: number
 
-    bufferToScreen: Coordinates.BufferToScreen
-    dimensions: UITypes.Rectangle
+    bufferToScreen: Oni.Coordinates.BufferToScreen
+    dimensions: Oni.Shapes.Rectangle
 }
 
 export interface NeovimInactiveWindowState {
     windowNumber: number
-    dimensions: UITypes.Rectangle
+    dimensions: Oni.Shapes.Rectangle
 }
 
 export class NeovimWindowManager {
@@ -198,6 +197,7 @@ export class NeovimWindowManager {
 
             const newWindowState = {
                 windowNumber: currentWinId,
+                bufferId: context.bufferNumber,
                 bufferFullPath: context.bufferFullPath,
                 column: context.column - 1,
                 line: context.line - 1,
