@@ -1,6 +1,6 @@
 import * as path from "path"
 
-import { app, BrowserWindow, ipcMain, Menu } from "electron"
+import { app, BrowserWindow, ipcMain, Menu, protocol } from "electron"
 
 import * as PersistentSettings from "electron-settings"
 
@@ -85,6 +85,13 @@ if (!isDevelopment && !isDebug) {
     Log.info("Making single instance...")
     makeSingleInstance(currentOptions, (options) => {
         Log.info("Creating single instance")
+        Log.info(`Process is, ${JSON.stringify(process, null, 2)}`)
+        protocol.registerFileProtocol("atom", (request, callback) => {
+            const url = request.url.substr(7)
+            const filePath = path.normalize(`${__dirname}/${url}`)
+            Log.info(`file path is: ${filePath}`)
+            callback(filePath)
+        })
         loadFileFromArguments(process.platform, options.args, options.workingDirectory)
     })
 } else {
