@@ -1,21 +1,11 @@
 import * as React from "react"
 import { connect } from "react-redux"
 import styled from "styled-components"
+
 import { fadeInAndDown } from "./animations"
+import { boxShadow } from "./common"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
-
-const CommandLineBackground = styled.div`
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    bottom: 0px;
-    right: 0px;
-    background-color: rgba(0, 0, 0, 0.25);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-`
 
 const CommandLineBox = styled.div`
     position: relative;
@@ -23,41 +13,61 @@ const CommandLineBox = styled.div`
     padding: 8px;
     width: 75%;
     max-width: 900px;
-    background-color: ${p => p.theme.background};
-    box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: ${p => p.theme["menu.background"]};
+    ${boxShadow};
     animation: ${fadeInAndDown} 0.08s ease-in;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
 `
-const CommandLineInput = styled.input`
+const CommandLineOutput = styled.div`
+    white-space: pre-wrap; /* CRUCIAL to render white-space correctly */
+    position: relative;
     border: 0px;
     background-color: rgba(0, 0, 0, 0.2);
     font-size: 1.1em;
     box-sizing: border-box;
     width: 100%;
+    height: auto;
     padding: 8px;
     outline: none;
     color: white;
 `
 
+const Cursor = styled.span`
+    background-color: white;
+    width: 2px;
+    position: absolute;
+    bottom: 6px;
+    height: 1.3em;
+`
+
 export interface ICommandLineRendererProps {
-    visible: boolean,
-    content: Array<[any, string]> | null
-    position: number,
+    visible: boolean
+    content: string
+    position: number
     firstchar: string
-    // level: number
+    level: number
+    prompt: string
 }
 
 interface State {
-    focused: boolean,
+    focused: boolean
+    waiting: boolean
 }
 
-class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps, State> {
+class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> {
     public state = {
         focused: false,
+        waiting: true,
     }
+
+    private timer: any
     private _inputElement: HTMLInputElement
 
-    public handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-        // UI.Actions.setCommandLinePosition(1, 1)
+    public componentDidMount() {
+        this.timer = setTimeout(() => {
+            this.setState({ waiting: false })
+        }, 80)
     }
 
     public componentWillReceiveProps(nextProps: ICommandLineRendererProps) {
@@ -66,41 +76,47 @@ class CommandLineRenderer extends React.PureComponent<ICommandLineRendererProps,
         }
     }
 
-    public render(): null |  JSX.Element {
-        if (!this.state.focused && this.props.visible && this._inputElement) {
-           this._inputElement.focus()
+    public componentWillUnmount() {
+        clearTimeout(this.timer)
+    }
+
+    public render(): null | JSX.Element {
+        const { visible, content, position } = this.props
+        const { focused, waiting } = this.state
+        if (!focused && visible && this._inputElement) {
+            this._inputElement.focus()
         }
 
-        return this.props.visible && (
-            <CommandLineBackground>
+        const segments = content.split("")
+        const beginning = segments.slice(0, position)
+        const end = segments.slice(position)
+
+        return (
+            !waiting &&
+            visible && (
                 <CommandLineBox>
-                    <CommandLineInput
-                        onChange={this.handleChange}
-                        innerRef={e => (this._inputElement = e)}
-                        value={this.props.firstchar + this.props.content[0][1]}
-                    />
+                    <CommandLineOutput innerRef={e => (this._inputElement = e)}>
+                        {this.props.firstchar}
+                        {this.props.prompt}
+                        {beginning}
+                        <Cursor />
+                        {end}
+                    </CommandLineOutput>
                 </CommandLineBox>
-            </CommandLineBackground>
+            )
         )
     }
 }
 
-const mapStateToProps = ({ commandLine }: State.IState, props: ICommandLineRendererProps) => {
-    const commandLineProps: ICommandLineRendererProps = {
-        content: null,
-        visible: false,
-        firstchar: "",
-        position: 0,
-    }
+const mapStateToProps = ({
+    commandLine: { visible, position, content, firstchar, level, prompt },
+}: State.IState) => ({
+    visible,
+    content,
+    firstchar,
+    position,
+    level,
+    prompt,
+})
 
-    if (commandLine) {
-        commandLineProps.visible = commandLine !== null
-        commandLineProps.content = commandLine.content
-        commandLineProps.firstchar = commandLine.firstchar
-        commandLineProps.position = commandLine !== null ? commandLine.position : 0
-    }
-
-    return commandLineProps
-}
-
-export const CommandLine = connect<ICommandLineRendererProps>(mapStateToProps)(CommandLineRenderer)
+export default connect<ICommandLineRendererProps>(mapStateToProps)(CommandLine)
