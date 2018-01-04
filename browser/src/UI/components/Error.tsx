@@ -7,11 +7,11 @@
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
+import * as Oni from "oni-api"
+
 import { getColorFromSeverity } from "./../../Services/Errors"
 
 import { Icon } from "./../Icon"
-
-import { BufferToScreen, ScreenToPixel } from "./../Coordinates"
 
 export interface IErrorsProps {
     errors: types.Diagnostic[]
@@ -19,8 +19,8 @@ export interface IErrorsProps {
     fontHeightInPixels: number
 
     cursorLine: number
-    bufferToScreen: BufferToScreen
-    screenToPixel: ScreenToPixel
+    bufferToScreen: Oni.Coordinates.BufferToScreen
+    screenToPixel: Oni.Coordinates.ScreenToPixel
 }
 
 const padding = 8

@@ -10,6 +10,7 @@ import { Oni, runInProcTest } from "./common"
 const LongTimeout = 5000
 
 const CiTests = [
+    "Api.Buffer.AddLayer",
     "AutoClosingPairsTest",
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-TypeScript",
