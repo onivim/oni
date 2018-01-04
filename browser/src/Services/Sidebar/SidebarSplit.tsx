@@ -13,8 +13,6 @@ import { Event } from "oni-types"
 
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
-import { Colors } from "./../Colors"
-
 import { createStore, ISidebarState } from "./SidebarStore"
 import { Sidebar } from "./SidebarView"
 
@@ -25,16 +23,8 @@ export class SidebarSplit {
     private _activeBinding: IMenuBinding = null
     private _store: Store<ISidebarState>
 
-    constructor(
-        private _colors: Colors,
-    ) {
+    constructor() {
         this._store = createStore()
-
-        this._colors.onColorsChanged.subscribe(() => {
-            this._updateColors()
-        })
-
-        this._updateColors()
     }
 
     public enter(): void {
@@ -73,16 +63,6 @@ export class SidebarSplit {
         return <Provider store={this._store}>
                 <Sidebar onKeyDown={(key: string) => this._onKeyDown(key)} onEnter={this._onEnterEvent}/>
             </Provider>
-    }
-
-    private _updateColors(): void {
-        this._store.dispatch({
-            type: "SET_COLORS",
-            backgroundColor: this._colors.getColor("sidebar.background"),
-            foregroundColor: this._colors.getColor("sidebar.foreground"),
-            borderColor : this._colors.getColor("sidebar.selection.border"),
-            activeColor : this._colors.getColor("sidebar.active.background"),
-        })
     }
 
     private _onKeyDown(key: string): void {
