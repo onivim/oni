@@ -48,8 +48,8 @@ const BrowserViewWrapper = styled.div`
 `
 
 const BrowserButton = styled.div`
-    width: 3em;
-    height: 3em;
+    width: 2.5em;
+    height: 2.5em;
     flex: 0 0 auto;
     opacity: 0.9;
 
@@ -67,8 +67,8 @@ const AddressBar = styled.div`
     width: 100%;
     flex: 1 1 auto;
 
-    height: 3em;
-    line-height: 3em;
+    height: 2.5em;
+    line-height: 2.5em;
 
     text-align: left;
 `
