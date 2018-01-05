@@ -212,11 +212,7 @@ app.on("activate", () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (windows.length === 0) {
-        let args = []
-        if (process.argv[1]) {
-            args = [...args, process.argv[1]]
-        }
-        createWindow(args, process.cwd())
+        createWindow([], process.cwd())
     }
 })
 

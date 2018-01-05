@@ -74,42 +74,56 @@
       {
         "ext": "js",
         "name": "javascript",
-        "role": "Editor"
+        "role": "Editor",
+        "isPackage": true
       },
       {
         "ext": "jsx",
         "name": "JSX",
-        "role": "Editor"
+        "role": "Editor",
+        "isPackage": true
       },
       {
         "ext": "py",
         "name": "Python",
-        "role": "Editor"
+        "role": "Editor",
+        "isPackage": true
       },
       {
         "ext": "go",
         "name": "Go Lang",
-        "role": "Editor"
+        "role": "Editor",
+        "isPackage": true
       },
       {
         "ext": "re",
         "name": "Reason",
-        "role": "Editor"
+        "role": "Editor",
+        "isPackage": true
       },
       {
         "ext": "vim",
         "name": "VimL",
-        "role": "Editor"
+        "role": "Editor",
+        "isPackage": true
       },
       {
         "ext": "ts",
         "name": "Typescript",
-        "role": "Editor"
+        "role": "Editor",
+        "isPackage": true
       },
       {
         "ext": "tsx",
         "name": "Typescript",
-        "role": "Editor"
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "css",
+        "name": "CSS",
+        "role": "Editor",
+        "isPackage": true
       }
     ]
   },

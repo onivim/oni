@@ -460,9 +460,9 @@ export class NeovimEditor extends Editor implements IEditor {
             this._openFiles(files, message)
         })
 
-        ipcRenderer.on("open-file", (path: string) => {
+        ipcRenderer.on("open-file", (_evt: any, message: any, path: string) => {
             console.log('path in neovim editor: ', path)
-            this._neovimInstance.command(`:e ${path}`)
+            this._neovimInstance.command(`:e! ${path}`)
         })
 
         // enable opening a file via drag-drop
