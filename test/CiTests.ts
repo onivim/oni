@@ -23,9 +23,6 @@ const CiTests = [
 ]
 
 const WindowsOnlyTests = [
-    // For some reason, the `beginFrameSubscription` call doesn't seem to work on OSX,
-    // so we can't properly validate that case on that platform...
-    "PaintPerformanceTest",
 ]
 
 const OSXOnlyTests = [
@@ -44,10 +41,11 @@ export interface ITestCase {
 }
 
 describe("ci tests", function() { // tslint:disable-line only-arrow-functions
+    console.log("IS MAC: " + Platform.isMac())
 
-    const tests = Platform.isWindows() ? [...CiTests, ...WindowsOnlyTests] : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
+    const tests = Platform.isWindows() ? [...CiTests, ...WindowsOnlyTests] : (Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests)
 
-    CiTests.forEach((test) => {
+    tests.forEach((test) => {
         runInProcTest(path.join(__dirname, "ci"), test)
     })
 })
