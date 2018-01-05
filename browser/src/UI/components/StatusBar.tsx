@@ -1,4 +1,4 @@
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
 
 import * as keys from "lodash/keys"
 import * as React from "react"
@@ -16,7 +16,6 @@ interface StatusBarStyleProps {
     fontSize: string
     fontFamily: string
     className?: string
-    loaded?: boolean
 }
 
 export interface StatusBarProps extends StatusBarStyleProps {
@@ -48,7 +47,13 @@ interface IStatusComponent {
     maxWidth?: string
 }
 
+const enterKeyframes = keyframes`
+    0% { transform: translateY(4px); opacity: 0; }
+    100% { transform: translateY(0px); opacity: 1; }
+`
+
 const StatusBarComponent = withProps<IStatusComponent>(styled.div)`
+    animation: ${enterKeyframes} 0.2s ease-in;
     white-space: nowrap;
     padding-left: 8px;
     padding-right: 8px;
@@ -70,8 +75,6 @@ const StatusBarContainer = withProps<StatusBarStyleProps>(styled.div)`
     color: ${({ theme }) => theme.foreground};
     box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
     pointer-events: auto;
-    transform: ${({ loaded }) => loaded ? `translateY(0px)` : `translateY(4px)`};
-    transition: transform 0.25s ease;
     height: 2em;
     width: 100%;
     position: relative;
@@ -94,15 +97,7 @@ const StatusBarInner = styled.div`
     justify-content: space-between;
 `
 
-export class StatusBar extends React.PureComponent<StatusBarProps, { isLoaded: boolean }> {
-    public state = {
-        isLoaded: false,
-    }
-
-    public componentDidMount() {
-        this.setState({ isLoaded: true })
-    }
-
+export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
     public render() {
         if (!this.props.enabled) {
             return null
@@ -123,7 +118,7 @@ export class StatusBar extends React.PureComponent<StatusBarProps, { isLoaded: b
         }
 
         return (
-            <StatusBarContainer {...statusBarProps} loaded={this.state.isLoaded}>
+            <StatusBarContainer {...statusBarProps}>
                 <StatusBarInner>
                     <StatusResize direction="flex-start">
                         {leftItems.map(item => <ItemWithWidth {...item} key={item.id} />)}
