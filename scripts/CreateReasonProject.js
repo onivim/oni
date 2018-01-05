@@ -24,7 +24,6 @@ const output = childProcess.spawnSync(bsbExecutable, ["-init", "oni-test-reason-
 console.log(output.stderr.toString())
 console.log(output.stdout.toString())
 
-
 console.log("Building project...")
 
 const output2 = childProcess.execSync("npm run build", { cwd: projectFolder})
@@ -36,3 +35,5 @@ if (output2.stderr) {
 if (output2.stdout) {
     console.log(output2.stdout.toString())
 }
+
+console.log("Project built successfully!")
