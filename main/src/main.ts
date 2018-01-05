@@ -85,15 +85,15 @@ if (!isDevelopment && !isDebug) {
     Log.info("Making single instance...")
     makeSingleInstance(currentOptions, (options) => {
         Log.info("Creating single instance")
-        Log.info(`Process is, ${JSON.stringify(process, null, 2)}`)
-        if (process.platform === "darwin") {
-            protocol.registerFileProtocol("atom", (request, callback) => {
-                const url = request.url.substr(7)
-                const filePath = path.normalize(`${__dirname}/${url}`)
-                Log.info(`file path is: ${filePath}`)
-                callback(filePath)
-            })
-        }
+        Log.info(`Process is, ${process.argv0}`)
+        Log.info(`Process is, ${process.argv[1]}`)
+        Log.info(`Process is, ${process.argv[2]}`)
+        protocol.registerFileProtocol("atom", (request, callback) => {
+            const url = request.url.substr(7)
+            const filePath = path.normalize(`${__dirname}/${url}`)
+            Log.info(`file path is: ${filePath}`)
+            callback(filePath)
+        })
         loadFileFromArguments(process.platform, options.args, options.workingDirectory)
     })
 } else {
@@ -192,8 +192,8 @@ export function createWindow(commandLineArguments, workingDirectory) {
 
 app.on("open-file", (event, filePath) => {
     event.preventDefault()
-    Log.info(`filePath to open: , ${filePath}`) // tslint:disable-line
-    const mainWindow = windows[-1]
+    Log.info(`filePath to open: ${filePath}`) // tslint:disable-line
+    const mainWindow = windows[windows.length - 1]
     if (mainWindow) {
         mainWindow.webContents.send("open-file", path)
     }
