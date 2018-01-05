@@ -520,7 +520,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public async newFile(filePath: string): Promise<Oni.Buffer> {
-        await this._neovimInstance.command(":new " + filePath)
+        await this._neovimInstance.command(":vsp " + filePath)
         const context = await this._neovimInstance.getContext()
         const buffer = this._bufferManager.updateBufferFromEvent(context)
         return buffer
