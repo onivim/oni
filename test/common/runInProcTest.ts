@@ -90,18 +90,13 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
 
             const writeLogs = (logs: any[]): void => {
                 logs.forEach((log) => {
-                    console.log(`[${log.level}][${log.source}] ${log.message}`)
+                    console.log(`[${log.level}] ${log.message}`)
                 })
             }
 
             const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
             console.log("---LOGS (Renderer): ")
             writeLogs(rendererLogs)
-            console.log("---")
-
-            const mainLogs: any[] = await oni.client.getMainProcessLogs()
-            console.log("---LOGS (Main): ")
-            writeLogs(mainLogs)
             console.log("---")
 
             const result = JSON.parse(resultText)
