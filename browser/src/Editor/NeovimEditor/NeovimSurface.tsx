@@ -97,8 +97,8 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                 <div className="stack layer">
                     <ToolTips />
                 </div>
-                <InstallHelp />
                 <NeovimEditorLoadingOverlay />
+                <InstallHelp />
             </div>
         </div>
     }
