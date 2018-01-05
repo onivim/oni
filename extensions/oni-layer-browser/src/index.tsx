@@ -3,15 +3,14 @@
  *
  * Entry point for browser integration plugin
  */
+
+import { shell } from "electron"
 import * as React from "react"
+import styled from "styled-components"
 
 import * as Oni from "oni-api"
 
-import styled from "styled-components"
-
 const WebView = require("react-electron-web-view")
-
-// import { shell } from "electron"
 
 const Column = styled.div`
     pointer-events: auto;
@@ -124,28 +123,29 @@ export const activate = (oni: Oni.Plugin.Api) => {
     let count = 0
 
     const openUrl = async (url: string) => {
-        // TODO: Use embedded browser if configuration option is set
-        // shell.openExternal(url)
+        if (oni.configuration.getValue("experimental.browser.enabled")) {
+            count++
+            const buffer: Oni.Buffer = await (oni.editors.activeEditor as any).newFile("Browser" + count.toString())
 
-        count++
-        const buffer: Oni.Buffer = await (oni.editors.activeEditor as any).newFile("Browser" + count.toString())
+            const oni2: any = oni
+            const backIcon = oni2.ui.createIcon({name: "chevron-left", size: oni2.ui.iconSize.Large})
+            const forwardIcon = oni2.ui.createIcon({name: "chevron-right", size: oni2.ui.iconSize.Large})
+            const reloadIcon = oni2.ui.createIcon({name: "undo", size: oni2.ui.iconSize.Large})
+            const cancelIcon = oni2.ui.createIcon({name: "times", size: oni2.ui.iconSize.Large})
+            const debugIcon = oni2.ui.createIcon({name: "bug", size: oni2.ui.iconSize.Large})
 
-        const oni2: any = oni
-        const backIcon = oni2.ui.createIcon({name: "chevron-left", size: oni2.ui.iconSize.Large})
-        const forwardIcon = oni2.ui.createIcon({name: "chevron-right", size: oni2.ui.iconSize.Large})
-        const reloadIcon = oni2.ui.createIcon({name: "undo", size: oni2.ui.iconSize.Large})
-        const cancelIcon = oni2.ui.createIcon({name: "times", size: oni2.ui.iconSize.Large})
-        const debugIcon = oni2.ui.createIcon({name: "bug", size: oni2.ui.iconSize.Large})
+            const icons: Icons = {
+                backIcon,
+                forwardIcon,
+                reloadIcon,
+                cancelIcon,
+                debugIcon,
+            }
 
-        const icons: Icons = {
-            backIcon,
-            forwardIcon,
-            reloadIcon,
-            cancelIcon,
-            debugIcon,
+            buffer.addLayer(new BrowserLayer(url, icons))
+        } else {
+            shell.openExternal(url)
         }
-
-        buffer.addLayer(new BrowserLayer(url, icons))
     }
 
     oni.commands.registerCommand({
