@@ -1,17 +1,20 @@
 /**
- * Test scripts for QuickOpen
+ * Test scripts for `ocaml-language-server` completion for Reason
  */
 
 import * as assert from "assert"
+import * as childProcess from "child_process"
 import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
-import * as childProcess from "child_process"
+
 import * as rimraf from "rimraf"
 
 import * as Oni from "oni-api"
 
-import { navigateToFile, getCompletionElement } from "./Common"
+import { getCompletionElement, navigateToFile } from "./Common"
+
+// tslint:disable:no-console
 
 export const test = async (oni: Oni.Plugin.Api) => {
 
