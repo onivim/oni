@@ -13,6 +13,7 @@ const CiTests = [
     "Api.Buffer.AddLayer",
     "AutoClosingPairsTest",
     "AutoCompletionTest-CSS",
+    "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
     "LargeFileTest",
     "PaintPerformanceTest",
