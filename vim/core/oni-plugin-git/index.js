@@ -22,8 +22,7 @@ const activate = Oni => {
         return;
       }
       const filePath = evt.filePath || evt.bufferFullPath;
-      const items = Oni.configuration.getValue('statusbar.priority');
-      const gitId = Object.keys(items).find(id => id.includes('git'));
+      const gitId = 'oni.status.git'
       const gitBranchIndicator = Oni.statusBar.createItem(1, gitId);
 
       isLoaded = true;

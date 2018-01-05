@@ -1,4 +1,3 @@
-import * as electron from "electron"
 import styled from "styled-components"
 
 import * as keys from "lodash/keys"
@@ -132,20 +131,10 @@ export class StatusBar extends React.PureComponent<StatusBarProps, { isLoaded: b
                     <StatusResize direction="center" />
                     <StatusResize direction="flex-end">
                         {rightItems.map(item => <ItemWithWidth {...item} key={item.id} />)}
-                        <StatusBarComponent onClick={this._openGithub}>
-                            <span>
-                                <i className="fa fa-github" />
-                            </span>
-                        </StatusBarComponent>
                     </StatusResize>
                 </StatusBarInner>
             </StatusBarContainer>
         )
-    }
-
-    private _openGithub(): void {
-        // TODO: Open this in an internal window once that capability is available
-        electron.shell.openExternal("https://www.github.com/onivim/oni")
     }
 }
 
