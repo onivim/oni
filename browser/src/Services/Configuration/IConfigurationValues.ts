@@ -47,6 +47,8 @@ export interface IConfigurationValues {
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
+    "experimental.commandline.mode": boolean,
+    "experimental.commandline.icons": boolean,
 
     "autoClosingPairs.enabled": boolean
     "autoClosingPairs.default": any
