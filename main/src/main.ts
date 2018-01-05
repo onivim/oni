@@ -195,7 +195,7 @@ app.on("open-file", (event, filePath) => {
     Log.info(`filePath to open: ${filePath}`) // tslint:disable-line
     const mainWindow = windows[windows.length - 1]
     if (mainWindow) {
-        mainWindow.webContents.send("open-file", path)
+        mainWindow.webContents.send("open-file", filePath)
     }
 })
 
