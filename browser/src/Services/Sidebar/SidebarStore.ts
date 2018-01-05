@@ -32,6 +32,9 @@ export interface ISidebarEntry {
 export interface SidebarPane extends Oni.IWindowSplit {
     id: string
     title: string
+
+    enter(): void
+    leave(): void
 }
 
 export class SidebarManager {

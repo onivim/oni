@@ -9,6 +9,8 @@ import { SidebarContentSplit } from "./SidebarContentSplit"
 import { SidebarSplit } from "./SidebarSplit"
 import { SidebarManager } from "./SidebarStore"
 
+import { SidebarPane, ItemWidget, LabelWidget } from "./SidebarPane"
+
 let _sidebarManager: SidebarManager = null
 
 export const activate = (configuration: Configuration) => {
@@ -20,21 +22,20 @@ export const activate = (configuration: Configuration) => {
         leftDock.addSplit(new SidebarSplit(_sidebarManager))
         leftDock.addSplit(new SidebarContentSplit(_sidebarManager))
 
+        const searchPane = new SidebarPane("oni.sidebar.search", "Search")
+        _sidebarManager.add("search", searchPane)
+
+        searchPane.set([new LabelWidget(), new LabelWidget(), new ItemWidget("oni.test"), new ItemWidget("oni.test2")])
+
         // Sidebar items
         // TODO: Move to extensions
         _sidebarManager.add("files-o", new ExplorerSplit(configuration, workspace, commandManager, editorManager))
 
-        _sidebarManager.add("search", {
-            id: "search",
-            title: "Search",
-            render: () => null,
-        })
-
-        _sidebarManager.add("th", {
-            id: "plugins",
-            title: "Plugins",
-            render: () => null,
-        })
+        // _sidebarManager.add("th", {
+        //     id: "plugins",
+        //     title: "Plugins",
+        //     render: () => null,
+        // })
     }
 }
 
