@@ -8,7 +8,7 @@ import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 
-import { clipboard, remote } from "electron"
+import { clipboard, remote, app } from "electron"
 
 import * as Oni from "oni-api"
 
@@ -50,7 +50,7 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
 
         new CallbackCommand("oni.editor.minimize", "Minimize Window", "Minimize the current window", () => remote.getCurrentWindow().minimize()),
 
-        new CallbackCommand("oni.editor.hide", "Hide Window", "Hide the current window", () => remote.getCurrentWindow().hide()),
+        new CallbackCommand("oni.editor.hide", "Hide Window", "Hide the current window", () => app.hide()),
 
         // Language service
         // TODO: Deprecate
