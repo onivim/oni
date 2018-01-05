@@ -51,6 +51,22 @@ export interface INeovimSurfaceProps {
     onTabSelect?: (tabId: number) => void
 }
 
+import styled, { keyframes } from "styled-components"
+
+const keys = keyframes`
+    0% { transform: rotateY(0deg); opacity: 0.1; }
+    50% { transform: rotateY(180deg) scale(0.9); opacity: 0.2; }
+    100% { transform: rotateY(360deg); opacity: 0.1; }
+`
+
+const LoadingContainer = styled.div`
+    opacity: 0.4;
+
+    img {
+        animation: ${keys} 2.5s linear infinite;
+    }
+`
+
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> {
     public render(): JSX.Element {
         return <div className="container vertical full">
@@ -97,6 +113,11 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     <ToolTips />
                 </div>
                 <InstallHelp />
+                <div className="stack layer">
+                    <LoadingContainer>
+                        <img src="images/oni-icon-no-border.svg" style={{width: "128px", height: "128px"}} />
+                    </LoadingContainer>
+                </div>
             </div>
         </div>
     }
