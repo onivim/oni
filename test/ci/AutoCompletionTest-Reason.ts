@@ -15,10 +15,10 @@ import { navigateToFile, getCompletionElement } from "./Common"
 
 export const test = async (oni: Oni.Plugin.Api) => {
 
+    await oni.automation.waitForEditors()
+
     const reasonProjectFolder = createReasonProject()
     const fileToOpen = path.join(reasonProjectFolder, "src", "demo.re")
-
-    await oni.automation.waitForEditors()
 
     await navigateToFile(fileToOpen, oni)
 
@@ -37,7 +37,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
 }
 
 const createReasonProject = (): string => {
-    const nodeModulesBinFolder = path.join(__dirname, "..", "node_modules", ".bin")
+    const nodeModulesBinFolder = path.join(__dirname, "..", "..", "..", "node_modules", ".bin")
 
     const executable = os.platform() === "win32" ? "bsb.cmd" : "bsb"
 
