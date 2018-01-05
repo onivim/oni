@@ -15,7 +15,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     oni.automation.sendKeys("i")
     await oni.automation.sleep(500)
-    oni.automation.sendKeys("<body s")
+    oni.automation.sendKeys("<lt>body s")
 
     // Wait for completion popup to show
     await oni.automation.waitFor(() => getCompletionElement() !== null)
