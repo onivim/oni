@@ -10,7 +10,7 @@ import styled from "styled-components"
 
 import * as Oni from "oni-api"
 
-const WebView = require("react-electron-web-view")
+const WebView = require("react-electron-web-view") // tslint:disable-line
 
 const Column = styled.div`
     pointer-events: auto;
