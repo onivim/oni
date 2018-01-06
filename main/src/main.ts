@@ -211,12 +211,14 @@ app.on("before-quit", () => {
 app.on("activate", () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-
-    if (mainWindow) {
-        mainWindow.show()
-    }
     if (!windows.length) {
         createWindow([], process.cwd())
+    } else {
+        const currentWindow = windows[windows.length - 1]
+
+        if (currentWindow) {
+            currentWindow.show()
+        }
     }
 })
 
