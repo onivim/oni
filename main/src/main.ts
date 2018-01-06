@@ -22,7 +22,6 @@ interface IWindowState {
         width: number,
     }
     isMaximized?: boolean,
-    quitting?: boolean,
 }
 
 let windowState: IWindowState = {
@@ -33,7 +32,6 @@ let windowState: IWindowState = {
         width: 800,
     },
     isMaximized: false,
-    quitting: false,
 }
 
 function storeWindowState(main) {
@@ -170,7 +168,7 @@ export function createWindow(commandLineArguments, workingDirectory) {
     mainWindow.on("resize", () => {
         storeWindowState(mainWindow)
     })
-    mainWindow.on("close", (evt) => {
+    mainWindow.on("close", () => {
         storeWindowState(mainWindow)
     })
 

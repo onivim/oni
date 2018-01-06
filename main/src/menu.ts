@@ -538,19 +538,19 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "New Horizontal Split",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, "\\<C-currentWindow>n")
+                    executeVimCommand(focusedWindow, "\\<C-w>n")
                 },
             },
             {
                 label: "Split File Horizontally",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, "\\<C-currentWindow>s")
+                    executeVimCommand(focusedWindow, "\\<C-w>s")
                 },
             },
             {
                 label: "Split File Vertically",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, "\\<C-currentWindow>v")
+                    executeVimCommand(focusedWindow, "\\<C-w>v")
                 },
             },
             {
@@ -565,13 +565,13 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Close",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, "\\<C-currentWindow>c")
+                    executeVimCommand(focusedWindow, "\\<C-w>c")
                 },
             },
             {
                 label: "Close Other Split(s)",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, "\\<C-currentWindow>o")
+                    executeVimCommand(focusedWindow, "\\<C-w>o")
                 },
             },
             {
@@ -583,25 +583,25 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Top",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, "\\<C-currentWindow>K")
+                            executeVimCommand(focusedWindow, "\\<C-w>K")
                         },
                     },
                     {
                         label: "Bottom",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, "\\<C-currentWindow>J")
+                            executeVimCommand(focusedWindow, "\\<C-w>J")
                         },
                     },
                     {
                         label: "Left Side",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, "\\<C-currentWindow>H")
+                            executeVimCommand(focusedWindow, "\\<C-w>H")
                         },
                     },
                     {
                         label: "Right Side",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, "\\<C-currentWindow>L")
+                            executeVimCommand(focusedWindow, "\\<C-w>L")
                         },
                     },
                 ],
@@ -609,13 +609,13 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Rotate Up",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, "\\<C-currentWindow>R")
+                    executeVimCommand(focusedWindow, "\\<C-w>R")
                 },
             },
             {
                 label: "Rotate Down",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, "\\<C-currentWindow>r")
+                    executeVimCommand(focusedWindow, "\\<C-w>r")
                 },
             },
             {
@@ -624,31 +624,31 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Equal Size",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, "\\<C-currentWindow>=")
+                    executeVimCommand(focusedWindow, "\\<C-w>=")
                 },
             },
             {
                 label: "Max Height",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, "\\<C-currentWindow>_")
+                    executeVimCommand(focusedWindow, "\\<C-w>_")
                 },
             },
             {
                 label: "Min Height",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, "\\<C-currentWindow>1_")
+                    executeVimCommand(focusedWindow, "\\<C-w>1_")
                 },
             },
             {
                 label: "Max Width",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, "\\<C-currentWindow>|")
+                    executeVimCommand(focusedWindow, "\\<C-w>|")
                 },
             },
             {
                 label: "Min Width",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, "\\<C-currentWindow>1|")
+                    executeVimCommand(focusedWindow, "\\<C-w>1|")
                 },
             },
         ],
