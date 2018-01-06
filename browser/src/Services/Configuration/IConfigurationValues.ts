@@ -197,6 +197,7 @@ export interface IConfigurationValues {
         "oni.status.filetype": number,
         "oni.status.workingDirectory": number,
         "oni.status.git": number,
+        "oni.status.gitHubRepo": number,
         "oni.status.linenumber": number,
         "oni.status.mode": number,
     }
