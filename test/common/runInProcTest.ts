@@ -88,12 +88,15 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
 
             console.log("Retrieving logs...")
 
-            await oni.client.waitForExist(".automated-test-logs")
-            const clientLogs = await oni.client.getText(".automated-test-logs")
-            console.log("---LOGS (During run): ")
+            const writeLogs = (logs: any[]): void => {
+                logs.forEach((log) => {
+                    console.log(`[${log.level}] ${log.message}`)
+                })
+            }
 
-            const logs = JSON.parse(clientLogs).forEach((log) => console.log(log))
-
+            const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
+            console.log("---LOGS (Renderer): ")
+            writeLogs(rendererLogs)
             console.log("---")
 
             const result = JSON.parse(resultText)

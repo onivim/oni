@@ -30,6 +30,11 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 ...s,
                 colors: a.payload.colors,
             }
+        case "SET_LOADING_COMPLETE":
+            return {
+                ...s,
+                isLoaded: true,
+            }
         case "SET_NEOVIM_ERROR":
              return { ...s,
                       neovimError: a.payload.neovimError }

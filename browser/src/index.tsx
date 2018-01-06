@@ -25,6 +25,7 @@ const start = async (args: string[]): Promise<void> => {
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
 
+    const sidebarPromise = import("./Services/Sidebar")
     const statusBarPromise = import("./Services/StatusBar")
     const startEditorsPromise = import("./startEditors")
 
@@ -102,6 +103,8 @@ const start = async (args: string[]): Promise<void> => {
     const CSS = await cssPromise
     CSS.activate()
 
+    Shell.Actions.setLoadingComplete()
+
     const Diagnostics = await diagnosticsPromise
     const diagnostics = Diagnostics.getInstance()
 
@@ -112,6 +115,12 @@ const start = async (args: string[]): Promise<void> => {
     ])
    ])
     Performance.endMeasure("Oni.Start.Editors")
+
+    Performance.startMeasure("Oni.Start.Sidebar")
+    const Sidebar = await sidebarPromise
+    Sidebar.activate(configuration)
+    Performance.endMeasure("Oni.Start.Sidebar")
+
 
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
@@ -128,8 +137,6 @@ const start = async (args: string[]): Promise<void> => {
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Performance.endMeasure("Oni.Start.Activate")
-
-    Shell.Actions.setLoadingComplete()
 
     checkForUpdates()
 

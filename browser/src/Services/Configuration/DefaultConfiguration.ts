@@ -16,6 +16,7 @@ import { ocamlAndReasonConfiguration, ocamlLanguageServerPath } from "./ReasonCo
 const noop = () => { } // tslint:disable-line no-empty
 
 const cssLanguageServerPath = path.join(__dirname, "node_modules", "vscode-css-languageserver-bin", "cssServerMain.js")
+const htmlLanguageServerPath = path.join(__dirname, "node_modules", "vscode-html-languageserver-bin", "htmlServerMain.js")
 
 const BaseConfiguration: IConfigurationValues = {
     activate: noop,
@@ -34,6 +35,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "experimental.editor.textMateHighlighting.enabled": false,
     "experimental.commandline.mode": false,
+    "experimental.commandline.icons": false,
     "experimental.wildmenu.mode": false,
 
     "experimental.neovim.transport": "stdio",
@@ -129,6 +131,9 @@ const BaseConfiguration: IConfigurationValues = {
 
     "environment.additionalPaths": [],
 
+    "language.html.languageServer.command": htmlLanguageServerPath,
+    "language.html.languageServer.arguments": ["--stdio"],
+
     "language.go.languageServer.command": "go-langserver",
     "language.go.textMateGrammar": path.join(__dirname, "extensions", "go", "syntaxes", "go.json"),
 
@@ -183,10 +188,11 @@ const BaseConfiguration: IConfigurationValues = {
     "statusbar.fontSize": "0.9em",
     "statusbar.priority": {
         "oni.status.workingDirectory": 0,
-        "oni.status.linenumber": 1,
-        "oni.status.mode": 0,
+        "oni.status.linenumber": 2,
+        "oni.status.gitHubRepo": 0,
+        "oni.status.mode": 1,
         "oni.status.filetype": 1,
-        "oni.status.git": 2,
+        "oni.status.git": 3,
     },
 
     "tabs.mode": "buffers",

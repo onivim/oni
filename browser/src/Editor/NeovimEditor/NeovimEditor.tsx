@@ -561,6 +561,8 @@ export class NeovimEditor extends Editor implements IEditor {
             await this._openFiles(filesToOpen, ":tabnew")
         }
 
+        this._actions.setLoadingComplete()
+
         this._hasLoaded = true
         this._isFirstRender = true
         this._scheduleRender()

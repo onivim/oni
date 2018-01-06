@@ -324,9 +324,6 @@ export const setHasFocus = (hasFocus: boolean) => {
 }
 
 export const setLoadingComplete = () => {
-
-    document.body.classList.add("loaded")
-
     return {
         type: "SET_LOADING_COMPLETE",
     }

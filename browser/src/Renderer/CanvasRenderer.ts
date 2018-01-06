@@ -265,6 +265,7 @@ export class CanvasRenderer implements INeovimRenderer {
         const { fontWidthInPixels, fontHeightInPixels, linePaddingInPixels } = screenInfo
 
         const boundsStartX = startX * fontWidthInPixels
+        const boundsY = y * fontHeightInPixels
         const boundsWidth = state.width * fontWidthInPixels
 
         // This normalization is required to fix "cracks" due to anti-aliasing and rendering
@@ -278,12 +279,16 @@ export class CanvasRenderer implements INeovimRenderer {
         const delta = boundsStartX - normalizedBoundsStartX
         const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
 
+        const normalizedBoundsY = Math.floor(boundsY)
+        const deltaY = boundsY - normalizedBoundsY
+        const normalizedHeight = Math.ceil(boundsY + deltaY)
+
         this._canvasContext.fillStyle = backgroundColor || screenInfo.backgroundColor
 
         if (this._isOpaque || (backgroundColor && backgroundColor !== screenInfo.backgroundColor)) {
-            this._canvasContext.fillRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
+            this._canvasContext.fillRect(normalizedBoundsStartX, normalizedHeight, normalizedBoundsWidth, fontHeightInPixels)
         } else {
-            this._canvasContext.clearRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
+            this._canvasContext.clearRect(normalizedBoundsStartX, normalizedHeight, normalizedBoundsWidth, fontHeightInPixels)
         }
 
         if (!state.isWhitespace) {
