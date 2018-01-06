@@ -38,7 +38,7 @@ Oni is a [neovim](https://github.com/neovim/neovim) front-end UI with rich IDE-l
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
-Check out [Releases](https://github.com/onivim/oni/releases) for the latest binaries, or [Build Oni](#build) from source. Consider making a donation via [BountySource](https://salt.bountysource.com/teams/oni) if you find this project useful!
+Check out [Releases](https://github.com/onivim/oni/releases) for the latest binaries, or [Build Oni](https://github.com/onivim/oni/wiki/Development) from source. Consider making a donation via [BountySource](https://salt.bountysource.com/teams/oni) if you find this project useful!
 
 ## Features
 
