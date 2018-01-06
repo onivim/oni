@@ -41,9 +41,12 @@ export const buildMenu = (mainWindow, loadInit) => {
         currentWindow.webContents.send("open-files", command, files)
     }
 
-    const executeOniCommand = (browserWindow, command) => mainWindow.webContents.send("execute-command", command)
+    const executeOniCommand = (browserWindow: BrowserWindow, command: string) => {
+        const currentWindow = ensureWindow(browserWindow)
+        currentWindow.webContents.send("execute-command", command)
+    }
 
-    const openUrl = (browserWindow, url) => {
+    const openUrl = (browserWindow: BrowserWindow, url: string) => {
         const currentWindow = ensureWindow(browserWindow)
         currentWindow.webContents.send("execute-command", "browser.openUrl", url)
     }
