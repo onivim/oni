@@ -153,7 +153,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Save",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, ":currentWindow")
+                    executeVimCommand(focusedWindow, ":w")
                 },
             },
             {
