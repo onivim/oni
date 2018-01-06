@@ -181,6 +181,8 @@ export function createWindow(commandLineArguments, workingDirectory) {
     })
 
     windows.push(mainWindow)
+
+    return mainWindow
 }
 
 // Quit when all windows are closed.

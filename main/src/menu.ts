@@ -18,18 +18,21 @@ export const buildDockMenu = (mainWindow, loadInit) => {
 export const buildMenu = (mainWindow, loadInit) => {
     const menu = []
 
+    const appWindow = mainWindow || createWindow([], process.cwd())
+    console.log("APP WINDOW", appWindow)
+
     // On Windows, both the forward slash `/` and the backward slash `\` are accepted as path delimiters.
     // The node APIs only return the backward slash, ie: `C:\\oni\\README.md`, but this causes problems
     // for VIM as it sees escape keys.
     const normalizePath = (fileName) => fileName.split("\\").join("/")
 
-    const executeVimCommand = (command) => mainWindow.webContents.send("menu-item-click", command)
+    const executeVimCommand = (command) => appWindow.webContents.send("menu-item-click", command)
 
-    const executeVimCommandForMultipleFiles = (command, files) => mainWindow.webContents.send("open-files", command, files)
+    const executeVimCommandForMultipleFiles = (command, files) => appWindow.webContents.send("open-files", command, files)
 
-    const executeOniCommand = (command) => mainWindow.webContents.send("execute-command", command)
+    const executeOniCommand = (command) => appWindow.webContents.send("execute-command", command)
 
-    const openUrl = (url) => mainWindow.webContents.send("execute-command", "browser.openUrl", url)
+    const openUrl = (url) => appWindow.webContents.send("execute-command", "browser.openUrl", url)
 
     const executeVimCommandForFiles = (command, files) => {
         if (!files || !files.length) {
@@ -94,7 +97,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Open File…",
                 click(item, focusedWindow) {
-                    dialog.showOpenDialog(mainWindow, { properties: ["openFile", "multiSelections"] }, (files) => executeVimCommandForMultipleFiles(":tabnew ", files))
+                    dialog.showOpenDialog(appWindow, { properties: ["openFile", "multiSelections"] }, (files) => executeVimCommandForMultipleFiles(":tabnew ", files))
                 },
             },
             {
@@ -107,7 +110,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Split Open…",
                 click(item, focusedWindow) {
-                    dialog.showOpenDialog(mainWindow, { properties: ["openFile"] }, (files) => executeVimCommandForFiles(":sp", files))
+                    dialog.showOpenDialog(appWindow, { properties: ["openFile"] }, (files) => executeVimCommandForFiles(":sp", files))
                 },
             },
             {
@@ -131,7 +134,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Save As…",
                 click(item, focusedWindow) {
-                    dialog.showSaveDialog(mainWindow, {}, (name) => {
+                    dialog.showSaveDialog(appWindow, {}, (name) => {
                         if (name) {
                             executeVimCommand(":save " + normalizePath(name))
                         }
