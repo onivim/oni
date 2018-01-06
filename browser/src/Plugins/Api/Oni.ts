@@ -26,8 +26,11 @@ import { menuManager } from "./../../Services/Menu"
 import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
+import { getThemeManagerInstance } from "./../../Services/Themes"
 import { windowManager } from "./../../Services/WindowManager"
 import { workspace } from "./../../Services/Workspace"
+
+import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
 import * as Log from "./../../Log"
 
@@ -136,6 +139,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     public get helpers(): any {
         return helpers
+    }
+
+    public createNeovimEditor(): NeovimEditor {
+        return new NeovimEditor(this.colors, configuration, getDiagnosticsInstance(), this.language, getThemeManagerInstance())
     }
 
     constructor() {
