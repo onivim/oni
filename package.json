@@ -78,6 +78,12 @@
         "isPackage": true
       },
       {
+        "ext": "json",
+        "name": "JSON",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
         "ext": "jsx",
         "name": "JSX",
         "role": "Editor",
