@@ -112,24 +112,9 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 
     public render(): JSX.Element {
 
-        const containerStyle = {
-            width: "200px",
-            color: "rgb(171, 179, 191)",
-            backgroundColor: "rgb(40, 44, 52)",
-            height: "100%",
-        }
-
-        const tabStyle = {
-            height: "2.5em",
-            lineHeight: "2.5em",
-            textAlign: "center",
-            borderTop: this.props.hasFocus ? "2px solid rgb(97, 175, 239)" : "2px solid transparent",
-        }
-
         const nodes = this.props.nodes.map((node) => <NodeView node={node} isSelected={node.id === this.props.selectedId}/>)
 
-        return <div style={containerStyle} className="explorer enable-mouse">
-                <div className="header" style={tabStyle}>Explorer</div>
+        return <div className="explorer enable-mouse">
                 <div className="items">
                     {nodes}
                 </div>
