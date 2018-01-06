@@ -22,6 +22,7 @@ interface IWindowState {
         width: number,
     }
     isMaximized?: boolean,
+    quitting?: boolean,
 }
 
 let windowState: IWindowState = {
@@ -32,6 +33,7 @@ let windowState: IWindowState = {
         width: 800,
     },
     isMaximized: false,
+    quitting: false,
 }
 
 function storeWindowState(main) {
@@ -167,8 +169,14 @@ export function createWindow(commandLineArguments, workingDirectory) {
     mainWindow.on("resize", () => {
         storeWindowState(mainWindow)
     })
-    mainWindow.on("close", () => {
+    mainWindow.on("close", (evt) => {
         storeWindowState(mainWindow)
+        if (windowState.quitting) {
+            mainWindow = null
+        } else {
+            evt.preventDefault()
+            mainWindow.hide()
+        }
     })
 
     // Emitted when the window is closed.
@@ -194,9 +202,19 @@ app.on("window-all-closed", () => {
     }
 })
 
+app.on("before-quit", () => {
+    windowState.quitting = true
+})
+
 app.on("activate", () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
+
+    const currentWindow = windows[windows.length - 1]
+    if (currentWindow) {
+        currentWindow.show()
+    }
+
     if (windows.length === 0) {
         createWindow([], process.cwd())
     }
