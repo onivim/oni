@@ -12,6 +12,13 @@ export const buildDockMenu = (mainWindow, loadInit) => {
         },
     })
 
+    menu.push({
+        label: "Hide Window",
+        click(item, focusedWindow) {
+            focusedWindow.hide()
+        },
+    })
+
     return Menu.buildFromTemplate(menu)
 }
 
@@ -117,6 +124,12 @@ export const buildMenu = (mainWindow, loadInit) => {
                 label: "New Window",
                 click() {
                     createWindow([], process.cwd())
+                },
+            },
+            {
+                label: "Hide Window",
+                click(item, focusedWindow) {
+                    focusedWindow.hide()
                 },
             },
             {
