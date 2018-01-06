@@ -14,14 +14,7 @@ import { LanguageManager } from "./Services/Language"
 import { ThemeManager } from "./Services/Themes"
 import { windowManager } from "./Services/WindowManager"
 
-export const startEditors = async (
-    args: any,
-    colors: Colors,
-    configuration: Configuration,
-    diagnostics: IDiagnosticsDataSource,
-    languageManager: LanguageManager,
-    themeManager: ThemeManager,
-): Promise<void> => {
+export const startEditors = async (args: any, colors: Colors, configuration: Configuration, diagnostics: IDiagnosticsDataSource, languageManager: LanguageManager, themeManager: ThemeManager): Promise<void> => {
 
     const editor = new NeovimEditor(colors, configuration, diagnostics, languageManager, themeManager)
     editorManager.setActiveEditor(editor)
