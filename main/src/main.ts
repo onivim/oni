@@ -14,6 +14,8 @@ global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 const isDevelopment = process.env.NODE_ENV === "development"
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
 
+let mainWindow: BrowserWindow = null
+
 interface IWindowState {
     bounds?: {
         x: number,
@@ -123,7 +125,7 @@ export function createWindow(commandLineArguments, workingDirectory) {
     const indexPath = path.join(rootPath, "index.html?react_perf")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
-    let mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         icon: iconPath,
         webPreferences,
         backgroundColor,
@@ -210,26 +212,24 @@ app.on("activate", () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
 
-    const currentWindow = windows[windows.length - 1]
-    if (currentWindow) {
-        currentWindow.show()
+    if (mainWindow) {
+        mainWindow.show()
     }
-
-    if (windows.length === 0) {
+    if (windows.length) {
         createWindow([], process.cwd())
     }
 })
 
-function updateMenu(mainWindow, loadInit) {
-    const menu = buildMenu(mainWindow, loadInit)
+function updateMenu(browserWindow, loadInit) {
+    const menu = buildMenu(browserWindow, loadInit)
     if (process.platform === "darwin") {
         // all osx windows share the same menu
         Menu.setApplicationMenu(menu)
-        const dockMenu = buildDockMenu(mainWindow, loadInit)
+        const dockMenu = buildDockMenu(browserWindow, loadInit)
         app.dock.setMenu(dockMenu)
     } else {
         // on windows and linux, set menu per window
-        mainWindow.setMenu(menu)
+        browserWindow.setMenu(menu)
     }
 }
 
