@@ -461,7 +461,6 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         ipcRenderer.on("open-file", (_evt: any, path: string) => {
-            console.log('path in neovim editor: ', path)
             this._neovimInstance.command(`:e! ${path}`)
         })
 
@@ -542,7 +541,6 @@ export class NeovimEditor extends Editor implements IEditor {
             transport: this._configuration.getValue("experimental.neovim.transport"),
         }
 
-        console.log('Final Files to Open: ', filesToOpen) //tslint:disable-line
         await this._neovimInstance.start(startOptions)
 
         if (this._errorInitializing) {

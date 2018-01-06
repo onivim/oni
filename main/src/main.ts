@@ -82,8 +82,8 @@ if (!isDevelopment && !isDebug) {
         workingDirectory: process.env["ONI_CWD"] || process.cwd(), // tslint:disable-line no-string-literal
     }
 
-    Log.info("Making single instance...")
     makeSingleInstance(currentOptions, (options) => {
+        Log.info("Making single instance...")
         loadFileFromArguments(process.platform, options.args, options.workingDirectory)
     })
 } else {
