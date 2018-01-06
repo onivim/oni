@@ -103,6 +103,8 @@ const start = async (args: string[]): Promise<void> => {
     const CSS = await cssPromise
     CSS.activate()
 
+    Shell.Actions.setLoadingComplete()
+
     const Diagnostics = await diagnosticsPromise
     const diagnostics = Diagnostics.getInstance()
 
@@ -135,8 +137,6 @@ const start = async (args: string[]): Promise<void> => {
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Performance.endMeasure("Oni.Start.Activate")
-
-    Shell.Actions.setLoadingComplete()
 
     checkForUpdates()
 
