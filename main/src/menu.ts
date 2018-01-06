@@ -87,12 +87,14 @@ export const buildMenu = (mainWindow, loadInit) => {
         submenu: [
             {
                 label: "New File",
+                accelerator: "CmdOrCtrl+N",
                 click(item, focusedWindow) {
                     executeVimCommand(":enew")
                 },
             },
             {
                 label: "Open File…",
+                accelerator: "CmdOrCtrl+O",
                 click(item, focusedWindow) {
                     dialog.showOpenDialog(mainWindow, { properties: ["openFile", "multiSelections"] }, (files) => executeVimCommandForMultipleFiles(":tabnew ", files))
                 },
