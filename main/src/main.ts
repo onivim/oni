@@ -14,8 +14,6 @@ global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 const isDevelopment = process.env.NODE_ENV === "development"
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
 
-let mainWindow: BrowserWindow = null
-
 interface IWindowState {
     bounds?: {
         x: number,
@@ -67,7 +65,8 @@ ipcMain.on("focus-previous-instance", () => {
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let windows = []
+let windows: BrowserWindow[] = []
+let mainWindow: BrowserWindow = null
 
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
@@ -173,12 +172,6 @@ export function createWindow(commandLineArguments, workingDirectory) {
     })
     mainWindow.on("close", (evt) => {
         storeWindowState(mainWindow)
-        if (windowState.quitting) {
-            mainWindow = null
-        } else {
-            evt.preventDefault()
-            mainWindow.hide()
-        }
     })
 
     // Emitted when the window is closed.
@@ -204,21 +197,14 @@ app.on("window-all-closed", () => {
     }
 })
 
-app.on("before-quit", () => {
-    windowState.quitting = true
-})
-
 app.on("activate", () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (!windows.length) {
         createWindow([], process.cwd())
-    } else {
-        const currentWindow = windows[windows.length - 1]
-
-        if (currentWindow) {
-            currentWindow.show()
-        }
+    }
+    if (mainWindow) {
+        mainWindow.show()
     }
 })
 
