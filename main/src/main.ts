@@ -215,7 +215,7 @@ app.on("activate", () => {
     if (mainWindow) {
         mainWindow.show()
     }
-    if (windows.length) {
+    if (!windows.length) {
         createWindow([], process.cwd())
     }
 })
