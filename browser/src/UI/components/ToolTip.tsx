@@ -11,6 +11,7 @@ import { CursorPositioner } from "./CursorPositioner"
 
 interface IToolTipProps {
     padding: string
+    fontFamily: string
 }
 
 const ToolTipContainer = withProps<IToolTipProps>(styled.div)`
@@ -19,7 +20,12 @@ const ToolTipContainer = withProps<IToolTipProps>(styled.div)`
     color: ${p => p.theme["toolTip.foreground"]};
     padding: ${p => p.padding};
     height: auto;
+    font-family: ${p => p.fontFamily};
     ${boxShadow};
+
+    > * {
+        font-family: ${p => p.fontFamily};
+    }
 `
 
 export interface IToolTipsViewProps {
@@ -32,7 +38,7 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
     public render(): JSX.Element {
         const toolTipElements = this.props.toolTips.map(toolTip => {
             return (
-                <ToolTipView {...toolTip} key={toolTip.id} />
+                <ToolTipView fontFamily={this.props.fontFamily} {...toolTip} key={toolTip.id} />
             )
         })
 
@@ -49,7 +55,9 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
     }
 }
 
-export interface IToolTipViewProps extends State.IToolTip {}
+export interface IToolTipViewProps extends State.IToolTip {
+    fontFamily: string
+}
 
 export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
     private _container: HTMLElement
@@ -74,15 +82,14 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
     }
 
     public render(): JSX.Element {
-        const options = this.props.options
-        const position = options.position || null
-        const openDirection = options.openDirection || 1
-        const padding = options.padding || "8px"
+        const { options, fontFamily } =  this.props
+        const { position = null, openDirection = 1, padding = "8px" } = options
 
         return (
             <CursorPositioner position={position} openDirection={openDirection}>
                 <ToolTipContainer
                     padding={padding}
+                    fontFamily={fontFamily}
                     ref={(elem: any) => this._setContainer(elem)}
                 >
                 {this.props.element}

@@ -17,10 +17,9 @@ const fallBackFonts = `
 `.replace("\n", "")
 
 const codeBlockStyle = css`
-    /* background: ${p => p.theme.background}; */
     color: ${p => p.theme.foreground};
     border-color: ${p => p.theme["toolTip.border"]};
-    font-family: ${fallBackFonts}
+    font-family: ${fallBackFonts};
     padding: 0.4em 0.4em 0.4em 0.4em;
     margin: 0.4em 0.4em 0.4em 0.4em;
 `

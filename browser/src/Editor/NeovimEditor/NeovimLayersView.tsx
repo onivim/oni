@@ -42,7 +42,7 @@ export class NeovimLayersView extends React.PureComponent<NeovimLayersViewProps,
 
             const dimensions = getWindowPixelDimensions(windowState)
 
-            return <NeovimActiveWindow {...dimensions}>
+            return <NeovimActiveWindow {...dimensions} key={windowState.windowId}>
                     {layerElements}
                 </NeovimActiveWindow>
         })

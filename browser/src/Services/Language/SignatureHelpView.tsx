@@ -8,9 +8,9 @@ import { SelectedText, Text } from "./../../UI/components/Text"
 export class SignatureHelpView extends React.PureComponent<types.SignatureHelp, {}> {
     public render(): JSX.Element {
         return <div className="quickinfo-container">
-        <div className="quickinfo">
-        {getElementsFromType(this.props)}
-        </div>
+            <div className="quickinfo">
+                {getElementsFromType(this.props)}
+            </div>
         </div>
     }
 }
