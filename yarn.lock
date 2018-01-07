@@ -52,10 +52,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/highlight.js@^9.12.2":
-  version "9.12.2"
-  resolved "https://registry.yarnpkg.com/@types/highlight.js/-/highlight.js-9.12.2.tgz#6ee7cd395effe5ec80b515d3ff1699068cd0cd1d"
-
 "@types/jsdom@11.0.0":
   version "11.0.0"
   resolved "https://registry.yarnpkg.com/@types/jsdom/-/jsdom-11.0.0.tgz#7ce7deaa1843601ed043f51a0de84fb940574184"
@@ -2916,10 +2912,6 @@ hawk@~6.0.2:
 he@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/he/-/he-1.1.1.tgz#93410fd21b009735151f8868c2f271f3427e23fd"
-
-highlight.js@^9.12.0:
-  version "9.12.0"
-  resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-9.12.0.tgz#e6d9dbe57cbefe60751f02af336195870c90c01e"
 
 hmac-drbg@^1.0.0:
   version "1.0.1"
