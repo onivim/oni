@@ -4,6 +4,7 @@ import * as React from "react"
 import styled, { boxShadowInset, css, fontSizeSmall } from "./common"
 
 const codeBlockStyle = css`
+    background-color: ${p => p.theme.background};
     color: ${p => p.theme.foreground};
     border-color: ${p => p.theme["toolTip.border"]};
     padding: 0.4em 0.4em 0.4em 0.4em;
@@ -20,11 +21,19 @@ export const Documentation = styled.div`
     margin-bottom: 0.8rem;
 
     &::-webkit-scrollbar {
-        height: 2px;
+        height: 4px;
+    }
+
+    > * {
+        margin: 0.2rem;
     }
 
     > pre {
         ${codeBlockStyle};
+    }
+
+    > a {
+        color: ${p => p.theme["highlight.mode.normal.background"]}
     }
 `
 
@@ -42,12 +51,12 @@ export const Title = styled.div`
         height: 2px;
     }
 
-    > p {
+    > * {
         margin: 0.2rem;
     }
 
     > a {
-        text-decoration: ${p => p.theme["editor.foreground"]}
+        color: ${p => p.theme["editor.foreground"]}
     }
 `
 
@@ -58,14 +67,7 @@ export interface ITextProps {
     }
 }
 
-export class TextComponent extends React.PureComponent<ITextProps, {}> {
-    public componentDidMount() {
-        const link = document.createElement("link")
-        link.rel = "stylesheet"
-        link.href = "./node_modules/highlight.js/styles/atom-one-dark.css"
-        document.head.appendChild(link)
-    }
-}
+export class TextComponent extends React.PureComponent<ITextProps, {}> {}
 
 export class QuickInfoTitle extends TextComponent {
     public render(): JSX.Element {
