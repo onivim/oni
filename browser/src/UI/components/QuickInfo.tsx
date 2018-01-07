@@ -28,7 +28,10 @@ const Title = styled.div`
 `
 
 export interface ITextProps {
-    text: string
+    text?: string
+    html?: {
+        __html: string,
+    }
 }
 
 export class TextComponent extends React.PureComponent<ITextProps, {}> {
@@ -37,20 +40,22 @@ export class TextComponent extends React.PureComponent<ITextProps, {}> {
 
 export class QuickInfoTitle extends TextComponent {
     public render(): JSX.Element {
-        return <Title>{this.props.text}</Title>
+        // return <div className="title">{this.props.text.replace(/\\/g, "")}</div>
+        return <Title dangerouslySetInnerHTML={this.props.html}>{this.props.text}</Title>
     }
 }
 
 export class QuickInfoDocumentation extends TextComponent {
     public render(): JSX.Element {
-
-        if (!this.props.text) {
-            return null
+        switch (true) {
+            case !!this.props.text:
+                const lines = this.props.text.split(os.EOL)
+                const divs = lines.map((l) => <div key={l}>{l}</div>)
+                return <Documentation>{divs}</Documentation>
+            case !!this.props.html:
+                return <Documentation dangerouslySetInnerHTML={this.props.html} />
+            default:
+                return null
         }
-
-        const lines = this.props.text.split(os.EOL)
-        const divs = lines.map((l) => <div>{l}</div>)
-
-        return <Documentation>{divs}</Documentation>
     }
 }

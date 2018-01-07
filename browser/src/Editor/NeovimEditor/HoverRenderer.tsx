@@ -2,6 +2,7 @@
  * Hover.tsx
  */
 
+import * as marked from "marked"
 import * as Oni from "oni-api"
 import * as os from "os"
 import * as React from "react"
@@ -118,12 +119,19 @@ const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[]
     }
 }
 
+const convertMarkedString = (markdown: string): { __html: string } => {
+    marked.setOptions({ sanitize: true, gfm: true })
+    const html = marked(markdown)
+    return { __html: html }
+}
+
 const getTitleAndContents = (result: types.Hover) => {
     if (!result || !result.contents) {
         return null
     }
 
     const contents = Helpers.getTextFromContents(result.contents)
+    console.log('contents: ', contents);
 
     if (contents.length === 0) {
         return null
@@ -135,8 +143,8 @@ const getTitleAndContents = (result: types.Hover) => {
         }
 
         return {
-            title,
-            description: "",
+            title: convertMarkedString(title),
+            description: null,
         }
     } else {
 
@@ -145,8 +153,8 @@ const getTitleAndContents = (result: types.Hover) => {
         const descriptionContent = description.join(os.EOL)
 
         return {
-            title: contents[0],
-            description: descriptionContent,
+            title: convertMarkedString(contents[0]),
+            description: convertMarkedString(descriptionContent),
         }
     }
 }
@@ -159,7 +167,7 @@ const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element[] => {
     }
 
     return [
-        <QuickInfoTitle text={titleAndContents.title} />,
-        <QuickInfoDocumentation text={titleAndContents.description} />,
+        <QuickInfoTitle html={titleAndContents.title} />,
+        <QuickInfoDocumentation html={titleAndContents.description} />,
     ]
 }
