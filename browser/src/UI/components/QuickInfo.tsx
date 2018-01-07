@@ -3,42 +3,32 @@ import * as os from "os"
 import * as React from "react"
 import styled, { boxShadowInset, css, fontSizeSmall } from "./common"
 
-const fallBackFonts = `
-    Consolas,
-    Menlo,
-    Monaco,
-    Lucida Console,
-    Liberation Mono,
-    DejaVu Sans Mono,
-    Bitstream Vera Sans Mono,
-    Courier New,
-    monospace,
-    sans-serif
-`.replace("\n", "")
-
 const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
     border-color: ${p => p.theme["toolTip.border"]};
-    font-family: ${fallBackFonts};
     padding: 0.4em 0.4em 0.4em 0.4em;
     margin: 0.4em 0.4em 0.4em 0.4em;
 `
 
-const Documentation = styled.div`
+export const Documentation = styled.div`
     ${fontSizeSmall};
     ${boxShadowInset};
     padding: 8px;
     min-width: 300px;
-    max-height: 200px;
+    max-height: 20vh;
     overflow-y: auto;
     margin-bottom: 0.8rem;
+
+    &::-webkit-scrollbar {
+        height: 2px;
+    }
 
     > pre {
         ${codeBlockStyle};
     }
 `
 
-const Title = styled.div`
+export const Title = styled.div`
     width: 100%;
     margin: 8px;
     overflow-x: hidden;
@@ -68,7 +58,14 @@ export interface ITextProps {
     }
 }
 
-export class TextComponent extends React.PureComponent<ITextProps, {}> {}
+export class TextComponent extends React.PureComponent<ITextProps, {}> {
+    public componentDidMount() {
+        const link = document.createElement("link")
+        link.rel = "stylesheet"
+        link.href = "./node_modules/highlight.js/styles/atom-one-dark.css"
+        document.head.appendChild(link)
+    }
+}
 
 export class QuickInfoTitle extends TextComponent {
     public render(): JSX.Element {

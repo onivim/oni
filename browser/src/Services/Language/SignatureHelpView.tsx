@@ -2,7 +2,7 @@ import * as React from "react"
 
 import * as types from "vscode-languageserver-types"
 
-import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
+import { QuickInfoDocumentation, Title } from "./../../UI/components/QuickInfo"
 import { SelectedText, Text } from "./../../UI/components/Text"
 
 export class SignatureHelpView extends React.PureComponent<types.SignatureHelp, {}> {
@@ -53,7 +53,7 @@ export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Ele
 
         elements.push(<Text text={remainingSignatureString} />)
 
-        const titleContents = [<div className="title">{elements}</div>]
+        const titleContents = [<Title>{elements}</Title>]
 
         const selectedIndex = Math.min(currentItem.parameters.length, signatureHelp.activeParameter)
         const selectedArgument = currentItem.parameters[selectedIndex]

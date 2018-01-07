@@ -35,6 +35,19 @@ const enableMouse = css`
 
 const fontSizeSmall = `font-size: 0.9em;`
 
+const fallBackFonts = `
+    Consolas,
+    Menlo,
+    Monaco,
+    Lucida Console,
+    Liberation Mono,
+    DejaVu Sans Mono,
+    Bitstream Vera Sans Mono,
+    Courier New,
+    monospace,
+    sans-serif
+`.replace("\n", "")
+
 export {
   css,
   injectGlobal,
@@ -45,6 +58,7 @@ export {
   boxShadowInset,
   enableMouse,
   fontSizeSmall,
+  fallBackFonts,
 }
 
 export default styled

@@ -2,11 +2,9 @@
  * Hover.tsx
  */
 
-import * as marked from "marked"
 import * as Oni from "oni-api"
 import * as os from "os"
 import * as React from "react"
-import * as Highlight from "highlight.js"
 import * as types from "vscode-languageserver-types"
 
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
@@ -16,6 +14,7 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import { Colors } from "./../../Services/Colors"
 import { Configuration } from "./../../Services/Configuration"
+import { convertMarkdown } from "./markdown"
 
 import * as Selectors from "./NeovimEditorSelectors"
 import { IToolTipsProvider } from "./ToolTipsProvider"
@@ -118,19 +117,6 @@ const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[]
     } else {
         return [<ErrorInfo errors={errors} style={style} />]
     }
-}
-
-const convertMarkdown = (markdown: string): { __html: string } => {
-    marked.setOptions({
-        sanitize: true,
-        gfm: true,
-        highlight: (code) => {
-            return Highlight.highlightAuto(code).value
-        },
-    })
-
-    const html = marked(markdown)
-    return { __html: html }
 }
 
 const getTitleAndContents = (result: types.Hover) => {
