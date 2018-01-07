@@ -83,7 +83,7 @@ export class QuickInfoDocumentation extends TextComponent {
         switch (true) {
             case Boolean(text):
                 const lines = this.props.text.split(os.EOL)
-                const divs = lines.map((l) => <div key={l}>{l}</div>)
+                const divs = lines.map((l, i) => <div key={`${l}-${i}`}>{l}</div>)
                 return <Documentation>{divs}</Documentation>
             case Boolean(html && html.__html):
                 return <Documentation dangerouslySetInnerHTML={this.props.html} />
