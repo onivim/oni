@@ -64,6 +64,7 @@ ipcMain.on("focus-previous-instance", () => {
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let windows: BrowserWindow[] = []
+let mainWindow: BrowserWindow  = null
 
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
@@ -120,7 +121,7 @@ export function createWindow(commandLineArguments, workingDirectory) {
     const indexPath = path.join(rootPath, "index.html?react_perf")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
-    let mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         icon: iconPath,
         webPreferences,
         backgroundColor,
@@ -184,7 +185,6 @@ export function createWindow(commandLineArguments, workingDirectory) {
 app.on("open-file", (event, filePath) => {
     event.preventDefault()
     Log.info(`filePath to open: ${filePath}`) // tslint:disable-line
-    const mainWindow = windows[windows.length - 1]
     if (mainWindow) {
         mainWindow.webContents.send("open-file", filePath)
     } else if (process.platform.includes("darwin")) {
@@ -209,16 +209,16 @@ app.on("activate", () => {
     }
 })
 
-function updateMenu(mainWindow, loadInit) {
-    const menu = buildMenu(mainWindow, loadInit)
+function updateMenu(browserWindow, loadInit) {
+    const menu = buildMenu(browserWindow, loadInit)
     if (process.platform === "darwin") {
         // all osx windows share the same menu
         Menu.setApplicationMenu(menu)
-        const dockMenu = buildDockMenu(mainWindow, loadInit)
+        const dockMenu = buildDockMenu(browserWindow, loadInit)
         app.dock.setMenu(dockMenu)
     } else {
         // on windows and linux, set menu per window
-        mainWindow.setMenu(menu)
+        browserWindow.setMenu(menu)
     }
 }
 
