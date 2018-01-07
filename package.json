@@ -136,6 +136,7 @@
     "oni-ripgrep": "0.0.3",
     "oni-types": "0.0.4",
     "react": "16.0.0",
+    "react-component-octicons": "^1.3.1",
     "react-dom": "16.0.0",
     "redux-batched-subscribe": "^0.1.6",
     "shell-env": "^0.3.0",
