@@ -25,9 +25,26 @@ const boxShadow = css`
     box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 `
 
+const boxShadowInset = css`
+  box-shadow: inset 0 4px 8px 2px rgba(0, 0, 0, 0.2);
+`
+
 const enableMouse = css`
     pointer-events: auto;
 `
 
-export { css, injectGlobal, keyframes, styled, ThemeProvider, boxShadow, enableMouse }
+const fontSizeSmall = `font-size: 0.9em;`
+
+export {
+  css,
+  injectGlobal,
+  keyframes,
+  styled,
+  ThemeProvider,
+  boxShadow,
+  boxShadowInset,
+  enableMouse,
+  fontSizeSmall,
+}
+
 export default styled
