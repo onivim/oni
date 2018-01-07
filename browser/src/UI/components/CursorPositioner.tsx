@@ -152,7 +152,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             ...childStyle,
             left: this.state.isFullWidth ? "8px" : Math.abs(adjustedX).toString() + "px",
             right: this.state.isFullWidth ? "8px" : null,
-            maxWidth: "65%",
+            maxWidth: "75%",
         } : childStyle
 
         return <div style={containerStyle} key={this.props.key}>
@@ -189,7 +189,9 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             const bottomScreenPadding = 50
             const canOpenDownard = this.props.y + rect.height + this.props.lineHeight * 3 < this.props.containerHeight - margin - bottomScreenPadding
 
-            const shouldOpenDownward = (this.props.openDirection !== OpenDirection.Down && !canOpenUpward) || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
+            const shouldOpenDownward =
+                (this.props.openDirection !== OpenDirection.Down && !canOpenUpward)
+                || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
 
             const rightBounds = this.props.x + rect.width
 

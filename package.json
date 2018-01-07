@@ -122,11 +122,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@types/marked": "^0.3.0",
-    "@types/redux-batched-subscribe": "^0.1.2",
     "dompurify": "1.0.2",
     "electron-settings": "^3.1.4",
     "find-up": "2.1.0",
+    "highlight.js": "^9.12.0",
     "keyboard-layout": "2.0.13",
     "marked": "^0.3.9",
     "minimist": "1.2.0",
@@ -150,6 +149,9 @@
     "vscode-textmate": "3.2.0"
   },
   "devDependencies": {
+    "@types/highlight.js": "^9.12.2",
+    "@types/marked": "^0.3.0",
+    "@types/redux-batched-subscribe": "^0.1.2",
     "@types/classnames": "0.0.32",
     "@types/color": "2.0.0",
     "@types/electron-settings": "^3.1.1",

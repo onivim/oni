@@ -6,6 +6,7 @@ import * as marked from "marked"
 import * as Oni from "oni-api"
 import * as os from "os"
 import * as React from "react"
+import * as Highlight from "highlight.js"
 import * as types from "vscode-languageserver-types"
 
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
@@ -119,8 +120,15 @@ const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[]
     }
 }
 
-const convertMarkedString = (markdown: string): { __html: string } => {
-    marked.setOptions({ sanitize: true, gfm: true })
+const convertMarkdown = (markdown: string): { __html: string } => {
+    marked.setOptions({
+        sanitize: true,
+        gfm: true,
+        highlight: (code) => {
+            return Highlight.highlightAuto(code).value
+        },
+    })
+
     const html = marked(markdown)
     return { __html: html }
 }
@@ -131,7 +139,6 @@ const getTitleAndContents = (result: types.Hover) => {
     }
 
     const contents = Helpers.getTextFromContents(result.contents)
-    console.log('contents: ', contents);
 
     if (contents.length === 0) {
         return null
@@ -143,7 +150,7 @@ const getTitleAndContents = (result: types.Hover) => {
         }
 
         return {
-            title: convertMarkedString(title),
+            title: convertMarkdown(title),
             description: null,
         }
     } else {
@@ -153,8 +160,8 @@ const getTitleAndContents = (result: types.Hover) => {
         const descriptionContent = description.join(os.EOL)
 
         return {
-            title: convertMarkedString(contents[0]),
-            description: convertMarkedString(descriptionContent),
+            title: convertMarkdown(contents[0]),
+            description: convertMarkdown(descriptionContent),
         }
     }
 }

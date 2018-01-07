@@ -1,22 +1,49 @@
 import * as os from "os"
 
 import * as React from "react"
-import styled, { boxShadowInset, fontSizeSmall } from "./common"
+import styled, { boxShadowInset, css, fontSizeSmall } from "./common"
+
+const fallBackFonts = `
+    Consolas,
+    Menlo,
+    Monaco,
+    Lucida Console,
+    Liberation Mono,
+    DejaVu Sans Mono,
+    Bitstream Vera Sans Mono,
+    Courier New,
+    monospace,
+    sans-serif
+`.replace("\n", "")
+
+const codeBlockStyle = css`
+    /* background: ${p => p.theme.background}; */
+    color: ${p => p.theme.foreground};
+    border-color: ${p => p.theme["toolTip.border"]};
+    font-family: ${fallBackFonts}
+    padding: 0.4em 0.4em 0.4em 0.4em;
+    margin: 0.4em 0.4em 0.4em 0.4em;
+`
 
 const Documentation = styled.div`
     ${fontSizeSmall};
     ${boxShadowInset};
     padding: 8px;
     min-width: 300px;
-    max-height: 48px;
+    max-height: 200px;
     overflow-y: auto;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.8rem;
+
+    > pre {
+        ${codeBlockStyle};
+    }
 `
 
 const Title = styled.div`
     width: 100%;
     margin: 8px;
     overflow-x: hidden;
+    padding: 0.2em;
 
     &:hover {
         overflow-x: overlay;
@@ -24,6 +51,14 @@ const Title = styled.div`
 
     &::-webkit-scrollbar {
         height: 2px;
+    }
+
+    > p {
+        margin: 0.2rem;
+    }
+
+    > a {
+        text-decoration: ${p => p.theme["editor.foreground"]}
     }
 `
 
@@ -34,25 +69,23 @@ export interface ITextProps {
     }
 }
 
-export class TextComponent extends React.PureComponent<ITextProps, {}> {
-
-}
+export class TextComponent extends React.PureComponent<ITextProps, {}> {}
 
 export class QuickInfoTitle extends TextComponent {
     public render(): JSX.Element {
-        // return <div className="title">{this.props.text.replace(/\\/g, "")}</div>
         return <Title dangerouslySetInnerHTML={this.props.html}>{this.props.text}</Title>
     }
 }
 
 export class QuickInfoDocumentation extends TextComponent {
     public render(): JSX.Element {
+        const { text, html } = this.props
         switch (true) {
-            case !!this.props.text:
+            case Boolean(text):
                 const lines = this.props.text.split(os.EOL)
                 const divs = lines.map((l) => <div key={l}>{l}</div>)
                 return <Documentation>{divs}</Documentation>
-            case !!this.props.html:
+            case Boolean(html && html.__html):
                 return <Documentation dangerouslySetInnerHTML={this.props.html} />
             default:
                 return null
