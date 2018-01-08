@@ -30,10 +30,11 @@ import { pluginManager } from "./../../Plugins/PluginManager"
 
 import { Colors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
-import { registerBuiltInCommands } from "./../../Services/Commands"
+// import { registerBuiltInCommands } from "./../../Services/Commands"
 import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
+import { editorManager } from "./../../Services/EditorManager"
 import { Errors } from "./../../Services/Errors"
 import * as Shell from "./../../UI/Shell"
 
@@ -177,7 +178,7 @@ export class NeovimEditor extends Editor implements IEditor {
         // Services
         const errorService = new Errors(this._neovimInstance)
 
-        registerBuiltInCommands(commandManager, this._neovimInstance)
+        // registerBuiltInCommands(commandManager, this._neovimInstance)
 
         this._commands = new NeovimEditorCommands(
             commandManager,
@@ -502,6 +503,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public enter(): void {
+        editorManager.setActiveEditor(this)
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
         this._actions.setHasFocus(true)

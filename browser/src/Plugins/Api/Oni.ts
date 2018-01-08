@@ -142,8 +142,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     public createNeovimEditor(): NeovimEditor {
-        return new NeovimEditor(this.colors, configuration, getDiagnosticsInstance(), this.language, getThemeManagerInstance())
+        const editor = new NeovimEditor(getColors(), configuration, getDiagnosticsInstance(), this.language, getThemeManagerInstance())
+        return editor
     }
+
 
     constructor() {
         super()
