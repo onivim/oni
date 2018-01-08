@@ -28,7 +28,6 @@ addons:
     - rpm
     - bsdtar
 install:
-- npm install -g bs-platform
 - npm install -g yarn
 - yarn install
 script:
