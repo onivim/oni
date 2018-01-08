@@ -4,7 +4,6 @@ import * as React from "react"
 import styled, { boxShadowInset, css, fontSizeSmall } from "./common"
 
 const codeBlockStyle = css`
-    background-color: ${p => p.theme.background};
     color: ${p => p.theme.foreground};
     border-color: ${p => p.theme["toolTip.border"]};
     padding: 0.4em 0.4em 0.4em 0.4em;
@@ -30,6 +29,10 @@ export const Documentation = styled.div`
 
     > pre {
         ${codeBlockStyle};
+    }
+
+    > code {
+        background-color: ${p => p.theme.background};
     }
 
     > a {
