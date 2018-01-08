@@ -30,6 +30,14 @@ export class ExplorerSplit {
     private _store: Store<IExplorerState>
     private _lastState: IExplorerState = null
 
+    public get id(): string {
+        return "oni.sidebar.explorer"
+    }
+
+    public get title(): string {
+        return "Explorer"
+    }
+
     constructor(
         private _configuration: Configuration,
         private _workspace: Oni.Workspace,

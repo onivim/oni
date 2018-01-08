@@ -28,6 +28,7 @@ import { ErrorsContainer } from "./containers/ErrorsContainer"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
 import { NeovimActiveWindowContainer } from "./NeovimActiveWindow"
+import { NeovimEditorLoadingOverlay } from "./NeovimEditorLoadingOverlay"
 import { NeovimInput } from "./NeovimInput"
 import { NeovimLayers } from "./NeovimLayersView"
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -96,6 +97,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                 <div className="stack layer">
                     <ToolTips />
                 </div>
+                <NeovimEditorLoadingOverlay />
                 <InstallHelp />
             </div>
         </div>

@@ -7,14 +7,10 @@
 import { Reducer, Store } from "redux"
 import { createStore as createReduxStore } from "./../../Redux"
 
-export interface ISidebarEntry {
-    id: string
-    icon: string
-    enabled: boolean
-}
+import * as Oni from "oni-api"
 
 export interface ISidebarState {
-    icons: ISidebarEntry[]
+    entries: ISidebarEntry[]
 
     // Active means that the tab is currently selected
     activeEntryId: string
@@ -24,16 +20,63 @@ export interface ISidebarState {
     focusedEntryId: string
 }
 
+export type SidebarIcon = string
+
+export interface ISidebarEntry {
+    // TODO: Remove this, duplicated between here and `SidebarPane`
+    id: string
+    icon: SidebarIcon
+    pane: SidebarPane
+}
+
+export interface SidebarPane extends Oni.IWindowSplit {
+    id: string
+    title: string
+}
+
+export class SidebarManager {
+
+    private _store: Store<ISidebarState>
+
+    public get activeEntryId(): string {
+        return this._store.getState().activeEntryId
+    }
+
+    public get entries(): ISidebarEntry[] {
+        return this._store.getState().entries
+    }
+
+    public get store(): Store<ISidebarState> {
+        return this._store
+    }
+
+    constructor() {
+        this._store = createStore()
+    }
+
+    public setFocusedEntry(id: string): void {
+        this._store.dispatch({
+            type: "SET_FOCUSED_ID",
+            focusedEntryId: id,
+        })
+    }
+
+    public add(icon: SidebarIcon, pane: SidebarPane): void {
+        const entry = {
+            id: pane.id,
+            icon,
+            pane,
+        }
+        this._store.dispatch({
+            type: "ADD_ENTRY",
+            entry,
+        })
+    }
+}
+
 const DefaultSidebarState: ISidebarState = {
-    icons: [
-        { id: "sidebar.explorer", icon: "files-o", enabled: true },
-        { id: "sidebar.search", icon: "search", enabled: true },
-        { id: "sidebar.tutor", icon: "graduation-cap", enabled: true },
-        { id: "sidebar.vcs", icon: "code-fork", enabled: true },
-        { id: "sidebar.debugger", icon: "bug", enabled: true },
-        { id: "sidebar.packages", icon: "th", enabled: true },
-    ],
-    activeEntryId: "sidebar.explorer",
+    entries: [],
+    activeEntryId: null,
     focusedEntryId: null,
 }
 
@@ -43,6 +86,9 @@ export type SidebarActions = {
 } | {
     type: "SET_FOCUSED_ID",
     focusedEntryId: string,
+} | {
+    type: "ADD_ENTRY",
+    entry: ISidebarEntry,
 }
 
 export const sidebarReducer: Reducer<ISidebarState> = (
@@ -60,6 +106,32 @@ export const sidebarReducer: Reducer<ISidebarState> = (
                 ...state,
                 focusedEntryId: action.focusedEntryId,
             }
+
+        case "ADD_ENTRY":
+            if (!state.activeEntryId) {
+                return {
+                    ...state,
+                    activeEntryId: action.entry.pane.id,
+                    entries: entriesReducer(state.entries, action),
+                }
+            } else {
+                return {
+                    ...state,
+                    entries: entriesReducer(state.entries, action),
+                }
+            }
+        default:
+            return state
+    }
+}
+
+export const entriesReducer: Reducer<ISidebarEntry[]> = (
+    state: ISidebarEntry[] = [],
+    action: SidebarActions,
+) => {
+    switch (action.type) {
+        case "ADD_ENTRY":
+            return [...state, action.entry]
         default:
             return state
     }

@@ -24,6 +24,7 @@ import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
 import { menuManager } from "./../../Services/Menu"
 import { recorder } from "./../../Services/Recorder"
+import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
 import { windowManager } from "./../../Services/WindowManager"
 import { workspace } from "./../../Services/Workspace"
@@ -107,6 +108,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     public get process(): OniApi.Process {
         return Process
+    }
+
+    public get sidebar(): any {
+        return getSidebarInstance()
     }
 
     public get statusBar(): OniApi.StatusBar {

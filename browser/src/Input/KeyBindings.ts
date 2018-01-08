@@ -29,6 +29,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-t>", "language.symbols.workspace", () => !menu.isMenuOpen())
         input.bind("<s-m-t>", "language.symbols.document")
         input.bind("<m-m>", "oni.editor.minimize")
+        input.bind("<m-h>", "oni.editor.hide")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)

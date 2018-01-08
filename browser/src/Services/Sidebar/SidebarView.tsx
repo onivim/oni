@@ -131,7 +131,7 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
 export const mapStateToProps = (state: ISidebarState, containerProps: ISidebarContainerProps): ISidebarViewProps => {
     return {
         ...containerProps,
-        entries: state.icons,
+        entries: state.entries,
         activeEntryId: state.activeEntryId,
         focusedEntryId: state.focusedEntryId,
         visible: true,

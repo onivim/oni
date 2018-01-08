@@ -55,6 +55,7 @@ export interface IState {
     cursorColumnOpacity: number
     configuration: IConfigurationValues
     imeActive: boolean
+    isLoaded: boolean
     viewport: IViewport
     colors: IThemeColors
 
@@ -180,6 +181,7 @@ export const createDefaultState = (): IState => ({
     cursorLineOpacity: 0,
     cursorColumnOpacity: 0,
     neovimError: false,
+    isLoaded: false,
 
     activeVimTabPage: null,
 
