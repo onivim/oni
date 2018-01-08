@@ -101,6 +101,10 @@ const isShiftCharacter = (keyMap: IKeyMap, evt: KeyboardEvent): boolean => {
         return false
     }
 
+    if (code === "Space") {
+        return false
+    }
+
     if (mappedKey.withShift === key || mappedKey.withAltGraphShift === key) {
         return true
     } else {

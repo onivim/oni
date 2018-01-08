@@ -13,7 +13,7 @@ yarn.lock
 $LOCALAPPDATA
 
 # Output
-/lib
+lib
 lib_test
 dist
 
@@ -143,3 +143,6 @@ $RECYCLE.BIN/
 .merlin
 
 yarn.lock
+
+# Webpack stats file
+stats.json

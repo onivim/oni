@@ -12,6 +12,9 @@ export interface IRenderState {
     backgroundColor: string
     text: string
     startX: number
+    bold: boolean
+    italic: boolean
+    underline: boolean
     y: number
     width: number
 }
@@ -177,6 +180,9 @@ export class CanvasRenderer implements INeovimRenderer {
             foregroundColor: screenInfo.foregroundColor,
             backgroundColor: screenInfo.backgroundColor,
             text: "",
+            bold: false,
+            italic: false,
+            underline: false,
             startX: span.startX,
             y,
             width: 0,
@@ -203,7 +209,6 @@ export class CanvasRenderer implements INeovimRenderer {
 
     private _getNextRenderState(cell: ICell, x: number, y: number, currentState: IRenderState): IRenderState {
         const isCurrentCellWhiteSpace = isWhiteSpace(cell.character)
-
         if (cell.foregroundColor !== currentState.foregroundColor
             || cell.backgroundColor !== currentState.backgroundColor
             || isCurrentCellWhiteSpace !== currentState.isWhitespace
@@ -213,6 +218,9 @@ export class CanvasRenderer implements INeovimRenderer {
                 foregroundColor: cell.foregroundColor,
                 backgroundColor: cell.backgroundColor,
                 text: cell.character,
+                bold: cell.bold,
+                italic: cell.italic,
+                underline: cell.underline,
                 width: cell.characterWidth,
                 startX: x,
                 y,
@@ -229,6 +237,9 @@ export class CanvasRenderer implements INeovimRenderer {
                 foregroundColor: cell.foregroundColor,
                 backgroundColor: cell.backgroundColor,
                 text: currentState.text + cell.character,
+                bold: cell.bold,
+                italic: cell.italic,
+                underline: cell.underline,
                 width: currentState.width + adjustedCharacterWidth,
                 startX: currentState.startX,
                 y: currentState.y,
@@ -249,11 +260,12 @@ export class CanvasRenderer implements INeovimRenderer {
             return
         }
 
-        const { backgroundColor, foregroundColor, text, startX, y } = state
+        const { backgroundColor, foregroundColor, bold, italic,  /* underline ,*/ text, startX, y } = state
 
         const { fontWidthInPixels, fontHeightInPixels, linePaddingInPixels } = screenInfo
 
         const boundsStartX = startX * fontWidthInPixels
+        const boundsY = y * fontHeightInPixels
         const boundsWidth = state.width * fontWidthInPixels
 
         // This normalization is required to fix "cracks" due to anti-aliasing and rendering
@@ -267,17 +279,29 @@ export class CanvasRenderer implements INeovimRenderer {
         const delta = boundsStartX - normalizedBoundsStartX
         const normalizedBoundsWidth = Math.ceil(boundsWidth + delta)
 
+        const normalizedBoundsY = Math.floor(boundsY)
+        const deltaY = boundsY - normalizedBoundsY
+        const normalizedHeight = Math.ceil(boundsY + deltaY)
+
         this._canvasContext.fillStyle = backgroundColor || screenInfo.backgroundColor
 
         if (this._isOpaque || (backgroundColor && backgroundColor !== screenInfo.backgroundColor)) {
-            this._canvasContext.fillRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
+            this._canvasContext.fillRect(normalizedBoundsStartX, normalizedHeight, normalizedBoundsWidth, fontHeightInPixels)
         } else {
-            this._canvasContext.clearRect(normalizedBoundsStartX, y * fontHeightInPixels, normalizedBoundsWidth, fontHeightInPixels)
+            this._canvasContext.clearRect(normalizedBoundsStartX, normalizedHeight, normalizedBoundsWidth, fontHeightInPixels)
         }
 
         if (!state.isWhitespace) {
+            const lastFontStyle = this._canvasContext.font
             this._canvasContext.fillStyle = foregroundColor
+            if (bold) {
+                this._canvasContext.font = `bold ${this._canvasContext.font}`
+            }
+            if (italic) {
+                this._canvasContext.font = `italic ${this._canvasContext.font}`
+            }
             this._canvasContext.fillText(text, boundsStartX, y * fontHeightInPixels + linePaddingInPixels / 2)
+            this._canvasContext.font = lastFontStyle
         }
 
         // Commit span dimensions to grid

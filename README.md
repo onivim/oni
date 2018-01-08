@@ -38,7 +38,7 @@ Oni is a [neovim](https://github.com/neovim/neovim) front-end UI with rich IDE-l
 
 This repository is under __active development__, and until 1.0 please consider everything unstable.
 
-Check out [Releases](https://github.com/onivim/oni/releases) for the latest binaries, or [Build Oni](#build) from source. Consider making a donation via [BountySource](https://salt.bountysource.com/teams/oni) if you find this project useful!
+Check out [Releases](https://github.com/onivim/oni/releases) for the latest binaries, or [Build Oni](https://github.com/onivim/oni/wiki/Development) from source. Consider making a donation via [BountySource](https://salt.bountysource.com/teams/oni) if you find this project useful!
 
 ## Features
 
@@ -61,17 +61,17 @@ Oni is cross-platform and supports Windows, OS X, and Linux.
 
 ### Windows
 
-- Download the [Oni installer](https://github.com/onivim/oni/releases/download/v0.2.18/Oni-0.2.18-ia32-win.exe) for Windows
+- Download the [Oni installer](https://github.com/onivim/oni/releases/download/v0.2.19/Oni-0.2.19-ia32-win.exe) for Windows
 - Once it is downloaded, run the installer. This will only take a minute.
 - By default, Oni is installed under `C:\Program Files (x86)\Oni` for a 64-bit machine.
 
-You can also find install via a [zip archive](https://github.com/onivim/oni/releases/download/v0.2.18/Oni-0.2.18-ia32-win.zip)
+You can also find install via a [zip archive](https://github.com/onivim/oni/releases/download/v0.2.19/Oni-0.2.19-ia32-win.zip)
 
 > You may want to add Oni to your `%PATH%`, so that from the console, you can open Oni via `oni`
 
 ### Mac
 
-- Download [Oni](https://github.com/onivim/oni/releases/download/v0.2.18/Oni-0.2.18-osx.dmg) for Mac
+- Download [Oni](https://github.com/onivim/oni/releases/download/v0.2.19/Oni-0.2.19-osx.dmg) for Mac
 - Double-click on the archive to expand
 - Drag `Oni.app` to the `Applications` folder
 
@@ -89,26 +89,26 @@ defaults write com.extropy.oni ApplePressAndHoldEnabled -bool false
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.1` is required..
 
-- Download the [.deb package (64-bit)](https://github.com/onivim/oni/releases/download/v0.2.18/Oni-0.2.18-amd64-linux.deb)
+- Download the [.deb package (64-bit)](https://github.com/onivim/oni/releases/download/v0.2.19/Oni-0.2.19-amd64-linux.deb)
 - Install the package with `sudo dpkg -i <file>.deb`
 
-A [tar.gz](https://github.com/onivim/oni/releases/download/v0.2.18/Oni-0.2.18-linux.tar.gz) is also available.
+A [tar.gz](https://github.com/onivim/oni/releases/download/v0.2.19/Oni-0.2.19-linux.tar.gz) is also available.
 
 #### Red Hat based distributions (Fedora, CentOS)
 
 > If you do not have Neovim, follow the instructions to [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim) and ensure the 'nvim' binary is available. Version `0.2.1` is required..
 
-- Download the [.rpm package](https://github.com/onivim/oni/releases/download/v0.2.18/Oni-0.2.18-x86_64-linux.rpm)
+- Download the [.rpm package](https://github.com/onivim/oni/releases/download/v0.2.19/Oni-0.2.19-x86_64-linux.rpm)
 - Install the package with `sudo dnf install <file>.rpm`
 
-A [tar.gz](https://github.com/onivim/oni/releases/download/v0.2.18/Oni-0.2.18-linux.tar.gz) is also available.
+A [tar.gz](https://github.com/onivim/oni/releases/download/v0.2.19/Oni-0.2.19-linux.tar.gz) is also available.
 
 #### Arch based distributions
 
 - Available via the [AUR](https://aur.archlinux.org/packages/oni/)
 - Install the package with `yaourt -S oni`
 
-A [tar.gz](https://github.com/onivim/oni/releases/download/v0.2.18/Oni-0.2.18-linux.tar.gz) is also available.
+A [tar.gz](https://github.com/onivim/oni/releases/download/v0.2.19/Oni-0.2.19-linux.tar.gz) is also available.
 
 ## Goals
 

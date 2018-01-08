@@ -8,7 +8,7 @@ import * as React from "react"
 
 import { connect } from "react-redux"
 
-import * as State from "./../State"
+import * as State from "./../Shell/ShellState"
 
 export interface IWindowTitleViewProps {
     visible: boolean
@@ -32,11 +32,11 @@ export class WindowTitleView extends React.PureComponent<IWindowTitleViewProps, 
             backgroundColor: this.props.backgroundColor,
             color: this.props.foregroundColor,
             textAlign: "center",
-            "-webkit-app-region": "drag",
-            "-webkit-user-select": "none",
+            WebkitAppRegion: "drag",
+            WebkitUserSelect: "none",
         }
 
-        return <div style={style}>{this.props.title}</div>
+        return <div id={"oni-titlebar"} style={style}>{this.props.title}</div>
     }
 }
 

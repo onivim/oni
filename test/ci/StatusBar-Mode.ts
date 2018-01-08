@@ -7,9 +7,11 @@
 import * as assert from "assert"
 import * as path from "path"
 
+import * as Oni from "oni-api"
+
 import { getElementByClassName } from "./Common"
 
-export const test = async (oni: any) => {
+export const test = async (oni: Oni.Plugin.Api) => {
     // Wait for completion popup to show
     await oni.automation.waitFor(() => getElementByClassName("mode") !== null)
 

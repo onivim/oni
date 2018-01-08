@@ -9,43 +9,59 @@ import { connect } from "react-redux"
 
 import { IEvent } from "oni-types"
 
-import { KeyboardInputView } from "./../../Editor/KeyboardInput"
+import { KeyboardInputView } from "./../../Input/KeyboardInput"
 import { Icon, IconSize } from "./../../UI/Icon"
 
 import { ISidebarEntry, ISidebarState } from "./SidebarStore"
 
-require("./Sidebar.less") // tslint:disable-line
+import styled from "styled-components"
+import { withProps } from "./../../UI/components/common"
 
 export interface ISidebarIconProps {
     active: boolean
+    focused: boolean
     iconName: string
-    borderColor: string
-    backgroundColor: string
 }
+
+const SidebarIconWrapper = withProps<ISidebarIconProps>(styled.div)`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.5;
+    outline: none;
+    cursor: ${props => props.active ? "pointer" : null};
+    opacity: ${props => props.active ? 0.9 : 0.75};
+    border: 1px solid ${props => props.focused ? props.theme["sidebar.selection.border"] : "transparent"};
+    background-color: ${ props => props.active ? props.theme["sidebar.active.background"] : "transparent"};
+
+    &.active {
+        cursor: pointer;
+        opacity: 0.75;
+    }
+
+    &:hover {
+        transform: translateY(1px);
+        opacity: 0.9;
+    }
+    `
+
+const SidebarIconInner = styled.div`
+    margin-top: 16px;
+    margin-bottom: 16px;
+`
 
 export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
     public render(): JSX.Element {
 
-        const className = "sidebar-icon-container" + (this.props.active ? " active" : " inactive")
-
-        const containerStyle = {
-            border: "1px solid " + this.props.borderColor,
-            backgroundColor: this.props.backgroundColor,
-        }
-
-        return <div className={className} tabIndex={0} style={containerStyle}>
-                    <div className="sidebar-icon">
+        return <SidebarIconWrapper {...this.props} tabIndex={0}>
+                    <SidebarIconInner>
                         <Icon name={this.props.iconName} size={IconSize.Large} />
-                    </div>
-                </div>
+                    </SidebarIconInner>
+                </SidebarIconWrapper>
     }
 }
 
 export interface ISidebarViewProps extends ISidebarContainerProps {
-    backgroundColor: string
-    foregroundColor: string
-    activeColor: string
-    borderColor: string
     width: string
     visible: boolean
     entries: ISidebarEntry[]
@@ -58,14 +74,23 @@ export interface ISidebarContainerProps {
     onKeyDown: (key: string) => void
 }
 
+export interface ISidebarWrapperProps {
+    width: string
+}
+
+const SidebarWrapper = withProps<ISidebarWrapperProps>(styled.div)`
+    pointer-events: auto;
+
+    display: flex;
+    flex-direction: column;
+
+    color: ${props => props.theme["sidebar.foreground"]};
+    background-color: ${props => props.theme["sidebar.background"]};
+    width: ${props => props.width};
+`
+
 export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
     public render(): JSX.Element {
-        const style: React.CSSProperties = {
-            color: this.props.foregroundColor,
-            backgroundColor: this.props.backgroundColor,
-            width: this.props.width,
-        }
-
         if (!this.props.visible) {
             return null
         }
@@ -77,12 +102,11 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
                         key={e.id}
                         iconName={e.icon}
                         active={isActive}
-                        borderColor={isFocused ? this.props.borderColor : "transparent"}
-                        backgroundColor={isActive ? this.props.activeColor : "transparent"}
+                        focused={isFocused}
                     />
         })
 
-        return <div className="sidebar enable-mouse" style={style}>
+        return <SidebarWrapper width={this.props.width}>
                 <div className="icons">
                     {icons}
                 </div>
@@ -99,7 +123,7 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
                         fontCharacterWidthInPixels={12}
                         />
                 </div>
-            </div>
+            </SidebarWrapper>
 
     }
 }
@@ -107,14 +131,10 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
 export const mapStateToProps = (state: ISidebarState, containerProps: ISidebarContainerProps): ISidebarViewProps => {
     return {
         ...containerProps,
-        entries: state.icons,
+        entries: state.entries,
         activeEntryId: state.activeEntryId,
         focusedEntryId: state.focusedEntryId,
         visible: true,
-        backgroundColor: state.backgroundColor,
-        foregroundColor: state.foregroundColor,
-        activeColor: state.activeColor,
-        borderColor: state.borderColor,
         width: "50px",
     }
 }

@@ -47,6 +47,8 @@ export interface IConfigurationValues {
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
+    "experimental.commandline.mode": boolean,
+    "experimental.commandline.icons": boolean,
 
     "autoClosingPairs.enabled": boolean
     "autoClosingPairs.default": any
@@ -152,6 +154,12 @@ export interface IConfigurationValues {
     // "editor.quickOpen.execCommand": "dir /s /b"
     "editor.quickOpen.execCommand": string | null
 
+    // The filter strategy to use for processing results
+    // Options:
+    // - 'fuse' - use the fusejs strategy
+    // - 'regex' - use a regex based strategy
+    "editor.quickOpen.filterStrategy": string
+
     // Typing prediction is Oni's implementation of
     // 'zero-latency' mode typing, and increases responsiveness.
     "editor.typingPrediction": boolean
@@ -184,6 +192,15 @@ export interface IConfigurationValues {
 
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
+
+    "statusbar.priority": {
+        "oni.status.filetype": number,
+        "oni.status.workingDirectory": number,
+        "oni.status.git": number,
+        "oni.status.gitHubRepo": number,
+        "oni.status.linenumber": number,
+        "oni.status.mode": number,
+    }
 
     "tabs.mode": string
 

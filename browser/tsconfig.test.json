@@ -1,0 +1,38 @@
+{
+    "compilerOptions": {
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "jsx": "react",
+        "lib": [
+            "dom",
+            "es2017"
+        ],
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "newLine": "LF",
+        "noEmitOnError": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "outDir": "../lib_test/browser",
+        "pretty": true,
+        "removeComments": true,
+        "rootDir": ".",
+        "skipLibCheck": true,
+        "strictNullChecks": false,
+        "suppressImplicitAnyIndexErrors": true,
+        "target": "es2015",
+        "sourceMap": true
+    },
+    "include": [
+        "src/**/*.ts",
+        "test/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

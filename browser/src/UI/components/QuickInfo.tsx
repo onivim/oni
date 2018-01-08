@@ -2,8 +2,6 @@ import * as os from "os"
 
 import * as React from "react"
 
-require("./QuickInfo.less") // tslint:disable-line no-var-requires
-
 export interface ITextProps {
     text: string
 }

@@ -28,6 +28,8 @@ export function nodeRequire(moduleName: string): any {
     return window["require"](moduleName) // tslint:disable-line
 }
 
+export const EmptyArray: any[] = []
+
 export const normalizePath = (fileName: string) => fileName.split("\\").join("/")
 
 // String methods

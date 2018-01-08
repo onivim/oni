@@ -1,4 +1,6 @@
 export * from "./Definitions"
+export * from "./ISyntaxHighlighter"
 export * from "./SyntaxHighlighting"
+export * from "./SyntaxHighlightReconciler"
 export * from "./SyntaxHighlightingReducer"
 export * from "./SyntaxHighlightingStore"

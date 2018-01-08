@@ -4,9 +4,13 @@
 
 import * as assert from "assert"
 
+import * as Oni from "oni-api"
+
 import { createNewFile, getCompletionElement } from "./Common"
 
-export const test = async (oni: any) => {
+export const test = async (oni: Oni.Plugin.Api) => {
+    await oni.automation.waitForEditors()
+
     await createNewFile("ts", oni)
 
     oni.automation.sendKeys("i")

@@ -31,8 +31,19 @@ export const activate = (oni: Oni.Plugin.Api) => {
     const host = new TypeScriptServerHost(oni)
 
     const _lightweightLanguageClient = new LightweightLanguageClient()
-    oni.language.registerLanguageClient("typescript", _lightweightLanguageClient)
-    oni.language.registerLanguageClient("javascript", _lightweightLanguageClient)
+    const jsLspCommand = oni.configuration.getValue("language.javascript.languageServer.command")
+    const jsLspArgs = oni.configuration.getValue("language.javascript.languageServer.arguments")
+    const tsLspCommand = oni.configuration.getValue("language.typescript.languageServer.command")
+    const tsLspArgs = oni.configuration.getValue("language.typescript.languageServer.arguments")
+    const existingJsLSP = !!(jsLspCommand || jsLspArgs)
+    const existingTsLSP = !!(tsLspCommand || tsLspArgs)
+
+    if (!existingJsLSP) {
+        oni.language.registerLanguageClient("javascript", _lightweightLanguageClient)
+    }
+    if (!existingTsLSP) {
+        oni.language.registerLanguageClient("typescript", _lightweightLanguageClient)
+    }
 
     const connection = new LanguageConnection(_lightweightLanguageClient)
 
@@ -111,6 +122,11 @@ export const activate = (oni: Oni.Plugin.Api) => {
             host.changeLineInFile(filePath, change.range.start.line + 1, removeNewLines(change.text))
         } else {
             oni.log.warn("Unhandled change request!")
+        }
+
+        const saveFile = oni.configuration.getValue<string>("debug.typescript.saveFile")
+        if (saveFile) {
+            host.saveTo(filePath, saveFile)
         }
 
         // Update errors for modified file

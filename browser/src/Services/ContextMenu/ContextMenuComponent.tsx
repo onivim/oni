@@ -7,6 +7,7 @@ import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
 import { connect, Provider } from "react-redux"
+import { Store } from "redux"
 
 import * as Oni from "oni-api"
 
@@ -16,7 +17,7 @@ import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
 import { HighlightText } from "./../../UI/components/HighlightText"
 import { Icon } from "./../../UI/Icon"
 
-import { contextMenuStore } from "./ContextMenu"
+import { ContextMenuState } from "./ContextMenu"
 
 export interface IContextMenuItem {
     label: string
@@ -37,8 +38,6 @@ export interface IContextMenuProps {
     highlightColor: string
 }
 
-require("./ContextMenu.less") // tslint:disable-line no-var-requires
-
 export class ContextMenuView extends React.PureComponent<IContextMenuProps, {}> {
 
     public render(): null | JSX.Element {
@@ -53,7 +52,7 @@ export class ContextMenuView extends React.PureComponent<IContextMenuProps, {}> 
         const entries = firstTenEntries.map((s, i) => {
             const isSelected = i === this.props.selectedIndex
 
-            return <ContextMenuItem {...s} isSelected={isSelected} base={this.props.base} highlightColor={this.props.highlightColor}/>
+            return <ContextMenuItem key={`${i}-${s.detail}`} {...s} isSelected={isSelected} base={this.props.base} highlightColor={this.props.highlightColor}/>
         })
 
         const selectedItemDocumentation = getDocumentationFromItems(firstTenEntries, this.props.selectedIndex)
@@ -162,8 +161,8 @@ const mapStateToProps = (state: IMenus<types.CompletionItem, types.CompletionIte
 
 export const ConnectedContextMenu = connect(mapStateToProps)(ContextMenuView)
 
-export const ContextMenuContainer = () => {
-    return <Provider store={contextMenuStore}>
+export const ContextMenuContainer = (props: {store: Store<ContextMenuState>}) => {
+    return <Provider store={props.store}>
              <ConnectedContextMenu />
            </Provider>
 }

@@ -1,7 +1,9 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import * as State from "./../State"
+import styled from "styled-components"
+
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { Motion, spring } from "react-motion"
 
@@ -28,7 +30,8 @@ export interface ICursorRendererProps {
     typingPrediction: TypingPredictionManager
 }
 
-require("./Cursor.less") // tslint:disable-line no-var-requires
+const StyledCursor = styled.div`
+`
 
 export interface ICursorRendererState {
     predictedCursorColumn: number
@@ -69,14 +72,15 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
         const containerStyle: React.CSSProperties = {
             visibility: this.props.visible ? "visible" : "hidden",
             position: "absolute",
-            left: position.toString() + "px",
+            left: (position - 1).toString() + "px",
             top: this.props.y.toString() + "px",
-            width: width.toString() + "px",
+            width: (width + 2).toString() + "px",
             height,
             lineHeight: height,
             color: this.props.textColor,
             fontFamily,
             fontSize,
+            transform: "translateZ(0px)",
         }
 
         const innerPositionStyle: React.CSSProperties = {
@@ -114,10 +118,10 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
     }
 
     private _renderCursor(containerStyle: React.CSSProperties, cursorBlockStyle: React.CSSProperties, cursorCharacterStyle: React.CSSProperties, characterToShow: string): JSX.Element {
-            return <div style={containerStyle} className="cursor">
+            return <StyledCursor style={containerStyle}>
                 <div style={cursorBlockStyle} />
                 <div style={cursorCharacterStyle}>{characterToShow}</div>
-            </div>
+            </StyledCursor>
     }
 }
 

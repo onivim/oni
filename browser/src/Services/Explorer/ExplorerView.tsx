@@ -8,7 +8,7 @@ import { connect } from "react-redux"
 
 import { IEvent } from "oni-types"
 
-import { KeyboardInputView } from "./../../Editor/KeyboardInput"
+import { KeyboardInputView } from "./../../Input/KeyboardInput"
 
 import { FileIcon } from "./../FileIcon"
 
@@ -20,11 +20,15 @@ require("./Explorer.less") // tslint:disable-line
 export interface IFileViewProps {
     fileName: string
     isSelected: boolean
+    indentationLevel: number
 }
+
+const INDENT_AMOUNT = 6
 
 export class FileView extends React.PureComponent<IFileViewProps, {}> {
     public render(): JSX.Element {
         const style = {
+            paddingLeft: (INDENT_AMOUNT * this.props.indentationLevel).toString() + "px",
             borderLeft: this.props.isSelected ? "4px solid rgb(97, 175, 239)" : "4px solid transparent",
             backgroundColor: this.props.isSelected ? "rgba(97, 175, 239, 0.1)" : "transparent",
         }
@@ -46,11 +50,11 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 
         switch (node.type) {
             case "file":
-                return <FileView fileName={node.name} isSelected={this.props.isSelected}/>
+                return <FileView fileName={node.name} isSelected={this.props.isSelected} indentationLevel={node.indentationLevel}/>
             case "container":
                 return <ContainerView expanded={node.expanded} name={node.name} isContainer={true} isSelected={this.props.isSelected}/>
             case "folder":
-                return <ContainerView expanded={node.expanded} name={node.name} isContainer={false} isSelected={this.props.isSelected}/>
+                return <ContainerView expanded={node.expanded} name={node.name} isContainer={false} isSelected={this.props.isSelected} indentationLevel={node.indentationLevel}/>
             default:
                 return <div>{JSON.stringify(node)}</div>
         }
@@ -62,18 +66,27 @@ export interface IContainerViewProps {
     expanded: boolean
     name: string
     isSelected: boolean
+    indentationLevel?: number
 }
 
 export class ContainerView extends React.PureComponent<IContainerViewProps, {}> {
     public render(): JSX.Element {
+
+        const indentLevel = this.props.indentationLevel || 0
+
         const headerStyle = {
+            paddingLeft: (indentLevel * INDENT_AMOUNT).toString() + "px",
             backgroundColor: this.props.isContainer ? "#1e2127" : this.props.isSelected ? "rgba(97, 175, 239, 0.1)" : "transparent",
             borderLeft: this.props.isSelected ? "4px solid rgb(97, 175, 239)" : "4px solid transparent",
         }
 
+        const caretStyle = {
+            transform: this.props.expanded ? "rotateZ(45deg)" : "rotateZ(0deg)",
+        }
+
         return <div className="item" style={headerStyle}>
             <div className="icon">
-                <i className="fa fa-caret-right" />
+                <i style={caretStyle} className="fa fa-caret-right" />
             </div>
             <div className="name">
                 {this.props.name}
@@ -99,24 +112,9 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 
     public render(): JSX.Element {
 
-        const containerStyle = {
-            width: "200px",
-            color: "rgb(171, 179, 191)",
-            backgroundColor: "rgb(40, 44, 52)",
-            height: "100%",
-        }
-
-        const tabStyle = {
-            height: "2.5em",
-            lineHeight: "2.5em",
-            textAlign: "center",
-            borderTop: this.props.hasFocus ? "2px solid rgb(97, 175, 239)" : "2px solid transparent",
-        }
-
         const nodes = this.props.nodes.map((node) => <NodeView node={node} isSelected={node.id === this.props.selectedId}/>)
 
-        return <div style={containerStyle} className="explorer enable-mouse">
-                <div className="header" style={tabStyle}>Explorer</div>
+        return <div className="explorer enable-mouse">
                 <div className="items">
                     {nodes}
                 </div>

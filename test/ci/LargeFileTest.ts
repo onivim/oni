@@ -4,20 +4,23 @@
  * Regression test for #1064
  */
 
+import * as Oni from "oni-api"
+
 import { getTemporaryFilePath, navigateToFile } from "./Common"
 
-export const test = async (oni: any) => {
-
+export const test = async (oni: Oni.Plugin.Api) => {
     const filePath = createLargeTestFile()
+    await oni.automation.waitForEditors()
+
     navigateToFile(filePath, oni)
 
-    await oni.automation.sendKeys("G")
+    oni.automation.sendKeys("G")
     await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.cursor.line === 99999, 30000)
 
-    await oni.automation.sendKeys(":50000<CR>")
+    oni.automation.sendKeys(":50000<CR>")
     await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.cursor.line === 49999, 30000)
 
-    await oni.automation.sendKeys("gg")
+    oni.automation.sendKeys("gg")
     await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.cursor.line === 0, 30000)
 }
 

@@ -8,11 +8,15 @@ import * as assert from "assert"
 import * as os from "os"
 import * as path from "path"
 
+import * as Oni from "oni-api"
+
 import { createNewFile } from "./Common"
 
 const delay = 0
 
-export const test = async (oni: any) => {
+export const test = async (oni: Oni.Plugin.Api) => {
+    await oni.automation.waitForEditors()
+
     await createNewFile("js", oni)
 
     // Wait for the '{' binding to show up, so we get

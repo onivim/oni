@@ -25,6 +25,23 @@ describe("Resolvers", () => {
     describe("metaResolver", () => {
         let metaResolver: KeyResolver
 
+        describe("*", () => {
+            it("Handles <s- > (shift+space)", () => {
+                const layout = {
+                    "Space": {
+                        unmodified: " ",
+                        withShift: " ",
+                    },
+                }
+
+                metaResolver = createMetaKeyResolver(layout)
+
+                const key = shift(createKeyEvent(" ", "Space"))
+                const result = metaResolver(key, key.key)
+                assert.equal(result, "<s- >")
+            })
+        })
+
         describe("english", () => {
             beforeEach(() => {
                 metaResolver = createMetaKeyResolver(englishLayout)

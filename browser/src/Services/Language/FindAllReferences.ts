@@ -8,7 +8,7 @@ import * as types from "vscode-languageserver-types"
 import { INeovimInstance } from "./../../neovim"
 
 import { editorManager } from "./../EditorManager"
-import { languageManager } from "./LanguageManager"
+import * as LanguageManager from "./LanguageManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -29,6 +29,7 @@ export const findAllReferences = async () => {
         return
     }
 
+    const languageManager = LanguageManager.getInstance()
     if (languageManager.isLanguageServerAvailable(activeBuffer.language)) {
         const args = { ...Helpers.bufferToTextDocumentPositionParams(activeBuffer),
                        context: {

@@ -16,10 +16,7 @@ import { CallbackCommand, CommandManager } from "./../../Services/CommandManager
 import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
 
-// import { Colors } from "./../Colors"
-
 import { createStore, IExplorerState } from "./ExplorerStore"
-// import { Sidebar } from "./SidebarView"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
@@ -31,6 +28,15 @@ export class ExplorerSplit {
     // private _activeBinding: IMenuBinding = null
     private _activeBinding: IMenuBinding = null
     private _store: Store<IExplorerState>
+    private _lastState: IExplorerState = null
+
+    public get id(): string {
+        return "oni.sidebar.explorer"
+    }
+
+    public get title(): string {
+        return "Explorer"
+    }
 
     constructor(
         private _configuration: Configuration,
@@ -59,6 +65,8 @@ export class ExplorerSplit {
                 filePath: args.filePath,
             })
         })
+
+        this._store.subscribe(() => this._updateBindingFromState())
     }
 
     public enter(): void {
@@ -70,15 +78,14 @@ export class ExplorerSplit {
 
         this._activeBinding = getInstance().bindToMenu()
 
-        const state = this._store.getState()
-
-        const flattenedState = ExplorerSelectors.mapStateToNodeList(state)
-
-        const items = flattenedState.map((fs) => fs.id)
-
-        this._activeBinding.setItems(items)
+        this._updateBindingFromState()
 
         this._activeBinding.onCursorMoved.subscribe((id: string) => {
+
+            if (id === this._store.getState().selectedId) {
+                return
+            }
+
             this._store.dispatch({
                 type: "SET_SELECTED_ID",
                 selectedId: id,
@@ -104,6 +111,24 @@ export class ExplorerSplit {
             </Provider>
     }
 
+    private _updateBindingFromState(): void {
+
+        if (!this._activeBinding) {
+            return
+        }
+
+        const state = this._store.getState()
+
+        if (this._lastState === state) {
+            return
+        }
+
+        this._lastState = state
+        const flattenedState = ExplorerSelectors.mapStateToNodeList(state)
+        const items = flattenedState.map((fs) => fs.id)
+        this._activeBinding.setItems(items, state.selectedId)
+    }
+
     private _onOpenItem(): void {
         const state = this._store.getState()
         const flattenedState = ExplorerSelectors.mapStateToNodeList(state)
@@ -119,6 +144,13 @@ export class ExplorerSplit {
         switch (selectedItem.type) {
             case "file":
                 this._editorManager.activeEditor.openFile(selectedItem.filePath)
+                return
+            case "folder":
+                const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(state, selectedItem.folderPath)
+                this._store.dispatch({
+                    type: isDirectoryExpanded ? "COLLAPSE_DIRECTORY" : "EXPAND_DIRECTORY",
+                    directoryPath: selectedItem.folderPath,
+                })
                 return
             default:
                 alert("Not implemented yet.") // tslint:disable-line

@@ -10,8 +10,6 @@ import { EventEmitter } from "events"
 
 import * as OniApi from "oni-api"
 
-import { Diagnostics } from "./Diagnostics"
-
 import * as Process from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
@@ -20,14 +18,15 @@ import { automation } from "./../../Services/Automation"
 import { Colors, getInstance as getColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
 import { configuration } from "./../../Services/Configuration"
-import { contextMenuManager } from "./../../Services/ContextMenu"
+import { getInstance as getDiagnosticsInstance } from "./../../Services/Diagnostics"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
-import { languageManager } from "./../../Services/Language"
+import * as LanguageManager from "./../../Services/Language"
 import { menuManager } from "./../../Services/Menu"
 import { recorder } from "./../../Services/Recorder"
-import { statusBar } from "./../../Services/StatusBar"
-import { windowManager, WindowManager } from "./../../Services/WindowManager"
+import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
+import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
+import { windowManager } from "./../../Services/WindowManager"
 import { workspace } from "./../../Services/Workspace"
 
 import * as Log from "./../../Log"
@@ -50,9 +49,7 @@ const helpers = {
  * API instance for interacting with OniApi (and vim)
  */
 export class Oni extends EventEmitter implements OniApi.Plugin.Api {
-
     private _dependencies: Dependencies
-    private _diagnostics: OniApi.Plugin.Diagnostics.Api
     private _ui: Ui
     private _services: Services
     private _colors: Colors
@@ -65,8 +62,12 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return this._colors
     }
 
-    public get commands(): OniApi.Commands {
+    public get commands(): OniApi.Commands.Api {
         return commandManager
+    }
+
+    public get contextMenu(): any {
+        return null
     }
 
     public get log(): OniApi.Log {
@@ -81,12 +82,8 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return configuration
     }
 
-    public get contextMenu(): any {
-        return contextMenuManager
-    }
-
     public get diagnostics(): OniApi.Plugin.Diagnostics.Api {
-        return this._diagnostics
+        return getDiagnosticsInstance()
     }
 
     public get dependencies(): Dependencies {
@@ -102,7 +99,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     public get language(): any {
-        return languageManager
+        return LanguageManager.getInstance()
     }
 
     public get menu(): any /* TODO */ {
@@ -113,8 +110,12 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return Process
     }
 
+    public get sidebar(): any {
+        return getSidebarInstance()
+    }
+
     public get statusBar(): OniApi.StatusBar {
-        return statusBar
+        return getStatusBarInstance()
     }
 
     public get ui(): Ui {
@@ -125,7 +126,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return this._services
     }
 
-    public get windows(): WindowManager {
+    public get windows(): OniApi.IWindowManager {
         return windowManager
     }
 
@@ -141,7 +142,6 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         super()
         this._colors = getColors()
 
-        this._diagnostics = new Diagnostics()
         this._dependencies = new Dependencies()
         this._ui = new Ui(react)
         this._services = new Services()

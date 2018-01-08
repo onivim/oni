@@ -5,12 +5,23 @@ if exists("g:loaded_oni_interop_plugin")
     finish
 endif
 
-:set hidden
+set hidden
 
 let g:loaded_oni_interop_plugin = 1
 
 function OniNotify(args)
     call rpcnotify(1, "oni_plugin_notify", a:args)
+endfunction
+
+function OniNotifyWithBuffers(eventName)
+    "NOTE: Get all buffers can return a 0 instead of a buffer
+    " due to viml's implicit returns if a conditional fails
+    let l:allBufs = OniGetAllBuffers()
+    let l:current = OniGetContext()
+    let l:context = {}
+    let l:context.current = l:current
+    let l:context.existingBuffers = l:allBufs
+    call OniNotify(["event", a:eventName, l:context])
 endfunction
 
 function OniNoop()
@@ -42,6 +53,54 @@ function OniNotifyEvent(eventName)
     call OniNotify(["event", a:eventName, context])
 endfunction
 
+function User_buffers() " help buffers are always unlisted, but quickfix buffers are not
+  return filter(range(1,bufnr('$')),'buflisted(v:val) && "quickfix" !=? getbufvar(v:val, "&buftype")')
+endfunction
+
+function OniGetAllBuffers()
+  let l:buffers = []
+  let l:bufnums = User_buffers()
+  if exists("l:bufnums")
+    for l:bufnum in l:bufnums
+      try
+        let l:buffer = OniGetEachContext(l:bufnum)
+        let l:buffers += [l:buffer]
+      catch /.*/
+      "Probably dont want this outside of a debugging scenario
+      " echohl WarningMsg
+      " echo v:exception
+      " echohl none
+    endtry
+    endfor
+    return l:buffers
+  endif
+endfunction
+
+
+function OniGetEachContext(bufnum)
+  let l:context = {}
+    let l:bufpath = bufname(a:bufnum)
+
+    if strlen(l:bufpath)
+      let l:context.bufferNumber = a:bufnum
+      let l:context.bufferFullPath = expand("#".a:bufnum.":p")
+      let l:context.filetype = getbufvar(a:bufnum, "&filetype")
+      let l:context.buftype = getbufvar(a:bufnum, "&buftype")
+      let l:context.modified = getbufvar(a:bufnum, "&mod")
+      let l:context.hidden = getbufvar(a:bufnum, "&hidden")
+      let l:context.listed = getbufvar(a:bufnum, "&buflisted")
+
+      if exists("b:last_change_tick")
+        let l:context.version = b:last_change_tick
+      endif
+
+      return l:context
+    elseif -1 < index(['nofile','acwrite'], getbufvar(a:bufnum, '&buftype')) " scratch buffer
+        return
+  endif
+endif
+endfunction
+
 function OniCommand(oniCommand)
     call OniNotify(["oni_command", a:oniCommand])
 endfunction
@@ -65,11 +124,14 @@ augroup OniEventListeners
     autocmd!
     autocmd! BufWritePre * :call OniNotifyEvent("BufWritePre")
     autocmd! BufWritePost * :call OniNotifyEvent("BufWritePost")
-    autocmd! BufEnter * :call OniNotifyEvent("BufEnter")
+    autocmd! BufEnter * :call OniNotifyWithBuffers("BufEnter")
+    autocmd! BufRead * :call OniNotifyWithBuffers("BufRead")
     autocmd! BufWinEnter * :call OniNotifyEvent("BufWinEnter")
     autocmd! ColorScheme * :call OniNotifyEvent("ColorScheme")
+    autocmd! FileType * :call OniNotifyEvent("FileType")
     autocmd! WinEnter * :call OniNotifyEvent("WinEnter")
-    autocmd! BufDelete * :call OniNotifyEvent("BufDelete")
+    autocmd! BufDelete * :call OniNotifyWithBuffers("BufDelete")
+    autocmd! BufWipeout * :call OniNotifyWithBuffers("BufWipeout")
     autocmd! CursorMoved * :call OniNotifyEvent("CursorMoved")
     autocmd! CursorMovedI * :call OniNotifyEvent("CursorMovedI")
     autocmd! InsertLeave * :call OniNotifyEvent("InsertLeave")
@@ -96,7 +158,8 @@ let context.bufferTotalLines = line("$")
 let context.line = line(".")
 let context.column = col(".")
 let context.mode = mode()
-let context.windowNumber = winnr()
+let context.tabNumber = tabpagenr()
+let context.windowNumber = win_getid()
 let context.winline = winline()
 let context.wincol = wincol()
 let context.windowTopLine = line("w0")

@@ -21,12 +21,18 @@ export type ExplorerNode = {
     folderPath: string,
     expanded: boolean,
     name: string,
+    indentationLevel: number,
 }  | {
     id: string,
     type: "file",
     filePath: string,
     modified: boolean,
     name: string,
+    indentationLevel: number,
+}
+
+export const isPathExpanded = (state: IExplorerState, pathToCheck: string): boolean => {
+    return !!state.expandedFolders[pathToCheck]
 }
 
 export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
@@ -39,12 +45,15 @@ export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
         name: "Opened Files",
     })
 
-    const openedFiles: ExplorerNode[] = Object.keys(state.openedFiles).map((filePath) => ({
+    const openedFiles: ExplorerNode[] = Object.keys(state.openedFiles)
+        .filter(filePath => !!filePath)
+        .map(filePath => ({
         type: "file",
         id: "opened:" + filePath,
         filePath,
         name: path.basename(filePath),
         modified: false, // TODO
+        indentationLevel: 0,
     } as ExplorerNode))
 
     ret = [...ret, ...openedFiles]
@@ -60,7 +69,7 @@ export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
         name: state.rootFolder.fullPath,
     })
 
-    const expandedTree = flattenFolderTree(state.rootFolder, [], state.expandedFolders)
+    const expandedTree = flattenFolderTree(state.rootFolder, [], state.expandedFolders, 0)
 
     // The root node is included in the output, so we'll remove it
     const [, ...remainingTree] = expandedTree
@@ -69,7 +78,7 @@ export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
     return ret
 }
 
-export const flattenFolderTree = (folderTree: FolderOrFile, currentList: ExplorerNode[], expandedFolders: ExpandedFolders): ExplorerNode[] => {
+export const flattenFolderTree = (folderTree: FolderOrFile, currentList: ExplorerNode[], expandedFolders: ExpandedFolders, indentationLevel: number): ExplorerNode[] => {
     switch (folderTree.type) {
         case "file":
             const file: ExplorerNode = {
@@ -78,6 +87,7 @@ export const flattenFolderTree = (folderTree: FolderOrFile, currentList: Explore
                 id: "explorer:" + folderTree.fullPath,
                 filePath: folderTree.fullPath,
                 modified: false,
+                indentationLevel,
             }
             return [...currentList, file]
         case "folder":
@@ -89,10 +99,11 @@ export const flattenFolderTree = (folderTree: FolderOrFile, currentList: Explore
                 folderPath: folderTree.fullPath,
                 name: path.basename(folderTree.fullPath),
                 expanded,
+                indentationLevel,
             }
 
             const folderChildren = expandedFolders[folderTree.fullPath] || []
-            const children = flatten(folderChildren.map((c) => flattenFolderTree(c, [], expandedFolders)))
+            const children = flatten(folderChildren.map((c) => flattenFolderTree(c, [], expandedFolders, indentationLevel + 1)))
 
             return [...currentList, folder, ...children]
         default:

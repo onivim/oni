@@ -2,7 +2,7 @@
  * MenuActionCreators.ts
  */
 
-import * as UI from "./../../UI"
+import * as Shell from "./../../UI/Shell"
 import * as MenuActions from "./MenuActions"
 
 // Selector
@@ -26,7 +26,7 @@ const notifySelectedItemChange = (contextMenuState: any) => {
 
 export const showPopupMenu = (id: string, opts?: MenuActions.IMenuOptions, items?: any, filter?: string) => {
 
-    const state: any = UI.store.getState()
+    const state: any = Shell.store.getState()
     const backgroundColor = state.colors["menu.background"]
     const foregroundColor = state.colors["menu.foreground"]
     const borderColor = state.colors["menu.border"] || backgroundColor

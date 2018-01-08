@@ -9,16 +9,14 @@ import { connect } from "react-redux"
 
 import * as classNames from "classnames"
 
-import * as BufferSelectors from "./../selectors/BufferSelectors"
-import * as State from "./../State"
+import * as BufferSelectors from "./../../Editor/NeovimEditor/NeovimEditorSelectors"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
 
 import { Icon } from "./../../UI/Icon"
 
 import { FileIcon } from "./../../Services/FileIcon"
-
-require("./Tabs.less") // tslint:disable-line no-var-requires
 
 export interface ITabProps {
     id: number
@@ -186,7 +184,7 @@ const getTabsFromBuffers = createSelector(
                 description: buf.file,
             }
         })
-        return tabs
+        return tabs.sort(({ id: prevId }: ITabProps, { id: nextId }: ITabProps) => prevId - nextId)
     })
 
 const getTabsFromVimTabs = createSelector(

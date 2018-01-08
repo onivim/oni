@@ -15,9 +15,8 @@ import * as Oni from "oni-api"
 import { INeovimInstance } from "./../neovim"
 
 import { configuration } from "./../Services/Configuration"
-import { contextMenuManager } from "./../Services/ContextMenu"
 import { editorManager } from "./../Services/EditorManager"
-import { /*commitCompletion,*/ cancelRename, commitRename, expandCodeActions, findAllReferences, format, gotoDefinitionUnderCursor, isRenameActive, openDocumentSymbolsMenu, openWorkspaceSymbolsMenu, startRename } from "./../Services/Language"
+import { findAllReferences, format } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
 import { showAboutMessage } from "./../Services/Metadata"
 import { multiProcess } from "./../Services/MultiProcess"
@@ -53,25 +52,17 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
 
         // Language service
         // TODO: Deprecate
-        new CallbackCommand("oni.editor.gotoDefinition", null, null, () => gotoDefinitionUnderCursor()),
-        new CallbackCommand("language.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => gotoDefinitionUnderCursor()),
-        new CallbackCommand("language.gotoDefinition.openVertical", null, null, () => gotoDefinitionUnderCursor(1)),
-        new CallbackCommand("language.gotoDefinition.openHorizontal", null, null, () => gotoDefinitionUnderCursor(2)),
-
-        // TODO: Deprecate
         new CallbackCommand("oni.editor.findAllReferences", null, null, () => findAllReferences()),
         new CallbackCommand("language.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences()),
 
-        new CallbackCommand("language.codeAction.expand", null, null, () => expandCodeActions()),
+        // new CallbackCommand("language.codeAction.expand", null, null, () => expandCodeActions()),
 
-        new CallbackCommand("language.rename", null, null, () => startRename()),
-        new CallbackCommand("language.rename.commit", null, null, () => commitRename(), isRenameActive),
-        new CallbackCommand("language.rename.cancel", null, null, () => cancelRename(), isRenameActive),
+        // MUSTFIX: Switch to contextual editor commands
+        // new CallbackCommand("language.rename", null, null, () => startRename()),
+        // new CallbackCommand("language.rename.commit", null, null, () => commitRename(), isRenameActive),
+        // new CallbackCommand("language.rename.cancel", null, null, () => cancelRename(), isRenameActive),
 
         new CallbackCommand("language.format", null, null, () => format()),
-
-        new CallbackCommand("language.symbols.document", null, null, () => openDocumentSymbolsMenu()),
-        new CallbackCommand("language.symbols.workspace", null, null, () => openWorkspaceSymbolsMenu()),
 
         // Menu commands
         new CallbackCommand("oni.config.openConfigJs", "Edit Oni Config", "Edit configuration file ('config.js') for Oni", () => openDefaultConfig(neovimInstance)),
@@ -86,11 +77,6 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
         new CallbackCommand("commands.show", null, null, () => tasks.show()),
 
         // Autocompletion
-        new CallbackCommand("contextMenu.select", null, null, selectContextMenuItem, isContextMenuOpen),
-        new CallbackCommand("contextMenu.next", null, null, nextContextMenuItem, isContextMenuOpen),
-        new CallbackCommand("contextMenu.previous", null, null, previousContextMenuItem, isContextMenuOpen),
-        new CallbackCommand("contextMenu.close", null, null, closeContextMenu, isContextMenuOpen),
-
         // Menu
         new CallbackCommand("menu.close", null, null, popupMenuClose),
         new CallbackCommand("menu.next", null, null, popupMenuNext),
@@ -128,43 +114,11 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
     commands.forEach((c) => commandManager.registerCommand(c))
 }
 
-/**
- * Higher-order function for commands dealing with completion
- * - checks that the completion menu is open
- */
-const contextMenuCommand = (innerCommand: Oni.ICommandCallback) => {
-    return () => {
-        if (contextMenuManager.isMenuOpen()) {
-            return innerCommand()
-        }
-
-        return false
-    }
-}
-
-const isContextMenuOpen = () => contextMenuManager.isMenuOpen()
-
 const shouldShowMenu = () => {
-    return !isContextMenuOpen() && !menuManager.isMenuOpen()
+    return !menuManager.isMenuOpen()
 }
 
-const selectContextMenuItem = contextMenuCommand(() => {
-    contextMenuManager.selectMenuItem()
-})
-
-const nextContextMenuItem = contextMenuCommand(() => {
-    contextMenuManager.nextMenuItem()
-})
-
-const closeContextMenu = contextMenuCommand(() => {
-    contextMenuManager.closeActiveMenu()
-})
-
-const previousContextMenuItem = contextMenuCommand(() => {
-    contextMenuManager.previousMenuItem()
-})
-
-const popupMenuCommand = (innerCommand: Oni.ICommandCallback) => {
+const popupMenuCommand = (innerCommand: Oni.Commands.CommandCallback) => {
     return () => {
         if (menuManager.isMenuOpen()) {
             return innerCommand()
@@ -179,7 +133,7 @@ const popupMenuNext = popupMenuCommand(() => menuManager.nextMenuItem())
 const popupMenuPrevious = popupMenuCommand(() => menuManager.previousMenuItem())
 const popupMenuSelect = popupMenuCommand(() => menuManager.selectMenuItem())
 
-const quickOpenCommand = (innerCommand: Oni.ICommandCallback) => (quickOpen: QuickOpen) => {
+const quickOpenCommand = (innerCommand: Oni.Commands.CommandCallback) => (quickOpen: QuickOpen) => {
     return () => {
         if (quickOpen.isOpen()) {
             return innerCommand(quickOpen)

@@ -11,7 +11,7 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import { LanguageManager } from "./LanguageManager"
 
-import { DiagnosticsDataSource, IDiagnosticsDataSource } from "./Diagnostics"
+import * as Diagnostics from "./../Diagnostics"
 
 export interface IHoverResult {
     hover: types.Hover
@@ -26,7 +26,6 @@ export class LanguageServiceHoverRequestor {
 
     constructor(
         private _languageManager: LanguageManager,
-        private _diagnostics: IDiagnosticsDataSource = new DiagnosticsDataSource(),
     ) { }
 
     public async getHover(language: string, filePath: string, line: number, column: number): Promise<IHoverResult> {
@@ -42,7 +41,7 @@ export class LanguageServiceHoverRequestor {
             }
         }
 
-        const latestErrors = this._diagnostics.getErrorsForPosition(filePath, line, column)
+        const latestErrors = Diagnostics.getInstance().getErrorsForPosition(filePath, line, column)
 
         return {
             hover: result,

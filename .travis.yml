@@ -6,7 +6,6 @@ cache:
     yarn: true
     directories:
         - node_modules
-
 matrix:
   include:
   - os: linux

@@ -4,14 +4,18 @@
  * Helper methods for running automated tests
  */
 
+import { remote } from "electron"
+
 import * as OniApi from "oni-api"
 
 import * as Utility from "./../Utility"
 
+import { configuration } from "./Configuration"
 import { editorManager } from "./EditorManager"
 import { inputManager } from "./InputManager"
 
 import * as Log from "./../Log"
+import * as Shell from "./../UI/Shell"
 
 export interface ITestResult {
     passed: boolean
@@ -57,39 +61,64 @@ export class Automation implements OniApi.Automation.Api {
         throw new Error("waitFor: Timeout expired")
     }
 
+    public async waitForEditors(): Promise<void> {
+        // Add explicit wait for Neovim to be initialized
+        // The CI machines can often be slow, so we need a longer timout for it
+        // TODO: Replace with a more explicit condition, once our startup
+        // path is well-defined (#89, #355, #372)
+
+        // Add explicit wait for Neovim to be initialized
+        // The CI machines can often be slow, so we need a longer timout for it
+        // TODO: Replace with a more explicit condition, once our startup
+        // path is well-defined (#89, #355, #372)
+        Log.info("[AUTOMATION] Waiting for startup...")
+        await this.waitFor(() => (Shell.store.getState() as any).isLoaded, 30000)
+        Log.info("[AUTOMATION] Startup complete!")
+
+        Log.info("[AUTOMATION] Waiting for neovim to attach...")
+        await this.waitFor(() => editorManager.activeEditor.neovim && (editorManager.activeEditor as any).neovim.isInitialized, 30000)
+        Log.info("[AUTOMATION] Neovim attached!")
+    }
+
     public async runTest(testPath: string): Promise<void> {
         const containerElement = this._getOrCreateTestContainer("automated-test-container")
         containerElement.innerHTML = ""
 
         const testPath2 = testPath
 
-        const loggingRedirector = new LoggingRedirector()
         Log.enableVerboseLogging()
         try {
             Log.info("[AUTOMATION] Starting test: " + testPath)
+            Log.info("[AUTOMATION] Configuration path: " + configuration.userJsConfig)
             const testCase: any = Utility.nodeRequire(testPath2)
             const oni = new Oni()
-            // Add explicit wait for Neovim to be initialized
-            // The CI machines can often be slow, so we need a longer timout for it
-            // TODO: Replace with a more explicit condition, once our startup
-            // path is well-defined (#89, #355, #372)
-            Log.info("[AUTOMATION] Waiting for neovim to attach...")
-            await this.waitFor(() => oni.editors.activeEditor.neovim && (oni.editors.activeEditor as any).neovim.isInitialized, 30000)
-            Log.info("[AUTOMATION] Neovim attached!")
+
+            this._initializeBrowseWindow()
+
             await testCase.test(oni)
             Log.info("[AUTOMATION] Completed test: " + testPath)
             this._reportResult(true)
         } catch (ex) {
             this._reportResult(false, ex)
         } finally {
-            const logs = loggingRedirector.getAllLogs()
-
-            const logsElement = this._createElement("automated-test-logs", this._getOrCreateTestContainer("automated-test-container"))
-
-            logsElement.textContent = JSON.stringify(logs)
-
-            loggingRedirector.dispose()
+            this._reportWindowSize()
         }
+    }
+
+    private _initializeBrowseWindow(): void {
+        const win = remote.getCurrentWindow()
+        win.maximize()
+        win.focus()
+
+        this._reportWindowSize()
+    }
+
+    private _reportWindowSize(): void {
+        const win = remote.getCurrentWindow()
+        const size = win.getContentSize()
+        Log.info(`[AUTOMATION]: Window size reported as ${size}`)
+        Log.info(`[AUTOMATION]: Window focus state: ${win.isFocused()}`)
+        Log.info(`[AUTOMATION]: Is off-screen rendering: ${win.webContents.isOffscreen()}`)
     }
 
     private _getOrCreateTestContainer(className: string): HTMLDivElement {
@@ -121,45 +150,3 @@ export class Automation implements OniApi.Automation.Api {
 }
 
 export const automation = new Automation()
-
-class LoggingRedirector {
-
-    private _logs: string[] = []
-
-    private _oldInfo: any
-    private _oldWarn: any
-    private _oldError: any
-
-    constructor() {
-        this._oldInfo = console.log
-        this._oldWarn = console.warn
-        this._oldError = console.error
-
-        console.log = this._redirect("INFO", this._oldInfo)
-        console.warn = this._redirect("WARN", this._oldWarn)
-        console.error = this._redirect("ERROR", this._oldError)
-    }
-
-    public getAllLogs(): string[] {
-        return this._logs
-    }
-
-    public dispose(): void {
-        this._logs = null
-
-        console.log = this._oldInfo
-        console.warn = this._oldWarn
-        console.error = this._oldError
-
-        this._oldInfo = null
-        this._oldWarn = null
-        this._oldError = null
-    }
-
-    private _redirect(type: string, oldFunction: any): any {
-        return (...args: any[]) => {
-            this._logs.push("[" + type + "][" + new Date().getTime() + "]: " + JSON.stringify(args))
-            oldFunction(args)
-        }
-    }
-}

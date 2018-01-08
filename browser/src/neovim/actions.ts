@@ -39,12 +39,24 @@ export interface IKeyboardInputAction extends IAction {
     input: string
 }
 
+interface ISetFontArguments {
+    fontFamily: string
+    fontSize: string
+    fontWidthInPixels: number
+    fontHeightInPixels: number
+    linePaddingInPixels: number
+    isItalicAvailable: boolean
+    isBoldAvailable: boolean
+}
+
 export interface ISetFontAction extends IAction {
     fontFamily: string
     fontSize: string
     fontWidthInPixels: number
     fontHeightInPixels: number
     linePaddingInPixels: number
+    isItalicAvailable: boolean
+    isBoldAvailable: boolean
 }
 
 export interface IScrollAction extends IAction {
@@ -90,7 +102,15 @@ export function setScrollRegion(top: number, bottom: number, left: number, right
     }
 }
 
-export function setHighlight(bold: boolean, italic: boolean, reverse: boolean, underline: boolean, undercurl: boolean, foregroundColor?: number, backgroundColor?: number): ISetHighlightAction {
+export function setHighlight(
+    bold: boolean,
+    italic: boolean,
+    reverse: boolean,
+    underline: boolean,
+    undercurl: boolean,
+    foregroundColor?: number,
+    backgroundColor?: number,
+): ISetHighlightAction {
     const action: ISetHighlightAction = {
         type: SET_HIGHLIGHT,
         bold,
@@ -112,6 +132,18 @@ export function setHighlight(bold: boolean, italic: boolean, reverse: boolean, u
 
     return action
 }
+
+export const CommandLineShow = (content: [any, string], pos: number, firstc: string, prompt: string, indent: number, level: number) => ({
+    type: "COMMAND_LINE_SHOW",
+    payload: {
+        content,
+        pos,
+        firstc,
+        prompt,
+        indent,
+        level,
+    },
+})
 
 function colorToString(color: number, defaultColor: string): string {
     if (color === -1) {
@@ -157,7 +189,15 @@ export function changeMode(mode: string): IChangeModeAction {
     }
 }
 
-export function setFont(fontFamily: string, fontSize: string, fontWidthInPixels: number, fontHeightInPixels: number, linePaddingInPixels: number): ISetFontAction {
+export function setFont({
+    fontFamily,
+    fontSize,
+    fontWidthInPixels,
+    fontHeightInPixels,
+    linePaddingInPixels,
+    isItalicAvailable,
+    isBoldAvailable,
+}: ISetFontArguments): ISetFontAction {
     return {
         type: SET_FONT,
         fontFamily,
@@ -165,6 +205,8 @@ export function setFont(fontFamily: string, fontSize: string, fontWidthInPixels:
         fontWidthInPixels,
         fontHeightInPixels,
         linePaddingInPixels,
+        isItalicAvailable,
+        isBoldAvailable,
     }
 }
 

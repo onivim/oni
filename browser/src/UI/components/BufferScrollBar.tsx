@@ -1,8 +1,11 @@
 import * as React from "react"
 
-require("./BufferScrollBar.less") // tslint:disable-line no-var-requires
+import styled from "styled-components"
+
+import { bufferScrollBarSize } from "./common"
 
 export interface IBufferScrollBarProps {
+    windowId: number
     bufferSize: number
     height: number
     windowTopLine: number
@@ -16,6 +19,24 @@ export interface IScrollBarMarker {
     height: number
     color: string
 }
+
+const ScrollBarContainer = styled.div`
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    background-color: rgba(0, 0, 0, 0.2);
+    width: ${bufferScrollBarSize};
+    border-bottom: 1px solid black;
+`
+
+const ScrollBarWindow = styled.div`
+    position: absolute;
+    width: ${bufferScrollBarSize};
+    background-color: rgba(200, 200, 200, 0.2);
+    border-top:1px solid rgba(255, 255, 255, 0.1);
+    border-bottom:1px solid rgba(255, 255, 255, 0.1);
+`
 
 export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, {}> {
 
@@ -55,9 +76,9 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
             return <div style={markerStyle} key={m.line.toString() + m.color}/>
         })
 
-        return <div className="scroll-bar-container">
-                <div className="scroll-window" style={windowStyle}></div>
-                {markerElements}
-            </div>
+        return <ScrollBarContainer key={this.props.windowId}>
+                    <ScrollBarWindow style={windowStyle}></ScrollBarWindow>
+                    {markerElements}
+                </ScrollBarContainer>
     }
 }

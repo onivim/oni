@@ -30,7 +30,13 @@ export interface IDockProps {
 
 export class Dock extends React.PureComponent<IDockProps, {}> {
     public render(): JSX.Element {
-        const docks = this.props.splits.map((s) => <WindowSplitHost containerClassName="split" split={s} isFocused={this.props.activeSplit === s} />)
+        const docks = this.props.splits.map((s, i) =>
+            <WindowSplitHost
+                key={i}
+                containerClassName="split"
+                split={s}
+                isFocused={this.props.activeSplit === s}
+            />)
 
         return <div className = "dock container fixed horizontal">
             {docks}

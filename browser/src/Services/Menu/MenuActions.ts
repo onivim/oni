@@ -8,6 +8,7 @@ export interface IMenuOptions {
     foregroundColor?: string
     backgroundColor?: string
     highlightColor?: string
+    filterFunction?: (items: any[], searchString: string) => any[]
     onSelectedItemChanged?: (newItem: any) => void
     onSelectItem?: (idx: number) => void
     onHide?: () => void

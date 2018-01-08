@@ -14,13 +14,9 @@ import { Event, IDisposable } from "oni-types"
 
 import * as Log from "./../../Log"
 
-import { configuration, Configuration } from "./../Configuration"
-import { editorManager, EditorManager } from "./../EditorManager"
-
 import { ILanguageClient } from "./LanguageClient"
-import { IServerCapabilities } from "./ServerCapabilities"
-
 import * as LanguageClientTypes from "./LanguageClientTypes"
+import { IServerCapabilities } from "./ServerCapabilities"
 
 import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
 
@@ -40,13 +36,17 @@ export class LanguageManager {
     private _languageServerInfo: { [language: string]: ILanguageClient } = {}
     private _notificationSubscriptions: { [notificationMessage: string]: Event<any> } = {}
     private _requestHandlers: { [request: string]: LanguageClientTypes.RequestHandler } = {}
-    private _statusBar = new LanguageClientStatusBar()
+    private _languageClientStatusBar: LanguageClientStatusBar
     private _currentTrackedFile: string = null
 
     constructor(
-        private _configuration: Configuration = configuration,
-        private _editorManager: EditorManager = editorManager,
+        private _configuration: Oni.Configuration,
+        private _editorManager: Oni.EditorManager,
+        private _statusBar: Oni.StatusBar,
     ) {
+
+        this._languageClientStatusBar = new LanguageClientStatusBar(this._statusBar)
+
         this._editorManager.allEditors.onBufferEnter.subscribe(async () => this._onBufferEnter())
 
         this._editorManager.allEditors.onBufferLeave.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
@@ -139,7 +139,7 @@ export class LanguageManager {
     }
 
     public getTokenRegex(language: string): RegExp {
-        const languageSpecificTokenRegex = this._configuration.getValue(`language.${language}.tokenRegex`)
+        const languageSpecificTokenRegex = this._configuration.getValue(`language.${language}.tokenRegex`) as RegExp
 
         if (languageSpecificTokenRegex) {
             return RegExp(languageSpecificTokenRegex, "i")
@@ -153,7 +153,7 @@ export class LanguageManager {
     }
 
     public getCompletionTriggerCharacters(language: string): string[] {
-        const languageSpecificTriggerChars = this._configuration.getValue(`language.${language}.completionTriggerCharacters`)
+        const languageSpecificTriggerChars = this._configuration.getValue(`language.${language}.completionTriggerCharacters`) as string[]
 
         if (languageSpecificTriggerChars) {
             return languageSpecificTriggerChars
@@ -278,17 +278,17 @@ export class LanguageManager {
         const { language, filePath } = buffer
 
         if (language) {
-            this._statusBar.show(language)
+            this._languageClientStatusBar.show(language)
 
             if (this._hasLanguageClient(language)) {
-                this._statusBar.setStatus(LanguageClientState.Initializing)
+                this._languageClientStatusBar.setStatus(LanguageClientState.Initializing)
             } else {
-                this._statusBar.setStatus(LanguageClientState.NotAvailable)
+                this._languageClientStatusBar.setStatus(LanguageClientState.NotAvailable)
             }
         }
 
         if (buffer.lineCount > this._configuration.getValue("editor.maxLinesForLanguageServices")) {
-            this._statusBar.setStatus(LanguageClientState.NotAvailable)
+            this._languageClientStatusBar.setStatus(LanguageClientState.NotAvailable)
             Log.info("[LanguageManager] Not sending 'didOpen' because file line count exceeds limit.")
             return
         }
@@ -298,7 +298,7 @@ export class LanguageManager {
             const lines = await this._editorManager.activeEditor.activeBuffer.getLines()
             const text = lines.join(os.EOL)
             const version = this._editorManager.activeEditor.activeBuffer.version
-            this._statusBar.setStatus(LanguageClientState.Active)
+            this._languageClientStatusBar.setStatus(LanguageClientState.Active)
             return Helpers.pathToTextDocumentItemParams(filePath, language, text, version)
         })
     }
@@ -324,7 +324,7 @@ export class LanguageManager {
         switch (protocolMessage) {
             case "textDocument/didOpen":
             case "textDocument/didChange":
-                this._statusBar.setStatus(status)
+                this._languageClientStatusBar.setStatus(status)
                 break
             default:
                 break
@@ -332,7 +332,7 @@ export class LanguageManager {
     }
 
     private async _simulateFakeLag(): Promise<void> {
-        const delay = this._configuration.getValue("debug.fakeLag.languageServer")
+        const delay = this._configuration.getValue("debug.fakeLag.languageServer") as number
         if (!delay) {
             return
         } else {
@@ -353,4 +353,12 @@ const logDebug = (args: any) => {
     }
 }
 
-export const languageManager = new LanguageManager()
+let _languageManager: LanguageManager = null
+
+export const activate = (configuration: Oni.Configuration, editorManager: Oni.EditorManager, statusBar: Oni.StatusBar): void => {
+    _languageManager = new LanguageManager(configuration, editorManager, statusBar)
+}
+
+export const getInstance = (): LanguageManager => {
+    return _languageManager
+}

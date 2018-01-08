@@ -10,19 +10,29 @@ import { Oni, runInProcTest } from "./common"
 const LongTimeout = 5000
 
 const CiTests = [
-    "BasicEditingTest",
+    "Api.Buffer.AddLayer",
     "AutoClosingPairsTest",
     "AutoCompletionTest-CSS",
+    "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
     "LargeFileTest",
+    "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
     "NoInstalledNeovim",
 ]
 
-// tslint:disable:no-console
+const WindowsOnlyTests = [
+    // For some reason, the `beginFrameSubscription` call doesn't seem to work on OSX,
+    // so we can't properly validate that case on that platform...
+    "PaintPerformanceTest",
+]
 
-import * as Config from "./common/Config"
+const OSXOnlyTests = [
+    "OSX.WindowTitleTest",
+]
+
+// tslint:disable:no-console
 
 import * as Platform from "./../browser/src/Platform"
 
@@ -33,6 +43,8 @@ export interface ITestCase {
 }
 
 describe("ci tests", function() { // tslint:disable-line only-arrow-functions
+
+    const tests = Platform.isWindows() ? [...CiTests, ...WindowsOnlyTests] : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
 
     CiTests.forEach((test) => {
         runInProcTest(path.join(__dirname, "ci"), test)

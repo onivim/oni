@@ -1,7 +1,11 @@
+
 import * as React from "react"
 
 import { connect } from "react-redux"
-import * as State from "./../State"
+import * as State from "./../Shell/ShellState"
+
+import styled from "styled-components"
+import { withProps } from "./common"
 
 export interface IBackgroundProps {
     backgroundColor: string
@@ -10,33 +14,28 @@ export interface IBackgroundProps {
     backgroundOpacity: number
 }
 
-export class BackgroundView extends React.PureComponent<IBackgroundProps, {}> {
-    public render(): JSX.Element {
-        const coverStyle = {
-            backgroundColor: this.props.backgroundColor,
-            opacity: this.props.backgroundOpacity,
-        }
+export const BackgroundImageView = withProps<IBackgroundProps>(styled.div)`
+    background-image: url("${props => props.backgroundImageUrl}");
+    background-size: ${props => props.backgroundImageSize || "cover"};
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    `
 
-        return <div>
-            <BackgroundImageView {...this.props} />
-            <div className="background-cover" style={coverStyle}></div>
-        </div>
-    }
-}
+export const BackgroundColorView = withProps<IBackgroundProps>(styled.div)`
+    background-color: ${props => props.backgroundColor};
+    opacity: ${props => props.backgroundOpacity};
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    `
 
-export const BackgroundImageView = (props: IBackgroundProps) => {
-
-    if (props.backgroundImageUrl) {
-        const imageStyle = {
-            backgroundImage: "url(" + props.backgroundImageUrl + ")",
-            backgroundSize: props.backgroundImageSize || "cover",
-        }
-
-        return <div className="background-image" style={imageStyle}></div>
-    } else {
-        return null
-    }
-}
+export const BackgroundView = (props: IBackgroundProps) => (
+    <div>
+        {props.backgroundImageUrl ? <BackgroundImageView {...props} /> : null}
+        <BackgroundColorView {...props} />
+    </div>
+)
 
 const mapStateToProps = (state: State.IState): IBackgroundProps => {
     const conf = state.configuration

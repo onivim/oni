@@ -1,11 +1,9 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import { CSSTransition, TransitionGroup } from "react-transition-group"
-
 import { createSelector } from "reselect"
 
-import * as State from "./../State"
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { CursorPositioner } from "./CursorPositioner"
 
@@ -22,15 +20,7 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
 
     public render(): JSX.Element {
         const toolTipElements = this.props.toolTips.map((toolTip) => {
-            return <CSSTransition
-                timeout={250}
-                classNames="fade"
-                unmountOnExit={true}
-                exit={false}
-                key={toolTip.id}
-            >
-            <ToolTipView {...toolTip} borderColor={this.props.borderColor} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor}/>
-            </CSSTransition>
+            return <ToolTipView {...toolTip} key={toolTip.id} borderColor={this.props.borderColor} foregroundColor={this.props.foregroundColor} backgroundColor={this.props.backgroundColor}/>
         })
 
         const style: React.CSSProperties = {
@@ -38,10 +28,8 @@ export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
             fontSize: this.props.fontSize,
         }
 
-        return <div className="tool-tips" key={"tool-tip-container"} style={style}>
-        <TransitionGroup>
+        return <div className="tool-tips" style={style}>
             {toolTipElements}
-        </TransitionGroup>
         </div>
     }
 }
@@ -93,7 +81,7 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
                 <div className="tool-tip-container enable-mouse" style={toolTipStyle} ref={(elem) => this._setContainer(elem)}>
                     {this.props.element}
                 </div>
-        </CursorPositioner>
+            </CursorPositioner>
     }
 
     private _setContainer(element: HTMLElement): void {

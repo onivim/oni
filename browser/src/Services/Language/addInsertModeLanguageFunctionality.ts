@@ -13,6 +13,8 @@ import * as Oni from "oni-api"
 import { editorManager } from "./../EditorManager"
 import * as SignatureHelp from "./SignatureHelp"
 
+import { IToolTipsProvider } from "./../../Editor/NeovimEditor/ToolTipsProvider"
+
 export interface ILatestCursorAndBufferInfo {
     filePath: string,
     language: string,
@@ -21,7 +23,7 @@ export interface ILatestCursorAndBufferInfo {
     cursorColumn: number,
 }
 
-export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<Oni.Vim.Mode>) => {
+export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.Cursor>, modeChanged$: Observable<Oni.Vim.Mode>, toolTips: IToolTipsProvider) => {
 
     const latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo> = cursorMoved$
             .auditTime(10)
@@ -40,5 +42,5 @@ export const addInsertModeLanguageFunctionality = (cursorMoved$: Observable<Oni.
                 }
             })
 
-    SignatureHelp.initUI(latestCursorAndBufferInfo$, modeChanged$)
+    SignatureHelp.initUI(latestCursorAndBufferInfo$, modeChanged$, toolTips)
 }

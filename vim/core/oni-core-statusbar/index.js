@@ -4,10 +4,18 @@ const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
 
 const activate = (Oni) => {
     const React = Oni.dependencies.React
+    const items = Oni.configuration.getValue("statusbar.priority", {})
+    const ids = Object.keys(items)
 
-    const workingDirectoryItem = Oni.statusBar.createItem(0, -1, "oni.status.workingDirectory")
-    const lineNumberItem = Oni.statusBar.createItem(1, -1, "oni.status.lineNumber")
-    const modeItem = Oni.statusBar.createItem(1, -2, "oni.status.mode")
+    const mode = ids.find(id => id.includes('mode'));
+    const linenumber = ids.find(id => id.includes('linenumber'));
+    const dir = ids.find(id => id.includes('workingDir'));
+    const gitHubRepo = ids.find(id => id.includes('gitHubRepo'));
+
+    const workingDirectoryItem = Oni.statusBar.createItem(0, dir)
+    const lineNumberItem = Oni.statusBar.createItem(1, linenumber)
+    const modeItem = Oni.statusBar.createItem(1, mode)
+    const gitHubRepoItem = Oni.statusBar.createItem(1, gitHubRepo)
 
     const setMode = (mode) => {
         const getBackgroundColorForMode = (m) => {
@@ -81,6 +89,20 @@ const activate = (Oni) => {
         workingDirectoryItem.setContents(element)
     }
 
+    const setGitHubRepo = () => {
+        const openGitHubRepoCommand = () => {
+            Oni.commands.executeCommand("browser.openUrl", "https://github.com/onivim/oni")
+        }
+
+        const gitHubIcon = Oni.ui.createIcon({
+          name: 'github',
+          size: Oni.ui.iconSize.Default,
+        });
+
+        const element = React.createElement("div", { onClick: openGitHubRepoCommand }, gitHubIcon)
+        gitHubRepoItem.setContents(element)
+    }
+
     Oni.editors.activeEditor.onModeChanged.subscribe((newMode) => {
         setMode(newMode)
     })
@@ -97,10 +119,12 @@ const activate = (Oni) => {
     setLineNumber(1, 1)
     setWorkingDirectory(null)
     setWorkingDirectory(process.cwd())
+    setGitHubRepo()
 
     modeItem.show()
     lineNumberItem.show()
     workingDirectoryItem.show()
+    gitHubRepoItem.show()
 }
 
 module.exports = {

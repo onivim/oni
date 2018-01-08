@@ -7,9 +7,23 @@
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
-import { BufferToScreen, ScreenToPixel } from "./../Coordinates"
+import styled, { keyframes } from "styled-components"
 
-require("./Definition.less") // tslint:disable-line no-var-requires
+import * as Oni from "oni-api"
+
+const DefinitionAppearKeyFrames = keyframes`
+    from {opacity: 0; transform: translateY(2px);}
+    to {opacity: 0.4; transform: translateY(0px);}
+`
+
+const StyledDefinition = styled.div`
+    animation-name: ${DefinitionAppearKeyFrames};
+    animation-duration: 0.25s;
+    animation-delay: 0.25s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+    opacity: 0;
+`
 
 export interface IDefinitionProps {
     range: types.Range
@@ -18,8 +32,8 @@ export interface IDefinitionProps {
 
     color: string
 
-    bufferToScreen: BufferToScreen
-    screenToPixel: ScreenToPixel
+    bufferToScreen: Oni.Coordinates.BufferToScreen
+    screenToPixel: Oni.Coordinates.ScreenToPixel
 }
 
 export class Definition extends React.PureComponent<IDefinitionProps, {}> {
@@ -52,6 +66,6 @@ export class Definition extends React.PureComponent<IDefinitionProps, {}> {
             borderBottom: "1px solid " + this.props.color,
         }
 
-        return <div className="definition" style={style} />
+        return <StyledDefinition style={style} />
     }
 }

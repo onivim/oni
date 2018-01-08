@@ -21,6 +21,10 @@ const getExecutablePath = () => {
     }
 }
 
+export interface OniStartOptions {
+    configurationPath?: string
+}
+
 export class Oni {
     private _app: Application
 
@@ -28,12 +32,15 @@ export class Oni {
         return this._app.client
     }
 
-    public async start(args: string[] = []): Promise<void> {
+    public async start(options: OniStartOptions = {}): Promise<void> {
         const executablePath = getExecutablePath()
         log("Using executable path: " + executablePath)
+
+        log("Start options: " + JSON.stringify(options))
+
         this._app = new Application({
             path: executablePath,
-            args,
+            env: options.configurationPath ? { "ONI_CONFIG_FILE": options.configurationPath } : {},
         })
 
         log("Oni starting...")

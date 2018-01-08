@@ -6,9 +6,7 @@ import { remote } from "electron"
 
 import { Icon, IconSize } from "./../Icon"
 
-import * as State from "./../State"
-
-require("./InstallHelp.less") // tslint:disable-line no-var-requires
+import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 export interface InstallHelpViewProps {
     visible: boolean

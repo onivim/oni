@@ -22,6 +22,8 @@ export interface IMenu<T, FilteredT> {
     borderColor: string
     highlightColor: string
 
+    filterFunction: (items: T[], searchString: string) => FilteredT[]
+
     onFilterTextChanged: (newText: string) => void
     onSelectedItemChanged: (newItem: FilteredT) => void
     onSelectItem: (idx: number) => void

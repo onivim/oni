@@ -8,7 +8,9 @@ import * as assert from "assert"
 import * as os from "os"
 import * as path from "path"
 
-const getCompletionElement = () => {
+import * as Oni from "oni-api"
+
+const getInstallHelpElement = () => {
 
     const elements = document.body.getElementsByClassName("install-help")
 
@@ -19,9 +21,9 @@ const getCompletionElement = () => {
     }
 }
 
-export const test = async (oni: any) => {
+export const test = async (oni: Oni.Plugin.Api) => {
     // Wait for install help UX to show
-    await oni.automation.waitFor(() => getCompletionElement() !== null)
+    await oni.automation.waitFor(() => getInstallHelpElement() !== null)
 
     assert.ok(true, "Found install help content as expected.")
 }
