@@ -107,7 +107,7 @@ export class BrowserLayer implements Oni.EditorLayer {
                     <AddressBar>
                         <span>{this._url}</span>
                     </AddressBar>
-                    <BrowserButton> 
+                    <BrowserButton>
                         {this._icons.debugIcon}
                     </BrowserButton>
                 </BrowserControlsWrapper>
