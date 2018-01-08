@@ -189,6 +189,7 @@ app.on("open-file", (event, filePath) => {
         mainWindow.webContents.send("open-file", filePath)
     } else if (process.platform.includes("darwin")) {
         process.argv.push(filePath)
+        createWindow(process.argv.slice(2), process.cwd())
     }
 })
 
