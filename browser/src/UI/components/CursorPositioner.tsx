@@ -43,7 +43,8 @@ export interface ICursorPositionerViewProps extends ICursorPositionerProps {
 export interface ICursorPositionerViewState {
     isMeasured: boolean
 
-    isFullWidth: boolean
+    useMinContent: boolean,
+    isFullWidth: boolean,
     shouldOpenDownward: boolean,
     adjustedX: number
     lastMeasuredX: number,
@@ -55,6 +56,7 @@ export interface ICursorPositionerViewState {
 const InitialState = {
     isMeasured: false,
 
+    useMinContent: false,
     isFullWidth: false,
     shouldOpenDownward: false,
     adjustedX: 0,
@@ -152,7 +154,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             ...childStyle,
             left: this.state.isFullWidth ? "8px" : Math.abs(adjustedX).toString() + "px",
             right: this.state.isFullWidth ? "8px" : null,
-            maxWidth: "75%",
+            width: this.state.useMinContent ? "min-content" : null,
         } : childStyle
 
         return <div style={containerStyle} key={this.props.key}>
@@ -200,8 +202,9 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             let adjustedX = this.props.x
 
             if (!isFullWidth && rightBounds > this.props.containerWidth) {
-                    const offset = rightBounds - this.props.containerWidth + 8
+                    const offset = rightBounds - this.props.containerWidth + 16
                     adjustedX = this.props.x - offset
+                    this.setState({ useMinContent: true })
                 }
 
             this.setState({

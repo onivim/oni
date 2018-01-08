@@ -13,9 +13,8 @@ const codeBlockStyle = css`
 export const Documentation = styled.div`
     ${fontSizeSmall};
     ${boxShadowInset};
-    padding: 8px;
+    padding: 0.8rem;
     min-width: 300px;
-    max-height: 20vh;
     overflow-y: auto;
     margin-bottom: 0.8rem;
 
@@ -41,10 +40,9 @@ export const Documentation = styled.div`
 `
 
 export const Title = styled.div`
-    width: 100%;
-    margin: 8px;
-    overflow-x: hidden;
-    padding: 0.2em;
+    width: auto;
+    margin: 0.2rem;
+    padding: 0.2rem;
 
     &:hover {
         overflow-x: overlay;
