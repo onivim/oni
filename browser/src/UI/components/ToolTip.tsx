@@ -90,7 +90,7 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
                 <ToolTipContainer
                     padding={padding}
                     fontFamily={fontFamily}
-                    ref={(elem: any) => this._setContainer(elem)}
+                    innerRef={(elem: any) => this._setContainer(elem)}
                 >
                 {this.props.element}
             </ToolTipContainer>

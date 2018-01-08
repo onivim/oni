@@ -1,13 +1,30 @@
 import * as os from "os"
 
 import * as React from "react"
-import styled, { boxShadowInset, css, fontSizeSmall } from "./common"
+import styled, { boxShadowInset, css, fallBackFonts, fontSizeSmall } from "./common"
 
 const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
     border-color: ${p => p.theme["toolTip.border"]};
     padding: 0.4em 0.4em 0.4em 0.4em;
     margin: 0.4em 0.4em 0.4em 0.4em;
+`
+
+const childStyles = css`
+    > * {
+        margin: 0.2rem;
+
+       a {
+            color: ${p => p.theme["highlight.mode.normal.background"]};
+        }
+
+        pre {
+            ${codeBlockStyle};
+        }
+        code {
+            font-family: ${fallBackFonts}
+        }
+    }
 `
 
 export const Documentation = styled.div`
@@ -22,21 +39,7 @@ export const Documentation = styled.div`
         height: 4px;
     }
 
-    > * {
-        margin: 0.2rem;
-    }
-
-    > pre {
-        ${codeBlockStyle};
-    }
-
-    > code {
-        background-color: ${p => p.theme.background};
-    }
-
-    > a {
-        color: ${p => p.theme["highlight.mode.normal.background"]}
-    }
+    ${childStyles};
 `
 
 export const Title = styled.div`
@@ -54,10 +57,9 @@ export const Title = styled.div`
 
     > * {
         margin: 0.2rem;
-    }
-
-    > a {
-        color: ${p => p.theme["editor.foreground"]}
+        a {
+            color: ${p => p.theme["editor.foreground"]}
+        }
     }
 `
 
@@ -83,8 +85,10 @@ export class QuickInfoDocumentation extends TextComponent {
             case Boolean(text):
                 const lines = this.props.text.split(os.EOL)
                 const divs = lines.map((l, i) => <div key={`${l}-${i}`}>{l}</div>)
+
                 return <Documentation>{divs}</Documentation>
             case Boolean(html && html.__html):
+
                 return <Documentation dangerouslySetInnerHTML={this.props.html} />
             default:
                 return null

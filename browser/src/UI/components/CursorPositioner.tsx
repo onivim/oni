@@ -123,6 +123,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         const adjustedX = this.state.adjustedX
         const adjustedY = this.state.shouldOpenDownward ? this.props.y + this.props.lineHeight * 2.5 : this.props.y
 
+        const widthStyles = { width: this.state.useMinContent && this.state.isMeasured ? "min-content" : "auto" }
         const containerStyle: React.CSSProperties = {
             position: "absolute",
             top: adjustedY.toString() + "px",
@@ -134,11 +135,13 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         const openFromBottomStyle: React.CSSProperties = {
             position: "absolute",
             bottom: "0px",
+            ...widthStyles,
         }
 
         const openFromTopStyle: React.CSSProperties = {
             position: "absolute",
             top: "0px",
+            ...widthStyles,
         }
 
         const childStyle = this.state.shouldOpenDownward ? openFromTopStyle : openFromBottomStyle
@@ -154,8 +157,8 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             ...childStyle,
             left: this.state.isFullWidth ? "8px" : Math.abs(adjustedX).toString() + "px",
             right: this.state.isFullWidth ? "8px" : null,
-            width: this.state.useMinContent ? "min-content" : null,
         } : childStyle
+        
 
         return <div style={containerStyle} key={this.props.key}>
             <div style={childStyleWithAdjustments}>
@@ -202,10 +205,10 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             let adjustedX = this.props.x
 
             if (!isFullWidth && rightBounds > this.props.containerWidth) {
-                    const offset = rightBounds - this.props.containerWidth + 16
+                    const offset = rightBounds - this.props.containerWidth + 8
                     adjustedX = this.props.x - offset
                     this.setState({ useMinContent: true })
-                }
+            }
 
             this.setState({
                     isFullWidth,
