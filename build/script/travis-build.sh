@@ -23,6 +23,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
    npm install -g https://github.com/reasonml/reason-cli/archive/3.0.4-bin-darwin.tar.gz
    echo Reason CLI tools installed successfully.
 
+   which ocamlmerlin
    ocamlmerlin -version
 
    npm run test:integration
