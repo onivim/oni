@@ -21,6 +21,8 @@ import { createStore, IExplorerState } from "./ExplorerStore"
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
 
+import { rm } from "shelljs"
+
 export class ExplorerSplit {
 
     private _onEnterEvent: Event<void> = new Event<void>()
@@ -73,6 +75,7 @@ export class ExplorerSplit {
 
         this._store.dispatch({type: "ENTER"})
         this._commandManager.registerCommand(new CallbackCommand("explorer.open", null, null, () => this._onOpenItem()))
+        this._commandManager.registerCommand(new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()))
 
         this._onEnterEvent.dispatch()
 
@@ -102,6 +105,7 @@ export class ExplorerSplit {
         this._store.dispatch({type: "LEAVE"})
 
         this._commandManager.unregisterCommand("explorer.open")
+        this._commandManager.unregisterCommand("explorer.delete")
     }
 
     public render(): JSX.Element {
@@ -129,17 +133,25 @@ export class ExplorerSplit {
         this._activeBinding.setItems(items, state.selectedId)
     }
 
-    private _onOpenItem(): void {
+    private _getSelectedItem(): ExplorerSelectors.ExplorerNode  {
         const state = this._store.getState()
         const flattenedState = ExplorerSelectors.mapStateToNodeList(state)
 
         const selectedId = state.selectedId
 
         const selectedItem = flattenedState.find((item) => item.id === selectedId)
+        
+        return selectedItem
+    }
+
+    private _onOpenItem(): void {
+        const selectedItem = this._getSelectedItem()
 
         if (!selectedItem) {
             return
         }
+
+        const state = this._store.getState()
 
         switch (selectedItem.type) {
             case "file":
@@ -155,6 +167,29 @@ export class ExplorerSplit {
             default:
                 alert("Not implemented yet.") // tslint:disable-line
         }
+    }
+
+    private _onDeleteItem(): void {
+        const selectedItem = this._getSelectedItem()
+
+        if (!selectedItem) {
+            return
+        }
+
+        switch (selectedItem.type) {
+            case "file":
+                rm(selectedItem.filePath)
+                break
+            case "folder":
+                rm("-rf", selectedItem.folderPath)
+                break
+            default:
+                alert("Not implemented yet")
+        }
+
+        this._store.dispatch({
+            type: "REFRESH",
+        })
     }
 
     private _onKeyDown(key: string): void {

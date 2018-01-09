@@ -104,6 +104,8 @@ export type ExplorerAction = {
 } | {
     type: "BUFFER_CLOSED",
     filePath: string,
+} | {
+    type: "REFRESH",
 }
 
 export const rootFolderReducer: Reducer<IFolderState> = (
@@ -247,6 +249,20 @@ const sortFilesAndFoldersFunc = (a: FolderOrFile, b: FolderOrFile) => {
      }
  }
 
+const refreshEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
+    action$.ofType("REFRESH")
+        .mergeMap(() => {
+            const state = store.getState()
+
+            return Object.keys(state.expandedFolders)
+                .map((p) => {
+                    return {
+                        type: "EXPAND_DIRECTORY",
+                        directoryPath: p,
+                    } as ExplorerAction
+                })
+        })
+
 const expandDirectoryEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
     action$.ofType("EXPAND_DIRECTORY")
         .map((action) => {
@@ -289,5 +305,6 @@ export const createStore = (): Store<IExplorerState> => {
         [createEpicMiddleware(combineEpics(
             setRootDirectoryEpic,
             expandDirectoryEpic,
+            refreshEpic,
         ))])
 }
