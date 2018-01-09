@@ -140,7 +140,6 @@ const getTitleAndContents = (result: types.Hover) => {
             description: null,
         }
     } else {
-
         const description = [...contents]
         description.shift()
         const descriptionContent = description.join(os.EOL)

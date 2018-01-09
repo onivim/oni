@@ -20,6 +20,7 @@ const childStyles = css`
 
         pre {
             ${codeBlockStyle};
+            tab-size: 4;
         }
         code {
             font-family: ${fallBackFonts}
@@ -45,10 +46,7 @@ export const Title = styled.div`
     width: auto;
     margin: 0.2rem;
     padding: 0.2rem;
-
-    &:hover {
-        overflow-x: overlay;
-    }
+    word-break: break-all;
 
     &::-webkit-scrollbar {
         height: 2px;
