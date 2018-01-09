@@ -189,9 +189,7 @@ app.on("open-file", (event, filePath) => {
         mainWindow.webContents.send("open-file", filePath)
     } else if (process.platform.includes("darwin")) {
         const processArgs = [...process.argv, filePath]
-        Log.info(`filePath to open: ${filePath}`)
-        mainWindow = createWindow(processArgs, process.cwd())
-        mainWindow.webContents.send("open-file", filePath)
+        createWindow(processArgs, process.cwd())
     }
 })
 
