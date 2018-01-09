@@ -123,7 +123,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         const adjustedX = this.state.adjustedX
         const adjustedY = this.state.shouldOpenDownward ? this.props.y + this.props.lineHeight * 2.5 : this.props.y
 
-        const widthStyles = { width: this.state.useMinContent && this.state.isMeasured ? "min-content" : "auto" }
+        const widthStyles = { width: this.state.useMinContent ? "min-content" : "auto" }
         const containerStyle: React.CSSProperties = {
             position: "absolute",
             top: adjustedY.toString() + "px",
