@@ -184,12 +184,14 @@ export function createWindow(commandLineArguments, workingDirectory) {
 
 app.on("open-file", (event, filePath) => {
     event.preventDefault()
-    Log.info(`filePath to open: ${filePath}`) // tslint:disable-line
+    Log.info(`filePath to open: ${filePath}`)
     if (mainWindow) {
         mainWindow.webContents.send("open-file", filePath)
     } else if (process.platform.includes("darwin")) {
-        process.argv.push(filePath)
-        createWindow(process.argv.slice(2), process.cwd())
+        const processArgs = [...process.argv, filePath]
+        Log.info(`filePath to open: ${filePath}`)
+        mainWindow = createWindow(processArgs, process.cwd())
+        mainWindow.webContents.send("open-file", filePath)
     }
 })
 
