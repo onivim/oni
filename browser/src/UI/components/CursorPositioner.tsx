@@ -123,25 +123,24 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
         const adjustedX = this.state.adjustedX
         const adjustedY = this.state.shouldOpenDownward ? this.props.y + this.props.lineHeight * 2.5 : this.props.y
 
-        const widthStyles = { width: this.state.useMinContent ? "min-content" : "auto" }
+        // const widthStyles = { width: this.state.useMinContent ? "min-content" : "auto" }
         const containerStyle: React.CSSProperties = {
             position: "absolute",
             top: adjustedY.toString() + "px",
             left: "0px",
             width: this.props.containerWidth.toString() + "px",
             visibility: this.state.isMeasured ? "visible" : "hidden", // Wait until we've measured the bounds to show..
+            maxWidth: "50vh",
         }
 
         const openFromBottomStyle: React.CSSProperties = {
             position: "absolute",
             bottom: "0px",
-            ...widthStyles,
         }
 
         const openFromTopStyle: React.CSSProperties = {
             position: "absolute",
             top: "0px",
-            ...widthStyles,
         }
 
         const childStyle = this.state.shouldOpenDownward ? openFromTopStyle : openFromBottomStyle
@@ -155,8 +154,8 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
 
         const childStyleWithAdjustments: React.CSSProperties = this.state.isMeasured ? {
             ...childStyle,
-            left: this.state.isFullWidth ? "8px" : Math.abs(adjustedX).toString() + "px",
-            right: this.state.isFullWidth ? "8px" : null,
+            left: /* this.state.isFullWidth ? "8px" : */ Math.abs(adjustedX).toString() + "px",
+            // right: this.state.isFullWidth ? "8px" : null,
         } : childStyle
 
         return <div style={containerStyle} key={this.props.key}>
