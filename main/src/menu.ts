@@ -148,6 +148,12 @@ export const buildMenu = (mainWindow, loadInit) => {
                 },
             },
             {
+                label: "Hide Window",
+                click(item, focusedWindow) {
+                    focusedWindow.hide()
+                },
+            },
+            {
                 type: "separator",
             },
             {
