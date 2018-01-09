@@ -7,7 +7,6 @@ import { layersReducer, windowStateReducer } from "./../../../src/Editor/NeovimE
 import * as State from "./../../../src/Editor/NeovimEditor/NeovimEditorStore"
 
 describe("NeovimEditorReducer", () => {
-
     describe("layersReducer", () => {
         it("Adds layer via 'ADD_BUFFER_LAYER'", () => {
             const simpleLayer: Oni.EditorLayer = {
