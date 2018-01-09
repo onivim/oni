@@ -5,6 +5,7 @@
  *  - The current / active directory (and 'Open Folder')
  */
 
+import { remote } from "electron"
 import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
 import "rxjs/add/operator/concatMap"
@@ -23,6 +24,21 @@ import { convertTextDocumentEditsToFileMap } from "./Language/Edits"
 
 export class Workspace implements Oni.Workspace {
     private _onDirectoryChangedEvent = new Event<string>()
+    private _onFocusGainedEvent = new Event<Oni.Buffer>()
+    private _onFocusLostEvent = new Event<Oni.Buffer>()
+    private _mainWindow = remote.getCurrentWindow()
+    private _lastActiveBuffer: Oni.Buffer
+
+    constructor() {
+        this._mainWindow.on("focus", () => {
+            this._onFocusGainedEvent.dispatch(this._lastActiveBuffer)
+        })
+
+        this._mainWindow.on("blur", () => {
+            this._lastActiveBuffer = editorManager.activeEditor.activeBuffer
+            this._onFocusLostEvent.dispatch(this._lastActiveBuffer)
+        })
+    }
 
     public get onDirectoryChanged(): IEvent<string> {
         return this._onDirectoryChangedEvent
@@ -65,6 +81,14 @@ export class Workspace implements Oni.Workspace {
         Log.verbose("[Workspace] Completed applying edits")
 
         // Hide modal
+    }
+
+    public get onFocusGained(): IEvent<Oni.Buffer> {
+        return this._onFocusGainedEvent
+    }
+
+    public get onFocusLost(): IEvent<Oni.Buffer> {
+        return this._onFocusLostEvent
     }
 }
 

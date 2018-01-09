@@ -50,6 +50,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
 
         new CallbackCommand("oni.editor.minimize", "Minimize Window", "Minimize the current window", () => remote.getCurrentWindow().minimize()),
 
+        new CallbackCommand("oni.editor.hide", "Hide Window", "Hide the current window", () => remote.app.hide()),
+
         // Language service
         // TODO: Deprecate
         new CallbackCommand("oni.editor.findAllReferences", null, null, () => findAllReferences()),
@@ -118,7 +120,7 @@ const shouldShowMenu = () => {
     return !menuManager.isMenuOpen()
 }
 
-const popupMenuCommand = (innerCommand: Oni.ICommandCallback) => {
+const popupMenuCommand = (innerCommand: Oni.Commands.CommandCallback) => {
     return () => {
         if (menuManager.isMenuOpen()) {
             return innerCommand()
@@ -133,7 +135,7 @@ const popupMenuNext = popupMenuCommand(() => menuManager.nextMenuItem())
 const popupMenuPrevious = popupMenuCommand(() => menuManager.previousMenuItem())
 const popupMenuSelect = popupMenuCommand(() => menuManager.selectMenuItem())
 
-const quickOpenCommand = (innerCommand: Oni.ICommandCallback) => (quickOpen: QuickOpen) => {
+const quickOpenCommand = (innerCommand: Oni.Commands.CommandCallback) => (quickOpen: QuickOpen) => {
     return () => {
         if (quickOpen.isOpen()) {
             return innerCommand(quickOpen)

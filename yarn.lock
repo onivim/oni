@@ -1603,13 +1603,6 @@ css-color-names@0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
 
-css-language-server@0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/css-language-server/-/css-language-server-0.0.2.tgz#9cce79c6e97a67b3442a46aaa45788bec9515ed3"
-  dependencies:
-    vscode-css-languageservice "^3.0.0"
-    vscode-languageserver "^3.5.0"
-
 css-loader@0.28.4:
   version "0.28.4"
   resolved "https://registry.yarnpkg.com/css-loader/-/css-loader-0.28.4.tgz#6cf3579192ce355e8b38d5f42dd7a1f2ec898d0f"
@@ -4251,9 +4244,9 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.9.tgz#a20a70a04e2a42e5848bd57fad0014599c02b069"
+oni-api@0.0.24:
+  version "0.0.24"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.24.tgz#f666c455edbdb859cf02682fbe361a78ab3732ba"
 
 oni-neovim-binaries@0.1.0:
   version "0.1.0"
@@ -6407,12 +6400,44 @@ vm-browserify@0.0.4:
   dependencies:
     indexof "0.0.1"
 
-vscode-css-languageservice@^3.0.0:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-3.0.1.tgz#2fb8f33d959d289289154142e8c22ad501a0139b"
+vscode-css-languageserver-bin@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/vscode-css-languageserver-bin/-/vscode-css-languageserver-bin-1.2.1.tgz#00483a92687f3233e1a9ea6f0c018ea965d9ed3e"
+  dependencies:
+    vscode-css-languageservice "^3.0.3"
+    vscode-languageserver "^3.5.0"
+
+vscode-css-languageservice@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-3.0.3.tgz#02cc4efa5335f5104e0a2f3b6920faaf59db4f7a"
   dependencies:
     vscode-languageserver-types "3.5.0"
     vscode-nls "^2.0.1"
+
+vscode-css-languageservice@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-3.0.3.tgz#02cc4efa5335f5104e0a2f3b6920faaf59db4f7a"
+  dependencies:
+    vscode-languageserver-types "3.5.0"
+    vscode-nls "^2.0.1"
+
+vscode-html-languageserver-bin@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/vscode-html-languageserver-bin/-/vscode-html-languageserver-bin-1.1.0.tgz#13f7eac3d8228705cd0912b5c5a698b725cebe08"
+  dependencies:
+    vscode-css-languageservice "^3.0.3"
+    vscode-html-languageservice "^2.0.14"
+    vscode-languageserver "^3.5.0"
+    vscode-nls "^2.0.2"
+    vscode-uri "^1.0.1"
+
+vscode-html-languageservice@^2.0.14:
+  version "2.0.14"
+  resolved "https://registry.yarnpkg.com/vscode-html-languageservice/-/vscode-html-languageservice-2.0.14.tgz#15491c11bb7e196f6fd03b6c6c768901935862eb"
+  dependencies:
+    vscode-languageserver-types "3.5.0"
+    vscode-nls "^2.0.2"
+    vscode-uri "^1.0.1"
 
 vscode-jsonrpc@3.5.0, vscode-jsonrpc@^3.5.0:
   version "3.5.0"
@@ -6442,7 +6467,7 @@ vscode-languageserver@3.5.0, vscode-languageserver@^3.5.0:
     vscode-languageserver-protocol "^3.5.0"
     vscode-uri "^1.0.1"
 
-vscode-nls@^2.0.1:
+vscode-nls@^2.0.1, vscode-nls@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/vscode-nls/-/vscode-nls-2.0.2.tgz#808522380844b8ad153499af5c3b03921aea02da"
 

@@ -7,15 +7,12 @@
 
 import * as React from "react"
 import { Provider } from "react-redux"
-import { Store } from "redux"
-
-import { Event } from "oni-types"
 
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
-import { Colors } from "./../Colors"
+import { Event } from "oni-types"
 
-import { createStore, ISidebarState } from "./SidebarStore"
+import { SidebarManager } from "./SidebarStore"
 import { Sidebar } from "./SidebarView"
 
 export class SidebarSplit {
@@ -23,37 +20,22 @@ export class SidebarSplit {
     private _onEnterEvent: Event<void> = new Event<void>()
 
     private _activeBinding: IMenuBinding = null
-    private _store: Store<ISidebarState>
 
     constructor(
-        private _colors: Colors,
-    ) {
-        this._store = createStore()
-
-        this._colors.onColorsChanged.subscribe(() => {
-            this._updateColors()
-        })
-
-        this._updateColors()
-    }
+        private _sidebarManager: SidebarManager = new SidebarManager(),
+    ) { }
 
     public enter(): void {
         this._onEnterEvent.dispatch()
 
-        const state = this._store.getState()
-        this._store.dispatch({
-            type: "SET_FOCUSED_ID",
-            focusedEntryId: state.activeEntryId,
-        })
+        this._sidebarManager.setFocusedEntry(this._sidebarManager.activeEntryId)
 
         this._activeBinding = getInstance().bindToMenu()
-        this._activeBinding.setItems(state.icons.map((i) => i.id), state.activeEntryId)
+        const items = this._sidebarManager.entries.map((i) => i.id)
+        this._activeBinding.setItems(items, this._sidebarManager.activeEntryId)
 
         this._activeBinding.onCursorMoved.subscribe((id: string) => {
-            this._store.dispatch({
-                type: "SET_FOCUSED_ID",
-                focusedEntryId: id,
-            })
+            this._sidebarManager.setFocusedEntry(id)
         })
     }
 
@@ -63,26 +45,13 @@ export class SidebarSplit {
             this._activeBinding = null
         }
 
-        this._store.dispatch({
-            type: "SET_FOCUSED_ID",
-            focusedEntryId: null,
-        })
+        this._sidebarManager.setFocusedEntry(null)
     }
 
     public render(): JSX.Element {
-        return <Provider store={this._store}>
+        return <Provider store={this._sidebarManager.store}>
                 <Sidebar onKeyDown={(key: string) => this._onKeyDown(key)} onEnter={this._onEnterEvent}/>
             </Provider>
-    }
-
-    private _updateColors(): void {
-        this._store.dispatch({
-            type: "SET_COLORS",
-            backgroundColor: this._colors.getColor("sidebar.background"),
-            foregroundColor: this._colors.getColor("sidebar.foreground"),
-            borderColor : this._colors.getColor("sidebar.selection.border"),
-            activeColor : this._colors.getColor("sidebar.active.background"),
-        })
     }
 
     private _onKeyDown(key: string): void {

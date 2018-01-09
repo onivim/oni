@@ -15,6 +15,8 @@ import { IMenuOptionWithHighlights, menuStore } from "./Menu"
 import * as ActionCreators from "./MenuActionCreators"
 import * as State from "./MenuState"
 
+import { TextInputView } from "./../../UI/components/LightweightText"
+
 export interface IMenuProps {
     visible: boolean
     selectedIndex: number
@@ -68,16 +70,11 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
 
         return <div className="menu-background enable-mouse">
             <div className="menu" style={menuStyle}>
-                <input type="text"
-                    style={{color: this.props.foregroundColor}}
-                    ref={(inputElement) => {
-                        this._inputElement = inputElement
-                        if (this._inputElement) {
-                            focusManager.pushFocus(this._inputElement)
-                        }
-                    }}
-                    onChange={(evt) => this._onChange(evt)}
-                    />
+                <TextInputView
+                    overrideDefaultStyle={true}
+                    backgroundColor={null}
+                    foregroundColor={this.props.foregroundColor}
+                    onChange={(evt) => this._onChange(evt)} />
                 <div className="items">
                     {items}
                 </div>

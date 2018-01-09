@@ -16,10 +16,7 @@ import { CallbackCommand, CommandManager } from "./../../Services/CommandManager
 import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
 
-// import { Colors } from "./../Colors"
-
 import { createStore, IExplorerState } from "./ExplorerStore"
-// import { Sidebar } from "./SidebarView"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
@@ -32,6 +29,14 @@ export class ExplorerSplit {
     private _activeBinding: IMenuBinding = null
     private _store: Store<IExplorerState>
     private _lastState: IExplorerState = null
+
+    public get id(): string {
+        return "oni.sidebar.explorer"
+    }
+
+    public get title(): string {
+        return "Explorer"
+    }
 
     constructor(
         private _configuration: Configuration,

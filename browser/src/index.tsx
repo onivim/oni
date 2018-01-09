@@ -25,6 +25,8 @@ const start = async (args: string[]): Promise<void> => {
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
 
+    const sidebarPromise = import("./Services/Sidebar")
+    const statusBarPromise = import("./Services/StatusBar")
     const startEditorsPromise = import("./startEditors")
 
     const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
@@ -86,8 +88,12 @@ const start = async (args: string[]): Promise<void> => {
 
     const { editorManager } = await editorManagerPromise
 
+    const StatusBar = await statusBarPromise
+    StatusBar.activate(configuration)
+    const statusBar = StatusBar.getInstance()
+
     const LanguageManager = await languageManagerPromise
-    LanguageManager.activate(configuration, editorManager)
+    LanguageManager.activate(configuration, editorManager, statusBar)
     const languageManager = LanguageManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Editors")
@@ -96,6 +102,8 @@ const start = async (args: string[]): Promise<void> => {
 
     const CSS = await cssPromise
     CSS.activate()
+
+    Shell.Actions.setLoadingComplete()
 
     const Diagnostics = await diagnosticsPromise
     const diagnostics = Diagnostics.getInstance()
@@ -107,6 +115,12 @@ const start = async (args: string[]): Promise<void> => {
     ])
    ])
     Performance.endMeasure("Oni.Start.Editors")
+
+    Performance.startMeasure("Oni.Start.Sidebar")
+    const Sidebar = await sidebarPromise
+    Sidebar.activate(configuration)
+    Performance.endMeasure("Oni.Start.Sidebar")
+
 
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
@@ -124,8 +138,6 @@ const start = async (args: string[]): Promise<void> => {
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Performance.endMeasure("Oni.Start.Activate")
 
-    Shell.Actions.setLoadingComplete()
-
     checkForUpdates()
 
     Performance.endMeasure("Oni.Start")
@@ -136,9 +148,9 @@ ipcRenderer.on("init", (_evt: any, message: any) => {
     start(message.args)
 })
 
-ipcRenderer.on("execute-command", async (_evt: any, command: string) => {
+ipcRenderer.on("execute-command", async (_evt: any, command: string, arg?: any) => {
     const { commandManager } = await import("./Services/CommandManager")
-    commandManager.executeCommand(command, null)
+    commandManager.executeCommand(command, arg)
 })
 
 const checkForUpdates = async (): Promise<void> => {
