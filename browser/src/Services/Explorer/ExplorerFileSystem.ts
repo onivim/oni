@@ -27,7 +27,7 @@ export class FileSystem implements IFileSystem {
 
         const filesAndFolders = files.map((f) => {
             const fullPath = path.join(directoryPath, f)
-            const stat = this._fs.statSync(directoryPath)
+            const stat = this._fs.statSync(fullPath)
             if (stat.isDirectory()) {
                 return {
                     type: "folder",

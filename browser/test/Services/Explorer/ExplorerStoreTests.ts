@@ -3,84 +3,48 @@
  */
 
 import * as assert from "assert"
-import * as ExplorerSelectors from "./../../../src/Services/Explorer/ExplorerSelectors"
+
+import { Store } from "redux"
+
+import * as ExplorerFileSystem from "./../../../src/Services/Explorer/ExplorerFileSystem"
 import * as ExplorerState from "./../../../src/Services/Explorer/ExplorerStore"
 
-const createTestFile = (filePath: string): ExplorerState.IFileState => ({
-    type: "file",
-    fullPath: filePath,
-})
+const MemoryFileSystem = require("memory-fs")
 
-describe("ExplorerSelectors", () => {
-    describe("flattenFolderTree", () => {
+describe("ExplorerStore", () => {
 
-        it("flattens a single file", () => {
+    let fileSystem: any
+    let store: Store<ExplorerState.IExplorerState>
 
-            const file: ExplorerState.IFileState = createTestFile("/test/files/testFile.txt")
+    const clock: any = global["clock"]
+    const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
 
-            const result = ExplorerSelectors.flattenFolderTree(file, [], {}, 1)
+    beforeEach(() => {
+        fileSystem = new MemoryFileSystem()
+        fileSystem.mkdirpSync("C:\\a\\test\\dir")
+        fileSystem.writeFileSync("C:\\a\\test\\dir\\file.txt", "Hello World")
 
-            const expectedResult = [{
-                id: "explorer:/test/files/testFile.txt",
-                type: "file",
-                filePath: "/test/files/testFile.txt",
-                name: "testFile.txt",
-                modified: false,
-                indentationLevel: 1,
-            }]
+        const explorerFileSystem = new ExplorerFileSystem.FileSystem(fileSystem as any)
+        store = ExplorerState.createStore(explorerFileSystem)
+    })
 
-            assert.deepEqual(result, expectedResult)
-        })
+    describe("SET_ROOT_DIRECTORY", () => {
 
-        it("flattens a single folder", () => {
-            const folder: ExplorerState.IFolderState = {
-                type: "folder",
-                fullPath: "/test/folder/folderPath",
-            }
+        it("expands directory automatically", async () => {
+            store.dispatch({
+                type: "SET_ROOT_DIRECTORY",
+                rootPath: "C:\\a\\test\\dir"
+            })
 
-            const result = ExplorerSelectors.flattenFolderTree(folder, [], {}, 1)
+            await waitForPromiseResolution()
+            clock.runAll()
 
-            const expectedResult = [{
-                type: "folder",
-                id: "explorer:/test/folder/folderPath",
-                folderPath: "/test/folder/folderPath",
-                name: "folderPath",
-                expanded: false,
-                indentationLevel: 1,
-            }]
+            // At this point, the FS operations are synchronous
+            const state = store.getState()
 
-            assert.deepEqual(result, expectedResult)
-        })
-
-        it("flattens a folder with subfiles", () => {
-            const folder: ExplorerState.IFolderState = {
-                type: "folder",
-                fullPath: "/test/folder1/folderPath",
-            }
-
-            const expandedFolders = {
-                "/test/folder1/folderPath": [ createTestFile("/test/files/file1")],
-            }
-
-            const result = ExplorerSelectors.flattenFolderTree(folder, [], expandedFolders, 1)
-
-            const expectedResult = [{
-                type: "folder",
-                id: "explorer:/test/folder1/folderPath",
-                folderPath: "/test/folder1/folderPath",
-                name: "folderPath",
-                expanded: true,
-                indentationLevel: 1,
-            }, {
-                type: "file",
-                id: "explorer:/test/files/file1",
-                filePath: "/test/files/file1",
-                name: "file1",
-                modified: false,
-                indentationLevel: 2,
-            }]
-
-            assert.deepEqual(result, expectedResult)
+            assert.deepEqual(state.expandedFolders["C:\\a\\test\\dir"], [
+                { type: "file", fullPath: "C:\\a\\test\\dir\\file.txt" },
+            ], "Validate expanded folders is set")
         })
     })
 })
