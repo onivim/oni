@@ -9,15 +9,14 @@ import { Store } from "redux"
 import * as ExplorerFileSystem from "./../../../src/Services/Explorer/ExplorerFileSystem"
 import * as ExplorerState from "./../../../src/Services/Explorer/ExplorerStore"
 
+import * as TestHelpers from "./../../TestHelpers"
+
 const MemoryFileSystem = require("memory-fs")
 
 describe("ExplorerStore", () => {
 
     let fileSystem: any
     let store: Store<ExplorerState.IExplorerState>
-
-    const clock: any = global["clock"]
-    const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
 
     beforeEach(() => {
         fileSystem = new MemoryFileSystem()
@@ -36,8 +35,7 @@ describe("ExplorerStore", () => {
                 rootPath: "C:\\a\\test\\dir"
             })
 
-            await waitForPromiseResolution()
-            clock.runAll()
+            await TestHelpers.waitForAllAsyncOperations()
 
             // At this point, the FS operations are synchronous
             const state = store.getState()
