@@ -18,7 +18,7 @@ export const waitForPromiseResolution = async (): Promise<void> => {
     await global["waitForPromiseResolution"]() // tslint:disable-line
 }
 
-export const waitForAllAsyncOperations = async(): Promise<void> => {
+export const waitForAllAsyncOperations = async (): Promise<void> => {
     await waitForPromiseResolution()
     runAllTimers()
 }

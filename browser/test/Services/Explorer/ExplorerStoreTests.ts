@@ -11,7 +11,7 @@ import * as ExplorerState from "./../../../src/Services/Explorer/ExplorerStore"
 
 import * as TestHelpers from "./../../TestHelpers"
 
-const MemoryFileSystem = require("memory-fs")
+const MemoryFileSystem = require("memory-fs") // tslint:disable-line
 
 describe("ExplorerStore", () => {
 
@@ -32,7 +32,7 @@ describe("ExplorerStore", () => {
         it("expands directory automatically", async () => {
             store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
-                rootPath: "C:\\a\\test\\dir"
+                rootPath: "C:\\a\\test\\dir",
             })
 
             await TestHelpers.waitForAllAsyncOperations()

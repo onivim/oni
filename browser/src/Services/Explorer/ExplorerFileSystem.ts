@@ -19,7 +19,7 @@ export interface IFileSystem {
 export class FileSystem implements IFileSystem {
 
     constructor(
-        private _fs: typeof fs
+        private _fs: typeof fs,
     ) {}
 
     public readdir(directoryPath: string): Promise<FolderOrFile[]> {

@@ -140,7 +140,7 @@ export class ExplorerSplit {
         const selectedId = state.selectedId
 
         const selectedItem = flattenedState.find((item) => item.id === selectedId)
-        
+
         return selectedItem
     }
 
