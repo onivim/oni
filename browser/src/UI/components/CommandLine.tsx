@@ -128,12 +128,6 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
                     <CommandLineIcon name="search" key={`${character}-search`} />,
                     <CommandLineIcon arrow name="arrow-right" key={`${character}-arrow-right`} />,
                 ]
-            case ":":
-                return (
-                    <IconContainer>
-                        <CommandLineIcon name="terminal" octicon />
-                    </IconContainer>
-                )
             case "?":
                 return [
                     <CommandLineIcon name="search" key={`${character}-search`} />,
