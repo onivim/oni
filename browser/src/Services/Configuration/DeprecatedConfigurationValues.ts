@@ -2,7 +2,7 @@
  * DeprecatedConfigurationValues
  *
  * The purpose of this is to give users a heads up when we plan on deprecating a configuration,
- * by providing them with a notice. As we move towards v1, we'll want to have some sort of 
+ * by providing them with a notice. As we move towards v1, we'll want to have some sort of
  * deprecation policy in place - like we'll support deprecated configurations for x releases.
  */
 
@@ -17,7 +17,7 @@ const deprecatedSettings: { [deprecatedConfigurationName: string]: IDeprecatedCo
     "editor.completions.enabled": {
         replacementConfigurationName: "editor.completions.mode",
         documentationUrl: "https://github.com/onivim/oni/wiki/Configuration#editor",
-    }
+    },
 }
 
 export const checkDeprecatedSettings = (config: {[key: string]: any}): void => {

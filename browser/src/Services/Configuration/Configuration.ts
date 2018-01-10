@@ -13,8 +13,8 @@ import * as Platform from "./../../Platform"
 import { diff } from "./../../Utility"
 
 import { DefaultConfiguration } from "./DefaultConfiguration"
-import { IConfigurationValues } from "./IConfigurationValues"
 import { checkDeprecatedSettings } from "./DeprecatedConfigurationValues"
+import { IConfigurationValues } from "./IConfigurationValues"
 
 export class Configuration implements Oni.Configuration {
 
