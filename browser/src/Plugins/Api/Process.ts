@@ -8,6 +8,8 @@ const getPathSeparator = () => {
     return Platform.isWindows() ? ";" : ":"
 }
 
+const _spawnedProcessIds: number[] = []
+
 const mergePathEnvironmentVariable = (currentPath: string, pathsToAdd: string[]): string => {
     if (!pathsToAdd || !pathsToAdd.length) {
         return currentPath
@@ -58,7 +60,16 @@ export const execNodeScript = async (scriptPath: string, args: string[] = [], op
     const execOptions = [process.execPath, scriptPath].concat(args)
     const execString = execOptions.map((s) => `"${s}"`).join(" ")
 
-    return ChildProcess.exec(execString, spawnOptions, callback)
+    const proc = ChildProcess.exec(execString, spawnOptions, callback)
+    _spawnedProcessIds.push(proc.pid)
+    return proc
+}
+
+/**
+ * Get the set of process IDs that were spawned by Oni
+ */
+export const getPIDs = (): number[] => {
+    return [..._spawnedProcessIds]
 }
 
 /**
@@ -70,7 +81,9 @@ export const spawnNodeScript = async (scriptPath: string, args: string[] = [], o
 
     const allArgs = [scriptPath].concat(args)
 
-    return ChildProcess.spawn(process.execPath, allArgs, spawnOptions)
+    const proc = ChildProcess.spawn(process.execPath, allArgs, spawnOptions)
+    _spawnedProcessIds.push(proc.pid)
+    return proc
 }
 
 /**
@@ -80,6 +93,7 @@ export const spawnProcess = async (startCommand: string, args: string[] = [], op
     const spawnOptions = await mergeSpawnOptions(options)
 
     const proc = ChildProcess.spawn(startCommand, args, spawnOptions)
+    _spawnedProcessIds.push(proc.pid)
     proc.on("error", (err: Error) => {
         Log.error(err)
     })
