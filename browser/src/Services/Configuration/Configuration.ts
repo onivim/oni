@@ -14,6 +14,7 @@ import { diff } from "./../../Utility"
 
 import { DefaultConfiguration } from "./DefaultConfiguration"
 import { IConfigurationValues } from "./IConfigurationValues"
+import { checkDeprecatedSettings } from "./DeprecatedConfigurationValues"
 
 export class Configuration implements Oni.Configuration {
 
@@ -133,6 +134,8 @@ export class Configuration implements Oni.Configuration {
             this._configEverHadValue = true
             this._config = { ...DefaultConfiguration, ...this._setValues, ...userRuntimeConfigOrError}
         }
+
+        checkDeprecatedSettings(this._config)
 
         this._deactivate()
         this._activateIfOniObjectIsAvailable()
