@@ -33,7 +33,6 @@ export const Documentation = styled.div`
     ${boxShadowInset};
     padding: 0.8rem;
     overflow: auto;
-    min-width: 300px;
     margin-bottom: 0.8rem;
 
     &::-webkit-scrollbar {
