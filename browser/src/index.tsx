@@ -39,6 +39,8 @@ const start = async (args: string[]): Promise<void> => {
     const languageManagerPromise = import("./Services/Language")
     const cssPromise = import("./CSS")
 
+    const snippets = import("./Services/Snippets")
+
     // Helper for debugging:
     window["Shell"] = Shell // tslint:disable-line no-string-literal
 
@@ -137,6 +139,9 @@ const start = async (args: string[]): Promise<void> => {
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Performance.endMeasure("Oni.Start.Activate")
+
+    const Snippets = await snippets
+    Snippets.activate()
 
     checkForUpdates()
 
