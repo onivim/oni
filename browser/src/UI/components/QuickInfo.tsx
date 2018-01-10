@@ -43,11 +43,11 @@ export const Documentation = styled.div`
 // NOTE: Currently with a max-width in CursorPositioner the text
 // in the hover element can occasionally appear to have too much padding
 // this is due to a browser quirk where it renders the maxWidth but does
-// not resize once truncated the solutions are
+// not resize once truncated the solution is
 // 1. word-break: break all in the title component (causes breaks between words)
 // - the above seems to be vscode's solution
-// 2. fit-content: to mitigate but not fix the padding issue (current solution)
 export const Title = styled.div`
+    word-break: break-all;
     &::-webkit-scrollbar {
         height: 2px;
     }
@@ -62,7 +62,7 @@ export const Title = styled.div`
 
 export const QuickInfoContainer = styled.div`
   padding: 0.6rem;
-  width: fit-content;
+  width: auto;
 `
 
 export interface ITextProps {
