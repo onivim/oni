@@ -62,7 +62,6 @@ export const activate = (oni: Oni.Plugin.Api) => {
 
         connection.subscribeToRequest("completionItem/resolve", getCompletionDetails(host))
 
-        connection.subscribeToNotification("textDocument/didOpen", protocolOpenFile(host))
         connection.subscribeToNotification("textDocument/didChange", protocolChangeFile(host))
         connection.subscribeToNotification("textDocument/didSave", onSaved(host))
 
@@ -106,12 +105,15 @@ export const activate = (oni: Oni.Plugin.Api) => {
 
     const connection = new LanguageConnection(_lightweightLanguageClient)
 
-    const protocolOpenFile = (host:TypeScriptServerHost) => (message: string, payload: any) => {
+    // Subscribe to textDocument/didOpen initially, to spin up the 
+
+    const protocolOpenFile = (message: string, payload: any) => {
         const textDocument: any = payload.textDocument
         const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
 
-        host.openFile(filePath, textDocument.text)
+        host().openFile(filePath, textDocument.text)
     }
+    connection.subscribeToNotification("textDocument/didOpen", protocolOpenFile)
 
     const isSingleLineChange = (range: types.Range): boolean => {
 
@@ -147,9 +149,9 @@ export const activate = (oni: Oni.Plugin.Api) => {
 
         const change = contentChanges[0]
         if (!change.range) {
-            host().updateFile(filePath, change.text)
+            host.updateFile(filePath, change.text)
         } else if (isSingleLineChange(change.range) && change.text) {
-            host().changeLineInFile(filePath, change.range.start.line + 1, removeNewLines(change.text))
+            host.changeLineInFile(filePath, change.range.start.line + 1, removeNewLines(change.text))
         } else {
             oni.log.warn("Unhandled change request!")
         }
