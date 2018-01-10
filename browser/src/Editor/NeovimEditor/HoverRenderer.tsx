@@ -8,7 +8,7 @@ import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
-import { QuickInfoDocumentation /*, QuickInfoTitle */ } from "./../../UI/components/QuickInfo"
+import { QuickInfoDocumentation, QuickInfoTitle } from "./../../UI/components/QuickInfo"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -129,22 +129,24 @@ const getTitleAndContents = (result: types.Hover) => {
     if (contents.length === 0) {
         return null
     } else if (contents.length === 1 && contents[0]) {
-        const title = contents[0]
+        const title = contents[0].trim()
 
         if (!title) {
             return null
         }
 
         return {
-            documentation: convertMarkdown(title),
+            title: convertMarkdown(title),
+            description: null,
         }
     } else {
-        const documentation = contents
-        const descriptionContent = documentation.join(os.EOL)
+        const description = [...contents]
+        description.shift()
+        const descriptionContent = description.join(os.EOL)
 
         return {
-            // title: convertMarkdown(contents[0]),
-            documentation: convertMarkdown(descriptionContent),
+            title: convertMarkdown(contents[0]),
+            description: convertMarkdown(descriptionContent),
         }
     }
 }
@@ -157,7 +159,7 @@ const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element[] => {
     }
 
     return [
-        // <QuickInfoTitle html={titleAndContents.title} />,
-        <QuickInfoDocumentation html={titleAndContents.documentation} />,
+        <QuickInfoTitle html={titleAndContents.title} />,
+        <QuickInfoDocumentation html={titleAndContents.description} />,
     ]
 }
