@@ -171,7 +171,7 @@ const nullAction: CompletionAction = { type: null } as CompletionAction
 
 const createGetCompletionMeetEpic = (languageManager: LanguageManager, configuration: Configuration): Epic<CompletionAction, ICompletionState> => (action$, store) =>
     action$.ofType("CURSOR_MOVED")
-        .filter(() => configuration.getValue("editor.completions.mode") === "oni")
+        .filter(() => configuration.getValue("editor.completions.mode") === "oni" && configuration.getValue("editor.completions.enabled") !== false)
         .auditTime(10)
         .map((action: CompletionAction) => {
             const currentState: ICompletionState = store.getState()
