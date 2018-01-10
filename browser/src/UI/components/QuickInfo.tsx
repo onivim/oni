@@ -1,7 +1,7 @@
 import * as os from "os"
 
 import * as React from "react"
-import styled, { boxShadowInset, css, fallBackFonts, fontSizeSmall } from "./common"
+import styled, { boxShadowInset, css, fontSizeSmall } from "./common"
 
 const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
@@ -23,7 +23,7 @@ const childStyles = css`
             tab-size: 4;
         }
         code {
-            font-family: ${fallBackFonts}
+            /* */
         }
     }
 `
