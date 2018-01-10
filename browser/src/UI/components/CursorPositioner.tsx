@@ -126,7 +126,8 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             top: adjustedY.toString() + "px",
             left: "0px",
             width: this.props.containerWidth.toString() + "px",
-            maxWidth: "55vh",
+            maxWidth: "55vw",
+            maxHeight: "30vh",
             visibility: this.state.isMeasured ? "visible" : "hidden", // Wait until we've measured the bounds to show..
         }
 
