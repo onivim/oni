@@ -12,16 +12,19 @@
 import { NotifyFunction } from "redux-batched-subscribe"
 
 export const RequestAnimationFrameNotifyBatcher = () => {
-    let rafId: number = null
-
     return (notify: NotifyFunction) => {
-        if (rafId) {
-            return
-        }
-
-        rafId = window.requestAnimationFrame(() => {
-            rafId = null
-            notify()
-        })
+        notify()
     }
+    // let rafId: number = null
+
+    // return (notify: NotifyFunction) => {
+    //     if (rafId) {
+    //         return
+    //     }
+
+    //     rafId = window.requestAnimationFrame(() => {
+    //         rafId = null
+    //         notify()
+    //     })
+    // }
 }
