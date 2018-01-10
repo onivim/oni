@@ -48,8 +48,6 @@ export const Documentation = styled.div`
 // - the above seems to be vscode's solution
 // 2. fit-content: to mitigate but not fix the padding issue (current solution)
 export const Title = styled.div`
-    border-bottom: 2px solid ${p => p.theme["editor.foreground"]};
-
     &::-webkit-scrollbar {
         height: 2px;
     }
@@ -74,15 +72,13 @@ export interface ITextProps {
     }
 }
 
-export class TextComponent extends React.PureComponent<ITextProps, {}> {}
-
-export class QuickInfoTitle extends TextComponent {
+export class QuickInfoTitle extends React.PureComponent<ITextProps> {
     public render(): JSX.Element {
         return <Title dangerouslySetInnerHTML={this.props.html}>{this.props.text}</Title>
     }
 }
 
-export class QuickInfoDocumentation extends TextComponent {
+export class QuickInfoDocumentation extends React.PureComponent<ITextProps> {
     public render(): JSX.Element {
         const { text, html } = this.props
         switch (true) {
