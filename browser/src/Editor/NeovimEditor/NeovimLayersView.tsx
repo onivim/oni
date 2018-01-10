@@ -54,16 +54,6 @@ export class NeovimLayersView extends React.PureComponent<NeovimLayersViewProps,
 }
 
 const getWindowPixelDimensions = (win: State.IWindow) => {
-
-    if (!win || !win.dimensions) {
-        return {
-            pixelX: -1,
-            pixelY: -1,
-            pixelWidth: -1,
-            pixelHeight: -1,
-        }
-    }
-
     const start = win.screenToPixel({
         screenX: win.dimensions.x,
         screenY: win.dimensions.y,
