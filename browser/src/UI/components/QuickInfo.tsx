@@ -43,6 +43,8 @@ export const Documentation = styled.div`
 `
 
 export const Title = styled.div`
+    width: auto;
+    margin: 0.2rem;
     padding: 0.2rem;
     word-break: break-all;
 
