@@ -69,7 +69,69 @@
       "files": [
         "bin/x86/**/*"
       ]
-    }
+    },
+    "fileAssociations": [
+      {
+        "ext": "js",
+        "name": "javascript",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "json",
+        "name": "JSON",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "jsx",
+        "name": "JSX",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "py",
+        "name": "Python",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "go",
+        "name": "Go Lang",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "re",
+        "name": "Reason",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "vim",
+        "name": "VimL",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "ts",
+        "name": "Typescript",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "tsx",
+        "name": "Typescript",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "css",
+        "name": "CSS",
+        "role": "Editor",
+        "isPackage": true
+      }
+    ]
   },
   "scripts": {
     "build": "npm run build:browser && npm run build:main && npm run build:plugins",

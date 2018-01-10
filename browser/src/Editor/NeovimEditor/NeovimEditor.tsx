@@ -460,6 +460,10 @@ export class NeovimEditor extends Editor implements IEditor {
             this._openFiles(files, message)
         })
 
+        ipcRenderer.on("open-file", (_evt: any, path: string) => {
+            this._neovimInstance.command(`:e! ${path}`)
+        })
+
         // enable opening a file via drag-drop
         document.ondragover = (ev) => {
             ev.preventDefault()
