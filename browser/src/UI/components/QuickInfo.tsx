@@ -1,13 +1,14 @@
 import * as os from "os"
 
 import * as React from "react"
-import styled, { boxShadowInset, css, fontSizeSmall } from "./common"
+import styled, { css } from "./common"
 
 const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
     border-color: ${p => p.theme["toolTip.border"]};
     padding: 0.4em 0.4em 0.4em 0.4em;
     margin: 0.4em 0.4em 0.4em 0.4em;
+    width: 100%;
 `
 
 const childStyles = css`
@@ -19,19 +20,17 @@ const childStyles = css`
         }
 
         pre {
+            display: flex;
             ${codeBlockStyle};
-            tab-size: 4;
         }
+
         code {
-            /* */
+            tab-size: 4;
         }
     }
 `
 
 export const Documentation = styled.div`
-    ${fontSizeSmall};
-    ${boxShadowInset};
-    padding: 0.8rem;
     overflow: auto;
     margin-bottom: 0.8rem;
 
@@ -41,12 +40,15 @@ export const Documentation = styled.div`
 
     ${childStyles};
 `
-
+// NOTE: Currently with a max-width in CursorPositioner the text
+// in the hover element can occasionally appear to have too much padding
+// this is due to a browser quirk where it renders the maxWidth but does
+// not resize once truncated the solutions are
+// 1. word-break: break all in the title component (causes breaks between words)
+// - the above seems to be vscode's solution
+// 2. fit-content: to mitigate but not fix the padding issue (current solution)
 export const Title = styled.div`
-    width: auto;
-    margin: 0.2rem;
-    padding: 0.2rem;
-    word-break: break-all;
+    border-bottom: 2px solid ${p => p.theme["editor.foreground"]};
 
     &::-webkit-scrollbar {
         height: 2px;
@@ -58,6 +60,11 @@ export const Title = styled.div`
             color: ${p => p.theme["editor.foreground"]}
         }
     }
+`
+
+export const QuickInfoContainer = styled.div`
+  padding: 0.6rem;
+  width: fit-content;
 `
 
 export interface ITextProps {

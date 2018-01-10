@@ -8,7 +8,11 @@ import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
-import { QuickInfoDocumentation, QuickInfoTitle } from "./../../UI/components/QuickInfo"
+import {
+    QuickInfoContainer,
+    QuickInfoDocumentation,
+    QuickInfoTitle,
+} from "./../../UI/components/QuickInfo"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -50,12 +54,12 @@ export class HoverRenderer {
     }
 
     private _renderQuickInfoElement(hover: types.Hover, errors: types.Diagnostic[]): JSX.Element {
-        const quickInfoElements = getQuickInfoElementsFromHover(hover)
+        const quickInfoElement = getQuickInfoElementsFromHover(hover)
 
         const borderColor = this._colors.getColor("toolTip.border")
 
         let customErrorStyle = {}
-        if (quickInfoElements.length > 0) {
+        if (!quickInfoElement) {
             // TODO:
             customErrorStyle = {
                 "border-bottom": "1px solid " + borderColor,
@@ -64,7 +68,7 @@ export class HoverRenderer {
 
         const errorElements = getErrorElements(errors, customErrorStyle)
 
-        const elements = [...errorElements, ...quickInfoElements]
+        const elements = [...errorElements, quickInfoElement]
 
         if (this._configuration.getValue("experimental.editor.textMateHighlighting.debugScopes")) {
             elements.push(this._getDebugScopesElement())
@@ -151,15 +155,17 @@ const getTitleAndContents = (result: types.Hover) => {
     }
 }
 
-const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element[] => {
+const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element => {
     const titleAndContents = getTitleAndContents(hover)
 
     if (!titleAndContents) {
-        return Selectors.EmptyArray
+        return null
     }
 
-    return [
-        <QuickInfoTitle html={titleAndContents.title} />,
-        <QuickInfoDocumentation html={titleAndContents.description} />,
-    ]
+    return (
+        <QuickInfoContainer>
+            <QuickInfoTitle html={titleAndContents.title} />
+            <QuickInfoDocumentation html={titleAndContents.description} />
+        </QuickInfoContainer>
+    )
 }
