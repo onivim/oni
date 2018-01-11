@@ -1,10 +1,9 @@
-import { EventEmitter } from "events"
 import * as fs from "fs"
 import * as path from "path"
 
 import * as Oni from "oni-api"
 
-import { configuration, getUserConfigFolderPath } from "./../Services/Configuration"
+import { Configuration, getUserConfigFolderPath } from "./../Services/Configuration"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
 import { Plugin } from "./Plugin"
@@ -13,8 +12,7 @@ const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
 const extensionsRoot = path.join(__dirname, "extensions")
 
-export class PluginManager extends EventEmitter {
-    private _config = configuration
+export class PluginManager {
     private _rootPluginPaths: string[] = []
     private _plugins: Plugin[] = []
     private _anonymousPlugin: AnonymousPlugin
@@ -22,6 +20,10 @@ export class PluginManager extends EventEmitter {
     public get plugins(): Plugin[] {
         return this._plugins
     }
+
+    constructor(
+        private _config: Configuration
+    ) { }
 
     public discoverPlugins(): void {
         this._rootPluginPaths.push(corePluginsRoot)
@@ -70,7 +72,13 @@ export class PluginManager extends EventEmitter {
     }
 }
 
-export const pluginManager = new PluginManager()
+let _pluginManager: PluginManager = null
+
+export const activate = (configuration: Configuration): void => {
+    _pluginManager = new PluginManager(configuration)
+}
+
+export const getInstance = (): PluginManager => _pluginManager
 
 function getDirectories(rootPath: string): string[] {
     if (!fs.existsSync(rootPath)) {

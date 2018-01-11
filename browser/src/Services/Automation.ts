@@ -10,7 +10,7 @@ import * as OniApi from "oni-api"
 
 import * as Utility from "./../Utility"
 
-import { configuration, getUserConfigFilePath } from "./Configuration"
+import { getUserConfigFilePath } from "./Configuration"
 import { editorManager } from "./EditorManager"
 import { inputManager } from "./InputManager"
 

@@ -9,12 +9,17 @@ import * as isError from "lodash/isError"
 import * as mkdirp from "mkdirp"
 import * as path from "path"
 
+import { Subject } from "rxjs/Subject"
+
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
+
 import * as Log from "./../../Log"
 
 import { IConfigurationProvider } from "./Configuration"
 import { IConfigurationValues } from "./IConfigurationValues"
+
+const CONFIG_UPDATE_DEBOUNCE_TIME = 100 /*ms */
 
 export class FileConfigurationProvider implements IConfigurationProvider {
     private _configurationFilePath: string
@@ -25,6 +30,9 @@ export class FileConfigurationProvider implements IConfigurationProvider {
     private _lastError: Error | null = null
     private _configEverHadValue: boolean = false
 
+    private _configChangedObservable: Subject<void>
+    private _configErrorObservable: Subject<Error>
+
     public get onConfigurationChanged(): IEvent<void> {
         return this._configurationChangedEvent
     }
@@ -34,6 +42,17 @@ export class FileConfigurationProvider implements IConfigurationProvider {
     }
     
     constructor(filePath: string) {
+
+        this._configChangedObservable = new Subject<void>()
+        this._configErrorObservable = new Subject<Error>()
+
+        this._configChangedObservable
+            .debounceTime(CONFIG_UPDATE_DEBOUNCE_TIME)
+            .subscribe(() => this._configurationChangedEvent.dispatch())
+
+        this._configErrorObservable
+            .debounceTime(CONFIG_UPDATE_DEBOUNCE_TIME)
+            .subscribe((err: Error) => this._configurationErrorEvent.dispatch(err))
 
         this._configurationFilePath = filePath
         this._containingFolder = path.dirname(filePath)
@@ -57,6 +76,8 @@ export class FileConfigurationProvider implements IConfigurationProvider {
                 this._getLatestConfig()
             }
         })
+
+        this._getLatestConfig()
     }
 
     public getValues(): Partial<IConfigurationValues> {
@@ -83,10 +104,17 @@ export class FileConfigurationProvider implements IConfigurationProvider {
         }
     }
 
-    private _getLatestConfig(): void {
+    private _notifyConfigurationChanged(): void {
+        this._configChangedObservable.next()
+    }
 
+    private _notifyConfigurationError(err: Error): void {
+        this._configErrorObservable.next(err)
+    }
+
+    private _getLatestConfig(): void {
         this._lastError = null
-        
+
         let userRuntimeConfig: IConfigurationValues | null = null
         let error: Error | null = null
         if (fs.existsSync(this._configurationFilePath)) {
@@ -97,7 +125,7 @@ export class FileConfigurationProvider implements IConfigurationProvider {
                 error = e
 
                 this._lastError = e
-                this._configurationErrorEvent.dispatch(e)
+                this._notifyConfigurationError(e)
             }
         }
 
@@ -119,7 +147,7 @@ export class FileConfigurationProvider implements IConfigurationProvider {
             if (userRuntimeConfig) {
                 this._configEverHadValue = true
                 this._latestConfiguration = userRuntimeConfig
-                this._configurationChangedEvent.dispatch()
+                this._notifyConfigurationChanged()
             }
         }
     }

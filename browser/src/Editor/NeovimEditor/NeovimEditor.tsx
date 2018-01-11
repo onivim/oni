@@ -26,7 +26,7 @@ import { addDefaultUnitIfNeeded } from "./../../Font"
 import { BufferEventContext, EventContext, INeovimStartOptions, NeovimInstance, NeovimScreen, NeovimWindowManager } from "./../../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../../Renderer"
 
-import { pluginManager } from "./../../Plugins/PluginManager"
+import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { Colors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
@@ -135,6 +135,7 @@ export class NeovimEditor extends Editor implements IEditor {
         private _configuration: Configuration,
         private _diagnostics: IDiagnosticsDataSource,
         private _languageManager: LanguageManager,
+        private _pluginManager: PluginManager,
         private _themeManager: ThemeManager,
     ) {
         super()
@@ -537,7 +538,7 @@ export class NeovimEditor extends Editor implements IEditor {
     public async init(filesToOpen: string[]): Promise<void> {
         Log.info("[NeovimEditor::init] Called with filesToOpen: " + filesToOpen)
         const startOptions: INeovimStartOptions = {
-            runtimePaths: pluginManager.getAllRuntimePaths(),
+            runtimePaths: this._pluginManager.getAllRuntimePaths(),
             transport: this._configuration.getValue("experimental.neovim.transport"),
         }
 

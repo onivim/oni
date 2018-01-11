@@ -30,7 +30,7 @@ export class Configuration implements Oni.Configuration {
     private _configurationProviders: IConfigurationProvider[] = []
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
     private _oniApi: Oni.Plugin.Api = null
-    private _config: IConfigurationValues = null
+    private _config: any = { }
 
     private _setValues: { [configValue: string]: any } = { }
 
@@ -63,8 +63,10 @@ export class Configuration implements Oni.Configuration {
         })
 
         configurationProvider.onConfigurationError.subscribe((error) => {
-            Log.error(error)
+            alert(error)
         })
+
+        this._updateConfig()
     }
 
     public hasValue(configValue: keyof IConfigurationValues): boolean {

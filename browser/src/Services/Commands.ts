@@ -14,7 +14,7 @@ import * as Oni from "oni-api"
 
 import { INeovimInstance } from "./../neovim"
 
-import { configuration, getUserConfigFilePath } from "./../Services/Configuration"
+import { getUserConfigFilePath } from "./../Services/Configuration"
 import { editorManager } from "./../Services/EditorManager"
 import { findAllReferences, format } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"

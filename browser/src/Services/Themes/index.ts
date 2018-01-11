@@ -1,9 +1,13 @@
 export * from "./ThemeManager"
 
-import { Configuration, IConfigurationValues } from "./../Configuration"
-import { getThemeManagerInstance } from "./ThemeManager"
+import { PluginManager } from "./../../Plugins/PluginManager"
 
-export const activate = async (configuration: Configuration): Promise<void> => {
+import { Configuration, IConfigurationValues } from "./../Configuration"
+import { activateThemes, getThemeManagerInstance } from "./ThemeManager"
+
+export const activate = async (configuration: Configuration, pluginManager: PluginManager): Promise<void> => {
+
+    activateThemes(pluginManager)
 
     const updateColorScheme = async (configurationValues: Partial<IConfigurationValues>): Promise<void> => {
         const colorscheme = configurationValues["ui.colorscheme"]
