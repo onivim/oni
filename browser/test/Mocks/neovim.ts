@@ -36,9 +36,7 @@ import * as Neovim from "./../../src/neovim"
 //         return noopEvent
 //     }
 
-
 // }
-
 
 export class MockScreen implements Neovim.IScreen {
 

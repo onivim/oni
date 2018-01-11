@@ -116,7 +116,7 @@ class SharedNeovimInstance implements SharedNeovimInstance {
     private _neovimInstance: NeovimInstance
 
     constructor(
-        private _configuration: Configuration
+        private _configuration: Configuration,
     ) {
         this._neovimInstance = new NeovimInstance(5, 5, this._configuration)
 

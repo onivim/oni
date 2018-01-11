@@ -24,7 +24,7 @@ describe("NeovimEditor", () => {
     //     assert.ok(true, "hello")
     //     return editor.init([])
     // })
-    
+
     describe("sanitizeMode", () => {
         it("passes through non-showmatch values", () => {
             const insertMode = NeovimEditor.sanitizeMode("insert")

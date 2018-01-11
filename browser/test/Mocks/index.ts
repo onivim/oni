@@ -31,7 +31,7 @@ export class MockColors implements IColors {
         return {}
     }
 
-    getColor(colorName: string): string | null {
+    public getColor(colorName: string): string | null {
         return null
     }
 }
