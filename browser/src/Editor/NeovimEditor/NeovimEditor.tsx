@@ -76,13 +76,116 @@ import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
 
+export class OniEditor extends NeovimEditor {
+    private _languageIntegration: LanguageEditorIntegration
+    private _completion: Completion
+    private _hoverRenderer: HoverRenderer
+    private _rename: Rename = null
+    private _symbols: Symbols = null
+    private _definition: Definition = null
+    private _commands: NeovimEditorCommands
+    private _contextMenuManager: ContextMenuManager
+    private _toolTipsProvider: IToolTipsProvider
+
+    constructor(
+        colors: Colors,
+        configuration: Configuration,
+        diagnostics: IDiagnosticsDataSource,
+        themeManager: ThemeManager,
+        private _languageManager: LanguageManager,
+    ) {
+        super(colors, configuration, diagnostics, themeManager)
+
+        this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
+        this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
+
+        this._definition = new Definition(this, this._store)
+        this._symbols = new Symbols(this, this._definition, this._languageManager)
+        this._rename = new Rename(this, this._languageManager, this._toolTipsProvider)
+
+        addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$, this._toolTipsProvider)
+
+        this._completion = new Completion(this, this._languageManager, this._configuration)
+        this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
+
+        this._completion.onShowCompletionItems.subscribe((completions) => {
+            this._completionMenu.show(completions.filteredCompletions, completions.base)
+        })
+
+        this._completion.onHideCompletionItems.subscribe((completions) => {
+            this._completionMenu.hide()
+        })
+
+        this._completionMenu.onItemFocused.subscribe((item) => {
+            this._completion.resolveItem(item)
+        })
+
+        this._completionMenu.onItemSelected.subscribe((item) => {
+            this._completion.commitItem(item)
+        })
+
+        this._languageIntegration = new LanguageEditorIntegration(this, this._configuration, this._languageManager)
+
+        this._languageIntegration.onShowHover.subscribe((hover) => {
+            const { cursorPixelX, cursorPixelY } = this._store.getState()
+            this._hoverRenderer.showQuickInfo(cursorPixelX, cursorPixelY, hover.hover, hover.errors)
+        })
+
+        this._languageIntegration.onHideHover.subscribe(() => {
+            this._hoverRenderer.hideQuickInfo()
+        })
+
+        this._languageIntegration.onShowDefinition.subscribe((definition) => {
+            this._actions.setDefinition(definition.token, definition.location)
+        })
+
+        this._languageIntegration.onHideDefinition.subscribe((definition) => {
+            this._actions.hideDefinition()
+        })
+
+        this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
+
+        this._commands = new NeovimEditorCommands(
+            commandManager,
+            this._contextMenuManager,
+            this._definition,
+            this._languageIntegration,
+            this._rename,
+            this._symbols,
+        )
+    }
+
+    public enter(): void {
+        super.enter()
+        this._commands.activate()
+    }
+
+    public leave(): void {
+        super.leave()
+        this._commands.deactivate()
+    }
+
+    public dispose(): void {
+        super.dispose()
+
+        if (this._languageIntegration) {
+            this._languageIntegration.dispose()
+            this._languageIntegration = null
+        }
+
+        if (this._completion) {
+            this._completion.dispose()
+            this._completion = null
+        }
+    }
+}
+
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
     private _completionMenu: CompletionMenu
-    private _contextMenuManager: ContextMenuManager
     private _popupMenu: NeovimPopupMenu
     private _errorInitializing: boolean = false
 
@@ -108,14 +211,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private _typingPredictionManager: TypingPredictionManager = new TypingPredictionManager()
     private _syntaxHighlighter: ISyntaxHighlighter
-    private _languageIntegration: LanguageEditorIntegration
-    private _completion: Completion
-    private _hoverRenderer: HoverRenderer
-    private _rename: Rename = null
-    private _symbols: Symbols = null
-    private _definition: Definition = null
-    private _toolTipsProvider: IToolTipsProvider
-    private _commands: NeovimEditorCommands
 
     public /* override */ get activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
@@ -134,7 +229,6 @@ export class NeovimEditor extends Editor implements IEditor {
         private _colors: Colors,
         private _configuration: Configuration,
         private _diagnostics: IDiagnosticsDataSource,
-        private _languageManager: LanguageManager,
         private _themeManager: ThemeManager,
     ) {
         super()
@@ -143,18 +237,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._store = createStore()
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
-        this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
-
-        this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
         this._neovimInstance = new NeovimInstance(100, 100)
         this._bufferManager = new BufferManager(this._neovimInstance, this._actions)
         this._screen = new NeovimScreen()
-
-        this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
-
-        this._definition = new Definition(this, this._store)
-        this._symbols = new Symbols(this, this._definition, this._languageManager)
 
         this._diagnostics.onErrorsChanged.subscribe(() => {
             const errors = this._diagnostics.getErrors()
@@ -172,21 +258,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._renderer = new CanvasRenderer()
 
-        this._rename = new Rename(this, this._languageManager, this._toolTipsProvider)
-
         // Services
         const errorService = new Errors(this._neovimInstance)
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
-
-        this._commands = new NeovimEditorCommands(
-            commandManager,
-            this._contextMenuManager,
-            this._definition,
-            this._languageIntegration,
-            this._rename,
-            this._symbols,
-        )
 
         const updateViewport = () => {
             const width = document.body.offsetWidth
@@ -383,48 +458,8 @@ export class NeovimEditor extends Editor implements IEditor {
             this.notifyBufferScrolled(convertedArgs)
         })
 
-        addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$, this._toolTipsProvider)
-
         const textMateHighlightingEnabled = this._configuration.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter(this._configuration, this) : new NullSyntaxHighlighter()
-
-        this._completion = new Completion(this, this._languageManager, this._configuration)
-        this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
-
-        this._completion.onShowCompletionItems.subscribe((completions) => {
-            this._completionMenu.show(completions.filteredCompletions, completions.base)
-        })
-
-        this._completion.onHideCompletionItems.subscribe((completions) => {
-            this._completionMenu.hide()
-        })
-
-        this._completionMenu.onItemFocused.subscribe((item) => {
-            this._completion.resolveItem(item)
-        })
-
-        this._completionMenu.onItemSelected.subscribe((item) => {
-            this._completion.commitItem(item)
-        })
-
-        this._languageIntegration = new LanguageEditorIntegration(this, this._configuration, this._languageManager)
-
-        this._languageIntegration.onShowHover.subscribe((hover) => {
-            const { cursorPixelX, cursorPixelY } = this._store.getState()
-            this._hoverRenderer.showQuickInfo(cursorPixelX, cursorPixelY, hover.hover, hover.errors)
-        })
-
-        this._languageIntegration.onHideHover.subscribe(() => {
-            this._hoverRenderer.hideQuickInfo()
-        })
-
-        this._languageIntegration.onShowDefinition.subscribe((definition) => {
-            this._actions.setDefinition(definition.token, definition.location)
-        })
-
-        this._languageIntegration.onHideDefinition.subscribe((definition) => {
-            this._actions.hideDefinition()
-        })
 
         this._render()
 
@@ -487,16 +522,6 @@ export class NeovimEditor extends Editor implements IEditor {
             this._syntaxHighlighter = null
         }
 
-        if (this._languageIntegration) {
-            this._languageIntegration.dispose()
-            this._languageIntegration = null
-        }
-
-        if (this._completion) {
-            this._completion.dispose()
-            this._completion = null
-        }
-
         // TODO: Implement full disposal logic
         this._popupMenu.dispose()
         this._popupMenu = null
@@ -509,13 +534,11 @@ export class NeovimEditor extends Editor implements IEditor {
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
         this._actions.setHasFocus(true)
-        this._commands.activate()
     }
 
     public leave(): void {
         Log.info("[NeovimEditor::leave]")
         this._actions.setHasFocus(false)
-        this._commands.deactivate()
     }
 
     public async openFile(file: string): Promise<Oni.Buffer> {
