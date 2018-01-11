@@ -32,7 +32,6 @@ const childStyles = css`
 
 export const Documentation = styled.div`
     overflow: auto;
-    max-width: 25vh;
     margin-bottom: 0.8rem;
 
     &::-webkit-scrollbar {
@@ -62,8 +61,14 @@ export const Title = styled.div`
 `
 
 export const QuickInfoContainer = styled.div`
+  max-height: 25vh;
+  overflow: hidden;
   padding: 0.6rem;
   width: auto;
+
+  &:hover {
+    overflow: auto;
+  }
 `
 
 export interface ITextProps {
