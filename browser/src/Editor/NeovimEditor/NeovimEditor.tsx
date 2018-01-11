@@ -707,7 +707,7 @@ export class NeovimEditor extends Editor implements IEditor {
         .then(ids => this._actions.setCurrentBuffers(ids))
     }
 
-    private  _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
+    private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
         const fontFamily = this._configuration.getValue("editor.fontFamily")
         const fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
         const linePadding = this._configuration.getValue("editor.linePadding")
