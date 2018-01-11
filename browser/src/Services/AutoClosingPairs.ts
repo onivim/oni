@@ -125,7 +125,7 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         return true
     }
 
-    const onBufferEnter = (newBuffer) => {
+    const onBufferEnter = (newBuffer: Oni.Buffer) => {
 
         if (!configuration.getValue("autoClosingPairs.enabled")) {
             Log.verbose("[Auto Closing Pairs] Not enabled.")
