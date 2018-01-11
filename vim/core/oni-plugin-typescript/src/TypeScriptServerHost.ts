@@ -255,7 +255,7 @@ export class TypeScriptServerHost extends events.EventEmitter {
             line,
             offset,
             findInComments: true,
-            findInStrings: true,
+            findInStrings: false,
         })
     }
 
