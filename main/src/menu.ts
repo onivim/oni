@@ -15,7 +15,9 @@ export const buildDockMenu = (mainWindow, loadInit) => {
     return Menu.buildFromTemplate(menu)
 }
 
-export const buildMenu = (mainWindow, loadInit) => {
+export type BrowserWindowFunction = () => Promise<any>
+
+export const buildMenu = (mainWindowFunction: BrowserWindowFunction, loadInit) => {
     const menu = []
 
     // On Windows, both the forward slash `/` and the backward slash `\` are accepted as path delimiters.
@@ -23,11 +25,37 @@ export const buildMenu = (mainWindow, loadInit) => {
     // for VIM as it sees escape keys.
     const normalizePath = (fileName) => fileName.split("\\").join("/")
 
-    const executeVimCommand = (command) => mainWindow.webContents.send("menu-item-click", command)
+    const executeVimCommand = async (command) => {
+        const mainWindow = await mainWindowFunction()
+        mainWindow.webContents.send("menu-item-click", command)
+    }
 
-    const executeVimCommandForMultipleFiles = (command, files) => mainWindow.webContents.send("open-files", command, files)
+    const executeVimCommandForMultipleFiles = async (command, files) => {
+        const mainWindow = await mainWindowFunction()
+        mainWindow.webContents.send("open-files", command, files)
+    }
 
-    const executeOniCommand = (command) => mainWindow.webContents.send("execute-command", command)
+    const executeOniCommand = async (command) => {
+        const mainWindow = await mainWindowFunction()
+        mainWindow.webContents.send("execute-command", command)
+    }
+
+    const showOpenDialogAndExecuteCommandForFiles = async (command) => {
+        const mainWindow = await mainWindowFunction()
+        const opts: any = ["openFile", "multiSelections"]
+        dialog.showOpenDialog(mainWindow, opts, (files) => {
+            executeVimCommandForFiles(command, files)
+        })
+    }
+
+    const showSaveDialogAndExecuteCommandForFile = async (command) => {
+        const mainWindow = await mainWindowFunction()
+        dialog.showSaveDialog(mainWindow, {}, (name) => {
+            if (name) {
+                executeVimCommand(command + " " + normalizePath(name))
+            }
+        })
+    }
 
     const openUrl = (url) => mainWindow.webContents.send("execute-command", "browser.openUrl", url)
 
@@ -94,7 +122,8 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Open File…",
                 click(item, focusedWindow) {
-                    dialog.showOpenDialog(mainWindow, { properties: ["openFile", "multiSelections"] }, (files) => executeVimCommandForMultipleFiles(":tabnew ", files))
+                    showOpenDialogAndExecuteCommandForFiles(":tabnew")
+                    // dialog.showOpenDialog(mainWindow, { properties: ["openFile", "multiSelections"] }, (files) => executeVimCommandForMultipleFiles(":tabnew ", files))
                 },
             },
             {
@@ -107,12 +136,14 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Split Open…",
                 click(item, focusedWindow) {
-                    dialog.showOpenDialog(mainWindow, { properties: ["openFile"] }, (files) => executeVimCommandForFiles(":sp", files))
+                    showOpenDialogAndExecuteCommandForFiles(":sp")
+                    // dialog.showOpenDialog(mainWindow, { properties: ["openFile"] }, (files) => executeVimCommandForFiles(":sp", files))
                 },
             },
             {
                 type: "separator",
             },
+            // TODO: Conditional on being active...
             {
                 label: "New Window",
                 click() {
@@ -134,16 +165,19 @@ export const buildMenu = (mainWindow, loadInit) => {
                     executeVimCommand(":w")
                 },
             },
+            // TODO: Conditional on being active...
             {
                 label: "Save As…",
                 click(item, focusedWindow) {
-                    dialog.showSaveDialog(mainWindow, {}, (name) => {
-                        if (name) {
-                            executeVimCommand(":save " + normalizePath(name))
-                        }
-                    })
+                    showSaveDialogAndExecuteCommandForFile(":save")
+                    // dialog.showSaveDialog(mainWindow, {}, (name) => {
+                    //     if (name) {
+                    //         executeVimCommand(":save " + normalizePath(name))
+                    //     }
+                    // })
                 },
             },
+            // TODO: Conditional on being active...
             {
                 label: "Save All",
                 click(item, focusedWindow) {
