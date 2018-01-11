@@ -40,7 +40,7 @@ export class FileConfigurationProvider implements IConfigurationProvider {
     public get onConfigurationError(): IEvent<Error> {
         return this._configurationErrorEvent
     }
-    
+
     constructor(filePath: string) {
 
         this._configChangedObservable = new Subject<void>()
@@ -152,5 +152,3 @@ export class FileConfigurationProvider implements IConfigurationProvider {
         }
     }
 }
-
-

@@ -242,7 +242,7 @@ export class ThemeManager {
     }
 
     constructor(
-        private _pluginManager: PluginManager
+        private _pluginManager: PluginManager,
     ) { }
 
     public async setTheme(name: string): Promise<void> {

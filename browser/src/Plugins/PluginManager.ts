@@ -22,7 +22,7 @@ export class PluginManager {
     }
 
     constructor(
-        private _config: Configuration
+        private _config: Configuration,
     ) { }
 
     public discoverPlugins(): void {

@@ -15,11 +15,11 @@ import { IConfigurationValues } from "./IConfigurationValues"
 import * as UserConfiguration from "./UserConfiguration"
 
 export interface IConfigurationProvider {
-    getValues(): Partial<IConfigurationValues>
-    getLastError(): Error | null
-
     onConfigurationChanged: IEvent<void>
     onConfigurationError: IEvent<Error>
+
+    getValues(): Partial<IConfigurationValues>
+    getLastError(): Error | null
 
     activate(api: Oni.Plugin.Api): void
     deactivate(): void
