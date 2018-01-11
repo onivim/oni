@@ -28,7 +28,7 @@ interface IShellViewComponentProps {
 
 const titleBarVisible = Platform.isMac()
 
-export class ShellView extends React.Component<IShellViewComponentProps, {}> {
+export class ShellView extends React.PureComponent<IShellViewComponentProps, {}> {
 
     public render() {
         return <ThemeProvider theme={this.props.theme}>
