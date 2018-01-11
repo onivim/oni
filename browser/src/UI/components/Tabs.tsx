@@ -158,12 +158,22 @@ const getTabName = (name: string): string => {
 import { createSelector } from "reselect"
 
 const getTabState = (state: State.IState) => state.tabState
-const getHighlightColor = (state: State.IState) => {
+
+const sanitizedModeForColors = (mode: string): string => {
+    if (mode === "showmatch") {
+        return "insert"
+    }
+
+    return mode
+}
+
+export const getHighlightColor = (state: State.IState) => {
     if (!state.configuration["tabs.highlight"] || !state.hasFocus) {
         return "transparent"
     }
 
-    const colorForMode = "highlight.mode." + state.mode + ".background"
+    const sanitizedMode = sanitizedModeForColors(state.mode)
+    const colorForMode = "highlight.mode." + sanitizedMode + ".background"
     const color = state.colors[colorForMode]
     return color || "transparent"
 }
