@@ -125,7 +125,7 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         return true
     }
 
-    editorManager.activeEditor.onBufferEnter.subscribe((newBuffer) => {
+    const onBufferEnter = (newBuffer) => {
 
         if (!configuration.getValue("autoClosingPairs.enabled")) {
             Log.verbose("[Auto Closing Pairs] Not enabled.")
@@ -148,7 +148,14 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         subscriptions.push(inputManager.bind("<bs>", handleBackspaceCharacter(autoClosingPairs, editorManager.activeEditor), insertModeFilter))
         subscriptions.push(inputManager.bind("<enter>", handleEnterCharacter(autoClosingPairs, editorManager.activeEditor), insertModeFilter))
 
-    })
+    }
+
+    editorManager.activeEditor.onBufferEnter.subscribe(onBufferEnter)
+
+    const activeEditor = editorManager.activeEditor
+    if (activeEditor && activeEditor.activeBuffer) {
+        onBufferEnter(activeEditor.activeBuffer)
+    }
 }
 
 const nonWhiteSpaceRegEx = /\S/
