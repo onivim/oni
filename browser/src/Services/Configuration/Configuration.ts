@@ -103,6 +103,8 @@ export class Configuration implements Oni.Configuration {
 
     public removeConfigurationProvider(configurationProvider: IConfigurationProvider): void {
         this._configurationProviders = this._configurationProviders.filter((prov) => prov !== configurationProvider)
+
+        this._updateConfig()
     }
 
     public hasValue(configValue: keyof IConfigurationValues): boolean {
