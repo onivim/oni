@@ -32,6 +32,7 @@ const childStyles = css`
 
 export const Documentation = styled.div`
     overflow: auto;
+    max-width: 25vh;
     margin-bottom: 0.8rem;
 
     &::-webkit-scrollbar {
