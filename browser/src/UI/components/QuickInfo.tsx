@@ -31,11 +31,16 @@ const childStyles = css`
 `
 
 export const Documentation = styled.div`
-    overflow: auto;
+    overflow: hidden;
+    max-height: 95%;
     margin-bottom: 0.8rem;
 
     &::-webkit-scrollbar {
         height: 4px;
+    }
+
+    &:hover {
+        overflow: auto;
     }
 
     ${childStyles};
@@ -47,6 +52,8 @@ export const Documentation = styled.div`
 // 1. word-break: break all in the title component (causes breaks between words)
 // - the above seems to be vscode's solution
 export const Title = styled.div`
+    overflow: hidden;
+    max-height: 95%;
     word-break: break-all;
     &::-webkit-scrollbar {
         height: 2px;
