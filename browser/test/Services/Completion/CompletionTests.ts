@@ -8,6 +8,7 @@ import * as types from "vscode-languageserver-types"
 import * as Completion from "./../../../src/Services/Completion"
 
 import * as Mocks from "./../../Mocks"
+import * as TestHelpers from "./../../TestHelpers"
 
 export class MockCompletionRequestor implements Completion.ICompletionsRequestor {
 
@@ -41,9 +42,6 @@ const createMockCompletionItem = (label: string): types.CompletionItem => {
 }
 
 describe("Completion", () => {
-    const clock: any = global["clock"] // tslint:disable-line
-    const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
-
     // Mocks
     let mockConfiguration: Mocks.MockConfiguration
     let mockEditor: Mocks.MockEditor
@@ -78,7 +76,7 @@ describe("Completion", () => {
         mockEditor.simulateCursorMoved(0, 1)
         mockEditor.setActiveBufferLine(0, "w")
 
-        clock.runAll()
+        TestHelpers.runAllTimers()
 
         let lastItems: Completion.ICompletionShowEventArgs = null
         completion.onShowCompletionItems.subscribe((items) => lastItems = items)
@@ -93,8 +91,7 @@ describe("Completion", () => {
 
         mockCompletionRequestor.completionsRequestor.resolve(completionResults)
 
-        await waitForPromiseResolution()
-        clock.runAll()
+        await TestHelpers.waitForAllAsyncOperations()
 
         assert.deepEqual(lastItems.filteredCompletions, completionResults, "There should now be completion results available")
         assert.deepEqual(lastItems.base, "w", "The base should be set correctly")
@@ -113,7 +110,7 @@ describe("Completion", () => {
         mockEditor.simulateCursorMoved(0, 3)
         mockEditor.setActiveBufferLine(0, "win")
 
-        clock.runAll()
+        TestHelpers.runAllTimers()
 
         // Validate we do not have requests for completion, because completions are turned off.
         assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 0, "There should be no completion requests, because 'editor.completions.mode' is set to 'hidden'")
@@ -130,7 +127,7 @@ describe("Completion", () => {
         mockEditor.simulateCursorMoved(0, 3)
         mockEditor.setActiveBufferLine(0, "win")
 
-        clock.runAll()
+        TestHelpers.runAllTimers()
 
         let lastItems: Completion.ICompletionShowEventArgs = null
         completion.onShowCompletionItems.subscribe((items) => lastItems = items)
@@ -145,8 +142,7 @@ describe("Completion", () => {
 
         mockCompletionRequestor.completionsRequestor.resolve(completionResults)
 
-        await waitForPromiseResolution()
-        clock.runAll()
+        await TestHelpers.waitForAllAsyncOperations()
 
         assert.strictEqual(lastItems.filteredCompletions.length, 2, "Completions were resolved successfully")
         assert.deepEqual(lastItems.filteredCompletions[0], completionResults[1], "The second completion should be the first one shown, as it matches the base")
@@ -162,7 +158,7 @@ describe("Completion", () => {
         mockEditor.simulateCursorMoved(0, 3)
         mockEditor.setActiveBufferLine(0, "win")
 
-        clock.runAll()
+        TestHelpers.runAllTimers()
 
         let lastItems: Completion.ICompletionShowEventArgs = null
         completion.onShowCompletionItems.subscribe((items) => lastItems = items)
@@ -175,7 +171,7 @@ describe("Completion", () => {
 
         mockEditor.simulateModeChange("normal")
 
-        clock.runAll()
+        TestHelpers.runAllTimers()
 
         // Resolve the slow request...
         const completionResults = [
@@ -185,8 +181,7 @@ describe("Completion", () => {
 
         mockCompletionRequestor.completionsRequestor.resolve(completionResults)
 
-        await waitForPromiseResolution()
-        clock.runAll()
+        await TestHelpers.waitForAllAsyncOperations()
 
         assert.strictEqual(lastItems, null, "Completions should be null, as we shouldn't have received them after the mode change")
     })
@@ -201,7 +196,7 @@ describe("Completion", () => {
         mockEditor.simulateCursorMoved(0, 3)
         mockEditor.setActiveBufferLine(0, "win")
 
-        clock.runAll()
+        TestHelpers.runAllTimers()
 
         let lastItems: Completion.ICompletionShowEventArgs = null
         completion.onShowCompletionItems.subscribe((items) => lastItems = items)
@@ -215,7 +210,7 @@ describe("Completion", () => {
         mockEditor.simulateCursorMoved(0, 5)
         mockEditor.setActiveBufferLine(0, "win.s")
 
-        clock.runAll()
+        TestHelpers.runAllTimers()
 
         // Resolve the slow request...
         const oldCompletionResults = [
@@ -225,8 +220,7 @@ describe("Completion", () => {
 
         mockCompletionRequestor.completionsRequestor.resolve(oldCompletionResults)
 
-        await waitForPromiseResolution()
-        clock.runAll()
+        await TestHelpers.waitForAllAsyncOperations()
 
         assert.strictEqual(lastItems, null, "Completions should be null, as the only request that was completed was outdated")
     })
