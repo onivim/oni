@@ -4,7 +4,7 @@ import * as path from "path"
 
 import * as Oni from "oni-api"
 
-import { configuration } from "./../Services/Configuration"
+import { configuration, getUserConfigFolderPath } from "./../Services/Configuration"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
 import { Plugin } from "./Plugin"
@@ -32,7 +32,7 @@ export class PluginManager extends EventEmitter {
             this._rootPluginPaths.push(path.join(defaultPluginsRoot, "bundle"))
         }
 
-        this._rootPluginPaths.push(path.join(this._config.getUserFolder(), "plugins"))
+        this._rootPluginPaths.push(path.join(getUserConfigFolderPath(), "plugins"))
 
         const allPluginPaths = this._getAllPluginPaths()
         this._plugins = allPluginPaths.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))

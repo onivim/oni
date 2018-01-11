@@ -46,9 +46,9 @@ const start = async (args: string[]): Promise<void> => {
 
     const { configuration } = await configurationPromise
 
-    const initialConfigParsingError = configuration.getParsingError()
-    if (initialConfigParsingError) {
-        Log.error(initialConfigParsingError)
+    const initialConfigParsingErrors = configuration.getErrors()
+    if (initialConfigParsingErrors && initialConfigParsingErrors.length > 0) {
+        initialConfigParsingErrors.forEach((err: Error) => Log.error(err))
     }
 
     const configChange = (newConfigValues: Partial<IConfigurationValues>) => {
