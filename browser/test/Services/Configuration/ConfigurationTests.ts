@@ -40,6 +40,11 @@ export class MockConfigurationProvder implements IConfigurationProvider {
         // tslint:disable-line
     }
 
+    public simulateConfigChange(newValues: GenericConfigurationValues): void {
+        this._values = newValues
+        this._onConfigurationChangedEvent.dispatch()
+    }
+
     public simulateError(err: Error): void {
         this._lastError = err
         this._onConfigurationErrorEvent.dispatch(err)
@@ -66,7 +71,7 @@ describe("Configuration", () => {
     it("triggers error event when provider has an error", () => {
         const configuration = new Configuration({})
 
-        let errors: Error[] = []
+        const errors: Error[] = []
         configuration.onConfigurationError.subscribe((err) => {
             errors.push(err)
         })
@@ -77,5 +82,22 @@ describe("Configuration", () => {
         configProvider.simulateError(new Error("test error"))
 
         assert.strictEqual(errors.length, 1, "Validate an error was captured")
+    })
+
+    it("triggers change event when provider has an update", () => {
+        const configuration = new Configuration({ "test.config": 1 })
+
+        const configProvider = new MockConfigurationProvder({ "test.config": 2 })
+        configuration.addConfigurationProvider(configProvider)
+
+        let hitCount = 0
+        configuration.onConfigurationChanged.subscribe(() => {
+            hitCount++
+        })
+
+        configProvider.simulateConfigChange({ "test.config": 3})
+
+        assert.strictEqual(hitCount, 1, "Validate 'onConfigurationChanged' was dispatched")
+        assert.strictEqual(configuration.getValue("test.config"), 3, "Validate configuration was updated")
     })
 })

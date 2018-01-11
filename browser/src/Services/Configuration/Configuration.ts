@@ -25,7 +25,7 @@ export interface IConfigurationProvider {
     deactivate(): void
 }
 
-export type GenericConfigurationValues = { [configKey: string]: any }
+export interface GenericConfigurationValues { [configKey: string]: any }
 
 export class Configuration implements Oni.Configuration {
     private _configurationProviders: IConfigurationProvider[] = []
@@ -46,11 +46,10 @@ export class Configuration implements Oni.Configuration {
     }
 
     constructor(
-        private _defaultConfiguration: GenericConfigurationValues = DefaultConfiguration
-    ) { 
+        private _defaultConfiguration: GenericConfigurationValues = DefaultConfiguration,
+    ) {
         this._updateConfig()
     }
-
 
     public start(): void {
         Performance.mark("Config.load.start")
