@@ -5,38 +5,7 @@
  * for Neovim facing classes / interfaces.
  */
 
-// import { Event, IEvent } from "oni-types"
-
 import * as Neovim from "./../../src/neovim"
-
-// const noopEvent: IEvent<any> = new Event<any>()
-
-// export class MockNeovimInstance {
-//     public get cursorPosition(): Neovim.IPosition {
-//         return null
-//     }
-
-//     public get quickFix(): Neovim.IQuickFixList {
-//         return null
-//     }
-
-//     public get onYank(): IEvent<Neovim.INeovimYankInfo> {
-//         return noopEvent
-//     }
-
-//     public get onShowPopupMenu(): IEvent<Neovim.INeovimCompletionInfo> {
-//         return noopEvent
-//     }
-
-//     public get onHidePopupMenu(): IEvent<void> {
-//         return noopEvent
-//     }
-
-//     public get onColorsChanged(): IEvent<void> {
-//         return noopEvent
-//     }
-
-// }
 
 export class MockScreen implements Neovim.IScreen {
 

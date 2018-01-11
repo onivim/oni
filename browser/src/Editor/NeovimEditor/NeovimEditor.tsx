@@ -76,16 +76,6 @@ import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
 
-export const sanitizeMode = (modeFromNeovim: string): string => {
-
-    // 'showmatch' isn't a mode that we properly handle. See #1264 for details
-    if (modeFromNeovim === "showmatch") {
-        return "insert"
-    }
-
-    return modeFromNeovim
-}
-
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
@@ -643,7 +633,10 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private _onModeChanged(newMode: string): void {
-        newMode = sanitizeMode(newMode)
+        // 'Bounce' the cursor for show match
+        if (newMode === "showmatch") {
+            this._actions.setCursorScale(0.9)
+        }
 
         this._typingPredictionManager.clearAllPredictions()
 

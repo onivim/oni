@@ -6,7 +6,6 @@
  */
 
 import * as Oni from "oni-api"
-import { Event, IEvent } from "oni-types"
 
 import * as types from "vscode-languageserver-types"
 
@@ -16,31 +15,9 @@ import { Editor } from "./../../src/Editor/Editor"
 import * as Language from "./../../src/Services/Language"
 import { createCompletablePromise, ICompletablePromise } from "./../../src/Utility"
 
-import { IColors } from "./../../src/Services/Colors"
 import { HighlightInfo } from "./../../src/Services/SyntaxHighlighting"
 
-const noopEvent = new Event<any>()
-
-export class MockColors implements IColors {
-
-    public get onColorsChanged(): IEvent<void> {
-        return noopEvent
-    }
-
-    public getColors(): any {
-        return {}
-    }
-
-    public getColor(colorName: string): string | null {
-        return null
-    }
-}
-
 export class MockConfiguration {
-
-    public get onConfigurationChanged(): IEvent<void> {
-        return noopEvent
-    }
 
     constructor(
         private _configurationValues: any = {},
@@ -48,14 +25,6 @@ export class MockConfiguration {
 
     public getValue(key: string): any {
         return this._configurationValues[key]
-    }
-
-    public getValues(): any {
-        return this._configurationValues
-    }
-
-    public hasValue(key: string): boolean {
-        return !!this._configurationValues[key]
     }
 
     public setValue(key: string, value: any): void {
