@@ -53,8 +53,6 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<esc>", "editor.rename.cancel")
     input.bind("<enter>", "editor.rename.commit")
 
-    input.bind("<enter>", "explorer.open")
-
     input.bind("<f3>", "language.format")
     input.bind(["<f12>"], "language.gotoDefinition", () => isNormalMode() && !menu.isMenuOpen())
     input.bind(["<c-enter>", "<c-f12>"], "language.gotoDefinition.openVertical", () => isNormalMode() && !menu.isMenuOpen())
@@ -80,4 +78,8 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind(["<up>", "<C-p>"], "menu.previous")
     input.bind(["<esc>", "<C-[>", "<C-C>"], "menu.close")
     input.bind("<enter>", "menu.select")
+
+    input.bind("<enter>", "explorer.open")
+    input.bind("<delete>", "explorer.delete")
+
 }

@@ -8,13 +8,11 @@ import * as sinon from "sinon"
 
 import { Event } from "oni-types"
 
-// import * as types from "vscode-languageserver-types"
-
 import { EditorManager } from "./../../../src/Services/EditorManager"
-
 import * as Language from "./../../../src/Services/Language"
 
 import * as Mocks from "./../../Mocks"
+import * as TestHelpers from "./../../TestHelpers"
 
 export class MockLanguageClient implements Language.ILanguageClient {
 
@@ -38,9 +36,6 @@ export class MockLanguageClient implements Language.ILanguageClient {
 }
 
 describe("LanguageManager", () => {
-    // const clock: any = global["clock"] // tslint:disable-line
-    const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
-
     // Mocks
     let mockConfiguration: Mocks.MockConfiguration
     let mockEditor: Mocks.MockEditor
@@ -87,7 +82,7 @@ describe("LanguageManager", () => {
         languageManager.registerLanguageClient("javascript", mockLanguageClient)
 
         // Wait for any pending promises to drain
-        await waitForPromiseResolution()
+        await TestHelpers.waitForPromiseResolution()
 
         // Verify "sendNotification" was called
         assert.strictEqual(sendRequestSpy.callCount, 1)
