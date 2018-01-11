@@ -18,25 +18,33 @@ export interface IConfigurationProvider {
     onConfigurationChanged: IEvent<void>
     onConfigurationError: IEvent<Error>
 
-    getValues(): Partial<IConfigurationValues>
+    getValues(): GenericConfigurationValues
     getLastError(): Error | null
 
     activate(api: Oni.Plugin.Api): void
     deactivate(): void
 }
 
-export class Configuration implements Oni.Configuration {
+export type GenericConfigurationValues = { [configKey: string]: any }
 
+export class Configuration implements Oni.Configuration {
     private _configurationProviders: IConfigurationProvider[] = []
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
     private _oniApi: Oni.Plugin.Api = null
-    private _config: any = { }
+    private _config: GenericConfigurationValues = { }
 
     private _setValues: { [configValue: string]: any } = { }
 
     public get onConfigurationChanged(): IEvent<Partial<IConfigurationValues>> {
         return this._onConfigurationChangedEvent
     }
+
+    constructor(
+        private _defaultConfiguration: GenericConfigurationValues = DefaultConfiguration
+    ) { 
+        this._updateConfig()
+    }
+
 
     public start(): void {
         Performance.mark("Config.load.start")
@@ -93,7 +101,7 @@ export class Configuration implements Oni.Configuration {
         }
     }
 
-    public getValues(): IConfigurationValues {
+    public getValues(): GenericConfigurationValues {
         return { ...this._config }
     }
 
@@ -106,7 +114,7 @@ export class Configuration implements Oni.Configuration {
     private _updateConfig(): void {
         const previousConfig = this._config
 
-        let currentConfig = { ...DefaultConfiguration, ...this._setValues }
+        let currentConfig = { ...this._defaultConfiguration, ...this._setValues }
 
         this._configurationProviders.forEach((configProvider) => {
 
