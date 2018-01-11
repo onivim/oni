@@ -20,7 +20,7 @@ describe("ExplorerStore", () => {
     let fileSystem: any
     let store: Store<ExplorerState.IExplorerState>
 
-    const top = os.platform() === "win32" ? "C:/" : "/"
+    const top = os.platform() === "win32" ? "C:/" : "/top"
     const rootPath = path.normalize(path.join(top, "a", "test", "dir"))
     const filePath = path.join(rootPath, "file.txt")
 
@@ -38,7 +38,7 @@ describe("ExplorerStore", () => {
         it("expands directory automatically", async () => {
             store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
-                rootPath: "rootPath",
+                rootPath,
             })
 
             await TestHelpers.waitForAllAsyncOperations()
