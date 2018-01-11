@@ -5,52 +5,6 @@ import { Event, IEvent } from "oni-types"
 
 import { Configuration, GenericConfigurationValues, IConfigurationProvider } from "./../../../src/Services/Configuration"
 
-export class MockConfigurationProvder implements IConfigurationProvider {
-    private _onConfigurationChangedEvent = new Event<void>()
-    private _onConfigurationErrorEvent = new Event<Error>()
-
-    private _values: GenericConfigurationValues = {}
-    private _lastError: Error | null = null
-
-    public get onConfigurationChanged(): IEvent<void> {
-        return this._onConfigurationChangedEvent
-    }
-
-    public get onConfigurationError(): IEvent<Error> {
-        return this._onConfigurationErrorEvent
-    }
-
-    constructor(initialValues: GenericConfigurationValues) {
-        this._values = initialValues
-    }
-
-    public getValues(): GenericConfigurationValues {
-        return this._values
-    }
-
-    public getLastError(): Error | null {
-        return this._lastError
-    }
-
-    public activate(api: Oni.Plugin.Api): void {
-        // tslint:disable-line
-    }
-
-    public deactivate(): void {
-        // tslint:disable-line
-    }
-
-    public simulateConfigChange(newValues: GenericConfigurationValues): void {
-        this._values = newValues
-        this._onConfigurationChangedEvent.dispatch()
-    }
-
-    public simulateError(err: Error): void {
-        this._lastError = err
-        this._onConfigurationErrorEvent.dispatch(err)
-    }
-}
-
 describe("Configuration", () => {
     it("has default configuration values set on instantiation", () => {
         const configuration = new Configuration({ "test.config": 1 })
@@ -100,4 +54,87 @@ describe("Configuration", () => {
         assert.strictEqual(hitCount, 1, "Validate 'onConfigurationChanged' was dispatched")
         assert.strictEqual(configuration.getValue("test.config"), 3, "Validate configuration was updated")
     })
+
+    describe("removeConfiguratioProvider", () => {
+        it("removes configuration value supplied by provider", () => {
+            const configuration = new Configuration({ "test.config": 1 })
+
+            const configProvider = new MockConfigurationProvder({ "test.config": 2 })
+            configuration.addConfigurationProvider(configProvider)
+            configuration.removeConfigurationProvider(configProvider)
+
+            assert.strictEqual(configuration.getValue("test.config"), 1, "Value should now be 1 since the provider was removed")
+        })
+
+        it("doesn't listen to events from removed provider", () => {
+            const configuration = new Configuration({ "test.config": 1 })
+
+            const configProvider = new MockConfigurationProvder({ "test.config": 2 })
+            configuration.addConfigurationProvider(configProvider)
+
+            let changeHitCount = 0
+            let errorHitCount = 0
+
+            configuration.onConfigurationChanged.subscribe(() => changeHitCount++)
+            configuration.onConfigurationError.subscribe(() => errorHitCount++)
+
+            configuration.removeConfigurationProvider(configProvider)
+
+            assert.strictEqual(changeHitCount, 1, "Should've been one change when applying settings after remove")
+
+            configProvider.simulateConfigChange({ "test.config": 3 })
+            assert.strictEqual(changeHitCount, 1, "Validate change hit count is still 1, since we shouldn't be listening to the removed config provider")
+            assert.strictEqual(configuration.getValue("test.config"), 1, "Validate the value is still at 1")
+
+            configProvider.simulateError(new Error("some error"))
+            assert.strictEqual(errorHitCount, 0, "Validate there was no event triggered for the removed providers error event")
+        })
+    })
 })
+
+export class MockConfigurationProvder implements IConfigurationProvider {
+    private _onConfigurationChangedEvent = new Event<void>()
+    private _onConfigurationErrorEvent = new Event<Error>()
+
+    private _values: GenericConfigurationValues = {}
+    private _lastError: Error | null = null
+
+    public get onConfigurationChanged(): IEvent<void> {
+        return this._onConfigurationChangedEvent
+    }
+
+    public get onConfigurationError(): IEvent<Error> {
+        return this._onConfigurationErrorEvent
+    }
+
+    constructor(initialValues: GenericConfigurationValues) {
+        this._values = initialValues
+    }
+
+    public getValues(): GenericConfigurationValues {
+        return this._values
+    }
+
+    public getLastError(): Error | null {
+        return this._lastError
+    }
+
+    public activate(api: Oni.Plugin.Api): void {
+        // tslint:disable-line
+    }
+
+    public deactivate(): void {
+        // tslint:disable-line
+    }
+
+    public simulateConfigChange(newValues: GenericConfigurationValues): void {
+        this._values = newValues
+        this._onConfigurationChangedEvent.dispatch()
+    }
+
+    public simulateError(err: Error): void {
+        this._lastError = err
+        this._onConfigurationErrorEvent.dispatch(err)
+    }
+}
+
