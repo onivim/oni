@@ -326,8 +326,19 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
-            this._actions.setCursorPosition(this._screen)
-            this._typingPredictionManager.setCursorPosition(this._screen)
+            const isCursorInCommandRow = this._screen.cursorRow === this._screen.height - 1
+            const isCommandLineMode = this.mode && this.mode.indexOf("cmdline") === 0
+
+            // In some cases, during redraw, Neovim will actually set the cursor position
+            // to the command line when rendering. This can happen when 'echo'ing or
+            // when a popumenu is enabled, and text is writing.
+            //
+            // We should ignore those cases, and only set the cursor in the command row
+            // when we're actually in command line mode. See #1265 for more context.
+            if (!isCursorInCommandRow || (isCursorInCommandRow && isCommandLineMode)) {
+                this._actions.setCursorPosition(this._screen)
+                this._typingPredictionManager.setCursorPosition(this._screen)
+            }
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
