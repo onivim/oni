@@ -28,7 +28,7 @@ import { CanvasRenderer, INeovimRenderer } from "./../../Renderer"
 
 import { pluginManager } from "./../../Plugins/PluginManager"
 
-import { Colors } from "./../../Services/Colors"
+import { IColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
 import { registerBuiltInCommands } from "./../../Services/Commands"
 import { Completion } from "./../../Services/Completion"
@@ -75,6 +75,16 @@ import { createStore, IState } from "./NeovimEditorStore"
 import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
+
+export const sanitizeMode = (modeFromNeovim: string): string => {
+
+    // 'showmatch' isn't a mode that we properly handle. See #1264 for details
+    if (modeFromNeovim === "showmatch") {
+        return "insert"
+    }
+
+    return modeFromNeovim
+}
 
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
@@ -131,7 +141,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     constructor(
-        private _colors: Colors,
+        private _colors: IColors,
         private _configuration: Configuration,
         private _diagnostics: IDiagnosticsDataSource,
         private _languageManager: LanguageManager,
@@ -147,7 +157,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
-        this._neovimInstance = new NeovimInstance(100, 100)
+        this._neovimInstance = new NeovimInstance(100, 100, this._configuration)
         this._bufferManager = new BufferManager(this._neovimInstance, this._actions)
         this._screen = new NeovimScreen()
 
@@ -633,6 +643,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private _onModeChanged(newMode: string): void {
+        newMode = sanitizeMode(newMode)
 
         this._typingPredictionManager.clearAllPredictions()
 

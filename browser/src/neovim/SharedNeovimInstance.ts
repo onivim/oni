@@ -15,6 +15,7 @@ import { INeovimStartOptions } from "./NeovimProcessSpawner"
 
 import { pluginManager } from "./../Plugins/PluginManager"
 import { commandManager } from "./../Services/CommandManager"
+import { Configuration } from "./../Services/Configuration"
 
 import * as Log from "./../Log"
 
@@ -114,8 +115,10 @@ class SharedNeovimInstance implements SharedNeovimInstance {
     private _initPromise: Promise<void>
     private _neovimInstance: NeovimInstance
 
-    constructor() {
-        this._neovimInstance = new NeovimInstance(5, 5)
+    constructor(
+        private _configuration: Configuration
+    ) {
+        this._neovimInstance = new NeovimInstance(5, 5, this._configuration)
 
         this._neovimInstance.onOniCommand.subscribe((command: string) => {
             commandManager.executeCommand(command)
@@ -140,12 +143,12 @@ class SharedNeovimInstance implements SharedNeovimInstance {
 }
 
 let _sharedInstance: SharedNeovimInstance = null
-export const activate = async (): Promise<void> => {
+export const activate = async (configuration: Configuration): Promise<void> => {
     if (_sharedInstance) {
         return
     }
 
-    _sharedInstance = new SharedNeovimInstance()
+    _sharedInstance = new SharedNeovimInstance(configuration)
     await _sharedInstance.start()
 }
 
