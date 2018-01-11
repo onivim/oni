@@ -79,7 +79,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
         connection.subscribeToRequest("workspace/symbol", getWorkspaceSymbols(oni, host))
     }
 
-    const host = () => {
+    const getHost = () => {
         if (!_host) {
             _host = new TypeScriptServerHost(oni)
             initializeHost(_host)
@@ -105,13 +105,14 @@ export const activate = (oni: Oni.Plugin.Api) => {
 
     const connection = new LanguageConnection(_lightweightLanguageClient)
 
-    // Subscribe to textDocument/didOpen initially, to spin up the 
+    // Subscribe to textDocument/didOpen initially, to kick off
+    // initialization of the language server
 
     const protocolOpenFile = (message: string, payload: any) => {
         const textDocument: any = payload.textDocument
         const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
 
-        host().openFile(filePath, textDocument.text)
+        getHost().openFile(filePath, textDocument.text)
     }
     connection.subscribeToNotification("textDocument/didOpen", protocolOpenFile)
 
