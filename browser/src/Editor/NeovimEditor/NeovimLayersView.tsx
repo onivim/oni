@@ -85,9 +85,11 @@ const mapStateToProps = (state: State.IState): NeovimLayersViewProps => {
         return state.windowState.windows[windowId]
     })
 
+    const wins = windows.sort((a, b) => a.windowId - b.windowId)
+
     return {
         activeWindowId: state.windowState.activeWindow,
-        windows,
+        windows: wins,
         layers: state.layers,
     }
 }

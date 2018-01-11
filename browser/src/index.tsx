@@ -110,7 +110,7 @@ const start = async (args: string[]): Promise<void> => {
 
    await Promise.race([Utility.delay(5000),
      Promise.all([
-        SharedNeovimInstance.activate(),
+        SharedNeovimInstance.activate(configuration),
         startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, Themes.getThemeManagerInstance())
     ])
    ])

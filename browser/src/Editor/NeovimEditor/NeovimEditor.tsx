@@ -28,7 +28,7 @@ import { CanvasRenderer, INeovimRenderer } from "./../../Renderer"
 
 import { pluginManager } from "./../../Plugins/PluginManager"
 
-import { Colors } from "./../../Services/Colors"
+import { IColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
 import { registerBuiltInCommands } from "./../../Services/Commands"
 import { Completion } from "./../../Services/Completion"
@@ -131,7 +131,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     constructor(
-        private _colors: Colors,
+        private _colors: IColors,
         private _configuration: Configuration,
         private _diagnostics: IDiagnosticsDataSource,
         private _languageManager: LanguageManager,
@@ -147,7 +147,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
-        this._neovimInstance = new NeovimInstance(100, 100)
+        this._neovimInstance = new NeovimInstance(100, 100, this._configuration)
         this._bufferManager = new BufferManager(this._neovimInstance, this._actions)
         this._screen = new NeovimScreen()
 
@@ -326,8 +326,19 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
-            this._actions.setCursorPosition(this._screen)
-            this._typingPredictionManager.setCursorPosition(this._screen)
+            const isCursorInCommandRow = this._screen.cursorRow === this._screen.height - 1
+            const isCommandLineMode = this.mode && this.mode.indexOf("cmdline") === 0
+
+            // In some cases, during redraw, Neovim will actually set the cursor position
+            // to the command line when rendering. This can happen when 'echo'ing or
+            // when a popumenu is enabled, and text is writing.
+            //
+            // We should ignore those cases, and only set the cursor in the command row
+            // when we're actually in command line mode. See #1265 for more context.
+            if (!isCursorInCommandRow || (isCursorInCommandRow && isCommandLineMode)) {
+                this._actions.setCursorPosition(this._screen)
+                this._typingPredictionManager.setCursorPosition(this._screen)
+            }
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
@@ -460,6 +471,10 @@ export class NeovimEditor extends Editor implements IEditor {
             this._openFiles(files, message)
         })
 
+        ipcRenderer.on("open-file", (_evt: any, path: string) => {
+            this._neovimInstance.command(`:e! ${path}`)
+        })
+
         // enable opening a file via drag-drop
         document.ondragover = (ev) => {
             ev.preventDefault()
@@ -520,7 +535,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public async newFile(filePath: string): Promise<Oni.Buffer> {
-        await this._neovimInstance.command(":new " + filePath)
+        await this._neovimInstance.command(":vsp " + filePath)
         const context = await this._neovimInstance.getContext()
         const buffer = this._bufferManager.updateBufferFromEvent(context)
         return buffer
@@ -629,6 +644,10 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private _onModeChanged(newMode: string): void {
+        // 'Bounce' the cursor for show match
+        if (newMode === "showmatch") {
+            this._actions.setCursorScale(0.9)
+        }
 
         this._typingPredictionManager.clearAllPredictions()
 
