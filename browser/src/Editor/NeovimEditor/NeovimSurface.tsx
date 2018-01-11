@@ -83,7 +83,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                         <BufferScrollBarContainer />
                     </NeovimActiveWindowContainer>
                 </div>
-                <NeovimLayers />
                 <NeovimInput
                     onActivate={this.props.onActivate}
                     typingPrediction={this.props.typingPrediction}
@@ -94,6 +93,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     onImeStart={this.props.onImeStart}
                     onImeEnd={this.props.onImeEnd}
                     onKeyDown={this.props.onKeyDown}/>
+                <NeovimLayers />
                 <div className="stack layer">
                     <ToolTips />
                 </div>

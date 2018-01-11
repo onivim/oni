@@ -461,6 +461,10 @@ export class NeovimEditor extends Editor implements IEditor {
             this._openFiles(files, message)
         })
 
+        ipcRenderer.on("open-file", (_evt: any, path: string) => {
+            this._neovimInstance.command(`:e! ${path}`)
+        })
+
         // enable opening a file via drag-drop
         document.ondragover = (ev) => {
             ev.preventDefault()
@@ -522,7 +526,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public async newFile(filePath: string): Promise<Oni.Buffer> {
-        await this._neovimInstance.command(":new " + filePath)
+        await this._neovimInstance.command(":vsp " + filePath)
         const context = await this._neovimInstance.getContext()
         const buffer = this._bufferManager.updateBufferFromEvent(context)
         return buffer

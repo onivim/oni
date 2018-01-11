@@ -1,4 +1,5 @@
 import * as React from "react"
+import Octicon, { OcticonSymbol } from "react-component-octicons"
 
 export const Default = ""
 export const Large = "fa-lg"
@@ -20,6 +21,14 @@ export interface IconProps {
     name: string
     size?: IconSize
     className?: string
+}
+
+interface OcticonProps {
+    name?: OcticonSymbol
+}
+
+export function OcticonIcon(props: OcticonProps) {
+        return <Octicon name={props.name}/>
 }
 
 export class Icon extends React.PureComponent<IconProps, {}> {
