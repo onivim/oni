@@ -38,14 +38,14 @@ export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Ele
             }
 
             const nonArgumentText = remainingSignatureString.substring(0, parameterIndex)
-            elements.push(<Text text={nonArgumentText} key={nonArgumentText} />)
+            elements.push(<Text text={nonArgumentText} />)
 
             const argumentText = remainingSignatureString.substring(parameterIndex, parameterIndex + parameterLabel.length)
 
             if (i === signatureHelp.activeParameter) {
-                elements.push(<SelectedText text={argumentText} key={`${argumentText}-i`}/>)
+                elements.push(<SelectedText text={argumentText} />)
             } else {
-                elements.push(<Text text={argumentText} key={`${argumentText}`}/>)
+                elements.push(<Text text={argumentText} />)
             }
 
             remainingSignatureString = remainingSignatureString.substring(parameterIndex + parameterLabel.length, remainingSignatureString.length)

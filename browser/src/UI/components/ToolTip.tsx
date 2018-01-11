@@ -104,6 +104,7 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
 
     private _checkIfClickIsOutside(evt: MouseEvent): void {
         if (this._container && !this._container.contains(evt.target as any)) {
+            this.setState()
             if (this.props.options.onDismiss) {
                 this.props.options.onDismiss()
             }
