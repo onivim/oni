@@ -707,7 +707,7 @@ export class NeovimEditor extends Editor implements IEditor {
         .then(ids => this._actions.setCurrentBuffers(ids))
     }
 
-    private async _onConfigChanged(newValues: Partial<IConfigurationValues>): Promise<void> {
+    private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
         const fontFamily = this._configuration.getValue("editor.fontFamily")
         const fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
         const linePadding = this._configuration.getValue("editor.linePadding")
@@ -715,13 +715,9 @@ export class NeovimEditor extends Editor implements IEditor {
         this._actions.setFont(fontFamily, fontSize)
         this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
 
-        Object.keys(newValues).forEach(async (key) => {
+        Object.keys(newValues).forEach((key) => {
             const value = newValues[key]
             this._actions.setConfigValue(key, value)
-            if (key && key.includes("ui.colorscheme")) {
-                await this._themeManager.setTheme(value)
-                Shell.Actions.setColors(this._themeManager.getColors())
-            }
         })
 
         if (this._hasLoaded) {
