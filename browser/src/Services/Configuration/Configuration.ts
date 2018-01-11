@@ -30,10 +30,16 @@ export type GenericConfigurationValues = { [configKey: string]: any }
 export class Configuration implements Oni.Configuration {
     private _configurationProviders: IConfigurationProvider[] = []
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
+    private _onConfigurationErrorEvent: Event<Error> = new Event<Error>()
+
     private _oniApi: Oni.Plugin.Api = null
     private _config: GenericConfigurationValues = { }
 
     private _setValues: { [configValue: string]: any } = { }
+
+    public get onConfigurationError(): IEvent<Error> {
+        return this._onConfigurationErrorEvent
+    }
 
     public get onConfigurationChanged(): IEvent<Partial<IConfigurationValues>> {
         return this._onConfigurationChangedEvent
@@ -71,7 +77,7 @@ export class Configuration implements Oni.Configuration {
         })
 
         configurationProvider.onConfigurationError.subscribe((error) => {
-            alert(error)
+            this._onConfigurationErrorEvent.dispatch(error)
         })
 
         this._updateConfig()

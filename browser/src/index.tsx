@@ -56,6 +56,11 @@ const start = async (args: string[]): Promise<void> => {
         }
     }
 
+    configuration.onConfigurationError.subscribe((err) => {
+        // TODO: Better / nicer handling of error:
+        alert(err)
+    })
+
     configuration.start()
 
     configChange(configuration.getValues()) // initialize values

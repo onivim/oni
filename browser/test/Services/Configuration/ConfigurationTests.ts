@@ -10,6 +10,7 @@ export class MockConfigurationProvder implements IConfigurationProvider {
     private _onConfigurationErrorEvent = new Event<Error>()
 
     private _values: GenericConfigurationValues = {}
+    private _lastError: Error | null = null
 
     public get onConfigurationChanged(): IEvent<void> {
         return this._onConfigurationChangedEvent
@@ -28,7 +29,7 @@ export class MockConfigurationProvder implements IConfigurationProvider {
     }
 
     public getLastError(): Error | null {
-        return null
+        return this._lastError
     }
 
     public activate(api: Oni.Plugin.Api): void {
@@ -37,6 +38,11 @@ export class MockConfigurationProvder implements IConfigurationProvider {
 
     public deactivate(): void {
         // tslint:disable-line
+    }
+
+    public simulateError(err: Error): void {
+        this._lastError = err
+        this._onConfigurationErrorEvent.dispatch(err)
     }
 }
 
@@ -55,5 +61,21 @@ describe("Configuration", () => {
         configuration.addConfigurationProvider(configProvider)
 
         assert.strictEqual(configuration.getValue("test.config"), 2)
+    })
+
+    it("triggers error event when provider has an error", () => {
+        const configuration = new Configuration({})
+
+        let errors: Error[] = []
+        configuration.onConfigurationError.subscribe((err) => {
+            errors.push(err)
+        })
+
+        const configProvider = new MockConfigurationProvder({})
+
+        configuration.addConfigurationProvider(configProvider)
+        configProvider.simulateError(new Error("test error"))
+
+        assert.strictEqual(errors.length, 1, "Validate an error was captured")
     })
 })
