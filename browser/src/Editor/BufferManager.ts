@@ -21,7 +21,7 @@ import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
 import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
 
-import { BufferHighlightState, BufferHighlightsUpdater, IBufferHighlightsUpdater } from "./BufferHighlights"
+import { BufferHighlightsUpdater, BufferHighlightId, IBufferHighlightsUpdater } from "./BufferHighlights"
 
 import * as Actions from "./NeovimEditor/NeovimEditorActions"
 
@@ -37,9 +37,9 @@ export class Buffer implements Oni.Buffer {
     private _version: number
     private _modified: boolean
     private _lineCount: number
+    private _bufferHighlightId: BufferHighlightId = null
 
     private _promiseQueue = new PromiseQueue()
-    private _previousHighlightState: BufferHighlightState = {}
 
     public get filePath(): string {
         return this._filePath
@@ -158,12 +158,12 @@ export class Buffer implements Oni.Buffer {
     public async updateHighlights(updateFunction: (highlightsUpdater: IBufferHighlightsUpdater) => void): Promise<void> {
         this._promiseQueue.enqueuePromise(async () => {
             const bufferId = parseInt(this._id, 10)
-            const bufferUpdater = new BufferHighlightsUpdater(bufferId, this._neovimInstance, this._previousHighlightState)
+            const bufferUpdater = new BufferHighlightsUpdater(bufferId, this._neovimInstance, this._bufferHighlightId)
             await bufferUpdater.start()
 
             updateFunction(bufferUpdater)
 
-            this._previousHighlightState = await bufferUpdater.apply()
+            this._bufferHighlightId = await bufferUpdater.apply()
         })
     }
 
