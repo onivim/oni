@@ -13,6 +13,7 @@ import * as Platform from "./../../Platform"
 import { diff } from "./../../Utility"
 
 import { DefaultConfiguration } from "./DefaultConfiguration"
+import { checkDeprecatedSettings } from "./DeprecatedConfigurationValues"
 import { IConfigurationValues } from "./IConfigurationValues"
 
 export class Configuration implements Oni.Configuration {
@@ -133,6 +134,8 @@ export class Configuration implements Oni.Configuration {
             this._configEverHadValue = true
             this._config = { ...DefaultConfiguration, ...this._setValues, ...userRuntimeConfigOrError}
         }
+
+        checkDeprecatedSettings(this._config)
 
         this._deactivate()
         this._activateIfOniObjectIsAvailable()
