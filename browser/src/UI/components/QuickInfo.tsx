@@ -8,6 +8,7 @@ const codeBlockStyle = css`
     border-color: ${p => p.theme["toolTip.border"]};
     padding: 0.4em 0.4em 0.4em 0.4em;
     margin: 0.4em 0.4em 0.4em 0.4em;
+    overflow: auto;
     max-width: 100%;
 `
 
@@ -20,12 +21,13 @@ const childStyles = css`
         }
 
         pre {
-            display: flex;
             ${codeBlockStyle};
         }
 
         code {
+            ${codeBlockStyle}
             tab-size: 4;
+             white-space: pre-wrap;
         }
     }
 `
@@ -74,7 +76,8 @@ export const Title = styled.div`
 export const QuickInfoContainer = styled.div`
   max-height: 25vh;
   overflow: hidden;
-  width: auto;
+  margin-bottom: 0.5rem;
+  width: 100%;
 
   &:hover {
     overflow: auto;
