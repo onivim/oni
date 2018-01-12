@@ -35,6 +35,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "experimental.editor.textMateHighlighting.enabled": false,
     "experimental.commandline.mode": false,
+    "experimental.commandline.icons": false,
     "experimental.wildmenu.mode": false,
 
     "experimental.neovim.transport": "stdio",
@@ -187,10 +188,11 @@ const BaseConfiguration: IConfigurationValues = {
     "statusbar.fontSize": "0.9em",
     "statusbar.priority": {
         "oni.status.workingDirectory": 0,
-        "oni.status.linenumber": 1,
-        "oni.status.mode": 0,
+        "oni.status.linenumber": 2,
+        "oni.status.gitHubRepo": 0,
+        "oni.status.mode": 1,
         "oni.status.filetype": 1,
-        "oni.status.git": 2,
+        "oni.status.git": 3,
     },
 
     "tabs.mode": "buffers",

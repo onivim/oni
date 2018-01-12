@@ -29,6 +29,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-t>", "language.symbols.workspace", () => !menu.isMenuOpen())
         input.bind("<s-m-t>", "language.symbols.document")
         input.bind("<m-m>", "oni.editor.minimize")
+        input.bind("<m-h>", "oni.editor.hide")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
@@ -51,8 +52,6 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<f2>", "editor.rename", () => isNormalMode()),
     input.bind("<esc>", "editor.rename.cancel")
     input.bind("<enter>", "editor.rename.commit")
-
-    input.bind("<enter>", "explorer.open")
 
     input.bind("<f3>", "language.format")
     input.bind(["<f12>"], "language.gotoDefinition", () => isNormalMode() && !menu.isMenuOpen())
@@ -79,4 +78,8 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind(["<up>", "<C-p>"], "menu.previous")
     input.bind(["<esc>", "<C-[>", "<C-C>"], "menu.close")
     input.bind("<enter>", "menu.select")
+
+    input.bind("<enter>", "explorer.open")
+    input.bind("<delete>", "explorer.delete")
+
 }

@@ -28,6 +28,7 @@ import { ErrorsContainer } from "./containers/ErrorsContainer"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
 import { NeovimActiveWindowContainer } from "./NeovimActiveWindow"
+import { NeovimEditorLoadingOverlay } from "./NeovimEditorLoadingOverlay"
 import { NeovimInput } from "./NeovimInput"
 import { NeovimLayers } from "./NeovimLayersView"
 import { NeovimRenderer } from "./NeovimRenderer"
@@ -82,7 +83,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                         <BufferScrollBarContainer />
                     </NeovimActiveWindowContainer>
                 </div>
-                <NeovimLayers />
                 <NeovimInput
                     onActivate={this.props.onActivate}
                     typingPrediction={this.props.typingPrediction}
@@ -93,9 +93,11 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     onImeStart={this.props.onImeStart}
                     onImeEnd={this.props.onImeEnd}
                     onKeyDown={this.props.onKeyDown}/>
+                <NeovimLayers />
                 <div className="stack layer">
                     <ToolTips />
                 </div>
+                <NeovimEditorLoadingOverlay />
                 <InstallHelp />
             </div>
         </div>

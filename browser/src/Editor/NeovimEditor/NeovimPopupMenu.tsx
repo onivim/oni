@@ -10,7 +10,7 @@ import * as Oni from "oni-api"
 import { IEvent } from "oni-types"
 
 import { INeovimCompletionInfo, INeovimCompletionItem } from "./../../neovim"
-import { Colors } from "./../../Services/Colors"
+import { IColors } from "./../../Services/Colors"
 import { ContextMenuView, IContextMenuItem } from "./../../Services/ContextMenu"
 
 import { IToolTipsProvider } from "./ToolTipsProvider"
@@ -31,7 +31,7 @@ export class NeovimPopupMenu {
         private _popupMenuHideEvent: IEvent<void>,
         private _popupMenuSelectEvent: IEvent<number>,
         private _onBufferEnterEvent: IEvent<Oni.EditorBufferEventArgs>,
-        private _colors: Colors,
+        private _colors: IColors,
         private _toolTipsProvider: IToolTipsProvider,
     ) {
 

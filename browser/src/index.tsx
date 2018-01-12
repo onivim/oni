@@ -103,12 +103,14 @@ const start = async (args: string[]): Promise<void> => {
     const CSS = await cssPromise
     CSS.activate()
 
+    Shell.Actions.setLoadingComplete()
+
     const Diagnostics = await diagnosticsPromise
     const diagnostics = Diagnostics.getInstance()
 
    await Promise.race([Utility.delay(5000),
      Promise.all([
-        SharedNeovimInstance.activate(),
+        SharedNeovimInstance.activate(configuration),
         startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, Themes.getThemeManagerInstance())
     ])
    ])
@@ -135,8 +137,6 @@ const start = async (args: string[]): Promise<void> => {
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Performance.endMeasure("Oni.Start.Activate")
-
-    Shell.Actions.setLoadingComplete()
 
     checkForUpdates()
 

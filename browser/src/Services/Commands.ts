@@ -50,6 +50,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
 
         new CallbackCommand("oni.editor.minimize", "Minimize Window", "Minimize the current window", () => remote.getCurrentWindow().minimize()),
 
+        new CallbackCommand("oni.editor.hide", "Hide Window", "Hide the current window", () => remote.app.hide()),
+
         // Language service
         // TODO: Deprecate
         new CallbackCommand("oni.editor.findAllReferences", null, null, () => findAllReferences()),
