@@ -76,6 +76,8 @@ import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
 
+import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
+
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
@@ -575,6 +577,9 @@ export class NeovimEditor extends Editor implements IEditor {
 
         if (filesToOpen && filesToOpen.length > 0) {
             await this._openFiles(filesToOpen, ":tabnew")
+        } else {
+            const buf = await this.openFile("WELCOME.md")
+            buf.addLayer(new WelcomeBufferLayer())
         }
 
         this._actions.setLoadingComplete()
