@@ -21,7 +21,7 @@ import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
 import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
 
-import { BufferHighlightsUpdater, BufferHighlightId, IBufferHighlightsUpdater } from "./BufferHighlights"
+import { BufferHighlightId, BufferHighlightsUpdater, IBufferHighlightsUpdater } from "./BufferHighlights"
 
 import * as Actions from "./NeovimEditor/NeovimEditorActions"
 

@@ -24,7 +24,7 @@ export class BufferHighlightsUpdater implements IBufferHighlightsUpdater {
     constructor(
         private _bufferId: number,
         private _neovimInstance: NeovimInstance,
-        private _highlightId: BufferHighlightId
+        private _highlightId: BufferHighlightId,
     ) {}
 
     public async start(): Promise<void> {
