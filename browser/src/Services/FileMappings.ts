@@ -15,7 +15,23 @@ export interface IFileMapping {
     mappedFileName: string
 }
 
-export const getMappedFile = (rootFolder: string, filePath: string, mapping: IFileMapping, _fs: typeof fs = fs): string | null => {
+export const getMappedFile = (rootFolder: string, filePath: string, mappings: IFileMapping[], _fs: typeof fs = fs): string | null => {
+    const mappingsThatApply = mappings.filter((m) => doesMappingMatchFile(rootFolder, filePath, m))
+
+    if (mappingsThatApply.length === 0) {
+        return null
+    }
+
+    const mapping = mappingsThatApply[0]
+
+    return getMappedFileFromMapping(rootFolder, filePath, mapping, _fs)
+}
+
+export const doesMappingMatchFile = (rootFolder: string, filePath: string, mapping: IFileMapping): boolean => {
+    return filePath.indexOf(path.join(rootFolder, mapping.sourceFolder)) === 0
+}
+
+export const getMappedFileFromMapping = (rootFolder: string, filePath: string, mapping: IFileMapping, _fs: typeof fs = fs): string | null => {
     const fullSourceRoot = path.join(rootFolder, mapping.sourceFolder)
     const difference = getPathDifference(fullSourceRoot, path.dirname(filePath))
 

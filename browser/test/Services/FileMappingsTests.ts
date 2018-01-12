@@ -38,7 +38,7 @@ describe("FileMappings", () => {
                 mappedFileName: "${fileName}Test.${ext}",
             }
 
-            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, mapping, fileSystem)
+            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping, fileSystem)
             assert.strictEqual(mappedFile, null, "Validate mapping returned null since there was no test file")
         })
 
@@ -57,7 +57,7 @@ describe("FileMappings", () => {
                 mappedFileName: "sourceTest.ts",
             }
 
-            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, mapping, fileSystem)
+            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping, fileSystem)
             assert.strictEqual(mappedFile, testFile, "Validate mapping worked correctly")
         })
 
@@ -81,7 +81,7 @@ describe("FileMappings", () => {
                 mappedFileName: "sourceTest.ts",
             }
 
-            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, mapping, fileSystem)
+            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping, fileSystem)
             assert.strictEqual(mappedFile, testFile, "Validate mapping worked correctly")
         })
     })
