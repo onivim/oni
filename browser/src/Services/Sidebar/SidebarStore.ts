@@ -63,10 +63,12 @@ export class SidebarManager {
             focusedEntryId: id,
         })
 
-        this._store.dispatch({
-            type: "SET_ACTIVE_ID",
-            activeEntryId: id,
-        })
+        if (id) {
+            this._store.dispatch({
+                type: "SET_ACTIVE_ID",
+                activeEntryId: id,
+            })
+        }
     }
 
     public add(icon: SidebarIcon, pane: SidebarPane): void {

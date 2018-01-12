@@ -9,7 +9,7 @@ import { SidebarContentSplit } from "./SidebarContentSplit"
 import { SidebarSplit } from "./SidebarSplit"
 import { SidebarManager } from "./SidebarStore"
 
-import { SidebarPane, ItemWidget, LabelWidget } from "./SidebarPane"
+import { ItemWidget, LabelWidget, SidebarPane } from "./SidebarPane"
 
 let _sidebarManager: SidebarManager = null
 

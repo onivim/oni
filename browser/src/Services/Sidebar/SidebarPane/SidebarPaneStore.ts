@@ -15,7 +15,7 @@ export interface ISidebarPaneState {
 
 export type SidebarPaneActions = {
     type: "SET_WIDGETS",
-    widgets: ISidebarWidget[]
+    widgets: ISidebarWidget[],
 } | {
     type: "SET_SELECTED_ID",
     selectedId: string,
@@ -28,13 +28,13 @@ export const DefaultSidebarPaneState: ISidebarPaneState = {
 
 export const reducer = (
     state: ISidebarPaneState = DefaultSidebarPaneState,
-    action: SidebarPaneActions
+    action: SidebarPaneActions,
 ) => {
     switch (action.type) {
         case "SET_WIDGETS":
             return {
                 ...state,
-                widgets: action.widgets
+                widgets: action.widgets,
             }
         case "SET_SELECTED_ID":
             return {

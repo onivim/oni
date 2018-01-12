@@ -19,7 +19,7 @@ export class SidebarPaneView extends React.PureComponent<ISidebarPaneViewProps, 
             return <div key={i}>
             {w.render(context)}
             </div>
-        }
+        },
         )
     }
 }

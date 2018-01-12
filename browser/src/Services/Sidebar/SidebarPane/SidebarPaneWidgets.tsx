@@ -25,13 +25,13 @@ export class ItemWidget implements ISidebarWidget {
     public get ids(): string[] {
         return [this._id]
     }
-        private _renderer: ItemWidgetRenderFunction
+    private _renderer: ItemWidgetRenderFunction
 
     constructor(
         private _id: string,
         // private _renderer: ItemWidgetRenderFunction = (context) => <div style={{fontWeight: context.selectedId === this._id ? "bold" : null}}>Test2</div>
-    ) { 
-           this._renderer = (context) => <div style={{fontWeight: context.selectedId === this._id ? "bold" : null}}>Test2</div> 
+    ) {
+           this._renderer = (context) => <div style={{fontWeight: context.selectedId === this._id ? "bold" : null}}>Test2</div>
     }
 
     public render(widgetRenderContext: IWidgetRenderContext): JSX.Element {
@@ -49,7 +49,6 @@ export const ContainerWidgetWrapper = styled.div`
     align-items: center;
     padding: 4px;
 `
-
 
 export class ContainerWidget implements ISidebarWidget {
 
@@ -71,5 +70,5 @@ export class ContainerWidget implements ISidebarWidget {
             </div>
         </ContainerWidgetWrapper>
     }
-    
+
 }
