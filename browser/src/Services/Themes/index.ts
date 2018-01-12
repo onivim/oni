@@ -1,4 +1,5 @@
 export * from "./ThemeManager"
+import * as Shell from "./../../UI/Shell"
 
 import { Configuration, IConfigurationValues } from "./../Configuration"
 import { getThemeManagerInstance } from "./ThemeManager"
@@ -10,6 +11,7 @@ export const activate = async (configuration: Configuration): Promise<void> => {
         if (colorscheme) {
             const themeManager = getThemeManagerInstance()
             await themeManager.setTheme(colorscheme)
+            Shell.Actions.setColors(themeManager.getColors())
         }
     }
 
