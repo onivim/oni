@@ -10,6 +10,7 @@ import * as Performance from "./../../Performance"
 import { diff } from "./../../Utility"
 
 import { DefaultConfiguration } from "./DefaultConfiguration"
+import { checkDeprecatedSettings } from "./DeprecatedConfigurationValues"
 import { FileConfigurationProvider } from "./FileConfigurationProvider"
 import { IConfigurationValues } from "./IConfigurationValues"
 import * as UserConfiguration from "./UserConfiguration"
@@ -129,6 +130,8 @@ export class Configuration implements Oni.Configuration {
         })
 
         this._config = currentConfig
+
+        checkDeprecatedSettings(this._config)
 
         this._deactivate()
         this._activateIfOniObjectIsAvailable()

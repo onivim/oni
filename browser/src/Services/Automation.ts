@@ -42,7 +42,7 @@ export class Automation implements OniApi.Automation.Api {
     }
 
     public async waitFor(condition: () => boolean, timeout: number = 10000): Promise<void> {
-        Log.info("[AUTOMATION] Starting wait - limit: " + timeout)
+        Log.info("[AUTOMATION] Starting wait - limit: " + timeout + " condition: " + condition.toString())
         let time = 0
         const interval = 1000
 
@@ -56,7 +56,7 @@ export class Automation implements OniApi.Automation.Api {
             Log.info("[AUTOMATION] Wait condition still not met: " + time + " / " + timeout)
         }
 
-        Log.info("[AUTOMATION]: waitFor timeout expired")
+        Log.info("[AUTOMATION]: waitFor timeout expired for condition: " + condition.toString())
 
         throw new Error("waitFor: Timeout expired")
     }
