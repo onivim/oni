@@ -40,15 +40,13 @@ const start = async (args: string[]): Promise<void> => {
     const cssPromise = import("./CSS")
 
     // Helper for debugging:
-    window["Shell"] = Shell // tslint:disable-line no-string-literal
-
-    Performance.startMeasure("Oni.Start.Config")
+     Performance.startMeasure("Oni.Start.Config")
 
     const { configuration } = await configurationPromise
 
-    const initialConfigParsingError = configuration.getParsingError()
-    if (initialConfigParsingError) {
-        Log.error(initialConfigParsingError)
+    const initialConfigParsingErrors = configuration.getErrors()
+    if (initialConfigParsingErrors && initialConfigParsingErrors.length > 0) {
+        initialConfigParsingErrors.forEach((err: Error) => Log.error(err))
     }
 
     const configChange = (newConfigValues: Partial<IConfigurationValues>) => {
@@ -58,13 +56,20 @@ const start = async (args: string[]): Promise<void> => {
         }
     }
 
+    configuration.onConfigurationError.subscribe((err) => {
+        // TODO: Better / nicer handling of error:
+        alert(err)
+    })
+
     configuration.start()
 
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
     Performance.endMeasure("Oni.Start.Config")
 
-    const { pluginManager } = await pluginManagerPromise
+    const PluginManager = await pluginManagerPromise
+    PluginManager.activate(configuration)
+    const pluginManager = PluginManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
@@ -74,7 +79,7 @@ const start = async (args: string[]): Promise<void> => {
     const Themes = await themesPromise
     const IconThemes = await iconThemesPromise
     await Promise.all([
-        Themes.activate(configuration),
+        Themes.activate(configuration, pluginManager),
         IconThemes.activate(configuration, pluginManager)
     ])
 
@@ -110,8 +115,8 @@ const start = async (args: string[]): Promise<void> => {
 
    await Promise.race([Utility.delay(5000),
      Promise.all([
-        SharedNeovimInstance.activate(configuration),
-        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, Themes.getThemeManagerInstance())
+        SharedNeovimInstance.activate(configuration, pluginManager),
+        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance())
     ])
    ])
     Performance.endMeasure("Oni.Start.Editors")

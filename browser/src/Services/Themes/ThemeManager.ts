@@ -6,6 +6,8 @@
 
 import { Event, IEvent } from "oni-types"
 
+import { PluginManager } from "./../../Plugins/PluginManager"
+
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
 import { PluginThemeLoader } from "./ThemeLoader"
 
@@ -239,13 +241,17 @@ export class ThemeManager {
         return this._activeTheme
     }
 
+    constructor(
+        private _pluginManager: PluginManager,
+    ) { }
+
     public async setTheme(name: string): Promise<void> {
         // TODO: Load theme...
         if (!name || name === this._activeTheme.name) {
             return
         }
 
-        const themeLoader = new PluginThemeLoader()
+        const themeLoader = new PluginThemeLoader(this._pluginManager)
 
         const theme = await themeLoader.getThemeByName(name)
 
@@ -305,10 +311,10 @@ export class ThemeManager {
 }
 
 let _themeManager: ThemeManager = null
-export const getThemeManagerInstance = () => {
-    if (!_themeManager) {
-        _themeManager = new ThemeManager()
-    }
+export const activateThemes = (pluginManager: PluginManager): void => {
+    _themeManager = new ThemeManager(pluginManager)
+}
 
+export const getThemeManagerInstance = () => {
     return _themeManager
 }
