@@ -38,10 +38,23 @@ export const getLineCharacterFromOffset = (offset: number, lines: string[]): { l
 }
 
 export class OniSnippet {
+
+    private _parser: Snippets.SnippetParser = new Snippets.SnippetParser()
+
     constructor(
         private _textmateSnippet: Snippets.TextmateSnippet,
     ) {
 
+    }
+
+    public setPlaceholder(index: number, newValue: string): void {
+    
+        const snip = this._parser.parse(newValue)
+        const placeholderToReplace = this._textmateSnippet.placeholders.filter((p) => p.index === index)
+
+        placeholderToReplace.forEach((rep) => {
+            this._textmateSnippet.replace(rep, snip.children)
+        })
     }
 
     public getPlaceholders(): OniSnippetPlaceholder[] {

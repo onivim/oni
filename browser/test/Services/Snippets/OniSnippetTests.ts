@@ -29,56 +29,75 @@ describe("getLineCharacterFromOffset", () => {
 })
 
 describe("OniSnippet", () => {
-    it("splits based on '\\n'", () => {
-        const tmSnippet = getTextmateSnippetFromString("foo\nbar")
-        const oniSnippet = new OniSnippet(tmSnippet)
+    describe("getLines", () => {
+        it("splits based on '\\n'", () => {
+            const tmSnippet = getTextmateSnippetFromString("foo\nbar")
+            const oniSnippet = new OniSnippet(tmSnippet)
 
-        const lines = oniSnippet.getLines()
+            const lines = oniSnippet.getLines()
 
-        assert.deepEqual(lines, ["foo", "bar"], "Validate lines are split correctly")
-    })
+            assert.deepEqual(lines, ["foo", "bar"], "Validate lines are split correctly")
+        })
 
-    it("splits based on '\\r\\n'", () => {
-        const tmSnippet = getTextmateSnippetFromString("foo\r\nbar")
-        const oniSnippet = new OniSnippet(tmSnippet)
+        it("splits based on '\\r\\n'", () => {
+            const tmSnippet = getTextmateSnippetFromString("foo\r\nbar")
+            const oniSnippet = new OniSnippet(tmSnippet)
 
-        const lines = oniSnippet.getLines()
+            const lines = oniSnippet.getLines()
 
-        assert.deepEqual(lines, ["foo", "bar"], "Validate lines are split correctly")
-    })
-
-    it("gets single placeholder", () => {
-        const tmSnippet = getTextmateSnippetFromString("foo${1:index}")
-        const oniSnippet = new OniSnippet(tmSnippet)
-
-        const placeholders = oniSnippet.getPlaceholders()
-
-        assert.deepEqual(placeholders[0], {
-            index: 1,
-            line: 0,
-            character: 3,
-            value: "index"
+            assert.deepEqual(lines, ["foo", "bar"], "Validate lines are split correctly")
         })
     })
 
-    it("gets multiple placeholders on different lines", () => {
-        const tmSnippet = getTextmateSnippetFromString("foo${1:a}\nbar${2:b}")
-        const oniSnippet = new OniSnippet(tmSnippet)
+    describe("getPlaceholders", () => {
+        it("gets single placeholder", () => {
+            const tmSnippet = getTextmateSnippetFromString("foo${1:index}")
+            const oniSnippet = new OniSnippet(tmSnippet)
 
-        const placeholders = oniSnippet.getPlaceholders()
+            const placeholders = oniSnippet.getPlaceholders()
 
-        assert.deepEqual(placeholders[0], {
-            index: 1,
-            line: 0,
-            character: 3,
-            value: "a"
+            assert.deepEqual(placeholders[0], {
+                index: 1,
+                line: 0,
+                character: 3,
+                value: "index"
+            })
         })
 
-        assert.deepEqual(placeholders[1], {
-            index: 2,
-            line: 1,
-            character: 3,
-            value: "b"
+        it("gets multiple placeholders on different lines", () => {
+            const tmSnippet = getTextmateSnippetFromString("foo${1:a}\nbar${2:b}")
+            const oniSnippet = new OniSnippet(tmSnippet)
+
+            const placeholders = oniSnippet.getPlaceholders()
+
+            assert.deepEqual(placeholders[0], {
+                index: 1,
+                line: 0,
+                character: 3,
+                value: "a"
+            })
+
+            assert.deepEqual(placeholders[1], {
+                index: 2,
+                line: 1,
+                character: 3,
+                value: "b"
+            })
+        })
+    })
+
+    describe("setPlaceholder", () => {
+        it("replaces placeholder in multiple positions", () => {
+            const tmSnippet = getTextmateSnippetFromString("${1}${1}${1}")
+            const oniSnippet = new OniSnippet(tmSnippet)
+
+            oniSnippet.setPlaceholder(1, "test")
+
+            assert.deepEqual(oniSnippet.getLines(), ["testtesttest"])
+
+            oniSnippet.setPlaceholder(1, "test2")
+
+            assert.deepEqual(oniSnippet.getLines(), ["test2test2test2"])
         })
     })
 })
