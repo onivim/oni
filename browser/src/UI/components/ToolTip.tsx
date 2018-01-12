@@ -25,9 +25,6 @@ const ToolTipContainer = withProps<IToolTipProps>(styled.div)`
 
     * {
         font-family: ${p => p.fontFamily};
-        &:empty {
-            display: none;
-        }
     }
 `
 
