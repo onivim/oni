@@ -3,8 +3,6 @@ import * as Shell from "./../../UI/Shell"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
-import { PluginManager } from "./../../Plugins/PluginManager"
-
 import { Configuration, IConfigurationValues } from "./../Configuration"
 import { activateThemes, getThemeManagerInstance } from "./ThemeManager"
 

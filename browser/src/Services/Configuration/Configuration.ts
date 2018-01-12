@@ -37,20 +37,6 @@ export class Configuration implements Oni.Configuration {
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
     private _onConfigurationErrorEvent: Event<Error> = new Event<Error>()
 
-    getValues(): GenericConfigurationValues
-    getLastError(): Error | null
-
-    activate(api: Oni.Plugin.Api): void
-    deactivate(): void
-}
-
-export interface GenericConfigurationValues { [configKey: string]: any }
-
-export class Configuration implements Oni.Configuration {
-    private _configurationProviders: IConfigurationProvider[] = []
-    private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
-    private _onConfigurationErrorEvent: Event<Error> = new Event<Error>()
-
     private _oniApi: Oni.Plugin.Api = null
     private _config: GenericConfigurationValues = { }
 
