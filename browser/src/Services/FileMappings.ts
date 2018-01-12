@@ -51,7 +51,7 @@ export const getPathDifference = (path1: string, path2: string): string => {
                 deltaPathParts.push(diffPathParts[idx])
             }
         }
-        
+
         idx++
     }
 

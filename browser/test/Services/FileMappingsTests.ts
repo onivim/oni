@@ -16,14 +16,14 @@ describe("FileMappings", () => {
     let fileSystem: any
 
     beforeEach(() => {
-        
+
             rootPath = path.join("C:/", "oni-unit-test-container")
             srcPath = path.join(rootPath, "browser", "src")
             testPath = path.join(rootPath, "browser", "test")
 
             fileSystem = new MemoryFileSystem()
             fileSystem.mkdirpSync(srcPath)
-          fileSystem.mkdirpSync(testPath)
+            fileSystem.mkdirpSync(testPath)
     })
 
     describe("getMappedFile", () => {
