@@ -20,6 +20,10 @@ export class WorkspaceConfiguration {
 
     private _activeWorkspaceConfiguration: string = null
 
+    public get activeWorkspaceConfiguration(): string {
+        return this._activeWorkspaceConfiguration
+    }
+
     constructor(
         private _configuration: Configuration,
         private _workspace: IWorkspace,
@@ -42,7 +46,7 @@ export class WorkspaceConfiguration {
 
         const configurationPath = getWorkspaceConfigurationPath(activeWorkspace)
 
-        if (this._fs.statSync(configurationPath).isFile()) {
+        if (this._fs.existsSync(configurationPath) && this._fs.statSync(configurationPath).isFile()) {
             Log.info("[WorkspaceConfiguration] Found configuration file at: " + configurationPath)
             this._loadWorkspaceConfiguration(configurationPath)
         }
@@ -58,6 +62,8 @@ export class WorkspaceConfiguration {
     private _loadWorkspaceConfiguration(configurationPath: string): void {
         Log.info("[WorkspaceConfiguration] Loading workspace configuration from: " + configurationPath)
         this._removePreviousWorkspaceConfiguration()
+
+        this._activeWorkspaceConfiguration = configurationPath
         this._configuration.addConfigurationFile(configurationPath)
     }
 }

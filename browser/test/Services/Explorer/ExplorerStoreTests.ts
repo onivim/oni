@@ -3,7 +3,6 @@
  */
 
 import * as assert from "assert"
-import * as os from "os"
 import * as path from "path"
 
 import { Store } from "redux"
@@ -20,8 +19,7 @@ describe("ExplorerStore", () => {
     let fileSystem: any
     let store: Store<ExplorerState.IExplorerState>
 
-    const top = os.platform() === "win32" ? "C:/" : "/top"
-    const rootPath = path.normalize(path.join(top, "a", "test", "dir"))
+    const rootPath = path.normalize(path.join(TestHelpers.getRootDirectory(), "a", "test", "dir"))
     const filePath = path.join(rootPath, "file.txt")
 
     beforeEach(() => {
