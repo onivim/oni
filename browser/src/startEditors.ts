@@ -6,6 +6,8 @@
 
 import { NeovimEditor } from "./Editor/NeovimEditor"
 
+import { PluginManager } from "./Plugins/PluginManager"
+
 import { Colors } from "./Services/Colors"
 import { Configuration } from "./Services/Configuration"
 import { IDiagnosticsDataSource } from "./Services/Diagnostics"
@@ -14,9 +16,9 @@ import { LanguageManager } from "./Services/Language"
 import { ThemeManager } from "./Services/Themes"
 import { windowManager } from "./Services/WindowManager"
 
-export const startEditors = async (args: any, colors: Colors, configuration: Configuration, diagnostics: IDiagnosticsDataSource, languageManager: LanguageManager, themeManager: ThemeManager): Promise<void> => {
+export const startEditors = async (args: any, colors: Colors, configuration: Configuration, diagnostics: IDiagnosticsDataSource, languageManager: LanguageManager, pluginManager: PluginManager, themeManager: ThemeManager): Promise<void> => {
 
-    const editor = new NeovimEditor(colors, configuration, diagnostics, languageManager, themeManager)
+    const editor = new NeovimEditor(colors, configuration, diagnostics, languageManager, pluginManager, themeManager)
     editorManager.setActiveEditor(editor)
     windowManager.split(0, editor)
 

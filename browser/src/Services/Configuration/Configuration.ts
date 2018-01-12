@@ -1,71 +1,86 @@
-import * as fs from "fs"
-import * as cloneDeep from "lodash/cloneDeep"
-import * as isError from "lodash/isError"
-import * as mkdirp from "mkdirp"
-import * as path from "path"
+/**
+ * Configuration.ts
+ */
 
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
 import * as Log from "./../../Log"
 import * as Performance from "./../../Performance"
-import * as Platform from "./../../Platform"
 import { diff } from "./../../Utility"
 
 import { DefaultConfiguration } from "./DefaultConfiguration"
 import { checkDeprecatedSettings } from "./DeprecatedConfigurationValues"
+import { FileConfigurationProvider } from "./FileConfigurationProvider"
 import { IConfigurationValues } from "./IConfigurationValues"
+import * as UserConfiguration from "./UserConfiguration"
+
+export interface IConfigurationProvider {
+    onConfigurationChanged: IEvent<void>
+    onConfigurationError: IEvent<Error>
+
+    getValues(): GenericConfigurationValues
+    getLastError(): Error | null
+
+    activate(api: Oni.Plugin.Api): void
+    deactivate(): void
+}
+
+export interface GenericConfigurationValues { [configKey: string]: any }
 
 export class Configuration implements Oni.Configuration {
-
+    private _configurationProviders: IConfigurationProvider[] = []
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
+    private _onConfigurationErrorEvent: Event<Error> = new Event<Error>()
+
     private _oniApi: Oni.Plugin.Api = null
-    private _config: IConfigurationValues = null
-    private _configEverHadValue: boolean = false
+    private _config: GenericConfigurationValues = { }
 
     private _setValues: { [configValue: string]: any } = { }
 
-    public get userJsConfig(): string {
-
-        const configFileFromEnv = process.env["ONI_CONFIG_FILE"] as string // tslint:disable-line
-
-        if (configFileFromEnv) {
-            return configFileFromEnv
-        }
-
-        return path.join(this.getUserFolder(), "config.js")
+    public get onConfigurationError(): IEvent<Error> {
+        return this._onConfigurationErrorEvent
     }
 
     public get onConfigurationChanged(): IEvent<Partial<IConfigurationValues>> {
         return this._onConfigurationChangedEvent
     }
 
+    constructor(
+        private _defaultConfiguration: GenericConfigurationValues = DefaultConfiguration,
+    ) {
+        this._updateConfig()
+    }
+
     public start(): void {
         Performance.mark("Config.load.start")
 
-        this.applyConfig()
-
-        if (!fs.existsSync(this.getUserFolder())) {
-            mkdirp.sync(this.getUserFolder())
-        }
-
-        // use watch() on the directory rather than on config.js because it watches
-        // file references and changing a file in Vim typically saves a tmp file
-        // then moves it over to the original filename, causing watch() to lose its
-        // reference. Instead, watch() can watch the folder for the file changes
-        // and continue to fire when file references are swapped out.
-        // Unfortunately, this also means the 'change' event fires twice.
-        // I could use watchFile() but that polls every 5 seconds.  Not ideal.
-        fs.watch(this.getUserFolder(), (event, filename) => {
-            if ((event === "change" && filename === "config.js") ||
-                (event === "rename" && filename === "config.js")) {
-                // invalidate the Config currently stored in cache
-                delete global["require"].cache[global["require"].resolve(this.userJsConfig)] // tslint:disable-line no-string-literal
-                this.applyConfig()
-            }
-        })
+        this.addConfigurationFile(UserConfiguration.getUserConfigFilePath())
 
         Performance.mark("Config.load.end")
+    }
+
+    public addConfigurationFile(filePath: string): void {
+        this.addConfigurationProvider(new FileConfigurationProvider(filePath))
+    }
+
+    public getErrors(): Error[] {
+        return this._configurationProviders.map((cfp) => cfp.getLastError())
+    }
+
+    public addConfigurationProvider(configurationProvider: IConfigurationProvider): void {
+        this._configurationProviders.push(configurationProvider)
+
+        configurationProvider.onConfigurationChanged.subscribe(() => {
+            Log.info("[Configuration] Got update.")
+            this._updateConfig()
+        })
+
+        configurationProvider.onConfigurationError.subscribe((error) => {
+            this._onConfigurationErrorEvent.dispatch(error)
+        })
+
+        this._updateConfig()
     }
 
     public hasValue(configValue: keyof IConfigurationValues): boolean {
@@ -92,20 +107,8 @@ export class Configuration implements Oni.Configuration {
         }
     }
 
-    public getValues(): IConfigurationValues {
-        return cloneDeep(this._config)
-    }
-
-    public getUserFolder(): string {
-        return Platform.isWindows() ? path.join(Platform.getUserHome(), "oni") :
-                                      path.join(Platform.getUserHome(), ".oni")
-    }
-
-    // Emitting event is not enough, at startup nobody's listening yet
-    // so we can't emit the parsing error to anyone when it happens
-    public getParsingError(): Error | null {
-        const maybeError = this.getUserRuntimeConfig()
-        return isError(maybeError) ? maybeError : null
+    public getValues(): GenericConfigurationValues {
+        return { ...this._config }
     }
 
     public activate(oni: Oni.Plugin.Api): void {
@@ -114,26 +117,19 @@ export class Configuration implements Oni.Configuration {
         this._activateIfOniObjectIsAvailable()
     }
 
-    private applyConfig(shouldReactivate: boolean = true): void {
+    private _updateConfig(): void {
         const previousConfig = this._config
 
-        const userRuntimeConfigOrError = this.getUserRuntimeConfig()
+        let currentConfig = { ...this._defaultConfiguration, ...this._setValues }
 
-        // If the configuration is null, but it had some value at some point,
-        // we assume this is due to reading while the file write is still in
-        // transition, and ignore it
-        if (userRuntimeConfigOrError === null && this._configEverHadValue) {
-            Log.info("Configuration was null; skipping")
-            return
-        }
+        this._configurationProviders.forEach((configProvider) => {
 
-        if (isError(userRuntimeConfigOrError)) {
-            Log.error(userRuntimeConfigOrError)
-            this._config = { ...DefaultConfiguration, ...this._setValues }
-        } else {
-            this._configEverHadValue = true
-            this._config = { ...DefaultConfiguration, ...this._setValues, ...userRuntimeConfigOrError}
-        }
+            const configurationValues = configProvider.getValues()
+
+            currentConfig = { ...currentConfig, ...configurationValues }
+        })
+
+        this._config = currentConfig
 
         checkDeprecatedSettings(this._config)
 
@@ -144,37 +140,17 @@ export class Configuration implements Oni.Configuration {
     }
 
     private _activateIfOniObjectIsAvailable(): void {
-        if (this._config && this._config.activate && this._oniApi) {
+        if (this._oniApi) {
             applyDefaultKeyBindings(this._oniApi, this)
-
-            try {
-                this._config.activate(this._oniApi)
-            } catch (e) {
-                alert("[Config Error] Failed to activate " + this.userJsConfig + ":\n" + (e as Error).message)
-            }
+            this._configurationProviders.forEach((configurationProvider) => configurationProvider.activate(this._oniApi))
         }
     }
 
     private _deactivate(): void {
+        this._configurationProviders.forEach((configurationProvider) => configurationProvider.deactivate())
         if (this._config && this._config.deactivate) {
             this._config.deactivate()
         }
-    }
-
-    private getUserRuntimeConfig(): IConfigurationValues | Error {
-        let userRuntimeConfig: IConfigurationValues | null = null
-        let error: Error | null = null
-        if (fs.existsSync(this.userJsConfig)) {
-            try {
-                userRuntimeConfig = global["require"](this.userJsConfig) // tslint:disable-line no-string-literal
-            } catch (e) {
-                e.message = "[Config Error] Failed to parse " + this.userJsConfig + ":\n" + (e as Error).message
-                error = e
-
-                alert(e.message)
-            }
-        }
-        return error ? error : userRuntimeConfig
     }
 
     private _notifyListeners(previousConfig?: Partial<IConfigurationValues>): void {
