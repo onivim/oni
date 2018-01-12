@@ -27,7 +27,7 @@ export class WorkspaceConfiguration {
     constructor(
         private _configuration: Configuration,
         private _workspace: IWorkspace,
-        private _fs: typeof fs = fs
+        private _fs: typeof fs = fs,
     ) {
         this._checkWorkspaceConfiguration()
 

@@ -7,7 +7,7 @@ import { WorkspaceConfiguration } from "./../../../src/Services/Workspace"
 import * as Mocks from "./../../Mocks"
 import * as TestHelpers from "./../../TestHelpers"
 
-const MemoryFileSystem = require("memory-fs")
+const MemoryFileSystem = require("memory-fs") // tslint:disable-line
 
 describe("WorkspaceConfiguration", () => {
 
@@ -28,7 +28,7 @@ describe("WorkspaceConfiguration", () => {
         workspace1WithConfigPath = path.join(TestHelpers.getRootDirectory(), "workspace1")
         workspace2WithConfigPath = path.join(TestHelpers.getRootDirectory(), "workspace2")
 
-        let dirsToCreate = [workspace1WithConfigPath, workspace2WithConfigPath, workspaceWithNoConfigPath]
+        const dirsToCreate = [workspace1WithConfigPath, workspace2WithConfigPath, workspaceWithNoConfigPath]
         dirsToCreate.forEach((p) => fileSystem.mkdirpSync(p))
 
         const createConfig = (workspacePath: string): string => {

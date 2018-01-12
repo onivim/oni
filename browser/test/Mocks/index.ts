@@ -6,7 +6,7 @@
  */
 
 import * as Oni from "oni-api"
-import { IEvent, Event } from "oni-types"
+import { Event, IEvent } from "oni-types"
 
 import * as types from "vscode-languageserver-types"
 
