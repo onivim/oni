@@ -19,12 +19,17 @@ import { Event, IEvent } from "oni-types"
 import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
+import { Configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
 import { convertTextDocumentEditsToFileMap } from "./../Language/Edits"
+
+import { WorkspaceConfiguration } from "./WorkspaceConfiguration"
 
 // Candidate interface to promote to Oni API
 export interface IWorkspace extends Oni.Workspace {
     activeWorkspace: string
+
+    applyEdits(edits: types.WorkspaceEdit): Promise<void>
 }
 
 export class Workspace implements IWorkspace {
@@ -103,4 +108,19 @@ export class Workspace implements IWorkspace {
     }
 }
 
-export const workspace = new Workspace()
+let _workspace: Workspace = null
+let _workspaceConfiguration: WorkspaceConfiguration = null
+
+export const activate = (configuration: Configuration): void => {
+    _workspace = new Workspace()
+
+    _workspaceConfiguration = new WorkspaceConfiguration(configuration, _workspace)
+}
+
+export const getInstance = (): Workspace => {
+    return _workspace
+}
+
+export const getConfigurationInstance = (): WorkspaceConfiguration => {
+    return _workspaceConfiguration
+}
