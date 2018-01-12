@@ -129,7 +129,7 @@ describe("Completion", () => {
         mockEditor.simulateCursorMoved(0, 3)
         mockEditor.setActiveBufferLine(0, "win")
 
-        clock.runAll()
+        TestHelpers.runAllTimers()
 
         // Validate we do not have requests for completion, because completions are turned off.
         assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 0, "There should be no completion requests, because 'editor.completions.enabled' is set to 'false'")
