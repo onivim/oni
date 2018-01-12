@@ -53,7 +53,7 @@ export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Ele
 
         elements.push(<Text key={remainingSignatureString} text={remainingSignatureString} />)
 
-        const titleContents = [<Title>{elements}</Title>]
+        const titleContents = [<Title padding="0.5rem">{elements}</Title>]
 
         const selectedIndex = Math.min(currentItem.parameters.length, signatureHelp.activeParameter)
         const selectedArgument = currentItem.parameters[selectedIndex]

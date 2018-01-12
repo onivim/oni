@@ -1,7 +1,7 @@
 import * as os from "os"
 
 import * as React from "react"
-import styled, { boxShadowInset, css, fontSizeSmall } from "./common"
+import styled, { boxShadowInset, css, fontSizeSmall, withProps } from "./common"
 
 const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
@@ -56,8 +56,8 @@ export const Documentation = styled.div`
 // not resize once truncated the solution is
 // 1. word-break: break all in the title component (causes breaks between words)
 // - the above seems to be vscode's solution
-export const Title = styled.div`
-    padding: 0.5rem;
+export const Title = withProps<{ padding?: string }>(styled.div)`
+    ${p => p.padding && `padding: ${p.padding}`};
     overflow: hidden;
     max-height: 95%;
     word-break: break-all;
@@ -76,7 +76,7 @@ export const Title = styled.div`
 export const QuickInfoContainer = styled.div`
   max-height: 25vh;
   overflow: hidden;
-  margin-bottom: 0.5rem;
+  margin: 0.5rem 0;
   width: 100%;
 
   &:hover {
@@ -85,7 +85,8 @@ export const QuickInfoContainer = styled.div`
 `
 
 export interface ITextProps {
-    text?: string
+    padding?: string,
+    text?: string,
     html?: {
         __html: string,
     }
@@ -93,12 +94,12 @@ export interface ITextProps {
 
 export class QuickInfoTitle extends React.PureComponent<ITextProps> {
     public render(): JSX.Element {
-        const { html, text } = this.props
+        const { html, text, padding } = this.props
         if (!html && !text) {
             return null
         }
 
-        return <Title dangerouslySetInnerHTML={html}>{text}</Title>
+        return <Title padding={padding} dangerouslySetInnerHTML={html}>{text}</Title>
     }
 }
 
