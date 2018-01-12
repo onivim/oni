@@ -68,13 +68,14 @@ export class HoverRenderer {
 
         const errorElements = getErrorElements(errors, customErrorStyle)
 
-        const elements = [...errorElements, quickInfoElement]
+        // Remove falsy values as check below [null] is truthy
+        const elements = [...errorElements, quickInfoElement].filter(Boolean)
 
         if (this._configuration.getValue("experimental.editor.textMateHighlighting.debugScopes")) {
             elements.push(this._getDebugScopesElement())
         }
 
-        if (elements.length === 0) {
+        if (!elements.length) {
             return null
         }
 

@@ -88,7 +88,12 @@ export interface ITextProps {
 
 export class QuickInfoTitle extends React.PureComponent<ITextProps> {
     public render(): JSX.Element {
-        return <Title dangerouslySetInnerHTML={this.props.html}>{this.props.text}</Title>
+        const { html, text } = this.props
+        if (!html && !text) {
+            return null
+        }
+
+        return <Title dangerouslySetInnerHTML={html}>{text}</Title>
     }
 }
 
@@ -101,7 +106,7 @@ export class QuickInfoDocumentation extends React.PureComponent<ITextProps> {
                 const divs = lines.map((l, i) => <div key={`${l}-${i}`}>{l}</div>)
 
                 return <Documentation>{divs}</Documentation>
-            case Boolean(html && html.__html):
+            case Boolean(html && html.__html.length):
 
                 return <Documentation dangerouslySetInnerHTML={this.props.html} />
             default:

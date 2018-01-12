@@ -25,6 +25,9 @@ const ToolTipContainer = withProps<IToolTipProps>(styled.div)`
 
     * {
         font-family: ${p => p.fontFamily};
+        &:empty {
+            display: none;
+        }
     }
 `
 
@@ -91,9 +94,9 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
                     padding={padding}
                     fontFamily={fontFamily}
                     innerRef={(elem: any) => this._setContainer(elem)}
-                >
-                {this.props.element}
-            </ToolTipContainer>
+                    >
+                    {this.props.element}
+                </ToolTipContainer>
             </CursorPositioner>
         )
     }
