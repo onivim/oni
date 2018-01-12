@@ -28,7 +28,7 @@ import { CanvasRenderer, INeovimRenderer } from "./../../Renderer"
 
 import { pluginManager } from "./../../Plugins/PluginManager"
 
-import { Colors } from "./../../Services/Colors"
+import { IColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
 import { registerBuiltInCommands } from "./../../Services/Commands"
 import { Completion } from "./../../Services/Completion"
@@ -226,7 +226,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     constructor(
-        private _colors: Colors,
+        private _colors: IColors,
         private _configuration: Configuration,
         private _diagnostics: IDiagnosticsDataSource,
         private _themeManager: ThemeManager,
@@ -238,7 +238,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._store = createStore()
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
 
-        this._neovimInstance = new NeovimInstance(100, 100)
+        this._neovimInstance = new NeovimInstance(100, 100, this._configuration)
         this._bufferManager = new BufferManager(this._neovimInstance, this._actions)
         this._screen = new NeovimScreen()
 
@@ -401,8 +401,19 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
-            this._actions.setCursorPosition(this._screen)
-            this._typingPredictionManager.setCursorPosition(this._screen)
+            const isCursorInCommandRow = this._screen.cursorRow === this._screen.height - 1
+            const isCommandLineMode = this.mode && this.mode.indexOf("cmdline") === 0
+
+            // In some cases, during redraw, Neovim will actually set the cursor position
+            // to the command line when rendering. This can happen when 'echo'ing or
+            // when a popumenu is enabled, and text is writing.
+            //
+            // We should ignore those cases, and only set the cursor in the command row
+            // when we're actually in command line mode. See #1265 for more context.
+            if (!isCursorInCommandRow || (isCursorInCommandRow && isCommandLineMode)) {
+                this._actions.setCursorPosition(this._screen)
+                this._typingPredictionManager.setCursorPosition(this._screen)
+            }
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
@@ -656,6 +667,10 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private _onModeChanged(newMode: string): void {
+        // 'Bounce' the cursor for show match
+        if (newMode === "showmatch") {
+            this._actions.setCursorScale(0.9)
+        }
 
         this._typingPredictionManager.clearAllPredictions()
 
