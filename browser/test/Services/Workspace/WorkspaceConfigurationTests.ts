@@ -47,8 +47,12 @@ describe("WorkspaceConfiguration", () => {
 
     })
 
-    it("setting directory before WorkspaceConfiguration is initialized still gets picked up", () => {
-        assert.ok(false)
+    it("setting directory before WorkspaceConfiguration is initialized loads configuration", () => {
+        mockWorkspace.changeDirectory(workspace1WithConfigPath)
+
+        const ws = new WorkspaceConfiguration(mockConfiguration as any, mockWorkspace, fileSystem)
+        assert.strictEqual(ws.activeWorkspaceConfiguration, workspace1ConfigFilePath, "Validate correct workspace is picked up")
+        assert.deepEqual(mockConfiguration.currentConfigurationFiles, [workspace1ConfigFilePath], "Validate configuration file was added")
     })
 
     it("changing from one workspace to another causes first config to be removed", () => {
