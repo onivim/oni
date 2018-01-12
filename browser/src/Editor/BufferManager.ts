@@ -28,6 +28,10 @@ import * as Actions from "./NeovimEditor/NeovimEditorActions"
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
 
+export interface IBuffer extends Oni.Buffer {
+    getCursorPosition(): Promise<types.Position>
+}
+
 export class Buffer implements Oni.Buffer {
 
     private _id: string
@@ -77,6 +81,12 @@ export class Buffer implements Oni.Buffer {
 
     public addLayer(layer: Oni.EditorLayer): void {
         this._actions.addBufferLayer(parseInt(this._id, 10), layer)
+    }
+
+    public async getCursorPosition(): Promise<types.Position> {
+       const pos = await this._neovimInstance.callFunction("getpos", ["."])
+       const [, oneBasedLine, oneBasedColumn] = pos
+       return types.Position.create(oneBasedLine - 1, oneBasedColumn - 1)
     }
 
     public async getLines(start?: number, end?: number): Promise<string[]> {

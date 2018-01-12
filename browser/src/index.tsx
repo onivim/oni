@@ -37,6 +37,7 @@ const start = async (args: string[]): Promise<void> => {
     const editorManagerPromise = import("./Services/EditorManager")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const snippetPromise = import("./Services/Snippets")
     const cssPromise = import("./CSS")
 
     // Helper for debugging:
@@ -141,6 +142,10 @@ const start = async (args: string[]): Promise<void> => {
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+
+    const Snippets = await snippetPromise
+    Snippets.activate()
+
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()
