@@ -137,4 +137,3 @@ export class MockConfigurationProvder implements IConfigurationProvider {
         this._onConfigurationErrorEvent.dispatch(err)
     }
 }
-

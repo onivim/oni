@@ -121,7 +121,11 @@ const start = async (args: string[]): Promise<void> => {
    await Promise.race([Utility.delay(5000),
      Promise.all([
         SharedNeovimInstance.activate(configuration, pluginManager),
+<<<<<<< HEAD
         startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance(), workspace)
+=======
+        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance())
+>>>>>>> master
     ])
    ])
     Performance.endMeasure("Oni.Start.Editors")

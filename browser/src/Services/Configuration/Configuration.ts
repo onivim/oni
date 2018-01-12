@@ -10,6 +10,7 @@ import * as Performance from "./../../Performance"
 import { diff } from "./../../Utility"
 
 import { DefaultConfiguration } from "./DefaultConfiguration"
+import { checkDeprecatedSettings } from "./DeprecatedConfigurationValues"
 import { FileConfigurationProvider } from "./FileConfigurationProvider"
 import { IConfigurationValues } from "./IConfigurationValues"
 import * as UserConfiguration from "./UserConfiguration"
@@ -36,11 +37,24 @@ export class Configuration implements Oni.Configuration {
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
     private _onConfigurationErrorEvent: Event<Error> = new Event<Error>()
 
+    getValues(): GenericConfigurationValues
+    getLastError(): Error | null
+
+    activate(api: Oni.Plugin.Api): void
+    deactivate(): void
+}
+
+export interface GenericConfigurationValues { [configKey: string]: any }
+
+export class Configuration implements Oni.Configuration {
+    private _configurationProviders: IConfigurationProvider[] = []
+    private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
+    private _onConfigurationErrorEvent: Event<Error> = new Event<Error>()
+
     private _oniApi: Oni.Plugin.Api = null
     private _config: GenericConfigurationValues = { }
 
     private _setValues: { [configValue: string]: any } = { }
-
     private _fileToProvider: { [key: string]: IConfigurationProvider } = { }
     private _configProviderInfo = new Map<IConfigurationProvider, ConfigurationProviderInfo>()
 
@@ -164,6 +178,8 @@ export class Configuration implements Oni.Configuration {
         })
 
         this._config = currentConfig
+
+        checkDeprecatedSettings(this._config)
 
         this._deactivate()
         this._activateIfOniObjectIsAvailable()
