@@ -1,14 +1,14 @@
 import * as os from "os"
 
 import * as React from "react"
-import styled, { css } from "./common"
+import styled, { boxShadowInset, css, fontSizeSmall } from "./common"
 
 const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
     border-color: ${p => p.theme["toolTip.border"]};
     padding: 0.4em 0.4em 0.4em 0.4em;
     margin: 0.4em 0.4em 0.4em 0.4em;
-    width: 100%;
+    max-width: 100%;
 `
 
 const childStyles = css`
@@ -31,6 +31,8 @@ const childStyles = css`
 `
 
 export const Documentation = styled.div`
+    ${fontSizeSmall};
+    ${boxShadowInset};
     overflow: hidden;
     max-height: 95%;
     padding: 0.5rem;
