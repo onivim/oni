@@ -38,7 +38,7 @@ describe("FileMappings", () => {
                 mappedFileName: "${fileName}Test.${ext}",
             }
 
-            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, mapping)
+            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, mapping, fileSystem)
             assert.strictEqual(mappedFile, null, "Validate mapping returned null since there was no test file")
         })
 
@@ -54,10 +54,10 @@ describe("FileMappings", () => {
                 sourceFolder: "browser/src",
 
                 mappedFolder: "browser/test",
-                mappedFileName: "${fileName}Test.${ext}",
+                mappedFileName: "sourceTest.ts",
             }
 
-            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, mapping)
+            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, mapping, fileSystem)
             assert.strictEqual(mappedFile, testFile, "Validate mapping worked correctly")
         })
 
@@ -78,11 +78,28 @@ describe("FileMappings", () => {
                 sourceFolder: "browser/src",
 
                 mappedFolder: "browser/test",
-                mappedFileName: "${fileName}Test.${ext}",
+                mappedFileName: "sourceTest.ts",
             }
 
-            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, mapping)
+            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, mapping, fileSystem)
             assert.strictEqual(mappedFile, testFile, "Validate mapping worked correctly")
+        })
+    })
+
+    describe("getPathDifference", () => {
+        it("resolves path correctly", () => {
+            const diff = FileMappings.getPathDifference("D:/test1/test2", "D:/test1/test2/test3")
+            assert.strictEqual(diff, "test3")
+        })
+
+        it("resolves path correctly, in reverse", () => {
+            const diff = FileMappings.getPathDifference("D:/test1/test2/test3", "D:/test1/test2")
+            assert.strictEqual(diff, "test3")
+        })
+
+        it("handles case where there is no common path", () => {
+            const diff = FileMappings.getPathDifference("D:/test1", "C:/test2")
+            assert.strictEqual(diff, path.join("D:", "test1"))
         })
     })
 })
