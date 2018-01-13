@@ -28,7 +28,7 @@ import { TypingPredictionManager } from "./../../Services/TypingPredictionManage
 import { NeovimActiveWindowContainer } from "./NeovimActiveWindow"
 import { NeovimEditorLoadingOverlay } from "./NeovimEditorLoadingOverlay"
 import { NeovimInput } from "./NeovimInput"
-import { NeovimBufferLayers } from "./NeovimLayersView"
+import { NeovimBufferLayers } from "./NeovimBufferLayersView"
 import { NeovimRenderer } from "./NeovimRenderer"
 
 export interface INeovimSurfaceProps {
