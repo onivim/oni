@@ -15,13 +15,13 @@ import * as State from "./NeovimEditorStore"
 
 import { EmptyArray } from "./../../Utility"
 
-export interface NeovimLayersViewProps {
+export interface NeovimBufferLayersViewProps {
     activeWindowId: number
     windows: State.IWindow[]
     layers: State.Layers
 }
 
-export class NeovimLayersView extends React.PureComponent<NeovimLayersViewProps, {}> {
+export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLayersViewProps, {}> {
     public render(): JSX.Element {
 
         const containers = this.props.windows.map((windowState) => {
@@ -72,7 +72,7 @@ const getWindowPixelDimensions = (win: State.IWindow) => {
     }
 }
 
-const mapStateToProps = (state: State.IState): NeovimLayersViewProps => {
+const mapStateToProps = (state: State.IState): NeovimBufferLayersViewProps => {
     if (!state.activeVimTabPage) {
         return {
             activeWindowId: -1,
@@ -94,4 +94,4 @@ const mapStateToProps = (state: State.IState): NeovimLayersViewProps => {
     }
 }
 
-export const NeovimLayers = connect(mapStateToProps)(NeovimLayersView)
+export const NeovimBufferLayers = connect(mapStateToProps)(NeovimBufferLayersView)
