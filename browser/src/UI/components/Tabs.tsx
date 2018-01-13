@@ -178,15 +178,23 @@ export const getHighlightColor = (state: State.IState) => {
     return color || "transparent"
 }
 
+export const showTabId = (state: State.IState) => {
+    return state.configuration["tabs.showIndex"]
+}
+
+export const getIdPrefix = (id: string, shouldShow: boolean): string => {
+    return shouldShow ? id + ": " : ""
+}
+
 const getTabsFromBuffers = createSelector(
-    [BufferSelectors.getBufferMetadata, BufferSelectors.getActiveBufferId, getHighlightColor],
-    (allBuffers: any, activeBufferId: any, color: string) => {
+    [BufferSelectors.getBufferMetadata, BufferSelectors.getActiveBufferId, getHighlightColor, showTabId],
+    (allBuffers: any, activeBufferId: any, color: string, shouldShowId: boolean) => {
         const bufferCount = allBuffers.length
         const tabs = allBuffers.map((buf: any): ITabProps => {
             const isActive = (activeBufferId !== null && buf.id === activeBufferId) || bufferCount === 1
             return {
                 id: buf.id,
-                name: getTabName(buf.file),
+                name: getIdPrefix(buf.id, shouldShowId) + getTabName(buf.file),
                 iconFileName: getTabName(buf.file),
                 highlightColor: isActive ? color : "transparent",
                 isSelected: isActive,
@@ -198,11 +206,11 @@ const getTabsFromBuffers = createSelector(
     })
 
 const getTabsFromVimTabs = createSelector(
-    [getTabState, getHighlightColor],
-    (tabState: any, color: any) => {
-        return tabState.tabs.map((t: any) => ({
+    [getTabState, getHighlightColor, showTabId],
+    (tabState: any, color: any, shouldShowId: boolean) => {
+        return tabState.tabs.map((t: any, idx: number) => ({
             id: t.id,
-            name: getTabName(t.name),
+            name: getIdPrefix((idx + 1).toString(), shouldShowId) + getTabName(t.name),
             highlightColor: t.id === tabState.selectedTabId ? color : "transparent",
             iconFileName: "",
             isSelected: t.id === tabState.selectedTabId,
