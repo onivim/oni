@@ -219,6 +219,10 @@ export interface IConfigurationValues {
     // If `true`, will wrap the tabs.
     "tabs.wrap": boolean
 
+    // Whether or not the file icon
+    // should be shown in the tab
+    "tabs.showFileIcon": boolean
+
     "ui.animations.enabled": boolean
     "ui.iconTheme": string
     "ui.colorscheme": string
