@@ -26,22 +26,15 @@ import { addDefaultUnitIfNeeded } from "./../../Font"
 import { BufferEventContext, EventContext, INeovimStartOptions, NeovimInstance, NeovimScreen, NeovimWindowManager } from "./../../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../../Renderer"
 
-import { pluginManager } from "./../../Plugins/PluginManager"
+import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { IColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
 import { registerBuiltInCommands } from "./../../Services/Commands"
-import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
 import * as Shell from "./../../UI/Shell"
-
-import {
-    addInsertModeLanguageFunctionality,
-    LanguageEditorIntegration,
-    LanguageManager,
-} from "./../../Services/Language"
 
 import {
     ISyntaxHighlighter,
@@ -57,135 +50,21 @@ import { workspace } from "./../../Services/Workspace"
 import { Editor, IEditor } from "./../Editor"
 
 import { BufferManager } from "./../BufferManager"
-import { CompletionMenu } from "./CompletionMenu"
-import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
 import { NeovimSurface } from "./NeovimSurface"
-
-import { ContextMenuManager } from "./../../Services/ContextMenu"
 
 import { normalizePath, sleep } from "./../../Utility"
 
 import * as VimConfigurationSynchronizer from "./../../Services/VimConfigurationSynchronizer"
 
-import { Definition } from "./Definition"
 import * as ActionCreators from "./NeovimEditorActions"
-import { NeovimEditorCommands } from "./NeovimEditorCommands"
 import { createStore, IState } from "./NeovimEditorStore"
-import { Rename } from "./Rename"
-import { Symbols } from "./Symbols"
-import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
-
-export class OniEditor extends NeovimEditor {
-    private _languageIntegration: LanguageEditorIntegration
-    private _completion: Completion
-    private _hoverRenderer: HoverRenderer
-    private _rename: Rename = null
-    private _symbols: Symbols = null
-    private _definition: Definition = null
-    private _commands: NeovimEditorCommands
-    private _contextMenuManager: ContextMenuManager
-    private _toolTipsProvider: IToolTipsProvider
-
-    constructor(
-        colors: Colors,
-        configuration: Configuration,
-        diagnostics: IDiagnosticsDataSource,
-        themeManager: ThemeManager,
-        private _languageManager: LanguageManager,
-    ) {
-        super(colors, configuration, diagnostics, themeManager)
-
-        this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
-        this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
-
-        this._definition = new Definition(this, this._store)
-        this._symbols = new Symbols(this, this._definition, this._languageManager)
-        this._rename = new Rename(this, this._languageManager, this._toolTipsProvider)
-
-        addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$, this._toolTipsProvider)
-
-        this._completion = new Completion(this, this._languageManager, this._configuration)
-        this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
-
-        this._completion.onShowCompletionItems.subscribe((completions) => {
-            this._completionMenu.show(completions.filteredCompletions, completions.base)
-        })
-
-        this._completion.onHideCompletionItems.subscribe((completions) => {
-            this._completionMenu.hide()
-        })
-
-        this._completionMenu.onItemFocused.subscribe((item) => {
-            this._completion.resolveItem(item)
-        })
-
-        this._completionMenu.onItemSelected.subscribe((item) => {
-            this._completion.commitItem(item)
-        })
-
-        this._languageIntegration = new LanguageEditorIntegration(this, this._configuration, this._languageManager)
-
-        this._languageIntegration.onShowHover.subscribe((hover) => {
-            const { cursorPixelX, cursorPixelY } = this._store.getState()
-            this._hoverRenderer.showQuickInfo(cursorPixelX, cursorPixelY, hover.hover, hover.errors)
-        })
-
-        this._languageIntegration.onHideHover.subscribe(() => {
-            this._hoverRenderer.hideQuickInfo()
-        })
-
-        this._languageIntegration.onShowDefinition.subscribe((definition) => {
-            this._actions.setDefinition(definition.token, definition.location)
-        })
-
-        this._languageIntegration.onHideDefinition.subscribe((definition) => {
-            this._actions.hideDefinition()
-        })
-
-        this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
-
-        this._commands = new NeovimEditorCommands(
-            commandManager,
-            this._contextMenuManager,
-            this._definition,
-            this._languageIntegration,
-            this._rename,
-            this._symbols,
-        )
-    }
-
-    public enter(): void {
-        super.enter()
-        this._commands.activate()
-    }
-
-    public leave(): void {
-        super.leave()
-        this._commands.deactivate()
-    }
-
-    public dispose(): void {
-        super.dispose()
-
-        if (this._languageIntegration) {
-            this._languageIntegration.dispose()
-            this._languageIntegration = null
-        }
-
-        if (this._completion) {
-            this._completion.dispose()
-            this._completion = null
-        }
-    }
-}
 
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
     private _renderer: INeovimRenderer
     private _screen: NeovimScreen
-    private _completionMenu: CompletionMenu
     private _popupMenu: NeovimPopupMenu
     private _errorInitializing: boolean = false
 
@@ -196,7 +75,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private _onEnterEvent: Event<void> = new Event<void>()
 
-    private _modeChanged$: Observable<Oni.Vim.Mode>
     private _cursorMoved$: Observable<Oni.Cursor>
     private _cursorMovedI$: Observable<Oni.Cursor>
 
@@ -225,10 +103,31 @@ export class NeovimEditor extends Editor implements IEditor {
         return this._syntaxHighlighter
     }
 
+    protected get store(): Store<IState> {
+        return this._store
+    }
+
+    protected get configuration(): Configuration {
+        return this._configuration
+    }
+
+    protected get colors(): IColors {
+        return this._colors
+    }
+
+    protected get actions(): typeof ActionCreators {
+        return this._actions
+    }
+
+    protected get neovimInstance(): NeovimInstance {
+        return this._neovimInstance
+    }
+
     constructor(
         private _colors: IColors,
         private _configuration: Configuration,
         private _diagnostics: IDiagnosticsDataSource,
+        private _pluginManager: PluginManager,
         private _themeManager: ThemeManager,
     ) {
         super()
@@ -437,7 +336,6 @@ export class NeovimEditor extends Editor implements IEditor {
                 this.notifyCursorMoved(cursorMoved)
             })
 
-        this._modeChanged$ = this._neovimInstance.onModeChanged.asObservable()
         this._neovimInstance.onModeChanged.subscribe((newMode) => this._onModeChanged(newMode))
 
         this._neovimInstance.onBufferUpdate.subscribe((update) => {
@@ -571,7 +469,7 @@ export class NeovimEditor extends Editor implements IEditor {
     public async init(filesToOpen: string[]): Promise<void> {
         Log.info("[NeovimEditor::init] Called with filesToOpen: " + filesToOpen)
         const startOptions: INeovimStartOptions = {
-            runtimePaths: pluginManager.getAllRuntimePaths(),
+            runtimePaths: this._pluginManager.getAllRuntimePaths(),
             transport: this._configuration.getValue("experimental.neovim.transport"),
         }
 

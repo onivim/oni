@@ -14,7 +14,7 @@ import * as Oni from "oni-api"
 
 import { INeovimInstance } from "./../neovim"
 
-import { configuration } from "./../Services/Configuration"
+import { getUserConfigFilePath } from "./../Services/Configuration"
 import { editorManager } from "./../Services/EditorManager"
 import { findAllReferences, format } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
@@ -179,7 +179,7 @@ const openFolder = (neovimInstance: INeovimInstance) => {
 const openDefaultConfig = async (neovimInstance: INeovimInstance): Promise<void> => {
 
     const activeEditor = editorManager.activeEditor
-    const buf = await activeEditor.openFile(configuration.userJsConfig)
+    const buf = await activeEditor.openFile(getUserConfigFilePath())
     const lineCount = buf.lineCount
 
     if (lineCount === 1) {

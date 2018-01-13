@@ -1,7 +1,7 @@
 /**
- * NeovimEditorCommands
+ * OniEditorCommands
  *
- * Contextual commands for NeovimEditor
+ * Contextual commands for OniEditor
  *
  */
 
@@ -15,7 +15,7 @@ import { Definition } from "./Definition"
 import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 
-export class NeovimEditorCommands {
+export class OniEditorCommands {
 
     private _lastCommands: CallbackCommand[] = []
 
