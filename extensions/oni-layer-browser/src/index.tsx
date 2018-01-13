@@ -247,7 +247,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
         }
     }
 
-    const isBrowserLayerActive = () => !!activeLayers[oni.editors.activeEditor.activeBuffer.id] && oni.configuration.getValue("experimental.browser.enabled")
+    const isBrowserLayerActive = () => !!activeLayers[oni.editors.activeEditor.activeBuffer.id] && !!oni.configuration.getValue("experimental.browser.enabled")
 
     // Per-layer commands
     oni.commands.registerCommand({
@@ -259,7 +259,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
     })
 
     oni.commands.registerCommand({
-        command: "browser.goForward"
+        command: "browser.goForward",
         execute: executeCommandForLayer((browser) => browser.goForward()),
         name: "Browser: Go forward",
         detail: "",
