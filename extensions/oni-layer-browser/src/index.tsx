@@ -98,6 +98,10 @@ export class BrowserLayer implements Oni.EditorLayer {
                     icons={this._icons}
                 />
     }
+
+    public goBack(): void {
+        alert("go back")
+    }
 }
 
 export interface IBrowserViewProps {
@@ -155,6 +159,8 @@ export const activate = (oni: Oni.Plugin.Api) => {
 
     let count = 0
 
+    let activeLayers: {[bufferId: string]: BrowserLayer} = {}
+
     const openUrl = async (url: string) => {
         if (oni.configuration.getValue("experimental.browser.enabled")) {
             count++
@@ -175,7 +181,9 @@ export const activate = (oni: Oni.Plugin.Api) => {
                 debugIcon,
             }
 
-            buffer.addLayer(new BrowserLayer(url, icons))
+            const layer = new BrowserLayer(url, icons)
+            buffer.addLayer(layer)
+            activeLayers[buffer.id] = layer
         } else {
             shell.openExternal(url)
         }
@@ -186,5 +194,25 @@ export const activate = (oni: Oni.Plugin.Api) => {
         execute: openUrl,
         name: null,
         detail: null,
+    })
+
+    const executeCommandForLayer = (callback: (browserLayer: BrowserLayer) => void) => () => {
+       const activeBuffer = oni.editors.activeEditor.activeBuffer 
+
+       const browserLayer = activeLayers[activeBuffer.id]
+        if (browserLayer) {
+            callback(browserLayer)
+        }
+    }
+
+    const isBrowserLayerActive = () => !!activeLayers[oni.editors.activeEditor.activeBuffer.id]
+
+    // Per-layer commands
+    oni.commands.registerCommand({
+        command: "browser.goBack",
+        execute: executeCommandForLayer((browser) => browser.goBack()),
+        name: null,
+        detail: null,
+        enabled: isBrowserLayerActive,
     })
 }
