@@ -76,6 +76,63 @@ import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
 
+export type BufferLayerFactory = (buf: Oni.Buffer) => Oni.EditorLayer
+
+export type BufferFilter = (buf: Oni.Buffer) => boolean
+
+export const createBufferFilterFromLanguage = (language: string) => (buf: Oni.Buffer): boolean => {
+    if (!language || language === "*") {
+        return true
+    } else {
+        return buf.language === language
+    }
+
+}
+
+export interface BufferLayerInfo {
+    filter: BufferFilter
+    layerFactory: BufferLayerFactory
+}
+
+export class BufferLayerManager {
+    private _layers: BufferLayerInfo[] = []
+
+    private _buffers: Oni.Buffer[] = []
+    
+    public addBufferLayer(filterOrLanguage: BufferFilter | string, layerFactory: BufferLayerFactory) {
+
+        let filter: BufferFilter
+        if (typeof filterOrLanguage === "string") {
+            filter = createBufferFilterFromLanguage(filterOrLanguage)
+        } else {
+            filter = filterOrLanguage
+        }
+
+        this._layers.push({
+            filter,
+            layerFactory,
+        })
+
+        this._buffers.forEach((buf) => {
+            if (filter(buf)) {
+                buf.addLayer(layerFactory(buf))
+            }
+        })
+    }
+
+    public notifyBufferEnter(buf: Oni.Buffer): void {
+        if (this._buffers.indexOf(buf) === -1) {
+            this._buffers.push(buf)
+
+            this._layers.forEach((layerInfo) => {
+                if (layerInfo.filter(buf)) {
+                    buf.addLayer(layerInfo.layerFactory(buf))
+                }
+            })
+        }
+    }
+}
+
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
@@ -117,6 +174,8 @@ export class NeovimEditor extends Editor implements IEditor {
     private _toolTipsProvider: IToolTipsProvider
     private _commands: NeovimEditorCommands
 
+    private _bufferLayerManager: BufferLayerManager
+
     public /* override */ get activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
     }
@@ -145,6 +204,8 @@ export class NeovimEditor extends Editor implements IEditor {
         this._store = createStore()
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
         this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
+
+        this._bufferLayerManager = new BufferLayerManager()
 
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
@@ -684,6 +745,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
+
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
             this.notifyBufferLeave({
@@ -693,6 +755,7 @@ export class NeovimEditor extends Editor implements IEditor {
         }
         this._lastBufferId = evt.current.bufferNumber.toString()
         this.notifyBufferEnter(buf)
+        this._bufferLayerManager.notifyBufferEnter(buf)
 
         // Existing buffers contains a duplicate current buffer object which should be filtered out
         // and current buffer sent instead. Finally Filter out falsy viml values.
