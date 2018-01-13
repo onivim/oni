@@ -7,6 +7,19 @@
 
 import * as Neovim from "./../../src/neovim"
 
+export class MockNeovimInstance {
+
+    private _commands: string[] = []
+
+    public get commandsSentToNeovim(): string[] {
+        return this._commands
+    }
+
+    public async command(command: string): Promise<void> {
+        this._commands.push(command)
+    }
+}
+
 export class MockScreen implements Neovim.IScreen {
 
     public backgroundColor: string

@@ -46,4 +46,22 @@ export const synchronizeConfiguration = (neovimInstance: INeovimInstance, config
         const globalSettingName = key.substring(vimGlobalPrefix.length, key.length)
         neovimInstance.command(`let g:${globalSettingName}=${vimGlobalValue}`)
     })
+
+    synchronizeTabSettings(neovimInstance, configuration)
+}
+
+export const synchronizeTabSettings = (neovimInstance: INeovimInstance, configuration: IConfigurationValues) => {
+    const useSpaces = configuration["editor.insertSpaces"]
+
+    // If useSpaces is not `true`, or `false`, we'll defer to Vim
+    if (typeof useSpaces !== "boolean") {
+        return
+    }
+
+    if (!useSpaces) {
+        neovimInstance.command("set noexpandtab")
+    } else {
+        const spaceCount = configuration["editor.tabSize"]
+        neovimInstance.command(`set tabstop=${spaceCount} shiftwidth=${spaceCount} softtabstop=${spaceCount} expandtab`)
+    }
 }

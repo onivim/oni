@@ -103,6 +103,9 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumn": false,
     "editor.cursorColumnOpacity": 0.1,
 
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+
     "editor.tokenColors": [{
         scope: "variable.object",
         settings: "Identifier",
