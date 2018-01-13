@@ -29,10 +29,15 @@ export const createNewFile = async (fileExtension: string, oni: Oni.Plugin.Api):
 }
 
 export const getTemporaryFilePath = (fileExtension: string): string => {
-    const dir = os.tmpdir()
     const testFileName = `testFile-${new Date().getTime()}.${fileExtension}`
-    const tempFilePath = path.join(dir, testFileName)
-    return tempFilePath
+    return path.join(getTemporaryFolder(), testFileName)
+}
+
+export const getTemporaryFolder = (): string => {
+    const dir = os.tmpdir()
+    const testFolderName = `oni-test-folder-${new Date().getTime()}`
+    const testFolderPath = path.join(dir, testFolderName)
+    return testFolderPath
 }
 
 export const navigateToFile = async (filePath: string, oni: Oni.Plugin.Api): Promise<void> => {
