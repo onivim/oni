@@ -93,28 +93,61 @@ export class BrowserLayer implements Oni.EditorLayer {
     }
 
     public render(): JSX.Element {
+        return <BrowserView 
+                    url={this._url}
+                    icons={this._icons}
+                />
+    }
+}
+
+export interface IBrowserViewProps {
+    url: string
+    icons: Icons
+}
+
+export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
+
+    private _webviewElement: any
+
+    public render(): JSX.Element {
         return <Column key={"test2"}>
                 <BrowserControlsWrapper>
-                    <BrowserButton>
-                        {this._icons.backIcon}
+                    <BrowserButton onClick={() => this._goBack()}>
+                        {this.props.icons.backIcon}
+                    </BrowserButton>
+                    <BrowserButton onClick={() => this._goForward()}>
+                        {this.props.icons.forwardIcon}
                     </BrowserButton>
                     <BrowserButton>
-                        {this._icons.forwardIcon}
-                    </BrowserButton>
-                    <BrowserButton>
-                        {this._icons.reloadIcon}
+                        {this.props.icons.reloadIcon}
                     </BrowserButton>
                     <AddressBar>
-                        <span>{this._url}</span>
+                        <span>{this.props.url}</span>
                     </AddressBar>
                     <BrowserButton>
-                        {this._icons.debugIcon}
+                        {this.props.icons.debugIcon}
                     </BrowserButton>
                 </BrowserControlsWrapper>
                 <BrowserViewWrapper>
-                    <WebView src={this._url} style={{position: "absolute", top: "0px", left: "0px", right: "0px", bottom: "0px"}} key={"test"}/>
+                    <WebView ref={(elem) => this._initializeElement(elem)} src={this.props.url} style={{position: "absolute", top: "0px", left: "0px", right: "0px", bottom: "0px"}} key={"test"}/>
                 </BrowserViewWrapper>
             </Column>
+    }
+
+    private _goBack(): void {
+        if (this._webviewElement) {
+            this._webviewElement.goBack()
+        }
+    }
+
+    private _goForward(): void {
+        if (this._webviewElement) {
+            this._webviewElement.goForward()
+        }
+    }
+
+    private _initializeElement(elem: any) {
+        this._webviewElement = elem
     }
 }
 
