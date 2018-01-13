@@ -35,7 +35,12 @@ describe("VimConfigurationSynchronizer", () => {
 
         it("sets 'expandtab' + space settings if set to true", () => {
             synchronizeTabSettings(mockNeovimInstance as any, { "editor.insertSpaces": true, "editor.tabSize": 3 })
-            assert.deepEqual(mockNeovimInstance.commandsSentToNeovim, ["set tabstop=3 shiftwidth=3 softtabstop=3 expandtab"], "Verify expandtab + sizes are sent")
+            assert.deepEqual(mockNeovimInstance.commandsSentToNeovim, ["set expandtab", "set tabstop=3 shiftwidth=3 softtabstop=3"], "Verify expandtab + sizes are sent")
+        })
+
+        it("if 'editor.tabSize' is set without 'editor.insertSpaces', still gets set", () => {
+            synchronizeTabSettings(mockNeovimInstance as any, { "editor.tabSize": 3 })
+            assert.deepEqual(mockNeovimInstance.commandsSentToNeovim, ["set tabstop=3 shiftwidth=3 softtabstop=3"], "Verify expandtab + sizes are sent")
         })
     })
 })
