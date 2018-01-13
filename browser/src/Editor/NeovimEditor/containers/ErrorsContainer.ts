@@ -14,7 +14,6 @@ const mapStateToProps = (state: State.IState): IErrorsProps => {
 
     return {
         errors,
-        cursorLine: window ? window.line : 0,
         fontWidthInPixels: state.fontPixelWidth,
         fontHeightInPixels: state.fontPixelHeight,
         bufferToScreen: window ? window.bufferToScreen : noop,
