@@ -27,7 +27,7 @@ import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
 import { windowManager } from "./../../Services/WindowManager"
-import { workspace } from "./../../Services/Workspace"
+import { getInstance as getWorkspaceInstance } from "./../../Services/Workspace"
 
 import * as Log from "./../../Log"
 
@@ -131,7 +131,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     public get workspace(): OniApi.Workspace {
-        return workspace
+        return getWorkspaceInstance()
     }
 
     public get helpers(): any {

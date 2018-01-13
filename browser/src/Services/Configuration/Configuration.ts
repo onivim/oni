@@ -3,7 +3,7 @@
  */
 
 import * as Oni from "oni-api"
-import { Event, IEvent } from "oni-types"
+import { Event, IDisposable, IEvent } from "oni-types"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
 import * as Log from "./../../Log"
 import * as Performance from "./../../Performance"
@@ -28,6 +28,10 @@ export interface IConfigurationProvider {
 
 export interface GenericConfigurationValues { [configKey: string]: any }
 
+interface ConfigurationProviderInfo {
+    disposables: IDisposable[]
+}
+
 export class Configuration implements Oni.Configuration {
     private _configurationProviders: IConfigurationProvider[] = []
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
@@ -37,6 +41,8 @@ export class Configuration implements Oni.Configuration {
     private _config: GenericConfigurationValues = { }
 
     private _setValues: { [configValue: string]: any } = { }
+    private _fileToProvider: { [key: string]: IConfigurationProvider } = { }
+    private _configProviderInfo = new Map<IConfigurationProvider, ConfigurationProviderInfo>()
 
     public get onConfigurationError(): IEvent<Error> {
         return this._onConfigurationErrorEvent
@@ -61,7 +67,20 @@ export class Configuration implements Oni.Configuration {
     }
 
     public addConfigurationFile(filePath: string): void {
-        this.addConfigurationProvider(new FileConfigurationProvider(filePath))
+        Log.info("[Configuration] Adding file: " + filePath)
+        const fp = new FileConfigurationProvider(filePath)
+        this.addConfigurationProvider(fp)
+        this._fileToProvider[filePath] = fp
+    }
+
+    public removeConfigurationFile(filePath: string): void {
+        Log.info("[Configuration] Removing file: " + filePath)
+        const configProvider = this._fileToProvider[filePath]
+
+        if (configProvider) {
+            this.removeConfigurationProvider(configProvider)
+            this._fileToProvider[filePath] = null
+        }
     }
 
     public getErrors(): Error[] {
@@ -71,14 +90,29 @@ export class Configuration implements Oni.Configuration {
     public addConfigurationProvider(configurationProvider: IConfigurationProvider): void {
         this._configurationProviders.push(configurationProvider)
 
-        configurationProvider.onConfigurationChanged.subscribe(() => {
+        const d1 = configurationProvider.onConfigurationChanged.subscribe(() => {
             Log.info("[Configuration] Got update.")
             this._updateConfig()
         })
 
-        configurationProvider.onConfigurationError.subscribe((error) => {
+        const d2 = configurationProvider.onConfigurationError.subscribe((error) => {
             this._onConfigurationErrorEvent.dispatch(error)
         })
+
+        this._configProviderInfo.set(configurationProvider, {
+            disposables: [d1, d2],
+        })
+
+        this._updateConfig()
+    }
+
+    public removeConfigurationProvider(configurationProvider: IConfigurationProvider): void {
+        this._configurationProviders = this._configurationProviders.filter((prov) => prov !== configurationProvider)
+
+        const configurationInfo = this._configProviderInfo.get(configurationProvider)
+        configurationInfo.disposables.forEach((dispose) => dispose.dispose())
+
+        this._configProviderInfo.delete(configurationProvider)
 
         this._updateConfig()
     }
