@@ -133,6 +133,10 @@ export class BufferLayerManager {
     }
 }
 
+import { BufferScrollBarContainer } from "./containers/BufferScrollBarContainer"
+import { DefinitionContainer } from "./containers/DefinitionContainer"
+import { ErrorsContainer } from "./containers/ErrorsContainer"
+
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
@@ -206,6 +210,27 @@ export class NeovimEditor extends Editor implements IEditor {
         this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
 
         this._bufferLayerManager = new BufferLayerManager()
+
+        this._bufferLayerManager.addBufferLayer("*", (buf) => ({
+            id: "test",
+            render: (context) =>{
+                return context.isActive ?  <BufferScrollBarContainer /> : null
+            }
+        }))
+
+        this._bufferLayerManager.addBufferLayer("*", (buf) => ({
+            id: "test2",
+            render: (context) =>{
+                return context.isActive ?  <DefinitionContainer /> : null
+            }
+        }))
+
+        this._bufferLayerManager.addBufferLayer("*", (buf) => ({
+            id: "test3",
+            render: (context) =>{
+                return context.isActive ?  <ErrorsContainer /> : null
+            }
+        }))
 
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
