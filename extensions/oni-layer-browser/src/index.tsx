@@ -8,6 +8,7 @@ import { shell } from "electron"
 import * as React from "react"
 import styled from "styled-components"
 
+import { Event, IDisposable, IEvent } from "oni-types"
 import * as Oni from "oni-api"
 
 const WebView = require("react-electron-web-view") // tslint:disable-line
@@ -83,6 +84,10 @@ export interface Icons {
 
 export class BrowserLayer implements Oni.EditorLayer {
 
+    private _goBackEvent = new Event<void>()
+    private _goForwardEvent = new Event<void>()
+    private _reloadEvent = new Event<void>()
+
     constructor(
         private _url: string,
         private _icons: Icons,
@@ -96,22 +101,53 @@ export class BrowserLayer implements Oni.EditorLayer {
         return <BrowserView 
                     url={this._url}
                     icons={this._icons}
+                    goBack={this._goBackEvent}
+                    goForward={this._goForwardEvent}
+                    reload={this._reloadEvent}
                 />
     }
 
     public goBack(): void {
-        alert("go back")
+        this._goBackEvent.dispatch()
+    }
+
+    public goForward(): void {
+        this._goForwardEvent.dispatch()
+    }
+
+    public reload(): void {
+        this._reloadEvent.dispatch()
     }
 }
 
 export interface IBrowserViewProps {
     url: string
     icons: Icons
+
+    goBack: IEvent<void>
+    goForward: IEvent<void>
+    reload: IEvent<void>
 }
 
 export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
 
     private _webviewElement: any
+    private _disposables: IDisposable[] = []
+
+
+    public componentDidMount(): void {
+        const d1 = this.props.goBack.subscribe(() => this._goBack())
+        const d2 = this.props.goForward.subscribe(() => this._goForward())
+        const d3 = this.props.reload.subscribe(() => this._reload())
+
+        this._disposables = this._disposables.concat([d1, d2, d3])
+    }
+
+    public componentWillUnmount(): void {
+        this._webviewElement = null
+        this._disposables.forEach((d) => d.dispose())
+        this._disposables = []
+    }
 
     public render(): JSX.Element {
         return <Column key={"test2"}>
@@ -122,7 +158,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
                     <BrowserButton onClick={() => this._goForward()}>
                         {this.props.icons.forwardIcon}
                     </BrowserButton>
-                    <BrowserButton>
+                    <BrowserButton onClick={() => this._reload()}>
                         {this.props.icons.reloadIcon}
                     </BrowserButton>
                     <AddressBar>
@@ -147,6 +183,12 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
     private _goForward(): void {
         if (this._webviewElement) {
             this._webviewElement.goForward()
+        }
+    }
+
+    private _reload(): void {
+        if (this._webviewElement) {
+            this._webviewElement.reload()
         }
     }
 
@@ -205,14 +247,30 @@ export const activate = (oni: Oni.Plugin.Api) => {
         }
     }
 
-    const isBrowserLayerActive = () => !!activeLayers[oni.editors.activeEditor.activeBuffer.id]
+    const isBrowserLayerActive = () => !!activeLayers[oni.editors.activeEditor.activeBuffer.id] && oni.configuration.getValue("experimental.browser.enabled")
 
     // Per-layer commands
     oni.commands.registerCommand({
         command: "browser.goBack",
         execute: executeCommandForLayer((browser) => browser.goBack()),
-        name: null,
-        detail: null,
+        name: "Browser: Go back",
+        detail: "",
+        enabled: isBrowserLayerActive,
+    })
+
+    oni.commands.registerCommand({
+        command: "browser.goForward"
+        execute: executeCommandForLayer((browser) => browser.goForward()),
+        name: "Browser: Go forward",
+        detail: "",
+        enabled: isBrowserLayerActive,
+    })
+
+    oni.commands.registerCommand({
+        command: "browser.reload",
+        execute: executeCommandForLayer((browser) => browser.reload()),
+        name: "Browser: Reload",
+        detail: "",
         enabled: isBrowserLayerActive,
     })
 }
