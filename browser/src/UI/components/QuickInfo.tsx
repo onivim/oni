@@ -36,11 +36,6 @@ const childStyles = css`
         pre {
             ${codeBlockStyle};
         }
-
-        code {
-            ${codeBlockStyle}
-            tab-size: 4;
-        }
     }
 `
 
