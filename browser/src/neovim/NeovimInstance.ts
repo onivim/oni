@@ -12,7 +12,7 @@ import { EventContext } from "./EventContext"
 
 import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
 import * as Platform from "./../Platform"
-import { configuration } from "./../Services/Configuration"
+import { Configuration } from "./../Services/Configuration"
 
 import * as Actions from "./actions"
 import { NeovimBufferReference } from "./MsgPack"
@@ -177,11 +177,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _inputQueue: PromiseQueue = new PromiseQueue()
 
-    private _config = configuration
+    private _configuration: Configuration
     private _autoCommands: NeovimAutoCommands
 
-    private _fontFamily: string = this._config.getValue("editor.fontFamily")
-    private _fontSize: string = addDefaultUnitIfNeeded(this._config.getValue("editor.fontSize"))
+    private _fontFamily: string
+    private _fontSize: string
     private _fontWidthInPixels: number
     private _fontHeightInPixels: number
 
@@ -311,15 +311,19 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._autoCommands
     }
 
-    constructor(widthInPixels: number, heightInPixels: number) {
+    constructor(widthInPixels: number, heightInPixels: number, configuration: Configuration) {
         super()
+        this._configuration = configuration
+        this._fontFamily = this._configuration.getValue("editor.fontFamily")
+        this._fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
+
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
 
         this._quickFix = new QuickFixList(this)
         this._autoCommands = new NeovimAutoCommands(this)
 
-        this._bufferUpdateManager = new NeovimBufferUpdateManager(configuration, this)
+        this._bufferUpdateManager = new NeovimBufferUpdateManager(this._configuration, this)
     }
 
     public async chdir(directoryPath: string): Promise<void> {
@@ -470,7 +474,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public openInitVim(): Promise<void> {
-        const loadInitVim = configuration.getValue("oni.loadInitVim")
+        const loadInitVim = this._configuration.getValue("oni.loadInitVim")
 
         if (typeof(loadInitVim) === "string") {
             return this.open(loadInitVim)
@@ -570,8 +574,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _resizeInternal(rows: number, columns: number): void {
 
-        if (this._config.hasValue("debug.fixedSize")) {
-            const fixedSize = this._config.getValue("debug.fixedSize")
+        if (this._configuration.hasValue("debug.fixedSize")) {
+            const fixedSize = this._configuration.getValue("debug.fixedSize")
             rows = fixedSize.rows
             columns = fixedSize.columns
             Log.warn("Overriding screen size based on debug.fixedSize")
@@ -700,7 +704,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     this.emit("tabline-update", currentTab.id, mappedTabs)
                     break
                 case "bell":
-                    const bellUrl = this._config.getValue("oni.audio.bellUrl")
+                    const bellUrl = this._configuration.getValue("oni.audio.bellUrl")
                     if (bellUrl) {
                         const audio = new Audio(bellUrl)
                         audio.play()
@@ -764,8 +768,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private async _attachUI(columns: number, rows: number): Promise<void> {
         const version = await this.getApiVersion()
 
-        const useNativeTabs = configuration.getValue("tabs.mode") === "native"
-        const useNativePopupWindows = configuration.getValue("editor.completions.mode") === "native"
+        const useNativeTabs = this._configuration.getValue("tabs.mode") === "native"
+        const useNativePopupWindows = this._configuration.getValue("editor.completions.mode") === "native"
 
         const externaliseTabline = !useNativeTabs
         const externalisePopupWindows = !useNativePopupWindows
@@ -787,8 +791,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                                          shouldExtTabs: boolean,
                                          shouldExtPopups: boolean) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
-            const useExtCmdLine =  this._config.getValue("experimental.commandline.mode")
-            const useExtWildMenu =  this._config.getValue("experimental.wildmenu.mode")
+            const useExtCmdLine =  this._configuration.getValue("experimental.commandline.mode")
+            const useExtWildMenu =  this._configuration.getValue("experimental.wildmenu.mode")
             return {
                 rgb: true,
                 popupmenu_external: shouldExtPopups,

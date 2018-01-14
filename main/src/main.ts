@@ -100,7 +100,6 @@ if (!isDevelopment && !isDebug) {
 
 export function createWindow(commandLineArguments, workingDirectory) {
     Log.info(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
-
     const webPreferences = {
         blinkFeatures: "ResizeObserver,Accelerated2dCanvas,Canvas2dFixedRenderingMode",
     }
@@ -138,7 +137,6 @@ export function createWindow(commandLineArguments, workingDirectory) {
     }
 
     updateMenu(mainWindow, false)
-
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send("init", {
             args: commandLineArguments,
@@ -185,6 +183,17 @@ export function createWindow(commandLineArguments, workingDirectory) {
 
     return mainWindow
 }
+
+app.on("open-file", (event, filePath) => {
+    event.preventDefault()
+    Log.info(`filePath to open: ${filePath}`)
+    if (mainWindow) {
+        mainWindow.webContents.send("open-file", filePath)
+    } else if (process.platform.includes("darwin")) {
+        const processArgs = [...process.argv, filePath]
+        createWindow(processArgs, process.cwd())
+    }
+})
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {

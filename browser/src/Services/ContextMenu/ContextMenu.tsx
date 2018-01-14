@@ -15,7 +15,7 @@ import { Event, IEvent } from "oni-types"
 
 import { IToolTipsProvider } from "./../../Editor/NeovimEditor/ToolTipsProvider"
 import { createStore } from "./../../Redux"
-import { Colors } from "./../../Services/Colors"
+import { IColors } from "./../../Services/Colors"
 
 import * as ActionCreators from "./../Menu/MenuActionCreators"
 import { createReducer } from "./../Menu/MenuReducer"
@@ -39,7 +39,7 @@ export class ContextMenuManager {
 
     constructor(
         private _toolTips: IToolTipsProvider,
-        private _colors: Colors,
+        private _colors: IColors,
     ) {
         this._store = createStore("CONTEXT-MENU", reducer, State.createDefaultState(), [thunk])
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
@@ -108,7 +108,7 @@ export class ContextMenu {
         private _store: Store<State.IMenus<types.CompletionItem, types.CompletionItem>>,
         private _actions: typeof ActionCreators,
         private _toolTips: IToolTipsProvider,
-        private _colors: Colors,
+        private _colors: IColors,
     ) { }
 
     public isOpen(): boolean {

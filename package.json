@@ -69,7 +69,69 @@
       "files": [
         "bin/x86/**/*"
       ]
-    }
+    },
+    "fileAssociations": [
+      {
+        "ext": "js",
+        "name": "javascript",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "json",
+        "name": "JSON",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "jsx",
+        "name": "JSX",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "py",
+        "name": "Python",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "go",
+        "name": "Go Lang",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "re",
+        "name": "Reason",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "vim",
+        "name": "VimL",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "ts",
+        "name": "Typescript",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "tsx",
+        "name": "Typescript",
+        "role": "Editor",
+        "isPackage": true
+      },
+      {
+        "ext": "css",
+        "name": "CSS",
+        "role": "Editor",
+        "isPackage": true
+      }
+    ]
   },
   "scripts": {
     "build": "npm run build:browser && npm run build:main && npm run build:plugins",
@@ -92,7 +154,7 @@
     "test:unit": "npm run test:unit:browser",
     "test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
     "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
-    "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+    "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
     "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
     "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
     "lint": "npm run lint:browser && npm run lint:main && npm run lint:test && npm run lint:plugins",
@@ -106,7 +168,8 @@
     "start-hot": "cross-env NODE_ENV=development electron lib/main/src/main.js",
     "start-not-dev": "cross-env electron main.js",
     "watch:browser": "webpack-dev-server --config browser/webpack.debug.config.js --host localhost --port 8191",
-    "watch:plugins": "npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
+    "watch:plugins": "npm run watch:plugins:oni-layer-browser && npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
+    "watch:plugins:oni-layer-browser": "cd extensions/oni-layer-browser && tsc --watch",
     "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
     "watch:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && tsc --watch",
     "uninstall-global": "npm rm -g oni-vim",
@@ -137,8 +200,10 @@
     "oni-types": "0.0.4",
     "react": "16.0.0",
     "react-dom": "16.0.0",
+    "react-electron-web-view": "^2.0.1",
     "redux-batched-subscribe": "^0.1.6",
     "shell-env": "^0.3.0",
+    "shelljs": "0.7.7",
     "styled-components": "^2.3.0",
     "typescript": "2.6.1",
     "vscode-css-languageserver-bin": "^1.2.1",
@@ -155,6 +220,7 @@
     "@types/jsdom": "11.0.0",
     "@types/lodash": "4.14.38",
     "@types/lolex": "2.1.0",
+    "@types/memory-fs": "^0.3.0",
     "@types/minimatch": "3.0.1",
     "@types/minimist": "1.1.29",
     "@types/mkdirp": "0.3.29",
@@ -165,6 +231,7 @@
     "@types/react-motion": "0.0.23",
     "@types/react-redux": "5.0.12",
     "@types/react-transition-group": "2.0.6",
+    "@types/shelljs": "^0.7.7",
     "@types/sinon": "1.16.32",
     "autoprefixer": "6.4.0",
     "babili-webpack-plugin": "0.1.2",
@@ -190,6 +257,7 @@
     "less-plugin-autoprefix": "1.5.1",
     "lodash": "4.17.0",
     "lolex": "2.3.1",
+    "memory-fs": "^0.4.1",
     "minimatch": "3.0.4",
     "mkdirp": "0.5.1",
     "mocha": "3.1.2",
@@ -205,7 +273,6 @@
     "redux-thunk": "2.2.0",
     "reselect": "3.0.1",
     "rxjs": "5.5.0",
-    "shelljs": "0.7.7",
     "sinon": "1.17.6",
     "spectron": "3.6.2",
     "style-loader": "0.18.2",
