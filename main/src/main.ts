@@ -144,6 +144,10 @@ export function createWindow(commandLineArguments, workingDirectory) {
         })
     })
 
+    ipcMain.on("Oni.started", (evt) => {
+        Log.info("Oni started")
+    })
+
     ipcMain.on("rebuild-menu", (_evt, loadInit) => {
         // ipcMain is a singleton so if there are multiple Oni instances
         // we may receive an event from a different instance
