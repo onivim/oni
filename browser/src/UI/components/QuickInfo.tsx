@@ -3,13 +3,26 @@ import * as os from "os"
 import * as React from "react"
 import styled, { boxShadowInset, css, fontSizeSmall, withProps } from "./common"
 
+const smallScrollbar = css`
+    &::-webkit-scrollbar {
+        height: 4px;
+        width: 4px;
+    }
+`
+
 const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
     border-color: ${p => p.theme["toolTip.border"]};
     padding: 0.4em 0.4em 0.4em 0.4em;
     margin: 0.4em 0.4em 0.4em 0.4em;
-    overflow: auto;
-    max-width: 100%;
+    overflow: hidden;
+    /* necessary to prevent overflow */
+    max-width: 55vw;
+    max-height: 20vw;
+
+    &:hover {
+        overflow: overlay;
+    }
 `
 
 const childStyles = css`
@@ -27,7 +40,6 @@ const childStyles = css`
         code {
             ${codeBlockStyle}
             tab-size: 4;
-             white-space: pre-wrap;
         }
     }
 `
@@ -38,17 +50,18 @@ export const Documentation = styled.div`
     overflow: hidden;
     max-height: 95%;
     padding: 0.5rem;
-    margin-bottom: 0.8rem;
-
-    &::-webkit-scrollbar {
-        height: 4px;
-    }
+    ${smallScrollbar};
 
     &:hover {
         overflow: auto;
     }
 
     ${childStyles};
+
+    pre {
+        ${smallScrollbar}
+        ${codeBlockStyle};
+    }
 `
 // NOTE: Currently with a max-width in CursorPositioner the text
 // in the hover element can occasionally appear to have too much padding
@@ -77,10 +90,6 @@ export const QuickInfoContainer = styled.div`
   max-height: 25vh;
   overflow: hidden;
   width: 100%;
-
-  &:hover {
-    overflow: auto;
-  }
 `
 
 export interface ITextProps {
