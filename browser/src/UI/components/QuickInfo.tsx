@@ -43,12 +43,12 @@ export const Documentation = styled.div`
     ${fontSizeSmall};
     ${boxShadowInset};
     overflow: hidden;
-    max-height: 95%;
+    max-height: 25vh;
     padding: 0.5rem;
     ${smallScrollbar};
 
     &:hover {
-        overflow: auto;
+        overflow: overlay;
     }
 
     ${childStyles};
@@ -65,9 +65,9 @@ export const Documentation = styled.div`
 // 1. word-break: break all in the title component (causes breaks between words)
 // - the above seems to be vscode's solution
 export const Title = withProps<{ padding?: string }>(styled.div)`
-    ${p => p.padding && `padding: ${p.padding}`};
+    padding: ${p => p.padding || "0.5rem"};
     overflow: hidden;
-    max-height: 95%;
+    max-height: 25vh;
     word-break: break-all;
     ${smallScrollbar};
 
@@ -84,7 +84,7 @@ export const Title = withProps<{ padding?: string }>(styled.div)`
 `
 
 export const QuickInfoContainer = styled.div`
-  max-height: 25vh;
+  max-height: fit-content;
   overflow: hidden;
   width: 100%;
 `
