@@ -42,10 +42,6 @@ const Cursor = styled.span`
     height: 1.3em;
 `
 
-const IconContainer = styled.span`
-    margin-right: 0.5em;
-`
-
 const ArrowContainer = styled.span`
     font-size: 0.7em;
     margin-right: 0.6em;
