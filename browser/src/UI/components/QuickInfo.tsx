@@ -76,7 +76,6 @@ export const Title = withProps<{ padding?: string }>(styled.div)`
 export const QuickInfoContainer = styled.div`
   max-height: 25vh;
   overflow: hidden;
-  margin: 0.5rem 0;
   width: 100%;
 
   &:hover {

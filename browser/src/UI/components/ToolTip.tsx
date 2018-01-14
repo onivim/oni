@@ -7,16 +7,18 @@ import { createSelector } from "reselect"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
+import * as Color from "color"
 import { CursorPositioner } from "./CursorPositioner"
 
 interface IToolTipProps {
     padding: string
     fontFamily: string
 }
+const darken = (c: string) => Color(c).darken(0.15).hex().toString()
 
 const ToolTipContainer = withProps<IToolTipProps>(styled.div)`
     border: ${p => `1px solid ${p.theme["toolTip.border"]}`};
-    background-color: ${p => p.theme["toolTip.background"]};
+    background-color: ${p => darken(p.theme["toolTip.background"])};
     color: ${p => p.theme["toolTip.foreground"]};
     padding: ${p => p.padding};
     height: auto;
