@@ -23,13 +23,16 @@ export const buildMenu = (mainWindow, loadInit) => {
     // for VIM as it sees escape keys.
     const normalizePath = (fileName) => fileName.split("\\").join("/")
 
-    const ensureWindow = (currentWindow: BrowserWindow) => {
-        return !!currentWindow ? currentWindow : createWindow([], process.cwd())
-    }
+    // const ensureWindow = (currentWindow: BrowserWindow) => {
+    //     return currentWindow ? currentWindow : createWindow([], process.cwd())
+    // }
 
     const executeVimCommand = (browserWindow: BrowserWindow, command: string) => {
-        const currentWindow = ensureWindow(browserWindow)
-        currentWindow.webContents.send("menu-item-click", command)
+        const delayedEvent = { evt: "menu-item-click", cmd: [command] }
+        if (browserWindow) {
+            return browserWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
+        }
+        createWindow([], process.cwd(), delayedEvent)
     }
 
     const executeVimCommandForMultipleFiles = (
@@ -37,18 +40,27 @@ export const buildMenu = (mainWindow, loadInit) => {
         command: string,
         files: string[],
     ) => {
-        const currentWindow = ensureWindow(browserWindow)
-        currentWindow.webContents.send("open-files", command, files)
+        const delayedEvent = { evt: "open-files", cmd: [command, files] }
+        if (browserWindow) {
+            return browserWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
+        }
+        createWindow([], process.cwd(), delayedEvent)
     }
 
     const executeOniCommand = (browserWindow: BrowserWindow, command: string) => {
-        const currentWindow = ensureWindow(browserWindow)
-        currentWindow.webContents.send("execute-command", command)
+        const delayedEvent = { evt: "execute-command", cmd: [command] }
+        if (browserWindow) {
+            return browserWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
+        }
+
+        createWindow([], process.cwd(), delayedEvent)
     }
 
     const openUrl = (browserWindow: BrowserWindow, url: string) => {
-        const currentWindow = ensureWindow(browserWindow)
-        currentWindow.webContents.send("execute-command", "browser.openUrl", url)
+        const delayedEvent = { evt: "execute-command", cmd: ["browser.openUrl", url] }
+        if (browserWindow) {
+            browserWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
+        }
     }
     const executeVimCommandForFiles = (browserWindow, command, files) => {
         if (!files || !files.length) {

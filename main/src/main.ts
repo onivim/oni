@@ -98,7 +98,16 @@ if (!isDevelopment && !isDebug) {
     })
 }
 
-export function createWindow(commandLineArguments, workingDirectory) {
+interface IDelayedEvent {
+    evt: string
+    cmd: Array<string | string[]>
+}
+
+export function createWindow(
+    commandLineArguments,
+    workingDirectory,
+    delayedEvent: IDelayedEvent = null,
+) {
     Log.info(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
     const webPreferences = {
         blinkFeatures: "ResizeObserver,Accelerated2dCanvas,Canvas2dFixedRenderingMode",
@@ -142,6 +151,10 @@ export function createWindow(commandLineArguments, workingDirectory) {
             args: commandLineArguments,
             workingDirectory,
         })
+
+        if (delayedEvent) {
+            mainWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
+        }
     })
 
     ipcMain.on("Oni.started", (evt) => {
