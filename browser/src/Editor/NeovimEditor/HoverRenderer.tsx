@@ -59,7 +59,7 @@ export class HoverRenderer {
         const borderColor = this._colors.getColor("toolTip.border")
 
         let customErrorStyle = {}
-        if (!quickInfoElement) {
+        if (quickInfoElement) {
             // TODO:
             customErrorStyle = {
                 "border-bottom": "1px solid " + borderColor,

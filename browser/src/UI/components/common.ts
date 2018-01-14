@@ -46,7 +46,7 @@ const fallBackFonts = `
     Courier New,
     monospace,
     sans-serif
-`.replace("\n", "")
+`.trim()
 
 export {
   css,
