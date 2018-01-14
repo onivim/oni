@@ -1,7 +1,7 @@
 import * as os from "os"
 
 import { app, BrowserWindow, dialog, Menu } from "electron"
-import { createWindow } from "./main"
+import { createWindow, IDelayedEvent } from "./main"
 
 export const buildDockMenu = (mainWindow, loadInit) => {
     const menu = []
@@ -21,18 +21,18 @@ export const buildMenu = (mainWindow, loadInit) => {
     // On Windows, both the forward slash `/` and the backward slash `\` are accepted as path delimiters.
     // The node APIs only return the backward slash, ie: `C:\\oni\\README.md`, but this causes problems
     // for VIM as it sees escape keys.
-    const normalizePath = (fileName) => fileName.split("\\").join("/")
 
-    // const ensureWindow = (currentWindow: BrowserWindow) => {
-    //     return currentWindow ? currentWindow : createWindow([], process.cwd())
-    // }
-
-    const executeVimCommand = (browserWindow: BrowserWindow, command: string) => {
-        const delayedEvent = { evt: "menu-item-click", cmd: [command] }
+    const executeMenuAction = (browserWindow: BrowserWindow, delayedEvent: IDelayedEvent) => {
         if (browserWindow) {
             return browserWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
         }
         createWindow([], process.cwd(), delayedEvent)
+    }
+
+    const normalizePath = (fileName) => fileName.split("\\").join("/")
+
+    const executeVimCommand = (browserWindow: BrowserWindow, command: string) => {
+        executeMenuAction(browserWindow, { evt: "menu-item-click", cmd: [command] })
     }
 
     const executeVimCommandForMultipleFiles = (
@@ -40,28 +40,17 @@ export const buildMenu = (mainWindow, loadInit) => {
         command: string,
         files: string[],
     ) => {
-        const delayedEvent = { evt: "open-files", cmd: [command, files] }
-        if (browserWindow) {
-            return browserWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
-        }
-        createWindow([], process.cwd(), delayedEvent)
+        executeMenuAction(browserWindow, { evt: "open-files", cmd: [command, files] })
     }
 
     const executeOniCommand = (browserWindow: BrowserWindow, command: string) => {
-        const delayedEvent = { evt: "execute-command", cmd: [command] }
-        if (browserWindow) {
-            return browserWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
-        }
-
-        createWindow([], process.cwd(), delayedEvent)
+            executeMenuAction(browserWindow, { evt: "execute-command", cmd: [command] })
     }
 
     const openUrl = (browserWindow: BrowserWindow, url: string) => {
-        const delayedEvent = { evt: "execute-command", cmd: ["browser.openUrl", url] }
-        if (browserWindow) {
-            browserWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
-        }
+        executeMenuAction(browserWindow, { evt: "execute-command", cmd: ["browser.openUrl", url] })
     }
+
     const executeVimCommandForFiles = (browserWindow, command, files) => {
         if (!files || !files.length) {
             return

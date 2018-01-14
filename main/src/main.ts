@@ -98,7 +98,7 @@ if (!isDevelopment && !isDebug) {
     })
 }
 
-interface IDelayedEvent {
+export interface IDelayedEvent {
     evt: string
     cmd: Array<string | string[]>
 }
