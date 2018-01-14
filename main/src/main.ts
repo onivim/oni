@@ -151,14 +151,14 @@ export function createWindow(
             args: commandLineArguments,
             workingDirectory,
         })
-
-        if (delayedEvent) {
-            mainWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
-        }
     })
 
     ipcMain.on("Oni.started", (evt) => {
         Log.info("Oni started")
+
+        if (delayedEvent) {
+            mainWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
+        }
     })
 
     ipcMain.on("rebuild-menu", (_evt, loadInit) => {
