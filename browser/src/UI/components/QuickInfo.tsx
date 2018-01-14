@@ -74,8 +74,10 @@ export const Title = withProps<{ padding?: string }>(styled.div)`
     overflow: hidden;
     max-height: 95%;
     word-break: break-all;
-    &::-webkit-scrollbar {
-        height: 2px;
+    ${smallScrollbar};
+
+    &:hover {
+        overflow: overlay;
     }
 
     > * {
