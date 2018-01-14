@@ -116,6 +116,25 @@ describe("Completion", () => {
         assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 0, "There should be no completion requests, because 'editor.completions.mode' is set to 'hidden'")
     })
 
+    it("doesn't fetch completions if 'editor.completions.enabled' === 'false'", () => {
+
+        mockConfiguration.setValue("editor.completions.enabled", false)
+
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
+
+        // Switch to insert mode
+        mockEditor.simulateModeChange("insert")
+
+        // Simulate typing
+        mockEditor.simulateCursorMoved(0, 3)
+        mockEditor.setActiveBufferLine(0, "win")
+
+        TestHelpers.runAllTimers()
+
+        // Validate we do not have requests for completion, because completions are turned off.
+        assert.strictEqual(mockCompletionRequestor.completionsRequestor.pendingCallCount, 0, "There should be no completion requests, because 'editor.completions.enabled' is set to 'false'")
+    })
+
     it("if there is a completion matching the base, it should be the first shown", async () => {
 
         mockEditor.simulateBufferEnter(new Mocks.MockBuffer("typescript", "test1.ts", []))
