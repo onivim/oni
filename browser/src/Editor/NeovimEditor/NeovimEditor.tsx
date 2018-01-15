@@ -193,8 +193,17 @@ export class NeovimEditor extends Editor implements IEditor {
         const updateViewport = () => {
             const width = document.body.offsetWidth
             const height = document.body.offsetHeight
+            const focusedEditor: HTMLElement = document.querySelector(".editor.focus")
+            const editorDimensions: { width?: number, height?: number } = {
+                width: null,
+                height: null,
+            }
+            if (focusedEditor) {
+                editorDimensions.width = focusedEditor.offsetWidth
+                editorDimensions.height = focusedEditor.offsetHeight
+            }
 
-            this._actions.setViewport(width, height)
+            this._actions.setViewport(width, height, editorDimensions)
         }
         window.addEventListener("resize", updateViewport)
         updateViewport()

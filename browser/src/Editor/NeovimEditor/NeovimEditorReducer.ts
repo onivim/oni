@@ -188,6 +188,7 @@ export const viewportReducer = (s: State.IViewport, a: Actions.ISetViewportActio
             return {
                 width: a.payload.width,
                 height: a.payload.height,
+                focusedEditor: a.payload.focusedEditor,
         }
         default:
             return s

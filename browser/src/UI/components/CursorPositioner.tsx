@@ -38,6 +38,7 @@ export interface ICursorPositionerViewProps extends ICursorPositionerProps {
     fontPixelWidth: number
 
     backgroundColor: string
+    sidebarEnabled: boolean
 }
 
 export interface ICursorPositionerViewState {
@@ -126,7 +127,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             top: adjustedY.toString() + "px",
             left: "0px",
             width: this.props.containerWidth.toString() + "px",
-            maxWidth: "55vw",
+            maxWidth: this.props.sidebarEnabled ? "calc(55vw - 255px)" : "55vw",
             visibility: this.state.isMeasured ? "visible" : "hidden", // Wait until we've measured the bounds to show..
         }
 
@@ -153,7 +154,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
 
         const childStyleWithAdjustments: React.CSSProperties = this.state.isMeasured ? {
             ...childStyle,
-            left: this.state.isFullWidth ? "8px" : Math.abs(adjustedX).toString() + "px",
+            left: this.state.isFullWidth ? "8px" : `${Math.abs(adjustedX)}px`,
             right: this.state.isFullWidth ? "8px" : null,
         } : childStyle
 
@@ -227,15 +228,20 @@ const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursor
     const lineHeight = state.fontPixelHeight
 
     const backgroundColor = state.colors["editor.background"]
+    const sidebarEnabled = state.configuration["experimental.sidebar.enabled"]
 
     const beakColor = (props && props.beakColor) ? props.beakColor : backgroundColor
+    const adjustForSideBar = (num: number) => sidebarEnabled
+        ?  Math.abs(num - 255)
+        : num
 
     return {
+        sidebarEnabled,
         beakColor,
         fontPixelWidth: state.fontPixelWidth,
         x: x - (state.fontPixelWidth / 2),
         y: y - (state.fontPixelHeight),
-        containerWidth: state.viewport.width,
+        containerWidth: adjustForSideBar(state.viewport.width),
         containerHeight: state.viewport.height,
         lineHeight,
         backgroundColor,
