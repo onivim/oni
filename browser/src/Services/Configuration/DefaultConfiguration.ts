@@ -199,7 +199,11 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.height": "2.5em",
     "tabs.highlight": true,
     "tabs.maxWidth": "30em",
+<<<<<<< HEAD
     "tabs.showIndex": false,
+=======
+    "tabs.showFileIcon": true,
+>>>>>>> master
     "tabs.wrap": false,
 
     "ui.animations.enabled": true,

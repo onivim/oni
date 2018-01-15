@@ -186,16 +186,20 @@ export const getIdPrefix = (id: string, shouldShow: boolean): string => {
     return shouldShow ? id + ": " : ""
 }
 
+export const shouldShowFileIcon = (state: State.IState): boolean => {
+    return state.configuration["tabs.showFileIcon"]
+}
+
 const getTabsFromBuffers = createSelector(
-    [BufferSelectors.getBufferMetadata, BufferSelectors.getActiveBufferId, getHighlightColor, showTabId],
-    (allBuffers: any, activeBufferId: any, color: string, shouldShowId: boolean) => {
+    [BufferSelectors.getBufferMetadata, BufferSelectors.getActiveBufferId, getHighlightColor, showTabId, shouldShowFileIcon],
+    (allBuffers: any, activeBufferId: any, color: string, shouldShowId: boolean, showFileIcon: boolean) => {
         const bufferCount = allBuffers.length
         const tabs = allBuffers.map((buf: any): ITabProps => {
             const isActive = (activeBufferId !== null && buf.id === activeBufferId) || bufferCount === 1
             return {
                 id: buf.id,
                 name: getIdPrefix(buf.id, shouldShowId) + getTabName(buf.file),
-                iconFileName: getTabName(buf.file),
+                iconFileName: showFileIcon ? getTabName(buf.file) : "",
                 highlightColor: isActive ? color : "transparent",
                 isSelected: isActive,
                 isDirty: buf.modified,
@@ -206,13 +210,13 @@ const getTabsFromBuffers = createSelector(
     })
 
 const getTabsFromVimTabs = createSelector(
-    [getTabState, getHighlightColor, showTabId],
-    (tabState: any, color: any, shouldShowId: boolean) => {
+    [getTabState, getHighlightColor, showTabId, shouldShowFileIcon],
+    (tabState: any, color: any, shouldShowId: boolean, showFileIcon: boolean) => {
         return tabState.tabs.map((t: any, idx: number) => ({
             id: t.id,
             name: getIdPrefix((idx + 1).toString(), shouldShowId) + getTabName(t.name),
             highlightColor: t.id === tabState.selectedTabId ? color : "transparent",
-            iconFileName: "",
+            iconFileName: showFileIcon ? getTabName(t.name) : "",
             isSelected: t.id === tabState.selectedTabId,
             isDirty: false,
             description: t.name,
