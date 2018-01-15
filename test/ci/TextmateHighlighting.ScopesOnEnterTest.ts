@@ -1,5 +1,5 @@
 /**
- * TextmateHighlighting.ScopesOnTestTest
+ * TextmateHighlighting.ScopesOnEnterTest
  *
  * Validate that syntax tokens for text mate highlighting are available on etner
  */
@@ -30,4 +30,8 @@ export const test = async (oni: Oni.Plugin.Api) => {
     })
 
     assert.deepEqual(tokens.scopes, ["source.ts", "support.variable.dom.ts"], "Validate the scopes are correct")
+}
+
+export const settings = {
+    configPath: "TextmateHighlighting.ScopesOnEnterTest.config.js",
 }
