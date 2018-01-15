@@ -18,12 +18,12 @@ const activate = Oni => {
     };
 
     const updateBranchIndicator = async evt => {
-      const filePath = evt.bufferFullPath || evt.filePath;
-      const gitBranchIndicator = Oni.statusBar.createItem(
-        1,
-        -3,
-        'oni-plugin-git'
-      );
+      if (!evt) {
+        return;
+      }
+      const filePath = evt.filePath || evt.bufferFullPath;
+      const gitId = 'oni.status.git'
+      const gitBranchIndicator = Oni.statusBar.createItem(1, gitId);
 
       isLoaded = true;
       let dir;
@@ -42,22 +42,45 @@ const activate = Oni => {
 
         const props = {
           style: {
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
           },
+        };
+
+        const branchContainerProps = {
+          style: {
+            minWidth: '10px',
+            textAlign: 'center',
+            padding: '2px 4px 0 0',
+          }
         };
 
         const branchIcon = Oni.ui.createIcon({
           name: 'code-fork',
-          size: Oni.ui.iconSize.Large,
+          size: Oni.ui.iconSize.Default,
         });
+
+        const branchContainer = React.createElement(
+          'span',
+          branchContainerProps,
+          branchIcon,
+        );
+
+        const branchNameContainer = React.createElement(
+          'div',
+          { width: '100%'},
+          ' ' + branchName,
+        );
+
         const gitBranch = React.createElement(
           'div',
           props,
-          branchIcon,
-          ' ' + branchName
+          branchContainer,
+          branchNameContainer,
         );
+
 
         gitBranchIndicator.setContents(gitBranch);
         gitBranchIndicator.show();
@@ -67,13 +90,17 @@ const activate = Oni => {
       }
     };
 
-    if(!isLoaded) {
+    if (!isLoaded) {
       updateBranchIndicator(Oni.editors.activeEditor.activeBuffer);
     }
 
     Oni.editors.activeEditor.onBufferEnter.subscribe(
       async evt => await updateBranchIndicator(evt)
     );
+    Oni.workspace.onFocusGained.subscribe(
+      async buffer => await updateBranchIndicator(buffer)
+    );
+
   } catch (e) {
     console.warn('[Oni.plugin.git] ERROR', e);
   }

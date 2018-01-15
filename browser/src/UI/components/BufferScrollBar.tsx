@@ -5,6 +5,7 @@ import styled from "styled-components"
 import { bufferScrollBarSize } from "./common"
 
 export interface IBufferScrollBarProps {
+    windowId: number
     bufferSize: number
     height: number
     windowTopLine: number
@@ -75,9 +76,9 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
             return <div style={markerStyle} key={m.line.toString() + m.color}/>
         })
 
-        return <ScrollBarContainer>
-                <ScrollBarWindow style={windowStyle}></ScrollBarWindow>
-                {markerElements}
-            </ScrollBarContainer>
+        return <ScrollBarContainer key={this.props.windowId}>
+                    <ScrollBarWindow style={windowStyle}></ScrollBarWindow>
+                    {markerElements}
+                </ScrollBarContainer>
     }
 }

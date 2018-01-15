@@ -120,6 +120,10 @@ export class WindowManager implements Oni.IWindowManager {
         return this._activeSplit
     }
 
+    public set activeSplit(split: Oni.IWindowSplit) {
+        this._focusNewSplit(split)
+    }
+
     constructor() {
         this._leftDock = new WindowDock()
         this._splitRoot = createSplitRoot(SplitDirection.Horizontal)
@@ -130,9 +134,9 @@ export class WindowManager implements Oni.IWindowManager {
         const newLeaf = createSplitLeaf(newSplit)
         this._splitRoot = applySplit(this._splitRoot, direction, newLeaf)
 
-        this._focusNewSplit(newSplit)
-
         this._onSplitChanged.dispatch(this._splitRoot)
+
+        this._focusNewSplit(newSplit)
     }
 
     public moveLeft(): void {

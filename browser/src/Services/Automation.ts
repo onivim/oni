@@ -10,7 +10,7 @@ import * as OniApi from "oni-api"
 
 import * as Utility from "./../Utility"
 
-import { configuration } from "./Configuration"
+import { getUserConfigFilePath } from "./Configuration"
 import { editorManager } from "./EditorManager"
 import { inputManager } from "./InputManager"
 
@@ -42,7 +42,7 @@ export class Automation implements OniApi.Automation.Api {
     }
 
     public async waitFor(condition: () => boolean, timeout: number = 10000): Promise<void> {
-        Log.info("[AUTOMATION] Starting wait - limit: " + timeout)
+        Log.info("[AUTOMATION] Starting wait - limit: " + timeout + " condition: " + condition.toString())
         let time = 0
         const interval = 1000
 
@@ -56,7 +56,7 @@ export class Automation implements OniApi.Automation.Api {
             Log.info("[AUTOMATION] Wait condition still not met: " + time + " / " + timeout)
         }
 
-        Log.info("[AUTOMATION]: waitFor timeout expired")
+        Log.info("[AUTOMATION]: waitFor timeout expired for condition: " + condition.toString())
 
         throw new Error("waitFor: Timeout expired")
     }
@@ -86,11 +86,10 @@ export class Automation implements OniApi.Automation.Api {
 
         const testPath2 = testPath
 
-        const loggingRedirector = new LoggingRedirector()
         Log.enableVerboseLogging()
         try {
             Log.info("[AUTOMATION] Starting test: " + testPath)
-            Log.info("[AUTOMATION] Configuration path: " + configuration.userJsConfig)
+            Log.info("[AUTOMATION] Configuration path: " + getUserConfigFilePath())
             const testCase: any = Utility.nodeRequire(testPath2)
             const oni = new Oni()
 
@@ -103,13 +102,6 @@ export class Automation implements OniApi.Automation.Api {
             this._reportResult(false, ex)
         } finally {
             this._reportWindowSize()
-            const logs = loggingRedirector.getAllLogs()
-
-            const logsElement = this._createElement("automated-test-logs", this._getOrCreateTestContainer("automated-test-container"))
-
-            logsElement.textContent = JSON.stringify(logs)
-
-            loggingRedirector.dispose()
         }
     }
 
@@ -158,45 +150,3 @@ export class Automation implements OniApi.Automation.Api {
 }
 
 export const automation = new Automation()
-
-class LoggingRedirector {
-
-    private _logs: string[] = []
-
-    private _oldInfo: any
-    private _oldWarn: any
-    private _oldError: any
-
-    constructor() {
-        this._oldInfo = console.log
-        this._oldWarn = console.warn
-        this._oldError = console.error
-
-        console.log = this._redirect("INFO", this._oldInfo)
-        console.warn = this._redirect("WARN", this._oldWarn)
-        console.error = this._redirect("ERROR", this._oldError)
-    }
-
-    public getAllLogs(): string[] {
-        return this._logs
-    }
-
-    public dispose(): void {
-        this._logs = null
-
-        console.log = this._oldInfo
-        console.warn = this._oldWarn
-        console.error = this._oldError
-
-        this._oldInfo = null
-        this._oldWarn = null
-        this._oldError = null
-    }
-
-    private _redirect(type: string, oldFunction: any): any {
-        return (...args: any[]) => {
-            this._logs.push("[" + type + "][" + new Date().getTime() + "]: " + JSON.stringify(args))
-            oldFunction(args)
-        }
-    }
-}

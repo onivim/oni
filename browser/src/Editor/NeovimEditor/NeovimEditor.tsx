@@ -26,21 +26,33 @@ import { addDefaultUnitIfNeeded } from "./../../Font"
 import { BufferEventContext, EventContext, INeovimStartOptions, NeovimInstance, NeovimScreen, NeovimWindowManager } from "./../../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../../Renderer"
 
-import { pluginManager } from "./../../Plugins/PluginManager"
+import { PluginManager } from "./../../Plugins/PluginManager"
 
-import { Colors } from "./../../Services/Colors"
+import { IColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
 import { registerBuiltInCommands } from "./../../Services/Commands"
 import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
-import { addInsertModeLanguageFunctionality, LanguageEditorIntegration, LanguageManager } from "./../../Services/Language"
-import { ISyntaxHighlighter, NullSyntaxHighlighter, SyntaxHighlighter } from "./../../Services/SyntaxHighlighting"
+import * as Shell from "./../../UI/Shell"
+
+import {
+    addInsertModeLanguageFunctionality,
+    LanguageEditorIntegration,
+    LanguageManager,
+} from "./../../Services/Language"
+
+import {
+    ISyntaxHighlighter,
+    NullSyntaxHighlighter,
+    SyntaxHighlighter,
+} from "./../../Services/SyntaxHighlighting"
+
 import { tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
-import { workspace } from "./../../Services/Workspace"
+import { Workspace } from "./../../Services/Workspace"
 
 import { Editor, IEditor } from "./../Editor"
 
@@ -119,11 +131,13 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     constructor(
-        private _colors: Colors,
+        private _colors: IColors,
         private _configuration: Configuration,
         private _diagnostics: IDiagnosticsDataSource,
         private _languageManager: LanguageManager,
+        private _pluginManager: PluginManager,
         private _themeManager: ThemeManager,
+        private _workspace: Workspace,
     ) {
         super()
 
@@ -135,8 +149,8 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
-        this._neovimInstance = new NeovimInstance(100, 100)
-        this._bufferManager = new BufferManager(this._neovimInstance)
+        this._neovimInstance = new NeovimInstance(100, 100, this._configuration)
+        this._bufferManager = new BufferManager(this._neovimInstance, this._actions)
         this._screen = new NeovimScreen()
 
         this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
@@ -160,14 +174,21 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._renderer = new CanvasRenderer()
 
-        this._rename = new Rename(this, this._languageManager, this._toolTipsProvider)
+        this._rename = new Rename(this, this._languageManager, this._toolTipsProvider, this._workspace)
 
         // Services
         const errorService = new Errors(this._neovimInstance)
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
 
-        this._commands = new NeovimEditorCommands(commandManager, this._contextMenuManager, this._definition, this._languageIntegration, this._rename, this._symbols)
+        this._commands = new NeovimEditorCommands(
+            commandManager,
+            this._contextMenuManager,
+            this._definition,
+            this._languageIntegration,
+            this._rename,
+            this._symbols,
+        )
 
         const updateViewport = () => {
             const width = document.body.offsetWidth
@@ -220,14 +241,22 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.hideCommandLine()
         })
 
+        this._neovimInstance.onCommandLineSetCursorPosition.subscribe(commandLinePos => {
+            this._actions.setCommandLinePosition(commandLinePos)
+        })
+
         this._windowManager.onWindowStateChanged.subscribe((tabPageState) => {
 
             const inactiveIds = tabPageState.inactiveWindows.map((w) => w.windowNumber)
 
-            this._actions.setActiveVimTabPage(tabPageState.tabId, [tabPageState.activeWindow.windowNumber, ...inactiveIds])
+            this._actions.setActiveVimTabPage(
+                tabPageState.tabId,
+                [tabPageState.activeWindow.windowNumber, ...inactiveIds],
+            )
 
             const { activeWindow } = tabPageState
             this._actions.setWindowState(activeWindow.windowNumber,
+                activeWindow.bufferId,
                 activeWindow.bufferFullPath,
                 activeWindow.column,
                 activeWindow.line,
@@ -248,9 +277,8 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onTitleChanged.subscribe((newTitle) => {
-            // MUSTFIX
-            // const title = newTitle.replace(" - NVIM", " - ONI")
-            // UI.Actions.setWindowTitle(title)
+            const title = newTitle.replace(" - NVIM", " - ONI")
+            Shell.Actions.setWindowTitle(title)
         })
 
         this._neovimInstance.onLeave.subscribe(() => {
@@ -289,7 +317,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onDirectoryChanged.subscribe((newDirectory) => {
-            workspace.changeDirectory(newDirectory)
+            this._workspace.changeDirectory(newDirectory)
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -300,8 +328,19 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
-            this._actions.setCursorPosition(this._screen)
-            this._typingPredictionManager.setCursorPosition(this._screen)
+            const isCursorInCommandRow = this._screen.cursorRow === this._screen.height - 1
+            const isCommandLineMode = this.mode && this.mode.indexOf("cmdline") === 0
+
+            // In some cases, during redraw, Neovim will actually set the cursor position
+            // to the command line when rendering. This can happen when 'echo'ing or
+            // when a popumenu is enabled, and text is writing.
+            //
+            // We should ignore those cases, and only set the cursor in the command row
+            // when we're actually in command line mode. See #1265 for more context.
+            if (!isCursorInCommandRow || (isCursorInCommandRow && isCommandLineMode)) {
+                this._actions.setCursorPosition(this._screen)
+                this._typingPredictionManager.setCursorPosition(this._screen)
+            }
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
@@ -339,7 +378,11 @@ export class NeovimEditor extends Editor implements IEditor {
             }
 
             this.notifyBufferChanged(bufferUpdate)
-            this._actions.bufferUpdate(parseInt(bufferUpdate.buffer.id, 10), bufferUpdate.buffer.modified, bufferUpdate.buffer.lineCount)
+            this._actions.bufferUpdate(
+                parseInt(bufferUpdate.buffer.id, 10),
+                bufferUpdate.buffer.modified,
+                bufferUpdate.buffer.lineCount,
+            )
 
             this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
         })
@@ -356,7 +399,7 @@ export class NeovimEditor extends Editor implements IEditor {
         addInsertModeLanguageFunctionality(this._cursorMovedI$, this._modeChanged$, this._toolTipsProvider)
 
         const textMateHighlightingEnabled = this._configuration.getValue("experimental.editor.textMateHighlighting.enabled")
-        this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter() : new NullSyntaxHighlighter()
+        this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter(this._configuration, this) : new NullSyntaxHighlighter()
 
         this._completion = new Completion(this, this._languageManager, this._configuration)
         this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
@@ -430,6 +473,10 @@ export class NeovimEditor extends Editor implements IEditor {
             this._openFiles(files, message)
         })
 
+        ipcRenderer.on("open-file", (_evt: any, path: string) => {
+            this._neovimInstance.command(`:e! ${path}`)
+        })
+
         // enable opening a file via drag-drop
         document.ondragover = (ev) => {
             ev.preventDefault()
@@ -489,6 +536,13 @@ export class NeovimEditor extends Editor implements IEditor {
         return this.activeBuffer
     }
 
+    public async newFile(filePath: string): Promise<Oni.Buffer> {
+        await this._neovimInstance.command(":vsp " + filePath)
+        const context = await this._neovimInstance.getContext()
+        const buffer = this._bufferManager.updateBufferFromEvent(context)
+        return buffer
+    }
+
     public executeCommand(command: string): void {
         commandManager.executeCommand(command, null)
     }
@@ -496,7 +550,7 @@ export class NeovimEditor extends Editor implements IEditor {
     public async init(filesToOpen: string[]): Promise<void> {
         Log.info("[NeovimEditor::init] Called with filesToOpen: " + filesToOpen)
         const startOptions: INeovimStartOptions = {
-            runtimePaths: pluginManager.getAllRuntimePaths(),
+            runtimePaths: this._pluginManager.getAllRuntimePaths(),
             transport: this._configuration.getValue("experimental.neovim.transport"),
         }
 
@@ -523,6 +577,8 @@ export class NeovimEditor extends Editor implements IEditor {
         if (filesToOpen && filesToOpen.length > 0) {
             await this._openFiles(filesToOpen, ":tabnew")
         }
+
+        this._actions.setLoadingComplete()
 
         this._hasLoaded = true
         this._isFirstRender = true
@@ -590,6 +646,10 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private _onModeChanged(newMode: string): void {
+        // 'Bounce' the cursor for show match
+        if (newMode === "showmatch") {
+            this._actions.setCursorScale(0.9)
+        }
 
         this._typingPredictionManager.clearAllPredictions()
 

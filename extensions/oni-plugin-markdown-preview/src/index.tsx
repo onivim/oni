@@ -239,11 +239,11 @@ export const activate = (oni: any) => {
     ))
 }
 
-class Command implements Oni.ICommand {
+class Command implements Oni.Commands.ICommand {
     constructor(
         public command: string,
         public name: string,
         public detail: string,
-        public execute: Oni.ICommandCallback,
+        public execute: Oni.Commands.CommandCallback,
     ) {}
 }

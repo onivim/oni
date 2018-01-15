@@ -8,6 +8,8 @@
 
 import * as types from "vscode-languageserver-types"
 
+import * as Oni from "oni-api"
+
 import { createSelector } from "reselect"
 
 import { getAllErrorsForFile } from "./../../Services/Diagnostics"
@@ -30,7 +32,7 @@ export const getActiveWindow = createSelector(
         return windowState.windows[activeWindow]
     })
 
-const emptyRectangle = {
+const emptyRectangle: Oni.Shapes.Rectangle = {
     x: 0,
     y: 0,
     width: 0,

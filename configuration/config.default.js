@@ -29,7 +29,7 @@ module.exports = {
    "ui.colorscheme": "onedark",
 
    //"oni.useDefaultConfig": true,
-   //"oni.bookmarks": ["~/Documents",]
+   //"oni.bookmarks": ["~/Documents"],
    //"oni.loadInitVim": false,
    //"editor.fontSize": "14px",
    //"editor.fontFamily": "Monaco"

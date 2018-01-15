@@ -10,34 +10,38 @@ import * as path from "path"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
-import { IDisposable } from "oni-types"
 
-import { Store } from "redux"
+import { Store, Unsubscribe } from "redux"
+
+import { Configuration } from "./../Configuration"
+
+import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
 import { createSyntaxHighlightStore, ISyntaxHighlightState, ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
 
+import { ISyntaxHighlighter } from "./ISyntaxHighlighter"
 import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
 
 import * as Log from "./../../Log"
 import * as Utility from "./../../Utility"
 
-export interface ISyntaxHighlighter extends IDisposable {
-    notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void>
-    notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void
-    notifyStartInsertMode(buffer: Oni.Buffer): void
-    notifyEndInsertMode(buffer: Oni.Buffer): void
-
-    getHighlightTokenAt(bufferId: string, position: types.Position): ISyntaxHighlightTokenInfo
-}
-
 export class SyntaxHighlighter implements ISyntaxHighlighter {
 
     private _store: Store<ISyntaxHighlightState>
     private _reconciler: SyntaxHighlightReconciler
+    private _unsubscribe: Unsubscribe
 
-    constructor() {
+    constructor(
+        private _configuration: Configuration,
+        private _editor: NeovimEditor,
+    ) {
         this._store = createSyntaxHighlightStore()
-        this._reconciler = new SyntaxHighlightReconciler(this._store)
+
+        this._reconciler = new SyntaxHighlightReconciler(this._configuration, this._editor)
+        this._unsubscribe = this._store.subscribe(() => {
+            const state = this._store.getState()
+            this._reconciler.update(state)
+        })
     }
 
     public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
@@ -99,6 +103,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
                 lines,
             })
         } else {
+
             // Incremental update
             this._store.dispatch({
                 type: "SYNTAX_UPDATE_BUFFER_LINE",
@@ -129,8 +134,12 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
 
     public dispose(): void {
         if (this._reconciler) {
-            this._reconciler.dispose()
             this._reconciler = null
+        }
+
+        if (this._unsubscribe) {
+            this._unsubscribe()
+            this._unsubscribe = null
         }
     }
 }

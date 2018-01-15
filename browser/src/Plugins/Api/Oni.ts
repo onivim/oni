@@ -24,9 +24,10 @@ import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
 import { menuManager } from "./../../Services/Menu"
 import { recorder } from "./../../Services/Recorder"
-import { statusBar } from "./../../Services/StatusBar"
+import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
+import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
 import { windowManager } from "./../../Services/WindowManager"
-import { workspace } from "./../../Services/Workspace"
+import { getInstance as getWorkspaceInstance } from "./../../Services/Workspace"
 
 import * as Log from "./../../Log"
 
@@ -61,7 +62,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return this._colors
     }
 
-    public get commands(): OniApi.Commands {
+    public get commands(): OniApi.Commands.Api {
         return commandManager
     }
 
@@ -109,8 +110,12 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return Process
     }
 
+    public get sidebar(): any {
+        return getSidebarInstance()
+    }
+
     public get statusBar(): OniApi.StatusBar {
-        return statusBar
+        return getStatusBarInstance()
     }
 
     public get ui(): Ui {
@@ -126,7 +131,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     public get workspace(): OniApi.Workspace {
-        return workspace
+        return getWorkspaceInstance()
     }
 
     public get helpers(): any {

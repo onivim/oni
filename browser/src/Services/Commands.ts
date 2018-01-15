@@ -14,7 +14,7 @@ import * as Oni from "oni-api"
 
 import { INeovimInstance } from "./../neovim"
 
-import { configuration } from "./../Services/Configuration"
+import { getUserConfigFilePath } from "./../Services/Configuration"
 import { editorManager } from "./../Services/EditorManager"
 import { findAllReferences, format } from "./../Services/Language"
 import { menuManager } from "./../Services/Menu"
@@ -49,6 +49,8 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
         new CallbackCommand("oni.editor.maximize", "Maximize Window", "Maximize the current window", () => remote.getCurrentWindow().maximize()),
 
         new CallbackCommand("oni.editor.minimize", "Minimize Window", "Minimize the current window", () => remote.getCurrentWindow().minimize()),
+
+        new CallbackCommand("oni.editor.hide", "Hide Window", "Hide the current window", () => remote.app.hide()),
 
         // Language service
         // TODO: Deprecate
@@ -118,7 +120,7 @@ const shouldShowMenu = () => {
     return !menuManager.isMenuOpen()
 }
 
-const popupMenuCommand = (innerCommand: Oni.ICommandCallback) => {
+const popupMenuCommand = (innerCommand: Oni.Commands.CommandCallback) => {
     return () => {
         if (menuManager.isMenuOpen()) {
             return innerCommand()
@@ -133,7 +135,7 @@ const popupMenuNext = popupMenuCommand(() => menuManager.nextMenuItem())
 const popupMenuPrevious = popupMenuCommand(() => menuManager.previousMenuItem())
 const popupMenuSelect = popupMenuCommand(() => menuManager.selectMenuItem())
 
-const quickOpenCommand = (innerCommand: Oni.ICommandCallback) => (quickOpen: QuickOpen) => {
+const quickOpenCommand = (innerCommand: Oni.Commands.CommandCallback) => (quickOpen: QuickOpen) => {
     return () => {
         if (quickOpen.isOpen()) {
             return innerCommand(quickOpen)
@@ -177,7 +179,7 @@ const openFolder = (neovimInstance: INeovimInstance) => {
 const openDefaultConfig = async (neovimInstance: INeovimInstance): Promise<void> => {
 
     const activeEditor = editorManager.activeEditor
-    const buf = await activeEditor.openFile(configuration.userJsConfig)
+    const buf = await activeEditor.openFile(getUserConfigFilePath())
     const lineCount = buf.lineCount
 
     if (lineCount === 1) {

@@ -25,6 +25,8 @@ const start = async (args: string[]): Promise<void> => {
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
 
+    const sidebarPromise = import("./Services/Sidebar")
+    const statusBarPromise = import("./Services/StatusBar")
     const startEditorsPromise = import("./startEditors")
 
     const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
@@ -35,18 +37,17 @@ const start = async (args: string[]): Promise<void> => {
     const editorManagerPromise = import("./Services/EditorManager")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const workspacePromise = import("./Services/Workspace")
     const cssPromise = import("./CSS")
 
     // Helper for debugging:
-    window["Shell"] = Shell // tslint:disable-line no-string-literal
-
-    Performance.startMeasure("Oni.Start.Config")
+     Performance.startMeasure("Oni.Start.Config")
 
     const { configuration } = await configurationPromise
 
-    const initialConfigParsingError = configuration.getParsingError()
-    if (initialConfigParsingError) {
-        Log.error(initialConfigParsingError)
+    const initialConfigParsingErrors = configuration.getErrors()
+    if (initialConfigParsingErrors && initialConfigParsingErrors.length > 0) {
+        initialConfigParsingErrors.forEach((err: Error) => Log.error(err))
     }
 
     const configChange = (newConfigValues: Partial<IConfigurationValues>) => {
@@ -56,13 +57,24 @@ const start = async (args: string[]): Promise<void> => {
         }
     }
 
+    configuration.onConfigurationError.subscribe((err) => {
+        // TODO: Better / nicer handling of error:
+        alert(err)
+    })
+
     configuration.start()
 
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
     Performance.endMeasure("Oni.Start.Config")
 
-    const { pluginManager } = await pluginManagerPromise
+    const Workspace = await workspacePromise
+    Workspace.activate(configuration)
+    const workspace = Workspace.getInstance()
+
+    const PluginManager = await pluginManagerPromise
+    PluginManager.activate(configuration)
+    const pluginManager = PluginManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
@@ -72,7 +84,7 @@ const start = async (args: string[]): Promise<void> => {
     const Themes = await themesPromise
     const IconThemes = await iconThemesPromise
     await Promise.all([
-        Themes.activate(configuration),
+        Themes.activate(configuration, pluginManager),
         IconThemes.activate(configuration, pluginManager)
     ])
 
@@ -86,8 +98,12 @@ const start = async (args: string[]): Promise<void> => {
 
     const { editorManager } = await editorManagerPromise
 
+    const StatusBar = await statusBarPromise
+    StatusBar.activate(configuration)
+    const statusBar = StatusBar.getInstance()
+
     const LanguageManager = await languageManagerPromise
-    LanguageManager.activate(configuration, editorManager)
+    LanguageManager.activate(configuration, editorManager, statusBar, workspace)
     const languageManager = LanguageManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Editors")
@@ -97,16 +113,24 @@ const start = async (args: string[]): Promise<void> => {
     const CSS = await cssPromise
     CSS.activate()
 
+    Shell.Actions.setLoadingComplete()
+
     const Diagnostics = await diagnosticsPromise
     const diagnostics = Diagnostics.getInstance()
 
    await Promise.race([Utility.delay(5000),
      Promise.all([
-        SharedNeovimInstance.activate(),
-        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, Themes.getThemeManagerInstance())
+        SharedNeovimInstance.activate(configuration, pluginManager),
+        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance(), workspace)
     ])
    ])
     Performance.endMeasure("Oni.Start.Editors")
+
+    Performance.startMeasure("Oni.Start.Sidebar")
+    const Sidebar = await sidebarPromise
+    Sidebar.activate(configuration, workspace)
+    Performance.endMeasure("Oni.Start.Sidebar")
+
 
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
@@ -124,8 +148,6 @@ const start = async (args: string[]): Promise<void> => {
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
     Performance.endMeasure("Oni.Start.Activate")
 
-    Shell.Actions.setLoadingComplete()
-
     checkForUpdates()
 
     Performance.endMeasure("Oni.Start")
@@ -136,9 +158,9 @@ ipcRenderer.on("init", (_evt: any, message: any) => {
     start(message.args)
 })
 
-ipcRenderer.on("execute-command", async (_evt: any, command: string) => {
+ipcRenderer.on("execute-command", async (_evt: any, command: string, arg?: any) => {
     const { commandManager } = await import("./Services/CommandManager")
-    commandManager.executeCommand(command, null)
+    commandManager.executeCommand(command, arg)
 })
 
 const checkForUpdates = async (): Promise<void> => {

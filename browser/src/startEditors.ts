@@ -6,27 +6,20 @@
 
 import { NeovimEditor } from "./Editor/NeovimEditor"
 
+import { PluginManager } from "./Plugins/PluginManager"
+
 import { Colors } from "./Services/Colors"
-import { commandManager } from "./Services/CommandManager"
 import { Configuration } from "./Services/Configuration"
 import { IDiagnosticsDataSource } from "./Services/Diagnostics"
 import { editorManager } from "./Services/EditorManager"
-import { ExplorerSplit } from "./Services/Explorer/ExplorerSplit"
 import { LanguageManager } from "./Services/Language"
-import { SidebarSplit } from "./Services/Sidebar"
 import { ThemeManager } from "./Services/Themes"
 import { windowManager } from "./Services/WindowManager"
-import { workspace } from "./Services/Workspace"
+import { Workspace } from "./Services/Workspace"
 
-export const startEditors = async (args: any, colors: Colors, configuration: Configuration, diagnostics: IDiagnosticsDataSource, languageManager: LanguageManager, themeManager: ThemeManager): Promise<void> => {
+export const startEditors = async (args: any, colors: Colors, configuration: Configuration, diagnostics: IDiagnosticsDataSource, languageManager: LanguageManager, pluginManager: PluginManager, themeManager: ThemeManager, workspace: Workspace): Promise<void> => {
 
-    if (configuration.getValue("experimental.sidebar.enabled")) {
-        const leftDock = windowManager.getDock(2)
-        leftDock.addSplit(new SidebarSplit(colors))
-        leftDock.addSplit(new ExplorerSplit(configuration, workspace, commandManager, editorManager))
-    }
-
-    const editor = new NeovimEditor(colors, configuration, diagnostics, languageManager, themeManager)
+    const editor = new NeovimEditor(colors, configuration, diagnostics, languageManager, pluginManager, themeManager, workspace)
     editorManager.setActiveEditor(editor)
     windowManager.split(0, editor)
 

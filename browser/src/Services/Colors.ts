@@ -26,6 +26,11 @@ export const getInstance = (): Colors => {
     return _colors
 }
 
+export interface IColors extends OniApi.IColors {
+    onColorsChanged: IEvent<void>
+    getColors(): any
+}
+
 export class Colors implements OniApi.IColors, IDisposable {
 
     private _subscriptions: IDisposable[] = []

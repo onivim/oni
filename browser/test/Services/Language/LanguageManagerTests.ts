@@ -8,13 +8,11 @@ import * as sinon from "sinon"
 
 import { Event } from "oni-types"
 
-// import * as types from "vscode-languageserver-types"
-
 import { EditorManager } from "./../../../src/Services/EditorManager"
-
 import * as Language from "./../../../src/Services/Language"
 
 import * as Mocks from "./../../Mocks"
+import * as TestHelpers from "./../../TestHelpers"
 
 export class MockLanguageClient implements Language.ILanguageClient {
 
@@ -38,13 +36,11 @@ export class MockLanguageClient implements Language.ILanguageClient {
 }
 
 describe("LanguageManager", () => {
-    // const clock: any = global["clock"] // tslint:disable-line
-    const waitForPromiseResolution: any = global["waitForPromiseResolution"] // tslint:disable-line
-
     // Mocks
     let mockConfiguration: Mocks.MockConfiguration
     let mockEditor: Mocks.MockEditor
     let editorManager: EditorManager
+    let mockWorkspace: Mocks.MockWorkspace
 
     // Class under test
     let languageManager: Language.LanguageManager
@@ -53,13 +49,23 @@ describe("LanguageManager", () => {
         mockConfiguration = new Mocks.MockConfiguration({
             "editor.quickInfo.delay": 500,
             "editor.quickInfo.enabled": true,
+            "status.priority": {
+                "oni.status.workingDirectory": 0,
+                "oni.status.linenumber": 1,
+                "oni.status.mode": 0,
+                "oni.status.filetype": 1,
+                "oni.status.git": 2,
+            },
         })
 
         editorManager = new EditorManager()
         mockEditor = new Mocks.MockEditor()
         editorManager.setActiveEditor(mockEditor)
+        mockWorkspace = new Mocks.MockWorkspace()
 
-        languageManager = new Language.LanguageManager(mockConfiguration as any, editorManager)
+        const mockStatusBar = new Mocks.MockStatusBar()
+
+        languageManager = new Language.LanguageManager(mockConfiguration as any, editorManager, mockStatusBar, mockWorkspace)
     })
 
     it("sends didOpen request if language server is registered after enter event", async () => {
@@ -78,7 +84,7 @@ describe("LanguageManager", () => {
         languageManager.registerLanguageClient("javascript", mockLanguageClient)
 
         // Wait for any pending promises to drain
-        await waitForPromiseResolution()
+        await TestHelpers.waitForPromiseResolution()
 
         // Verify "sendNotification" was called
         assert.strictEqual(sendRequestSpy.callCount, 1)

@@ -6,14 +6,26 @@
  */
 
 import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
 
 import * as types from "vscode-languageserver-types"
 
+import { IBufferHighlightsUpdater } from "./../../src/Editor/BufferHighlights"
 import { Editor } from "./../../src/Editor/Editor"
+
 import * as Language from "./../../src/Services/Language"
 import { createCompletablePromise, ICompletablePromise } from "./../../src/Utility"
 
+import { HighlightInfo } from "./../../src/Services/SyntaxHighlighting"
+import { IWorkspace } from "./../../src/Services/Workspace"
+
 export class MockConfiguration {
+
+    private _currentConfigurationFiles: string[] = []
+
+    public get currentConfigurationFiles(): string[] {
+        return this._currentConfigurationFiles
+    }
 
     constructor(
         private _configurationValues: any = {},
@@ -25,6 +37,77 @@ export class MockConfiguration {
 
     public setValue(key: string, value: any): void {
         this._configurationValues[key] = value
+    }
+
+    public addConfigurationFile(filePath: string): void {
+        this._currentConfigurationFiles = [...this._currentConfigurationFiles, filePath]
+    }
+
+    public removeConfigurationFile(filePath: string): void {
+        this._currentConfigurationFiles = this._currentConfigurationFiles.filter((fp) => fp !== filePath)
+    }
+}
+
+export class MockWorkspace implements IWorkspace {
+    private _activeWorkspace: string = null
+    private _onDirectoryChangedEvent = new Event<string>()
+    private _onFocusGainedEvent = new Event<void>()
+    private _onFocusLostEvent = new Event<void>()
+
+    public get onDirectoryChanged(): IEvent<string> {
+        return this._onDirectoryChangedEvent
+    }
+
+    public get onFocusGained(): IEvent<void> {
+        return this._onFocusGainedEvent
+    }
+
+    public get onFocusLost(): IEvent<void> {
+        return this._onFocusLostEvent
+    }
+
+    public get activeWorkspace(): string {
+        return this._activeWorkspace
+    }
+
+    public changeDirectory(newDirectory: string): void {
+        // tslint:disable-line
+
+        this._activeWorkspace = newDirectory
+        this._onDirectoryChangedEvent.dispatch(newDirectory)
+    }
+
+    public async applyEdits(edits: types.WorkspaceEdit): Promise<void> {
+        return null
+    }
+}
+
+export class MockStatusBarItem implements Oni.StatusBarItem {
+
+    public show(): void {
+        // tslint:disable-line
+    }
+
+    public hide(): void {
+        // tslint:disable-line
+    }
+
+    public setContents(element: JSX.Element): void {
+        // tslint:disable-line
+    }
+
+    public dispose(): void {
+        // tslint:disable-line
+    }
+}
+
+export class MockStatusBar implements Oni.StatusBar {
+    public getItem(globalId: string): Oni.StatusBarItem {
+        return new MockStatusBarItem()
+    }
+
+    public createItem(alignment: number, globalId: string): Oni.StatusBarItem {
+        return new MockStatusBarItem()
     }
 }
 
@@ -67,6 +150,12 @@ export class MockEditor extends Editor {
 
 export class MockBuffer {
 
+    private _mockHighlights = new  MockBufferHighlightsUpdater()
+
+    public get id(): string {
+        return "1"
+    }
+
     public get language(): string {
         return this._language
     }
@@ -77,6 +166,10 @@ export class MockBuffer {
 
     public get lineCount(): number {
         return this._lines.length
+    }
+
+    public get mockHighlights(): MockBufferHighlightsUpdater {
+        return this._mockHighlights
     }
 
     public constructor(
@@ -105,6 +198,27 @@ export class MockBuffer {
         }
 
         return Promise.resolve(this._lines.slice(start, end))
+    }
+
+    public updateHighlights(updateFunction: (highlightUpdater: IBufferHighlightsUpdater) => void) {
+        updateFunction(this._mockHighlights)
+    }
+}
+
+export class MockBufferHighlightsUpdater implements IBufferHighlightsUpdater {
+
+    private _linesToHighlights: { [line: number]: HighlightInfo[] } = {}
+
+    public setHighlightsForLine(line: number, highlights: HighlightInfo[]): void {
+        this._linesToHighlights[line] = highlights
+    }
+
+    public clearHighlightsForLine(line: number): void {
+        this._linesToHighlights[line] = null
+    }
+
+    public getHighlightsForLine(line: number): HighlightInfo[] {
+        return this._linesToHighlights[line] || []
     }
 }
 
