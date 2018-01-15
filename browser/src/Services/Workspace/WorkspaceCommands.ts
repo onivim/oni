@@ -5,15 +5,16 @@
  */
 import { remote } from "electron"
 
-import { Configuration } from "./Configuration"
-import { workspace } from "./Workspace"
-import { CallbackCommand, commandManager } from "./CommandManager"
-import { EditorManager } from "./EditorManager"
-import * as FileMappings from "./FileMappings"
+import { CallbackCommand, commandManager } from "./../CommandManager"
+import { Configuration } from "./../Configuration"
+import { EditorManager } from "./../EditorManager"
+import * as FileMappings from "./../FileMappings"
 
-export const activateCommands = (configuration: Configuration, editorManager: EditorManager) => {
+import { Workspace } from "./Workspace"
+
+export const activateCommands = (configuration: Configuration, editorManager: EditorManager, workspace: Workspace) => {
     const openFolder = () => {
-        
+
         const dialogOptions: any = {
             title: "Open Folder",
             properties: ["openDirectory"],
@@ -43,7 +44,9 @@ export const activateCommands = (configuration: Configuration, editorManager: Ed
             return
         }
 
-        const mappedFile = FileMappings.getMappedFile(workspace)
+        const mappedFile = FileMappings.getMappedFile(workspace.activeWorkspace, currentBufferPath, mappings)
+
+        editorManager.activeEditor.openFile(mappedFile)
 
         // TODO: Get current workspace directory and map to it
         // WAITING on configuration work
@@ -51,9 +54,10 @@ export const activateCommands = (configuration: Configuration, editorManager: Ed
     }
 
     const commands = [
-        new CallbackCommand("workspace.openFolder", "Open Folder", "Set a folder as the working directory for Oni", () => openFolder()),
+        new CallbackCommand("workspace.openFolder", "Workspace: Open Folder", "Set a folder as the working directory for Oni", () => openFolder()),
+        new CallbackCommand("workspace.openTestFile", "Workspace: Open Test File", "Open the test file corresponding to this source file.", () => openTestFileInSplit()),
     ]
 
     commands.forEach((c) => commandManager.registerCommand(c))
-    
+
 }

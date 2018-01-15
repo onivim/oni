@@ -1,12 +1,10 @@
 import * as assert from "assert"
-// import * as fs from "fs"
 
 import * as path from "path"
 
-const MemoryFileSystem = require("memory-fs")
+const MemoryFileSystem = require("memory-fs") // tslint:disable-line
 
 import * as FileMappings from "./../../src/Services/FileMappings"
-// import * as TestHelpers from "./../TestHelpers"
 
 describe("FileMappings", () => {
 
@@ -35,7 +33,7 @@ describe("FileMappings", () => {
                 sourceFolder: "browser/src",
 
                 mappedFolder: "browser/test",
-                mappedFileName: "${fileName}Test.${ext}",
+                mappedFileName: "${fileName}Test.${ext}", // tslint:disable-line
             }
 
             const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping, fileSystem)

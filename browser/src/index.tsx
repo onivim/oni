@@ -68,10 +68,6 @@ const start = async (args: string[]): Promise<void> => {
     configuration.onConfigurationChanged.subscribe(configChange)
     Performance.endMeasure("Oni.Start.Config")
 
-    const Workspace = await workspacePromise
-    Workspace.activate(configuration)
-    const workspace = Workspace.getInstance()
-
     const PluginManager = await pluginManagerPromise
     PluginManager.activate(configuration)
     const pluginManager = PluginManager.getInstance()
@@ -97,6 +93,10 @@ const start = async (args: string[]): Promise<void> => {
     BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
 
     const { editorManager } = await editorManagerPromise
+
+    const Workspace = await workspacePromise
+    Workspace.activate(configuration, editorManager)
+    const workspace = Workspace.getInstance()
 
     const StatusBar = await statusBarPromise
     StatusBar.activate(configuration)
