@@ -15,6 +15,9 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     echo "Checking go path..."
     which go
 
+    echo "Checking go directory..."
+    ls -a ~/go
+
     echo "Checking go-langserver path..."
     which go-langserver
 fi
