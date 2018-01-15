@@ -20,6 +20,7 @@ const CiTests = [
     "QuickOpenTest",
     "StatusBar-Mode",
     "NoInstalledNeovim",
+    "TextmateHighlighting.ScopesOnEnterTest",
 ]
 
 const WindowsOnlyTests = [
