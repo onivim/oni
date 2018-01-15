@@ -6,6 +6,7 @@
  */
 
 import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
 
 import * as types from "vscode-languageserver-types"
 
@@ -16,8 +17,15 @@ import * as Language from "./../../src/Services/Language"
 import { createCompletablePromise, ICompletablePromise } from "./../../src/Utility"
 
 import { HighlightInfo } from "./../../src/Services/SyntaxHighlighting"
+import { IWorkspace } from "./../../src/Services/Workspace"
 
 export class MockConfiguration {
+
+    private _currentConfigurationFiles: string[] = []
+
+    public get currentConfigurationFiles(): string[] {
+        return this._currentConfigurationFiles
+    }
 
     constructor(
         private _configurationValues: any = {},
@@ -29,6 +37,48 @@ export class MockConfiguration {
 
     public setValue(key: string, value: any): void {
         this._configurationValues[key] = value
+    }
+
+    public addConfigurationFile(filePath: string): void {
+        this._currentConfigurationFiles = [...this._currentConfigurationFiles, filePath]
+    }
+
+    public removeConfigurationFile(filePath: string): void {
+        this._currentConfigurationFiles = this._currentConfigurationFiles.filter((fp) => fp !== filePath)
+    }
+}
+
+export class MockWorkspace implements IWorkspace {
+    private _activeWorkspace: string = null
+    private _onDirectoryChangedEvent = new Event<string>()
+    private _onFocusGainedEvent = new Event<void>()
+    private _onFocusLostEvent = new Event<void>()
+
+    public get onDirectoryChanged(): IEvent<string> {
+        return this._onDirectoryChangedEvent
+    }
+
+    public get onFocusGained(): IEvent<void> {
+        return this._onFocusGainedEvent
+    }
+
+    public get onFocusLost(): IEvent<void> {
+        return this._onFocusLostEvent
+    }
+
+    public get activeWorkspace(): string {
+        return this._activeWorkspace
+    }
+
+    public changeDirectory(newDirectory: string): void {
+        // tslint:disable-line
+
+        this._activeWorkspace = newDirectory
+        this._onDirectoryChangedEvent.dispatch(newDirectory)
+    }
+
+    public async applyEdits(edits: types.WorkspaceEdit): Promise<void> {
+        return null
     }
 }
 

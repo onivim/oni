@@ -20,6 +20,7 @@ const CiTests = [
     "QuickOpenTest",
     "StatusBar-Mode",
     "NoInstalledNeovim",
+    "Regression.1251.NoAdditionalProcessesOnStartup",
     "TextmateHighlighting.ScopesOnEnterTest",
 ]
 

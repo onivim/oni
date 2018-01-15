@@ -158,26 +158,40 @@ const getTabName = (name: string): string => {
 import { createSelector } from "reselect"
 
 const getTabState = (state: State.IState) => state.tabState
-const getHighlightColor = (state: State.IState) => {
+
+const sanitizedModeForColors = (mode: string): string => {
+    if (mode === "showmatch") {
+        return "insert"
+    }
+
+    return mode
+}
+
+export const getHighlightColor = (state: State.IState) => {
     if (!state.configuration["tabs.highlight"] || !state.hasFocus) {
         return "transparent"
     }
 
-    const colorForMode = "highlight.mode." + state.mode + ".background"
+    const sanitizedMode = sanitizedModeForColors(state.mode)
+    const colorForMode = "highlight.mode." + sanitizedMode + ".background"
     const color = state.colors[colorForMode]
     return color || "transparent"
 }
 
+export const shouldShowFileIcon = (state: State.IState): boolean => {
+    return state.configuration["tabs.showFileIcon"]
+}
+
 const getTabsFromBuffers = createSelector(
-    [BufferSelectors.getBufferMetadata, BufferSelectors.getActiveBufferId, getHighlightColor],
-    (allBuffers: any, activeBufferId: any, color: string) => {
+    [BufferSelectors.getBufferMetadata, BufferSelectors.getActiveBufferId, getHighlightColor, shouldShowFileIcon],
+    (allBuffers: any, activeBufferId: any, color: string, showFileIcon: boolean) => {
         const bufferCount = allBuffers.length
         const tabs = allBuffers.map((buf: any): ITabProps => {
             const isActive = (activeBufferId !== null && buf.id === activeBufferId) || bufferCount === 1
             return {
                 id: buf.id,
                 name: getTabName(buf.file),
-                iconFileName: getTabName(buf.file),
+                iconFileName: showFileIcon ? getTabName(buf.file) : "",
                 highlightColor: isActive ? color : "transparent",
                 isSelected: isActive,
                 isDirty: buf.modified,
@@ -188,13 +202,13 @@ const getTabsFromBuffers = createSelector(
     })
 
 const getTabsFromVimTabs = createSelector(
-    [getTabState, getHighlightColor],
-    (tabState: any, color: any) => {
+    [getTabState, getHighlightColor, shouldShowFileIcon],
+    (tabState: any, color: any, showFileIcon: boolean) => {
         return tabState.tabs.map((t: any) => ({
             id: t.id,
             name: getTabName(t.name),
             highlightColor: t.id === tabState.selectedTabId ? color : "transparent",
-            iconFileName: "",
+            iconFileName: showFileIcon ? getTabName(t.name) : "",
             isSelected: t.id === tabState.selectedTabId,
             isDirty: false,
             description: t.name,
