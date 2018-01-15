@@ -16,18 +16,33 @@ import * as types from "vscode-languageserver-types"
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
-import * as Log from "./../Log"
-import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
+import * as Log from "./../../Log"
+import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import { editorManager } from "./EditorManager"
-import { convertTextDocumentEditsToFileMap } from "./Language/Edits"
+import { Configuration } from "./../Configuration"
+import { editorManager } from "./../EditorManager"
+import { convertTextDocumentEditsToFileMap } from "./../Language/Edits"
 
-export class Workspace implements Oni.Workspace {
+import { WorkspaceConfiguration } from "./WorkspaceConfiguration"
+
+// Candidate interface to promote to Oni API
+export interface IWorkspace extends Oni.Workspace {
+    activeWorkspace: string
+
+    applyEdits(edits: types.WorkspaceEdit): Promise<void>
+}
+
+export class Workspace implements IWorkspace {
     private _onDirectoryChangedEvent = new Event<string>()
     private _onFocusGainedEvent = new Event<Oni.Buffer>()
     private _onFocusLostEvent = new Event<Oni.Buffer>()
     private _mainWindow = remote.getCurrentWindow()
     private _lastActiveBuffer: Oni.Buffer
+    private _activeWorkspace: string
+
+    public get activeWorkspace(): string {
+        return this._activeWorkspace
+    }
 
     constructor() {
         this._mainWindow.on("focus", () => {
@@ -46,6 +61,7 @@ export class Workspace implements Oni.Workspace {
 
     public changeDirectory(newDirectory: string) {
         process.chdir(newDirectory)
+        this._activeWorkspace = newDirectory
         this._onDirectoryChangedEvent.dispatch(newDirectory)
     }
 
@@ -92,4 +108,19 @@ export class Workspace implements Oni.Workspace {
     }
 }
 
-export const workspace = new Workspace()
+let _workspace: Workspace = null
+let _workspaceConfiguration: WorkspaceConfiguration = null
+
+export const activate = (configuration: Configuration): void => {
+    _workspace = new Workspace()
+
+    _workspaceConfiguration = new WorkspaceConfiguration(configuration, _workspace)
+}
+
+export const getInstance = (): Workspace => {
+    return _workspace
+}
+
+export const getConfigurationInstance = (): WorkspaceConfiguration => {
+    return _workspaceConfiguration
+}
