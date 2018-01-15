@@ -153,7 +153,7 @@ export function createWindow(
         })
     })
 
-    ipcMain.on("Oni.started", (evt) => {
+    ipcMain.once("Oni.started", (evt) => {
         Log.info("Oni started")
 
         if (delayedEvent) {
