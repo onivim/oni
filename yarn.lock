@@ -52,6 +52,18 @@
   dependencies:
     "@types/node" "*"
 
+"@types/events@*":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/events/-/events-1.1.0.tgz#93b1be91f63c184450385272c47b6496fd028e02"
+
+"@types/glob@*":
+  version "5.0.34"
+  resolved "https://registry.yarnpkg.com/@types/glob/-/glob-5.0.34.tgz#ee626c9be3da877d717911c6101eee0a9871bbf4"
+  dependencies:
+    "@types/events" "*"
+    "@types/minimatch" "*"
+    "@types/node" "*"
+
 "@types/jsdom@11.0.0":
   version "11.0.0"
   resolved "https://registry.yarnpkg.com/@types/jsdom/-/jsdom-11.0.0.tgz#7ce7deaa1843601ed043f51a0de84fb940574184"
@@ -67,6 +79,16 @@
 "@types/lolex@2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@types/lolex/-/lolex-2.1.0.tgz#7a53611a6c970574173a7d92ce9a0da000652725"
+
+"@types/memory-fs@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@types/memory-fs/-/memory-fs-0.3.0.tgz#847596a94f9a9688a2e342f4017fcc0050e8e2da"
+  dependencies:
+    "@types/node" "*"
+
+"@types/minimatch@*":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
 
 "@types/minimatch@3.0.1":
   version "3.0.1"
@@ -129,6 +151,13 @@
   resolved "https://registry.yarnpkg.com/@types/redux-batched-subscribe/-/redux-batched-subscribe-0.1.2.tgz#a5f0e510b07b6e8f10fe781bd830fae4f9bcf648"
   dependencies:
     redux ">=1.0.0"
+
+"@types/shelljs@^0.7.7":
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/@types/shelljs/-/shelljs-0.7.7.tgz#1f7bfa28947661afea06365db9b1135bbc903ec4"
+  dependencies:
+    "@types/glob" "*"
+    "@types/node" "*"
 
 "@types/sinon@1.16.32":
   version "1.16.32"
@@ -3806,7 +3835,7 @@ mem@^1.1.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-memory-fs@^0.4.0, memory-fs@~0.4.1:
+memory-fs@^0.4.0, memory-fs@^0.4.1, memory-fs@~0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/memory-fs/-/memory-fs-0.4.1.tgz#3a9a20b8462523e447cfbc7e8bb80ed667bfc552"
   dependencies:
@@ -5028,6 +5057,12 @@ react-dom@16.0.0:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     prop-types "^15.6.0"
+
+react-electron-web-view@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/react-electron-web-view/-/react-electron-web-view-2.0.1.tgz#984b7bbbeb77e35bcca921dc50120fc8f2b0f27d"
+  dependencies:
+    lodash.camelcase "^4.3.0"
 
 react-hot-api@^0.4.5:
   version "0.4.7"

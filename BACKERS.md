@@ -32,6 +32,10 @@ Thanks you to all our backers for making Oni possible!
 
 - @TalAmuyal
 
+## Backers via PayPal
+
+- @mchalkley
+
 ## Backers via OpenCollective
 
 <a href="https://opencollective.com/oni#backers" target="_blank"><img src="https://opencollective.com/oni/backers.svg?width=890"></a>
