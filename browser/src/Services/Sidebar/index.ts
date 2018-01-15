@@ -2,7 +2,7 @@ import { commandManager } from "./../../Services/CommandManager"
 import { Configuration } from "./../../Services/Configuration"
 import { editorManager } from "./../../Services/EditorManager"
 import { windowManager } from "./../../Services/WindowManager"
-import { workspace } from "./../../Services/Workspace"
+import { Workspace } from "./../../Services/Workspace"
 
 import { ExplorerSplit } from "./../Explorer/ExplorerSplit"
 import { SidebarContentSplit } from "./SidebarContentSplit"
@@ -13,7 +13,7 @@ import { ItemWidget, LabelWidget, SidebarPane } from "./SidebarPane"
 
 let _sidebarManager: SidebarManager = null
 
-export const activate = (configuration: Configuration) => {
+export const activate = (configuration: Configuration, workspace: Workspace) => {
 
     _sidebarManager = new SidebarManager()
 

@@ -11,7 +11,7 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import { LanguageManager } from "./../../Services/Language"
 import { RenameView } from "./../../Services/Language/RenameView"
-import { workspace } from "./../../Services/Workspace"
+import { Workspace } from "./../../Services/Workspace"
 
 import { IToolTipsProvider } from "./ToolTipsProvider"
 
@@ -25,6 +25,7 @@ export class Rename {
         private _editor: Oni.Editor,
         private _languageManager: LanguageManager,
         private _toolTipsProvider: IToolTipsProvider,
+        private _workspace: Workspace,
     ) {}
 
     public isRenameActive(): boolean {
@@ -102,7 +103,7 @@ export class Rename {
             } catch (ex) { Log.debug(ex) }
 
         if (result) {
-            await workspace.applyEdits(result)
+            await this._workspace.applyEdits(result)
         }
     }
 }
