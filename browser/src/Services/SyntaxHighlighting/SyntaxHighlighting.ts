@@ -73,6 +73,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
                 language: evt.buffer.language,
                 bufferId: evt.buffer.id,
                 lines,
+                version: number,
             })
         }
     }

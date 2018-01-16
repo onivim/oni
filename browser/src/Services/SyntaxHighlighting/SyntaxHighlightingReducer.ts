@@ -37,6 +37,7 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
         bufferId: null,
         extension: null,
         language: null,
+        version: -1,
         topVisibleLine: -1,
         bottomVisibleLine: -1,
         activeInsertModeLine: -1,
@@ -53,6 +54,7 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
                 language: action.language,
                 extension: action.extension,
                 lines: linesReducer(state.lines, action),
+                version: action.version,
             }
         case "SYNTAX_UPDATE_BUFFER_VIEWPORT":
             return {

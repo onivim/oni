@@ -32,12 +32,18 @@ export interface ISyntaxHighlightLineInfo {
     dirty: boolean,
 }
 
+export interface InsertModeState {
+    bufferId: string
+    lineInfo: ISyntaxHighlightLineInfo
+}
+
 export interface SyntaxHighlightLines {[key: number]: ISyntaxHighlightLineInfo}
 
 export interface IBufferSyntaxHighlightState {
     bufferId: string
     language: string
     extension: string
+    version: number
 
     // This doesn't work quite right if we have a buffer open in a separate window...
     topVisibleLine: number
@@ -68,6 +74,13 @@ export type ISyntaxHighlightAction = {
     extension: string,
     bufferId: string,
     lines: string[],
+    version: number,
+} | {
+        type: "SYNTAX_UPDATE_BUFFER_LINE",
+        bufferId: string,
+        lineNumber: number,
+        line: string,
+        version: number,
 } | {
         type: "SYNTAX_UPDATE_TOKENS_FOR_LINE",
         bufferId: string,
@@ -83,13 +96,63 @@ export type ISyntaxHighlightAction = {
 
 const grammarLoader = new GrammarLoader()
 
+// Middleware that handles insert-mode updates
+// For insert-mode updates, we'll resolve them immediately and apply them ephemerally
+const updateBufferLineMiddleware = (store: any) => (next: any) => (action: ISyntaxHighlightAction) => {
+
+    const result: ISyntaxHighlightAction = next(action)
+
+    if (action.type === "SYNTAX_UPDATE_BUFFER_LINE") {
+        const state: ISyntaxHighlightState = store.getState()
+        const bufferId = action.bufferId
+
+        if (!state.bufferToHighlights[bufferId]) {
+            return result
+        }
+
+        const buffer = state.bufferToHighlights[bufferId]
+
+        const language = buffer.language
+        const extension = buffer.extension
+
+        if (!language || !extension) {
+            return result
+        }
+
+        if (buffer.version > action.version) {
+            return result
+        }
+
+        grammarLoader.getGrammarForLanguage(language, extension)
+        .then((grammar) => {
+            if (!grammar) {
+                return
+            }
+
+            // We'll resolve the tokens for 
+            const previousRuleStack = action.lineNumber === 0 ? null : buffer.lines[action.lineNumber - 1].ruleStack
+            const tokenizeResult = grammar.tokenizeLine(action.line, previousRuleStack)
+
+            const tokens = tokenizeResult.tokens.map((t: any) => ({
+                range: types.Range.create(action.lineNumber, t.startIndex, action.lineNumber, t.endIndex),
+                scopes: t.scopes,
+            }))
+
+            console.log("Insert mode update: " + tokens + " | ")
+        })
+
+    }
+
+    return result
+}
+
 const updateTokenMiddleware = (store: any) => (next: any) => (action: any) => {
     const result: ISyntaxHighlightAction = next(action)
 
     if (action.type === "SYNTAX_UPDATE_BUFFER"
         || action.type === "SYNTAX_UPDATE_BUFFER_VIEWPORT") {
 
-            const state = store.getState()
+            const state: ISyntaxHighlightState = store.getState()
             const bufferId = action.bufferId
 
             const language = state.bufferToHighlights[bufferId].language
@@ -133,7 +196,7 @@ export const createSyntaxHighlightStore = (): Store<ISyntaxHighlightState> => {
         "SyntaxHighlighting",
         reducer,
         DefaultSyntaxHighlightState,
-        [updateTokenMiddleware],
+        [updateTokenMiddleware, updateBufferLineMiddleware],
     )
 
     return syntaxHighlightStore
