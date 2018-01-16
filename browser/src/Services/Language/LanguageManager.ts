@@ -22,6 +22,8 @@ import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientSt
 
 import { listenForWorkspaceEdits } from "./Workspace"
 
+import { IWorkspace } from "./../Workspace"
+
 import * as Utility from "./../../Utility"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
@@ -43,6 +45,7 @@ export class LanguageManager {
         private _configuration: Oni.Configuration,
         private _editorManager: Oni.EditorManager,
         private _statusBar: Oni.StatusBar,
+        private _workspace: IWorkspace,
     ) {
 
         this._languageClientStatusBar = new LanguageClientStatusBar(this._statusBar)
@@ -125,7 +128,7 @@ export class LanguageManager {
             return null
         })
 
-        listenForWorkspaceEdits(this)
+        listenForWorkspaceEdits(this, this._workspace)
     }
 
     public getCapabilitiesForLanguage(language: string): Promise<IServerCapabilities> {
@@ -355,8 +358,8 @@ const logDebug = (args: any) => {
 
 let _languageManager: LanguageManager = null
 
-export const activate = (configuration: Oni.Configuration, editorManager: Oni.EditorManager, statusBar: Oni.StatusBar): void => {
-    _languageManager = new LanguageManager(configuration, editorManager, statusBar)
+export const activate = (configuration: Oni.Configuration, editorManager: Oni.EditorManager, statusBar: Oni.StatusBar, workspace: IWorkspace): void => {
+    _languageManager = new LanguageManager(configuration, editorManager, statusBar, workspace)
 }
 
 export const getInstance = (): LanguageManager => {

@@ -38,6 +38,7 @@ const start = async (args: string[]): Promise<void> => {
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
     const snippetPromise = import("./Services/Snippets")
+    const workspacePromise = import("./Services/Workspace")
     const cssPromise = import("./CSS")
 
     // Helper for debugging:
@@ -67,6 +68,10 @@ const start = async (args: string[]): Promise<void> => {
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
     Performance.endMeasure("Oni.Start.Config")
+
+    const Workspace = await workspacePromise
+    Workspace.activate(configuration)
+    const workspace = Workspace.getInstance()
 
     const PluginManager = await pluginManagerPromise
     PluginManager.activate(configuration)
@@ -99,7 +104,7 @@ const start = async (args: string[]): Promise<void> => {
     const statusBar = StatusBar.getInstance()
 
     const LanguageManager = await languageManagerPromise
-    LanguageManager.activate(configuration, editorManager, statusBar)
+    LanguageManager.activate(configuration, editorManager, statusBar, workspace)
     const languageManager = LanguageManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Editors")
@@ -117,14 +122,14 @@ const start = async (args: string[]): Promise<void> => {
    await Promise.race([Utility.delay(5000),
      Promise.all([
         SharedNeovimInstance.activate(configuration, pluginManager),
-        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance())
+        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance(), workspace)
     ])
    ])
     Performance.endMeasure("Oni.Start.Editors")
 
     Performance.startMeasure("Oni.Start.Sidebar")
     const Sidebar = await sidebarPromise
-    Sidebar.activate(configuration)
+    Sidebar.activate(configuration, workspace)
     Performance.endMeasure("Oni.Start.Sidebar")
 
 

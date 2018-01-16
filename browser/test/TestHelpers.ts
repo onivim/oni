@@ -22,3 +22,10 @@ export const waitForAllAsyncOperations = async (): Promise<void> => {
     await waitForPromiseResolution()
     runAllTimers()
 }
+
+import * as os from "os"
+
+export const getRootDirectory = (): string => {
+    const top = os.platform() === "win32" ? "C:/" : "/top"
+    return top
+}
