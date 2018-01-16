@@ -41,6 +41,8 @@ export class OniSnippet {
 
     private _parser: Snippets.SnippetParser = new Snippets.SnippetParser()
 
+    private _placeholderValues: { [index: number]: string } = { }
+
     constructor(
         private _textmateSnippet: Snippets.TextmateSnippet,
     ) {
@@ -48,17 +50,12 @@ export class OniSnippet {
     }
 
     public setPlaceholder(index: number, newValue: string): void {
-
-        const snip = this._parser.parse(newValue)
-        const placeholderToReplace = this._textmateSnippet.placeholders.filter((p) => p.index === index)
-
-        placeholderToReplace.forEach((rep) => {
-            this._textmateSnippet.replace(rep, snip.children)
-        })
+        this._placeholderValues[index] = newValue
     }
 
     public getPlaceholders(): OniSnippetPlaceholder[] {
-        const placeholders = this._textmateSnippet.placeholders
+        const snippet = this._getSnippetWithFilledPlaceholders()
+        const placeholders = snippet.placeholders
 
         const lines = this.getLines()
 
@@ -76,6 +73,23 @@ export class OniSnippet {
         return oniPlaceholders
     }
 
+    private _getSnippetWithFilledPlaceholders(): Snippets.TextmateSnippet {
+        const snippet = this._textmateSnippet.clone()
+
+        Object.keys(this._placeholderValues).forEach((key: string) => {
+            const val = this._placeholderValues[key]
+            const snip = this._parser.parse(val)
+
+            const placeholderToReplace = snippet.placeholders.filter((p) => p.index.toString() === key)
+
+            placeholderToReplace.forEach((rep) => {
+                snippet.replace(rep, snip.children)
+            })
+        })
+
+        return snippet
+    }
+
     public getLines(): string[] {
         const normalizedSnippetString = this._getNormalizedSnippet()
 
@@ -83,7 +97,7 @@ export class OniSnippet {
     }
 
     private _getNormalizedSnippet(): string {
-        const snippetString = this._textmateSnippet.toString()
+        const snippetString = this._getSnippetWithFilledPlaceholders().toString()
         const normalizedSnippetString = snippetString.replace("\r\n", "\n")
 
         return normalizedSnippetString
