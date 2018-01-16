@@ -73,12 +73,18 @@ const activate = Oni => {
           size: Oni.ui.iconSize.Default,
         });
 
+        // Ideas:
+        // heavy plus unicode - \u2795
+        // { style: { color: '#2dc937' } },
         const insertionsSpan = React.createElement(
           'span',
           null,
-          `+${insertions} `
+          `+${insertions}, `
         );
 
+        // Ideas:
+        // heavy minus unicode - \u2796
+        // { style: { color: '#cc3232' } },
         const deletionsSpan = React.createElement(
           'span',
           null,
