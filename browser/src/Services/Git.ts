@@ -12,12 +12,20 @@ interface IExecOptions {
 }
 
 export interface GitFunctions {
-    getGitSummary(): Promise<git.DiffResult>
+    getGitSummary(workspace: string): Promise<git.DiffResult | null>
     getBranch(path?: string): Promise<Error | string>
 }
 
-export async function getGitSummary(): Promise<git.DiffResult> {
-    const status = await git(process.cwd()).diffSummary()
+export async function getGitSummary(workspace: string): Promise<git.DiffResult | null> {
+    if (!workspace) {
+        return null
+    }
+    const project = await git(workspace)
+    const isRepo = await (project as any).checkIsRepo()
+    let status = null
+    if (isRepo) {
+        status = project.diffSummary()
+    }
     return status
 }
 

@@ -30,17 +30,13 @@ const activate = Oni => {
         const isDir = await pathIsDir(filePath);
         const dir = isDir ? filePath : path.dirname(filePath);
         let branchName;
-        let insertions;
-        let deletions;
-        let files;
+        let summary;
         try {
           branchName = await Oni.services.git.getBranch(dir);
           try {
-            ({
-              deletions = null,
-              insertions = null,
-              files = [],
-            } = await Oni.services.git.getGitSummary());
+            summary = await Oni.services.git.getGitSummary(
+              Oni.workspace.activeWorkspace
+            );
           } catch (e) {
             console.warn('[Oni.Git.Plugin]: Could not get Summary', e);
           }
@@ -73,23 +69,28 @@ const activate = Oni => {
           size: Oni.ui.iconSize.Default,
         });
 
-        // Ideas:
-        // heavy plus unicode - \u2795
-        // { style: { color: '#2dc937' } },
-        const insertionsSpan = React.createElement(
-          'span',
-          null,
-          `+${insertions}, `
-        );
+        let components = [];
+        if (summary && (summary.insertions || summary.deletions)) {
+          const { insertions, deletions, files } = summary;
+          // Ideas:
+          // heavy plus unicode - \u2795
+          // { style: { color: '#2dc937' } },
+          const insertionsSpan = React.createElement(
+            'span',
+            null,
+            `${insertions ? `+${insertions}, ` : ``} `
+          );
 
-        // Ideas:
-        // heavy minus unicode - \u2796
-        // { style: { color: '#cc3232' } },
-        const deletionsSpan = React.createElement(
-          'span',
-          null,
-          `-${deletions} `
-        );
+          // Ideas:
+          // heavy minus unicode - \u2796
+          // { style: { color: '#cc3232' } },
+          const deletionsSpan = React.createElement(
+            'span',
+            null,
+            `${deletions ? `-${deletions}` : ``} `
+          );
+          components = [...components, insertionsSpan, deletionsSpan];
+        }
 
         const branchContainer = React.createElement(
           'span',
@@ -100,7 +101,7 @@ const activate = Oni => {
         const branchNameContainer = React.createElement(
           'div',
           { width: '100%' },
-          [`${branchName} `, insertionsSpan, deletionsSpan]
+          [`${branchName} `, ...components]
         );
 
         const gitBranch = React.createElement(
@@ -125,6 +126,11 @@ const activate = Oni => {
     Oni.editors.activeEditor.onBufferEnter.subscribe(
       async evt => await updateBranchIndicator(evt)
     );
+
+    Oni.editors.activeEditor.onBufferSaved.subscribe(
+      async evt => await updateBranchIndicator(evt)
+    );
+
     Oni.workspace.onFocusGained.subscribe(
       async buffer => await updateBranchIndicator(buffer)
     );
