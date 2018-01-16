@@ -1,14 +1,6 @@
 import * as assert from "assert"
 
-import * as Snippets from "vscode-snippet-parser/lib"
-
 import { getLineCharacterFromOffset, OniSnippet } from "./../../../src/Services/Snippets/OniSnippet"
-
-const getTextmateSnippetFromString = (snippetString: string): Snippets.TextmateSnippet => {
-    const parser = new Snippets.SnippetParser()
-    const snippet = parser.parse(snippetString)
-    return snippet
-}
 
 describe("getLineCharacterFromOffset", () => {
     it("handles single line case", () => {
@@ -31,8 +23,7 @@ describe("getLineCharacterFromOffset", () => {
 describe("OniSnippet", () => {
     describe("getLines", () => {
         it("splits based on '\\n'", () => {
-            const tmSnippet = getTextmateSnippetFromString("foo\nbar")
-            const oniSnippet = new OniSnippet(tmSnippet)
+            const oniSnippet = new OniSnippet("foo\nbar")
 
             const lines = oniSnippet.getLines()
 
@@ -40,8 +31,7 @@ describe("OniSnippet", () => {
         })
 
         it("splits based on '\\r\\n'", () => {
-            const tmSnippet = getTextmateSnippetFromString("foo\r\nbar")
-            const oniSnippet = new OniSnippet(tmSnippet)
+            const oniSnippet = new OniSnippet("foo\r\nbar")
 
             const lines = oniSnippet.getLines()
 
@@ -51,8 +41,7 @@ describe("OniSnippet", () => {
 
     describe("getPlaceholders", () => {
         it("gets single placeholder", () => {
-            const tmSnippet = getTextmateSnippetFromString("foo${1:index}") // tslint:disable-line
-            const oniSnippet = new OniSnippet(tmSnippet)
+            const oniSnippet = new OniSnippet("foo${1:index}")
 
             const placeholders = oniSnippet.getPlaceholders()
 
@@ -65,8 +54,7 @@ describe("OniSnippet", () => {
         })
 
         it("gets multiple placeholders on different lines", () => {
-            const tmSnippet = getTextmateSnippetFromString("foo${1:a}\nbar${2:b}") // tslint:disable-line
-            const oniSnippet = new OniSnippet(tmSnippet)
+            const oniSnippet = new OniSnippet("foo${1:a}\nbar${2:b}")
 
             const placeholders = oniSnippet.getPlaceholders()
 
@@ -88,8 +76,7 @@ describe("OniSnippet", () => {
 
     describe("setPlaceholder", () => {
         it("replaces placeholder in multiple positions", () => {
-            const tmSnippet = getTextmateSnippetFromString("${1}${1}${1}") // tslint:disable-line
-            const oniSnippet = new OniSnippet(tmSnippet)
+            const oniSnippet = new OniSnippet("${1}${1}${1}")
 
             oniSnippet.setPlaceholder(1, "test")
 

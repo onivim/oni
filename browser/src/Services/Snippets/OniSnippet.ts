@@ -38,13 +38,11 @@ export const getLineCharacterFromOffset = (offset: number, lines: string[]): { l
 }
 
 export class OniSnippet {
-
     private _parser: Snippets.SnippetParser = new Snippets.SnippetParser()
-
     private _placeholderValues: { [index: number]: string } = { }
 
     constructor(
-        private _textmateSnippet: Snippets.TextmateSnippet,
+        private _snippetString: string
     ) {
 
     }
@@ -60,7 +58,7 @@ export class OniSnippet {
         const lines = this.getLines()
 
         const oniPlaceholders = placeholders.map((p) => {
-            const offset = this._textmateSnippet.offset(p)
+            const offset = snippet.offset(p)
             const position = getLineCharacterFromOffset(offset, lines)
 
             return {
@@ -74,7 +72,7 @@ export class OniSnippet {
     }
 
     private _getSnippetWithFilledPlaceholders(): Snippets.TextmateSnippet {
-        const snippet = this._textmateSnippet.clone()
+        const snippet = this._parser.parse(this._snippetString)
 
         Object.keys(this._placeholderValues).forEach((key: string) => {
             const val = this._placeholderValues[key]
