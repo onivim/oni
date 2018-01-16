@@ -30,7 +30,7 @@ export class CodeActionHover extends React.PureComponent<{}, {}> {
         </div>
         <div className="container full quickinfo">
             <div className="title">Refactorings available</div>
-            <QuickInfoDocumentation>Press alt-enter to expand</QuickInfoDocumentation>
+            <QuickInfoDocumentation text="Press alt-enter to expand" />
         </div>
         </div>
     }

@@ -125,7 +125,7 @@ export const ContextMenuDocumentation = (props: IContextMenuDocumentationProps) 
         return null
     }
 
-    return <QuickInfoDocumentation>{documentation}</QuickInfoDocumentation>
+    return <QuickInfoDocumentation text={documentation} />
 }
 
 const EmptyArray: any[] = []
