@@ -22,6 +22,7 @@ import * as State from "./ShellState"
 
 import { focusManager } from "./../../Services/FocusManager"
 import { windowManager } from "./../../Services/WindowManager"
+import { Colors } from "./../../Services/Colors"
 
 import { createStore } from "./../../Redux"
 
@@ -42,6 +43,16 @@ browserWindow.on("leave-full-screen", () => {
 
 export const activate = (): void => {
     render(defaultState)
+}
+
+export const initializeColors = (colors: Colors): void => {
+    const setColors = () => Actions.setColors(colors.getColors() as any)
+
+    colors.onColorsChanged.subscribe(() => {
+        setColors()
+    })
+
+    setColors()
 }
 
 const ShellContainer = connect((state: State.IState) => ({

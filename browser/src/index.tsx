@@ -90,7 +90,7 @@ const start = async (args: string[]): Promise<void> => {
 
     const Colors = await colorsPromise
     Colors.activate(configuration, Themes.getThemeManagerInstance())
-    Shell.Actions.setColors(Themes.getThemeManagerInstance().getColors())
+    Shell.initializeColors(Colors.getInstance())
     Performance.endMeasure("Oni.Start.Themes")
 
     const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
