@@ -20,9 +20,9 @@ import * as ActionCreators from "./ShellActionCreators"
 import { reducer } from "./ShellReducer"
 import * as State from "./ShellState"
 
+import { Colors } from "./../../Services/Colors"
 import { focusManager } from "./../../Services/FocusManager"
 import { windowManager } from "./../../Services/WindowManager"
-import { Colors } from "./../../Services/Colors"
 
 import { createStore } from "./../../Redux"
 
