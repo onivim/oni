@@ -80,4 +80,13 @@ Thanks you to all our backers for making Oni possible!
 - Martijn Arts
 - Amadeus Folego
 
-<a href="https://opencollective.com/oni#backers" target="_blank"><img src="https://opencollective.com/oni/backers.svg?width=890"></a>
+<a href="https://opencollective.com/oni/tiers/backer/0/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/0/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/backer/1/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/1/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/backer/2/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/2/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/backer/3/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/3/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/backer/4/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/4/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/backer/5/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/5/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/backer/6/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/6/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/backer/7/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/7/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/backer/8/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/8/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/backer/9/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/9/avatar.png"></a>
