@@ -8,8 +8,8 @@ import { shell } from "electron"
 import * as React from "react"
 import styled from "styled-components"
 
-import { Event, IDisposable, IEvent } from "oni-types"
 import * as Oni from "oni-api"
+import { Event, IDisposable, IEvent } from "oni-types"
 
 const WebView = require("react-electron-web-view") // tslint:disable-line
 
@@ -98,7 +98,7 @@ export class BrowserLayer implements Oni.EditorLayer {
     }
 
     public render(): JSX.Element {
-        return <BrowserView 
+        return <BrowserView
                     url={this._url}
                     icons={this._icons}
                     goBack={this._goBackEvent}
@@ -133,7 +133,6 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
 
     private _webviewElement: any
     private _disposables: IDisposable[] = []
-
 
     public componentDidMount(): void {
         const d1 = this.props.goBack.subscribe(() => this._goBack())
@@ -201,7 +200,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
 
     let count = 0
 
-    let activeLayers: {[bufferId: string]: BrowserLayer} = {}
+    const activeLayers: {[bufferId: string]: BrowserLayer} = {}
 
     const openUrl = async (url: string) => {
         if (oni.configuration.getValue("experimental.browser.enabled")) {
@@ -239,10 +238,10 @@ export const activate = (oni: Oni.Plugin.Api) => {
     })
 
     const executeCommandForLayer = (callback: (browserLayer: BrowserLayer) => void) => () => {
-       const activeBuffer = oni.editors.activeEditor.activeBuffer 
+       const activeBuffer = oni.editors.activeEditor.activeBuffer
 
        const browserLayer = activeLayers[activeBuffer.id]
-        if (browserLayer) {
+       if (browserLayer) {
             callback(browserLayer)
         }
     }
