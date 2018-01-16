@@ -12,6 +12,7 @@ import * as Oni from "oni-api"
 
 import { IState } from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
+import { ISetViewportAction, setViewport } from "./../../Editor/NeovimEditor/NeovimEditorActions"
 import { Arrow, ArrowDirection } from "./Arrow"
 
 export enum OpenDirection {
@@ -38,7 +39,17 @@ export interface ICursorPositionerViewProps extends ICursorPositionerProps {
     fontPixelWidth: number
 
     backgroundColor: string
-    sidebarEnabled: boolean
+}
+
+interface IConnectedProps extends ICursorPositionerViewProps {
+    setViewport: (
+        w: number,
+        h: number,
+        size: {
+            height: number,
+            width: number,
+        },
+    ) => ISetViewportAction,
 }
 
 export interface ICursorPositionerViewState {
@@ -69,19 +80,29 @@ const InitialState = {
 /**
  * Helper component to position an element relative to the current cursor position
  */
-export class CursorPositionerView extends React.PureComponent<ICursorPositionerViewProps, ICursorPositionerViewState> {
+export class CursorPositionerView extends React.PureComponent<IConnectedProps, ICursorPositionerViewState> {
 
     private _element: HTMLElement
     private _resizeObserver: any
     private _timeout: any
 
-    constructor(props: ICursorPositionerViewProps) {
+    constructor(props: IConnectedProps) {
         super(props)
 
         this.state = InitialState
     }
 
     public componentDidMount(): void {
+        const width = document.body.offsetWidth
+        const height = document.body.offsetHeight
+        const focusedEditor: HTMLElement = document.querySelector(".editor.focus")
+        const editorDimensions = {
+            width: focusedEditor.offsetWidth,
+            height: focusedEditor.offsetHeight,
+        }
+
+        this.props.setViewport(width, height, editorDimensions)
+
         if (this._element) {
             this._measureElement(this._element)
 
@@ -127,7 +148,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             top: adjustedY.toString() + "px",
             left: "0px",
             width: this.props.containerWidth.toString() + "px",
-            maxWidth: this.props.sidebarEnabled ? "calc(55vw - 255px)" : "55vw",
+            maxWidth: "55vw",
             visibility: this.state.isMeasured ? "visible" : "hidden", // Wait until we've measured the bounds to show..
         }
 
@@ -169,7 +190,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
                     direction={this.state.shouldOpenDownward
                         ? ArrowDirection.Up
                         : ArrowDirection.Down}
-                    size={5}
+                    size={10}
                     color={this.props.beakColor}
                 />
             </div>
@@ -228,24 +249,19 @@ const mapStateToProps = (state: IState, props?: ICursorPositionerProps): ICursor
     const lineHeight = state.fontPixelHeight
 
     const backgroundColor = state.colors["editor.background"]
-    const sidebarEnabled = state.configuration["experimental.sidebar.enabled"]
 
     const beakColor = (props && props.beakColor) ? props.beakColor : backgroundColor
-    const adjustForSideBar = (num: number) => sidebarEnabled
-        ?  Math.abs(num - 255)
-        : num
 
     return {
-        sidebarEnabled,
         beakColor,
         fontPixelWidth: state.fontPixelWidth,
         x: x - (state.fontPixelWidth / 2),
         y: y - (state.fontPixelHeight),
-        containerWidth: adjustForSideBar(state.viewport.width),
+        containerWidth: state.viewport.focusedEditor.width,
         containerHeight: state.viewport.height,
         lineHeight,
         backgroundColor,
     }
 }
 
-export const CursorPositioner = connect(mapStateToProps)(CursorPositionerView)
+export const CursorPositioner = connect(mapStateToProps, { setViewport })(CursorPositionerView)

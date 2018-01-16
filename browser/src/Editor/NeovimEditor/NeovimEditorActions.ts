@@ -55,8 +55,8 @@ export interface ISetViewportAction {
         width: number,
         height: number,
         focusedEditor: {
-            width?: number,
-            height?: number,
+            width: number,
+            height: number,
         },
     }
 }
@@ -401,7 +401,7 @@ export const setNeovimError = (neovimError: boolean) => ({
 export const setViewport = (
     width: number,
     height: number,
-    focusedEditor: { width?: number, height?: number },
+    focusedEditor: { width: number, height: number },
 ) => ({
     type: "SET_VIEWPORT",
     payload: {

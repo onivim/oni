@@ -29,6 +29,10 @@ import { reducer } from "./NeovimEditorReducer"
 export interface IViewport {
     width: number
     height: number
+    focusedEditor: {
+        width: number,
+        height: number,
+    }
 }
 
 export interface IToolTip {
@@ -208,6 +212,10 @@ export const createDefaultState = (): IState => ({
     viewport: {
         width: 0,
         height: 0,
+        focusedEditor: {
+            width: 0,
+            height: 0,
+        },
     },
 
     errors: {},

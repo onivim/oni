@@ -194,10 +194,11 @@ export class NeovimEditor extends Editor implements IEditor {
             const width = document.body.offsetWidth
             const height = document.body.offsetHeight
             const focusedEditor: HTMLElement = document.querySelector(".editor.focus")
-            const editorDimensions: { width?: number, height?: number } = {
-                width: null,
-                height: null,
+            const editorDimensions = {
+                width: 0,
+                height: 0,
             }
+
             if (focusedEditor) {
                 editorDimensions.width = focusedEditor.offsetWidth
                 editorDimensions.height = focusedEditor.offsetHeight
