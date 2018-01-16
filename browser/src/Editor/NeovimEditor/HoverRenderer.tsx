@@ -12,7 +12,7 @@ import { QuickInfoDocumentation, QuickInfoTitle } from "./../../UI/components/Qu
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import { Colors } from "./../../Services/Colors"
+import { IColors } from "./../../Services/Colors"
 import { Configuration } from "./../../Services/Configuration"
 
 import * as Selectors from "./NeovimEditorSelectors"
@@ -23,7 +23,7 @@ const HoverToolTipId = "hover-tool-tip"
 export class HoverRenderer {
 
     constructor(
-        private _colors: Colors,
+        private _colors: IColors,
         private _editor: Oni.Editor,
         private _configuration: Configuration,
         private _toolTipsProvider: IToolTipsProvider,

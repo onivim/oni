@@ -214,10 +214,17 @@ export interface IConfigurationValues {
     // Maximum width of a tab
     "tabs.maxWidth": string
 
+    // Whether or not to show the index alongside the tab
+    "tabs.showIndex": boolean
+
     // Whether or not tabs should wrap.
     // If `false`, a scrollbar will be shown.
     // If `true`, will wrap the tabs.
     "tabs.wrap": boolean
+
+    // Whether or not the file icon
+    // should be shown in the tab
+    "tabs.showFileIcon": boolean
 
     "ui.animations.enabled": boolean
     "ui.iconTheme": string
