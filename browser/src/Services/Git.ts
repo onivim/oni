@@ -11,7 +11,12 @@ interface IExecOptions {
     cwd?: string
 }
 
-export async function getGitSummary() {
+export interface GitFunctions {
+    getGitSummary(): Promise<git.DiffResult>
+    getBranch(path?: string): Promise<Error | string>
+}
+
+export async function getGitSummary(): Promise<git.DiffResult> {
     const status = await git(process.cwd()).diffSummary()
     return status
 }
