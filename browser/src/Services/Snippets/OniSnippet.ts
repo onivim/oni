@@ -48,7 +48,7 @@ export class OniSnippet {
     }
 
     public setPlaceholder(index: number, newValue: string): void {
-    
+
         const snip = this._parser.parse(newValue)
         const placeholderToReplace = this._textmateSnippet.placeholders.filter((p) => p.index === index)
 
