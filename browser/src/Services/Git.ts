@@ -5,9 +5,15 @@
  */
 
 import { exec } from "child_process"
+import * as git from "simple-git/promise"
 
 interface IExecOptions {
     cwd?: string
+}
+
+export async function getGitSummary() {
+    const status = await git(process.cwd()).diffSummary()
+    return status
 }
 
 export function getBranch(path?: string): Promise<string> {

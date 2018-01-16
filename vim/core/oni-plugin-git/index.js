@@ -7,7 +7,6 @@ const activate = Oni => {
   const React = Oni.dependencies.React;
   let isLoaded = false;
   try {
-
     const pathIsDir = async p => {
       try {
         const stats = await fsStat(p);
@@ -22,7 +21,7 @@ const activate = Oni => {
         return;
       }
       const filePath = evt.filePath || evt.bufferFullPath;
-      const gitId = 'oni.status.git'
+      const gitId = 'oni.status.git';
       const gitBranchIndicator = Oni.statusBar.createItem(1, gitId);
 
       isLoaded = true;
@@ -31,8 +30,20 @@ const activate = Oni => {
         const isDir = await pathIsDir(filePath);
         const dir = isDir ? filePath : path.dirname(filePath);
         let branchName;
+        let insertions;
+        let deletions;
+        let files;
         try {
           branchName = await Oni.services.git.getBranch(dir);
+          try {
+            ({
+              deletions = null,
+              insertions = null,
+              files = [],
+            } = await Oni.services.git.getGitSummary());
+          } catch (e) {
+            console.warn('[Oni.Git.Plugin]: Could not get Summary', e);
+          }
         } catch (e) {
           gitBranchIndicator.hide();
           return;
@@ -54,7 +65,7 @@ const activate = Oni => {
             minWidth: '10px',
             textAlign: 'center',
             padding: '2px 4px 0 0',
-          }
+          },
         };
 
         const branchIcon = Oni.ui.createIcon({
@@ -62,25 +73,36 @@ const activate = Oni => {
           size: Oni.ui.iconSize.Default,
         });
 
+        const insertionsSpan = React.createElement(
+          'span',
+          null,
+          `+${insertions} `
+        );
+
+        const deletionsSpan = React.createElement(
+          'span',
+          null,
+          `-${deletions} `
+        );
+
         const branchContainer = React.createElement(
           'span',
           branchContainerProps,
-          branchIcon,
+          branchIcon
         );
 
         const branchNameContainer = React.createElement(
           'div',
-          { width: '100%'},
-          ' ' + branchName,
+          { width: '100%' },
+          [`${branchName} `, insertionsSpan, deletionsSpan]
         );
 
         const gitBranch = React.createElement(
           'div',
           props,
           branchContainer,
-          branchNameContainer,
+          branchNameContainer
         );
-
 
         gitBranchIndicator.setContents(gitBranch);
         gitBranchIndicator.show();
@@ -100,7 +122,6 @@ const activate = Oni => {
     Oni.workspace.onFocusGained.subscribe(
       async buffer => await updateBranchIndicator(buffer)
     );
-
   } catch (e) {
     console.warn('[Oni.plugin.git] ERROR', e);
   }

@@ -5818,6 +5818,12 @@ simple-get@^1.4.2:
     unzip-response "^1.0.0"
     xtend "^4.0.0"
 
+simple-git@^1.85.0:
+  version "1.85.0"
+  resolved "https://registry.yarnpkg.com/simple-git/-/simple-git-1.85.0.tgz#563ad291efc8a127735e8fbcd796967377614cd4"
+  dependencies:
+    debug "^3.1.0"
+
 simple-swizzle@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/simple-swizzle/-/simple-swizzle-0.2.2.tgz#a4da6b635ffcccca33f70d17cb92592de95e557a"
@@ -6650,13 +6656,6 @@ vscode-css-languageserver-bin@^1.2.1:
   dependencies:
     vscode-css-languageservice "^3.0.3"
     vscode-languageserver "^3.5.0"
-
-vscode-css-languageservice@^3.0.3:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-3.0.3.tgz#02cc4efa5335f5104e0a2f3b6920faaf59db4f7a"
-  dependencies:
-    vscode-languageserver-types "3.5.0"
-    vscode-nls "^2.0.1"
 
 vscode-css-languageservice@^3.0.3:
   version "3.0.3"
