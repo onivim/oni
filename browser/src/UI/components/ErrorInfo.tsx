@@ -1,7 +1,7 @@
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
-import { ErrorIcon } from "./Error"
+import { ErrorIcon } from "./Gutter"
 
 import { getColorFromSeverity } from "./../../Services/Errors"
 

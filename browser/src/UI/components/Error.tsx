@@ -11,8 +11,6 @@ import * as Oni from "oni-api"
 
 import { getColorFromSeverity } from "./../../Services/Errors"
 
-import { Icon } from "./../Icon"
-
 import { EmptyArray } from "./../../Utility"
 
 export interface IErrorsProps {
