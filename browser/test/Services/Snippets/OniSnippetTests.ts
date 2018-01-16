@@ -41,7 +41,7 @@ describe("OniSnippet", () => {
 
     describe("getPlaceholders", () => {
         it("gets single placeholder", () => {
-            const oniSnippet = new OniSnippet("foo${1:index}")
+            const oniSnippet = new OniSnippet("foo${1:index}") // tslint:disable-line
 
             const placeholders = oniSnippet.getPlaceholders()
 
@@ -54,7 +54,7 @@ describe("OniSnippet", () => {
         })
 
         it("gets multiple placeholders on different lines", () => {
-            const oniSnippet = new OniSnippet("foo${1:a}\nbar${2:b}")
+            const oniSnippet = new OniSnippet("foo${1:a}\nbar${2:b}") // tslint:disable-line
 
             const placeholders = oniSnippet.getPlaceholders()
 
@@ -76,7 +76,7 @@ describe("OniSnippet", () => {
 
     describe("setPlaceholder", () => {
         it("replaces placeholder in multiple positions", () => {
-            const oniSnippet = new OniSnippet("${1}${1}${1}")
+            const oniSnippet = new OniSnippet("${1}${1}${1}") // tslint:disable-line
 
             oniSnippet.setPlaceholder(1, "test")
 

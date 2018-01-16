@@ -42,7 +42,7 @@ export class OniSnippet {
     private _placeholderValues: { [index: number]: string } = { }
 
     constructor(
-        private _snippetString: string
+        private _snippetString: string,
     ) {
 
     }
@@ -71,6 +71,12 @@ export class OniSnippet {
         return oniPlaceholders
     }
 
+    public getLines(): string[] {
+        const normalizedSnippetString = this._getNormalizedSnippet()
+
+        return normalizedSnippetString.split("\n")
+    }
+
     private _getSnippetWithFilledPlaceholders(): Snippets.TextmateSnippet {
         const snippet = this._parser.parse(this._snippetString)
 
@@ -86,12 +92,6 @@ export class OniSnippet {
         })
 
         return snippet
-    }
-
-    public getLines(): string[] {
-        const normalizedSnippetString = this._getNormalizedSnippet()
-
-        return normalizedSnippetString.split("\n")
     }
 
     private _getNormalizedSnippet(): string {
