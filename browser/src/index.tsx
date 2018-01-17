@@ -26,6 +26,7 @@ const start = async (args: string[]): Promise<void> => {
     const iconThemesPromise = import("./Services/IconThemes")
 
     const sidebarPromise = import("./Services/Sidebar")
+    const overlayPromise = import("./Services/Overlay")
     const statusBarPromise = import("./Services/StatusBar")
     const startEditorsPromise = import("./startEditors")
 
@@ -101,6 +102,9 @@ const start = async (args: string[]): Promise<void> => {
     const StatusBar = await statusBarPromise
     StatusBar.activate(configuration)
     const statusBar = StatusBar.getInstance()
+
+    const Overlay = await overlayPromise
+    Overlay.activate()
 
     const LanguageManager = await languageManagerPromise
     LanguageManager.activate(configuration, editorManager, statusBar, workspace)

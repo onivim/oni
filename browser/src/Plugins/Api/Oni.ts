@@ -23,6 +23,7 @@ import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
 import { menuManager } from "./../../Services/Menu"
+import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
 import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
@@ -104,6 +105,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     public get menu(): any /* TODO */ {
         return menuManager
+    }
+
+    public get overlay(): any /* TODO */ {
+        return getOverlayInstance()
     }
 
     public get process(): OniApi.Process {
