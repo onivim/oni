@@ -63,7 +63,7 @@ export class Configuration implements Oni.Configuration {
 
     constructor(
         private _defaultConfiguration: GenericConfigurationValues = DefaultConfiguration,
-        private _persistedConfiguration: IPersistedConfiguration = new PersistedConfiguration()
+        private _persistedConfiguration: IPersistedConfiguration = new PersistedConfiguration(),
     ) {
         this._updateConfig()
     }
@@ -171,7 +171,7 @@ export class Configuration implements Oni.Configuration {
         let currentConfig = {
             ...this._defaultConfiguration,
             ...this._persistedConfiguration.getPersistedValues(),
-            ...this._setValues
+            ...this._setValues,
         }
 
         this._configurationProviders.forEach((configProvider) => {

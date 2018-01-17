@@ -37,4 +37,4 @@ export class PersistedConfiguration implements IPersistedConfiguration {
 
         set(PersistedConfigurationKey, combinedValues)
     }
-} 
+}
