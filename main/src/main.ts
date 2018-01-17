@@ -64,7 +64,7 @@ ipcMain.on("focus-previous-instance", () => {
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let windows: BrowserWindow[] = []
-let mainWindow: BrowserWindow  = null
+let mainWindow: BrowserWindow = null
 
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
@@ -98,7 +98,16 @@ if (!isDevelopment && !isDebug) {
     })
 }
 
-export function createWindow(commandLineArguments, workingDirectory) {
+export interface IDelayedEvent {
+    evt: string
+    cmd: Array<string | string[]>
+}
+
+export function createWindow(
+    commandLineArguments,
+    workingDirectory,
+    delayedEvent: IDelayedEvent = null,
+) {
     Log.info(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
     const webPreferences = {
         blinkFeatures: "ResizeObserver,Accelerated2dCanvas,Canvas2dFixedRenderingMode",
@@ -144,6 +153,14 @@ export function createWindow(commandLineArguments, workingDirectory) {
         })
     })
 
+    ipcMain.once("Oni.started", (evt) => {
+        Log.info("Oni started")
+
+        if (delayedEvent) {
+            mainWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
+        }
+    })
+
     ipcMain.on("rebuild-menu", (_evt, loadInit) => {
         // ipcMain is a singleton so if there are multiple Oni instances
         // we may receive an event from a different instance
@@ -180,6 +197,8 @@ export function createWindow(commandLineArguments, workingDirectory) {
     })
 
     windows.push(mainWindow)
+
+    return mainWindow
 }
 
 app.on("open-file", (event, filePath) => {
@@ -205,14 +224,11 @@ app.on("window-all-closed", () => {
 app.on("activate", () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    const currentWindow: BrowserWindow = windows[windows.length - 1]
-
-    if (currentWindow) {
-        currentWindow.show()
-    }
-
-    if (windows.length === 0) {
+    if (!windows.length) {
         createWindow([], process.cwd())
+    }
+    if (mainWindow) {
+        mainWindow.show()
     }
 })
 
