@@ -233,6 +233,10 @@ export interface IConfigurationValues {
     "ui.fontSize": string
     "ui.fontSmoothing": FontSmoothingOptions
 
+    // Path to the default workspace. The default workspace
+    // will be opened if no workspace is specified in configuration.
+    "workspace.defaultWorkspace": string
+
     // Handle other, non-predefined configuration keys
     [configurationKey: string]: any
 }

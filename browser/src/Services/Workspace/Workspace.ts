@@ -115,6 +115,12 @@ export const activate = (configuration: Configuration): void => {
     _workspace = new Workspace()
 
     _workspaceConfiguration = new WorkspaceConfiguration(configuration, _workspace)
+
+    const defaultWorkspace = configuration.getValue("workspace.defaultWorkspace")
+
+    if (defaultWorkspace) {
+        _workspace.changeDirectory(defaultWorkspace)
+    }
 }
 
 export const getInstance = (): Workspace => {

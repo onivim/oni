@@ -209,6 +209,8 @@ const BaseConfiguration: IConfigurationValues = {
     "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
     "ui.fontSmoothing": "auto",
+
+    "workspace.defaultWorkspace": null,
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {
