@@ -131,7 +131,6 @@ const start = async (args: string[]): Promise<void> => {
     Sidebar.activate(configuration, workspace)
     Performance.endMeasure("Oni.Start.Sidebar")
 
-
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
     diagnostics.start(languageManager)
