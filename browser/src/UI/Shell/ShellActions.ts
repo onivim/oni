@@ -92,6 +92,8 @@ export type SimpleAction =
     IEnterFullScreenAction |
     ILeaveFullScreenAction |
     ISetColorsAction |
+    IOverlayShowAction |
+    IOverlayHideAction |
     IStatusBarHideAction |
     IStatusBarShowAction |
     ISetHasFocusAction |

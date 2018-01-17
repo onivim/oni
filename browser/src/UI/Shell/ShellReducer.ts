@@ -54,12 +54,35 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                     configuration: newConfig}
         default:
             return {...s,
+                    overlays: overlaysReducer(s.overlays, a),
                     statusBar: statusBarReducer(s.statusBar, a),
                     }
     }
 }
 
-export const statusBarReducer = (s: { [key: string]: State.IStatusBarItem }, a: Actions.SimpleAction) => {
+export const overlaysReducer = (s: State.Overlays, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "OVERLAY_SHOW":
+            return {
+                ...s,
+                [a.payload.id]: {
+                    id: a.payload.id,
+                    contents: a.payload.contents,
+                }
+            }
+        case "OVERLAY_HIDE":
+            const newState = {
+                ...s,
+            }
+
+            delete newState[a.payload.id]
+            return newState
+        default:
+            return s
+    }
+}
+
+export const statusBarReducer = (s: State.StatusBar, a: Actions.SimpleAction) => {
     switch (a.type) {
         case "STATUSBAR_SHOW":
             const existingItem = s[a.payload.id] || {}
