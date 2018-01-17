@@ -30,7 +30,6 @@ const start = async (args: string[]): Promise<void> => {
     const startEditorsPromise = import("./startEditors")
 
     const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
-    const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
     const browserWindowConfigurationSynchronizerPromise = import("./Services/BrowserWindowConfigurationSynchronizer")
     const colorsPromise = import("./Services/Colors")
     const diagnosticsPromise = import("./Services/Diagnostics")
@@ -144,8 +143,16 @@ const start = async (args: string[]): Promise<void> => {
 
     const { inputManager } = await inputManagerPromise
 
+    const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
+    const sneakPromise = import("./Services/Sneak")
+    const { commandManager } = await import("./Services/CommandManager")
+
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+
+    const Sneak = await sneakPromise
+    Sneak.activate(commandManager)
+
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()
