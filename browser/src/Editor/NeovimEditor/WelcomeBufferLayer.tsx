@@ -25,6 +25,9 @@ const Column = styled.div`
     justify-content: center;
     align-items: center;
     flex-direction: column;
+
+    width: 100%;
+    flex: 1 1 auto;
 `
 
 const Row = styled.div`
@@ -49,6 +52,13 @@ const HeroImage = styled.img`
     opacity: 0.25;
 `
 
+const SectionHeader = styled.div`
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: left;
+    width:100%;
+`
+
 
 export class WelcomeBufferLayer implements Oni.EditorLayer {
 
@@ -61,26 +71,32 @@ export class WelcomeBufferLayer implements Oni.EditorLayer {
     }
 
     public render(context: Oni.EditorLayerRenderContext): JSX.Element {
-        return <WelcomeWrapper>
+        return <WelcomeWrapper className="enable-mouse">
                 <Column>
-                    <Row>
-                        <Column>
+                    <Row style={{width: "100%"}}>
+                        <Column />
+                        <Column style={{alignItems: "flex-end"}}>
                             <TitleText>Oni</TitleText>
                             <SubtitleText>Modern Modal Editing</SubtitleText>
                         </Column>
-                        <Column>
+                        <Column style={{alignItems: "flex-start"}}>
                             <HeroImage src="images/oni-icon-no-border.svg" />
                         </Column>
+                        <Column />
+                        <Column />
                     </Row>
-                    <Row>
+                    <Row style={{width: "100%", marginTop: "64px"}}>
+                        <Column />
                         <Column>
-                            <div>Recent</div>
-                            <div>Quick Commands</div>
+                            <SectionHeader>Recent</SectionHeader>
+                            <SectionHeader>Quick Commands</SectionHeader>
                         </Column>
+                        <Column />
                         <Column>
-                            <div>Learn</div>
-                            <div>Customize</div>
+                            <SectionHeader>Learn</SectionHeader>
+                            <SectionHeader>Customize</SectionHeader>
                         </Column>
+                        <Column />
                     </Row>
                 </Column>
             </WelcomeWrapper>

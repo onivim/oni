@@ -576,12 +576,12 @@ export class NeovimEditor extends Editor implements IEditor {
             await this._neovimInstance.command(":color " + this._themeManager.activeTheme.baseVimTheme)
         }
 
-        if (filesToOpen && filesToOpen.length > 0) {
-            await this._openFiles(filesToOpen, ":tabnew")
-        } else {
+        // if (filesToOpen && filesToOpen.length > 0) {
+        //     await this._openFiles(filesToOpen, ":tabnew")
+        // } else {
             const buf = await this.openFile("WELCOME.md")
             buf.addLayer(new WelcomeBufferLayer())
-        }
+        // }
 
         this._actions.setLoadingComplete()
 
