@@ -15,13 +15,12 @@ const codeBlockStyle = css`
     border-color: ${p => p.theme["toolTip.border"]};
     padding: 0.4em 0.4em 0.4em 0.4em;
     margin: 0.4em 0.4em 0.4em 0.4em;
-    overflow: hidden;
     /* necessary to prevent overflow */
     max-width: 55vw;
     max-height: 20vw;
 
-    &:hover {
-        overflow: overlay;
+    > code {
+        background-color: inherit;
     }
 `
 
@@ -35,6 +34,14 @@ const childStyles = css`
 
         pre {
             ${codeBlockStyle};
+        }
+
+    /* All code blocks are set to black but
+    this overriden for code block INSIDE a Pre element */
+
+        code {
+            background-color: black;
+            padding: 0 0.2rem;
         }
     }
 `
@@ -83,10 +90,11 @@ export const Title = withProps<{ padding?: string }>(styled.div)`
     }
 `
 
-export const QuickInfoContainer = styled.div`
+export const QuickInfoContainer = withProps<{ hasDocs: boolean }>(styled.div)`
   max-height: fit-content;
   overflow: hidden;
   width: 100%;
+  margin-bottom: ${p => p.hasDocs ? "1rem" : "0"};
 `
 
 export interface ITextProps {

@@ -168,7 +168,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
                     direction={this.state.shouldOpenDownward
                         ? ArrowDirection.Up
                         : ArrowDirection.Down}
-                    size={5}
+                    size={10}
                     color={this.props.beakColor}
                 />
             </div>
