@@ -222,4 +222,12 @@ describe("LanguageEditorIntegration", () => {
 
         assert.strictEqual(showDefinitionCount, 0, "Definition should not be shown")
     })
+
+    it("#1247 - shows definition, even if hover is not enabled", async () => {
+        assert.ok(false)
+    })
+
+    it("#1247 - doesn't show definition if 'editor.definition.enabled' is false", async () => {
+        assert.ok(false)
+    })
 })
