@@ -29,5 +29,13 @@ const enableMouse = css`
     pointer-events: auto;
 `
 
+export const Overlay = styled.div`
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+`
+
 export { css, injectGlobal, keyframes, styled, ThemeProvider, boxShadow, enableMouse }
 export default styled

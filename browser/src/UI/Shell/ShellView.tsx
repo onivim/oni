@@ -28,6 +28,8 @@ interface IShellViewComponentProps {
 
 const titleBarVisible = Platform.isMac()
 
+import { SneakView, TestSneaks } from "./../../Services/Sneak"
+
 export class ShellView extends React.PureComponent<IShellViewComponentProps, {}> {
 
     public render() {
@@ -46,6 +48,7 @@ export class ShellView extends React.PureComponent<IShellViewComponentProps, {}>
                                 <WindowSplits windowManager={this.props.windowManager} />
                             </div>
                             <div className="stack layer">
+                                <SneakView sneaks={TestSneaks}/>
                                 <MenuContainer />
                             </div>
                         </div>
