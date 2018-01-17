@@ -14,8 +14,9 @@ interface IToolTipProps {
     padding: string
     fontFamily: string
 }
-const darken = (c: string) => Color(c).darken(0.15).hex().toString()
 
+const darken = (c: string) => Color(c).darken(0.15).hex().toString()
+// TODO: reduce degree of darkening based on light or dark bg
 const ToolTipContainer = withProps<IToolTipProps>(styled.div)`
     border: ${p => `1px solid ${p.theme["toolTip.border"]}`};
     background-color: ${p => darken(p.theme["toolTip.background"])};
