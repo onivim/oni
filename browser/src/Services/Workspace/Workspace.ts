@@ -121,6 +121,10 @@ export const activate = (configuration: Configuration): void => {
     if (defaultWorkspace) {
         _workspace.changeDirectory(defaultWorkspace)
     }
+
+    _workspace.onDirectoryChanged.subscribe((newDirectory) => {
+        configuration.setValues({ "workspace.defaultWorkspace": newDirectory}, true)
+    })
 }
 
 export const getInstance = (): Workspace => {
