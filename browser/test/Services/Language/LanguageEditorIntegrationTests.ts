@@ -35,6 +35,7 @@ describe("LanguageEditorIntegration", () => {
 
     beforeEach(() => {
         mockConfiguration = new Mocks.MockConfiguration({
+            "editor.definition.enabled": true,
             "editor.quickInfo.delay": 500,
             "editor.quickInfo.enabled": true,
         })
@@ -224,10 +225,52 @@ describe("LanguageEditorIntegration", () => {
     })
 
     it("#1247 - shows definition, even if hover is not enabled", async () => {
-        assert.ok(false)
+        mockConfiguration.setValue("editor.quickInfo.enabled", false)
+
+        let showDefinitionCount = 0
+        languageEditorIntegration.onShowDefinition.subscribe(() => showDefinitionCount++)
+
+        mockEditor.simulateModeChange("normal")
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer())
+        mockEditor.simulateCursorMoved(1, 1)
+
+        clock.tick(501) // Account for the quickInfo.delay
+
+        assert.strictEqual(mockDefinitionRequestor.pendingCallCount, 1)
+
+        // Resolve the calls
+        mockDefinitionRequestor.resolve(createSuccessfulDefinitionResult())
+        mockHoverRequestor.resolve({} as any)
+
+        await waitForPromiseResolution()
+
+        clock.runAll()
+
+        assert.strictEqual(showDefinitionCount, 1, "Definition should be shown, even if 'editor.quickInfo.enabled' is false.")
     })
 
     it("#1247 - doesn't show definition if 'editor.definition.enabled' is false", async () => {
-        assert.ok(false)
+        mockConfiguration.setValue("editor.definition.enabled", false)
+
+        let showDefinitionCount = 0
+        languageEditorIntegration.onShowDefinition.subscribe(() => showDefinitionCount++)
+
+        mockEditor.simulateModeChange("normal")
+        mockEditor.simulateBufferEnter(new Mocks.MockBuffer())
+        mockEditor.simulateCursorMoved(1, 1)
+
+        clock.tick(501) // Account for the quickInfo.delay
+
+        assert.strictEqual(mockDefinitionRequestor.pendingCallCount, 1)
+
+        // Resolve the calls
+        mockDefinitionRequestor.resolve(createSuccessfulDefinitionResult())
+        mockHoverRequestor.resolve({} as any)
+
+        await waitForPromiseResolution()
+
+        clock.runAll()
+
+        assert.strictEqual(showDefinitionCount, 0, "Definition should not be shown, because 'editor.definition.enabled' is false.")
     })
 })
