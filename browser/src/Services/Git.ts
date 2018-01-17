@@ -5,6 +5,7 @@
  */
 
 import { exec } from "child_process"
+import * as path from "path"
 import * as git from "simple-git/promise"
 
 interface IExecOptions {
@@ -14,26 +15,35 @@ interface IExecOptions {
 export interface GitFunctions {
     getGitSummary(workspace: string): Promise<git.DiffResult | null>
     getBranch(path?: string): Promise<Error | string>
+    getRootDirectory(): Promise<string | null>
 }
 
-export async function getGitSummary(workspace: string): Promise<git.DiffResult | null> {
-    if (!workspace) {
+export async function getGitRoot(): Promise<string | null> {
+    try {
+        const rootDir = await (git() as any).revparse(["--show-toplevel"])
+        return path.join(__dirname, rootDir)
+    } catch (e) {
         return null
     }
-    const project = await git(workspace)
-    const isRepo = await (project as any).checkIsRepo()
+}
+
+export async function getGitSummary(currentDir: string): Promise<git.DiffResult | null> {
     let status = null
-    if (isRepo) {
-        status = project.diffSummary()
+    if (currentDir) {
+        const project = git(currentDir)
+        const isRepo = await (project as any).checkIsRepo()
+        if (isRepo) {
+            status = project.diffSummary()
+        }
     }
     return status
 }
 
-export function getBranch(path?: string): Promise<string> {
+export function getBranch(filePath?: string): Promise<string> {
     return new Promise((resolve, reject) => {
         const options: IExecOptions = {}
-        if (path) {
-            options.cwd = path
+        if (filePath) {
+            options.cwd = filePath
         }
 
         exec("git rev-parse --abbrev-ref HEAD", options, (error: any, stdout: string, stderr: string) => {

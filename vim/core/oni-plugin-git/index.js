@@ -34,9 +34,7 @@ const activate = Oni => {
         try {
           branchName = await Oni.services.git.getBranch(dir);
           try {
-            summary = await Oni.services.git.getGitSummary(
-              Oni.workspace.activeWorkspace
-            );
+            summary = await Oni.services.git.getGitSummary(dir);
           } catch (e) {
             console.warn('[Oni.Git.Plugin]: Could not get Summary', e);
           }
@@ -87,7 +85,7 @@ const activate = Oni => {
           const deletionsSpan = React.createElement(
             'span',
             null,
-            `${deletions ? `, -${deletions}` : ``} `
+            `${deletions ? `,-${deletions} ` : ``}`
           );
           components = [...components, insertionsSpan, deletionsSpan];
         }
