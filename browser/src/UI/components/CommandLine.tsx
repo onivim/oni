@@ -2,7 +2,7 @@ import * as React from "react"
 import { connect } from "react-redux"
 import styled from "styled-components"
 
-import { Icon, OcticonIcon } from "./../../UI/Icon"
+import { Icon } from "./../../UI/Icon"
 import { fadeInAndDown } from "./animations"
 import { boxShadow } from "./common"
 
@@ -47,10 +47,6 @@ const ArrowContainer = styled.span`
     margin-right: 0.6em;
 `
 
-const SelectorSpan = styled.span`
-    display: inline-flex;
-`
-
 export interface ICommandLineRendererProps {
     showIcons: boolean
     visible: boolean
@@ -66,32 +62,17 @@ interface State {
     waiting: boolean
 }
 
-interface ICommandlineIconProps {
-    name: any
-    arrow?: boolean
-    octicon?: boolean
-}
-
-const CommandLineIcon = ({ arrow, name, octicon }: ICommandlineIconProps) => {
-    switch (true) {
-        case arrow:
-            return (
-                <span>
-                    <ArrowContainer>
-                        <Icon name={name} />
-                    </ArrowContainer>
-                </span>
-            )
-        case octicon:
-            return (
-                <SelectorSpan>
-                    <OcticonIcon name={name} />
-                </SelectorSpan>
-            )
-        default:
-            return <Icon name={name} />
-    }
-}
+const CommandLineIcon = (props: { iconName: string; arrow?: boolean }) => (
+    <span>
+        {!props.arrow ? (
+            <Icon name={props.iconName} />
+        ) : (
+            <ArrowContainer>
+                <Icon name={props.iconName} />
+            </ArrowContainer>
+        )}
+    </span>
+)
 
 class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> {
     public state = {
@@ -121,13 +102,17 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
         switch (character) {
             case "/":
                 return [
-                    <CommandLineIcon name="search" key={`${character}-search`} />,
-                    <CommandLineIcon arrow name="arrow-right" key={`${character}-arrow-right`} />,
+                    <CommandLineIcon iconName="search" key={`${character}-search`} />,
+                    <CommandLineIcon
+                        arrow
+                        iconName="arrow-right"
+                        key={`${character}-arrow-right`}
+                    />,
                 ]
             case "?":
                 return [
-                    <CommandLineIcon name="search" key={`${character}-search`} />,
-                    <CommandLineIcon key={`${character}-arrow-left`} arrow name="arrow-left" />,
+                    <CommandLineIcon iconName="search" key={`${character}-search`} />,
+                    <CommandLineIcon key={`${character}-arrow-left`} arrow iconName="arrow-left" />,
                 ]
             default:
                 return character
