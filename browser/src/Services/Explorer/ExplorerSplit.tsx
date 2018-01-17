@@ -7,7 +7,6 @@ import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
 
-import * as Oni from "oni-api"
 import { Event } from "oni-types"
 
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
