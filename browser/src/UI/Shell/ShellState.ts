@@ -45,6 +45,7 @@ export interface IState {
 }
 
 export interface IOverlay {
+    id: string
     contents: JSX.Element
 }
 
