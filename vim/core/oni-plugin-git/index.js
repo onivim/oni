@@ -78,7 +78,7 @@ const activate = Oni => {
           const insertionsSpan = React.createElement(
             'span',
             null,
-            `${insertions ? `+${insertions}, ` : ``} `
+            `${insertions ? `+${insertions}` : ``} `
           );
 
           // Ideas:
@@ -87,7 +87,7 @@ const activate = Oni => {
           const deletionsSpan = React.createElement(
             'span',
             null,
-            `${deletions ? `-${deletions}` : ``} `
+            `${deletions ? `, -${deletions}` : ``} `
           );
           components = [...components, insertionsSpan, deletionsSpan];
         }
