@@ -52,7 +52,7 @@ import {
 import { tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
-import { workspace } from "./../../Services/Workspace"
+import { Workspace } from "./../../Services/Workspace"
 
 import { Editor, IEditor } from "./../Editor"
 
@@ -139,6 +139,7 @@ export class NeovimEditor extends Editor implements IEditor {
         private _languageManager: LanguageManager,
         private _pluginManager: PluginManager,
         private _themeManager: ThemeManager,
+        private _workspace: Workspace,
     ) {
         super()
 
@@ -175,7 +176,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._renderer = new CanvasRenderer()
 
-        this._rename = new Rename(this, this._languageManager, this._toolTipsProvider)
+        this._rename = new Rename(this, this._languageManager, this._toolTipsProvider, this._workspace)
 
         // Services
         const errorService = new Errors(this._neovimInstance)
@@ -318,7 +319,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onDirectoryChanged.subscribe((newDirectory) => {
-            workspace.changeDirectory(newDirectory)
+            this._workspace.changeDirectory(newDirectory)
         })
 
         this._neovimInstance.on("action", (action: any) => {
