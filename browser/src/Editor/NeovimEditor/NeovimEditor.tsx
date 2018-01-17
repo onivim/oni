@@ -534,10 +534,14 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public async setSelection(range: types.Range): Promise<void> {
+
+        await this._neovimInstance.input("<esc>")
+
         const atomicCalls = [
-            ["nvim_command", ["set selectmode=cmd"]],
+            // ["nvim_command", ["set selectmode="]],
             ["nvim_call_function", ["setpos", ["'<", [0, range.start.line + 1, range.start.character + 1]]]],
             ["nvim_call_function", ["setpos", ["'>", [0, range.end.line + 1, range.end.character + 1]]]],
+            ["nvim_command", ["set selectmode=cmd"]],
             ["nvim_command", ["normal! gv"]],
             ["nvim_command", ["set selectmode="]],
         ]

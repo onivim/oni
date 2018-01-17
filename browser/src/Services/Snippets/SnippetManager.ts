@@ -11,6 +11,8 @@ import { OniSnippet } from "./OniSnippet"
 
 export class SnippetManager {
 
+    private _activeSession: SnippetSession
+
     constructor(
         private _editorManager: EditorManager,
     ) { }
@@ -23,8 +25,20 @@ export class SnippetManager {
         const snip = new OniSnippet(snippet)
 
         const activeEditor = this._editorManager.activeEditor
-        const snippetSession = new SnippetSession(activeEditor, snip)
+        const snippetSession = new SnippetSession(activeEditor as any, snip)
         await snippetSession.start()
+
+        this._activeSession = snippetSession
+    }
+
+    private _isSnippetActive(): boolean {
+        return !!this._activeSession
+    }
+
+    public nextPlaceholder(): void {
+        if (this._isSnippetActive()) {
+            this._activeSession.nextPlaceholder()
+        }
     }
 }
 
