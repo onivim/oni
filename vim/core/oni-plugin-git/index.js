@@ -69,6 +69,7 @@ const activate = Oni => {
 
         let components = [];
         if (summary && (summary.insertions || summary.deletions)) {
+          console.log('summary ========================: ', summary);
           const { insertions, deletions, files } = summary;
           // Ideas:
           // heavy plus unicode - \u2795
