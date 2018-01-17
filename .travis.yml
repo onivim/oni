@@ -32,6 +32,8 @@ install:
 - yarn install
 script:
 - ./build/script/travis-build.sh
+after_success:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then node_modules/.bin/coveralls < .nyc_output/lcov.info; fi
 deploy:
     - provider: s3
       access_key_id: AKIAIPVCKNWKWB2XULQQ
