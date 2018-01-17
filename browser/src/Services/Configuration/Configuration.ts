@@ -13,6 +13,7 @@ import { DefaultConfiguration } from "./DefaultConfiguration"
 import { checkDeprecatedSettings } from "./DeprecatedConfigurationValues"
 import { FileConfigurationProvider } from "./FileConfigurationProvider"
 import { IConfigurationValues } from "./IConfigurationValues"
+import { PersistedConfiguration } from "./PersistentSettings"
 import * as UserConfiguration from "./UserConfiguration"
 
 export interface IConfigurationProvider {
@@ -38,19 +39,6 @@ interface ConfigurationProviderInfo {
 export interface IPersistedConfiguration {
     getPersistedValues(): GenericConfigurationValues
     setPersistedValues(configurationValues: GenericConfigurationValues): void
-}
-
-export class PersistedConfiguration implements IPersistedConfiguration {
-
-    private _values: GenericConfigurationValues = {}
-
-    public getPersistedValues(): GenericConfigurationValues {
-        return this._values
-    }
-
-    public setPersistedValues(configurationValues: GenericConfigurationValues): void {
-        this._values = configurationValues
-    }
 }
 
 export class Configuration implements Oni.Configuration {
