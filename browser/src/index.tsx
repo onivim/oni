@@ -150,6 +150,7 @@ const start = async (args: string[]): Promise<void> => {
     checkForUpdates()
 
     Performance.endMeasure("Oni.Start")
+    ipcRenderer.send("Oni.started", "started")
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {
