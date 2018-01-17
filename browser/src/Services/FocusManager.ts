@@ -2,6 +2,8 @@
  * FocusManager.ts
  */
 
+import * as Log from "./../Log"
+
 class FocusManager {
 
     private _focusElementStack: HTMLElement[] = []
@@ -20,8 +22,12 @@ class FocusManager {
     }
 
     public setFocus(element: HTMLElement): void {
-        this._focusElementStack = [element]
-        element.focus()
+        if (element) {
+            this._focusElementStack = [element]
+            element.focus()
+        } else {
+            Log.warn("FocusManager.setFocus called with null element")
+        }
     }
 
     public enforceFocus(): void {
