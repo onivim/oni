@@ -131,7 +131,6 @@ const start = async (args: string[]): Promise<void> => {
     Sidebar.activate(configuration, workspace)
     Performance.endMeasure("Oni.Start.Sidebar")
 
-
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
     diagnostics.start(languageManager)
@@ -151,6 +150,7 @@ const start = async (args: string[]): Promise<void> => {
     checkForUpdates()
 
     Performance.endMeasure("Oni.Start")
+    ipcRenderer.send("Oni.started", "started")
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {

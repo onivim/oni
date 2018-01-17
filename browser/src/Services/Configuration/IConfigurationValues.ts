@@ -214,6 +214,9 @@ export interface IConfigurationValues {
     // Maximum width of a tab
     "tabs.maxWidth": string
 
+    // Whether or not to show the index alongside the tab
+    "tabs.showIndex": boolean
+
     // Whether or not tabs should wrap.
     // If `false`, a scrollbar will be shown.
     // If `true`, will wrap the tabs.
