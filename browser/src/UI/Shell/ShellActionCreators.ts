@@ -26,7 +26,6 @@ export const setHasFocus = (hasFocus: boolean) => {
 }
 
 export const setLoadingComplete = () => {
-
     document.body.classList.add("loaded")
 
     return {
@@ -87,6 +86,22 @@ export const hideStatusBarItem = (id: string) => ({
         id,
     },
 })
+
+export const showOverlay = (id: string, contents: JSX.Element): Actions.IOverlayShowAction => ({
+    type: "OVERLAY_SHOW",
+    payload: {
+        id,
+        contents,
+    }
+})
+
+export const hideOverlay = (id: string): Actions.IOverlayHideAction => ({
+    type: "OVERLAY_HIDE",
+    payload: {
+        id,
+    }
+})
+
 
 export function setConfigValue<K extends keyof IConfigurationValues>(k: K, v: IConfigurationValues[K]): Actions.ISetConfigurationValue<K> {
     return {

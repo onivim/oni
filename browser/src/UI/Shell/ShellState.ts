@@ -39,8 +39,13 @@ export interface IState {
     windowTitle: string
 
     statusBar: { [id: string]: IStatusBarItem }
+    overlays: { [id: string]: IOverlay }
 
     errors: Errors
+}
+
+export interface IOverlay {
+    contents: JSX.Element
 }
 
 export enum StatusBarAlignment {
@@ -73,6 +78,7 @@ export const createDefaultState = (): IState => ({
     configuration: {} as IConfigurationValues,
 
     errors: {},
+    overlays: {},
     statusBar: {},
     windowTitle: "",
 })
