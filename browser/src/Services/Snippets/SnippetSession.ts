@@ -8,7 +8,7 @@
 
 import * as Oni from "oni-api"
 
-import * as Snippets from "vscode-snippet-parser/lib"
+import { OniSnippet } from "./OniSnippet"
 
 import { IBuffer } from "./../../Editor/BufferManager"
 
@@ -30,7 +30,7 @@ export class SnippetSession {
 
     constructor(
         private _editor: Oni.Editor,
-        private _snippet: Snippets.TextmateSnippet,
+        private _snippet: OniSnippet,
     ) { }
 
     public async start(): Promise<void> {
@@ -43,6 +43,11 @@ export class SnippetSession {
         this._prefix = prefix
         this._suffix = suffix
 
-        await this._buffer.setLines(cursorPosition.line, cursorPosition.line + 1, [this._prefix + this._snippet.toString() + this._suffix])
+        const snippetLines = this._snippet.getLines()
+        const lastIndex = snippetLines.length - 1
+        snippetLines[0] = this._prefix + snippetLines[0]
+        snippetLines[lastIndex] = snippetLines[lastIndex] + this._suffix
+
+        await this._buffer.setLines(cursorPosition.line, cursorPosition.line + snippetLines.length, snippetLines)
     }
 }
