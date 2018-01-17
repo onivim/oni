@@ -15,7 +15,7 @@ interface IExecOptions {
 export interface GitFunctions {
     getGitSummary(workspace: string): Promise<git.DiffResult | null>
     getBranch(path?: string): Promise<Error | string>
-    getRootDirectory(): Promise<string | null>
+    getGitRoot(): Promise<string | null>
 }
 
 export async function getGitRoot(): Promise<string | null> {
