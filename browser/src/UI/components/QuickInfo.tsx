@@ -52,6 +52,7 @@ export const Documentation = styled.div`
     overflow: hidden;
     max-height: 25vh;
     padding: 0.5rem;
+    line-height: 1.5;
     ${smallScrollbar};
 
     &:hover {
