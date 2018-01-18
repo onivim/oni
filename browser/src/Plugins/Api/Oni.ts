@@ -32,6 +32,8 @@ import { getInstance as getWorkspaceInstance } from "./../../Services/Workspace"
 
 import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
+import { getInstance as getPluginManagerInstance } from "./../../Plugins/PluginManager"
+
 import * as Log from "./../../Log"
 
 import * as throttle from "lodash/throttle"
@@ -142,7 +144,8 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     public createNeovimEditor(): NeovimEditor {
-        const editor = new NeovimEditor(getColors(), configuration, getDiagnosticsInstance(), this.language, getThemeManagerInstance())
+        const editor = new NeovimEditor(getColors(), configuration, getDiagnosticsInstance(), this.language, getPluginManagerInstance(), getThemeManagerInstance(), getWorkspaceInstance())
+        editor.init([])
         return editor
     }
 
