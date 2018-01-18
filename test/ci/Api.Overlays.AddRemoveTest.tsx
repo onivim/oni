@@ -37,5 +37,5 @@ export const test = async (oni: Oni.Plugin.Api) => {
     overlay.hide()
 
     // Wait for overlay to disappear
-    await oni.automation.waitFor(() => getOverlayElements().length === 1)
+    await oni.automation.waitFor(() => getOverlayElements().length === 0)
 }
