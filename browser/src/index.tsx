@@ -35,6 +35,7 @@ const start = async (args: string[]): Promise<void> => {
     const colorsPromise = import("./Services/Colors")
     const diagnosticsPromise = import("./Services/Diagnostics")
     const editorManagerPromise = import("./Services/EditorManager")
+    const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
     const workspacePromise = import("./Services/Workspace")
@@ -142,9 +143,13 @@ const start = async (args: string[]): Promise<void> => {
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     const { inputManager } = await inputManagerPromise
+    const { commandManager } = await import("./Services/CommandManager")
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+
+    const GlobalCommands = await globalCommandsPromise
+    GlobalCommands.activate(commandManager)
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()
