@@ -103,12 +103,14 @@ export const getBackgroundColor = (editorBackground: string): string => {
     return Color(editorBackground).darken(0.25).hex().toString()
 }
 
+const darken = (c: string, deg = 0.15) => Color(c).darken(0.15).hex().toString()
+
 export const getHoverColors = (userConfig: GenericConfigurationValues, colors: Partial<IThemeColors>) => {
     const hoverDefaults = {
-            "editor.hover.title.background": colors["toolTip.background"],
+            "editor.hover.title.background": darken(colors["toolTip.background"]),
             "editor.hover.title.foreground": colors["toolTip.foreground"],
             "editor.hover.border": colors["toolTip.border"],
-            "editor.hover.contents.background": colors["toolTip.background"],
+            "editor.hover.contents.background": darken(colors["toolTip.background"]),
             "editor.hover.contents.foreground": colors["toolTip.foreground"],
     }
 

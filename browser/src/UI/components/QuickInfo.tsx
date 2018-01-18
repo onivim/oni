@@ -53,8 +53,8 @@ export const Documentation = styled.div`
     padding: 0.5rem;
     line-height: 1.5;
     ${smallScrollbar};
-    background-color:${p => p.theme["editor.hover.contents.background"]}
-    color: ${p => p.theme["editor.hover.contents.foreground"]}
+    background-color:${p => p.theme["editor.hover.contents.background"]};
+    color: ${p => p.theme["editor.hover.contents.foreground"]};
 
     &:hover {
         overflow: overlay;
@@ -98,7 +98,8 @@ export const QuickInfoContainer = withProps<{ hasDocs: boolean }>(styled.div)`
   max-height: fit-content;
   overflow: hidden;
   width: 100%;
-  margin-bottom: ${p => p.hasDocs ? "1rem" : "0"};
+  padding-bottom: ${p => p.hasDocs ? "1rem" : "0"};
+  background-color: ${p => p.theme["editor.hover.contents.background"]};
 `
 
 export interface ITextProps {

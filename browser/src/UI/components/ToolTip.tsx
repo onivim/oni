@@ -1,7 +1,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
 import styled from "styled-components"
-import { boxShadow, darken, withProps } from "./common"
+import { boxShadow, withProps } from "./common"
 
 import { createSelector } from "reselect"
 
@@ -14,18 +14,23 @@ interface IToolTipProps {
     fontFamily: string
 }
 
-// TODO: reduce degree of darkening based on light or dark bg
 const ToolTipContainer = withProps<IToolTipProps>(styled.div)`
-    border: ${p => `1px solid ${p.theme["editor.hover.border"]}`};
-    background-color: ${p => darken(p.theme["toolTip.background"])};
+    background-color: ${p => p.theme["toolTip.background"]};
     color: ${p => p.theme["toolTip.foreground"]};
+    border: ${p => `1px solid ${p.theme["editor.hover.border"]}`};
     padding: ${p => p.padding};
     height: auto;
     font-family: ${p => p.fontFamily};
     ${boxShadow};
 
     * {
-        font-family: ${p => p.fontFamily};
+        pre {
+            font-family: ${p => p.fontFamily};
+        }
+
+        code {
+            font-family: ${p => p.fontFamily};
+        }
     }
 `
 
