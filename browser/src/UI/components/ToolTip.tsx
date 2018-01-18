@@ -16,7 +16,7 @@ interface IToolTipProps {
 
 // TODO: reduce degree of darkening based on light or dark bg
 const ToolTipContainer = withProps<IToolTipProps>(styled.div)`
-    border: ${p => `1px solid ${p.theme["toolTip.border"]}`};
+    border: ${p => `1px solid ${p.theme["editor.hover.border"]}`};
     background-color: ${p => darken(p.theme["toolTip.background"])};
     color: ${p => p.theme["toolTip.foreground"]};
     padding: ${p => p.padding};

@@ -8,6 +8,12 @@ import { Event, IEvent } from "oni-types"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
+import {
+    Configuration,
+    configuration,
+    GenericConfigurationValues,
+} from "./../Configuration"
+
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
 import { PluginThemeLoader } from "./ThemeLoader"
 
@@ -37,6 +43,13 @@ export interface IThemeColors {
     "toolTip.background": string
     "toolTip.foreground": string
     "toolTip.border": string
+
+    // User coloring options for the hover menu
+    "editor.hover.title.background": string
+    "editor.hover.title.foreground": string
+    "editor.hover.border": string
+    "editor.hover.contents.background": string
+    "editor.hover.contents.foreground": string
 
     // Context menu is used for completion, refactoring
     "contextMenu.background": string
@@ -90,6 +103,33 @@ export const getBackgroundColor = (editorBackground: string): string => {
     return Color(editorBackground).darken(0.25).hex().toString()
 }
 
+export const getHoverColors = (userConfig: GenericConfigurationValues, colors: Partial<IThemeColors>) => {
+    const hoverDefaults = {
+            "editor.hover.title.background": colors["toolTip.background"],
+            "editor.hover.title.foreground": colors["toolTip.foreground"],
+            "editor.hover.border": colors["toolTip.border"],
+            "editor.hover.contents.background": colors["toolTip.background"],
+            "editor.hover.contents.foreground": colors["toolTip.foreground"],
+    }
+
+    const userHoverColors = Object.keys(userConfig)
+        .filter(value => value.includes("editor.hover"))
+        .reduce((acc, val) => {
+            if (userConfig[val]) {
+                acc[val] = userConfig[val]
+            }
+            return acc
+        }, hoverDefaults)
+    return userHoverColors
+}
+
+export const getColorsFromConfig = (config: Configuration, colors: Partial<IThemeColors>) => {
+    const userConfig = config.getValues()
+    const hoverColors = getHoverColors(userConfig, colors)
+
+    return hoverColors
+}
+
 export const getColorsFromBackgroundAndForeground = (background: string, foreground: string) => {
     const shellBackground = getBackgroundColor(background)
     const borderColor = getBorderColor(background, foreground)
@@ -103,6 +143,12 @@ export const getColorsFromBackgroundAndForeground = (background: string, foregro
         "toolTip.background": background,
         "toolTip.foreground": foreground,
         "toolTip.border": borderColor,
+
+        "editor.hover.title.background": background,
+        "editor.hover.title.foreground": foreground,
+        "editor.hover.border": borderColor,
+        "editor.hover.contents.background": background,
+        "editor.hover.contents.foreground": foreground,
 
         "sidebar.background": shellBackground,
         "sidebar.foreground": foreground,
@@ -167,6 +213,12 @@ export const DefaultThemeColors: IThemeColors = {
     "toolTip.background": ColorBlack,
     "toolTip.foreground": ColorWhite,
     "toolTip.border": ColorWhite,
+
+    "editor.hover.title.background": ColorBlack,
+    "editor.hover.title.foreground": ColorWhite,
+    "editor.hover.border": ColorWhite,
+    "editor.hover.contents.background": ColorBlack,
+    "editor.hover.contents.foreground": ColorWhite,
 
     // Context menu is used for completion, refactoring
     "contextMenu.background": ColorBlack,
@@ -301,9 +353,12 @@ export class ThemeManager {
     private _updateTheme(theme: IThemeMetadata): void {
         this._activeTheme = theme
 
+        const userColors = getColorsFromConfig(configuration, this.activeTheme.colors)
+
         this._colors = {
             ...DefaultThemeColors,
             ...this._activeTheme.colors,
+            ...userColors,
         }
 
         this._onThemeChangedEvent.dispatch()

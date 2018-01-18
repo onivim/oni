@@ -53,6 +53,8 @@ export const Documentation = styled.div`
     padding: 0.5rem;
     line-height: 1.5;
     ${smallScrollbar};
+    background-color:${p => p.theme["editor.hover.contents.background"]}
+    color: ${p => p.theme["editor.hover.contents.foreground"]}
 
     &:hover {
         overflow: overlay;
@@ -77,6 +79,8 @@ export const Title = withProps<{ padding?: string }>(styled.div)`
     max-height: 25vh;
     word-break: break-all;
     ${smallScrollbar};
+    background-color:${p => p.theme["editor.hover.title.background"]};
+    color: ${p => p.theme["editor.hover.title.foreground"]};
 
     &:hover {
         overflow: overlay;
