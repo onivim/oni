@@ -2,7 +2,7 @@
 
 ### Modern Modal Editing
 
-[![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)
+[![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)[![Coverage Status](https://img.shields.io/coveralls/onivim/oni/master.svg)](https://coveralls.io/github/onivim/oni?branch=master)
 [![Join the chat at https://gitter.im/onivim/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![Sponsors on Open Collective](https://opencollective.com/oni/sponsors/badge.svg)](https://opencollective.com/oni#sponsor) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 [![Total Downloads](https://img.shields.io/github/downloads/onivim/oni/total.svg)](https://github.com/onivim/oni/releases)
 
@@ -17,16 +17,35 @@ Oni is an MIT-licensed open source project. Please consider supporting Oni by:
 
 Support this project by [becoming a sponsor](https://opencollective.com/oni#sponsor). Your logo will show up here with a link to your website.
 
-<a href="https://opencollective.com/oni/sponsor/0/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/oni/sponsor/1/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/oni/sponsor/2/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/oni/sponsor/3/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/oni/sponsor/4/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/oni/sponsor/5/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/oni/sponsor/6/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/oni/sponsor/7/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/oni/sponsor/8/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/oni/sponsor/9/website" target="_blank"><img src="https://opencollective.com/oni/sponsor/9/avatar.svg"></a>
+<h4 align="center">Gold sponsors</h4>
+
+<p align="center">
+<a href="https://opencollective.com/oni/tiers/gold-sponsor/0/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/0/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/gold-sponsor/1/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/1/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/gold-sponsor/2/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/2/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/gold-sponsor/3/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/3/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/gold-sponsor/4/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/4/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/gold-sponsor/5/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/5/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/gold-sponsor/6/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/6/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/gold-sponsor/7/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/7/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/gold-sponsor/8/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/8/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/gold-sponsor/9/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/9/avatar.png"></a>
+</p>
+
+<h4 align="center">Silver sponsors</h4>
+
+<p align="center">
+<a href="https://opencollective.com/oni/tiers/silver-sponsor/0/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/0/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/silver-sponsor/1/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/1/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/silver-sponsor/2/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/2/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/silver-sponsor/3/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/3/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/silver-sponsor/4/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/4/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/silver-sponsor/5/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/5/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/silver-sponsor/6/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/6/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/silver-sponsor/7/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/7/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/silver-sponsor/8/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/8/avatar.png"></a>
+<a href="https://opencollective.com/oni/tiers/silver-sponsor/9/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/9/avatar.png"></a>
+</p>
 
 ## Introduction
 

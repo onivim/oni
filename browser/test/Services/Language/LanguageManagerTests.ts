@@ -40,6 +40,7 @@ describe("LanguageManager", () => {
     let mockConfiguration: Mocks.MockConfiguration
     let mockEditor: Mocks.MockEditor
     let editorManager: EditorManager
+    let mockWorkspace: Mocks.MockWorkspace
 
     // Class under test
     let languageManager: Language.LanguageManager
@@ -60,10 +61,11 @@ describe("LanguageManager", () => {
         editorManager = new EditorManager()
         mockEditor = new Mocks.MockEditor()
         editorManager.setActiveEditor(mockEditor)
+        mockWorkspace = new Mocks.MockWorkspace()
 
         const mockStatusBar = new Mocks.MockStatusBar()
 
-        languageManager = new Language.LanguageManager(mockConfiguration as any, editorManager, mockStatusBar)
+        languageManager = new Language.LanguageManager(mockConfiguration as any, editorManager, mockStatusBar, mockWorkspace)
     })
 
     it("sends didOpen request if language server is registered after enter event", async () => {
