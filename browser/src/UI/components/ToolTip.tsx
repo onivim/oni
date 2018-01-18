@@ -1,13 +1,12 @@
 import * as React from "react"
 import { connect } from "react-redux"
 import styled from "styled-components"
-import { boxShadow, withProps } from "./common"
+import { boxShadow, withProps, darken } from "./common"
 
 import { createSelector } from "reselect"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
-import * as Color from "color"
 import { CursorPositioner } from "./CursorPositioner"
 
 interface IToolTipProps {
@@ -15,7 +14,6 @@ interface IToolTipProps {
     fontFamily: string
 }
 
-const darken = (c: string) => Color(c).darken(0.15).hex().toString()
 // TODO: reduce degree of darkening based on light or dark bg
 const ToolTipContainer = withProps<IToolTipProps>(styled.div)`
     border: ${p => `1px solid ${p.theme["toolTip.border"]}`};

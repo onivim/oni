@@ -1,7 +1,7 @@
 import * as os from "os"
 
 import * as React from "react"
-import styled, { boxShadowInset, css, fontSizeSmall, withProps } from "./common"
+import styled, { boxShadowInset, css, fontSizeSmall, withProps, darken } from "./common"
 
 const smallScrollbar = css`
     &::-webkit-scrollbar {
@@ -40,7 +40,7 @@ const childStyles = css`
     this overriden for code block INSIDE a Pre element */
 
         code {
-            background-color: black;
+            background-color: ${p => darken(p.theme.background, 0.25)};
             padding: 0 0.2rem;
         }
     }
