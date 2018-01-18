@@ -58,7 +58,7 @@ export class BufferLayerManager {
 
 export const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.EditorLayer => {
     return {
-        id: id,
+        id,
         render: (context: Oni.EditorLayerRenderContext) => context.isActive ? component : null,
     }
 }
