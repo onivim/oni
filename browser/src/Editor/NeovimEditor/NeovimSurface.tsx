@@ -21,11 +21,8 @@ import { ToolTips } from "./../../UI/components/ToolTip"
 import { TypingPrediction } from "./../../UI/components/TypingPredictions"
 import WildMenu from "./../../UI/components/WildMenu"
 
-import { ErrorsContainer } from "./containers/ErrorsContainer"
-
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
-import { NeovimActiveWindowContainer } from "./NeovimActiveWindow"
 import { NeovimEditorLoadingOverlay } from "./NeovimEditorLoadingOverlay"
 import { NeovimInput } from "./NeovimInput"
 import { NeovimBufferLayers } from "./NeovimBufferLayersView"
@@ -75,9 +72,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     <Cursor typingPrediction={this.props.typingPrediction}/>
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
-                    <NeovimActiveWindowContainer>
-                        <ErrorsContainer />
-                    </NeovimActiveWindowContainer>
                 </div>
                 <NeovimInput
                     onActivate={this.props.onActivate}

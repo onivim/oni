@@ -4,8 +4,7 @@
  * IEditor implementation for Neovim
  */
 
-// import * as React from "react"
-
+import * as React from "react"
 
 import * as Oni from "oni-api"
 import { IEvent } from "oni-types"
@@ -31,9 +30,9 @@ import { Workspace } from "./../../Services/Workspace"
 
 import { IEditor } from "./../Editor"
 
-// import { BufferScrollBarContainer } from "./containers/BufferScrollBarContainer"
-// import { DefinitionContainer } from "./containers/DefinitionContainer"
-// import { ErrorsContainer } from "./containers/ErrorsContainer"
+import { BufferScrollBarContainer } from "./containers/BufferScrollBarContainer"
+import { DefinitionContainer } from "./containers/DefinitionContainer"
+import { ErrorsContainer } from "./containers/ErrorsContainer"
 
 import { NeovimEditor } from "./../NeovimEditor"
 
@@ -97,26 +96,26 @@ export class OniEditor implements IEditor {
     ) {
         this._neovimEditor = new NeovimEditor(colors, configuration, diagnostics, languageManager, pluginManager, themeManager, workspace)
 
-//         this._bufferLayerManager.addBufferLayer("*", (buf) => ({
-//             id: "test",
-//             render: (context) =>{
-//                 return context.isActive ?  <BufferScrollBarContainer /> : null
-//             }
-//         }))
+        this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => ({
+            id: "test",
+            render: (context) =>{
+                return context.isActive ?  <BufferScrollBarContainer /> : null
+            }
+        }))
 
-//         this._bufferLayerManager.addBufferLayer("*", (buf) => ({
-//             id: "test2",
-//             render: (context) =>{
-//                 return context.isActive ?  <DefinitionContainer /> : null
-//             }
-//         }))
+        this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => ({
+            id: "test2",
+            render: (context) =>{
+                return context.isActive ?  <DefinitionContainer /> : null
+            }
+        }))
 
-//         this._bufferLayerManager.addBufferLayer("*", (buf) => ({
-//             id: "test3",
-//             render: (context) =>{
-//                 return context.isActive ?  <ErrorsContainer /> : null
-//             }
-//         }))
+        this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => ({
+            id: "test3",
+            render: (context) =>{
+                return context.isActive ?  <ErrorsContainer /> : null
+            }
+        }))
 
     }
 
