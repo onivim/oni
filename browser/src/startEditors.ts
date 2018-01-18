@@ -4,7 +4,7 @@
  * Initialization for the core set of editors
  */
 
-import { NeovimEditor } from "./Editor/NeovimEditor"
+import { OniEditor } from "./Editor/OniEditor"
 
 import { PluginManager } from "./Plugins/PluginManager"
 
@@ -19,7 +19,7 @@ import { Workspace } from "./Services/Workspace"
 
 export const startEditors = async (args: any, colors: Colors, configuration: Configuration, diagnostics: IDiagnosticsDataSource, languageManager: LanguageManager, pluginManager: PluginManager, themeManager: ThemeManager, workspace: Workspace): Promise<void> => {
 
-    const editor = new NeovimEditor(colors, configuration, diagnostics, languageManager, pluginManager, themeManager, workspace)
+    const editor = new OniEditor(colors, configuration, diagnostics, languageManager, pluginManager, themeManager, workspace)
     editorManager.setActiveEditor(editor)
     windowManager.split(0, editor)
 
