@@ -1,7 +1,7 @@
 import * as os from "os"
 
 import * as React from "react"
-import styled, { boxShadowInset, css, fontSizeSmall, withProps, darken } from "./common"
+import styled, { boxShadowInset, css, darken, fontSizeSmall, withProps } from "./common"
 
 const smallScrollbar = css`
     &::-webkit-scrollbar {

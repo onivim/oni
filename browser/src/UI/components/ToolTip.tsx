@@ -1,7 +1,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
 import styled from "styled-components"
-import { boxShadow, withProps, darken } from "./common"
+import { boxShadow, darken, withProps } from "./common"
 
 import { createSelector } from "reselect"
 
