@@ -23,9 +23,9 @@ import WildMenu from "./../../UI/components/WildMenu"
 
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
+import { NeovimBufferLayers } from "./NeovimBufferLayersView"
 import { NeovimEditorLoadingOverlay } from "./NeovimEditorLoadingOverlay"
 import { NeovimInput } from "./NeovimInput"
-import { NeovimBufferLayers } from "./NeovimBufferLayersView"
 import { NeovimRenderer } from "./NeovimRenderer"
 
 export interface INeovimSurfaceProps {

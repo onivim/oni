@@ -29,12 +29,7 @@ export class BufferLayerManager {
     private _buffers: Oni.Buffer[] = []
     public addBufferLayer(filterOrLanguage: BufferFilter | string, layerFactory: BufferLayerFactory) {
 
-        let filter: BufferFilter
-        if (typeof filterOrLanguage === "string") {
-            filter = createBufferFilterFromLanguage(filterOrLanguage)
-        } else {
-            filter = filterOrLanguage
-        }
+        const filter: BufferFilter = typeof filterOrLanguage === "string" ? createBufferFilterFromLanguage(filterOrLanguage) : filterOrLanguage
 
         this._layers.push({
             filter,

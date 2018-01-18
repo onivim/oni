@@ -98,23 +98,23 @@ export class OniEditor implements IEditor {
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => ({
             id: "test",
-            render: (context) =>{
+            render: (context) => {
                 return context.isActive ?  <BufferScrollBarContainer /> : null
-            }
+            },
         }))
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => ({
             id: "test2",
-            render: (context) =>{
+            render: (context) => {
                 return context.isActive ?  <DefinitionContainer /> : null
-            }
+            },
         }))
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => ({
             id: "test3",
-            render: (context) =>{
+            render: (context) => {
                 return context.isActive ?  <ErrorsContainer /> : null
-            }
+            },
         }))
 
     }
