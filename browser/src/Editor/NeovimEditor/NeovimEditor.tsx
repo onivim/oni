@@ -26,9 +26,9 @@ import { addDefaultUnitIfNeeded } from "./../../Font"
 import { BufferEventContext, EventContext, INeovimStartOptions, NeovimInstance, NeovimScreen, NeovimWindowManager } from "./../../neovim"
 import { CanvasRenderer, INeovimRenderer } from "./../../Renderer"
 
-import { pluginManager } from "./../../Plugins/PluginManager"
+import { PluginManager } from "./../../Plugins/PluginManager"
 
-import { Colors } from "./../../Services/Colors"
+import { IColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
 // import { registerBuiltInCommands } from "./../../Services/Commands"
 import { Completion } from "./../../Services/Completion"
@@ -53,7 +53,7 @@ import {
 import { tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
-import { workspace } from "./../../Services/Workspace"
+import { Workspace } from "./../../Services/Workspace"
 
 import { Editor, IEditor } from "./../Editor"
 
@@ -132,11 +132,13 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     constructor(
-        private _colors: Colors,
+        private _colors: IColors,
         private _configuration: Configuration,
         private _diagnostics: IDiagnosticsDataSource,
         private _languageManager: LanguageManager,
+        private _pluginManager: PluginManager,
         private _themeManager: ThemeManager,
+        private _workspace: Workspace,
     ) {
         super()
 
@@ -148,7 +150,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
-        this._neovimInstance = new NeovimInstance(100, 100)
+        this._neovimInstance = new NeovimInstance(100, 100, this._configuration)
         this._bufferManager = new BufferManager(this._neovimInstance, this._actions)
         this._screen = new NeovimScreen()
 
@@ -173,7 +175,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._renderer = new CanvasRenderer()
 
-        this._rename = new Rename(this, this._languageManager, this._toolTipsProvider)
+        this._rename = new Rename(this, this._languageManager, this._toolTipsProvider, this._workspace)
 
         // Services
         const errorService = new Errors(this._neovimInstance)
@@ -316,7 +318,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onDirectoryChanged.subscribe((newDirectory) => {
-            workspace.changeDirectory(newDirectory)
+            this._workspace.changeDirectory(newDirectory)
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -327,8 +329,19 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onRedrawComplete.subscribe(() => {
-            this._actions.setCursorPosition(this._screen)
-            this._typingPredictionManager.setCursorPosition(this._screen)
+            const isCursorInCommandRow = this._screen.cursorRow === this._screen.height - 1
+            const isCommandLineMode = this.mode && this.mode.indexOf("cmdline") === 0
+
+            // In some cases, during redraw, Neovim will actually set the cursor position
+            // to the command line when rendering. This can happen when 'echo'ing or
+            // when a popumenu is enabled, and text is writing.
+            //
+            // We should ignore those cases, and only set the cursor in the command row
+            // when we're actually in command line mode. See #1265 for more context.
+            if (!isCursorInCommandRow || (isCursorInCommandRow && isCommandLineMode)) {
+                this._actions.setCursorPosition(this._screen)
+                this._typingPredictionManager.setCursorPosition(this._screen)
+            }
         })
 
         this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
@@ -539,7 +552,7 @@ export class NeovimEditor extends Editor implements IEditor {
     public async init(filesToOpen: string[]): Promise<void> {
         Log.info("[NeovimEditor::init] Called with filesToOpen: " + filesToOpen)
         const startOptions: INeovimStartOptions = {
-            runtimePaths: pluginManager.getAllRuntimePaths(),
+            runtimePaths: this._pluginManager.getAllRuntimePaths(),
             transport: this._configuration.getValue("experimental.neovim.transport"),
         }
 
@@ -635,6 +648,10 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private _onModeChanged(newMode: string): void {
+        // 'Bounce' the cursor for show match
+        if (newMode === "showmatch") {
+            this._actions.setCursorScale(0.9)
+        }
 
         this._typingPredictionManager.clearAllPredictions()
 

@@ -9,7 +9,7 @@ import * as fs from "fs"
 import { DefaultTheme, IThemeMetadata } from "./ThemeManager"
 
 import { IThemeContribution } from "./../../Plugins/Api/Capabilities"
-import { pluginManager, PluginManager } from "./../../Plugins/PluginManager"
+import { PluginManager } from "./../../Plugins/PluginManager"
 
 export interface IThemeLoader {
     getThemeByName(name: string): Promise<IThemeMetadata>
@@ -24,7 +24,7 @@ export class DefaultLoader implements IThemeLoader {
 export class PluginThemeLoader implements IThemeLoader {
 
     constructor(
-        private _pluginManager: PluginManager = pluginManager,
+        private _pluginManager: PluginManager,
     ) { }
 
     public async getThemeByName(name: string): Promise<IThemeMetadata> {
