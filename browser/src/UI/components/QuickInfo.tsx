@@ -12,7 +12,6 @@ const smallScrollbar = css`
 
 const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
-    border-color: ${p => p.theme["toolTip.border"]};
     padding: 0.4em 0.4em 0.4em 0.4em;
     margin: 0.4em 0.4em 0.4em 0.4em;
     /* necessary to prevent overflow */
