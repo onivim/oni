@@ -36,6 +36,14 @@ import { ErrorsContainer } from "./containers/ErrorsContainer"
 
 import { NeovimEditor } from "./../NeovimEditor"
 
+// Helper method to wrap a react component into a layer
+const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.EditorLayer => {
+    return {
+        id: id,
+        render: (context: Oni.EditorLayerRenderContext) => context.isActive ? component : null,
+    }
+}
+
 export class OniEditor implements IEditor {
 
     private _neovimEditor: NeovimEditor
@@ -96,27 +104,9 @@ export class OniEditor implements IEditor {
     ) {
         this._neovimEditor = new NeovimEditor(colors, configuration, diagnostics, languageManager, pluginManager, themeManager, workspace)
 
-        this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => ({
-            id: "test",
-            render: (context) => {
-                return context.isActive ?  <BufferScrollBarContainer /> : null
-            },
-        }))
-
-        this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => ({
-            id: "test2",
-            render: (context) => {
-                return context.isActive ?  <DefinitionContainer /> : null
-            },
-        }))
-
-        this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => ({
-            id: "test3",
-            render: (context) => {
-                return context.isActive ?  <ErrorsContainer /> : null
-            },
-        }))
-
+        this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => wrapReactComponentWithLayer("oni.layer.scrollbar", <BufferScrollBarContainer />))
+        this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => wrapReactComponentWithLayer("oni.layer.definition", <DefinitionContainer />))
+        this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => wrapReactComponentWithLayer("oni.layer.errors", <ErrorsContainer />))
     }
 
     public dispose(): void {

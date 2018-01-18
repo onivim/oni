@@ -37,12 +37,12 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
             }
 
             const layerElements = layers.map((l) => {
-                return l.render(layerContext)
+                return <div key={l.id}>{l.render(layerContext)}</div>
             })
 
             const dimensions = getWindowPixelDimensions(windowState)
 
-            return <NeovimActiveWindow {...dimensions} key={windowState.windowId}>
+            return <NeovimActiveWindow {...dimensions} key={windowState.windowId.toString()}>
                     {layerElements}
                 </NeovimActiveWindow>
         })
