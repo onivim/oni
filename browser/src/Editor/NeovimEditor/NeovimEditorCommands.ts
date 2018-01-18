@@ -11,6 +11,7 @@ import * as path from "path"
 import { clipboard, remote } from "electron"
 import * as Oni from "oni-api"
 
+import { NeovimInstance } from "./../../neovim"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 import { getUserConfigFilePath } from "./../../Services/Configuration"
 import { ContextMenuManager } from "./../../Services/ContextMenu"
@@ -18,7 +19,6 @@ import { editorManager } from "./../../Services/EditorManager"
 import { findAllReferences, format, LanguageEditorIntegration } from "./../../Services/Language"
 import { menuManager } from "./../../Services/Menu"
 import { QuickOpen } from "./../../Services/QuickOpen"
-import { NeovimInstance } from "./../../neovim"
 import { replaceAll } from "./../../Utility"
 
 import { Definition } from "./Definition"
@@ -47,19 +47,19 @@ export class NeovimEditorCommands {
         // - Should be able to work against the public 'IEditor' interface
         const quickOpen = new QuickOpen(this._neovimInstance)
 
-        const quickOpenCommand = (innerCommand: Oni.Commands.CommandCallback) => (quickOpen: QuickOpen) => {
+        const quickOpenCommand = (innerCommand: Oni.Commands.CommandCallback) => (qo: QuickOpen) => {
             return () => {
-                if (quickOpen.isOpen()) {
-                    return innerCommand(quickOpen)
+                if (qo.isOpen()) {
+                    return innerCommand(qo)
                 }
 
                 return false
             }
         }
 
-        const quickOpenFileNewTab = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFileNewTab())
-        const quickOpenFileHorizontal = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFileHorizontal())
-        const quickOpenFileVertical = quickOpenCommand((quickOpen: QuickOpen) => quickOpen.openFileVertical())
+        const quickOpenFileNewTab = quickOpenCommand((qo: QuickOpen) => qo.openFileNewTab())
+        const quickOpenFileHorizontal = quickOpenCommand((qo: QuickOpen) => qo.openFileHorizontal())
+        const quickOpenFileVertical = quickOpenCommand((qo: QuickOpen) => qo.openFileVertical())
 
         /**
          * Higher-order function for commands dealing with completion
@@ -149,7 +149,6 @@ export class NeovimEditorCommands {
             new CallbackCommand("language.findAllReferences", "Find All References", "Find all references using a language service", () => findAllReferences()),
 
             new CallbackCommand("language.format", null, null, () => format()),
-
 
             // TODO: Deprecate
             new CallbackCommand("oni.editor.gotoDefinition", null, null, () => this._definition.gotoDefinitionUnderCursor()),
