@@ -17,7 +17,6 @@ const codeBlockStyle = css`
     margin: 0.4em 0.4em 0.4em 0.4em;
     /* necessary to prevent overflow */
     max-width: 55vw;
-    max-height: 20vw;
 
     > code {
         background-color: inherit;
