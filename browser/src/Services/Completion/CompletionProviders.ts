@@ -4,7 +4,9 @@
 
 import * as types from "vscode-languageserver-types"
 
-import { ICompletionsRequestor } from "./CompletionsRequestor"
+import { LanguageManager } from "./../Language"
+
+import { ICompletionsRequestor, LanguageServiceCompletionsRequestor } from "./CompletionsRequestor"
 
 export interface ICompletionProviderInfo {
     id: string
@@ -70,8 +72,12 @@ export class CompletionProviders implements ICompletionsRequestor {
 
 let _completionProviders: CompletionProviders
 
-export const activate = () => {
+export const activate = (languageManager: LanguageManager) => {
     _completionProviders = new CompletionProviders()
+
+    const languageServiceCompletion = new LanguageServiceCompletionsRequestor(languageManager)
+
+    _completionProviders.registerCompletionProvider("oni.completions.language-server", languageServiceCompletion)
 }
 
 export const getInstance = (): CompletionProviders => {

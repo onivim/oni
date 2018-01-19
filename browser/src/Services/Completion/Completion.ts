@@ -7,15 +7,16 @@ import { Event, IDisposable, IEvent } from "oni-types"
 import { Store, Unsubscribe } from "redux"
 import * as types from "vscode-languageserver-types"
 
+import { LanguageManager } from "./../Language"
+
 import { getFilteredCompletions } from "./CompletionSelectors"
-import { ICompletionsRequestor, LanguageServiceCompletionsRequestor  } from "./CompletionsRequestor"
+import { ICompletionsRequestor } from "./CompletionsRequestor"
 
 import { ICompletionState } from "./CompletionState"
 
 import { createStore } from "./CompletionStore"
 
 import { Configuration } from "./../Configuration"
-import { LanguageManager } from "./../Language"
 import * as CompletionUtility from "./CompletionUtility"
 
 export interface ICompletionShowEventArgs {
@@ -56,14 +57,12 @@ export class Completion implements IDisposable {
 
     constructor(
         private _editor: Oni.Editor,
-        private _languageManager: LanguageManager,
         private _configuration: Configuration,
-        private _completionsRequestor?: ICompletionsRequestor,
+        private _completionsRequestor: ICompletionsRequestor,
+        private _languageManager: LanguageManager,
     ) {
-        this._completionsRequestor = this._completionsRequestor || new LanguageServiceCompletionsRequestor(this._languageManager)
-        this._completionsRequestor = new TestRequestor()
+        this._completionsRequestor = this._completionsRequestor
         this._store = createStore(this._editor, this._languageManager, this._configuration, this._completionsRequestor)
-
 
         const sub1 = this._editor.onBufferEnter.subscribe((buf: Oni.Buffer) => {
             this._onBufferEnter(buf)

@@ -31,7 +31,7 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 import { IColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
 import { registerBuiltInCommands } from "./../../Services/Commands"
-import { Completion } from "./../../Services/Completion"
+import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
@@ -132,6 +132,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     constructor(
         private _colors: IColors,
+        private _completionProviders: CompletionProviders,
         private _configuration: Configuration,
         private _diagnostics: IDiagnosticsDataSource,
         private _languageManager: LanguageManager,
@@ -401,7 +402,7 @@ export class NeovimEditor extends Editor implements IEditor {
         const textMateHighlightingEnabled = this._configuration.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter(this._configuration, this) : new NullSyntaxHighlighter()
 
-        this._completion = new Completion(this, this._languageManager, this._configuration)
+        this._completion = new Completion(this, this._configuration, this._completionProviders, this._languageManager)
         this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
 
         this._completion.onShowCompletionItems.subscribe((completions) => {

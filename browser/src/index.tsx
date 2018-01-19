@@ -119,10 +119,13 @@ const start = async (args: string[]): Promise<void> => {
     const Diagnostics = await diagnosticsPromise
     const diagnostics = Diagnostics.getInstance()
 
+    const CompletionProviders = await completionProvidersPromise
+    CompletionProviders.activate(languageManager)
+
    await Promise.race([Utility.delay(5000),
      Promise.all([
         SharedNeovimInstance.activate(configuration, pluginManager),
-        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance(), workspace)
+        startEditors(parsedArgs._, Colors.getInstance(), CompletionProviders.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance(), workspace)
     ])
    ])
     Performance.endMeasure("Oni.Start.Editors")
@@ -133,9 +136,6 @@ const start = async (args: string[]): Promise<void> => {
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
-
-    const CompletionProviders = await completionProvidersPromise
-    CompletionProviders.activate()
 
     diagnostics.start(languageManager)
 
