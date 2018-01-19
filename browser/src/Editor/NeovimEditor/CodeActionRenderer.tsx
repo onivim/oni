@@ -27,7 +27,12 @@ export class CodeActionRenderer {
         // private _configuration: Configuration,
         private _toolTipsProvider: IToolTipsProvider,
         private _contextMenu: ContextMenu,
-    ) { }
+    ) { 
+        this._contextMenu.onItemSelected.subscribe(async (selectedItem: types.CompletionItem) => {
+            // TODO:
+            console.log("selected")
+        })
+    }
 
     public hasCommands(): boolean {
         return this._commands && this._commands.length > 0
