@@ -38,6 +38,7 @@ const start = async (args: string[]): Promise<void> => {
     const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const snippetPromise = import("./Services/Snippets")
     const workspacePromise = import("./Services/Workspace")
     const cssPromise = import("./CSS")
 
@@ -150,6 +151,10 @@ const start = async (args: string[]): Promise<void> => {
 
     const GlobalCommands = await globalCommandsPromise
     GlobalCommands.activate(commandManager)
+
+    const Snippets = await snippetPromise
+    Snippets.activate()
+
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()
