@@ -14,10 +14,12 @@ import * as types from "vscode-languageserver-types"
 
 import { Configuration } from "./../Configuration"
 
+import { IEditor } from "./../../Editor/Editor"
+
 import { LanguageManager } from "./LanguageManager"
 import { createStore, DefaultLanguageState, ILanguageState } from "./LanguageStore"
 
-import { ICodeActionRequestor, ICodeActionResult } from "./CodeActionsRequestor"
+import { ICodeActionRequestor, ICodeActionResult, LanguageServiceCodeActionRequestor } from "./CodeActionsRequestor"
 import { IDefinitionRequestor, IDefinitionResult, LanguageServiceDefinitionRequestor } from "./DefinitionRequestor"
 import { IHoverRequestor, IHoverResult, LanguageServiceHoverRequestor } from "./HoverRequestor"
 
@@ -59,17 +61,14 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
     }
 
     constructor(
-        private _editor: Oni.Editor,
+        private _editor: IEditor,
         private _configuration: Configuration,
-        private _languageManager?: LanguageManager,
-        private _definitionRequestor?: IDefinitionRequestor,
-        private _hoverRequestor?: IHoverRequestor,
+        private _codeActionRequestor: ICodeActionRequestor,
+        private _definitionRequestor: IDefinitionRequestor,
+        private _hoverRequestor: IHoverRequestor,
     ) {
 
-        this._definitionRequestor = this._definitionRequestor || new LanguageServiceDefinitionRequestor(this._languageManager, this._editor)
-        this._hoverRequestor = this._hoverRequestor || new LanguageServiceHoverRequestor(this._languageManager)
-
-        this._store = createStore(this._configuration, this._hoverRequestor, this._definitionRequestor)
+        this._store = createStore(this._configuration, this._codeActionRequestor, this._hoverRequestor, this._definitionRequestor)
 
         const sub1 = this._editor.onModeChanged.subscribe((newMode: string) => {
             this._store.dispatch({
@@ -87,13 +86,15 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
         })
 
         // TODO: Promote cursor moved to API
-        const sub3 = (this._editor as any).onCursorMoved.subscribe((cursorMoveEvent: Oni.Cursor) => {
+        const sub3 = this._editor.onCursorMoved.subscribe((cursorMoveEvent: Oni.Cursor) => {
             this._store.dispatch({
                 type: "CURSOR_MOVED",
                 line: cursorMoveEvent.line,
                 column: cursorMoveEvent.column,
             })
         })
+
+        // const sub4 = this._editor.
 
         this._storeUnsubscribe = this._store.subscribe(() => this._onStateUpdate(this._store.getState()))
 
