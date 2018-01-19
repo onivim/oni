@@ -57,13 +57,7 @@ export class Gutter extends React.PureComponent<IErrorsProps, {}> {
                 iconName="exclamation-circle"/>
         })
 
-        const ideaMarkers = [
-            <Marker isActive={true} y={5} text={"derp"} color="yellow" iconName="bolt" />
-        ]
-
-        const markers = [...errorMarkers, ...ideaMarkers]
-
-        return <div>{markers}</div>
+        return <div>{errorMarkers}</div>
     }
 }
 
