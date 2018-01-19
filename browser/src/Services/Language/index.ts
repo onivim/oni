@@ -1,6 +1,6 @@
 export * from "./addInsertModeLanguageFunctionality"
 export * from "./CodeAction"
-export * from "./CodeActionRequestor"
+export * from "./CodeActionsRequestor"
 export * from "./DefinitionRequestor"
 export * from "./Edits"
 export * from "./FindAllReferences"

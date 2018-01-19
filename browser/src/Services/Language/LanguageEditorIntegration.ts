@@ -16,12 +16,11 @@ import { Configuration } from "./../Configuration"
 
 import { IEditor } from "./../../Editor/Editor"
 
-import { LanguageManager } from "./LanguageManager"
 import { createStore, DefaultLanguageState, ILanguageState } from "./LanguageStore"
 
-import { ICodeActionRequestor, ICodeActionResult, LanguageServiceCodeActionRequestor } from "./CodeActionsRequestor"
-import { IDefinitionRequestor, IDefinitionResult, LanguageServiceDefinitionRequestor } from "./DefinitionRequestor"
-import { IHoverRequestor, IHoverResult, LanguageServiceHoverRequestor } from "./HoverRequestor"
+import { ICodeActionRequestor, ICodeActionResult } from "./CodeActionsRequestor"
+import { IDefinitionRequestor, IDefinitionResult } from "./DefinitionRequestor"
+import { IHoverRequestor, IHoverResult } from "./HoverRequestor"
 
 export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
@@ -94,11 +93,16 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
             })
         })
 
-        // const sub4 = this._editor.
+        const sub4 = this._editor.onSelectionChanged.subscribe((newRange: types.Range) => {
+            this._store.dispatch({
+                type: "SELECTION_CHANGED",
+                range: newRange,
+            })
+        })
 
         this._storeUnsubscribe = this._store.subscribe(() => this._onStateUpdate(this._store.getState()))
 
-        this._subscriptions = [sub1, sub2, sub3]
+        this._subscriptions = [sub1, sub2, sub3, sub4]
     }
 
     // Explicit gesture to show hover - ignores the setting

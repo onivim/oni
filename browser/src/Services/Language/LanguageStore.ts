@@ -50,6 +50,13 @@ export const DefaultLocationBasedResult: ILocationBasedResult<any> = {
     result: null,
 }
 
+export const DefaultSelectionBasedResult: ISelectionBasedResult<any> = {
+    filePath: null,
+    language: null,
+    range: null,
+    result: null
+}
+
 export interface IActiveBufferState {
     filePath: string
     language: string
@@ -70,13 +77,15 @@ export const DefaultCursorPosition: ICursorPositionState = {
     column: -1,
 }
 
-export type HoverResult = ILocationBasedResult<IHoverResult>
+export type CodeActionResult = ISelectionBasedResult<ICodeActionResult>
 export type DefinitionResult = ILocationBasedResult<IDefinitionResult>
+export type HoverResult = ILocationBasedResult<IHoverResult>
 
 export interface ILanguageState {
     mode: string
     activeBuffer: IActiveBufferState
     cursor: ICursorPositionState
+    codeActionResult: CodeActionResult
     hoverResult: HoverResult
     definitionResult: DefinitionResult
 }
@@ -85,6 +94,7 @@ export const DefaultLanguageState: ILanguageState = {
     mode: "",
     activeBuffer: DefaultActiveBuffer,
     cursor: DefaultCursorPosition,
+    codeActionResult: DefaultSelectionBasedResult,
     hoverResult: DefaultLocationBasedResult,
     definitionResult: DefaultLocationBasedResult,
 }
@@ -199,9 +209,27 @@ export const definitionResultReducer: Reducer<DefinitionResult> = (
     }
 }
 
+export const codeActionResultReducer: Reducer<CodeActionResult> = (
+    state: CodeActionResult = DefaultSelectionBasedResult,
+    action: LanguageAction,
+) => {
+    switch (action.type) {
+        case "CODE_ACTION_QUERY_RESULT":
+            return action.result
+        case "SELECTION_CHANGED":
+        case "CURSOR_MOVED":
+        case "BUFFER_ENTER":
+        case "MODE_CHANGED":
+            return DefaultSelectionBasedResult
+        default:
+            return state
+    }
+}
+
 export const languageStateReducer = combineReducers<ILanguageState>({
     mode: modeReducer,
     activeBuffer: activeBufferReducer,
+    codeActions: codeActionResultReducer,
     cursor: cursorMovedReducer,
     definitionResult: definitionResultReducer,
     hoverResult: hoverResultReducer,
@@ -234,11 +262,15 @@ export const queryForCodeActionsEpic: Epic<LanguageAction, ILanguageState> = (ac
 
             const range = action.range
 
-            return {
-                type: "CODE_ACTION_QUERY",
+            const selection = {
                 filePath,
                 language,
                 range,
+            }
+
+            return {
+                type: "CODE_ACTION_QUERY",
+                selection,
             } as LanguageAction
         })
 

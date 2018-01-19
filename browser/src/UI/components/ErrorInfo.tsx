@@ -1,7 +1,7 @@
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
-import { ErrorIcon } from "./Gutter"
+import { Icon } from "./../Icon"
 
 import { getColorFromSeverity } from "./../../Services/Errors"
 
@@ -21,9 +21,11 @@ export class ErrorInfo extends React.PureComponent<IErrorInfoProps, {}> {
         }
 
         const errs = this.props.errors.map((e) => <div className="diagnostic">
-                                           <ErrorIcon color={getColorFromSeverity(e.severity)} />
-                                           <span>{e.message}</span>
-                                           </div>)
+            <div className="icon-container" style={{ color: getColorFromSeverity(e.severity) }}>
+                <Icon name={"exclamation-circle"} />
+            </div>
+            <span>{e.message}</span>
+        </div>)
 
         const style = this.props.style || {}
 
