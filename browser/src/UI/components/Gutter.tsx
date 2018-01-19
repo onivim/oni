@@ -50,7 +50,7 @@ export class Gutter extends React.PureComponent<IErrorsProps, {}> {
             const isActive = this.props.cursorLine - 1 === e.range.start.line
             const pixelY = pixelPosition.pixelY - (padding / 2)
 
-            return <ErrorMarker isActive={isActive}
+            return <Marker isActive={isActive}
                 y={pixelY}
                 text={e.message}
                 color={getColorFromSeverity(e.severity)}
@@ -58,7 +58,7 @@ export class Gutter extends React.PureComponent<IErrorsProps, {}> {
         })
 
         const ideaMarkers = [
-            <ErrorMarker isActive={true} y={5} text={"derp"} color="yellow" iconName="bolt" />
+            <Marker isActive={true} y={5} text={"derp"} color="yellow" iconName="bolt" />
         ]
 
         const markers = [...errorMarkers, ...ideaMarkers]
@@ -67,7 +67,7 @@ export class Gutter extends React.PureComponent<IErrorsProps, {}> {
     }
 }
 
-export interface IErrorMarkerProps {
+export interface IMarkerProps {
     y: number
     text: string
     isActive: boolean
@@ -75,7 +75,7 @@ export interface IErrorMarkerProps {
     iconName: string
 }
 
-export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, {}> {
+export class Marker extends React.PureComponent<IMarkerProps, {}> {
 
     public render(): JSX.Element {
 
@@ -93,14 +93,4 @@ export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, {}> {
             {errorIcon}
         </div>
     }
-}
-
-export interface IErrorIconProps {
-    color: string
-}
-
-export const ErrorIcon = (props: IErrorIconProps) => {
-    return <div className="icon-container" style={{ color: props.color }}>
-        <Icon name="exclamation-circle" />
-    </div>
 }
