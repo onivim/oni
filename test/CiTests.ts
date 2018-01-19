@@ -22,6 +22,7 @@ const CiTests = [
     "NoInstalledNeovim",
     "Regression.1251.NoAdditionalProcessesOnStartup",
     "Regression.1296.SettingColorsTest",
+    "Regression.1295.UnfocusedWindowTest",
 ]
 
 const WindowsOnlyTests = [
