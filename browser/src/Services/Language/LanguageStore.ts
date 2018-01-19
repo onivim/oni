@@ -318,7 +318,33 @@ export const doesLocationBasedResultMatchCursorPosition = (result: ILocationBase
 
 export const queryCodeActionsEpic = (codeActionRequestor: ICodeActionRequestor): Epic<LanguageAction, ILanguageState> => (action$, store) =>
     action$.ofType("CODE_ACTION_QUERY")
-        .map(_ => NullAction)
+        .switchMap(() => {
+
+            const state = store.getState()
+
+            const { filePath, language } = state.activeBuffer
+
+            const range = types.Range.create(0, 0, 0, 0)
+
+            return Observable.defer(async () => {
+                const result = await codeActionRequestor.getCodeActions(language, filePath, range, [])
+                return {
+                    type: "CODE_ACTION_QUERY_RESULT",
+                    result: {
+                        filePath,
+                        language,
+                        range,
+                        result,
+                    }
+                } as LanguageAction
+            })
+        }).filter((action) => {
+            if (action.type !== "CODE_ACTION_QUERY_RESULT") {
+                return false
+            }
+
+            return true
+        })
 
 export const queryDefinitionEpic = (definitionRequestor: IDefinitionRequestor): Epic<LanguageAction, ILanguageState> => (action$, store) =>
     action$.ofType("DEFINITION_QUERY")
