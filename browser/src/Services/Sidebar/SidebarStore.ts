@@ -32,6 +32,9 @@ export interface ISidebarEntry {
 export interface SidebarPane extends Oni.IWindowSplit {
     id: string
     title: string
+
+    enter(): void
+    leave(): void
 }
 
 export class SidebarManager {
@@ -59,6 +62,13 @@ export class SidebarManager {
             type: "SET_FOCUSED_ID",
             focusedEntryId: id,
         })
+
+        if (id) {
+            this._store.dispatch({
+                type: "SET_ACTIVE_ID",
+                activeEntryId: id,
+            })
+        }
     }
 
     public add(icon: SidebarIcon, pane: SidebarPane): void {
