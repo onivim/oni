@@ -50,7 +50,6 @@ describe("SnippetSession", () => {
     })
 
     it("handles multiple lines", async () => {
-        
         const snippet = new OniSnippet("foo\nbar")
         snippetSession = new SnippetSession(mockEditor as any, snippet)
 
