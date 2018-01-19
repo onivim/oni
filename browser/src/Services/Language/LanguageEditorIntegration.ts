@@ -17,6 +17,7 @@ import { Configuration } from "./../Configuration"
 import { LanguageManager } from "./LanguageManager"
 import { createStore, DefaultLanguageState, ILanguageState } from "./LanguageStore"
 
+import { ICodeActionRequestor, ICodeActionResult } from "./CodeActionsRequestor"
 import { IDefinitionRequestor, IDefinitionResult, LanguageServiceDefinitionRequestor } from "./DefinitionRequestor"
 import { IHoverRequestor, IHoverResult, LanguageServiceHoverRequestor } from "./HoverRequestor"
 
@@ -33,6 +34,9 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
     private _onShowHover: OniTypes.Event<IHoverResult> = new OniTypes.Event<IHoverResult>()
     private _onHideHover: OniTypes.Event<void> = new OniTypes.Event<void>()
 
+    private _onShowCodeActions = new OniTypes.Event<ICodeActionResult>()
+    private _onHideCodeActions = new OniTypes.Event<void>()
+
     public get onShowDefinition(): OniTypes.IEvent<IDefinitionResult> {
         return this._onShowDefinition
     }
@@ -45,6 +49,13 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
     }
     public get onHideHover(): OniTypes.IEvent<void> {
         return this._onHideHover
+    }
+
+    public get onShowCodeActions(): OniTypes.IEvent<ICodeActionResult> {
+        return this._onShowCodeActions
+    }
+    public get onHideCodeActions(): OniTypes.IEvent<void> {
+        return this._onHideCodeActions
     }
 
     constructor(

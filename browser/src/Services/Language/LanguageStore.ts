@@ -8,6 +8,8 @@
 import "rxjs/add/observable/of"
 import { Observable } from "rxjs/Observable"
 
+import * as types from "vscode-languageserver-types"
+
 import { combineReducers, Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
@@ -15,6 +17,7 @@ import { createStore as oniCreateStore } from "./../../Redux"
 
 import { Configuration } from "./../Configuration"
 
+import { ICodeActionRequestor, ICodeActionResult } from "./CodeActionsRequestor"
 import { IDefinitionRequestor, IDefinitionResult } from "./DefinitionRequestor"
 import { IHoverRequestor, IHoverResult } from "./HoverRequestor"
 
@@ -25,7 +28,17 @@ export interface ILocation {
     column: number
 }
 
+export interface ISelection {
+    filePath: string
+    language: string
+    range: types.Range
+}
+
 export interface ILocationBasedResult<T> extends ILocation {
+    result: T | null
+}
+
+export interface ISelectionBasedResult<T> extends ISelection {
     result: T | null
 }
 
@@ -99,6 +112,12 @@ export type LanguageAction = {
     } | {
         type: "DEFINITION_QUERY_RESULT",
         result: ILocationBasedResult<IDefinitionResult>,
+    } | {
+        type: "CODE_ACTION_QUERY",
+        selection: ISelection,
+    } | {
+        type: "CODE_ACTION_QUERY_RESULT",
+        result: ISelectionBasedResult<ICodeActionResult>,
     }
 
 export const modeReducer: Reducer<string> = (
@@ -185,10 +204,11 @@ export const languageStateReducer = combineReducers<ILanguageState>({
     hoverResult: hoverResultReducer,
 })
 
-export const createStore = (configuration: Configuration, hoverRequestor: IHoverRequestor, definitionRequestor: IDefinitionRequestor): Store<ILanguageState> => {
+export const createStore = (configuration: Configuration, codeActionsRequestor: ICodeActionRequestor, hoverRequestor: IHoverRequestor, definitionRequestor: IDefinitionRequestor): Store<ILanguageState> => {
 
     const epicMiddleware = createEpicMiddleware(combineEpics(
         queryForDefinitionAndHoverEpic(configuration),
+        queryCodeActionsEpic(codeActionsRequestor),
         queryDefinitionEpic(definitionRequestor),
         queryHoverEpic(hoverRequestor),
     ))
@@ -237,6 +257,10 @@ export const doesLocationBasedResultMatchCursorPosition = (result: ILocationBase
     && result.column === state.cursor.column
     && state.mode === "normal"
 }
+
+export const queryCodeActionsEpic = (codeActionRequestor: ICodeActionRequestor): Epic<LanguageAction, ILanguageState> => (action$, store) =>
+    action$.ofType("CODE_ACTION_QUERY")
+        .map(_ => NullAction)
 
 export const queryDefinitionEpic = (definitionRequestor: IDefinitionRequestor): Epic<LanguageAction, ILanguageState> => (action$, store) =>
     action$.ofType("DEFINITION_QUERY")

@@ -43,6 +43,9 @@ import {
     addInsertModeLanguageFunctionality,
     LanguageEditorIntegration,
     LanguageManager,
+    LanguageServiceCodeActionRequestor,
+    LanguageServiceDefinitionRequestor,
+    LanguageServiceHoverRequestor,
 } from "./../../Services/Language"
 
 import {
@@ -424,7 +427,11 @@ export class NeovimEditor extends Editor implements IEditor {
             this._completion.commitItem(item)
         })
 
-        this._languageIntegration = new LanguageEditorIntegration(this, this._configuration, this._languageManager)
+        this._languageIntegration = new LanguageEditorIntegration(this, this._configuration, 
+            new LanguageServiceCodeActionRequestor(),
+            new LanguageServiceDefinitionRequestor(this._languageManager, this),
+            new LanguageServiceHoverRequestor(this._languageManager),
+        )
 
         this._languageIntegration.onShowHover.subscribe((hover) => {
             const { cursorPixelX, cursorPixelY } = this._store.getState()
