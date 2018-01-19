@@ -50,6 +50,8 @@ export interface IThemeColors {
     "editor.hover.border": string
     "editor.hover.contents.background": string
     "editor.hover.contents.foreground": string
+    "editor.hover.contents.codeblock.background": string
+    "editor.hover.contents.codeblock.foreground": string
 
     // Context menu is used for completion, refactoring
     "contextMenu.background": string
@@ -113,6 +115,8 @@ export const getHoverColors = (userConfig: GenericConfigurationValues, colors: P
             "editor.hover.border": colors["toolTip.border"],
             "editor.hover.contents.background": alterColor(colors["toolTip.background"]),
             "editor.hover.contents.foreground": colors["toolTip.foreground"],
+            "editor.hover.contents.codeblock.background": darken(colors["background"], 0.25),
+            "editor.hover.contents.codeblock.foreground": colors["toolTip.foreground"],
     }
 
     const userHoverColors = Object.keys(userConfig)
@@ -222,6 +226,8 @@ export const DefaultThemeColors: IThemeColors = {
     "editor.hover.border": ColorWhite,
     "editor.hover.contents.background": ColorBlack,
     "editor.hover.contents.foreground": ColorWhite,
+    "editor.hover.contents.codeblock.background": ColorBlack,
+    "editor.hover.contents.codeblock.foreground": ColorWhite,
 
     // Context menu is used for completion, refactoring
     "contextMenu.background": ColorBlack,
