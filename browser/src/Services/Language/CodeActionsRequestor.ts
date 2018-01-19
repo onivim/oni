@@ -46,7 +46,7 @@ export class LanguageServiceCodeActionRequestor {
 
     public async getCodeActions(language: string, filePath: string, range: types.Range, diagnostics: types.Diagnostic[] = []): Promise<ICodeActionResult> {
         const result: ICodeActionResult = {
-            commands: null
+            commands: null,
         }
 
         if (!range) {

@@ -11,12 +11,14 @@ import { Event, IEvent } from "oni-types"
 
 // Potential API methods to augment the Oni API
 export interface IEditor extends Oni.Editor {
+
+    // Properties
+    onCursorMoved: IEvent<Oni.Cursor>
+    onSelectionChanged: IEvent<types.Range>
+
     // Methods
     init(filesToOpen: string[]): void
     render(): JSX.Element
-
-    onCursorMoved: IEvent<Oni.Cursor>
-    onSelectionChanged: IEvent<types.Range>
 }
 
 /**

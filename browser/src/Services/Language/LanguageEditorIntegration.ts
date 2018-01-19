@@ -16,7 +16,7 @@ import { Configuration } from "./../Configuration"
 
 import { IEditor } from "./../../Editor/Editor"
 
-import { createStore, CodeActionResult, DefaultLanguageState, ILanguageState } from "./LanguageStore"
+import { CodeActionResult, createStore, DefaultLanguageState, ILanguageState } from "./LanguageStore"
 
 import { ICodeActionRequestor } from "./CodeActionsRequestor"
 import { IDefinitionRequestor, IDefinitionResult } from "./DefinitionRequestor"

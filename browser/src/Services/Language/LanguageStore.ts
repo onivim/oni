@@ -54,7 +54,7 @@ export const DefaultSelectionBasedResult: ISelectionBasedResult<any> = {
     filePath: null,
     language: null,
     range: null,
-    result: null
+    result: null,
 }
 
 export interface IActiveBufferState {
@@ -276,7 +276,7 @@ export const queryForCodeActionsEpic: Epic<LanguageAction, ILanguageState> = (ac
             if (action.type !== "SELECTION_CHANGED") {
                 return NullAction
             }
-            
+
             const currentState = store.getState()
             const filePath = currentState.activeBuffer.filePath
             const language = currentState.activeBuffer.language
@@ -360,7 +360,7 @@ export const queryCodeActionsEpic = (codeActionRequestor: ICodeActionRequestor):
                         language,
                         range,
                         result,
-                    }
+                    },
                 } as LanguageAction
             })
         }).filter((action) => {

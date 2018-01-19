@@ -63,8 +63,8 @@ import { Workspace } from "./../../Services/Workspace"
 import { Editor, IEditor } from "./../Editor"
 
 import { BufferManager } from "./../BufferManager"
-import { CompletionMenu } from "./CompletionMenu"
 import { CodeActionRenderer } from "./CodeActionRenderer"
+import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
 import { NeovimSurface } from "./NeovimSurface"
@@ -432,7 +432,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._completion.commitItem(item)
         })
 
-        this._languageIntegration = new LanguageEditorIntegration(this, this._configuration, 
+        this._languageIntegration = new LanguageEditorIntegration(this, this._configuration,
             new LanguageServiceCodeActionRequestor(this._languageManager),
             new LanguageServiceDefinitionRequestor(this._languageManager, this),
             new LanguageServiceHoverRequestor(this._languageManager),
@@ -655,14 +655,13 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _updateSelection(): Promise<void> {
         if (this.mode === "visual") {
-            
+
              const startRange = await this._neovimInstance.callFunction("getpos", ["v"])
              const endRange = await this._neovimInstance.callFunction("getpos", ["."])
-       const [, startLine, startColumn ] = startRange
-          const [, endLine, endColumn ] = endRange
+             const [, startLine, startColumn ] = startRange
+             const [, endLine, endColumn ] = endRange
 
-
-            this.notifySelectionChanged(types.Range.create(startLine, startColumn, endLine, endColumn))
+             this.notifySelectionChanged(types.Range.create(startLine, startColumn, endLine, endColumn))
         }
     }
 

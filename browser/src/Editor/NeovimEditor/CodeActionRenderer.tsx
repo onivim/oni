@@ -15,7 +15,7 @@ import { IToolTipsProvider } from "./ToolTipsProvider"
 
 import { Icon } from "./../../UI/Icon"
 
-import { ICodeActionExecutor, CodeActionResult } from "./../../Services/Language"
+import { CodeActionResult, ICodeActionExecutor } from "./../../Services/Language"
 
 import * as Log from "./../../Log"
 
@@ -32,7 +32,7 @@ export class CodeActionRenderer {
         private _codeActionExecutor: ICodeActionExecutor,
         private _toolTipsProvider: IToolTipsProvider,
         private _contextMenu: ContextMenu,
-    ) { 
+    ) {
         this._contextMenu.onItemSelected.subscribe(async (selectedItem: types.CompletionItem) => {
             if (this.hasCommands()) {
                 Log.info("[CodeActionRenderer] Executing command: " + selectedItem.data)
