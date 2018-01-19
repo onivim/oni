@@ -15,6 +15,8 @@ import { Observable } from "rxjs/Observable"
 import { Provider } from "react-redux"
 import { bindActionCreators, Store } from "redux"
 
+import * as types from "vscode-languageserver-types"
+
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import * as Oni from "oni-api"
@@ -362,6 +364,8 @@ export class NeovimEditor extends Editor implements IEditor {
         Observable.merge(this._cursorMoved$, this._cursorMovedI$)
             .subscribe((cursorMoved) => {
                 this.notifyCursorMoved(cursorMoved)
+
+                this._updateSelection()
             })
 
         this._modeChanged$ = this._neovimInstance.onModeChanged.asObservable()
@@ -627,6 +631,19 @@ export class NeovimEditor extends Editor implements IEditor {
                     />
                 </Provider>
         )
+    }
+
+    private async _updateSelection(): Promise<void> {
+        if (this.mode === "visual") {
+            
+             const startRange = await this._neovimInstance.callFunction("getpos", ["v"])
+             const endRange = await this._neovimInstance.callFunction("getpos", ["."])
+       const [, startLine, startColumn ] = startRange
+          const [, endLine, endColumn ] = endRange
+
+
+            this.notifySelectionChanged(types.Range.create(startLine, startColumn, endLine, endColumn))
+        }
     }
 
     private _onBounceStart(): void {

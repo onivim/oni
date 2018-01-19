@@ -4,6 +4,8 @@
  * for a specific window.
  */
 
+import * as types from "vscode-languageserver-types"
+
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
@@ -25,6 +27,7 @@ export class Editor implements Oni.Editor {
     private _onBufferScrolledEvent = new Event<Oni.EditorBufferScrolledEventArgs>()
     private _onCursorMoved = new Event<Oni.Cursor>()
     private _onModeChangedEvent = new Event<Oni.Vim.Mode>()
+    private _onSelectionChangedEvent = new Event<types.Range>()
 
     public get mode(): string {
         return this._currentMode
@@ -63,6 +66,10 @@ export class Editor implements Oni.Editor {
         return this._onBufferScrolledEvent
     }
 
+    public get onSelectionChanged(): IEvent<types.Range> {
+        return this._onSelectionChangedEvent
+    }
+
     public /* virtual */ openFile(filePath: string): Promise<Oni.Buffer> {
         return Promise.reject("Not implemented")
     }
@@ -96,5 +103,9 @@ export class Editor implements Oni.Editor {
 
     protected notifyBufferScrolled(bufferScrollEvent: Oni.EditorBufferScrolledEventArgs): void {
         this._onBufferScrolledEvent.dispatch(bufferScrollEvent)
+    }
+
+    protected notifySelectionChanged(newSelection: types.Range): void {
+        this._onSelectionChangedEvent.dispatch(newSelection)
     }
 }
