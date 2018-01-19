@@ -43,6 +43,7 @@ import {
     addInsertModeLanguageFunctionality,
     LanguageEditorIntegration,
     LanguageManager,
+    LanguageServiceCodeActionExecutor,
     LanguageServiceCodeActionRequestor,
     LanguageServiceDefinitionRequestor,
     LanguageServiceHoverRequestor,
@@ -161,7 +162,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._screen = new NeovimScreen()
 
         this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
-        this._codeActionRenderer = new CodeActionRenderer(this._toolTipsProvider, this._contextMenuManager.create())
+        this._codeActionRenderer = new CodeActionRenderer(new LanguageServiceCodeActionExecutor(this._languageManager), this._toolTipsProvider, this._contextMenuManager.create())
 
         this._definition = new Definition(this, this._store)
         this._symbols = new Symbols(this, this._definition, this._languageManager)
@@ -455,7 +456,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._languageIntegration.onShowCodeActions.subscribe((codeActions) => {
-            this._codeActionRenderer.showCommands(codeActions.commands)
+            this._codeActionRenderer.showCommands(codeActions)
         })
 
         this._languageIntegration.onHideCodeActions.subscribe((codeActions) => {

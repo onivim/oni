@@ -15,27 +15,34 @@ import { IToolTipsProvider } from "./ToolTipsProvider"
 
 import { Icon } from "./../../UI/Icon"
 
+import { ICodeActionExecutor, CodeActionResult } from "./../../Services/Language"
+
+import * as Log from "./../../Log"
+
 const CodeActionsAvailableToolTipId = "code-actions-available-tool-tip"
 
 export class CodeActionRenderer {
 
-    private _commands: types.Command[] = null
+    private _codeActionResult: CodeActionResult
 
     constructor(
         // private _colors: IColors,
         // private _editor: Oni.Editor,
         // private _configuration: Configuration,
+        private _codeActionExecutor: ICodeActionExecutor,
         private _toolTipsProvider: IToolTipsProvider,
         private _contextMenu: ContextMenu,
     ) { 
         this._contextMenu.onItemSelected.subscribe(async (selectedItem: types.CompletionItem) => {
-            // TODO:
-            console.log("selected")
+            if (this.hasCommands()) {
+                Log.info("[CodeActionRenderer] Executing command: " + selectedItem.data)
+                this._codeActionExecutor.executeCodeAction(this._codeActionResult.language, this._codeActionResult.filePath, selectedItem.data)
+            }
         })
     }
 
     public hasCommands(): boolean {
-        return this._commands && this._commands.length > 0
+        return this._codeActionResult && this._codeActionResult.result && this._codeActionResult.result.commands && this._codeActionResult.result.commands.length > 0
     }
 
     public expandCommands(): boolean {
@@ -48,7 +55,7 @@ export class CodeActionRenderer {
                 documentation: "Press enter to apply action.",
             })
 
-            const items = this._commands.map(mapCommandsToItem)
+            const items = this._codeActionResult.result.commands.map(mapCommandsToItem)
 
             this._contextMenu.show(items)
             return true
@@ -57,12 +64,13 @@ export class CodeActionRenderer {
         }
     }
 
-    public showCommands(commands: types.Command[]): void {
-        if (!commands || !commands.length) {
+    public showCommands(codeActionResult: CodeActionResult): void {
+
+        if (!codeActionResult || !codeActionResult.result || !codeActionResult.result.commands || !codeActionResult.result.commands.length) {
             return
         }
 
-        this._commands = commands
+        this._codeActionResult = codeActionResult
 
         const elem = this._renderQuickInfoElement()
 
@@ -77,7 +85,7 @@ export class CodeActionRenderer {
     }
 
     public hideCommands(): void {
-        this._commands = null
+        this._codeActionResult = null
         this._toolTipsProvider.hideToolTip(CodeActionsAvailableToolTipId)
         this._contextMenu.hide()
     }

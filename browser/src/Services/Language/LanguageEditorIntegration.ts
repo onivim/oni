@@ -16,9 +16,9 @@ import { Configuration } from "./../Configuration"
 
 import { IEditor } from "./../../Editor/Editor"
 
-import { createStore, DefaultLanguageState, ILanguageState } from "./LanguageStore"
+import { createStore, CodeActionResult, DefaultLanguageState, ILanguageState } from "./LanguageStore"
 
-import { ICodeActionRequestor, ICodeActionResult } from "./CodeActionsRequestor"
+import { ICodeActionRequestor } from "./CodeActionsRequestor"
 import { IDefinitionRequestor, IDefinitionResult } from "./DefinitionRequestor"
 import { IHoverRequestor, IHoverResult } from "./HoverRequestor"
 
@@ -35,7 +35,7 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
     private _onShowHover: OniTypes.Event<IHoverResult> = new OniTypes.Event<IHoverResult>()
     private _onHideHover: OniTypes.Event<void> = new OniTypes.Event<void>()
 
-    private _onShowCodeActions = new OniTypes.Event<ICodeActionResult>()
+    private _onShowCodeActions = new OniTypes.Event<CodeActionResult>()
     private _onHideCodeActions = new OniTypes.Event<void>()
 
     public get onShowDefinition(): OniTypes.IEvent<IDefinitionResult> {
@@ -52,7 +52,7 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
         return this._onHideHover
     }
 
-    public get onShowCodeActions(): OniTypes.IEvent<ICodeActionResult> {
+    public get onShowCodeActions(): OniTypes.IEvent<CodeActionResult> {
         return this._onShowCodeActions
     }
     public get onHideCodeActions(): OniTypes.IEvent<void> {
@@ -94,9 +94,13 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
         })
 
         const sub4 = this._editor.onSelectionChanged.subscribe((newRange: types.Range) => {
+
+            const minLine = Math.min(newRange.start.line, newRange.end.line)
+            const maxLine = Math.max(newRange.start.line, newRange.end.line)
+
             this._store.dispatch({
                 type: "SELECTION_CHANGED",
-                range: newRange,
+                range: types.Range.create(minLine, 0, maxLine + 1, 0),
             })
         })
 
@@ -151,7 +155,7 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
         }
 
         if (newState.codeActionResult.result && !this._lastState.codeActionResult.result) {
-            this._onShowCodeActions.dispatch(newState.codeActionResult.result)
+            this._onShowCodeActions.dispatch(newState.codeActionResult)
         }
 
         if (!newState.codeActionResult.result && this._lastState.codeActionResult.result) {

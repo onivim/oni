@@ -134,6 +134,19 @@ export class Buffer implements Oni.Buffer {
                     const lines = te.newText.split(os.EOL)
                     calls.push(["nvim_buf_set_lines", [parseInt(this._id, 10), lineStart, lineEnd, false, lines ]])
                 } else {
+
+                    const [firstLineContents] = await this.getLines(lineStart, lineStart + 1)
+                    const [lastLineContents] = await this.getLines(lineEnd, lineEnd + 1)
+
+                    const linesToReplace = te.newText.split(os.EOL)
+                    const firstLinePrefix = firstLineContents.substring(0, te.range.start.character)
+                    const lastLineSuffix = lastLineContents.substring(te.range.end.character, lastLineContents.length)
+
+                    linesToReplace[0] = firstLinePrefix + linesToReplace[0]
+                    linesToReplace[linesToReplace.length - 1] = linesToReplace[linesToReplace.length - 1] + lastLineSuffix
+
+                    calls.push(["nvim_buf_set_lines", [parseInt(this._id, 10), lineStart, lineEnd + 1, false, linesToReplace]])
+
                     Log.warn("Multi-line mid character edits not currently supported")
                 }
 
