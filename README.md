@@ -19,6 +19,7 @@ Support this project by [becoming a sponsor](https://opencollective.com/oni#spon
 
 <h4 align="center">Gold sponsors</h4>
 
+<p align="center">
 <a href="https://opencollective.com/oni/tiers/gold-sponsor/0/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/0/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/gold-sponsor/1/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/1/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/gold-sponsor/2/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/2/avatar.png"></a>
@@ -29,9 +30,11 @@ Support this project by [becoming a sponsor](https://opencollective.com/oni#spon
 <a href="https://opencollective.com/oni/tiers/gold-sponsor/7/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/7/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/gold-sponsor/8/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/8/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/gold-sponsor/9/website" target="_blank"><img src="https://opencollective.com/oni/tiers/gold-sponsor/9/avatar.png"></a>
+</p>
 
 <h4 align="center">Silver sponsors</h4>
 
+<p align="center">
 <a href="https://opencollective.com/oni/tiers/silver-sponsor/0/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/0/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/silver-sponsor/1/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/1/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/silver-sponsor/2/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/2/avatar.png"></a>
@@ -42,6 +45,7 @@ Support this project by [becoming a sponsor](https://opencollective.com/oni#spon
 <a href="https://opencollective.com/oni/tiers/silver-sponsor/7/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/7/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/silver-sponsor/8/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/8/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/silver-sponsor/9/website" target="_blank"><img src="https://opencollective.com/oni/tiers/silver-sponsor/9/avatar.png"></a>
+</p>
 
 ## Introduction
 
