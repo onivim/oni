@@ -8,14 +8,12 @@
 
 <h2 align="center">Supporting Oni</h2>
 
-Oni is an MIT-licensed open source project. Please consider supporting Oni by:
+Oni is an independent, MIT-licensed open source project. Please consider supporting Oni by:
 - [Become a backer or sponsor on Open Collective](https://opencollective.com/oni)
 - [Become a backer on BountySource](https://www.bountysource.com/teams/oni)
 
 
 <h3 align="center">Sponsors via OpenCollective</h3>
-
-Support this project by [becoming a sponsor](https://opencollective.com/oni#sponsor). Your logo will show up here with a link to your website.
 
 <h4 align="center">Gold sponsors</h4>
 
