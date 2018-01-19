@@ -4,6 +4,8 @@
 
 import * as types from "vscode-languageserver-types"
 
+import * as Oni from "oni-api"
+
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
 
@@ -15,7 +17,6 @@ import { createStore as oniCreateStore } from "./../../Redux"
 import { Configuration } from "./../Configuration"
 import { LanguageManager } from "./../Language"
 
-import { commitCompletion } from "./CompletionProvider"
 import * as CompletionSelects from "./CompletionSelectors"
 import { ICompletionsRequestor } from "./CompletionsRequestor"
 import * as CompletionUtility from "./CompletionUtility"
@@ -209,14 +210,14 @@ const createGetCompletionMeetEpic = (languageManager: LanguageManager, configura
             } as CompletionAction
         })
 
-const commitCompletionEpic: Epic<CompletionAction, ICompletionState> = (action$, store) =>
+const commitCompletionEpic = (editor: Oni.Editor): Epic<CompletionAction, ICompletionState>  => (action$, store) =>
     action$.ofType("COMMIT_COMPLETION")
-        .do(async (action) => {
+        .do(async (action: CompletionAction) => {
             if (action.type !== "COMMIT_COMPLETION") {
                 return
             }
 
-            await commitCompletion(action.meetLine, action.meetPosition, action.completionText)
+            await CompletionUtility.commitCompletion(editor.activeBuffer, action.meetLine, action.meetPosition, action.completionText)
         }).map(_ => nullAction)
 
 const createGetCompletionsEpic = (completionsRequestor: ICompletionsRequestor): Epic<CompletionAction, ICompletionState> => (action$, store) =>
@@ -337,7 +338,7 @@ const selectFirstItemEpic: Epic<CompletionAction, ICompletionState> = (action$, 
 
         })
 
-export const createStore = (languageManager: LanguageManager, configuration: Configuration, completionsRequestor: ICompletionsRequestor): Store<ICompletionState> => {
+export const createStore = (editor: Oni.Editor, languageManager: LanguageManager, configuration: Configuration, completionsRequestor: ICompletionsRequestor): Store<ICompletionState> => {
     return oniCreateStore("COMPLETION_STORE",
         combineReducers<ICompletionState>({
             enabled: enabledReducer,
@@ -349,7 +350,7 @@ export const createStore = (languageManager: LanguageManager, configuration: Con
         }),
         DefaultCompletionState,
         [createEpicMiddleware(combineEpics(
-            commitCompletionEpic,
+            commitCompletionEpic(editor),
             createGetCompletionMeetEpic(languageManager, configuration),
             createGetCompletionsEpic(completionsRequestor),
             createGetCompletionDetailsEpic(completionsRequestor),

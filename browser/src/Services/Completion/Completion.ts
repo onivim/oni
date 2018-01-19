@@ -62,7 +62,7 @@ export class Completion implements IDisposable {
     ) {
         this._completionsRequestor = this._completionsRequestor || new LanguageServiceCompletionsRequestor(this._languageManager)
         this._completionsRequestor = new TestRequestor()
-        this._store = createStore(this._languageManager, this._configuration, this._completionsRequestor)
+        this._store = createStore(this._editor, this._languageManager, this._configuration, this._completionsRequestor)
 
 
         const sub1 = this._editor.onBufferEnter.subscribe((buf: Oni.Buffer) => {
