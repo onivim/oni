@@ -88,7 +88,10 @@ export interface ILanguageState {
     codeActionResult: CodeActionResult
     hoverResult: HoverResult
     definitionResult: DefinitionResult
+    selection: types.Range
 }
+
+export const DefaultSelection = types.Range.create(-1, -1, -1, -1)
 
 export const DefaultLanguageState: ILanguageState = {
     mode: "",
@@ -97,6 +100,7 @@ export const DefaultLanguageState: ILanguageState = {
     codeActionResult: DefaultSelectionBasedResult,
     hoverResult: DefaultLocationBasedResult,
     definitionResult: DefaultLocationBasedResult,
+    selection: DefaultSelection,
 }
 
 export type LanguageAction = {
@@ -226,6 +230,22 @@ export const codeActionResultReducer: Reducer<CodeActionResult> = (
     }
 }
 
+export const selectionReducer: Reducer<types.Range> = (
+    state: types.Range = DefaultSelection,
+    action: LanguageAction,
+) => {
+    switch (action.type) {
+        case "SELECTION_CHANGED":
+            return action.range
+        case "CURSOR_MOVED":
+        case "BUFFER_ENTER":
+        case "MODE_CHANGED":
+            return DefaultSelection
+        default:
+            return state
+    }
+}
+
 export const languageStateReducer = combineReducers<ILanguageState>({
     mode: modeReducer,
     activeBuffer: activeBufferReducer,
@@ -233,6 +253,7 @@ export const languageStateReducer = combineReducers<ILanguageState>({
     cursor: cursorMovedReducer,
     definitionResult: definitionResultReducer,
     hoverResult: hoverResultReducer,
+    selection: selectionReducer,
 })
 
 export const createStore = (configuration: Configuration, codeActionsRequestor: ICodeActionRequestor, hoverRequestor: IHoverRequestor, definitionRequestor: IDefinitionRequestor): Store<ILanguageState> => {
@@ -324,7 +345,11 @@ export const queryCodeActionsEpic = (codeActionRequestor: ICodeActionRequestor):
 
             const { filePath, language } = state.activeBuffer
 
-            const range = types.Range.create(0, 0, 0, 0)
+            const range = state.selection
+
+            if (range === DefaultSelection) {
+                return Observable.of(NullAction)
+            }
 
             return Observable.defer(async () => {
                 const result = await codeActionRequestor.getCodeActions(language, filePath, range, [])

@@ -6,12 +6,10 @@
 
 import * as types from "vscode-languageserver-types"
 
-// import * as Log from "./../../Log"
-// import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
+import * as Log from "./../../Log"
+import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-// import { LanguageManager } from "./LanguageManager"
-
-// import * as Diagnostics from "./../Diagnostics"
+import { LanguageManager } from "./LanguageManager"
 
 export interface ICodeActionResult {
     commands: types.Command[]
@@ -24,38 +22,46 @@ export interface ICodeActionRequestor {
 export class LanguageServiceCodeActionRequestor {
 
     constructor(
-        // private _languageManager: LanguageManager,
+        private _languageManager: LanguageManager,
     ) { }
 
     public async getCodeActions(language: string, filePath: string, range: types.Range, diagnostics: types.Diagnostic[] = []): Promise<ICodeActionResult> {
 
-        const commands = [
-            types.Command.create("command1", "command1"),
-            types.Command.create("command2", "command2"),
-            types.Command.create("command3", "command3"),
-        ]
+        // const commands = [
+        //     types.Command.create("command1", "command1"),
+        //     types.Command.create("command2", "command2"),
+        //     types.Command.create("command3", "command3"),
+        // ]
 
-        return {
-            commands,
+        // return {
+        //     commands,
+        // }
+
+        const result: ICodeActionResult = {
+            commands: null
         }
 
-        // const args = { ...Helpers.createTextDocumentPositionParams(filePath, line, column) }
+        if (!range) {
+            return result
+        }
 
         // let result: types.Hover = null
 
-        // if (this._languageManager.isLanguageServerAvailable(language)) {
-        //     try {
-        //         result = await this._languageManager.sendLanguageServerRequest(language, filePath, "textDocument/hover", args)
-        //     } catch (ex) {
-        //         Log.warn(ex)
-        //     }
-        // }
+        if (this._languageManager.isLanguageServerAvailable(language)) {
+            let commands: types.Command[] = null
+            try {
+                commands = await this._languageManager.sendLanguageServerRequest(language, filePath, "textDocument/codeAction", Helpers.eventContextToCodeActionParams(filePath, range))
+            } catch (ex) {
+                Log.warn(ex)
+            }
 
-        // const latestErrors = Diagnostics.getInstance().getErrorsForPosition(filePath, line, column)
+            if (commands && commands.length > 0) {
+                return {
+                    commands,
+                }
+            }
+        }
 
-        // return {
-        //     hover: result,
-        //     errors: latestErrors,
-        // }
+        return result
     }
 }

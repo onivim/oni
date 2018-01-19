@@ -432,7 +432,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._languageIntegration = new LanguageEditorIntegration(this, this._configuration, 
-            new LanguageServiceCodeActionRequestor(),
+            new LanguageServiceCodeActionRequestor(this._languageManager),
             new LanguageServiceDefinitionRequestor(this._languageManager, this),
             new LanguageServiceHoverRequestor(this._languageManager),
         )

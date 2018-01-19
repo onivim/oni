@@ -19,7 +19,7 @@ const CodeActionsAvailableToolTipId = "code-actions-available-tool-tip"
 
 export class CodeActionRenderer {
 
-    private _lastCommands: types.Command[] = null
+    private _commands: types.Command[] = null
 
     constructor(
         // private _colors: IColors,
@@ -30,7 +30,7 @@ export class CodeActionRenderer {
     ) { }
 
     public hasCommands(): boolean {
-        return this._lastCommands && this._lastCommands.length > 0
+        return this._commands && this._commands.length > 0
     }
 
     public expandCommands(): boolean {
@@ -43,7 +43,7 @@ export class CodeActionRenderer {
                 documentation: "Press enter to apply action.",
             })
 
-            const items = this._lastCommands.map(mapCommandsToItem)
+            const items = this._commands.map(mapCommandsToItem)
 
             this._contextMenu.show(items)
             return true
@@ -53,7 +53,11 @@ export class CodeActionRenderer {
     }
 
     public showCommands(commands: types.Command[]): void {
-        this._lastCommands = commands
+        if (!commands || !commands.length) {
+            return
+        }
+
+        this._commands = commands
 
         const elem = this._renderQuickInfoElement()
 
@@ -68,6 +72,7 @@ export class CodeActionRenderer {
     }
 
     public hideCommands(): void {
+        this._commands = null
         this._toolTipsProvider.hideToolTip(CodeActionsAvailableToolTipId)
         this._contextMenu.hide()
     }
