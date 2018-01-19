@@ -50,6 +50,8 @@ export interface IConfigurationValues {
     "experimental.commandline.mode": boolean,
     "experimental.commandline.icons": boolean,
 
+    "experimental.editor.codeActions.enabled": boolean
+
     "autoClosingPairs.enabled": boolean
     "autoClosingPairs.default": any
 

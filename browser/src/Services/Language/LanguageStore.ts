@@ -260,7 +260,7 @@ export const createStore = (configuration: Configuration, codeActionsRequestor: 
 
     const epicMiddleware = createEpicMiddleware(combineEpics(
         queryForDefinitionAndHoverEpic(configuration),
-        queryForCodeActionsEpic,
+        queryForCodeActionsEpic(configuration)
         queryCodeActionsEpic(codeActionsRequestor),
         queryDefinitionEpic(definitionRequestor),
         queryHoverEpic(hoverRequestor),
@@ -269,8 +269,9 @@ export const createStore = (configuration: Configuration, codeActionsRequestor: 
     return oniCreateStore<ILanguageState>("LANGUAGE", languageStateReducer, DefaultLanguageState, [epicMiddleware])
 }
 
-export const queryForCodeActionsEpic: Epic<LanguageAction, ILanguageState> = (action$, store) =>
+export const queryForCodeActionsEpic = (configuration: Configuration): Epic<LanguageAction, ILanguageState> => (action$, store) =>
     action$.ofType("SELECTION_CHANGED")
+        .filter(() => configuration.getValue("experimental.editor.codeActions.enabled"))
         .map((action: LanguageAction) => {
 
             if (action.type !== "SELECTION_CHANGED") {
