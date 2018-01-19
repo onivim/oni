@@ -76,9 +76,7 @@ export interface IMarkerProps {
 }
 
 export class Marker extends React.PureComponent<IMarkerProps, {}> {
-
     public render(): JSX.Element {
-
         const iconPositionStyles = {
             top: this.props.y.toString() + "px",
         }
