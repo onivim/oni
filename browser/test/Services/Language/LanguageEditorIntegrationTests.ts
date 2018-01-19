@@ -222,4 +222,8 @@ describe("LanguageEditorIntegration", () => {
 
         assert.strictEqual(showDefinitionCount, 0, "Definition should not be shown")
     })
+
+    // TEST:
+    // - Selection - doesn't show code actions if selection changed while in flight
+    // - Integration with diagnostics?
 })

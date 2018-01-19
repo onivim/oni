@@ -63,6 +63,7 @@ import { Editor, IEditor } from "./../Editor"
 
 import { BufferManager } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
+import { CodeActionRenderer } from "./CodeActionRenderer"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
 import { NeovimSurface } from "./NeovimSurface"
@@ -115,6 +116,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _syntaxHighlighter: ISyntaxHighlighter
     private _languageIntegration: LanguageEditorIntegration
     private _completion: Completion
+    private _codeActionRenderer: CodeActionRenderer
     private _hoverRenderer: HoverRenderer
     private _rename: Rename = null
     private _symbols: Symbols = null
@@ -159,6 +161,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._screen = new NeovimScreen()
 
         this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
+        this._codeActionRenderer = new CodeActionRenderer(this._toolTipsProvider)
 
         this._definition = new Definition(this, this._store)
         this._symbols = new Symbols(this, this._definition, this._languageManager)
@@ -448,6 +451,14 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._languageIntegration.onHideDefinition.subscribe((definition) => {
             this._actions.hideDefinition()
+        })
+
+        this._languageIntegration.onShowCodeActions.subscribe((codeActions) => {
+            this._codeActionRenderer.showCommands()
+        })
+
+        this._languageIntegration.onHideCodeActions.subscribe((codeActions) => {
+            this._codeActionRenderer.hideCommands()
         })
 
         this._render()

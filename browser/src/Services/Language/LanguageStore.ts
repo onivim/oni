@@ -229,7 +229,7 @@ export const codeActionResultReducer: Reducer<CodeActionResult> = (
 export const languageStateReducer = combineReducers<ILanguageState>({
     mode: modeReducer,
     activeBuffer: activeBufferReducer,
-    codeActions: codeActionResultReducer,
+    codeActionResult: codeActionResultReducer,
     cursor: cursorMovedReducer,
     definitionResult: definitionResultReducer,
     hoverResult: hoverResultReducer,

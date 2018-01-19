@@ -150,6 +150,14 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
             this._onHideHover.dispatch()
         }
 
+        if (newState.codeActionResult.result && !this._lastState.codeActionResult.result) {
+            this._onShowCodeActions.dispatch(newState.codeActionResult.result)
+        }
+
+        if (!newState.codeActionResult.result && this._lastState.codeActionResult.result) {
+            this._onHideCodeActions.dispatch()
+        }
+
         this._lastState = newState
     }
 }
