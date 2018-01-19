@@ -23,6 +23,19 @@ export interface ICompletionShowEventArgs {
     base: string
 }
 
+export class TestRequestor implements ICompletionsRequestor {
+    public async getCompletions(language: string, filePath: string, line: number, column: number): Promise<types.CompletionItem[]> {
+        return [
+            types.CompletionItem.create("test1"),
+            types.CompletionItem.create("test2"),
+        ]
+    }
+
+    public async getCompletionDetails(language: string, filePath: string, completionItem: types.CompletionItem): Promise<types.CompletionItem> {
+        return completionItem
+    }
+}
+
 export class Completion implements IDisposable {
 
     private _lastCursorPosition: Oni.Cursor
@@ -48,7 +61,9 @@ export class Completion implements IDisposable {
         private _completionsRequestor?: ICompletionsRequestor,
     ) {
         this._completionsRequestor = this._completionsRequestor || new LanguageServiceCompletionsRequestor(this._languageManager)
+        this._completionsRequestor = new TestRequestor()
         this._store = createStore(this._languageManager, this._configuration, this._completionsRequestor)
+
 
         const sub1 = this._editor.onBufferEnter.subscribe((buf: Oni.Buffer) => {
             this._onBufferEnter(buf)
