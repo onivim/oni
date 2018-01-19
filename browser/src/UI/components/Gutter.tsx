@@ -36,7 +36,7 @@ export class Gutter extends React.PureComponent<IErrorsProps, {}> {
             return null
         }
 
-        const markers = errors.map((e) => {
+        const errorMarkers = errors.map((e) => {
 
             const screenSpaceStart = this.props.bufferToScreen(types.Position.create(e.range.start.line, e.range.start.character))
             if (!screenSpaceStart) {
@@ -53,8 +53,15 @@ export class Gutter extends React.PureComponent<IErrorsProps, {}> {
             return <ErrorMarker isActive={isActive}
                 y={pixelY}
                 text={e.message}
-                color={getColorFromSeverity(e.severity)} />
+                color={getColorFromSeverity(e.severity)}
+                iconName="exclamation-circle"/>
         })
+
+        const ideaMarkers = [
+            <ErrorMarker isActive={true} y={5} text={"derp"} color="yellow" iconName="bolt" />
+        ]
+
+        const markers = [...errorMarkers, ...ideaMarkers]
 
         return <div>{markers}</div>
     }
@@ -65,6 +72,7 @@ export interface IErrorMarkerProps {
     text: string
     isActive: boolean
     color: string
+    iconName: string
 }
 
 export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, {}> {
@@ -76,7 +84,9 @@ export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, {}> {
         }
 
         const errorIcon = <div style={iconPositionStyles} className="error-marker">
-            <ErrorIcon color={this.props.color} />
+            <div className="icon-container" style={{ color: this.props.color }}>
+                <Icon name={this.props.iconName}/>
+            </div>
         </div>
 
         return <div>
