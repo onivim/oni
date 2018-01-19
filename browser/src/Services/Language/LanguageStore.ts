@@ -97,6 +97,9 @@ export type LanguageAction = {
         line: number,
         column: number,
     } | {
+        type: "SELECTION_CHANGED",
+        range: types.Range,
+    } | {
         type: "BUFFER_ENTER",
         filePath: string,
         language: string,
@@ -208,6 +211,7 @@ export const createStore = (configuration: Configuration, codeActionsRequestor: 
 
     const epicMiddleware = createEpicMiddleware(combineEpics(
         queryForDefinitionAndHoverEpic(configuration),
+        queryForCodeActionsEpic,
         queryCodeActionsEpic(codeActionsRequestor),
         queryDefinitionEpic(definitionRequestor),
         queryHoverEpic(hoverRequestor),
@@ -215,6 +219,28 @@ export const createStore = (configuration: Configuration, codeActionsRequestor: 
 
     return oniCreateStore<ILanguageState>("LANGUAGE", languageStateReducer, DefaultLanguageState, [epicMiddleware])
 }
+
+export const queryForCodeActionsEpic: Epic<LanguageAction, ILanguageState> = (action$, store) =>
+    action$.ofType("SELECTION_CHANGED")
+        .map((action: LanguageAction) => {
+
+            if (action.type !== "SELECTION_CHANGED") {
+                return NullAction
+            }
+            
+            const currentState = store.getState()
+            const filePath = currentState.activeBuffer.filePath
+            const language = currentState.activeBuffer.language
+
+            const range = action.range
+
+            return {
+                type: "CODE_ACTION_QUERY",
+                filePath,
+                language,
+                range,
+            } as LanguageAction
+        })
 
 export const queryForDefinitionAndHoverEpic = (configuration: Configuration): Epic<LanguageAction, ILanguageState> => (action$, store) =>
     action$.ofType("CURSOR_MOVED")
