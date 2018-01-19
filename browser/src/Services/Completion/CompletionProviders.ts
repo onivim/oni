@@ -4,7 +4,7 @@
 
 import * as types from "vscode-languageserver-types"
 
-import { ICompletionsRequestor } from "./CompletionsRequestor
+import { ICompletionsRequestor } from "./CompletionsRequestor"
 
 export interface ICompletionProviderInfo {
     id: string
@@ -66,5 +66,14 @@ export class CompletionProviders implements ICompletionsRequestor {
 
         return providersMatchingId.length > 0 ? providersMatchingId[0].provider : null
     }
+}
 
+let _completionProviders: CompletionProviders
+
+export const activate = () => {
+    _completionProviders = new CompletionProviders()
+}
+
+export const getInstance = (): CompletionProviders => {
+    return _completionProviders
 }

@@ -17,6 +17,7 @@ import { Ui } from "./Ui"
 import { automation } from "./../../Services/Automation"
 import { Colors, getInstance as getColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
+import { getInstance as getCompletionProvidersInstance } from "./../../Services/Completion/CompletionProviders"
 import { configuration } from "./../../Services/Configuration"
 import { getInstance as getDiagnosticsInstance } from "./../../Services/Diagnostics"
 import { editorManager } from "./../../Services/EditorManager"
@@ -76,6 +77,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     public get recorder(): any {
         return recorder
+    }
+
+    public get completions(): any {
+        return getCompletionProvidersInstance()
     }
 
     public get configuration(): OniApi.Configuration {

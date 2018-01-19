@@ -39,6 +39,7 @@ const start = async (args: string[]): Promise<void> => {
     const languageManagerPromise = import("./Services/Language")
     const workspacePromise = import("./Services/Workspace")
     const cssPromise = import("./CSS")
+    const completionProvidersPromise = import("./Services/Completion/CompletionProviders")
 
     // Helper for debugging:
      Performance.startMeasure("Oni.Start.Config")
@@ -132,6 +133,9 @@ const start = async (args: string[]): Promise<void> => {
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
+
+    const CompletionProviders = await completionProvidersPromise
+    CompletionProviders.activate()
 
     diagnostics.start(languageManager)
 
