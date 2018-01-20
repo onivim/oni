@@ -33,7 +33,7 @@ export class SnippetSession {
         const cursorPosition = await this._buffer.getCursorPosition()
         const [currentLine] = await this._buffer.getLines(
             cursorPosition.line,
-            cursorPosition.line + 1
+            cursorPosition.line + 1,
         )
 
         const [prefix, suffix] = splitLineAtPosition(currentLine, cursorPosition.character)
@@ -42,7 +42,7 @@ export class SnippetSession {
         this._suffix = suffix
 
         await this._buffer.setLines(cursorPosition.line, cursorPosition.line + 1, [
-            this._prefix + this._snippet.toString() + this._suffix
+            this._prefix + this._snippet.toString() + this._suffix,
         ])
     }
 }

@@ -49,7 +49,7 @@ describe("OniSnippet", () => {
                 index: 1,
                 line: 0,
                 character: 3,
-                value: "index"
+                value: "index",
             })
         })
 
@@ -62,14 +62,14 @@ describe("OniSnippet", () => {
                 index: 1,
                 line: 0,
                 character: 3,
-                value: "a"
+                value: "a",
             })
 
             assert.deepEqual(placeholders[1], {
                 index: 2,
                 line: 1,
                 character: 3,
-                value: "b"
+                value: "b",
             })
         })
     })
