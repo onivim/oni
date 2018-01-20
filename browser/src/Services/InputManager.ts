@@ -67,6 +67,18 @@ export class InputManager implements Oni.InputManager {
         return !!this._boundKeys[keyChord]
     }
 
+    // Returns an array of keys bound to a command
+    public getBoundKeys(command: string): string[] {
+        return Object.keys(this._boundKeys).reduce((prev: string[], currentValue: string) => {
+            const bindings = this._boundKeys[currentValue]
+            if (bindings.find(b => b.action === command)) {
+                return [...prev, currentValue]
+            } else {
+                return []
+            }
+        }, [] as string[])
+    }
+
     /**
      * Internal Methods
      */
