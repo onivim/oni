@@ -26,6 +26,7 @@ import { menuManager } from "./../../Services/Menu"
 import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
 import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
+import { getInstance as getSnippetsInstance } from "./../../Services/Snippets"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
 import { windowManager } from "./../../Services/WindowManager"
 import { getInstance as getWorkspaceInstance } from "./../../Services/Workspace"
@@ -77,6 +78,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     public get recorder(): any {
         return recorder
+    }
+
+    public get snippets(): any {
+        return getSnippetsInstance()
     }
 
     public get configuration(): OniApi.Configuration {
