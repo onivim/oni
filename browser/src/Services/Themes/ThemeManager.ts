@@ -115,7 +115,7 @@ export const getHoverColors = (userConfig: GenericConfigurationValues, colors: P
             "editor.hover.border": colors["toolTip.border"],
             "editor.hover.contents.background": alterColor(colors["toolTip.background"]),
             "editor.hover.contents.foreground": colors["toolTip.foreground"],
-            "editor.hover.contents.codeblock.background": darken(colors["background"], 0.25),
+            "editor.hover.contents.codeblock.background": darken(colors["editor.background"], 0.25),
             "editor.hover.contents.codeblock.foreground": colors["toolTip.foreground"],
     }
 
