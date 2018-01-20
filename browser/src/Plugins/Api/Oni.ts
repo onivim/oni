@@ -25,6 +25,7 @@ import * as LanguageManager from "./../../Services/Language"
 import { menuManager } from "./../../Services/Menu"
 import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
+import { getInstance as getSnippetsInstance } from "./../../Services/Snippets"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
 import { windowManager } from "./../../Services/WindowManager"
 import { getInstance as getWorkspaceInstance } from "./../../Services/Workspace"
@@ -36,130 +37,146 @@ import * as throttle from "lodash/throttle"
 const react = require("react") // tslint:disable-line no-var-requires
 
 export class Dependencies {
-    public get React(): any {
-        return react
-    }
+  public get React(): any {
+    return react
+  }
 }
 
 const helpers = {
-    throttle,
+  throttle,
 }
 
 /**
  * API instance for interacting with OniApi (and vim)
  */
 export class Oni extends EventEmitter implements OniApi.Plugin.Api {
-    private _dependencies: Dependencies
-    private _ui: Ui
-    private _services: Services
-    private _colors: Colors
+  private _dependencies: Dependencies
+  private _ui: Ui
+  private _services: Services
+  private _colors: Colors
 
-    public get automation(): OniApi.Automation.Api {
-        return automation
-    }
+  public get automation(): OniApi.Automation.Api {
+    return automation
+  }
 
-    public get colors(): Colors /* TODO: Promote to API */ {
-        return this._colors
-    }
+  public get colors(): Colors /* TODO: Promote to API */ {
+    return this._colors
+  }
 
-    public get commands(): OniApi.Commands.Api {
-        return commandManager
-    }
+  public get commands(): OniApi.Commands.Api {
+    return commandManager
+  }
 
-    public get contextMenu(): any {
-        return null
-    }
+  public get contextMenu(): any {
+    return null
+  }
 
-    public get log(): OniApi.Log {
-        return Log
-    }
+  public get log(): OniApi.Log {
+    return Log
+  }
 
-    public get recorder(): any {
-        return recorder
-    }
+  public get recorder(): any {
+    return recorder
+  }
 
-    public get configuration(): OniApi.Configuration {
-        return configuration
-    }
+  public get snippets(): any {
+    return getSnippetsInstance()
+  }
 
-    public get diagnostics(): OniApi.Plugin.Diagnostics.Api {
-        return getDiagnosticsInstance()
-    }
+  public get configuration(): OniApi.Configuration {
+    return configuration
+  }
 
-    public get dependencies(): Dependencies {
-        return this._dependencies
-    }
+  public get diagnostics(): OniApi.Plugin.Diagnostics.Api {
+    return getDiagnosticsInstance()
+  }
 
-    public get editors(): OniApi.EditorManager {
-        return editorManager
-    }
+  public get dependencies(): Dependencies {
+    return this._dependencies
+  }
 
-    public get input(): OniApi.InputManager {
-        return inputManager
-    }
+  public get editors(): OniApi.EditorManager {
+    return editorManager
+  }
 
-    public get language(): any {
-        return LanguageManager.getInstance()
-    }
+  public get input(): OniApi.InputManager {
+    return inputManager
+  }
 
-    public get menu(): any /* TODO */ {
-        return menuManager
-    }
+  public get language(): any {
+    return LanguageManager.getInstance()
+  }
 
-    public get process(): OniApi.Process {
-        return Process
-    }
+  public get menu(): any /* TODO */ {
+    return menuManager
+  }
 
-    public get sidebar(): any {
-        return getSidebarInstance()
-    }
+  public get process(): OniApi.Process {
+    return Process
+  }
 
-    public get statusBar(): OniApi.StatusBar {
-        return getStatusBarInstance()
-    }
+  public get sidebar(): any {
+    return getSidebarInstance()
+  }
 
-    public get ui(): Ui {
-        return this._ui
-    }
+  public get statusBar(): OniApi.StatusBar {
+    return getStatusBarInstance()
+  }
 
-    public get services(): Services {
-        return this._services
-    }
+  public get ui(): Ui {
+    return this._ui
+  }
 
-    public get windows(): OniApi.IWindowManager {
-        return windowManager
-    }
+  public get services(): Services {
+    return this._services
+  }
 
-    public get workspace(): OniApi.Workspace {
-        return getWorkspaceInstance()
-    }
+  public get windows(): OniApi.IWindowManager {
+    return windowManager
+  }
 
-    public get helpers(): any {
-        return helpers
-    }
+  public get workspace(): OniApi.Workspace {
+    return getWorkspaceInstance()
+  }
 
-    constructor() {
-        super()
-        this._colors = getColors()
+  public get helpers(): any {
+    return helpers
+  }
 
-        this._dependencies = new Dependencies()
-        this._ui = new Ui(react)
-        this._services = new Services()
-    }
+  constructor() {
+    super()
+    this._colors = getColors()
 
-    public async execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): Promise<ChildProcess.ChildProcess> {
-        Log.warn("WARNING: `OniApi.execNodeScript` is deprecated. Please use `OniApi.process.execNodeScript` instead")
+    this._dependencies = new Dependencies()
+    this._ui = new Ui(react)
+    this._services = new Services()
+  }
 
-        return await Process.execNodeScript(scriptPath, args, options, callback)
-    }
+  public async execNodeScript(
+    scriptPath: string,
+    args: string[] = [],
+    options: ChildProcess.ExecOptions = {},
+    callback: (err: any, stdout: string, stderr: string) => void
+  ): Promise<ChildProcess.ChildProcess> {
+    Log.warn(
+      "WARNING: `OniApi.execNodeScript` is deprecated. Please use `OniApi.process.execNodeScript` instead"
+    )
 
-    /**
-     * Wrapper around `child_process.exec` to run using electron as opposed to node
-     */
-    public async spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): Promise<ChildProcess.ChildProcess> {
+    return await Process.execNodeScript(scriptPath, args, options, callback)
+  }
 
-        Log.warn("WARNING: `OniApi.spawnNodeScript` is deprecated. Please use `OniApi.process.spawnNodeScript` instead")
+  /**
+   * Wrapper around `child_process.exec` to run using electron as opposed to node
+   */
+  public async spawnNodeScript(
+    scriptPath: string,
+    args: string[] = [],
+    options: ChildProcess.SpawnOptions = {}
+  ): Promise<ChildProcess.ChildProcess> {
+    Log.warn(
+      "WARNING: `OniApi.spawnNodeScript` is deprecated. Please use `OniApi.process.spawnNodeScript` instead"
+    )
 
-        return await Process.spawnNodeScript(scriptPath, args, options)
-    }
+    return await Process.spawnNodeScript(scriptPath, args, options)
+  }
 }

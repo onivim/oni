@@ -132,7 +132,7 @@
     "build:test:unit": "cd browser && tsc -p tsconfig.test.json",
     "copy-icons": "node build/CopyIcons.js",
     "debug:test:unit:browser":
-      "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js -R testCoverageReporter --recursive ../lib_test/browser/test",
+      "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
     "demo": "npm run build:test && mocha -t 30000 lib_test/test/Demo.js",
     "dist:win":
       "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
@@ -290,6 +290,7 @@
     "sudo-prompt": "7.1.1",
     "ts-loader": "2.3.2",
     "tslint": "5.7.0",
+    "vscode-snippet-parser": "0.0.5",
     "wcwidth": "1.0.1",
     "webdriverio": "4.8.0",
     "webpack": "3.5.3",

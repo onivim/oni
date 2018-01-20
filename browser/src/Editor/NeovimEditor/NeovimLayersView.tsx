@@ -16,82 +16,92 @@ import * as State from "./NeovimEditorStore"
 import { EmptyArray } from "./../../Utility"
 
 export interface NeovimLayersViewProps {
-    activeWindowId: number
-    windows: State.IWindow[]
-    layers: State.Layers
+  activeWindowId: number
+  windows: State.IWindow[]
+  layers: State.Layers
 }
 
 export class NeovimLayersView extends React.PureComponent<NeovimLayersViewProps, {}> {
-    public render(): JSX.Element {
+  public render(): JSX.Element {
+    const containers = this.props.windows.map(windowState => {
+      const layers = this.props.layers[windowState.bufferId] || (EmptyArray as Oni.EditorLayer[])
 
-        const containers = this.props.windows.map((windowState) => {
-            const layers = this.props.layers[windowState.bufferId] || (EmptyArray as Oni.EditorLayer[])
+      const layerContext = {
+        isActive: windowState.windowId === this.props.activeWindowId,
+        windowId: windowState.windowId,
 
-            const layerContext = {
-                isActive: windowState.windowId === this.props.activeWindowId,
-                windowId: windowState.windowId,
+        bufferToScreen: windowState.bufferToScreen,
+        screenToPixel: windowState.screenToPixel,
+        dimensions: windowState.dimensions,
+      }
 
-                bufferToScreen: windowState.bufferToScreen,
-                screenToPixel: windowState.screenToPixel,
-                dimensions: windowState.dimensions,
-            }
+      const layerElements = layers.map(l => {
+        return l.render(layerContext)
+      })
 
-            const layerElements = layers.map((l) => {
-                return l.render(layerContext)
-            })
+      const dimensions = getWindowPixelDimensions(windowState)
 
-            const dimensions = getWindowPixelDimensions(windowState)
+      return (
+        <NeovimActiveWindow {...dimensions} key={windowState.windowId}>
+          {layerElements}
+        </NeovimActiveWindow>
+      )
+    })
 
-            return <NeovimActiveWindow {...dimensions} key={windowState.windowId}>
-                    {layerElements}
-                </NeovimActiveWindow>
-        })
+    return <div className="stack layer">{containers}</div>
+  }
+}
 
-        return <div className="stack layer">
-                    {containers}
-                </div>
-    }
+const EmptySize = {
+  pixelX: -1,
+  pixelY: -1,
+  pixelWidth: 0,
+  pixelHeight: 0,
 }
 
 const getWindowPixelDimensions = (win: State.IWindow) => {
-    const start = win.screenToPixel({
-        screenX: win.dimensions.x,
-        screenY: win.dimensions.y,
-    })
+  if (!win || !win.screenToPixel) {
+    return EmptySize
+  }
 
-    const size = win.screenToPixel({
-        screenX: win.dimensions.width,
-        screenY: win.dimensions.height,
-    })
+  const start = win.screenToPixel({
+    screenX: win.dimensions.x,
+    screenY: win.dimensions.y,
+  })
 
-    return {
-        pixelX: start.pixelX,
-        pixelY: start.pixelY,
-        pixelWidth: size.pixelX,
-        pixelHeight: size.pixelY,
-    }
+  const size = win.screenToPixel({
+    screenX: win.dimensions.width,
+    screenY: win.dimensions.height,
+  })
+
+  return {
+    pixelX: start.pixelX,
+    pixelY: start.pixelY,
+    pixelWidth: size.pixelX,
+    pixelHeight: size.pixelY,
+  }
 }
 
 const mapStateToProps = (state: State.IState): NeovimLayersViewProps => {
-    if (!state.activeVimTabPage) {
-        return {
-            activeWindowId: -1,
-            layers: {},
-            windows: [],
-        }
-    }
-
-    const windows = state.activeVimTabPage.windowIds.map((windowId) => {
-        return state.windowState.windows[windowId]
-    })
-
-    const wins = windows.sort((a, b) => a.windowId - b.windowId)
-
+  if (!state.activeVimTabPage) {
     return {
-        activeWindowId: state.windowState.activeWindow,
-        windows: wins,
-        layers: state.layers,
+      activeWindowId: -1,
+      layers: {},
+      windows: [],
     }
+  }
+
+  const windows = state.activeVimTabPage.windowIds.map(windowId => {
+    return state.windowState.windows[windowId]
+  })
+
+  const wins = windows.sort((a, b) => a.windowId - b.windowId)
+
+  return {
+    activeWindowId: state.windowState.activeWindow,
+    windows: wins,
+    layers: state.layers,
+  }
 }
 
 export const NeovimLayers = connect(mapStateToProps)(NeovimLayersView)

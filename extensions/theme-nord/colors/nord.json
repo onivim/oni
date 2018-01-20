@@ -1,50 +1,50 @@
 {
-    "name": "nord",
-    "baseVimTheme": "nord",
-    "colors": {
-        "background": "#212733",
-        "foreground": "#ECEFF4",
+  "name": "nord",
+  "baseVimTheme": "nord",
+  "colors": {
+    "background": "#212733",
+    "foreground": "#ECEFF4",
 
-        "title.background": "#212733",
-        "title.foreground": "#ECEFF4",
+    "title.background": "#212733",
+    "title.foreground": "#ECEFF4",
 
-        "editor.background": "#2F3440",
-        "editor.foreground": "#ABB2BF",
+    "editor.background": "#2F3440",
+    "editor.foreground": "#DCDCDC",
 
-        "tabs.background": "#2F3440",
-        "tabs.foreground": "#E5E9F0",
+    "tabs.background": "#2F3440",
+    "tabs.foreground": "#E5E9F0",
 
-        "toolTip.background": "#2E3440",
-        "toolTip.foreground": "#E5E9F0",
-        "toolTip.border": "#505050",
+    "toolTip.background": "#2E3440",
+    "toolTip.foreground": "#E5E9F0",
+    "toolTip.border": "#505050",
 
-        "menu.background": "#2E3440",
-        "menu.foreground": "#E5E9F0",
-        "menu.border": "#505050",
+    "menu.background": "#2E3440",
+    "menu.foreground": "#E5E9F0",
+    "menu.border": "#505050",
 
-        "contextMenu.background": "#3B4252",
-        "contextMenu.foreground": "#ABB2BF",
-        "contextMenu.border": "#505050",
-        "contextMenu.highlight": "#3F4652",
+    "contextMenu.background": "#3B4252",
+    "contextMenu.foreground": "#ABB2BF",
+    "contextMenu.border": "#505050",
+    "contextMenu.highlight": "#3F4652",
 
-        "sidebar.background": "#3B4252",
-        "sidebar.foreground": "#ABB2BF",
-        "sidebar.active.background": "#282C34",
-        "sidebar.selection.border": "#61afef",
+    "sidebar.background": "#3B4252",
+    "sidebar.foreground": "#ABB2BF",
+    "sidebar.active.background": "#282C34",
+    "sidebar.selection.border": "#61afef",
 
-        "statusBar.background": "#282828",
-        "statusBar.foreground": "#c8c8c8",
+    "statusBar.background": "#282828",
+    "statusBar.foreground": "#c8c8c8",
 
-        "highlight.mode.insert.background": "#A3BE8C",
-        "highlight.mode.insert.foreground": "#282c34",
+    "highlight.mode.insert.background": "#A3BE8C",
+    "highlight.mode.insert.foreground": "#282c34",
 
-        "highlight.mode.normal.background": "#5E81AC",
-        "highlight.mode.normal.foreground": "#282c34",
+    "highlight.mode.normal.background": "#5E81AC",
+    "highlight.mode.normal.foreground": "#282c34",
 
-        "highlight.mode.operator.background": "#EBCB8B",
-        "highlight.mode.operator.foreground": "#282c34",
+    "highlight.mode.operator.background": "#EBCB8B",
+    "highlight.mode.operator.foreground": "#282c34",
 
-        "highlight.mode.visual.background": "#B48EAD",
-        "highlight.mode.visual.foreground": "#282c34"
-    }
+    "highlight.mode.visual.background": "#B48EAD",
+    "highlight.mode.visual.foreground": "#282c34"
+  }
 }
