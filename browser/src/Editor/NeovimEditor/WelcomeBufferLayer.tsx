@@ -6,7 +6,7 @@
 
 import * as React from "react"
 
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
 
 import * as Oni from "oni-api"
 
@@ -18,6 +18,21 @@ const WelcomeWrapper = withProps<{}>(styled.div)`
 
     width: 100%;
     height: 100%;
+`
+
+const entrance = keyframes`
+    0% { opacity: 0 }
+    100% { opacity: 1 }
+`
+
+const enterLeft = keyframes`
+    0% { opacity: 0; transform: translateX(-4px); }
+    100% { opacity: 1; transform: translateX(0px); }
+`
+
+const enterRight = keyframes`
+    0% { opacity: 0; transform: translateX(4px); }
+    100% { opacity: 1; transform: translateX(0px); }
 `
 
 const Column = styled.div`
@@ -53,10 +68,36 @@ const HeroImage = styled.img`
 `
 
 const SectionHeader = styled.div`
+
+    margin-top: 1em;
+    margin-bottom: 1em;
+
     font-size: 1.1em;
     font-weight: bold;
     text-align: left;
     width:100%;
+`
+
+const WelcomeButtonHoverStyled = `
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+`
+const WelcomeButton = withProps<{}>(styled.div)`
+    border: 0px solid ${props => props.theme["foreground"]};
+    color: ${props => props.theme["foreground"]};
+    background-color: ${props => props.theme["background"]};
+
+    cursor: pointer;
+
+    width: 256px;
+    margin: 8px 0px;
+    padding: 8px;
+    box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
+
+    &:hover {
+       ${WelcomeButtonHoverStyled} 
+    }
+
 `
 
 
@@ -73,28 +114,38 @@ export class WelcomeBufferLayer implements Oni.EditorLayer {
     public render(context: Oni.EditorLayerRenderContext): JSX.Element {
         return <WelcomeWrapper className="enable-mouse">
                 <Column>
-                    <Row style={{width: "100%"}}>
+                    <Row style={{width: "100%", paddingTop: "128px"}}>
                         <Column />
-                        <Column style={{alignItems: "flex-end"}}>
+                        <Column style={{alignItems: "flex-end", animation: `${enterLeft} 0.5s ease-in`}}>
                             <TitleText>Oni</TitleText>
                             <SubtitleText>Modern Modal Editing</SubtitleText>
                         </Column>
-                        <Column style={{alignItems: "flex-start"}}>
+                        <Column style={{alignItems: "flex-start", animation: `${entrance} 0.5s ease-in 0.1s`}}>
                             <HeroImage src="images/oni-icon-no-border.svg" />
                         </Column>
-                        <Column />
+                        <Column style={{alignItems: "flex-start", animation: `${enterRight} 0.5s ease-in`}}>
+                            <div>{"https://onivim.io"}</div>
+                        </Column>
                         <Column />
                     </Row>
                     <Row style={{width: "100%", marginTop: "64px"}}>
                         <Column />
                         <Column>
-                            <SectionHeader>Recent</SectionHeader>
-                            <SectionHeader>Quick Commands</SectionHeader>
-                        </Column>
-                        <Column />
-                        <Column>
                             <SectionHeader>Learn</SectionHeader>
+                            <WelcomeButton>
+                                {"VimTutor"}
+                            </WelcomeButton>
+                            <WelcomeButton>
+                                {"Documentation"}
+                            </WelcomeButton>
                             <SectionHeader>Customize</SectionHeader>
+                            <WelcomeButton>
+                                {"Configure"}
+                            </WelcomeButton>
+                            <WelcomeButton>
+                                {"Choose theme"}
+                            </WelcomeButton>
+                            <SectionHeader>Quick Commands</SectionHeader>
                         </Column>
                         <Column />
                     </Row>
