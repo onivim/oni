@@ -7,7 +7,7 @@
 import * as Fuse from "fuse.js"
 import * as sortBy from "lodash/sortBy"
 
-import * as Oni from "oni-api"
+// import * as Oni from "oni-api"
 
 import { configuration } from "./../../Services/Configuration"
 
@@ -39,7 +39,7 @@ export const shouldFilterbeCaseSensitive = (searchString: string): boolean => {
     }
 }
 
-export const fuseFilter = (options: Oni.Menu.MenuOption[], searchString: string): IMenuOptionWithHighlights[] => {
+export const fuseFilter = (options: any[], searchString: string): IMenuOptionWithHighlights[] => {
 
     if (!searchString) {
         const opt = options.map((o) => {
@@ -51,6 +51,7 @@ export const fuseFilter = (options: Oni.Menu.MenuOption[], searchString: string)
                 pinned: o.pinned,
                 detailHighlights: [],
                 labelHighlights: [],
+                additionalComponent: o.additionalComponent,
             }
         })
 
@@ -118,6 +119,7 @@ export const fuseFilter = (options: Oni.Menu.MenuOption[], searchString: string)
             detail: f.item.detail,
             labelHighlights: convertArrayOfPairsToIndices(labelHighlights),
             detailHighlights: convertArrayOfPairsToIndices(detailHighlights),
+            additionalComponent: f.item.additionalComponent,
         }
     })
 

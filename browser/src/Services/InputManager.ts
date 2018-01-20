@@ -74,7 +74,7 @@ export class InputManager implements Oni.InputManager {
             if (bindings.find(b => b.action === command)) {
                 return [...prev, currentValue]
             } else {
-                return []
+                return prev
             }
         }, [] as string[])
     }

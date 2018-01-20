@@ -6,7 +6,7 @@ import * as take from "lodash/take"
 import * as Oni from "oni-api"
 
 import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
-import { Visible } from "./../../UI/components/Visible"
+// import { Visible } from "./../../UI/components/Visible"
 import { Icon, IconSize } from "./../../UI/Icon"
 
 import { focusManager } from "./../FocusManager"
@@ -150,6 +150,7 @@ export interface IMenuItemProps {
     detail: string
     detailHighlights: number[]
     pinned: boolean
+    additionalComponent?: JSX.Element
     onClick: () => void
 }
 
@@ -168,9 +169,7 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
             {icon}
             <HighlightTextByIndex className="label" text={this.props.label} highlightIndices={this.props.labelHighlights} highlightClassName={"highlight"} />
             <HighlightTextByIndex className="detail" text={this.props.detail} highlightIndices={this.props.detailHighlights} highlightClassName={"highlight"} />
-            <Visible visible={this.props.pinned}>
-                <Icon name="clock-o" />
-            </Visible>
+            {this.props.additionalComponent}
         </div>
     }
 }

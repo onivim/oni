@@ -18,6 +18,8 @@ import * as Oni from "oni-api"
 
 import { Menu, menuManager } from "./../Services/Menu"
 
+import { inputManager } from "./../Services/InputManager"
+
 export interface ITask {
     name: string
     detail: string
@@ -51,9 +53,9 @@ export class Tasks extends EventEmitter {
                         .filter((t) => t.name || t.detail)
                         .map((f) => {
                             return {
-                                icon: "tasks",
                                 label: f.name,
                                 detail: f.detail,
+                                additionalComponent: inputManager.getBoundKeys(f.command),
                             }
                         })
 

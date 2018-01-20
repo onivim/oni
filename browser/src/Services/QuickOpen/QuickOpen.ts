@@ -236,6 +236,9 @@ export class QuickOpen {
         return path.dirname(process.execPath) === process.cwd() ||
                process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"] === process.cwd()
     }
+            // <Visible visible={this.props.pinned}>
+            //     <Icon name="clock-o" />
+            // </Visible>
 
     // Show menu based on items given
     private _setItemsFromQuickOpenItems(items: QuickOpenItem[]): void {
