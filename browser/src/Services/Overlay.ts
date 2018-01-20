@@ -36,8 +36,6 @@ export class Overlay {
 export class OverlayManager {
     private _id: number = 0
 
-    constructor() {}
-
     public createItem(): Overlay {
         this._id++
 

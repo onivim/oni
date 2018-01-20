@@ -92,16 +92,15 @@ export const showOverlay = (id: string, contents: JSX.Element): Actions.IOverlay
     payload: {
         id,
         contents,
-    }
+    },
 })
 
 export const hideOverlay = (id: string): Actions.IOverlayHideAction => ({
     type: "OVERLAY_HIDE",
     payload: {
         id,
-    }
+    },
 })
-
 
 export function setConfigValue<K extends keyof IConfigurationValues>(k: K, v: IConfigurationValues[K]): Actions.ISetConfigurationValue<K> {
     return {

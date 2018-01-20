@@ -27,8 +27,8 @@ export interface IToolTip {
     element: JSX.Element
 }
 
-export type StatusBar = { [key: string]: IStatusBarItem }
-export type Overlays = { [key: string]: IOverlay }
+export interface StatusBar { [key: string]: IStatusBarItem }
+export interface Overlays { [key: string]: IOverlay }
 
 export interface IState {
     // Editor

@@ -68,7 +68,7 @@ export const overlaysReducer = (s: State.Overlays, a: Actions.SimpleAction) => {
                 [a.payload.id]: {
                     id: a.payload.id,
                     contents: a.payload.contents,
-                }
+                },
             }
         case "OVERLAY_HIDE":
             const newState = {
