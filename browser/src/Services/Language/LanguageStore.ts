@@ -260,7 +260,7 @@ export const createStore = (configuration: Configuration, codeActionsRequestor: 
 
     const epicMiddleware = createEpicMiddleware(combineEpics(
         queryForDefinitionAndHoverEpic(configuration),
-        queryForCodeActionsEpic(configuration)
+        queryForCodeActionsEpic(configuration),
         queryCodeActionsEpic(codeActionsRequestor),
         queryDefinitionEpic(definitionRequestor),
         queryHoverEpic(hoverRequestor),
