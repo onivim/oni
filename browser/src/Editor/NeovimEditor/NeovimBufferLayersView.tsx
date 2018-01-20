@@ -53,7 +53,19 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
     }
 }
 
+const EmptySize = {
+    pixelX: -1,
+    pixelY: -1,
+    pixelWidth: 0,
+    pixelHeight: 0,
+}
+
 const getWindowPixelDimensions = (win: State.IWindow) => {
+
+    if (!win || !win.screenToPixel) {
+        return EmptySize
+    }
+
     const start = win.screenToPixel({
         screenX: win.dimensions.x,
         screenY: win.dimensions.y,
