@@ -6715,6 +6715,10 @@ vscode-nls@^2.0.1, vscode-nls@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/vscode-nls/-/vscode-nls-2.0.2.tgz#808522380844b8ad153499af5c3b03921aea02da"
 
+vscode-snippet-parser@0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/vscode-snippet-parser/-/vscode-snippet-parser-0.0.5.tgz#86ff0439212265265283d9ca86ee1bd1e66fc322"
+
 vscode-textmate@3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/vscode-textmate/-/vscode-textmate-3.2.0.tgz#87e5ab1ed30463291a73fe28b37a58590a7777dc"
