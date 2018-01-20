@@ -18,22 +18,28 @@ const WelcomeWrapper = withProps<{}>(styled.div)`
 
     width: 100%;
     height: 100%;
+    opacity: 0;
 `
 
-const entrance = keyframes`
-    0% { opacity: 0 }
-    100% { opacity: 1 }
+// const entrance = keyframes`
+//     0% { opacity: 0; transform: translateY(2px); }
+//     100% { opacity: 0.5; transform: translateY(0px); }
+// `
+
+const entranceFull = keyframes`
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0px); }
 `
 
-const enterLeft = keyframes`
-    0% { opacity: 0; transform: translateX(-4px); }
-    100% { opacity: 1; transform: translateX(0px); }
-`
+// const enterLeft = keyframes`
+//     0% { opacity: 0; transform: translateX(-4px); }
+//     100% { opacity: 1; transform: translateX(0px); }
+// `
 
-const enterRight = keyframes`
-    0% { opacity: 0; transform: translateX(4px); }
-    100% { opacity: 1; transform: translateX(0px); }
-`
+// const enterRight = keyframes`
+//     0% { opacity: 0; transform: translateX(4px); }
+//     100% { opacity: 1; transform: translateX(0px); }
+// `
 
 const Column = styled.div`
     display: flex;
@@ -50,6 +56,7 @@ const Row = styled.div`
     justify-content: center;
     align-items: center;
     flex-direction: row;
+    opacity: 0;
 `
 
 const TitleText = styled.div`
@@ -64,7 +71,8 @@ const SubtitleText = styled.div`
 
 const HeroImage = styled.img`
     width: 192px;
-    opacity: 0.25;
+    height: 192px;
+    opacity: 0.4;
 `
 
 const SectionHeader = styled.div`
@@ -112,23 +120,23 @@ export class WelcomeBufferLayer implements Oni.EditorLayer {
     }
 
     public render(context: Oni.EditorLayerRenderContext): JSX.Element {
-        return <WelcomeWrapper className="enable-mouse">
+        return <WelcomeWrapper className="enable-mouse" style={{animation: `${entranceFull} 0.25s ease-in 0.1s forwards`}}>
                 <Column>
-                    <Row style={{width: "100%", paddingTop: "128px"}}>
+                    <Row style={{width: "100%", paddingTop: "128px", animation: `${entranceFull} 0.25s ease-in 0.25s forwards`}}>
                         <Column />
-                        <Column style={{alignItems: "flex-end", animation: `${enterLeft} 0.5s ease-in`}}>
+                        <Column style={{alignItems: "flex-end"}}>
                             <TitleText>Oni</TitleText>
                             <SubtitleText>Modern Modal Editing</SubtitleText>
                         </Column>
-                        <Column style={{alignItems: "flex-start", animation: `${entrance} 0.5s ease-in 0.1s`}}>
-                            <HeroImage src="images/oni-icon-no-border.svg" />
+                        <Column style={{flex: "0 0"}}>
+                            <HeroImage src="images/oni-icon-no-border.svg"/>
                         </Column>
-                        <Column style={{alignItems: "flex-start", animation: `${enterRight} 0.5s ease-in`}}>
+                        <Column style={{alignItems: "flex-start"}}>
                             <div>{"https://onivim.io"}</div>
                         </Column>
                         <Column />
                     </Row>
-                    <Row style={{width: "100%", marginTop: "64px"}}>
+                    <Row style={{width: "100%", marginTop: "64px", animation: `${entranceFull} 0.25s ease-in 0.5s forwards`}}>
                         <Column />
                         <Column>
                             <SectionHeader>Learn</SectionHeader>
