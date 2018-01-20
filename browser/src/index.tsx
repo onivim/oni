@@ -86,7 +86,7 @@ const start = async (args: string[]): Promise<void> => {
     const IconThemes = await iconThemesPromise
     await Promise.all([
         Themes.activate(configuration, pluginManager),
-        IconThemes.activate(configuration, pluginManager)
+        IconThemes.activate(configuration, pluginManager),
     ])
 
     const Colors = await colorsPromise
@@ -131,9 +131,9 @@ const start = async (args: string[]): Promise<void> => {
                 languageManager,
                 pluginManager,
                 Themes.getThemeManagerInstance(),
-                workspace
-            )
-        ])
+                workspace,
+            ),
+        ]),
     ])
     Performance.endMeasure("Oni.Start.Editors")
 

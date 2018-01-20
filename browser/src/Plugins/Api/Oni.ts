@@ -43,7 +43,7 @@ export class Dependencies {
 }
 
 const helpers = {
-    throttle
+    throttle,
 }
 
 /**
@@ -156,10 +156,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         scriptPath: string,
         args: string[] = [],
         options: ChildProcess.ExecOptions = {},
-        callback: (err: any, stdout: string, stderr: string) => void
+        callback: (err: any, stdout: string, stderr: string) => void,
     ): Promise<ChildProcess.ChildProcess> {
         Log.warn(
-            "WARNING: `OniApi.execNodeScript` is deprecated. Please use `OniApi.process.execNodeScript` instead"
+            "WARNING: `OniApi.execNodeScript` is deprecated. Please use `OniApi.process.execNodeScript` instead",
         )
 
         return await Process.execNodeScript(scriptPath, args, options, callback)
@@ -171,10 +171,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     public async spawnNodeScript(
         scriptPath: string,
         args: string[] = [],
-        options: ChildProcess.SpawnOptions = {}
+        options: ChildProcess.SpawnOptions = {},
     ): Promise<ChildProcess.ChildProcess> {
         Log.warn(
-            "WARNING: `OniApi.spawnNodeScript` is deprecated. Please use `OniApi.process.spawnNodeScript` instead"
+            "WARNING: `OniApi.spawnNodeScript` is deprecated. Please use `OniApi.process.spawnNodeScript` instead",
         )
 
         return await Process.spawnNodeScript(scriptPath, args, options)

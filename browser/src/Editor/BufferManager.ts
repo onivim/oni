@@ -24,7 +24,7 @@ import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
 import {
     BufferHighlightId,
     BufferHighlightsUpdater,
-    IBufferHighlightsUpdater
+    IBufferHighlightsUpdater,
 } from "./BufferHighlights"
 
 import * as Actions from "./NeovimEditor/NeovimEditorActions"
@@ -79,7 +79,7 @@ export class Buffer implements Oni.Buffer {
     constructor(
         private _neovimInstance: NeovimInstance,
         private _actions: typeof Actions,
-        evt: EventContext
+        evt: EventContext,
     ) {
         this.updateFromEvent(evt)
     }
@@ -111,7 +111,7 @@ export class Buffer implements Oni.Buffer {
             parseInt(this._id, 10),
             start,
             end,
-            false
+            false,
         ])
         return lines
     }
@@ -120,7 +120,7 @@ export class Buffer implements Oni.Buffer {
         await this._neovimInstance.request<any>("nvim_buf_set_option", [
             parseInt(this._id, 10),
             "filetype",
-            language
+            language,
         ])
     }
 
@@ -153,13 +153,13 @@ export class Buffer implements Oni.Buffer {
 
                     calls.push([
                         "nvim_buf_set_lines",
-                        [parseInt(this._id, 10), lineStart, lineStart + 1, false, lines]
+                        [parseInt(this._id, 10), lineStart, lineStart + 1, false, lines],
                     ])
                 } else if (characterEnd === 0 && characterStart === 0) {
                     const lines = te.newText.split(os.EOL)
                     calls.push([
                         "nvim_buf_set_lines",
-                        [parseInt(this._id, 10), lineStart, lineEnd, false, lines]
+                        [parseInt(this._id, 10), lineStart, lineEnd, false, lines],
                     ])
                 } else {
                     Log.warn("Multi-line mid character edits not currently supported")
@@ -175,7 +175,7 @@ export class Buffer implements Oni.Buffer {
     }
 
     public async getOrCreateHighlightGroup(
-        highlight: SyntaxHighlighting.IHighlight | string
+        highlight: SyntaxHighlighting.IHighlight | string,
     ): Promise<SyntaxHighlighting.HighlightGroupId> {
         if (typeof highlight === "string") {
             return highlight
@@ -186,14 +186,14 @@ export class Buffer implements Oni.Buffer {
     }
 
     public async updateHighlights(
-        updateFunction: (highlightsUpdater: IBufferHighlightsUpdater) => void
+        updateFunction: (highlightsUpdater: IBufferHighlightsUpdater) => void,
     ): Promise<void> {
         this._promiseQueue.enqueuePromise(async () => {
             const bufferId = parseInt(this._id, 10)
             const bufferUpdater = new BufferHighlightsUpdater(
                 bufferId,
                 this._neovimInstance,
-                this._bufferHighlightId
+                this._bufferHighlightId,
             )
             await bufferUpdater.start()
 
@@ -209,7 +209,7 @@ export class Buffer implements Oni.Buffer {
             start,
             end,
             false,
-            lines
+            lines,
         ])
     }
 
@@ -245,7 +245,7 @@ export class Buffer implements Oni.Buffer {
             lineContents: string,
             character: number,
             dir: number,
-            regex: RegExp
+            regex: RegExp,
         ) => {
             while (character > 0 && character < lineContents.length) {
                 if (!lineContents[character].match(regex)) {
@@ -267,7 +267,7 @@ export class Buffer implements Oni.Buffer {
 
             return {
                 tokenName,
-                range
+                range,
             }
         }
 
@@ -284,7 +284,7 @@ export class Buffer implements Oni.Buffer {
 
         this._cursor = {
             line: evt.line - 1,
-            column: evt.column - 1
+            column: evt.column - 1,
         }
     }
 }

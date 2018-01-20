@@ -23,7 +23,7 @@ export interface OniSnippetPlaceholder {
 
 export const getLineCharacterFromOffset = (
     offset: number,
-    lines: string[]
+    lines: string[],
 ): { line: number; character: number } => {
     let idx = 0
     let currentOffset = 0
@@ -62,7 +62,7 @@ export class OniSnippet {
             return {
                 ...position,
                 index: p.index,
-                value: p.toString()
+                value: p.toString(),
             }
         })
 
@@ -83,7 +83,7 @@ export class OniSnippet {
             const snip = this._parser.parse(val)
 
             const placeholderToReplace = snippet.placeholders.filter(
-                p => p.index.toString() === key
+                p => p.index.toString() === key,
             )
 
             placeholderToReplace.forEach(rep => {
