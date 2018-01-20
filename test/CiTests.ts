@@ -10,24 +10,24 @@ import { Oni, runInProcTest } from "./common"
 const LongTimeout = 5000
 
 const CiTests = [
-  "Api.Buffer.AddLayer",
-  "AutoClosingPairsTest",
-  "AutoCompletionTest-CSS",
-  "AutoCompletionTest-HTML",
-  "AutoCompletionTest-TypeScript",
-  "LargeFileTest",
-  "PaintPerformanceTest",
-  "QuickOpenTest",
-  "StatusBar-Mode",
-  "NoInstalledNeovim",
-  "Regression.1251.NoAdditionalProcessesOnStartup",
-  "Regression.1295.UnfocusedWindowTest",
+    "Api.Buffer.AddLayer",
+    "AutoClosingPairsTest",
+    "AutoCompletionTest-CSS",
+    "AutoCompletionTest-HTML",
+    "AutoCompletionTest-TypeScript",
+    "LargeFileTest",
+    "PaintPerformanceTest",
+    "QuickOpenTest",
+    "StatusBar-Mode",
+    "NoInstalledNeovim",
+    "Regression.1251.NoAdditionalProcessesOnStartup",
+    "Regression.1295.UnfocusedWindowTest"
 ]
 
 const WindowsOnlyTests = [
-  // For some reason, the `beginFrameSubscription` call doesn't seem to work on OSX,
-  // so we can't properly validate that case on that platform...
-  "PaintPerformanceTest",
+    // For some reason, the `beginFrameSubscription` call doesn't seem to work on OSX,
+    // so we can't properly validate that case on that platform...
+    "PaintPerformanceTest"
 ]
 
 const OSXOnlyTests = ["OSX.WindowTitleTest"]
@@ -37,19 +37,19 @@ const OSXOnlyTests = ["OSX.WindowTitleTest"]
 import * as Platform from "./../browser/src/Platform"
 
 export interface ITestCase {
-  name: string
-  testPath: string
-  configPath: string
+    name: string
+    testPath: string
+    configPath: string
 }
 
 describe("ci tests", function() {
-  // tslint:disable-line only-arrow-functions
+    // tslint:disable-line only-arrow-functions
 
-  const tests = Platform.isWindows()
-    ? [...CiTests, ...WindowsOnlyTests]
-    : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
+    const tests = Platform.isWindows()
+        ? [...CiTests, ...WindowsOnlyTests]
+        : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
 
-  CiTests.forEach(test => {
-    runInProcTest(path.join(__dirname, "ci"), test)
-  })
+    CiTests.forEach(test => {
+        runInProcTest(path.join(__dirname, "ci"), test)
+    })
 })

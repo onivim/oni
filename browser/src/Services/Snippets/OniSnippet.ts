@@ -10,92 +10,94 @@
 import * as Snippets from "vscode-snippet-parser/lib"
 
 export interface OniSnippetPlaceholder {
-  index: number
+    index: number
 
-  // Zero-based line relative to the start of the snippet
-  line: number
+    // Zero-based line relative to the start of the snippet
+    line: number
 
-  // Zero-based start character
-  character: number
+    // Zero-based start character
+    character: number
 
-  value: string
+    value: string
 }
 
 export const getLineCharacterFromOffset = (
-  offset: number,
-  lines: string[]
+    offset: number,
+    lines: string[]
 ): { line: number; character: number } => {
-  let idx = 0
-  let currentOffset = 0
-  while (idx < lines.length) {
-    if (offset >= currentOffset && offset < currentOffset + lines[idx].length) {
-      return { line: idx, character: offset - currentOffset }
+    let idx = 0
+    let currentOffset = 0
+    while (idx < lines.length) {
+        if (offset >= currentOffset && offset < currentOffset + lines[idx].length) {
+            return { line: idx, character: offset - currentOffset }
+        }
+
+        currentOffset += lines[idx].length + 1
+        idx++
     }
 
-    currentOffset += lines[idx].length + 1
-    idx++
-  }
-
-  return { line: -1, character: -1 }
+    return { line: -1, character: -1 }
 }
 
 export class OniSnippet {
-  private _parser: Snippets.SnippetParser = new Snippets.SnippetParser()
-  private _placeholderValues: { [index: number]: string } = {}
+    private _parser: Snippets.SnippetParser = new Snippets.SnippetParser()
+    private _placeholderValues: { [index: number]: string } = {}
 
-  constructor(private _snippetString: string) {}
+    constructor(private _snippetString: string) {}
 
-  public setPlaceholder(index: number, newValue: string): void {
-    this._placeholderValues[index] = newValue
-  }
+    public setPlaceholder(index: number, newValue: string): void {
+        this._placeholderValues[index] = newValue
+    }
 
-  public getPlaceholders(): OniSnippetPlaceholder[] {
-    const snippet = this._getSnippetWithFilledPlaceholders()
-    const placeholders = snippet.placeholders
+    public getPlaceholders(): OniSnippetPlaceholder[] {
+        const snippet = this._getSnippetWithFilledPlaceholders()
+        const placeholders = snippet.placeholders
 
-    const lines = this.getLines()
+        const lines = this.getLines()
 
-    const oniPlaceholders = placeholders.map(p => {
-      const offset = snippet.offset(p)
-      const position = getLineCharacterFromOffset(offset, lines)
+        const oniPlaceholders = placeholders.map(p => {
+            const offset = snippet.offset(p)
+            const position = getLineCharacterFromOffset(offset, lines)
 
-      return {
-        ...position,
-        index: p.index,
-        value: p.toString(),
-      }
-    })
+            return {
+                ...position,
+                index: p.index,
+                value: p.toString()
+            }
+        })
 
-    return oniPlaceholders
-  }
+        return oniPlaceholders
+    }
 
-  public getLines(): string[] {
-    const normalizedSnippetString = this._getNormalizedSnippet()
+    public getLines(): string[] {
+        const normalizedSnippetString = this._getNormalizedSnippet()
 
-    return normalizedSnippetString.split("\n")
-  }
+        return normalizedSnippetString.split("\n")
+    }
 
-  private _getSnippetWithFilledPlaceholders(): Snippets.TextmateSnippet {
-    const snippet = this._parser.parse(this._snippetString)
+    private _getSnippetWithFilledPlaceholders(): Snippets.TextmateSnippet {
+        const snippet = this._parser.parse(this._snippetString)
 
-    Object.keys(this._placeholderValues).forEach((key: string) => {
-      const val = this._placeholderValues[key]
-      const snip = this._parser.parse(val)
+        Object.keys(this._placeholderValues).forEach((key: string) => {
+            const val = this._placeholderValues[key]
+            const snip = this._parser.parse(val)
 
-      const placeholderToReplace = snippet.placeholders.filter(p => p.index.toString() === key)
+            const placeholderToReplace = snippet.placeholders.filter(
+                p => p.index.toString() === key
+            )
 
-      placeholderToReplace.forEach(rep => {
-        snippet.replace(rep, snip.children)
-      })
-    })
+            placeholderToReplace.forEach(rep => {
+                snippet.replace(rep, snip.children)
+            })
+        })
 
-    return snippet
-  }
+        return snippet
+    }
 
-  private _getNormalizedSnippet(): string {
-    const snippetString = this._getSnippetWithFilledPlaceholders().toString()
-    const normalizedSnippetString = snippetString.replace("\r\n", "\n")
+    private _getNormalizedSnippet(): string {
+        const snippetString = this._getSnippetWithFilledPlaceholders().toString()
+        const normalizedSnippetString = snippetString.replace("\r\n", "\n")
 
-    return normalizedSnippetString
-  }
+        return normalizedSnippetString
+    }
 }
