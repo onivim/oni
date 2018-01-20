@@ -21,13 +21,13 @@ const CiTests = [
     "StatusBar-Mode",
     "NoInstalledNeovim",
     "Regression.1251.NoAdditionalProcessesOnStartup",
-    "Regression.1295.UnfocusedWindowTest"
+    "Regression.1295.UnfocusedWindowTest",
 ]
 
 const WindowsOnlyTests = [
     // For some reason, the `beginFrameSubscription` call doesn't seem to work on OSX,
     // so we can't properly validate that case on that platform...
-    "PaintPerformanceTest"
+    "PaintPerformanceTest",
 ]
 
 const OSXOnlyTests = ["OSX.WindowTitleTest"]
