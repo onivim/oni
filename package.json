@@ -114,8 +114,8 @@
     ]
   },
   "scripts": {
-    "pretty-quick": "pretty-quick",
-    "prepush": "tsc -p browser/tsconfig.json && npm run pretty-quick && yarn lint",
+    "precommit": "pretty-quick --staged",
+    "prepush": "npm run build && npm run lint",
     "build": "npm run build:browser && npm run build:main && npm run build:plugins",
     "build-debug": "npm run build:browser-debug && npm run build:plugins",
     "build:browser": "webpack --config browser/webpack.production.config.js",
