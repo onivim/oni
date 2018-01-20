@@ -65,4 +65,3 @@ describe("SnippetSession", () => {
         assert.strictEqual(secondLine, "barline")
     })
 })
-

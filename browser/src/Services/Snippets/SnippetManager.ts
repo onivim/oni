@@ -6,8 +6,8 @@
 
 import { editorManager, EditorManager } from "./../EditorManager"
 
-import { SnippetSession } from "./SnippetSession"
 import { OniSnippet } from "./OniSnippet"
+import { SnippetSession } from "./SnippetSession"
 
 export class SnippetManager {
 
@@ -31,14 +31,14 @@ export class SnippetManager {
         this._activeSession = snippetSession
     }
 
-    private _isSnippetActive(): boolean {
-        return !!this._activeSession
-    }
-
     public nextPlaceholder(): void {
         if (this._isSnippetActive()) {
             this._activeSession.nextPlaceholder()
         }
+    }
+
+    private _isSnippetActive(): boolean {
+        return !!this._activeSession
     }
 }
 
