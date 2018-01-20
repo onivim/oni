@@ -240,7 +240,6 @@ describe("LanguageEditorIntegration", () => {
 
         // Resolve the calls
         mockDefinitionRequestor.resolve(createSuccessfulDefinitionResult())
-        mockHoverRequestor.resolve({} as any)
 
         await waitForPromiseResolution()
 
@@ -252,25 +251,12 @@ describe("LanguageEditorIntegration", () => {
     it("#1247 - doesn't show definition if 'editor.definition.enabled' is false", async () => {
         mockConfiguration.setValue("editor.definition.enabled", false)
 
-        let showDefinitionCount = 0
-        languageEditorIntegration.onShowDefinition.subscribe(() => showDefinitionCount++)
-
         mockEditor.simulateModeChange("normal")
         mockEditor.simulateBufferEnter(new Mocks.MockBuffer())
         mockEditor.simulateCursorMoved(1, 1)
 
         clock.tick(501) // Account for the quickInfo.delay
 
-        assert.strictEqual(mockDefinitionRequestor.pendingCallCount, 1)
-
-        // Resolve the calls
-        mockDefinitionRequestor.resolve(createSuccessfulDefinitionResult())
-        mockHoverRequestor.resolve({} as any)
-
-        await waitForPromiseResolution()
-
-        clock.runAll()
-
-        assert.strictEqual(showDefinitionCount, 0, "Definition should not be shown, because 'editor.definition.enabled' is false.")
+        assert.strictEqual(mockDefinitionRequestor.pendingCallCount, 0, "Validate no request pending for definitions")
     })
 })

@@ -72,6 +72,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.clipboard.enabled": true,
 
+    "editor.definition.enabled": true,
     "editor.quickInfo.enabled": true,
     "editor.quickInfo.delay": 500,
 
