@@ -56,7 +56,7 @@ import { Workspace } from "./../../Services/Workspace"
 
 import { Editor, IEditor } from "./../Editor"
 
-import { BufferManager } from "./../BufferManager"
+import { BufferManager, InactiveBuffer } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
@@ -585,6 +585,10 @@ export class NeovimEditor extends Editor implements IEditor {
         this._scheduleRender()
     }
 
+    public getBuffers(): Array<Oni.Buffer | InactiveBuffer> {
+        return this._bufferManager.getBuffers()
+    }
+
     public render(): JSX.Element {
 
         const onBufferClose = (bufferId: number) => {
@@ -685,6 +689,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
+        this._bufferManager.addInactiveBuffers(evt.existingBuffers)
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
             this.notifyBufferLeave({

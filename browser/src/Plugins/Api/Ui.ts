@@ -1,3 +1,4 @@
+import { getInstance } from "../../Services/IconThemes"
 import { Icon, IconProps, IconSize } from "../../UI/Icon"
 
 export class Ui {
@@ -6,6 +7,11 @@ export class Ui {
 
     public createIcon(props: IconProps): any {
         return this._react.createElement(Icon, props)
+    }
+
+    public getIconClassForFile(filename: string, language?: string): string {
+        const Icons = getInstance()
+        return Icons.getIconClassForFile(filename, language)
     }
 
     public get iconSize(): any {

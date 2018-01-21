@@ -15,7 +15,7 @@ import "rxjs/add/operator/concatMap"
 
 import * as Oni from "oni-api"
 
-import { EventContext, NeovimInstance } from "./../neovim"
+import { EventContext, InactiveBufferContext, NeovimInstance } from "./../neovim"
 import * as LanguageManager from "./../Services/Language"
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
@@ -73,9 +73,11 @@ export class Buffer implements Oni.Buffer {
         return this._id
     }
 
-    constructor(private _neovimInstance: NeovimInstance,
-                private _actions: typeof Actions,
-                evt: EventContext) {
+    constructor(
+        private _neovimInstance: NeovimInstance,
+        private _actions: typeof Actions,
+        evt: EventContext,
+    ) {
         this.updateFromEvent(evt)
     }
 
@@ -256,6 +258,7 @@ export class Buffer implements Oni.Buffer {
 export class BufferManager {
     private _idToBuffer: { [id: string]: Buffer } = { }
     private _filePathToId: { [filePath: string]: string } = { }
+    private _inactiveBuffers: { [id: string]: InactiveBuffer } = {  }
 
     constructor(
         private _neovimInstance: NeovimInstance,
@@ -279,7 +282,61 @@ export class BufferManager {
         return this._idToBuffer[id]
     }
 
+    public addInactiveBuffers(inactiveBuffers: InactiveBufferContext[]): void {
+        inactiveBuffers.forEach(buffer => {
+            const id = `${buffer.bufferNumber}`
+            if (buffer.bufferFullPath) {
+                this._filePathToId[buffer.bufferFullPath] = id
+                const buf = new InactiveBuffer(buffer)
+                this._inactiveBuffers[id] = buf
+            }
+        })
+    }
+
     public getBufferById(id: string): Buffer {
         return this._idToBuffer[id]
+    }
+
+    public getBuffers(): Array<Buffer | InactiveBuffer> {
+        const buffersWithIds = { ...this._inactiveBuffers, ...this._idToBuffer }
+        return Object.values(buffersWithIds)
+    }
+}
+
+export class InactiveBuffer {
+    private _id: string
+    private _filePath: string
+    private _language: string
+    private _version: number
+    private _modified: boolean
+    private _lineCount: number
+
+    public get id(): string {
+        return this._id
+    }
+
+    public get filePath(): string {
+        return this._filePath
+    }
+    public get language(): string {
+        return this._language
+    }
+    public get version(): number {
+        return this._version
+    }
+    public get modified(): boolean {
+        return this._modified
+    }
+    public get lineCount(): number {
+        return this._lineCount
+    }
+
+    constructor(inactiveBuffer: InactiveBufferContext) {
+        this._id = `${inactiveBuffer.bufferNumber}`
+        this._filePath = inactiveBuffer.bufferFullPath
+        this._language = inactiveBuffer.filetype
+        this._version = inactiveBuffer.version || null
+        this._modified = inactiveBuffer.modified || false
+        this._lineCount = null
     }
 }
