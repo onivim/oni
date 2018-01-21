@@ -11,6 +11,7 @@ import { CallbackCommand, CommandManager } from "./../../Services/CommandManager
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 import { LanguageEditorIntegration } from "./../../Services/Language"
 
+import { CodeActionRenderer } from "./CodeActionRenderer"
 import { Definition } from "./Definition"
 import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
@@ -20,6 +21,7 @@ export class NeovimEditorCommands {
     private _lastCommands: CallbackCommand[] = []
 
     constructor(
+        private _codeActionRenderer: CodeActionRenderer,
         private _commandManager: CommandManager,
         private _contextMenuManager: ContextMenuManager,
         private _definition: Definition,
@@ -67,6 +69,8 @@ export class NeovimEditorCommands {
             new CallbackCommand("contextMenu.next", null, null, nextContextMenuItem, isContextMenuOpen),
             new CallbackCommand("contextMenu.previous", null, null, previousContextMenuItem, isContextMenuOpen),
             new CallbackCommand("contextMenu.close", null, null, closeContextMenu, isContextMenuOpen),
+
+            new CallbackCommand("language.codeActions.expand", "Language: Code Actions", "Show available code actions in a context menu", () => this._codeActionRenderer.hasCommands(), () => this._codeActionRenderer.expandCommands()),
 
             // TODO: Deprecate
             new CallbackCommand("oni.editor.gotoDefinition", null, null, () => this._definition.gotoDefinitionUnderCursor()),

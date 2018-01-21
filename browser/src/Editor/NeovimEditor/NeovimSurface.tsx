@@ -24,6 +24,7 @@ import WildMenu from "./../../UI/components/WildMenu"
 import { BufferScrollBarContainer } from "./containers/BufferScrollBarContainer"
 import { DefinitionContainer } from "./containers/DefinitionContainer"
 import { ErrorsContainer } from "./containers/ErrorsContainer"
+import { GutterContainer } from "./containers/GutterContainer"
 
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
@@ -79,6 +80,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     <CursorLine lineType={"column"} />
                     <NeovimActiveWindowContainer>
                         <DefinitionContainer />
+                        <GutterContainer />
                         <ErrorsContainer />
                         <BufferScrollBarContainer />
                     </NeovimActiveWindowContainer>

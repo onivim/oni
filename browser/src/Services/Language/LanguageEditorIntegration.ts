@@ -14,11 +14,13 @@ import * as types from "vscode-languageserver-types"
 
 import { Configuration } from "./../Configuration"
 
-import { LanguageManager } from "./LanguageManager"
-import { createStore, DefaultLanguageState, ILanguageState } from "./LanguageStore"
+import { IEditor } from "./../../Editor/Editor"
 
-import { IDefinitionRequestor, IDefinitionResult, LanguageServiceDefinitionRequestor } from "./DefinitionRequestor"
-import { IHoverRequestor, IHoverResult, LanguageServiceHoverRequestor } from "./HoverRequestor"
+import { CodeActionResult, createStore, DefaultLanguageState, ILanguageState } from "./LanguageStore"
+
+import { ICodeActionRequestor } from "./CodeActionsRequestor"
+import { IDefinitionRequestor, IDefinitionResult } from "./DefinitionRequestor"
+import { IHoverRequestor, IHoverResult } from "./HoverRequestor"
 
 export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
@@ -32,6 +34,9 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
     private _onShowHover: OniTypes.Event<IHoverResult> = new OniTypes.Event<IHoverResult>()
     private _onHideHover: OniTypes.Event<void> = new OniTypes.Event<void>()
+
+    private _onShowCodeActions = new OniTypes.Event<CodeActionResult>()
+    private _onHideCodeActions = new OniTypes.Event<void>()
 
     public get onShowDefinition(): OniTypes.IEvent<IDefinitionResult> {
         return this._onShowDefinition
@@ -47,18 +52,22 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
         return this._onHideHover
     }
 
+    public get onShowCodeActions(): OniTypes.IEvent<CodeActionResult> {
+        return this._onShowCodeActions
+    }
+    public get onHideCodeActions(): OniTypes.IEvent<void> {
+        return this._onHideCodeActions
+    }
+
     constructor(
-        private _editor: Oni.Editor,
+        private _editor: IEditor,
         private _configuration: Configuration,
-        private _languageManager?: LanguageManager,
-        private _definitionRequestor?: IDefinitionRequestor,
-        private _hoverRequestor?: IHoverRequestor,
+        private _codeActionRequestor: ICodeActionRequestor,
+        private _definitionRequestor: IDefinitionRequestor,
+        private _hoverRequestor: IHoverRequestor,
     ) {
 
-        this._definitionRequestor = this._definitionRequestor || new LanguageServiceDefinitionRequestor(this._languageManager, this._editor)
-        this._hoverRequestor = this._hoverRequestor || new LanguageServiceHoverRequestor(this._languageManager)
-
-        this._store = createStore(this._configuration, this._hoverRequestor, this._definitionRequestor)
+        this._store = createStore(this._configuration, this._codeActionRequestor, this._hoverRequestor, this._definitionRequestor)
 
         const sub1 = this._editor.onModeChanged.subscribe((newMode: string) => {
             this._store.dispatch({
@@ -76,7 +85,7 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
         })
 
         // TODO: Promote cursor moved to API
-        const sub3 = (this._editor as any).onCursorMoved.subscribe((cursorMoveEvent: Oni.Cursor) => {
+        const sub3 = this._editor.onCursorMoved.subscribe((cursorMoveEvent: Oni.Cursor) => {
             this._store.dispatch({
                 type: "CURSOR_MOVED",
                 line: cursorMoveEvent.line,
@@ -84,9 +93,20 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
             })
         })
 
+        const sub4 = this._editor.onSelectionChanged.subscribe((newRange: types.Range) => {
+
+            const minLine = Math.min(newRange.start.line, newRange.end.line)
+            const maxLine = Math.max(newRange.start.line, newRange.end.line)
+
+            this._store.dispatch({
+                type: "SELECTION_CHANGED",
+                range: types.Range.create(minLine, 0, maxLine + 1, 0),
+            })
+        })
+
         this._storeUnsubscribe = this._store.subscribe(() => this._onStateUpdate(this._store.getState()))
 
-        this._subscriptions = [sub1, sub2, sub3]
+        this._subscriptions = [sub1, sub2, sub3, sub4]
     }
 
     // Explicit gesture to show hover - ignores the setting
@@ -132,6 +152,14 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
         if (!newState.hoverResult.result && this._lastState.hoverResult.result) {
             this._onHideHover.dispatch()
+        }
+
+        if (newState.codeActionResult.result && !this._lastState.codeActionResult.result) {
+            this._onShowCodeActions.dispatch(newState.codeActionResult)
+        }
+
+        if (!newState.codeActionResult.result && this._lastState.codeActionResult.result) {
+            this._onHideCodeActions.dispatch()
         }
 
         this._lastState = newState

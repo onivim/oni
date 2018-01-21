@@ -130,6 +130,10 @@ export class MockEditor extends Editor {
         })
     }
 
+    public init(): Promise<void> {
+        return Promise.resolve(null)
+    }
+
     public simulateBufferEnter(buffer: MockBuffer): void {
         this._activeBuffer = buffer
         this.notifyBufferEnter(buffer as any)

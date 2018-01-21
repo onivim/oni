@@ -15,6 +15,8 @@ import { Observable } from "rxjs/Observable"
 import { Provider } from "react-redux"
 import { bindActionCreators, Store } from "redux"
 
+import * as types from "vscode-languageserver-types"
+
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import * as Oni from "oni-api"
@@ -41,6 +43,10 @@ import {
     addInsertModeLanguageFunctionality,
     LanguageEditorIntegration,
     LanguageManager,
+    LanguageServiceCodeActionExecutor,
+    LanguageServiceCodeActionRequestor,
+    LanguageServiceDefinitionRequestor,
+    LanguageServiceHoverRequestor,
 } from "./../../Services/Language"
 
 import {
@@ -57,6 +63,7 @@ import { Workspace } from "./../../Services/Workspace"
 import { Editor, IEditor } from "./../Editor"
 
 import { BufferManager } from "./../BufferManager"
+import { CodeActionRenderer } from "./CodeActionRenderer"
 import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
@@ -110,6 +117,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _syntaxHighlighter: ISyntaxHighlighter
     private _languageIntegration: LanguageEditorIntegration
     private _completion: Completion
+    private _codeActionRenderer: CodeActionRenderer
     private _hoverRenderer: HoverRenderer
     private _rename: Rename = null
     private _symbols: Symbols = null
@@ -154,6 +162,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._screen = new NeovimScreen()
 
         this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
+        this._codeActionRenderer = new CodeActionRenderer(new LanguageServiceCodeActionExecutor(this._languageManager), this._toolTipsProvider, this._contextMenuManager.create())
 
         this._definition = new Definition(this, this._store)
         this._symbols = new Symbols(this, this._definition, this._languageManager)
@@ -182,6 +191,7 @@ export class NeovimEditor extends Editor implements IEditor {
         registerBuiltInCommands(commandManager, this._neovimInstance)
 
         this._commands = new NeovimEditorCommands(
+            this._codeActionRenderer,
             commandManager,
             this._contextMenuManager,
             this._definition,
@@ -362,6 +372,8 @@ export class NeovimEditor extends Editor implements IEditor {
         Observable.merge(this._cursorMoved$, this._cursorMovedI$)
             .subscribe((cursorMoved) => {
                 this.notifyCursorMoved(cursorMoved)
+
+                this._updateSelection()
             })
 
         this._modeChanged$ = this._neovimInstance.onModeChanged.asObservable()
@@ -420,7 +432,11 @@ export class NeovimEditor extends Editor implements IEditor {
             this._completion.commitItem(item)
         })
 
-        this._languageIntegration = new LanguageEditorIntegration(this, this._configuration, this._languageManager)
+        this._languageIntegration = new LanguageEditorIntegration(this, this._configuration,
+            new LanguageServiceCodeActionRequestor(this._languageManager),
+            new LanguageServiceDefinitionRequestor(this._languageManager, this),
+            new LanguageServiceHoverRequestor(this._languageManager),
+        )
 
         this._languageIntegration.onShowHover.subscribe((hover) => {
             const { cursorPixelX, cursorPixelY } = this._store.getState()
@@ -437,6 +453,14 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._languageIntegration.onHideDefinition.subscribe((definition) => {
             this._actions.hideDefinition()
+        })
+
+        this._languageIntegration.onShowCodeActions.subscribe((codeActions) => {
+            this._codeActionRenderer.showCommands(codeActions)
+        })
+
+        this._languageIntegration.onHideCodeActions.subscribe((codeActions) => {
+            this._codeActionRenderer.hideCommands()
         })
 
         this._render()
@@ -627,6 +651,18 @@ export class NeovimEditor extends Editor implements IEditor {
                     />
                 </Provider>
         )
+    }
+
+    private async _updateSelection(): Promise<void> {
+        if (this.mode === "visual") {
+
+             const startRange = await this._neovimInstance.callFunction("getpos", ["v"])
+             const endRange = await this._neovimInstance.callFunction("getpos", ["."])
+             const [, startLine, startColumn ] = startRange
+             const [, endLine, endColumn ] = endRange
+
+             this.notifySelectionChanged(types.Range.create(startLine, startColumn, endLine, endColumn))
+        }
     }
 
     private _onBounceStart(): void {

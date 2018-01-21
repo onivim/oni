@@ -82,4 +82,5 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<enter>", "explorer.open")
     input.bind("<delete>", "explorer.delete")
 
+    input.bind("<c-enter>", "language.codeActions.expand")
 }

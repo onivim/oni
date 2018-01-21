@@ -33,6 +33,7 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.languageServer": null,
     "debug.fakeLag.neovimInput": null,
 
+    "experimental.editor.codeActions.enabled": false,
     "experimental.editor.textMateHighlighting.enabled": false,
     "experimental.commandline.mode": false,
     "experimental.commandline.icons": false,
