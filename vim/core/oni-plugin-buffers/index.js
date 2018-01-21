@@ -3,12 +3,12 @@ const activate = Oni => {
   const menu = Oni.menu.create();
 
   const updateBufferList = (Oni, menu) => {
-    const buffers  = Oni.editors.activeEditor.getBuffers();
+    const buffers = Oni.editors.activeEditor.getBuffers();
     const bufferMenuItems = buffers.map(b => ({
-        label: b.id,
-        detail: b.filePath,
-        icon: Oni.ui.getIconClassForFile(b.filePath)
-      }));
+      label: b.id,
+      detail: b.filePath,
+      icon: Oni.ui.getIconClassForFile(b.filePath),
+    }));
 
     return bufferMenuItems;
   };
@@ -24,7 +24,21 @@ const activate = Oni => {
     !menu.isOpen() ? createBufferList() : menu.hide();
   };
 
+  const deleteBuffer = menu => {
+    if (menu.selectedItem) {
+      //TODO: Command to execute buffer delete by Neovim
+      // menu.onItemSelected(
+      //   menu.selectedItem.label,
+      //   `bd! ${menu.selectedItem.label}`
+      // );
+    }
+  };
 
+  Oni.commands.registerCommand({
+    command: 'bufferlist.delete',
+    name: 'Delete Selected Buffer',
+    execute: () =>  deleteBuffer(menu),
+  });
 
   Oni.commands.registerCommand({
     command: 'bufferlist.open',
@@ -40,13 +54,15 @@ const activate = Oni => {
     execute: toggleBufferList,
   });
 
-  menu.onItemSelected.subscribe((menuItem) => {
+  menu.onItemSelected.subscribe(menuItem => {
     if (menuItem.detail) {
       Oni.editors.activeEditor.openFile(menuItem.detail);
     }
   });
 
-  Oni.editors.activeEditor.onBufferEnter.subscribe(() => updateBufferList(Oni, menu));
+  Oni.editors.activeEditor.onBufferEnter.subscribe(() =>
+    updateBufferList(Oni, menu)
+  );
 };
 
 module.exports = { activate };
