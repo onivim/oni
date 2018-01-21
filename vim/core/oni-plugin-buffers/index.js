@@ -4,10 +4,12 @@ const activate = Oni => {
 
   const updateBufferList = (Oni, menu) => {
     const buffers = Oni.editors.activeEditor.getBuffers();
+    const active = Oni.editors.activeEditor.activeBuffer.filePath;
     const bufferMenuItems = buffers.map(b => ({
-      label: b.id,
+      label: `${active === b.filePath ? b.id + ' %': b.id}`,
       detail: b.filePath,
       icon: Oni.ui.getIconClassForFile(b.filePath),
+      pinned: active === b.filePath,
     }));
 
     return bufferMenuItems;
