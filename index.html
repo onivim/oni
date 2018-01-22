@@ -28,7 +28,7 @@
       <script>
         console.timeStamp("browser.domloaded")
         var path = "lib/browser/bundle.js"
-        if(process.env.NODE_ENV === "development") {
+        if(process.env.ONI_WEBPACK_LOAD) {
             path = "http://localhost:8191/bundle.js";
             const hotReloadElement = document.createElement("div");
             hotReloadElement.textContent = "Waiting for webpack compilation... You may need to reload the browser once webpack finishes compiling."
