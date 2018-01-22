@@ -15,8 +15,9 @@ matrix:
     sudo: required
     dist: trusty
     node_js: 8
-  - os: osx
-    node_js: 8
+  # temporarily remove OSX due to instability with TravisCI
+  # - os: osx
+  #   node_js: 8
 addons:
   apt:
     packages:
