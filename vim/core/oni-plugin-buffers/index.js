@@ -27,7 +27,6 @@ const activate = Oni => {
     const buffers = updateBufferList(Oni, menu);
     menu.show();
     menu.setItems(buffers);
-    menu.setLoading(false);
   };
 
   const toggleBufferList = () => {
