@@ -38,11 +38,8 @@ const activate = Oni => {
 
   const deleteBuffer = menu => {
     if (menu.selectedItem) {
-      //TODO: Command to execute buffer delete by Neovim
-      // menu.onItemSelected(
-      //   menu.selectedItem.label,
-      //   `bd! ${menu.selectedItem.label}`
-      // );
+      Oni.editors.activeEditor.bufferDelete(menu.selectedItem.label);
+      menu.hide();
     }
   };
 
