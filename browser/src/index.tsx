@@ -153,7 +153,7 @@ const start = async (args: string[]): Promise<void> => {
     Snippets.activate()
 
     const ThemePicker = await themePickerPromise
-    ThemePicker.activate(Themes.getThemeManagerInstance())
+    ThemePicker.activate(configuration, Themes.getThemeManagerInstance())
 
     Performance.endMeasure("Oni.Start.Activate")
 

@@ -5,10 +5,11 @@
  */
 
 import { CallbackCommand, commandManager } from "./../CommandManager"
+import { Configuration }  from "./../Configuration"
 import { menuManager } from "./../Menu"
 import { ThemeManager } from "./ThemeManager"
 
-export const activate = (themeManager: ThemeManager) => {
+export const activate = (configuration: Configuration, themeManager: ThemeManager) => {
 
     commandManager.registerCommand(
         new CallbackCommand(
@@ -30,6 +31,7 @@ export const activate = (themeManager: ThemeManager) => {
                 themeMenu.setItems(items)
 
                 themeMenu.onSelectedItemChanged.subscribe((newOption) => {
+                    configuration.setValues({"ui.colorscheme": newOption.label})
                     themeManager.setTheme(newOption.label)
                 })
             }
