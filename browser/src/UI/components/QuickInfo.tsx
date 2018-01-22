@@ -63,7 +63,8 @@ export const Documentation = styled.div`
     ${childStyles};
 
     pre {
-        ${smallScrollbar} ${codeBlockStyle};
+        ${smallScrollbar};
+        ${codeBlockStyle};
     }
 `
 // NOTE: Currently with a max-width in CursorPositioner the text
