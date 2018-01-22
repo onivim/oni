@@ -190,6 +190,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@types/marked": "^0.3.0",
     "@types/redux-batched-subscribe": "^0.1.2",
     "dompurify": "1.0.2",
     "electron-settings": "^3.1.4",
