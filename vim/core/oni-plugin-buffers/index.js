@@ -1,13 +1,21 @@
 // @ts-check
+const path = require('path');
+
 const activate = Oni => {
   const menu = Oni.menu.create();
+
+  const truncateFilePath = (filepath) => {
+    const sections = filepath.split(path.sep);
+    const folderAndFiles = sections.slice(- 2);
+    return folderAndFiles.join(path.sep);
+  };
 
   const updateBufferList = (Oni, menu) => {
     const buffers = Oni.editors.activeEditor.getBuffers();
     const active = Oni.editors.activeEditor.activeBuffer.filePath;
     const bufferMenuItems = buffers.map(b => ({
       label: `${active === b.filePath ? b.id + ' %': b.id}`,
-      detail: b.filePath,
+      detail: truncateFilePath(b.filePath),
       icon: Oni.ui.getIconClassForFile(b.filePath),
       pinned: active === b.filePath,
     }));
@@ -58,7 +66,9 @@ const activate = Oni => {
 
   menu.onItemSelected.subscribe(menuItem => {
     if (menuItem.detail) {
-      Oni.editors.activeEditor.openFile(menuItem.detail);
+      const buffers = Oni.editors.activeEditor.getBuffers();
+      const selectedBuffer = buffers.find(b => b.filePath.includes(menuItem.detail));
+      Oni.editors.activeEditor.openFile(selectedBuffer.filePath);
     }
   });
 
