@@ -8,12 +8,17 @@ import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
-import { QuickInfoDocumentation, QuickInfoTitle } from "./../../UI/components/QuickInfo"
+import {
+    QuickInfoContainer,
+    QuickInfoDocumentation,
+    QuickInfoTitle,
+} from "./../../UI/components/QuickInfo"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import { IColors } from "./../../Services/Colors"
 import { Configuration } from "./../../Services/Configuration"
+import { convertMarkdown } from "./markdown"
 
 import * as Selectors from "./NeovimEditorSelectors"
 import { IToolTipsProvider } from "./ToolTipsProvider"
@@ -21,16 +26,19 @@ import { IToolTipsProvider } from "./ToolTipsProvider"
 const HoverToolTipId = "hover-tool-tip"
 
 export class HoverRenderer {
-
     constructor(
         private _colors: IColors,
         private _editor: Oni.Editor,
         private _configuration: Configuration,
         private _toolTipsProvider: IToolTipsProvider,
-    ) {
-    }
+    ) {}
 
-    public showQuickInfo(x: number, y: number, hover: types.Hover, errors: types.Diagnostic[]): void {
+    public showQuickInfo(
+        x: number,
+        y: number,
+        hover: types.Hover,
+        errors: types.Diagnostic[],
+    ): void {
         const elem = this._renderQuickInfoElement(hover, errors)
 
         if (!elem) {
@@ -49,12 +57,12 @@ export class HoverRenderer {
     }
 
     private _renderQuickInfoElement(hover: types.Hover, errors: types.Diagnostic[]): JSX.Element {
-        const quickInfoElements = getQuickInfoElementsFromHover(hover)
+        const quickInfoElement = getQuickInfoElementsFromHover(hover)
 
         const borderColor = this._colors.getColor("toolTip.border")
 
         let customErrorStyle = {}
-        if (quickInfoElements.length > 0) {
+        if (quickInfoElement) {
             // TODO:
             customErrorStyle = {
                 "border-bottom": "1px solid " + borderColor,
@@ -63,25 +71,26 @@ export class HoverRenderer {
 
         const errorElements = getErrorElements(errors, customErrorStyle)
 
-        const elements = [...errorElements, ...quickInfoElements]
+        // Remove falsy values as check below [null] is truthy
+        const elements = [...errorElements, quickInfoElement].filter(Boolean)
 
         if (this._configuration.getValue("experimental.editor.textMateHighlighting.debugScopes")) {
             elements.push(this._getDebugScopesElement())
         }
 
-        if (elements.length === 0) {
+        if (!elements.length) {
             return null
         }
 
-        return <div className="quickinfo-container enable-mouse">
-            <div className="quickinfo">
-                <div className="container horizontal center">
-                    <div className="container full">
-                        {elements}
+        return (
+            <div className="quickinfo-container enable-mouse">
+                <div className="quickinfo">
+                    <div className="container horizontal center">
+                        <div className="container full">{elements}</div>
                     </div>
                 </div>
             </div>
-        </div>
+        )
     }
 
     private _getDebugScopesElement(): JSX.Element {
@@ -101,12 +110,12 @@ export class HoverRenderer {
             return null
         }
         const items = scopeInfo.scopes.map((si: string) => <li>{si}</li>)
-        return <div className="documentation">
-            <div>DEBUG: TextMate Scopes:</div>
-            <ul>
-                {items}
-            </ul>
-        </div>
+        return (
+            <QuickInfoDocumentation>
+                <div>DEBUG: TextMate Scopes:</div>
+                <ul>{items}</ul>
+            </QuickInfoDocumentation>
+        )
     }
 }
 
@@ -135,31 +144,33 @@ const getTitleAndContents = (result: types.Hover) => {
         }
 
         return {
-            title,
-            description: "",
+            title: convertMarkdown(title),
+            description: null,
         }
     } else {
-
         const description = [...contents]
         description.shift()
         const descriptionContent = description.join(os.EOL)
 
         return {
-            title: contents[0],
-            description: descriptionContent,
+            title: convertMarkdown(contents[0]),
+            description: convertMarkdown(descriptionContent),
         }
     }
 }
 
-const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element[] => {
+const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element => {
     const titleAndContents = getTitleAndContents(hover)
+    const hasDocs = !!(titleAndContents && titleAndContents.description.__html)
 
-    if (!titleAndContents) {
-        return Selectors.EmptyArray
-    }
-
-    return [
-        <QuickInfoTitle text={titleAndContents.title} />,
-        <QuickInfoDocumentation text={titleAndContents.description} />,
-    ]
+    return (
+        titleAndContents && (
+            <QuickInfoContainer hasDocs={hasDocs}>
+                <QuickInfoTitle padding={hasDocs ? "0.5rem" : null} html={titleAndContents.title} />
+                {titleAndContents.description && (
+                    <QuickInfoDocumentation html={titleAndContents.description} />
+                )}
+            </QuickInfoContainer>
+        )
+    )
 }

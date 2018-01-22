@@ -20,6 +20,7 @@ import * as ActionCreators from "./ShellActionCreators"
 import { reducer } from "./ShellReducer"
 import * as State from "./ShellState"
 
+import { Colors } from "./../../Services/Colors"
 import { focusManager } from "./../../Services/FocusManager"
 import { windowManager } from "./../../Services/WindowManager"
 
@@ -29,19 +30,32 @@ const defaultState = State.createDefaultState()
 
 export const store = createStore("Shell", reducer, defaultState, [thunk])
 
-export const Actions: typeof ActionCreators = bindActionCreators(ActionCreators as any, store.dispatch)
+export const Actions: typeof ActionCreators = bindActionCreators(
+    ActionCreators as any,
+    store.dispatch,
+)
 
 const browserWindow = remote.getCurrentWindow()
 browserWindow.on("enter-full-screen", () => {
-    store.dispatch({type: "ENTER_FULL_SCREEN"})
+    store.dispatch({ type: "ENTER_FULL_SCREEN" })
 })
 
 browserWindow.on("leave-full-screen", () => {
-    store.dispatch({type: "LEAVE_FULL_SCREEN"})
+    store.dispatch({ type: "LEAVE_FULL_SCREEN" })
 })
 
 export const activate = (): void => {
     render(defaultState)
+}
+
+export const initializeColors = (colors: Colors): void => {
+    const setColors = () => Actions.setColors(colors.getColors() as any)
+
+    colors.onColorsChanged.subscribe(() => {
+        setColors()
+    })
+
+    setColors()
 }
 
 const ShellContainer = connect((state: State.IState) => ({
@@ -53,11 +67,14 @@ export const render = (state: State.IState): void => {
 
     ReactDOM.render(
         <Provider store={store}>
-            <ShellContainer windowManager={windowManager}/>
-        </Provider>, hostElement)
+            <ShellContainer windowManager={windowManager} />
+        </Provider>,
+        hostElement,
+    )
 }
 
 // Don't execute code that depends on DOM in unit-tests
-if (global["window"]) { // tslint:disable-line
+if (global["window"]) {
+    // tslint:disable-line
     document.body.addEventListener("click", () => focusManager.enforceFocus())
 }
