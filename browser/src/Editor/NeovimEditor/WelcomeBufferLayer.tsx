@@ -97,9 +97,9 @@ const WelcomeButtonHoverStyled = `
 // box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
 
 const WelcomeButtonWrapper = withProps<{}>(styled.div)`
-    border: 0px solid ${props => props.theme["foreground"]};
-    color: ${props => props.theme["foreground"]};
-    background-color: ${props => props.theme["background"]};
+    border: 0px solid ${props => props.theme.foreground};
+    color: ${props => props.theme.foreground};
+    background-color: ${props => props.theme.background};
 
     cursor: pointer;
 
@@ -111,7 +111,7 @@ const WelcomeButtonWrapper = withProps<{}>(styled.div)`
     flex-direction: row;
 
     &:hover {
-       ${WelcomeButtonHoverStyled} 
+       ${WelcomeButtonHoverStyled}
     }
 
 `
