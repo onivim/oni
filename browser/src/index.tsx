@@ -39,6 +39,8 @@ const start = async (args: string[]): Promise<void> => {
     const languageManagerPromise = import("./Services/Language")
     const snippetPromise = import("./Services/Snippets")
     const workspacePromise = import("./Services/Workspace")
+
+    const themePickerPromise = import("./Services/Themes/ThemePicker")
     const cssPromise = import("./CSS")
 
     // Helper for debugging:
@@ -149,6 +151,9 @@ const start = async (args: string[]): Promise<void> => {
 
     const Snippets = await snippetPromise
     Snippets.activate()
+
+    const ThemePicker = await themePickerPromise
+    ThemePicker.activate(Themes.getThemeManagerInstance())
 
     Performance.endMeasure("Oni.Start.Activate")
 

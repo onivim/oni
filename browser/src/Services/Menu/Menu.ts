@@ -107,6 +107,7 @@ export class Menu {
 
         menuActions.showPopupMenu(this._id, {
             filterFunction: this._filterFunction,
+            onSelectedItemChanged: (info) => console.dir(info),
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
             onHide: () => this._onHide.dispatch(),
             onFilterTextChanged: (newText) => this._onFilterTextChanged.dispatch(newText),
