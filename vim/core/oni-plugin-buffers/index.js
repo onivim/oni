@@ -92,7 +92,7 @@ const activate = Oni => {
   });
 
   menu.onItemSelected.subscribe(menuItem => {
-    if (menuItem.detail) {
+    if (menuItem && menuItem.detail) {
       openBuffer(menu, 'edit');
     }
   });
