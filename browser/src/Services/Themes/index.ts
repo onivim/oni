@@ -1,5 +1,4 @@
 export * from "./ThemeManager"
-import * as Shell from "./../../UI/Shell"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
@@ -15,7 +14,6 @@ export const activate = async (configuration: Configuration, pluginManager: Plug
         if (colorscheme) {
             const themeManager = getThemeManagerInstance()
             await themeManager.setTheme(colorscheme)
-            Shell.Actions.setColors(themeManager.getColors())
         }
     }
 
