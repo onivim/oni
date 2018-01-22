@@ -152,8 +152,8 @@ export const getColorsFromBackgroundAndForeground = (background: string, foregro
     const borderColor = getBorderColor(background, foreground)
     return {
         ...DefaultThemeColors,
+        foreground,
         background: shellBackground,
-        foreground: foreground,
         "editor.background": background,
         "editor.foreground": foreground,
 
