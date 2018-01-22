@@ -13,6 +13,7 @@ import * as Utility from "./../Utility"
 import { getUserConfigFilePath } from "./Configuration"
 import { editorManager } from "./EditorManager"
 import { inputManager } from "./InputManager"
+import { getInstance as getSharedNeovimInstance } from "./../neovim/SharedNeovimInstance"
 
 import * as Log from "./../Log"
 import * as Shell from "./../UI/Shell"
@@ -75,9 +76,13 @@ export class Automation implements OniApi.Automation.Api {
         await this.waitFor(() => (Shell.store.getState() as any).isLoaded, 30000)
         Log.info("[AUTOMATION] Startup complete!")
 
-        Log.info("[AUTOMATION] Waiting for neovim to attach...")
+        Log.info("[AUTOMATION] Waiting for neovim to attach to editor...")
         await this.waitFor(() => editorManager.activeEditor.neovim && (editorManager.activeEditor as any).neovim.isInitialized, 30000)
-        Log.info("[AUTOMATION] Neovim attached!")
+        Log.info("[AUTOMATION] Neovim initialized!")
+
+        Log.info("[AUTOMATION] Waiting for shared neovim instance...")
+        await this.waitFor(() => getSharedNeovimInstance() && getSharedNeovimInstance().isInitialized, 30000)
+        Log.info("[AUTOMATION] Shared neovim instance initialized!")
     }
 
     public async runTest(testPath: string): Promise<void> {
