@@ -43,7 +43,7 @@ export interface ICursorPositionerViewProps extends ICursorPositionerProps {
 export interface ICursorPositionerViewState {
     isMeasured: boolean
 
-    isFullWidth: boolean
+    isFullWidth: boolean,
     shouldOpenDownward: boolean,
     adjustedX: number
     lastMeasuredX: number,
@@ -126,17 +126,20 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             top: adjustedY.toString() + "px",
             left: "0px",
             width: this.props.containerWidth.toString() + "px",
+            maxWidth: "55vw",
             visibility: this.state.isMeasured ? "visible" : "hidden", // Wait until we've measured the bounds to show..
         }
 
         const openFromBottomStyle: React.CSSProperties = {
             position: "absolute",
             bottom: "0px",
+            width: "fit-content",
         }
 
         const openFromTopStyle: React.CSSProperties = {
             position: "absolute",
             top: "0px",
+            width: "fit-content",
         }
 
         const childStyle = this.state.shouldOpenDownward ? openFromTopStyle : openFromBottomStyle
@@ -152,7 +155,6 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             ...childStyle,
             left: this.state.isFullWidth ? "8px" : Math.abs(adjustedX).toString() + "px",
             right: this.state.isFullWidth ? "8px" : null,
-            maxWidth: "95%",
         } : childStyle
 
         return <div style={containerStyle} key={this.props.key}>
@@ -166,7 +168,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
                     direction={this.state.shouldOpenDownward
                         ? ArrowDirection.Up
                         : ArrowDirection.Down}
-                    size={5}
+                    size={10}
                     color={this.props.beakColor}
                 />
             </div>
@@ -189,7 +191,9 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             const bottomScreenPadding = 50
             const canOpenDownard = this.props.y + rect.height + this.props.lineHeight * 3 < this.props.containerHeight - margin - bottomScreenPadding
 
-            const shouldOpenDownward = (this.props.openDirection !== OpenDirection.Down && !canOpenUpward) || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
+            const shouldOpenDownward =
+                (this.props.openDirection !== OpenDirection.Down && !canOpenUpward)
+                || (this.props.openDirection === OpenDirection.Down && canOpenDownard)
 
             const rightBounds = this.props.x + rect.width
 
@@ -200,7 +204,7 @@ export class CursorPositionerView extends React.PureComponent<ICursorPositionerV
             if (!isFullWidth && rightBounds > this.props.containerWidth) {
                     const offset = rightBounds - this.props.containerWidth + 8
                     adjustedX = this.props.x - offset
-                }
+            }
 
             this.setState({
                     isFullWidth,

@@ -3,7 +3,7 @@
 ### Modern Modal Editing
 
 [![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)[![Coverage Status](https://img.shields.io/coveralls/onivim/oni/master.svg)](https://coveralls.io/github/onivim/oni?branch=master)
-[![Join the chat at https://gitter.im/onivim/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![Sponsors on Open Collective](https://opencollective.com/oni/sponsors/badge.svg)](https://opencollective.com/oni#sponsor) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
+[![Join the chat at https://gitter.im/onivim/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 [![Total Downloads](https://img.shields.io/github/downloads/onivim/oni/total.svg)](https://github.com/onivim/oni/releases)
 
 <h2 align="center">Supporting Oni</h2>
