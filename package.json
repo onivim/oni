@@ -152,7 +152,7 @@
     "dist:win": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
     "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
     "test": "npm run test:unit && npm run test:integration",
-    "test:integration": "npm run build:test && mocha -t 60000 lib_test/test/CiTests.js",
+    "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js",
     "test:unit": "npm run test:unit:browser",
     "test:unit:browser": "npm run build:test:unit && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
     "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
