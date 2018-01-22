@@ -37,6 +37,7 @@ const start = async (args: string[]): Promise<void> => {
     const editorManagerPromise = import("./Services/EditorManager")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const snippetPromise = import("./Services/Snippets")
     const workspacePromise = import("./Services/Workspace")
     const cssPromise = import("./CSS")
 
@@ -90,7 +91,7 @@ const start = async (args: string[]): Promise<void> => {
 
     const Colors = await colorsPromise
     Colors.activate(configuration, Themes.getThemeManagerInstance())
-    Shell.Actions.setColors(Themes.getThemeManagerInstance().getColors())
+    Shell.initializeColors(Colors.getInstance())
     Performance.endMeasure("Oni.Start.Themes")
 
     const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
@@ -145,6 +146,10 @@ const start = async (args: string[]): Promise<void> => {
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+
+    const Snippets = await snippetPromise
+    Snippets.activate()
+
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()
