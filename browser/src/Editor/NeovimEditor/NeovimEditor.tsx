@@ -190,15 +190,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
         registerBuiltInCommands(commandManager, this._neovimInstance)
 
-        this._commands = new NeovimEditorCommands(
-            commandManager,
-            this._contextMenuManager,
-            this._definition,
-            this._languageIntegration,
-            this._rename,
-            this._symbols,
-        )
-
         const updateViewport = () => {
             const width = document.body.offsetWidth
             const height = document.body.offsetHeight
@@ -447,6 +438,15 @@ export class NeovimEditor extends Editor implements IEditor {
         this._languageIntegration.onHideDefinition.subscribe((definition) => {
             this._actions.hideDefinition()
         })
+
+        this._commands = new NeovimEditorCommands(
+            commandManager,
+            this._contextMenuManager,
+            this._definition,
+            this._languageIntegration,
+            this._rename,
+            this._symbols,
+        )
 
         this._render()
 

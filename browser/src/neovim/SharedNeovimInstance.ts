@@ -115,6 +115,10 @@ class SharedNeovimInstance implements SharedNeovimInstance {
     private _initPromise: Promise<void>
     private _neovimInstance: NeovimInstance
 
+    public get isInitialized(): boolean {
+        return this._neovimInstance.isInitialized
+    }
+
     constructor(
         private _configuration: Configuration,
         private _pluginManager: PluginManager,
