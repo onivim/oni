@@ -15,7 +15,12 @@ import "rxjs/add/operator/concatMap"
 
 import * as Oni from "oni-api"
 
-import { EventContext, InactiveBufferContext, NeovimInstance } from "./../neovim"
+import {
+    BufferEventContext,
+    EventContext,
+    InactiveBufferContext,
+    NeovimInstance,
+} from "./../neovim"
 import * as LanguageManager from "./../Services/Language"
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
@@ -258,7 +263,7 @@ export class Buffer implements Oni.Buffer {
 export class BufferManager {
     private _idToBuffer: { [id: string]: Buffer } = { }
     private _filePathToId: { [filePath: string]: string } = { }
-    private _inactiveBuffers: { [id: string]: InactiveBuffer } = {  }
+    private _bufferList: { [id: string]: InactiveBuffer } = {  }
 
     constructor(
         private _neovimInstance: NeovimInstance,
@@ -282,17 +287,18 @@ export class BufferManager {
         return this._idToBuffer[id]
     }
 
-    public addInactiveBuffers(inactiveBuffers: InactiveBufferContext[]): void {
-        const bufferlist = inactiveBuffers.reduce((list, buffer) => {
+    public populateBufferList(buffers: BufferEventContext): void {
+        const bufferlist = buffers.existingBuffers.reduce((list, buffer) => {
             const id = `${buffer.bufferNumber}`
             if (buffer.bufferFullPath) {
                 this._filePathToId[buffer.bufferFullPath] = id
-                const buf = new InactiveBuffer(buffer)
-                list[id] = buf
+                list[id] = new InactiveBuffer(buffer)
             }
             return list
         }, {})
-        this._inactiveBuffers = bufferlist
+        const currentId = buffers.current.bufferNumber.toString()
+        const current = this.getBufferById(currentId)
+        this._bufferList = { ...bufferlist, [currentId]: current }
     }
 
     public getBufferById(id: string): Buffer {
@@ -300,8 +306,7 @@ export class BufferManager {
     }
 
     public getBuffers(): Array<Buffer | InactiveBuffer> {
-        const buffersWithIds = { ...this._inactiveBuffers, ...this._idToBuffer }
-        return Object.values(buffersWithIds)
+        return Object.values(this._bufferList)
     }
 }
 

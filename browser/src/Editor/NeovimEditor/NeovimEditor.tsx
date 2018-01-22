@@ -689,7 +689,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
-        this._bufferManager.addInactiveBuffers(evt.existingBuffers)
+        this._bufferManager.populateBufferList(evt)
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
             this.notifyBufferLeave({
