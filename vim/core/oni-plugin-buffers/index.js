@@ -4,17 +4,20 @@ const path = require('path');
 const activate = Oni => {
   const menu = Oni.menu.create();
 
-  const truncateFilePath = (filepath) => {
+  const truncateFilePath = filepath => {
     const sections = filepath.split(path.sep);
-    const folderAndFiles = sections.slice(- 2);
+    const folderAndFiles = sections.slice(-2);
     return folderAndFiles.join(path.sep);
   };
+
+  const matchingPath = (buffers, truncPath) =>
+    buffers.find(b => b.filePath.includes(truncPath));
 
   const updateBufferList = (Oni, menu) => {
     const buffers = Oni.editors.activeEditor.getBuffers();
     const active = Oni.editors.activeEditor.activeBuffer.filePath;
     const bufferMenuItems = buffers.map(b => ({
-      label: `${active === b.filePath ? b.id + ' %': b.id}`,
+      label: `${active === b.filePath ? b.id + ' %' : b.id}`,
       detail: truncateFilePath(b.filePath),
       icon: Oni.ui.getIconClassForFile(b.filePath),
       pinned: active === b.filePath,
@@ -43,10 +46,38 @@ const activate = Oni => {
     }
   };
 
+  const openBuffer = (menu, orientation) => {
+    if (menu.selectedItem && menu.isOpen()) {
+      const buffers = Oni.editors.activeEditor.getBuffers();
+      const { filePath } = matchingPath(buffers, menu.selectedItem.detail);
+      Oni.editors.activeEditor.openFile(filePath, orientation);
+      menu.hide();
+    }
+    return;
+  };
+
   Oni.commands.registerCommand({
     command: 'bufferlist.delete',
     name: 'Delete Selected Buffer',
-    execute: () =>  deleteBuffer(menu),
+    execute: () => deleteBuffer(menu),
+  });
+
+  Oni.commands.registerCommand({
+    command: 'bufferlist.split',
+    name: 'Split Selected Buffer',
+    execute: () => openBuffer(menu, 'horizontal'),
+  });
+
+  Oni.commands.registerCommand({
+    command: 'bufferlist.vsplit',
+    name: 'Vertical Split Selected Buffer',
+    execute: () => openBuffer(menu, 'vertical'),
+  });
+
+  Oni.commands.registerCommand({
+    command: 'bufferlist.tabedit',
+    name: 'Open Selected Buffer in a Tab',
+    execute: () => openBuffer(menu, 'tab'),
   });
 
   Oni.commands.registerCommand({
@@ -65,9 +96,7 @@ const activate = Oni => {
 
   menu.onItemSelected.subscribe(menuItem => {
     if (menuItem.detail) {
-      const buffers = Oni.editors.activeEditor.getBuffers();
-      const selectedBuffer = buffers.find(b => b.filePath.includes(menuItem.detail));
-      Oni.editors.activeEditor.openFile(selectedBuffer.filePath);
+      openBuffer(menu, 'edit');
     }
   });
 

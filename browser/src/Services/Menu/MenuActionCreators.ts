@@ -126,7 +126,7 @@ export const filterMenu = (filterString: string) => (dispatch: any, getState: an
 
 export const nextMenuItem = () => (dispatch: any, getState: any) => {
     dispatch({
-    type: "NEXT_MENU",
+        type: "NEXT_MENU",
     })
 
     notifySelectedItemChange(getState())

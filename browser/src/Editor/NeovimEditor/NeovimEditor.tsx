@@ -531,8 +531,24 @@ export class NeovimEditor extends Editor implements IEditor {
         this._commands.deactivate()
     }
 
-    public async openFile(file: string): Promise<Oni.Buffer> {
-        await this._neovimInstance.command(":e " + file)
+    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
+        let cmd = ":"
+        switch (method) {
+            case "tab":
+                cmd += "taball"
+                break
+            case "horizontal":
+                cmd += "sp"
+                break
+            case "vertical":
+                cmd += "vsp"
+                break
+            case "edit":
+            default:
+                cmd += "e"
+                break
+        }
+        await this._neovimInstance.command(`${cmd} ${file}`)
         return this.activeBuffer
     }
 
