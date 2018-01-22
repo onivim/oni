@@ -283,14 +283,16 @@ export class BufferManager {
     }
 
     public addInactiveBuffers(inactiveBuffers: InactiveBufferContext[]): void {
-        inactiveBuffers.forEach(buffer => {
+        const bufferlist = inactiveBuffers.reduce((list, buffer) => {
             const id = `${buffer.bufferNumber}`
             if (buffer.bufferFullPath) {
                 this._filePathToId[buffer.bufferFullPath] = id
                 const buf = new InactiveBuffer(buffer)
-                this._inactiveBuffers[id] = buf
+                list[id] = buf
             }
-        })
+            return list
+        }, {})
+        this._inactiveBuffers = bufferlist
     }
 
     public getBufferById(id: string): Buffer {
