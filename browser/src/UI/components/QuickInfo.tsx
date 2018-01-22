@@ -104,9 +104,7 @@ export const QuickInfoContainer = withProps<{ hasDocs: boolean }>(styled.div)`
 export interface ITextProps {
     padding?: string
     text?: string
-    html?: {
-        __html: string
-    }
+    html?: { __html: string }
 }
 
 export class QuickInfoTitle extends React.PureComponent<ITextProps> {
