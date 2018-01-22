@@ -28,6 +28,10 @@ export const activate = (themeManager: ThemeManager) => {
                 const themeMenu = menuManager.create()
                 themeMenu.show()
                 themeMenu.setItems(items)
+
+                themeMenu.onSelectedItemChanged.subscribe((newOption) => {
+                    themeManager.setTheme(newOption.label)
+                })
             }
         ))
 }

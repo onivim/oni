@@ -63,6 +63,7 @@ export class MenuManager {
 
 export class Menu {
     private _onItemSelected = new Event<any>()
+    private _onSelectedItemChanged = new Event<Oni.Menu.MenuOption>()
     private _onFilterTextChanged = new Event<string>()
     private _onHide = new Event<void>()
     private _filterFunction = MenuFilter.fuseFilter
@@ -73,6 +74,10 @@ export class Menu {
 
     public get onItemSelected(): IEvent<any> {
         return this._onItemSelected
+    }
+
+    public get onSelectedItemChanged(): IEvent<Oni.Menu.MenuOption> {
+        return this._onSelectedItemChanged
     }
 
     public get onFilterTextChanged(): IEvent<string> {
@@ -107,7 +112,7 @@ export class Menu {
 
         menuActions.showPopupMenu(this._id, {
             filterFunction: this._filterFunction,
-            onSelectedItemChanged: (info) => console.dir(info),
+            onSelectedItemChanged: (item) => this._onSelectedItemChanged.dispatch(item),
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
             onHide: () => this._onHide.dispatch(),
             onFilterTextChanged: (newText) => this._onFilterTextChanged.dispatch(newText),
