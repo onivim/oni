@@ -10,6 +10,11 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
   export DISPLAY=:99.0
   sh -e /etc/init.d/xvfb start
   sleep 3
+
+  # Install Neovim
+  curl -LO https://github.com/neovim/neovim/releases/download/v0.2.2/nvim.appimage
+  chmod u+x nvim.appimage
+  ./nvim.appimage --version
 fi
 
 npm run build
