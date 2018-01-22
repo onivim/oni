@@ -6,8 +6,8 @@
 
 import { Event, IEvent } from "oni-types"
 
-import { PluginManager } from "./../../Plugins/PluginManager"
 import { IThemeContribution } from "./../../Plugins/Api/Capabilities"
+import { PluginManager } from "./../../Plugins/PluginManager"
 
 import {
     Configuration,

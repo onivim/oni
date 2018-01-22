@@ -5,7 +5,7 @@
  */
 
 import { CallbackCommand, commandManager } from "./../CommandManager"
-import { Configuration }  from "./../Configuration"
+import { Configuration } from "./../Configuration"
 import { menuManager } from "./../Menu"
 import { ThemeManager } from "./ThemeManager"
 
@@ -54,4 +54,3 @@ export const activate = (configuration: Configuration, themeManager: ThemeManage
             () => chooseTheme(configuration, themeManager),
         ))
 }
-
