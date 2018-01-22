@@ -14,8 +14,8 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
   # Install Neovim
   curl -LO https://github.com/neovim/neovim/releases/download/v0.2.2/nvim.appimage
   chmod u+x nvim.appimage
-  which nvim.appimage
   ./nvim.appimage --version
+  ONI_NEOVIM_PATH="$(cd "$(dirname "$1")"; pwd)/nvim.appimage"
 fi
 
 npm run build

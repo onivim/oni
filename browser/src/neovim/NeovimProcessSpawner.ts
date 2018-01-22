@@ -58,7 +58,7 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
     const nvimMacProcessPath = path.join(__dirname, "node_modules", "oni-neovim-binaries", "bin", "nvim-osx64", "bin", "nvim")
 
     // Assume nvim is available in path for Linux
-    const nvimLinuxPath = "nvim"
+    const nvimLinuxPath = process.env["ONI_NEOVIM_PATH"] || "nvim"
 
     let nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
 
