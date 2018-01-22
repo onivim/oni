@@ -15,6 +15,7 @@ import { IMenus } from "./../Menu/MenuState"
 
 import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
 import { HighlightText } from "./../../UI/components/HighlightText"
+import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
 import { Icon } from "./../../UI/Icon"
 
 import { ContextMenuState } from "./ContextMenu"
@@ -124,7 +125,7 @@ export const ContextMenuDocumentation = (props: IContextMenuDocumentationProps) 
         return null
     }
 
-    return <div className="documentation">{documentation}</div>
+    return <QuickInfoDocumentation text={documentation} />
 }
 
 const EmptyArray: any[] = []
