@@ -54,8 +54,9 @@ export const activateCommands = (configuration: Configuration, editorManager: Ed
     }
 
     const commands = [
-        new CallbackCommand("workspace.openFolder", "Workspace: Open Folder", "Set a folder as the working directory for Oni", () => openFolder()),
+        new CallbackCommand("workspace.openFolder", "Workspace: Open Folder", "Set a folder as the working directory for Oni", () => openFolder(), () => workspace.activeWorkspace === null),
         new CallbackCommand("workspace.openTestFile", "Workspace: Open Test File", "Open the test file corresponding to this source file.", () => openTestFileInSplit()),
+        new CallbackCommand("workspace.closeFolder", "Workspace: Close Folder", "Close the current folder", () => workspace.changeDirectory(null), () => workspace.activeWorkspace !== null)
     ]
 
     commands.forEach((c) => commandManager.registerCommand(c))
