@@ -38,8 +38,6 @@ export class Oni {
 
         log("Start options: " + JSON.stringify(options))
 
-        log("automation - env: " + JSON.stringify(process.env))
-
         this._app = new Application({
             path: executablePath,
             env: options.configurationPath ? { "ONI_CONFIG_FILE": options.configurationPath } : {},
