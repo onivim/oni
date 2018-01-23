@@ -119,6 +119,16 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
 
     _workspaceConfiguration = new WorkspaceConfiguration(configuration, _workspace)
 
+    const defaultWorkspace = configuration.getValue("workspace.defaultWorkspace")
+
+    if (defaultWorkspace) {
+        _workspace.changeDirectory(defaultWorkspace)
+    }
+
+    _workspace.onDirectoryChanged.subscribe((newDirectory) => {
+        configuration.setValues({ "workspace.defaultWorkspace": newDirectory}, true)
+    })
+
     WorkspaceCommands.activateCommands(configuration, editorManager, _workspace)
 }
 
