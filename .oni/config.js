@@ -13,4 +13,9 @@ const deactivate = () => {
 module.exports = {
     activate,
     deactivate,
+    "workspace.testFileMappings": [{
+        sourceFolder: "browser/src",
+        mappedFolder: "browser/test",
+        mappedFileName: "sourceTest.ts",
+    }]
 }
