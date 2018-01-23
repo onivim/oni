@@ -16,9 +16,14 @@ describe("Resolvers", () => {
     })
 
     describe("remapResolver", () => {
-        it("remaps key in list", () => {
+        it("remaps Backspace key", () => {
             const result = remapResolver(keyBackSpace, "Backspace")
             assert.equal(result, "bs")
+        })
+
+        it("remaps Space key", () => {
+            const result = remapResolver(keySpace, " ")
+            assert.equal(result, "space")
         })
     })
 
@@ -142,3 +147,4 @@ const keyShift = shift(createKeyEvent("Shift", "Shift"))
 const keyS = createKeyEvent("s", "KeyS")
 const keyP = createKeyEvent("p", "KeyP")
 const keyUmlautedO = createKeyEvent("ö", "Semicolon")
+const keySpace = createKeyEvent(" ", " ")
