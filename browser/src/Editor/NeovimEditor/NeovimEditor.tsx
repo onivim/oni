@@ -274,7 +274,14 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
             if (this._configuration.getValue("editor.clipboard.enabled")) {
-                clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+
+                const isYankAndAllowed = yankInfo.operator === "y" && this._configuration.getValue("editor.clipboard.synchronizeYank")
+                const isDeleteAndAllowed = yankInfo.operator === "d" && this._configuration.getValue("editor.clipboard.synchronizeDelete")
+                const isAllowed = isYankAndAllowed || isDeleteAndAllowed
+
+                if (isAllowed) {
+                    clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+                }
             }
         })
 
