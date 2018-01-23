@@ -12,6 +12,8 @@ import "rxjs/add/operator/map"
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
 
+import * as types from "vscode-languageserver-types"
+
 import { Provider } from "react-redux"
 import { bindActionCreators, Store } from "redux"
 
@@ -529,6 +531,21 @@ export class NeovimEditor extends Editor implements IEditor {
         Log.info("[NeovimEditor::leave]")
         this._actions.setHasFocus(false)
         this._commands.deactivate()
+    }
+
+    public async setSelection(range: types.Range): Promise<void> {
+
+        await this._neovimInstance.input("<esc>")
+
+        const atomicCalls = [
+            ["nvim_call_function", ["setpos", ["'<", [0, range.start.line + 1, range.start.character + 1]]]],
+            ["nvim_call_function", ["setpos", ["'>", [0, range.end.line + 1, range.end.character + 1]]]],
+            ["nvim_command", ["set selectmode=cmd"]],
+            ["nvim_command", ["normal! gv"]],
+            ["nvim_command", ["set selectmode="]],
+        ]
+
+        await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
     }
 
     public async openFile(file: string): Promise<Oni.Buffer> {
