@@ -613,7 +613,7 @@ export class NeovimEditor extends Editor implements IEditor {
         }
 
         const onKeyDown = (key: string) => {
-            this._onKeyDown(key)
+            this.input(key)
         }
 
         return (
@@ -798,7 +798,7 @@ export class NeovimEditor extends Editor implements IEditor {
         }
     }
 
-    private async _onKeyDown(key: string): Promise<void> {
+    public async input(key: string): Promise<void> {
         if (this._configuration.getValue("debug.fakeLag.neovimInput")) {
             await sleep(this._configuration.getValue("debug.fakeLag.neovimInput"))
         }

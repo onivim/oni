@@ -145,6 +145,10 @@ export class OniEditor implements IEditor {
         return this._neovimEditor.init(filesToOpen)
     }
 
+    public async input(key: string): Promise<void> {
+        return this._neovimEditor.input(key)
+    }
+
     public render(): JSX.Element {
         return this._neovimEditor.render()
     }
