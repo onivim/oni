@@ -33,3 +33,5 @@ export class FileIcon extends React.PureComponent<IFileIconProps, {}> {
         return <i className={className + " " + additionalClasses} aria-hidden={true} />
     }
 }
+
+export const getFileIcon = (fileName: string) => <FileIcon fileName={fileName} isLarge={true} />

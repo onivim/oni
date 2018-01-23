@@ -71,8 +71,6 @@ export const registerBuiltInCommands = (commandManager: CommandManager, neovimIn
 
         new CallbackCommand("oni.config.openInitVim", "Edit Neovim Config", "Edit configuration file ('init.vim') for Neovim", () => neovimInstance.openInitVim()),
 
-        new CallbackCommand("oni.openFolder", "Open Folder", "Set a folder as the working directory for Oni", () => openFolder(neovimInstance)),
-
         new CallbackCommand("oni.process.cycleNext", "Focus Next Oni", "Switch to the next running instance of Oni", () => multiProcess.focusNextInstance()),
         new CallbackCommand("oni.process.cyclePrevious", "Focus Previous Oni", "Switch to the previous running instance of Oni", () => multiProcess.focusPreviousInstance()),
 
@@ -158,22 +156,6 @@ const pasteContents = async (neovimInstance: INeovimInstance) => {
     await neovimInstance.command("set paste")
     await neovimInstance.input(sanitizedText)
     await neovimInstance.command("set nopaste")
-}
-
-const openFolder = (neovimInstance: INeovimInstance) => {
-    const dialogOptions: any = {
-        title: "Open Folder",
-        properties: ["openDirectory"],
-    }
-
-    remote.dialog.showOpenDialog(remote.getCurrentWindow(), dialogOptions, (folder: string[]) => {
-        if (!folder || !folder[0]) {
-            return
-        }
-
-        const folderToOpen = folder[0]
-        neovimInstance.chdir(folderToOpen)
-    })
 }
 
 const openDefaultConfig = async (neovimInstance: INeovimInstance): Promise<void> => {
