@@ -63,7 +63,10 @@ export class Workspace implements IWorkspace {
     }
 
     public changeDirectory(newDirectory: string) {
-        process.chdir(newDirectory)
+        if (newDirectory) {
+            process.chdir(newDirectory)
+        }
+
         this._activeWorkspace = newDirectory
         this._onDirectoryChangedEvent.dispatch(newDirectory)
     }

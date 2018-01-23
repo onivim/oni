@@ -58,7 +58,7 @@ export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
 
     ret = [...ret, ...openedFiles]
 
-    if (!state.rootFolder) {
+    if (!state.rootFolder || !state.rootFolder.fullPath) {
         return ret
     }
 

@@ -235,6 +235,10 @@ const setRootDirectoryEpic: Epic<ExplorerAction, IExplorerState> = (action$, sto
                 return NullAction
             }
 
+            if (!action.rootPath) {
+                return NullAction
+            }
+
             return {
                 type: "EXPAND_DIRECTORY",
                 directoryPath: action.rootPath,
