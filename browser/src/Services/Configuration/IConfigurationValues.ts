@@ -100,6 +100,9 @@ export interface IConfigurationValues {
     // in paste from clipboard in insert mode.
     "editor.clipboard.enabled": boolean
 
+    // Whether the 'go-to definition' language feature is enabled
+    "editor.definition.enabled": boolean
+
     "editor.quickInfo.enabled": boolean
     // Delay (in ms) for showing QuickInfo, when the cursor is on a term
     "editor.quickInfo.delay": number

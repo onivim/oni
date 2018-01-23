@@ -188,20 +188,20 @@ export const languageStateReducer = combineReducers<ILanguageState>({
 export const createStore = (configuration: Configuration, hoverRequestor: IHoverRequestor, definitionRequestor: IDefinitionRequestor): Store<ILanguageState> => {
 
     const epicMiddleware = createEpicMiddleware(combineEpics(
-        queryForDefinitionAndHoverEpic(configuration),
+        queryForDefinitionEpic(configuration),
+        queryForHoverEpic(configuration),
         queryDefinitionEpic(definitionRequestor),
         queryHoverEpic(hoverRequestor),
     ))
 
     return oniCreateStore<ILanguageState>("LANGUAGE", languageStateReducer, DefaultLanguageState, [epicMiddleware])
 }
-
-export const queryForDefinitionAndHoverEpic = (configuration: Configuration): Epic<LanguageAction, ILanguageState> => (action$, store) =>
+export const queryForHoverEpic = (configuration: Configuration): Epic<LanguageAction, ILanguageState> => (action$, store) =>
     action$.ofType("CURSOR_MOVED")
         .filter(() => store.getState().mode === "normal" && configuration.getValue("editor.quickInfo.enabled"))
         .debounceTime(configuration.getValue("editor.quickInfo.delay"))
         .filter(() => store.getState().mode === "normal")
-        .mergeMap((action: LanguageAction) => {
+        .map((action: LanguageAction) => {
 
             const currentState = store.getState()
             const filePath = currentState.activeBuffer.filePath
@@ -216,17 +216,34 @@ export const queryForDefinitionAndHoverEpic = (configuration: Configuration): Ep
                 column,
             }
 
-            const hoverObservable = Observable.of({
+            return {
                 type: "HOVER_QUERY",
                 location,
-            } as LanguageAction)
+            } as LanguageAction
+        })
 
-            const queryObservable = Observable.of({
+export const queryForDefinitionEpic = (configuration: Configuration): Epic<LanguageAction, ILanguageState> => (action$, store) =>
+    action$.ofType("CURSOR_MOVED")
+        .filter(() => store.getState().mode === "normal" && configuration.getValue("editor.definition.enabled"))
+        .map((action: LanguageAction) => {
+
+            const currentState = store.getState()
+            const filePath = currentState.activeBuffer.filePath
+            const language = currentState.activeBuffer.language
+            const line = currentState.cursor.line
+            const column = currentState.cursor.column
+
+            const location = {
+                filePath,
+                language,
+                line,
+                column,
+            }
+
+            return {
                 type: "DEFINITION_QUERY",
                 location,
-            } as LanguageAction)
-
-            return Observable.merge(hoverObservable, queryObservable)
+            } as LanguageAction
         })
 
 export const NullAction = { type: null } as LanguageAction
