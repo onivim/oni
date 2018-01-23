@@ -112,7 +112,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return menuManager
     }
 
-    public get overlay(): any /* TODO */ {
+    public get overlays(): any /* TODO */ {
         return getOverlayInstance()
     }
 
