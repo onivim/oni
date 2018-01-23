@@ -14,8 +14,8 @@ import * as React from "react"
 
 import { Event } from "oni-types"
 
-import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 import { KeyboardInputView } from "./../../Input/KeyboardInput"
+import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
 import * as Log from "./../../Log"
 
@@ -57,40 +57,8 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
         this._updateBasedOnProps(this.props)
     }
 
-    public _updateBasedOnProps(props: IVimNavigatorProps) {
-        
-        if (props.active && !this._activeBinding) {
-            Log.info("[VimNavigator::activating]")
-            this._releaseBinding()
-            this._activeBinding = getInstance().bindToMenu()
-
-            this._activeBinding.onCursorMoved.subscribe((newValue) => {
-                Log.info("[VimNavigator::onCursorMoved] - " + newValue)
-                this.setState({
-                    selectedId: newValue,
-                })
-
-                if (this.props.onSelectionChanged) {
-                    this.props.onSelectionChanged(newValue)
-                }
-            })
-
-            this._activeBinding.setItems(this.props.ids, this.state.selectedId)
-            this._activateEvent.dispatch()
-        } else if(!props.active && this._activeBinding) {
-            this._releaseBinding()
-        }
-    }
-
     public componentWillUnmount(): void {
         this._releaseBinding()
-    }
-
-    private _releaseBinding(): void {
-        if (this._activeBinding) {
-            this._activeBinding.release()
-            this._activeBinding = null
-        }
     }
 
     public render() {
@@ -122,4 +90,37 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
             this._activeBinding.input(key)
         }
     }
+
+    private _releaseBinding(): void {
+        if (this._activeBinding) {
+            this._activeBinding.release()
+            this._activeBinding = null
+        }
+    }
+
+    private _updateBasedOnProps(props: IVimNavigatorProps) {
+
+        if (props.active && !this._activeBinding) {
+            Log.info("[VimNavigator::activating]")
+            this._releaseBinding()
+            this._activeBinding = getInstance().bindToMenu()
+
+            this._activeBinding.onCursorMoved.subscribe((newValue) => {
+                Log.info("[VimNavigator::onCursorMoved] - " + newValue)
+                this.setState({
+                    selectedId: newValue,
+                })
+
+                if (this.props.onSelectionChanged) {
+                    this.props.onSelectionChanged(newValue)
+                }
+            })
+
+            this._activeBinding.setItems(this.props.ids, this.state.selectedId)
+            this._activateEvent.dispatch()
+        } else if (!props.active && this._activeBinding) {
+            this._releaseBinding()
+        }
+    }
+
 }

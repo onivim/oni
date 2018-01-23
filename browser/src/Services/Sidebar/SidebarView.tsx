@@ -31,7 +31,7 @@ const SidebarIconWrapper = withProps<ISidebarIconProps>(styled.div)`
     cursor: ${props => props.active ? "pointer" : null};
     opacity: ${props => props.active ? 0.9 : 0.75};
     border: 1px solid ${props => props.focused ? props.theme["sidebar.selection.border"] : "transparent"};
-    background-color: ${ props => props.active ? props.theme["editor.background"] : props.theme["background"]};
+    background-color: ${ props => props.active ? props.theme["editor.background"] : props.theme.background};
 
     &.active {
         cursor: pointer;

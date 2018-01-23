@@ -24,17 +24,16 @@ export class SidebarSplit {
 
     public leave(): void {
         this._sidebarManager.setActiveEntry(null)
-
         this._sidebarManager.leave()
-    }
-
-    private _onSelectionChanged(newVal: string): void {
-        this._sidebarManager.setActiveEntry(newVal)
     }
 
     public render(): JSX.Element {
         return <Provider store={this._sidebarManager.store}>
                 <Sidebar onSelectionChanged={(val) => this._onSelectionChanged(val)}/>
             </Provider>
+    }
+
+    private _onSelectionChanged(newVal: string): void {
+        this._sidebarManager.setActiveEntry(newVal)
     }
 }
