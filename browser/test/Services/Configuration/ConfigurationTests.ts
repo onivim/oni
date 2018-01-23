@@ -3,7 +3,7 @@ import * as assert from "assert"
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
-import { Configuration, GenericConfigurationValues, IConfigurationProvider } from "./../../../src/Services/Configuration"
+import { Configuration, GenericConfigurationValues, IConfigurationProvider, IPersistedConfiguration } from "./../../../src/Services/Configuration"
 
 describe("Configuration", () => {
     it("has default configuration values set on instantiation", () => {
@@ -15,7 +15,7 @@ describe("Configuration", () => {
     it("has default values overridden by provider", () => {
         const configuration = new Configuration({ "test.config": 1 })
 
-        const configProvider = new MockConfigurationProvder({ "test.config": 2 })
+        const configProvider = new MockConfigurationProvider({ "test.config": 2 })
 
         configuration.addConfigurationProvider(configProvider)
 
@@ -30,7 +30,7 @@ describe("Configuration", () => {
             errors.push(err)
         })
 
-        const configProvider = new MockConfigurationProvder({})
+        const configProvider = new MockConfigurationProvider({})
 
         configuration.addConfigurationProvider(configProvider)
         configProvider.simulateError(new Error("test error"))
@@ -41,7 +41,7 @@ describe("Configuration", () => {
     it("triggers change event when provider has an update", () => {
         const configuration = new Configuration({ "test.config": 1 })
 
-        const configProvider = new MockConfigurationProvder({ "test.config": 2 })
+        const configProvider = new MockConfigurationProvider({ "test.config": 2 })
         configuration.addConfigurationProvider(configProvider)
 
         let hitCount = 0
@@ -59,7 +59,7 @@ describe("Configuration", () => {
         it("removes configuration value supplied by provider", () => {
             const configuration = new Configuration({ "test.config": 1 })
 
-            const configProvider = new MockConfigurationProvder({ "test.config": 2 })
+            const configProvider = new MockConfigurationProvider({ "test.config": 2 })
             configuration.addConfigurationProvider(configProvider)
             configuration.removeConfigurationProvider(configProvider)
 
@@ -69,7 +69,7 @@ describe("Configuration", () => {
         it("doesn't listen to events from removed provider", () => {
             const configuration = new Configuration({ "test.config": 1 })
 
-            const configProvider = new MockConfigurationProvder({ "test.config": 2 })
+            const configProvider = new MockConfigurationProvider({ "test.config": 2 })
             configuration.addConfigurationProvider(configProvider)
 
             let changeHitCount = 0
@@ -90,9 +90,75 @@ describe("Configuration", () => {
             assert.strictEqual(errorHitCount, 0, "Validate there was no event triggered for the removed providers error event")
         })
     })
+
+    describe("persisted configuration", () => {
+
+        let persistedConfiguration: IPersistedConfiguration
+
+        beforeEach(() => {
+            persistedConfiguration = new MockPersistedConfiguration()
+        })
+
+        it("reads persisted values", () => {
+            persistedConfiguration.setPersistedValues({
+                "test.config": 2,
+            })
+            const configuration = new Configuration({ "test.config": 1 }, persistedConfiguration)
+            assert.strictEqual(configuration.getValue("test.config"), 2, "Validate persisted configuration value is read")
+        })
+
+        it("are overwritten by explicitly set configuration values", () => {
+            persistedConfiguration.setPersistedValues({
+                "test.config": 2,
+            })
+
+            const configProvider = new MockConfigurationProvider({ "test.config": 3 })
+
+            const configuration = new Configuration({ "test.config": 1 }, persistedConfiguration)
+            configuration.addConfigurationProvider(configProvider)
+            assert.strictEqual(configuration.getValue("test.config"), 3, "Validate persisted configuration is overwrittten by explicitly set configuration")
+        })
+
+        it("doesn't set values when 'persist' argument is false", () => {
+            persistedConfiguration.setPersistedValues({
+                "test.config": 1,
+            })
+
+            const configuration = new Configuration({ "test.config": 1}, persistedConfiguration)
+
+            configuration.setValues({"test.config": 2}, false)
+
+            assert.deepEqual(persistedConfiguration.getPersistedValues(), {
+                "test.config": 1,
+            }, "Validate persisted configuration wasn't overwritten since persist was false")
+        })
+
+        it("does set values when 'persist' argument is true", () => {
+            const configuration = new Configuration({ "test.config": 1}, persistedConfiguration)
+
+            configuration.setValues({"test.config": 2}, true)
+
+            assert.deepEqual(persistedConfiguration.getPersistedValues(), {
+                "test.config": 2,
+            }, "Validate persisted configuration was overwritten since persist was true")
+        })
+    })
 })
 
-export class MockConfigurationProvder implements IConfigurationProvider {
+export class MockPersistedConfiguration implements IPersistedConfiguration {
+
+    private _values: GenericConfigurationValues = {}
+
+    public getPersistedValues(): GenericConfigurationValues {
+        return this._values
+    }
+
+    public setPersistedValues(configurationValues: GenericConfigurationValues): void {
+        this._values = configurationValues
+    }
+}
+
+export class MockConfigurationProvider implements IConfigurationProvider {
     private _onConfigurationChangedEvent = new Event<void>()
     private _onConfigurationErrorEvent = new Event<Error>()
 

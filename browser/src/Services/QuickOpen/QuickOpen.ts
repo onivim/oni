@@ -22,6 +22,8 @@ import { QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
 import { regexFilter } from "./RegExFilter"
 import * as RipGrep from "./RipGrep"
 
+import { getFileIcon } from "./../FileIcon"
+
 export class QuickOpen {
     private _finderProcess: FinderProcess
     private _seenItems: string[] = []
@@ -245,7 +247,7 @@ export class QuickOpen {
             const folder = path.dirname(f)
 
             return {
-                icon: qitem.icon,
+                icon: getFileIcon(file) as any,
                 label: file,
                 detail: folder,
                 pinned: this._seenItems.indexOf(f) >= 0,

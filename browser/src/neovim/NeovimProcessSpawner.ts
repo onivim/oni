@@ -58,7 +58,7 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
     const nvimMacProcessPath = path.join(__dirname, "node_modules", "oni-neovim-binaries", "bin", "nvim-osx64", "bin", "nvim")
 
     // Assume nvim is available in path for Linux
-    const nvimLinuxPath = "nvim"
+    const nvimLinuxPath = process.env["ONI_NEOVIM_PATH"] || "nvim" // tslint:disable-line
 
     let nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
 
@@ -69,6 +69,8 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
     if (neovimPath) {
         nvimProcessPath = neovimPath
     }
+
+    Log.info("[NeovimProcessSpawnwer::startNeovim] Neovim process path: " + nvimProcessPath)
 
     const joinedRuntimePaths = runtimePaths
                                     .map((p) => remapPathToUnpackedAsar(p))
@@ -89,7 +91,7 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
 
     const nvimProc = await spawnProcess(nvimProcessPath, argsToPass, {})
 
-    console.log(`Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console
+    Log.info(`[NeovimProcessSpawner::startNeovim] Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console
 
     return await getSessionFromProcess(nvimProc, options.transport)
 }

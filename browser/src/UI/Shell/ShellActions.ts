@@ -62,6 +62,21 @@ export interface IStatusBarHideAction {
     }
 }
 
+export interface IOverlayShowAction {
+    type: "OVERLAY_SHOW",
+    payload: {
+        id: string,
+        contents: JSX.Element,
+    }
+}
+
+export interface IOverlayHideAction {
+    type: "OVERLAY_HIDE",
+    payload: {
+        id: string,
+    }
+}
+
 export interface ISetConfigurationValue<K extends keyof IConfigurationValues> {
     type: "SET_CONFIGURATION_VALUE"
     payload: {
@@ -77,6 +92,8 @@ export type SimpleAction =
     IEnterFullScreenAction |
     ILeaveFullScreenAction |
     ISetColorsAction |
+    IOverlayShowAction |
+    IOverlayHideAction |
     IStatusBarHideAction |
     IStatusBarShowAction |
     ISetHasFocusAction |
