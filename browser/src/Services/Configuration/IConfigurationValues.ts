@@ -50,6 +50,8 @@ export interface IConfigurationValues {
     "experimental.commandline.mode": boolean,
     "experimental.commandline.icons": boolean,
 
+    "experimental.welcome.enabled": boolean,
+
     "autoClosingPairs.enabled": boolean
     "autoClosingPairs.default": any
 
@@ -243,6 +245,10 @@ export interface IConfigurationValues {
     "ui.fontFamily": string
     "ui.fontSize": string
     "ui.fontSmoothing": FontSmoothingOptions
+
+    // Path to the default workspace. The default workspace
+    // will be opened if no workspace is specified in configuration.
+    "workspace.defaultWorkspace": string
 
     // Handle other, non-predefined configuration keys
     [configurationKey: string]: any

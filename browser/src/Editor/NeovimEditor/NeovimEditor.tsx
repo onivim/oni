@@ -12,6 +12,8 @@ import "rxjs/add/operator/map"
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
 
+import * as types from "vscode-languageserver-types"
+
 import { Provider } from "react-redux"
 import { bindActionCreators, Store } from "redux"
 
@@ -30,7 +32,6 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { IColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
-import { registerBuiltInCommands } from "./../../Services/Commands"
 import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
@@ -75,6 +76,8 @@ import { createStore, IState } from "./NeovimEditorStore"
 import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
+
+import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
@@ -179,7 +182,15 @@ export class NeovimEditor extends Editor implements IEditor {
         // Services
         const errorService = new Errors(this._neovimInstance)
 
-        registerBuiltInCommands(commandManager, this._neovimInstance)
+        this._commands = new NeovimEditorCommands(
+            commandManager,
+            this._contextMenuManager,
+            this._definition,
+            this._languageIntegration,
+            this._neovimInstance,
+            this._rename,
+            this._symbols,
+        )
 
         const updateViewport = () => {
             const width = document.body.offsetWidth
@@ -442,6 +453,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._contextMenuManager,
             this._definition,
             this._languageIntegration,
+            this._neovimInstance,
             this._rename,
             this._symbols,
         )
@@ -538,6 +550,21 @@ export class NeovimEditor extends Editor implements IEditor {
         this._commands.deactivate()
     }
 
+    public async setSelection(range: types.Range): Promise<void> {
+
+        await this._neovimInstance.input("<esc>")
+
+        const atomicCalls = [
+            ["nvim_call_function", ["setpos", ["'<", [0, range.start.line + 1, range.start.character + 1]]]],
+            ["nvim_call_function", ["setpos", ["'>", [0, range.end.line + 1, range.end.character + 1]]]],
+            ["nvim_command", ["set selectmode=cmd"]],
+            ["nvim_command", ["normal! gv"]],
+            ["nvim_command", ["set selectmode="]],
+        ]
+
+        await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
+    }
+
     public async openFile(file: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":e " + file)
         return this.activeBuffer
@@ -583,6 +610,11 @@ export class NeovimEditor extends Editor implements IEditor {
 
         if (filesToOpen && filesToOpen.length > 0) {
             await this._openFiles(filesToOpen, ":tabnew")
+        } else {
+            if (this._configuration.getValue("experimental.welcome.enabled")) {
+                const buf = await this.openFile("WELCOME")
+                buf.addLayer(new WelcomeBufferLayer())
+            }
         }
 
         this._actions.setLoadingComplete()
