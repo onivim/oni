@@ -10,7 +10,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import { IEvent } from "oni-types"
+import { IDisposable, IEvent } from "oni-types"
 
 import { IState } from "./../Editor/NeovimEditor/NeovimEditorStore"
 import { getKeyEventToVimKey } from "./../Input/Keyboard"
@@ -63,6 +63,7 @@ export interface IKeyboardInputProps {
  */
 export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKeyboardInputViewState> {
     private _keyboardElement: HTMLInputElement
+    private _disposables: IDisposable[] = []
 
     constructor(props: IKeyboardInputViewProps) {
         super(props)
@@ -79,10 +80,16 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
     public componentDidMount(): void {
         if (this.props.onActivate) {
-            this.props.onActivate.subscribe(() => {
+            this._removeExistingDisposables()
+            const d1 = this.props.onActivate.subscribe(() => {
                 focusManager.setFocus(this._keyboardElement)
             })
+            this._disposables.push(d1)
         }
+    }
+
+    public componentWillUnmount(): void {
+        this._removeExistingDisposables()
     }
 
     public render(): JSX.Element {
@@ -237,6 +244,11 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
         this._keyboardElement.value = ""
         this.props.onKeyDown(val)
+    }
+
+    private _removeExistingDisposables(): void {
+        this._disposables.forEach(d => d.dispose())
+        this._disposables = []
     }
 }
 

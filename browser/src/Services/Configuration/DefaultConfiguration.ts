@@ -36,6 +36,7 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.editor.textMateHighlighting.enabled": false,
     "experimental.commandline.mode": false,
     "experimental.commandline.icons": false,
+    "experimental.welcome.enabled": false,
     "experimental.wildmenu.mode": false,
 
     "experimental.neovim.transport": "stdio",
@@ -72,6 +73,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.clipboard.enabled": true,
 
+    "editor.definition.enabled": true,
     "editor.quickInfo.enabled": true,
     "editor.quickInfo.delay": 500,
 
@@ -199,6 +201,8 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.height": "2.5em",
     "tabs.highlight": true,
     "tabs.maxWidth": "30em",
+    "tabs.showFileIcon": true,
+    "tabs.showIndex": false,
     "tabs.wrap": false,
 
     "ui.animations.enabled": true,

@@ -12,16 +12,13 @@ const smallScrollbar = css`
 
 const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
-    border-color: ${p => p.theme["toolTip.border"]};
     padding: 0.4em 0.4em 0.4em 0.4em;
     margin: 0.4em 0.4em 0.4em 0.4em;
-    overflow: hidden;
     /* necessary to prevent overflow */
     max-width: 55vw;
-    max-height: 20vw;
 
-    &:hover {
-        overflow: overlay;
+    > code {
+        background-color: inherit;
     }
 `
 
@@ -36,6 +33,15 @@ const childStyles = css`
         pre {
             ${codeBlockStyle};
         }
+
+    /* All code blocks are set to black but
+    this is overriden for code block INSIDE a Pre element */
+
+        code {
+            background-color: ${p => p.theme["editor.hover.contents.codeblock.background"]};
+            color: ${p => p.theme["editor.hover.contents.codeblock.foreground"]};
+            padding: 0 0.2rem;
+        }
     }
 `
 
@@ -45,7 +51,10 @@ export const Documentation = styled.div`
     overflow: hidden;
     max-height: 25vh;
     padding: 0.5rem;
+    line-height: 1.5;
     ${smallScrollbar};
+    background-color:${p => p.theme["editor.hover.contents.background"]};
+    color: ${p => p.theme["editor.hover.contents.foreground"]};
 
     &:hover {
         overflow: overlay;
@@ -54,7 +63,7 @@ export const Documentation = styled.div`
     ${childStyles};
 
     pre {
-        ${smallScrollbar}
+        ${smallScrollbar};
         ${codeBlockStyle};
     }
 `
@@ -70,6 +79,8 @@ export const Title = withProps<{ padding?: string }>(styled.div)`
     max-height: 25vh;
     word-break: break-all;
     ${smallScrollbar};
+    background-color:${p => p.theme["editor.hover.title.background"]};
+    color: ${p => p.theme["editor.hover.title.foreground"]};
 
     &:hover {
         overflow: overlay;
@@ -83,10 +94,12 @@ export const Title = withProps<{ padding?: string }>(styled.div)`
     }
 `
 
-export const QuickInfoContainer = styled.div`
+export const QuickInfoContainer = withProps<{ hasDocs: boolean }>(styled.div)`
   max-height: fit-content;
   overflow: hidden;
   width: 100%;
+  padding-bottom: ${p => p.hasDocs ? "0.5rem" : "0"};
+  background-color: ${p => p.theme["editor.hover.contents.background"]};
 `
 
 export interface ITextProps {

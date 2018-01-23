@@ -14,19 +14,24 @@ interface IToolTipProps {
     padding: string
     fontFamily: string
 }
-const darken = (c: string) => Color(c).darken(0.15).hex().toString()
 
 const ToolTipContainer = withProps<IToolTipProps>(styled.div)`
-    border: ${p => `1px solid ${p.theme["toolTip.border"]}`};
-    background-color: ${p => darken(p.theme["toolTip.background"])};
+    background-color: ${p => p.theme["toolTip.background"]};
     color: ${p => p.theme["toolTip.foreground"]};
+    border: ${p => `1px solid ${p.theme["editor.hover.border"]}`};
     padding: ${p => p.padding};
     height: auto;
     font-family: ${p => p.fontFamily};
     ${boxShadow};
 
     * {
-        font-family: ${p => p.fontFamily};
+        pre {
+            font-family: ${p => p.fontFamily};
+        }
+
+        code {
+            font-family: ${p => p.fontFamily};
+        }
     }
 `
 

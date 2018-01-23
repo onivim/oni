@@ -50,6 +50,8 @@ export interface IConfigurationValues {
     "experimental.commandline.mode": boolean,
     "experimental.commandline.icons": boolean,
 
+    "experimental.welcome.enabled": boolean,
+
     "autoClosingPairs.enabled": boolean
     "autoClosingPairs.default": any
 
@@ -99,6 +101,9 @@ export interface IConfigurationValues {
     // In addition, this enables <C-v> and <Cmd-v> behavior
     // in paste from clipboard in insert mode.
     "editor.clipboard.enabled": boolean
+
+    // Whether the 'go-to definition' language feature is enabled
+    "editor.definition.enabled": boolean
 
     "editor.quickInfo.enabled": boolean
     // Delay (in ms) for showing QuickInfo, when the cursor is on a term
@@ -214,10 +219,17 @@ export interface IConfigurationValues {
     // Maximum width of a tab
     "tabs.maxWidth": string
 
+    // Whether or not to show the index alongside the tab
+    "tabs.showIndex": boolean
+
     // Whether or not tabs should wrap.
     // If `false`, a scrollbar will be shown.
     // If `true`, will wrap the tabs.
     "tabs.wrap": boolean
+
+    // Whether or not the file icon
+    // should be shown in the tab
+    "tabs.showFileIcon": boolean
 
     "ui.animations.enabled": boolean
     "ui.iconTheme": string
