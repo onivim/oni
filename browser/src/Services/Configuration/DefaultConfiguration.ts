@@ -36,6 +36,7 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.editor.textMateHighlighting.enabled": false,
     "experimental.commandline.mode": false,
     "experimental.commandline.icons": false,
+    "experimental.welcome.enabled": false,
     "experimental.wildmenu.mode": false,
 
     "experimental.neovim.transport": "stdio",
