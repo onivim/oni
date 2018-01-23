@@ -7,7 +7,6 @@ import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
 
-import * as Oni from "oni-api"
 import { Event } from "oni-types"
 
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
@@ -15,6 +14,7 @@ import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
+import { IWorkspace } from "./../../Services/Workspace"
 
 import { createStore, IExplorerState } from "./ExplorerStore"
 
@@ -42,7 +42,7 @@ export class ExplorerSplit {
 
     constructor(
         private _configuration: Configuration,
-        private _workspace: Oni.Workspace,
+        private _workspace: IWorkspace,
         private _commandManager: CommandManager,
         private _editorManager: EditorManager,
     ) {
@@ -60,6 +60,13 @@ export class ExplorerSplit {
                 rootPath: newDirectory,
             })
         })
+
+        if (this._workspace.activeWorkspace) {
+            this._store.dispatch({
+                type: "SET_ROOT_DIRECTORY",
+                rootPath: this._workspace.activeWorkspace,
+            })
+        }
 
         this._editorManager.allEditors.onBufferEnter.subscribe((args) => {
             this._store.dispatch({

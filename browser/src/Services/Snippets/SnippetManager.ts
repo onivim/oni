@@ -4,32 +4,41 @@
  * Manages snippet integration
  */
 
-import * as Snippets from "vscode-snippet-parser/lib"
-
 import { editorManager, EditorManager } from "./../EditorManager"
 
+import { OniSnippet } from "./OniSnippet"
 import { SnippetSession } from "./SnippetSession"
 
 export class SnippetManager {
 
-    private _snippetParser: Snippets.SnippetParser
+    private _activeSession: SnippetSession
 
     constructor(
         private _editorManager: EditorManager,
-    ) {
-        this._snippetParser = new Snippets.SnippetParser()
-    }
+    ) { }
 
     /**
      * Inserts snippet in the active editor, at current cursor position
      */
     public async insertSnippet(snippet: string): Promise<void> {
 
-        const parsedSnippet = this._snippetParser.parse(snippet)
+        const snip = new OniSnippet(snippet)
 
         const activeEditor = this._editorManager.activeEditor
-        const snippetSession = new SnippetSession(activeEditor, parsedSnippet)
+        const snippetSession = new SnippetSession(activeEditor as any, snip)
         await snippetSession.start()
+
+        this._activeSession = snippetSession
+    }
+
+    public nextPlaceholder(): void {
+        if (this._isSnippetActive()) {
+            this._activeSession.nextPlaceholder()
+        }
+    }
+
+    private _isSnippetActive(): boolean {
+        return !!this._activeSession
     }
 }
 

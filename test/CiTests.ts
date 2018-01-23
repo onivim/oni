@@ -12,6 +12,7 @@ const LongTimeout = 5000
 const CiTests = [
     // Core functionality tests
     "Api.Buffer.AddLayer",
+    "Api.Overlays.AddRemoveTest",
     "AutoClosingPairsTest",
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-HTML",
