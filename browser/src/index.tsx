@@ -158,6 +158,9 @@ const start = async (args: string[]): Promise<void> => {
     const GlobalCommands = await globalCommandsPromise
     GlobalCommands.activate(commandManager)
 
+    const Preview = await import("./Services/Preview")
+    Preview.activate(commandManager, editorManager)
+
     const Snippets = await snippetPromise
     Snippets.activate()
 

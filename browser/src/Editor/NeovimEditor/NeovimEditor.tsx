@@ -558,8 +558,8 @@ export class NeovimEditor extends Editor implements IEditor {
         await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
     }
 
-    public async openFile(file: string): Promise<Oni.Buffer> {
-        await this._neovimInstance.command(":e " + file)
+    public async openFile(file: string, openStrategy: string = "e"): Promise<Oni.Buffer> {
+        await this._neovimInstance.command(":" + openStrategy + " " + file)
         return this.activeBuffer
     }
 

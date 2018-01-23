@@ -9,7 +9,7 @@
             "dom",
             "es2017"
         ],
-        "module": "esnext",
+        "module": "commonjs",
         "moduleResolution": "node",
         "newLine": "LF",
         "noEmitOnError": true,
