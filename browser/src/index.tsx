@@ -26,6 +26,7 @@ const start = async (args: string[]): Promise<void> => {
     const iconThemesPromise = import("./Services/IconThemes")
 
     const sidebarPromise = import("./Services/Sidebar")
+    const overlayPromise = import("./Services/Overlay")
     const statusBarPromise = import("./Services/StatusBar")
     const startEditorsPromise = import("./startEditors")
 
@@ -35,10 +36,13 @@ const start = async (args: string[]): Promise<void> => {
     const colorsPromise = import("./Services/Colors")
     const diagnosticsPromise = import("./Services/Diagnostics")
     const editorManagerPromise = import("./Services/EditorManager")
+    const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
     const snippetPromise = import("./Services/Snippets")
     const workspacePromise = import("./Services/Workspace")
+
+    const themePickerPromise = import("./Services/Themes/ThemePicker")
     const cssPromise = import("./CSS")
 
     // Helper for debugging:
@@ -103,6 +107,9 @@ const start = async (args: string[]): Promise<void> => {
     StatusBar.activate(configuration)
     const statusBar = StatusBar.getInstance()
 
+    const Overlay = await overlayPromise
+    Overlay.activate()
+
     const LanguageManager = await languageManagerPromise
     LanguageManager.activate(configuration, editorManager, statusBar, workspace)
     const languageManager = LanguageManager.getInstance()
@@ -143,12 +150,19 @@ const start = async (args: string[]): Promise<void> => {
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     const { inputManager } = await inputManagerPromise
+    const { commandManager } = await import("./Services/CommandManager")
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
 
+    const GlobalCommands = await globalCommandsPromise
+    GlobalCommands.activate(commandManager)
+
     const Snippets = await snippetPromise
     Snippets.activate()
+
+    const ThemePicker = await themePickerPromise
+    ThemePicker.activate(configuration, Themes.getThemeManagerInstance())
 
     Performance.endMeasure("Oni.Start.Activate")
 

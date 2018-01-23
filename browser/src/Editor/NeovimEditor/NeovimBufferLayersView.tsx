@@ -78,9 +78,9 @@ const getWindowPixelDimensions = (win: State.IWindow) => {
 
     return {
         pixelX: start.pixelX,
-        pixelY: start.pixelY,
+        pixelY: start.pixelY - 1,
         pixelWidth: size.pixelX,
-        pixelHeight: size.pixelY,
+        pixelHeight: size.pixelY + 2,
     }
 }
 
