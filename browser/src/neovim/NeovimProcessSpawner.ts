@@ -70,6 +70,8 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
         nvimProcessPath = neovimPath
     }
 
+    Log.info("[NeovimProcessSpawnwer::startNeovim] Neovim process path: " + nvimProcessPath)
+
     const joinedRuntimePaths = runtimePaths
                                     .map((p) => remapPathToUnpackedAsar(p))
                                     .join(",")
@@ -89,7 +91,7 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
 
     const nvimProc = await spawnProcess(nvimProcessPath, argsToPass, {})
 
-    console.log(`Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console
+    Log.info(`[NeovimProcessSpawner::startNeovim] Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console
 
     return await getSessionFromProcess(nvimProc, options.transport)
 }
