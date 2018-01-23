@@ -8,18 +8,14 @@ import { Event, IEvent } from "oni-types"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
-import {
-    Configuration,
-    configuration,
-    GenericConfigurationValues,
-} from "./../Configuration"
+import { Configuration, configuration, GenericConfigurationValues } from "./../Configuration"
 
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
 import { PluginThemeLoader } from "./ThemeLoader"
 
 export interface IThemeColors {
-    "background": string
-    "foreground": string
+    background: string
+    foreground: string
     "editor.background": string
     "editor.foreground": string
 
@@ -97,27 +93,40 @@ export const getBorderColor = (bgColor: string, fgColor: string): string => {
     const backgroundColor = Color(bgColor)
     const foregroundColor = Color(fgColor)
 
-    const borderColor = backgroundColor.luminosity() > 0.5 ? foregroundColor.lighten(0.6) : foregroundColor.darken(0.6)
+    const borderColor =
+        backgroundColor.luminosity() > 0.5
+            ? foregroundColor.lighten(0.6)
+            : foregroundColor.darken(0.6)
     return borderColor.hex().toString()
 }
 
 export const getBackgroundColor = (editorBackground: string): string => {
-    return Color(editorBackground).darken(0.25).hex().toString()
+    return Color(editorBackground)
+        .darken(0.25)
+        .hex()
+        .toString()
 }
 
-const darken = (c: string, deg = 0.15) => Color(c).darken(0.15).hex().toString()
-const alterColor = (c: string) => Color(c).luminosity() > 0.5 ? darken(c) : darken(c, 0.6)
+const darken = (c: string, deg = 0.15) =>
+    Color(c)
+        .darken(0.15)
+        .hex()
+        .toString()
+const alterColor = (c: string) => (Color(c).luminosity() > 0.5 ? darken(c) : darken(c, 0.6))
 
-export const getHoverColors = (userConfig: GenericConfigurationValues, colors: Partial<IThemeColors>) => {
+export const getHoverColors = (
+    userConfig: GenericConfigurationValues,
+    colors: Partial<IThemeColors>,
+) => {
     const alteredBackground = alterColor(colors["toolTip.background"])
     const hoverDefaults = {
-            "editor.hover.title.background": alteredBackground,
-            "editor.hover.title.foreground": colors["toolTip.foreground"],
-            "editor.hover.border": colors["toolTip.border"],
-            "editor.hover.contents.background": alteredBackground,
-            "editor.hover.contents.foreground": colors["toolTip.foreground"],
-            "editor.hover.contents.codeblock.background": darken(alteredBackground, 0.25),
-            "editor.hover.contents.codeblock.foreground": colors["toolTip.foreground"],
+        "editor.hover.title.background": alteredBackground,
+        "editor.hover.title.foreground": colors["toolTip.foreground"],
+        "editor.hover.border": colors["toolTip.border"],
+        "editor.hover.contents.background": alteredBackground,
+        "editor.hover.contents.foreground": colors["toolTip.foreground"],
+        "editor.hover.contents.codeblock.background": darken(alteredBackground, 0.25),
+        "editor.hover.contents.codeblock.foreground": colors["toolTip.foreground"],
     }
 
     const userHoverColors = Object.keys(userConfig)
@@ -143,8 +152,8 @@ export const getColorsFromBackgroundAndForeground = (background: string, foregro
     const borderColor = getBorderColor(background, foreground)
     return {
         ...DefaultThemeColors,
-        "background": shellBackground,
-        "foreground": foreground,
+        foreground,
+        background: shellBackground,
         "editor.background": background,
         "editor.foreground": foreground,
 
@@ -195,8 +204,8 @@ const StatusBarBackground = "#282828"
 const StatusBarForeground = "#c8c8c8"
 
 export const DefaultThemeColors: IThemeColors = {
-    "background": ColorBlack,
-    "foreground": ColorWhite,
+    background: ColorBlack,
+    foreground: ColorWhite,
 
     "editor.background": ColorBlack,
     "editor.foreground": ColorWhite,
@@ -303,9 +312,7 @@ export class ThemeManager {
         return this._activeTheme
     }
 
-    constructor(
-        private _pluginManager: PluginManager,
-    ) { }
+    constructor(private _pluginManager: PluginManager) {}
 
     public async setTheme(name: string): Promise<void> {
         // TODO: Load theme...
@@ -335,11 +342,19 @@ export class ThemeManager {
         }
     }
 
-    public notifyVimThemeChanged(vimName: string, backgroundColor: string, foregroundColor: string): void {
-
+    public notifyVimThemeChanged(
+        vimName: string,
+        backgroundColor: string,
+        foregroundColor: string,
+    ): void {
         // If the vim colorscheme changed, for example, via `:co <sometheme>`,
         // then we should update our theme to match
-        if (this._isAnonymousTheme || (this._activeTheme.baseVimTheme && this._activeTheme.baseVimTheme !== vimName && this._activeTheme.baseVimTheme !== "*")) {
+        if (
+            this._isAnonymousTheme ||
+            (this._activeTheme.baseVimTheme &&
+                this._activeTheme.baseVimTheme !== vimName &&
+                this._activeTheme.baseVimTheme !== "*")
+        ) {
             this._isAnonymousTheme = false
 
             const vimTheme: IThemeMetadata = {

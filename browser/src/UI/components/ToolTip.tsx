@@ -43,9 +43,7 @@ export interface IToolTipsViewProps {
 export class ToolTipsView extends React.PureComponent<IToolTipsViewProps, {}> {
     public render(): JSX.Element {
         const toolTipElements = this.props.toolTips.map(toolTip => {
-            return (
-                <ToolTipView fontFamily={this.props.fontFamily} {...toolTip} key={toolTip.id} />
-            )
+            return <ToolTipView fontFamily={this.props.fontFamily} {...toolTip} key={toolTip.id} />
         })
 
         const style: React.CSSProperties = {
@@ -88,7 +86,7 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
     }
 
     public render(): JSX.Element {
-        const { options, fontFamily } =  this.props
+        const { options, fontFamily } = this.props
         const { position = null, openDirection = 1, padding = "8px" } = options
 
         return (
@@ -97,7 +95,7 @@ export class ToolTipView extends React.PureComponent<IToolTipViewProps, {}> {
                     padding={padding}
                     fontFamily={fontFamily}
                     innerRef={(elem: any) => this._setContainer(elem)}
-                    >
+                >
                     {this.props.element}
                 </ToolTipContainer>
             </CursorPositioner>

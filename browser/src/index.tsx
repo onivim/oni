@@ -42,7 +42,7 @@ const start = async (args: string[]): Promise<void> => {
     const cssPromise = import("./CSS")
 
     // Helper for debugging:
-     Performance.startMeasure("Oni.Start.Config")
+    Performance.startMeasure("Oni.Start.Config")
 
     const { configuration } = await configurationPromise
 
@@ -58,7 +58,7 @@ const start = async (args: string[]): Promise<void> => {
         }
     }
 
-    configuration.onConfigurationError.subscribe((err) => {
+    configuration.onConfigurationError.subscribe(err => {
         // TODO: Better / nicer handling of error:
         alert(err)
     })
@@ -82,7 +82,7 @@ const start = async (args: string[]): Promise<void> => {
     const IconThemes = await iconThemesPromise
     await Promise.all([
         Themes.activate(configuration, pluginManager),
-        IconThemes.activate(configuration, pluginManager)
+        IconThemes.activate(configuration, pluginManager),
     ])
 
     const Colors = await colorsPromise
@@ -119,12 +119,22 @@ const start = async (args: string[]): Promise<void> => {
     const Diagnostics = await diagnosticsPromise
     const diagnostics = Diagnostics.getInstance()
 
-   await Promise.race([Utility.delay(5000),
-     Promise.all([
-        SharedNeovimInstance.activate(configuration, pluginManager),
-        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance(), workspace)
+    await Promise.race([
+        Utility.delay(5000),
+        Promise.all([
+            SharedNeovimInstance.activate(configuration, pluginManager),
+            startEditors(
+                parsedArgs._,
+                Colors.getInstance(),
+                configuration,
+                diagnostics,
+                languageManager,
+                pluginManager,
+                Themes.getThemeManagerInstance(),
+                workspace,
+            ),
+        ]),
     ])
-   ])
     Performance.endMeasure("Oni.Start.Editors")
 
     Performance.startMeasure("Oni.Start.Sidebar")
@@ -132,7 +142,8 @@ const start = async (args: string[]): Promise<void> => {
     Sidebar.activate(configuration, workspace)
     Performance.endMeasure("Oni.Start.Sidebar")
 
-    const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
+    const createLanguageClientsFromConfiguration =
+        LanguageManager.createLanguageClientsFromConfiguration
 
     diagnostics.start(languageManager)
 

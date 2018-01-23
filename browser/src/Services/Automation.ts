@@ -26,7 +26,6 @@ export interface ITestResult {
 import { Oni } from "./../Plugins/Api/Oni"
 
 export class Automation implements OniApi.Automation.Api {
-
     public sendKeys(keys: string): void {
         Log.info("[AUTOMATION] Sending keys: " + keys)
 
@@ -39,11 +38,16 @@ export class Automation implements OniApi.Automation.Api {
 
     public async sleep(time: number = 1000): Promise<void> {
         Log.info("[AUTOMATION] Sleeping for " + time + "ms")
-        return new Promise<void>((r) => window.setTimeout(() => r(), time))
+        return new Promise<void>(r => window.setTimeout(() => r(), time))
     }
 
     public async waitFor(condition: () => boolean, timeout: number = 10000): Promise<void> {
-        Log.info("[AUTOMATION] Starting wait - limit: " + timeout + " condition: " + condition.toString())
+        Log.info(
+            "[AUTOMATION] Starting wait - limit: " +
+                timeout +
+                " condition: " +
+                condition.toString(),
+        )
         let time = 0
         const interval = 1000
 
@@ -77,11 +81,19 @@ export class Automation implements OniApi.Automation.Api {
         Log.info("[AUTOMATION] Startup complete!")
 
         Log.info("[AUTOMATION] Waiting for neovim to attach to editor...")
-        await this.waitFor(() => editorManager.activeEditor.neovim && (editorManager.activeEditor as any).neovim.isInitialized, 30000)
+        await this.waitFor(
+            () =>
+                editorManager.activeEditor.neovim &&
+                (editorManager.activeEditor as any).neovim.isInitialized,
+            30000,
+        )
         Log.info("[AUTOMATION] Neovim initialized!")
 
         Log.info("[AUTOMATION] Waiting for shared neovim instance...")
-        await this.waitFor(() => getSharedNeovimInstance() && getSharedNeovimInstance().isInitialized, 30000)
+        await this.waitFor(
+            () => getSharedNeovimInstance() && getSharedNeovimInstance().isInitialized,
+            30000,
+        )
         Log.info("[AUTOMATION] Shared neovim instance initialized!")
     }
 
@@ -138,7 +150,10 @@ export class Automation implements OniApi.Automation.Api {
     }
 
     private _reportResult(passed: boolean, exception?: any): void {
-        const resultElement = this._createElement("automated-test-result", this._getOrCreateTestContainer("automated-test-container"))
+        const resultElement = this._createElement(
+            "automated-test-result",
+            this._getOrCreateTestContainer("automated-test-container"),
+        )
 
         resultElement.textContent = JSON.stringify({
             passed,

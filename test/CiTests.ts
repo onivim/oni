@@ -35,9 +35,7 @@ const WindowsOnlyTests = [
     "PaintPerformanceTest",
 ]
 
-const OSXOnlyTests = [
-    "OSX.WindowTitleTest",
-]
+const OSXOnlyTests = ["OSX.WindowTitleTest"]
 
 // tslint:disable:no-console
 
@@ -49,11 +47,13 @@ export interface ITestCase {
     configPath: string
 }
 
-describe("ci tests", function() { // tslint:disable-line only-arrow-functions
+// tslint:disable-next-line only-arrow-functions
+describe("ci tests", function() {
+    const tests = Platform.isWindows()
+        ? [...CiTests, ...WindowsOnlyTests]
+        : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
 
-    const tests = Platform.isWindows() ? [...CiTests, ...WindowsOnlyTests] : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
-
-    CiTests.forEach((test) => {
+    CiTests.forEach(test => {
         runInProcTest(path.join(__dirname, "ci"), test)
     })
 })
