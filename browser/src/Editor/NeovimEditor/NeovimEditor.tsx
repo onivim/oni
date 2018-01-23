@@ -638,6 +638,14 @@ export class NeovimEditor extends Editor implements IEditor {
         )
     }
 
+    public async input(key: string): Promise<void> {
+        if (this._configuration.getValue("debug.fakeLag.neovimInput")) {
+            await sleep(this._configuration.getValue("debug.fakeLag.neovimInput"))
+        }
+
+        await this._neovimInstance.input(key)
+    }
+
     private _onBounceStart(): void {
         this._actions.setCursorScale(1.1)
     }
@@ -796,13 +804,5 @@ export class NeovimEditor extends Editor implements IEditor {
                 this._renderer.draw(this._screen)
             }
         }
-    }
-
-    public async input(key: string): Promise<void> {
-        if (this._configuration.getValue("debug.fakeLag.neovimInput")) {
-            await sleep(this._configuration.getValue("debug.fakeLag.neovimInput"))
-        }
-
-        await this._neovimInstance.input(key)
     }
 }
