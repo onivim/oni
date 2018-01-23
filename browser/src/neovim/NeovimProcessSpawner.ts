@@ -59,6 +59,7 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
 
     // Assume nvim is available in path for Linux
     const nvimLinuxPath = process.env["ONI_NEOVIM_PATH"] || "nvim" // tslint:disable-line
+    Log.info("[NeovimProcessSpawnwer::startNeovim] process.env: " + JSON.stringify(process.env))
 
     let nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
 
