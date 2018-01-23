@@ -248,7 +248,7 @@
     "coveralls": "^3.0.0",
     "cross-env": "3.1.3",
     "css-loader": "0.28.4",
-    "electron": "^1.8.2-beta.4",
+    "electron": "1.8.1",
     "electron-builder": "19.46.4",
     "electron-devtools-installer": "2.2.1",
     "electron-mocha": "5.0.0",
