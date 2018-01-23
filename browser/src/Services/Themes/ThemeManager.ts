@@ -6,6 +6,7 @@
 
 import { Event, IEvent } from "oni-types"
 
+import { IThemeContribution } from "./../../Plugins/Api/Capabilities"
 import { PluginManager } from "./../../Plugins/PluginManager"
 
 import {
@@ -15,7 +16,7 @@ import {
 } from "./../Configuration"
 
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
-import { PluginThemeLoader } from "./ThemeLoader"
+import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
 
 export interface IThemeColors {
     "background": string
@@ -304,8 +305,12 @@ export class ThemeManager {
     }
 
     constructor(
-        private _pluginManager: PluginManager,
+        private _themeLoader: IThemeLoader,
     ) { }
+
+    public async getAllThemes(): Promise<IThemeContribution[]> {
+        return this._themeLoader.getAllThemes()
+    }
 
     public async setTheme(name: string): Promise<void> {
         // TODO: Load theme...
@@ -313,9 +318,7 @@ export class ThemeManager {
             return
         }
 
-        const themeLoader = new PluginThemeLoader(this._pluginManager)
-
-        const theme = await themeLoader.getThemeByName(name)
+        const theme = await this._themeLoader.getThemeByName(name)
 
         if (!theme) {
             // If we couldn't find the theme... we'll try
@@ -377,7 +380,8 @@ export class ThemeManager {
 
 let _themeManager: ThemeManager = null
 export const activateThemes = (pluginManager: PluginManager): void => {
-    _themeManager = new ThemeManager(pluginManager)
+    const loader = new PluginThemeLoader(pluginManager)
+    _themeManager = new ThemeManager(loader)
 }
 
 export const getThemeManagerInstance = () => {
