@@ -100,6 +100,14 @@ export interface IConfigurationValues {
     // in paste from clipboard in insert mode.
     "editor.clipboard.enabled": boolean
 
+    // When true (default), and `editor.clipboard.enabled` is `true`,
+    // yanks will be sent to the clipboard.
+    "editor.clipboard.synchronizeYank": boolean
+
+    // When true (not default), and `editor.clipboard.enabled` is `true`,
+    // deletes will be sent to the clipboard.
+    "editor.clipboard.synchronizeDelete": boolean
+
     // Whether the 'go-to definition' language feature is enabled
     "editor.definition.enabled": boolean
 

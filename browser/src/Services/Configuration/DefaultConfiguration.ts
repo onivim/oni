@@ -71,6 +71,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.backgroundImageSize": "cover",
 
     "editor.clipboard.enabled": true,
+    "editor.clipboard.synchronizeYank": true,
+    "editor.clipboard.synchronizeDelete": false,
 
     "editor.definition.enabled": true,
     "editor.quickInfo.enabled": true,
