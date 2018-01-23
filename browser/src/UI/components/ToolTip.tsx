@@ -7,7 +7,6 @@ import { createSelector } from "reselect"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
-import * as Color from "color"
 import { CursorPositioner } from "./CursorPositioner"
 
 interface IToolTipProps {
