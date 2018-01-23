@@ -158,7 +158,11 @@ const getTitleAndContents = (result: types.Hover) => {
 
 const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element => {
     const titleAndContents = getTitleAndContents(hover)
-    const hasDocs = !!(titleAndContents && titleAndContents.description.__html)
+    const hasDocs = !!(
+        titleAndContents
+        && titleAndContents.description
+        && titleAndContents.description.__html
+    )
 
     return titleAndContents && (
         <QuickInfoContainer hasDocs={hasDocs}>
