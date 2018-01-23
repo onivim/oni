@@ -32,7 +32,6 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { IColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
-import { registerBuiltInCommands } from "./../../Services/Commands"
 import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
@@ -183,7 +182,15 @@ export class NeovimEditor extends Editor implements IEditor {
         // Services
         const errorService = new Errors(this._neovimInstance)
 
-        registerBuiltInCommands(commandManager, this._neovimInstance)
+        this._commands = new NeovimEditorCommands(
+            commandManager,
+            this._contextMenuManager,
+            this._definition,
+            this._languageIntegration,
+            this._neovimInstance,
+            this._rename,
+            this._symbols,
+        )
 
         const updateViewport = () => {
             const width = document.body.offsetWidth
@@ -439,6 +446,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._contextMenuManager,
             this._definition,
             this._languageIntegration,
+            this._neovimInstance,
             this._rename,
             this._symbols,
         )
