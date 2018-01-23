@@ -59,7 +59,7 @@ describe("Completion", () => {
         mockEditor = new Mocks.MockEditor()
         mockLanguageManager = new Mocks.MockLanguageManager()
         mockCompletionRequestor = new MockCompletionRequestor()
-        completion = new Completion.Completion(mockEditor, mockConfiguration as any, mockCompletionRequestor, mockLanguageManager)
+        completion = new Completion.Completion(mockEditor, mockConfiguration as any, mockCompletionRequestor, mockLanguageManager as any)
     })
 
     afterEach(() => {
